@@ -23,10 +23,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.lemnik.eodsql.BaseQuery;
-import net.lemnik.eodsql.QueryTool;
-import net.lemnik.eodsql.Select;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
@@ -55,13 +51,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
+import net.lemnik.eodsql.BaseQuery;
+import net.lemnik.eodsql.QueryTool;
+import net.lemnik.eodsql.Select;
 
 /**
  * Data access object for {@link ExperimentPE}.
  * 
  * @author Izabela Adamczyk
  */
-public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<ExperimentPE> implements
+public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<ExperimentPE>implements
         IExperimentDAO
 {
 
@@ -487,10 +486,52 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         final String sqlDeleteExperiments = SQLBuilder.createDeleteEnitiesSQL(experimentsTable);
         final String sqlInsertEvent = SQLBuilder.createInsertEventSQL();
 
+        final String sqlSelectPropertyHistory = createQueryPropertyHistorySQL();
+        final String sqlSelectRelationshipHistory = createQueryRelationshipHistorySQL();
+
         executePermanentDeleteAction(EntityType.EXPERIMENT, experimentIds, registrator, reason,
                 sqlSelectPermIds, sqlDeleteProperties, sqlSelectAttachmentContentIds,
                 sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteExperiments,
-                sqlInsertEvent);
+                sqlInsertEvent, sqlSelectPropertyHistory, sqlSelectRelationshipHistory);
+    }
+
+    private static String createQueryPropertyHistorySQL()
+    {
+
+        return "(SELECT e.perm_id, pt.code, h.value, h.vocabulary_term, h.material, p.user_id, h.valid_from_timestamp, h.valid_until_timestamp "
+                + "FROM experiments_all e, experiment_properties_history h, experiment_type_property_types etpt, property_types pt, persons p "
+                + "WHERE h.expe_id " + SQLBuilder.inEntityIds() + " AND "
+                + "e.id=h.expe_id AND "
+                + "h.etpt_id=etpt.id AND "
+                + "etpt.prty_id = pt.id AND "
+                + "pers_id_author = p.id "
+                + ") UNION ("
+                + "SELECT e.perm_id, pt.code, value, "
+                + "(SELECT (t.code || ' [' || v.code || ']') "
+                + "FROM controlled_vocabulary_terms as t JOIN controlled_vocabularies as v ON t.covo_id = v.id "
+                + "WHERE t.id = pr.cvte_id), "
+                + "(SELECT (m.code || ' [' || mt.code || ']') "
+                + "FROM materials AS m JOIN material_types AS mt ON m.maty_id = mt.id "
+                + "WHERE m.id = pr.mate_prop_id), "
+                + "author.user_id, pr.modification_timestamp, null "
+                + "FROM experiments_all e, experiment_properties pr, experiment_type_property_types etpt, property_types pt, persons author "
+                + "WHERE pr.expe_id " + SQLBuilder.inEntityIds() + " AND "
+                + "e.id = pr.expe_id AND "
+                + "pr.etpt_id = etpt.id AND "
+                + "etpt.prty_id = pt.id AND "
+                + "pr.pers_id_author = author.id "
+                + ") "
+                + "ORDER BY 1, valid_from_timestamp";
+    }
+
+    private static String createQueryRelationshipHistorySQL()
+    {
+        return "SELECT e.perm_id, h.relation_type, h.entity_perm_id, p.user_id, h.valid_from_timestamp, h.valid_until_timestamp "
+                + "FROM experiments_all e, experiment_relationships_history h, persons p "
+                + "WHERE e.id = h.main_expe_id AND "
+                + "h.main_expe_id " + SQLBuilder.inEntityIds() + " AND "
+                + "h.pers_id_author = p.id "
+                + "ORDER BY 1, valid_from_timestamp";
     }
 
     @Override

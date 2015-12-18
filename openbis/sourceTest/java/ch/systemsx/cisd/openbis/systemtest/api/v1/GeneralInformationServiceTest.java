@@ -1589,7 +1589,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 + "PropertyType[VARCHAR,COMMENT,Comment,Any other comments,optional], "
                 + "PropertyType[MATERIAL,ANY_MATERIAL,any_material,any_material,optional]]]]]",
                 experimentTypes.get(0).toString());
-        assertEquals(2, experimentTypes.size());
+        assertEquals(3, experimentTypes.size());
     }
 
     @Test
@@ -1606,8 +1606,8 @@ public class GeneralInformationServiceTest extends SystemTestCase
             });
         assertEquals("CONTAINER_TYPE", types.get(0).getCode());
         assertEquals("[]", types.get(0).getPropertyTypeGroups().toString());
-        assertEquals("HCS_IMAGE", types.get(1).getCode());
-        List<PropertyTypeGroup> groups = types.get(1).getPropertyTypeGroups();
+        assertEquals("HCS_IMAGE", types.get(3).getCode());
+        List<PropertyTypeGroup> groups = types.get(3).getPropertyTypeGroups();
         List<PropertyType> propertyTypes = groups.get(0).getPropertyTypes();
         Collections.sort(propertyTypes, new Comparator<PropertyType>()
             {
@@ -1626,15 +1626,15 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals("PropertyType[MATERIAL,ANY_MATERIAL,any_material,any_material,optional]",
                 propertyTypes.get(0).toString());
         assertEquals(1, groups.size());
-        assertEquals("HCS_IMAGE_ANALYSIS_DATA", types.get(2).getCode());
-        assertEquals("[]", types.get(2).getPropertyTypeGroups().toString());
-        assertEquals("LINK_TYPE", types.get(3).getCode());
-        assertEquals("[]", types.get(0).getPropertyTypeGroups().toString());
-        assertEquals("REQUIRES_EXPERIMENT", types.get(4).getCode());
+        assertEquals("HCS_IMAGE_ANALYSIS_DATA", types.get(4).getCode());
         assertEquals("[]", types.get(4).getPropertyTypeGroups().toString());
-        assertEquals("UNKNOWN", types.get(5).getCode());
-        assertEquals("[]", types.get(5).getPropertyTypeGroups().toString());
-        assertEquals(9, types.size());
+        assertEquals("LINK_TYPE", types.get(5).getCode());
+        assertEquals("[]", types.get(0).getPropertyTypeGroups().toString());
+        assertEquals("REQUIRES_EXPERIMENT", types.get(6).getCode());
+        assertEquals("[]", types.get(4).getPropertyTypeGroups().toString());
+        assertEquals("UNKNOWN", types.get(7).getCode());
+        assertEquals("[]", types.get(7).getPropertyTypeGroups().toString());
+        assertEquals(11, types.size());
     }
 
     @Test
@@ -1652,7 +1652,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 + "[PropertyTypeGroup[<null>,[PropertyType[INTEGER,OFFSET,Offset,"
                 + "Offset from the start of the sequence,optional]]]]]",
                 pick(types, "DILUTION_PLATE").toString());
-        assertEquals(11, types.size());
+        assertEquals(12, types.size());
     }
 
     private SampleType pick(List<SampleType> types, String code)
@@ -1867,7 +1867,8 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         assertEquals("Referenced material should be present in properties as code", String.format(
                 "%s (%s)", srm1a.getMaterialCode(), srm1a.getMaterialTypeIdentifier()
-                        .getMaterialTypeCode()), srm1.getProperties().get("ANY_MATERIAL"));
+                        .getMaterialTypeCode()),
+                srm1.getProperties().get("ANY_MATERIAL"));
 
         Date date2012 = new SimpleDateFormat("yyyy-MM-dd").parse("2012-01-02");
         Date date2013 = new SimpleDateFormat("yyyy-MM-dd").parse("2013-01-02");
@@ -2076,7 +2077,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                         new MetaprojectTechIdId(metaProjects.get(1).getId()), "test");
         assertEquals("[MaterialIdentifier [materialCode=AD3, "
                 + "materialTypeIdentifier=MaterialTypeIdentifier [materialTypeCode=VIRUS]]]", mas
-                .getMaterials().toString());
+                        .getMaterials().toString());
         assertEntities("[/CISD/NEMO/EXP11, /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST]",
                 mas.getExperiments());
         assertEquals("[Sample[/TEST-SPACE/EV-TEST,VALIDATE_CHILDREN,{},parents=?,children=?]]", mas
@@ -2110,8 +2111,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals(4, attachments.size());
         int version = 4;
         final String[] regDates =
-                new String[]
-                { "2008-12-10 13:49:27.901 +0100", "2008-12-10 13:49:20.236 +0100",
+                new String[] { "2008-12-10 13:49:27.901 +0100", "2008-12-10 13:49:20.236 +0100",
                         "2008-12-10 13:49:14.564 +0100", "2008-12-10 13:48:17.996 +0100" };
         for (Attachment a : attachments)
         {

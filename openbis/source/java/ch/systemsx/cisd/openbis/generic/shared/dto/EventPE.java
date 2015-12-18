@@ -78,6 +78,8 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
 
     private String reason;
 
+    private String content;
+
     public final void setId(final Long id)
     {
         this.id = id;
@@ -162,6 +164,16 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
     public void setReason(final String reason)
     {
         this.reason = reason;
+    }
+
+    public String getContent()
+    {
+        return content;
+    }
+
+    public void setContent(String content)
+    {
+        this.content = content;
     }
 
     //

@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.IBatchOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -65,6 +66,8 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
     protected static final String REGISTRATOR_ID_PARAM = "registratorId";
 
     protected static final String REASON_PARAM = "reason";
+
+    protected static final String CONTENT_PARAM = "content";
 
     private final PersistencyResources persistencyResources;
 
@@ -120,14 +123,14 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
             final String sqlSelectPermIds, final String sqlDeleteProperties,
             final String sqlSelectAttachmentContentIds, final String sqlDeleteAttachmentContents,
             final String sqlDeleteAttachments, final String sqlDeleteEntities,
-            final String sqlInsertEvent)
+            final String sqlInsertEvent, final String sqlSelectPropertyHistory, final String sqlSelectRelationshipHistory)
     {
         List<Long> entityIds = TechId.asLongs(entityTechIds);
         DeletePermanentlyBatchOperation deleteOperation =
                 new DeletePermanentlyBatchOperation(entityType, entityIds, registrator, reason,
                         sqlSelectPermIds, sqlDeleteProperties, sqlSelectAttachmentContentIds,
                         sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteEntities,
-                        sqlInsertEvent);
+                        sqlInsertEvent, sqlSelectPropertyHistory, sqlSelectRelationshipHistory);
         BatchOperationExecutor.executeInBatches(deleteOperation);
 
         // FIXME remove this when we remove the switch to disable trash
@@ -161,11 +164,15 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
 
         private final String sqlInsertEvent;
 
+        private final String sqlSelectPropertyHistory;
+
+        private final String sqlSelectRelationshipHistory;
+
         DeletePermanentlyBatchOperation(EntityType entityType, List<Long> allEntityIds,
                 PersonPE registrator, String reason, String sqlSelectPermIds,
                 String sqlDeleteProperties, String sqlSelectAttachmentContentIds,
                 String sqlDeleteAttachmentContents, String sqlDeleteAttachments,
-                String sqlDeleteEntities, String sqlInsertEvent)
+                String sqlDeleteEntities, String sqlInsertEvent, String selectPropertyHistory, String selectRelationshipHistory)
         {
             this.entityType = entityType;
             this.allEntityIds = allEntityIds;
@@ -178,6 +185,8 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
             this.sqlDeleteAttachments = sqlDeleteAttachments;
             this.sqlDeleteEntities = sqlDeleteEntities;
             this.sqlInsertEvent = sqlInsertEvent;
+            this.sqlSelectPropertyHistory = selectPropertyHistory;
+            this.sqlSelectRelationshipHistory = selectRelationshipHistory;
         }
 
         @Override
@@ -240,12 +249,15 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                 {
                     return null;
                 }
+
+                String content = EntityHistoryCreator.apply(session, entityIdsToDelete, sqlSelectPropertyHistory, sqlSelectRelationshipHistory);
+
                 deleteProperties(sqlQueryDeleteProperties, entityIdsToDelete);
                 deleteAttachmentsWithContents(sqlQuerySelectAttachmentContentIds,
                         sqlQueryDeleteAttachments, sqlQueryDeleteAttachmentContents,
                         entityIdsToDelete);
                 deleteMainEntities(sqlQueryDeleteEntities, entityIdsToDelete);
-                insertEvent(sqlQueryInsertEvent, permIds);
+                insertEvent(sqlQueryInsertEvent, permIds, content);
                 return null;
             }
 
@@ -288,7 +300,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                 sqlQueryDeleteEntities.executeUpdate();
             }
 
-            private void insertEvent(final SQLQuery sqlQueryInsertEvent, final List<String> permIds)
+            private void insertEvent(final SQLQuery sqlQueryInsertEvent, final List<String> permIds, String content)
             {
                 final String description =
                         CollectionUtils.abbreviate(permIds, 3, CollectionStyle.NO_BOUNDARY);
@@ -301,6 +313,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                 final String allPermIdsAsString =
                         CollectionUtils.abbreviate(permIds, -1, CollectionStyle.NO_BOUNDARY);
                 sqlQueryInsertEvent.setParameter(IDENTIFIERS_PARAM, allPermIdsAsString);
+                sqlQueryInsertEvent.setParameter(CONTENT_PARAM, content);
                 sqlQueryInsertEvent.executeUpdate();
             }
         }
@@ -348,11 +361,11 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
         protected static String createInsertEventSQL()
         {
             return String
-                    .format("INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifiers) "
-                            + "VALUES (nextval('%s'), :%s, :%s, :%s, :%s, :%s, :%s)",
+                    .format("INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifiers, content) "
+                            + "VALUES (nextval('%s'), :%s, :%s, :%s, :%s, :%s, :%s, :%s)",
                             TableNames.EVENTS_TABLE, SequenceNames.EVENT_SEQUENCE,
                             EVENT_TYPE_PARAM, DESCRIPTION_PARAM, REASON_PARAM,
-                            REGISTRATOR_ID_PARAM, ENTITY_TYPE_PARAM, IDENTIFIERS_PARAM);
+                            REGISTRATOR_ID_PARAM, ENTITY_TYPE_PARAM, IDENTIFIERS_PARAM, CONTENT_PARAM);
         }
 
         protected static String inEntityIds()

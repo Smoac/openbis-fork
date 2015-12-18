@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRelationshipTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelationshipUtils;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -84,7 +85,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
  * 
  * @author Christian Ribeaud
  */
-final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> implements IDataDAO
+final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE>implements IDataDAO
 {
     private final int MAX_BATCH_SIZE = 999;
 
@@ -125,7 +126,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         return count > 0;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public Map<SamplePE, Boolean> haveDataSets(Collection<SamplePE> samples) throws DataAccessException
     {
@@ -295,7 +296,8 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                         "from %s e " + "left join fetch e.experimentInternal "
                                 + "left join fetch e.dataSetParentRelationships "
                                 + "left join fetch e.dataSetProperties "
-                                + "where e.experimentInternal = ?", TABLE_NAME);
+                                + "where e.experimentInternal = ?",
+                        TABLE_NAME);
         final List<DataPE> list = cast(getHibernateTemplate().find(query, toArray(experiment)));
 
         // distinct does not work properly in HQL for left joins
@@ -351,8 +353,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         if (uniqueResult != null)
         {
             return new TechId((BigInteger) uniqueResult);
-        }
-        else
+        } else
         {
             return null;
         }
@@ -524,6 +525,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         return entity;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void updateDataSetStatuses(final List<String> dataSetCodes,
             final DataSetArchivingStatus status)
@@ -599,20 +601,20 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                                 .setParameter("status", status)
                                 .setParameterList("codes", dataSetCodes).executeUpdate();
                     }
+
                 });
         }
         hibernateTemplate.flush();
         if (updatedRows != dataSetCodes.size())
         {
-            throw UserFailureException.fromTemplate("Update of %s data set statuses to %s failed.",
-                    dataSetCodes.size(), status);
+            throw UserFailureException.fromTemplate("Update of %s data set statuses to %s failed.", dataSetCodes.size(), status);
         } else if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("UPDATED: %s data set statuses to '%s'.",
-                    dataSetCodes.size(), status));
+            operationLog.info(String.format("UPDATED: %s data set statuses to '%s'.", dataSetCodes.size(), status));
         }
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void updateSizes(final Map<String, Long> sizeMap)
     {
@@ -642,6 +644,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         hibernateTemplate.flush();
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void updateDataSetStatuses(final List<String> dataSetCodes,
             final DataSetArchivingStatus status, final boolean presentInArchive)
@@ -722,19 +725,18 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                                 .setParameter("presentInArchive", presentInArchive)
                                 .setParameterList("codes", dataSetCodes).executeUpdate();
                     }
+
                 });
         }
         hibernateTemplate.flush();
         if (updatedRows != dataSetCodes.size())
         {
-            throw UserFailureException.fromTemplate(
-                    "Update of %s data set statuses to '%s' and presentInArchive to '%s' failed.",
+            throw UserFailureException.fromTemplate("Update of %s data set statuses to '%s' and presentInArchive to '%s' failed.",
                     dataSetCodes.size(), status, presentInArchive);
         } else if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format(
-                    "UPDATED: %s data set statuses to '%s' and presentInArchive flag to '%s'.",
-                    dataSetCodes.size(), status, presentInArchive));
+            operationLog.info(String.format("UPDATED: %s data set statuses to '%s' and presentInArchive flag to '%s'.", dataSetCodes.size(), status,
+                    presentInArchive));
         }
     }
 
@@ -812,58 +814,72 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     public void delete(final List<TechId> dataIds, final PersonPE registrator, final String reason)
             throws DataAccessException
     {
-        // NOTE: we use DATA_ALL_TABLE, not DELETED_DATA_VIEW because we still want to be
-        // able to directly delete data without going to trash (trash may be disabled)
-        final String dataTable = TableNames.DATA_ALL_TABLE;
+        DeletionEventSQLs sqls = new DeletionEventSQLs();
 
         // For data sets we load codes, which are logically the same as perm ids.
         // We load them ordered by ID because locations need to be loaded in the same order.
-        final String sqlSelectPermIds = createSelectCodesOrderByIdSQL(dataTable);
-        final String sqlSelectLocations = createSelectLocationsOrderByIdSQL(dataTable);
-
-        final String sqlDeleteProperties =
-                SQLBuilder.createDeletePropertiesSQL(TableNames.DATA_SET_PROPERTIES_TABLE,
-                        ColumnNames.DATA_SET_COLUMN);
-        final String sqlDeleteDataSets = SQLBuilder.createDeleteEnitiesSQL(dataTable);
-        final String sqlInsertEvent = SQLBuilder.createInsertEventSQL();
+        sqls.selectPermIds = createSelectCodesOrderByIdSQL();
+        sqls.selectLocations = createSelectLocationsOrderByIdSQL();
+        sqls.deleteProperties = SQLBuilder.createDeletePropertiesSQL(TableNames.DATA_SET_PROPERTIES_TABLE, ColumnNames.DATA_SET_COLUMN);
+        sqls.deleteDataSets = SQLBuilder.createDeleteEnitiesSQL(TableNames.DATA_ALL_TABLE);
+        sqls.insertEvent = SQLBuilder.createInsertEventSQL();
         // data set specific queries
-        final String sqlDeleteExternalData = createDeleteExternalDataSQL();
+        sqls.deleteExternalData = createDeleteExternalDataSQL();
         Long relationshipTypeId = RelationshipUtils.getParentChildRelationshipType(relationshipTypeDAO).getId();
-        final String sqlDeleteChildrenConnections = createDeleteChildrenConnectionsSQL(relationshipTypeId);
-        final String sqlDeleteParentConnections = createDeleteParentConnectionsSQL(relationshipTypeId);
+        sqls.deleteChildrenConnections = createDeleteChildrenConnectionsSQL(relationshipTypeId);
+        sqls.deleteParentConnections = createDeleteParentConnectionsSQL(relationshipTypeId);
+        sqls.selectPropertyHistory = createQueryPropertyHistorySQL();
+        sqls.selectRelationshipHistory = createQueryRelationshipHistorySQL();
 
-        executePermanentDeleteOfDataSets(EntityType.DATASET, dataIds, registrator, reason,
-                sqlSelectPermIds, sqlSelectLocations, sqlDeleteProperties, sqlDeleteDataSets,
-                sqlInsertEvent, sqlDeleteExternalData, sqlDeleteChildrenConnections,
-                sqlDeleteParentConnections);
+        executePermanentDeleteOfDataSets(EntityType.DATASET, dataIds, registrator, reason, sqls);
+    }
+
+    private static class DeletionEventSQLs
+    {
+        public String selectPermIds;
+
+        public String selectLocations;
+
+        public String deleteProperties;
+
+        public String deleteDataSets;
+
+        public String insertEvent;
+
+        public String deleteExternalData;
+
+        public String deleteChildrenConnections;
+
+        public String deleteParentConnections;
+
+        public String selectPropertyHistory;
+
+        public String selectRelationshipHistory;
     }
 
     protected void executePermanentDeleteOfDataSets(final EntityType entityType,
             final List<TechId> entityTechIds, final PersonPE registrator, final String reason,
-            final String sqlSelectPermIds, final String sqlSelectLocations,
-            final String sqlDeleteProperties, final String sqlDeleteEntities,
-            final String sqlInsertEvent, final String... additionalQueries)
+            DeletionEventSQLs sqls)
     {
         List<Long> entityIds = TechId.asLongs(entityTechIds);
         DeleteDataSetsPermanentlyBatchOperation deleteOperation =
                 new DeleteDataSetsPermanentlyBatchOperation(entityType, entityIds, registrator,
-                        reason, sqlSelectPermIds, sqlSelectLocations, sqlDeleteProperties,
-                        sqlDeleteEntities, sqlInsertEvent, additionalQueries);
+                        reason, sqls);
         BatchOperationExecutor.executeInBatches(deleteOperation);
 
         // FIXME remove this when we remove the switch to disable trash
         scheduleRemoveFromFullTextIndex(entityIds);
     }
 
-    private static String createSelectCodesOrderByIdSQL(final String dataSetsTable)
+    private static String createSelectCodesOrderByIdSQL()
     {
-        return "SELECT code FROM " + dataSetsTable + " WHERE id " + SQLBuilder.inEntityIds()
+        return "SELECT code FROM " + TableNames.DATA_ALL_TABLE + " WHERE id " + SQLBuilder.inEntityIds()
                 + " ORDER BY id";
     }
 
-    private static String createSelectLocationsOrderByIdSQL(final String dataSetsTable)
+    private static String createSelectLocationsOrderByIdSQL()
     {
-        return "SELECT ed.location, ed.share_id, ds.code FROM " + dataSetsTable + " d "
+        return "SELECT ed.location, ed.share_id, ds.code FROM " + TableNames.DATA_ALL_TABLE + " d "
                 + "JOIN data_stores ds ON (d.dast_id = ds.id) "
                 + "LEFT OUTER JOIN external_data ed ON (d.id = ed.data_id) WHERE d.id "
                 + SQLBuilder.inEntityIds() + " ORDER BY d.id";
@@ -887,6 +903,44 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                 + " WHERE data_id_child " + SQLBuilder.inEntityIds() + " and relationship_id = " + relationshipTypeId;
     }
 
+    private static String createQueryPropertyHistorySQL()
+    {
+        return " (" +
+                " select d.code as data_set_code, pt.code as property_code, value, vocabulary_term, material, p.user_id, h.valid_from_timestamp, h.valid_until_timestamp "
+                +
+                " from " + TableNames.DATA_ALL_TABLE + " d, " + TableNames.DATA_SET_PROPERTIES_HISTORY_TABLE + " h, "
+                + TableNames.DATA_SET_TYPE_PROPERTY_TYPE_TABLE + " dspt, "
+                + TableNames.PROPERTY_TYPES_TABLE + " pt, " + TableNames.PERSONS_TABLE + " p " +
+                " where ds_id " + SQLBuilder.inEntityIds() + " and d.id = ds_id " +
+                " and h.dstpt_id = dspt.id and dspt.prty_id = pt.id and pers_id_author = p.id" +
+                " )" +
+                " union" +
+                " (" +
+                " select d.code as data_set_code, pt.code as property_code, value, " +
+                " (select (t.code || ' [' || v.code || ']') from " + TableNames.CONTROLLED_VOCABULARY_TERM_TABLE + " as t join "
+                + TableNames.CONTROLLED_VOCABULARY_TABLE + " as v on t.covo_id = v.id where t.id = pr.CVTE_ID)," +
+                " (select (m.code || ' [' || mt.code || ']') from " + TableNames.MATERIALS_TABLE + " as m join " + TableNames.MATERIAL_TYPES_TABLE
+                + " as mt on m.maty_id = mt.id where m.id = pr.MATE_PROP_ID)," +
+                " author.user_id, pr.modification_timestamp, null" +
+                " from " + TableNames.DATA_ALL_TABLE + " d, " + TableNames.DATA_SET_PROPERTIES_TABLE + " pr, "
+                + TableNames.DATA_SET_TYPE_PROPERTY_TYPE_TABLE + " dtpt, "
+                + TableNames.PROPERTY_TYPES_TABLE + " pt, " + TableNames.PERSONS_TABLE + " author" +
+                " where ds_id " + SQLBuilder.inEntityIds() + " and d.id = pr.ds_id " +
+                " and pr.dstpt_id = dtpt.id and dtpt.prty_id = pt.id and pr.pers_id_author = author.id" +
+                " )" +
+                " order by 1, valid_from_timestamp";
+    }
+
+    private static String createQueryRelationshipHistorySQL()
+    {
+        return " select d.code, relation_type,entity_perm_id, p.user_id, valid_from_timestamp, valid_until_timestamp" +
+                " from " + TableNames.DATA_ALL_TABLE + " d, " + TableNames.DATA_SET_RELATIONSHIPS_HISTORY_TABLE + " h, "
+                + TableNames.PERSONS_TABLE + " p" +
+                " where d.id = main_data_id and  main_data_id " + SQLBuilder.inEntityIds() +
+                " and h.pers_id_author = p.id" +
+                " order by 1, valid_from_timestamp";
+    }
+
     // TODO refactor - it is very similar code to the one in AbstractGenericEntityWithPropertiesDAO
     protected class DeleteDataSetsPermanentlyBatchOperation implements IBatchOperation<Long>
     {
@@ -899,33 +953,17 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
         private final String reason;
 
-        private final String sqlSelectPermIds;
-
-        private final String sqlSelectLocations;
-
-        private final String sqlDeleteProperties;
-
-        private final String sqlDeleteEntities;
-
-        private final String sqlInsertEvent;
-
-        private final String[] additionalQueries;
+        private final DeletionEventSQLs sqls;
 
         public DeleteDataSetsPermanentlyBatchOperation(EntityType entityType,
                 List<Long> allEntityIds, PersonPE registrator, String reason,
-                String sqlSelectPermIds, String sqlSelectLocations, String sqlDeleteProperties,
-                String sqlDeleteEntities, String sqlInsertEvent, String... additionalQueries)
+                DeletionEventSQLs sqls)
         {
             this.entityType = entityType;
             this.allEntityIds = allEntityIds;
             this.registrator = registrator;
             this.reason = reason;
-            this.sqlSelectPermIds = sqlSelectPermIds;
-            this.sqlSelectLocations = sqlSelectLocations;
-            this.sqlDeleteProperties = sqlDeleteProperties;
-            this.sqlDeleteEntities = sqlDeleteEntities;
-            this.sqlInsertEvent = sqlInsertEvent;
-            this.additionalQueries = additionalQueries;
+            this.sqls = sqls;
         }
 
         @Override
@@ -970,31 +1008,32 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
             @Override
             public Object doInStatelessSession(StatelessSession session)
             {
-                final SQLQuery sqlQuerySelectPermIds = session.createSQLQuery(sqlSelectPermIds);
-                final SQLQuery sqlQuerySelectLocations = session.createSQLQuery(sqlSelectLocations);
-                final SQLQuery sqlQueryDeleteProperties =
-                        session.createSQLQuery(sqlDeleteProperties);
-                final SQLQuery sqlQueryDeleteEntities = session.createSQLQuery(sqlDeleteEntities);
-                final SQLQuery sqlQueryInsertEvent = session.createSQLQuery(sqlInsertEvent);
-                final List<SQLQuery> additionalSqlQueries = new ArrayList<SQLQuery>();
-                for (String queryString : additionalQueries)
-                {
-                    additionalSqlQueries.add(session.createSQLQuery(queryString));
-                }
+                final SQLQuery selectPermIds = session.createSQLQuery(sqls.selectPermIds);
+                final SQLQuery selectLocations = session.createSQLQuery(sqls.selectLocations);
+                final SQLQuery deleteProperties = session.createSQLQuery(sqls.deleteProperties);
+                final SQLQuery deleteEntities = session.createSQLQuery(sqls.deleteDataSets);
+                final SQLQuery insertEvent = session.createSQLQuery(sqls.insertEvent);
+                final SQLQuery deleteExternalData = session.createSQLQuery(sqls.deleteExternalData);
+                final SQLQuery deleteChildrenConnections = session.createSQLQuery(sqls.deleteChildrenConnections);
+                final SQLQuery deleteParentConnections = session.createSQLQuery(sqls.deleteParentConnections);
 
                 final List<String> permIds =
-                        selectPermIds(sqlQuerySelectPermIds, entityIdsToDelete);
+                        selectPermIds(selectPermIds, entityIdsToDelete);
                 if (permIds.isEmpty())
                 {
                     return null;
                 }
                 final List<DeletedDataSetLocation> locations =
-                        selectLocations(sqlQuerySelectLocations, entityIdsToDelete);
+                        selectLocations(selectLocations, entityIdsToDelete);
 
-                deleteProperties(sqlQueryDeleteProperties, entityIdsToDelete);
-                executeAdditionalQueries(additionalSqlQueries, entityIdsToDelete);
-                deleteMainEntities(sqlQueryDeleteEntities, entityIdsToDelete);
-                insertEvent(sqlQueryInsertEvent, permIds, locations);
+                String content = EntityHistoryCreator.apply(session, entityIdsToDelete, sqls.selectPropertyHistory, sqls.selectRelationshipHistory);
+
+                executeUpdate(deleteProperties, entityIdsToDelete);
+                executeUpdate(deleteExternalData, entityIdsToDelete);
+                executeUpdate(deleteChildrenConnections, entityIdsToDelete);
+                executeUpdate(deleteParentConnections, entityIdsToDelete);
+                executeUpdate(deleteEntities, entityIdsToDelete);
+                insertEvent(insertEvent, permIds, locations, content);
                 return null;
             }
 
@@ -1034,35 +1073,19 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                 return cast(sqlQuerySelectLocations.list());
             }
 
-            private void deleteProperties(final SQLQuery sqlQueryDeleteProperties,
+            private void executeUpdate(final SQLQuery a1,
                     List<Long> entityIds)
             {
-                sqlQueryDeleteProperties.setParameterList(ENTITY_IDS_PARAM, entityIds);
-                sqlQueryDeleteProperties.executeUpdate();
-            }
-
-            private void executeAdditionalQueries(final List<SQLQuery> additionalSqlQueries,
-                    List<Long> entityIds)
-            {
-                for (SQLQuery query : additionalSqlQueries)
-                {
-                    query.setParameterList(ENTITY_IDS_PARAM, entityIds);
-                    query.executeUpdate();
-                }
-            }
-
-            private void deleteMainEntities(final SQLQuery sqlQueryDeleteEntities,
-                    List<Long> entityIds)
-            {
-                sqlQueryDeleteEntities.setParameterList(ENTITY_IDS_PARAM, entityIds);
-                sqlQueryDeleteEntities.executeUpdate();
+                a1.setParameterList(ENTITY_IDS_PARAM, entityIds);
+                a1.executeUpdate();
             }
 
             private void insertEvent(final SQLQuery sqlQueryInsertEvent,
-                    final List<String> permIds, final List<DeletedDataSetLocation> locations)
+                    final List<String> permIds, final List<DeletedDataSetLocation> locations, String content)
             {
                 sqlQueryInsertEvent.setParameter(EVENT_TYPE_PARAM, EventType.DELETION.name());
                 sqlQueryInsertEvent.setParameter(REASON_PARAM, reason);
+                sqlQueryInsertEvent.setParameter(CONTENT_PARAM, content);
                 sqlQueryInsertEvent.setParameter(REGISTRATOR_ID_PARAM, registrator.getId());
                 sqlQueryInsertEvent.setParameter(ENTITY_TYPE_PARAM, entityType.name());
 
@@ -1095,7 +1118,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     @Override
     public Map<Long, Set<Long>> mapDataSetIdsByChildrenIds(final Collection<Long> children, final Long relationship)
     {
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         final List<Object[]> results = (List<Object[]>) getHibernateTemplate().execute(new HibernateCallback()
             {
                 @Override
@@ -1157,6 +1180,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     @SuppressWarnings("unchecked")
     private Set<TechId> findRelatedIds(final String query, final Collection<TechId> dataSetIds, final long relationshipTypeId)
     {
+        @SuppressWarnings("rawtypes")
         final List<? extends Number> results =
                 (List<? extends Number>) getHibernateTemplate().execute(new HibernateCallback()
                     {
@@ -1361,8 +1385,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
             if (isAccessTimestampColumnDefined)
             {
                 operationLog.info("Access timestamp column for data sets is enabled");
-            }
-            else
+            } else
             {
                 operationLog.info("Access timestamp column for data sets is not enabled");
             }

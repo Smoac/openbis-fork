@@ -44,6 +44,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.MaterialCodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -63,7 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.MaterialConfigurationProvide
  * 
  * @author Izabela Adamczyk
  */
-public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<MaterialPE> implements
+public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<MaterialPE>implements
         IMaterialDAO
 {
 
@@ -228,6 +229,36 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
         return list;
     }
 
+    public static final String sqlPropertyHistory =
+            "(SELECT m.code as perm_id, pt.code, h.value, h.vocabulary_term, h.material, p.user_id, h.valid_from_timestamp, h.valid_until_timestamp "
+                    + "FROM materials m, material_properties_history h, material_type_property_types mtpt, property_types pt, persons p "
+                    + "WHERE h.mate_id " + SQLBuilder.inEntityIds() + " AND "
+                    + "m.id=h.mate_id AND "
+                    + "h.mtpt_id=mtpt.id AND "
+                    + "mtpt.prty_id = pt.id AND "
+                    + "pers_id_author = p.id "
+                    + ") UNION ( "
+                    + "SELECT m.code as perm_id, pt.code, value, "
+                    + "(SELECT (t.code || ' [' || v.code || ']') "
+                    + "FROM controlled_vocabulary_terms as t JOIN controlled_vocabularies as v ON t.covo_id = v.id "
+                    + "WHERE t.id = pr.cvte_id), "
+                    + "(SELECT (m.code || ' [' || mt.code || ']') "
+                    + "FROM materials AS m JOIN material_types AS mt ON m.maty_id = mt.id "
+                    + "WHERE m.id = pr.mate_prop_id), "
+                    + "author.user_id, pr.modification_timestamp, null "
+                    + "FROM materials m, material_properties pr, material_type_property_types mtpt, property_types pt, persons author "
+                    + "WHERE pr.mate_id  " + SQLBuilder.inEntityIds() + "  AND "
+                    + "m.id = pr.mate_id AND "
+                    + "pr.mtpt_id = mtpt.id AND "
+                    + "mtpt.prty_id = pt.id AND "
+                    + "pr.pers_id_author = author.id "
+                    + ") "
+                    + "ORDER BY 1, valid_from_timestamp";
+
+    // dummy query
+    public static final String sqlRelationshipHistory =
+            "SELECT 1 as a, 1 as b, 1 as c, 1 as d, 1 as e, 1 as f, 1 as g FROM materials WHERE id = -1 and id " + SQLBuilder.inEntityIds();
+
     @Override
     public void delete(final List<TechId> materialIds, final PersonPE registrator,
             final String reason) throws DataAccessException
@@ -243,8 +274,8 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
                 "DELETE FROM " + TableNames.MATERIALS_TABLE + " WHERE id = :mId";
         final String sqlInsertEvent =
                 String.format(
-                        "INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifiers) "
-                                + "VALUES (nextval('%s'), :eventType, :description, :reason, :registratorId, :entityType, :identifier)",
+                        "INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifiers, content) "
+                                + "VALUES (nextval('%s'), :eventType, :description, :reason, :registratorId, :entityType, :identifier, :content)",
                         TableNames.EVENTS_TABLE, SequenceNames.EVENT_SEQUENCE);
 
         executeStatelessAction(new StatelessHibernateCallback()
@@ -271,6 +302,10 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
                             String materialCode = (String) codeAndType[0];
                             String materialTypeCode = (String) codeAndType[1];
                             String permId = MaterialPE.createPermId(materialCode, materialTypeCode);
+
+                            String content = EntityHistoryCreator.apply(session, Collections.singletonList(techId.getId()), sqlPropertyHistory,
+                                    sqlRelationshipHistory);
+
                             try
                             {
                                 // delete properties
@@ -282,6 +317,7 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
                                 // create event
                                 sqlQueryInsertEvent.setParameter("description", permId);
                                 sqlQueryInsertEvent.setParameter("identifier", materialCode);
+                                sqlQueryInsertEvent.setParameter("content", content);
                                 sqlQueryInsertEvent.executeUpdate();
                                 if (++counter % 1000 == 0)
                                 {

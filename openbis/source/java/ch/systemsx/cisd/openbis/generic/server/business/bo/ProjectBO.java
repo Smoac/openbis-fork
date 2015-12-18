@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.IProjectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.ProjectIdentifierId;
@@ -77,7 +78,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
 
     public ProjectBO(final IDAOFactory daoFactory, final Session session,
             IRelationshipService relationshipService,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
             DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
         super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);
@@ -254,7 +255,8 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
                             + filename
                             + "' "
                             + (versionOrNull == null ? "(latest version)" : "(version '"
-                                    + versionOrNull + "')") + " not found in project '"
+                                    + versionOrNull + "')")
+                            + " not found in project '"
                             + project.getIdentifier() + "'.");
         }
     }
@@ -342,6 +344,17 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         return group;
     }
 
+    private static final String propertyHistoryQuery =
+            "SELECT 1 as a, 1 as b, 1 as c, 1 as d, 1 as e, 1 as f, 1 as g, 1 as h, 1 as i FROM materials WHERE id = -1 and id IN (:entityIds)";
+
+    private static final String relationshipHistoryQuery =
+            "SELECT p.perm_id, h.relation_type, h.entity_perm_id, pers.user_id, h.valid_from_timestamp, h.valid_until_timestamp "
+                    + "FROM projects p, project_relationships_history h, persons pers "
+                    + "WHERE p.id = h.main_proj_id AND "
+                    + "h.main_proj_id IN (:entityIds) AND "
+                    + "h.pers_id_author = pers.id "
+                    + "ORDER BY 1, valid_from_timestamp";
+
     @Override
     public void deleteByTechId(TechId projectId, String reason) throws UserFailureException
     {
@@ -376,8 +389,13 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
             }
             if (codes.isEmpty() && trashedCodes.isEmpty())
             {
+                String content =
+                        EntityHistoryCreator.apply(getSessionFactory().getCurrentSession(), Collections.singletonList(projectId.getId()),
+                                propertyHistoryQuery,
+                                relationshipHistoryQuery);
+
                 getProjectDAO().delete(project);
-                getEventDAO().persist(createDeletionEvent(project, session.tryGetPerson(), reason));
+                getEventDAO().persist(createDeletionEvent(project, session.tryGetPerson(), reason, content));
             } else
             {
                 StringBuilder builder = new StringBuilder();
@@ -404,16 +422,16 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         }
     }
 
-    public static EventPE createDeletionEvent(ProjectPE project, PersonPE registrator, String reason)
+    public static EventPE createDeletionEvent(ProjectPE project, PersonPE registrator, String reason, String content)
     {
         EventPE event = new EventPE();
         event.setEventType(EventType.DELETION);
         event.setEntityType(EntityType.PROJECT);
-        event.setIdentifiers(Collections.singletonList(project.getIdentifier()));
+        event.setIdentifiers(Collections.singletonList(project.getPermId()));
         event.setDescription(getDeletionDescription(project));
         event.setReason(reason);
         event.setRegistrator(registrator);
-
+        event.setContent(content);
         return event;
     }
 

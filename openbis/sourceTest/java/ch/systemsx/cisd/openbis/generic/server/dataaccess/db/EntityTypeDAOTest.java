@@ -25,8 +25,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.Test;
 
@@ -41,14 +39,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import junit.framework.Assert;
 
 /**
  * Test cases for corresponding {@link EntityTypeDAO} class.
  * 
  * @author Christian Ribeaud
  */
-@Test(groups =
-{ "db", "materialType" })
+@Test(groups = { "db", "materialType" })
 public final class EntityTypeDAOTest extends AbstractDAOTest
 {
 
@@ -138,7 +136,7 @@ public final class EntityTypeDAOTest extends AbstractDAOTest
     public final void testListMaterialTypes()
     {
         final IEntityTypeDAO entityTypeDAO = daoFactory.getEntityTypeDAO(EntityKind.MATERIAL);
-        assertEquals(10, entityTypeDAO.listEntityTypes().size());
+        assertEquals(11, entityTypeDAO.listEntityTypes().size());
     }
 
     @Test(dependsOnMethods = "testListMaterialTypes")

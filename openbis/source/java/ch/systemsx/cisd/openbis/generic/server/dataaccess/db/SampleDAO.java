@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,6 +46,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
@@ -63,14 +65,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Tomasz Pylak
  */
-public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> implements
+public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE>implements
         ISampleDAO
 {
     private final static Class<SamplePE> ENTITY_CLASS = SamplePE.class;
 
     /**
      * This logger does not output any SQL statement. If you want to do so, you had better set an appropriate debugging level for class
-     * {@link JdbcAccessor}. </p>
+     * {@link JdbcAccessor}.
+     * </p>
      */
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             SampleDAO.class);
@@ -350,7 +353,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     @Override
     public final void createOrUpdateSamples(final List<SamplePE> samples, final PersonPE modifier,
             boolean clearCache)
-            throws DataAccessException
+                    throws DataAccessException
     {
         assert samples != null && samples.size() > 0 : "Unspecified or empty samples.";
 
@@ -452,10 +455,52 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                 SQLBuilder.createDeleteAttachmentsSQL(ColumnNames.SAMPLE_COLUMN);
         final String sqlDeleteSamples = SQLBuilder.createDeleteEnitiesSQL(samplesTable);
         final String sqlInsertEvent = SQLBuilder.createInsertEventSQL();
+        final String sqlSelectPropertyHistory = createQueryPropertyHistorySQL();
+        final String sqlSelectRelationshipHistory = createQueryRelationshipHistorySQL();
 
         executePermanentDeleteAction(EntityType.SAMPLE, sampleIds, registrator, reason,
                 sqlSelectPermIds, sqlDeleteProperties, sqlSelectAttachmentContentIds,
-                sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteSamples, sqlInsertEvent);
+                sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteSamples, sqlInsertEvent, sqlSelectPropertyHistory,
+                sqlSelectRelationshipHistory);
+    }
+
+    private static String createQueryPropertyHistorySQL()
+    {
+        return "("
+                + "SELECT s.perm_id, pt.code, h.value, h.vocabulary_term, h.material, p.user_id, h.valid_from_timestamp, h.valid_until_timestamp "
+                + "FROM samples_all s, sample_properties_history h, sample_type_property_types stpt, property_types pt, persons p "
+                + "WHERE h.samp_id " + SQLBuilder.inEntityIds() + " AND "
+                + "s.id = h.samp_id AND "
+                + "h.stpt_id = stpt.id AND "
+                + "stpt.prty_id = pt.id AND "
+                + "pers_id_author = p.id "
+                + ") UNION ("
+                + "SELECT s.perm_id, pt.code, value, "
+                + "(SELECT (t.code || ' [' || v.code || ']') "
+                + "FROM controlled_vocabulary_terms as t JOIN controlled_vocabularies as v ON t.covo_id = v.id "
+                + "WHERE t.id = pr.cvte_id), "
+                + "(SELECT (m.code || ' [' || mt.code || ']') "
+                + "FROM materials AS m JOIN material_types AS mt ON m.maty_id = mt.id "
+                + "WHERE m.id = pr.mate_prop_id), "
+                + "author.user_id, pr.modification_timestamp, null "
+                + "FROM samples_all s, sample_properties pr, sample_type_property_types stpt, property_types pt, persons author "
+                + "WHERE pr.samp_id " + SQLBuilder.inEntityIds() + " AND "
+                + "s.id = pr.samp_id AND "
+                + "pr.stpt_id = stpt.id AND "
+                + "stpt.prty_id = pt.id AND "
+                + "pr.pers_id_author = author.id "
+                + ") "
+                + " ORDER BY 1, valid_from_timestamp";
+    }
+
+    private static String createQueryRelationshipHistorySQL()
+    {
+        return "SELECT s.perm_id, h.relation_type, h.entity_perm_id, p.user_id, h.valid_from_timestamp, h.valid_until_timestamp "
+                + "FROM samples_all s, sample_relationships_history h, persons p "
+                + "WHERE s.id = h.main_samp_id AND "
+                + "h.main_samp_id " + SQLBuilder.inEntityIds() + " AND "
+                + "h.pers_id_author = p.id "
+                + "ORDER BY 1, valid_from_timestamp";
     }
 
     @Override
@@ -467,7 +512,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                 @Override
                 public Object doInHibernate(Session session) throws HibernateException
                 {
-                    String permIdQuery = "SELECT perm_id FROM samples_all WHERE del_id = :id";
+                    String permIdQuery = "SELECT id, perm_id FROM samples_all WHERE del_id = :id";
 
                     String properties =
                             "DELETE FROM sample_properties WHERE samp_id IN ("
@@ -487,17 +532,19 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                             "DELETE FROM samples_all WHERE del_id = :id";
 
                     String event =
-                            "INSERT INTO events (id, event_type, description, reason, pers_id_registerer, entity_type, identifiers) "
-                                    + "VALUES (nextval('EVENT_ID_SEQ'), 'DELETION', :description, :reason, :registerer, 'SAMPLE', :identifiers)";
+                            "INSERT INTO events (id, event_type, description, reason, pers_id_registerer, entity_type, identifiers, content) "
+                                    + "VALUES (nextval('EVENT_ID_SEQ'), 'DELETION', :description, :reason, :registerer, 'SAMPLE', :identifiers, :content)";
 
                     SQLQuery getPermIds = session.createSQLQuery(permIdQuery);
                     getPermIds.setParameter("id", deletion.getId());
 
                     StringBuffer permIdList = new StringBuffer();
-                    for (String id : (List<String>) getPermIds.list())
+                    List<Long> entityIdsToDelete = new ArrayList<>();
+                    for (Object[] result : (List<Object[]>) getPermIds.list())
                     {
                         permIdList.append(", ");
-                        permIdList.append(id);
+                        permIdList.append((String) result[1]);
+                        entityIdsToDelete.add(((BigInteger) result[0]).longValue());
                     }
 
                     if (permIdList.length() == 0)
@@ -506,6 +553,9 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                     }
 
                     String permIds = permIdList.substring(2);
+
+                    String content = EntityHistoryCreator.apply(session, entityIdsToDelete, createQueryPropertyHistorySQL(),
+                            createQueryRelationshipHistorySQL());
 
                     SQLQuery deleteProperties = session.createSQLQuery(properties);
                     deleteProperties.setParameter("id", deletion.getId());
@@ -537,6 +587,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                     insertEvent.setParameter("reason", deletion.getReason());
                     insertEvent.setParameter("registerer", registrator.getId());
                     insertEvent.setParameter("identifiers", permIds);
+                    insertEvent.setParameter("content", content);
                     insertEvent.executeUpdate();
 
                     return null;
@@ -724,7 +775,8 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                 public Object doInHibernate(Session session) throws HibernateException
                 {
                     SQLQuery clearQuery =
-                            session.createSQLQuery("update samples set samp_id_part_of = null where id not in :containedIds and samp_id_part_of = :containerId");
+                            session.createSQLQuery(
+                                    "update samples set samp_id_part_of = null where id not in :containedIds and samp_id_part_of = :containerId");
                     clearQuery.setLong("containerId", sampleId);
                     clearQuery.setParameterList("containedIds", containedIds);
                     clearQuery.executeUpdate();
@@ -762,7 +814,8 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                 public Object doInHibernate(Session session) throws HibernateException
                 {
                     SQLQuery clearQuery =
-                            session.createSQLQuery("update samples set samp_id_part_of = null where id in :containedIds and samp_id_part_of = :containerId");
+                            session.createSQLQuery(
+                                    "update samples set samp_id_part_of = null where id in :containedIds and samp_id_part_of = :containerId");
                     clearQuery.setLong("containerId", sampleId);
                     clearQuery.setParameterList("containedIds", containedIds);
                     clearQuery.executeUpdate();
@@ -781,7 +834,8 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                 public Object doInHibernate(Session session) throws HibernateException
                 {
                     SQLQuery q =
-                            session.createSQLQuery("delete from sample_relationships where sample_id_child not in :childrenIds and sample_id_parent = :parentId and relationship_id = :relationshipId");
+                            session.createSQLQuery(
+                                    "delete from sample_relationships where sample_id_child not in :childrenIds and sample_id_parent = :parentId and relationship_id = :relationshipId");
                     q.setParameterList("childrenIds", childrenIds);
                     q.setLong("parentId", sampleId);
                     q.setLong("relationshipId", relationshipId);
@@ -806,9 +860,10 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                     for (Long relatedSampleId : childrenIds)
                     {
                         SQLQuery q =
-                                session.createSQLQuery("insert into sample_relationships (id, sample_id_parent, sample_id_child, relationship_id, pers_id_author, registration_timestamp, modification_timestamp) "
-                                        + "select nextval('sample_relationship_id_seq'),  :parentId, :childId, :relationshipId, :authorId, now(), now() where not exists "
-                                        + "(select 1 from sample_relationships where sample_id_parent = :parentId and sample_id_child = :childId and relationship_id = :relationshipId)");
+                                session.createSQLQuery(
+                                        "insert into sample_relationships (id, sample_id_parent, sample_id_child, relationship_id, pers_id_author, registration_timestamp, modification_timestamp) "
+                                                + "select nextval('sample_relationship_id_seq'),  :parentId, :childId, :relationshipId, :authorId, now(), now() where not exists "
+                                                + "(select 1 from sample_relationships where sample_id_parent = :parentId and sample_id_child = :childId and relationship_id = :relationshipId)");
                         q.setLong("parentId", sampleId);
                         q.setLong("childId", relatedSampleId);
                         q.setLong("relationshipId", relationshipId);
@@ -831,7 +886,8 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                 public Object doInHibernate(Session session) throws HibernateException
                 {
                     SQLQuery q =
-                            session.createSQLQuery("delete from sample_relationships where sample_id_parent = :parentId and sample_id_child in :childrenIds and relationship_id = :relationshipId");
+                            session.createSQLQuery(
+                                    "delete from sample_relationships where sample_id_parent = :parentId and sample_id_child in :childrenIds and relationship_id = :relationshipId");
                     q.setLong("parentId", sampleId);
                     q.setParameterList("childrenIds", childrenIds);
                     q.setLong("relationshipId", relationshipId);
@@ -851,7 +907,8 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                 public Object doInHibernate(Session session) throws HibernateException
                 {
                     SQLQuery q =
-                            session.createSQLQuery("delete from sample_relationships where sample_id_parent not in :parentIds and sample_id_child = :childId and relationship_id = :relationshipId");
+                            session.createSQLQuery(
+                                    "delete from sample_relationships where sample_id_parent not in :parentIds and sample_id_child = :childId and relationship_id = :relationshipId");
                     q.setParameterList("parentIds", parentsIds);
                     q.setLong("childId", sampleId);
                     q.setLong("relationshipId", relationshipId);
@@ -875,9 +932,10 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                     for (Long parentId : parentsIds)
                     {
                         SQLQuery q =
-                                session.createSQLQuery("insert into sample_relationships (id, sample_id_parent, sample_id_child, relationship_id, pers_id_author, registration_timestamp, modification_timestamp) "
-                                        + "select nextval('sample_relationship_id_seq'),  :parentId, :childId, :relationshipId, :authorId, now(), now() where not exists "
-                                        + "(select 1 from sample_relationships where sample_id_parent = :parentId and sample_id_child = :childId and relationship_id = :relationshipId)");
+                                session.createSQLQuery(
+                                        "insert into sample_relationships (id, sample_id_parent, sample_id_child, relationship_id, pers_id_author, registration_timestamp, modification_timestamp) "
+                                                + "select nextval('sample_relationship_id_seq'),  :parentId, :childId, :relationshipId, :authorId, now(), now() where not exists "
+                                                + "(select 1 from sample_relationships where sample_id_parent = :parentId and sample_id_child = :childId and relationship_id = :relationshipId)");
                         q.setLong("parentId", parentId);
                         q.setLong("childId", sampleId);
                         q.setLong("relationshipId", relationshipId);
@@ -900,7 +958,8 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                 public Object doInHibernate(Session session) throws HibernateException
                 {
                     SQLQuery q =
-                            session.createSQLQuery("delete from sample_relationships where sample_id_parent in :parentIds and sample_id_child = :childId and relationship_id = :relationshipId");
+                            session.createSQLQuery(
+                                    "delete from sample_relationships where sample_id_parent in :parentIds and sample_id_child = :childId and relationship_id = :relationshipId");
                     q.setParameterList("parentIds", parentsIds);
                     q.setLong("childId", sampleId);
                     q.setLong("relationshipId", relationshipId);

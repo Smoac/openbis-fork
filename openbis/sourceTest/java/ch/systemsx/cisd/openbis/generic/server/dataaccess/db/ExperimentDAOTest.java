@@ -57,8 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.ExperimentTypeCode;
  * 
  * @author Izabela Adamczyk
  */
-@Test(groups =
-{ "db", "experiment" })
+@Test(groups = { "db", "experiment" })
 public class ExperimentDAOTest extends AbstractDAOTest
 {
     private static final String MODIFIED = "_MODIFIED";
@@ -213,7 +212,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         final List<EntityTypePE> types =
                 daoFactory.getEntityTypeDAO(EntityKind.EXPERIMENT).listEntityTypes();
         Collections.sort(types);
-        assertEquals(2, types.size());
+        assertEquals(3, types.size());
         final ExperimentTypePE expType = (ExperimentTypePE) types.get(0);
         assertEquals(ExperimentTypeCode.COMPOUND_HCS.getCode(), expType.getCode());
 
@@ -432,6 +431,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         assertEquals(codeModified, experimentFound.getCode());
         assertEquals(modificationTimestamp, experimentFound.getModificationDate());
     }
+
     @Test
     public void testCreateExperimentsOfDifferentTypes() throws Exception
     {
@@ -577,8 +577,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
     @DataProvider
     private final static Object[][] illegalCodesProvider()
     {
-        return new Object[][]
-        {
+        return new Object[][] {
                 { EXCEED_CODE_LENGTH_CHARACTERS },
                 { "" },
                 { null },

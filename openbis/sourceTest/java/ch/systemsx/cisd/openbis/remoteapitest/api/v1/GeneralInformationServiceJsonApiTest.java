@@ -78,8 +78,7 @@ import ch.systemsx.cisd.openbis.remoteapitest.RemoteApiTestCase;
  * 
  * @author Kaloyan Enimanev
  */
-@Test(groups =
-{ "remote api" })
+@Test(groups = { "remote api" })
 public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
 {
     protected IGeneralInformationService generalInformationService;
@@ -551,17 +550,17 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
                 + "PropertyType[VARCHAR,COMMENT,Comment,Any other comments,optional], "
                 + "PropertyType[MATERIAL,ANY_MATERIAL,any_material,any_material,optional]]]]]",
                 experimentTypes.get(0).toString());
-        assertEquals(2, experimentTypes.size());
+        assertEquals(3, experimentTypes.size());
     }
 
     @Test
     public void testListDataSetTypes()
     {
         List<DataSetType> dataSetTypes = generalInformationService.listDataSetTypes(sessionToken);
-        assertEquals(9, dataSetTypes.size());
+        assertEquals(11, dataSetTypes.size());
 
         Collections.sort(dataSetTypes, new ToStringComparator());
-        DataSetType dataSetType = dataSetTypes.get(1);
+        DataSetType dataSetType = dataSetTypes.get(3);
         assertEquals("HCS_IMAGE", dataSetType.getCode());
 
         List<PropertyTypeGroup> propertyTypeGroups = dataSetType.getPropertyTypeGroups();
@@ -600,7 +599,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
                 + "[PropertyTypeGroup[<null>,[PropertyType[INTEGER,OFFSET,Offset,"
                 + "Offset from the start of the sequence,optional]]]]]",
                 pick(types, "DILUTION_PLATE").toString());
-        assertEquals(11, types.size());
+        assertEquals(12, types.size());
     }
 
     private SampleType pick(List<SampleType> types, String code)

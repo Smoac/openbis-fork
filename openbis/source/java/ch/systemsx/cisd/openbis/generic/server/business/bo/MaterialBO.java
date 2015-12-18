@@ -26,6 +26,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.MaterialDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -58,8 +60,8 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
     private boolean dataChanged;
 
     public MaterialBO(final IDAOFactory daoFactory, final Session session,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IRelationshipService relationshipService)
     {
         super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);
@@ -171,8 +173,13 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
         loadDataByTechId(materialId);
         try
         {
+            String content =
+                    EntityHistoryCreator.apply(getSessionFactory().getCurrentSession(), Collections.singletonList(material.getId()),
+                            MaterialDAO.sqlPropertyHistory,
+                            MaterialDAO.sqlRelationshipHistory);
+
             getMaterialDAO().delete(material);
-            getEventDAO().persist(createDeletionEvent(material, session.tryGetPerson(), reason));
+            getEventDAO().persist(createDeletionEvent(material, session.tryGetPerson(), reason, content));
         } catch (final DataAccessException ex)
         {
             throwException(ex, material.getPermId(), EntityKind.MATERIAL);
@@ -180,7 +187,7 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
     }
 
     public static EventPE createDeletionEvent(MaterialPE material, PersonPE registrator,
-            String reason)
+            String reason, String content)
     {
         EventPE event = new EventPE();
         event.setEventType(EventType.DELETION);
@@ -189,6 +196,7 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
         event.setDescription(material.getPermId());
         event.setReason(reason);
         event.setRegistrator(registrator);
+        event.setContent(content);
         return event;
     }
 
