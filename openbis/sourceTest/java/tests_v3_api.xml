@@ -6,8 +6,9 @@
 			</run>
 		</groups>
 		<packages>
-			<package name="ch.ethz.sis.openbis.generic.server.api.v3.*" />
-			<package name="ch.ethz.sis.openbis.systemtest.api.v3.*" />
+			<package name="ch.ethz.sis.openbis.generic.server.asapi.v3.*" />
+			<package name="ch.ethz.sis.openbis.generic.server.sharedapi.v3.*" />
+			<package name="ch.ethz.sis.openbis.systemtest.asapi.v3.*" />
 		</packages>
 	</test>
 </suite>

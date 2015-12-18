@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.coreplugin;
 
 import java.util.Properties;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.method.ServiceProvider;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ServiceProvider;
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.DataStoreServerBasedDataSourceProvider;
