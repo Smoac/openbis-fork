@@ -1,4 +1,4 @@
-package ch.ethz.sis.openbis.systemtest.asapi.v3;
+package ch.ethz.sis.openbis.systemtest.deletion;
 
 import org.springframework.test.annotation.Rollback;
 import org.testng.annotations.Test;

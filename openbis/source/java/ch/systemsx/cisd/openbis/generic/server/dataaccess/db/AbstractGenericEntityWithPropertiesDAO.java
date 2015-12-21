@@ -71,11 +71,15 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
 
     private final PersistencyResources persistencyResources;
 
+    protected EntityHistoryCreator historyCreator;
+
     protected AbstractGenericEntityWithPropertiesDAO(
-            final PersistencyResources persistencyResources, final Class<T> entityClass)
+            final PersistencyResources persistencyResources, final Class<T> entityClass,
+            final EntityHistoryCreator historyCreator)
     {
         super(persistencyResources.getSessionFactory(), entityClass);
         this.persistencyResources = persistencyResources;
+        this.historyCreator = historyCreator;
     }
 
     protected IFullTextIndexUpdateScheduler getIndexUpdateScheduler()
@@ -250,7 +254,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                     return null;
                 }
 
-                String content = EntityHistoryCreator.apply(session, entityIdsToDelete, sqlSelectPropertyHistory, sqlSelectRelationshipHistory);
+                String content = historyCreator.apply(session, entityIdsToDelete, sqlSelectPropertyHistory, sqlSelectRelationshipHistory);
 
                 deleteProperties(sqlQueryDeleteProperties, entityIdsToDelete);
                 deleteAttachmentsWithContents(sqlQuerySelectAttachmentContentIds,

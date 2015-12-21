@@ -18,11 +18,29 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 public class EntityHistoryCreator
 {
-    public static String apply(SharedSessionContract session,
+
+    private boolean enabled = false;
+
+    public void setEnabled(String s)
+    {
+        if (s != null && s.length() > 0 && s.equalsIgnoreCase("true"))
+        {
+            enabled = true;
+        } else
+        {
+            enabled = false;
+        }
+    }
+
+    public String apply(SharedSessionContract session,
             List<Long> entityIdsToDelete,
             String propertyHistoryQuery,
             String relationshipHistoryQuery)
     {
+        if (!enabled)
+        {
+            return "";
+        }
         Map<String, List<EntityModification>> histories = new HashMap<String, List<EntityModification>>();
 
         List<PropertyHistoryEntry> propertyHistory =
@@ -62,7 +80,7 @@ public class EntityHistoryCreator
         return content;
     }
 
-    private static void addToHistories(String permId, Map<String, List<EntityModification>> histories, EntityModification modification)
+    private void addToHistories(String permId, Map<String, List<EntityModification>> histories, EntityModification modification)
     {
         List<EntityModification> current = histories.get(permId);
         if (current == null)
@@ -72,7 +90,7 @@ public class EntityHistoryCreator
         histories.put(permId, addModification(current, modification));
     }
 
-    public static List<EntityModification> addModification(List<EntityModification> current, EntityModification modification)
+    private List<EntityModification> addModification(List<EntityModification> current, EntityModification modification)
     {
         List<EntityModification> list = new ArrayList<>(current);
         list.add(modification);
@@ -87,7 +105,7 @@ public class EntityHistoryCreator
         return Collections.unmodifiableList(list);
     }
 
-    private static List<PropertyHistoryEntry> selectHistoryPropertyEntries(
+    private List<PropertyHistoryEntry> selectHistoryPropertyEntries(
             final SQLQuery selectPropertyHistory, final List<Long> entityIds)
     {
         selectPropertyHistory.setParameterList("entityIds", entityIds);
@@ -121,7 +139,7 @@ public class EntityHistoryCreator
         return cast(selectPropertyHistory.list());
     }
 
-    private static List<RelationshipHistoryEntry> selectRelationshipHistoryEntries(final SQLQuery selectRelationshipHistory,
+    private List<RelationshipHistoryEntry> selectRelationshipHistoryEntries(final SQLQuery selectRelationshipHistory,
             final List<Long> entityIds)
     {
         selectRelationshipHistory.setParameterList("entityIds", entityIds);
@@ -154,7 +172,7 @@ public class EntityHistoryCreator
     }
 
     @SuppressWarnings("unchecked")
-    protected static final <T> List<T> cast(final List<?> list)
+    protected final <T> List<T> cast(final List<?> list)
     {
         return (List<T>) list;
     }

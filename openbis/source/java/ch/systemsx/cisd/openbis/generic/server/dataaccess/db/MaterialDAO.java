@@ -79,9 +79,12 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
     private static final Pattern RELAXED_CODE_PATTERN = Pattern.compile("^[^\\s]+$",
             Pattern.CASE_INSENSITIVE);
 
-    protected MaterialDAO(final PersistencyResources persistencyResources)
+    private EntityHistoryCreator historyCreator;
+
+    protected MaterialDAO(final PersistencyResources persistencyResources, EntityHistoryCreator historyCreator)
     {
-        super(persistencyResources, ENTITY_CLASS);
+        super(persistencyResources, ENTITY_CLASS, historyCreator);
+        this.historyCreator = historyCreator;
     }
 
     @Override
@@ -303,7 +306,7 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
                             String materialTypeCode = (String) codeAndType[1];
                             String permId = MaterialPE.createPermId(materialCode, materialTypeCode);
 
-                            String content = EntityHistoryCreator.apply(session, Collections.singletonList(techId.getId()), sqlPropertyHistory,
+                            String content = historyCreator.apply(session, Collections.singletonList(techId.getId()), sqlPropertyHistory,
                                     sqlRelationshipHistory);
 
                             try

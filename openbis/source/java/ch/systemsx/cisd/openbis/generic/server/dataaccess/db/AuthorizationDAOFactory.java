@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -78,7 +79,8 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
     public AuthorizationDAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory,
             final IFullTextIndexUpdateScheduler indexUpdateScheduler,
-            final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler)
+            final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler,
+            final EntityHistoryCreator historyCreator)
     {
         persistencyResources =
                 new PersistencyResources(context, sessionFactory, indexUpdateScheduler,
@@ -87,10 +89,10 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         groupDAO = new SpaceDAO(sessionFactory);
         roleAssignmentDAO = new RoleAssignmentDAO(sessionFactory);
         relationshipTypeDAO = new RelationshipTypeDAO(sessionFactory);
-        dataDAO = new DataDAO(persistencyResources, relationshipTypeDAO);
-        experimentDAO = new ExperimentDAO(persistencyResources);
+        dataDAO = new DataDAO(persistencyResources, relationshipTypeDAO, historyCreator);
+        experimentDAO = new ExperimentDAO(persistencyResources, historyCreator);
         projectDAO = new ProjectDAO(sessionFactory);
-        sampleDAO = new SampleDAO(persistencyResources);
+        sampleDAO = new SampleDAO(persistencyResources, historyCreator);
         gridCustomFilterDAO = new GridCustomFilterDAO(sessionFactory);
         gridCustomColumnDAO = new GridCustomColumnDAO(sessionFactory);
         queryDAO = new QueryDAO(sessionFactory);

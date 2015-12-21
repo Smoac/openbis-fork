@@ -59,12 +59,15 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
 
     private boolean dataChanged;
 
+    private EntityHistoryCreator historyCreator;
+
     public MaterialBO(final IDAOFactory daoFactory, final Session session,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
             DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
-            IRelationshipService relationshipService)
+            IRelationshipService relationshipService, EntityHistoryCreator historyCreator)
     {
         super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);
+        this.historyCreator = historyCreator;
     }
 
     @Override
@@ -174,7 +177,7 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
         try
         {
             String content =
-                    EntityHistoryCreator.apply(getSessionFactory().getCurrentSession(), Collections.singletonList(material.getId()),
+                    historyCreator.apply(getSessionFactory().getCurrentSession(), Collections.singletonList(material.getId()),
                             MaterialDAO.sqlPropertyHistory,
                             MaterialDAO.sqlRelationshipHistory);
 

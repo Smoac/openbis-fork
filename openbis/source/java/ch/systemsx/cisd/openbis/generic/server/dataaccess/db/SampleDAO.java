@@ -78,9 +78,9 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE>i
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             SampleDAO.class);
 
-    SampleDAO(final PersistencyResources persistencyResources)
+    SampleDAO(final PersistencyResources persistencyResources, EntityHistoryCreator historyCreator)
     {
-        super(persistencyResources, SamplePE.class);
+        super(persistencyResources, SamplePE.class, historyCreator);
     }
 
     // LockSampleModificationsInterceptor automatically obtains lock
@@ -554,7 +554,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE>i
 
                     String permIds = permIdList.substring(2);
 
-                    String content = EntityHistoryCreator.apply(session, entityIdsToDelete, createQueryPropertyHistorySQL(),
+                    String content = historyCreator.apply(session, entityIdsToDelete, createQueryPropertyHistorySQL(),
                             createQueryRelationshipHistorySQL());
 
                     SQLQuery deleteProperties = session.createSQLQuery(properties);

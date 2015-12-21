@@ -1,4 +1,4 @@
-package ch.ethz.sis.openbis.systemtest.asapi.v3;
+package ch.ethz.sis.openbis.systemtest.deletion;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -61,6 +61,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.delete.SpaceDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.ethz.sis.openbis.systemtest.asapi.v3.AbstractTest;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 
 public abstract class DeletionTest extends AbstractTest

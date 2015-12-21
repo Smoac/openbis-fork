@@ -76,12 +76,15 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
 
     private final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
 
+    private EntityHistoryCreator historyCreator;
+
     public ProjectBO(final IDAOFactory daoFactory, final Session session,
             IRelationshipService relationshipService,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, EntityHistoryCreator historyCreator)
     {
         super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);
+        this.historyCreator = historyCreator;
     }
 
     private ProjectPE createProject(final ProjectIdentifier projectIdentifier, String description,
@@ -390,7 +393,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
             if (codes.isEmpty() && trashedCodes.isEmpty())
             {
                 String content =
-                        EntityHistoryCreator.apply(getSessionFactory().getCurrentSession(), Collections.singletonList(projectId.getId()),
+                        historyCreator.apply(getSessionFactory().getCurrentSession(), Collections.singletonList(projectId.getId()),
                                 propertyHistoryQuery,
                                 relationshipHistoryQuery);
 

@@ -105,9 +105,9 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE>implem
 
     private IRelationshipTypeDAO relationshipTypeDAO;
 
-    DataDAO(final PersistencyResources persistencyResources, IRelationshipTypeDAO relationshipTypeDAO)
+    DataDAO(final PersistencyResources persistencyResources, IRelationshipTypeDAO relationshipTypeDAO, EntityHistoryCreator historyCreator)
     {
-        super(persistencyResources, ENTITY_CLASS);
+        super(persistencyResources, ENTITY_CLASS, historyCreator);
         this.relationshipTypeDAO = relationshipTypeDAO;
     }
 
@@ -1026,7 +1026,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE>implem
                 final List<DeletedDataSetLocation> locations =
                         selectLocations(selectLocations, entityIdsToDelete);
 
-                String content = EntityHistoryCreator.apply(session, entityIdsToDelete, sqls.selectPropertyHistory, sqls.selectRelationshipHistory);
+                String content = historyCreator.apply(session, entityIdsToDelete, sqls.selectPropertyHistory, sqls.selectRelationshipHistory);
 
                 executeUpdate(deleteProperties, entityIdsToDelete);
                 executeUpdate(deleteExternalData, entityIdsToDelete);

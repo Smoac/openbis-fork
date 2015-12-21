@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IScriptDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
@@ -135,16 +136,20 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private DatabaseConfigurationContext context;
 
+    private EntityHistoryCreator historyCreator;
+
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory, HibernateSearchContext hibernateSearchContext,
             final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler,
-            final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler)
+            final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler,
+            final EntityHistoryCreator historyCreator)
     {
         super(context, sessionFactory, fullTextIndexUpdateScheduler,
-                dynamicPropertyEvaluationScheduler);
+                dynamicPropertyEvaluationScheduler, historyCreator);
         this.context = context;
         this.dynamicPropertyEvaluationScheduler = dynamicPropertyEvaluationScheduler;
         this.fullTextIndexUpdateScheduler = fullTextIndexUpdateScheduler;
+        this.historyCreator = historyCreator;
         sampleTypeDAO = new SampleTypeDAO(sessionFactory);
         hibernateSearchDAO = new HibernateSearchDAO(sessionFactory, hibernateSearchContext);
         propertyTypeDAO = new PropertyTypeDAO(sessionFactory);
@@ -154,7 +159,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         dataSetTypeDAO = new DataSetTypeDAO(sessionFactory);
         fileFormatTypeDAO = new FileFormatTypeDAO(sessionFactory);
         locatorTypeDAO = new LocatorTypeDAO(sessionFactory);
-        materialDAO = new MaterialDAO(getPersistencyResources());
+        materialDAO = new MaterialDAO(getPersistencyResources(), historyCreator);
         codeSequenceDAO = new CodeSequenceDAO(sessionFactory);
         dataStoreDAO = new DataStoreDAO(sessionFactory);
         permIdDAO = new PermIdDAO(sessionFactory);

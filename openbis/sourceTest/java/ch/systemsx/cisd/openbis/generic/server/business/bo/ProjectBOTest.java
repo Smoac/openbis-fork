@@ -31,6 +31,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
@@ -55,7 +56,7 @@ public final class ProjectBOTest extends AbstractBOTest
     private final ProjectBO createProjectBO()
     {
         return new ProjectBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, relationshipService,
-                managedPropertyEvaluatorFactory, null);
+                managedPropertyEvaluatorFactory, null, new EntityHistoryCreator());
     }
 
     @Test
