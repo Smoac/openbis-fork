@@ -59,7 +59,7 @@ define([ 'test/common' ], function(common) {
 
 			require([ 'dto/common/search/' + criteriaClassName ], function(Criteria) {
 				var criteria = new Criteria(name, type);
-				criteria.equalTo(42);
+				criteria.thatEquals(42);
 				assertAttributes(assert, criteria, name, type, "NumberEqualToValue", 42);
 				done();
 			});

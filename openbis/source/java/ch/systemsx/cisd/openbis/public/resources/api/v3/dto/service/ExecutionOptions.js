@@ -9,7 +9,7 @@ define([ "stjs"], function(stjs) {
 		prototype.withParameter = function(parameterName, value) {
 			this.parameters[parameterName] = value;
 		}
-		proptotype.getParameters = function() {
+		prototype.getParameters = function() {
 			return this.parameters;
 		}
 	}, {

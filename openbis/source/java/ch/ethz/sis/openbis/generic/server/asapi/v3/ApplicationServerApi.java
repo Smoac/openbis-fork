@@ -219,7 +219,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private ISearchServiceMethodExecutor searchServiceExecutor;
-    
+
     @Autowired
     private IDeleteSpaceMethodExecutor deleteSpaceExecutor;
 
@@ -274,6 +274,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     public String loginAsAnonymousUser()
     {
         SessionContextDTO session = tryAuthenticateAnonymously();

@@ -36,6 +36,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				return facade.loginAsAnonymousUser().then(function() {
 					return facade.searchSpaces(criteria, fetchOptions).then(function(spaces) {
 						c.assertTrue(spaces.getTotalCount() == 1)
+						c.finish();						
 					});
 				});
 			}).fail(function(error) {

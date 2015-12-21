@@ -48,12 +48,12 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			return dfd.promise();
 		};
 
-		this.loginCommon = function(user, response) {
+		this.loginCommon = function(user, isAnonymousUser, response) {
 			var thisPrivate = this;
 			var dfd = $.Deferred();
 
 			response.done(function(sessionToken) {
-				if (sessionToken && sessionToken.indexOf(user) > -1) {
+				if (sessionToken && (isAnonymousUser || sessionToken.indexOf(user) > -1)) {
 					thisPrivate.sessionToken = sessionToken;
 					dfd.resolve(sessionToken);
 				} else {
@@ -82,7 +82,7 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 
 		this.login = function(user, password) {
 			var thisFacade = this;
-			return thisFacade._private.loginCommon(user, thisFacade._private.ajaxRequest({
+			return thisFacade._private.loginCommon(user, false, thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "login",
@@ -93,7 +93,7 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 
 		this.loginAs = function(user, password, asUserId) {
 			var thisFacade = this;
-			return thisFacade._private.loginCommon(asUserId, thisFacade._private.ajaxRequest({
+			return thisFacade._private.loginCommon(asUserId, false, thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "loginAs",
@@ -104,11 +104,11 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 
 		this.loginAsAnonymousUser = function() {
 			var thisFacade = this;
-			return thisFacade._private.loginCommon(user, thisFacade._private.ajaxRequest({
+			return thisFacade._private.loginCommon(null, true, thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "loginAsAnonymousUser",
-					"params" : [  ]
+					"params" : []
 				}
 			}));
 		}
@@ -378,7 +378,7 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				}
 			});
 		}
-		
+
 		this.searchServices = function(criteria, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -488,7 +488,7 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				}
 			});
 		}
-		
+
 		this.executeService = function(serviceId, parameters) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
