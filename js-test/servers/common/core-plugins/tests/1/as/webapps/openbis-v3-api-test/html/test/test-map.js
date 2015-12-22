@@ -2,7 +2,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 	return function() {
 		QUnit.module("Map tests");
 		
-		var testMap = function(c, fCreate, fMap, fechOptionsTestConfig) {
+		var testMap = function(c, fCreate, fMap, fMapEmptyFetchOptions, fechOptionsTestConfig) {
 			c.start();
 			c.createFacadeAndLogin().then(function(facade) {
 				return fCreate(facade).then(function(permIds) {
@@ -14,7 +14,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 							testFetchOptionsResults(c, fechOptionsTestConfig, true, entity);
 							c.assertEqual(entity.getPermId().toString(), permId.toString(), "Entity perm id matches");
 						});
-						c.finish();
+						return fMapEmptyFetchOptions(facade, permIds).then(function(map) {
+							c.assertEqual(Object.keys(map).length, permIds.length, "Entity map size is correct");
+							permIds.forEach(function(permId) {
+								var entity = map[permId];
+								testFetchOptionsResults(c, fechOptionsTestConfig, false, entity);
+								c.assertEqual(entity.getPermId().toString(), permId.toString(), "Entity perm id matches");
+							});
+							c.finish();
+						});
 					});
 				});
 			}).fail(function(error) {
@@ -117,7 +125,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				return facade.mapSpaces(permIds, fo);
 			}
 			
-			testMap(c, fCreate, fMap, fechOptionsTestConfig);
+			var fMapEmptyFetchOptions = function(facade, permIds) {
+				return facade.mapSpaces(permIds, new c.SpaceFetchOptions());
+			}
+			
+			testMap(c, fCreate, fMap, fMapEmptyFetchOptions, fechOptionsTestConfig);
 		});
 		
 		QUnit.test("mapProjects()", function(assert) {
@@ -138,7 +150,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				return facade.mapProjects(permIds, fo);
 			}
 			
-			testMap(c, fCreate, fMap, fechOptionsTestConfig);
+			var fMapEmptyFetchOptions = function(facade, permIds) {
+				return facade.mapProjects(permIds, new c.ProjectFetchOptions());
+			}
+			
+			testMap(c, fCreate, fMap, fMapEmptyFetchOptions, fechOptionsTestConfig);
 		});
 		
 		QUnit.test("mapExperiments()", function(assert) {
@@ -158,7 +174,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				return facade.mapExperiments(permIds, fo);
 			}
 			
-			testMap(c, fCreate, fMap, fechOptionsTestConfig);
+			var fMapEmptyFetchOptions = function(facade, permIds) {
+				return facade.mapExperiments(permIds, new c.ExperimentFetchOptions());
+			}
+			
+			testMap(c, fCreate, fMap, fMapEmptyFetchOptions, fechOptionsTestConfig);
 		});
 		
 		QUnit.test("mapSamples()", function(assert) {
@@ -178,7 +198,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				return facade.mapSamples(permIds, fo);
 			}
 			
-			testMap(c, fCreate, fMap, fechOptionsTestConfig);
+			var fMapEmptyFetchOptions = function(facade, permIds) {
+				return facade.mapSamples(permIds, new c.SampleFetchOptions());
+			}
+			
+			testMap(c, fCreate, fMap, fMapEmptyFetchOptions, fechOptionsTestConfig);
 		});
 		
 		QUnit.test("mapDataSets()", function(assert) {
@@ -206,7 +230,19 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				return result;
 			}
 			
-			testMap(c, fCreate, fMap, fechOptionsTestConfig);
+			var fMapEmptyFetchOptions = function(facade, permIds) {
+				var result = facade.mapDataSets(permIds, new c.DataSetFetchOptions());
+				
+				result.then(function(map) {
+					permIds.forEach(function(permId) {
+						var entity = map[permId];
+						c.assertEqual(entity.isPostRegistered(), false, "post registered for " + permId);
+					});
+				});
+				return result;
+			}
+			
+			testMap(c, fCreate, fMap, fMapEmptyFetchOptions, fechOptionsTestConfig);
 		});
 		
 		QUnit.test("mapMaterials()", function(assert) {
@@ -226,7 +262,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				return facade.mapMaterials(permIds, fo);
 			}
 			
-			testMap(c, fCreate, fMap, fechOptionsTestConfig);
+			var fMapEmptyFetchOptions = function(facade, permIds) {
+				return facade.mapMaterials(permIds, new c.MaterialFetchOptions());
+			}
+			
+			testMap(c, fCreate, fMap, fMapEmptyFetchOptions, fechOptionsTestConfig);
 		});
 		
 	}
