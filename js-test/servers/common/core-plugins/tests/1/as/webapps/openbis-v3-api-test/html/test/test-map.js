@@ -24,28 +24,28 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		}
 		
 		var testFetchOptionsAssignation = function(c, fo, toTest) {
-			for(property in toTest) {
-				if(property === "SortBy") {
+			for(component in toTest) {
+				if(component === "SortBy") {
 					fo.sortBy().code();
-					c.assertEqual(true, ((fo.getSortBy())?true:false));
+					c.assertEqual(true, ((fo.getSortBy())?true:false), "Component " + component + " set on Fetch Options.");
 				} else {
-					var methodNameWithUsing = "with" + property + "Using";
+					var methodNameWithUsing = "with" + component + "Using";
 					if(typeof fo[methodNameWithUsing] === "function") {
 						fo[methodNameWithUsing](null);
 					} else {
 						throw methodNameWithUsing + " should be a method.";
 					}
 					
-					var methodNameWith = "with" + property;
+					var methodNameWith = "with" + component;
 					if(typeof fo[methodNameWith] === "function") {
 						fo[methodNameWith]();
 					} else {
 						throw methodNameWith + " should be a method.";
 					}
 					
-					var methodNameHas = "has" + property;
+					var methodNameHas = "has" + component;
 					if(typeof fo[methodNameHas] === "function") {
-						c.assertEqual(true, fo[methodNameHas]());
+						c.assertEqual(true, fo[methodNameHas](), "Component " + component + " set on Fetch Options.");
 					} else {
 						throw methodNameHas + " should be a method.";
 					}
@@ -57,17 +57,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			for(property in toTest) {
 				if(property !== "SortBy") {
 					var methodName = "get" + property;
+					var errorFound = null;
 					if(typeof entity[methodName] === "function") {
 						try {
 							var result = entity[methodName](); //Should not thrown an exception, what it means is right!
-							if(!expectedShouldSucceed) {
-								throw "Calling method " + methodName + " succeed when it should thrown an exception for entity type " + entity.toString() + ".";
-							}
 						} catch(error) {
-							if(expectedShouldSucceed) {
-								throw "Calling method " + methodName + " thrown an exception when it should succeed for entity type " + entity.toString() + ".";
-							}
+							errorFound = error;
 						}
+						var msg = (expectedShouldSucceed)?"Succeed":"Fail";
+						c.assertEqual(expectedShouldSucceed, !errorFound, "Calling method " + methodName + " expected to " + msg);
 					} else {
 						throw methodName + " should be a method.";
 					}
@@ -75,14 +73,38 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			}
 		}
 		
+		var getMethods = function(obj) {
+			  var result = [];
+			  for (var id in obj) {
+			    try {
+			      if (typeof(obj[id]) == "function") {
+			        result.push(id + ": " + obj[id].toString());
+			      }
+			    } catch (err) {
+			      result.push(id + ": inaccessible");
+			    }
+			  }
+			  return result;
+		}
+		
+		var getConfigForFetchOptions = function(fo) {
+			var components = {};
+			var methods = getMethods(fo);
+			for(var mIdx = 0; mIdx < methods.length; mIdx++) {
+				var method = methods[mIdx];
+				if(method.startsWith("has")) {
+					var component = method.substring(3, method.indexOf(':'));
+					components[component] = null;
+				}
+			}
+			return components;
+		}
+		
 		QUnit.test("mapSpaces()", function(assert) {
 			var c = new common(assert);
-			var fechOptionsTestConfig = {
-					Registrator : null,
-					Projects : null,
-					Samples : null,
-					SortBy : null
-			}
+			var fo = new c.SpaceFetchOptions();
+			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
+			fechOptionsTestConfig.SortBy = null;
 			
 			var fCreate = function(facade) {
 				return $.when(c.createSpace(facade), c.createSpace(facade)).then(function(permId1, permId2) {
@@ -91,7 +113,6 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			}
 			
 			var fMap = function(facade, permIds) {
-				var fo = new c.SpaceFetchOptions();
 				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
 				return facade.mapSpaces(permIds, fo);
 			}
@@ -101,17 +122,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		
 		QUnit.test("mapProjects()", function(assert) {
 			var c = new common(assert);
-			var fechOptionsTestConfig = {
-					Experiments : null,
-					Space : null,
-					Leader : null,
-					Modifier : null,
-					Attachments : null,
-					Registrator : null,
-					Samples : null,
-					SortBy : null,
-					History : null
-			};
+			var fo = new c.ProjectFetchOptions();
+			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
+			fechOptionsTestConfig.SortBy = null;
 			
 			var fCreate = function(facade) {
 				return $.when(c.createProject(facade), c.createProject(facade)).then(function(permId1, permId2) {
@@ -120,7 +133,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			}
 			
 			var fMap = function(facade, permIds) {
-				var fo = new c.ProjectFetchOptions();
+				
 				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
 				return facade.mapProjects(permIds, fo);
 			}
@@ -130,20 +143,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		
 		QUnit.test("mapExperiments()", function(assert) {
 			var c = new common(assert);
-			var fechOptionsTestConfig = {
-					Type : null,
-					Project : null,
-					DataSets : null,
-					Properties : null,
-					MaterialProperties : null,
-					Tags : null,
-					Samples : null,
-					History : null,
-					Registrator : null,
-					Modifier : null,
-					Attachments : null,
-					SortBy : null
-			};
+			var fo = new c.ExperimentFetchOptions();
+			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
+			fechOptionsTestConfig.SortBy = null;
 			
 			var fCreate = function(facade) {
 				return $.when(c.createExperiment(facade), c.createExperiment(facade)).then(function(permId1, permId2) {
@@ -152,7 +154,6 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			}
 			
 			var fMap = function(facade, permIds) {
-				var fo = new c.ExperimentFetchOptions();
 				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
 				return facade.mapExperiments(permIds, fo);
 			}
@@ -162,21 +163,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		
 		QUnit.test("mapSamples()", function(assert) {
 			var c = new common(assert);
-			var fechOptionsTestConfig = {
-					Parents : null,
-					Children : null,
-					Container : null,
-					Components : null,
-					Type : null,
-					Project : null,
-					Space : null,
-					Experiment : null,
-					Properties : null,
-					MaterialProperties : null,
-					DataSets : null,
-					History : null,
-					SortBy : null
-			};
+			var fo = new c.SampleFetchOptions();
+			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
+			fechOptionsTestConfig.SortBy = null;
 			
 			var fCreate = function(facade) {
 				return $.when(c.createSample(facade), c.createSample(facade)).then(function(permId1, permId2) {
@@ -185,7 +174,6 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			}
 			
 			var fMap = function(facade, permIds) {
-				var fo = new c.SampleFetchOptions();
 				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
 				return facade.mapSamples(permIds, fo);
 			}
@@ -195,24 +183,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		
 		QUnit.test("mapDataSets()", function(assert) {
 			var c = new common(assert);
-			var fechOptionsTestConfig = {
-					Parents : null,
-					Children : null,
-					Components : null,
-					Type : null,
-					History : null,
-					Experiment : null,
-					Properties : null,
-					MaterialProperties : null,
-					Modifier : null,
-					Registrator : null,
-					Containers : null,
-					PhysicalData : null,
-					LinkedData : null,
-					Tags : null,
-					DataStore : null,
-					SortBy : null
-			};
+			var fo = new c.DataSetFetchOptions();
+			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
+			fechOptionsTestConfig.SortBy = null;
 			
 			var fCreate = function(facade) {
 				return $.when(c.createDataSet(facade), c.createDataSet(facade)).then(function(permId1, permId2) {
@@ -221,7 +194,6 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			}
 			
 			var fMap = function(facade, permIds) {
-				var fo = new c.DataSetFetchOptions();
 				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
 				var result = facade.mapDataSets(permIds, fo);
 				
@@ -239,15 +211,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		
 		QUnit.test("mapMaterials()", function(assert) {
 			var c = new common(assert);
-			var fechOptionsTestConfig = {
-					Type : null,
-					History : null,
-					Registrator : null,
-					Properties : null,
-					MaterialProperties : null,
-					Tags : null,
-					SortBy : null
-			};
+			var fo = new c.MaterialFetchOptions();
+			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
+			fechOptionsTestConfig.SortBy = null;
 			
 			var fCreate = function(facade) {
 				return $.when(c.createMaterial(facade), c.createMaterial(facade)).then(function(permId1, permId2) {
@@ -256,7 +222,6 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			}
 			
 			var fMap = function(facade, permIds) {
-				var fo = new c.MaterialFetchOptions();
 				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
 				return facade.mapMaterials(permIds, fo);
 			}
