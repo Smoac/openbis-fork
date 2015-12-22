@@ -26,8 +26,8 @@ import org.springframework.core.Constants;
 import org.springframework.util.StringUtils;
 
 /**
- * Bean that should be used instead of the {@link PropertyPlaceholderConfigurer} if you want to have
- * access to the resolved properties not obligatory from the Spring context. e.g. from JSP or so.
+ * Bean that should be used instead of the {@link PropertyPlaceholderConfigurer} if you want to have access to the resolved properties not obligatory
+ * from the Spring context. e.g. from JSP or so.
  * 
  * @author Christian Ribeaud
  */
@@ -35,10 +35,11 @@ public class ExposablePropertyPlaceholderConfigurer extends PropertyPlaceholderC
 {
     /** Standard bean name in an application context file. */
     public static final String PROPERTY_CONFIGURER_BEAN_NAME = "propertyConfigurer";
-    
+
     private Properties resolvedProps;
 
     private int systemPropertiesMode = PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_FALLBACK;
+
     private static final Constants constants = new Constants(PropertyPlaceholderConfigurer.class);
 
     /** Returns the resolved properties. */
@@ -50,7 +51,6 @@ public class ExposablePropertyPlaceholderConfigurer extends PropertyPlaceholderC
     //
     // PropertyPlaceholderConfigurer
     //
-    
 
     @Override
     protected final String convertPropertyValue(final String originalValue)
@@ -58,7 +58,6 @@ public class ExposablePropertyPlaceholderConfigurer extends PropertyPlaceholderC
         // Can handle null value
         return StringUtils.trimWhitespace(originalValue);
     }
-    
 
     @Override
     public void setSystemPropertiesModeName(String constantName) throws IllegalArgumentException
@@ -85,11 +84,6 @@ public class ExposablePropertyPlaceholderConfigurer extends PropertyPlaceholderC
             final String keyStr = key.toString();
             resolvedProps.setProperty(keyStr, getResolvedProperty(props, keyStr));
         }
-        injectPropertiesInto(resolvedProps);
-    }
-    
-    protected void injectPropertiesInto(Properties properties)
-    {
     }
 
     @SuppressWarnings("deprecation")
