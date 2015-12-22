@@ -501,7 +501,7 @@ class StrainAdaptor(FileMakerEntityAdaptor):
         
 class StrainOpenBISDTO(FMOpenBISDTO):
     def write(self, tr):
-        print str(self.values)
+        #print str(self.values)
         #Build special properties programmatically
         # TO-DO Tomorrow
         
@@ -522,8 +522,8 @@ class StrainOpenBISDTO(FMOpenBISDTO):
             
             if (disruption is not None) or (marker is not None):
                 if (disruption is not None):
-                    genotype = genotype + disruption;
-                genotype = genotype + "::";
+                    genotype = genotype + disruption +" :: ";
+                genotype = genotype + " ";
                 if (marker is not None):
                     genotype = genotype + marker;
                 genotype = genotype + " ";
@@ -678,8 +678,8 @@ adaptors = [
              #ChemicalAdaptor(fmConnString, fmUser, fmPass, "Weis_Chemicals"),
              #AntibodyAdaptor(fmConnString, fmUser, fmPass, "Weis _Antibodies"),
              #OligoAdaptor(fmConnString, fmUser, fmPass, "Weis_Oligos"),
-             PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids"),
-             #StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains")
+             #PlasmidAdaptor(fmConnString, fmUser, fmPass, "Weis_Plasmids"),
+             StrainAdaptor(fmConnString, fmUser, fmPass, "Weis_Yeast_Strains")
              ]
                        
             
