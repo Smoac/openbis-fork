@@ -30,7 +30,7 @@ def update_sample_with_parents(tr, sample_dict):
   sample_id = "/MATERIALS/" + sample_dict['Code']
 
   yeast_parent_code = sample_dict['derived from']
-  yeast_parent_code_split = re.split("and|,|\&|\+|x|/|-|\?|\(|\)", yeast_parent_code)
+  yeast_parent_code_split = re.split("and|,|\&|\+|x|/|-|\?|\(|\)|\*| X |\.|", yeast_parent_code)
   print sample_id, yeast_parent_code_split
   parents_code_list=[]
   #e.split("/|-|\?|\(|\)" 
@@ -39,19 +39,19 @@ def update_sample_with_parents(tr, sample_dict):
   # comment=sample_dict['Comment']
   # comment_split = re.split("/|-|\?|\(|\)", comment)
 
-
-  
-  
- 
-
-
-  # if 
   for name in yeast_parent_code_split:
-    if not sample_id=="/MATERIALS/KWY5055" and not sample_id=="/MATERIALS/KWY5542" and not sample_id=="/MATERIALS/KWY4260":
+    if not sample_id=="/MATERIALS/KWY5055" and not sample_id=="/MATERIALS/KWY5542" and not sample_id=="/MATERIALS/KWY4260" and not sample_id =="/MATERIALS/KWY5593" and not sample_id == "/MATERIALS/KWY5594":
+#KWY5055 has very long text in derived from; KYW5542 has itself set as derived from; KWY4260 has only kwy set as parent, no number
+#KWY5593 and KWY5594 have pkw5529 has parent, which is not in the database
         sample = tr.getSample(sample_id)
         sample_for_update = tr.makeSampleMutable(sample)
         if not re.search("Roy Parker", name) and not re.search("ku",name):   
-            if re.search ("kwy ", name):
+            if re.search ("2kwy5571", name): 
+                yeast_parent_id = "/MATERIALS/"+name.replace("2kwy5571","KWY5571").strip()
+                parents_code_list.append(yeast_parent_id)
+                print "PARENTS: ", parents_code_list
+                sample_for_update.setParentSampleIdentifiers(parents_code_list)   
+            elif re.search ("kwy ", name):
                 yeast_parent_id = "/MATERIALS/"+name.replace("kwy ","KWY").strip()
                 parents_code_list.append(yeast_parent_id)
                 print "PARENTS: ", parents_code_list
@@ -86,16 +86,15 @@ def update_sample_with_parents(tr, sample_dict):
                 parents_code_list.append(yeast_parent_id)
                 print "PARENTS: ", parents_code_list
                 sample_for_update.setParentSampleIdentifiers(parents_code_list)             
-#            elif re.search ("k", name): 
-#                yeast_parent_id = "/MATERIALS/"+name.replace("k","KWY").strip()
-#                parents_code_list.append(yeast_parent_id)
-
-                sample_for_update.setParentSampleIdentifiers(parents_code_list)        
             elif re.search ("KWYY", name): 
                 yeast_parent_id = "/MATERIALS/"+name.replace("KWYY","KWY").strip()
                 parents_code_list.append(yeast_parent_id)
                 print "PARENTS: ", parents_code_list
-                sample_for_update.setParentSampleIdentifiers(parents_code_list)        
+                sample_for_update.setParentSampleIdentifiers(parents_code_list)   
+            elif re.search ("KWY2823 KWY2757", name): 
+                #name = "/MATERIALSKWY2823,KWY2757"
+                sample_for_update.setParentSampleIdentifiers(["/MATERIALS/KWY2823"]) 
+                sample_for_update.setParentSampleIdentifiers(["/MATERIALS/KWY2757"]) 
             elif re.search ("KWy", name): 
                 yeast_parent_id = "/MATERIALS/"+name.replace("KWy","KWY").strip()
                 parents_code_list.append(yeast_parent_id)
@@ -106,7 +105,9 @@ def update_sample_with_parents(tr, sample_dict):
                 if not yeast_parent_id =="/MATERIALS/KWY":
                     parents_code_list.append(yeast_parent_id)
                     print "PARENTS: ", parents_code_list
-                    sample_for_update.setParentSampleIdentifiers(parents_code_list)                        
+                    sample_for_update.setParentSampleIdentifiers(parents_code_list)  
+            else:
+                print "NO PARENTS FOUND!"                      
 
         
 
