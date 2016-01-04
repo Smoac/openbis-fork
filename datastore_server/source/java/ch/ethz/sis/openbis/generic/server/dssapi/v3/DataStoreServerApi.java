@@ -178,6 +178,10 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
                     file.setPath(node.getRelativePath());
                     file.setDataSetPermId(permIds.get(code));
                     file.setDirectory(node.isDirectory());
+                    if (node.isDirectory() == false)
+                    {
+                        file.setFileLength(node.getFileLength());
+                    }
                     result.add(file);
                 }
             }

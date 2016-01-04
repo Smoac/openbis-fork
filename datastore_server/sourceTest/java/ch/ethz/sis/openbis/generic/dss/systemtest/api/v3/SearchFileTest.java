@@ -24,6 +24,15 @@ public class SearchFileTest extends AbstractFileTest
         assertThat(searchFiles, containsAll(filesAndDirectories));
         /* directory structure [dataset id]/original/[root folder] */
         assertThat(searchFiles.size(), is(filesAndDirectories.size() + 3));
-    }
 
+        for (DataSetFile dataSetFile : searchFiles)
+        {
+            if (dataSetFile.isDirectory() == false)
+            {
+                assertEquals(
+                        dataSetFile.getPath().length() - 1 - dataSetFile.getPath().indexOf('/', "original/.".length()) + "file content of ".length(),
+                        dataSetFile.getFileLength());
+            }
+        }
+    }
 }
