@@ -1009,31 +1009,14 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         this.applicationContext = applicationContext;
     }
 
-
-    private static class SampleCodeUpdate
-    {
-        final String spaceCode;
-
-        final String oldSampleCode;
-
-        final String newSampleCode;
-
-        public SampleCodeUpdate(String spaceCode, String oldSampleCode, String newSampleCode)
-        {
-            this.spaceCode = spaceCode;
-            this.oldSampleCode = oldSampleCode;
-            this.newSampleCode = newSampleCode;
-        }
-    }
-
     @Override
     public Boolean updateTemporaryCodes(String sessionToken, Map<String, List<String>> sampleTypeCodeToTemporaryIdentifiers)
     {
         ISpaceDAO spaceDAO = getDAOFactory().getSpaceDAO();
         ISampleDAO sampleDAO = getDAOFactory().getSampleDAO();
         Map<String, SpacePE> spaceCache = new HashMap<String, SpacePE>();
-        Map<String, List<SampleCodeUpdate>> spaceToUpdates = new HashMap<String, List<SampleCodeUpdate>>();
-        Map<String, SampleCodeUpdate> identifiersToUpdates = new HashMap<String, SampleCodeUpdate>();
+        Map<String, List<String>> spaceToOldSampleCodes = new HashMap<String, List<String>>();
+        Map<String, String> identifiersToNewSampleCodes = new HashMap<String, String>();
         
         // Generate Updates for each space and build helper maps
         for(String sampleTypeCode : sampleTypeCodeToTemporaryIdentifiers.keySet()) {
@@ -1044,42 +1027,37 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             for(int tIdx = 0; tIdx < numberOfCodesToGenerate; tIdx++)
             {
                 String tempIdentifier = temporaryIdentifiers.get(tIdx);
-                String[] identifierParts = tempIdentifier.split("/");
-                String spaceCode = identifierParts[1];
-                String tempSampleCode = identifierParts[2];
+                String spaceCode = tempIdentifier.split("/")[1];
+                String tempSampleCode = tempIdentifier.substring(tempIdentifier.lastIndexOf('/') + 1, tempIdentifier.length());
                 SpacePE spacePE = spaceCache.get(spaceCode);
                 if (spacePE == null)
                 {
                     spacePE = spaceDAO.tryFindSpaceByCode(spaceCode);
                     spaceCache.put(spaceCode, spacePE);
                 }
-                List<SampleCodeUpdate> spaceSampleUpdates = spaceToUpdates.get(spaceCode);
-                if (spaceSampleUpdates == null)
+                List<String> oldSampleCodes = spaceToOldSampleCodes.get(spaceCode);
+                if (oldSampleCodes == null)
                 {
-                    spaceSampleUpdates = new ArrayList<SampleCodeUpdate>();
-                    spaceToUpdates.put(spaceCode, spaceSampleUpdates);
+                    oldSampleCodes = new ArrayList<String>();
+                    spaceToOldSampleCodes.put(spaceCode, oldSampleCodes);
                 }
-                spaceSampleUpdates.add(new SampleCodeUpdate(spaceCode, tempSampleCode, newCodes.get(tIdx)));
-                identifiersToUpdates.put(tempIdentifier, new SampleCodeUpdate(spaceCode, tempSampleCode, newCodes.get(tIdx)));
+                oldSampleCodes.add(tempSampleCode);
+                identifiersToNewSampleCodes.put(tempIdentifier, newCodes.get(tIdx));
             }
         }
         
         // Retrieve all sample PE objects
         List<SamplePE> allSamplesPE = new ArrayList<SamplePE>();
-        for(String spaceCode: spaceToUpdates.keySet()) {
-            List<String> oldSampleCodes = new ArrayList<String>();
-            for (SampleCodeUpdate sampleCodeUpdate : spaceToUpdates.get(spaceCode))
-            {
-                oldSampleCodes.add(sampleCodeUpdate.oldSampleCode);
-            }
-            List<SamplePE> samples = sampleDAO.listByCodesAndSpace(oldSampleCodes, null, spaceCache.get(spaceCode));
+        for (String spaceCode : spaceToOldSampleCodes.keySet())
+        {
+            List<SamplePE> samples = sampleDAO.listByCodesAndSpace(spaceToOldSampleCodes.get(spaceCode), null, spaceCache.get(spaceCode));
             allSamplesPE.addAll(samples);
         }
         // Update all codes in sample PE objects
         for (SamplePE samplePE : allSamplesPE)
         {
-            SampleCodeUpdate sampleCodeUpdate = identifiersToUpdates.get(samplePE.getIdentifier());
-            samplePE.setCode(sampleCodeUpdate.newSampleCode);
+            String newSampleCode = identifiersToNewSampleCodes.get(samplePE.getIdentifier());
+            samplePE.setCode(newSampleCode);
         }
         // Update samplePEs
         boolean succeed;
