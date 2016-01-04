@@ -17,6 +17,8 @@
 function TrashManagerView(trashManagerController, trashManagerModel) {
 	this._trashManagerController = trashManagerController;
 	this._trashManagerModel = trashManagerModel;
+	var deleteMessageOne = "The selected entity in the trashcan will be deleted permanently. This action cannot be undone!<br><br>Are you sure you want to continue?";
+	var deleteMessageMany = "All entities in the trashcan will be deleted permanently. This action cannot be undone!<br><br>Are you sure you want to continue?";
 	
 	this.repaint = function($container) {
 		var _this = this;
@@ -77,7 +79,7 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 				
 				var $removeOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Remove Permanently'}).append("Delete Permanently"));
 				$removeOption.click(function(e) {
-					Util.showWarning("Are you sure you want to delete the entity permanently?", function() {
+					Util.showWarning(deleteMessageOne, function() {
 						_this._trashManagerController.deletePermanently([data.entity.id]);
 					});
 				});
@@ -182,7 +184,7 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 		//
 		var deleteAllBtn = $("<a>", { "class" : "btn btn-primary", "style" : "margin-top: 10px;"}).append("Empty Trash");
 		deleteAllBtn.click(function() {
-			Util.showWarning("All entities will be deleted permanently. Are you sure?", function() {
+			Util.showWarning(deleteMessageMany, function() {
 				_this._trashManagerController.emptyTrash();
 			});
 		});
