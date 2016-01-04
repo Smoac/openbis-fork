@@ -63,4 +63,7 @@ public interface ProjectQuery extends ObjectQuery
             + "from project_relationships_history prh where prh.valid_until_timestamp is not null and prh.main_proj_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ProjectRelationshipRecord> getRelationshipsHistory(LongSet projectIds);
 
+    @Select(sql = "select s.proj_id as objectId, s.id as relatedId from samples s where s.proj_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getSampleIds(LongSet projectIds);
+
 }
