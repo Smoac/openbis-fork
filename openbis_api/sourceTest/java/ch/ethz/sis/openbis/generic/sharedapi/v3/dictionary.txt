@@ -232,6 +232,7 @@ getFileFormatType
 getFileFormatTypeId
 getFileName
 getFilePath
+getFileLength
 getFirstName
 getFormat
 getFrom
@@ -619,6 +620,7 @@ setFileFormatType
 setFileFormatTypeId
 setFileName
 setFilePath
+setFileLength
 setFirstName
 setGeneratedCodePrefix
 setHistory

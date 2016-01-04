@@ -45,6 +45,9 @@ public class DataSetFile implements Serializable
     @JsonProperty
     private boolean isDirectory;
 
+    @JsonProperty
+    private long fileLength;
+
     @JsonIgnore
     public DataSetFilePermId getPermId()
     {
@@ -87,6 +90,17 @@ public class DataSetFile implements Serializable
     public void setDirectory(boolean isDirectory)
     {
         this.isDirectory = isDirectory;
+    }
+
+    @JsonIgnore
+    public long getFileLength()
+    {
+        return fileLength;
+    }
+
+    public void setFileLength(long fileLength)
+    {
+        this.fileLength = fileLength;
     }
 
     @Override
