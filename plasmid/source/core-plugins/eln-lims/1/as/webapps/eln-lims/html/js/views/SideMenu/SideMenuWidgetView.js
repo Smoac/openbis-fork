@@ -33,11 +33,11 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     
     this._updateNavButtonIcon = function() {
     	if(this._sideMenuWidgetModel.isTreeNavigation) {
-    		this.$toggleNavButtonIcon.removeClass( "glyphicon-align-left" );
-    		this.$toggleNavButtonIcon.addClass( "glyphicon-list" );
+    		$toggleNavButtonIcon.removeClass( "glyphicon-align-left" );
+    		$toggleNavButtonIcon.addClass( "glyphicon-list" );
     	} else {
-    		this.$toggleNavButtonIcon.removeClass( "glyphicon-list" );
-    		this.$toggleNavButtonIcon.addClass( "glyphicon-align-left" );
+    		$toggleNavButtonIcon.removeClass( "glyphicon-list" );
+    		$toggleNavButtonIcon.addClass( "glyphicon-align-left" );
     	}
     }
     this.toggleNavType = function() {
@@ -106,17 +106,17 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                         .append($("<span>", {"class": "glyphicon glyphicon-resize-full"}))
                         );
         
-        this.$toggleMenuButtonIcon = $("<span>", {"class": "glyphicon glyphicon-menu-right"});
+        $toggleMenuButtonIcon = $("<span>", {"class": "glyphicon glyphicon-menu-right"});
         var $toggleMenuButton = $("<li>")
         .append($("<a>", {"href": "javascript:mainController.sideMenu.toggleMenuSize();"})
-                .append(this.$toggleMenuButtonIcon)
+                .append($toggleMenuButtonIcon)
                 );
         
-        this.$toggleNavButtonIcon = $("<span>", { "class" : "glyphicon" });
+        $toggleNavButtonIcon = $("<span>", { "class" : "glyphicon" });
         this._updateNavButtonIcon();
         var $toggleNavButton = $("<li>")
         .append($("<a>", {"href": "javascript:mainController.sideMenu.toggleNavType();"})
-                .append(this.$toggleNavButtonIcon)
+                .append($toggleNavButtonIcon)
                 );
         
         var dropDownSearch = "";
