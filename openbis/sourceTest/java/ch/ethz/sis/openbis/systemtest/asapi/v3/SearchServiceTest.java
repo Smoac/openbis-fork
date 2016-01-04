@@ -40,4 +40,30 @@ public class SearchServiceTest extends AbstractTest
 
         assertEquals(result.getTotalCount(), 1);
     }
+    
+    @Test(enabled = false)
+    public void testSearchAllServicesSortedPage2()
+    {
+        ServiceFetchOptions fetchOptions = new ServiceFetchOptions();
+        fetchOptions.from(2).count(1).sortBy();
+        SearchResult<Service> result = v3api.searchServices(systemSessionToken, new ServiceSearchCriteria(), 
+                fetchOptions);
+        
+        assertEquals(result.getObjects().toString(), "[Service code: service3]");
+        assertEquals(result.getTotalCount(), 4);
+    }
+    
+    @Test(enabled = false)
+    public void testSearchServiceByCode()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        ServiceSearchCriteria searchCriteria = new ServiceSearchCriteria();
+        searchCriteria.withCode().thatStartsWith("simple");
+        
+        SearchResult<Service> result = v3api.searchServices(sessionToken, searchCriteria, new ServiceFetchOptions());
+        
+        assertEquals(result.getObjects().toString(), "[Service code: simple-service]");
+        assertEquals(result.getTotalCount(), 1);
+    }
+    
 }
