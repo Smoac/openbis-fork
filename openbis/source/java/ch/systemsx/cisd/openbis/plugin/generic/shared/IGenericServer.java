@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.shared;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -243,4 +244,10 @@ public interface IGenericServer extends IServer
     public void updateDataSets(final String sessionToken, final NewDataSetsWithTypes dataSets)
             throws UserFailureException;
 
+    /**
+     * Updates temporary sample codes for batch sample registration with permanent codes.
+     */
+    @Transactional
+    @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
+    public Boolean updateTemporaryCodes(String sessionToken, Map<String, List<String>> sampleTypeCodeToTemporaryIdentifiers);
 }

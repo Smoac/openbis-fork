@@ -21,8 +21,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -62,9 +64,12 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityCodeGenerator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleCodeGeneratorByType;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleCodeGeneratorTemporal;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -111,6 +116,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -1003,4 +1009,102 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         this.applicationContext = applicationContext;
     }
 
+
+    private static class SampleCodeUpdate
+    {
+        final String spaceCode;
+
+        final String oldSampleCode;
+
+        final String newSampleCode;
+
+        public SampleCodeUpdate(String spaceCode, String oldSampleCode, String newSampleCode)
+        {
+            this.spaceCode = spaceCode;
+            this.oldSampleCode = oldSampleCode;
+            this.newSampleCode = newSampleCode;
+        }
+    }
+
+    @Override
+    public Boolean updateTemporaryCodes(String sessionToken, Map<String, List<String>> sampleTypeCodeToTemporaryIdentifiers)
+    {
+        ISpaceDAO spaceDAO = getDAOFactory().getSpaceDAO();
+        ISampleDAO sampleDAO = getDAOFactory().getSampleDAO();
+        Map<String, SpacePE> spaceCache = new HashMap<String, SpacePE>();
+        Map<String, List<SampleCodeUpdate>> spaceToUpdates = new HashMap<String, List<SampleCodeUpdate>>();
+        Map<String, SampleCodeUpdate> identifiersToUpdates = new HashMap<String, SampleCodeUpdate>();
+        
+        // Generate Updates for each space and build helper maps
+        for(String sampleTypeCode : sampleTypeCodeToTemporaryIdentifiers.keySet()) {
+            String codePrefix = getGeneratedCodePrefix(sessionToken, sampleTypeCode);
+            List<String> temporaryIdentifiers = sampleTypeCodeToTemporaryIdentifiers.get(sampleTypeCode);
+            int numberOfCodesToGenerate = temporaryIdentifiers.size();
+            List<String> newCodes = new SampleCodeGeneratorByType(getDAOFactory()).generateCodes(codePrefix, ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind.SAMPLE, numberOfCodesToGenerate);
+            for(int tIdx = 0; tIdx < numberOfCodesToGenerate; tIdx++)
+            {
+                String tempIdentifier = temporaryIdentifiers.get(tIdx);
+                String[] identifierParts = tempIdentifier.split("/");
+                String spaceCode = identifierParts[1];
+                String tempSampleCode = identifierParts[2];
+                SpacePE spacePE = spaceCache.get(spaceCode);
+                if (spacePE == null)
+                {
+                    spacePE = spaceDAO.tryFindSpaceByCode(spaceCode);
+                    spaceCache.put(spaceCode, spacePE);
+                }
+                List<SampleCodeUpdate> spaceSampleUpdates = spaceToUpdates.get(spaceCode);
+                if (spaceSampleUpdates == null)
+                {
+                    spaceSampleUpdates = new ArrayList<SampleCodeUpdate>();
+                    spaceToUpdates.put(spaceCode, spaceSampleUpdates);
+                }
+                spaceSampleUpdates.add(new SampleCodeUpdate(spaceCode, tempSampleCode, newCodes.get(tIdx)));
+                identifiersToUpdates.put(tempIdentifier, new SampleCodeUpdate(spaceCode, tempSampleCode, newCodes.get(tIdx)));
+            }
+        }
+        
+        // Retrieve all sample PE objects
+        List<SamplePE> allSamplesPE = new ArrayList<SamplePE>();
+        for(String spaceCode: spaceToUpdates.keySet()) {
+            List<String> oldSampleCodes = new ArrayList<String>();
+            for (SampleCodeUpdate sampleCodeUpdate : spaceToUpdates.get(spaceCode))
+            {
+                oldSampleCodes.add(sampleCodeUpdate.oldSampleCode);
+            }
+            List<SamplePE> samples = sampleDAO.listByCodesAndSpace(oldSampleCodes, null, spaceCache.get(spaceCode));
+            allSamplesPE.addAll(samples);
+        }
+        // Update all codes in sample PE objects
+        for (SamplePE samplePE : allSamplesPE)
+        {
+            SampleCodeUpdate sampleCodeUpdate = identifiersToUpdates.get(samplePE.getIdentifier());
+            samplePE.setCode(sampleCodeUpdate.newSampleCode);
+        }
+        // Update samplePEs
+        boolean succeed;
+        try
+        {
+            sampleDAO.createOrUpdateSamples(allSamplesPE, getSystemUser(), true);
+            succeed = true;
+        } catch (Exception ex)
+        {
+            succeed = false;
+        }
+
+        return succeed;
+    }
+
+    private String getGeneratedCodePrefix(String sessionToken, String sampleTypeCode)
+    {
+        List<SampleType> allSampleTypes = commonServer.listSampleTypes(sessionToken);
+        for (SampleType sampleType : allSampleTypes)
+        {
+            if (sampleType.getCode().equals(sampleTypeCode))
+            {
+                return sampleType.getGeneratedCodePrefix();
+            }
+        }
+        return null;
+    }
 }

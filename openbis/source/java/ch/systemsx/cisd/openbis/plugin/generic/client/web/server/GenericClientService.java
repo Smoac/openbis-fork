@@ -73,6 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -227,6 +228,7 @@ public class GenericClientService extends AbstractClientService implements IGene
                                             operationKind, sessionToken);
                             // Execute task
                             genericServer.registerOrUpdateSamples(sessionToken, asyncInfo.getSamples());
+                            updateTemporaryCodes(sessionToken, asyncInfo);
                         }
                     };
 
@@ -235,6 +237,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             } else
             {
                 genericServer.registerOrUpdateSamples(sessionToken, info.getSamples());
+                updateTemporaryCodes(sessionToken, info);
                 return info.getResultList();
             }
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
@@ -270,6 +273,37 @@ public class GenericClientService extends AbstractClientService implements IGene
                 cleanUploadedFiles(sessionKey, httpSession, uploadedFiles);
             }
         }
+    }
+
+    private boolean updateTemporaryCodes(final String sessionToken, BatchSamplesOperation info)
+    {
+        // 1. Fill Structure
+        Map<String, List<String>> sampleTypeCodeToTemporaryIdentifiers = new HashMap<String, List<String>>();
+        List<NewSamplesWithTypes> samples = info.getSamples();
+
+        for (NewSamplesWithTypes newSamplesWithTypes : samples)
+        {
+            String sampleTypeCode = newSamplesWithTypes.getEntityType().getCode();
+            for (NewSample newSample : newSamplesWithTypes.getNewEntities())
+            {
+                List<String> temporaryIdentifiers = sampleTypeCodeToTemporaryIdentifiers.get(sampleTypeCode);
+                if (temporaryIdentifiers == null)
+                {
+                    temporaryIdentifiers = new ArrayList<String>();
+                    sampleTypeCodeToTemporaryIdentifiers.put(sampleTypeCode, temporaryIdentifiers);
+                }
+                temporaryIdentifiers.add(newSample.getIdentifier());
+            }
+        }
+
+        // 2. Update samples
+        boolean updated = false;
+        do
+        {
+            updated = genericServer.updateTemporaryCodes(sessionToken, sampleTypeCodeToTemporaryIdentifiers);
+        } while (!updated);
+
+        return updated;
     }
 
     @Override

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.server;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -307,5 +308,12 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         }
 
         return materials.toString();
+    }
+
+    @Override
+    public Boolean updateTemporaryCodes(String sessionToken, Map<String, List<String>> sampleTypeCodeToTemporaryIdentifiers)
+    {
+        logTracking(sessionToken, "update_temporary_codes", "SAMPLETYPECODETOTEMPORARYIDENTIFIERS(%s)", sampleTypeCodeToTemporaryIdentifiers);
+        return null;
     }
 }
