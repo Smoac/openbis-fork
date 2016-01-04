@@ -19,7 +19,7 @@
     ${INSTALL_BIN_PATH}/allup.sh
   </div>This command might take several minutes on the inital startup, depending on the performance of your server!<br>
   After the completion of the above command openBIS will be available at <a href=
-  "https://localhost:8443/openbis">https://localhost:8443/openbis</a><br><br>
+  "https://${HOSTNAME}:8443/openbis">https://${HOSTNAME}:8443/openbis</a><br><br>
   
   <div class="text">
   Note: by default, openBIS expects to be able to connect your PostgreSQL database as superuser 'postgres' without a password.
@@ -62,15 +62,14 @@
   <p>Here are the steps to register a file/folder as a data set into openBIS.</p>
 
   <ol>
-    <li>Log in to <a href="https://localhost:8443/openbis">openBIS</a> as admin.
+    <li>Log in to <a href="https://${HOSTNAME}:8443/openbis">openBIS</a> as admin.
     </li>
 
-    <li>Open the Data Set Uploader application by clicking on the menu item Import -&gt; Data Set Registration.<br>
-    The application will be started via Java Web Start. You may be asked to trust the self-signed certificate.</li>
+    <li>Open the Experiment Browser by clicking on the menu item Browse -&gt; Experiment and open the default experiment. </li>
 
-    <li>Choose a file/folder in the Data Set Uploader application.</li>
+    <li>Click on the Data Set Uploader tab and upload one or several file.</li>
 
-    <li>Choose a sample and click the upload button.</li>
+    <li>Choose a data set type and press the button 'Create Data Set'.</li>
   </ol>
 
   <p></p>
@@ -80,7 +79,7 @@
   <p>Here are the steps to get an example prot.XML into openBIS.</p>
 
   <ol>
-    <li>Log in to <a href="https://localhost:8443/openbis">openBIS</a> as admin.
+    <li>Log in to <a href="https://${HOSTNAME}:8443/openbis">openBIS</a> as admin.
     </li>
 
     <li>Open space browser by clicking on menu item Admin -&gt; Spaces.</li>
@@ -107,7 +106,7 @@
   <h4 class="screening">Screening</h4>You could import a minimalistic example by doing the following:
 
   <ol>
-    <li>Log in to <a href="https://localhost:8443/openbis">openBIS</a> as admin.
+    <li>Log in to <a href="https://${HOSTNAME}:8443/openbis">openBIS</a> as admin.
     </li>
 
     <li>Open experiment type browser by clicking on menu item Admin -&gt; Types -&gt; Experiment Types.</li>
