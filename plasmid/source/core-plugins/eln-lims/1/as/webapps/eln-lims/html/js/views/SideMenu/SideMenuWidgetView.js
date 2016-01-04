@@ -305,7 +305,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 //        }
         
         tree.fancytree({
-        	extensions: ["dnd", "edit", "glyph", "wide"],
+        	extensions: ["dnd", "edit", "glyph"], //, "wide"
         	glyph: glyph_opts,
         	source: treeModel,
         	activate: function(event, data){
