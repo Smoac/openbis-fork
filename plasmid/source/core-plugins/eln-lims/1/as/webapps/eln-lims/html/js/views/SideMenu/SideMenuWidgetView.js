@@ -65,7 +65,9 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     		$("#mainContainer").addClass("col-md-10");
     		cutDisplayNameAtLength = DISPLAY_NAME_LENGTH_SHORT;
     	}
-    	this.repaint();
+    	if(!this._sideMenuWidgetModel.isTreeNavigation) {
+    		this.repaint();
+    	}
     };
     
     this.hideSideMenu = function() {
@@ -304,39 +306,32 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 //    		}
 //        }
         
+        var onClickOrActivate = function(event, data){
+    		var menuData = data.node.data.menuData;
+    		data.node.setExpanded(true);
+    		if(menuData.isSelectable) {
+    			_this._sideMenuWidgetModel.pointerToMenuNode = menuData;
+    			if(menuData.newViewIfSelected) {
+    				mainController.changeView(menuData.newViewIfSelected, menuData.newViewIfSelectedData);
+    			}
+    		}
+    	};
+    	
         tree.fancytree({
         	extensions: ["dnd", "edit", "glyph"], //, "wide"
         	glyph: glyph_opts,
         	source: treeModel,
-        	activate: function(event, data){
-        		var menuData = data.node.data.menuData;
-        		data.node.setExpanded(true);
-        		if(menuData.isSelectable) {
-        			_this._sideMenuWidgetModel.pointerToMenuNode = menuData;
-        			if(menuData.newViewIfSelected) {
-        				mainController.changeView(menuData.newViewIfSelected, menuData.newViewIfSelectedData);
-        			}
-        		}
-//        		updateIcons(data);
-        	}
-//        	,beforeActivate: function(event, data) {
-//        		updateIcons(data);
-//        	},
-//        	deactivate: function(event, data) {
-//        		updateIcons(data);
-//        	},
-//        	renderNode: function(event, data) {
-//        		updateIcons(data);
-//        	}
+        	activate: onClickOrActivate,
+        	click: onClickOrActivate
         });
         
         this._sideMenuWidgetModel.menuDOMBody.append(tree);
         
         //Expand Tree Node
-        var expandToParent = function(tree, menuData, isFirst) {
+        var expandToParent = function(tree, menuData, isRoot) {
         	var node = tree.fancytree("getTree").getNodeByKey(menuData.uniqueId);
         	node.setExpanded(true);
-        	if(isFirst) {
+        	if(isRoot) {
         		node.setActive(true);
         	}
         	if(menuData.parent) {
