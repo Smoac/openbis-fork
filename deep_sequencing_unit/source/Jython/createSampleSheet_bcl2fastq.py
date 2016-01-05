@@ -724,7 +724,8 @@ def main ():
     flowCellName = foundFlowCell.getCode()
     flowCellDict = transform_sample_to_dict(foundFlowCell)
     model = get_model(flowCellDict['RUN_NAME_FOLDER'])
-    print("Auto-detected: " + model)
+    if not myoptions.verbose:
+        print("Auto-detected: " + model)
     logger.info("Auto-detected: " + model)
 
     index1Vocabulary = get_vocabulary(config_dict['index1Name'], service)
