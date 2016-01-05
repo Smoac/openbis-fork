@@ -65,7 +65,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleCodeGeneratorByType;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleCodeGeneratorTemporal;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleCodeGeneratorForTempCodes;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
@@ -767,11 +767,11 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public List<String> generateTemporalCodes(String sessionToken, String prefix,
+    public List<String> generateTemporaryCodes(String sessionToken, String prefix,
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind, int number)
     {
         checkSession(sessionToken);
-        return new SampleCodeGeneratorTemporal(getDAOFactory()).generateCodes(prefix, entityKind, number);
+        return new SampleCodeGeneratorForTempCodes(getDAOFactory()).generateCodes(prefix, entityKind, number);
     }
 
     @Override

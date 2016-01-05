@@ -22,9 +22,9 @@ import java.util.UUID;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
-public class SampleCodeGeneratorTemporal extends EntityCodeGenerator
+public class SampleCodeGeneratorForTempCodes extends EntityCodeGenerator
 {
-    public SampleCodeGeneratorTemporal(IDAOFactory daoFactory)
+    public SampleCodeGeneratorForTempCodes(IDAOFactory daoFactory)
     {
         super(daoFactory);
     }

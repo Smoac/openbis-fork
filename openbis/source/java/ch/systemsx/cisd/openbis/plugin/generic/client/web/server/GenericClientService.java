@@ -582,7 +582,7 @@ public class GenericClientService extends AbstractClientService implements IGene
                     {
                         if (isCreateContinuousSampleCodes)
                         {
-                            return genericServer.generateTemporalCodes(sessionToken, codePrefix,
+                            return genericServer.generateTemporaryCodes(sessionToken, codePrefix,
                                     EntityKind.SAMPLE, size);
                         } else
                         {

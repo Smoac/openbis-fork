@@ -203,7 +203,7 @@ public interface IGenericServer extends IServer
             int number);
 
     @Transactional
-    public List<String> generateTemporalCodes(String sessionToken, String prefix,
+    public List<String> generateTemporaryCodes(String sessionToken, String prefix,
             EntityKind entityKind, int number);
 
     /**
