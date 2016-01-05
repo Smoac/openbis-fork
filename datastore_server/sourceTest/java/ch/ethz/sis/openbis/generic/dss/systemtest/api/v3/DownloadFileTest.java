@@ -109,6 +109,24 @@ public class DownloadFileTest extends AbstractFileTest
         assertContent(IOUtils.toString(download3.getInputStream()), getPath("subdir1/file3.txt"));
     }
 
+    @Test
+    public void testDownloadWithFileLengths() throws Exception
+    {
+        IDataSetFileId file1 = new DataSetFilePermId(new DataSetPermId(dataSetCode), getPath("file1.txt"));
+        IDataSetFileId file2 = new DataSetFilePermId(new DataSetPermId(dataSetCode), getPath("file2.txt"));
+
+        DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
+
+        InputStream stream = dss.downloadFiles(sessionToken, Arrays.asList(file1, file2), options);
+        DataSetFileDownloadReader reader = new DataSetFileDownloadReader(stream);
+
+        DataSetFileDownload download1 = reader.read();
+        DataSetFileDownload download2 = reader.read();
+
+        assertEquals(getContent(download1.getDataSetFile().getPath()).length(), download1.getDataSetFile().getFileLength());
+        assertEquals(getContent(download2.getDataSetFile().getPath()).length(), download2.getDataSetFile().getFileLength());
+    }
+
     private Map<String, String> download(@SuppressWarnings("hiding")
     List<IDataSetFileId> files, DataSetFileDownloadOptions options)
     {
@@ -144,8 +162,13 @@ public class DownloadFileTest extends AbstractFileTest
 
     private void assertContent(String content, String filePath)
     {
-        String relativePath = filePath.substring(getPathPrefix().length());
-        assertEquals("file content of " + relativePath, content);
+        assertEquals(getContent(filePath), content);
+    }
+
+    private String getContent(String path)
+    {
+        String relativePath = path.substring(getPathPrefix().length());
+        return "file content of " + relativePath;
     }
 
     private String getPath(String path)

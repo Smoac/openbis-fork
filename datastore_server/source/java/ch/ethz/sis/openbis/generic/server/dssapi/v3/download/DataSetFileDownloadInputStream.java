@@ -76,6 +76,10 @@ public class DataSetFileDownloadInputStream extends ConcatenatedContentInputStre
         dto.setPermId(new DataSetFilePermId(new DataSetPermId(dataSetCode), content.getRelativePath()));
         dto.setPath(content.getRelativePath());
         dto.setDirectory(content.isDirectory());
+        if (content.isDirectory() == false)
+        {
+            dto.setFileLength(content.getFileLength());
+        }
         dto.setDataSetPermId(new DataSetPermId(dataSetCode));
         return dto;
     }
