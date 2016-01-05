@@ -61,8 +61,9 @@ class create_sample_sheet_C7GMNANXX(unittest.TestCase):
         parser.add_argument('--flowcell')
         parser.add_argument('--lineending')
         parser.add_argument('--outdir')
+        parser.add_argument('--verbose')
          
-        cmd_string = ['--flowcell', self.myCode, '--lineending', 'win32', '--outdir', '../../targets/playground']
+        cmd_string = ['--flowcell', self.myCode, '--lineending', 'win32', '--outdir', '../../targets/playground', '--verbose', 'false']
         self.options = parser.parse_args(cmd_string)
  
         self.service = OpenbisServiceFacadeFactory.tryCreate(self.config_dict['openbisUserName'],
@@ -179,8 +180,10 @@ class create_sample_sheet_C7P5KANXX(unittest.TestCase):
         parser.add_argument('--flowcell')
         parser.add_argument('--lineending')
         parser.add_argument('--outdir')
+        parser.add_argument('--verbose')
+
          
-        cmd_string = ['--flowcell', self.myCode, '--lineending', 'win32', '--outdir', '../../targets/playground']
+        cmd_string = ['--flowcell', self.myCode, '--lineending', 'win32', '--outdir', '../../targets/playground', '--verbose', 'false']
         self.options = parser.parse_args(cmd_string)
  
         self.service = OpenbisServiceFacadeFactory.tryCreate(self.config_dict['openbisUserName'],
@@ -277,8 +280,9 @@ class create_sample_sheet_HJWC3BGXX(unittest.TestCase):
         parser.add_argument('--flowcell')
         parser.add_argument('--lineending')
         parser.add_argument('--outdir')
+        parser.add_argument('--verbose')
          
-        cmd_string = ['--flowcell', self.myCode, '--lineending', 'win32', '--outdir', '../../targets/playground']
+        cmd_string = ['--flowcell', self.myCode, '--lineending', 'win32', '--outdir', '../../targets/playground', '--verbose', 'false']
         self.options = parser.parse_args(cmd_string)
  
         self.service = OpenbisServiceFacadeFactory.tryCreate(self.config_dict['openbisUserName'],
@@ -384,8 +388,10 @@ class create_sample_sheet_000000000_AH5W3(unittest.TestCase):
         parser.add_argument('--flowcell')
         parser.add_argument('--lineending')
         parser.add_argument('--outdir')
+        parser.add_argument('--verbose')
+
         
-        cmd_string = ['--flowcell', self.myCode, '--lineending', 'win32', '--outdir', '../../targets/playground']
+        cmd_string = ['--flowcell', self.myCode, '--lineending', 'win32', '--outdir', '../../targets/playground', '--verbose', 'true']
         self.options = parser.parse_args(cmd_string)
 
         self.service = OpenbisServiceFacadeFactory.tryCreate(self.config_dict['openbisUserName'],
@@ -486,8 +492,9 @@ class create_sample_sheet_H32NFBCXX(unittest.TestCase):
         parser.add_argument('--flowcell')
         parser.add_argument('--lineending')
         parser.add_argument('--outdir')
+        parser.add_argument('--verbose')
         
-        cmd_string = ['--flowcell', self.myCode, '--lineending', 'win32', '--outdir', '../../targets/playground']
+        cmd_string = ['--flowcell', self.myCode, '--lineending', 'win32', '--outdir', '../../targets/playground', '--verbose', 'false']
         self.options = parser.parse_args(cmd_string)
 
         self.service = OpenbisServiceFacadeFactory.tryCreate(self.config_dict['openbisUserName'],

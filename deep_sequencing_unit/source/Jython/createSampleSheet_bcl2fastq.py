@@ -455,29 +455,6 @@ def transform_sample_to_dict(foundFlowCell):
     return flowCellDict
 
 
-def write_sample_sheet(sampleSheetDict, headerList, myoptions, logger, fileName):
-    """
-    Writes the given dictionary to a csv file. The order does not matter. As the
-    header is not fixed we first need to write the headerList in the file.
-    """
-    newline = lineending[myoptions.lineending]
-    try:
-        with open(fileName, 'wb') as sampleSheetFile:
-            for header_element in headerList:
-                if myoptions.verbose:
-                    print header_element
-                sampleSheetFile.write(header_element + newline)
-            for sample in sampleSheetDict:
-                if myoptions.verbose:
-                    print sampleSheetDict[sample][0]
-                sampleSheetFile.write(sampleSheetDict[sample][0] + newline)
-            logger.info('Writing file ' + fileName)
-    except IOError:
-        logger.error('File error: ' + str(err))
-        print ('File error: ' + str(err))
-    return fileName
-
-
 def write_sample_sheet_single_lane(model, ordered_sample_sheet_dict, flowCellDict, index_length_dict,
                                          parentDict, config_dict, myoptions, logger, csv_file):
     
@@ -496,8 +473,12 @@ def write_sample_sheet_single_lane(model, ordered_sample_sheet_dict, flowCellDic
             with open(csv_file_path, 'wb') as sample_sheet_file:                
                 for header_element in header_list:
                     sample_sheet_file.write(header_element + newline)
+                    if myoptions.verbose:
+                        print(header_element + newline)
                 for sample in per_lane_dict:
                     sample_sheet_file.write(str(sample[0]) + newline)
+                    if myoptions.verbose:
+                        print(str(sample[0]) + newline)
         except IOError:
             logger.error('File error: ' + str(err))
             print ('File error: ' + str(err))
@@ -658,7 +639,7 @@ def create_sample_sheet_dict(service, barcodesPerLaneDict, containedSamples, sam
         single_index_set = False
 
         try:
-            print(barcodesPerLaneDict[lane_int])
+            logger.info(barcodesPerLaneDict[lane_int])
         except:
             print("No index found for lane " + str(lane_int) + ". Using the first sample which is not phix.")
             for key in lane_sample_properties.keys():
