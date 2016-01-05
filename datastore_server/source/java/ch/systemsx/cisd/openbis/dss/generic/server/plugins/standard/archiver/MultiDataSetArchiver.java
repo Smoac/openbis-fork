@@ -186,8 +186,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             ArchiverTaskContext context, boolean removeFromDataStore)
     {
         LinkedList<DatasetDescription> dataSets = new LinkedList<DatasetDescription>(paramDataSets);
-        DatasetProcessingStatuses result = new DatasetProcessingStatuses();
-        result.setStatusUpdatingSupressed(needsToWaitForReplication());
+        MultiDataSetProcessingStatuses result = new MultiDataSetProcessingStatuses();
 
         filterBasedOnArchiveStatus(dataSets, result, FilterOption.FILTER_ARCHIVED, Status.OK, Operation.ARCHIVE);
 
@@ -202,7 +201,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         {
             verifyDataSetsSize(dataSets);
 
-            DatasetProcessingStatuses archiveResult = archiveDataSets(dataSets, context, removeFromDataStore, transaction);
+            MultiDataSetProcessingStatuses archiveResult = archiveDataSets(dataSets, context, removeFromDataStore, transaction);
 
             result.addResults(archiveResult);
 
@@ -219,7 +218,6 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             {
                 operationLog.warn("Rollback of multi dataset db transaction failed", ex);
             }
-            result.setStatusUpdatingSupressed(false);
             result.addResult(dataSets, Status.createError(e.getMessage()), Operation.ARCHIVE);
         }
         return result;
@@ -299,10 +297,10 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         }
     }
 
-    private DatasetProcessingStatuses archiveDataSets(List<DatasetDescription> dataSets, ArchiverTaskContext context,
+    private MultiDataSetProcessingStatuses archiveDataSets(List<DatasetDescription> dataSets, ArchiverTaskContext context,
             boolean removeFromDataStore, IMultiDataSetArchiverDBTransaction transaction) throws Exception
     {
-        DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
+        MultiDataSetProcessingStatuses statuses = new MultiDataSetProcessingStatuses();
 
         // for sharding we use the location of the first datast
         String containerPath = getFileOperations().generateContainerPath(dataSets);
@@ -320,7 +318,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             archivedContent = getFileOperations().getContainerAsHierarchicalContent(containerPath);
 
             checkArchivedDataSets(archivedContent, dataSets, context, statuses);
-            scheduleFinalizer(containerPath, dataSets, context, removeFromDataStore);
+            scheduleFinalizer(containerPath, dataSets, context, removeFromDataStore, statuses);
         } catch (Exception ex)
         {
             getFileOperations().deleteContainerFromFinalDestination(getCleaner(), containerPath);
@@ -339,7 +337,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         }
         return statuses;
     }
-
+    
     private void establishContainerDataSetMapping(List<DatasetDescription> dataSets, String containerPath,
             IMultiDataSetArchiverDBTransaction transaction)
     {
@@ -351,12 +349,14 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     }
     
     private void scheduleFinalizer(String containerPath, List<DatasetDescription> dataSets, 
-            ArchiverTaskContext archiverContext, boolean removeFromDataStore)
+            ArchiverTaskContext archiverContext, boolean removeFromDataStore, 
+            MultiDataSetProcessingStatuses statuses)
     {
         if (needsToWaitForReplication() == false)
         {
             return;
         }
+        statuses.setDataSetsWaitingForReplication(dataSets);
         MultiDataSetArchivingFinalizer task = new MultiDataSetArchivingFinalizer(cleanerProperties, pauseFile, 
                 pauseFilePollingTime, getTimeProvider());
         String userId = archiverContext.getUserId();
@@ -414,9 +414,28 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                     content.close();
                 }
             }
-            statuses.addResult(dataSetCode, status, Operation.ARCHIVE);
+            if (needsToWaitForReplication() == false)
+            {
+                statuses.addResult(dataSetCode, status, Operation.ARCHIVE);
+            }
         }
         operationLog.info("Sanity check finished.");
+    }
+
+    @Override
+    protected List<DatasetDescription> getArchivedDataSets(List<DatasetDescription> datasets, DatasetProcessingStatuses statuses)
+    {
+        List<DatasetDescription> archivedDataSets = super.getArchivedDataSets(datasets, statuses);
+        if (statuses instanceof MultiDataSetProcessingStatuses)
+        {
+            List<DatasetDescription> dataSetsWaitingForReplication 
+                    = ((MultiDataSetProcessingStatuses) statuses).getDataSetsWaitingForReplication();
+            if (dataSetsWaitingForReplication != null)
+            {
+                archivedDataSets.removeAll(dataSetsWaitingForReplication);
+            }
+        }
+        return archivedDataSets;
     }
 
     @Override
@@ -728,4 +747,26 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         }
         return timeProvider;
     }
+    
+    private static final class MultiDataSetProcessingStatuses extends DatasetProcessingStatuses
+    {
+        private List<DatasetDescription> dataSetsWaitingForReplication;
+
+        public List<DatasetDescription> getDataSetsWaitingForReplication()
+        {
+            return dataSetsWaitingForReplication;
+        }
+
+        public void setDataSetsWaitingForReplication(List<DatasetDescription> dataSetsWaitingForReplication)
+        {
+            this.dataSetsWaitingForReplication = dataSetsWaitingForReplication;
+        }
+        
+        public void addResults(MultiDataSetProcessingStatuses statuses)
+        {
+            super.addResults(statuses);
+            dataSetsWaitingForReplication = statuses.getDataSetsWaitingForReplication();
+        }
+    }
+
 }

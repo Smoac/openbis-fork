@@ -272,12 +272,9 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     {
         DatasetProcessingStatuses statuses = safeArchive(singleBatch, context, removeFromDataStore);
 
-        if (statuses.isStatusUpdatingSupressed() == false)
-        {
-            DataSetArchivingStatus successStatus = removeFromDataStore ? ARCHIVED : AVAILABLE;
-            asyncUpdateStatuses(statuses.getSuccessfulDatasetCodes(), successStatus, true);
-            asyncUpdateStatuses(statuses.getFailedDatasetCodes(), AVAILABLE, false);
-        }
+        DataSetArchivingStatus successStatus = removeFromDataStore ? ARCHIVED : AVAILABLE;
+        asyncUpdateStatuses(statuses.getSuccessfulDatasetCodes(), successStatus, true);
+        asyncUpdateStatuses(statuses.getFailedDatasetCodes(), AVAILABLE, false);
 
         return statuses;
     }
@@ -337,7 +334,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         DatasetProcessingStatuses statuses = doArchive(dataSetDifferentInArchive, context, removeFromDataStore);
 
         deletePermanentlyFromArchive(getDataSetsFailedToBeArchived(datasets, statuses));
-        if (removeFromDataStore && statuses.isStatusUpdatingSupressed() == false)
+        if (removeFromDataStore)
         {
             removeFromDataStore(getArchivedDataSets(datasets, statuses), context);
         }
@@ -378,7 +375,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         return failedDataSets;
     }
 
-    private List<DatasetDescription> getArchivedDataSets(List<DatasetDescription> datasets,
+    protected List<DatasetDescription> getArchivedDataSets(List<DatasetDescription> datasets,
             DatasetProcessingStatuses statuses)
     {
         Set<String> dataSetsFailedToArchive = new HashSet<String>(statuses.getFailedDatasetCodes());
@@ -532,8 +529,6 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
         private final ProcessingStatus processingStatus;
 
-        private boolean statusUpdatingSupressed;
-
         public DatasetProcessingStatuses()
         {
             this.successfulDatasetCodes = new ArrayList<String>();
@@ -620,16 +615,6 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         public ProcessingStatus getProcessingStatus()
         {
             return processingStatus;
-        }
-
-        public void setStatusUpdatingSupressed(boolean needsToWaitForReplication)
-        {
-            this.statusUpdatingSupressed = needsToWaitForReplication;
-        }
-
-        public boolean isStatusUpdatingSupressed()
-        {
-            return statusUpdatingSupressed;
         }
     }
 

@@ -232,6 +232,10 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
             subject = getShortDescription(" processing finished");
             if (processingStatusOrNull != null)
             {
+                if (isEmpty(processingStatusOrNull))
+                {
+                    return; // no message sent
+                }
                 contentBuilder.append(generateDescription(processingStatusOrNull));
             } else
             {
@@ -307,6 +311,23 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
             sb.append("\n");
         }
         return sb.toString();
+    }
+    
+    private static boolean isEmpty(ProcessingStatus processingStatus)
+    {
+        if (processingStatus.getDatasetsByStatus(Status.OK).isEmpty() == false)
+        {
+            return false;
+        }
+        List<Status> errorStatuses = processingStatus.getErrorStatuses();
+        for (Status errorStatus : errorStatuses)
+        {
+            if (processingStatus.getDatasetsByStatus(errorStatus).isEmpty() == false)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     private IMailClient getMailClient()
