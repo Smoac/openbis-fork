@@ -1010,6 +1010,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @Capability("WRITE_SAMPLE")
     public Boolean updateTemporaryCodes(String sessionToken, Map<String, List<String>> sampleTypeCodeToTemporaryIdentifiers)
     {
         ISpaceDAO spaceDAO = getDAOFactory().getSpaceDAO();

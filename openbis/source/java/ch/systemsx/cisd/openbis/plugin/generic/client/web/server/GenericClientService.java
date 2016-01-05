@@ -194,6 +194,9 @@ public class GenericClientService extends AbstractClientService implements IGene
         final boolean isAutoGenerateCodes = defaultGroupIdentifier != null;
         final HttpSession httpSession = getHttpSession();
         final String sessionToken = getSessionToken();
+        final boolean isCreateContinuousSampleCodes =
+                PropertyUtils.getBoolean(this.getServiceProperties(), Constants.CREATE_CONTINUOUS_SAMPLES_CODES_KEY, false);
+
         UploadedFilesBean uploadedFiles = null;
         ConsumerTask asyncSamplesTask = null;
         try
@@ -228,7 +231,10 @@ public class GenericClientService extends AbstractClientService implements IGene
                                             operationKind, sessionToken);
                             // Execute task
                             genericServer.registerOrUpdateSamples(sessionToken, asyncInfo.getSamples());
-                            updateTemporaryCodes(sessionToken, asyncInfo);
+                            if (isCreateContinuousSampleCodes)
+                            {
+                                updateTemporaryCodes(sessionToken, asyncInfo);
+                            }
                         }
                     };
 
@@ -237,7 +243,10 @@ public class GenericClientService extends AbstractClientService implements IGene
             } else
             {
                 genericServer.registerOrUpdateSamples(sessionToken, info.getSamples());
-                updateTemporaryCodes(sessionToken, info);
+                if (isCreateContinuousSampleCodes)
+                {
+                    updateTemporaryCodes(sessionToken, info);
+                }
                 return info.getResultList();
             }
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
