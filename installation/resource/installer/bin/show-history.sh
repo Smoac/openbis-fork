@@ -16,8 +16,6 @@ check_arguments $@
 DB_NAME=$1
 PERM_ID=$2
 
-echo "SELECT content FROM events WHERE identifiers LIKE '$PERM_ID, %' OR identifiers LIKE '%, $PERM_ID' OR identifiers LIKE '%, $PERM_ID,%' OR identifiers = '$PERM_ID'"
-
 psql -d $DB_NAME -A -t -c \
 "SELECT content FROM events WHERE identifiers LIKE '$PERM_ID, %' OR identifiers LIKE '%, $PERM_ID' OR identifiers LIKE '%, $PERM_ID,%' OR identifiers = '$PERM_ID'" | 
 python formatter.py $PERM_ID
