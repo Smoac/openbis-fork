@@ -47,6 +47,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.ObjectKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.OperationKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.fetchoptions.ObjectKindModificationFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
@@ -557,6 +560,19 @@ public class Generator extends AbstractGenerator
         return gen;
     }
     
+    private static DtoGenerator createObjectKindModificationGenerator()
+    {
+        DtoGenerator gen = new DtoGenerator("objectkindmodification", "ObjectKindModification", ObjectKindModificationFetchOptions.class);
+        gen.addSimpleField(ObjectKind.class, "objectKind");
+        gen.addSimpleField(OperationKind.class, "operationKind");
+        gen.addDateField("lastModificationTimeStamp");
+        
+        gen.setToStringMethod("\"Last \" + operationKind + \" operation of an object of kind \" + objectKind "
+                + "+ \" occured at \" +  lastModificationTimeStamp");
+        
+        return gen;
+    }
+    
     public static void main(String[] args) throws FileNotFoundException
     {
         List<DtoGenerator> list = new LinkedList<DtoGenerator>();
@@ -585,6 +601,7 @@ public class Generator extends AbstractGenerator
         list.add(createDataStoreGenerator());
         list.add(createExternalDmsGenerator());
         list.add(createServiceGenerator());
+        list.add(createObjectKindModificationGenerator());
 
         for (DtoGenerator gen : list)
         {

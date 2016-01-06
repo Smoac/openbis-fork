@@ -53,6 +53,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.update.MaterialUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.ObjectKindModification;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.fetchoptions.ObjectKindModificationFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.search.ObjectKindModificationSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.delete.ProjectDeletionOptions;
@@ -107,6 +110,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IRevertDeleti
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchExperimentMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchMaterialMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchObjectKindModificationMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchProjectMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchSampleMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchServiceMethodExecutor;
@@ -219,6 +223,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private ISearchServiceMethodExecutor searchServiceExecutor;
+    
+    @Autowired
+    private ISearchObjectKindModificationMethodExecutor searchObjectKindModificationExecutor;
 
     @Autowired
     private IDeleteSpaceMethodExecutor deleteSpaceExecutor;
@@ -605,6 +612,15 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public SearchResult<Service> searchServices(String sessionToken, ServiceSearchCriteria searchCriteria, ServiceFetchOptions fetchOptions)
     {
         return searchServiceExecutor.search(sessionToken, searchCriteria, fetchOptions);
+    }
+
+    @Override
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("SEARCH_OBJECT_KIND_MODIFICATIONSERVICES")
+    public SearchResult<ObjectKindModification> searchObjectKindModifications(String sessionToken,
+            ObjectKindModificationSearchCriteria searchCriteria, ObjectKindModificationFetchOptions fetchOptions)
+    {
+        return searchObjectKindModificationExecutor.search(sessionToken, searchCriteria, fetchOptions);
     }
 
     @Override

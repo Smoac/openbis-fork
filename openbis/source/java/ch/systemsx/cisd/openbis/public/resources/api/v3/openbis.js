@@ -389,6 +389,17 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				}
 			});
 		}
+		
+		this.searchObjectKindModifications = function(criteria, fetchOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "searchObjectKindModifications",
+					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
+				}
+			});
+		}
 
 		this.deleteSpaces = function(ids, deletionOptions) {
 			var thisFacade = this;

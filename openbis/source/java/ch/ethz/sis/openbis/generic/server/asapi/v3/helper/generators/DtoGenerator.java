@@ -259,7 +259,7 @@ public class DtoGenerator
 
     public void generateDTO() throws FileNotFoundException
     {
-        generateDTO("../openbis_api/source/java/ch/ethz/sis/openbis/generic/as/api/v3/dto/" + subPackage + "/" + className + ".java");
+        generateDTO("../openbis_api/source/java/ch/ethz/sis/openbis/generic/asapi/v3/dto/" + subPackage + "/" + className + ".java");
     }
 
     public void generateDTOJS() throws FileNotFoundException
@@ -323,7 +323,7 @@ public class DtoGenerator
 
     public void generateFetchOptions() throws FileNotFoundException
     {
-        generateFetchOptions("../openbis_api/source/java/ch/ethz/sis/openbis/generic/as/api/v3/dto/" + subPackage + "/fetchoptions/" + className
+        generateFetchOptions("../openbis_api/source/java/ch/ethz/sis/openbis/generic/asapi/v3/dto/" + subPackage + "/fetchoptions/" + className
                 + "FetchOptions.java");
     }
 

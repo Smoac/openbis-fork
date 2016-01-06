@@ -920,4 +920,44 @@ Execution Options
 get Parameters
 with Parameter
 
+get Last Modification Time Stamp
+get Object Kind
+get Object Kinds
+get Operation Kind
+get Operation Kinds
+Object Kind
+Object Kind Modification
+Object Kind Modification Fetch Options
+Object Kind Modification Search Criteria
+Object Kind Modification Sort Options
+Operation Kind
+search Object Kind Modifications
+set Last Modification Time Stamp
+set Object Kind
+set Operation Kind
+with Object Kinds
+with Operation Kinds
+
+AUTHORIZATION_GROUP
+CREATE_OR_DELETE
+DATASET_TYPE
+DELETION
+EXPERIMENT_TYPE
+FILE_FORMAT_TYPE
+GRID_CUSTOM_COLUMN
+GRID_CUSTOM_FILTER
+MATERIAL
+MATERIAL_TYPE
+METAPROJECT
+PERSON
+POSTREGISTRATION_QUEUE
+PROPERTY_TYPE
+PROPERTY_TYPE_ASSIGNMENT
+QUERY
+ROLE_ASSIGNMENT
+SAMPLE_TYPE
+SCRIPT
+UPDATE
+VOCABULARY
+VOCABULARY_TERM
 
