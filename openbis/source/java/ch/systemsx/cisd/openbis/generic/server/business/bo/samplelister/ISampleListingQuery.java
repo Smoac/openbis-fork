@@ -457,4 +457,13 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
     { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<MetaProjectWithEntityId> getMetaprojects(LongSet entityIds, Long userId);
 
+    /**
+     * Returns the samples with codes like that match a pattern like TEMP.D977F1F4-B2F5-49AB-8DB5-BE47277286B9.265743 Results are ordered by the last
+     * part (after .) so that we preserve the order of sample creation.
+     */
+    @Select(sql = SELECT_FROM_SAMPLES_S
+            + " where s.code similar to 'TEMP\\.[a-zA-Z0-9\\-]+\\.[0-9]+' "
+            + "order by  (split_part(s.code, '.', 3)::int) asc", fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getSamplesWithTemporaryCodes();
+
 }

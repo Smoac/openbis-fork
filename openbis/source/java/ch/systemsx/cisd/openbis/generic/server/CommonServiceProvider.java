@@ -76,6 +76,11 @@ public class CommonServiceProvider
         return applicationContext.getBean(beanName);
     }
 
+    public static ApplicationContext getApplicationContext()
+    {
+        return applicationContext;
+    }
+
     private CommonServiceProvider()
     {
     }
