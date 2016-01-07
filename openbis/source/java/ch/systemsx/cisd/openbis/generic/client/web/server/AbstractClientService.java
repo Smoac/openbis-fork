@@ -30,6 +30,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -63,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDat
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ITableModelProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.TableDataCache;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator.Escape;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
@@ -110,6 +112,9 @@ public abstract class AbstractClientService implements IClientService,
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
+    
+    @Autowired
+    private TableDataCache<String, Object> tableDataCache;
 
     private String cifexURL;
 
@@ -383,7 +388,7 @@ public abstract class AbstractClientService implements IClientService,
 
     private CachedResultSetManager<String> createCachedResultSetManager()
     {
-        return new CachedResultSetManager<String>(new TokenBasedResultSetKeyGenerator(),
+        return new CachedResultSetManager<String>(tableDataCache, new TokenBasedResultSetKeyGenerator(),
                 new ICustomColumnsProvider()
                     {
                         @Override

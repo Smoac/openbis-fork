@@ -103,7 +103,7 @@ public abstract class Code<T extends Code<T>> implements Serializable, Comparabl
     @Override
     public int compareTo(final T o)
     {
-        final String thatCode = o.code;
+        final String thatCode = o.getCode();
         if (code == null)
         {
             return thatCode == null ? 0 : -1;

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -260,7 +262,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
     }
 
     private static final class ColumnCalculatorProxy implements
-            CachedResultSetManager.IColumnCalculator
+            IColumnCalculator
     {
         private List<String> recordedColumnCodes = new ArrayList<String>();
 
@@ -348,9 +350,13 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         keyGenerator = context.mock(IResultSetKeyGenerator.class);
         customColumnsProvider = context.mock(ICustomColumnsProvider.class);
         columnCalculator = new ColumnCalculatorProxy();
-        resultSetManager =
-                new CachedResultSetManager<Long>(keyGenerator, customColumnsProvider,
-                        columnCalculator);
+        String managerConfig = "<ehcache name='" + UUID.randomUUID() + "'></ehcache>";
+        net.sf.ehcache.CacheManager cacheManager = new net.sf.ehcache.CacheManager(new ByteArrayInputStream(managerConfig.getBytes()));
+        TableDataCache<Long, Object> tableDataCache = new TableDataCache<Long, Object>(cacheManager);
+        tableDataCache.initCache();
+
+        resultSetManager = new CachedResultSetManager<Long>(tableDataCache, keyGenerator, 
+                customColumnsProvider, columnCalculator);
     }
 
     @AfterMethod
@@ -465,7 +471,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(keyGenerator).createKey();
+                    allowing(keyGenerator).createKey();
                     will(returnValue(KEY));
 
                     one(originalDataProvider).getOriginalData(Integer.MAX_VALUE);
@@ -1040,7 +1046,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(keyGenerator).createKey();
+                    allowing(keyGenerator).createKey();
                     will(returnValue(KEY));
 
                     one(originalDataProvider).getOriginalData(maxSize);

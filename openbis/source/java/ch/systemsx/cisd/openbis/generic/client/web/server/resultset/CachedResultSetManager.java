@@ -25,18 +25,13 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
 
@@ -48,7 +43,6 @@ import ch.systemsx.cisd.common.collection.TableMap;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.shared.basic.string.AlternativesStringFilter;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ColumnDistinctValues;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridColumnFilterInfo;
@@ -70,7 +64,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableGridColumnDefinition;
 
 /**
@@ -87,16 +80,16 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     @Private
     static final int MAX_DISTINCT_COLUMN_VALUES_SIZE = 50;
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+    static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             CachedResultSetManager.class);
 
-    private static final GridCustomColumnInfo translate(GridCustomColumn columnDefinition)
+    static final GridCustomColumnInfo translate(GridCustomColumn columnDefinition)
     {
         return new GridCustomColumnInfo(columnDefinition.getCode(), columnDefinition.getName(),
                 columnDefinition.getDescription(), columnDefinition.getDataType());
     }
 
-    private static <T> String getOriginalValue(IColumnDefinition<T> definition,
+    static <T> String getOriginalValue(IColumnDefinition<T> definition,
             final GridRowModel<T> row)
     {
         Comparable<?> value = definition.tryGetComparableValue(row);
@@ -111,366 +104,22 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         return value == null ? "" : value.toString();
     }
 
-    static interface IColumnCalculator
-    {
-        /**
-         * Calculates the values of the specified custom column definition by using specified data
-         * and specified column definitions. In case of an error the column value is an error
-         * message.
-         * 
-         * @param errorMessagesAreLong if <code>true</code> a long error message will be created.
-         */
-        public <T> List<PrimitiveValue> evalCustomColumn(List<T> data,
-                GridCustomColumn customColumn, Set<IColumnDefinition<T>> availableColumns,
-                boolean errorMessagesAreLong);
-    }
-
-    private static final class Column
-    {
-        private final GridCustomColumn columnDefinition;
-
-        private List<PrimitiveValue> values;
-
-        Column(GridCustomColumn columnDefinition)
-        {
-            this.columnDefinition = columnDefinition;
-        }
-
-        GridCustomColumnInfo getInfo()
-        {
-            return translate(columnDefinition);
-        }
-
-        boolean hasSameExpression(GridCustomColumn column)
-        {
-            return columnDefinition.getExpression().equals(column.getExpression());
-        }
-
-        public void setValues(List<PrimitiveValue> values)
-        {
-            this.values = values;
-        }
-
-        public List<PrimitiveValue> getValues()
-        {
-            return values;
-        }
-    }
-
-    private static class TableData<T>
-    {
-        private final List<T> originalData;
-
-        private final ICustomColumnsProvider customColumnsProvider;
-
-        private final IColumnCalculator columnCalculator;
-
-        private final List<TableModelColumnHeader> headers;
-
-        private final List<IColumnDefinition<T>> headerColumnDefinitions =
-                new ArrayList<IColumnDefinition<T>>();
-
-        private Map<String, Column> calculatedColumns = new HashMap<String, Column>();
-
-        TableData(List<T> originalData, List<TableModelColumnHeader> headers,
-                ICustomColumnsProvider customColumnsProvider, IColumnCalculator columnCalculator)
-        {
-            this.originalData = originalData;
-            this.headers = headers;
-            for (final TableModelColumnHeader header : headers)
-            {
-                headerColumnDefinitions.add(new IColumnDefinition<T>()
-                    {
-
-                        @Override
-                        public String getValue(GridRowModel<T> rowModel)
-                        {
-                            throw new UnsupportedOperationException();
-                        }
-
-                        @Override
-                        public Comparable<?> tryGetComparableValue(GridRowModel<T> rowModel)
-                        {
-                            T originalObject = rowModel.getOriginalObject();
-                            if (originalObject instanceof TableModelRow)
-                            {
-                                TableModelRow row = (TableModelRow) originalObject;
-                                return row.getValues().get(header.getIndex());
-                            }
-                            return null;
-                        }
-
-                        @Override
-                        public String getHeader()
-                        {
-                            throw new UnsupportedOperationException();
-                        }
-
-                        @Override
-                        public String getIdentifier()
-                        {
-                            return header.getId();
-                        }
-
-                        @Override
-                        public DataTypeCode tryToGetDataType()
-                        {
-                            return null;
-                        }
-
-                        @Override
-                        public String tryToGetProperty(String key)
-                        {
-                            throw new UnsupportedOperationException();
-                        }
-
-                        @Override
-                        public boolean isCustom()
-                        {
-                            return false;
-                        }
-                    });
-            }
-            this.customColumnsProvider = customColumnsProvider;
-            this.columnCalculator = columnCalculator;
-        }
-
-        GridRowModels<T> getRows(String sessionToken, IResultSetConfig<?, T> config)
-        {
-            Set<Entry<String, Column>> cachedColumns = calculatedColumns.entrySet();
-            List<GridCustomColumn> allCustomColumnDefinitions =
-                    loadAllCustomColumnDefinitions(sessionToken, config);
-            List<GridCustomColumn> neededCustomColumns =
-                    filterNeededCustomColumnDefinitions(allCustomColumnDefinitions, config);
-            removedColumnsNoLongerNeeded(cachedColumns, neededCustomColumns);
-
-            for (GridCustomColumn customColumn : neededCustomColumns)
-            {
-                String code = customColumn.getCode();
-                Column column = calculatedColumns.get(code);
-                if (column == null)
-                {
-                    Set<IColumnDefinition<T>> availableColumns = getAvailableColumns(config);
-                    boolean errorMessageLong = config.isCustomColumnErrorMessageLong();
-                    long time = System.currentTimeMillis();
-                    List<PrimitiveValue> values =
-                            columnCalculator.evalCustomColumn(originalData, customColumn,
-                                    availableColumns, errorMessageLong);
-                    operationLog.info((System.currentTimeMillis() - time)
-                            + "ms for calculating column '" + customColumn.getName() + "' over "
-                            + originalData.size() + " rows.");
-                    column = new Column(customColumn);
-                    column.setValues(values);
-                    calculatedColumns.put(code, column);
-                }
-            }
-
-            List<GridRowModel<T>> rows = new ArrayList<GridRowModel<T>>();
-            for (int i = 0; i < originalData.size(); i++)
-            {
-                T rowData = originalData.get(i);
-                HashMap<String, PrimitiveValue> customColumnValues =
-                        new HashMap<String, PrimitiveValue>();
-                for (Entry<String, Column> entry : cachedColumns)
-                {
-                    String columnCode = entry.getKey();
-                    customColumnValues.put(columnCode, entry.getValue().getValues().get(i));
-                }
-                rows.add(new GridRowModel<T>(rowData, customColumnValues));
-            }
-
-            List<ColumnDistinctValues> columnDistinctValues =
-                    calculateColumnDistinctValues(rows, config.getFilters());
-            List<GridCustomColumnInfo> customColumnInfos =
-                    extractColumnInfos(allCustomColumnDefinitions);
-
-            return new GridRowModels<T>(rows, headers, customColumnInfos, columnDistinctValues);
-        }
-
-        private Set<IColumnDefinition<T>> getAvailableColumns(IResultSetConfig<?, T> config)
-        {
-            Set<IColumnDefinition<T>> columns = new HashSet<IColumnDefinition<T>>();
-            HashSet<String> columnIDs = new HashSet<String>();
-            for (IColumnDefinition<T> definition : headerColumnDefinitions)
-            {
-                columns.add(definition);
-                columnIDs.add(definition.getIdentifier());
-            }
-            Set<IColumnDefinition<T>> columnsFromConfig = config.getAvailableColumns();
-            for (IColumnDefinition<T> definition : columnsFromConfig)
-            {
-                if (columnIDs.contains(definition.getIdentifier()) == false)
-                {
-                    columns.add(definition);
-                }
-            }
-            return columns;
-        }
-
-        private List<GridCustomColumn> loadAllCustomColumnDefinitions(String sessionToken,
-                IResultSetConfig<?, T> resultConfig)
-        {
-            String gridId = resultConfig.tryGetGridDisplayId();
-            ArrayList<GridCustomColumn> result = new ArrayList<GridCustomColumn>();
-            if (gridId != null)
-            {
-                List<GridCustomColumn> columns =
-                        customColumnsProvider.getGridCustomColumn(sessionToken, gridId);
-                for (GridCustomColumn column : columns)
-                {
-                    result.add(column);
-                }
-            }
-            return result;
-        }
-
-        private List<GridCustomColumn> filterNeededCustomColumnDefinitions(
-                List<GridCustomColumn> allDefinitions, IResultSetConfig<?, T> resultConfig)
-        {
-            Set<String> ids = gatherAllColumnIDs(resultConfig);
-            ArrayList<GridCustomColumn> result = new ArrayList<GridCustomColumn>();
-            for (GridCustomColumn column : allDefinitions)
-            {
-                if (ids.contains(column.getCode()))
-                {
-                    result.add(column);
-                }
-            }
-            return result;
-        }
-
-        private Set<String> gatherAllColumnIDs(final IResultSetConfig<?, T> resultConfig)
-        {
-            Set<String> ids = new HashSet<String>();
-            Set<String> idsOfPresentedColumns = resultConfig.getIDsOfPresentedColumns();
-            if (idsOfPresentedColumns != null)
-            {
-                ids.addAll(idsOfPresentedColumns);
-            }
-            String sortField = resultConfig.getSortInfo().getSortField();
-            if (sortField != null)
-            {
-                ids.add(sortField);
-            }
-            GridFilters<T> filters = resultConfig.getFilters();
-            List<GridColumnFilterInfo<T>> filterInfos = filters.tryGetFilterInfos();
-            if (filterInfos != null)
-            {
-                for (GridColumnFilterInfo<T> filterInfo : filterInfos)
-                {
-                    ids.add(filterInfo.getFilteredField().getIdentifier());
-                }
-            }
-            CustomFilterInfo<T> customFilterInfo = filters.tryGetCustomFilterInfo();
-            if (customFilterInfo != null)
-            {
-                String expression = customFilterInfo.getExpression();
-                Set<IColumnDefinition<T>> availableColumns = resultConfig.getAvailableColumns();
-                for (IColumnDefinition<T> columnDefinition : availableColumns)
-                {
-                    String identifier = columnDefinition.getIdentifier();
-                    if (expression.indexOf(identifier) >= 0)
-                    {
-                        ids.add(identifier);
-                    }
-                }
-            }
-            return ids;
-        }
-
-        private void removedColumnsNoLongerNeeded(Set<Entry<String, Column>> cachedColumns,
-                List<GridCustomColumn> neededCustomColumns)
-        {
-            Map<String, GridCustomColumn> map = new HashMap<String, GridCustomColumn>();
-            for (GridCustomColumn customColumn : neededCustomColumns)
-            {
-                map.put(customColumn.getCode(), customColumn);
-            }
-
-            for (Iterator<Entry<String, Column>> iterator = cachedColumns.iterator(); iterator
-                    .hasNext();)
-            {
-                Entry<String, Column> entry = iterator.next();
-                String code = entry.getKey();
-                GridCustomColumn customColumn = map.get(code);
-                if (customColumn == null)
-                {
-                    iterator.remove();
-                } else if (entry.getValue().hasSameExpression(customColumn) == false)
-                {
-                    iterator.remove();
-                }
-            }
-        }
-
-        private List<ColumnDistinctValues> calculateColumnDistinctValues(
-                List<GridRowModel<T>> rowModels, GridFilters<T> gridFilters)
-        {
-            List<ColumnDistinctValues> result = new ArrayList<ColumnDistinctValues>();
-            List<GridColumnFilterInfo<T>> filterInfos = gridFilters.tryGetFilterInfos();
-            if (filterInfos == null)
-            {
-                return result;
-            }
-            for (GridColumnFilterInfo<T> column : filterInfos)
-            {
-                ColumnDistinctValues distinctValues =
-                        tryCalculateColumnDistinctValues(rowModels, column.getFilteredField());
-                if (distinctValues != null)
-                {
-                    result.add(distinctValues);
-                }
-            }
-            return result;
-        }
-
-        /** @return null if values are not from a small set */
-        private ColumnDistinctValues tryCalculateColumnDistinctValues(
-                List<GridRowModel<T>> rowModels, IColumnDefinition<T> column)
-        {
-            Set<String> distinctValues = new LinkedHashSet<String>();
-            for (GridRowModel<T> rowModel : rowModels)
-            {
-                String value = getOriginalValue(column, rowModel);
-                distinctValues.add(value);
-                if (distinctValues.size() > MAX_DISTINCT_COLUMN_VALUES_SIZE)
-                {
-                    return null;
-                }
-            }
-            ArrayList<String> distinctValuesList = new ArrayList<String>(distinctValues);
-            return new ColumnDistinctValues(column.getIdentifier(), distinctValuesList);
-        }
-
-        private List<GridCustomColumnInfo> extractColumnInfos(
-                List<GridCustomColumn> allCustomColumnDefinitions)
-        {
-            List<GridCustomColumnInfo> result = new ArrayList<GridCustomColumnInfo>();
-            for (GridCustomColumn definition : allCustomColumnDefinitions)
-            {
-                Column column = calculatedColumns.get(definition.getCode());
-                if (column != null)
-                {
-                    result.add(column.getInfo());
-                } else
-                {
-                    result.add(translate(definition));
-                }
-            }
-            return result;
-        }
-    }
-
     private final IResultSetKeyGenerator<K> resultSetKeyProvider;
 
     private final ICustomColumnsProvider customColumnsProvider;
 
-    // all cache access is done in a monitor
-    private final Map<K, Future<?>> cache = Collections
-            .synchronizedMap(new HashMap<K, Future<?>>());
-
+    private TableDataCache<K, Object> tableDataCache;
+    
     private final Set<K> lockedResultSets = Collections.synchronizedSet(new HashSet<K>());
 
+    private final Set<K> resultSets = Collections.synchronizedSet(new HashSet<K>());
+    
+    private final Map<K, IOriginalDataProvider<?>> cachedDataProviders 
+            = Collections.synchronizedMap(new HashMap<K, IOriginalDataProvider<?>>());
+    
+    private final Map<K, Future<?>> unfinishedLoadings = Collections
+            .synchronizedMap(new HashMap<K, Future<?>>());
+    
     private final ThreadPoolExecutor executor = new NamingThreadPoolExecutor(
             "Background Table Loader").corePoolSize(10).daemonize();
 
@@ -478,10 +127,10 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
     private final IColumnCalculator columnCalculator;
 
-    public CachedResultSetManager(final IResultSetKeyGenerator<K> resultSetKeyProvider,
+    public CachedResultSetManager(TableDataCache<K, Object> tableDataCache, IResultSetKeyGenerator<K> resultSetKeyProvider,
             ICustomColumnsProvider customColumnsProvider)
     {
-        this(resultSetKeyProvider, customColumnsProvider, new IColumnCalculator()
+        this(tableDataCache, resultSetKeyProvider, customColumnsProvider, new IColumnCalculator()
             {
                 @Override
                 public <T> List<PrimitiveValue> evalCustomColumn(List<T> data,
@@ -495,9 +144,10 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             });
     }
 
-    public CachedResultSetManager(final IResultSetKeyGenerator<K> resultSetKeyProvider,
+    CachedResultSetManager(TableDataCache<K, Object> tableDataCache, IResultSetKeyGenerator<K> resultSetKeyProvider,
             ICustomColumnsProvider customColumnsProvider, IColumnCalculator columnCalculator)
     {
+        this.tableDataCache = tableDataCache;
         this.resultSetKeyProvider = resultSetKeyProvider;
         this.customColumnsProvider = customColumnsProvider;
         this.columnCalculator = columnCalculator;
@@ -507,6 +157,47 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     private static final <T> T cast(final Object object)
     {
         return (T) object;
+    }
+
+    private static final class BackgroundTableDataLoading<T, K> implements Callable<TableData<K, T>>
+    {
+        private final K dataKey;
+
+        private final Map<K, Future<?>> unfinishedLoadings;
+
+        private final IOriginalDataProvider<T> dataProvider;
+
+        private final ICustomColumnsProvider customColumnsProvider;
+
+        private final IColumnCalculator columnCalculator;
+
+        private final XMLPropertyTransformer xmlPropertyTransformer;
+
+        private final CachedResultSetManager<K> cachedResultSetManager;
+        
+        private BackgroundTableDataLoading(K dataKey, Map<K, Future<?>> unfinishedLoadings,
+                IOriginalDataProvider<T> dataProvider, 
+                ICustomColumnsProvider customColumnsProvider, IColumnCalculator columnCalculator, 
+                XMLPropertyTransformer xmlPropertyTransformer,
+                CachedResultSetManager<K> cachedResultSetManager)
+        {
+            this.dataKey = dataKey;
+            this.unfinishedLoadings = unfinishedLoadings;
+            this.dataProvider = dataProvider;
+            this.customColumnsProvider = customColumnsProvider;
+            this.columnCalculator = columnCalculator;
+            this.xmlPropertyTransformer = xmlPropertyTransformer;
+            this.cachedResultSetManager = cachedResultSetManager;
+        }
+
+        @Override
+        public TableData<K, T> call() throws Exception
+        {
+            TableData<K, T> tableData = loadAndAddToCache(dataKey, dataProvider, customColumnsProvider, 
+                    columnCalculator, xmlPropertyTransformer, cachedResultSetManager);
+            unfinishedLoadings.remove(dataKey);
+            return tableData;
+        }
     }
 
     /**
@@ -722,7 +413,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         assert dataProvider != null : "Unspecified data retriever";
         ResultSetFetchConfig<K> cacheConfig = resultConfig.getCacheConfig();
         ResultSetFetchMode mode = cacheConfig.getMode();
-        debug("getResultSet(cache config = " + cacheConfig + ")");
+        operationLog.info("getResultSet(cache config = " + cacheConfig + ")");
 
         K dataKey = cacheConfig.tryGetResultSetKey();
         switch (mode)
@@ -734,28 +425,28 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                 removeResultSet(dataKey);
                 //$FALL-THROUGH$ -
             case COMPUTE_AND_CACHE:
-                return fetchAndCacheResult(sessionToken, resultConfig, dataProvider);
+                return fetchAndCacheResultForSpecifiedKey(sessionToken, resultConfig, dataProvider,
+                        resultSetKeyProvider.createKey());
             default:
-                TableData<T> tableData = tryGetCachedTableData(dataKey);
-                if (tableData != null)
+                TableData<K, T> tableData = tryGetCachedTableData(dataKey);
+                if (tableData == null)
                 {
-                    return calculateSortAndFilterResult(sessionToken, tableData, resultConfig,
-                            dataKey, false);
-                } else
-                {
-                    return fetchAndCacheResult(sessionToken, resultConfig, dataProvider);
+                    operationLog.warn("Reference to the stale cache key " + dataKey);
+                    tableData = loadAndAddToCache(dataKey, resolveDataProvider(dataKey, dataProvider),
+                            customColumnsProvider, columnCalculator, xmlPropertyTransformer, this);
                 }
-
+                return calculateSortAndFilterResult(sessionToken, tableData, resultConfig,
+                        dataKey, false);
         }
     }
 
-    private <T> IResultSet<K, T> fetchAndCacheResult(final String sessionToken,
-            final IResultSetConfig<K, T> resultConfig, final IOriginalDataProvider<T> dataProvider)
+    private <T> IOriginalDataProvider<T> resolveDataProvider(K dataKey, IOriginalDataProvider<T> defaultDataProvider)
     {
-        final K dataKey = resultSetKeyProvider.createKey();
-        return fetchAndCacheResultForSpecifiedKey(sessionToken, resultConfig, dataProvider, dataKey);
+        @SuppressWarnings("unchecked")
+        IOriginalDataProvider<T> cachedDataProvider = (IOriginalDataProvider<T>) cachedDataProviders.get(dataKey);
+        return cachedDataProvider == null ? defaultDataProvider : cachedDataProvider;
     }
-
+    
     private <T> IResultSet<K, T> fetchAndCacheResultForSpecifiedKey(final String sessionToken,
             final IResultSetConfig<K, T> resultConfig, final IOriginalDataProvider<T> dataProvider,
             final K dataKey)
@@ -765,25 +456,23 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         {
             limit = Integer.MAX_VALUE;
         }
-        debug("Retrieving " + limit + " record for a new key " + dataKey);
+        operationLog.info("Retrieving " + limit + " record for a new key " + dataKey);
         List<T> rows = dataProvider.getOriginalData(limit);
         final List<TableModelColumnHeader> headers = dataProvider.getHeaders();
-        final TableData<T> tableData =
-                new TableData<T>(rows, headers, customColumnsProvider, columnCalculator);
+        final TableData<K, T> tableData =
+                new TableData<K, T>(dataKey, rows, headers, customColumnsProvider, columnCalculator);
         xmlPropertyTransformer.transformXMLProperties(rows);
+        cachedDataProviders.put(dataKey, dataProvider);
+        addToCache(dataKey, tableData);
 
-        Future<TableData<T>> future;
         boolean partial = rows.size() >= limit;
         if (partial)
         {
-            debug("Only partially loaded data for key " + dataKey);
-            future = loadCompleteTableInBackground(dataProvider, dataKey);
-        } else
-        {
-            debug("Completely loaded for key " + dataKey);
-            future = createFutureWhichIsPresent(dataKey, tableData);
+            operationLog.info("Only partially loaded data for key " + dataKey);
+            Future<TableData<K, T>> future = loadCompleteTableInBackground(dataProvider, dataKey);
+            unfinishedLoadings.put(dataKey, future);
+            operationLog.info(unfinishedLoadings.size() + " unfinished loadings");
         }
-        addToCache(dataKey, future);
         // TODO, 2011-03-08, FJE: In connection with bug LMS-1960 I found that resultConfig
         // (which contains e.g. available columns) is often out-dated and therefore inconsistent
         // with tableData (provided by dataProvider). The bug is fixed (by checking index in
@@ -914,102 +603,59 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         return true;
     }
 
-    private <T> Future<TableData<T>> createFutureWhichIsPresent(final K dataKey,
-            final TableData<T> tableData)
-    {
-        return new Future<TableData<T>>()
-            {
-                @Override
-                public boolean cancel(boolean mayInterruptIfRunning)
-                {
-                    return true;
-                }
-
-                @Override
-                public boolean isCancelled()
-                {
-                    return false;
-                }
-
-                @Override
-                public boolean isDone()
-                {
-                    return true;
-                }
-
-                @Override
-                public TableData<T> get() throws InterruptedException, ExecutionException
-                {
-                    return tableData;
-                }
-
-                @Override
-                public TableData<T> get(long timeout, TimeUnit unit) throws InterruptedException,
-                        ExecutionException, TimeoutException
-                {
-                    return get();
-                }
-            };
-    }
-
-    private <T> Future<TableData<T>> loadCompleteTableInBackground(
+    private <T> Future<TableData<K, T>> loadCompleteTableInBackground(
             final IOriginalDataProvider<T> dataProvider, final K dataKey)
     {
-        Future<TableData<T>> future;
-        Callable<TableData<T>> callable = new Callable<TableData<T>>()
-            {
-                @Override
-                public TableData<T> call() throws Exception
-                {
-                    List<T> rows = dataProvider.getOriginalData(Integer.MAX_VALUE);
-                    List<TableModelColumnHeader> headers = dataProvider.getHeaders();
-                    debug(rows.size() + " records loaded for key " + dataKey);
-                    TableData<T> tableData =
-                            new TableData<T>(rows, headers, customColumnsProvider, columnCalculator);
-                    xmlPropertyTransformer.transformXMLProperties(rows);
-                    return tableData;
-                }
-            };
-        future = executor.submit(callable);
-        return future;
+        return executor.submit(new BackgroundTableDataLoading<T, K>(dataKey, unfinishedLoadings, dataProvider,
+                customColumnsProvider, columnCalculator, xmlPropertyTransformer, this));
     }
 
-    private <T> void addToCache(K dataKey, Future<TableData<T>> tableData)
+    private <T> void addToCache(K dataKey, TableData<K, T> tableData)
     {
         unlockResultSet(dataKey);
-        cache.put(dataKey, tableData);
-        debug(cache.size() + " keys in cache: " + cache.keySet());
+        tableDataCache.putTableData(dataKey, tableData);
+        resultSets.add(dataKey);
     }
 
     private static <K, T> IResultSet<K, T> calculateSortAndFilterResult(String sessionToken,
-            TableData<T> tableData, final IResultSetConfig<K, T> resultConfig, K dataKey,
+            TableData<K, T> tableData, final IResultSetConfig<K, T> resultConfig, K dataKey,
             boolean partial)
     {
         GridRowModels<T> data = tableData.getRows(sessionToken, resultConfig);
         return filterLimitAndSort(resultConfig, data, dataKey, partial);
     }
 
-    private <T> TableData<T> tryGetCachedTableData(K dataKey)
+    private <T> TableData<K, T> tryGetCachedTableData(K dataKey)
     {
-        waitUntilUnlocked(dataKey);
-        Future<TableData<T>> tableData = cast(cache.get(dataKey));
+        waitUntilAvailable(dataKey);
+        TableData<K, T> tableData = cast(tableDataCache.getTableData(dataKey));
         if (tableData == null)
         {
-            operationLog.warn("Reference to the stale cache key " + dataKey);
             return null;
         }
-        try
+        return tableData;
+    }
+    
+    private void waitUntilAvailable(K dataKey)
+    {
+        waitUntilUnlocked(dataKey);
+        Future<?> future = unfinishedLoadings.remove(dataKey);
+        if (future != null)
         {
-            return tableData.get();
-        } catch (InterruptedException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        } catch (ExecutionException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex.getCause());
+            try
+            {
+                operationLog.info("Wait for unfinished loading for key " + dataKey);
+                future.get();
+            } catch (InterruptedException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            } catch (ExecutionException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex.getCause());
+            }
         }
     }
-
+    
     private static <K, T> IResultSet<K, T> filterLimitAndSort(
             final IResultSetConfig<K, T> resultConfig, GridRowModels<T> data, K dataKey,
             boolean partial)
@@ -1024,15 +670,47 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         final GridRowModels<T> list = subList(filteredData, offset, limit);
         return new DefaultResultSet<K, T>(dataKey, list, size, partial);
     }
+    
+    
+    private static <K, T> TableData<K, T> loadAndAddToCache(K dataKey, IOriginalDataProvider<T> dataProvider,
+            ICustomColumnsProvider customColumnsProvider, IColumnCalculator columnCalculator,
+            XMLPropertyTransformer xmlPropertyTransformer,
+            CachedResultSetManager<K> cachedResultSetManager)
+    {
+        List<T> rows = dataProvider.getOriginalData(Integer.MAX_VALUE);
+        List<TableModelColumnHeader> headers = dataProvider.getHeaders();
+        operationLog.info(rows.size() + " records loaded for key " + dataKey);
+        TableData<K, T> tableData =
+                new TableData<K, T>(dataKey, rows, headers, customColumnsProvider, columnCalculator);
+        xmlPropertyTransformer.transformXMLProperties(rows);
+        cachedResultSetManager.addToCache(dataKey, tableData);
+        return tableData;
+    }
+
+    @Override
+    protected void finalize() throws Throwable
+    {
+        removeAllResultSets();
+    }
+
+    public void removeAllResultSets()
+    {
+        for (K key : resultSets)
+        {
+            removeResultSet(key);
+        }
+    }
 
     @Override
     public final void removeResultSet(final K resultSetKey)
     {
         unlockResultSet(resultSetKey);
         assert resultSetKey != null : "Unspecified data key holder.";
-        if (cache.remove(resultSetKey) != null)
+        resultSets.remove(resultSetKey);
+        cachedDataProviders.remove(resultSetKey);
+        if (tableDataCache.removeTableData(resultSetKey))
         {
-            debug(String.format("Result set for key '%s' has been removed.", resultSetKey));
+            operationLog.info(String.format("Result set for key '%s' has been removed.", resultSetKey));
         }
     }
 
@@ -1061,11 +739,4 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         }
     }
 
-    private void debug(String msg)
-    {
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug(msg);
-        }
-    }
 }

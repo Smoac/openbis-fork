@@ -72,6 +72,13 @@ public class AssertionUtil
         assertTrue(errorMsg, collection.size() == size);
     }
 
+    public static void assertMatches(String expectedRegexp, String actual)
+    {
+        String errorMsg =
+                String.format("String:\n'%s'\nwas expected to match the following regexp:\n'%s'", actual, expectedRegexp);
+        assertTrue(errorMsg, actual != null && actual.matches(expectedRegexp));
+    }
+
     /** asserts that given text contains expectedSubstring. Comparision is case insensitive. */
     public static void assertContainsInsensitive(String expectedSubstring, String text)
     {
