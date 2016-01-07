@@ -138,7 +138,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		$sampleTypesSelector.change(function() {
 			var sampleTypeToShow = $(this).val();
 			Util.blockUI();
-			mainController.serverFacade.searchWithType(sampleTypeToShow, null, false, function(samples) {
+			mainController.serverFacade.searchWithType(sampleTypeToShow, null, true, function(samples) {
 				_this._sampleTableModel.allSamples = samples;
 				_this._sampleTableController._reloadTableWithSampleType(sampleTypeToShow);
 				Util.unblockUI();
