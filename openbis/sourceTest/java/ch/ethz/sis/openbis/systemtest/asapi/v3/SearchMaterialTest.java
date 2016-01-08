@@ -38,6 +38,12 @@ public class SearchMaterialTest extends AbstractTest
 {
 
     @Test
+    public void testSearchWithEmptyCriteria()
+    {
+        testSearch(TEST_USER, new MaterialSearchCriteria(), 3734);
+    }
+
+    @Test
     public void testSearchWithIdSetToPermId()
     {
         MaterialPermId permId = new MaterialPermId("VIRUS1", "VIRUS");

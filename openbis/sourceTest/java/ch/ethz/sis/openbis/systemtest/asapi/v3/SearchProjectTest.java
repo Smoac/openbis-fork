@@ -35,6 +35,12 @@ public class SearchProjectTest extends AbstractTest
 {
 
     @Test
+    public void testSearchWithEmptyCriteria()
+    {
+        testSearch(TEST_SPACE_USER, new ProjectSearchCriteria(), "/TEST-SPACE/TEST-PROJECT", "/TEST-SPACE/NOE", "/TEST-SPACE/PROJECT-TO-DELETE");
+    }
+
+    @Test
     public void testSearchWithIdSetToPermId()
     {
         ProjectSearchCriteria criteria = new ProjectSearchCriteria();

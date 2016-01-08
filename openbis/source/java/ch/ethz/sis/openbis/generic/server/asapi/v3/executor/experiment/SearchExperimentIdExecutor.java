@@ -25,6 +25,9 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractSearchObjectExecutor;
 import ch.systemsx.cisd.openbis.generic.server.business.search.ExperimentSearchManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
 
 /**
  * @author pkupczyk
@@ -37,12 +40,19 @@ public class SearchExperimentIdExecutor extends AbstractSearchObjectExecutor<Exp
     @Override
     protected List<Long> doSearch(IOperationContext context, DetailedSearchCriteria criteria)
     {
+        if (criteria.getCriteria().isEmpty())
+        {
+            // if no criteria were provided find all experiments
+            criteria.getCriteria().add(
+                    new DetailedSearchCriterion(DetailedSearchField
+                            .createAttributeField(SampleAttributeSearchFieldKind.CODE), "*"));
+        }
+
         ExperimentSearchManager searchManager =
                 new ExperimentSearchManager(daoFactory.getHibernateSearchDAO(),
                         businessObjectFactory.createExperimentTable(context.getSession()));
 
         return searchManager.searchForExperimentIDs(context.getSession().getUserName(), criteria);
-
     }
 
 }

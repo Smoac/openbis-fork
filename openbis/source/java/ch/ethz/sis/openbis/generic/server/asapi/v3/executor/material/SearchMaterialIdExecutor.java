@@ -25,7 +25,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialSearchCr
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractSearchObjectExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAssociationCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
 
 /**
  * @author pkupczyk
@@ -38,9 +41,18 @@ public class SearchMaterialIdExecutor extends AbstractSearchObjectExecutor<Mater
     @Override
     protected List<Long> doSearch(IOperationContext context, DetailedSearchCriteria criteria)
     {
+        if (criteria.getCriteria().isEmpty())
+        {
+            // if no criteria were provided find all materials
+            criteria.getCriteria().add(
+                    new DetailedSearchCriterion(DetailedSearchField
+                            .createAttributeField(SampleAttributeSearchFieldKind.CODE), "*"));
+        }
+
         List<Long> materialIds = daoFactory.getHibernateSearchDAO().searchForEntityIds(context.getSession().tryGetPerson().getUserId(), criteria,
                 ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL,
                 Collections.<IAssociationCriteria> emptyList());
+
         return materialIds;
     }
 

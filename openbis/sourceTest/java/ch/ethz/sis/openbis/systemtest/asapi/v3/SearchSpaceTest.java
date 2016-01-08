@@ -33,6 +33,12 @@ public class SearchSpaceTest extends AbstractTest
 {
 
     @Test
+    public void testSearchWithEmptyCriteria()
+    {
+        testSearch(TEST_SPACE_USER, new SpaceSearchCriteria(), "TEST-SPACE");
+    }
+
+    @Test
     public void testSearchWithIdSetToPermId()
     {
         SpaceSearchCriteria criteria = new SpaceSearchCriteria();

@@ -16,33 +16,33 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material;
 
-import java.util.Collections;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractSearchObjectExecutor;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAssociationCriteria;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SearchMaterialExecutor extends AbstractSearchObjectExecutor<MaterialSearchCriteria, MaterialPE> implements
-        ISearchMaterialExecutor
+public class SearchMaterialExecutor implements ISearchMaterialExecutor
 {
 
-    @Override
-    protected List<MaterialPE> doSearch(IOperationContext context, DetailedSearchCriteria criteria)
-    {
-        List<Long> materialIds = daoFactory.getHibernateSearchDAO().searchForEntityIds(context.getSession().tryGetPerson().getUserId(), criteria,
-                ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL,
-                Collections.<IAssociationCriteria> emptyList());
+    @Autowired
+    private ISearchMaterialIdExecutor searchMaterialIdExecutor;
 
+    @Autowired
+    private IDAOFactory daoFactory;
+
+    @Override
+    public List<MaterialPE> search(IOperationContext context, MaterialSearchCriteria criteria)
+    {
+        List<Long> materialIds = searchMaterialIdExecutor.search(context, criteria);
         return daoFactory.getMaterialDAO().listMaterialsById(materialIds);
     }
 

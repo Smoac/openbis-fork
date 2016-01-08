@@ -16,36 +16,33 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment;
 
-import java.util.Collection;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractSearchObjectExecutor;
-import ch.systemsx.cisd.openbis.generic.server.business.search.ExperimentSearchManager;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SearchExperimentExecutor extends AbstractSearchObjectExecutor<ExperimentSearchCriteria, ExperimentPE> implements
-        ISearchExperimentExecutor
+public class SearchExperimentExecutor implements ISearchExperimentExecutor
 {
 
+    @Autowired
+    private ISearchExperimentIdExecutor searchExperimentIdExecutor;
+
+    @Autowired
+    protected IDAOFactory daoFactory;
+
     @Override
-    protected List<ExperimentPE> doSearch(IOperationContext context, DetailedSearchCriteria criteria)
+    public List<ExperimentPE> search(IOperationContext context, ExperimentSearchCriteria criteria)
     {
-        ExperimentSearchManager searchManager =
-                new ExperimentSearchManager(daoFactory.getHibernateSearchDAO(),
-                        businessObjectFactory.createExperimentTable(context.getSession()));
-
-        Collection<Long> experimentIds =
-                searchManager.searchForExperimentIDs(context.getSession().getUserName(), criteria);
-
+        List<Long> experimentIds = searchExperimentIdExecutor.search(context, criteria);
         return daoFactory.getExperimentDAO().listByIDs(experimentIds);
     }
 

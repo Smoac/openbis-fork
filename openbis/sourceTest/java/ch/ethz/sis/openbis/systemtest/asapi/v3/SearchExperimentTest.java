@@ -44,6 +44,20 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
  */
 public class SearchExperimentTest extends AbstractExperimentTest
 {
+
+    @Test
+    public void testSearchWithEmptyCriteria()
+    {
+        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        List<Experiment> experiments = searchExperiments(sessionToken, new ExperimentSearchCriteria(), new ExperimentFetchOptions());
+
+        v3api.logout(sessionToken);
+
+        assertExperimentIdentifiers(experiments, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST", "/TEST-SPACE/NOE/EXP-TEST-2",
+                "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE");
+    }
+
     @Test
     public void testSearchWithAttachments()
     {
@@ -54,10 +68,10 @@ public class SearchExperimentTest extends AbstractExperimentTest
         previousVersionAttachmentOptions.withContent();
         previousVersionAttachmentOptions.withRegistrator();
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        
+
         List<Experiment> experiments = searchExperiments(sessionToken, criteria, fo);
         v3api.logout(sessionToken);
-        
+
         Experiment experiment = experiments.get(0);
         assertEquals(experiment.getCode(), "EXP1");
         assertEquals(experiment.getFetchOptions().hasAttachments(), true);
@@ -84,7 +98,6 @@ public class SearchExperimentTest extends AbstractExperimentTest
         assertEquals(attachments.size(), 1);
         assertEquals(experiments.size(), 1);
     }
-
 
     @Test
     public void testSearchWithIdSetToIdentifier()
@@ -611,8 +624,7 @@ public class SearchExperimentTest extends AbstractExperimentTest
         assertEquals(experiments.size(), expectedCount);
     }
 
-
-    private List<Experiment> searchExperiments(String sessionToken, ExperimentSearchCriteria criteria, 
+    private List<Experiment> searchExperiments(String sessionToken, ExperimentSearchCriteria criteria,
             ExperimentFetchOptions fetchOptions)
     {
         SearchResult<Experiment> searchResult = v3api.searchExperiments(sessionToken, criteria, fetchOptions);

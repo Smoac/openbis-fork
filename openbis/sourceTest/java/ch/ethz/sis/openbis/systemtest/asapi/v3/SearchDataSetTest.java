@@ -36,6 +36,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
  */
 public class SearchDataSetTest extends AbstractDataSetTest
 {
+
+    @Test
+    public void testSearchWithEmptyCriteria()
+    {
+        testSearch(TEST_SPACE_USER, new DataSetSearchCriteria(), "20120619092259000-22", "20120628092259000-24", "20120628092259000-25",
+                "VALIDATIONS_CNTNR-26", "VALIDATIONS_IMPOS-27", "VALIDATIONS_PARENT-28", "DATASET-TO-DELETE", "COMPONENT_3Ax");
+    }
+
     @Test
     public void testSearchWithIdSetToPermId()
     {

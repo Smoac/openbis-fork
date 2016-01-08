@@ -47,6 +47,14 @@ public class SearchSampleTest extends AbstractSampleTest
 {
 
     @Test
+    public void testSearchWithEmptyCriteria()
+    {
+        testSearch(TEST_SPACE_USER, new SampleSearchCriteria(), "/TEST-SPACE/FV-TEST", "/TEST-SPACE/EV-TEST", "/TEST-SPACE/EV-INVALID",
+                "/TEST-SPACE/EV-NOT_INVALID", "/TEST-SPACE/EV-PARENT", "/TEST-SPACE/EV-PARENT-NORMAL", "/TEST-SPACE/CP-TEST-4",
+                "/TEST-SPACE/SAMPLE-TO-DELETE");
+    }
+
+    @Test
     public void testSearchWithIdSetToIdentifier()
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();

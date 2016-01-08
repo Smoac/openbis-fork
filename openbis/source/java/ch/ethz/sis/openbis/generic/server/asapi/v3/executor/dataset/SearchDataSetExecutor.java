@@ -16,36 +16,33 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
-import java.util.Collection;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractSearchObjectExecutor;
-import ch.systemsx.cisd.openbis.generic.server.business.search.DataSetSearchManager;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
  * @author Jakub Straszewski
  */
 @Component
-public class SearchDataSetExecutor extends AbstractSearchObjectExecutor<DataSetSearchCriteria, DataPE> implements
-        ISearchDataSetExecutor
+public class SearchDataSetExecutor implements ISearchDataSetExecutor
 {
 
+    @Autowired
+    private ISearchDataSetIdExecutor searchDataSetIdExecutor;
+
+    @Autowired
+    private IDAOFactory daoFactory;
+
     @Override
-    protected List<DataPE> doSearch(IOperationContext context, DetailedSearchCriteria criteria)
+    public List<DataPE> search(IOperationContext context, DataSetSearchCriteria criteria)
     {
-        DataSetSearchManager searchManager =
-                new DataSetSearchManager(daoFactory.getHibernateSearchDAO(),
-                        businessObjectFactory.createDatasetLister(context.getSession()));
-
-        Collection<Long> dataIds =
-                searchManager.searchForDataSetIds(context.getSession().getUserName(), criteria);
-
+        List<Long> dataIds = searchDataSetIdExecutor.search(context, criteria);
         return daoFactory.getDataDAO().listByIDs(dataIds);
     }
 

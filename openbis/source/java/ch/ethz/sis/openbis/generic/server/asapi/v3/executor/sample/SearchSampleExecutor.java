@@ -16,34 +16,33 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
-import java.util.Collection;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractSearchObjectExecutor;
-import ch.systemsx.cisd.openbis.generic.server.business.search.SampleSearchManager;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SearchSampleExecutor extends AbstractSearchObjectExecutor<SampleSearchCriteria, SamplePE> implements ISearchSampleExecutor
+public class SearchSampleExecutor implements ISearchSampleExecutor
 {
 
+    @Autowired
+    private ISearchSampleIdExecutor searchSampleIdExecutor;
+
+    @Autowired
+    private IDAOFactory daoFactory;
+
     @Override
-    protected List<SamplePE> doSearch(IOperationContext context, DetailedSearchCriteria criteria)
+    public List<SamplePE> search(IOperationContext context, SampleSearchCriteria criteria)
     {
-        SampleSearchManager searchManager =
-                new SampleSearchManager(daoFactory.getHibernateSearchDAO(), businessObjectFactory.createSampleLister(context.getSession()));
-
-        Collection<Long> sampleIds =
-                searchManager.searchForSampleIDs(context.getSession().getUserName(), criteria);
-
+        List<Long> sampleIds = searchSampleIdExecutor.search(context, criteria);
         return daoFactory.getSampleDAO().listByIDs(sampleIds);
     }
 
