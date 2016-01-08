@@ -26,5 +26,4 @@ else
 fi
 
 ALL_JAVA_OPTS="-Djavax.net.ssl.trustStore=etc/openBIS.keystore $JAVA_OPTS"
-echo "Starting the openBIS Tracking Client for DSU"
 ${JAVA_BIN} ${ALL_JAVA_OPTS} -jar $JAR_FILE "$@"
