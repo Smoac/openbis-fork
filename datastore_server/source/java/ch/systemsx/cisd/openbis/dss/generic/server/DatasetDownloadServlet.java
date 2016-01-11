@@ -23,8 +23,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -269,7 +269,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         String urlPath = null;
         try
         {
-            urlPath = new java.net.URI(requestURI).getPath();
+            urlPath = new URI(requestURI).getPath();
         } catch (URISyntaxException e)
         {
             throw new EnvironmentFailureException("Request URI '" + requestURI + "' can't be parsed.");
