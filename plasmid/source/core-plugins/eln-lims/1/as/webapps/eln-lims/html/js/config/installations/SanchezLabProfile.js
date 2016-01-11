@@ -5,7 +5,7 @@ function SanchezLabProfile(serverFacade) {
 
 $.extend(SanchezLabProfile.prototype, StandardProfile.prototype, {
 	init: function(serverFacade){
-		DefaultProfile.prototype.init.call(this, serverFacade);
+		StandardProfile.prototype.init.call(this, serverFacade);
 	
 		
 }
