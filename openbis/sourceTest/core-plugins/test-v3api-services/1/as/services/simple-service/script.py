@@ -1,5 +1,5 @@
-from ch.ethz.sis.openbis.generic.as.api.v3.dto.space.fetchoptions import SpaceFetchOptions
-from ch.ethz.sis.openbis.generic.as.api.v3.dto.space.search import SpaceSearchCriteria
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions import SpaceFetchOptions
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search import SpaceSearchCriteria
 
 def process(parameters):
     name = parameters.get("name");

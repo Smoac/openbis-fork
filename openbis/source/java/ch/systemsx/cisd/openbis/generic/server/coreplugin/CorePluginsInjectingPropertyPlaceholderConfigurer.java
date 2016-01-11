@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.coreplugin;
 
+import java.io.IOException;
 import java.util.Properties;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ServiceProvider;
@@ -43,9 +44,15 @@ public class CorePluginsInjectingPropertyPlaceholderConfigurer extends
             BasicConstant.WEB_APPS_PROPERTY);
 
     @Override
+    protected void loadProperties(Properties properties) throws IOException
+    {
+        super.loadProperties(properties);
+        CorePluginsUtils.addCorePluginsProperties(properties, ScannerType.AS);
+    }
+
+    @Override
     protected void injectPropertiesInto(Properties properties)
     {
-        CorePluginsUtils.addCorePluginsProperties(properties, ScannerType.AS);
         PluginType dssDataSources = createPluginTypeDssDataSources();
         PluginType maintenanceTasks =
                 new PluginType("maintenance-tasks",

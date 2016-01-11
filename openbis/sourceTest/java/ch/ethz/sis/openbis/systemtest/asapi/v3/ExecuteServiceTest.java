@@ -31,7 +31,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ServiceCode;
 public class ExecuteServiceTest extends AbstractTest
 {
 
-    @Test(enabled = false)
+    @Test
     public void testSearchServices()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);

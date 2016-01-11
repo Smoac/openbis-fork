@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSe
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
@@ -102,6 +103,7 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
     public void beforeSuite()
     {
         System.setProperty(CorePluginsUtils.CORE_PLUGINS_FOLDER_KEY, SOURCE_TEST_CORE_PLUGINS);
+        System.setProperty(Constants.ENABLED_MODULES_KEY, "test-.*");
         TestInitializer.init();
     }
 
