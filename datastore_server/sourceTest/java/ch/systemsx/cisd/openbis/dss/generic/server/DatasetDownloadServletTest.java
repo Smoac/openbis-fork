@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -150,6 +151,8 @@ public class DatasetDownloadServletTest
 
     private HttpServletRequest request;
 
+    private URI uri;
+    
     private HttpServletResponse response;
 
     private HttpSession httpSession;
@@ -169,6 +172,7 @@ public class DatasetDownloadServletTest
         logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.DEBUG);
         context = new Mockery();
         request = context.mock(HttpServletRequest.class);
+        uri = context.mock(URI.class);
         response = context.mock(HttpServletResponse.class);
         shareIdManager = context.mock(IShareIdManager.class);
         openbisService = context.mock(IEncapsulatedOpenBISService.class);
@@ -680,6 +684,7 @@ public class DatasetDownloadServletTest
             final String path)
     {
         exp.one(request).getRequestURI();
+        exp.one(uri).getPath();
         String codeAndPath = REQUEST_URI_PREFIX + externalData.getCode() + "/" + path;
         exp.will(Expectations.returnValue(codeAndPath));
     }
