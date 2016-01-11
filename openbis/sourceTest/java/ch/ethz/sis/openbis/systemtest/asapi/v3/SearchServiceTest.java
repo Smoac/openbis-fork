@@ -31,17 +31,19 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.ServiceSearchCrit
 public class SearchServiceTest extends AbstractTest
 {
 
-    @Test(enabled = false)
+    @Test
     public void testSearchServices()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        ServiceSearchCriteria searchCriteria = new ServiceSearchCriteria();
+        searchCriteria.withCode().thatEquals("simple-service");
 
-        SearchResult<Service> result = v3api.searchServices(sessionToken, new ServiceSearchCriteria(), new ServiceFetchOptions());
+        SearchResult<Service> result = v3api.searchServices(sessionToken, searchCriteria, new ServiceFetchOptions());
 
         assertEquals(result.getTotalCount(), 1);
     }
     
-    @Test(enabled = false)
+    @Test
     public void testSearchAllServicesSortedPage2()
     {
         ServiceFetchOptions fetchOptions = new ServiceFetchOptions();
@@ -53,7 +55,7 @@ public class SearchServiceTest extends AbstractTest
         assertEquals(result.getTotalCount(), 4);
     }
     
-    @Test(enabled = false)
+    @Test
     public void testSearchServiceByCode()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
