@@ -266,20 +266,21 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         final String urlPrefix = "/" + applicationName + "/";
         
         String requestURI = request.getRequestURI();
+        String urlPath = null;
         try
         {
-            requestURI = new java.net.URI(request.getRequestURI()).getPath();
+            urlPath = new java.net.URI(requestURI).getPath();
         } catch (URISyntaxException e)
         {
             throw new EnvironmentFailureException("Request URI '" + requestURI + "' can't be parsed.");
         }
         
-        if (requestURI.startsWith(urlPrefix) == false)
+        if (urlPath.startsWith(urlPrefix) == false)
         {
-            throw new EnvironmentFailureException("Request URI '" + requestURI
+            throw new EnvironmentFailureException("Request URI '" + urlPath
                     + "' expected to start with '" + urlPrefix + "'.");
         }
-        final String fullPathInfo = requestURI.substring(urlPrefix.length());
+        final String fullPathInfo = urlPath.substring(urlPrefix.length());
         final int indexOfFirstSeparator = fullPathInfo.indexOf('/');
         final String dataSetCode;
         final String pathInfo;
@@ -293,7 +294,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             pathInfo = fullPathInfo.substring(indexOfFirstSeparator + 1);
         }
         final String urlPrefixWithDataset =
-                requestURI.substring(0, requestURI.length() - pathInfo.length());
+                urlPath.substring(0, urlPath.length() - pathInfo.length());
 
         final String sessionIDOrNull = request.getParameter(Utils.SESSION_ID_PARAM);
         String displayMode = getDisplayMode(request);
