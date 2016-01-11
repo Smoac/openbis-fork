@@ -403,11 +403,19 @@ abstract public class SimpleImageDataConfig
         channelColorComponentsOrNull = channelColorComponents;
     }
 
-    /** should thumbnails be generated? False by default. */
+    /**
+     * Removes all thumbnails generations specified in so far and sets default thumbnails to be generated, or leaves no thumbnails depending on the
+     * parameter value.
+     * 
+     * @param generateThumbnails Indicates whether thumbnails should be generated.
+     **/
     public void setGenerateThumbnails(boolean generateThumbnails)
     {
         imagePyramid.clear();
-        imagePyramid.add(new DefaultThumbnailsConfiguration());
+        if (generateThumbnails)
+        {
+            imagePyramid.add(new DefaultThumbnailsConfiguration());
+        }
     }
 
     /**
