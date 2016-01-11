@@ -3,16 +3,16 @@ function WeisProfile(serverFacade) {
 	this.init(serverFacade);
 }
 
-$.extend(WeisProfile.prototype, DefaultProfile.prototype, {
+$.extend(WeisProfile.prototype, StandardProfile.prototype, {
 	init: function(serverFacade){
-		DefaultProfile.prototype.init.call(this, serverFacade);
+		StandardProfile.prototype.init.call(this, serverFacade);
 		
 		
 		this.hideCodes = true;
 		
 		
 		this.storagesConfiguration = {
-				"isEnabled" : true,
+				"isEnabled" : false,
 				"storageSpaceLowWarning" : 0.8, //Storage goes over 80%
 				"boxSpaceLowWarning" : 0.8, //Box goes over 80%
 				/*
@@ -169,12 +169,6 @@ $.extend(WeisProfile.prototype, DefaultProfile.prototype, {
 		
 		} 
 		
-		this.sampleFormContentExtra = function(sampleTypeCode, sample, containerId) {
-			if(sampleTypeCode === "EXPERIMENTAL_STEP") {
-				var isEnabled = mainController.currentView._sampleFormModel.mode !== FormMode.VIEW;
-				var freeFormTableController = new FreeFormTableController(sample, isEnabled);
-				freeFormTableController.init($("#" + containerId));
-			}
-		}
+	
 }
 });
