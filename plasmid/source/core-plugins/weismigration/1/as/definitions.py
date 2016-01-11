@@ -231,3 +231,9 @@ ExperimentalStepDefinition= [
     ["XMLCOMMENTS",                     "Comments",                "Comments List",                        DataType.XML,                    None, "Several comments can be added by different users", commentsScriptName, None, False],
     ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None, "Annotations State", annotationsScriptName, None, False]
 ];
+
+DefaultDatasetDefinition=[
+        ["NAME", "General", "Name", DataType.MULTILINE_VARCHAR, None,    "Name", None, None,False],
+        ["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None,False],
+        ["XMLCOMMENTS",    "Comments","Comments List",    DataType.XML,    None,    "Several comments can be added by different users", commentsScriptName, None,False]
+    ]
