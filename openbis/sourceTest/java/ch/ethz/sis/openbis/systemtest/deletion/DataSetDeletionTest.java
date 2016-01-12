@@ -56,8 +56,10 @@ public class DataSetDeletionTest extends DeletionTest
         delete(project);
         delete(space);
 
-        assertHistory(dataset.getPermId(), "OWNED", experiment.getPermId(), spaceSample.getPermId(), experimentSample.getPermId(),
-                experiment.getPermId());
+        assertHistory(dataset.getPermId(), "OWNED", experimentSet(experiment.getPermId()), 
+                sampleSet(spaceSample.getPermId()), 
+                sampleSet(experimentSample.getPermId()),
+                experimentSet(experiment.getPermId()));
     }
 
     @Test
@@ -91,9 +93,9 @@ public class DataSetDeletionTest extends DeletionTest
         delete(space);
 
         assertHistory(dataset.getPermId(), "PARENT",
-                set(child1.getPermId()),
-                set(child1.getPermId(), child2.getPermId()),
-                set(child2.getPermId()),
+                dataSetSet(child1.getPermId()),
+                dataSetSet(child1.getPermId(), child2.getPermId()),
+                dataSetSet(child2.getPermId()),
                 set());
     }
 
@@ -132,9 +134,9 @@ public class DataSetDeletionTest extends DeletionTest
         delete(space);
 
         assertHistory(dataset.getPermId(), "CHILD",
-                set(parent1.getPermId()),
-                set(parent1.getPermId(), parent2.getPermId()),
-                set(parent2.getPermId()),
+                dataSetSet(parent1.getPermId()),
+                dataSetSet(parent1.getPermId(), parent2.getPermId()),
+                dataSetSet(parent2.getPermId()),
                 set());
     }
 
@@ -172,9 +174,9 @@ public class DataSetDeletionTest extends DeletionTest
         delete(space);
 
         assertHistory(dataset.getPermId(), "COMPONENT",
-                set(container1.getPermId()),
-                set(container1.getPermId(), container2.getPermId()),
-                set(container2.getPermId()),
+                dataSetSet(container1.getPermId()),
+                dataSetSet(container1.getPermId(), container2.getPermId()),
+                dataSetSet(container2.getPermId()),
                 set());
     }
 
@@ -210,9 +212,9 @@ public class DataSetDeletionTest extends DeletionTest
         delete(space);
 
         assertHistory(dataset.getPermId(), "CONTAINER",
-                set(component1.getPermId()),
-                set(component1.getPermId(), component2.getPermId()),
-                set(component2.getPermId()),
+                unknownSet(component1.getPermId()),
+                unknownSet(component1.getPermId(), component2.getPermId()),
+                unknownSet(component2.getPermId()),
                 set());
     }
 
@@ -241,9 +243,9 @@ public class DataSetDeletionTest extends DeletionTest
         delete(project);
         delete(space);
 
-        assertHistory(dataset.getPermId(), "DESCRIPTION", "desc", "", "desc2", "", "desc3");
-        assertHistory(dataset.getPermId(), "ORGANISM", "FLY [ORGANISM]", "", "GORILLA [ORGANISM]", "", "DOG [ORGANISM]");
-        assertHistory(dataset.getPermId(), "BACTERIUM", "BACTERIUM-X [BACTERIUM]", "", "BACTERIUM-Y [BACTERIUM]", "", "BACTERIUM2 [BACTERIUM]");
+        assertPropertiesHistory(dataset.getPermId(), "DESCRIPTION", "desc", "", "desc2", "", "desc3");
+        assertPropertiesHistory(dataset.getPermId(), "ORGANISM", "FLY [ORGANISM]", "", "GORILLA [ORGANISM]", "", "DOG [ORGANISM]");
+        assertPropertiesHistory(dataset.getPermId(), "BACTERIUM", "BACTERIUM-X [BACTERIUM]", "", "BACTERIUM-Y [BACTERIUM]", "", "BACTERIUM2 [BACTERIUM]");
     }
 
 }

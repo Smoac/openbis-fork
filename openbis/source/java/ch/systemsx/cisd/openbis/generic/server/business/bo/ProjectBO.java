@@ -349,9 +349,15 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
 
     private static final String propertyHistoryQuery =
             "SELECT 1 as a, 1 as b, 1 as c, 1 as d, 1 as e, 1 as f, 1 as g, 1 as h, 1 as i FROM materials WHERE id = -1 and id IN (:entityIds)";
+    
+    private static final String ENTITY_TYPE = "case "
+            + "when h.space_id is not null then 'SPACE' "
+            + "when h.expe_id is not null then 'EXPERIMENT' "
+            + "else 'UNKNOWN' end as entity_type";
 
     private static final String relationshipHistoryQuery =
-            "SELECT p.perm_id, h.relation_type, h.entity_perm_id, pers.user_id, h.valid_from_timestamp, h.valid_until_timestamp "
+            "SELECT p.perm_id, h.relation_type, h.entity_perm_id, " + ENTITY_TYPE + ", "
+                    + "pers.user_id, h.valid_from_timestamp, h.valid_until_timestamp "
                     + "FROM projects p, project_relationships_history h, persons pers "
                     + "WHERE p.id = h.main_proj_id AND "
                     + "h.main_proj_id IN (:entityIds) AND "

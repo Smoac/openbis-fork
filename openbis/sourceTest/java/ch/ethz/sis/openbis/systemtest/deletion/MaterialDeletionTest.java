@@ -26,8 +26,8 @@ public class MaterialDeletionTest extends DeletionTest
 
         delete(material);
 
-        assertHistory(material.getCode(), "DESCRIPTION", "desc", "", "desc2", "", "desc3");
-        assertHistory(material.getCode(), "ORGANISM", "FLY [ORGANISM]", "", "GORILLA [ORGANISM]", "", "DOG [ORGANISM]");
-        assertHistory(material.getCode(), "BACTERIUM", "BACTERIUM-X [BACTERIUM]", "", "BACTERIUM-Y [BACTERIUM]", "", "BACTERIUM2 [BACTERIUM]");
+        assertPropertiesHistory(material.getCode(), "DESCRIPTION", "desc", "", "desc2", "", "desc3");
+        assertPropertiesHistory(material.getCode(), "ORGANISM", "FLY [ORGANISM]", "", "GORILLA [ORGANISM]", "", "DOG [ORGANISM]");
+        assertPropertiesHistory(material.getCode(), "BACTERIUM", "BACTERIUM-X [BACTERIUM]", "", "BACTERIUM-Y [BACTERIUM]", "", "BACTERIUM2 [BACTERIUM]");
     }
 }

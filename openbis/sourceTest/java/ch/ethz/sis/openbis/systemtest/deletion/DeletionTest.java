@@ -1,5 +1,6 @@
 package ch.ethz.sis.openbis.systemtest.deletion;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +23,7 @@ import org.springframework.test.context.transaction.TestTransaction;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -84,6 +86,56 @@ public abstract class DeletionTest extends AbstractTest
 
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
+    public Set<String> unknownSet(String...values)
+    {
+        return entitySet("UNKNOWN", values);
+    }
+    
+    public Set<String> spaceSet(String...values)
+    {
+        return entitySet("SPACE", values);
+    }
+    
+    public Set<String> projectSet(String...values)
+    {
+        return entitySet("PROJECT", values);
+    }
+    
+    public Set<String> experimentSet(String...values)
+    {
+        return entitySet("EXPERIMENT", values);
+    }
+
+    public Set<String> sampleSet(String...values)
+    {
+        return entitySet("SAMPLE", values);
+    }
+    
+    public Set<String> dataSetSet(String...values)
+    {
+        return entitySet("DATA_SET", values);
+    }
+    
+    public Set<String> propertiesSet(String...values)
+    {
+        return set("PROPERTY", null, values);
+    }
+    
+    private Set<String> entitySet(String entityType, String... values)
+    {
+        return set("RELATIONSHIP", entityType, values);
+    }
+    
+    private Set<String> set(String type, String entityTypeOrNull, String... values)
+    {
+        Set<String> result = new HashSet<>();
+        for (String value : values)
+        {
+            result.add(render(type, value, entityTypeOrNull));
+        }
+        return result;
+    }
+    
     public Set<String> set(String... values)
     {
         return new HashSet<String>(Arrays.asList(values));
@@ -148,7 +200,7 @@ public abstract class DeletionTest extends AbstractTest
 
     @SuppressWarnings("unchecked")
     @SafeVarargs
-    public final void assertHistory(String permId, final String key, String... expected) throws Exception
+    public final void assertPropertiesHistory(String permId, final String key, String... expected) throws Exception
     {
         List<Set<String>> values = new ArrayList<>();
         for (String e : expected)
@@ -158,7 +210,7 @@ public abstract class DeletionTest extends AbstractTest
                 values.add(set());
             } else
             {
-                values.add(set(e));
+                values.add(propertiesSet(e));
             }
         }
 
@@ -172,31 +224,7 @@ public abstract class DeletionTest extends AbstractTest
         Query query = session.createQuery("SELECT e FROM EventPE e WHERE :permId IN e.identifiersInternal").setParameter("permId", permId);
         EventPE event = (EventPE) query.uniqueResult();
 
-        JsonNode tree = new ObjectMapper().reader().readTree(event.getContent());
-
-        List<Modification> allMods =
-                IteratorUtils.toList(IteratorUtils.transformedIterator(tree.get(permId).elements(), new JsonNodeToModificationTransformer()));
-
-        List<Modification> mods = new ArrayList<>();
-        for (Modification mod : allMods)
-        {
-            if (mod.key.equals(key))
-            {
-                mods.add(mod);
-            }
-        }
-
-        List<Change> changes = new ArrayList<>();
-        for (Modification mod : mods)
-        {
-            changes.add(new Change(mod.validFrom, mod.value, false));
-            if (mod.validUntil != null)
-            {
-                changes.add(new Change(mod.validUntil, mod.value, true));
-            }
-        }
-
-        Collections.sort(changes);
+        List<Change> changes = getSortedChanges(event, permId, key);
 
         List<Set<String>> actualValues = new ArrayList<>();
 
@@ -233,6 +261,47 @@ public abstract class DeletionTest extends AbstractTest
         }
     }
 
+    private List<Change> getSortedChanges(EventPE event, String permId, final String key) throws Exception
+    {
+        JsonNode tree = new ObjectMapper().reader().readTree(event.getContent());
+
+        List<Modification> allMods =
+                IteratorUtils.toList(IteratorUtils.transformedIterator(tree.get(permId).elements(), new JsonNodeToModificationTransformer()));
+
+        List<Modification> mods = new ArrayList<>();
+        for (Modification mod : allMods)
+        {
+            if (mod.key.equals(key))
+            {
+                mods.add(mod);
+            }
+        }
+
+        List<Change> changes = new ArrayList<>();
+        for (Modification mod : mods)
+        {
+            String value = render(mod.type, mod.value, mod.entityType);
+            changes.add(new Change(mod.validFrom, value, false));
+            if (mod.validUntil != null)
+            {
+                changes.add(new Change(mod.validUntil, value, true));
+            }
+        }
+
+        Collections.sort(changes);
+        return changes;
+    }
+    
+    private String render(String type, String value, String entityTypeOrNull)
+    {
+        String result = type + ":" + value;
+        if (entityTypeOrNull != null)
+        {
+            result += "[" + entityTypeOrNull + "]";
+        }
+        return result;
+    }
+
     private class JsonNodeToModificationTransformer implements Transformer<JsonNode, Modification>
     {
         @Override
@@ -241,8 +310,14 @@ public abstract class DeletionTest extends AbstractTest
             try
             {
                 Modification m = new Modification();
+                m.type = node.get("type").textValue();
                 m.key = node.get("key").textValue();
                 m.value = node.get("value").textValue();
+                JsonNode entityTypeNode = node.get("entityType");
+                if (entityTypeNode != null)
+                {
+                    m.entityType = entityTypeNode.textValue();
+                }
                 m.validFrom = dateFormat.parse(node.get("validFrom").textValue());
                 String validUntil = node.get("validUntil").textValue();
                 if (validUntil != null && validUntil.length() > 0)
@@ -259,9 +334,13 @@ public abstract class DeletionTest extends AbstractTest
 
     private static class Modification
     {
+        public String type;
+        
         public String key;
 
         public String value;
+        
+        public String entityType;
 
         public Date validFrom;
 

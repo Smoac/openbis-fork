@@ -467,7 +467,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE>i
     private static String createQueryPropertyHistorySQL()
     {
         return "("
-                + "SELECT s.perm_id, pt.code, h.value, h.vocabulary_term, h.material, p.user_id, h.valid_from_timestamp, h.valid_until_timestamp "
+                + "SELECT s.perm_id, pt.code, coalesce(h.value, h.vocabulary_term, h.material) as value, p.user_id, h.valid_from_timestamp, h.valid_until_timestamp "
                 + "FROM samples_all s, sample_properties_history h, sample_type_property_types stpt, property_types pt, persons p "
                 + "WHERE h.samp_id " + SQLBuilder.inEntityIds() + " AND "
                 + "s.id = h.samp_id AND "
@@ -475,13 +475,13 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE>i
                 + "stpt.prty_id = pt.id AND "
                 + "pers_id_author = p.id "
                 + ") UNION ("
-                + "SELECT s.perm_id, pt.code, value, "
+                + "SELECT s.perm_id, pt.code, coalesce(value, "
                 + "(SELECT (t.code || ' [' || v.code || ']') "
                 + "FROM controlled_vocabulary_terms as t JOIN controlled_vocabularies as v ON t.covo_id = v.id "
                 + "WHERE t.id = pr.cvte_id), "
                 + "(SELECT (m.code || ' [' || mt.code || ']') "
                 + "FROM materials AS m JOIN material_types AS mt ON m.maty_id = mt.id "
-                + "WHERE m.id = pr.mate_prop_id), "
+                + "WHERE m.id = pr.mate_prop_id)) as value, "
                 + "author.user_id, pr.modification_timestamp, null "
                 + "FROM samples_all s, sample_properties pr, sample_type_property_types stpt, property_types pt, persons author "
                 + "WHERE pr.samp_id " + SQLBuilder.inEntityIds() + " AND "
@@ -492,16 +492,23 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE>i
                 + ") "
                 + " ORDER BY 1, valid_from_timestamp";
     }
-
+    
     private static String createQueryRelationshipHistorySQL()
     {
-        return "SELECT s.perm_id, h.relation_type, h.entity_perm_id, p.user_id, h.valid_from_timestamp, h.valid_until_timestamp "
+        return "SELECT s.perm_id, h.relation_type, h.entity_perm_id, " + ENTITY_TYPE + ", "
+                + "p.user_id, h.valid_from_timestamp, h.valid_until_timestamp "
                 + "FROM samples_all s, sample_relationships_history h, persons p "
                 + "WHERE s.id = h.main_samp_id AND "
                 + "h.main_samp_id " + SQLBuilder.inEntityIds() + " AND "
                 + "h.pers_id_author = p.id "
                 + "ORDER BY 1, valid_from_timestamp";
     }
+    
+    private static final String ENTITY_TYPE = "case "
+            + "when h.space_id is not null then 'SPACE' "
+            + "when h.samp_id is not null then 'SAMPLE' "
+            + "when h.expe_id is not null then 'EXPERIMENT' "
+            + "else 'UNKNOWN' end as entity_type";
 
     @Override
     public void deletePermanently(final DeletionPE deletion, final PersonPE registrator)

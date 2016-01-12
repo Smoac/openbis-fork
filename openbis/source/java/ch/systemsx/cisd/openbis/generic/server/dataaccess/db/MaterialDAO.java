@@ -233,7 +233,8 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
     }
 
     public static final String sqlPropertyHistory =
-            "(SELECT m.code as perm_id, pt.code, h.value, h.vocabulary_term, h.material, p.user_id, h.valid_from_timestamp, h.valid_until_timestamp "
+            "(SELECT m.code as perm_id, pt.code, coalesce(h.value, h.vocabulary_term, h.material) as value, "
+                    + "p.user_id, h.valid_from_timestamp, h.valid_until_timestamp "
                     + "FROM materials m, material_properties_history h, material_type_property_types mtpt, property_types pt, persons p "
                     + "WHERE h.mate_id " + SQLBuilder.inEntityIds() + " AND "
                     + "m.id=h.mate_id AND "
@@ -241,13 +242,13 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
                     + "mtpt.prty_id = pt.id AND "
                     + "pers_id_author = p.id "
                     + ") UNION ( "
-                    + "SELECT m.code as perm_id, pt.code, value, "
+                    + "SELECT m.code as perm_id, pt.code, coalesce(value, "
                     + "(SELECT (t.code || ' [' || v.code || ']') "
                     + "FROM controlled_vocabulary_terms as t JOIN controlled_vocabularies as v ON t.covo_id = v.id "
                     + "WHERE t.id = pr.cvte_id), "
                     + "(SELECT (m.code || ' [' || mt.code || ']') "
                     + "FROM materials AS m JOIN material_types AS mt ON m.maty_id = mt.id "
-                    + "WHERE m.id = pr.mate_prop_id), "
+                    + "WHERE m.id = pr.mate_prop_id)) as value, "
                     + "author.user_id, pr.modification_timestamp, null "
                     + "FROM materials m, material_properties pr, material_type_property_types mtpt, property_types pt, persons author "
                     + "WHERE pr.mate_id  " + SQLBuilder.inEntityIds() + "  AND "

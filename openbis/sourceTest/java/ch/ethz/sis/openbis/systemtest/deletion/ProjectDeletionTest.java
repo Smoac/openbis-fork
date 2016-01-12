@@ -28,7 +28,7 @@ public class ProjectDeletionTest extends DeletionTest
 
         delete(project);
 
-        assertHistory(project.getPermId(), "OWNED", "SPACE1", "SPACE2");
+        assertHistory(project.getPermId(), "OWNED", spaceSet("SPACE1"), spaceSet("SPACE2"));
     }
 
     @Test
@@ -53,6 +53,7 @@ public class ProjectDeletionTest extends DeletionTest
 
         delete(project1);
 
-        assertHistory(project1.getPermId(), "OWNER", set(experiment1.getPermId()), set(experiment1.getPermId(), experiment2.getPermId()), set());
+        assertHistory(project1.getPermId(), "OWNER", experimentSet(experiment1.getPermId()), 
+                experimentSet(experiment1.getPermId(), experiment2.getPermId()), set());
     }
 }

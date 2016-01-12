@@ -2,21 +2,18 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class EntityModification
 {
-    public final String key;
+    @JsonIgnore
+    public String userId;
+    
+    @JsonIgnore
+    public String permId;
 
-    public final String value;
+    public Date validFrom;
 
-    public final Date validFrom;
+    public Date validUntil;
 
-    public final Date validUntil;
-
-    public EntityModification(String key, String value, Date validFrom, Date validUntil)
-    {
-        this.key = key;
-        this.value = value;
-        this.validFrom = validFrom;
-        this.validUntil = validUntil;
-    }
 }

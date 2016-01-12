@@ -41,21 +41,14 @@ public class EntityHistoryCreator
         {
             return "";
         }
-        Map<String, List<EntityModification>> histories = new HashMap<String, List<EntityModification>>();
+        Map<String, List<? extends EntityModification>> histories = new HashMap<String, List<? extends EntityModification>>();
 
         List<PropertyHistoryEntry> propertyHistory =
                 selectHistoryPropertyEntries(session.createSQLQuery(propertyHistoryQuery), entityIdsToDelete);
 
         for (PropertyHistoryEntry entry : propertyHistory)
         {
-            String value = entry.material;
-            if (value == null)
-                value = entry.vocabulary_term;
-            if (value == null)
-                value = entry.value;
-
-            addToHistories(entry.permId, histories,
-                    new EntityModification(entry.propertyCode, value, entry.valid_from_timestamp, entry.valid_until_timestamp));
+            addToHistories(entry.permId, histories, entry);
         }
 
         List<RelationshipHistoryEntry> relationshipHistory =
@@ -63,12 +56,11 @@ public class EntityHistoryCreator
                         entityIdsToDelete);
         for (RelationshipHistoryEntry entry : relationshipHistory)
         {
-            addToHistories(entry.permId, histories,
-                    new EntityModification(entry.relationType, entry.relatedEntity, entry.validFromTimestamp, entry.validUntilTimestamp));
+            addToHistories(entry.permId, histories, entry);
         }
 
-        ObjectWriter ow =
-                new ObjectMapper().setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")).writer().withDefaultPrettyPrinter();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        ObjectWriter ow = new ObjectMapper().setDateFormat(dateFormat).writer().withDefaultPrettyPrinter();
         String content;
         try
         {
@@ -80,9 +72,9 @@ public class EntityHistoryCreator
         return content;
     }
 
-    private void addToHistories(String permId, Map<String, List<EntityModification>> histories, EntityModification modification)
+    private void addToHistories(String permId, Map<String, List<? extends EntityModification>> histories, EntityModification modification)
     {
-        List<EntityModification> current = histories.get(permId);
+        List<? extends EntityModification> current = histories.get(permId);
         if (current == null)
         {
             current = new ArrayList<>();
@@ -90,7 +82,7 @@ public class EntityHistoryCreator
         histories.put(permId, addModification(current, modification));
     }
 
-    private List<EntityModification> addModification(List<EntityModification> current, EntityModification modification)
+    private List<EntityModification> addModification(List<? extends EntityModification> current, EntityModification modification)
     {
         List<EntityModification> list = new ArrayList<>(current);
         list.add(modification);
@@ -121,11 +113,9 @@ public class EntityHistoryCreator
                     entry.permId = (String) values[i++];
                     entry.propertyCode = (String) values[i++];
                     entry.value = (String) values[i++];
-                    entry.vocabulary_term = (String) values[i++];
-                    entry.material = (String) values[i++];
-                    entry.user_id = (String) values[i++];
-                    entry.valid_from_timestamp = (Date) values[i++];
-                    entry.valid_until_timestamp = (Date) values[i++];
+                    entry.userId = (String) values[i++];
+                    entry.validFrom = (Date) values[i++];
+                    entry.validUntil = (Date) values[i++];
                     return entry;
                 }
 
@@ -155,9 +145,10 @@ public class EntityHistoryCreator
                     entry.permId = (String) values[i++];
                     entry.relationType = (String) values[i++];
                     entry.relatedEntity = (String) values[i++];
+                    entry.entityType = (String) values[i++];
                     entry.userId = (String) values[i++];
-                    entry.validFromTimestamp = (Date) values[i++];
-                    entry.validUntilTimestamp = (Date) values[i++];
+                    entry.validFrom = (Date) values[i++];
+                    entry.validUntil = (Date) values[i++];
                     return entry;
                 }
 

@@ -18,8 +18,6 @@ public class ExperimentDeletionTest extends DeletionTest
     @Test
     public void moveExperimentToAnotherProject() throws Exception
     {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
         SpacePermId space1 = createSpace("SPACE1");
         SpacePermId space2 = createSpace("SPACE2");
 
@@ -35,7 +33,8 @@ public class ExperimentDeletionTest extends DeletionTest
 
         delete(experiment);
 
-        assertHistory(experiment.getPermId(), "OWNED", project1.getPermId(), project2.getPermId());
+        assertHistory(experiment.getPermId(), "OWNED", projectSet(project1.getPermId()), 
+                projectSet(project2.getPermId()));
     }
 
     @Test
@@ -60,9 +59,9 @@ public class ExperimentDeletionTest extends DeletionTest
         delete(project);
         delete(space);
 
-        assertHistory(experiment.getPermId(), "DESCRIPTION", "desc", "", "desc2", "", "desc3");
-        assertHistory(experiment.getPermId(), "ORGANISM", "FLY [ORGANISM]", "", "GORILLA [ORGANISM]", "", "DOG [ORGANISM]");
-        assertHistory(experiment.getPermId(), "BACTERIUM", "BACTERIUM-X [BACTERIUM]", "", "BACTERIUM-Y [BACTERIUM]", "", "BACTERIUM2 [BACTERIUM]");
+        assertPropertiesHistory(experiment.getPermId(), "DESCRIPTION", "desc", "", "desc2", "", "desc3");
+        assertPropertiesHistory(experiment.getPermId(), "ORGANISM", "FLY [ORGANISM]", "", "GORILLA [ORGANISM]", "", "DOG [ORGANISM]");
+        assertPropertiesHistory(experiment.getPermId(), "BACTERIUM", "BACTERIUM-X [BACTERIUM]", "", "BACTERIUM-Y [BACTERIUM]", "", "BACTERIUM2 [BACTERIUM]");
     }
 
     @Test
@@ -84,8 +83,9 @@ public class ExperimentDeletionTest extends DeletionTest
         delete(project);
         delete(space);
 
-        assertHistory(experiment.getPermId(), "OWNER", set(dataset1.getPermId()), set(dataset1.getPermId(), dataset2.getPermId()),
-                set(dataset2.getPermId()),
+        assertHistory(experiment.getPermId(), "OWNER", unknownSet(dataset1.getPermId()), 
+                unknownSet(dataset1.getPermId(), dataset2.getPermId()),
+                unknownSet(dataset2.getPermId()),
                 set());
     }
 
@@ -113,9 +113,9 @@ public class ExperimentDeletionTest extends DeletionTest
         delete(space);
 
         assertHistory(experiment.getPermId(), "OWNER",
-                set(sample1.getPermId()),
-                set(sample1.getPermId(), sample2.getPermId()),
-                set(sample2.getPermId()),
+                unknownSet(sample1.getPermId()),
+                unknownSet(sample1.getPermId(), sample2.getPermId()),
+                unknownSet(sample2.getPermId()),
                 set());
     }
 

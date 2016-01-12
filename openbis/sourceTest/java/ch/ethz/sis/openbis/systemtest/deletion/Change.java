@@ -16,7 +16,7 @@ class Change implements Comparable<Change>
         this.value = value;
         this.isRemoval = isRemoval;
     }
-
+    
     @Override
     public int compareTo(Change other)
     {

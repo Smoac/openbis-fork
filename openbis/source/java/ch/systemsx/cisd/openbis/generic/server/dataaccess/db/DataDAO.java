@@ -906,9 +906,10 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE>implem
     private static String createQueryPropertyHistorySQL()
     {
         return " (" +
-                " select d.code as data_set_code, pt.code as property_code, value, vocabulary_term, material, p.user_id, h.valid_from_timestamp, h.valid_until_timestamp "
-                +
-                " from " + TableNames.DATA_ALL_TABLE + " d, " + TableNames.DATA_SET_PROPERTIES_HISTORY_TABLE + " h, "
+                " select d.code as data_set_code, pt.code as property_code, "
+                + "coalesce(value, vocabulary_term, material) as value, p.user_id, "
+                + "h.valid_from_timestamp, h.valid_until_timestamp "
+                + " from " + TableNames.DATA_ALL_TABLE + " d, " + TableNames.DATA_SET_PROPERTIES_HISTORY_TABLE + " h, "
                 + TableNames.DATA_SET_TYPE_PROPERTY_TYPE_TABLE + " dspt, "
                 + TableNames.PROPERTY_TYPES_TABLE + " pt, " + TableNames.PERSONS_TABLE + " p " +
                 " where ds_id " + SQLBuilder.inEntityIds() + " and d.id = ds_id " +
@@ -916,11 +917,11 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE>implem
                 " )" +
                 " union" +
                 " (" +
-                " select d.code as data_set_code, pt.code as property_code, value, " +
+                " select d.code as data_set_code, pt.code as property_code, coalesce(value, " +
                 " (select (t.code || ' [' || v.code || ']') from " + TableNames.CONTROLLED_VOCABULARY_TERM_TABLE + " as t join "
                 + TableNames.CONTROLLED_VOCABULARY_TABLE + " as v on t.covo_id = v.id where t.id = pr.CVTE_ID)," +
                 " (select (m.code || ' [' || mt.code || ']') from " + TableNames.MATERIALS_TABLE + " as m join " + TableNames.MATERIAL_TYPES_TABLE
-                + " as mt on m.maty_id = mt.id where m.id = pr.MATE_PROP_ID)," +
+                + " as mt on m.maty_id = mt.id where m.id = pr.MATE_PROP_ID)) as value," +
                 " author.user_id, pr.modification_timestamp, null" +
                 " from " + TableNames.DATA_ALL_TABLE + " d, " + TableNames.DATA_SET_PROPERTIES_TABLE + " pr, "
                 + TableNames.DATA_SET_TYPE_PROPERTY_TYPE_TABLE + " dtpt, "
@@ -933,13 +934,21 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE>implem
 
     private static String createQueryRelationshipHistorySQL()
     {
-        return " select d.code, relation_type,entity_perm_id, p.user_id, valid_from_timestamp, valid_until_timestamp" +
-                " from " + TableNames.DATA_ALL_TABLE + " d, " + TableNames.DATA_SET_RELATIONSHIPS_HISTORY_TABLE + " h, "
-                + TableNames.PERSONS_TABLE + " p" +
-                " where d.id = main_data_id and  main_data_id " + SQLBuilder.inEntityIds() +
-                " and h.pers_id_author = p.id" +
-                " order by 1, valid_from_timestamp";
+        return " SELECT d.code, relation_type,entity_perm_id, " + ENTITY_TYPE + ", " 
+                + "p.user_id, valid_from_timestamp, valid_until_timestamp "
+                + "FROM " + TableNames.DATA_ALL_TABLE + " d, " + TableNames.DATA_SET_RELATIONSHIPS_HISTORY_TABLE + " h, "
+                + TableNames.PERSONS_TABLE + " p "
+                + "WHERE d.id = main_data_id and  main_data_id " + SQLBuilder.inEntityIds() 
+                + " and h.pers_id_author = p.id" 
+                + " order by 1, valid_from_timestamp";
     }
+
+    private static final String ENTITY_TYPE = "case "
+            + "when h.data_id is not null then 'DATA_SET' "
+            + "when h.samp_id is not null then 'SAMPLE' "
+            + "when h.expe_id is not null then 'EXPERIMENT' "
+            + "else 'UNKNOWN' end as entity_type";
+
 
     // TODO refactor - it is very similar code to the one in AbstractGenericEntityWithPropertiesDAO
     protected class DeleteDataSetsPermanentlyBatchOperation implements IBatchOperation<Long>
