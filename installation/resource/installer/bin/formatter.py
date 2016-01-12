@@ -14,6 +14,9 @@ class Event(object):
         self.entityType = entityType
         self.validTimeStampType = validTimeStampType
         
+    def renderKey(self):
+        return "%s [%s]" % (self.key, self.type)
+        
     def renderValue(self):
         result = self.value
         if self.entityType is not None:
@@ -74,14 +77,14 @@ for timestamp, events in sorted_data.iteritems():
     
     
     for event in filter(lambda event: event.validTimeStampType == "end", events):
-        key = event.key
+        key = event.renderKey()
         value = event.renderValue()
         currententity[key].remove(value)
         if len(currententity[key]) == 0:
             del currententity[key]
             
     for event in filter(lambda event: event.validTimeStampType == "begin", events):
-        key = event.key
+        key = event.renderKey()
         value = event.renderValue()
         if key not in currententity:
             currententity[key] = set([value])
