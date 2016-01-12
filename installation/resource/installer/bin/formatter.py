@@ -5,6 +5,24 @@ import time
 import collections
 import copy
 
+class Event(object):
+    def __init__(self, validFrom, type, key, value, entityType, validTimeStampType):
+        self.validFrom = validFrom
+        self.type = type
+        self.key = key
+        self.value = value
+        self.entityType = entityType
+        self.validTimeStampType = validTimeStampType
+        
+    def renderValue(self):
+        result = self.value
+        if self.entityType is not None:
+            result += "[%s]" % self.entityType
+        return result
+        
+def timestamptonumber(s):
+    return (datetime.strptime(s,"%Y-%m-%d %H:%M:%S.%f") - epoch).total_seconds() * 1000.0
+
 entity_id = sys.argv[1]
 
 payload = ""
@@ -16,40 +34,29 @@ if payload == "":
     sys.exit(-1)
 
 content = json.loads(payload)
-
-def report(time, entity):
-    print "\n-- %s --" % (time)
-    for key, value in entity.iteritems():
-        print "%s: %s" % (key, value)
-
-
 epoch = datetime.utcfromtimestamp(0)
-def timestamptonumber(s):
-    return (datetime.strptime(s,"%Y-%m-%d %H:%M:%S.%f") - epoch).total_seconds() * 1000.0
 
 
 data = dict()
 
 for entry in content[entity_id]:
-    
+    type = entry['type'] if 'type' in entry else '?'
     key = entry['key']
     value = entry['value']
+    entityType = entry['entityType'] if 'entityType' in entry else None
     validfrom = entry['validFrom']
-    validuntil = None
+    validuntil = entry['validUntil'] if 'validUntil' in entry else None
     
-    if 'validUntil' in entry:
-        validuntil = entry['validUntil']
-        
     if validfrom in data:
-        data[validfrom].append([validfrom, key, value, "begin"])
+        data[validfrom].append(Event(validfrom, type, key, value, entityType, "begin"))
     else:
-        data[validfrom] = [[validfrom, key, value, "begin"]]
+        data[validfrom] = [Event(validfrom, type, key, value, entityType, "begin")]
 
     if validuntil is not None:
         if validuntil in data:
-            data[validuntil].append([validfrom, key, value, "end"])
+            data[validuntil].append(Event(validfrom, type, key, value, entityType, "end"))
         else:
-            data[validuntil] = [[validfrom, key, value, "end"]]
+            data[validuntil] = [Event(validfrom, type, key, value, entityType, "end")]
             
 
 sorted_data = collections.OrderedDict(sorted(data.items(), key=lambda t: timestamptonumber(t[0])))
@@ -66,16 +73,16 @@ for timestamp, events in sorted_data.iteritems():
         history.append(element)
     
     
-    for event in filter(lambda event: event[3] == "end", events):
-        key = event[1]
-        value = event[2]
+    for event in filter(lambda event: event.validTimeStampType == "end", events):
+        key = event.key
+        value = event.renderValue()
         currententity[key].remove(value)
         if len(currententity[key]) == 0:
             del currententity[key]
             
-    for event in filter(lambda event: event[3] == "begin", events):
-        key = event[1]
-        value = event[2]
+    for event in filter(lambda event: event.validTimeStampType == "begin", events):
+        key = event.key
+        value = event.renderValue()
         if key not in currententity:
             currententity[key] = set([value])
         else:
