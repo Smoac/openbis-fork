@@ -28,9 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -44,6 +42,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Level;
+import org.eclipse.jetty.util.URIUtil;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
@@ -51,7 +50,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
@@ -112,19 +110,20 @@ public class DatasetDownloadServletTest
     private static final File EXAMPLE_DATA_SET_FOLDER = getDatasetDirectoryLocation(TEST_FOLDER,
             EXAMPLE_DATA_SET_CODE);
 
+    
     private static final String EXAMPLE_FILE_NAME = "read me @home.txt";
-
+    
+    private static final String ESCAPED_FILE_NAME_ENCODED = URIUtil.encodePath(EXAMPLE_FILE_NAME);
+    
     private static final File EXAMPLE_FILE = new File(EXAMPLE_DATA_SET_FOLDER, EXAMPLE_FILE_NAME);
 
     private static final String EXAMPLE_FILE_CONTENT = "Hello world!";
 
     private static final String EXAMPLE_DATA_SET_SUB_FOLDER_NAME = "+ s % ! # @";
 
-    private static final String ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME =
-            encode(EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
+    private static final String ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME = URIUtil.encodePath(EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
 
-    private static final File EXAMPLE_DATA_SET_SUB_FOLDER = new File(EXAMPLE_DATA_SET_FOLDER,
-            EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
+    private static final File EXAMPLE_DATA_SET_SUB_FOLDER = new File(EXAMPLE_DATA_SET_FOLDER, EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
 
     private static final String EXAMPLE_SESSION_ID = "AV76CF";
 
@@ -133,17 +132,6 @@ public class DatasetDownloadServletTest
     private static final String SPACE_CODE = "GROUP-G";
 
     private static final String PROJECT_CODE = "PROJECT-P";
-
-    private static String encode(String url)
-    {
-        try
-        {
-            return URLEncoder.encode(url, "UTF-8");
-        } catch (UnsupportedEncodingException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
-    }
 
     private BufferedAppender logRecorder;
 
@@ -432,7 +420,8 @@ public class DatasetDownloadServletTest
         context.checking(new Expectations()
             {
                 {
-                    prepareGetRequestURI(this, externalData, EXAMPLE_FILE_NAME);
+                    
+                    prepareGetRequestURI(this, externalData, ESCAPED_FILE_NAME_ENCODED);
 
                     one(response).setContentType("text/plain");
                     one(response).setContentLength(EXAMPLE_FILE_CONTENT.length());
@@ -491,7 +480,7 @@ public class DatasetDownloadServletTest
                 {
                     one(request).getRequestURI();
                     will(returnValue(REQUEST_URI_PREFIX + EXAMPLE_DATA_SET_CODE + "/"
-                            + EXAMPLE_FILE_NAME));
+                            + ESCAPED_FILE_NAME_ENCODED));
 
                     one(response).setContentType("image/png");
                     one(response).setContentLength(84);

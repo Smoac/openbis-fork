@@ -261,26 +261,16 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
     }
 
     private static RequestParams parseRequestURL(HttpServletRequest request, String applicationName)
-            throws UnsupportedEncodingException
+            throws UnsupportedEncodingException, URISyntaxException
     {
         final String urlPrefix = "/" + applicationName + "/";
-        
-        String requestURI = request.getRequestURI();
-        String urlPath = null;
-        try
+        final String requestURI = (new URI(request.getRequestURI())).getPath();
+        if (requestURI.startsWith(urlPrefix) == false)
         {
-            urlPath = new URI(requestURI).getPath();
-        } catch (URISyntaxException e)
-        {
-            throw new EnvironmentFailureException("Request URI '" + requestURI + "' can't be parsed.");
-        }
-        
-        if (urlPath.startsWith(urlPrefix) == false)
-        {
-            throw new EnvironmentFailureException("Request URI '" + urlPath
+            throw new EnvironmentFailureException("Request URI '" + requestURI
                     + "' expected to start with '" + urlPrefix + "'.");
         }
-        final String fullPathInfo = urlPath.substring(urlPrefix.length());
+        final String fullPathInfo = requestURI.substring(urlPrefix.length());
         final int indexOfFirstSeparator = fullPathInfo.indexOf('/');
         final String dataSetCode;
         final String pathInfo;
@@ -294,7 +284,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             pathInfo = fullPathInfo.substring(indexOfFirstSeparator + 1);
         }
         final String urlPrefixWithDataset =
-                urlPath.substring(0, urlPath.length() - pathInfo.length());
+                requestURI.substring(0, requestURI.length() - pathInfo.length());
 
         final String sessionIDOrNull = request.getParameter(Utils.SESSION_ID_PARAM);
         String displayMode = getDisplayMode(request);
