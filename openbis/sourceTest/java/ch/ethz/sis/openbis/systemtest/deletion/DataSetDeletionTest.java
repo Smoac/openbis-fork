@@ -1,6 +1,8 @@
 package ch.ethz.sis.openbis.systemtest.deletion;
 
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 
 import org.springframework.test.annotation.Rollback;
 import org.testng.annotations.Test;
@@ -14,6 +16,38 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 
 public class DataSetDeletionTest extends DeletionTest
 {
+    @Test
+    @Rollback(false)
+    public void testAttributes() throws Exception
+    {
+        Date after = new Date();
+        SpacePermId space = createSpace("SPACE");
+        SamplePermId spaceSample = createSample(null, space, "SPACE_SAMPLE");
+        ProjectPermId project = createProject(space, "PROJECT");
+        ExperimentPermId experiment = createExperiment(project, "EXPERIMENT");
+        SamplePermId experimentSample = createSample(experiment, space, "EXPERIMENT_SAMPLE");
+
+        DataSetPermId dataset = createDataSet(experiment, "DATA_SET");
+        newTx();
+        Date before = new Date();
+
+        delete(dataset);
+        delete(experimentSample, spaceSample);
+        delete(experiment);
+        delete(project);
+        delete(space);
+
+        HashMap<String, String> expectations = new HashMap<String, String>();
+
+        expectations.put("CODE", dataset.getPermId());
+        expectations.put("DATA_STORE", "STANDARD");
+        expectations.put("ENTITY_TYPE", "DELETION_TEST");
+        expectations.put("DATA_PRODUCER_CODE", null);
+        expectations.put("REGISTRATOR", "test");
+        assertAttributes(dataset.getPermId(), expectations);
+        assertRegistrationTimestampAttribute(dataset.getPermId(), after, before);
+    }
+
     @Test
     @Rollback(false)
     public void changeOwner() throws Exception

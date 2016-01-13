@@ -85,7 +85,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
  * 
  * @author Christian Ribeaud
  */
-final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE>implements IDataDAO
+final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> implements IDataDAO
 {
     private final int MAX_BATCH_SIZE = 999;
 
@@ -830,6 +830,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE>implem
         sqls.deleteParentConnections = createDeleteParentConnectionsSQL(relationshipTypeId);
         sqls.selectPropertyHistory = createQueryPropertyHistorySQL();
         sqls.selectRelationshipHistory = createQueryRelationshipHistorySQL();
+        sqls.selectAttributes = createQueryAttributesHistorySQL();
 
         executePermanentDeleteOfDataSets(EntityType.DATASET, dataIds, registrator, reason, sqls);
     }
@@ -855,6 +856,8 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE>implem
         public String selectPropertyHistory;
 
         public String selectRelationshipHistory;
+
+        public String selectAttributes;
     }
 
     protected void executePermanentDeleteOfDataSets(final EntityType entityType,
@@ -949,6 +952,17 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE>implem
             + "when h.expe_id is not null then 'EXPERIMENT' "
             + "else 'UNKNOWN' end as entity_type";
 
+    private static String createQueryAttributesHistorySQL()
+    {
+        return "SELECT d.id, d.code, d.code as perm_id, t.code as entity_type, "
+                + "st.code as data_store, d.data_producer_code, "
+                + "d.registration_timestamp, r.user_id as registrator "
+                + "FROM data_all d "
+                + "JOIN data_stores st on d.dast_id = st.id "
+                + "JOIN data_set_types t on d.dsty_id = t.id "
+                + "JOIN persons r on d.pers_id_registerer = r.id "
+                + "WHERE d.id " + SQLBuilder.inEntityIds();
+    }
 
     // TODO refactor - it is very similar code to the one in AbstractGenericEntityWithPropertiesDAO
     protected class DeleteDataSetsPermanentlyBatchOperation implements IBatchOperation<Long>
@@ -1035,8 +1049,8 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE>implem
                 final List<DeletedDataSetLocation> locations =
                         selectLocations(selectLocations, entityIdsToDelete);
 
-                String content = historyCreator.apply(session, entityIdsToDelete, sqls.selectPropertyHistory, 
-                        sqls.selectRelationshipHistory, null);
+                String content = historyCreator.apply(session, entityIdsToDelete, sqls.selectPropertyHistory,
+                        sqls.selectRelationshipHistory, sqls.selectAttributes);
 
                 executeUpdate(deleteProperties, entityIdsToDelete);
                 executeUpdate(deleteExternalData, entityIdsToDelete);
