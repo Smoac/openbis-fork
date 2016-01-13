@@ -79,12 +79,9 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
     private static final Pattern RELAXED_CODE_PATTERN = Pattern.compile("^[^\\s]+$",
             Pattern.CASE_INSENSITIVE);
 
-    private EntityHistoryCreator historyCreator;
-
     protected MaterialDAO(final PersistencyResources persistencyResources, EntityHistoryCreator historyCreator)
     {
         super(persistencyResources, ENTITY_CLASS, historyCreator);
-        this.historyCreator = historyCreator;
     }
 
     @Override
@@ -259,10 +256,6 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
                     + ") "
                     + "ORDER BY 1, valid_from_timestamp";
 
-    // dummy query
-    public static final String sqlRelationshipHistory =
-            "SELECT 1 as a, 1 as b, 1 as c, 1 as d, 1 as e, 1 as f, 1 as g FROM materials WHERE id = -1 and id " + SQLBuilder.inEntityIds();
-
     @Override
     public void delete(final List<TechId> materialIds, final PersonPE registrator,
             final String reason) throws DataAccessException
@@ -307,8 +300,8 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
                             String materialTypeCode = (String) codeAndType[1];
                             String permId = MaterialPE.createPermId(materialCode, materialTypeCode);
 
-                            String content = historyCreator.apply(session, Collections.singletonList(techId.getId()), sqlPropertyHistory,
-                                    sqlRelationshipHistory);
+                            String content = historyCreator.apply(session, Collections.singletonList(techId.getId()), 
+                                    sqlPropertyHistory, null, null);
 
                             try
                             {

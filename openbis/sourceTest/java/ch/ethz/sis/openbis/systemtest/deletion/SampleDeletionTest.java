@@ -1,6 +1,8 @@
 package ch.ethz.sis.openbis.systemtest.deletion;
 
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 
 import org.springframework.test.annotation.Rollback;
 import org.testng.annotations.Test;
@@ -13,6 +15,28 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 
 public class SampleDeletionTest extends DeletionTest
 {
+    @Test
+    @Rollback(false)
+    public void testAttributes() throws Exception
+    {
+        SpacePermId space = createSpace("SPACE1");
+        Date after = new Date();
+        SamplePermId sample = createSample(null, space, "SPACE_SAMPLE");
+
+        newTx();
+        Date before = new Date();
+        
+        delete(sample);
+        delete(space);
+        
+        HashMap<String, String> expectations = new HashMap<String, String>();
+        expectations.put("CODE", "SPACE_SAMPLE");
+        expectations.put("ENTITY_TYPE", "DELETION_TEST");
+        expectations.put("REGISTRATOR", "test");
+        assertAttributes(sample.getPermId(), expectations);
+        assertRegistrationTimestampAttribute(sample.getPermId(), after, before);
+    }
+
 
     @Test
     @Rollback(false)
@@ -28,14 +52,15 @@ public class SampleDeletionTest extends DeletionTest
         SampleUpdate update = new SampleUpdate();
         update.setSampleId(sample);
         update.setSpaceId(space2);
-        v3api.updateSamples(sessionToken, Arrays.asList(update));
+        v3api.updateSamples(systemSessionToken, Arrays.asList(update));
 
         newTx();
 
         delete(sample);
         delete(space1, space2);
 
-        assertHistory(sample.getPermId(), "OWNED", spaceSet(space1.getPermId()), spaceSet(space2.getPermId()));
+        assertHistory(sample.getPermId(), "OWNED", spaceSet(space1.getPermId()), 
+                spaceSetFor(SYSTEM_USER, space2.getPermId()));
     }
 
     @Test

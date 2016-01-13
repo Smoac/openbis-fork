@@ -398,10 +398,9 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
             }
             if (codes.isEmpty() && trashedCodes.isEmpty())
             {
-                String content =
-                        historyCreator.apply(getSessionFactory().getCurrentSession(), Collections.singletonList(projectId.getId()),
-                                propertyHistoryQuery,
-                                relationshipHistoryQuery);
+                List<Long> idsToDelete = Collections.singletonList(projectId.getId());
+                String content = historyCreator.apply(getSessionFactory().getCurrentSession(), idsToDelete,
+                                propertyHistoryQuery, relationshipHistoryQuery, null);
 
                 getProjectDAO().delete(project);
                 getEventDAO().persist(createDeletionEvent(project, session.tryGetPerson(), reason, content));

@@ -14,7 +14,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 
 public class DataSetDeletionTest extends DeletionTest
 {
-
     @Test
     @Rollback(false)
     public void changeOwner() throws Exception

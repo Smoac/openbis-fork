@@ -6,13 +6,19 @@ class Change implements Comparable<Change>
 {
     public final Date time;
 
+    public final String userId;
+    
     public final String value;
 
     public final boolean isRemoval;
 
-    public Change(Date time, String value, boolean isRemoval)
+    public final String key;
+
+    public Change(Date time, String key, String userId, String value, boolean isRemoval)
     {
         this.time = time;
+        this.key = key;
+        this.userId = userId;
         this.value = value;
         this.isRemoval = isRemoval;
     }
@@ -20,6 +26,10 @@ class Change implements Comparable<Change>
     @Override
     public int compareTo(Change other)
     {
+        if (this.time == null)
+        {
+            return other.time == null ? 0 : Long.compare(Long.MIN_VALUE, other.time.getTime());
+        }
         int cmp = this.time.compareTo(other.time);
         if (cmp == 0)
         {
@@ -42,6 +52,6 @@ class Change implements Comparable<Change>
     @Override
     public String toString()
     {
-        return value + " (" + time + ", removal " + isRemoval + ")";
+        return key + " = " + value + " (" + time + ", removal " + isRemoval + ", userId: " + userId + ")";
     }
 }

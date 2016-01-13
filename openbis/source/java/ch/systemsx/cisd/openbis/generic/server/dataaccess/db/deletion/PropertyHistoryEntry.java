@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PropertyHistoryEntry extends EntityModification
 {
-    public String type = "PROPERTY";
+    public final String type = "PROPERTY";
     
     @JsonProperty("key")
     public String propertyCode;

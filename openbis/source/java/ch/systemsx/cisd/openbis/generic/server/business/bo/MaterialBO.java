@@ -176,10 +176,9 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
         loadDataByTechId(materialId);
         try
         {
-            String content =
-                    historyCreator.apply(getSessionFactory().getCurrentSession(), Collections.singletonList(material.getId()),
-                            MaterialDAO.sqlPropertyHistory,
-                            MaterialDAO.sqlRelationshipHistory);
+            List<Long> idsToDelete = Collections.singletonList(material.getId());
+            String content = historyCreator.apply(getSessionFactory().getCurrentSession(), idsToDelete,
+                            MaterialDAO.sqlPropertyHistory, null, null);
 
             getMaterialDAO().delete(material);
             getEventDAO().persist(createDeletionEvent(material, session.tryGetPerson(), reason, content));

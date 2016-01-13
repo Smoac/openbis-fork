@@ -457,17 +457,19 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE>i
         final String sqlInsertEvent = SQLBuilder.createInsertEventSQL();
         final String sqlSelectPropertyHistory = createQueryPropertyHistorySQL();
         final String sqlSelectRelationshipHistory = createQueryRelationshipHistorySQL();
+        final String sqlSelectAttributes = createQueryAttributesSQL();
 
         executePermanentDeleteAction(EntityType.SAMPLE, sampleIds, registrator, reason,
                 sqlSelectPermIds, sqlDeleteProperties, sqlSelectAttachmentContentIds,
                 sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteSamples, sqlInsertEvent, sqlSelectPropertyHistory,
-                sqlSelectRelationshipHistory);
+                sqlSelectRelationshipHistory, sqlSelectAttributes);
     }
 
     private static String createQueryPropertyHistorySQL()
     {
         return "("
-                + "SELECT s.perm_id, pt.code, coalesce(h.value, h.vocabulary_term, h.material) as value, p.user_id, h.valid_from_timestamp, h.valid_until_timestamp "
+                + "SELECT s.perm_id, pt.code, coalesce(h.value, h.vocabulary_term, h.material) as value, "
+                + "p.user_id, h.valid_from_timestamp, h.valid_until_timestamp "
                 + "FROM samples_all s, sample_properties_history h, sample_type_property_types stpt, property_types pt, persons p "
                 + "WHERE h.samp_id " + SQLBuilder.inEntityIds() + " AND "
                 + "s.id = h.samp_id AND "
@@ -509,11 +511,21 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE>i
             + "when h.samp_id is not null then 'SAMPLE' "
             + "when h.expe_id is not null then 'EXPERIMENT' "
             + "else 'UNKNOWN' end as entity_type";
-
+    
+    private static String createQueryAttributesSQL()
+    {
+        return "SELECT s.id, s.perm_id, s.code, t.code as entity_type, "
+                + "s.registration_timestamp, r.user_id as registrator "
+                + "FROM samples_all s left join spaces sp on s.space_id = sp.id "
+                + "JOIN sample_types t on s.saty_id = t.id "
+                + "JOIN persons r on s.pers_id_registerer = r.id "
+                + "WHERE s.id " + SQLBuilder.inEntityIds();
+    }
+    
     @Override
     public void deletePermanently(final DeletionPE deletion, final PersonPE registrator)
     {
-        getHibernateTemplate().execute(new HibernateCallback()
+        getHibernateTemplate().execute(new HibernateCallback<Object>()
             {
                 @SuppressWarnings("unchecked")
                 @Override
@@ -560,9 +572,8 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE>i
                     }
 
                     String permIds = permIdList.substring(2);
-
                     String content = historyCreator.apply(session, entityIdsToDelete, createQueryPropertyHistorySQL(),
-                            createQueryRelationshipHistorySQL());
+                            createQueryRelationshipHistorySQL(), createQueryAttributesSQL());
 
                     SQLQuery deleteProperties = session.createSQLQuery(properties);
                     deleteProperties.setParameter("id", deletion.getId());

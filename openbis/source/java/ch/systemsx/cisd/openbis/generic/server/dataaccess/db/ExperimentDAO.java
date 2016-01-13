@@ -23,6 +23,10 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.lemnik.eodsql.BaseQuery;
+import net.lemnik.eodsql.QueryTool;
+import net.lemnik.eodsql.Select;
+
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
@@ -52,10 +56,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
-
-import net.lemnik.eodsql.BaseQuery;
-import net.lemnik.eodsql.QueryTool;
-import net.lemnik.eodsql.Select;
 
 /**
  * Data access object for {@link ExperimentPE}.
@@ -494,7 +494,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         executePermanentDeleteAction(EntityType.EXPERIMENT, experimentIds, registrator, reason,
                 sqlSelectPermIds, sqlDeleteProperties, sqlSelectAttachmentContentIds,
                 sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteExperiments,
-                sqlInsertEvent, sqlSelectPropertyHistory, sqlSelectRelationshipHistory);
+                sqlInsertEvent, sqlSelectPropertyHistory, sqlSelectRelationshipHistory, null);
     }
 
     private static String createQueryPropertyHistorySQL()

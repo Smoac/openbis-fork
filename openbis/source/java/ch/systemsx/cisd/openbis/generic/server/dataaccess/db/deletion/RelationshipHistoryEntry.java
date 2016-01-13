@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class RelationshipHistoryEntry extends EntityModification
 {
-    public String type = "RELATIONSHIP";
+    public final String type = "RELATIONSHIP";
     
     @JsonProperty("key")
     public String relationType;

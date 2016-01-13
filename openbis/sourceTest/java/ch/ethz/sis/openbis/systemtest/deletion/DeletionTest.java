@@ -1,6 +1,9 @@
 package ch.ethz.sis.openbis.systemtest.deletion;
 
+import static org.testng.Assert.fail;
+
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,11 +13,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.collections.Transformer;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -64,10 +69,15 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.delete.SpaceDeletionOption
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.AbstractTest;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.time.DateFormatThreadLocal;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.AttributeEntry;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 
 public abstract class DeletionTest extends AbstractTest
 {
+
+    private static final String TIMESTAMP_OK = "timestamp ok";
 
     {
         System.setProperty("rebuild-index", "false");
@@ -88,50 +98,80 @@ public abstract class DeletionTest extends AbstractTest
 
     public Set<String> unknownSet(String...values)
     {
-        return entitySet("UNKNOWN", values);
+        return unknownSetFor(TEST_USER, values);
+    }
+    
+    public Set<String> unknownSetFor(String userId, String...values)
+    {
+        return entitySet("UNKNOWN", userId, values);
     }
     
     public Set<String> spaceSet(String...values)
     {
-        return entitySet("SPACE", values);
+        return spaceSetFor(TEST_USER, values);
+    }
+    
+    public Set<String> spaceSetFor(String userId, String...values)
+    {
+        return entitySet("SPACE", userId, values);
     }
     
     public Set<String> projectSet(String...values)
     {
-        return entitySet("PROJECT", values);
+        return projectSetFor(TEST_USER, values);
+    }
+    
+    public Set<String> projectSetFor(String userId, String...values)
+    {
+        return entitySet("PROJECT", userId, values);
     }
     
     public Set<String> experimentSet(String...values)
     {
-        return entitySet("EXPERIMENT", values);
+        return experimentSetFor(TEST_USER, values);
+    }
+    
+    public Set<String> experimentSetFor(String userId, String...values)
+    {
+        return entitySet("EXPERIMENT", userId, values);
     }
 
     public Set<String> sampleSet(String...values)
     {
-        return entitySet("SAMPLE", values);
+        return sampleSetFor(TEST_USER, values);
+    }
+    
+    public Set<String> sampleSetFor(String userId, String...values)
+    {
+        return entitySet("SAMPLE", userId, values);
     }
     
     public Set<String> dataSetSet(String...values)
     {
-        return entitySet("DATA_SET", values);
+        return dataSetSetFor(TEST_USER, values);
+    }
+    
+    public Set<String> dataSetSetFor(String userId, String...values)
+    {
+        return entitySet("DATA_SET", userId, values);
     }
     
     public Set<String> propertiesSet(String...values)
     {
-        return set("PROPERTY", null, values);
+        return set("PROPERTY", null, TEST_USER, values);
     }
     
-    private Set<String> entitySet(String entityType, String... values)
+    private Set<String> entitySet(String entityType, String userId, String... values)
     {
-        return set("RELATIONSHIP", entityType, values);
+        return set("RELATIONSHIP", entityType, userId, values);
     }
     
-    private Set<String> set(String type, String entityTypeOrNull, String... values)
+    private Set<String> set(String type, String entityTypeOrNull, String userId, String... values)
     {
         Set<String> result = new HashSet<>();
         for (String value : values)
         {
-            result.add(render(type, value, entityTypeOrNull));
+            result.add(render(type, value, entityTypeOrNull, userId));
         }
         return result;
     }
@@ -217,14 +257,124 @@ public abstract class DeletionTest extends AbstractTest
         assertHistory(permId, key, values.toArray(new Set[0]));
     }
 
+    public void assertRegistrationTimestampAttribute(String permId, final Date after, final Date before) throws Exception
+    {
+        IModificationFilter filter = new IModificationFilter()
+            {
+                @Override
+                public boolean accept(Modification modification)
+                {
+                    return modification.type.equals(AttributeEntry.ATTRIBUTE)
+                            && modification.key.equals("REGISTRATION_TIMESTAMP");
+                }
+
+                @Override
+                public String getDescription()
+                {
+                    return "Attributes";
+                }
+            };
+        IChangeRenderer renderer = new IChangeRenderer()
+            {
+                @Override
+                public String render(Change change)
+                {
+                    return isInbetween(change.value, after, before) ? TIMESTAMP_OK :
+                            "ERROR: Timestamp " + change.value + " is not between " + after + " and " + before;
+                }
+            };
+
+        assertHistory(permId, filter, renderer, Collections.singleton(TIMESTAMP_OK));
+    }
+    
+    private boolean isInbetween(String timestampValue, Date after, Date before)
+    {
+        if (timestampValue.startsWith(AttributeEntry.ATTRIBUTE) == false) {
+            fail("Timestamp value does not start with " + AttributeEntry.ATTRIBUTE + ": " + timestampValue);
+        }
+        String timestampString = timestampValue.substring(AttributeEntry.ATTRIBUTE.length() + 1);
+        try
+        {
+            long timestamp = DateFormatThreadLocal.DATE_FORMAT.get().parse(timestampString).getTime();
+            long afterTimestamp = (after.getTime() / 1000) * 1000;
+            long beforeTimestamp = (before.getTime() / 1000 + 1) * 1000;
+            return timestamp >= afterTimestamp && timestamp <= beforeTimestamp;
+        } catch (ParseException ex)
+        {
+            fail("Invalid time stamp format: " + timestampString);
+            return false;
+        }
+    }
+    
+    public void assertAttributes(String permId, Map<String, String> expectations) throws Exception
+    {
+        IModificationFilter filter = new IModificationFilter()
+            {
+                @Override
+                public boolean accept(Modification modification)
+                {
+                    return modification.type.equals(AttributeEntry.ATTRIBUTE) 
+                            && modification.key.equals("REGISTRATION_TIMESTAMP") == false;
+                }
+
+                @Override
+                public String getDescription()
+                {
+                    return "Attributes";
+                }
+            };
+        Set<Entry<String, String>> entrySet = expectations.entrySet();
+        Set<String> expected = new HashSet<>();
+        for (Entry<String, String> entry : entrySet)
+        {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            expected.add(key + " = " + render(AttributeEntry.ATTRIBUTE, value, null, null));
+        }
+        IChangeRenderer renderer = new IChangeRenderer()
+        {
+            @Override
+            public String render(Change change)
+            {
+                return change.key + " = " + change.value;
+            }
+        };
+        assertHistory(permId, filter, renderer, expected);
+    }
+
     @SafeVarargs
     public final void assertHistory(String permId, final String key, Set<String>... expected) throws Exception
     {
-        Session session = sessionFactory.getCurrentSession();
-        Query query = session.createQuery("SELECT e FROM EventPE e WHERE :permId IN e.identifiersInternal").setParameter("permId", permId);
-        EventPE event = (EventPE) query.uniqueResult();
+        IModificationFilter filter = new IModificationFilter()
+            {
+                @Override
+                public boolean accept(Modification modification)
+                {
+                    return modification.key.equals(key);
+                }
 
-        List<Change> changes = getSortedChanges(event, permId, key);
+                @Override
+                public String getDescription()
+                {
+                    return "Property " + key;
+                }
+            };
+        IChangeRenderer renderer = new IChangeRenderer()
+            {
+                @Override
+                public String render(Change change)
+                {
+                    return change.value;
+                }
+            };
+        assertHistory(permId, filter, renderer, expected);
+    }
+
+    @SafeVarargs
+    private final void assertHistory(String permId, IModificationFilter filter, IChangeRenderer renderer,
+            Set<String>... expected) throws Exception
+    {
+        List<Change> changes = getSortedAndFilteredChanges(permId, filter);
 
         List<Set<String>> actualValues = new ArrayList<>();
 
@@ -232,21 +382,22 @@ public abstract class DeletionTest extends AbstractTest
         Set<String> currentSet = new HashSet<>();
         for (Change change : changes)
         {
-            if (currentTime.equals(change.time) == false)
+            if (equals(currentTime, change) == false)
             {
                 actualValues.add(currentSet);
                 currentSet = new HashSet<>(currentSet);
                 currentTime = change.time;
             }
+            String value = renderer.render(change);
             if (change.isRemoval)
             {
-                if (!currentSet.remove(change.value))
+                if (!currentSet.remove(value))
                 {
                     throw new IllegalStateException("Removing " + change + " from empty set");
                 }
             } else
             {
-                currentSet.add(change.value);
+                currentSet.add(value);
             }
         }
 
@@ -256,48 +407,90 @@ public abstract class DeletionTest extends AbstractTest
 
         if (expectedList.equals(actualValues) == false)
         {
-            Assert.assertEquals(actualValues, expectedList,
-                    "Property " + key + " of entity " + permId + " has wrong value history. Expected " + expectedList + ", actual " + actualValues);
+            Assert.assertEquals(render(actualValues), render(expectedList),
+                    filter.getDescription() + " of entity " + permId + " has wrong value history. Expected " 
+                            + render(expectedList) + ", actual " + render(actualValues));
         }
     }
-
-    private List<Change> getSortedChanges(EventPE event, String permId, final String key) throws Exception
+    
+    private String render(List<Set<String>> values)
     {
-        JsonNode tree = new ObjectMapper().reader().readTree(event.getContent());
+        StringBuilder builder = new StringBuilder();
+        for (Set<String> set : values)
+        {
+            if (builder.length() > 0)
+            {
+                builder.append('\n');
+            }
+            builder.append("[\n");
+            builder.append(ch.systemsx.cisd.common.shared.basic.string.StringUtils.joinList(new ArrayList<String>(set), ",\n"));
+            builder.append("\n]");
+        }
+        return builder.toString();
+    }
 
+    private boolean equals(Date currentTime, Change change)
+    {
+        return currentTime == null ? change.time == null : currentTime.equals(change.time);
+    }
+    
+    private static interface IModificationFilter
+    {
+        public String getDescription();
+        public boolean accept(Modification modification);
+        
+    }
+    
+    private static interface IChangeRenderer
+    {
+        public String render(Change change);
+    }
+
+    private List<Change> getSortedAndFilteredChanges(String permId, IModificationFilter filter) throws IOException, JsonProcessingException
+    {
+        Session session = sessionFactory.getCurrentSession();
+        Query query = session.createQuery("SELECT e FROM EventPE e WHERE :permId IN e.identifiersInternal").setParameter("permId", permId);
+        EventPE event = (EventPE) query.uniqueResult();
+        JsonNode tree = new ObjectMapper().reader().readTree(event.getContent());
+        
         List<Modification> allMods =
                 IteratorUtils.toList(IteratorUtils.transformedIterator(tree.get(permId).elements(), new JsonNodeToModificationTransformer()));
-
+        
         List<Modification> mods = new ArrayList<>();
         for (Modification mod : allMods)
         {
-            if (mod.key.equals(key))
+            if (filter.accept(mod))
             {
                 mods.add(mod);
             }
         }
-
+        
         List<Change> changes = new ArrayList<>();
         for (Modification mod : mods)
         {
-            String value = render(mod.type, mod.value, mod.entityType);
-            changes.add(new Change(mod.validFrom, value, false));
+            String value = render(mod.type, mod.value, mod.entityType, mod.userId);
+            changes.add(new Change(mod.validFrom, mod.key, mod.userId, value, false));
             if (mod.validUntil != null)
             {
-                changes.add(new Change(mod.validUntil, value, true));
+                changes.add(new Change(mod.validUntil, mod.key, mod.userId, value, true));
             }
         }
-
+        
         Collections.sort(changes);
+
         return changes;
     }
-    
-    private String render(String type, String value, String entityTypeOrNull)
+
+    private String render(String type, String value, String entityTypeOrNull, String userId)
     {
         String result = type + ":" + value;
         if (entityTypeOrNull != null)
         {
             result += "[" + entityTypeOrNull + "]";
+        }
+        if (userId != null)
+        {
+            result += "(user:" + userId + ")";
         }
         return result;
     }
@@ -307,33 +500,43 @@ public abstract class DeletionTest extends AbstractTest
         @Override
         public Modification transform(JsonNode node)
         {
+            Modification m = new Modification();
+            m.userId = asString(node.get("userId"));
+            m.type = asString(node.get("type"));
+            m.key = asString(node.get("key"));
+            m.value = asString(node.get("value"));
+            m.entityType = asString(node.get("entityType"));
+            m.validFrom = asDate(node.get("validFrom"));
+            m.validUntil = asDate(node.get("validUntil"));
+            return m;
+        }
+        
+        private Date asDate(JsonNode node)
+        {
+            String textValue = asString(node);
             try
             {
-                Modification m = new Modification();
-                m.type = node.get("type").textValue();
-                m.key = node.get("key").textValue();
-                m.value = node.get("value").textValue();
-                JsonNode entityTypeNode = node.get("entityType");
-                if (entityTypeNode != null)
-                {
-                    m.entityType = entityTypeNode.textValue();
-                }
-                m.validFrom = dateFormat.parse(node.get("validFrom").textValue());
-                String validUntil = node.get("validUntil").textValue();
-                if (validUntil != null && validUntil.length() > 0)
-                {
-                    m.validUntil = dateFormat.parse(validUntil);
-                }
-                return m;
-            } catch (Exception e)
+                return StringUtils.isBlank(textValue) ? null : dateFormat.parse(textValue);
+            } catch (ParseException ex)
             {
-                throw new RuntimeException(e);
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
+        }
+        
+        private String asString(JsonNode node)
+        {
+            if (node == null)
+            {
+                return null;
+            }
+            return node.textValue();
         }
     }
 
     private static class Modification
     {
+        public String userId;
+        
         public String type;
         
         public String key;

@@ -127,14 +127,16 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
             final String sqlSelectPermIds, final String sqlDeleteProperties,
             final String sqlSelectAttachmentContentIds, final String sqlDeleteAttachmentContents,
             final String sqlDeleteAttachments, final String sqlDeleteEntities,
-            final String sqlInsertEvent, final String sqlSelectPropertyHistory, final String sqlSelectRelationshipHistory)
+            final String sqlInsertEvent, final String sqlSelectPropertyHistory, 
+            final String sqlSelectRelationshipHistory, final String sqlSelectAttributes)
     {
         List<Long> entityIds = TechId.asLongs(entityTechIds);
         DeletePermanentlyBatchOperation deleteOperation =
                 new DeletePermanentlyBatchOperation(entityType, entityIds, registrator, reason,
                         sqlSelectPermIds, sqlDeleteProperties, sqlSelectAttachmentContentIds,
                         sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteEntities,
-                        sqlInsertEvent, sqlSelectPropertyHistory, sqlSelectRelationshipHistory);
+                        sqlInsertEvent, sqlSelectPropertyHistory, sqlSelectRelationshipHistory,
+                        sqlSelectAttributes);
         BatchOperationExecutor.executeInBatches(deleteOperation);
 
         // FIXME remove this when we remove the switch to disable trash
@@ -172,11 +174,14 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
 
         private final String sqlSelectRelationshipHistory;
 
+        private final String sqlSelectAttributes;
+
         DeletePermanentlyBatchOperation(EntityType entityType, List<Long> allEntityIds,
                 PersonPE registrator, String reason, String sqlSelectPermIds,
                 String sqlDeleteProperties, String sqlSelectAttachmentContentIds,
                 String sqlDeleteAttachmentContents, String sqlDeleteAttachments,
-                String sqlDeleteEntities, String sqlInsertEvent, String selectPropertyHistory, String selectRelationshipHistory)
+                String sqlDeleteEntities, String sqlInsertEvent, String selectPropertyHistory, 
+                String selectRelationshipHistory, String sqlSelectAttributes)
         {
             this.entityType = entityType;
             this.allEntityIds = allEntityIds;
@@ -191,6 +196,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
             this.sqlInsertEvent = sqlInsertEvent;
             this.sqlSelectPropertyHistory = selectPropertyHistory;
             this.sqlSelectRelationshipHistory = selectRelationshipHistory;
+            this.sqlSelectAttributes = sqlSelectAttributes;
         }
 
         @Override
@@ -254,7 +260,8 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                     return null;
                 }
 
-                String content = historyCreator.apply(session, entityIdsToDelete, sqlSelectPropertyHistory, sqlSelectRelationshipHistory);
+                String content = historyCreator.apply(session, entityIdsToDelete, sqlSelectPropertyHistory, 
+                        sqlSelectRelationshipHistory, sqlSelectAttributes);
 
                 deleteProperties(sqlQueryDeleteProperties, entityIdsToDelete);
                 deleteAttachmentsWithContents(sqlQuerySelectAttachmentContentIds,
