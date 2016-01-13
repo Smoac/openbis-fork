@@ -23,10 +23,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.lemnik.eodsql.BaseQuery;
-import net.lemnik.eodsql.QueryTool;
-import net.lemnik.eodsql.Select;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
@@ -57,12 +53,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
+import net.lemnik.eodsql.BaseQuery;
+import net.lemnik.eodsql.QueryTool;
+import net.lemnik.eodsql.Select;
+
 /**
  * Data access object for {@link ExperimentPE}.
  * 
  * @author Izabela Adamczyk
  */
-public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<ExperimentPE>implements
+public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<ExperimentPE> implements
         IExperimentDAO
 {
 
@@ -491,10 +491,12 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         final String sqlSelectPropertyHistory = createQueryPropertyHistorySQL();
         final String sqlSelectRelationshipHistory = createQueryRelationshipHistorySQL();
 
+        final String sqlSelectAttributes = createQueryAttributesSQL();
+
         executePermanentDeleteAction(EntityType.EXPERIMENT, experimentIds, registrator, reason,
                 sqlSelectPermIds, sqlDeleteProperties, sqlSelectAttachmentContentIds,
                 sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteExperiments,
-                sqlInsertEvent, sqlSelectPropertyHistory, sqlSelectRelationshipHistory, null);
+                sqlInsertEvent, sqlSelectPropertyHistory, sqlSelectRelationshipHistory, sqlSelectAttributes);
     }
 
     private static String createQueryPropertyHistorySQL()
@@ -539,11 +541,22 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
                 + "h.pers_id_author = p.id "
                 + "ORDER BY 1, valid_from_timestamp";
     }
+
     private static final String ENTITY_TYPE = "case "
             + "when h.proj_id is not null then 'PROJECT' "
             + "when h.samp_id is not null then 'SAMPLE' "
             + "when h.data_id is not null then 'DATA_SET' "
             + "else 'UNKNOWN' end as entity_type";
+
+    private static String createQueryAttributesSQL()
+    {
+        return "SELECT e.id, e.perm_id, e.code, t.code as entity_type, "
+                + "e.registration_timestamp, r.user_id as registrator, e.is_public "
+                + "FROM experiments_all e "
+                + "JOIN experiment_types t on e.exty_id = t.id "
+                + "JOIN persons r on e.pers_id_registerer = r.id "
+                + "WHERE e.id " + SQLBuilder.inEntityIds();
+    }
 
     @Override
     Logger getLogger()

@@ -1,6 +1,8 @@
 package ch.ethz.sis.openbis.systemtest.deletion;
 
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 
 import org.springframework.test.annotation.Rollback;
 import org.testng.annotations.Test;
@@ -14,6 +16,32 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 
 public class ExperimentDeletionTest extends DeletionTest
 {
+
+    @Test
+    @Rollback(false)
+    public void testAttributes() throws Exception
+    {
+        SpacePermId space = createSpace("SPACE1");
+        ProjectPermId project = createProject(space, "PROJECT1");
+        Date after = new Date();
+
+        ExperimentPermId exp = createExperiment(project, "EXPERIMENT");
+
+        newTx();
+        Date before = new Date();
+
+        delete(exp);
+        delete(project);
+        delete(space);
+
+        HashMap<String, String> expectations = new HashMap<String, String>();
+        expectations.put("CODE", "EXPERIMENT");
+        expectations.put("ENTITY_TYPE", "DELETION_TEST");
+        expectations.put("REGISTRATOR", "test");
+        expectations.put("IS_PUBLIC", "false");
+        assertAttributes(exp.getPermId(), expectations);
+        assertRegistrationTimestampAttribute(exp.getPermId(), after, before);
+    }
 
     @Test
     public void moveExperimentToAnotherProject() throws Exception

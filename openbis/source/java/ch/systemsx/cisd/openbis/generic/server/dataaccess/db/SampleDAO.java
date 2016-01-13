@@ -65,7 +65,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Tomasz Pylak
  */
-public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE>implements
+public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> implements
         ISampleDAO
 {
     private final static Class<SamplePE> ENTITY_CLASS = SamplePE.class;
@@ -505,23 +505,23 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE>i
                 + "h.pers_id_author = p.id "
                 + "ORDER BY 1, valid_from_timestamp";
     }
-    
+
     private static final String ENTITY_TYPE = "case "
             + "when h.space_id is not null then 'SPACE' "
             + "when h.samp_id is not null then 'SAMPLE' "
             + "when h.expe_id is not null then 'EXPERIMENT' "
             + "else 'UNKNOWN' end as entity_type";
-    
+
     private static String createQueryAttributesSQL()
     {
         return "SELECT s.id, s.perm_id, s.code, t.code as entity_type, "
                 + "s.registration_timestamp, r.user_id as registrator "
-                + "FROM samples_all s left join spaces sp on s.space_id = sp.id "
+                + "FROM samples_all s "
                 + "JOIN sample_types t on s.saty_id = t.id "
                 + "JOIN persons r on s.pers_id_registerer = r.id "
                 + "WHERE s.id " + SQLBuilder.inEntityIds();
     }
-    
+
     @Override
     public void deletePermanently(final DeletionPE deletion, final PersonPE registrator)
     {
