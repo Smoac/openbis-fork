@@ -279,17 +279,18 @@ public abstract class DeletionTest extends AbstractTest
                 @Override
                 public String render(Change change)
                 {
-                    return isInbetween(change.value, after, before) ? TIMESTAMP_OK :
-                            "ERROR: Timestamp " + change.value + " is not between " + after + " and " + before;
+                    return isInbetween(change.value, after, before) ? TIMESTAMP_OK
+                            : "ERROR: Timestamp " + change.value + " is not between " + after + " and " + before;
                 }
             };
 
         assertHistory(permId, filter, renderer, Collections.singleton(TIMESTAMP_OK));
     }
-    
+
     private boolean isInbetween(String timestampValue, Date after, Date before)
     {
-        if (timestampValue.startsWith(AttributeEntry.ATTRIBUTE) == false) {
+        if (timestampValue.startsWith(AttributeEntry.ATTRIBUTE) == false)
+        {
             fail("Timestamp value does not start with " + AttributeEntry.ATTRIBUTE + ": " + timestampValue);
         }
         String timestampString = timestampValue.substring(AttributeEntry.ATTRIBUTE.length() + 1);
@@ -642,6 +643,7 @@ public abstract class DeletionTest extends AbstractTest
         ProjectCreation project = new ProjectCreation();
         project.setCode(code);
         project.setSpaceId(space);
+        project.setDescription("description /" + space + "/" + code);
         return v3api.createProjects(sessionToken, Arrays.asList(project)).get(0);
     }
 

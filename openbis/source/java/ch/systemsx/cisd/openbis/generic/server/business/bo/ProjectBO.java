@@ -364,6 +364,13 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
                     + "h.pers_id_author = pers.id "
                     + "ORDER BY 1, valid_from_timestamp";
 
+    public static final String sqlAttributesHistory =
+            "SELECT p.id, p.code, p.perm_id, p.description, "
+                    + "p.registration_timestamp, r.user_id as registrator "
+                    + "FROM projects p "
+                    + "JOIN persons r on p.pers_id_registerer = r.id "
+                    + "WHERE p.id IN (:entityIds)";
+
     @Override
     public void deleteByTechId(TechId projectId, String reason) throws UserFailureException
     {
@@ -400,7 +407,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
             {
                 List<Long> idsToDelete = Collections.singletonList(projectId.getId());
                 String content = historyCreator.apply(getSessionFactory().getCurrentSession(), idsToDelete,
-                                propertyHistoryQuery, relationshipHistoryQuery, null);
+                        propertyHistoryQuery, relationshipHistoryQuery, sqlAttributesHistory);
 
                 getProjectDAO().delete(project);
                 getEventDAO().persist(createDeletionEvent(project, session.tryGetPerson(), reason, content));
