@@ -26,7 +26,7 @@ import ch.systemsx.cisd.common.time.DateFormatThreadLocal;
 public class EntityHistoryCreator
 {
     private static final Set<String> NON_ATTRIBUTE_COLUMNS = new HashSet<>(Arrays.asList("ID", "PERM_ID"));
-    
+
     private boolean enabled = false;
 
     public void setEnabled(String s)
@@ -84,7 +84,7 @@ public class EntityHistoryCreator
     private List<AttributeEntry> selectAttributeEntries(SQLQuery sqlQuery, List<Long> entityIdsToDelete)
     {
         List<Map<String, Object>> rows = getRows(sqlQuery, entityIdsToDelete);
-        
+
         Map<Long, EntityAttributes> result = new HashMap<>();
         for (Map<String, Object> row : rows)
         {
@@ -99,11 +99,11 @@ public class EntityHistoryCreator
                     continue;
                 }
                 attributes.addAttribute(key, render(entry.getValue()));
-                
+
             }
             result.put(id, attributes);
         }
-        
+
         List<AttributeEntry> list = new ArrayList<>();
         for (EntityAttributes entityAttributes : result.values())
         {

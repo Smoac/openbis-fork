@@ -64,7 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.MaterialConfigurationProvide
  * 
  * @author Izabela Adamczyk
  */
-public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<MaterialPE>implements
+public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<MaterialPE> implements
         IMaterialDAO
 {
 
@@ -256,6 +256,14 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
                     + ") "
                     + "ORDER BY 1, valid_from_timestamp";
 
+    public static final String sqlAttributesHistory =
+            "SELECT m.id, m.code, m.code as perm_id, t.code as entity_type, "
+                    + "m.registration_timestamp, r.user_id as registrator "
+                    + "FROM materials m "
+                    + "JOIN material_types t on m.maty_id = t.id "
+                    + "JOIN persons r on m.pers_id_registerer = r.id "
+                    + "WHERE m.id " + SQLBuilder.inEntityIds();
+
     @Override
     public void delete(final List<TechId> materialIds, final PersonPE registrator,
             final String reason) throws DataAccessException
@@ -300,8 +308,8 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
                             String materialTypeCode = (String) codeAndType[1];
                             String permId = MaterialPE.createPermId(materialCode, materialTypeCode);
 
-                            String content = historyCreator.apply(session, Collections.singletonList(techId.getId()), 
-                                    sqlPropertyHistory, null, null);
+                            String content = historyCreator.apply(session, Collections.singletonList(techId.getId()),
+                                    sqlPropertyHistory, null, sqlAttributesHistory);
 
                             try
                             {
