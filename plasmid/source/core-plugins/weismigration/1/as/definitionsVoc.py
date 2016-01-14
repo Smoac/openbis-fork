@@ -287,7 +287,7 @@ vocabularyDefinitions = {
                                  "MAT" : [
                                              ["ALPHA",  "a"],
                                              ["A",  "A"],
-                                             ["A_ALPHA",  "a/A"],
+                                             ["ALPHA_A",  "a/A"],
                                              ["A_A",  "A/A"],
                                              ["ALPHA_ALPHA",  "a/a"],
                                              ["UNKNOWN",  "?"],
