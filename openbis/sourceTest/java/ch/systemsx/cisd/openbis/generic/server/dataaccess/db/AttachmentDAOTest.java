@@ -67,7 +67,7 @@ public final class AttachmentDAOTest extends AbstractDAOTest
 
         persisted = attachmentDAO.tryFindAttachmentByOwnerAndFileName(owner, FILE_NAME);
         assertNull(persisted);
-        assertEquals(rowsInAttachmentContents + 1, countRowsInTable(ATT_CONTENTS_TABLE));
+        assertEquals(rowsInAttachmentContents + 3, countRowsInTable(ATT_CONTENTS_TABLE));
     }
 
     private AttachmentPE createTestAttachment(String fileName, int version)

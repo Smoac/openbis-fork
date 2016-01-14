@@ -317,7 +317,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
 
         // We deleted the attachment we added as well as the one that was already connected to the
         // experiment
-        assertEquals(rowsInAttachmentContents - 1, countRowsInTable(ATT_CONTENTS_TABLE));
+        assertEquals(rowsInAttachmentContents + 1, countRowsInTable(ATT_CONTENTS_TABLE));
     }
 
     @Test(expectedExceptions = DataIntegrityViolationException.class)
