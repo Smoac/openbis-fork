@@ -413,7 +413,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var propertyGroupPropertiesOnForm = 0;
 		for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 			var propertyType = propertyTypeGroup.propertyTypes[j];
-			if(!propertyType.showInEditViews) { //Skip
+			if(!propertyType.showInEditViews && this._sampleFormModel.mode === FormMode.EDIT) { //Skip
 				continue;
 			}
 			

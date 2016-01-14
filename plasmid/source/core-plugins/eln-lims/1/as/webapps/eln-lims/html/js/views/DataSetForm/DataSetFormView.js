@@ -301,6 +301,10 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			var propertyGroupPropertiesOnForm = 0;
 			for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 				var propertyType = propertyTypeGroup.propertyTypes[j];
+				if(!propertyType.showInEditViews && this._dataSetFormController.mode === FormMode.EDIT) { //Skip
+					continue;
+				}
+				
 				if(propertyType.code === "XMLCOMMENTS") {
 					var $commentsContainer = $("<div>");
 					$fieldset.append($commentsContainer);
