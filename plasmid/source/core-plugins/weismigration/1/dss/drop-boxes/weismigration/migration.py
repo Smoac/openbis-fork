@@ -508,7 +508,20 @@ class StrainOpenBISDTO(FMOpenBISDTO):
         genotype = "";
         #1. Set the mat if present
         if getStringValueOrNone(self.values, "MAT") is not None:
-            genotype = "MAT " + self.values["MAT"] + " ";
+#            genotype = "MAT " + self.values["MAT"] + " ";
+
+            if self.values["MAT"] == "a":
+                self.values["MAT"] ="alpha"
+                genotype = "MAT " + self.values["MAT"] + " ";
+            elif self.values["MAT"] == "a/A":
+                self.values["MAT"] ="alpha/A"
+                genotype = "MAT " + self.values["MAT"] + " ";
+            elif self.values["MAT"] == "a/a":
+                self.values["MAT"] = "alpha/alpha"
+                genotype = "MAT " + self.values["MAT"] + " "; 
+            else:
+                genotype = "MAT " + self.values["MAT"] + " ";          
+
         
         #2. Add unmarked mutations
         for cIdx in range(1, 6):
@@ -522,7 +535,7 @@ class StrainOpenBISDTO(FMOpenBISDTO):
             
             if (disruption is not None) or (marker is not None):
                 if (disruption is not None):
-                    genotype = genotype + disruption +" :: ";
+                    genotype = genotype + disruption +"::";
                 genotype = genotype + " ";
                 if (marker is not None):
                     genotype = genotype + marker;
