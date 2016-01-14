@@ -55,6 +55,7 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.OptimisticLock;
+import org.hibernate.search.annotations.ClassBridge;
 import org.hibernate.search.annotations.DateBridge;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
@@ -84,9 +85,11 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * 
  * @author Christian Ribeaud
  */
+
 @Entity
 @Table(name = TableNames.SAMPLES_VIEW)
 @Indexed(index = "SamplePE")
+@ClassBridge(impl = SampleGlobalSearchBridge.class)
 public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Comparable<SamplePE>,
         IEntityInformationWithPropertiesHolder, IMatchingEntity, IDeletablePE,
         IEntityWithMetaprojects, IModifierAndModificationDateBean, Serializable
@@ -340,7 +343,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.SPACE_COLUMN, updatable = true)
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SPACE)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SPACE, includeEmbeddedObjectId = true)
     public SpacePE getSpace()
     {
         return space;
@@ -545,7 +548,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         }
         return result;
     }
-    
+
     // used only by Hibernate Search
     @SuppressWarnings("unused")
     @Transient
@@ -598,8 +601,8 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
     @Generated(GenerationTime.INSERT)
     @Field(name = SearchFieldConstants.REGISTRATION_DATE, index = Index.YES, store = Store.NO)
-    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class,
-            params = { @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
+    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class, params = {
+            @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
     @DateBridge(resolution = Resolution.SECOND)
     public Date getRegistrationDate()
     {
@@ -754,8 +757,8 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     @OptimisticLock(excluded = true)
     @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
     @Field(name = SearchFieldConstants.MODIFICATION_DATE, index = Index.YES, store = Store.NO)
-    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class,
-            params = { @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
+    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class, params = {
+            @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
     @DateBridge(resolution = Resolution.SECOND)
     public Date getModificationDate()
     {

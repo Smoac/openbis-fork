@@ -48,6 +48,7 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
+import org.hibernate.search.annotations.ClassBridge;
 import org.hibernate.search.annotations.DateBridge;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
@@ -73,9 +74,10 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * @author Franz-Josef Elmer
  */
 @Entity
-@Table(name = TableNames.MATERIALS_TABLE, uniqueConstraints = @UniqueConstraint(columnNames =
-{ ColumnNames.CODE_COLUMN, ColumnNames.MATERIAL_TYPE_COLUMN }))
+@Table(name = TableNames.MATERIALS_TABLE, uniqueConstraints = @UniqueConstraint(columnNames = { ColumnNames.CODE_COLUMN,
+        ColumnNames.MATERIAL_TYPE_COLUMN }) )
 @Indexed(index = "MaterialPE")
+@ClassBridge(impl = MaterialGlobalSearchBridge.class)
 public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
         IEntityInformationWithPropertiesHolder, Serializable, IMatchingEntity,
         IEntityWithMetaprojects
@@ -130,8 +132,8 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
     @Generated(GenerationTime.INSERT)
     @Field(name = SearchFieldConstants.REGISTRATION_DATE, index = Index.YES, store = Store.NO)
-    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class,
-            params = { @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
+    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class, params = {
+            @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
     @DateBridge(resolution = Resolution.SECOND)
     public Date getRegistrationDate()
     {
@@ -156,7 +158,7 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
     {
         this.registrator = registrator;
     }
-    
+
     @Override
     @Id
     @SequenceGenerator(name = SequenceNames.MATERIAL_SEQUENCE, sequenceName = SequenceNames.MATERIAL_SEQUENCE, allocationSize = 1)
@@ -316,8 +318,8 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
     @Version
     @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
     @Field(name = SearchFieldConstants.MODIFICATION_DATE, index = Index.YES, store = Store.NO)
-    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class,
-            params = { @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
+    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class, params = {
+            @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
     @DateBridge(resolution = Resolution.SECOND)
     public Date getModificationDate()
     {

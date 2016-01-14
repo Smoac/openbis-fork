@@ -54,6 +54,7 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.OptimisticLock;
+import org.hibernate.search.annotations.ClassBridge;
 import org.hibernate.search.annotations.DateBridge;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
@@ -83,10 +84,11 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * @author Bernd Rinn
  */
 @Entity
-@Table(name = TableNames.DATA_VIEW, uniqueConstraints = @UniqueConstraint(columnNames = ColumnNames.CODE_COLUMN))
+@Table(name = TableNames.DATA_VIEW, uniqueConstraints = @UniqueConstraint(columnNames = ColumnNames.CODE_COLUMN) )
 @Inheritance(strategy = InheritanceType.JOINED)
 @Indexed(index = "DataPE")
-public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
+@ClassBridge(impl = DataGlobalSearchBridge.class)
+public class DataPE extends AbstractIdAndCodeHolder<DataPE>implements
         IEntityInformationWithPropertiesHolder, IMatchingEntity, IIdentifierHolder, IDeletablePE,
         IEntityWithMetaprojects, IModifierAndModificationDateBean
 {
@@ -127,7 +129,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
             new HashSet<MetaprojectAssignmentPE>();
 
     private Set<PostRegistrationPE> postRegistration =
-            new HashSet<PostRegistrationPE>();  
+            new HashSet<PostRegistrationPE>();
+
     /**
      * Deletion information.
      * <p>
@@ -351,8 +354,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false)
     @Generated(GenerationTime.ALWAYS)
     @Field(name = SearchFieldConstants.REGISTRATION_DATE, index = Index.YES, store = Store.NO)
-    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class,
-            params = { @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
+    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class, params = {
+            @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
     @DateBridge(resolution = Resolution.SECOND)
     public Date getRegistrationDate()
     {
@@ -529,8 +532,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     @OptimisticLock(excluded = true)
     @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
     @Field(name = SearchFieldConstants.MODIFICATION_DATE, index = Index.YES, store = Store.NO)
-    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class,
-            params = { @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
+    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class, params = {
+            @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
     @DateBridge(resolution = Resolution.SECOND)
     public Date getModificationDate()
     {
@@ -546,8 +549,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     @Column(name = ColumnNames.ACCESS_TIMESTAMP, nullable = false, insertable = false)
     @Generated(GenerationTime.ALWAYS)
     @Field(name = SearchFieldConstants.ACCESS_DATE, index = Index.YES, store = Store.NO)
-    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class,
-            params = { @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
+    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class, params = {
+            @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
     @DateBridge(resolution = Resolution.SECOND)
     public Date getAccessDate()
     {
@@ -832,6 +835,21 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
             return experiment.getProject().getSpace();
         }
         return sample == null ? null : sample.getSpace();
+    }
+
+    // used only by Hibernate Search
+    @Transient
+    @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.SPACE_ID)
+    @FieldBridge(impl = NullBridge.class)
+    private Long getSpaceId()
+    {
+        Long result = null;
+        if (getSpace() != null)
+        {
+            result = HibernateUtils.getId(getSpace());
+            assert result != null;
+        }
+        return result;
     }
 
     @Override

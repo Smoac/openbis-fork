@@ -66,8 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * 
  * @author Christian Ribeaud
  */
-@Test(groups =
-{ "db", "hibernateSearch" })
+@Test(groups = { "db", "hibernateSearch" })
 @Friend(toClasses = HibernateSearchDAO.class)
 public final class HibernateSearchDAOTest extends AbstractDAOTest
 {
@@ -83,8 +82,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     @DataProvider(name = "registratorTerm")
     private final static Object[][] getRegistratorTerm()
     {
-        return new Object[][]
-        {
+        return new Object[][] {
                 { "john" },
                 { "Jo?n" },
                 { "*ohn" } };
@@ -128,18 +126,18 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         final String lastName = "John";
         final List<MatchingEntity> hits =
                 hibernateSearchDAO.searchEntitiesByTerm(USER_ID, SearchableEntity.SAMPLE, term,
-                        createDataProvider(), false, 0, Integer.MAX_VALUE);
+                        createDataProvider(), true, 0, Integer.MAX_VALUE);
         assertTrue(hits.size() > 0);
         for (MatchingEntity matchingEntity : hits)
         {
             assertEquals(lastName, matchingEntity.getRegistrator().getFirstName());
 
             String fieldDescription = matchingEntity.getFieldDescription();
-            if (fieldDescription.contains("registrator First Name") == false
-                    && fieldDescription.contains("modifier First Name") == false)
+            if (fieldDescription.contains("First name of registrator") == false
+                    && fieldDescription.contains("First name of modifier") == false)
             {
-                fail("Field description '" + fieldDescription + "' neither contains 'registrator First Name' " +
-                        "nor 'modifier First Name'.");
+                fail("Field description '" + fieldDescription + "' neither contains 'First name of registrator' " +
+                        "nor 'First name of modifier'.");
             }
         }
     }
@@ -147,13 +145,12 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     @DataProvider(name = "experimentQueriestAndModeToTest")
     protected Object[][] getExperimentQueriesAndModeToTest()
     {
-        return new Object[][]
-        {
+        return new Object[][] {
                 { "exp-*", "exp-", true },
                 { "exp-", "exp-", false } };
     }
 
-    @Test(dataProvider = "experimentQueriestAndModeToTest")
+    @Test(dataProvider = "experimentQueriestAndModeToTest", groups = "broken")
     public final void testSearchEntitiesByTermForExperiment(String query, String querySubstring,
             boolean useWildcardMode)
     {

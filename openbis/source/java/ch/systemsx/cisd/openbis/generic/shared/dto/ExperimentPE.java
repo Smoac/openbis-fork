@@ -52,6 +52,7 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.OptimisticLock;
+import org.hibernate.search.annotations.ClassBridge;
 import org.hibernate.search.annotations.DateBridge;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
@@ -83,12 +84,11 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * @author Izabela Adamczyk
  */
 @Entity
-@Table(name = TableNames.EXPERIMENTS_VIEW, uniqueConstraints =
-{ @UniqueConstraint(columnNames =
-{ ColumnNames.CODE_COLUMN, ColumnNames.PROJECT_COLUMN }) })
+@Table(name = TableNames.EXPERIMENTS_VIEW, uniqueConstraints = {
+        @UniqueConstraint(columnNames = { ColumnNames.CODE_COLUMN, ColumnNames.PROJECT_COLUMN }) })
 @Indexed(index = "ExperimentPE")
-@Friend(toClasses =
-{ AttachmentPE.class, ProjectPE.class })
+@Friend(toClasses = { AttachmentPE.class, ProjectPE.class })
+@ClassBridge(impl = ExperimentGlobalSearchBridge.class)
 public class ExperimentPE extends AttachmentHolderPE implements
         IEntityInformationWithPropertiesHolder, IIdAndCodeHolder, Comparable<ExperimentPE>,
         IModifierAndModificationDateBean, IMatchingEntity, IDeletablePE, IEntityWithMetaprojects,
@@ -160,8 +160,8 @@ public class ExperimentPE extends AttachmentHolderPE implements
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
     @Generated(GenerationTime.INSERT)
     @Field(name = SearchFieldConstants.REGISTRATION_DATE, index = Index.YES, store = Store.NO)
-    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class,
-            params = { @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
+    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class, params = {
+            @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
     @DateBridge(resolution = Resolution.SECOND)
     public Date getRegistrationDate()
     {
@@ -546,8 +546,8 @@ public class ExperimentPE extends AttachmentHolderPE implements
     @OptimisticLock(excluded = true)
     @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
     @Field(name = SearchFieldConstants.MODIFICATION_DATE, index = Index.YES, store = Store.NO)
-    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class,
-            params = { @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
+    @FieldBridge(impl = org.hibernate.search.bridge.builtin.StringEncodingDateBridge.class, params = {
+            @org.hibernate.search.annotations.Parameter(name = "resolution", value = "SECOND") })
     @DateBridge(resolution = Resolution.SECOND)
     public Date getModificationDate()
     {

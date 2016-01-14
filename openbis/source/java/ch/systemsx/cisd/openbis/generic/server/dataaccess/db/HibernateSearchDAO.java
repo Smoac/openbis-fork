@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,7 +30,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.AtomicReader;
 import org.apache.lucene.index.AtomicReaderContext;
@@ -39,12 +40,19 @@ import org.apache.lucene.index.FieldInfos;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexReaderContext;
 import org.apache.lucene.index.IndexableField;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.search.highlight.Formatter;
 import org.apache.lucene.search.highlight.Highlighter;
-import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.TokenGroup;
+import org.apache.lucene.search.spans.SpanMultiTermQueryWrapper;
+import org.apache.lucene.search.spans.SpanNearQuery;
+import org.apache.lucene.search.spans.SpanQuery;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -80,7 +88,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.search.IgnoreCaseAnalyzer;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 
 /**
@@ -217,22 +224,10 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
         try
         {
-            List<MatchingEntity> result = new ArrayList<MatchingEntity>();
-            String[] fields = indexProvider.getIndexedFields();
-            for (String fieldName : fields)
-            {
-                if (fieldName.equals("_hibernate_class"))
-                {
-                    continue;
-                }
-                List<MatchingEntity> hits =
-                        searchTermInField(userId, fullTextSession, fieldName, userQuery,
-                                searchableEntity, analyzer, indexProvider.getReader(),
-                                dataProvider, useWildcardSearchMode, result.size()
-                                        + alreadyFoundEntities,
-                                maxSize);
-                result.addAll(hits);
-            }
+            List<MatchingEntity> result = searchTermInField(userId, fullTextSession, "global_search", userQuery,
+                    searchableEntity, analyzer, indexProvider.getReader(),
+                    dataProvider, useWildcardSearchMode, alreadyFoundEntities,
+                    maxSize);
             return result;
         } finally
         {
@@ -255,26 +250,55 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         }
 
         Query query = null;
+        Analyzer wsa = new WhitespaceAnalyzer();
 
-        Analyzer chosenAnalyzer = analyzer;
-        if (MetaprojectSearch.isMetaprojectField(fieldName))
+        if (useWildcardSearchMode)
         {
-            String searchTerm =
-                    LuceneQueryBuilder.adaptQuery(
-                            MetaprojectSearch.getMetaprojectUserQuery(userQuery, userId),
-                            useWildcardSearchMode, false);
-
-            searchTerm = searchTerm.replaceAll("\\/", "\\\\/");
-            query =
-                    LuceneQueryBuilder.parseQuery(fieldName, searchTerm, (chosenAnalyzer =
-                            new IgnoreCaseAnalyzer()));
+            String q = QueryParser.escape(userQuery.toLowerCase());
+            q = q.replace("\\*", "*");
+            q = q.replace("\\?", "?");
+            query = LuceneQueryBuilder.parseQuery("global_search", q, wsa);
         } else
         {
-            String searchTerm = LuceneQueryBuilder.adaptQuery(userQuery, useWildcardSearchMode);
-            query = LuceneQueryBuilder.parseQuery(fieldName, searchTerm, analyzer);
+            if (userQuery.startsWith("\"") && userQuery.endsWith("\"") && userQuery.length() > 2)
+            {
+
+                String[] parts = userQuery.toLowerCase().substring(1, userQuery.length() - 1).split("\\s+");
+
+                SpanQuery[] queryParts = new SpanQuery[parts.length];
+                for (int i = 0; i < parts.length; i++)
+                {
+                    String term = QueryParser.escape(parts[i]);
+                    if (i == 0)
+                    {
+                        term = "*" + term;
+                    } else if (i == parts.length - 1)
+                    {
+                        term = term + "*";
+                    }
+                    queryParts[i] = new SpanMultiTermQueryWrapper<WildcardQuery>(
+                            new WildcardQuery(new Term("global_search", term)));
+                }
+                query = new SpanNearQuery(queryParts, 0, true);
+            } else
+            {
+                String[] parts = userQuery.toLowerCase().split("\\s+");
+                if (parts.length == 1)
+                {
+                    query = new WildcardQuery(new Term("global_search", "*" + QueryParser.escape(parts[0]) + "*"));
+                } else
+                {
+                    BooleanQuery bq = new BooleanQuery();
+                    for (int i = 0; i < parts.length; i++)
+                    {
+                        String term = "*" + QueryParser.escape(parts[i]) + "*";
+                        bq.add(new WildcardQuery(new Term("global_search", term)), Occur.SHOULD);
+                    }
+                    query = bq;
+                }
+            }
         }
 
-        query = rewriteQuery(indexReader, query);
         final FullTextQuery hibernateQuery =
                 fullTextSession.createFullTextQuery(query,
                         searchableEntity.getMatchingEntityClass());
@@ -285,11 +309,175 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         hibernateQuery.setFirstResult(0);
         hibernateQuery.setMaxResults(maxResults);
 
-        MyHighlighter highlighter = new MyHighlighter(query, indexReader, chosenAnalyzer);
-        hibernateQuery.setResultTransformer(new MatchingEntityResultTransformer(searchableEntity,
-                fieldName, highlighter, dataProvider, analyzer));
+        hibernateQuery.setResultTransformer(new ResultTransformer()
+            {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public Object transformTuple(Object[] tuple, String[] aliases)
+                {
+                    IndexableField dataField = ((Document) tuple[1]).getField("global_search");
+                    IndexableField headerField = ((Document) tuple[1]).getField("global_search_fields");
+
+                    String splitString = "\\ \\|\\|\\|\\ ";
+
+                    String[] fields = headerField.stringValue().split(splitString);
+                    String[] content = dataField.stringValue().split(splitString);
+
+                    String matchingField = "unknown";
+                    String matchingText = "";
+
+                    List<String> query = new ArrayList<>();
+                    if (useWildcardSearchMode)
+                    {
+                        query.addAll(Arrays.asList(userQuery.split(" ")));
+                    } else
+                    {
+                        if (userQuery.startsWith("\"") && userQuery.endsWith("\""))
+                        {
+                            query.add(userQuery.substring(1, userQuery.length() - 1));
+                        } else if (userQuery.contains(" "))
+                        {
+                            query.addAll(Arrays.asList(userQuery.split(" ")));
+                        } else
+                        {
+                            query.add(userQuery);
+                        }
+                    }
+
+                    List<MatchingEntity> result = new ArrayList<>();
+
+                    for (int i = 0; i < content.length; i++)
+                    {
+                        for (String q : query)
+                        {
+                            if (useWildcardSearchMode)
+                            {
+                                if (content[i].toLowerCase().matches(".*" + q.toLowerCase().replace("*", ".*").replace("?", ".?") + ".*"))
+                                {
+                                    matchingField = (fields.length == content.length) ? fields[i] : "Unknown";
+                                    matchingText = content[i];
+                                    MatchingEntity me = createMatchingEntity(((Document) tuple[1]), matchingText);
+                                    me.setFieldDescription(matchingField);
+                                    result.add(me);
+                                }
+                            } else
+                            {
+                                if (content[i].toLowerCase().contains(q.toLowerCase()))
+                                {
+                                    matchingField = (fields.length == content.length) ? fields[i] : "Unknown";
+                                    matchingText = content[i];
+                                    MatchingEntity me = createMatchingEntity(((Document) tuple[1]), matchingText);
+                                    me.setFieldDescription(matchingField);
+                                    result.add(me);
+                                }
+                            }
+                        }
+                    }
+
+                    return result;
+                }
+
+                @Override
+                public List transformList(List collection)
+                {
+                    List result = new ArrayList();
+                    for (Object o : collection)
+                    {
+                        result.add(transformTuple(new Object[] { o }, new String[0]));
+                    }
+                    return result;
+                }
+
+                private MatchingEntity createMatchingEntity(final Document doc, final String matchingText)
+                {
+                    final MatchingEntity result = new MatchingEntity();
+
+                    // search properties
+                    result.setFieldDescription(fieldName);
+                    result.setTextFragment(matchingText);
+
+                    // IIdentifiable properties
+                    // NOTE: for contained sample this code is full code with container code part
+                    result.setCode(getFieldValue(doc, SearchFieldConstants.CODE));
+                    result.setId(Long.parseLong(getFieldValue(doc, SearchFieldConstants.ID)));
+                    result.setIdentifier(getFieldValue(doc, SearchFieldConstants.IDENTIFIER));
+                    result.setPermId(tryGetFieldValue(doc, SearchFieldConstants.PERM_ID));
+
+                    // entity kind
+                    result.setEntityKind(DtoConverters.convertEntityKind(searchableEntity.getEntityKind()));
+
+                    // entity type
+                    BasicEntityType entityType = new BasicEntityType();
+                    entityType.setCode(getFieldValue(doc, SearchFieldConstants.PREFIX_ENTITY_TYPE
+                            + SearchFieldConstants.CODE));
+                    result.setEntityType(entityType);
+
+                    // group
+                    Map<String, Space> spacesById = dataProvider.getGroupsById();
+                    IndexableField spaceFieldOrNull = doc.getField(getSpaceIdFieldName());
+                    if (spaceFieldOrNull != null)
+                    {
+                        Space space = spacesById.get(spaceFieldOrNull.stringValue());
+                        result.setSpace(space);
+                    }
+
+                    // registrator
+                    final String registratorIdOrNull =
+                            tryGetFieldValue(doc, SearchFieldConstants.PREFIX_REGISTRATOR
+                                    + SearchFieldConstants.PERSON_USER_ID);
+                    final String firstNameOrNull =
+                            tryGetFieldValue(doc, SearchFieldConstants.PREFIX_REGISTRATOR
+                                    + SearchFieldConstants.PERSON_FIRST_NAME);
+                    if (registratorIdOrNull != null || firstNameOrNull != null)
+                    {
+                        Person registrator = new Person();
+                        registrator.setUserId(registratorIdOrNull);
+                        registrator.setFirstName(firstNameOrNull);
+                        registrator.setLastName(tryGetFieldValue(doc,
+                                SearchFieldConstants.PREFIX_REGISTRATOR
+                                        + SearchFieldConstants.PERSON_LAST_NAME));
+                        registrator.setEmail(tryGetFieldValue(doc, SearchFieldConstants.PREFIX_REGISTRATOR
+                                + SearchFieldConstants.PERSON_EMAIL));
+                        result.setRegistrator(registrator);
+                    }
+
+                    return result;
+                }
+
+                private String getFieldValue(final Document document, final String searchFieldName)
+                {
+                    return document.getField(searchFieldName).stringValue();
+                }
+
+                private String tryGetFieldValue(final Document document, final String searchFieldName)
+                {
+                    IndexableField fieldOrNull = document.getField(searchFieldName);
+                    return fieldOrNull == null ? null : fieldOrNull.stringValue();
+                }
+
+                private String getSpaceIdFieldName()
+                {
+                    String groupId = SearchFieldConstants.PREFIX_SPACE + SearchFieldConstants.ID;
+                    if (searchableEntity.equals(SearchableEntity.EXPERIMENT))
+                    {
+                        return SearchFieldConstants.PREFIX_PROJECT + groupId;
+                    } else
+                    {
+                        return groupId;
+                    }
+                }
+
+            });
+
         List<?> list = hibernateQuery.list();
-        final List<MatchingEntity> result = AbstractDAO.cast(list);
+        final List<List<MatchingEntity>> nestedResult = AbstractDAO.cast(list);
+        List<MatchingEntity> result = new ArrayList<>();
+        for (List<MatchingEntity> entities : nestedResult)
+        {
+            result.addAll(entities);
+        }
+
         return filterNulls(result);
     }
 
@@ -374,156 +562,6 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             return tuple[0];
         }
 
-    }
-
-    private static class MatchingEntityResultTransformer implements ResultTransformer
-    {
-        private final SearchableEntity searchableEntity;
-
-        private final String fieldName;
-
-        private final MyHighlighter highlighter;
-
-        private final HibernateSearchDataProvider dataProvider;
-
-        private static final long serialVersionUID = 1L;
-
-        private Analyzer analyzer;
-
-        public MatchingEntityResultTransformer(final SearchableEntity searchableEntity,
-                final String fieldName, final MyHighlighter highlighter,
-                final HibernateSearchDataProvider dataProvider, Analyzer analyzer)
-        {
-            this.searchableEntity = searchableEntity;
-            this.fieldName = fieldName;
-            this.highlighter = highlighter;
-            this.dataProvider = dataProvider;
-            this.analyzer = analyzer;
-        }
-
-        @Override
-        @SuppressWarnings("rawtypes")
-        public List transformList(List collection)
-        {
-            throw new IllegalStateException("This method should not be called");
-        }
-
-        @Override
-        public Object transformTuple(Object[] tuple, String[] aliases)
-        {
-            final Document doc = (Document) tuple[1];
-
-            String matchingText = null;
-            try
-            {
-                for (IndexableField field : doc.getFields(fieldName))
-                {
-                    String content = field.stringValue();
-                    TokenStream tokenStream = field.tokenStream(analyzer, null);
-                    if (content != null && content.length() > 0 && tokenStream != null)
-                    {
-                        String match = highlighter.getRawHighlighter().getBestFragment(tokenStream, content);
-                        if (match != null && match.length() > 0)
-                        {
-                            matchingText = match;
-                            break;
-                        }
-                    }
-                }
-
-                if (matchingText == null)
-                {
-                    matchingText = "[content]";
-                }
-
-            } catch (IOException ex)
-            {
-                logSearchHighlightingError(ex);
-            } catch (InvalidTokenOffsetsException ex)
-            {
-                logSearchHighlightingError(ex);
-            }
-            return createMatchingEntity(doc, matchingText);
-        }
-
-        private MatchingEntity createMatchingEntity(final Document doc, final String matchingText)
-        {
-            final MatchingEntity result = new MatchingEntity();
-
-            // search properties
-            result.setFieldDescription(fieldName);
-            result.setTextFragment(matchingText);
-
-            // IIdentifiable properties
-            // NOTE: for contained sample this code is full code with container code part
-            result.setCode(getFieldValue(doc, SearchFieldConstants.CODE));
-            result.setId(Long.parseLong(getFieldValue(doc, SearchFieldConstants.ID)));
-            result.setIdentifier(getFieldValue(doc, SearchFieldConstants.IDENTIFIER));
-            result.setPermId(tryGetFieldValue(doc, SearchFieldConstants.PERM_ID));
-
-            // entity kind
-            result.setEntityKind(DtoConverters.convertEntityKind(searchableEntity.getEntityKind()));
-
-            // entity type
-            BasicEntityType entityType = new BasicEntityType();
-            entityType.setCode(getFieldValue(doc, SearchFieldConstants.PREFIX_ENTITY_TYPE
-                    + SearchFieldConstants.CODE));
-            result.setEntityType(entityType);
-
-            // group
-            Map<String, Space> spacesById = dataProvider.getGroupsById();
-            IndexableField spaceFieldOrNull = doc.getField(getSpaceIdFieldName());
-            if (spaceFieldOrNull != null)
-            {
-                Space space = spacesById.get(spaceFieldOrNull.stringValue());
-                result.setSpace(space);
-            }
-
-            // registrator
-            final String registratorIdOrNull =
-                    tryGetFieldValue(doc, SearchFieldConstants.PREFIX_REGISTRATOR
-                            + SearchFieldConstants.PERSON_USER_ID);
-            final String firstNameOrNull =
-                    tryGetFieldValue(doc, SearchFieldConstants.PREFIX_REGISTRATOR
-                            + SearchFieldConstants.PERSON_FIRST_NAME);
-            if (registratorIdOrNull != null || firstNameOrNull != null)
-            {
-                Person registrator = new Person();
-                registrator.setUserId(registratorIdOrNull);
-                registrator.setFirstName(firstNameOrNull);
-                registrator.setLastName(tryGetFieldValue(doc,
-                        SearchFieldConstants.PREFIX_REGISTRATOR
-                                + SearchFieldConstants.PERSON_LAST_NAME));
-                registrator.setEmail(tryGetFieldValue(doc, SearchFieldConstants.PREFIX_REGISTRATOR
-                        + SearchFieldConstants.PERSON_EMAIL));
-                result.setRegistrator(registrator);
-            }
-
-            return result;
-        }
-
-        private String getFieldValue(final Document document, final String searchFieldName)
-        {
-            return document.getField(searchFieldName).stringValue();
-        }
-
-        private String tryGetFieldValue(final Document document, final String searchFieldName)
-        {
-            IndexableField fieldOrNull = document.getField(searchFieldName);
-            return fieldOrNull == null ? null : fieldOrNull.stringValue();
-        }
-
-        private String getSpaceIdFieldName()
-        {
-            String groupId = SearchFieldConstants.PREFIX_SPACE + SearchFieldConstants.ID;
-            if (searchableEntity.equals(SearchableEntity.EXPERIMENT))
-            {
-                return SearchFieldConstants.PREFIX_PROJECT + groupId;
-            } else
-            {
-                return groupId;
-            }
-        }
     }
 
     private static <T> List<T> filterNulls(List<T> list)

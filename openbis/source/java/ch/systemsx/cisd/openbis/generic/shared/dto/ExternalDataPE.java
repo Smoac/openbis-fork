@@ -29,6 +29,7 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.search.annotations.ClassBridge;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
@@ -52,10 +53,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
  * @author Christian Ribeaud
  */
 @Entity
-@Table(name = TableNames.EXTERNAL_DATA_TABLE, uniqueConstraints = @UniqueConstraint(columnNames =
-{ ColumnNames.LOCATION_COLUMN, ColumnNames.LOCATOR_TYPE_COLUMN }))
+@Table(name = TableNames.EXTERNAL_DATA_TABLE, uniqueConstraints = @UniqueConstraint(columnNames = { ColumnNames.LOCATION_COLUMN,
+        ColumnNames.LOCATOR_TYPE_COLUMN }) )
 @PrimaryKeyJoinColumn(name = ColumnNames.DATA_ID_COLUMN)
 @Indexed(index = "DataPE")
+@ClassBridge(impl = ExternalDataGlobalSearchBridge.class)
 public final class ExternalDataPE extends DataPE
 {
     private static final long serialVersionUID = IServer.VERSION;

@@ -73,9 +73,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
  * @author Christian Ribeaud
  */
 @Entity
-@Table(name = TableNames.PROJECTS_TABLE, uniqueConstraints =
-{ @UniqueConstraint(columnNames =
-{ ColumnNames.CODE_COLUMN, ColumnNames.SPACE_COLUMN }) })
+@Table(name = TableNames.PROJECTS_TABLE, uniqueConstraints = {
+        @UniqueConstraint(columnNames = { ColumnNames.CODE_COLUMN, ColumnNames.SPACE_COLUMN }) })
 @Friend(toClasses = ExperimentPE.class)
 public final class ProjectPE extends AttachmentHolderPE implements Comparable<ProjectPE>,
         IIdAndCodeHolder, IModifierAndModificationDateBean, Serializable
@@ -168,7 +167,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     @ManyToOne(fetch = FetchType.EAGER)
     @NotNull(message = ValidationMessages.SPACE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.SPACE_COLUMN, updatable = true)
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SPACE)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SPACE, includeEmbeddedObjectId = true)
     public final SpacePE getSpace()
     {
         return space;

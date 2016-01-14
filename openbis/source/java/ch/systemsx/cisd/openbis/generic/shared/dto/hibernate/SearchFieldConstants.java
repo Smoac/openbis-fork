@@ -20,9 +20,8 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.IndexedEmbedded;
 
 /**
- * Prefixes for indexed fields. Should be used everywhere where {@link IndexedEmbedded} or
- * {@link Field} annotation is used, in this way we can make search query syntax independent from
- * bean field names.
+ * Prefixes for indexed fields. Should be used everywhere where {@link IndexedEmbedded} or {@link Field} annotation is used, in this way we can make
+ * search query syntax independent from bean field names.
  * 
  * @author Tomasz Pylak
  */
@@ -57,20 +56,22 @@ public final class SearchFieldConstants
     public static final String PREFIX_METAPROJECT = "metaproject" + SEPARATOR;
 
     public static final String[] PREFIXES =
-        { PREFIX_PROPERTIES, PREFIX_EXPERIMENT, PREFIX_SAMPLE, PREFIX_ENTITY_TYPE,
-                PREFIX_FILE_FORMAT_TYPE, PREFIX_FILE_FORMAT_TYPE, PREFIX_PROJECT, PREFIX_SPACE,
-                PREFIX_REGISTRATOR, PREFIX_ATTACHMENT, PREFIX_PROPERTIES + PREFIX_VOCABULARY_TERM,
-                PREFIX_METAPROJECT };
+            { PREFIX_PROPERTIES, PREFIX_EXPERIMENT, PREFIX_SAMPLE, PREFIX_ENTITY_TYPE,
+                    PREFIX_FILE_FORMAT_TYPE, PREFIX_FILE_FORMAT_TYPE, PREFIX_PROJECT, PREFIX_SPACE,
+                    PREFIX_REGISTRATOR, PREFIX_ATTACHMENT, PREFIX_PROPERTIES + PREFIX_VOCABULARY_TERM,
+                    PREFIX_METAPROJECT };
 
     public static final String ID = "id";
 
     public static final String EXPERIMENT_ID = PREFIX_EXPERIMENT + ID;
 
     public static final String PROJECT_ID = PREFIX_PROJECT + ID;
-    
+
     public static final String SAMPLE_ID = PREFIX_SAMPLE + ID;
 
     public static final String CONTAINER_ID = PREFIX_CONTAINER + ID;
+
+    public static final String SPACE_ID = PREFIX_SPACE + ID;
 
     public static final String DELETED = "deleted";
 
