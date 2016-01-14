@@ -20,13 +20,17 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -79,6 +83,8 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
     private String reason;
 
     private String content;
+
+    private AttachmentContentPE attachmentContent;
 
     public final void setId(final Long id)
     {
@@ -174,6 +180,18 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
     public void setContent(String content)
     {
         this.content = content;
+    }
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = ColumnNames.ATTACHMENT_CONTENT_COLUMN)
+    public AttachmentContentPE getAttachmentContent()
+    {
+        return attachmentContent;
+    }
+
+    public void setAttachmentContent(final AttachmentContentPE attachmentContent)
+    {
+        this.attachmentContent = attachmentContent;
     }
 
     //

@@ -23,6 +23,7 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * Data access object for managing persistency of {@link AttachmentPE} instances.
@@ -84,5 +85,9 @@ public interface IAttachmentDAO extends IGenericDAO<AttachmentPE>
      */
     public int deleteByOwnerAndFileName(final AttachmentHolderPE owner, final String fileName)
             throws DataAccessException;
+    
+    public List<String> deleteAttachments(final AttachmentHolderPE holder, final String reason, 
+            final List<String> fileNames, PersonPE registrator);
+
 
 }

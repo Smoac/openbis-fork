@@ -16,25 +16,20 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.attachment;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.id.AttachmentFileName;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.id.IAttachmentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnsupportedObjectIdException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
@@ -43,10 +38,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 @Component
 public class DeleteAttachmentExecutor implements IDeleteAttachmentExecutor
 {
+    @Autowired
+    private EntityHistoryCreator historyCreator;
 
     private IAttachmentDAO attachmentDAO;
-
-    private IEventDAO eventDAO;
 
     @Override
     public void delete(IOperationContext context, AttachmentHolderPE attachmentHolder, Collection<? extends IAttachmentId> attachmentIds)
@@ -65,34 +60,14 @@ public class DeleteAttachmentExecutor implements IDeleteAttachmentExecutor
 
     private void delete(IOperationContext context, AttachmentHolderPE attachmentHolder, String fileName)
     {
-        try
-        {
-            attachmentDAO.deleteByOwnerAndFileName(attachmentHolder, fileName);
-            eventDAO.persist(createEvent(attachmentHolder, fileName, context.getSession().tryGetPerson()));
-        } catch (final DataAccessException ex)
-        {
-            DataAccessExceptionTranslator.throwException(ex, "Attachment '" + fileName + "'", null);
-        }
-    }
-
-    private EventPE createEvent(AttachmentHolderPE holder, String fileName,
-            PersonPE registrator)
-    {
-        EventPE event = new EventPE();
-        String identifier = String.format("%s/%s/%s", holder.getHolderName(), holder.getIdentifier(), fileName);
-        event.setEventType(EventType.DELETION);
-        event.setEntityType(EntityType.ATTACHMENT);
-        event.setIdentifiers(Collections.singletonList(identifier));
-        event.setDescription(identifier);
-        event.setRegistrator(registrator);
-        return event;
+        PersonPE registrator = context.getSession().tryGetPerson();
+        attachmentDAO.deleteAttachments(attachmentHolder, null, Arrays.asList(fileName), registrator);
     }
 
     @Autowired
     public void setDaoFactory(IDAOFactory daoFactory)
     {
         attachmentDAO = daoFactory.getAttachmentDAO();
-        eventDAO = daoFactory.getEventDAO();
     }
 
 }

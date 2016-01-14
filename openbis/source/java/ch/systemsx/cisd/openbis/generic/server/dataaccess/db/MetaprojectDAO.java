@@ -36,6 +36,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.MetaprojectName;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
@@ -55,9 +56,9 @@ public class MetaprojectDAO extends AbstractGenericEntityDAO<MetaprojectPE> impl
 
     private static final Class<MetaprojectPE> ENTITY_CLASS = MetaprojectPE.class;
 
-    public MetaprojectDAO(SessionFactory sessionFactory)
+    public MetaprojectDAO(SessionFactory sessionFactory, EntityHistoryCreator historyCreator)
     {
-        super(sessionFactory, ENTITY_CLASS);
+        super(sessionFactory, ENTITY_CLASS, historyCreator);
     }
 
     @Override

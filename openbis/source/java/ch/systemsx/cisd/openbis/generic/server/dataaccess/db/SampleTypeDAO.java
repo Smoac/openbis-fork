@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
 /**
@@ -44,9 +45,9 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
     final static Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, SampleTypeDAO.class);
 
-    SampleTypeDAO(final SessionFactory sessionFactory)
+    SampleTypeDAO(final SessionFactory sessionFactory, EntityHistoryCreator historyCreator)
     {
-        super(sessionFactory, SampleTypePE.class);
+        super(sessionFactory, SampleTypePE.class, historyCreator);
     }
 
     //

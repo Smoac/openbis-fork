@@ -35,6 +35,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -52,9 +53,9 @@ public class ProjectDAO extends AbstractGenericEntityDAO<ProjectPE> implements I
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ProjectDAO.class);
 
-    protected ProjectDAO(final SessionFactory sessionFactory)
+    protected ProjectDAO(final SessionFactory sessionFactory, EntityHistoryCreator historyCreator)
     {
-        super(sessionFactory, ProjectPE.class);
+        super(sessionFactory, ProjectPE.class, historyCreator);
     }
 
     @Override

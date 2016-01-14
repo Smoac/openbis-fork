@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGenericDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
@@ -48,10 +49,14 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
 
     private final Class<T> entityClass;
 
-    protected AbstractGenericEntityDAO(final SessionFactory sessionFactory, final Class<T> entityClass)
+    protected final EntityHistoryCreator historyCreator;
+
+    protected AbstractGenericEntityDAO(final SessionFactory sessionFactory, final Class<T> entityClass,
+            EntityHistoryCreator historyCreator)
     {
         super(sessionFactory);
         this.entityClass = entityClass;
+        this.historyCreator = historyCreator;
     }
 
     protected Class<T> getEntityClass()

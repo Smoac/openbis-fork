@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee.GranteeType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
@@ -61,9 +62,9 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, RoleAssignmentDAO.class);
 
-    RoleAssignmentDAO(final SessionFactory sessionFactory)
+    RoleAssignmentDAO(final SessionFactory sessionFactory, EntityHistoryCreator historyCreator)
     {
-        super(sessionFactory, ENTITY_CLASS);
+        super(sessionFactory, ENTITY_CLASS, historyCreator);
     }
 
     //

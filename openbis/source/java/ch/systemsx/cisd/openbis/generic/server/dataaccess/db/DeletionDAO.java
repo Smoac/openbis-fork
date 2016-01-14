@@ -40,6 +40,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -79,9 +80,9 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
     private final PersistencyResources persistencyResources;
 
     DeletionDAO(final SessionFactory sessionFactory,
-            final PersistencyResources persistencyResources)
+            final PersistencyResources persistencyResources, EntityHistoryCreator historyCreator)
     {
-        super(sessionFactory, DeletionPE.class);
+        super(sessionFactory, DeletionPE.class, historyCreator);
 
         this.persistencyResources = persistencyResources;
     }

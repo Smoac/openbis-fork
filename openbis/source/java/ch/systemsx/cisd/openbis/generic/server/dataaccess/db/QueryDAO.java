@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IQueryDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 
@@ -41,9 +42,9 @@ public class QueryDAO extends AbstractGenericEntityDAO<QueryPE> implements IQuer
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             QueryDAO.class);
 
-    public QueryDAO(SessionFactory sessionFactory)
+    public QueryDAO(SessionFactory sessionFactory, EntityHistoryCreator historyCreator)
     {
-        super(sessionFactory, QueryPE.class);
+        super(sessionFactory, QueryPE.class, historyCreator);
     }
 
     @Override

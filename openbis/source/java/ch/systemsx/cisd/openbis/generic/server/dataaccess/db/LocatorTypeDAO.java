@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import org.hibernate.SessionFactory;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 
 /**
@@ -28,9 +29,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
  */
 public class LocatorTypeDAO extends AbstractTypeDAO<LocatorTypePE> implements ILocatorTypeDAO
 {
-    public LocatorTypeDAO(SessionFactory sessionFactory)
+    public LocatorTypeDAO(SessionFactory sessionFactory, EntityHistoryCreator historyCreator)
     {
-        super(sessionFactory, LocatorTypePE.class);
+        super(sessionFactory, LocatorTypePE.class, historyCreator);
     }
 
     @Override

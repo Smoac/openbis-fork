@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
@@ -51,9 +52,9 @@ final class VocabularyDAO extends AbstractGenericEntityDAO<VocabularyPE> impleme
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, VocabularyDAO.class);
 
-    VocabularyDAO(final SessionFactory sessionFactory)
+    VocabularyDAO(final SessionFactory sessionFactory, EntityHistoryCreator historyCreator)
     {
-        super(sessionFactory, ENTITY_CLASS);
+        super(sessionFactory, ENTITY_CLASS, historyCreator);
     }
 
     //

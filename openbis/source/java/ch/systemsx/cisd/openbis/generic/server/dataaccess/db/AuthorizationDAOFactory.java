@@ -85,19 +85,19 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         persistencyResources =
                 new PersistencyResources(context, sessionFactory, indexUpdateScheduler,
                         dynamicPropertyEvaluationScheduler);
-        personDAO = new PersonDAO(sessionFactory);
-        groupDAO = new SpaceDAO(sessionFactory);
-        roleAssignmentDAO = new RoleAssignmentDAO(sessionFactory);
-        relationshipTypeDAO = new RelationshipTypeDAO(sessionFactory);
+        personDAO = new PersonDAO(sessionFactory, historyCreator);
+        groupDAO = new SpaceDAO(sessionFactory, historyCreator);
+        roleAssignmentDAO = new RoleAssignmentDAO(sessionFactory, historyCreator);
+        relationshipTypeDAO = new RelationshipTypeDAO(sessionFactory, historyCreator);
         dataDAO = new DataDAO(persistencyResources, relationshipTypeDAO, historyCreator);
         experimentDAO = new ExperimentDAO(persistencyResources, historyCreator);
-        projectDAO = new ProjectDAO(sessionFactory);
+        projectDAO = new ProjectDAO(sessionFactory, historyCreator);
         sampleDAO = new SampleDAO(persistencyResources, historyCreator);
-        gridCustomFilterDAO = new GridCustomFilterDAO(sessionFactory);
-        gridCustomColumnDAO = new GridCustomColumnDAO(sessionFactory);
-        queryDAO = new QueryDAO(sessionFactory);
-        deletionDAO = new DeletionDAO(sessionFactory, persistencyResources);
-        metaprojectDAO = new MetaprojectDAO(sessionFactory);
+        gridCustomFilterDAO = new GridCustomFilterDAO(sessionFactory, historyCreator);
+        gridCustomColumnDAO = new GridCustomColumnDAO(sessionFactory, historyCreator);
+        queryDAO = new QueryDAO(sessionFactory, historyCreator);
+        deletionDAO = new DeletionDAO(sessionFactory, persistencyResources, historyCreator);
+        metaprojectDAO = new MetaprojectDAO(sessionFactory, historyCreator);
     }
 
     @Override

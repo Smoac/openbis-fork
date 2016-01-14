@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
@@ -24,14 +23,11 @@ import org.springframework.dao.DataAccessException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
@@ -58,38 +54,8 @@ public final class AttachmentBO extends AbstractBusinessObject implements IAttac
     public void deleteHolderAttachments(final AttachmentHolderPE holder,
             final List<String> fileNames, final String reason)
     {
-        for (String fileName : fileNames)
-        {
-            try
-            {
-                getAttachmentDAO().deleteByOwnerAndFileName(holder, fileName);
-                getEventDAO().persist(
-                        createDeletionEvent(holder, fileName, session.tryGetPerson(), reason));
-            } catch (final DataAccessException ex)
-            {
-                throwException(ex, String.format("Attachment '%s'", fileName));
-            }
-        }
-    }
-
-    public static EventPE createDeletionEvent(AttachmentHolderPE holder, String fileName,
-            PersonPE registrator, String reason)
-    {
-        final EventPE event = new EventPE();
-        final String identifier = createDeletionIdentifier(holder, fileName);
-        event.setEventType(EventType.DELETION);
-        event.setEntityType(EntityType.ATTACHMENT);
-        event.setIdentifiers(Collections.singletonList(identifier));
-        event.setDescription(identifier);
-        event.setReason(reason);
-        event.setRegistrator(registrator);
-
-        return event;
-    }
-
-    private static String createDeletionIdentifier(AttachmentHolderPE holder, String fileName)
-    {
-        return String.format("%s/%s/%s", holder.getHolderName(), holder.getIdentifier(), fileName);
+        IAttachmentDAO attachmentDAO = getAttachmentDAO();
+        attachmentDAO.deleteAttachments(holder, reason, fileNames, session.tryGetPerson());
     }
 
     @Override

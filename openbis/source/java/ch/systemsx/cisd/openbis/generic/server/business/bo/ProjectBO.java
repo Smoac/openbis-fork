@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -407,8 +408,8 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
             {
                 List<Long> idsToDelete = Collections.singletonList(projectId.getId());
                 String content = historyCreator.apply(getSessionFactory().getCurrentSession(), idsToDelete,
-                        propertyHistoryQuery, relationshipHistoryQuery, sqlAttributesHistory);
-
+                                propertyHistoryQuery, relationshipHistoryQuery, sqlAttributesHistory, 
+                                Arrays.asList(project), session.tryGetPerson());
                 getProjectDAO().delete(project);
                 getEventDAO().persist(createDeletionEvent(project, session.tryGetPerson(), reason, content));
             } else

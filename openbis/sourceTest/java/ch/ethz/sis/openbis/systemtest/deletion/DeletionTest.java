@@ -297,8 +297,8 @@ public abstract class DeletionTest extends AbstractTest
         try
         {
             long timestamp = DateFormatThreadLocal.DATE_FORMAT.get().parse(timestampString).getTime();
-            long afterTimestamp = (after.getTime() / 1000) * 1000;
-            long beforeTimestamp = (before.getTime() / 1000 + 1) * 1000;
+            long afterTimestamp = (after.getTime() / 1000 - 1) * 1000;
+            long beforeTimestamp = (before.getTime() / 1000 + 2) * 1000;
             return timestamp >= afterTimestamp && timestamp <= beforeTimestamp;
         } catch (ParseException ex)
         {

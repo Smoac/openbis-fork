@@ -29,6 +29,7 @@ import org.springframework.orm.hibernate4.HibernateTemplate;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -45,9 +46,9 @@ final class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEnti
 
     private final EntityKind entityKind;
 
-    EntityTypeDAO(final EntityKind entityKind, final SessionFactory sessionFactory)
+    EntityTypeDAO(final EntityKind entityKind, final SessionFactory sessionFactory, EntityHistoryCreator historyCreator)
     {
-        super(sessionFactory, entityKind.getTypeClass());
+        super(sessionFactory, entityKind.getTypeClass(), historyCreator);
         this.entityKind = entityKind;
     }
 

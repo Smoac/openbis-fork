@@ -22,12 +22,24 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 import ch.systemsx.cisd.common.collection.SimpleComparator;
 import ch.systemsx.cisd.common.time.DateFormatThreadLocal;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 public class EntityHistoryCreator
 {
     private static final Set<String> NON_ATTRIBUTE_COLUMNS = new HashSet<>(Arrays.asList("ID", "PERM_ID"));
 
     private boolean enabled = false;
+
+    private IDAOFactory daoFactory;
+
+    public void setDaoFactory(IDAOFactory daoFactory)
+    {
+        this.daoFactory = daoFactory;
+    }
 
     public void setEnabled(String s)
     {
@@ -41,7 +53,8 @@ public class EntityHistoryCreator
     }
 
     public String apply(SharedSessionContract session, List<Long> entityIdsToDelete,
-            String propertyHistoryQuery, String relationshipHistoryQuery, String attributesQuery)
+            String propertyHistoryQuery, String relationshipHistoryQuery, String attributesQuery, 
+            List<? extends AttachmentHolderPE> attachmentHolders, PersonPE registrator)
     {
         if (!enabled)
         {
@@ -67,13 +80,25 @@ public class EntityHistoryCreator
                             entityIdsToDelete);
             addToHistories(histories, relationshipHistory);
         }
+        
+        if (attachmentHolders != null)
+        {
+            List<RelationshipHistoryEntry> deletedAttachments 
+                = deleteAttachments(session, registrator, attachmentHolders);
+            addToHistories(histories, deletedAttachments);
+        }
 
+        return jsonize(histories);
+    }
+
+    public String jsonize(Map<String, List<? extends EntityModification>> modifications)
+    {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         ObjectWriter ow = new ObjectMapper().setDateFormat(dateFormat).writer().withDefaultPrettyPrinter();
         String content;
         try
         {
-            content = ow.writeValueAsString(histories);
+            content = ow.writeValueAsString(modifications);
         } catch (Exception e)
         {
             throw new RuntimeException(e);
@@ -81,6 +106,34 @@ public class EntityHistoryCreator
         return content;
     }
 
+    private List<RelationshipHistoryEntry> deleteAttachments(SharedSessionContract session, 
+            PersonPE registrator, List<? extends AttachmentHolderPE> attachmentHolders)
+    {
+        List<RelationshipHistoryEntry> relationshipHistoryEntries = new ArrayList<>();
+        IAttachmentDAO attachmentDAO = daoFactory.getAttachmentDAO();
+        for (AttachmentHolderPE holder : attachmentHolders)
+        {
+            Set<AttachmentPE> attachments = holder.getAttachments();
+            List<String> fileNames = new ArrayList<>();
+            for (AttachmentPE attachment : attachments)
+            {
+                fileNames.add(attachment.getFileName());
+            }
+            List<String> attachmentIdentifiers 
+                    = attachmentDAO.deleteAttachments(holder, "", fileNames, registrator);
+            for (String attachmentIdentifier : attachmentIdentifiers)
+            {
+                RelationshipHistoryEntry relationshipHistoryEntry = new RelationshipHistoryEntry();
+                relationshipHistoryEntry.entityType = "ATTACHMENT";
+                relationshipHistoryEntry.permId = holder.getPermId()    ;
+                relationshipHistoryEntry.relatedEntity = attachmentIdentifier;
+                relationshipHistoryEntry.relationType = "OWNER";
+                relationshipHistoryEntries.add(relationshipHistoryEntry);
+            }
+        }
+        return relationshipHistoryEntries;
+    }
+    
     private List<AttributeEntry> selectAttributeEntries(SQLQuery sqlQuery, List<Long> entityIdsToDelete)
     {
         List<Map<String, Object>> rows = getRows(sqlQuery, entityIdsToDelete);
@@ -120,7 +173,6 @@ public class EntityHistoryCreator
         return list;
     }
 
-
     private String render(Object value)
     {
         if (value instanceof Date)
@@ -130,7 +182,7 @@ public class EntityHistoryCreator
         return value == null ? null : value.toString();
     }
 
-    private void addToHistories(Map<String, List<? extends EntityModification>> histories, 
+    private void addToHistories(Map<String, List<? extends EntityModification>> histories,
             List<? extends EntityModification> modifications)
     {
         for (EntityModification entry : modifications)
@@ -159,7 +211,7 @@ public class EntityHistoryCreator
             });
         return Collections.unmodifiableList(list);
     }
-    
+
     private List<PropertyHistoryEntry> selectHistoryPropertyEntries(
             final SQLQuery selectPropertyHistory, final List<Long> entityIds)
     {
@@ -231,6 +283,7 @@ public class EntityHistoryCreator
         sqlQuery.setResultTransformer(new ResultTransformer()
             {
                 private static final long serialVersionUID = 1L;
+
                 @Override
                 public Object transformTuple(Object[] values, String[] aliases)
                 {
@@ -251,7 +304,7 @@ public class EntityHistoryCreator
             });
         return cast(sqlQuery.list());
     }
-    
+
     @SuppressWarnings("unchecked")
     protected final <T> List<T> cast(final List<?> list)
     {
@@ -261,13 +314,14 @@ public class EntityHistoryCreator
     private static class EntityAttributes
     {
         private final String permId;
+
         private final Map<String, String> attributes = new HashMap<String, String>();
 
         public EntityAttributes(String permId)
         {
             this.permId = permId;
         }
-        
+
         public void addAttribute(String attributeName, String value)
         {
             attributes.put(attributeName, value);
@@ -282,6 +336,6 @@ public class EntityHistoryCreator
         {
             return attributes;
         }
-        
+
     }
 }

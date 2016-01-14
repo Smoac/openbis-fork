@@ -16,9 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -28,13 +32,22 @@ import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.AttachmentEntry;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityModification;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 
 /**
  * Implementation of {@link IAttachmentDAO} for data bases.
@@ -54,10 +67,15 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             AttachmentDAO.class);
 
-    AttachmentDAO(final PersistencyResources persistencyResources)
+
+    private final IEventDAO eventDAO;
+
+    AttachmentDAO(final PersistencyResources persistencyResources, 
+            IEventDAO eventDAO, EntityHistoryCreator historyCreator)
     {
-        super(persistencyResources.getSessionFactory(), ATTACHMENT_CLASS);
+        super(persistencyResources.getSessionFactory(), ATTACHMENT_CLASS, historyCreator);
         this.persistencyResources = persistencyResources;
+        this.eventDAO = eventDAO;
     }
 
     private final static String createFindLastVersionQuery(AttachmentHolderPE owner)
@@ -81,6 +99,74 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
     //
     // IAttachmentDAO
     //
+
+    @Override
+    public List<String> deleteAttachments(final AttachmentHolderPE holder, final String reason, 
+            final List<String> fileNames, PersonPE registrator)
+    {
+        List<String> allIdentifiers = new ArrayList<>();
+        for (String fileName : fileNames)
+        {
+            try
+            {
+                List<AttachmentPE> attachmentsToBeDeleted = new ArrayList<>();
+                for (AttachmentPE att : holder.getAttachments())
+                {
+                    if (fileName.equals(att.getFileName()))
+                    {
+                        attachmentsToBeDeleted.add(att);
+                    }
+                }
+                deleteByOwnerAndFileName(holder, fileName);
+                List<String> identifiers = createDeletionEvents(attachmentsToBeDeleted, registrator, reason);
+                allIdentifiers.addAll(identifiers);
+            } catch (final DataAccessException ex)
+            {
+                DataAccessExceptionTranslator.throwException(ex, String.format("Attachment '%s'", fileName), null);
+            }
+        }
+        return allIdentifiers;
+    }
+
+    private List<String> createDeletionEvents(List<AttachmentPE> attachmentsToBeDeleted, 
+            PersonPE registrator, String reason)
+    {
+        List<String> attachmentIdentifiers = new ArrayList<>();
+        for (AttachmentPE attachmentToBeDeleted : attachmentsToBeDeleted)
+        {
+            EventPE event = new EventPE();
+            AttachmentHolderPE holder = attachmentToBeDeleted.getParent();
+            String holderName = holder.getHolderName();
+            String holderIdentifier = holder.getIdentifier();
+            String fileName = attachmentToBeDeleted.getFileName();
+            int version = attachmentToBeDeleted.getVersion();
+            String identifier = String.format("%s/%s/%s(%s)", holderName, holderIdentifier, fileName, version);
+            attachmentIdentifiers.add(identifier);
+            event.setEventType(EventType.DELETION);
+            event.setEntityType(EntityType.ATTACHMENT);
+            event.setIdentifiers(Collections.singletonList(identifier));
+            event.setDescription(identifier);
+            event.setReason(reason);
+            event.setRegistrator(registrator);
+            event.setAttachmentContent(attachmentToBeDeleted.getAttachmentContent());
+            Map<String, List<? extends EntityModification>> modifications 
+                    = new HashMap<String, List<? extends EntityModification>>();
+            AttachmentEntry attachmentEntry = new AttachmentEntry();
+            attachmentEntry.fileName = fileName;
+            attachmentEntry.version = version;
+            attachmentEntry.description = attachmentToBeDeleted.getDescription();
+            attachmentEntry.title = attachmentToBeDeleted.getTitle();
+            attachmentEntry.relationType = "OWNED";
+            attachmentEntry.entityType = holder.getAttachmentHolderKind().toString();
+            attachmentEntry.relatedEntity = holder.getPermId();
+            attachmentEntry.validFrom = attachmentToBeDeleted.getRegistrationDate();
+            attachmentEntry.userId = attachmentToBeDeleted.getRegistrator().getUserId();
+            modifications.put(identifier, Arrays.asList(attachmentEntry));
+            event.setContent(historyCreator.jsonize(modifications));
+            eventDAO.persist(event);
+        }
+        return attachmentIdentifiers;
+    }
 
     @Override
     public final AttachmentHolderPE createAttachment(final AttachmentPE attachment,
@@ -131,6 +217,7 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
         owner.addAttachment(attachment);
         validatePE(attachment);
 
+        template.save(attachment.getAttachmentContent());
         template.save(attachment);
         template.flush();
         if (operationLog.isInfoEnabled())

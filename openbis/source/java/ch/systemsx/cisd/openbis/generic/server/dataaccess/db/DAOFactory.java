@@ -136,8 +136,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private DatabaseConfigurationContext context;
 
-    private EntityHistoryCreator historyCreator;
-
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory, HibernateSearchContext hibernateSearchContext,
             final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler,
@@ -149,31 +147,31 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         this.context = context;
         this.dynamicPropertyEvaluationScheduler = dynamicPropertyEvaluationScheduler;
         this.fullTextIndexUpdateScheduler = fullTextIndexUpdateScheduler;
-        this.historyCreator = historyCreator;
-        sampleTypeDAO = new SampleTypeDAO(sessionFactory);
+        historyCreator.setDaoFactory(this);
+        sampleTypeDAO = new SampleTypeDAO(sessionFactory, historyCreator);
         hibernateSearchDAO = new HibernateSearchDAO(sessionFactory, hibernateSearchContext);
-        propertyTypeDAO = new PropertyTypeDAO(sessionFactory);
-        vocabularyDAO = new VocabularyDAO(sessionFactory);
-        vocabularyTermDAO = new VocabularyTermDAO(sessionFactory);
-        attachmentDAO = new AttachmentDAO(getPersistencyResources());
-        dataSetTypeDAO = new DataSetTypeDAO(sessionFactory);
-        fileFormatTypeDAO = new FileFormatTypeDAO(sessionFactory);
-        locatorTypeDAO = new LocatorTypeDAO(sessionFactory);
+        propertyTypeDAO = new PropertyTypeDAO(sessionFactory, historyCreator);
+        vocabularyDAO = new VocabularyDAO(sessionFactory, historyCreator);
+        vocabularyTermDAO = new VocabularyTermDAO(sessionFactory, historyCreator);
+        dataSetTypeDAO = new DataSetTypeDAO(sessionFactory, historyCreator);
+        fileFormatTypeDAO = new FileFormatTypeDAO(sessionFactory, historyCreator);
+        locatorTypeDAO = new LocatorTypeDAO(sessionFactory, historyCreator);
         materialDAO = new MaterialDAO(getPersistencyResources(), historyCreator);
         codeSequenceDAO = new CodeSequenceDAO(sessionFactory);
         dataStoreDAO = new DataStoreDAO(sessionFactory);
         permIdDAO = new PermIdDAO(sessionFactory);
-        eventDAO = new EventDAO(sessionFactory);
-        authorizationGroupDAO = new AuthorizationGroupDAO(sessionFactory);
-        scriptDAO = new ScriptDAO(sessionFactory);
+        eventDAO = new EventDAO(sessionFactory, historyCreator);
+        attachmentDAO = new AttachmentDAO(getPersistencyResources(), eventDAO, historyCreator);
+        authorizationGroupDAO = new AuthorizationGroupDAO(sessionFactory, historyCreator);
+        scriptDAO = new ScriptDAO(sessionFactory, historyCreator);
         corePluginDAO = new CorePluginDAO(sessionFactory);
-        postRegistrationDAO = new PostRegistrationDAO(sessionFactory);
-        entityOperationsLogDAO = new EntityOperationsLogDAO(sessionFactory);
+        postRegistrationDAO = new PostRegistrationDAO(sessionFactory, historyCreator);
+        entityOperationsLogDAO = new EntityOperationsLogDAO(sessionFactory, historyCreator);
         final EntityKind[] entityKinds = EntityKind.values();
         for (final EntityKind entityKind : entityKinds)
         {
             final EntityTypeDAO dao =
-                    new EntityTypeDAO(entityKind, sessionFactory);
+                    new EntityTypeDAO(entityKind, sessionFactory, historyCreator);
             entityTypeDAOs.put(entityKind, dao);
             entityPropertyTypeDAOs.put(entityKind, new EntityPropertyTypeDAO(entityKind,
                     getPersistencyResources()));

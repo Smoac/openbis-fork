@@ -30,6 +30,7 @@ import org.springframework.orm.hibernate4.HibernateTemplate;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.reflection.MethodUtils;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractTypePE;
 
@@ -50,9 +51,9 @@ abstract class AbstractTypeDAO<T extends AbstractTypePE> extends AbstractGeneric
      */
     private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
-    public AbstractTypeDAO(final SessionFactory sessionFactory, final Class<T> entityClass)
+    public AbstractTypeDAO(final SessionFactory sessionFactory, final Class<T> entityClass, EntityHistoryCreator historyCreator)
     {
-        super(sessionFactory, entityClass);
+        super(sessionFactory, entityClass, historyCreator);
     }
 
     final T tryFindTypeByCode(final String code) throws DataAccessException

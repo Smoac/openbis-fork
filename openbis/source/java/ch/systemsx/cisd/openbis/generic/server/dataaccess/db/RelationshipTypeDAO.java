@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRelationshipTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 
 /**
@@ -41,9 +42,9 @@ public class RelationshipTypeDAO extends AbstractGenericEntityDAO<RelationshipTy
 
     private static Map<String, Long> relationshipTypeIdsMap;
 
-    public RelationshipTypeDAO(SessionFactory sessionFactory)
+    public RelationshipTypeDAO(SessionFactory sessionFactory, EntityHistoryCreator historyCreator)
     {
-        super(sessionFactory, RelationshipTypePE.class);
+        super(sessionFactory, RelationshipTypePE.class, historyCreator);
     }
 
     @Override

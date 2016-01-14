@@ -23,6 +23,7 @@ import org.springframework.jdbc.support.JdbcAccessor;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
@@ -45,9 +46,9 @@ final class VocabularyTermDAO extends AbstractGenericEntityDAO<VocabularyTermPE>
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             VocabularyTermDAO.class);
 
-    VocabularyTermDAO(final SessionFactory sessionFactory)
+    VocabularyTermDAO(final SessionFactory sessionFactory, EntityHistoryCreator historyCreator)
     {
-        super(sessionFactory, VocabularyTermPE.class);
+        super(sessionFactory, VocabularyTermPE.class, historyCreator);
     }
 
     @Override

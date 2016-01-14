@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomFilterDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 
 /**
@@ -41,9 +42,9 @@ public class GridCustomFilterDAO extends AbstractGenericEntityDAO<GridCustomFilt
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, GridCustomFilterDAO.class);
 
-    public GridCustomFilterDAO(SessionFactory sessionFactory)
+    public GridCustomFilterDAO(SessionFactory sessionFactory, EntityHistoryCreator historyCreator)
     {
-        super(sessionFactory, GridCustomFilterPE.class);
+        super(sessionFactory, GridCustomFilterPE.class, historyCreator);
     }
 
     @Override

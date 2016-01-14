@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -193,7 +192,7 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
         this.experimentParent = parent;
     }
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(fetch = FetchType.LAZY)
     @NotNull(message = ValidationMessages.ATTACHMENT_CONTENT_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.ATTACHMENT_CONTENT_COLUMN)
     public AttachmentContentPE getAttachmentContent()

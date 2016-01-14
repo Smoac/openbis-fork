@@ -12,6 +12,7 @@ import org.hibernate.SessionFactory;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPostRegistrationDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PostRegistrationPE;
 
@@ -21,9 +22,9 @@ public class PostRegistrationDAO extends AbstractGenericEntityDAO<PostRegistrati
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             PostRegistrationDAO.class);
 
-    protected PostRegistrationDAO(SessionFactory sessionFactory)
+    protected PostRegistrationDAO(SessionFactory sessionFactory, EntityHistoryCreator historyCreator)
     {
-        super(sessionFactory, PostRegistrationPE.class);
+        super(sessionFactory, PostRegistrationPE.class, historyCreator);
     }
 
     @Override

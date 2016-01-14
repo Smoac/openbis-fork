@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomColumnDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 
 /**
@@ -41,9 +42,9 @@ public class GridCustomColumnDAO extends AbstractGenericEntityDAO<GridCustomColu
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, GridCustomColumnDAO.class);
 
-    public GridCustomColumnDAO(SessionFactory sessionFactory)
+    public GridCustomColumnDAO(SessionFactory sessionFactory, EntityHistoryCreator historyCreator)
     {
-        super(sessionFactory, GridCustomColumnPE.class);
+        super(sessionFactory, GridCustomColumnPE.class, historyCreator);
     }
 
     @Override
