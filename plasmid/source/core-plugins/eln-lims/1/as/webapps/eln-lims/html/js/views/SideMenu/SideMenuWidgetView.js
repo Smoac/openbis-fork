@@ -353,8 +353,8 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	extensions: ["dnd", "edit", "glyph"], //, "wide"
         	glyph: glyph_opts,
         	source: treeModel,
-        	activate: onClickOrActivate,
-        	click: onClickOrActivate
+        	activate: onClickOrActivate
+//        	click: onClickOrActivate
         });
         
         this._sideMenuWidgetModel.menuDOMBody.append(tree);
