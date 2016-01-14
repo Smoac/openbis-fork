@@ -32,7 +32,6 @@ import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
@@ -44,10 +43,10 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateO
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 
 /**
  * Implementation of {@link IAttachmentDAO} for data bases.
@@ -107,23 +106,17 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
         List<String> allIdentifiers = new ArrayList<>();
         for (String fileName : fileNames)
         {
-            try
+            List<AttachmentPE> attachmentsToBeDeleted = new ArrayList<>();
+            for (AttachmentPE att : holder.getAttachments())
             {
-                List<AttachmentPE> attachmentsToBeDeleted = new ArrayList<>();
-                for (AttachmentPE att : holder.getAttachments())
+                if (fileName.equals(att.getFileName()))
                 {
-                    if (fileName.equals(att.getFileName()))
-                    {
-                        attachmentsToBeDeleted.add(att);
-                    }
+                    attachmentsToBeDeleted.add(att);
                 }
-                deleteByOwnerAndFileName(holder, fileName);
-                List<String> identifiers = createDeletionEvents(attachmentsToBeDeleted, registrator, reason);
-                allIdentifiers.addAll(identifiers);
-            } catch (final DataAccessException ex)
-            {
-                DataAccessExceptionTranslator.throwException(ex, String.format("Attachment '%s'", fileName), null);
             }
+            deleteByOwnerAndFileName(holder, fileName);
+            List<String> identifiers = createDeletionEvents(attachmentsToBeDeleted, registrator, reason);
+            allIdentifiers.addAll(identifiers);
         }
         return allIdentifiers;
     }
