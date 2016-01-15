@@ -802,7 +802,7 @@ CREATE OR REPLACE RULE material_properties_update AS
          (select (m.code || ' [' || mt.code || ']') from materials as m join material_types as mt on m.maty_id = mt.id where m.id = OLD.MATE_PROP_ID),
          OLD.PERS_ID_AUTHOR,
          OLD.MODIFICATION_TIMESTAMP,
-         current_timestamp
+         NEW.MODIFICATION_TIMESTAMP
        );
        
 CREATE OR REPLACE RULE material_properties_delete AS
@@ -830,7 +830,7 @@ CREATE OR REPLACE RULE material_properties_delete AS
          (select (m.code || ' [' || mt.code || ']') from materials as m join material_types as mt on m.maty_id = mt.id where m.id = OLD.MATE_PROP_ID),
          OLD.PERS_ID_AUTHOR,
          OLD.MODIFICATION_TIMESTAMP,
-         current_timestamp
+         NEW.MODIFICATION_TIMESTAMP
        );
        
 -- Experiment Properties --
@@ -860,7 +860,7 @@ CREATE OR REPLACE RULE experiment_properties_update AS
          (select (m.code || ' [' || mt.code || ']') from materials as m join material_types as mt on m.maty_id = mt.id where m.id = OLD.MATE_PROP_ID),
          OLD.PERS_ID_AUTHOR,
          OLD.MODIFICATION_TIMESTAMP,
-         current_timestamp
+         NEW.MODIFICATION_TIMESTAMP
        );
        
 CREATE OR REPLACE RULE experiment_properties_delete AS
@@ -888,7 +888,7 @@ CREATE OR REPLACE RULE experiment_properties_delete AS
          (select (m.code || ' [' || mt.code || ']') from materials as m join material_types as mt on m.maty_id = mt.id where m.id = OLD.MATE_PROP_ID),
          OLD.PERS_ID_AUTHOR,
          OLD.MODIFICATION_TIMESTAMP,
-         current_timestamp
+         NEW.MODIFICATION_TIMESTAMP
        );
        
 -- Sample Properties --
@@ -918,8 +918,12 @@ CREATE OR REPLACE RULE sample_properties_update AS
          (select (m.code || ' [' || mt.code || ']') from materials as m join material_types as mt on m.maty_id = mt.id where m.id = OLD.MATE_PROP_ID),
          OLD.PERS_ID_AUTHOR,
          OLD.MODIFICATION_TIMESTAMP,
-         current_timestamp
+         NEW.MODIFICATION_TIMESTAMP
        );
+       UPDATE sample_properties
+       SET MODIFICATION_TIMESTAMP = current_timestamp
+       WHERE ID = NEW.ID
+       ;
               
 CREATE OR REPLACE RULE sample_properties_delete AS
     ON DELETE TO sample_properties 
@@ -947,7 +951,7 @@ CREATE OR REPLACE RULE sample_properties_delete AS
          (select (m.code || ' [' || mt.code || ']') from materials as m join material_types as mt on m.maty_id = mt.id where m.id = OLD.MATE_PROP_ID),
          OLD.PERS_ID_AUTHOR,
          OLD.MODIFICATION_TIMESTAMP,
-         current_timestamp
+         NEW.MODIFICATION_TIMESTAMP
        );
        
 -- Data Set Properties --
@@ -977,7 +981,7 @@ CREATE OR REPLACE RULE data_set_properties_update AS
          (select (m.code || ' [' || mt.code || ']') from materials as m join material_types as mt on m.maty_id = mt.id where m.id = OLD.MATE_PROP_ID),
          OLD.PERS_ID_AUTHOR,
          OLD.MODIFICATION_TIMESTAMP,
-         current_timestamp
+         NEW.MODIFICATION_TIMESTAMP
        );
 
 CREATE OR REPLACE RULE data_set_properties_delete AS
@@ -1006,7 +1010,7 @@ CREATE OR REPLACE RULE data_set_properties_delete AS
          (select (m.code || ' [' || mt.code || ']') from materials as m join material_types as mt on m.maty_id = mt.id where m.id = OLD.MATE_PROP_ID),
          OLD.PERS_ID_AUTHOR,
          OLD.MODIFICATION_TIMESTAMP,
-         current_timestamp
+         NEW.MODIFICATION_TIMESTAMP
        );
        
 -- End of rules for properties history
