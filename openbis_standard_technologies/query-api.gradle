@@ -107,7 +107,8 @@ task apiV3Jar(type: Jar) {
           exclude "ch/systemsx/cisd/common/api/server/**/*.class"
           include "ch/systemsx/cisd/openbis/common/api/**/*.class"
           exclude "ch/systemsx/cisd/openbis/common/api/server/**/*.class"
-          include "ch/ethz/sis/openbis/generic/shared/api/v3/**/*.class"
+          include "ch/ethz/sis/openbis/generic/asapi/v3/**/*.class"
+          include "ch/ethz/sis/openbis/generic/dssapi/v3/**/*.class"
           include "ch/systemsx/cisd/openbis/BuildAndEnvironmentInfo.class"
           include "*.INFO"
   }
@@ -145,7 +146,8 @@ task apiV3Sources(type: Jar) {
           exclude "ch/systemsx/cisd/common/api/server/**/*.java"
           include "ch/systemsx/cisd/openbis/common/api/**/*.java"
           exclude "ch/systemsx/cisd/openbis/common/api/server/**/*.java"
-          include "ch/ethz/sis/openbis/generic/shared/api/v3/**/*.java"
+          include "ch/ethz/sis/openbis/generic/asapi/v3/**/*.java"
+          include "ch/ethz/sis/openbis/generic/dssapi/v3/**/*.java"
           include "ch/systemsx/cisd/openbis/BuildAndEnvironmentInfo.java"
     }
 }
