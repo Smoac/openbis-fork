@@ -652,7 +652,17 @@ function MainController(profile) {
 							}, {
 								label : 'Matched',
 								property : 'matched',
-								sortable : true
+								sortable : true,
+								filter : function(data, filter) {
+									var matchedValue = data.matched.text();
+									return matchedValue.toLowerCase().indexOf(filter) !== -1;
+								},
+								sort : function(data1, data2, asc) {
+									var value1 = data1.matched.text();
+									var value2 = data2.matched.text();
+									var sortDirection = (asc)? 1 : -1;
+									return sortDirection * naturalSort(value1, value2);
+								}
 							}];
 							columns.push(SampleDataGridUtil.createOperationsColumn());
 							
