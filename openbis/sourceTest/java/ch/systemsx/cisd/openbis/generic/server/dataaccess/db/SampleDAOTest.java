@@ -503,8 +503,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         {
             assertNull(daoFactory.getAttachmentDAO().tryGetByTechId(attachmentId));
         }
-        assertEquals(rowsInAttachmentContents - attachmentIds.size(),
-                countRowsInTable(ATT_CONTENTS_TABLE));
+        assertEquals(rowsInAttachmentContents, countRowsInTable(ATT_CONTENTS_TABLE));
     }
 
     @Test(expectedExceptions = DataIntegrityViolationException.class)
