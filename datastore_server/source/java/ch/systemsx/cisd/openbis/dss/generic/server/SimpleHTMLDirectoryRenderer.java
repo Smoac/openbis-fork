@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.net.URI;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -129,8 +129,8 @@ final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
     {
         try
         {
-            return URLEncoder.encode(url, "UTF-8").replace("%2F", "/");
-        } catch (final UnsupportedEncodingException ex)
+            return new URI(null, null, url, null).getPath();
+        } catch (final Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
