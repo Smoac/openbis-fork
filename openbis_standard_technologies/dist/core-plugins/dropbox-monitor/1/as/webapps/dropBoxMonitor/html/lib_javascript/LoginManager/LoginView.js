@@ -9,7 +9,7 @@ define([], function() {
     var html;
     html = $(htmlContainer).append("<div></div>");
 
-    $(html).load("lib_javascript/loginManager/loginHtml.html", function() {
+    $(html).load("lib_javascript/LoginManager/loginHtml.html", function() {
       html.find("#username").change(function() {
         objectSelfReference.loginLogic.setUserName($(this).val());
       });

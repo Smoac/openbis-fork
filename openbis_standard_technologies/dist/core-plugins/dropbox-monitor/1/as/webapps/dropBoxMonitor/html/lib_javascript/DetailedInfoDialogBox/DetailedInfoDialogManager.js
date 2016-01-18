@@ -6,7 +6,7 @@ function(DetailedInfoDialogView, DetailedInfoDialogLogic) {
         this.logic = new DetailedInfoDialogLogic(communicationFacade);
         this.ViewClass = DetailedInfoDialogView;
         this.viewMap = {};
-        var cssLink = $("<link rel='stylesheet' type='text/css' href='css/DetailedInfoDialogView.css'>");
+        var cssLink = $("<link rel='stylesheet' type='text/css' href='css/detailedInfoDialogView.css'>");
         $("head").append(cssLink);
     };
 
