@@ -20,7 +20,7 @@ import org.hibernate.search.bridge.LuceneOptions;
 
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 
-public abstract class GlobalSearchBridge<T> implements FieldBridge
+public abstract class GlobalSearchBridge<T extends IEntityWithMetaprojects> implements FieldBridge
 {
 
     protected static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
@@ -108,7 +108,7 @@ public abstract class GlobalSearchBridge<T> implements FieldBridge
                 field.setTokenStream(tokenStream);
             } catch (IOException e)
             {
-                e.printStackTrace(); // WHAT SHOULD BE DONE HERE?!
+                e.printStackTrace();
                 field = new TextField("global_search", indexedValue, Store.YES);
             } finally
             {
@@ -118,6 +118,29 @@ public abstract class GlobalSearchBridge<T> implements FieldBridge
 
             field = new StoredField("global_search_fields", StringUtils.joinList(keys, " ||| "));
             document.add(field);
+
+            List<String> metaprojects = new ArrayList<String>();
+            for (MetaprojectPE m : entity.getMetaprojects())
+            {
+                metaprojects.add(m.getIdentifier());
+            }
+            indexedValue = StringUtils.joinList(metaprojects, " ");
+
+            Field metaprojectField;
+            an = new WhitespaceAnalyzer();
+            try
+            {
+                TokenStream tokenStream = an.tokenStream("global_search_metaprojects", new StringReader(indexedValue.toLowerCase()));
+                metaprojectField = new Field("global_search_metaprojects", indexedValue, TextField.TYPE_STORED);
+                metaprojectField.setTokenStream(tokenStream);
+                document.add(metaprojectField);
+            } catch (IOException e)
+            {
+                e.printStackTrace();
+            } finally
+            {
+                an.close();
+            }
 
         } catch (Exception e)
         {

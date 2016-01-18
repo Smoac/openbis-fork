@@ -257,7 +257,13 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             String q = QueryParser.escape(userQuery.toLowerCase());
             q = q.replace("\\*", "*");
             q = q.replace("\\?", "?");
-            query = LuceneQueryBuilder.parseQuery("global_search", q, wsa);
+
+            Query globalQuery = LuceneQueryBuilder.parseQuery("global_search", q, wsa);
+            Query metaprojectQuery = new WildcardQuery(new Term("global_search_metaprojects", "/" + userId + "/" + q));
+            BooleanQuery bq = new BooleanQuery();
+            bq.add(globalQuery, Occur.SHOULD);
+            bq.add(metaprojectQuery, Occur.SHOULD);
+            query = bq;
         } else
         {
             if (userQuery.startsWith("\"") && userQuery.endsWith("\"") && userQuery.length() > 2)
@@ -279,13 +285,20 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                     queryParts[i] = new SpanMultiTermQueryWrapper<WildcardQuery>(
                             new WildcardQuery(new Term("global_search", term)));
                 }
+
                 query = new SpanNearQuery(queryParts, 0, true);
             } else
             {
                 String[] parts = userQuery.toLowerCase().split("\\s+");
                 if (parts.length == 1)
                 {
-                    query = new WildcardQuery(new Term("global_search", "*" + QueryParser.escape(parts[0]) + "*"));
+                    BooleanQuery bq = new BooleanQuery();
+
+                    bq.add(new WildcardQuery(new Term("global_search", "*" + QueryParser.escape(parts[0]) + "*")), Occur.SHOULD);
+                    bq.add(new WildcardQuery(new Term("global_search_metaprojects", "/" + userId + "/*" + QueryParser.escape(parts[0]) + "*")),
+                            Occur.SHOULD);
+
+                    query = bq;
                 } else
                 {
                     BooleanQuery bq = new BooleanQuery();
@@ -293,6 +306,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                     {
                         String term = "*" + QueryParser.escape(parts[i]) + "*";
                         bq.add(new WildcardQuery(new Term("global_search", term)), Occur.SHOULD);
+                        bq.add(new WildcardQuery(new Term("global_search_metaprojects", "/" + userId + "/" + term)),
+                                Occur.SHOULD);
                     }
                     query = bq;
                 }
@@ -318,11 +333,13 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                 {
                     IndexableField dataField = ((Document) tuple[1]).getField("global_search");
                     IndexableField headerField = ((Document) tuple[1]).getField("global_search_fields");
+                    IndexableField metaprojectField = ((Document) tuple[1]).getField("global_search_metaprojects");
 
                     String splitString = "\\ \\|\\|\\|\\ ";
 
                     String[] fields = headerField.stringValue().split(splitString);
                     String[] content = dataField.stringValue().split(splitString);
+                    String[] metaprojects = metaprojectField.stringValue().split(" ");
 
                     String matchingField = "unknown";
                     String matchingText = "";
@@ -369,6 +386,31 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                                     matchingText = content[i];
                                     MatchingEntity me = createMatchingEntity(((Document) tuple[1]), matchingText);
                                     me.setFieldDescription(matchingField);
+                                    result.add(me);
+                                }
+                            }
+                        }
+                    }
+
+                    for (int i = 0; i < metaprojects.length; i++)
+                    {
+                        String value = metaprojects[i].substring(metaprojects[i].lastIndexOf("/") + 1);
+                        for (String q : query)
+                        {
+                            if (useWildcardSearchMode)
+                            {
+                                if (value.toLowerCase().matches(".*" + q.toLowerCase().replace("*", ".*").replace("?", ".?") + ".*"))
+                                {
+                                    MatchingEntity me = createMatchingEntity(((Document) tuple[1]), value);
+                                    me.setFieldDescription("Tag");
+                                    result.add(me);
+                                }
+                            } else
+                            {
+                                if (value.toLowerCase().contains(q.toLowerCase()))
+                                {
+                                    MatchingEntity me = createMatchingEntity(((Document) tuple[1]), value);
+                                    me.setFieldDescription("Tag");
                                     result.add(me);
                                 }
                             }
