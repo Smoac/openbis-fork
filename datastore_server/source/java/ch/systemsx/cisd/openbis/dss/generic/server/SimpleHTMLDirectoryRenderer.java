@@ -129,7 +129,8 @@ final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
     {
         try
         {
-            return new URI(null, null, url, null).getPath();
+            URI uri = new URI(null, null, url, null);
+            return uri.getRawPath();
         } catch (final Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
