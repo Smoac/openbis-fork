@@ -7,6 +7,8 @@ import java.util.HashMap;
 import org.springframework.test.annotation.Rollback;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.create.AttachmentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.id.AttachmentFileName;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
@@ -15,6 +17,67 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 
 public class ProjectDeletionTest extends DeletionTest
 {
+    @Test
+    @Rollback(false)
+    public void deleteAttachment() throws Exception
+    {
+        long currentTimeMillis = System.currentTimeMillis();
+        String spaceCode = "SPACE-" + currentTimeMillis;
+        SpacePermId space = createSpace(spaceCode);
+        String projectCode = "PROJECT-" + currentTimeMillis;
+        ProjectPermId project = createProject(space, projectCode);
+        
+        AttachmentCreation attachment1 = new AttachmentCreation();
+        attachment1.setTitle("A1");
+        attachment1.setDescription("hello A");
+        attachment1.setFileName("hello.txt");
+        attachment1.setContent("hello world!".getBytes());
+        AttachmentCreation attachment2 = new AttachmentCreation();
+        attachment2.setFileName("hi.txt");
+        attachment2.setContent("hi world!".getBytes());
+        addAttachment(project, attachment1, attachment2);
+
+        newTx();
+
+        ProjectUpdate projectUpdate = new ProjectUpdate();
+        projectUpdate.setProjectId(project);
+        projectUpdate.getAttachments().remove(new AttachmentFileName("hello.txt"));
+        v3api.updateProjects(sessionToken, Arrays.asList(projectUpdate));
+
+        assertAttachment("project//" + spaceCode + "/" + projectCode + "/hello.txt(1)", 
+                set("OWNED = ATTACHMENT:" + project + "[PROJECT](user:test) <hello world!>"));
+    }
+    
+    @Test
+    @Rollback(false)
+    public void deleteProjectWithAttachments() throws Exception
+    {
+        SpacePermId space = createSpace("SPACE");
+        ProjectPermId project = createProject(space, "PROJECT3");
+
+        AttachmentCreation attachment1 = new AttachmentCreation();
+        attachment1.setTitle("A1");
+        attachment1.setDescription("hello A");
+        attachment1.setFileName("hello.txt");
+        attachment1.setContent("hello world!".getBytes());
+        AttachmentCreation attachment2 = new AttachmentCreation();
+        attachment2.setFileName("hi.txt");
+        attachment2.setContent("hi world!".getBytes());
+        addAttachment(project, attachment1, attachment2);
+        
+        newTx();
+        
+        delete(project);
+        delete(space);
+
+        assertAttachment("project//SPACE/PROJECT3/hello.txt(1)", 
+                set("OWNED = ATTACHMENT:" + project + "[PROJECT](user:test) <hello world!>"));
+        assertAttachment("project//SPACE/PROJECT3/hi.txt(1)", 
+                set("OWNED = ATTACHMENT:" + project + "[PROJECT](user:test) <hi world!>"));
+        assertHistory(project.getPermId(), "OWNER", attachmentSet("project//SPACE/PROJECT3/hello.txt(1)",
+                "project//SPACE/PROJECT3/hi.txt(1)"));
+    }
+    
     @Test
     @Rollback(false)
     public void testAttributes() throws Exception

@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -493,10 +494,12 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
 
         final String sqlSelectAttributes = createQueryAttributesSQL();
 
+        List<? extends AttachmentHolderPE> experiments = listByIDs(TechId.asLongs(experimentIds));
         executePermanentDeleteAction(EntityType.EXPERIMENT, experimentIds, registrator, reason,
                 sqlSelectPermIds, sqlDeleteProperties, sqlSelectAttachmentContentIds,
                 sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteExperiments,
-                sqlInsertEvent, sqlSelectPropertyHistory, sqlSelectRelationshipHistory, sqlSelectAttributes);
+                sqlInsertEvent, sqlSelectPropertyHistory, sqlSelectRelationshipHistory, sqlSelectAttributes, 
+                experiments);
     }
 
     private static String createQueryPropertyHistorySQL()

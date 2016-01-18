@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextInd
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -125,7 +126,8 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
             final String sqlSelectAttachmentContentIds, final String sqlDeleteAttachmentContents,
             final String sqlDeleteAttachments, final String sqlDeleteEntities,
             final String sqlInsertEvent, final String sqlSelectPropertyHistory, 
-            final String sqlSelectRelationshipHistory, final String sqlSelectAttributes)
+            final String sqlSelectRelationshipHistory, final String sqlSelectAttributes,
+            List<? extends AttachmentHolderPE> attachmentHolders)
     {
         List<Long> entityIds = TechId.asLongs(entityTechIds);
         DeletePermanentlyBatchOperation deleteOperation =
@@ -133,7 +135,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                         sqlSelectPermIds, sqlDeleteProperties, sqlSelectAttachmentContentIds,
                         sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteEntities,
                         sqlInsertEvent, sqlSelectPropertyHistory, sqlSelectRelationshipHistory,
-                        sqlSelectAttributes);
+                        sqlSelectAttributes, attachmentHolders);
         BatchOperationExecutor.executeInBatches(deleteOperation);
 
         // FIXME remove this when we remove the switch to disable trash
@@ -173,12 +175,15 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
 
         private final String sqlSelectAttributes;
 
+        private List<? extends AttachmentHolderPE> attachmentHolders;
+
         DeletePermanentlyBatchOperation(EntityType entityType, List<Long> allEntityIds,
                 PersonPE registrator, String reason, String sqlSelectPermIds,
                 String sqlDeleteProperties, String sqlSelectAttachmentContentIds,
                 String sqlDeleteAttachmentContents, String sqlDeleteAttachments,
                 String sqlDeleteEntities, String sqlInsertEvent, String selectPropertyHistory, 
-                String selectRelationshipHistory, String sqlSelectAttributes)
+                String selectRelationshipHistory, String sqlSelectAttributes,
+                List<? extends AttachmentHolderPE> attachmentHolders)
         {
             this.entityType = entityType;
             this.allEntityIds = allEntityIds;
@@ -194,6 +199,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
             this.sqlSelectPropertyHistory = selectPropertyHistory;
             this.sqlSelectRelationshipHistory = selectRelationshipHistory;
             this.sqlSelectAttributes = sqlSelectAttributes;
+            this.attachmentHolders = attachmentHolders;
         }
 
         @Override
@@ -258,7 +264,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                 }
 
                 String content = historyCreator.apply(session, entityIdsToDelete, sqlSelectPropertyHistory, 
-                        sqlSelectRelationshipHistory, sqlSelectAttributes, null, registrator);
+                        sqlSelectRelationshipHistory, sqlSelectAttributes, attachmentHolders, registrator);
 
                 deleteProperties(sqlQueryDeleteProperties, entityIdsToDelete);
                 deleteAttachmentsWithContents(sqlQuerySelectAttachmentContentIds,

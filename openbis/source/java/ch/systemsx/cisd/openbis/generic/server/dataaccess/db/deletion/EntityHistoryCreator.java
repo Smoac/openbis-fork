@@ -113,20 +113,22 @@ public class EntityHistoryCreator
         IAttachmentDAO attachmentDAO = daoFactory.getAttachmentDAO();
         for (AttachmentHolderPE holder : attachmentHolders)
         {
-            Set<AttachmentPE> attachments = holder.getAttachments();
+            List<AttachmentPE> attachments = attachmentDAO.listAttachments(holder);
             List<String> fileNames = new ArrayList<>();
             for (AttachmentPE attachment : attachments)
             {
                 fileNames.add(attachment.getFileName());
             }
-            List<String> attachmentIdentifiers 
+            Map<String, AttachmentEntry> deletedAttachments 
                     = attachmentDAO.deleteAttachments(holder, "", fileNames, registrator);
-            for (String attachmentIdentifier : attachmentIdentifiers)
+            Set<Entry<String, AttachmentEntry>> entrySet = deletedAttachments.entrySet();
+            for (Entry<String, AttachmentEntry> entry : entrySet)
             {
                 RelationshipHistoryEntry relationshipHistoryEntry = new RelationshipHistoryEntry();
+                relationshipHistoryEntry.userId = entry.getValue().userId;
                 relationshipHistoryEntry.entityType = "ATTACHMENT";
                 relationshipHistoryEntry.permId = holder.getPermId()    ;
-                relationshipHistoryEntry.relatedEntity = attachmentIdentifier;
+                relationshipHistoryEntry.relatedEntity = entry.getKey();
                 relationshipHistoryEntry.relationType = "OWNER";
                 relationshipHistoryEntries.add(relationshipHistoryEntry);
             }

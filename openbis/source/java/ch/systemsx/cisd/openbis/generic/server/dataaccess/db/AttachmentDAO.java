@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -100,10 +101,10 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
     //
 
     @Override
-    public List<String> deleteAttachments(final AttachmentHolderPE holder, final String reason, 
+    public Map<String, AttachmentEntry> deleteAttachments(final AttachmentHolderPE holder, final String reason, 
             final List<String> fileNames, PersonPE registrator)
     {
-        List<String> allIdentifiers = new ArrayList<>();
+        Map<String, AttachmentEntry> attachmentEntries = new TreeMap<>();
         for (String fileName : fileNames)
         {
             List<AttachmentPE> attachmentsToBeDeleted = new ArrayList<>();
@@ -115,16 +116,15 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
                 }
             }
             deleteByOwnerAndFileName(holder, fileName);
-            List<String> identifiers = createDeletionEvents(attachmentsToBeDeleted, registrator, reason);
-            allIdentifiers.addAll(identifiers);
+            attachmentEntries.putAll(createDeletionEvents(attachmentsToBeDeleted, registrator, reason));
         }
-        return allIdentifiers;
+        return attachmentEntries;
     }
 
-    private List<String> createDeletionEvents(List<AttachmentPE> attachmentsToBeDeleted, 
+    private Map<String, AttachmentEntry> createDeletionEvents(List<AttachmentPE> attachmentsToBeDeleted, 
             PersonPE registrator, String reason)
     {
-        List<String> attachmentIdentifiers = new ArrayList<>();
+        Map<String, AttachmentEntry> attachmentEntries = new TreeMap<>();
         for (AttachmentPE attachmentToBeDeleted : attachmentsToBeDeleted)
         {
             EventPE event = new EventPE();
@@ -134,7 +134,6 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
             String fileName = attachmentToBeDeleted.getFileName();
             int version = attachmentToBeDeleted.getVersion();
             String identifier = String.format("%s/%s/%s(%s)", holderName, holderIdentifier, fileName, version);
-            attachmentIdentifiers.add(identifier);
             event.setEventType(EventType.DELETION);
             event.setEntityType(EntityType.ATTACHMENT);
             event.setIdentifiers(Collections.singletonList(identifier));
@@ -155,10 +154,11 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
             attachmentEntry.validFrom = attachmentToBeDeleted.getRegistrationDate();
             attachmentEntry.userId = attachmentToBeDeleted.getRegistrator().getUserId();
             modifications.put(identifier, Arrays.asList(attachmentEntry));
+            attachmentEntries.put(identifier, attachmentEntry);
             event.setContent(historyCreator.jsonize(modifications));
             eventDAO.persist(event);
         }
-        return attachmentIdentifiers;
+        return attachmentEntries;
     }
 
     @Override

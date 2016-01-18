@@ -14,12 +14,15 @@ class Change implements Comparable<Change>
 
     public final String key;
 
-    public Change(Date time, String key, String userId, String value, boolean isRemoval)
+    public final String attachmentContent;
+
+    public Change(Date time, String key, String userId, String value, String attachmentContent, boolean isRemoval)
     {
         this.time = time;
         this.key = key;
         this.userId = userId;
         this.value = value;
+        this.attachmentContent = attachmentContent;
         this.isRemoval = isRemoval;
     }
     

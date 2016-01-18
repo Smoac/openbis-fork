@@ -32,6 +32,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.create.AttachmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.PhysicalDataCreation;
@@ -59,6 +60,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.delete.ProjectDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.update.ProjectUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
@@ -71,7 +73,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.AbstractTest;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.time.DateFormatThreadLocal;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.AttachmentEntry;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.AttributeEntry;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 
 public abstract class DeletionTest extends AbstractTest
@@ -96,6 +100,16 @@ public abstract class DeletionTest extends AbstractTest
 
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
+    public Set<String> attachmentSet(String...values)
+    {
+        return attachmentSetFor(TEST_USER, values);
+    }
+    
+    public Set<String> attachmentSetFor(String userId, String...values)
+    {
+        return entitySet("ATTACHMENT", userId, values);
+    }
+    
     public Set<String> unknownSet(String...values)
     {
         return unknownSetFor(TEST_USER, values);
@@ -307,6 +321,33 @@ public abstract class DeletionTest extends AbstractTest
         }
     }
     
+    public void assertAttachment(String permId, Set<String> attachments) throws Exception
+    {
+        IModificationFilter filter = new IModificationFilter()
+            {
+                @Override
+                public boolean accept(Modification modification)
+                {
+                    return modification.type.equals(AttachmentEntry.ATTACHMENT);
+                }
+
+                @Override
+                public String getDescription()
+                {
+                    return "Attachments";
+                }
+            };
+        IChangeRenderer renderer = new IChangeRenderer()
+            {
+                @Override
+                public String render(Change change)
+                {
+                    return change.key + " = " + change.value + " <" + change.attachmentContent + ">";
+                }
+            };
+        assertHistory(permId, filter, renderer, attachments);
+    }
+
     public void assertAttributes(String permId, Map<String, String> expectations) throws Exception
     {
         IModificationFilter filter = new IModificationFilter()
@@ -333,13 +374,13 @@ public abstract class DeletionTest extends AbstractTest
             expected.add(key + " = " + render(AttributeEntry.ATTRIBUTE, value, null, null));
         }
         IChangeRenderer renderer = new IChangeRenderer()
-        {
-            @Override
-            public String render(Change change)
             {
-                return change.key + " = " + change.value;
-            }
-        };
+                @Override
+                public String render(Change change)
+                {
+                    return change.key + " = " + change.value;
+                }
+            };
         assertHistory(permId, filter, renderer, expected);
     }
 
@@ -452,6 +493,8 @@ public abstract class DeletionTest extends AbstractTest
         Session session = sessionFactory.getCurrentSession();
         Query query = session.createQuery("SELECT e FROM EventPE e WHERE :permId IN e.identifiersInternal").setParameter("permId", permId);
         EventPE event = (EventPE) query.uniqueResult();
+        String attachmentContent = getAttachmentContent(event);
+        
         JsonNode tree = new ObjectMapper().reader().readTree(event.getContent());
         
         List<Modification> allMods =
@@ -470,16 +513,27 @@ public abstract class DeletionTest extends AbstractTest
         for (Modification mod : mods)
         {
             String value = render(mod.type, mod.value, mod.entityType, mod.userId);
-            changes.add(new Change(mod.validFrom, mod.key, mod.userId, value, false));
+            changes.add(new Change(mod.validFrom, mod.key, mod.userId, value, attachmentContent, false));
             if (mod.validUntil != null)
             {
-                changes.add(new Change(mod.validUntil, mod.key, mod.userId, value, true));
+                changes.add(new Change(mod.validUntil, mod.key, mod.userId, value, attachmentContent, true));
             }
         }
         
         Collections.sort(changes);
 
         return changes;
+    }
+
+    private String getAttachmentContent(EventPE event)
+    {
+        AttachmentContentPE attachmentContentPE = event.getAttachmentContent();
+        String attachmentContent = "";
+        if (attachmentContentPE != null)
+        {
+            attachmentContent = new String(attachmentContentPE.getValue());
+        }
+        return attachmentContent;
     }
 
     private String render(String type, String value, String entityTypeOrNull, String userId)
@@ -647,6 +701,14 @@ public abstract class DeletionTest extends AbstractTest
         return v3api.createProjects(sessionToken, Arrays.asList(project)).get(0);
     }
 
+    protected void addAttachment(ProjectPermId project, AttachmentCreation...attachments)
+    {
+        ProjectUpdate projectUpdate = new ProjectUpdate();
+        projectUpdate.setProjectId(project);
+        projectUpdate.getAttachments().add(attachments);
+        v3api.updateProjects(sessionToken, Arrays.asList(projectUpdate));
+    }
+    
     protected MaterialPermId createMaterial(String code, Map<String, String> properties)
     {
         MaterialCreation material = new MaterialCreation();

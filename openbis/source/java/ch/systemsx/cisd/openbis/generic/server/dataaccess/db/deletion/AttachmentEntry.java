@@ -27,7 +27,9 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
  */
 public class AttachmentEntry extends EntityModification
 {
-    public final String type = "ATTACHMENT";
+    public static final String ATTACHMENT = "ATTACHMENT";
+
+    public final String type = ATTACHMENT;
     
     @JsonProperty("key")
     public String relationType;

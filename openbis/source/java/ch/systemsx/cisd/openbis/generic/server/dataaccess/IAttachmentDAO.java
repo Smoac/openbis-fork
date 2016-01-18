@@ -18,9 +18,11 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.dao.DataAccessException;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.AttachmentEntry;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -86,8 +88,7 @@ public interface IAttachmentDAO extends IGenericDAO<AttachmentPE>
     public int deleteByOwnerAndFileName(final AttachmentHolderPE owner, final String fileName)
             throws DataAccessException;
     
-    public List<String> deleteAttachments(final AttachmentHolderPE holder, final String reason, 
+    public Map<String, AttachmentEntry> deleteAttachments(final AttachmentHolderPE holder, final String reason,
             final List<String> fileNames, PersonPE registrator);
-
 
 }
