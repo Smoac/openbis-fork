@@ -226,8 +226,12 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 					var sampleType = _this.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 					
 					if(sampleType !== null) {
+						if(!_this.cache) {
+							_this.cache = {};
+						}
 						
-						mainController.serverFacade.searchWithType(sampleTypeCode, null, false, function(samples) {
+						var showTableFunction = function(samples) {
+							_this.cache[sampleTypeCode] = samples;
 							//Clear last state
 							if(_this._lastUsedId) {
 								$('#'+_this._lastUsedId + "-table").empty();
@@ -262,8 +266,13 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 							
 							//Store new state
 							_this._lastUsedId = id;
-						});
+						};
 						
+						if(_this.cache[sampleTypeCode]) {
+							showTableFunction(_this.cache[sampleTypeCode]);
+						} else {
+							mainController.serverFacade.searchWithType(sampleTypeCode, null, false, showTableFunction);
+						}
 					} else {
 						_this._addAny(id, tableId, sampleId);
 					}
