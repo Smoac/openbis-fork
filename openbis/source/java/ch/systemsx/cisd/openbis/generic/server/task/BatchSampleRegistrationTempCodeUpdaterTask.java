@@ -10,9 +10,11 @@ import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
@@ -25,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.exception.SampleUniqueCodeViolationException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -36,6 +39,8 @@ public class BatchSampleRegistrationTempCodeUpdaterTask implements IMaintenanceT
 {
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, BatchSampleRegistrationTempCodeUpdaterTask.class);
+    
+    private BatchSampleRegistrationTempCodeUpdaterBean bean;
 
     @Override
     public void setUp(String pluginName, Properties properties)
@@ -48,7 +53,7 @@ public class BatchSampleRegistrationTempCodeUpdaterTask implements IMaintenanceT
     static class BatchSampleRegistrationTempCodeUpdaterBean
     {
         @Transactional
-        public boolean execute()
+        public void execute()
         {
             IDAOFactory daoFactory = CommonServiceProvider.getDAOFactory();
             ISampleTypeDAO sampleTypeDAO = daoFactory.getSampleTypeDAO();
@@ -59,7 +64,7 @@ public class BatchSampleRegistrationTempCodeUpdaterTask implements IMaintenanceT
             // if no samples with TEMP codes are found, return
             if (samplesWithTemporaryCodes.hasNext() == false)
             {
-                return true;
+                return;
             }
 
             // get system user
@@ -73,15 +78,13 @@ public class BatchSampleRegistrationTempCodeUpdaterTask implements IMaintenanceT
                 systemUser = persons.get(0);
             } else
             {
-                operationLog.error("Authentication failed.");
-                return false;
+                throw new RuntimeException("Authentication failed.");
             }
             IPersonDAO personDAO = daoFactory.getPersonDAO();
             PersonPE personPE = personDAO.tryFindPersonByUserId(systemUser.getUserId());
             if (personPE == null)
             {
-                operationLog.error("User with id " + systemUser.getUserId() + " not found.");
-                return false;
+                throw new RuntimeException("User with id " + systemUser.getUserId() + " not found.");
             }
 
             // get all sample types
@@ -134,29 +137,43 @@ public class BatchSampleRegistrationTempCodeUpdaterTask implements IMaintenanceT
             }
 
             // Update samplePEs with new codes
-            try
-            {
-                sampleDAO.createOrUpdateSamples(samplePEs, personPE, true);
-                return true;
-            } catch (Exception ex)
-            {
-                return false;
-            }
+            sampleDAO.createOrUpdateSamples(samplePEs, personPE, true);
         }
     }
+    
+    @Override
     public void execute()
     {
         ApplicationContext applicationContext = CommonServiceProvider.getApplicationContext();
 
-        BatchSampleRegistrationTempCodeUpdaterBean bean =
-                applicationContext.getAutowireCapableBeanFactory().createBean(BatchSampleRegistrationTempCodeUpdaterBean.class);
         operationLog.info("BatchSampleRegistrationTempCodeUpdaterTask started.");
-        boolean updated = false;
-        do
+        while (true)
         {
-            updated = bean.execute();
-        } while (!updated);
+            try
+            {
+                getBean(applicationContext).execute();
+                break;
+            } catch (RuntimeException ex)
+            {
+                Throwable originalException = ExceptionUtils.getEndOfChain(ex);
+                if (originalException instanceof SampleUniqueCodeViolationException == false)
+                {
+                    operationLog.error("Code updating failed: " + ex.getMessage(), ex);
+                    break;
+                }
+            }
+        }
         operationLog.info("BatchSampleRegistrationTempCodeUpdaterTask finished executing.");
+    }
+
+    private BatchSampleRegistrationTempCodeUpdaterBean getBean(ApplicationContext applicationContext)
+    {
+        if (bean == null)
+        {
+            AutowireCapableBeanFactory beanFactory = applicationContext.getAutowireCapableBeanFactory();
+            bean = beanFactory.createBean(BatchSampleRegistrationTempCodeUpdaterBean.class);
+        }
+        return bean;
     }
 
 }
