@@ -120,9 +120,9 @@ public class ExperimentDeletionTest extends DeletionTest
         delete(project);
         delete(space);
 
-        assertPropertiesHistory(experiment.getPermId(), "DESCRIPTION", "desc", "", "desc2", "", "desc3");
-        assertPropertiesHistory(experiment.getPermId(), "ORGANISM", "FLY [ORGANISM]", "", "GORILLA [ORGANISM]", "", "DOG [ORGANISM]");
-        assertPropertiesHistory(experiment.getPermId(), "BACTERIUM", "BACTERIUM-X [BACTERIUM]", "", "BACTERIUM-Y [BACTERIUM]", "", "BACTERIUM2 [BACTERIUM]");
+        assertPropertiesHistory(experiment.getPermId(), "DESCRIPTION", "desc", "desc2", "desc3");
+        assertPropertiesHistory(experiment.getPermId(), "ORGANISM", "FLY [ORGANISM]", "GORILLA [ORGANISM]", "DOG [ORGANISM]");
+        assertPropertiesHistory(experiment.getPermId(), "BACTERIUM", "BACTERIUM-X [BACTERIUM]", "BACTERIUM-Y [BACTERIUM]", "BACTERIUM2 [BACTERIUM]");
     }
 
     @Test

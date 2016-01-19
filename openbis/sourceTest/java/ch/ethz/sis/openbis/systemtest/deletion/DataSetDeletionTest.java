@@ -282,9 +282,9 @@ public class DataSetDeletionTest extends DeletionTest
         delete(project);
         delete(space);
 
-        assertPropertiesHistory(dataset.getPermId(), "DESCRIPTION", "desc", "", "desc2", "", "desc3");
-        assertPropertiesHistory(dataset.getPermId(), "ORGANISM", "FLY [ORGANISM]", "", "GORILLA [ORGANISM]", "", "DOG [ORGANISM]");
-        assertPropertiesHistory(dataset.getPermId(), "BACTERIUM", "BACTERIUM-X [BACTERIUM]", "", "BACTERIUM-Y [BACTERIUM]", "", "BACTERIUM2 [BACTERIUM]");
+        assertPropertiesHistory(dataset.getPermId(), "DESCRIPTION", "desc", "desc2", "", "desc3");
+        assertPropertiesHistory(dataset.getPermId(), "ORGANISM", "FLY [ORGANISM]", "GORILLA [ORGANISM]", "", "DOG [ORGANISM]");
+        assertPropertiesHistory(dataset.getPermId(), "BACTERIUM", "BACTERIUM-X [BACTERIUM]", "BACTERIUM-Y [BACTERIUM]", "", "BACTERIUM2 [BACTERIUM]");
     }
 
 }
