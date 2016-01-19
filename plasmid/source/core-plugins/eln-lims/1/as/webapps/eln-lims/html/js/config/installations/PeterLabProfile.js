@@ -5,7 +5,7 @@ function PeterLabProfile(serverFacade) {
 
 $.extend(PeterLabProfile.prototype, StandardProfile.prototype, {
 	init: function(serverFacade){
-		DefaultProfile.prototype.init.call(this, serverFacade);
+		StandardProfile.prototype.init.call(this, serverFacade);
 		
 		this.storagesConfiguration = {
 			"isEnabled" : true,
