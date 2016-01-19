@@ -338,9 +338,12 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 //    		}
 //        }
         
-        var onClickOrActivate = function(event, data){
-    		var menuData = data.node.data.menuData;
+        var onActivate = function(event, data) {
     		data.node.setExpanded(true);
+    	};
+    	
+    	var onClick = function(event, data){
+    		var menuData = data.node.data.menuData;
     		if(menuData.isSelectable) {
     			_this._sideMenuWidgetModel.pointerToMenuNode = menuData;
     			if(menuData.newViewIfSelected) {
@@ -353,8 +356,8 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	extensions: ["dnd", "edit", "glyph"], //, "wide"
         	glyph: glyph_opts,
         	source: treeModel,
-        	activate: onClickOrActivate
-//        	click: onClickOrActivate
+        	activate: onActivate,
+        	click: onClick
         });
         
         this._sideMenuWidgetModel.menuDOMBody.append(tree);
