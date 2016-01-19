@@ -208,7 +208,7 @@ var SampleDataGridUtil = new function() {
 			sortable : false,
 			render : function(data) {
 				//Dropdown Setup
-				var $dropDownMenu = $("<span>", { class : 'dropdown' });
+				var $dropDownMenu = $("<span>", { class : 'dropdown table-options-dropdown' });
 				var $caret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default'}).append("Operations ").append($("<b>", { class : 'caret' }));
 				var $list = $("<ul>", { class : 'dropdown-menu', 'role' : 'menu', 'aria-labelledby' :'sampleTableDropdown' });
 				$dropDownMenu.append($caret);

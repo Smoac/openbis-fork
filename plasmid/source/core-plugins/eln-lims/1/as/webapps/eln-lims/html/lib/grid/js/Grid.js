@@ -392,6 +392,12 @@ $.extend(Grid.prototype, {
 				// HACK: Fix that only works if there is only one table at a time (dont works Safari)
 				var newWidth = $(".repeater-list-wrapper > .table").width();
 				$(".repeater").width(newWidth);
+				
+				var optionsDropdowns = $(".dropdown.table-options-dropdown");
+				for(var i = 0; i < optionsDropdowns.length; i++) {
+					var $dropdownTD = $(optionsDropdowns[i]).parent();
+					$dropdownTD.css({ "overflow" : "visible" });
+				}
 			}, 1);
 		});
 	},
