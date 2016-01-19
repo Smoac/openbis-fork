@@ -44,6 +44,12 @@ public class DataSetDeletionTest extends DeletionTest
         expectations.put("ENTITY_TYPE", "DELETION_TEST");
         expectations.put("DATA_PRODUCER_CODE", null);
         expectations.put("REGISTRATOR", "test");
+
+        expectations.put("SIZE", null);
+        expectations.put("PRESENT_IN_ARCHIVE", "false");
+        expectations.put("SHARE_ID", null);
+        expectations.put("ARCHIVING_STATUS", "AVAILABLE");
+
         assertAttributes(dataset.getPermId(), expectations);
         assertRegistrationTimestampAttribute(dataset.getPermId(), after, before);
     }

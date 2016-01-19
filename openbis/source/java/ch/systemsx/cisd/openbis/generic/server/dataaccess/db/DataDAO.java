@@ -956,8 +956,11 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     {
         return "SELECT d.id, d.code, d.code as perm_id, t.code as entity_type, "
                 + "st.code as data_store, d.data_producer_code, "
-                + "d.registration_timestamp, r.user_id as registrator "
+                + "d.registration_timestamp, r.user_id as registrator, "
+                + "ed.share_id, ed.size, ed.status as archiving_status, "
+                + "ed.present_in_archive "
                 + "FROM data_all d "
+                + "left JOIN external_data ed on d.id = ed.data_id "
                 + "JOIN data_stores st on d.dast_id = st.id "
                 + "JOIN data_set_types t on d.dsty_id = t.id "
                 + "JOIN persons r on d.pers_id_registerer = r.id "
