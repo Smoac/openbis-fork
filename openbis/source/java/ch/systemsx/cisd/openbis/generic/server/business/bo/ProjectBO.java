@@ -409,7 +409,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
                 List<Long> idsToDelete = Collections.singletonList(projectId.getId());
                 String content = historyCreator.apply(getSessionFactory().getCurrentSession(), idsToDelete,
                                 propertyHistoryQuery, relationshipHistoryQuery, sqlAttributesHistory, 
-                                Arrays.asList(project), session.tryGetPerson());
+                                Arrays.asList(project), null, session.tryGetPerson());
                 getProjectDAO().delete(project);
                 getEventDAO().persist(createDeletionEvent(project, session.tryGetPerson(), reason, content));
             } else

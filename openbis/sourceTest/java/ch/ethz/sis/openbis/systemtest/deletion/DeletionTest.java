@@ -709,6 +709,22 @@ public abstract class DeletionTest extends AbstractTest
         v3api.updateProjects(sessionToken, Arrays.asList(projectUpdate));
     }
     
+    protected void addAttachment(ExperimentPermId experiment, AttachmentCreation...attachments)
+    {
+        ExperimentUpdate experimentUpdate = new ExperimentUpdate();
+        experimentUpdate.setExperimentId(experiment);
+        experimentUpdate.getAttachments().add(attachments);
+        v3api.updateExperiments(sessionToken, Arrays.asList(experimentUpdate));
+    }
+    
+    protected void addAttachment(SamplePermId sample, AttachmentCreation...attachments)
+    {
+        SampleUpdate sampleUpdate = new SampleUpdate();
+        sampleUpdate.setSampleId(sample);
+        sampleUpdate.getAttachments().add(attachments);
+        v3api.updateSamples(sessionToken, Arrays.asList(sampleUpdate));
+    }
+    
     protected MaterialPermId createMaterial(String code, Map<String, String> properties)
     {
         MaterialCreation material = new MaterialCreation();

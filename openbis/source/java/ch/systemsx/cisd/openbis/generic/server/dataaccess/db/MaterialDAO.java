@@ -309,7 +309,7 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
                             String permId = MaterialPE.createPermId(materialCode, materialTypeCode);
 
                             String content = historyCreator.apply(session, Collections.singletonList(techId.getId()), 
-                                    sqlPropertyHistory, null, sqlAttributesHistory, null, registrator);
+                                    sqlPropertyHistory, null, sqlAttributesHistory, null, null, registrator);
 
                             try
                             {

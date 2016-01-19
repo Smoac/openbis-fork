@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHist
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
@@ -123,19 +124,19 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
     protected void executePermanentDeleteAction(final EntityType entityType,
             final List<TechId> entityTechIds, final PersonPE registrator, final String reason,
             final String sqlSelectPermIds, final String sqlDeleteProperties,
-            final String sqlSelectAttachmentContentIds, final String sqlDeleteAttachmentContents,
             final String sqlDeleteAttachments, final String sqlDeleteEntities,
             final String sqlInsertEvent, final String sqlSelectPropertyHistory, 
             final String sqlSelectRelationshipHistory, final String sqlSelectAttributes,
-            List<? extends AttachmentHolderPE> attachmentHolders)
+            List<? extends AttachmentHolderPE> attachmentHolders,
+            AttachmentHolderKind attachmentHolderKind)
     {
         List<Long> entityIds = TechId.asLongs(entityTechIds);
         DeletePermanentlyBatchOperation deleteOperation =
                 new DeletePermanentlyBatchOperation(entityType, entityIds, registrator, reason,
-                        sqlSelectPermIds, sqlDeleteProperties, sqlSelectAttachmentContentIds,
-                        sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteEntities,
+                        sqlSelectPermIds, sqlDeleteProperties, 
+                        sqlDeleteAttachments, sqlDeleteEntities,
                         sqlInsertEvent, sqlSelectPropertyHistory, sqlSelectRelationshipHistory,
-                        sqlSelectAttributes, attachmentHolders);
+                        sqlSelectAttributes, attachmentHolders, attachmentHolderKind);
         BatchOperationExecutor.executeInBatches(deleteOperation);
 
         // FIXME remove this when we remove the switch to disable trash
@@ -159,10 +160,6 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
 
         private final String sqlDeleteProperties;
 
-        private final String sqlSelectAttachmentContentIds;
-
-        private final String sqlDeleteAttachmentContents;
-
         private final String sqlDeleteAttachments;
 
         private final String sqlDeleteEntities;
@@ -177,13 +174,15 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
 
         private List<? extends AttachmentHolderPE> attachmentHolders;
 
+        private AttachmentHolderKind attachmentHolderKind;
+
         DeletePermanentlyBatchOperation(EntityType entityType, List<Long> allEntityIds,
                 PersonPE registrator, String reason, String sqlSelectPermIds,
-                String sqlDeleteProperties, String sqlSelectAttachmentContentIds,
-                String sqlDeleteAttachmentContents, String sqlDeleteAttachments,
+                String sqlDeleteProperties, String sqlDeleteAttachments,
                 String sqlDeleteEntities, String sqlInsertEvent, String selectPropertyHistory, 
                 String selectRelationshipHistory, String sqlSelectAttributes,
-                List<? extends AttachmentHolderPE> attachmentHolders)
+                List<? extends AttachmentHolderPE> attachmentHolders,
+                AttachmentHolderKind attachmentHolderKind)
         {
             this.entityType = entityType;
             this.allEntityIds = allEntityIds;
@@ -191,8 +190,6 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
             this.reason = reason;
             this.sqlSelectPermIds = sqlSelectPermIds;
             this.sqlDeleteProperties = sqlDeleteProperties;
-            this.sqlSelectAttachmentContentIds = sqlSelectAttachmentContentIds;
-            this.sqlDeleteAttachmentContents = sqlDeleteAttachmentContents;
             this.sqlDeleteAttachments = sqlDeleteAttachments;
             this.sqlDeleteEntities = sqlDeleteEntities;
             this.sqlInsertEvent = sqlInsertEvent;
@@ -200,6 +197,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
             this.sqlSelectRelationshipHistory = selectRelationshipHistory;
             this.sqlSelectAttributes = sqlSelectAttributes;
             this.attachmentHolders = attachmentHolders;
+            this.attachmentHolderKind = attachmentHolderKind;
         }
 
         @Override
@@ -249,12 +247,8 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                         session.createSQLQuery(sqlDeleteProperties);
                 final SQLQuery sqlQueryDeleteEntities = session.createSQLQuery(sqlDeleteEntities);
                 final SQLQuery sqlQueryInsertEvent = session.createSQLQuery(sqlInsertEvent);
-                final SQLQuery sqlQuerySelectAttachmentContentIds =
-                        session.createSQLQuery(sqlSelectAttachmentContentIds);
                 final SQLQuery sqlQueryDeleteAttachments =
                         session.createSQLQuery(sqlDeleteAttachments);
-                final SQLQuery sqlQueryDeleteAttachmentContents =
-                        session.createSQLQuery(sqlDeleteAttachmentContents);
 
                 final List<String> permIds =
                         selectPermIds(sqlQuerySelectPermIds, entityIdsToDelete);
@@ -264,12 +258,11 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                 }
 
                 String content = historyCreator.apply(session, entityIdsToDelete, sqlSelectPropertyHistory, 
-                        sqlSelectRelationshipHistory, sqlSelectAttributes, attachmentHolders, registrator);
+                        sqlSelectRelationshipHistory, sqlSelectAttributes, attachmentHolders, 
+                        attachmentHolderKind, registrator);
 
                 deleteProperties(sqlQueryDeleteProperties, entityIdsToDelete);
-                deleteAttachmentsWithContents(sqlQuerySelectAttachmentContentIds,
-                        sqlQueryDeleteAttachments, sqlQueryDeleteAttachmentContents,
-                        entityIdsToDelete);
+                deleteAttachmentsWithContents(sqlQueryDeleteAttachments, entityIdsToDelete);
                 deleteMainEntities(sqlQueryDeleteEntities, entityIdsToDelete);
                 insertEvent(sqlQueryInsertEvent, permIds, content);
                 return null;
@@ -291,20 +284,10 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
             }
 
             private void deleteAttachmentsWithContents(
-                    final SQLQuery sqlQuerySelectAttachmentContentIds,
-                    final SQLQuery sqlQueryDeleteAttachments,
-                    final SQLQuery sqlQueryDeleteAttachmentContents, List<Long> entityIds)
+                    final SQLQuery sqlQueryDeleteAttachments, List<Long> entityIds)
             {
-                sqlQuerySelectAttachmentContentIds.setParameterList(ENTITY_IDS_PARAM, entityIds);
-                List<Long> attachmentContentIds = cast(sqlQuerySelectAttachmentContentIds.list());
-                if (attachmentContentIds.size() > 0)
-                {
-                    sqlQueryDeleteAttachments.setParameterList(ENTITY_IDS_PARAM, entityIds);
-                    sqlQueryDeleteAttachments.executeUpdate();
-                    sqlQueryDeleteAttachmentContents.setParameterList(ATTACHMENT_CONTENT_IDS_PARAM,
-                            attachmentContentIds);
-                    sqlQueryDeleteAttachmentContents.executeUpdate();
-                }
+                sqlQueryDeleteAttachments.setParameterList(ENTITY_IDS_PARAM, entityIds);
+                sqlQueryDeleteAttachments.executeUpdate();
             }
 
             private void deleteMainEntities(final SQLQuery sqlQueryDeleteEntities,
@@ -347,18 +330,6 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
         {
             return "DELETE FROM " + propertiesTable + " WHERE " + ownerColumnName + " "
                     + inEntityIds();
-        }
-
-        protected static String createSelectAttachmentContentIdsSQL(final String ownerColumnName)
-        {
-            return "SELECT exac_id FROM " + TableNames.ATTACHMENTS_TABLE + " WHERE "
-                    + ownerColumnName + " " + inEntityIds();
-        }
-
-        protected static String createDeleteAttachmentContentsSQL()
-        {
-            return "DELETE FROM " + TableNames.ATTACHMENT_CONTENT_TABLE + " WHERE id "
-                    + in(ATTACHMENT_CONTENT_IDS_PARAM);
         }
 
         protected static String createDeleteAttachmentsSQL(final String ownerColumnName)

@@ -23,6 +23,10 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.lemnik.eodsql.BaseQuery;
+import net.lemnik.eodsql.QueryTool;
+import net.lemnik.eodsql.Select;
+
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
@@ -42,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -53,10 +57,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
-
-import net.lemnik.eodsql.BaseQuery;
-import net.lemnik.eodsql.QueryTool;
-import net.lemnik.eodsql.Select;
 
 /**
  * Data access object for {@link ExperimentPE}.
@@ -481,9 +481,6 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         final String sqlDeleteProperties =
                 SQLBuilder.createDeletePropertiesSQL(TableNames.EXPERIMENT_PROPERTIES_TABLE,
                         ColumnNames.EXPERIMENT_COLUMN);
-        final String sqlSelectAttachmentContentIds =
-                SQLBuilder.createSelectAttachmentContentIdsSQL(ColumnNames.EXPERIMENT_COLUMN);
-        final String sqlDeleteAttachmentContents = SQLBuilder.createDeleteAttachmentContentsSQL();
         final String sqlDeleteAttachments =
                 SQLBuilder.createDeleteAttachmentsSQL(ColumnNames.EXPERIMENT_COLUMN);
         final String sqlDeleteExperiments = SQLBuilder.createDeleteEnitiesSQL(experimentsTable);
@@ -494,12 +491,10 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
 
         final String sqlSelectAttributes = createQueryAttributesSQL();
 
-        List<? extends AttachmentHolderPE> experiments = listByIDs(TechId.asLongs(experimentIds));
         executePermanentDeleteAction(EntityType.EXPERIMENT, experimentIds, registrator, reason,
-                sqlSelectPermIds, sqlDeleteProperties, sqlSelectAttachmentContentIds,
-                sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteExperiments,
+                sqlSelectPermIds, sqlDeleteProperties, sqlDeleteAttachments, sqlDeleteExperiments,
                 sqlInsertEvent, sqlSelectPropertyHistory, sqlSelectRelationshipHistory, sqlSelectAttributes, 
-                experiments);
+                null, AttachmentHolderKind.EXPERIMENT);
     }
 
     private static String createQueryPropertyHistorySQL()

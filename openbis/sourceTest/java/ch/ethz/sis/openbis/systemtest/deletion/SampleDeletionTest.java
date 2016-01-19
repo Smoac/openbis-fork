@@ -7,6 +7,7 @@ import java.util.HashMap;
 import org.springframework.test.annotation.Rollback;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.create.AttachmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
@@ -15,6 +16,64 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 
 public class SampleDeletionTest extends DeletionTest
 {
+    @Test
+    @Rollback(false)
+    public void deleteSpaceSampleWithAttachments() throws Exception
+    {
+        SpacePermId space = createSpace("SPACE");
+        SamplePermId sample = createSample(null, space, "SAMPLE");
+        
+        AttachmentCreation attachment1 = new AttachmentCreation();
+        attachment1.setTitle("A1");
+        attachment1.setDescription("hello A");
+        attachment1.setFileName("hello.txt");
+        attachment1.setContent("hello world!".getBytes());
+        AttachmentCreation attachment2 = new AttachmentCreation();
+        attachment2.setFileName("hi.txt");
+        attachment2.setContent("hi world!".getBytes());
+        addAttachment(sample, attachment1, attachment2);
+        
+        newTx();
+        
+        delete(sample);
+        delete(space);
+
+        assertAttachment("sample//SPACE/SAMPLE/hello.txt(1)", 
+                set("OWNED = ATTACHMENT:" + sample + "[SAMPLE](user:test) <hello world!>"));
+        assertAttachment("sample//SPACE/SAMPLE/hi.txt(1)", 
+                set("OWNED = ATTACHMENT:" + sample + "[SAMPLE](user:test) <hi world!>"));
+        assertHistory(sample.getPermId(), "OWNER", attachmentSet("sample//SPACE/SAMPLE/hello.txt(1)",
+                "sample//SPACE/SAMPLE/hi.txt(1)"));
+    }
+
+    @Test
+    @Rollback(false)
+    public void deleteSharedSampleWithAttachments() throws Exception
+    {
+        SamplePermId sample = createSample(null, null, "SAMPLE");
+        
+        AttachmentCreation attachment1 = new AttachmentCreation();
+        attachment1.setTitle("A1");
+        attachment1.setDescription("hello A");
+        attachment1.setFileName("hello.txt");
+        attachment1.setContent("hello world!".getBytes());
+        AttachmentCreation attachment2 = new AttachmentCreation();
+        attachment2.setFileName("hi.txt");
+        attachment2.setContent("hi world!".getBytes());
+        addAttachment(sample, attachment1, attachment2);
+        
+        newTx();
+        
+        delete(sample);
+        
+        assertAttachment("sample//SAMPLE/hello.txt(1)", 
+                set("OWNED = ATTACHMENT:" + sample + "[SAMPLE](user:test) <hello world!>"));
+        assertAttachment("sample//SAMPLE/hi.txt(1)", 
+                set("OWNED = ATTACHMENT:" + sample + "[SAMPLE](user:test) <hi world!>"));
+        assertHistory(sample.getPermId(), "OWNER", attachmentSet("sample//SAMPLE/hello.txt(1)",
+                "sample//SAMPLE/hi.txt(1)"));
+    }
+    
     @Test
     @Rollback(false)
     public void testAttributes() throws Exception

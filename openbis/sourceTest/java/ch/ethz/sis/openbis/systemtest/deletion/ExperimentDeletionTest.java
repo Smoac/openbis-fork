@@ -7,6 +7,7 @@ import java.util.HashMap;
 import org.springframework.test.annotation.Rollback;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.create.AttachmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
@@ -17,6 +18,38 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 public class ExperimentDeletionTest extends DeletionTest
 {
 
+    @Test
+    @Rollback(false)
+    public void deleteExperimentWithAttachments() throws Exception
+    {
+        SpacePermId space = createSpace("SPACE");
+        ProjectPermId project = createProject(space, "PROJECT1");
+        ExperimentPermId exp = createExperiment(project, "EXPERIMENT");
+        
+        AttachmentCreation attachment1 = new AttachmentCreation();
+        attachment1.setTitle("A1");
+        attachment1.setDescription("hello A");
+        attachment1.setFileName("hello.txt");
+        attachment1.setContent("hello world!".getBytes());
+        AttachmentCreation attachment2 = new AttachmentCreation();
+        attachment2.setFileName("hi.txt");
+        attachment2.setContent("hi world!".getBytes());
+        addAttachment(exp, attachment1, attachment2);
+        
+        newTx();
+        
+        delete(exp);
+        delete(project);
+        delete(space);
+
+        assertAttachment("experiment//SPACE/PROJECT1/EXPERIMENT/hello.txt(1)", 
+                set("OWNED = ATTACHMENT:" + exp + "[EXPERIMENT](user:test) <hello world!>"));
+        assertAttachment("experiment//SPACE/PROJECT1/EXPERIMENT/hi.txt(1)", 
+                set("OWNED = ATTACHMENT:" + exp + "[EXPERIMENT](user:test) <hi world!>"));
+        assertHistory(exp.getPermId(), "OWNER", attachmentSet("experiment//SPACE/PROJECT1/EXPERIMENT/hello.txt(1)",
+                "experiment//SPACE/PROJECT1/EXPERIMENT/hi.txt(1)"));
+    }
+    
     @Test
     @Rollback(false)
     public void testAttributes() throws Exception

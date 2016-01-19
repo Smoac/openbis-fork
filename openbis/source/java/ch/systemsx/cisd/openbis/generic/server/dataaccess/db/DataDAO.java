@@ -1050,7 +1050,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                         selectLocations(selectLocations, entityIdsToDelete);
 
                 String content = historyCreator.apply(session, entityIdsToDelete, sqls.selectPropertyHistory, 
-                        sqls.selectRelationshipHistory, sqls.selectAttributes, null, registrator);
+                        sqls.selectRelationshipHistory, sqls.selectAttributes, null, null, registrator);
 
                 executeUpdate(deleteProperties, entityIdsToDelete);
                 executeUpdate(deleteExternalData, entityIdsToDelete);

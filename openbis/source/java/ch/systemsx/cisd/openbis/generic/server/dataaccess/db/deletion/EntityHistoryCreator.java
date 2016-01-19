@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.hibernate.SQLQuery;
 import org.hibernate.SharedSessionContract;
@@ -24,12 +25,15 @@ import ch.systemsx.cisd.common.collection.SimpleComparator;
 import ch.systemsx.cisd.common.time.DateFormatThreadLocal;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 public class EntityHistoryCreator
 {
+    private static final String ENTITY_IDS = "entityIds";
+
     private static final Set<String> NON_ATTRIBUTE_COLUMNS = new HashSet<>(Arrays.asList("ID", "PERM_ID"));
 
     private boolean enabled = false;
@@ -54,7 +58,8 @@ public class EntityHistoryCreator
 
     public String apply(SharedSessionContract session, List<Long> entityIdsToDelete,
             String propertyHistoryQuery, String relationshipHistoryQuery, String attributesQuery, 
-            List<? extends AttachmentHolderPE> attachmentHolders, PersonPE registrator)
+            List<? extends AttachmentHolderPE> attachmentHolders, AttachmentHolderKind attachmentHolderKind,
+            PersonPE registrator)
     {
         if (!enabled)
         {
@@ -87,6 +92,12 @@ public class EntityHistoryCreator
                 = deleteAttachments(session, registrator, attachmentHolders);
             addToHistories(histories, deletedAttachments);
         }
+        if (attachmentHolderKind != null)
+        {
+            List<RelationshipHistoryEntry> deletedAttachments 
+                = deleteAttachments(session, registrator, attachmentHolderKind, entityIdsToDelete);
+            addToHistories(histories, deletedAttachments);
+        }
 
         return jsonize(histories);
     }
@@ -104,6 +115,115 @@ public class EntityHistoryCreator
             throw new RuntimeException(e);
         }
         return content;
+    }
+    
+    private List<RelationshipHistoryEntry> deleteAttachments(SharedSessionContract session,
+            PersonPE registrator, AttachmentHolderKind attachmentHolderKind, List<Long> holderIds)
+    {
+        SQLQuery sqlQuery = session.createSQLQuery(createSelectHolderStatement(attachmentHolderKind));
+        List<AttachmentHolder> attachmentHolders = new ArrayList<>();
+        Map<Long, AttachmentHolder> attachmentHoldersById = new HashMap<>();
+        for (Map<String, Object> row : getRows(sqlQuery, holderIds))
+        {
+            AttachmentHolder attachmentHolder = new AttachmentHolder();
+            attachmentHolder.id = ((Number) row.get("ID")).longValue();
+            attachmentHolder.identifier = (String) row.get("IDENTIFIER");
+            attachmentHolder.permId = (String) row.get("PERM_ID");
+            attachmentHolders.add(attachmentHolder);
+            attachmentHoldersById.put(attachmentHolder.id, attachmentHolder);
+        }
+        Map<String, AttachmentEntry> attachmentEntries = new TreeMap<>();
+        SQLQuery insertQuery = session.createSQLQuery("INSERT INTO events (id, event_type, description, reason, pers_id_registerer, "
+                + "entity_type, identifiers, content, exac_id) "
+                + "VALUES (nextval('EVENT_ID_SEQ'), 'DELETION', :description, '', :registerer, "
+                + "'ATTACHMENT', :identifiers, :content, :attachment)");
+        sqlQuery = session.createSQLQuery(createSelectAttachmentsStatement(attachmentHolderKind));
+        for (Map<String, Object> row : getRows(sqlQuery, holderIds))
+        {
+            long holderId = ((Number) row.get("HOLDER_ID")).longValue();
+            AttachmentHolder holder = attachmentHoldersById.get(holderId);
+            String holderName = attachmentHolderKind.name().toLowerCase();
+            String holderIdentifier = holder.identifier;
+            String fileName = (String) row.get("FILE_NAME");
+            int version = ((Number) row.get("VERSION")).intValue();
+            String identifier = String.format("%s/%s/%s(%s)", holderName, holderIdentifier, fileName, version);
+            insertQuery.setParameter("description", identifier);
+            insertQuery.setParameter("registerer", registrator.getId());
+            insertQuery.setParameter("identifiers", identifier);
+            insertQuery.setParameter("attachment", ((Number) row.get("EXAC_ID")).longValue());
+            Map<String, List<? extends EntityModification>> modifications 
+                    = new HashMap<String, List<? extends EntityModification>>();
+            AttachmentEntry attachmentEntry = new AttachmentEntry();
+            attachmentEntry.fileName = fileName;
+            attachmentEntry.version = version;
+            attachmentEntry.description = (String) row.get("DESCRIPTION");
+            attachmentEntry.title = (String) row.get("TITLE");
+            attachmentEntry.relationType = "OWNED";
+            attachmentEntry.entityType = attachmentHolderKind.toString();
+            attachmentEntry.relatedEntity = holder.permId;
+            attachmentEntry.validFrom = (Date) row.get("REGISTRATION_TIMESTAMP");
+            attachmentEntry.userId = (String) row.get("USER_ID");
+            modifications.put(identifier, Arrays.asList(attachmentEntry));
+            attachmentEntries.put(identifier, attachmentEntry);
+            insertQuery.setParameter("content", jsonize(modifications));
+            insertQuery.executeUpdate();
+        }
+        List<RelationshipHistoryEntry> result = new ArrayList<>();
+        Set<Entry<String, AttachmentEntry>> entrySet = attachmentEntries.entrySet();
+        for (Entry<String, AttachmentEntry> entry : entrySet)
+        {
+            RelationshipHistoryEntry relationshipHistoryEntry = new RelationshipHistoryEntry();
+            AttachmentEntry attachmentEntry = entry.getValue();
+            relationshipHistoryEntry.userId = attachmentEntry.userId;
+            relationshipHistoryEntry.entityType = "ATTACHMENT";
+            relationshipHistoryEntry.permId = attachmentEntry.relatedEntity;
+            relationshipHistoryEntry.relatedEntity = entry.getKey();
+            relationshipHistoryEntry.relationType = "OWNER";
+            result.add(relationshipHistoryEntry);
+        }
+        return result;
+    }
+    
+    private String createSelectHolderStatement(AttachmentHolderKind holderKind)
+    {
+        switch (holderKind)
+        {
+            case PROJECT: return "projects";
+            case EXPERIMENT: return "SELECT e.id, e.perm_id, "
+                    + "('/' || s.code || '/' || p.code || '/' || e.code) as identifier "
+                    + "FROM experiments_all e join projects p on e.proj_id = p.id join spaces s on p.space_id = s.id "
+                    + "WHERE e.id in (:" + ENTITY_IDS + ")";
+            case SAMPLE: return "SELECT s.id, s.perm_id, "
+                    + "case when s.proj_id is not null then '/' || psp.code || '/' || p.code || '/' || s.code "
+                    + "when s.space_id is not null then '/' || sp.code || '/' || s.code "
+                    + "else '/' || s.code end as identifier "
+                    + "FROM samples_all s LEFT JOIN projects p on s.proj_id = p.id "
+                    + "LEFT JOIN spaces sp on s.space_id = sp.id "
+                    + "LEFT JOIN spaces psp on p.space_id = psp.id "
+                    + "WHERE s.id in (:" + ENTITY_IDS + ")";
+            default:
+                return null;
+        }
+    }
+    
+    private String createSelectAttachmentsStatement(AttachmentHolderKind attachmentHolderKind)
+    {
+        String holderColumn = holderColumn(attachmentHolderKind);
+        return "SELECT " + holderColumn + " as holder_id, file_name, "
+                + "version, title, description, a.registration_timestamp, r.user_id, exac_id "
+                + "FROM attachments a join persons r on a.pers_id_registerer = r.id "
+                + "WHERE " + holderColumn + " in (:" + ENTITY_IDS + ")";
+    }
+    
+    private String holderColumn(AttachmentHolderKind attachmentHolderKind)
+    {
+        switch (attachmentHolderKind)
+        {
+            case PROJECT: return "proj_id";
+            case EXPERIMENT: return "expe_id";
+            case SAMPLE: return "samp_id";
+            default: return null;
+        }
     }
 
     private List<RelationshipHistoryEntry> deleteAttachments(SharedSessionContract session, 
@@ -217,7 +337,7 @@ public class EntityHistoryCreator
     private List<PropertyHistoryEntry> selectHistoryPropertyEntries(
             final SQLQuery selectPropertyHistory, final List<Long> entityIds)
     {
-        selectPropertyHistory.setParameterList("entityIds", entityIds);
+        selectPropertyHistory.setParameterList(ENTITY_IDS, entityIds);
         selectPropertyHistory.setResultTransformer(new ResultTransformer()
             {
                 private static final long serialVersionUID = 1L;
@@ -249,7 +369,7 @@ public class EntityHistoryCreator
     private List<RelationshipHistoryEntry> selectRelationshipHistoryEntries(final SQLQuery selectRelationshipHistory,
             final List<Long> entityIds)
     {
-        selectRelationshipHistory.setParameterList("entityIds", entityIds);
+        selectRelationshipHistory.setParameterList(ENTITY_IDS, entityIds);
         selectRelationshipHistory.setResultTransformer(new ResultTransformer()
             {
                 private static final long serialVersionUID = 1L;
@@ -281,7 +401,7 @@ public class EntityHistoryCreator
 
     private List<Map<String, Object>> getRows(SQLQuery sqlQuery, List<Long> entityIdsToDelete)
     {
-        sqlQuery.setParameterList("entityIds", entityIdsToDelete);
+        sqlQuery.setParameterList(ENTITY_IDS, entityIdsToDelete);
         sqlQuery.setResultTransformer(new ResultTransformer()
             {
                 private static final long serialVersionUID = 1L;
@@ -340,4 +460,12 @@ public class EntityHistoryCreator
         }
 
     }
+    
+    private static class AttachmentHolder
+    {
+        long id;
+        String identifier;
+        String permId;
+    }
+    
 }
