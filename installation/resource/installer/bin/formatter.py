@@ -24,6 +24,8 @@ class Event(object):
         return result
         
 def timestamptonumber(s):
+    if s is None:
+        return 0
     return (datetime.strptime(s,"%Y-%m-%d %H:%M:%S.%f") - epoch).total_seconds() * 1000.0
 
 entity_id = sys.argv[1]
@@ -47,7 +49,7 @@ for entry in content[entity_id]:
     key = entry['key']
     value = entry['value']
     entityType = entry['entityType'] if 'entityType' in entry else None
-    validfrom = entry['validFrom']
+    validfrom = entry['validFrom'] if 'validFrom' in entry else None
     validuntil = entry['validUntil'] if 'validUntil' in entry else None
     
     if validfrom in data:
@@ -91,7 +93,7 @@ for timestamp, events in sorted_data.iteritems():
         else:
             currententity[key].add(value)
 
-if currententity != history[-1]:
+if len(history) == 0 or currententity != history[-1]:
     currententity['time'] = currenttime
     history.append(currententity)
 
