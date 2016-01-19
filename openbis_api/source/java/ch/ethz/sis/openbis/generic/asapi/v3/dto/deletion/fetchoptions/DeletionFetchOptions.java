@@ -17,11 +17,9 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.Deletion;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletedObjectFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 
 /*
@@ -33,23 +31,23 @@ public class DeletionFetchOptions extends FetchOptions<Deletion> implements Seri
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
-    private DeletionFetchOptions deletedObjects;
+    private DeletedObjectFetchOptions deletedObjects;
 
     @JsonProperty
     private DeletionSortOptions sort;
 
     // Method automatically generated with DtoGenerator
-    public DeletionFetchOptions withDeletedObjects()
+    public DeletedObjectFetchOptions withDeletedObjects()
     {
         if (deletedObjects == null)
         {
-            deletedObjects = new DeletionFetchOptions();
+            deletedObjects = new DeletedObjectFetchOptions();
         }
         return deletedObjects;
     }
 
     // Method automatically generated with DtoGenerator
-    public DeletionFetchOptions withDeletedObjectsUsing(DeletionFetchOptions fetchOptions)
+    public DeletedObjectFetchOptions withDeletedObjectsUsing(DeletedObjectFetchOptions fetchOptions)
     {
         return deletedObjects = fetchOptions;
     }
