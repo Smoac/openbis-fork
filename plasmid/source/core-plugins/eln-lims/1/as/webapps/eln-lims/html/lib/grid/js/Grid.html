@@ -16,6 +16,21 @@
  	display : none;
  }
  
+  /*
+  * Bugfix: Dropdown issues in Chrome getting hiden by other components
+  */
+ .fuelux {
+ 	overflow: visible !important;
+ }
+ 
+ .repeater {
+ 	z-index: 1;
+ }
+ 
+ .repeater ul {
+ 	z-index: 100000;
+ }
+ 
 </style>
 
 <div class="repeater" data-staticheight="500px">
