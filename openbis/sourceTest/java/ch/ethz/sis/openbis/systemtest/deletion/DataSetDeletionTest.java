@@ -50,6 +50,14 @@ public class DataSetDeletionTest extends DeletionTest
         expectations.put("SHARE_ID", null);
         expectations.put("ARCHIVING_STATUS", "AVAILABLE");
 
+        expectations.put("LOCATION", "test/location/DATA_SET");
+        expectations.put("LOCATOR_TYPE", "RELATIVE_LOCATION");
+        expectations.put("IS_COMPLETE", "U");
+        expectations.put("SPEED_HINT", "-50");
+        expectations.put("STORAGE_CONFIRMATION", "false");
+        expectations.put("STORAGE_FORMAT", "PROPRIETARY");
+        expectations.put("FILE_FORMAT_TYPE", "TIFF");
+
         assertAttributes(dataset.getPermId(), expectations);
         assertRegistrationTimestampAttribute(dataset.getPermId(), after, before);
     }

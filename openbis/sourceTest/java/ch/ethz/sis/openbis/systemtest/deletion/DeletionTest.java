@@ -462,14 +462,18 @@ public abstract class DeletionTest extends AbstractTest
     private String render(List<Set<String>> values)
     {
         StringBuilder builder = new StringBuilder();
+
         for (Set<String> set : values)
         {
+            ArrayList<String> sortedSet = new ArrayList<String>(set);
+            Collections.sort(sortedSet);
+
             if (builder.length() > 0)
             {
                 builder.append('\n');
             }
             builder.append("[\n");
-            builder.append(ch.systemsx.cisd.common.shared.basic.string.StringUtils.joinList(new ArrayList<String>(set), ",\n"));
+            builder.append(ch.systemsx.cisd.common.shared.basic.string.StringUtils.joinList(sortedSet, ",\n"));
             builder.append("\n]");
         }
         return builder.toString();
@@ -705,30 +709,30 @@ public abstract class DeletionTest extends AbstractTest
         return v3api.createProjects(sessionToken, Arrays.asList(project)).get(0);
     }
 
-    protected void addAttachment(ProjectPermId project, AttachmentCreation...attachments)
+    protected void addAttachment(ProjectPermId project, AttachmentCreation... attachments)
     {
         ProjectUpdate projectUpdate = new ProjectUpdate();
         projectUpdate.setProjectId(project);
         projectUpdate.getAttachments().add(attachments);
         v3api.updateProjects(sessionToken, Arrays.asList(projectUpdate));
     }
-    
-    protected void addAttachment(ExperimentPermId experiment, AttachmentCreation...attachments)
+
+    protected void addAttachment(ExperimentPermId experiment, AttachmentCreation... attachments)
     {
         ExperimentUpdate experimentUpdate = new ExperimentUpdate();
         experimentUpdate.setExperimentId(experiment);
         experimentUpdate.getAttachments().add(attachments);
         v3api.updateExperiments(sessionToken, Arrays.asList(experimentUpdate));
     }
-    
-    protected void addAttachment(SamplePermId sample, AttachmentCreation...attachments)
+
+    protected void addAttachment(SamplePermId sample, AttachmentCreation... attachments)
     {
         SampleUpdate sampleUpdate = new SampleUpdate();
         sampleUpdate.setSampleId(sample);
         sampleUpdate.getAttachments().add(attachments);
         v3api.updateSamples(sessionToken, Arrays.asList(sampleUpdate));
     }
-    
+
     protected MaterialPermId createMaterial(String code, Map<String, String> properties)
     {
         MaterialCreation material = new MaterialCreation();
