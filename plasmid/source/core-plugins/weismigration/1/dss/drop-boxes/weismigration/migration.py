@@ -536,7 +536,8 @@ class StrainOpenBISDTO(FMOpenBISDTO):
             if (disruption is not None) or (marker is not None):
                 if (disruption is not None):
                     genotype = genotype + disruption +"::";
-                genotype = genotype + " ";
+                #genotype = genotype + " ";
+                
                 if (marker is not None):
                     genotype = genotype + marker;
                 genotype = genotype + " ";
