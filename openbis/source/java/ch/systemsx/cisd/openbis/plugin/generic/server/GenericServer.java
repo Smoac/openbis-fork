@@ -1012,7 +1012,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @Capability("WRITE_SAMPLE")
-    public Boolean updateTemporaryCodes(String sessionToken, Map<String, List<String>> sampleTypeCodeToTemporaryIdentifiers)
+    public void updateTemporaryCodes(String sessionToken, Map<String, List<String>> sampleTypeCodeToTemporaryIdentifiers)
     {
         ISpaceDAO spaceDAO = getDAOFactory().getSpaceDAO();
         ISampleDAO sampleDAO = getDAOFactory().getSampleDAO();
@@ -1062,17 +1062,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             samplePE.setCode(newSampleCode);
         }
         // Update samplePEs
-        boolean succeed;
-        try
-        {
-            sampleDAO.createOrUpdateSamples(allSamplesPE, getSystemUser(), true);
-            succeed = true;
-        } catch (Exception ex)
-        {
-            succeed = false;
-        }
-
-        return succeed;
+        sampleDAO.createOrUpdateSamples(allSamplesPE, getSystemUser(), true);
     }
 
     private String getGeneratedCodePrefix(String sessionToken, String sampleTypeCode)

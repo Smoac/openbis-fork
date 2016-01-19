@@ -311,9 +311,8 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     }
 
     @Override
-    public Boolean updateTemporaryCodes(String sessionToken, Map<String, List<String>> sampleTypeCodeToTemporaryIdentifiers)
+    public void updateTemporaryCodes(String sessionToken, Map<String, List<String>> sampleTypeCodeToTemporaryIdentifiers)
     {
         logTracking(sessionToken, "update_temporary_codes", "SAMPLETYPECODETOTEMPORARYIDENTIFIERS(%s)", sampleTypeCodeToTemporaryIdentifiers);
-        return null;
     }
 }

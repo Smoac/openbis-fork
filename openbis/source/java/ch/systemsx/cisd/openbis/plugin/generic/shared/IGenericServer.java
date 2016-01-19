@@ -249,5 +249,5 @@ public interface IGenericServer extends IServer
      */
     @Transactional
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
-    public Boolean updateTemporaryCodes(String sessionToken, Map<String, List<String>> sampleTypeCodeToTemporaryIdentifiers);
+    public void updateTemporaryCodes(String sessionToken, Map<String, List<String>> sampleTypeCodeToTemporaryIdentifiers);
 }

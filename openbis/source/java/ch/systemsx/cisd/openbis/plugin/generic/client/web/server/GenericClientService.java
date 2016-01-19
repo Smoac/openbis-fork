@@ -36,6 +36,7 @@ import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.common.spring.IUncheckedMultipartFile;
@@ -48,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.client.web.server.queue.ConsumerQueue;
 import ch.systemsx.cisd.openbis.generic.client.web.server.queue.ConsumerTask;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.exception.SampleUniqueCodeViolationException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.exception.SampleUniqueCodeViolationExceptionAbstract;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -290,7 +292,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         return PropertyUtils.getBoolean(this.getServiceProperties(), Constants.CREATE_CONTINUOUS_SAMPLES_CODES_KEY, false);
     }
 
-    private boolean updateTemporaryCodes(final String sessionToken, BatchSamplesOperation info)
+    private void updateTemporaryCodes(final String sessionToken, BatchSamplesOperation info)
     {
         // 1. Fill Structure
         Map<String, List<String>> sampleTypeCodeToTemporaryIdentifiers = new HashMap<String, List<String>>();
@@ -312,13 +314,21 @@ public class GenericClientService extends AbstractClientService implements IGene
         }
 
         // 2. Update samples
-        boolean updated = false;
-        do
+        while (true)
         {
-            updated = genericServer.updateTemporaryCodes(sessionToken, sampleTypeCodeToTemporaryIdentifiers);
-        } while (!updated);
-
-        return updated;
+            try
+            {
+                genericServer.updateTemporaryCodes(sessionToken, sampleTypeCodeToTemporaryIdentifiers);
+                return;
+            } catch (RuntimeException ex)
+            {
+                Throwable originalException = ExceptionUtils.getEndOfChain(ex);
+                if (originalException instanceof SampleUniqueCodeViolationException == false)
+                {
+                    throw ex;
+                }
+            }
+        }
     }
 
     @Override
