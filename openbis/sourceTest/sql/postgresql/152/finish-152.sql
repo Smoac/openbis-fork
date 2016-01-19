@@ -253,6 +253,7 @@ CREATE INDEX entity_operations_log_rid_i ON entity_operations_log USING btree (r
 CREATE INDEX etpt_exty_fk_i ON experiment_type_property_types USING btree (exty_id);
 CREATE INDEX etpt_pers_fk_i ON experiment_type_property_types USING btree (pers_id_registerer);
 CREATE INDEX etpt_prty_fk_i ON experiment_type_property_types USING btree (prty_id);
+CREATE INDEX evnt_exac_fk_i ON events USING btree (exac_id);
 CREATE INDEX evnt_pers_fk_i ON events USING btree (pers_id_registerer);
 CREATE INDEX exda_cvte_fk_i ON external_data USING btree (cvte_id_stor_fmt);
 CREATE INDEX exda_cvte_stored_on_fk_i ON external_data USING btree (cvte_id_store);
@@ -446,7 +447,7 @@ CREATE RULE data_set_properties_update AS
      WHERE ((t.id)::bigint = (old.cvte_id)::bigint)), ( SELECT ((((m.code)::text || ' ['::text) || (mt.code)::text) || ']'::text)
            FROM (materials m
       JOIN material_types mt ON (((m.maty_id)::bigint = (mt.id)::bigint)))
-     WHERE ((m.id)::bigint = (old.mate_prop_id)::bigint)), old.pers_id_author, old.modification_timestamp, now());
+     WHERE ((m.id)::bigint = (old.mate_prop_id)::bigint)), old.pers_id_author, old.modification_timestamp, new.modification_timestamp);
 CREATE RULE data_set_relationships_delete AS
     ON DELETE TO data_set_relationships DO INSTEAD  DELETE FROM data_set_relationships_all
   WHERE ((((data_set_relationships_all.data_id_parent)::bigint = (old.data_id_parent)::bigint) AND ((data_set_relationships_all.data_id_child)::bigint = (old.data_id_child)::bigint)) AND ((data_set_relationships_all.relationship_id)::bigint = (old.relationship_id)::bigint));
@@ -583,7 +584,7 @@ CREATE RULE experiment_properties_update AS
      WHERE ((t.id)::bigint = (old.cvte_id)::bigint)), ( SELECT ((((m.code)::text || ' ['::text) || (mt.code)::text) || ']'::text)
            FROM (materials m
       JOIN material_types mt ON (((m.maty_id)::bigint = (mt.id)::bigint)))
-     WHERE ((m.id)::bigint = (old.mate_prop_id)::bigint)), old.pers_id_author, old.modification_timestamp, now());
+     WHERE ((m.id)::bigint = (old.mate_prop_id)::bigint)), old.pers_id_author, old.modification_timestamp, new.modification_timestamp);
 CREATE RULE experiment_update AS
     ON UPDATE TO experiments DO INSTEAD  UPDATE experiments_all SET code = new.code, del_id = new.del_id, orig_del = new.orig_del, exty_id = new.exty_id, is_public = new.is_public, modification_timestamp = new.modification_timestamp, perm_id = new.perm_id, pers_id_registerer = new.pers_id_registerer, pers_id_modifier = new.pers_id_modifier, proj_id = new.proj_id, registration_timestamp = new.registration_timestamp, version = new.version
   WHERE ((experiments_all.id)::bigint = (new.id)::bigint);
@@ -612,7 +613,7 @@ CREATE RULE material_properties_update AS
      WHERE ((t.id)::bigint = (old.cvte_id)::bigint)), ( SELECT ((((m.code)::text || ' ['::text) || (mt.code)::text) || ']'::text)
            FROM (materials m
       JOIN material_types mt ON (((m.maty_id)::bigint = (mt.id)::bigint)))
-     WHERE ((m.id)::bigint = (old.mate_prop_id)::bigint)), old.pers_id_author, old.modification_timestamp, now());
+     WHERE ((m.id)::bigint = (old.mate_prop_id)::bigint)), old.pers_id_author, old.modification_timestamp, new.modification_timestamp);
 CREATE RULE metaproject_assignments_delete AS
     ON DELETE TO metaproject_assignments DO INSTEAD  DELETE FROM metaproject_assignments_all
   WHERE ((metaproject_assignments_all.id)::bigint = (old.id)::bigint);
@@ -765,7 +766,7 @@ CREATE RULE sample_properties_update AS
      WHERE ((t.id)::bigint = (old.cvte_id)::bigint)), ( SELECT ((((m.code)::text || ' ['::text) || (mt.code)::text) || ']'::text)
            FROM (materials m
       JOIN material_types mt ON (((m.maty_id)::bigint = (mt.id)::bigint)))
-     WHERE ((m.id)::bigint = (old.mate_prop_id)::bigint)), old.pers_id_author, old.modification_timestamp, now());
+     WHERE ((m.id)::bigint = (old.mate_prop_id)::bigint)), old.pers_id_author, old.modification_timestamp, new.modification_timestamp);
 CREATE RULE sample_relationships_delete AS
     ON DELETE TO sample_relationships DO INSTEAD  DELETE FROM sample_relationships_all
   WHERE ((sample_relationships_all.id)::bigint = (old.id)::bigint);
