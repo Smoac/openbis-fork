@@ -9,6 +9,11 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			settings.processData = false;
 			settings.dataType = "json";
 
+			var returnType = settings.returnType;
+			if (returnType) {
+				delete settings.returnType;
+			}
+
 			var data = settings.data;
 			data["id"] = "1";
 			data["jsonrpc"] = "2.0";
@@ -27,7 +32,7 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 					dfd.reject(response.error);
 				} else {
 					thisPrivate.log("Request succeeded - data: " + JSON.stringify(settings.data));
-					stjsUtil.fromJson(response.result).done(function(dtos) {
+					stjsUtil.fromJson(returnType, response.result).done(function(dtos) {
 						originalSuccess(dtos);
 						dfd.resolve(dtos);
 					}).fail(function() {
@@ -133,6 +138,10 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "createSpaces",
 					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "SpacePermId" ]
 				}
 			});
 		}
@@ -144,6 +153,10 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "createProjects",
 					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "ProjectPermId" ]
 				}
 			});
 		}
@@ -155,6 +168,10 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "createExperiments",
 					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "ExperimentPermId" ]
 				}
 			});
 		}
@@ -166,6 +183,10 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "createSamples",
 					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "SamplePermId" ]
 				}
 			});
 		}
@@ -177,6 +198,10 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "createMaterials",
 					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "MaterialPermId" ]
 				}
 			});
 		}
@@ -254,6 +279,10 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "mapSpaces",
 					"params" : [ thisFacade._private.sessionToken, ids, fetchOptions ]
+				},
+				returnType : {
+					name : "Map",
+					arguments : [ "ISpaceId", "Space" ]
 				}
 			});
 		}
@@ -265,6 +294,10 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "mapProjects",
 					"params" : [ thisFacade._private.sessionToken, ids, fetchOptions ]
+				},
+				returnType : {
+					name : "Map",
+					arguments : [ "IProjectId", "Project" ]
 				}
 			});
 		}
@@ -276,6 +309,10 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "mapExperiments",
 					"params" : [ thisFacade._private.sessionToken, ids, fetchOptions ]
+				},
+				returnType : {
+					name : "Map",
+					arguments : [ "IExperimentId", "Experiment" ]
 				}
 			});
 		}
@@ -287,6 +324,10 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "mapSamples",
 					"params" : [ thisFacade._private.sessionToken, ids, fetchOptions ]
+				},
+				returnType : {
+					name : "Map",
+					arguments : [ "ISampleId", "Sample" ]
 				}
 			});
 		}
@@ -298,6 +339,10 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "mapDataSets",
 					"params" : [ thisFacade._private.sessionToken, ids, fetchOptions ]
+				},
+				returnType : {
+					name : "Map",
+					arguments : [ "IDataSetId", "DataSet" ]
 				}
 			});
 		}
@@ -309,6 +354,10 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "mapMaterials",
 					"params" : [ thisFacade._private.sessionToken, ids, fetchOptions ]
+				},
+				returnType : {
+					name : "Map",
+					arguments : [ "IMaterialId", "Material" ]
 				}
 			});
 		}
@@ -320,7 +369,8 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "searchSpaces",
 					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
-				}
+				},
+				returnType : "SearchResult"
 			});
 		}
 
@@ -331,7 +381,8 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "searchProjects",
 					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
-				}
+				},
+				returnType : "SearchResult"
 			});
 		}
 
@@ -342,7 +393,8 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "searchExperiments",
 					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
-				}
+				},
+				returnType : "SearchResult"
 			})
 		}
 
@@ -353,7 +405,8 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "searchSamples",
 					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
-				}
+				},
+				returnType : "SearchResult"
 			});
 		}
 
@@ -364,7 +417,8 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "searchDataSets",
 					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
-				}
+				},
+				returnType : "SearchResult"
 			});
 		}
 
@@ -375,7 +429,8 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "searchMaterials",
 					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
-				}
+				},
+				returnType : "SearchResult"
 			});
 		}
 
@@ -386,10 +441,11 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "searchServices",
 					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
-				}
+				},
+				returnType : "SearchResult"
 			});
 		}
-		
+
 		this.searchObjectKindModifications = function(criteria, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -397,7 +453,8 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "searchObjectKindModifications",
 					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
-				}
+				},
+				returnType : "SearchResult"
 			});
 		}
 
@@ -430,7 +487,8 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "deleteExperiments",
 					"params" : [ thisFacade._private.sessionToken, ids, deletionOptions ]
-				}
+				},
+				returnType : "IDeletionId"
 			});
 		}
 
@@ -441,7 +499,8 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "deleteSamples",
 					"params" : [ thisFacade._private.sessionToken, ids, deletionOptions ]
-				}
+				},
+				returnType : "IDeletionId"
 			});
 		}
 
@@ -452,7 +511,8 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "deleteDataSets",
 					"params" : [ thisFacade._private.sessionToken, ids, deletionOptions ]
-				}
+				},
+				returnType : "IDeletionId"
 			});
 		}
 
@@ -474,6 +534,10 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				data : {
 					"method" : "listDeletions",
 					"params" : [ thisFacade._private.sessionToken, fetchOptions ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "Deletion" ]
 				}
 			});
 		}

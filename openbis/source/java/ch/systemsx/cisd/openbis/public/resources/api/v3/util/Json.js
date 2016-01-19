@@ -5,7 +5,7 @@ define([ "underscore" ], function(_) {
 	var Json = function() {
 	}
 
-	Json.prototype.fromJson = function(jsonObject) {
+	Json.prototype.fromJson = function(jsonType, jsonObject) {
 		var dfd = $.Deferred();
 
 		var types = {}
@@ -23,7 +23,7 @@ define([ "underscore" ], function(_) {
 				moduleMap[moduleName] = module;
 			}
 
-			var dto = fromJsonObjectWithTypeOrArrayOrMap(null, jsonObject, {}, moduleMap);
+			var dto = fromJsonObjectWithTypeOrArrayOrMap(jsonType, jsonObject, {}, moduleMap);
 			dfd.resolve(dto);
 		});
 
