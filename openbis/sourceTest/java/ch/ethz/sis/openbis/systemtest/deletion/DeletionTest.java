@@ -422,6 +422,7 @@ public abstract class DeletionTest extends AbstractTest
 
         Date currentTime = changes.get(0).time;
         Set<String> currentSet = new HashSet<>();
+        StringBuilder builder = new StringBuilder();
         for (Change change : changes)
         {
             if (equals(currentTime, change) == false)
@@ -441,6 +442,7 @@ public abstract class DeletionTest extends AbstractTest
             {
                 currentSet.add(value);
             }
+            builder.append("\n").append(change);
         }
 
         actualValues.add(currentSet);
@@ -449,9 +451,11 @@ public abstract class DeletionTest extends AbstractTest
 
         if (expectedList.equals(actualValues) == false)
         {
+            
             Assert.assertEquals(render(actualValues), render(expectedList),
-                    filter.getDescription() + " of entity " + permId + " has wrong value history. Expected " 
-                            + render(expectedList) + ", actual " + render(actualValues));
+                    filter.getDescription() + " of entity " + permId + " has wrong value history. Expected <" 
+                            + render(expectedList) + ">, actual <" + render(actualValues) + ">. Raw changes: " 
+                            + builder);
         }
     }
     
