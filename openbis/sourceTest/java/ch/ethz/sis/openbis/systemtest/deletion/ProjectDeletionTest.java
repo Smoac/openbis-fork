@@ -44,7 +44,7 @@ public class ProjectDeletionTest extends DeletionTest
         projectUpdate.getAttachments().remove(new AttachmentFileName("hello.txt"));
         v3api.updateProjects(sessionToken, Arrays.asList(projectUpdate));
 
-        assertAttachment("project//" + spaceCode + "/" + projectCode + "/hello.txt(1)", 
+        assertAttachment("project/" + project.getPermId() + "/hello.txt(1)", 
                 set("OWNED = ATTACHMENT:" + project + "[PROJECT](user:test) <hello world!>"));
     }
     
@@ -70,12 +70,12 @@ public class ProjectDeletionTest extends DeletionTest
         delete(project);
         delete(space);
 
-        assertAttachment("project//SPACE/PROJECT3/hello.txt(1)", 
+        assertAttachment("project/" + project.getPermId() + "/hello.txt(1)", 
                 set("OWNED = ATTACHMENT:" + project + "[PROJECT](user:test) <hello world!>"));
-        assertAttachment("project//SPACE/PROJECT3/hi.txt(1)", 
+        assertAttachment("project/" + project.getPermId() + "/hi.txt(1)", 
                 set("OWNED = ATTACHMENT:" + project + "[PROJECT](user:test) <hi world!>"));
-        assertHistory(project.getPermId(), "OWNER", attachmentSet("project//SPACE/PROJECT3/hello.txt(1)",
-                "project//SPACE/PROJECT3/hi.txt(1)"));
+        assertHistory(project.getPermId(), "OWNER", attachmentSet("project/" + project.getPermId() + "/hello.txt(1)",
+                "project/" + project.getPermId() + "/hi.txt(1)"));
     }
     
     @Test

@@ -38,12 +38,12 @@ public class SampleDeletionTest extends DeletionTest
         delete(sample);
         delete(space);
 
-        assertAttachment("sample//SPACE/SAMPLE/hello.txt(1)", 
+        assertAttachment("sample/" + sample.getPermId() + "/hello.txt(1)", 
                 set("OWNED = ATTACHMENT:" + sample + "[SAMPLE](user:test) <hello world!>"));
-        assertAttachment("sample//SPACE/SAMPLE/hi.txt(1)", 
+        assertAttachment("sample/" + sample.getPermId() + "/hi.txt(1)", 
                 set("OWNED = ATTACHMENT:" + sample + "[SAMPLE](user:test) <hi world!>"));
-        assertHistory(sample.getPermId(), "OWNER", attachmentSet("sample//SPACE/SAMPLE/hello.txt(1)",
-                "sample//SPACE/SAMPLE/hi.txt(1)"));
+        assertHistory(sample.getPermId(), "OWNER", attachmentSet("sample/" + sample.getPermId() + "/hello.txt(1)",
+                "sample/" + sample.getPermId() + "/hi.txt(1)"));
     }
 
     @Test
@@ -66,12 +66,12 @@ public class SampleDeletionTest extends DeletionTest
         
         delete(sample);
         
-        assertAttachment("sample//SAMPLE/hello.txt(1)", 
+        assertAttachment("sample/" + sample.getPermId() + "/hello.txt(1)", 
                 set("OWNED = ATTACHMENT:" + sample + "[SAMPLE](user:test) <hello world!>"));
-        assertAttachment("sample//SAMPLE/hi.txt(1)", 
+        assertAttachment("sample/" + sample.getPermId() + "/hi.txt(1)", 
                 set("OWNED = ATTACHMENT:" + sample + "[SAMPLE](user:test) <hi world!>"));
-        assertHistory(sample.getPermId(), "OWNER", attachmentSet("sample//SAMPLE/hello.txt(1)",
-                "sample//SAMPLE/hi.txt(1)"));
+        assertHistory(sample.getPermId(), "OWNER", attachmentSet("sample/" + sample.getPermId() + "/hello.txt(1)",
+                "sample/" + sample.getPermId() + "/hi.txt(1)"));
     }
     
     @Test

@@ -130,7 +130,7 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
             EventPE event = new EventPE();
             AttachmentHolderPE holder = attachmentToBeDeleted.getParent();
             String holderName = holder.getHolderName();
-            String holderIdentifier = holder.getIdentifier();
+            String holderIdentifier = holder.getPermId();
             String fileName = attachmentToBeDeleted.getFileName();
             int version = attachmentToBeDeleted.getVersion();
             String identifier = String.format("%s/%s/%s(%s)", holderName, holderIdentifier, fileName, version);

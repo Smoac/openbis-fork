@@ -127,7 +127,6 @@ public class EntityHistoryCreator
         {
             AttachmentHolder attachmentHolder = new AttachmentHolder();
             attachmentHolder.id = ((Number) row.get("ID")).longValue();
-            attachmentHolder.identifier = (String) row.get("IDENTIFIER");
             attachmentHolder.permId = (String) row.get("PERM_ID");
             attachmentHolders.add(attachmentHolder);
             attachmentHoldersById.put(attachmentHolder.id, attachmentHolder);
@@ -143,7 +142,7 @@ public class EntityHistoryCreator
             long holderId = ((Number) row.get("HOLDER_ID")).longValue();
             AttachmentHolder holder = attachmentHoldersById.get(holderId);
             String holderName = attachmentHolderKind.name().toLowerCase();
-            String holderIdentifier = holder.identifier;
+            String holderIdentifier = holder.permId;
             String fileName = (String) row.get("FILE_NAME");
             int version = ((Number) row.get("VERSION")).intValue();
             String identifier = String.format("%s/%s/%s(%s)", holderName, holderIdentifier, fileName, version);
@@ -179,6 +178,7 @@ public class EntityHistoryCreator
             relationshipHistoryEntry.permId = attachmentEntry.relatedEntity;
             relationshipHistoryEntry.relatedEntity = entry.getKey();
             relationshipHistoryEntry.relationType = "OWNER";
+            relationshipHistoryEntry.validFrom = entry.getValue().validFrom;
             result.add(relationshipHistoryEntry);
         }
         return result;
@@ -186,46 +186,31 @@ public class EntityHistoryCreator
     
     private String createSelectHolderStatement(AttachmentHolderKind holderKind)
     {
+        String tableName = "";
         switch (holderKind)
         {
-            case PROJECT: return "projects";
-            case EXPERIMENT: return "SELECT e.id, e.perm_id, "
-                    + "('/' || s.code || '/' || p.code || '/' || e.code) as identifier "
-                    + "FROM experiments_all e join projects p on e.proj_id = p.id join spaces s on p.space_id = s.id "
-                    + "WHERE e.id in (:" + ENTITY_IDS + ")";
-            case SAMPLE: return "SELECT s.id, s.perm_id, "
-                    + "case when s.proj_id is not null then '/' || psp.code || '/' || p.code || '/' || s.code "
-                    + "when s.space_id is not null then '/' || sp.code || '/' || s.code "
-                    + "else '/' || s.code end as identifier "
-                    + "FROM samples_all s LEFT JOIN projects p on s.proj_id = p.id "
-                    + "LEFT JOIN spaces sp on s.space_id = sp.id "
-                    + "LEFT JOIN spaces psp on p.space_id = psp.id "
-                    + "WHERE s.id in (:" + ENTITY_IDS + ")";
-            default:
-                return null;
+            case PROJECT: tableName = "projects"; break;
+            case EXPERIMENT: tableName = "experiments_all"; break;
+            case SAMPLE: tableName = "samples_all"; break;
         }
+        return "SELECT id, perm_id from " + tableName + " WHERE id in (:" + ENTITY_IDS + ")";
     }
     
     private String createSelectAttachmentsStatement(AttachmentHolderKind attachmentHolderKind)
     {
-        String holderColumn = holderColumn(attachmentHolderKind);
+        String holderColumn = "";
+        switch (attachmentHolderKind)
+        {
+            case PROJECT: holderColumn = "proj_id"; break;
+            case EXPERIMENT: holderColumn = "expe_id"; break;
+            case SAMPLE: holderColumn = "samp_id"; break;
+        }
         return "SELECT " + holderColumn + " as holder_id, file_name, "
                 + "version, title, description, a.registration_timestamp, r.user_id, exac_id "
                 + "FROM attachments a join persons r on a.pers_id_registerer = r.id "
                 + "WHERE " + holderColumn + " in (:" + ENTITY_IDS + ")";
     }
     
-    private String holderColumn(AttachmentHolderKind attachmentHolderKind)
-    {
-        switch (attachmentHolderKind)
-        {
-            case PROJECT: return "proj_id";
-            case EXPERIMENT: return "expe_id";
-            case SAMPLE: return "samp_id";
-            default: return null;
-        }
-    }
-
     private List<RelationshipHistoryEntry> deleteAttachments(SharedSessionContract session, 
             PersonPE registrator, List<? extends AttachmentHolderPE> attachmentHolders)
     {
@@ -250,6 +235,7 @@ public class EntityHistoryCreator
                 relationshipHistoryEntry.permId = holder.getPermId()    ;
                 relationshipHistoryEntry.relatedEntity = entry.getKey();
                 relationshipHistoryEntry.relationType = "OWNER";
+                relationshipHistoryEntry.validFrom = entry.getValue().validFrom;
                 relationshipHistoryEntries.add(relationshipHistoryEntry);
             }
         }
@@ -464,7 +450,6 @@ public class EntityHistoryCreator
     private static class AttachmentHolder
     {
         long id;
-        String identifier;
         String permId;
     }
     

@@ -42,12 +42,12 @@ public class ExperimentDeletionTest extends DeletionTest
         delete(project);
         delete(space);
 
-        assertAttachment("experiment//SPACE/PROJECT1/EXPERIMENT/hello.txt(1)", 
+        assertAttachment("experiment/" + exp.getPermId() + "/hello.txt(1)", 
                 set("OWNED = ATTACHMENT:" + exp + "[EXPERIMENT](user:test) <hello world!>"));
-        assertAttachment("experiment//SPACE/PROJECT1/EXPERIMENT/hi.txt(1)", 
+        assertAttachment("experiment/" + exp.getPermId() + "/hi.txt(1)", 
                 set("OWNED = ATTACHMENT:" + exp + "[EXPERIMENT](user:test) <hi world!>"));
-        assertHistory(exp.getPermId(), "OWNER", attachmentSet("experiment//SPACE/PROJECT1/EXPERIMENT/hello.txt(1)",
-                "experiment//SPACE/PROJECT1/EXPERIMENT/hi.txt(1)"));
+        assertHistory(exp.getPermId(), "OWNER", attachmentSet("experiment/" + exp.getPermId() + "/hello.txt(1)",
+                "experiment/" + exp.getPermId() + "/hi.txt(1)"));
     }
     
     @Test
