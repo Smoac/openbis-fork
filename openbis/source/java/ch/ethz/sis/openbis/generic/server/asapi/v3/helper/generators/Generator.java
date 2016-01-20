@@ -8,6 +8,7 @@ import java.util.List;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EmptyFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IParentChildrenHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ArchivingStatus;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.Complete;
@@ -41,8 +42,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifi
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.fetchoptions.ExternalDmsFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.fetchoptions.HistoryEntryFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
@@ -65,6 +68,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.ServiceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ServiceCode;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
@@ -72,6 +76,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermFetchOptions;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 public class Generator extends AbstractGenerator
 {
@@ -554,25 +559,46 @@ public class Generator extends AbstractGenerator
         gen.addSimpleField(ServiceCode.class, "code");
         gen.addStringField("label");
         gen.addStringField("description");
-        
+
         gen.setToStringMethod("\"Service code: \" + code");
-        
+
         return gen;
     }
-    
+
     private static DtoGenerator createObjectKindModificationGenerator()
     {
         DtoGenerator gen = new DtoGenerator("objectkindmodification", "ObjectKindModification", ObjectKindModificationFetchOptions.class);
         gen.addSimpleField(ObjectKind.class, "objectKind");
         gen.addSimpleField(OperationKind.class, "operationKind");
         gen.addDateField("lastModificationTimeStamp");
-        
+
         gen.setToStringMethod("\"Last \" + operationKind + \" operation of an object of kind \" + objectKind "
                 + "+ \" occured at \" +  lastModificationTimeStamp");
-        
+
         return gen;
     }
-    
+
+    private static DtoGenerator createGlobalSearchObject()
+    {
+        DtoGenerator gen = new DtoGenerator("global", "GlobalSearchObject", GlobalSearchObjectFetchOptions.class);
+
+        gen.addSimpleField(EntityKind.class, "entityKind");
+        gen.addSimpleField(EntityTypePermId.class, "entityTypeId");
+        gen.addSimpleField(IObjectId.class, "objectId");
+        gen.addStringField("registratorEmail");
+        gen.addStringField("matchingField");
+        gen.addStringField("matchingText");
+
+        gen.addFetchedField(DataSet.class, "dataSet", "Data Set", DataSetFetchOptions.class);
+        gen.addFetchedField(Sample.class, "sample", "Sample", SampleFetchOptions.class);
+        gen.addFetchedField(Material.class, "material", "Material", MaterialFetchOptions.class);
+        gen.addFetchedField(Project.class, "project", "Project", ProjectFetchOptions.class);
+        gen.addFetchedField(Experiment.class, "experiment", "Experiment", ExperimentFetchOptions.class);
+        gen.addFetchedField(Space.class, "space", "Space", SpaceFetchOptions.class);
+
+        return gen;
+    }
+
     public static void main(String[] args) throws FileNotFoundException
     {
         List<DtoGenerator> list = new LinkedList<DtoGenerator>();
@@ -602,6 +628,7 @@ public class Generator extends AbstractGenerator
         list.add(createExternalDmsGenerator());
         list.add(createServiceGenerator());
         list.add(createObjectKindModificationGenerator());
+        list.add(createGlobalSearchObject());
 
         for (DtoGenerator gen : list)
         {

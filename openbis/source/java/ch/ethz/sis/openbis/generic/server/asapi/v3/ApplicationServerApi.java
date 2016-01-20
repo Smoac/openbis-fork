@@ -45,6 +45,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.GlobalSearchObject;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.delete.MaterialDeletionOptions;
@@ -99,6 +102,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteProjec
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteSampleMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteSpaceMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IExecuteServiceMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGlobalSearchMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IListDeletionMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapExperimentMethodExecutor;
@@ -256,6 +260,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private IExecuteServiceMethodExecutor executeServiceExecutor;
+
+    @Autowired
+    private IGlobalSearchMethodExecutor globalSearchExecutor;
 
     // Default constructor needed by Spring
     public ApplicationServerApi()
@@ -632,6 +639,15 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public Serializable executeService(String sessionToken, IServiceId serviceId, ExecutionOptions options)
     {
         return executeServiceExecutor.executeService(sessionToken, serviceId, options);
+    }
+
+    @Override
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("SEARCH_GLOBALLY")
+    public SearchResult<GlobalSearchObject> searchGlobally(String sessionToken, GlobalSearchCriteria searchCriteria,
+            GlobalSearchObjectFetchOptions fetchOptions)
+    {
+        return globalSearchExecutor.search(sessionToken, searchCriteria, fetchOptions);
     }
 
     @Override
