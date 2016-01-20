@@ -240,11 +240,11 @@ public class DatasetDownloadServletTest
                         + "<body><table> "
                         + OSUtilities.LINE_SEPARATOR
                         + "<tr><td class='td_file'>"
-                        + "<a href='/datastore_server/1234-1/%2B+s+%25+%21+%23+%40?mode=simpleHtml&sessionID=AV76CF'>"
+                        + "<a href='/datastore_server/1234-1/" + ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME + "?mode=simpleHtml&sessionID=AV76CF'>"
                         + "+ s % ! # @</td><td></td><td></td></tr>"
                         + OSUtilities.LINE_SEPARATOR
                         + "<tr><td class='td_file'>"
-                        + "<a href='/datastore_server/1234-1/read+me+%40home.txt?mode=simpleHtml&sessionID=AV76CF'>"
+                        + "<a href='/datastore_server/1234-1/" + ESCAPED_FILE_NAME_ENCODED + "?mode=simpleHtml&sessionID=AV76CF'>"
                         + "read me @home.txt</td><td>12 bytes</td><td></td></tr>"
                         + OSUtilities.LINE_SEPARATOR + "</table> </div> </body></html>"
                         + OSUtilities.LINE_SEPARATOR + "", writer.toString());
