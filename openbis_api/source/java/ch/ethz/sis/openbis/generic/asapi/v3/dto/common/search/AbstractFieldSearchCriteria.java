@@ -30,7 +30,7 @@ public abstract class AbstractFieldSearchCriteria<T> extends AbstractSearchCrite
 
     private T fieldValue;
 
-    AbstractFieldSearchCriteria(String fieldName, SearchFieldType fieldType)
+    public AbstractFieldSearchCriteria(String fieldName, SearchFieldType fieldType)
     {
         this.fieldName = fieldName;
         this.fieldType = fieldType;

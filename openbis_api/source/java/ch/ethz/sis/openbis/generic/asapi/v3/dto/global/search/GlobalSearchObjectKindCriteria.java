@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, CISD
+ * Copyright 2016 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +14,24 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search;
 
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import java.util.EnumSet;
+import java.util.List;
 
-@JsonObject("dto.common.search.StringContainsValue")
-public class StringContainsValue extends AbstractStringValue
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractSearchCriteria;
+
+/**
+ * @author Jakub Straszewski
+ */
+public class GlobalSearchObjectKindCriteria extends AbstractSearchCriteria
 {
     private static final long serialVersionUID = 1L;
 
-    private StringContainsValue()
-    {
-        super(null);
-    }
+    EnumSet<GlobalSearchObjectKind> acceptedObjectKinds;
 
-    public StringContainsValue(String value)
+    public void in(List<GlobalSearchObjectKind> objectKinds)
     {
-        super(value);
-    }
-
-    @Override
-    public String toString()
-    {
-        return "contains '" + getValue() + "'";
+        this.acceptedObjectKinds = EnumSet.copyOf(objectKinds);
     }
 }
