@@ -21,11 +21,8 @@ public class ProjectDeletionTest extends DeletionTest
     @Rollback(false)
     public void deleteAttachment() throws Exception
     {
-        long currentTimeMillis = System.currentTimeMillis();
-        String spaceCode = "SPACE-" + currentTimeMillis;
-        SpacePermId space = createSpace(spaceCode);
-        String projectCode = "PROJECT-" + currentTimeMillis;
-        ProjectPermId project = createProject(space, projectCode);
+        SpacePermId space = createSpace("SPACE");
+        ProjectPermId project = createProject(space, "PROJECT3");
         
         AttachmentCreation attachment1 = new AttachmentCreation();
         attachment1.setTitle("A1");
@@ -46,6 +43,11 @@ public class ProjectDeletionTest extends DeletionTest
 
         assertAttachment("project/" + project.getPermId() + "/hello.txt(1)", 
                 set("OWNED = ATTACHMENT:" + project + "[PROJECT](user:test) <hello world!>"));
+        
+        newTx();
+        
+        delete(project);
+        delete(space);
     }
     
     @Test
