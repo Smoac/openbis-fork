@@ -223,7 +223,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private ISearchServiceMethodExecutor searchServiceExecutor;
-    
+
     @Autowired
     private ISearchObjectKindModificationMethodExecutor searchObjectKindModificationExecutor;
 
@@ -607,6 +607,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("SEARCH_SERVICES")
     public SearchResult<Service> searchServices(String sessionToken, ServiceSearchCriteria searchCriteria, ServiceFetchOptions fetchOptions)
@@ -615,6 +616,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("SEARCH_OBJECT_KIND_MODIFICATIONSERVICES")
     public SearchResult<ObjectKindModification> searchObjectKindModifications(String sessionToken,
@@ -624,6 +626,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("EXECUTE_SERVICE")
     public Serializable executeService(String sessionToken, IServiceId serviceId, ExecutionOptions options)
