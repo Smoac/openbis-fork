@@ -67,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedExperimentsWithT
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
+import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServerInternal;
 
 /**
  * Test cases for corresponding {@link GenericClientService} class.
@@ -81,7 +82,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
 
     private MultipartFile multipartFile;
 
-    private IGenericServer genericServer;
+    private IGenericServerInternal genericServer;
 
     private GenericClientService genericClientService;
 
@@ -130,7 +131,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
     public final void setUp()
     {
         super.setUp();
-        genericServer = context.mock(IGenericServer.class);
+        genericServer = context.mock(IGenericServerInternal.class);
         multipartFile = context.mock(MultipartFile.class);
         genericClientService = new GenericClientService(genericServer, requestContextProvider);
     }

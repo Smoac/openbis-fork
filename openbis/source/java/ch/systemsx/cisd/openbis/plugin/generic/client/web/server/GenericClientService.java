@@ -101,7 +101,7 @@ import ch.systemsx.cisd.openbis.generic.shared.parser.SampleUploadSectionsParser
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.MaterialUploadSectionsParser;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.MaterialUploadSectionsParser.BatchMaterialsOperation;
-import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
+import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServerInternal;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
 /**
@@ -114,7 +114,7 @@ public class GenericClientService extends AbstractClientService implements IGene
 {
 
     @Resource(name = ResourceNames.GENERIC_PLUGIN_SERVER)
-    private IGenericServer genericServer;
+    private IGenericServerInternal genericServer;
 
     @Resource(name = "registration-queue")
     private ConsumerQueue asyncRegistrationQueue;
@@ -124,7 +124,7 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     @Private
-    protected GenericClientService(final IGenericServer genericServer,
+    protected GenericClientService(final IGenericServerInternal genericServer,
             final IRequestContextProvider requestContextProvider)
     {
         super(requestContextProvider);

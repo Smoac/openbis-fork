@@ -132,6 +132,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.MetaprojectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
+import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServerInternal;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
 /**
@@ -140,8 +141,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
  * @author Franz-Josef Elmer
  */
 @Component(ResourceNames.GENERIC_PLUGIN_SERVER)
-public final class GenericServer extends AbstractServer<IGenericServer> implements
-        ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer, ApplicationContextAware
+public final class GenericServer extends AbstractServer<IGenericServerInternal> implements
+        IGenericServerInternal, ApplicationContextAware
 {
     @Resource(name = ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
     private IGenericBusinessObjectFactory businessObjectFactory;
@@ -188,7 +189,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
      * Creates a logger used to log invocations of objects of this class.
      */
     @Override
-    public IGenericServer createLogger(IInvocationLoggerContext context)
+    public IGenericServerInternal createLogger(IInvocationLoggerContext context)
     {
         return new GenericServerLogger(getSessionManager(), context);
     }

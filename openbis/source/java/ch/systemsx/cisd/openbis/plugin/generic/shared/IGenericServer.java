@@ -244,10 +244,4 @@ public interface IGenericServer extends IServer
     public void updateDataSets(final String sessionToken, final NewDataSetsWithTypes dataSets)
             throws UserFailureException;
 
-    /**
-     * Updates temporary sample codes for batch sample registration with permanent codes.
-     */
-    @Transactional
-    @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
-    public void updateTemporaryCodes(String sessionToken, Map<String, List<String>> sampleTypeCodeToTemporaryIdentifiers);
 }

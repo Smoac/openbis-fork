@@ -51,14 +51,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
+import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServerInternal;
 
 /**
  * Logger class for {@link GenericServer} which creates readable logs of method invocations.
  * 
  * @author Franz-Josef Elmer
  */
-final class GenericServerLogger extends AbstractServerLogger implements IGenericServer
+final class GenericServerLogger extends AbstractServerLogger implements IGenericServerInternal
 {
     /**
      * Creates an instance for the specified session manager invocation status and elapsed time. The session manager is used to retrieve user
