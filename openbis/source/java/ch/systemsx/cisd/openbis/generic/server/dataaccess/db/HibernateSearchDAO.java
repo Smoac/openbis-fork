@@ -370,7 +370,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                         {
                             if (useWildcardSearchMode)
                             {
-                                if (content[i].toLowerCase().matches(".*" + q.toLowerCase().replace("*", ".*").replace("?", ".?") + ".*"))
+                                if (content[i].toLowerCase().matches("(?s).*" + q.toLowerCase().replace("*", ".*").replace("?", ".?") + ".*"))
                                 {
                                     matchingField = (fields.length == content.length) ? fields[i] : "Unknown";
                                     matchingText = content[i];
