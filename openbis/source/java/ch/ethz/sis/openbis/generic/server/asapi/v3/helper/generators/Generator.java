@@ -43,6 +43,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.fetchoptions.ExternalDmsFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchObjectKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.fetchoptions.HistoryEntryFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
@@ -76,7 +77,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermFetchOptions;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 public class Generator extends AbstractGenerator
 {
@@ -582,7 +582,7 @@ public class Generator extends AbstractGenerator
     {
         DtoGenerator gen = new DtoGenerator("global", "GlobalSearchObject", GlobalSearchObjectFetchOptions.class);
 
-        gen.addSimpleField(EntityKind.class, "entityKind");
+        gen.addSimpleField(GlobalSearchObjectKind.class, "entityKind");
         gen.addSimpleField(EntityTypePermId.class, "entityTypeId");
         gen.addSimpleField(IObjectId.class, "objectId");
         gen.addStringField("registratorEmail");

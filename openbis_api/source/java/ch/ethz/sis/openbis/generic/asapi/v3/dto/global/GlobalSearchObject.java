@@ -20,13 +20,13 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchObjectKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
@@ -43,7 +43,7 @@ public class GlobalSearchObject implements Serializable
     private GlobalSearchObjectFetchOptions fetchOptions;
 
     @JsonProperty
-    private EntityKind entityKind;
+    private GlobalSearchObjectKind entityKind;
 
     @JsonProperty
     private EntityTypePermId entityTypeId;
@@ -93,13 +93,13 @@ public class GlobalSearchObject implements Serializable
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
-    public EntityKind getEntityKind()
+    public GlobalSearchObjectKind getEntityKind()
     {
         return entityKind;
     }
 
     // Method automatically generated with DtoGenerator
-    public void setEntityKind(EntityKind entityKind)
+    public void setEntityKind(GlobalSearchObjectKind entityKind)
     {
         this.entityKind = entityKind;
     }
