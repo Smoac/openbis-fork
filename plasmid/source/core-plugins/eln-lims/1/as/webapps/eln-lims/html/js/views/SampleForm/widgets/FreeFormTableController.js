@@ -160,21 +160,26 @@ function FreeFormTableController(sample, isEnabled) {
 						DETAILED : 3
 				}
 				
+				var readSections = 0;
+				
 				//Read model from file
 				var contents = event.target.result;
-				var lines = contents.split("\r");
-				
+				var lines = contents.match(/[^\r\n]+/g);
 				var csvReadingModeSelected = null;
 				for(var i = 0; i < lines.length; i++) {
 					var line = lines[i];
 					if(line.startsWith("#Name")) {
 						csvReadingModeSelected = CSVReadingMode.NAME;
+						readSections++;
 					} else if(line.startsWith("#Mini Rows")) {
 						csvReadingModeSelected = CSVReadingMode.MINI_ROWS;
+						readSections++;
 					} else if(line.startsWith("#Mini Columns")) {
 						csvReadingModeSelected = CSVReadingMode.MINI_COLUMNS;
+						readSections++;
 					} else if(line.startsWith("#Detailed")) {
 						csvReadingModeSelected = CSVReadingMode.DETAILED;
+						readSections++;
 					} else {
 						switch(csvReadingModeSelected) {
 							case CSVReadingMode.NAME:
@@ -194,13 +199,17 @@ function FreeFormTableController(sample, isEnabled) {
 					}
 				}
 				
-				//Update Model
-				tableModel.name = readedTableModel.name;
-				tableModel.modelMini = readedTableModel.modelMini;
-				tableModel.modelDetailed = readedTableModel.modelDetailed;
-				
-				//Update DOM and UI
-				_this._updateChangesOnDOMandView(tableModel, $wrappedTable);
+				if(readSections !== 4) {
+					alert("Only " + readSections + " of 4 sections where read from the file, most probably is incorrectly formated.");
+				} else {
+					//Update Model
+					tableModel.name = readedTableModel.name;
+					tableModel.modelMini = readedTableModel.modelMini;
+					tableModel.modelDetailed = readedTableModel.modelDetailed;
+					
+					//Update DOM and UI
+					_this._updateChangesOnDOMandView(tableModel, $wrappedTable);
+				}
 			};
 			fileReader.readAsText(file);
 		});
