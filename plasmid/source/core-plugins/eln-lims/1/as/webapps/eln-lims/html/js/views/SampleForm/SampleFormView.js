@@ -575,9 +575,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					component += "<div class='form-group " + FormUtil.shortformColumClass + "'>";
 					component += "<label class='control-label " + FormUtil.labelColumnClass + "'>Options </label>";
 					component += "<div class='" + FormUtil.controlColumnClass + "'>";
-					component += "<span class='checkbox'><label><input type='checkbox' id='linkParentsOnCopy' checked> Link Parents </label></span>";
+					component += "<span class='checkbox'><label><input type='checkbox' id='linkParentsOnCopy'> Link Parents </label></span>";
 					component += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-					component += "<span class='checkbox'><label><input type='checkbox' id='copyChildrenOnCopy' checked> Copy Children </label></span>";
+					component += "<span class='checkbox'><label><input type='checkbox' id='copyChildrenOnCopy'> Copy Children </label></span>";
 					component += "</div>";
 					component += "</div>";
 					component += "</div>";
