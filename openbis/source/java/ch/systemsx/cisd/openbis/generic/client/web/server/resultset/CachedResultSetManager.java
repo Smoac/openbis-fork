@@ -67,8 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableGridColumnDefinition;
 
 /**
- * A {@link IResultSetManager} implementation which caches the full data retrieved using
- * {@link IOriginalDataProvider}.
+ * A {@link IResultSetManager} implementation which caches the full data retrieved using {@link IOriginalDataProvider}.
  * 
  * @author Christian Ribeaud
  */
@@ -109,17 +108,16 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     private final ICustomColumnsProvider customColumnsProvider;
 
     private TableDataCache<K, Object> tableDataCache;
-    
+
     private final Set<K> lockedResultSets = Collections.synchronizedSet(new HashSet<K>());
 
     private final Set<K> resultSets = Collections.synchronizedSet(new HashSet<K>());
-    
-    private final Map<K, IOriginalDataProvider<?>> cachedDataProviders 
-            = Collections.synchronizedMap(new HashMap<K, IOriginalDataProvider<?>>());
-    
+
+    private final Map<K, IOriginalDataProvider<?>> cachedDataProviders = Collections.synchronizedMap(new HashMap<K, IOriginalDataProvider<?>>());
+
     private final Map<K, Future<?>> unfinishedLoadings = Collections
             .synchronizedMap(new HashMap<K, Future<?>>());
-    
+
     private final ThreadPoolExecutor executor = new NamingThreadPoolExecutor(
             "Background Table Loader").corePoolSize(10).daemonize();
 
@@ -139,7 +137,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                 {
                     return GridExpressionUtils.evalCustomColumn(TableDataProviderFactory
                             .createDataProvider(data, new ArrayList<IColumnDefinition<T>>(
-                                    availableColumns)), customColumn, errorMessagesAreLong);
+                                    availableColumns)),
+                            customColumn, errorMessagesAreLong);
                 }
             });
     }
@@ -174,10 +173,10 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         private final XMLPropertyTransformer xmlPropertyTransformer;
 
         private final CachedResultSetManager<K> cachedResultSetManager;
-        
+
         private BackgroundTableDataLoading(K dataKey, Map<K, Future<?>> unfinishedLoadings,
-                IOriginalDataProvider<T> dataProvider, 
-                ICustomColumnsProvider customColumnsProvider, IColumnCalculator columnCalculator, 
+                IOriginalDataProvider<T> dataProvider,
+                ICustomColumnsProvider customColumnsProvider, IColumnCalculator columnCalculator,
                 XMLPropertyTransformer xmlPropertyTransformer,
                 CachedResultSetManager<K> cachedResultSetManager)
         {
@@ -193,7 +192,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         @Override
         public TableData<K, T> call() throws Exception
         {
-            TableData<K, T> tableData = loadAndAddToCache(dataKey, dataProvider, customColumnsProvider, 
+            TableData<K, T> tableData = loadAndAddToCache(dataKey, dataProvider, customColumnsProvider,
                     columnCalculator, xmlPropertyTransformer, cachedResultSetManager);
             unfinishedLoadings.remove(dataKey);
             return tableData;
@@ -378,8 +377,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     }
 
     /**
-     * Encapsulates list returned by {@link List#subList(int, int)} in a new <code>List</code> as
-     * <i>GWT</i> complains because of a serialization concern.
+     * Encapsulates list returned by {@link List#subList(int, int)} in a new <code>List</code> as <i>GWT</i> complains because of a serialization
+     * concern.
      */
     private final static <T> GridRowModels<T> subList(final GridRowModels<T> data,
             final int offset, final int limit)
@@ -446,16 +445,13 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         IOriginalDataProvider<T> cachedDataProvider = (IOriginalDataProvider<T>) cachedDataProviders.get(dataKey);
         return cachedDataProvider == null ? defaultDataProvider : cachedDataProvider;
     }
-    
+
     private <T> IResultSet<K, T> fetchAndCacheResultForSpecifiedKey(final String sessionToken,
             final IResultSetConfig<K, T> resultConfig, final IOriginalDataProvider<T> dataProvider,
             final K dataKey)
     {
-        int limit = resultConfig.getLimit();
-        if (limit == IResultSetConfig.NO_LIMIT)
-        {
-            limit = Integer.MAX_VALUE;
-        }
+        int limit = Integer.MAX_VALUE;
+
         operationLog.info("Retrieving " + limit + " record for a new key " + dataKey);
         List<T> rows = dataProvider.getOriginalData(limit);
         final List<TableModelColumnHeader> headers = dataProvider.getHeaders();
@@ -465,21 +461,13 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         cachedDataProviders.put(dataKey, dataProvider);
         addToCache(dataKey, tableData);
 
-        boolean partial = rows.size() >= limit;
-        if (partial)
-        {
-            operationLog.info("Only partially loaded data for key " + dataKey);
-            Future<TableData<K, T>> future = loadCompleteTableInBackground(dataProvider, dataKey);
-            unfinishedLoadings.put(dataKey, future);
-            operationLog.info(unfinishedLoadings.size() + " unfinished loadings");
-        }
         // TODO, 2011-03-08, FJE: In connection with bug LMS-1960 I found that resultConfig
         // (which contains e.g. available columns) is often out-dated and therefore inconsistent
         // with tableData (provided by dataProvider). The bug is fixed (by checking index in
         // TypedTableGridColumnDefinition.tryGetComparableValue()), but now a new bug pops up: The
         // combo box of a column filter element can have the wrong values.
         return calculateSortAndFilterResult(sessionToken, tableData,
-                createMatchingConfig(resultConfig, headers), dataKey, partial);
+                createMatchingConfig(resultConfig, headers), dataKey, false);
     }
 
     private <T> IResultSetConfig<K, T> createMatchingConfig(IResultSetConfig<K, T> resultSetConfig,
@@ -635,7 +623,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         }
         return tableData;
     }
-    
+
     private void waitUntilAvailable(K dataKey)
     {
         waitUntilUnlocked(dataKey);
@@ -655,7 +643,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             }
         }
     }
-    
+
     private static <K, T> IResultSet<K, T> filterLimitAndSort(
             final IResultSetConfig<K, T> resultConfig, GridRowModels<T> data, K dataKey,
             boolean partial)
@@ -670,8 +658,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         final GridRowModels<T> list = subList(filteredData, offset, limit);
         return new DefaultResultSet<K, T>(dataKey, list, size, partial);
     }
-    
-    
+
     private static <K, T> TableData<K, T> loadAndAddToCache(K dataKey, IOriginalDataProvider<T> dataProvider,
             ICustomColumnsProvider customColumnsProvider, IColumnCalculator columnCalculator,
             XMLPropertyTransformer xmlPropertyTransformer,
