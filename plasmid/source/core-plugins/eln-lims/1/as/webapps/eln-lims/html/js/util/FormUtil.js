@@ -608,4 +608,24 @@ var FormUtil = new function() {
 		
 		return $component;
 	}
+	
+	
+	//
+	// Rich Text Editor Support - (Summernote)
+	//
+	this.activateRichTextProperties = function() {
+		$('textarea').summernote();
+	}
+	
+	this.updateModelRichTextProperties = function(properties) {
+		var summernoteProperties = $('textarea');
+		for(var nIdx = 0; nIdx < summernoteProperties.length; nIdx++) {
+			var textarea = $(summernoteProperties[nIdx]);
+			var id = textarea[0].id;
+			var val = textarea.val();
+			if(id && val) {
+				properties[id] = val;
+			}
+		}
+	}
 }
