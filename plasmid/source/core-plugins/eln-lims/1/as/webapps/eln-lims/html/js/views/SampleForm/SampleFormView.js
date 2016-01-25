@@ -355,6 +355,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// INIT
 		//
 		$container.append($form).append($rightPanel);
+		// Rich Text Editor Support - (Summernote)
+		$('textarea').summernote();
+		//
+		
 		//
 		// Extra content
 		//

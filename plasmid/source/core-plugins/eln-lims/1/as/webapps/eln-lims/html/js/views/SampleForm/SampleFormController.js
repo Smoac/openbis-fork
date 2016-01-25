@@ -161,6 +161,18 @@ function SampleFormController(mainController, mode, sample) {
 		var sampleCode = this._sampleFormModel.sample.code;
 		var properties = this._sampleFormModel.sample.properties;
 		
+		// Rich Text Editor Support - (Summernote)
+		var summernoteProperties = $('textarea');
+		for(var nIdx = 0; nIdx < summernoteProperties.length; nIdx++) {
+			var textarea = $(summernoteProperties[nIdx]);
+			var id = textarea[0].id;
+			var val = textarea.val();
+			if(id && val) {
+				this._sampleFormModel.sample.properties[id] = val;
+			}
+		}
+		//
+		
 		var experimentIdentifier = this._sampleFormModel.sample.experimentIdentifierOrNull;
 		
 		if(experimentIdentifier) { //If there is a experiment detected, the sample should be attached to the experiment completely.
