@@ -94,6 +94,7 @@ var SampleDataGridUtil = new function() {
 			}
 		});
 		
+		var propertyColumnsToSort = [];
 		for (var idx = 0; idx < propertyCodes.length; idx++) {
 			var propertiesToSkip = ["NAME"];
 			var propertyCode = propertyCodes[idx];
@@ -133,9 +134,9 @@ var SampleDataGridUtil = new function() {
 				}
 				
 				var newVocabularyColumnFunc = getVocabularyColumn(propertyType);
-				columns.push(newVocabularyColumnFunc());
+				propertyColumnsToSort.push(newVocabularyColumnFunc());
 			} else {
-				columns.push({
+				propertyColumnsToSort.push({
 					label : propertyCodesDisplayNames[idx],
 					property : propertyCodes[idx],
 					isExportable: true,
@@ -143,6 +144,23 @@ var SampleDataGridUtil = new function() {
 				});
 			}
 		}
+		
+		columns.push({
+			label : '---------------',
+			property : null,
+			isExportable: false,
+			sortable : false
+		});
+		propertyColumnsToSort.sort(function(propertyA, propertyB) {
+			return propertyA.label.localeCompare(propertyB.label);
+		});
+		columns = columns.concat(propertyColumnsToSort);
+		columns.push({
+			label : '---------------',
+			property : null,
+			isExportable: false,
+			sortable : false
+		});
 		
 		columns.push({
 			label : 'Registration Date',
