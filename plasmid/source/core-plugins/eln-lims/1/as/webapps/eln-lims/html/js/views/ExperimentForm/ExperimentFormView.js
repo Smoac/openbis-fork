@@ -144,6 +144,8 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		}
 		
 		$container.append($form);
+		FormUtil.activateRichTextProperties();
+		
 		Util.unblockUI();
 	}
 	

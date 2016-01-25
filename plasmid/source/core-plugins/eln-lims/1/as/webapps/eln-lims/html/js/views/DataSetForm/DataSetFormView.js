@@ -213,6 +213,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			var dataSetViewer = new DataSetViewer("filesViewer", profile, null, mainController.serverFacade, profile.getDefaultDataStoreURL(), [this._dataSetFormModel.dataSet], false, false);
 			dataSetViewer.init();
 		}
+		
+		FormUtil.activateRichTextProperties();
 	}
 	
 	this._updateFileOptions = function() {

@@ -117,6 +117,8 @@ function DataSetFormController(mainController, mode, sample, dataSet) {
 			dataSetTypeCode = this._dataSetFormModel.dataSet.dataSetTypeCode;
 		}
 		
+		FormUtil.updateModelRichTextProperties(this._dataSetFormModel.dataSet.properties);
+		
 		var parameters = {
 				//API Method
 				"method" : method,
