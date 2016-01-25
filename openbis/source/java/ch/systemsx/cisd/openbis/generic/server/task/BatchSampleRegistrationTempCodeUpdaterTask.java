@@ -46,6 +46,9 @@ public class BatchSampleRegistrationTempCodeUpdaterTask implements IMaintenanceT
     public void setUp(String pluginName, Properties properties)
     {
     }
+    // TODO FJE: Do the update in single queue which is also fed by the 
+    // GenericClientService.updateTemporaryCodes()
+
 
     // this bean is programmatically created so that we can use spring managed transactions
     // in this maintenance task. Otherwise QueryTool needs to set the datasource/connection

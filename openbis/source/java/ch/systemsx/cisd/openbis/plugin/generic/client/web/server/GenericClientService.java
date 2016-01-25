@@ -294,6 +294,8 @@ public class GenericClientService extends AbstractClientService implements IGene
 
     private void updateTemporaryCodes(final String sessionToken, BatchSamplesOperation info)
     {
+        // TODO FJE: Do the update in single queue which is also fed by the 
+        // BatchSampleRegistrationTempCodeUpdaterTask
         // 1. Fill Structure
         Map<String, List<String>> sampleTypeCodeToTemporaryIdentifiers = new HashMap<String, List<String>>();
         List<NewSamplesWithTypes> samples = info.getSamples();
