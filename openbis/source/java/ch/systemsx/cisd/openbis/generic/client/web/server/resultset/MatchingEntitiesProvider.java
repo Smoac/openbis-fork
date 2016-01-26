@@ -62,7 +62,7 @@ public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEnt
     {
         List<MatchingEntity> entities =
                 commonServer.listMatchingEntities(sessionToken, matchingEntities, queryText,
-                        useWildcardSearchMode, maxSize);
+                        useWildcardSearchMode, Integer.MAX_VALUE);
         TypedTableModelBuilder<MatchingEntity> builder =
                 new TypedTableModelBuilder<MatchingEntity>();
         builder.addColumn(ENTITY_KIND);

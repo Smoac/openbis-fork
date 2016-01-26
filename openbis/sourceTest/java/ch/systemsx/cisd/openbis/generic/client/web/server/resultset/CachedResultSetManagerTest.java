@@ -34,7 +34,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GridCustomColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ColumnDistinctValues;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
@@ -55,7 +54,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 
 /**
  * Test cases for corresponding {@link CachedResultSetManager} class.
@@ -284,50 +282,6 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         {
             return recordedColumnCodes.toString();
         }
-    }
-
-    private static final class MockOriginalDataProvider implements
-            IOriginalDataProvider<DataHolder>
-    {
-        private final List<DataHolder> data;
-
-        private final int maxSizeThresholdForSlowDelivery;
-
-        private final long timeToDeliver;
-
-        private List<Integer> recordedMaxSizes = new ArrayList<Integer>();
-
-        MockOriginalDataProvider(List<DataHolder> data, int maxSizeThresholdForSlowDelivery,
-                long timeToDeliver)
-        {
-            this.data = data;
-            this.maxSizeThresholdForSlowDelivery = maxSizeThresholdForSlowDelivery;
-            this.timeToDeliver = timeToDeliver;
-        }
-
-        @Override
-        public List<DataHolder> getOriginalData(int maxSize) throws UserFailureException
-        {
-            recordedMaxSizes.add(maxSize);
-            if (maxSize >= maxSizeThresholdForSlowDelivery)
-            {
-                try
-                {
-                    Thread.sleep(timeToDeliver);
-                } catch (InterruptedException ex)
-                {
-                    // ignored
-                }
-            }
-            return data.subList(0, Math.min(data.size(), maxSize));
-        }
-
-        @Override
-        public List<TableModelColumnHeader> getHeaders()
-        {
-            return Arrays.asList();
-        }
-
     }
 
     private IOriginalDataProvider<DataHolder> originalDataProvider;
@@ -895,35 +849,6 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    @Test(groups = "slow")
-    public void testWaitingForFuture()
-    {
-        List<DataHolder> data = createDataList("a", "b", "c", "d");
-        MockOriginalDataProvider dataProvider = new MockOriginalDataProvider(data, 2, 1000);
-        ResultSetConfigBuilder builder =
-                new ResultSetConfigBuilder(COL_DEFS).computeAndCache().limit(1);
-
-        builder.fetchFromCache(KEY);
-        IResultSet<Long, DataHolder> resultSet = resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), dataProvider);
-        assertEquals(false, resultSet.isPartial());
-        assertEquals(1, resultSet.getList().size());
-        assertEquals(4, resultSet.getTotalLength());
-        assertEquals("a", getData(resultSet, 0));
-
-        // Third call get sorted value
-        builder.sortDesc("col1");
-        resultSet = resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), dataProvider);
-        assertEquals(false, resultSet.isPartial());
-        assertEquals(1, resultSet.getList().size());
-        assertEquals(4, resultSet.getTotalLength());
-        assertEquals("d", getData(resultSet, 0));
-
-        assertEquals(Arrays.asList(Integer.MAX_VALUE).toString(),
-                dataProvider.recordedMaxSizes.toString());
-
-        context.assertIsSatisfied();
-    }
-
     private List<DataHolder> createDataList()
     {
         return createDataList("alpha", "beta");
@@ -1034,7 +959,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                     allowing(keyGenerator).createKey();
                     will(returnValue(KEY));
 
-                    one(originalDataProvider).getOriginalData(Integer.MAX_VALUE);
+                    one(originalDataProvider).getOriginalData(maxSize);
                     DataHolder[] rows = new DataHolder[size];
                     for (int i = 0; i < rows.length; i++)
                     {
@@ -1044,6 +969,14 @@ public final class CachedResultSetManagerTest extends AssertJUnit
 
                     one(originalDataProvider).getHeaders();
                     will(returnValue(Arrays.asList()));
+
+                    // if (size >= maxSize)
+                    // {
+                    // one(originalDataProvider).getOriginalData(Integer.MAX_VALUE);
+                    // will(returnValue(Arrays.asList(rows)));
+                    // one(originalDataProvider).getHeaders();
+                    // will(returnValue(Arrays.asList()));
+                    // }
 
                     allowing(customColumnsProvider).getGridCustomColumn(SESSION_TOKEN,
                             GRID_DISPLAY_ID);

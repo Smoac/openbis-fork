@@ -450,8 +450,11 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             final IResultSetConfig<K, T> resultConfig, final IOriginalDataProvider<T> dataProvider,
             final K dataKey)
     {
-        int limit = Integer.MAX_VALUE;
-
+        int limit = resultConfig.getLimit();
+        if (limit == IResultSetConfig.NO_LIMIT)
+        {
+            limit = Integer.MAX_VALUE;
+        }
         operationLog.info("Retrieving " + limit + " record for a new key " + dataKey);
         List<T> rows = dataProvider.getOriginalData(limit);
         final List<TableModelColumnHeader> headers = dataProvider.getHeaders();
@@ -461,13 +464,14 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         cachedDataProviders.put(dataKey, dataProvider);
         addToCache(dataKey, tableData);
 
+        boolean partial = rows.size() >= limit;
         // TODO, 2011-03-08, FJE: In connection with bug LMS-1960 I found that resultConfig
         // (which contains e.g. available columns) is often out-dated and therefore inconsistent
         // with tableData (provided by dataProvider). The bug is fixed (by checking index in
         // TypedTableGridColumnDefinition.tryGetComparableValue()), but now a new bug pops up: The
         // combo box of a column filter element can have the wrong values.
         return calculateSortAndFilterResult(sessionToken, tableData,
-                createMatchingConfig(resultConfig, headers), dataKey, false);
+                createMatchingConfig(resultConfig, headers), dataKey, partial);
     }
 
     private <T> IResultSetConfig<K, T> createMatchingConfig(IResultSetConfig<K, T> resultSetConfig,

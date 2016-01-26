@@ -30,7 +30,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.AtomicReader;
 import org.apache.lucene.index.AtomicReaderContext;
@@ -95,6 +94,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
  * 
  * @author Christian Ribeaud
  */
+
 final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernateSearchDAO
 {
     /**
@@ -250,7 +250,6 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         }
 
         Query query = null;
-        Analyzer wsa = new WhitespaceAnalyzer();
 
         if (useWildcardSearchMode)
         {
@@ -258,7 +257,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             q = q.replace("\\*", "*");
             q = q.replace("\\?", "?");
 
-            Query globalQuery = LuceneQueryBuilder.parseQuery("global_search", q, wsa);
+            Query globalQuery = new WildcardQuery(new Term("global_search", q));
             Query metaprojectQuery = new WildcardQuery(new Term("global_search_metaprojects", "/" + userId + "/" + q));
             BooleanQuery bq = new BooleanQuery();
             bq.add(globalQuery, Occur.SHOULD);
