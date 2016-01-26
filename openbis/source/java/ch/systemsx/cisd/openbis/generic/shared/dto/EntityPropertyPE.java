@@ -169,6 +169,8 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
                 {
                     // leave the original value
                 }
+            } else if(DataTypeCode.MULTILINE_VARCHAR.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode())) {
+                field = new Field(fieldFullName, fieldValue.replaceAll("<[^>]+>", " "), luceneOptions.getStore(), indexingStrategy); //Strips out XML tags from text that can be rich text using HTML format
             } else {
                 field = new Field(fieldFullName, fieldValue, luceneOptions.getStore(), indexingStrategy);
             }
