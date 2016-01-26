@@ -274,7 +274,8 @@ public final class CachedResultSetManagerTest extends AssertJUnit
             recordedColumnCodes.add(customColumn.getCode());
             return GridExpressionUtils.evalCustomColumn(
                     TableDataProviderFactory.createDataProvider(data,
-                            new ArrayList<IColumnDefinition<T>>(availableColumns)), customColumn,
+                            new ArrayList<IColumnDefinition<T>>(availableColumns)),
+                    customColumn,
                     errorMessagesAreLong);
         }
 
@@ -355,7 +356,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         TableDataCache<Long, Object> tableDataCache = new TableDataCache<Long, Object>(cacheManager);
         tableDataCache.initCache();
 
-        resultSetManager = new CachedResultSetManager<Long>(tableDataCache, keyGenerator, 
+        resultSetManager = new CachedResultSetManager<Long>(tableDataCache, keyGenerator,
                 customColumnsProvider, columnCalculator);
     }
 
@@ -901,25 +902,9 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         MockOriginalDataProvider dataProvider = new MockOriginalDataProvider(data, 2, 1000);
         ResultSetConfigBuilder builder =
                 new ResultSetConfigBuilder(COL_DEFS).computeAndCache().limit(1);
-        context.checking(new Expectations()
-            {
-                {
-                    one(keyGenerator).createKey();
-                    will(returnValue(KEY));
-                }
-            });
 
-        // First call gets only first page
-        IResultSet<Long, DataHolder> resultSet =
-                resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), dataProvider);
-        assertEquals(true, resultSet.isPartial());
-        assertEquals(1, resultSet.getList().size());
-        assertEquals(1, resultSet.getTotalLength());
-        assertEquals("a", getData(resultSet, 0));
-
-        // Second call has to wait
         builder.fetchFromCache(KEY);
-        resultSet = resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), dataProvider);
+        IResultSet<Long, DataHolder> resultSet = resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), dataProvider);
         assertEquals(false, resultSet.isPartial());
         assertEquals(1, resultSet.getList().size());
         assertEquals(4, resultSet.getTotalLength());
@@ -933,7 +918,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         assertEquals(4, resultSet.getTotalLength());
         assertEquals("d", getData(resultSet, 0));
 
-        assertEquals(Arrays.asList(1, Integer.MAX_VALUE).toString(),
+        assertEquals(Arrays.asList(Integer.MAX_VALUE).toString(),
                 dataProvider.recordedMaxSizes.toString());
 
         context.assertIsSatisfied();
@@ -1049,7 +1034,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                     allowing(keyGenerator).createKey();
                     will(returnValue(KEY));
 
-                    one(originalDataProvider).getOriginalData(maxSize);
+                    one(originalDataProvider).getOriginalData(Integer.MAX_VALUE);
                     DataHolder[] rows = new DataHolder[size];
                     for (int i = 0; i < rows.length; i++)
                     {
@@ -1059,14 +1044,6 @@ public final class CachedResultSetManagerTest extends AssertJUnit
 
                     one(originalDataProvider).getHeaders();
                     will(returnValue(Arrays.asList()));
-
-                    if (size >= maxSize)
-                    {
-                        one(originalDataProvider).getOriginalData(Integer.MAX_VALUE);
-                        will(returnValue(Arrays.asList(rows)));
-                        one(originalDataProvider).getHeaders();
-                        will(returnValue(Arrays.asList()));
-                    }
 
                     allowing(customColumnsProvider).getGridCustomColumn(SESSION_TOKEN,
                             GRID_DISPLAY_ID);
