@@ -582,7 +582,7 @@ public class Generator extends AbstractGenerator
     {
         DtoGenerator gen = new DtoGenerator("global", "GlobalSearchObject", GlobalSearchObjectFetchOptions.class);
 
-        gen.addSimpleField(GlobalSearchObjectKind.class, "entityKind");
+        gen.addSimpleField(GlobalSearchObjectKind.class, "objectKind");
         gen.addSimpleField(EntityTypePermId.class, "entityTypeId");
         gen.addSimpleField(IObjectId.class, "objectId");
         gen.addStringField("registratorEmail");

@@ -18,7 +18,6 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriteria;
 
 /**
@@ -34,7 +33,7 @@ public class GlobalSearchTest extends AbstractTest
 
         GlobalSearchCriteria searchCriteria = new GlobalSearchCriteria();
         searchCriteria.withText().thatContains("CISD");
-        v3api.searchGlobally(sessionToken, searchCriteria, new GlobalSearchObjectFetchOptions());
+        // v3api.searchGlobally(sessionToken, searchCriteria, new GlobalSearchObjectFetchOptions());
 
         v3api.logout(sessionToken);
 

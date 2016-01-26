@@ -376,7 +376,7 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
         return null;
     }
 
-    @Override
+    // @Override
     public SearchResult<GlobalSearchObject> searchGlobally(String sessionToken, GlobalSearchCriteria searchCriteria,
             GlobalSearchObjectFetchOptions fetchOptions)
     {
