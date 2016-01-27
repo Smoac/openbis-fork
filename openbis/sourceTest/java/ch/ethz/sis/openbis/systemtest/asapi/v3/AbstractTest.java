@@ -635,6 +635,11 @@ public class AbstractTest extends SystemTestCase
         assertEquals(createTimestampFormat().format(actualDate), expectedDate);
     }
 
+    protected void assertEqualsDate(Date actualDate, Date expectedDate)
+    {
+        assertEquals(createTimestampFormat().format(actualDate), createTimestampFormat().format(expectedDate));
+    }
+
     private SimpleDateFormat createTimestampFormat()
     {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

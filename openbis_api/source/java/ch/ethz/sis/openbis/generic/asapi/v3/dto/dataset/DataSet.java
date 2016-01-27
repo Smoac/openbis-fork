@@ -38,10 +38,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -124,6 +122,12 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
 
     @JsonProperty
     private Person registrator;
+
+    @JsonProperty
+    private String dataProducer;
+
+    @JsonProperty
+    private Date dataProductionDate;
 
     @JsonProperty
     private Date accessDate;
@@ -548,6 +552,32 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     public void setRegistrator(Person registrator)
     {
         this.registrator = registrator;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public String getDataProducer()
+    {
+        return dataProducer;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setDataProducer(String dataProducer)
+    {
+        this.dataProducer = dataProducer;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public Date getDataProductionDate()
+    {
+        return dataProductionDate;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setDataProductionDate(Date dataProductionDate)
+    {
+        this.dataProductionDate = dataProductionDate;
     }
 
     // Method automatically generated with DtoGenerator

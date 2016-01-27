@@ -32,6 +32,10 @@ public class DataSetBaseRecord extends ObjectBaseRecord
 
     public Date accessDate;
 
+    public String dataProducer;
+
+    public Date dataProductionDate;
+
     public Date modificationDate;
 
     public Date registrationDate;

@@ -32,7 +32,23 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.Complete;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.LinkedDataCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.PhysicalDataCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.FileFormatTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.LocatorTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.StorageFormatPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.ExternalDmsPermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ICreateDataSetExecutor;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.DummyAuthenticationService;
@@ -211,7 +227,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewLinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -294,6 +312,9 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     private IServiceConversationServerManagerLocal conversationServer;
 
     private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
+    @Autowired
+    private ICreateDataSetExecutor createDataSetExecutor;
 
     private long timeout = 5; // minutes
 
@@ -1752,9 +1773,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
                     updateSamples(sessionForEntityOperation, operationDetails, progressListener,
                             authorize);
 
-            long dataSetsCreated =
-                    createDataSets(sessionForEntityOperation, operationDetails, progressListener,
-                            authorize);
+            long dataSetsCreated = createDataSetsV3(sessionForEntityOperation, operationDetails, progressListener, authorize);
 
             long dataSetsUpdated =
                     updateDataSets(sessionForEntityOperation, operationDetails, progressListener,
@@ -2391,39 +2410,163 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         }
     }
 
-    /**
-     * This method topologically sorts the data sets to be created and creates them in the necessary order
-     */
-    private long createDataSets(Session session, AtomicEntityOperationDetails operationDetails,
+    private long createDataSetsV3(Session session, AtomicEntityOperationDetails operationDetails,
             IServiceConversationProgressListener progress, boolean authorize)
     {
-        @SuppressWarnings("unchecked")
-        List<NewExternalData> dataSetRegistrations =
-                (List<NewExternalData>) operationDetails.getDataSetRegistrations();
+        if (operationDetails.getDataSetRegistrations() == null)
+        {
+            return 0;
+        }
+
         if (authorize)
         {
-            checkDataSetCreationAllowed(session, dataSetRegistrations);
+            checkDataSetCreationAllowed(session, operationDetails.getDataSetRegistrations());
         }
-        List<List<NewExternalData>> orderedRegistrations =
-                NewExternalDataDAG.groupByDepencies(dataSetRegistrations);
 
-        int total = 0;
-        for (List<NewExternalData> dependencyLevel : orderedRegistrations)
-        {
-            total += dependencyLevel.size();
-        }
-        int index = 0;
+        // TODO service conversation progress reporting
+        // progress.update("createDataSets", total, ++index);
 
-        DataSetRegistrationCache cache = new DataSetRegistrationCache();
-        for (List<NewExternalData> dependencyLevel : orderedRegistrations)
+        IOperationContext context = new OperationContext(session);
+        List<DataSetCreation> creations = new LinkedList<DataSetCreation>();
+
+        for (NewExternalData newData : operationDetails.getDataSetRegistrations())
         {
-            for (NewExternalData dataSet : dependencyLevel)
+            // Fields that were in V2 but are intentionally ignored in V3:
+            // - newData.getUserId() and newData.getUserEMail() in V2 were used to find a registrator in DataBO.tryToGetRegistrator() but then anyway
+            // the found registrator gets overwritten by RelationshipUtils.setExperimentForDataSet() call at the end of DataBO.define() with a user
+            // from the session
+            // - newData.getAssociatedSampleCode() in V2 was never used
+            // - newData.getRegistrationDate() in V2 never used
+
+            DataSetCreation creation = new DataSetCreation();
+            creation.setCode(newData.getCode());
+            creation.setMeasured(newData.isMeasured());
+            creation.setDataProducer(newData.getDataProducerCode());
+            creation.setDataProductionDate(newData.getProductionDate());
+
+            // type
+            if (newData.getDataSetType() != null)
             {
-                registerDataSetInternal(session, dataSet, cache);
-                progress.update("createDataSets", total, ++index);
+                creation.setTypeId(new EntityTypePermId(newData.getDataSetType().getCode()));
             }
+
+            // experiment
+            if (newData.getExperimentIdentifierOrNull() != null)
+            {
+                creation.setExperimentId(new ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier(newData
+                        .getExperimentIdentifierOrNull().toString()));
+            }
+
+            // sample
+            if (newData.getSampleIdentifierOrNull() != null)
+            {
+                creation.setSampleId(new ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier(newData.getSampleIdentifierOrNull()
+                        .toString()));
+            }
+
+            // data store
+            if (newData.getDataStoreCode() != null)
+            {
+                creation.setDataStoreId(new DataStorePermId(newData.getDataStoreCode()));
+            }
+
+            // properties
+            if (newData.getDataSetProperties() != null)
+            {
+                for (NewProperty property : newData.getDataSetProperties())
+                {
+                    creation.setProperty(property.getPropertyCode(), property.getValue());
+                }
+            }
+
+            // parents
+            if (newData.getParentDataSetCodes() != null)
+            {
+                List<IDataSetId> parentIds = new LinkedList<IDataSetId>();
+                for (String parentCode : newData.getParentDataSetCodes())
+                {
+                    parentIds.add(new DataSetPermId(parentCode));
+                }
+                creation.setParentIds(parentIds);
+            }
+
+            if (newData instanceof NewDataSet)
+            {
+                PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
+                physicalCreation.setLocation(newData.getLocation());
+                physicalCreation.setShareId(newData.getShareId());
+                physicalCreation.setSize(newData.getSize());
+                physicalCreation.setSpeedHint(newData.getSpeedHint());
+
+                // complete
+                if (newData.getComplete() != null)
+                {
+                    Complete complete = null;
+                    switch (newData.getComplete())
+                    {
+                        case T:
+                            complete = Complete.YES;
+                            break;
+                        case F:
+                            complete = Complete.NO;
+                            break;
+                        case U:
+                            complete = Complete.UNKNOWN;
+                            break;
+                        default:
+                            throw new IllegalArgumentException("Unsupported complete value: " + newData.getComplete());
+                    }
+                    physicalCreation.setComplete(complete);
+                }
+
+                // file format type
+                if (newData.getFileFormatType() != null)
+                {
+                    physicalCreation.setFileFormatTypeId(new FileFormatTypePermId(newData.getFileFormatType().getCode()));
+                }
+
+                // locator type
+                if (newData.getLocatorType() != null)
+                {
+                    physicalCreation.setLocatorTypeId(new LocatorTypePermId(newData.getLocatorType().getCode()));
+                }
+
+                // storage format
+                if (newData.getStorageFormat() != null)
+                {
+                    physicalCreation.setStorageFormatId(new StorageFormatPermId(newData.getStorageFormat().getCode()));
+                }
+
+                creation.setPhysicalData(physicalCreation);
+            } else if (newData instanceof NewContainerDataSet)
+            {
+                NewContainerDataSet newContainerData = (NewContainerDataSet) newData;
+
+                if (newContainerData.getContainedDataSetCodes() != null)
+                {
+                    List<IDataSetId> componentIds = new LinkedList<IDataSetId>();
+                    for (String componentCode : newContainerData.getContainedDataSetCodes())
+                    {
+                        componentIds.add(new DataSetPermId(componentCode));
+                    }
+                    creation.setComponentIds(componentIds);
+                }
+            } else if (newData instanceof NewLinkDataSet)
+            {
+                NewLinkDataSet newLinkData = (NewLinkDataSet) newData;
+
+                LinkedDataCreation linkCreation = new LinkedDataCreation();
+                linkCreation.setExternalCode(newLinkData.getExternalCode());
+                linkCreation.setExternalDmsId(new ExternalDmsPermId(newLinkData.getExternalDataManagementSystemCode()));
+
+                creation.setLinkedData(linkCreation);
+            }
+
+            creations.add(creation);
         }
-        return index;
+
+        List<DataSetPermId> ids = createDataSetExecutor.create(context, creations);
+        return ids.size();
     }
 
     private void checkDataSetCreationAllowed(Session session,

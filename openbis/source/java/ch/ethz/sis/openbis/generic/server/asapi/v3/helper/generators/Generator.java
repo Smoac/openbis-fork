@@ -247,6 +247,10 @@ public class Generator extends AbstractGenerator
         addModifier(gen);
         addRegistrationDate(gen);
         addRegistrator(gen);
+
+        gen.addSimpleField(String.class, "dataProducer");
+        gen.addDateField("dataProductionDate");
+
         gen.addDateField("accessDate");
 
         gen.setToStringMethod("\"DataSet \" + code");

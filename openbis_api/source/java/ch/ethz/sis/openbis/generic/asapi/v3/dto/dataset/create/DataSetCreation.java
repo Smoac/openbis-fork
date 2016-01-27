@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,10 @@ public class DataSetCreation implements Serializable, ICreationIdHolder
     private String code;
 
     private boolean measured;
+
+    private String dataProducer;
+
+    private Date dataProductionDate;
 
     private PhysicalDataCreation physicalData;
 
@@ -129,6 +134,26 @@ public class DataSetCreation implements Serializable, ICreationIdHolder
     public void setMeasured(boolean measured)
     {
         this.measured = measured;
+    }
+
+    public String getDataProducer()
+    {
+        return dataProducer;
+    }
+
+    public void setDataProducer(String dataProducer)
+    {
+        this.dataProducer = dataProducer;
+    }
+
+    public Date getDataProductionDate()
+    {
+        return dataProductionDate;
+    }
+
+    public void setDataProductionDate(Date dataProductionDate)
+    {
+        this.dataProductionDate = dataProductionDate;
     }
 
     public PhysicalDataCreation getPhysicalData()
