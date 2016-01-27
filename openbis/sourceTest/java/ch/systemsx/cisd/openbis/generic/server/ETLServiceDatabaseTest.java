@@ -243,7 +243,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
                 service.searchForDataSets(sessionToken, searchCriteria);
         assertEquals(22, dataSetsToUpdate.size());
 
-        Date now = new Date();
+        Date now = daoFactory.getTransactionTimestamp();
 
         // Update the comment
         String newComment = "This is a new comment. This is not the old comment.";
@@ -284,8 +284,9 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
 
         for (AbstractExternalData dataSetWithNewValue : dataSetsWithNewValue)
         {
-            assertTrue("The modification date should be current", dataSetWithNewValue
-                    .getModificationDate().compareTo(now) > 0);
+            Date modificationDate = dataSetWithNewValue.getModificationDate();
+            assertTrue("The modification date (" + modificationDate + ") should be current (" + now + ")", 
+                    modificationDate.compareTo(now) >= 0);
 
             String savedComment = EntityHelper.tryFindPropertyValue(dataSetWithNewValue, "COMMENT");
             assertTrue(newComment.equals(savedComment));
