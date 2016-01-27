@@ -1031,8 +1031,10 @@ public class EntityGraphManager
                     {
                         assertEquals(node.getCode() + " has unexpectedly still the old modifier: " + current.modifier, 
                                 false, current.modifier.equals(previous.modifier));
-                        assertEquals(node.getCode() + " has unexpectedly still the old modification date: " + current.modificationDate, 
-                                true, current.modificationDate.getTime() > previous.modificationDate.getTime());
+                        // Modification timestamp is for the whole transaction the same
+//                        assertEquals(node.getCode() + " has unexpectedly still the old modification date: " 
+//                                + current.modificationDate + " > " + previous.modificationDate, 
+//                                true, current.modificationDate.getTime() > previous.modificationDate.getTime());
                     } else
                     {
                         assertEquals(node.getCode() + " has unexpectedly a new modifier: ",
