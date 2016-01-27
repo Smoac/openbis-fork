@@ -76,7 +76,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         AtomicEntityOperationDetailsBuilder builder =
                 new AtomicEntityOperationDetailsBuilder().dataSetUpdate(dataSetBatchUpdates).user(
                         "test");
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
 
@@ -95,7 +95,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
                 new DataSetUpdateBuilder(commonServer, genericServer, dataSet).create();
         dataSetUpdates.setFileFormatTypeCode("HDF5");
         String sessionToken = logIntoCommonClientService().getSessionID();
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.updateDataSet(sessionToken, dataSetUpdates);
 
@@ -147,7 +147,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         AtomicEntityOperationDetailsBuilder builder =
                 new AtomicEntityOperationDetailsBuilder().dataSetUpdate(dataSetBatchUpdates).user(
                         "test");
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
 
@@ -168,7 +168,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
                 new DataSetUpdateBuilder(commonServer, genericServer, dataSet).create();
         dataSetUpdates.getProperties().add(new PropertyBuilder("COMMENT").value("2").getProperty());
         String sessionToken = logIntoCommonClientService().getSessionID();
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.updateDataSet(sessionToken, dataSetUpdates);
 
@@ -280,7 +280,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         AtomicEntityOperationDetailsBuilder builder =
                 new AtomicEntityOperationDetailsBuilder().dataSetUpdate(dataSetBatchUpdates).user(
                         "test");
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
 
@@ -310,7 +310,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
                 new DataSetUpdateBuilder(commonServer, genericServer, dataSet).toExperiment(
                         experiment2).create();
         String sessionToken = logIntoCommonClientService().getSessionID();
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.updateDataSet(sessionToken, dataSetUpdates);
 
@@ -351,7 +351,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         AtomicEntityOperationDetailsBuilder builder =
                 new AtomicEntityOperationDetailsBuilder().dataSetUpdate(dataSetBatchUpdates).user(
                         "test");
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
 
@@ -394,7 +394,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
                 new DataSetUpdateBuilder(commonServer, genericServer, dataSet).toSample(sample2)
                         .create();
         String sessionToken = logIntoCommonClientService().getSessionID();
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.updateDataSet(sessionToken, dataSetUpdates);
 
@@ -436,7 +436,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         AtomicEntityOperationDetailsBuilder builder =
                 new AtomicEntityOperationDetailsBuilder().user("test").dataSet(child)
                         .dataSet(grandChild);
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
 
@@ -479,7 +479,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         AtomicEntityOperationDetailsBuilder builder =
                 new AtomicEntityOperationDetailsBuilder().dataSetUpdate(dataSetBatchUpdates).user(
                         "test");
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
 
@@ -511,7 +511,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         dataSetUpdates.setModifiedParentDatasetCodesOrNull(new String[]
         { dataSet2.getCode() });
         String sessionToken = logIntoCommonClientService().getSessionID();
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.updateDataSet(sessionToken, dataSetUpdates);
 
@@ -538,7 +538,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         AtomicEntityOperationDetailsBuilder builder =
                 new AtomicEntityOperationDetailsBuilder().user("test").dataSet(containerDataSet)
                         .dataSet(containedDataSet);
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
 
@@ -578,7 +578,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         updateDetails.setContainerUpdateRequested(true);
         dataSetBatchUpdates.setDetails(updateDetails);
         String sessionToken = logIntoCommonClientService().getSessionID();
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.updateDataSet(sessionToken, dataSetBatchUpdates);
 
@@ -625,7 +625,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         AtomicEntityOperationDetailsBuilder builder =
                 new AtomicEntityOperationDetailsBuilder().dataSetUpdate(dataSetBatchUpdates).user(
                         "test");
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
 
@@ -675,7 +675,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         AtomicEntityOperationDetailsBuilder builder =
                 new AtomicEntityOperationDetailsBuilder().dataSetUpdate(dataSetBatchUpdates).user(
                         "test");
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
 
@@ -719,7 +719,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         updateDetails.setContainerUpdateRequested(true);
         dataSetBatchUpdates.setDetails(updateDetails);
         String sessionToken = logIntoCommonClientService().getSessionID();
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.updateDataSet(sessionToken, dataSetBatchUpdates);
 

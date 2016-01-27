@@ -78,7 +78,7 @@ public class RegistrationTest extends SystemTestCase
     public void testAddAndRemoveDataSetFromContainer()
     {
         AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
-        ToolBox toolBox = new ToolBox(commonServer, genericServer, etlService, systemSessionToken);
+        ToolBox toolBox = new ToolBox(commonServer, genericServer, etlService, systemSessionToken, applicationContext);
         Experiment experiment = commonServer.getExperimentInfo(systemSessionToken, new TechId(8L));
         builder.dataSet(toolBox.dataSet("NEW_DATA_SET", experiment));
         DataSetBatchUpdatesDTO dataSetUpdate = new DataSetBatchUpdatesDTO();

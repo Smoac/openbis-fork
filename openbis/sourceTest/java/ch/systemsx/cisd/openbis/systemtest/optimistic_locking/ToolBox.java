@@ -26,7 +26,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.context.ApplicationContext;
+
 import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.server.util.TimeIntervalChecker;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
@@ -112,6 +116,8 @@ public class ToolBox
 
     private final IServiceForDataStoreServer etlService;
 
+    private final IDAOFactory daoFactory;
+    
     private final String systemSessionToken;
 
     public Space space1;
@@ -123,13 +129,19 @@ public class ToolBox
     public Project project2;
 
     public ToolBox(ICommonServer commonServer, IGenericServer genericServer,
-            IServiceForDataStoreServer etlService, String systemSessionToken)
+            IServiceForDataStoreServer etlService, String systemSessionToken, 
+            ApplicationContext applicationContext)
     {
         this.commonServer = commonServer;
         this.genericServer = genericServer;
         this.etlService = etlService;
         this.systemSessionToken = systemSessionToken;
-
+        daoFactory = applicationContext.getBean(IDAOFactory.class);
+    }
+    
+    TimeIntervalChecker createTimeIntervalChecker()
+    {
+        return new TimeIntervalChecker(UpdateUtils.getTransactionTimeStamp(daoFactory));
     }
 
     void createSpacesAndProjects()

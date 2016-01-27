@@ -71,7 +71,7 @@ public class SampleOptimisticLockingTest extends OptimisticLockingTestCase
         String sessionToken = logIntoCommonClientService().getSessionID();
         SampleUpdatesDTOBuilder builder = new SampleUpdatesDTOBuilder(sample);
         builder.property("COMMENT", "b");
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.updateSample(sessionToken, builder.get());
 
@@ -110,7 +110,7 @@ public class SampleOptimisticLockingTest extends OptimisticLockingTestCase
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetailsBuilder().user("test").sampleUpdate(builder.get())
                         .getDetails();
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.performEntityOperations(systemSessionToken, details);
 
@@ -126,7 +126,7 @@ public class SampleOptimisticLockingTest extends OptimisticLockingTestCase
         String sessionToken = logIntoCommonClientService().getSessionID();
         SampleUpdatesDTOBuilder builder = new SampleUpdatesDTOBuilder(sample);
         builder.identifier("/" + sample.getCode());
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         genericServer.updateSample(sessionToken, builder.get());
 
@@ -147,7 +147,7 @@ public class SampleOptimisticLockingTest extends OptimisticLockingTestCase
         String sessionToken = logIntoCommonClientService().getSessionID();
         SampleUpdatesDTOBuilder builder = new SampleUpdatesDTOBuilder(sample);
         builder.identifier("/" + ToolBox.SPACE_2 + "/" + sample.getCode());
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         genericServer.updateSample(sessionToken, builder.get());
 
@@ -165,7 +165,7 @@ public class SampleOptimisticLockingTest extends OptimisticLockingTestCase
         SampleUpdatesDTOBuilder builder = new SampleUpdatesDTOBuilder(sample);
         builder.experiment(experiment.getIdentifier());
         String sessionToken = logIntoCommonClientService().getSessionID();
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.updateSample(sessionToken, builder.get());
 
@@ -185,7 +185,7 @@ public class SampleOptimisticLockingTest extends OptimisticLockingTestCase
         assertEquals(experiment.getIdentifier(), sample.getExperiment().getIdentifier());
         SampleUpdatesDTOBuilder builder = new SampleUpdatesDTOBuilder(sample);
         String sessionToken = logIntoCommonClientService().getSessionID();
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.updateSample(sessionToken, builder.get());
 
@@ -205,7 +205,7 @@ public class SampleOptimisticLockingTest extends OptimisticLockingTestCase
         SampleUpdatesDTOBuilder builder = new SampleUpdatesDTOBuilder(child);
         builder.parent(sample.getCode());
         String sessionToken = logIntoCommonClientService().getSessionID();
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.updateSample(sessionToken, builder.get());
 
@@ -224,7 +224,7 @@ public class SampleOptimisticLockingTest extends OptimisticLockingTestCase
         SampleUpdatesDTOBuilder builder = new SampleUpdatesDTOBuilder(sample);
         builder.container(container.getIdentifier());
         String sessionToken = logIntoCommonClientService().getSessionID();
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.updateSample(sessionToken, builder.get());
 
@@ -248,7 +248,7 @@ public class SampleOptimisticLockingTest extends OptimisticLockingTestCase
         etlService.updateSample(systemSessionToken, builder.get());
         String sessionToken = logIntoCommonClientService().getSessionID();
         builder.container(null);
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.updateSample(sessionToken, builder.get());
 
@@ -291,7 +291,7 @@ public class SampleOptimisticLockingTest extends OptimisticLockingTestCase
         attachment.setContent("hello world".getBytes());
         builder.attachment(attachment);
         String sessionToken = logIntoCommonClientService().getSessionID();
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         genericServer.updateSample(sessionToken, builder.get());
 

@@ -82,7 +82,7 @@ public class MultiThreadExperimentOptimisticLockingTest extends
                             }
                         }
                     };
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
         new Thread(new Runnable()
             {
                 @Override
@@ -139,7 +139,7 @@ public class MultiThreadExperimentOptimisticLockingTest extends
                             }
                         }
                     };
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
         new Thread(new Runnable()
             {
                 @Override
@@ -175,7 +175,7 @@ public class MultiThreadExperimentOptimisticLockingTest extends
     {
         Experiment experiment = toolBox.createAndLoadExperiment(1);
         String sessionToken = logIntoCommonClientService().getSessionID();
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
         String reason = "test deletion";
 
         commonServer.deleteExperiments(sessionToken, Arrays.asList(new TechId(experiment)), reason,
@@ -188,7 +188,7 @@ public class MultiThreadExperimentOptimisticLockingTest extends
 
         // Revert deletion
         sessionToken = commonServer.tryAuthenticate(USER_ID, "a").getSessionToken();
-        timeIntervalChecker = new TimeIntervalChecker();
+        timeIntervalChecker = toolBox.createTimeIntervalChecker();
         Deletion deletion = toolBox.findDeletion(reason);
 
         commonServer.revertDeletions(sessionToken, Arrays.asList(new TechId(deletion.getId())));

@@ -83,7 +83,7 @@ public class ProjectOptimisticLockingTest extends OptimisticLockingTestCase
         updates.setAttachments(Collections.<NewAttachment> emptyList());
         updates.setAttachmentSessionKey(SESSION_KEY);
         logIntoCommonClientService();
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         commonClientService.updateProject(updates);
 
@@ -131,7 +131,7 @@ public class ProjectOptimisticLockingTest extends OptimisticLockingTestCase
         experiment.setProperties(new IEntityProperty[]
         { new PropertyBuilder("DESCRIPTION").value("hello").getProperty() });
         assertEquals("system", toolBox.project1.getModifier().getUserId());
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         genericServer.registerExperiment(sessionToken, experiment,
                 Collections.<NewAttachment> emptyList());
@@ -146,7 +146,7 @@ public class ProjectOptimisticLockingTest extends OptimisticLockingTestCase
         AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
         builder.user(ToolBox.USER_ID);
         builder.experiment(toolBox.experiment(1)).experiment(toolBox.experiment(2));
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
 
@@ -175,7 +175,7 @@ public class ProjectOptimisticLockingTest extends OptimisticLockingTestCase
         attachment.setContent("hello world".getBytes());
         updates.setAttachments(Arrays.asList(attachment));
         String sessionToken = logIntoCommonClientService().getSessionID();
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         commonServer.updateProject(sessionToken, updates);
 

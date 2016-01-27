@@ -85,7 +85,7 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
         properties.addAll(experiment.getProperties());
         properties.get(0).setValue("testChangePropertyOfAnExistingExperiment");
         updates.setProperties(properties);
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         genericServer.updateExperiment(sessionToken, updates);
 
@@ -138,7 +138,7 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
                 .getIdentifier()));
         updates.setAttachments(ToolBox.NO_ATTACHMENTS);
         updates.setProperties(experiment.getProperties());
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         genericServer.updateExperiment(sessionToken, updates);
 
@@ -217,7 +217,7 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
         updates.setAttachments(Arrays.asList(attachment));
         updates.setProperties(experiment.getProperties());
         String sessionToken = logIntoCommonClientService().getSessionID();
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         genericServer.updateExperiment(sessionToken, updates);
 
@@ -245,7 +245,7 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
                 new AtomicEntityOperationDetailsBuilder().user(ToolBox.USER_ID)
                         .sampleUpdate(sampleUpdate).getDetails();
         String sessionToken = logIntoCommonClientService().getSessionID();
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         etlService.performEntityOperations(sessionToken, details);
 
@@ -282,7 +282,7 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
         update.setProjectIdentifier(toolBox.createProjectIdentifier(experiment.getProject()
                 .getIdentifier()));
         String sessionToken = logIntoCommonClientService().getSessionID();
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         genericServer.updateExperiment(sessionToken, update);
 
@@ -327,7 +327,7 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
         update.setProperties(ToolBox.NO_PROPERTIES);
         update.setFileFormatTypeCode(dataSet.getFileFormatType().getCode());
         String sessionToken = logIntoCommonClientService().getSessionID();
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
 
         genericServer.updateDataSet(sessionToken, update);
 

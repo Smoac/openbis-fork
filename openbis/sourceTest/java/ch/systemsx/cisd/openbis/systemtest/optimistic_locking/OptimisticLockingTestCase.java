@@ -32,7 +32,7 @@ public class OptimisticLockingTestCase extends SystemTestCase
     @BeforeMethod
     public void createSpacesAndProjects()
     {
-        toolBox = new ToolBox(commonServer, genericServer, etlService, systemSessionToken);
+        toolBox = new ToolBox(commonServer, genericServer, etlService, systemSessionToken, applicationContext);
         toolBox.createSpacesAndProjects();
     }
 }

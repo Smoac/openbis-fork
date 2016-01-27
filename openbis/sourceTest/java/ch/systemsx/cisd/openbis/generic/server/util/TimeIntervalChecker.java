@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.util;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 import org.testng.AssertJUnit;
@@ -31,7 +32,7 @@ import org.testng.AssertJUnit;
  */
 public class TimeIntervalChecker extends AssertJUnit
 {
-    private Date notBeforeDate;
+    private Timestamp notBeforeDate;
 
     /**
      * Creates an instance for now.
@@ -46,7 +47,15 @@ public class TimeIntervalChecker extends AssertJUnit
      */
     public TimeIntervalChecker(long shiftInMillisecond)
     {
-        notBeforeDate = new Date(System.currentTimeMillis() - shiftInMillisecond);
+        this(new Timestamp(System.currentTimeMillis() - shiftInMillisecond));
+    }
+    
+    /**
+     * Creates an instance for the specified date object.
+     */
+    public TimeIntervalChecker(Date date)
+    {
+        notBeforeDate = asTimestamp(date);
     }
 
     /**
@@ -55,11 +64,16 @@ public class TimeIntervalChecker extends AssertJUnit
      */
     public void assertDateInInterval(Date date)
     {
-        assertTrue("Actual date [" + date + "] is before notBeforeDate [" + notBeforeDate + "].",
-                notBeforeDate.getTime() <= date.getTime());
-        Date now = new Date();
-        assertTrue("Actual date [" + date + "] is after now [" + now + "].",
-                now.getTime() >= date.getTime());
-
+        Timestamp timestamp = asTimestamp(date);
+        assertFalse("Actual date [" + date + "] is before notBeforeDate [" + notBeforeDate + "].",
+                notBeforeDate.after(timestamp));
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        assertFalse("Actual date [" + date + "] is after now [" + now + "].",
+                now.before(timestamp));
+    }
+    
+    private Timestamp asTimestamp(Date date)
+    {
+        return date instanceof Timestamp ? (Timestamp) date : new Timestamp(date.getTime());
     }
 }

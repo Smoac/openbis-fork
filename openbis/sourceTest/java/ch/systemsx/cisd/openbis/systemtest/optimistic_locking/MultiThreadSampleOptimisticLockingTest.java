@@ -74,7 +74,7 @@ public class MultiThreadSampleOptimisticLockingTest extends MultiThreadOptimisti
                             }
                         }
                     };
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
         new Thread(new Runnable()
             {
                 @Override
@@ -130,7 +130,7 @@ public class MultiThreadSampleOptimisticLockingTest extends MultiThreadOptimisti
                             }
                         }
                     };
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
         new Thread(new Runnable()
             {
                 @Override
@@ -188,7 +188,7 @@ public class MultiThreadSampleOptimisticLockingTest extends MultiThreadOptimisti
                             }
                         }
                     };
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
         new Thread(new Runnable()
             {
                 @Override
@@ -234,7 +234,7 @@ public class MultiThreadSampleOptimisticLockingTest extends MultiThreadOptimisti
                 toolBox.createAndLoadSample(toolBox.sampleWithParent(4, containedSample));
         assertChildren("[OLT-S4]", containedSample);
         String sessionToken = logIntoCommonClientService().getSessionID();
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
         String reason = "test sample deletion";
 
         commonServer.deleteSamples(sessionToken, Arrays.asList(new TechId(containedSample)),
@@ -254,7 +254,7 @@ public class MultiThreadSampleOptimisticLockingTest extends MultiThreadOptimisti
                 "test");
 
         // Revert deletion
-        timeIntervalChecker = new TimeIntervalChecker();
+        timeIntervalChecker = toolBox.createTimeIntervalChecker();
         Deletion deletion = toolBox.findDeletion(reason);
 
         commonServer.revertDeletions(systemSessionToken,

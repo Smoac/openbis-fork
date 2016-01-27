@@ -125,13 +125,13 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
      */
     protected abstract void reassignToSample(String dataSetCode, String samplePermIdOrNull, String userSessionToken);
 
+    /*
     @DataProvider
     public Object[][] rolesAllowedToAssignDataSetToExperiment()
     {
         return RolePermutator.getAcceptedPermutations(assignDataSetToExperimentRule, source,
                 destination, instance);
     }
-
     @DataProvider
     public Object[][] rolesNotAllowedToAssignDataSetToExperiment()
     {
@@ -150,7 +150,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
     {
         return RolePermutator.getAcceptedPermutations(not(assignDataSetToSampleRule), source, destination, instance);
     }
-
+*/
     @Test
     public void reassignTheTwoOriginalDataSetsOfPublishedDataSetsToDifferentOriginalSampleAndExperiment()
     {
