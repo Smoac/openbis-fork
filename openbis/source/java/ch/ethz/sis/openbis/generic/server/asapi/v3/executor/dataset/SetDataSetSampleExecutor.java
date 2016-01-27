@@ -26,7 +26,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSetEntitySampleRelationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -55,7 +54,7 @@ public class SetDataSetSampleExecutor extends AbstractSetEntitySampleRelationExe
         if (related != null)
         {
             Session session = context.getSession();
-            Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
+            Date timeStamp = daoFactory.getTransactionTimestamp();
             RelationshipUtils.setSampleForDataSet(entity, related, session, timeStamp);
             RelationshipUtils.setExperimentForDataSet(entity, related.getExperiment(), session, timeStamp);
         }

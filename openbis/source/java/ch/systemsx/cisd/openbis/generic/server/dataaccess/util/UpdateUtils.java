@@ -29,7 +29,6 @@ import org.springframework.beans.factory.BeanFactory;
 import ch.systemsx.cisd.common.collection.IExtendedBlockingQueue;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationScheduler;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.FullTextIndexUpdater;
 
 /**
@@ -78,19 +77,13 @@ public class UpdateUtils
         }
     }
     
-    public static Date getTransactionTimeStamp(IDAOFactory daoFactory)
-    {
-        SessionFactory sessionFactory = daoFactory.getSessionFactory();
-        return getTransactionTimeStamp(sessionFactory);
-    }
-
     public static Date getTransactionTimeStamp(SessionFactory sessionFactory)
     {
         Session currentSession = sessionFactory.getCurrentSession();
         return getTransactionTimeStamp(currentSession);
     }
 
-    public static Date getTransactionTimeStamp(Session currentSession)
+    private static Date getTransactionTimeStamp(Session currentSession)
     {
         if (currentSession instanceof SessionImplementor)
         {

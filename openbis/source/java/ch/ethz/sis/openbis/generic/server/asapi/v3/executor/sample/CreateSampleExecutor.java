@@ -55,7 +55,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTr
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityCodeGenerator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleCodeGeneratorByType;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -169,7 +168,7 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
         // Create SamplePE objects
         List<SamplePE> samples = new LinkedList<SamplePE>();
         PersonPE person = context.getSession().tryGetPerson();
-        Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
+        Date timeStamp = daoFactory.getTransactionTimestamp();
         for (SampleCreation creation : creations)
         {
             SamplePE sample = new SamplePE();

@@ -46,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPE
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -151,7 +150,7 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
             dataSet.setDerived(false == creation.isMeasured());
             PersonPE person = context.getSession().tryGetPerson();
             dataSet.setRegistrator(person);
-            Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
+            Date timeStamp = daoFactory.getTransactionTimestamp();
             RelationshipUtils.updateModificationDateAndModifier(dataSet, person, timeStamp);
 
             dataSets.add(dataSet);

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.util.Date;
+
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ICodeSequenceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -27,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public interface IDAOFactory extends IAuthorizationDAOFactory
 {
+    public Date getTransactionTimestamp();
 
     /**
      * Returns the {@link ISampleTypeDAO} implementation.

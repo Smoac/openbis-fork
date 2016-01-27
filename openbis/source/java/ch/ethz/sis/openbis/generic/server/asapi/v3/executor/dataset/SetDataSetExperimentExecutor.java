@@ -26,7 +26,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSetEntityExperimentRelationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
@@ -53,7 +52,7 @@ public class SetDataSetExperimentExecutor extends AbstractSetEntityExperimentRel
     {
         if (related != null)
         {
-            Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
+            Date timeStamp = daoFactory.getTransactionTimestamp();
             RelationshipUtils.setExperimentForDataSet(entity, related, context.getSession(), timeStamp);
         }
     }

@@ -28,7 +28,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
@@ -340,7 +339,7 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
 
     private Date getTransactionTimeStamp()
     {
-        return UpdateUtils.getTransactionTimeStamp(daoFactory);
+        return daoFactory.getTransactionTimestamp();
     }
 
 }

@@ -79,7 +79,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ICodeSequenceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -354,6 +353,12 @@ abstract class AbstractBusinessObject implements IDAOFactory
     //
 
     @Override
+    public Date getTransactionTimestamp()
+    {
+        return daoFactory.getTransactionTimestamp();
+    }
+    
+    @Override
     public final ISpaceDAO getSpaceDAO()
     {
         return daoFactory.getSpaceDAO();
@@ -618,7 +623,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
     
     protected Date getTransactionTimeStamp()
     {
-        return UpdateUtils.getTransactionTimeStamp(daoFactory);
+        return daoFactory.getTransactionTimestamp();
     }
 
     private boolean isEquals(Map<String, Object> existingPropertyValuesByCode,

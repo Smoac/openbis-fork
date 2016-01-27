@@ -36,7 +36,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -119,7 +118,7 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
 
         Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
         PersonPE person = context.getSession().tryGetPerson();
-        Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
+        Date timeStamp = daoFactory.getTransactionTimestamp();
         for (Map.Entry<SampleUpdate, SamplePE> entry : entitiesMap.entrySet())
         {
             SampleUpdate update = entry.getKey();

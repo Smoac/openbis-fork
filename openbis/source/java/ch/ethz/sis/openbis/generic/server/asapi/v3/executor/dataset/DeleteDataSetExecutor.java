@@ -35,7 +35,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractDelet
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
@@ -74,7 +73,7 @@ public class DeleteDataSetExecutor extends AbstractDeleteEntityExecutor<IDeletio
     @Override
     protected void updateModificationDateAndModifier(IOperationContext context, DataPE dataSet)
     {
-        Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
+        Date timeStamp = daoFactory.getTransactionTimestamp();
         Session session = context.getSession();
         RelationshipUtils.updateModificationDateAndModifier(dataSet.getExperiment(), session, timeStamp);
         RelationshipUtils.updateModificationDateAndModifier(dataSet.tryGetSample(), session, timeStamp);
@@ -91,7 +90,7 @@ public class DeleteDataSetExecutor extends AbstractDeleteEntityExecutor<IDeletio
     {
         if (dataSets != null)
         {
-            Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
+            Date timeStamp = daoFactory.getTransactionTimestamp();
             for (DataPE child : dataSets)
             {
                 RelationshipUtils.updateModificationDateAndModifier(child, context.getSession(), timeStamp);

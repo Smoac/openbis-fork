@@ -72,7 +72,7 @@ public class DeleteExperimentExecutor extends AbstractDeleteEntityExecutor<IDele
     protected void updateModificationDateAndModifier(IOperationContext context, ExperimentPE entity)
     {
         Session session = context.getSession();
-        Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
+        Date timeStamp = daoFactory.getTransactionTimestamp();
         RelationshipUtils.updateModificationDateAndModifier(entity.getProject(), session, timeStamp);
     }
 

@@ -1729,6 +1729,9 @@ public final class CommonServerTest extends AbstractServerTestCase
                 {
                     one(commonBusinessObjectFactory).createDataSetTable(session);
                     will(returnValue(dataSetTable));
+                    
+                    one(daoFactory).getTransactionTimestamp();
+                    will(returnValue(new Date()));
 
                     one(dataSetTable).loadByDataSetCodes(dataSetCodes, false, false);
                     one(dataSetTable).getDataSets();
@@ -1767,6 +1770,9 @@ public final class CommonServerTest extends AbstractServerTestCase
                 {
                     one(commonBusinessObjectFactory).createDeletedDataSetTable(session);
                     will(returnValue(deletedDataSetTable));
+
+                    one(daoFactory).getTransactionTimestamp();
+                    will(returnValue(new Date()));
 
                     one(deletedDataSetTable).loadByDataSetCodes(dataSetCodes);
                     one(deletedDataSetTable).permanentlyDeleteLoadedDataSets(reason, false);

@@ -34,7 +34,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
@@ -95,7 +94,7 @@ public class UpdateProjectExecutor extends AbstractUpdateEntityExecutor<ProjectU
         updateProjectSpaceExecutor.update(context, entitiesMap);
 
         PersonPE person = context.getSession().tryGetPerson();
-        Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
+        Date timeStamp = daoFactory.getTransactionTimestamp();
         for (Map.Entry<ProjectUpdate, ProjectPE> entry : entitiesMap.entrySet())
         {
             ProjectUpdate update = entry.getKey();

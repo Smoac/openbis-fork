@@ -37,7 +37,6 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.server.util.TimeIntervalChecker;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -231,7 +230,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         final ExperimentTypePE type = createExperimentType(expTypeCode);
         final ExperimentPE experiment = createExperiment(project, expCode, type);
         TimeIntervalChecker timeIntervalChecker 
-                = new TimeIntervalChecker(UpdateUtils.getTransactionTimeStamp(daoFactory));
+                = new TimeIntervalChecker(daoFactory.getTransactionTimestamp());
 
         prepareAnyDaoCreation();
         context.checking(new Expectations()

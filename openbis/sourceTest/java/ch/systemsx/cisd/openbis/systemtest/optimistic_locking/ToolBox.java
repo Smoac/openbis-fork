@@ -141,7 +141,7 @@ public class ToolBox
     
     TimeIntervalChecker createTimeIntervalChecker()
     {
-        return new TimeIntervalChecker(UpdateUtils.getTransactionTimeStamp(daoFactory));
+        return new TimeIntervalChecker(daoFactory.getTransactionTimestamp());
     }
 
     void createSpacesAndProjects()

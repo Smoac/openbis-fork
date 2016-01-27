@@ -35,7 +35,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractDelet
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -76,7 +75,7 @@ public class DeleteSampleExecutor extends AbstractDeleteEntityExecutor<IDeletion
     protected void updateModificationDateAndModifier(IOperationContext context, SamplePE sample)
     {
         Session session = context.getSession();
-        Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
+        Date timeStamp = daoFactory.getTransactionTimestamp();
         ExperimentPE experiment = sample.getExperiment();
         if (experiment != null)
         {

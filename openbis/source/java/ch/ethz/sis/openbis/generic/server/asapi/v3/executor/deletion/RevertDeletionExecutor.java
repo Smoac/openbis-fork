@@ -41,7 +41,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObject
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDeletionTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
@@ -160,7 +159,7 @@ public class RevertDeletionExecutor implements IRevertDeletionExecutor
         List<ExperimentPE> experiments =
                 daoFactory.getExperimentDAO().listByIDs(TechId.asLongs(experimentIds));
         Session session = context.getSession();
-        Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
+        Date timeStamp = daoFactory.getTransactionTimestamp();
         for (ExperimentPE experiment : experiments)
         {
             RelationshipUtils.updateModificationDateAndModifier(experiment.getProject(), session, timeStamp);
@@ -171,7 +170,7 @@ public class RevertDeletionExecutor implements IRevertDeletionExecutor
     {
         List<SamplePE> samples = daoFactory.getSampleDAO().listByIDs(TechId.asLongs(sampleIds));
         Session session = context.getSession();
-        Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
+        Date timeStamp = daoFactory.getTransactionTimestamp();
         for (SamplePE sample : samples)
         {
             ExperimentPE experiment = sample.getExperiment();
@@ -208,7 +207,7 @@ public class RevertDeletionExecutor implements IRevertDeletionExecutor
     {
         List<DataPE> dataSets = daoFactory.getDataDAO().listByCode(new HashSet<String>(dataSetCodes));
         Session session = context.getSession();
-        Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
+        Date timeStamp = daoFactory.getTransactionTimestamp();
         for (DataPE dataSet : dataSets)
         {
             ExperimentPE experiment = dataSet.getExperiment();
@@ -233,7 +232,7 @@ public class RevertDeletionExecutor implements IRevertDeletionExecutor
         if (dataSets != null)
         {
             Session session = context.getSession();
-            Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
+            Date timeStamp = daoFactory.getTransactionTimestamp();
             for (DataPE child : dataSets)
             {
                 RelationshipUtils.updateModificationDateAndModifier(child, session, timeStamp);

@@ -144,7 +144,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calcu
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.IEntityValidatorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.api.IEntityValidator;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationScriptRunner;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -2068,7 +2067,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             case PERMANENT:
                 List<DataPE> dataSets1 = getDAOFactory().getDataDAO().listByCode(new HashSet<String>(dataSetCodes));
-                Date timeStamp = UpdateUtils.getTransactionTimeStamp(getDAOFactory());
+                Date timeStamp = getDAOFactory().getTransactionTimestamp();
                 RelationshipUtils.updateModificationDateAndModifierOfRelatedEntitiesOfDataSets(dataSets1, session, timeStamp);
                 if (isTrashEnabled)
                 {
@@ -2109,7 +2108,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             case PERMANENT:
                 List<SamplePE> samples = getDAOFactory().getSampleDAO().listByIDs(TechId.asLongs(sampleIds));
-                Date timeStamp = UpdateUtils.getTransactionTimeStamp(getDAOFactory());
+                Date timeStamp = getDAOFactory().getTransactionTimestamp();
                 RelationshipUtils.updateModificationDateAndModifierOfRelatedEntitiesOfSamples(samples, session, timeStamp);
                 ISampleTable sampleTableBO = businessObjectFactory.createSampleTable(session);
                 sampleTableBO.deleteByTechIds(sampleIds, reason);
@@ -2135,7 +2134,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             case PERMANENT:
                 List<ExperimentPE> experiments = getDAOFactory().getExperimentDAO().listByIDs(TechId.asLongs(experimentIds));
-                Date timeStamp = UpdateUtils.getTransactionTimeStamp(getDAOFactory());
+                Date timeStamp = getDAOFactory().getTransactionTimestamp();
                 RelationshipUtils.updateModificationDateAndModifierOfRelatedProjectsOfExperiments(experiments, session, timeStamp);
                 experimentBO.deleteByTechIds(experimentIds, reason);
                 break;
@@ -3956,7 +3955,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 trashBO.revertDeletion(new TechId(deletionId));
             }
         }
-        Date timeStamp = UpdateUtils.getTransactionTimeStamp(getDAOFactory());
+        Date timeStamp = getDAOFactory().getTransactionTimestamp();
         List<ExperimentPE> experiments = getDAOFactory().getExperimentDAO().listByIDs(TechId.asLongs(deletedExperimentIds));
         RelationshipUtils.updateModificationDateAndModifierOfRelatedProjectsOfExperiments(experiments, session, timeStamp);
         List<SamplePE> samples = getDAOFactory().getSampleDAO().listByIDs(TechId.asLongs(deletedSampleIds));
