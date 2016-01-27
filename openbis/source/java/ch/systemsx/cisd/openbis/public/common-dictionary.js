@@ -270,6 +270,9 @@ var common = {
   //
   
   search_button: "Search",
+  use_wildcard_checkbox_text: "*?",
+  use_wildcard_checkbox_text_long: "Search with Wildcards",
+  use_wildcard_checkbox_tooltip: "Check to treat '*' and '?' as wildcards in searched text. Note, that only whole words will match if you don't add '*' at the beginning and at the end of the text.",
   global_search: "[{0}]: '{1}'",
   identifier: "Identifier",
   no_match: "No results found for '{0}'.<br><br><br>Note, that you are {1} using wildcard search mode. Try to turn it {2} in your user settings.",
@@ -642,8 +645,6 @@ var common = {
   
   change_user_settings_dialog_title: "Change User Settings",  
   home_group_label: "Home Space",
-  use_wildcard_search_mode_label: "Search with Wildcards",
-  use_wildcard_search_mode_tooltip: "Check to treat '*' and '?' as wildcards in searched text. Note, that only whole words will match if you don't add '*' at the beginning and at the end of the text.",
   reset_user_settings_button: "Restore Default",
   reset_user_settings_confirmation_msg: "Are you sure that you want to restore default settings?<br><br><b>Note that:</b><li>Every setting you changed in this application apart from home space, e.g. hiding/showing certain columns in a browser, will be lost.<li>All currently opened tabs will be closed.",
   real_number_formating_fields: "Custom Real Number Formatting in Tables",

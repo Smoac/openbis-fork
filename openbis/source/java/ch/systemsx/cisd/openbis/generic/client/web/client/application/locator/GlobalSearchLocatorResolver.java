@@ -21,6 +21,8 @@ public class GlobalSearchLocatorResolver extends AbstractViewLocatorResolver
 
     public final static String QUERY_PARAMETER_KEY = "query";
 
+    public final static String USE_WILDCARDS_PARAMETER_KEY = "usewildcards";
+
     public GlobalSearchLocatorResolver(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(GLOBAL_SEARCH_ACTION);
@@ -34,7 +36,9 @@ public class GlobalSearchLocatorResolver extends AbstractViewLocatorResolver
         // TODO KE: 2011-02-16 we should parse queries that can contain spaces
         final String queryText = getMandatoryParameter(locator, QUERY_PARAMETER_KEY);
 
-        GlobalSearchTabItemFactory.openTab(viewContext, selectedSearchableEntity, queryText);
+        final String useWildcards = getOptionalParameter(locator, USE_WILDCARDS_PARAMETER_KEY);
+
+        GlobalSearchTabItemFactory.openTab(viewContext, selectedSearchableEntity, queryText, useWildcards.equals("true"));
     }
 
     private SearchableEntity getSearchableEntity(ViewLocator locator)

@@ -51,9 +51,6 @@ public class DisplaySettings implements Serializable
 
     private Map<String, String> dropDownSettings = new HashMap<String, String>();
 
-    // for new users with clean display settings basic search mode will be used by default
-    private boolean useWildcardSearchMode = false;
-
     // When debugging mode is on more information will be shown in UI:
     // - error messages for custom columns or managed properties will contain technical details
     // - raw output and input for managed properties is visible
@@ -94,7 +91,6 @@ public class DisplaySettings implements Serializable
         this.technologySpecificSettings = other.technologySpecificSettings;
         this.tabSettings = other.tabSettings;
         this.dropDownSettings = other.dropDownSettings;
-        this.useWildcardSearchMode = other.useWildcardSearchMode;
         this.debugging = other.debugging;
         this.lastHistoryTokenOrNull = other.lastHistoryTokenOrNull;
         this.ignoreLastHistoryToken = other.ignoreLastHistoryToken;
@@ -176,13 +172,6 @@ public class DisplaySettings implements Serializable
 
     /** @deprecated Should be used only by DisplaySettingsManager. */
     @Deprecated
-    public boolean isUseWildcardSearchMode()
-    {
-        return useWildcardSearchMode;
-    }
-
-    /** @deprecated Should be used only by DisplaySettingsManager. */
-    @Deprecated
     public RealNumberFormatingParameters getRealNumberFormatingParameters()
     {
         if (realNumberFormatingParameters == null)
@@ -228,13 +217,6 @@ public class DisplaySettings implements Serializable
     private final void setDropDownSettings(Map<String, String> dropDownSettings)
     {
         this.dropDownSettings = dropDownSettings;
-    }
-
-    /** @deprecated Should be used only by DisplaySettingsManager. */
-    @Deprecated
-    public void setUseWildcardSearchMode(boolean useWildcardSearchMode)
-    {
-        this.useWildcardSearchMode = useWildcardSearchMode;
     }
 
     @SuppressWarnings("unused")

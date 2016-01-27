@@ -116,7 +116,8 @@ public final class MigrationStepFrom046To047 extends MigrationStepAdapter
         // all users except system user need to have wildcard search mode turned on (default - off)
         if (false == person.userId.equals(PersonPE.SYSTEM_USER_ID))
         {
-            displaySettings.setUseWildcardSearchMode(true);
+            // since S222 wildcard settings are no longer part of the user display settings
+            // displaySettings.setUseWildcardSearchMode(true);
         }
         return DisplaySettingsSerializationUtils.serializeDisplaySettings(displaySettings);
     }

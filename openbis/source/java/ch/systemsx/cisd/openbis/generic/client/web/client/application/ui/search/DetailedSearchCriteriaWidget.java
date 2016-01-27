@@ -141,7 +141,7 @@ abstract public class DetailedSearchCriteriaWidget extends VerticalPanel
      * @return <b>search criteria</b> extracted from criteria widgets and "match" radio buttons<br>
      *         <b>NOTE:</b> criterion list of resulting criteria may be empty
      */
-    public DetailedSearchCriteria extractCriteria()
+    public DetailedSearchCriteria extractCriteria(boolean useWildcardSearchMode)
     {
         List<DetailedSearchCriterion> criteria = new ArrayList<DetailedSearchCriterion>();
         for (DetailedSearchCriterionWidget cw : criteriaWidgets)
@@ -153,8 +153,7 @@ abstract public class DetailedSearchCriteriaWidget extends VerticalPanel
             }
         }
         final DetailedSearchCriteria result = new DetailedSearchCriteria();
-        result.setUseWildcardSearchMode(viewContext.getDisplaySettingsManager()
-                .isUseWildcardSearchMode());
+        result.setUseWildcardSearchMode(useWildcardSearchMode);
         result.setConnection(getConnection());
         result.setCriteria(criteria);
         return result;

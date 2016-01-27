@@ -261,6 +261,12 @@ public abstract class Dict
 
     public static final String GLOBAL_SEARCH = "global_search";
 
+    public static final String USE_WILDCARD_CHECKBOX_TEXT = "use_wildcard_checkbox_text";
+
+    public static final String USE_WILDCARD_CHECKBOX_TOOLTIP = "use_wildcard_checkbox_tooltip";
+
+    public static final String USE_WILDCARD_CHECKBOX_TEXT_LONG = "use_wildcard_checkbox_text_long";
+
     public static final String IDENTIFIER = "identifier";
 
     public static final String SAMPLE_PROPERTIES_PANEL_SAMPLE_IDENTIFIER = "sample_properties_panel_sample_identifier";
@@ -1082,10 +1088,6 @@ public abstract class Dict
     public static final String CHANGE_USER_SETTINGS_DIALOG_TITLE = "change_user_settings_dialog_title";
 
     public static final String ABOUT_BOX_DIALOG_TITLE = "about_box_dialog_title";
-
-    public static final String USE_WILDCARD_SEARCH_MODE_LABEL = "use_wildcard_search_mode_label";
-
-    public static final String USE_WILDCARD_SEARCH_MODE_TOOLTIP = "use_wildcard_search_mode_tooltip";
 
     public static final String RESET_USER_SETTINGS_BUTTON = "reset_user_settings_button";
 

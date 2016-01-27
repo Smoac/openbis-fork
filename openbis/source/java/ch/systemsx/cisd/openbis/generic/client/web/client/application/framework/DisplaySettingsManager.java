@@ -24,6 +24,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ColumnModelEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.util.DelayedTask;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailViewConfiguration;
@@ -36,14 +44,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.ColumnDisplaySettingsUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.IDisplaySettingsUpdate;
-
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.ColumnModelEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.util.DelayedTask;
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 
 /**
  * Manager of {@link DisplaySettings}. The manager itself is stateless. It only changes the wrapped {@link DisplaySettings} object. The attributes of
@@ -537,7 +537,7 @@ public class DisplaySettingsManager
 
     /**
      * @returns hidden tabs for given panel - which tab should be selected<br>
-     * <br>
+     *          <br>
      *          NOTE: Returned value should be used read only
      */
     public final DetailViewConfiguration tryGetDetailViewSettings(String entityDetailViewID)
@@ -593,18 +593,6 @@ public class DisplaySettingsManager
     }
 
     //
-
-    @SuppressWarnings("deprecation")
-    public final boolean isUseWildcardSearchMode()
-    {
-        return displaySettings.isUseWildcardSearchMode();
-    }
-
-    @SuppressWarnings("deprecation")
-    public final void updateUseWildcardSearchMode(Boolean newValue)
-    {
-        displaySettings.setUseWildcardSearchMode(newValue);
-    }
 
     @SuppressWarnings("deprecation")
     public final boolean isDebuggingModeEnabled()

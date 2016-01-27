@@ -65,9 +65,9 @@ public class DetailedSearchSubCriteriaWidget extends DetailedSearchCriteriaWidge
         return association.getDescription() + "(" + super.getCriteriaDescription() + ")";
     }
 
-    public DetailedSearchSubCriteria extractSubCriteria()
+    public DetailedSearchSubCriteria extractSubCriteria(boolean useWildcardSearchMode)
     {
-        return new DetailedSearchSubCriteria(association, extractCriteria());
+        return new DetailedSearchSubCriteria(association, extractCriteria(useWildcardSearchMode));
     }
 
 }

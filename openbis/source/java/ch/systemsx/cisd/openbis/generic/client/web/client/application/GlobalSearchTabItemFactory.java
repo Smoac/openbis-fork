@@ -42,30 +42,27 @@ public class GlobalSearchTabItemFactory
      */
     public static void openTabIfEntitiesFound(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            final SearchableEntity searchableEntity, final String queryText)
+            final SearchableEntity searchableEntity, final String queryText, final boolean useWildcardSearchMode)
     {
 
-        openTab(viewContext, searchableEntity, queryText, false);
+        openTab(viewContext, searchableEntity, queryText, false, useWildcardSearchMode);
     }
 
     /**
      * always opens a new tab, regardless if there were any search entities found.
      */
     public static void openTab(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final SearchableEntity searchableEntity, final String queryText)
+            final SearchableEntity searchableEntity, final String queryText, final boolean useWildcardSearchMode)
     {
 
-        openTab(viewContext, searchableEntity, queryText, true);
+        openTab(viewContext, searchableEntity, queryText, true, useWildcardSearchMode);
     }
 
     private static void openTab(final IViewContext<ICommonClientServiceAsync> viewContext,
             final SearchableEntity searchableEntity, final String queryText,
-            final boolean openIfNoEntitiesFound)
+            final boolean openIfNoEntitiesFound, final boolean useWildcardSearchMode)
     {
         Dispatcher.get().fireEvent(AppEvents.GLOBAL_SEARCH_STARTED_EVENT);
-
-        final boolean useWildcardSearchMode =
-                viewContext.getDisplaySettingsManager().isUseWildcardSearchMode();
 
         final MatchingEntitiesPanel matchingEntitiesGrid =
                 new MatchingEntitiesPanel(viewContext, searchableEntity, queryText,
@@ -94,9 +91,8 @@ public class GlobalSearchTabItemFactory
                     firstCall = false;
                     if (matchingEntitiesGrid.getRowNumber() == 0)
                     {
-                        Object[] msgParameters = (useWildcardSearchMode == true) ? new String[]
-                        { queryText, "", "off", } : new String[]
-                        { queryText, "not", "on" };
+                        Object[] msgParameters =
+                                (useWildcardSearchMode == true) ? new String[] { queryText, "", "off", } : new String[] { queryText, "not", "on" };
                         GWTUtils.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING),
                                 viewContext.getMessage(Dict.NO_MATCH, msgParameters));
 

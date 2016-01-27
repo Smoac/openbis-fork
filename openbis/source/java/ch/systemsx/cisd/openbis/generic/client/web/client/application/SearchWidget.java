@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.TableRowLayout;
 import com.google.gwt.user.client.History;
@@ -54,6 +55,8 @@ public final class SearchWidget extends LayoutContainer
 
     static final String TEXT_FIELD_ID = PREFIX + "text-field";
 
+    static final String CHECKBOX_FIELD_ID = PREFIX + "wildcard-checkbox";
+
     static final String SUBMIT_BUTTON_ID = PREFIX + "submit-button";
 
     static final String ENTITY_CHOOSER_ID = PREFIX + "entity-chooser";
@@ -67,6 +70,8 @@ public final class SearchWidget extends LayoutContainer
     private final ButtonWithLoadingMask searchButton;
 
     private final EnterKeyListener enterKeyListener;
+
+    private final CheckBox useWildcardsCheckBox;
 
     public SearchWidget(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -89,8 +94,10 @@ public final class SearchWidget extends LayoutContainer
             };
         textField = createTextField();
         entityChooser = createEntityChooser();
+        useWildcardsCheckBox = createCheckBox();
         add(entityChooser);
         add(textField);
+        add(useWildcardsCheckBox);
         add(searchButton);
 
         Dispatcher.get().addListener(AppEvents.GLOBAL_SEARCH_STARTED_EVENT, new Listener<BaseEvent>()
@@ -133,6 +140,16 @@ public final class SearchWidget extends LayoutContainer
         return tableRowLayout;
     }
 
+    private final CheckBox createCheckBox()
+    {
+        final CheckBox field = new CheckBox();
+        field.setId(CHECKBOX_FIELD_ID);
+        field.setBoxLabel(viewContext.getMessage(Dict.USE_WILDCARD_CHECKBOX_TEXT));
+        field.setTitle(viewContext.getMessage(Dict.USE_WILDCARD_CHECKBOX_TOOLTIP));
+        field.setStyleAttribute("marginRight", "3px");
+        return field;
+    }
+
     private final TextField<String> createTextField()
     {
         final TextField<String> field = new TextField<String>();
@@ -161,16 +178,18 @@ public final class SearchWidget extends LayoutContainer
         textField.setValue("");
         SearchableEntity selectedEntity = entityChooser.getSelectedSearchableEntity();
 
+        Boolean useWildcards = useWildcardsCheckBox.getValue();
+
         if (viewContext.isSimpleOrEmbeddedMode())
         {
             // redirect to another URL
             String entityDescription = (selectedEntity != null) ? selectedEntity.getName() : null;
-            String url = createGlobalSearchLink(entityDescription, queryText);
+            String url = createGlobalSearchLink(entityDescription, queryText, useWildcards);
             History.newItem(url);
         } else
         {
             GlobalSearchTabItemFactory.openTabIfEntitiesFound(viewContext, selectedEntity,
-                    queryText);
+                    queryText, useWildcards);
         }
     }
 
@@ -188,7 +207,7 @@ public final class SearchWidget extends LayoutContainer
         return onlyWildcard;
     }
 
-    public static String createGlobalSearchLink(String searchableEntity, String queryText)
+    public static String createGlobalSearchLink(String searchableEntity, String queryText, boolean useWildcards)
     {
         // forward to a new url
         URLMethodWithParameters url = new URLMethodWithParameters("");
@@ -199,6 +218,10 @@ public final class SearchWidget extends LayoutContainer
             url.addParameter(GlobalSearchLocatorResolver.ENTITY_PARAMETER_KEY, searchableEntity);
         }
         url.addParameter(GlobalSearchLocatorResolver.QUERY_PARAMETER_KEY, queryText);
+        if (useWildcards)
+        {
+            url.addParameter(GlobalSearchLocatorResolver.USE_WILDCARDS_PARAMETER_KEY, "true");
+        }
         return url.toStringWithoutDelimiterPrefix();
     }
 

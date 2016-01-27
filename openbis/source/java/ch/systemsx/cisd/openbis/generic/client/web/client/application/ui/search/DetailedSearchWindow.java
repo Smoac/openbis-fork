@@ -18,13 +18,15 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
-import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.event.dom.client.KeyCodes;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
@@ -47,9 +49,12 @@ public class DetailedSearchWindow extends Dialog
 
     private static final Margins MARGINS = new Margins(5, 10, 5, 10);
 
-    private static final int HEIGHT = 400;
+    private static final int HEIGHT = 420;
 
     private static final int WIDTH = 550;
+
+    // after changing the layout I have to explicitly set size of both panels
+    private static final int PANEL_HEIGHT = 166;
 
     private final DetailedSearchCriteriaWidget criteriaWidget;
 
@@ -60,6 +65,8 @@ public class DetailedSearchWindow extends Dialog
 
     private final TabPanel tabPanel;
 
+    private final CheckBox useWildcardSearchModeCheckBox;
+
     public DetailedSearchWindow(final IViewContext<ICommonClientServiceAsync> viewContext,
             final EntityKind entityKind)
     {
@@ -68,11 +75,16 @@ public class DetailedSearchWindow extends Dialog
         setModal(true);
         setHeading(viewContext.getMessage(Dict.SEARCH_CRITERIA_DIALOG_TITLE,
                 entityKind.getDescription()));
-        setLayout(new FillLayout());
+        setLayout(new RowLayout());
         setResizable(false);
         criteriaWidget = new DetailedSearchMainCriteriaWidget(viewContext, entityKind);
+        useWildcardSearchModeCheckBox = createWildcardSearchModeCheckBoxCheckBox(viewContext);
+
+        add(useWildcardSearchModeCheckBox);
+
         add(createMainCriteriaPanel());
         tabPanel = new TabPanel();
+        tabPanel.setHeight(PANEL_HEIGHT + "px");
         for (AssociatedEntityKind association : getAssociatedEntityKinds(entityKind))
         {
             DetailedSearchSubCriteriaWidget subCriteriaWidget =
@@ -133,7 +145,20 @@ public class DetailedSearchWindow extends Dialog
         mainPanel.setLayout(new FitLayout());
         mainPanel.setScrollMode(Scroll.AUTOY);
         mainPanel.add(criteriaWidget, new FitData(MARGINS));
+        mainPanel.setHeight(PANEL_HEIGHT + "px");
         return mainPanel;
+    }
+
+    private final CheckBox createWildcardSearchModeCheckBoxCheckBox(IViewContext<ICommonClientServiceAsync> viewContext)
+    {
+        final CheckBox field = new CheckBox();
+        field.setId(GenericConstants.ID_PREFIX + "detailed_search-checkbox");
+        field.setBoxLabel(viewContext.getMessage(Dict.USE_WILDCARD_CHECKBOX_TEXT_LONG));
+        field.setTitle(viewContext.getMessage(Dict.USE_WILDCARD_CHECKBOX_TOOLTIP));
+        field.setStyleAttribute("marginRight", "3px");
+        field.setStyleAttribute("marginLeft", "3px");
+        field.setHeight("20px");
+        return field;
     }
 
     private void addSearchWidgetTab(final DetailedSearchSubCriteriaWidget searchWidget)
@@ -191,13 +216,14 @@ public class DetailedSearchWindow extends Dialog
 
     public DetailedSearchCriteria tryGetCriteria()
     {
-        final DetailedSearchCriteria mainCriteria = criteriaWidget.extractCriteria();
+        final boolean useWildcardSearchMode = useWildcardSearchModeCheckBox.getValue();
+        final DetailedSearchCriteria mainCriteria = criteriaWidget.extractCriteria(useWildcardSearchMode);
         for (DetailedSearchSubCriteriaWidget subCriteriaWidget : subCriteriaWidgets)
         {
             if (subCriteriaWidget.isCriteriaFilled())
             {
                 final DetailedSearchSubCriteria subCriteria =
-                        subCriteriaWidget.extractSubCriteria();
+                        subCriteriaWidget.extractSubCriteria(useWildcardSearchMode);
                 mainCriteria.addSubCriteria(subCriteria);
             }
         }

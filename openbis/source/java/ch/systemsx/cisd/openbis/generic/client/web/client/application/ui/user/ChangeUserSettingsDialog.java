@@ -84,8 +84,6 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
 
     private final CheckBoxField showLastVisitsField;
 
-    private final CheckBoxField useWildcardSearchModeCheckbox;
-
     private final FieldSet formatingFields;
 
     private final CheckBoxField scientificFormatingField;
@@ -115,7 +113,6 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         addField(reopenLastTabField = createReopenLastTabOnLoginField());
         addField(enableLegacyMetadataUI = createEnableLegacyMetadataUIField());
         addField(showLastVisitsField = createShowLastVisitsField());
-        addField(useWildcardSearchModeCheckbox = createUseWildcardSearchModeField());
         formatingFields = createRealFormatingFieldSet();
         precisionField = createPrecisionField();
         formatingFields.add(precisionField);
@@ -237,15 +234,6 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         return field;
     }
 
-    private final CheckBoxField createUseWildcardSearchModeField()
-    {
-        CheckBoxField field =
-                new CheckBoxField(viewContext.getMessage(Dict.USE_WILDCARD_SEARCH_MODE_LABEL), true);
-        GWTUtils.setToolTip(field, viewContext.getMessage(Dict.USE_WILDCARD_SEARCH_MODE_TOOLTIP));
-        field.setValue(viewContext.getDisplaySettingsManager().isUseWildcardSearchMode());
-        return field;
-    }
-
     @Override
     protected void save(AsyncCallback<Void> saveCallback)
     {
@@ -270,8 +258,6 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         formatingParameters.setScientific(scientificFormatingField.getValue());
 
         DisplaySettingsManager displaySettingsManager = viewContext.getDisplaySettingsManager();
-        boolean useWildcardSearchMode = extractUseWildcardSearchMode();
-        displaySettingsManager.updateUseWildcardSearchMode(useWildcardSearchMode);
 
         boolean debuggingModeEnabled = debuggingModeField.getValue();
         displaySettingsManager.setDebuggingModeEnabled(debuggingModeEnabled);
@@ -368,11 +354,6 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
     private RealNumberFormatingParameters getRealNumberFormatingParameters()
     {
         return viewContext.getDisplaySettingsManager().getRealNumberFormatingParameters();
-    }
-
-    private boolean extractUseWildcardSearchMode()
-    {
-        return useWildcardSearchModeCheckbox.getValue();
     }
 
     //
