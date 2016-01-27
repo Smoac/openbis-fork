@@ -16,27 +16,23 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
-import org.testng.annotations.Test;
-
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriteria;
-
 /**
  * @author Jakub Straszewski
  */
 public class GlobalSearchTest extends AbstractTest
 {
-
-    @Test
-    public void testSearchWithEmptyCriteria()
-    {
-        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        GlobalSearchCriteria searchCriteria = new GlobalSearchCriteria();
-        searchCriteria.withText().thatContains("CISD");
-        // v3api.searchGlobally(sessionToken, searchCriteria, new GlobalSearchObjectFetchOptions());
-
-        v3api.logout(sessionToken);
-
-    }
+    //
+    // @Test
+    // public void testSearchWithEmptyCriteria()
+    // {
+    // String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+    //
+    // GlobalSearchCriteria searchCriteria = new GlobalSearchCriteria();
+    // searchCriteria.withText().thatContains("CISD");
+    // // v3api.searchGlobally(sessionToken, searchCriteria, new GlobalSearchObjectFetchOptions());
+    //
+    // v3api.logout(sessionToken);
+    //
+    // }
 
 }
