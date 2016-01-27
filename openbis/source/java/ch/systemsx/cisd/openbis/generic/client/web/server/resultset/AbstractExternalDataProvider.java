@@ -53,6 +53,8 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDat
 
 import java.util.List;
 
+import ch.systemsx.cisd.common.collection.IKeyExtractor;
+import ch.systemsx.cisd.common.collection.TableMap;
 import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
@@ -121,6 +123,7 @@ public abstract class AbstractExternalDataProvider extends
         builder.addColumn(PERM_ID).hideByDefault();
         builder.addColumn(SHOW_DETAILS_LINK).hideByDefault();
         builder.addColumn(METAPROJECTS);
+        TableMap<String, DataSetType> dataSetTypes = getDataSetTypes();
         for (AbstractExternalData dataSet : dataSets)
         {
             builder.addRow(dataSet);
@@ -216,13 +219,27 @@ public abstract class AbstractExternalDataProvider extends
                 DataSetType dataSetType = dataSet.getDataSetType();
                 if (dataSetType != null)
                 {
-                    columnGroup.addColumnsForAssignedProperties(dataSetType);
+                    DataSetType fullDataSetType = dataSetTypes.tryGet(dataSetType.getCode());
+                    columnGroup.addColumnsForAssignedProperties(fullDataSetType);
                 }
                 columnGroup.addProperties(dataSet.getProperties());
             }
 
         }
         return builder.getModel();
+    }
+    
+    private TableMap<String, DataSetType> getDataSetTypes()
+    {
+        List<DataSetType> dataSetTypes = commonServer.listDataSetTypes(sessionToken);
+        return new TableMap<>(dataSetTypes, new IKeyExtractor<String, DataSetType>()
+            {
+                @Override
+                public String getKey(DataSetType type)
+                {
+                    return type.getCode();
+                }
+            });
     }
 
     protected abstract List<AbstractExternalData> getDataSets();
