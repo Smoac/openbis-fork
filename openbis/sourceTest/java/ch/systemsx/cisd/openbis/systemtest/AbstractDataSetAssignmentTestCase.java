@@ -125,7 +125,6 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
      */
     protected abstract void reassignToSample(String dataSetCode, String samplePermIdOrNull, String userSessionToken);
 
-    /*
     @DataProvider
     public Object[][] rolesAllowedToAssignDataSetToExperiment()
     {
@@ -150,7 +149,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
     {
         return RolePermutator.getAcceptedPermutations(not(assignDataSetToSampleRule), source, destination, instance);
     }
-*/
+
     @Test
     public void reassignTheTwoOriginalDataSetsOfPublishedDataSetsToDifferentOriginalSampleAndExperiment()
     {
@@ -553,7 +552,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1[NECT] DS2\n"
                 + "S2, data sets: DS5[NET]\n"
-                + "DS1[NECT], components: DS2\n");
+                + "DS1[NECT], components: DS2\n", false);
 
         try
         {
@@ -571,7 +570,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
     @Rollback(true)
     public void dataSetCannotBeAssignedToSpaceSample()
     {
-        EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1\nS2\n");
+        EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1\nS2\n", false);
 
         try
         {
@@ -589,7 +588,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
     @Rollback(true)
     public void dataSetCannotBeAssignedToSharedSample()
     {
-        EntityGraphGenerator g = parseAndCreateGraph("S1, data sets: DS1[NET]\n/S2\n");
+        EntityGraphGenerator g = parseAndCreateGraph("S1, data sets: DS1[NET]\n/S2\n", false);
 
         try
         {
@@ -808,6 +807,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
                 "not connected to any experiment and the data set type ("
                         + dataset.getDataSetType().getCode()
                         + ") doesn't match one of the following regular expressions:   NO-EXP-.* ,   NE.*  .";
+        ex.printStackTrace();
         assertEquals("The dataset '" + dataset.getCode() + "' cannot be connected to the sample '"
                 + sample.getIdentifier() + "' because the new sample is " + postfix, getErrorMessage(ex));
     }

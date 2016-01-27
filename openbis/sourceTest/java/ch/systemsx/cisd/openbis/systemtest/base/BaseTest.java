@@ -508,7 +508,17 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
 
     protected EntityGraphGenerator parseAndCreateGraph(String graphDefinition)
     {
+        return parseAndCreateGraph(graphDefinition, true);
+    }
+    
+    protected EntityGraphGenerator parseAndCreateGraph(String graphDefinition, boolean startNewTransaction)
+    {
         EntityGraphGenerator graphGenerator = entityGraphManager.parseAndCreateGraph(graphDefinition);
+        if (startNewTransaction)
+        {
+            TestTransaction.end();
+            TestTransaction.start();
+        }
         return graphGenerator;
     }
 

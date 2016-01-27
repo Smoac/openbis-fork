@@ -377,7 +377,7 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
     @Rollback(true)
     public void registerExperimentWithSampleInDifferentSpace()
     {
-        EntityGraphGenerator g = parseAndCreateGraph("/S1/S1\n");
+        EntityGraphGenerator g = parseAndCreateGraph("/S1/S1\n", false);
 
         try
         {
@@ -395,7 +395,7 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
     public void removeSamplesWithDataSetsFromExperimentFailsBecauseOneDataSetNeedsAnExperiment()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1[NET] DS2\n"
-                + "S1, data sets: DS1[NET] DS2\n");
+                + "S1, data sets: DS1[NET] DS2\n", false);
 
         try
         {
@@ -422,7 +422,7 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
     public void addSampleToAnExperimentFailingBecauseSampleHasAlreadyAnExperiment()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1\n"
-                + "E2\n");
+                + "E2\n", false);
 
         try
         {
@@ -486,7 +486,7 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
     public void spaceSampleCanNotBeAddedToExperimentFromAnotherSpace()
     {
         EntityGraphGenerator g = parseAndCreateGraph("/S2/P1/E1\n"
-                + "/S1/S1\n");
+                + "/S1/S1\n", false);
 
         try
         {
@@ -605,7 +605,7 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
     public void sampleWithExperimentCanNotBeAssignedToAnotherExperimentThroughExperimentUpdate()
     {
         EntityGraphGenerator g = parseAndCreateGraph("/S1/P1/E1, samples: /S1/S1\n"
-                + "/S1/P2/E2\n");
+                + "/S1/P2/E2\n", false);
 
         try
         {
@@ -624,7 +624,7 @@ public abstract class AbstractAssignmentSampleToExperimentTestCase extends BaseT
     public void sharedSampleCanNotBeAssignedToExperimentThroughExperimentUpdate()
     {
         EntityGraphGenerator g = parseAndCreateGraph("/S1/P1/E1\n"
-                + "/S1\n");
+                + "/S1\n", false);
 
         try
         {

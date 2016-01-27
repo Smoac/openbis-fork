@@ -118,7 +118,7 @@ public abstract class AbstractEntityDeletionTestCase extends BaseTest
     public final void testTrashExperimentWithSampleAndDataSet()
     {
         EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1\n"
-                + "S1, data sets: DS1\n");
+                + "S1, data sets: DS1\n", false);
 
         deleteExperiments(g.e(1));
         
@@ -170,7 +170,7 @@ public abstract class AbstractEntityDeletionTestCase extends BaseTest
         EntityGraphGenerator g = parseAndCreateGraph("E1, samples: S1, data sets: DS1\n"
                 + "E2, data sets: DS2\n"
                 + "S1, data sets: DS1\n"
-                + "DS1, components: DS2\n");
+                + "DS1, components: DS2\n", false);
         
         failTrashExperiment(g.e(2), createExpectedErrorMessage(g.ds(2), g.ds(1), g.s(1)));
         
@@ -229,8 +229,7 @@ public abstract class AbstractEntityDeletionTestCase extends BaseTest
                 + "E2, data sets: DS1\n"
                 + "S1, data sets: DS2 DS3\n"
                 + "DS1, components: DS2\n"
-                + "DS2, components: DS3\n"
-                );
+                + "DS2, components: DS3\n", false);
         
         failTrashExperiment(g.e(1), createExpectedErrorMessage(g.ds(2), g.ds(1), g.e(2)));
         
@@ -409,7 +408,7 @@ public abstract class AbstractEntityDeletionTestCase extends BaseTest
         EntityGraphGenerator g = parseAndCreateGraph("S1, components: S2\n"
                 + "S2, data sets: DS2[NET]\n"
                 + "S3, data sets: DS1[NECT]\n"
-                + "DS1[NECT], components: DS2[NET]\n");
+                + "DS1[NECT], components: DS2[NET]\n", false);
         
         failTrashSample(g.s(1), createExpectedErrorMessage(g.ds(2), g.ds(1), g.s(3)));
         
@@ -427,7 +426,7 @@ public abstract class AbstractEntityDeletionTestCase extends BaseTest
         EntityGraphGenerator g = parseAndCreateGraph("E1, data sets: DS1\n"
                 + "S1, components: S2\n"
                 + "S2, data sets: DS2[NET]\n"
-                + "DS1, components: DS2[NET]\n");
+                + "DS1, components: DS2[NET]\n", false);
         
         failTrashSample(g.s(1), createExpectedErrorMessage(g.ds(2), g.ds(1), g.e(1)));
         
@@ -446,7 +445,7 @@ public abstract class AbstractEntityDeletionTestCase extends BaseTest
                 + "S2, data sets: DS2[NECT]\n"
                 + "DS1[NECT], components: DS3[NET] DS4[NECT] DS5[NET]\n"
                 + "DS2[NECT], components: DS4[NECT]\n"
-                + "DS4[NECT], components: DS5[NET] DS6[NET]\n");
+                + "DS4[NECT], components: DS5[NET] DS6[NET]\n", false);
         
         failTrashSample(g.s(1), createExpectedErrorMessage(g.ds(4), g.ds(2), g.s(2)));
         
@@ -462,7 +461,7 @@ public abstract class AbstractEntityDeletionTestCase extends BaseTest
     @Rollback(true)
     public void testTrashSampleWithComponentsFromAnInvisibleSpace()
     {
-        EntityGraphGenerator g = parseAndCreateGraph("/S1/S1, components: /S2/S2\n");
+        EntityGraphGenerator g = parseAndCreateGraph("/S1/S1, components: /S2/S2\n", false);
         SessionBuilder sessionBuilder = aSession().withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, 
                 entityGraphManager.getSample(g.s(1)).getSpace());
         String userSessionToken = create(sessionBuilder);
