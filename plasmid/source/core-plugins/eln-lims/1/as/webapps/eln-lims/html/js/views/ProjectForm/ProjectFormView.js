@@ -149,5 +149,6 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			$formColumn.append($updateBtn);
 		}
 		$container.append($form);
+		FormUtil.activateRichTextProperties();
 	}
 }
