@@ -32,6 +32,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.DeletionSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
@@ -180,12 +181,12 @@ public interface IApplicationServerApi extends IRpcService
 
     public void deleteMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialDeletionOptions deletionOptions);
 
-    public List<Deletion> listDeletions(String sessionToken, DeletionFetchOptions fetchOptions);
+    public List<Deletion> searchDeletions(String sessionToken, DeletionSearchCriteria searchCriteria, DeletionFetchOptions fetchOptions);
 
     public void revertDeletions(String sessionToken, List<? extends IDeletionId> deletionIds);
 
     public void confirmDeletions(String sessionToken, List<? extends IDeletionId> deletionIds);
-    
+
     public Serializable executeService(String sessionToken, IServiceId serviceId, ExecutionOptions options);
 
 }
