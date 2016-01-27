@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,8 +36,10 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
@@ -105,12 +108,14 @@ public class UpdateExperimentExecutor extends AbstractUpdateEntityExecutor<Exper
         updateExperimentProjectExecutor.update(context, entitiesMap);
 
         Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
+        PersonPE person = context.getSession().tryGetPerson();
+        Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
         for (Map.Entry<ExperimentUpdate, ExperimentPE> entry : entitiesMap.entrySet())
         {
             ExperimentUpdate update = entry.getKey();
             ExperimentPE entity = entry.getValue();
 
-            RelationshipUtils.updateModificationDateAndModifier(entity, context.getSession().tryGetPerson());
+            RelationshipUtils.updateModificationDateAndModifier(entity, person, timeStamp);
             updateTagForEntityExecutor.update(context, entity, update.getTagIds());
 
             if (update.getAttachments() != null && update.getAttachments().hasActions())

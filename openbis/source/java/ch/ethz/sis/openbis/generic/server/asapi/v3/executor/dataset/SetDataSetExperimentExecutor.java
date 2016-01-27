@@ -16,12 +16,17 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSetEntityExperimentRelationExecutor;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
@@ -34,6 +39,9 @@ public class SetDataSetExperimentExecutor extends AbstractSetEntityExperimentRel
         ISetDataSetExperimentExecutor
 {
 
+    @Autowired
+    private IDAOFactory daoFactory;
+
     @Override
     protected IExperimentId getRelatedId(DataSetCreation creation)
     {
@@ -45,7 +53,8 @@ public class SetDataSetExperimentExecutor extends AbstractSetEntityExperimentRel
     {
         if (related != null)
         {
-            RelationshipUtils.setExperimentForDataSet(entity, related, context.getSession());
+            Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
+            RelationshipUtils.setExperimentForDataSet(entity, related, context.getSession(), timeStamp);
         }
     }
 

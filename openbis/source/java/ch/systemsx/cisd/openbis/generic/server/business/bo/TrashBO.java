@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -141,7 +142,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
             }
         }
         assertDataSetDeletionBusinessRules(experimentIds, sampleIds, dataSetIds);
-        TrashOperationsManager trashManager = new TrashOperationsManager(session, deletion, this);
+        TrashOperationsManager trashManager = new TrashOperationsManager(session, deletion, this, getTransactionTimeStamp());
         trashDataSets(trashManager, dataSetIds, true, new IDataSetFilter()
             {
                 @Override
@@ -172,7 +173,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
     public void trashExperiments(List<TechId> experimentIds)
     {
         assert deletion != null;
-        TrashOperationsManager trashManager = new TrashOperationsManager(session, deletion, this);
+        TrashOperationsManager trashManager = new TrashOperationsManager(session, deletion, this, getTransactionTimeStamp());
         trashManager.addTrashOperation(EntityKind.EXPERIMENT, experimentIds, true);
         Set<TechId> eIds = new LinkedHashSet<TechId>(experimentIds);
         Set<TechId> dependentSampleIds = trashExperimentDependentSamples(trashManager, eIds);
@@ -185,7 +186,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
     {
         assert deletion != null;
 
-        TrashOperationsManager trashManager = new TrashOperationsManager(session, deletion, this);
+        TrashOperationsManager trashManager = new TrashOperationsManager(session, deletion, this, getTransactionTimeStamp());
         Set<TechId> allSampleIds 
                 = trashSamples(trashManager, sampleIds, CascadeSampleDependentComponents.TRUE, true);
         Set<TechId> experimentsOfSamples = getExperimentsOfSamples(sampleIds);
@@ -529,12 +530,14 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         private final ExperimentPEPredicate experimentPredicate;
         private final SamplePEPredicate samplesPredicate;
         private final DataPEPredicate dataSetPredicate;
+        private final Date modificationTimestamp;
         
-        TrashOperationsManager(Session session, DeletionPE deletion, IDAOFactory daoFactory)
+        TrashOperationsManager(Session session, DeletionPE deletion, IDAOFactory daoFactory, Date modificationTimestamp)
         {
             this.session = session;
             this.deletion = deletion;
             this.daoFactory = daoFactory;
+            this.modificationTimestamp = modificationTimestamp;
             EntityKind[] values = EntityKind.values();
             for (EntityKind entityKind : values)
             {
@@ -611,7 +614,8 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
             if (ids.isEmpty() == false)
             {
                 List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listByIDs(ids);
-                RelationshipUtils.updateModificationDateAndModifierOfRelatedProjectsOfExperiments(experiments, session);
+                RelationshipUtils.updateModificationDateAndModifierOfRelatedProjectsOfExperiments(
+                        experiments, session, modificationTimestamp);
             }
         }
         
@@ -621,7 +625,8 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
             if (ids.isEmpty() == false)
             {
                 List<SamplePE> samples = daoFactory.getSampleDAO().listByIDs(ids);
-                RelationshipUtils.updateModificationDateAndModifierOfRelatedEntitiesOfSamples(samples, session);
+                RelationshipUtils.updateModificationDateAndModifierOfRelatedEntitiesOfSamples(
+                        samples, session, modificationTimestamp);
             }
         }
         
@@ -631,7 +636,8 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
             if (ids.isEmpty() == false)
             {
                 List<DataPE> dataSets = daoFactory.getDataDAO().listByIDs(ids);
-                RelationshipUtils.updateModificationDateAndModifierOfRelatedEntitiesOfDataSets(dataSets, session);
+                RelationshipUtils.updateModificationDateAndModifierOfRelatedEntitiesOfDataSets(
+                        dataSets, session, modificationTimestamp);
             }
         }
         

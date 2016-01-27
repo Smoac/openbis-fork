@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,11 +34,14 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractDeleteEntityExecutor;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
 /**
@@ -47,6 +51,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 public class DeleteSampleExecutor extends AbstractDeleteEntityExecutor<IDeletionId, ISampleId, SamplePE, SampleDeletionOptions> implements
         IDeleteSampleExecutor
 {
+    @Autowired
+    private IDAOFactory daoFactory;
 
     @Autowired
     IMapSampleByIdExecutor mapSampleByIdExecutor;
@@ -69,27 +75,29 @@ public class DeleteSampleExecutor extends AbstractDeleteEntityExecutor<IDeletion
     @Override
     protected void updateModificationDateAndModifier(IOperationContext context, SamplePE sample)
     {
+        Session session = context.getSession();
+        Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
         ExperimentPE experiment = sample.getExperiment();
         if (experiment != null)
         {
-            RelationshipUtils.updateModificationDateAndModifier(experiment, context.getSession());
+            RelationshipUtils.updateModificationDateAndModifier(experiment, session, timeStamp);
         }
         ProjectPE project = sample.getProject();
         if (project != null)
         {
-            RelationshipUtils.updateModificationDateAndModifier(project, context.getSession());
+            RelationshipUtils.updateModificationDateAndModifier(project, session, timeStamp);
         }
         SamplePE container = sample.getContainer();
         if (container != null)
         {
-            RelationshipUtils.updateModificationDateAndModifier(container, context.getSession());
+            RelationshipUtils.updateModificationDateAndModifier(container, session, timeStamp);
         }
         List<SamplePE> parents = sample.getParents();
         if (parents != null)
         {
             for (SamplePE parent : parents)
             {
-                RelationshipUtils.updateModificationDateAndModifier(parent, context.getSession());
+                RelationshipUtils.updateModificationDateAndModifier(parent, session, timeStamp);
             }
         }
         Set<SampleRelationshipPE> childRelationships = sample.getChildRelationships();
@@ -98,7 +106,7 @@ public class DeleteSampleExecutor extends AbstractDeleteEntityExecutor<IDeletion
             for (SampleRelationshipPE childRelationship : childRelationships)
             {
                 SamplePE childSample = childRelationship.getChildSample();
-                RelationshipUtils.updateModificationDateAndModifier(childSample, context.getSession());
+                RelationshipUtils.updateModificationDateAndModifier(childSample, session, timeStamp);
             }
         }
     }

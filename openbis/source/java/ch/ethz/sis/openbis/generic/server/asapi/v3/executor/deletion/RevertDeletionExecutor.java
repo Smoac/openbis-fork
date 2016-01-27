@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.deletion;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObject
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDeletionTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
@@ -50,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
 /**
@@ -156,33 +159,37 @@ public class RevertDeletionExecutor implements IRevertDeletionExecutor
     {
         List<ExperimentPE> experiments =
                 daoFactory.getExperimentDAO().listByIDs(TechId.asLongs(experimentIds));
+        Session session = context.getSession();
+        Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
         for (ExperimentPE experiment : experiments)
         {
-            RelationshipUtils.updateModificationDateAndModifier(experiment.getProject(), context.getSession());
+            RelationshipUtils.updateModificationDateAndModifier(experiment.getProject(), session, timeStamp);
         }
     }
 
     private void updateModificationDateAndModifierOfRelatedEntitiesOfSamples(IOperationContext context, Collection<TechId> sampleIds)
     {
         List<SamplePE> samples = daoFactory.getSampleDAO().listByIDs(TechId.asLongs(sampleIds));
+        Session session = context.getSession();
+        Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
         for (SamplePE sample : samples)
         {
             ExperimentPE experiment = sample.getExperiment();
             if (experiment != null)
             {
-                RelationshipUtils.updateModificationDateAndModifier(experiment, context.getSession());
+                RelationshipUtils.updateModificationDateAndModifier(experiment, session, timeStamp);
             }
             SamplePE container = sample.getContainer();
             if (container != null)
             {
-                RelationshipUtils.updateModificationDateAndModifier(container, context.getSession());
+                RelationshipUtils.updateModificationDateAndModifier(container, session, timeStamp);
             }
             List<SamplePE> parents = sample.getParents();
             if (parents != null)
             {
                 for (SamplePE parent : parents)
                 {
-                    RelationshipUtils.updateModificationDateAndModifier(parent, context.getSession());
+                    RelationshipUtils.updateModificationDateAndModifier(parent, session, timeStamp);
                 }
             }
             Set<SampleRelationshipPE> childRelationships = sample.getChildRelationships();
@@ -191,7 +198,7 @@ public class RevertDeletionExecutor implements IRevertDeletionExecutor
                 for (SampleRelationshipPE childRelationship : childRelationships)
                 {
                     SamplePE childSample = childRelationship.getChildSample();
-                    RelationshipUtils.updateModificationDateAndModifier(childSample, context.getSession());
+                    RelationshipUtils.updateModificationDateAndModifier(childSample, session, timeStamp);
                 }
             }
         }
@@ -200,21 +207,23 @@ public class RevertDeletionExecutor implements IRevertDeletionExecutor
     private void updateModificationDateAndModifierOfRelatedEntitiesOfDataSets(IOperationContext context, Collection<String> dataSetCodes)
     {
         List<DataPE> dataSets = daoFactory.getDataDAO().listByCode(new HashSet<String>(dataSetCodes));
+        Session session = context.getSession();
+        Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
         for (DataPE dataSet : dataSets)
         {
             ExperimentPE experiment = dataSet.getExperiment();
-            RelationshipUtils.updateModificationDateAndModifier(experiment, context.getSession());
+            RelationshipUtils.updateModificationDateAndModifier(experiment, session, timeStamp);
             SamplePE sample = dataSet.tryGetSample();
             if (sample != null)
             {
-                RelationshipUtils.updateModificationDateAndModifier(sample, context.getSession());
+                RelationshipUtils.updateModificationDateAndModifier(sample, session, timeStamp);
             }
             updateModificationDateAndModifierOfDataSets(context, dataSet.getChildren());
             updateModificationDateAndModifierOfDataSets(context, dataSet.getParents());
             Set<DataSetRelationshipPE> relationships = dataSet.getParentRelationships();
             for (DataSetRelationshipPE relationship : RelationshipUtils.getContainerComponentRelationships(relationships))
             {
-                RelationshipUtils.updateModificationDateAndModifier(relationship.getParentDataSet(), context.getSession());
+                RelationshipUtils.updateModificationDateAndModifier(relationship.getParentDataSet(), session, timeStamp);
             }
         }
     }
@@ -223,9 +232,11 @@ public class RevertDeletionExecutor implements IRevertDeletionExecutor
     {
         if (dataSets != null)
         {
+            Session session = context.getSession();
+            Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
             for (DataPE child : dataSets)
             {
-                RelationshipUtils.updateModificationDateAndModifier(child, context.getSession());
+                RelationshipUtils.updateModificationDateAndModifier(child, session, timeStamp);
             }
         }
     }

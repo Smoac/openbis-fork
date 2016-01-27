@@ -458,7 +458,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         experiment.setCode(CodeConverter.tryToDatabase(experiment.getCode()));
         if (experiment.getModificationDate() == null)
         {
-            experiment.setModificationDate(new Date());
+            experiment.setModificationDate(getTransactionTimeStamp());
         }
         validatePE(experiment);
         final HibernateTemplate template = getHibernateTemplate();

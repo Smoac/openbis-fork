@@ -231,8 +231,9 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         }
 
         ExperimentPE experiment = sample.getExperiment();
-        RelationshipUtils.setSampleForDataSet(data, sample, session);
-        RelationshipUtils.setExperimentForDataSet(data, experiment, session);
+        Date transactionTimeStamp = getTransactionTimeStamp();
+        RelationshipUtils.setSampleForDataSet(data, sample, session, transactionTimeStamp);
+        RelationshipUtils.setExperimentForDataSet(data, experiment, session, transactionTimeStamp);
 
         setParentDataSets(experiment, sample, newData);
     }
@@ -284,7 +285,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             define(newData, sourceType);
         }
 
-        RelationshipUtils.setExperimentForDataSet(data, experiment, session);
+        RelationshipUtils.setExperimentForDataSet(data, experiment, session, getTransactionTimeStamp());
         setParentDataSets(experiment, null, newData);
     }
 
@@ -354,7 +355,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
 
         PersonPE registrator = tryToGetRegistrator(newData);
         externalData.setRegistrator(registrator);
-        RelationshipUtils.updateModificationDateAndModifier(externalData, registrator);
+        RelationshipUtils.updateModificationDateAndModifier(externalData, registrator, getTransactionTimeStamp());
         dataStore = tryToFindDataStoreByCode(newData.getDataStoreCode());
         externalData.setDataStore(dataStore);
         defineDataSetProperties(externalData,
@@ -404,7 +405,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         dataPE.setDataSetType(getDataSetType(dataSetType, DataSetKind.CONTAINER));
         PersonPE registrator = tryToGetRegistrator(newData);
         dataPE.setRegistrator(registrator);
-        RelationshipUtils.updateModificationDateAndModifier(dataPE, registrator);
+        RelationshipUtils.updateModificationDateAndModifier(dataPE, registrator, getTransactionTimeStamp());
         dataStore = tryToFindDataStoreByCode(newData.getDataStoreCode());
         dataPE.setDataStore(dataStore);
         defineDataSetProperties(dataPE, convertToDataSetProperties(newData.getDataSetProperties()));

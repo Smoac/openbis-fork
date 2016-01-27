@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,8 +36,10 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
@@ -115,13 +118,15 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
         updateDataSetExperimentExecutor.update(context, entitiesMap);
         updateDataSetSampleExecutor.update(context, entitiesMap);
 
+        PersonPE person = context.getSession().tryGetPerson();
+        Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
         Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
         for (Map.Entry<DataSetUpdate, DataPE> entry : entitiesMap.entrySet())
         {
             DataSetUpdate update = entry.getKey();
             DataPE entity = entry.getValue();
 
-            RelationshipUtils.updateModificationDateAndModifier(entity, context.getSession().tryGetPerson());
+            RelationshipUtils.updateModificationDateAndModifier(entity, person, timeStamp);
             updateTagForEntityExecutor.update(context, entity, update.getTagIds());
 
             if (update.getProperties() != null && false == update.getProperties().isEmpty())

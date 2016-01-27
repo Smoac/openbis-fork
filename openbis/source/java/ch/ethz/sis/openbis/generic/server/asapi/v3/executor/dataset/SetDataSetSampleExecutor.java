@@ -16,14 +16,20 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSetEntitySampleRelationExecutor;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
 /**
@@ -33,6 +39,9 @@ import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 public class SetDataSetSampleExecutor extends AbstractSetEntitySampleRelationExecutor<DataSetCreation, DataPE> implements
         ISetDataSetSampleExecutor
 {
+
+    @Autowired
+    private IDAOFactory daoFactory;
 
     @Override
     protected ISampleId getRelatedId(DataSetCreation creation)
@@ -45,8 +54,10 @@ public class SetDataSetSampleExecutor extends AbstractSetEntitySampleRelationExe
     {
         if (related != null)
         {
-            RelationshipUtils.setSampleForDataSet(entity, related, context.getSession());
-            RelationshipUtils.setExperimentForDataSet(entity, related.getExperiment(), context.getSession());
+            Session session = context.getSession();
+            Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
+            RelationshipUtils.setSampleForDataSet(entity, related, session, timeStamp);
+            RelationshipUtils.setExperimentForDataSet(entity, related.getExperiment(), session, timeStamp);
         }
     }
 

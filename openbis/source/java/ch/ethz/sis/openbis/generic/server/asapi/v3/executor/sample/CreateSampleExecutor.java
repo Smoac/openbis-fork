@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,11 +55,13 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTr
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityCodeGenerator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleCodeGeneratorByType;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -165,6 +168,8 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
 
         // Create SamplePE objects
         List<SamplePE> samples = new LinkedList<SamplePE>();
+        PersonPE person = context.getSession().tryGetPerson();
+        Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
         for (SampleCreation creation : creations)
         {
             SamplePE sample = new SamplePE();
@@ -176,8 +181,8 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
             sample.setCode(creation.getCode());
             String createdPermId = daoFactory.getPermIdDAO().createPermId();
             sample.setPermId(createdPermId);
-            sample.setRegistrator(context.getSession().tryGetPerson());
-            RelationshipUtils.updateModificationDateAndModifier(sample, context.getSession().tryGetPerson());
+            sample.setRegistrator(person);
+            RelationshipUtils.updateModificationDateAndModifier(sample, person, timeStamp);
             samples.add(sample);
         }
 

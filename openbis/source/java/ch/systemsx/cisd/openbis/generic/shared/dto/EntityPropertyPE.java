@@ -31,11 +31,12 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.SortedNumericDocValuesField;
 import org.apache.lucene.util.NumericUtils;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
 import org.hibernate.search.annotations.ClassBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -43,8 +44,8 @@ import org.hibernate.search.annotations.Resolution;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.LuceneOptions;
-import org.hibernate.search.bridge.builtin.NumericFieldBridge;
 import org.hibernate.search.bridge.builtin.StringEncodingDateBridge;
+import org.hibernate.type.DbTimestampType;
 
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
@@ -65,6 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator.Supp
  */
 @MappedSuperclass
 @ClassBridge(index = Index.YES, store = Store.YES, impl = EntityPropertyPE.EntityPropertySearchBridge.class)
+@TypeDefs({@TypeDef(name="transactiontimestamp", typeClass=DbTimestampType.class)})
 public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHolder implements
         IUntypedValueSetter, IEntityPropertyHolder
 {
@@ -264,6 +266,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
 
     @Version
     @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
+    @Type(type = "transactiontimestamp")
     public Date getModificationDate()
     {
         return modificationDate;

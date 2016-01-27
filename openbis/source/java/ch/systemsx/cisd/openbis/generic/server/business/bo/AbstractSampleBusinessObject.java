@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -153,7 +152,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         samplePE.setRegistrator(registrator);
         samplePE.setSampleType(sampleTypePE);
         samplePE.setSpace(sampleOwner.tryGetSpace());
-        RelationshipUtils.updateModificationDateAndModifier(samplePE, registrator);
+        RelationshipUtils.updateModificationDateAndModifier(samplePE, registrator, getTransactionTimeStamp());
         defineSampleProperties(samplePE, newSample.getProperties());
         String containerIdentifier = newSample.getContainerIdentifierForNewSample();
         setContainer(sampleIdentifier, samplePE, containerIdentifier,
@@ -173,7 +172,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         if (experimentOrNull != null)
         {
             experimentOrNull.setModifier(findPerson());
-            experimentOrNull.setModificationDate(new Date());
+            experimentOrNull.setModificationDate(getTransactionTimeStamp());
         }
     }
 

@@ -366,7 +366,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         experiment.setPermId(getOrCreatePermID(newExperiment));
         setMetaprojects(experiment, newExperiment.getMetaprojectsOrNull());
         addAttachments(experiment, newExperiment.getAttachments(), attachments);
-        RelationshipUtils.updateModificationDateAndModifier(experiment, session);
+        RelationshipUtils.updateModificationDateAndModifier(experiment, session, getTransactionTimeStamp());
         dataChanged = true;
     }
 
@@ -387,7 +387,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
             throw UserFailureException.fromTemplate(ERR_PROJECT_NOT_FOUND, newExperiment);
         }
         experiment.setProject(project);
-        RelationshipUtils.updateModificationDateAndModifier(project, session);
+        RelationshipUtils.updateModificationDateAndModifier(project, session, getTransactionTimeStamp());
     }
 
     private void defineExperimentType(NewExperiment newExperiment)

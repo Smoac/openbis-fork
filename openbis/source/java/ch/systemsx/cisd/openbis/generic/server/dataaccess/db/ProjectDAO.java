@@ -173,7 +173,7 @@ public class ProjectDAO extends AbstractGenericEntityDAO<ProjectPE> implements I
 
         project.setCode(CodeConverter.tryToDatabase(project.getCode()));
         project.setModifier(modifier);
-        project.setModificationDate(new Date());
+        project.setModificationDate(getTransactionTimeStamp());
         final HibernateTemplate template = getHibernateTemplate();
         template.saveOrUpdate(project);
         template.flush();

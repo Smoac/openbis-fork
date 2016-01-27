@@ -144,6 +144,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calcu
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.IEntityValidatorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.api.IEntityValidator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationScriptRunner;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -2067,7 +2068,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             case PERMANENT:
                 List<DataPE> dataSets1 = getDAOFactory().getDataDAO().listByCode(new HashSet<String>(dataSetCodes));
-                RelationshipUtils.updateModificationDateAndModifierOfRelatedEntitiesOfDataSets(dataSets1, session);
+                Date timeStamp = UpdateUtils.getTransactionTimeStamp(getDAOFactory());
+                RelationshipUtils.updateModificationDateAndModifierOfRelatedEntitiesOfDataSets(dataSets1, session, timeStamp);
                 if (isTrashEnabled)
                 {
                     IDeletedDataSetTable deletedDataSetTable =
@@ -2107,7 +2109,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             case PERMANENT:
                 List<SamplePE> samples = getDAOFactory().getSampleDAO().listByIDs(TechId.asLongs(sampleIds));
-                RelationshipUtils.updateModificationDateAndModifierOfRelatedEntitiesOfSamples(samples, session);
+                Date timeStamp = UpdateUtils.getTransactionTimeStamp(getDAOFactory());
+                RelationshipUtils.updateModificationDateAndModifierOfRelatedEntitiesOfSamples(samples, session, timeStamp);
                 ISampleTable sampleTableBO = businessObjectFactory.createSampleTable(session);
                 sampleTableBO.deleteByTechIds(sampleIds, reason);
                 break;
@@ -2132,7 +2135,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             case PERMANENT:
                 List<ExperimentPE> experiments = getDAOFactory().getExperimentDAO().listByIDs(TechId.asLongs(experimentIds));
-                RelationshipUtils.updateModificationDateAndModifierOfRelatedProjectsOfExperiments(experiments, session);
+                Date timeStamp = UpdateUtils.getTransactionTimeStamp(getDAOFactory());
+                RelationshipUtils.updateModificationDateAndModifierOfRelatedProjectsOfExperiments(experiments, session, timeStamp);
                 experimentBO.deleteByTechIds(experimentIds, reason);
                 break;
             case TRASH:
@@ -3952,12 +3956,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 trashBO.revertDeletion(new TechId(deletionId));
             }
         }
+        Date timeStamp = UpdateUtils.getTransactionTimeStamp(getDAOFactory());
         List<ExperimentPE> experiments = getDAOFactory().getExperimentDAO().listByIDs(TechId.asLongs(deletedExperimentIds));
-        RelationshipUtils.updateModificationDateAndModifierOfRelatedProjectsOfExperiments(experiments, session);
+        RelationshipUtils.updateModificationDateAndModifierOfRelatedProjectsOfExperiments(experiments, session, timeStamp);
         List<SamplePE> samples = getDAOFactory().getSampleDAO().listByIDs(TechId.asLongs(deletedSampleIds));
-        RelationshipUtils.updateModificationDateAndModifierOfRelatedEntitiesOfSamples(samples, session);
+        RelationshipUtils.updateModificationDateAndModifierOfRelatedEntitiesOfSamples(samples, session, timeStamp);
         List<DataPE> dataSets = getDAOFactory().getDataDAO().listByCode(new HashSet<String>(deletedDataSetCodes));
-        RelationshipUtils.updateModificationDateAndModifierOfRelatedEntitiesOfDataSets(dataSets, session);
+        RelationshipUtils.updateModificationDateAndModifierOfRelatedEntitiesOfDataSets(dataSets, session, timeStamp);
     }
 
     @Override

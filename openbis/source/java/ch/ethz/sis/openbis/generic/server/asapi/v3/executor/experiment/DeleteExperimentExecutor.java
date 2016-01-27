@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -32,8 +33,11 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractDeleteEntityExecutor;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
 /**
@@ -43,6 +47,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 public class DeleteExperimentExecutor extends AbstractDeleteEntityExecutor<IDeletionId, IExperimentId, ExperimentPE, ExperimentDeletionOptions>
         implements IDeleteExperimentExecutor
 {
+    @Autowired
+    private IDAOFactory daoFactory;
 
     @Autowired
     IMapExperimentByIdExecutor mapExperimentByIdExecutor;
@@ -65,7 +71,9 @@ public class DeleteExperimentExecutor extends AbstractDeleteEntityExecutor<IDele
     @Override
     protected void updateModificationDateAndModifier(IOperationContext context, ExperimentPE entity)
     {
-        RelationshipUtils.updateModificationDateAndModifier(entity.getProject(), context.getSession());
+        Session session = context.getSession();
+        Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
+        RelationshipUtils.updateModificationDateAndModifier(entity.getProject(), session, timeStamp);
     }
 
     @Override

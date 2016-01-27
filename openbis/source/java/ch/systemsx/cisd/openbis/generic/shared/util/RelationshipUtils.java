@@ -40,34 +40,36 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 public class RelationshipUtils
 {
 
-    public static void updateModificationDateAndModifierOfRelatedProjectsOfExperiments(List<ExperimentPE> experiments, IAuthSession session)
+    public static void updateModificationDateAndModifierOfRelatedProjectsOfExperiments(
+            List<ExperimentPE> experiments, IAuthSession session, Date modificationTimestamp)
     {
         for (ExperimentPE experiment : experiments)
         {
-            updateModificationDateAndModifier(experiment.getProject(), session);
+            updateModificationDateAndModifier(experiment.getProject(), session, modificationTimestamp);
         }
     }
 
-    public static void updateModificationDateAndModifierOfRelatedEntitiesOfSamples(List<SamplePE> samples, IAuthSession session)
+    public static void updateModificationDateAndModifierOfRelatedEntitiesOfSamples(List<SamplePE> samples, 
+            IAuthSession session, Date modificationTimestamp)
     {
         for (SamplePE sample : samples)
         {
             ExperimentPE experiment = sample.getExperiment();
             if (experiment != null)
             {
-                updateModificationDateAndModifier(experiment, session);
+                updateModificationDateAndModifier(experiment, session, modificationTimestamp);
             }
             SamplePE container = sample.getContainer();
             if (container != null)
             {
-                updateModificationDateAndModifier(container, session);
+                updateModificationDateAndModifier(container, session, modificationTimestamp);
             }
             List<SamplePE> parents = sample.getParents();
             if (parents != null)
             {
                 for (SamplePE parent : parents)
                 {
-                    updateModificationDateAndModifier(parent, session);
+                    updateModificationDateAndModifier(parent, session, modificationTimestamp);
                 }
             }
             Set<SampleRelationshipPE> childRelationships = sample.getChildRelationships();
@@ -76,40 +78,42 @@ public class RelationshipUtils
                 for (SampleRelationshipPE childRelationship : childRelationships)
                 {
                     SamplePE childSample = childRelationship.getChildSample();
-                    updateModificationDateAndModifier(childSample, session);
+                    updateModificationDateAndModifier(childSample, session, modificationTimestamp);
                 }
             }
         }
     }
 
-    public static void updateModificationDateAndModifierOfRelatedEntitiesOfDataSets(List<DataPE> dataSets, IAuthSession session)
+    public static void updateModificationDateAndModifierOfRelatedEntitiesOfDataSets(List<DataPE> dataSets, 
+            IAuthSession session, Date modificationTimestamp)
     {
         for (DataPE dataSet : dataSets)
         {
             ExperimentPE experiment = dataSet.getExperiment();
-            updateModificationDateAndModifier(experiment, session);
+            updateModificationDateAndModifier(experiment, session, modificationTimestamp);
             SamplePE sample = dataSet.tryGetSample();
             if (sample != null)
             {
-                updateModificationDateAndModifier(sample, session);
+                updateModificationDateAndModifier(sample, session, modificationTimestamp);
             }
-            RelationshipUtils.updateModificationDateAndModifierOfDataSets(dataSet.getChildren(), session);
-            RelationshipUtils.updateModificationDateAndModifierOfDataSets(dataSet.getParents(), session);
+            RelationshipUtils.updateModificationDateAndModifierOfDataSets(dataSet.getChildren(), session, modificationTimestamp);
+            RelationshipUtils.updateModificationDateAndModifierOfDataSets(dataSet.getParents(), session, modificationTimestamp);
             Set<DataSetRelationshipPE> relationships = dataSet.getParentRelationships();
             for (DataSetRelationshipPE relationship : getContainerComponentRelationships(relationships))
             {
-                updateModificationDateAndModifier(relationship.getParentDataSet(), session);
+                updateModificationDateAndModifier(relationship.getParentDataSet(), session, modificationTimestamp);
             }
         }
     }
 
-    private static void updateModificationDateAndModifierOfDataSets(List<DataPE> dataSets, IAuthSession session)
+    private static void updateModificationDateAndModifierOfDataSets(List<DataPE> dataSets, 
+            IAuthSession session, Date modificationTimestamp)
     {
         if (dataSets != null)
         {
             for (DataPE child : dataSets)
             {
-                updateModificationDateAndModifier(child, session);
+                updateModificationDateAndModifier(child, session, modificationTimestamp);
             }
         }
     }
@@ -152,34 +156,34 @@ public class RelationshipUtils
         return result;
     }
 
-    public static void setSampleForDataSet(DataPE dataSet, SamplePE sample, IAuthSession session)
+    public static void setSampleForDataSet(DataPE dataSet, SamplePE sample, IAuthSession session, Date modificationTimestamp)
     {
-        updateModificationDateAndModifier(dataSet.tryGetSample(), session);
+        updateModificationDateAndModifier(dataSet.tryGetSample(), session, modificationTimestamp);
         dataSet.setSample(sample);
-        updateModificationDateAndModifier(sample, session);
-        updateModificationDateAndModifier(dataSet, session);
+        updateModificationDateAndModifier(sample, session, modificationTimestamp);
+        updateModificationDateAndModifier(dataSet, session, modificationTimestamp);
     }
 
     public static void setContainerForSample(SamplePE sample, SamplePE container,
-            IAuthSession session)
+            IAuthSession session, Date modificationTimestamp)
     {
-        updateModificationDateAndModifier(sample.getContainer(), session);
+        updateModificationDateAndModifier(sample.getContainer(), session, modificationTimestamp);
         sample.setContainer(container);
-        updateModificationDateAndModifier(container, session);
-        updateModificationDateAndModifier(sample, session);
+        updateModificationDateAndModifier(container, session, modificationTimestamp);
+        updateModificationDateAndModifier(sample, session, modificationTimestamp);
     }
 
     public static void setExperimentForDataSet(DataPE dataSet, ExperimentPE experiment,
-            IAuthSession session)
+            IAuthSession session, Date modificationTimestamp)
     {
-        updateModificationDateAndModifier(dataSet.getExperiment(), session);
+        updateModificationDateAndModifier(dataSet.getExperiment(), session, modificationTimestamp);
         dataSet.setExperiment(experiment);
-        updateModificationDateAndModifier(experiment, session);
-        updateModificationDateAndModifier(dataSet, session);
+        updateModificationDateAndModifier(experiment, session, modificationTimestamp);
+        updateModificationDateAndModifier(dataSet, session, modificationTimestamp);
     }
 
     public static void updateModificationDateAndModifier(
-            IModifierAndModificationDateBean beanOrNull, IAuthSession session)
+            IModifierAndModificationDateBean beanOrNull, IAuthSession session, Date modificationTimestamp)
     {
         if (beanOrNull == null)
         {
@@ -187,17 +191,17 @@ public class RelationshipUtils
         }
         log(beanOrNull, session);
         PersonPE person = session.tryGetPerson();
-        updateModificationDateAndModifier(beanOrNull, person);
+        updateModificationDateAndModifier(beanOrNull, person, modificationTimestamp);
     }
 
     public static void updateModificationDateAndModifier(
-            IModifierAndModificationDateBean beanOrNull, PersonPE personOrNull)
+            IModifierAndModificationDateBean beanOrNull, PersonPE personOrNull, Date modificationTimestamp)
     {
         if (personOrNull != null)
         {
             beanOrNull.setModifier(personOrNull);
         }
-        beanOrNull.setModificationDate(new Date());
+        beanOrNull.setModificationDate(modificationTimestamp);
     }
 
     private static void log(IModifierAndModificationDateBean beanOrNull, IAuthSession session)

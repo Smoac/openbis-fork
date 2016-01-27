@@ -92,7 +92,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         sample.setCode(CodeConverter.tryToDatabase(sample.getCode()));
         if (sample.getModificationDate() == null)
         {
-            sample.setModificationDate(new Date());
+            sample.setModificationDate(getTransactionTimeStamp());
         }
         lockEntity(sample.getExperiment());
         lockEntity(sample.getContainer());

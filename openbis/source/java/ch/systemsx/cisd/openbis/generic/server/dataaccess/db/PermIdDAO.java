@@ -54,7 +54,7 @@ public class PermIdDAO extends AbstractDAO implements IPermIdDAO
     public String createPermId()
     {
         long id = getNextSequenceId(SequenceNames.PERM_ID_SEQUENCE);
-        return DateFormatUtils.format(new Date(), PERM_ID_DATE_FORMAT_PATTERN) + "-"
+        return DateFormatUtils.format(getTransactionTimeStamp(), PERM_ID_DATE_FORMAT_PATTERN) + "-"
                 + Long.toString(id);
     }
 

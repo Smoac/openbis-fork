@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -45,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPE
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -52,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
@@ -146,8 +149,10 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
             dataSet.setCode(creation.getCode());
             dataSet.setDataSetType(type);
             dataSet.setDerived(false == creation.isMeasured());
-            dataSet.setRegistrator(context.getSession().tryGetPerson());
-            RelationshipUtils.updateModificationDateAndModifier(dataSet, context.getSession().tryGetPerson());
+            PersonPE person = context.getSession().tryGetPerson();
+            dataSet.setRegistrator(person);
+            Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
+            RelationshipUtils.updateModificationDateAndModifier(dataSet, person, timeStamp);
 
             dataSets.add(dataSet);
         }

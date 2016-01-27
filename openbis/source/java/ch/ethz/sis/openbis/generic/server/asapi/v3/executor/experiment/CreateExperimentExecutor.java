@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,10 +43,12 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
@@ -84,14 +87,16 @@ public class CreateExperimentExecutor extends AbstractCreateEntityExecutor<Exper
     {
         List<ExperimentPE> experiments = new LinkedList<ExperimentPE>();
 
+        PersonPE person = context.getSession().tryGetPerson();
+        Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
         for (ExperimentCreation creation : creations)
         {
             ExperimentPE experiment = new ExperimentPE();
             experiment.setCode(creation.getCode());
             String createdPermId = daoFactory.getPermIdDAO().createPermId();
             experiment.setPermId(createdPermId);
-            experiment.setRegistrator(context.getSession().tryGetPerson());
-            RelationshipUtils.updateModificationDateAndModifier(experiment, context.getSession().tryGetPerson());
+            experiment.setRegistrator(person);
+            RelationshipUtils.updateModificationDateAndModifier(experiment, person, timeStamp);
             experiments.add(experiment);
         }
 

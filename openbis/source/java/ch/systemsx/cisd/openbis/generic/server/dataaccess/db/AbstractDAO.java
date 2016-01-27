@@ -56,6 +56,7 @@ import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
@@ -173,6 +174,11 @@ public abstract class AbstractDAO extends HibernateDaoSupport
                         parameters.length == 1 ? parameters[0] : Arrays.asList(parameters)), 1,
                         size);
         }
+    }
+    
+    protected Date getTransactionTimeStamp()
+    {
+        return UpdateUtils.getTransactionTimeStamp(getSessionFactory());
     }
 
     /**

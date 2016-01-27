@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,9 +34,12 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractDeleteEntityExecutor;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
 /**
@@ -45,6 +49,9 @@ import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 public class DeleteDataSetExecutor extends AbstractDeleteEntityExecutor<IDeletionId, IDataSetId, DataPE, DataSetDeletionOptions> implements
         IDeleteDataSetExecutor
 {
+
+    @Autowired
+    private IDAOFactory daoFactory;
 
     @Autowired
     private IMapDataSetByIdExecutor mapDataSetByIdExecutor;
@@ -67,14 +74,16 @@ public class DeleteDataSetExecutor extends AbstractDeleteEntityExecutor<IDeletio
     @Override
     protected void updateModificationDateAndModifier(IOperationContext context, DataPE dataSet)
     {
-        RelationshipUtils.updateModificationDateAndModifier(dataSet.getExperiment(), context.getSession());
-        RelationshipUtils.updateModificationDateAndModifier(dataSet.tryGetSample(), context.getSession());
+        Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
+        Session session = context.getSession();
+        RelationshipUtils.updateModificationDateAndModifier(dataSet.getExperiment(), session, timeStamp);
+        RelationshipUtils.updateModificationDateAndModifier(dataSet.tryGetSample(), session, timeStamp);
         updateModificationDateAndModifierOfRelatedDataSets(context, dataSet.getChildren());
         updateModificationDateAndModifierOfRelatedDataSets(context, dataSet.getParents());
         Set<DataSetRelationshipPE> relationships = dataSet.getParentRelationships();
         for (DataSetRelationshipPE relationship : RelationshipUtils.getContainerComponentRelationships(relationships))
         {
-            RelationshipUtils.updateModificationDateAndModifier(relationship.getParentDataSet(), context.getSession());
+            RelationshipUtils.updateModificationDateAndModifier(relationship.getParentDataSet(), session, timeStamp);
         }
     }
 
@@ -82,9 +91,10 @@ public class DeleteDataSetExecutor extends AbstractDeleteEntityExecutor<IDeletio
     {
         if (dataSets != null)
         {
+            Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
             for (DataPE child : dataSets)
             {
-                RelationshipUtils.updateModificationDateAndModifier(child, context.getSession());
+                RelationshipUtils.updateModificationDateAndModifier(child, context.getSession(), timeStamp);
             }
         }
     }

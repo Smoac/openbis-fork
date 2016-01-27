@@ -79,6 +79,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ICodeSequenceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -611,8 +612,13 @@ abstract class AbstractBusinessObject implements IDAOFactory
                     .lock(entityAsPropertiesHolder);
             entityAsPropertiesHolder.setProperties(convertedProperties);
             entityAsModifiableBean.setModifier(findPerson());
-            entityAsModifiableBean.setModificationDate(new Date());
+            entityAsModifiableBean.setModificationDate(getTransactionTimeStamp());
         }
+    }
+    
+    protected Date getTransactionTimeStamp()
+    {
+        return UpdateUtils.getTransactionTimeStamp(daoFactory);
     }
 
     private boolean isEquals(Map<String, Object> existingPropertyValuesByCode,
@@ -660,7 +666,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
         PersonPE user = findPerson();
         attachment.setRegistrator(user);
         escapeFileName(attachment);
-        RelationshipUtils.updateModificationDateAndModifier(beanOrNull, user);
+        RelationshipUtils.updateModificationDateAndModifier(beanOrNull, user, getTransactionTimeStamp());
     }
 
     private void escapeFileName(final AttachmentPE attachment)

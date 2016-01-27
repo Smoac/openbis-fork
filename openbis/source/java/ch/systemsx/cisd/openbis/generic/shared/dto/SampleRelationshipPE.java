@@ -35,8 +35,12 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
 import org.hibernate.search.annotations.DateBridge;
 import org.hibernate.search.annotations.Resolution;
+import org.hibernate.type.DbTimestampType;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
@@ -49,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 @Table(name = TableNames.SAMPLE_RELATIONSHIPS_VIEW, uniqueConstraints = @UniqueConstraint(columnNames =
 { ColumnNames.PARENT_SAMPLE_COLUMN, ColumnNames.CHILD_SAMPLE_COLUMN,
         ColumnNames.RELATIONSHIP_COLUMN }))
+@TypeDefs({@TypeDef(name="transactiontimestamp", typeClass=DbTimestampType.class)})
 public class SampleRelationshipPE implements Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
@@ -170,6 +175,7 @@ public class SampleRelationshipPE implements Serializable
 
     @Version
     @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
+    @Type(type = "transactiontimestamp")
     public Date getModificationDate()
     {
         return modificationDate;

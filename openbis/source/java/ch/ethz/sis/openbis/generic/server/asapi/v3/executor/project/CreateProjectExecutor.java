@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,7 +40,9 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
@@ -69,6 +72,8 @@ public class CreateProjectExecutor extends AbstractCreateEntityExecutor<ProjectC
     {
         List<ProjectPE> projects = new LinkedList<ProjectPE>();
 
+        PersonPE person = context.getSession().tryGetPerson();
+        Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
         for (ProjectCreation creation : creations)
         {
             ProjectPE project = new ProjectPE();
@@ -76,8 +81,8 @@ public class CreateProjectExecutor extends AbstractCreateEntityExecutor<ProjectC
             String createdPermId = daoFactory.getPermIdDAO().createPermId();
             project.setPermId(createdPermId);
             project.setDescription(creation.getDescription());
-            project.setRegistrator(context.getSession().tryGetPerson());
-            RelationshipUtils.updateModificationDateAndModifier(project, context.getSession().tryGetPerson());
+            project.setRegistrator(person);
+            RelationshipUtils.updateModificationDateAndModifier(project, person, timeStamp);
             projects.add(project);
         }
 

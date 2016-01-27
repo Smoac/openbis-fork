@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business;
 
+import java.util.Date;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.BeansException;
@@ -26,6 +28,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
@@ -74,6 +77,7 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
     public void assignExperimentToProject(IAuthSession session, ExperimentPE experiment,
             ProjectPE project)
     {
+        Date timeStamp = getTransactionTimeStamp();
         SampleUtils.setSamplesSpace(experiment, project.getSpace());
         for (SamplePE sample : experiment.getSamples())
         {
@@ -81,24 +85,25 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
             if (sampleProject != null && EntityHelper.equalEntities(sampleProject, project) == false)
             {
                 sample.setProject(project);
-                RelationshipUtils.updateModificationDateAndModifier(sample, session);
+                RelationshipUtils.updateModificationDateAndModifier(sample, session, timeStamp);
             }
         }
         ProjectPE previousProject = experiment.getProject();
-        RelationshipUtils.updateModificationDateAndModifier(previousProject, session);
+        RelationshipUtils.updateModificationDateAndModifier(previousProject, session, timeStamp);
         experiment.setProject(project);
-        RelationshipUtils.updateModificationDateAndModifier(project, session);
-        RelationshipUtils.updateModificationDateAndModifier(experiment, session);
+        RelationshipUtils.updateModificationDateAndModifier(project, session, timeStamp);
+        RelationshipUtils.updateModificationDateAndModifier(experiment, session, timeStamp);
     }
 
     @Override
     public void assignSampleToProject(IAuthSession session, SamplePE sample, ProjectPE project)
     {
+        Date timeStamp = getTransactionTimeStamp();
         ProjectPE previousProject = sample.getProject();
-        RelationshipUtils.updateModificationDateAndModifier(previousProject, session);
+        RelationshipUtils.updateModificationDateAndModifier(previousProject, session, timeStamp);
         sample.setProject(project);
-        RelationshipUtils.updateModificationDateAndModifier(project, session);
-        RelationshipUtils.updateModificationDateAndModifier(sample, session);
+        RelationshipUtils.updateModificationDateAndModifier(project, session, timeStamp);
+        RelationshipUtils.updateModificationDateAndModifier(sample, session, timeStamp);
     }
 
     @Override
@@ -115,16 +120,17 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
     public void assignSampleToExperiment(IAuthSession session, SamplePE sample,
             ExperimentPE experiment)
     {
+        Date timeStamp = getTransactionTimeStamp();
         ExperimentPE currentExperiment = sample.getExperiment();
         if (currentExperiment != null)
         {
             service.checkCanUnassignSampleFromExperiment(session, sample);
-            RelationshipUtils.updateModificationDateAndModifier(currentExperiment, session);
+            RelationshipUtils.updateModificationDateAndModifier(currentExperiment, session, timeStamp);
         }
 
         sample.setExperiment(experiment);
-        RelationshipUtils.updateModificationDateAndModifier(sample, session);
-        RelationshipUtils.updateModificationDateAndModifier(experiment, session);
+        RelationshipUtils.updateModificationDateAndModifier(sample, session, timeStamp);
+        RelationshipUtils.updateModificationDateAndModifier(experiment, session, timeStamp);
     }
 
     @Override
@@ -139,9 +145,10 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
         ExperimentPE experiment = sample.getExperiment();
         if (experiment != null)
         {
+            Date timeStamp = getTransactionTimeStamp();
             experiment.removeSample(sample);
-            RelationshipUtils.updateModificationDateAndModifier(sample, session);
-            RelationshipUtils.updateModificationDateAndModifier(experiment, session);
+            RelationshipUtils.updateModificationDateAndModifier(sample, session, timeStamp);
+            RelationshipUtils.updateModificationDateAndModifier(experiment, session, timeStamp);
         }
     }
 
@@ -151,17 +158,19 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
         ProjectPE project = sample.getProject();
         if (project != null)
         {
+            Date timeStamp = getTransactionTimeStamp();
             sample.setProject(null);
-            RelationshipUtils.updateModificationDateAndModifier(sample, session);
-            RelationshipUtils.updateModificationDateAndModifier(project, session);
+            RelationshipUtils.updateModificationDateAndModifier(sample, session, timeStamp);
+            RelationshipUtils.updateModificationDateAndModifier(project, session, timeStamp);
         }
     }
 
     @Override
     public void assignSampleToSpace(IAuthSession session, SamplePE sample, SpacePE space)
     {
+        Date timeStamp = getTransactionTimeStamp();
         sample.setSpace(space);
-        RelationshipUtils.updateModificationDateAndModifier(sample, session);
+        RelationshipUtils.updateModificationDateAndModifier(sample, session, timeStamp);
     }
 
     @Override
@@ -173,14 +182,16 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
     @Override
     public void shareSample(IAuthSession session, SamplePE sample)
     {
+        Date timeStamp = getTransactionTimeStamp();
         sample.setSpace(null);
-        RelationshipUtils.updateModificationDateAndModifier(sample, session);
+        RelationshipUtils.updateModificationDateAndModifier(sample, session, timeStamp);
     }
 
     @Override
     public void assignDataSetToExperiment(IAuthSession session, DataPE data, ExperimentPE experimentOrNull)
     {
-        RelationshipUtils.setExperimentForDataSet(data, experimentOrNull, session);
+        Date timeStamp = getTransactionTimeStamp();
+        RelationshipUtils.setExperimentForDataSet(data, experimentOrNull, session, timeStamp);
     }
 
     @Override
@@ -191,7 +202,8 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
         {
             return;
         }
-        RelationshipUtils.setSampleForDataSet(data, sample, session);
+        Date timeStamp = getTransactionTimeStamp();
+        RelationshipUtils.setSampleForDataSet(data, sample, session, timeStamp);
     }
 
     @Override
@@ -202,8 +214,9 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
                 daoFactory.getRelationshipTypeDAO().tryFindRelationshipTypeByCode(
                         BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
 
-        RelationshipUtils.updateModificationDateAndModifier(sample, session);
-        RelationshipUtils.updateModificationDateAndModifier(parent, session);
+        Date timeStamp = getTransactionTimeStamp();
+        RelationshipUtils.updateModificationDateAndModifier(sample, session, timeStamp);
+        RelationshipUtils.updateModificationDateAndModifier(parent, session, timeStamp);
         sample.addParentRelationship(new SampleRelationshipPE(parent, sample, relationshipType,
                 actor));
     }
@@ -215,10 +228,11 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
         {
             if (relationship.getParentSample().equals(parent))
             {
+                Date timeStamp = getTransactionTimeStamp();
                 RelationshipUtils.updateModificationDateAndModifier(relationship.getChildSample(),
-                        session);
+                        session, timeStamp);
                 RelationshipUtils.updateModificationDateAndModifier(relationship.getParentSample(),
-                        session);
+                        session, timeStamp);
                 sample.removeParentRelationship(relationship);
                 return;
             }
@@ -230,13 +244,15 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
     @Override
     public void assignSampleToContainer(IAuthSession session, SamplePE sample, SamplePE container)
     {
-        RelationshipUtils.setContainerForSample(sample, container, session);
+        Date timeStamp = getTransactionTimeStamp();
+        RelationshipUtils.setContainerForSample(sample, container, session, timeStamp);
     }
 
     @Override
     public void removeSampleFromContainer(IAuthSession session, SamplePE sample)
     {
-        RelationshipUtils.setContainerForSample(sample, null, session);
+        Date timeStamp = getTransactionTimeStamp();
+        RelationshipUtils.setContainerForSample(sample, null, session, timeStamp);
     }
 
     @Override
@@ -254,8 +270,9 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
         {
             parent.addChildRelationship(relationship);
         }
-        RelationshipUtils.updateModificationDateAndModifier(child, session);
-        RelationshipUtils.updateModificationDateAndModifier(parent, session);
+        Date timeStamp = getTransactionTimeStamp();
+        RelationshipUtils.updateModificationDateAndModifier(child, session, timeStamp);
+        RelationshipUtils.updateModificationDateAndModifier(parent, session, timeStamp);
     }
 
     @Override
@@ -285,8 +302,9 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
             throw UserFailureException.fromTemplate(errorTemplate,
                     child.getCode(), parent.getCode());
         }
-        RelationshipUtils.updateModificationDateAndModifier(child, session);
-        RelationshipUtils.updateModificationDateAndModifier(parent, session);
+        Date timeStamp = getTransactionTimeStamp();
+        RelationshipUtils.updateModificationDateAndModifier(child, session, timeStamp);
+        RelationshipUtils.updateModificationDateAndModifier(parent, session, timeStamp);
     }
 
     @Override
@@ -318,6 +336,11 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
     {
         this.applicationContext = applicationContext;
+    }
+
+    private Date getTransactionTimeStamp()
+    {
+        return UpdateUtils.getTransactionTimeStamp(daoFactory);
     }
 
 }

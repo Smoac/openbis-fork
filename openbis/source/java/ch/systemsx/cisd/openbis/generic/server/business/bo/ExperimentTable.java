@@ -307,7 +307,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
                     updates.getOldExperimentIdentifier());
         }
         experiment.setModifier(findPerson());
-        experiment.setModificationDate(new Date());
+        experiment.setModificationDate(getTransactionTimeStamp());
         ExperimentBatchUpdateDetails details = updates.getDetails();
         batchUpdateProperties(experiment, updates.getProperties(), details.getPropertiesToUpdate());
 

@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
@@ -91,12 +94,14 @@ public class UpdateProjectExecutor extends AbstractUpdateEntityExecutor<ProjectU
     {
         updateProjectSpaceExecutor.update(context, entitiesMap);
 
+        PersonPE person = context.getSession().tryGetPerson();
+        Date timeStamp = UpdateUtils.getTransactionTimeStamp(daoFactory);
         for (Map.Entry<ProjectUpdate, ProjectPE> entry : entitiesMap.entrySet())
         {
             ProjectUpdate update = entry.getKey();
             ProjectPE project = entry.getValue();
 
-            RelationshipUtils.updateModificationDateAndModifier(project, context.getSession().tryGetPerson());
+            RelationshipUtils.updateModificationDateAndModifier(project, person, timeStamp);
 
             if (update.getDescription() != null && update.getDescription().isModified())
             {
