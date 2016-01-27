@@ -7,12 +7,13 @@ define([ 'jquery', 'openbis', 'dto/space/create/SpaceCreation', 'dto/project/cre
 		'dto/dataset/id/FileFormatTypePermId', 'dto/material/id/MaterialPermId', 'dto/tag/id/TagCode', 'dto/space/search/SpaceSearchCriteria', 'dto/project/search/ProjectSearchCriteria',
 		'dto/experiment/search/ExperimentSearchCriteria', 'dto/sample/search/SampleSearchCriteria', 'dto/dataset/search/DataSetSearchCriteria', 'dto/material/search/MaterialSearchCriteria',
 		'dto/space/fetchoptions/SpaceFetchOptions', 'dto/project/fetchoptions/ProjectFetchOptions', 'dto/experiment/fetchoptions/ExperimentFetchOptions', 'dto/sample/fetchoptions/SampleFetchOptions',
-		'dto/dataset/fetchoptions/DataSetFetchOptions', 'dto/material/fetchoptions/MaterialFetchOptions', 'dto/deletion/fetchoptions/DeletionFetchOptions' ], function($, openbis, SpaceCreation,
+		'dto/dataset/fetchoptions/DataSetFetchOptions', 'dto/material/fetchoptions/MaterialFetchOptions', 'dto/deletion/fetchoptions/DeletionFetchOptions', 'dto/deletion/search/DeletionSearchOptions'
+		 ], function($, openbis, SpaceCreation,
 		ProjectCreation, ExperimentCreation, SampleCreation, MaterialCreation, AttachmentCreation, SpaceUpdate, ProjectUpdate, ExperimentUpdate, SampleUpdate, DataSetUpdate, PhysicalDataUpdate,
 		MaterialUpdate, SpaceDeletionOptions, ProjectDeletionOptions, ExperimentDeletionOptions, SampleDeletionOptions, DataSetDeletionOptions, MaterialDeletionOptions, EntityTypePermId, SpacePermId,
 		ProjectPermId, ProjectIdentifier, ExperimentPermId, ExperimentIdentifier, SamplePermId, DataSetPermId, FileFormatTypePermId, MaterialPermId, TagCode, SpaceSearchCriteria,
 		ProjectSearchCriteria, ExperimentSearchCriteria, SampleSearchCriteria, DataSetSearchCriteria, MaterialSearchCriteria, SpaceFetchOptions, ProjectFetchOptions, ExperimentFetchOptions,
-		SampleFetchOptions, DataSetFetchOptions, MaterialFetchOptions, DeletionFetchOptions) {
+		SampleFetchOptions, DataSetFetchOptions, MaterialFetchOptions, DeletionFetchOptions, DeletionSearchOptions) {
 
 	/*
 	 * These tests should be run against openBIS instance with screening sprint
@@ -74,6 +75,7 @@ define([ 'jquery', 'openbis', 'dto/space/create/SpaceCreation', 'dto/project/cre
 		this.DataSetFetchOptions = DataSetFetchOptions;
 		this.MaterialFetchOptions = MaterialFetchOptions;
 		this.DeletionFetchOptions = DeletionFetchOptions;
+		this.DeletionSearchOptions = DeletionSearchOptions;
 
 		this.generateId = function(base) {
 			var date = new Date();
