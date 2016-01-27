@@ -10,11 +10,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 					c.assertNotNull(permId, "Entity was created");
 					return fFind(facade, permId).then(function(entity) {
 						c.assertNotNull(entity, "Entity can be found");
-						return facade.listDeletions(new c.DeletionFetchOptions()).then(function(beforeDeletions) {
+						return facade.searchDeletions(new c.DeletionSearchCriteria(), new c.DeletionFetchOptions()).then(function(beforeDeletions) {
 							c.ok("Got before deletions");
 							return fDelete(facade, permId).then(function() {
 								c.ok("Entity was deleted");
-								return facade.listDeletions(new c.DeletionFetchOptions()).then(function(afterDeletions) {
+								return facade.searchDeletions(new c.DeletionSearchCriteria(), new c.DeletionFetchOptions()).then(function(afterDeletions) {
 									c.ok("Got after deletions");
 									c.assertEqual(beforeDeletions.length, afterDeletions.length, "No new deletions found");
 									return fFind(facade, permId).then(function(entityAfterDeletion) {
@@ -40,11 +40,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 					c.assertNotNull(permId, "Entity was created");
 					return fFind(facade, permId).then(function(entity) {
 						c.assertNotNull(entity, "Entity can be found");
-						return facade.listDeletions(new c.DeletionFetchOptions()).then(function(beforeDeletions) {
+						return facade.searchDeletions(new c.DeletionSearchCriteria(), new c.DeletionFetchOptions()).then(function(beforeDeletions) {
 							c.ok("Got before deletions");
 							return fDelete(facade, permId).then(function(deletionId) {
 								c.ok("Entity was deleted");
-								return facade.listDeletions(new c.DeletionFetchOptions()).then(function(afterDeletions) {
+								return facade.searchDeletions(new c.DeletionSearchCriteria(), new c.DeletionFetchOptions()).then(function(afterDeletions) {
 									c.ok("Got after deletions");
 									c.assertEqual(afterDeletions.length, beforeDeletions.length + 1, "One new deletion");
 									c.assertEqual(afterDeletions[afterDeletions.length - 1].getId().getTechId(), deletionId.getTechId(), "Deletion ids match");
@@ -77,11 +77,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 					c.assertNotNull(permId, "Entity was created");
 					return fFind(facade, permId).then(function(entity) {
 						c.assertNotNull(entity, "Entity can be found");
-						return facade.listDeletions(new c.DeletionFetchOptions()).then(function(deletionsBeforeDeletion) {
+						return facade.searchDeletions(new c.DeletionSearchCriteria(), new c.DeletionFetchOptions()).then(function(deletionsBeforeDeletion) {
 							c.ok("Got before deletions");
 							return fDelete(facade, permId).then(function(deletionId) {
 								c.ok("Entity was deleted");
-								return facade.listDeletions(new c.DeletionFetchOptions()).then(function(deletionsAfterDeletion) {
+								return facade.searchDeletions(new c.DeletionSearchCriteria(), new c.DeletionFetchOptions()).then(function(deletionsAfterDeletion) {
 									c.ok("Got after deletions");
 									c.assertEqual(deletionsAfterDeletion.length, deletionsBeforeDeletion.length + 1, "One new deletion");
 									c.assertEqual(deletionsAfterDeletion[deletionsAfterDeletion.length - 1].getId().getTechId(), deletionId.getTechId(), "Deletion ids match");
@@ -91,7 +91,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 											c.ok("Confirmed deletion");
 											return fFind(facade, permId).then(function(entityAfterConfirm) {
 												c.assertNull(entityAfterConfirm, "Entity is still gone");
-												return facade.listDeletions(new c.DeletionFetchOptions()).then(function(deletionsAfterConfirm) {
+												return facade.searchDeletions(new c.DeletionSearchCriteria(), new c.DeletionFetchOptions()).then(function(deletionsAfterConfirm) {
 													c.assertEqual(deletionsAfterConfirm.length, deletionsBeforeDeletion.length, "New deletion is also gone");
 													c.finish();
 												});
