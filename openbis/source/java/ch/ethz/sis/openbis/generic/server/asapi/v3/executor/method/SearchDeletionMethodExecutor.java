@@ -25,8 +25,9 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.DeletionSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.deletion.IListDeletionExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.deletion.ISearchDeletionExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.deletion.IDeletionTranslator;
 
@@ -34,24 +35,24 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.deletion.ID
  * @author pkupczyk
  */
 @Component
-public class ListDeletionMethodExecutor extends AbstractMethodExecutor implements IListDeletionMethodExecutor
+public class SearchDeletionMethodExecutor extends AbstractMethodExecutor implements ISearchDeletionMethodExecutor
 {
 
     @Autowired
-    private IListDeletionExecutor listExecutor;
+    private ISearchDeletionExecutor searchExecutor;
 
     @Autowired
     private IDeletionTranslator translator;
 
     @Override
-    public List<Deletion> listDeletions(final String sessionToken, final DeletionFetchOptions fetchOptions)
+    public List<Deletion> searchDeletions(final String sessionToken, final DeletionSearchCriteria criteria, final DeletionFetchOptions fetchOptions)
     {
         return executeInContext(sessionToken, new IMethodAction<List<Deletion>>()
             {
                 @Override
                 public List<Deletion> execute(IOperationContext context)
                 {
-                    List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion> deletions = listExecutor.list(context, fetchOptions);
+                    List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion> deletions = searchExecutor.search(context, criteria, fetchOptions);
 
                     Map<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion, Deletion> translatedMap =
                             translator.translate(new TranslationContext(context.getSession()), deletions, fetchOptions);

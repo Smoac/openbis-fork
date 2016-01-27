@@ -19,31 +19,32 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import java.util.Collections;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.DeletionSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 
+import junit.framework.Assert;
+
 /**
  * @author pkupczyk
  */
-public class ListDeletionTest extends AbstractDeletionTest
+public class SearchDeletionTest extends AbstractDeletionTest
 {
 
     @Test
-    public void testListDeletionsWithoutDeletedObjects()
+    public void testSearchDeletionsWithoutDeletedObjects()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         DeletionFetchOptions fetchOptions = new DeletionFetchOptions();
-        List<Deletion> beforeDeletions = v3api.listDeletions(sessionToken, fetchOptions);
+        List<Deletion> beforeDeletions = v3api.searchDeletions(sessionToken, new DeletionSearchCriteria(), fetchOptions);
 
         ExperimentPermId experimentId = createCisdExperiment();
         SamplePermId sampleId = createCisdSample(experimentId);
@@ -55,7 +56,7 @@ public class ListDeletionTest extends AbstractDeletionTest
         assertExperimentDoesNotExist(experimentId);
         assertSampleDoesNotExist(sampleId);
 
-        List<Deletion> afterDeletions = v3api.listDeletions(sessionToken, fetchOptions);
+        List<Deletion> afterDeletions = v3api.searchDeletions(sessionToken, new DeletionSearchCriteria(), fetchOptions);
         Assert.assertEquals(beforeDeletions.size() + 1, afterDeletions.size());
         Deletion latestDeletion = afterDeletions.get(afterDeletions.size() - 1);
         Assert.assertEquals(deletionId, latestDeletion.getId());
@@ -71,13 +72,13 @@ public class ListDeletionTest extends AbstractDeletionTest
     }
 
     @Test
-    public void testListDeletionsWithDeletedObjects()
+    public void testSearchDeletionsWithDeletedObjects()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         DeletionFetchOptions fetchOptions = new DeletionFetchOptions();
         fetchOptions.withDeletedObjects();
-        List<Deletion> beforeDeletions = v3api.listDeletions(sessionToken, fetchOptions);
+        List<Deletion> beforeDeletions = v3api.searchDeletions(sessionToken, new DeletionSearchCriteria(), fetchOptions);
 
         ExperimentPermId experimentId = createCisdExperiment();
         SamplePermId sampleId = createCisdSample(experimentId);
@@ -93,7 +94,7 @@ public class ListDeletionTest extends AbstractDeletionTest
         assertExperimentDoesNotExist(experimentId);
         assertSampleDoesNotExist(sampleId);
 
-        List<Deletion> afterDeletions = v3api.listDeletions(sessionToken, fetchOptions);
+        List<Deletion> afterDeletions = v3api.searchDeletions(sessionToken, new DeletionSearchCriteria(), fetchOptions);
         Assert.assertEquals(beforeDeletions.size() + 1, afterDeletions.size());
         Deletion latestDeletion = afterDeletions.get(afterDeletions.size() - 1);
         Assert.assertEquals(deletionId, latestDeletion.getId());
@@ -103,12 +104,12 @@ public class ListDeletionTest extends AbstractDeletionTest
     }
 
     @Test
-    public void testListDeletionsWithUnauthorizedDeletion()
+    public void testSearchDeletionsWithUnauthorizedDeletion()
     {
         String spaceSessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
         DeletionFetchOptions fetchOptions = new DeletionFetchOptions();
-        List<Deletion> beforeDeletions = v3api.listDeletions(spaceSessionToken, fetchOptions);
+        List<Deletion> beforeDeletions = v3api.searchDeletions(spaceSessionToken, new DeletionSearchCriteria(), fetchOptions);
 
         String adminSessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -119,7 +120,7 @@ public class ListDeletionTest extends AbstractDeletionTest
 
         assertExperimentDoesNotExist(experimentId);
 
-        List<Deletion> afterDeletions = v3api.listDeletions(spaceSessionToken, fetchOptions);
+        List<Deletion> afterDeletions = v3api.searchDeletions(spaceSessionToken, new DeletionSearchCriteria(), fetchOptions);
         Assert.assertEquals(beforeDeletions.size(), afterDeletions.size());
     }
 

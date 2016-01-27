@@ -25,6 +25,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.DeletionSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
@@ -35,14 +36,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
  * @author pkupczyk
  */
 @Component
-public class ListDeletionExecutor implements IListDeletionExecutor
+public class SearchDeletionExecutor implements ISearchDeletionExecutor
 {
 
     @Resource(name = ComponentNames.COMMON_BUSINESS_OBJECT_FACTORY)
     ICommonBusinessObjectFactory businessObjectFactory;
 
     @Override
-    public List<Deletion> list(IOperationContext context, DeletionFetchOptions fetchOptions)
+    public List<Deletion> search(IOperationContext context, DeletionSearchCriteria criteria, DeletionFetchOptions fetchOptions)
     {
         if (context == null)
         {

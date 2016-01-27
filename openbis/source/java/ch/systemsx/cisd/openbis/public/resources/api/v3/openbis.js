@@ -527,13 +527,13 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			});
 		}
 
-		this.listDeletions = function(fetchOptions) {
+		this.searchDeletions = function(criteria, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
-					"method" : "listDeletions",
-					"params" : [ thisFacade._private.sessionToken, fetchOptions ]
+					"method" : "searchDeletions",
+					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
 				},
 				returnType : {
 					name : "List",

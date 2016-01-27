@@ -20,13 +20,14 @@ import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.DeletionSearchCriteria;
 
 /**
  * @author pkupczyk
  */
-public interface IListDeletionMethodExecutor
+public interface ISearchDeletionMethodExecutor
 {
 
-    public List<Deletion> listDeletions(String sessionToken, DeletionFetchOptions fetchOptions);
+    public List<Deletion> searchDeletions(String sessionToken, DeletionSearchCriteria criteria, DeletionFetchOptions fetchOptions);
 
 }

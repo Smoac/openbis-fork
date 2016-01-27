@@ -19,15 +19,16 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.deletion;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.DeletionSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 
 /**
  * @author pkupczyk
  */
-public interface IListDeletionExecutor
+public interface ISearchDeletionExecutor
 {
 
-    public List<Deletion> list(IOperationContext context, DeletionFetchOptions fetchOptions);
+    public List<Deletion> search(IOperationContext context, DeletionSearchCriteria criteria, DeletionFetchOptions fetchOptions);
 
 }
