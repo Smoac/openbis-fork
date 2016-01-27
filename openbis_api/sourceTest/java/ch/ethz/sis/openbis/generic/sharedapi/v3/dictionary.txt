@@ -138,6 +138,7 @@ deleteSamples
 deleteSpaces
 Deletion
 DeletionFetchOptions
+DeletionSearchCriteria
 DeletionSortOptions
 DeletionTechId
 DeletionType
@@ -429,7 +430,6 @@ LinkedDataCreation
 LinkedDataFetchOptions
 LinkedDataSortOptions
 LinkedDataUpdate
-listDeletions
 ListExperimentsOperation
 ListExperimentsOperationResult
 listIterator
@@ -559,6 +559,7 @@ SampleTypeSortOptions
 SampleUpdate
 SearchCriteriaToStringBuilder
 searchDataSets
+searchDeletions
 searchExperiments
 SearchFieldType
 searchFiles
