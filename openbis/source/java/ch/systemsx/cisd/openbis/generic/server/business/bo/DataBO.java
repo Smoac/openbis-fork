@@ -660,10 +660,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         entityPropertiesConverter.checkMandatoryProperties(data.getProperties(),
                 data.getDataSetType(), this.getCache().getEntityTypePropertyTypes());
 
-        data.setModificationDate(new Date(data.getModificationDate().getTime() + 1));
         validateAndSave();
-
-        data.setModificationDate(new Date(data.getModificationDate().getTime() - 1));
     }
 
     private List<String> asListOrNull(String[] arrayOrNull)
