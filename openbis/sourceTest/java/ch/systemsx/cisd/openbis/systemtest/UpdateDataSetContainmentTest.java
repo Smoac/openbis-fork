@@ -139,6 +139,7 @@ public class UpdateDataSetContainmentTest extends BaseTest
         AbstractExternalData component = create(aDataSet().inSample(sample));
         AbstractExternalData container =
                 create(aDataSet().inSample(sample).asContainer().withComponent(component));
+        daoFactory.getSessionFactory().getCurrentSession().flush();
 
         perform(anUpdateOf(container).withComponents());
 
