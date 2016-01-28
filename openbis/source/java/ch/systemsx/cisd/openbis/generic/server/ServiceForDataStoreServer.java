@@ -338,7 +338,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
                                 {
                                     return null;
                                 }
-                            }), 30), managedPropertyEvaluatorFactory);
+                            }), 30), managedPropertyEvaluatorFactory, null);
     }
 
     ServiceForDataStoreServer(IAuthenticationService authenticationService,
@@ -350,7 +350,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             IDataStoreServiceRegistrator dataStoreServiceRegistrator,
             IDataStoreDataSourceManager dataSourceManager,
             ISessionManager<Session> sessionManagerForEntityOperation,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, ICreateDataSetExecutor createDataSetExecutor)
     {
         super(authenticationService, sessionManager, daoFactory, propertiesBatchManager, boFactory);
         this.daoFactory = daoFactory;
@@ -361,6 +361,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         this.dataSourceManager = dataSourceManager;
         this.sessionManagerForEntityOperation = sessionManagerForEntityOperation;
         this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
+        this.createDataSetExecutor = createDataSetExecutor;
     }
 
     @Override
@@ -2490,8 +2491,32 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
                 creation.setParentIds(parentIds);
             }
 
-            if (newData instanceof NewDataSet)
+            if (newData instanceof NewContainerDataSet)
             {
+                NewContainerDataSet newContainerData = (NewContainerDataSet) newData;
+
+                if (newContainerData.getContainedDataSetCodes() != null)
+                {
+                    List<IDataSetId> componentIds = new LinkedList<IDataSetId>();
+                    for (String componentCode : newContainerData.getContainedDataSetCodes())
+                    {
+                        componentIds.add(new DataSetPermId(componentCode));
+                    }
+                    creation.setComponentIds(componentIds);
+                }
+            } else if (newData instanceof NewLinkDataSet)
+            {
+                NewLinkDataSet newLinkData = (NewLinkDataSet) newData;
+
+                LinkedDataCreation linkCreation = new LinkedDataCreation();
+                linkCreation.setExternalCode(newLinkData.getExternalCode());
+                linkCreation.setExternalDmsId(new ExternalDmsPermId(newLinkData.getExternalDataManagementSystemCode()));
+
+                creation.setLinkedData(linkCreation);
+            } else
+            {
+                // newData is instance of NewExternalData or NewDataSet
+
                 PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
                 physicalCreation.setLocation(newData.getLocation());
                 physicalCreation.setShareId(newData.getShareId());
@@ -2538,28 +2563,6 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
                 }
 
                 creation.setPhysicalData(physicalCreation);
-            } else if (newData instanceof NewContainerDataSet)
-            {
-                NewContainerDataSet newContainerData = (NewContainerDataSet) newData;
-
-                if (newContainerData.getContainedDataSetCodes() != null)
-                {
-                    List<IDataSetId> componentIds = new LinkedList<IDataSetId>();
-                    for (String componentCode : newContainerData.getContainedDataSetCodes())
-                    {
-                        componentIds.add(new DataSetPermId(componentCode));
-                    }
-                    creation.setComponentIds(componentIds);
-                }
-            } else if (newData instanceof NewLinkDataSet)
-            {
-                NewLinkDataSet newLinkData = (NewLinkDataSet) newData;
-
-                LinkedDataCreation linkCreation = new LinkedDataCreation();
-                linkCreation.setExternalCode(newLinkData.getExternalCode());
-                linkCreation.setExternalDmsId(new ExternalDmsPermId(newLinkData.getExternalDataManagementSystemCode()));
-
-                creation.setLinkedData(linkCreation);
             }
 
             creations.add(creation);

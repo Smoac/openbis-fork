@@ -36,6 +36,8 @@ import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ICreateDataSetExecutor;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -182,6 +184,8 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
+    private ICreateDataSetExecutor createDataSetExecutor;
+
     private PersonPE sessionPerson;
 
     private IDataStoreDataSourceManager dataSourceManager;
@@ -205,6 +209,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         sessionPerson = new PersonPE();
         session.setPerson(sessionPerson);
         managedPropertyEvaluatorFactory = new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool());
+        createDataSetExecutor = context.mock(ICreateDataSetExecutor.class);
 
         prepareDataSetRegistrationCache();
     }
@@ -1265,11 +1270,11 @@ public class ETLServiceTest extends AbstractServerTestCase
 
                     allowing(entityOperationChecker).assertInstanceSampleCreationAllowed(with(any(IAuthSession.class)), with(any(List.class)));
                     allowing(entityOperationChecker).assertInstanceSampleUpdateAllowed(with(any(IAuthSession.class)), with(any(List.class)));
+
+                    one(createDataSetExecutor).create(with(any(IOperationContext.class)), with(any(List.class)));
                 }
             });
 
-        prepareRegisterDataSet(userSession, newSampleIdentifier, newSamplePE.getExperiment(),
-                SourceType.MEASUREMENT, externalData);
         return roleMatcher;
     }
 
@@ -1535,7 +1540,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                 new ServiceForDataStoreServer(authenticationService, sessionManager, daoFactory,
                         propertiesBatchManager, boFactory, dssfactory, null,
                         entityOperationChecker, dataStoreServiceRegistrator, dataSourceManager,
-                        sessionManagerForEntityOperations, managedPropertyEvaluatorFactory);
+                        sessionManagerForEntityOperations, managedPropertyEvaluatorFactory, createDataSetExecutor);
         etlService.setConversationClient(conversationClient);
         etlService.setConversationServer(conversationServer);
         etlService.setDisplaySettingsProvider(new DisplaySettingsProvider());
