@@ -61,6 +61,7 @@ public abstract class AbstractCreateEntityExecutor<CREATION, PE, PERM_ID> implem
             reloadEntities(context, entitiesAll);
 
             updateAll(context, entitiesAll);
+            daoFactory.getSessionFactory().getCurrentSession().flush();
 
             reloadEntities(context, entitiesAll);
 
