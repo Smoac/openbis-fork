@@ -78,7 +78,7 @@ public class MultiThreadDataSetOptimisticLockingTest extends MultiThreadOptimist
                             }
                         }
                     };
-        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
         new Thread(new Runnable()
             {
                 @Override
@@ -140,7 +140,7 @@ public class MultiThreadDataSetOptimisticLockingTest extends MultiThreadOptimist
         assertEquals(containerDataSet.getCode(), toolBox.loadDataSet(dataSet.getCode())
                 .tryGetContainer().getCode());
         String sessionToken = logIntoCommonClientService().getSessionID();
-        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
         String reason = "test data set deletion";
 
         commonServer.deleteDataSets(sessionToken, Arrays.asList(dataSet.getCode()), reason,
@@ -163,7 +163,7 @@ public class MultiThreadDataSetOptimisticLockingTest extends MultiThreadOptimist
 
         // Revert deletion
         sessionToken = commonServer.tryAuthenticate(USER_ID, "a").getSessionToken();
-        timeIntervalChecker = toolBox.createTimeIntervalChecker();
+        timeIntervalChecker = new TimeIntervalChecker();
         Deletion deletion = toolBox.findDeletion(reason);
 
         commonServer.revertDeletions(sessionToken, Arrays.asList(new TechId(deletion.getId())));

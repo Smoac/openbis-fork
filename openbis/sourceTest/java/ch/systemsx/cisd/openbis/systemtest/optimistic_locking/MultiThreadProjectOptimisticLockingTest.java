@@ -80,7 +80,7 @@ public class MultiThreadProjectOptimisticLockingTest extends MultiThreadOptimist
                             }
                         }
                     };
-        TimeIntervalChecker timeIntervalChecker = toolBox.createTimeIntervalChecker();
+        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
 
         new Thread(new Runnable()
             {

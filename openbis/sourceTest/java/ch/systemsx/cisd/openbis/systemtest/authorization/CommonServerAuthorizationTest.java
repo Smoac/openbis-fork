@@ -51,7 +51,7 @@ public class CommonServerAuthorizationTest extends BaseTest
                 + "/S2/P2/E2, data sets: DS2 DS3 DS5\n"
                 + "DS1, parents: DS3\n"
                 + "DS2, parents: DS3\n"
-                + "DS3, parents: DS4 DS5\n");
+                + "DS3, parents: DS4 DS5\n", false);
         AbstractExternalData ds2 = entityGraphManager.getDataSet(g.ds(2));
         AbstractExternalData ds3 = entityGraphManager.getDataSet(g.ds(3));
         AbstractExternalData ds5 = entityGraphManager.getDataSet(g.ds(5));
