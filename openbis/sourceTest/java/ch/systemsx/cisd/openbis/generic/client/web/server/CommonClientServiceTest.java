@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -87,6 +88,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 
 /**
@@ -503,7 +505,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         final DataStorePE dataStorePE = new DataStorePE();
         dataStorePE.setCode("DS");
         dataStorePE.setDownloadUrl(DATA_STORE_BASE_URL);
-        DataSetTypePE dataSetType = new DataSetTypePE();
+        final DataSetTypePE dataSetType = new DataSetTypePE();
         dataSetType.setCode("my-type");
         FileFormatTypePE fileFormatTypePE = new FileFormatTypePE();
         fileFormatTypePE.setCode("PNG");
@@ -534,6 +536,9 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
 
                     one(commonServer).listExperimentExternalData(SESSION_TOKEN, experimentId, true);
                     will(returnValue(Collections.singletonList(ds)));
+                    
+                    one(commonServer).listDataSetTypes(SESSION_TOKEN);
+                    will(returnValue(Arrays.asList(ds.getDataSetType())));
                 }
             });
 
