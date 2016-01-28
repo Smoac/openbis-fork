@@ -992,3 +992,7 @@ withMaterial
 withMaterialUsing
 withObjectKind
 withText
+getDataProducer
+getDataProductionDate
+setDataProducer
+setDataProductionDate
