@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.lang.reflect.Method;
+import java.util.Date;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -236,6 +237,8 @@ public abstract class AbstractBOTest extends AssertJUnit
                     will(returnValue(permIdDAO));
                     allowing(daoFactory).getRelationshipTypeDAO();
                     will(returnValue(relationshipTypeDAO));
+                    allowing(daoFactory).getTransactionTimestamp();
+                    will(returnValue(new Date()));
                 }
             });
     }

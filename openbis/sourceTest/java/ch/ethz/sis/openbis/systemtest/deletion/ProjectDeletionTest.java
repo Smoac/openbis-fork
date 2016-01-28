@@ -103,6 +103,7 @@ public class ProjectDeletionTest extends DeletionTest
     }
 
     @Test
+    @Rollback(false)
     public void moveProjectToAnotherSpace() throws Exception
     {
         SpacePermId space1 = createSpace("SPACE1");
@@ -110,17 +111,21 @@ public class ProjectDeletionTest extends DeletionTest
 
         ProjectPermId project = createProject(space1, "PROJECT");
 
+        newTx();
         ProjectUpdate projectUpdate = new ProjectUpdate();
         projectUpdate.setProjectId(project);
         projectUpdate.setSpaceId(space2);
         v3api.updateProjects(sessionToken, Arrays.asList(projectUpdate));
 
         delete(project);
+        delete(space1);
+        delete(space2);
 
         assertHistory(project.getPermId(), "OWNED", spaceSet("SPACE1"), spaceSet("SPACE2"));
     }
 
     @Test
+    @Rollback(false)
     public void assignExperimentsToProject() throws Exception
     {
         SpacePermId space = createSpace("SPACE");
@@ -131,6 +136,7 @@ public class ProjectDeletionTest extends DeletionTest
         ExperimentPermId experiment1 = createExperiment(project1, "EXPERIMENT1");
         ExperimentPermId experiment2 = createExperiment(project1, "EXPERIMENT2");
 
+        newTx();
         ExperimentUpdate experimentUpdate1 = new ExperimentUpdate();
         experimentUpdate1.setExperimentId(experiment1);
         experimentUpdate1.setProjectId(project2);
@@ -141,8 +147,12 @@ public class ProjectDeletionTest extends DeletionTest
         v3api.updateExperiments(sessionToken, Arrays.asList(experimentUpdate1, experimentUpdate2));
 
         delete(project1);
+        delete(experiment1);
+        delete(experiment2);
+        delete(project2);
+        delete(space);
 
-        assertHistory(project1.getPermId(), "OWNER", experimentSet(experiment1.getPermId()), 
+        assertHistory(project1.getPermId(), "OWNER",  
                 experimentSet(experiment1.getPermId(), experiment2.getPermId()), set());
     }
 }

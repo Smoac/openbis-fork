@@ -834,10 +834,10 @@ public abstract class DeletionTest extends AbstractTest
         v3api.updateDataSets(sessionToken, Arrays.asList(update));
     }
 
-    protected void setProperties(IMaterialId sample, String... properties)
+    protected void setProperties(IMaterialId material, String... properties)
     {
         MaterialUpdate update = new MaterialUpdate();
-        update.setMaterialId(sample);
+        update.setMaterialId(material);
         for (Map.Entry<String, String> entry : props(properties).entrySet())
         {
             update.setProperty(entry.getKey(), entry.getValue());
@@ -845,10 +845,10 @@ public abstract class DeletionTest extends AbstractTest
         v3api.updateMaterials(sessionToken, Arrays.asList(update));
     }
 
-    protected void setProperties(IExperimentId sample, String... properties)
+    protected void setProperties(IExperimentId experiment, String... properties)
     {
         ExperimentUpdate update = new ExperimentUpdate();
-        update.setExperimentId(sample);
+        update.setExperimentId(experiment);
         for (Map.Entry<String, String> entry : props(properties).entrySet())
         {
             update.setProperty(entry.getKey(), entry.getValue());
