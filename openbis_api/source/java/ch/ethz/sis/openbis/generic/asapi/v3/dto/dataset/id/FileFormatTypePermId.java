@@ -35,7 +35,7 @@ public class FileFormatTypePermId extends ObjectPermId implements IFileFormatTyp
      */
     public FileFormatTypePermId(String permId)
     {
-        super(permId);
+        super(permId != null ? permId.toUpperCase() : null);
     }
 
     //

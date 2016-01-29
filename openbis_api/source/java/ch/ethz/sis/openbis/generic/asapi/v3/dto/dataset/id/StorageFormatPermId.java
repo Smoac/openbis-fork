@@ -35,7 +35,7 @@ public class StorageFormatPermId extends ObjectPermId implements IStorageFormatI
      */
     public StorageFormatPermId(String permId)
     {
-        super(permId);
+        super(permId != null ? permId.toUpperCase() : null);
     }
 
     //

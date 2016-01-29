@@ -35,7 +35,7 @@ public class SamplePermId extends ObjectPermId implements ISampleId
      */
     public SamplePermId(String permId)
     {
-        super(permId);
+        super(permId != null ? permId.toUpperCase() : null);
     }
 
     //

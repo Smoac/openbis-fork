@@ -35,7 +35,7 @@ public class DataSetPermId extends ObjectPermId implements IDataSetId
      */
     public DataSetPermId(String permId)
     {
-        super(permId);
+        super(permId != null ? permId.toUpperCase() : null);
     }
 
     //

@@ -39,6 +39,7 @@ public class TagCode implements ITagId, Serializable
      */
     public TagCode(String code)
     {
+        // case sensitive
         setCode(code);
     }
 

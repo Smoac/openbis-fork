@@ -35,7 +35,7 @@ public class ExternalDmsPermId extends ObjectPermId implements IExternalDmsId
      */
     public ExternalDmsPermId(String permId)
     {
-        super(permId);
+        super(permId != null ? permId.toUpperCase() : null);
     }
 
     //

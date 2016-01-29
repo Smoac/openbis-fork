@@ -35,7 +35,7 @@ public class SampleIdentifier extends ObjectIdentifier implements ISampleId
      */
     public SampleIdentifier(String identifier)
     {
-        super(identifier);
+        super(identifier != null ? identifier.toUpperCase() : null);
     }
 
     public SampleIdentifier(String spaceCodeOrNull, String containerCodeOrNull, String sampleCode)
@@ -47,8 +47,8 @@ public class SampleIdentifier extends ObjectIdentifier implements ISampleId
     {
         this(createIdentifier(spaceCodeOrNull, projectCodeOrNull, containerCodeOrNull, sampleCode));
     }
-    
-    private static String createIdentifier(String spaceCodeOrNull, String projectCodeOrNull, 
+
+    private static String createIdentifier(String spaceCodeOrNull, String projectCodeOrNull,
             String containerCodeOrNull, String sampleCode)
     {
         StringBuilder builder = new StringBuilder("/");

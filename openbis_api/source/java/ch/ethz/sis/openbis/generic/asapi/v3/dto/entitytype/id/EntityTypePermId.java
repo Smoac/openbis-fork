@@ -35,7 +35,7 @@ public class EntityTypePermId extends ObjectPermId implements IEntityTypeId
      */
     public EntityTypePermId(String permId)
     {
-        super(permId);
+        super(permId != null ? permId.toUpperCase() : null);
     }
 
     //

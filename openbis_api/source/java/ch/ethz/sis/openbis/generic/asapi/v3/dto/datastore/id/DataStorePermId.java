@@ -35,7 +35,7 @@ public class DataStorePermId extends ObjectPermId implements IDataStoreId
      */
     public DataStorePermId(String permId)
     {
-        super(permId);
+        super(permId != null ? permId.toUpperCase() : null);
     }
 
     //

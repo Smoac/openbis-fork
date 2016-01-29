@@ -38,8 +38,8 @@ public class MaterialPermId implements IMaterialId
      */
     public MaterialPermId(String materialCode, String materialTypeCode)
     {
-        this.code = materialCode;
-        this.typeCode = materialTypeCode;
+        this.code = materialCode != null ? materialCode.toUpperCase() : null;
+        this.typeCode = materialTypeCode != null ? materialTypeCode.toUpperCase() : null;
     }
 
     public String getCode()

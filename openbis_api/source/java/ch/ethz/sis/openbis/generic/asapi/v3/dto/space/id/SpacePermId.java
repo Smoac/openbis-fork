@@ -35,7 +35,7 @@ public class SpacePermId extends ObjectPermId implements ISpaceId
      */
     public SpacePermId(String permId)
     {
-        super(permId);
+        super(permId != null ? permId.toUpperCase() : null);
     }
 
     //

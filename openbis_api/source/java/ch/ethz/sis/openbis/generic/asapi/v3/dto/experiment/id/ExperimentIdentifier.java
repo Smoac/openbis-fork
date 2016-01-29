@@ -35,7 +35,7 @@ public class ExperimentIdentifier extends ObjectIdentifier implements IExperimen
      */
     public ExperimentIdentifier(String identifier)
     {
-        super(identifier);
+        super(identifier != null ? identifier.toUpperCase() : null);
     }
 
     public ExperimentIdentifier(String spaceCode, String projectCode, String experimentCode)

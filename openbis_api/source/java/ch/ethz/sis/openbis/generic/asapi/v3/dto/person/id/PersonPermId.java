@@ -35,6 +35,7 @@ public class PersonPermId extends ObjectPermId implements IPersonId
      */
     public PersonPermId(String permId)
     {
+        // case sensitive
         super(permId);
     }
 

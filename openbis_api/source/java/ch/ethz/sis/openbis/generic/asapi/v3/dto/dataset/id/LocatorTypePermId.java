@@ -35,7 +35,7 @@ public class LocatorTypePermId extends ObjectPermId implements ILocatorTypeId
      */
     public LocatorTypePermId(String permId)
     {
-        super(permId);
+        super(permId != null ? permId.toUpperCase() : null);
     }
 
     //

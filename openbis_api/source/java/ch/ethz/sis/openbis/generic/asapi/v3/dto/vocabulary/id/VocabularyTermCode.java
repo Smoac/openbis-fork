@@ -38,7 +38,7 @@ public class VocabularyTermCode implements IVocabularyTermId, Serializable
      */
     public VocabularyTermCode(String code)
     {
-        setCode(code);
+        setCode(code != null ? code.toUpperCase() : null);
     }
 
     //

@@ -35,7 +35,7 @@ public class VocabularyPermId extends ObjectPermId implements IVocabularyId
      */
     public VocabularyPermId(String permId)
     {
-        super(permId);
+        super(permId != null ? permId.toUpperCase() : null);
     }
 
     //

@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * Generic service code. This is the name of an AS core plugin of type 'services'.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 @JsonObject("dto.service.id.ServiceCode")
@@ -31,8 +31,10 @@ public class ServiceCode extends ObjectPermId implements IServiceId
 
     public ServiceCode(String code)
     {
+        // case sensitive
         super(code);
     }
+
     //
     // JSON-RPC
     //

@@ -35,7 +35,7 @@ public class ProjectIdentifier extends ObjectIdentifier implements IProjectId
      */
     public ProjectIdentifier(String identifier)
     {
-        super(identifier);
+        super(identifier != null ? identifier.toUpperCase() : null);
     }
 
     public ProjectIdentifier(String spaceCode, String projectCode)

@@ -38,6 +38,7 @@ public class AttachmentFileName implements IAttachmentId, Serializable
      */
     public AttachmentFileName(String fileName)
     {
+        // case sensitive
         setFileName(fileName);
     }
 

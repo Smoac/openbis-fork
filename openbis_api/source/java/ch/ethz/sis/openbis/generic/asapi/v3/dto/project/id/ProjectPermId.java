@@ -35,7 +35,7 @@ public class ProjectPermId extends ObjectPermId implements IProjectId
      */
     public ProjectPermId(String permId)
     {
-        super(permId);
+        super(permId != null ? permId.toUpperCase() : null);
     }
 
     //
