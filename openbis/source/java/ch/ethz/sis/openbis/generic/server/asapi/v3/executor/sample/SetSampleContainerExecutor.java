@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
@@ -44,7 +45,7 @@ public class SetSampleContainerExecutor implements ISetSampleContainerExecutor
     {
         for (SampleCreation creation : creationsMap.keySet())
         {
-            context.pushContextDescription("set container for sample " + creation.getCode());
+            context.pushProgress(new Progress("set container for sample " + creation.getCode()));
 
             SamplePE sample = creationsMap.get(creation);
             ISampleId containerId = creation.getContainerId();
@@ -54,7 +55,7 @@ public class SetSampleContainerExecutor implements ISetSampleContainerExecutor
                 relationshipService.assignSampleToContainer(context.getSession(), sample, container);
             }
 
-            context.popContextDescription();
+            context.popProgress();
         }
     }
 

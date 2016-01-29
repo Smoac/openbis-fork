@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -46,6 +47,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.StorageFormatPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.ExternalDmsPermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgressListener;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ICreateDataSetExecutor;
@@ -227,7 +230,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewLinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -2412,7 +2414,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     private long createDataSetsV3(Session session, AtomicEntityOperationDetails operationDetails,
-            IServiceConversationProgressListener progress, boolean authorize)
+            final IServiceConversationProgressListener conversationProgress, boolean authorize)
     {
         if (operationDetails.getDataSetRegistrations() == null)
         {
@@ -2424,20 +2426,32 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             checkDataSetCreationAllowed(session, operationDetails.getDataSetRegistrations());
         }
 
-        // TODO service conversation progress reporting
-        // progress.update("createDataSets", total, ++index);
-
         IOperationContext context = new OperationContext(session);
+        context.addProgressListener(new IProgressListener()
+            {
+                @Override
+                public void onProgress(Stack<IProgress> progressStack)
+                {
+                    if (progressStack.isEmpty() == false)
+                    {
+                        IProgress progress = progressStack.peek();
+                        int totalItemsToProcess = progress.getTotalItemsToProcess() != null ? progress.getTotalItemsToProcess() : 0;
+                        int numItemsProcessed = progress.getNumItemsProcessed() != null ? progress.getNumItemsProcessed() : 0;
+                        conversationProgress.update(progress.getLabel(), totalItemsToProcess, numItemsProcessed);
+                    }
+                }
+            });
+
         List<DataSetCreation> creations = new LinkedList<DataSetCreation>();
 
         for (NewExternalData newData : operationDetails.getDataSetRegistrations())
         {
             // Fields that were in V2 but are intentionally ignored in V3:
-            // - newData.getUserId() and newData.getUserEMail() in V2 were used to find a registrator in DataBO.tryToGetRegistrator() but then anyway
-            // the found registrator gets overwritten by RelationshipUtils.setExperimentForDataSet() call at the end of DataBO.define() with a user
-            // from the session
-            // - newData.getAssociatedSampleCode() in V2 was never used
-            // - newData.getRegistrationDate() in V2 never used
+            // - newData.getUserId() and newData.getUserEMail() fields were used in V2 to find a registrator (see in DataBO.tryToGetRegistrator()),
+            // but found registrator was anyway overwritten by RelationshipUtils.setExperimentForDataSet() call at the end of DataBO.define() method
+            // (a user from the session was used as registrator and modifier)
+            // - newData.getAssociatedSampleCode() field was never used in V2
+            // - newData.getRegistrationDate() field was never used in V2
 
             DataSetCreation creation = new DataSetCreation();
             creation.setCode(newData.getCode());

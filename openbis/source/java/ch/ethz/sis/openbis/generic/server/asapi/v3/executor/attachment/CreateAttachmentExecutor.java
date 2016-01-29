@@ -26,6 +26,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.create.AttachmentCreation;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -103,7 +104,7 @@ public class CreateAttachmentExecutor implements ICreateAttachmentExecutor
         {
             throw new UserFailureException("Unspecified attachment file name.");
         }
-        context.pushContextDescription("register attachment '" + fileName + "'");
+        context.pushProgress(new Progress("register attachment '" + fileName + "'"));
         if (attachment.getContent() == null)
         {
             throw new UserFailureException("Unspecified attachment content.");
@@ -117,7 +118,7 @@ public class CreateAttachmentExecutor implements ICreateAttachmentExecutor
         attachmentPE.setAttachmentContent(attachmentContent);
         attachmentPE.setRegistrator(context.getSession().tryGetPerson());
         attachmentPE.setParent(holder);
-        context.popContextDescription();
+        context.popProgress();
 
         return attachmentPE;
     }

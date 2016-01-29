@@ -31,6 +31,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICreationIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 
 /**
@@ -52,7 +53,7 @@ public abstract class AbstractSetEntityMultipleRelationsExecutor<ENTITY_CREATION
 
     private Map<IObjectId, ENTITY_PE> getRelatedMap(IOperationContext context, Map<ENTITY_CREATION, ENTITY_PE> creationsMap)
     {
-        context.pushContextDescription("load related entities");
+        context.pushProgress(new Progress("load related entities"));
 
         Set<ENTITY_ID> relatedIds = new HashSet<ENTITY_ID>();
         for (ENTITY_CREATION creation : creationsMap.keySet())
@@ -105,7 +106,7 @@ public abstract class AbstractSetEntityMultipleRelationsExecutor<ENTITY_CREATION
             check(context, relatedId, related);
         }
 
-        context.popContextDescription();
+        context.popProgress();
 
         return relatedMap;
     }

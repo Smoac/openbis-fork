@@ -20,14 +20,13 @@ import java.util.Collection;
 
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Component
@@ -39,7 +38,7 @@ public class VerifySampleProjectExecutor implements IVerifySampleProjectExecutor
     {
         for (SamplePE sample : samples)
         {
-            context.pushContextDescription("verify project for sample " + sample.getCode());
+            context.pushProgress(new Progress("verify project for sample " + sample.getCode()));
             ProjectPE project = sample.getProject();
             if (project != null && sample.getSpace() == null)
             {
@@ -51,7 +50,7 @@ public class VerifySampleProjectExecutor implements IVerifySampleProjectExecutor
                 throw new UserFailureException("Sample space must be the same as project space. Sample: "
                         + sample.getIdentifier() + ", Project: " + project.getIdentifier());
             }
-            context.popContextDescription();
+            context.popProgress();
         }
     }
 

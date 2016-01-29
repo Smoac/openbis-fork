@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSetEntityToManyRelationExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -43,14 +44,14 @@ public class SetDataSetParentsExecutor extends AbstractSetEntityToManyRelationEx
     @Override
     protected void setRelated(IOperationContext context, DataPE child, Collection<DataPE> parents)
     {
-        context.pushContextDescription("set parents for dataset " + child.getCode());
+        context.pushProgress(new Progress("set parents for dataset " + child.getCode()));
 
         for (DataPE parent : parents)
         {
             relationshipService.addParentToDataSet(context.getSession(), child, parent);
         }
 
-        context.popContextDescription();
+        context.popProgress();
     }
 
 }

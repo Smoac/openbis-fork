@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, CISD
+ * Copyright 2016 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,30 +16,18 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.context;
 
-import java.util.Stack;
-
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import java.io.Serializable;
 
 /**
  * @author pkupczyk
  */
-public interface IContext extends IAuthSessionProvider
+public interface IProgress extends Serializable
 {
 
-    @Override
-    public Session getSession();
+    String getLabel();
 
-    public void pushProgress(IProgress progress);
+    Integer getTotalItemsToProcess();
 
-    public IProgress popProgress();
-
-    public Stack<IProgress> getProgressStack();
-
-    public void addProgressListener(IProgressListener listener);
-
-    public Object getAttribute(String attributeName);
-
-    public void setAttribute(String attributeName, Object attributeValue);
+    Integer getNumItemsProcessed();
 
 }

@@ -22,6 +22,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -61,7 +62,7 @@ public class VerifySampleExperimentExecutor implements IVerifySampleExperimentEx
 
         for (SamplePE sample : samples)
         {
-            context.pushContextDescription("verify experiment for sample " + sample.getCode());
+            context.pushProgress(new Progress("verify experiment for sample " + sample.getCode()));
 
             boolean hasDatasets = haveDatasetsMap.get(sample);
             ExperimentPE experiment = sample.getExperiment();
@@ -89,15 +90,15 @@ public class VerifySampleExperimentExecutor implements IVerifySampleExperimentEx
                 throw new UserFailureException("Sample space must be the same as experiment space. "
                         + "Sample: " + sample.getIdentifier() + ", Experiment: " + experiment.getIdentifier());
             }
-            if (experiment != null && sample.getProject() != null 
+            if (experiment != null && sample.getProject() != null
                     && experiment.getProject().equals(sample.getProject()) == false)
             {
                 throw new UserFailureException("Sample project must be the same as experiment project. "
-                        + "Sample: " + sample.getIdentifier() + ", Project: " + sample.getProject().getIdentifier() 
+                        + "Sample: " + sample.getIdentifier() + ", Project: " + sample.getProject().getIdentifier()
                         + ", Experiment: " + experiment.getIdentifier());
             }
 
-            context.popContextDescription();
+            context.popProgress();
         }
     }
 

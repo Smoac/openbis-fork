@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.context;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +30,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 public class Context implements IContext
 {
 
-    private final Stack<String> descriptions = new Stack<String>();
+    private final Stack<IProgress> progressStack = new Stack<IProgress>();
+
+    private final Collection<IProgressListener> progressListeners = new ArrayList<IProgressListener>();
 
     private final Map<String, Object> attributes = new HashMap<String, Object>();
 
@@ -41,21 +44,38 @@ public class Context implements IContext
     }
 
     @Override
-    public void pushContextDescription(String description)
+    public void addProgressListener(IProgressListener progressListener)
     {
-        descriptions.push(description);
+        progressListeners.add(progressListener);
+    }
+
+    private void notifyProgressListeners()
+    {
+        for (IProgressListener progressListener : progressListeners)
+        {
+            Stack<IProgress> copy = new Stack<IProgress>();
+            copy.addAll(progressStack);
+            progressListener.onProgress(copy);
+        }
     }
 
     @Override
-    public String popContextDescription()
+    public void pushProgress(IProgress progress)
     {
-        return descriptions.pop();
+        progressStack.push(progress);
+        notifyProgressListeners();
     }
 
     @Override
-    public Collection<String> getContextDescriptions()
+    public IProgress popProgress()
     {
-        return descriptions;
+        return progressStack.pop();
+    }
+
+    @Override
+    public Stack<IProgress> getProgressStack()
+    {
+        return progressStack;
     }
 
     @Override

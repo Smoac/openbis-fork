@@ -29,6 +29,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IIdAndCodeHolder;
@@ -46,6 +47,7 @@ public abstract class AbstractCreateEntityExecutor<CREATION, PE, PERM_ID> implem
     @Override
     public List<PERM_ID> create(IOperationContext context, List<CREATION> creations)
     {
+
         try
         {
             List<PERM_ID> permIdsAll = new LinkedList<PERM_ID>();
@@ -54,8 +56,11 @@ public abstract class AbstractCreateEntityExecutor<CREATION, PE, PERM_ID> implem
             int batchSize = 1000;
             for (int batchStart = 0; batchStart < creations.size(); batchStart += batchSize)
             {
-                List<CREATION> creationsBatch = creations.subList(batchStart, Math.min(batchStart + batchSize, creations.size()));
+                int batchEnd = Math.min(batchStart + batchSize, creations.size());
+                List<CREATION> creationsBatch = creations.subList(batchStart, batchEnd);
+                context.pushProgress(new Progress("creating entities", batchEnd, creations.size()));
                 createEntities(context, creationsBatch, permIdsAll, entitiesAll);
+                context.popProgress();
             }
 
             reloadEntities(context, entitiesAll);

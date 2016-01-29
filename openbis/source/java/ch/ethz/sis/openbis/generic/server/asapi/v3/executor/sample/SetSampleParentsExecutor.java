@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSetEntityToManyRelationExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -47,7 +48,7 @@ public class SetSampleParentsExecutor extends AbstractSetEntityToManyRelationExe
     {
         Set<SamplePE> existingParents = new HashSet<SamplePE>(child.getParents());
 
-        context.pushContextDescription("set parents for sample " + child.getCode());
+        context.pushProgress(new Progress("set parents for sample " + child.getCode()));
 
         for (SamplePE parent : parents)
         {
@@ -58,6 +59,6 @@ public class SetSampleParentsExecutor extends AbstractSetEntityToManyRelationExe
             }
         }
 
-        context.popContextDescription();
+        context.popProgress();
     }
 }

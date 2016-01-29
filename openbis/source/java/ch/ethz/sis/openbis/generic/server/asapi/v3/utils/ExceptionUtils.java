@@ -32,7 +32,7 @@ public class ExceptionUtils
     private static String createMessage(OperationContext context, Throwable t)
     {
         String message = t.getMessage() == null ? t.toString() : t.getMessage();
-        return message + " (Context: " + context.getContextDescriptions().toString() + ")";
+        return message + " (Context: " + context.getProgressStack().toString() + ")";
     }
 
 }
