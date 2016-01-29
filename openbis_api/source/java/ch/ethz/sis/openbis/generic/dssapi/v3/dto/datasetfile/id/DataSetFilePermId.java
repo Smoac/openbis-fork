@@ -48,6 +48,7 @@ public class DataSetFilePermId implements IDataSetFileId
     public DataSetFilePermId(IDataSetId dataSetId, String filePath)
     {
         this.dataSetId = dataSetId;
+        // case sensitive
         this.filePath = filePath;
     }
 
