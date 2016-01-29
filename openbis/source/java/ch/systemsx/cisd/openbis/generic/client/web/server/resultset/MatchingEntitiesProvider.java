@@ -19,13 +19,14 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs.ENTITY_KIND;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs.ENTITY_TYPE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs.IDENTIFIER;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs.MATCHING_FIELD;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs.MATCHING_TEXT;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs.MATCH;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs.RANK;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs.REGISTRATOR;
 
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
@@ -69,8 +70,9 @@ public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEnt
         builder.addColumn(ENTITY_TYPE);
         builder.addColumn(IDENTIFIER).withDefaultWidth(140);
         builder.addColumn(REGISTRATOR);
-        builder.addColumn(MATCHING_FIELD).withDefaultWidth(140);
-        builder.addColumn(MATCHING_TEXT).withDefaultWidth(200);
+        builder.addColumn(MATCH).withDefaultWidth(200).withDataType(DataTypeCode.MULTILINE_VARCHAR);
+        builder.addColumn(RANK);
+        long rank = 1;
         for (MatchingEntity matchingEntity : entities)
         {
             builder.addRow(matchingEntity);
@@ -78,8 +80,9 @@ public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEnt
             builder.column(ENTITY_TYPE).addString(matchingEntity.getEntityType().getCode());
             builder.column(IDENTIFIER).addString(matchingEntity.getIdentifier());
             builder.column(REGISTRATOR).addPerson(matchingEntity.getRegistrator());
-            builder.column(MATCHING_FIELD).addString(matchingEntity.getFieldDescription());
-            builder.column(MATCHING_TEXT).addString(matchingEntity.getTextFragment());
+            builder.column(MATCH).addMultilineValue(matchingEntity.getMatch());
+            builder.column(RANK).addInteger(rank);
+            rank++;
         }
         return builder.getModel();
     }

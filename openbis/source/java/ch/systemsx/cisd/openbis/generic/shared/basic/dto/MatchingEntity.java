@@ -22,8 +22,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWit
 import ch.systemsx.cisd.openbis.generic.shared.basic.IRegistratorHolder;
 
 /**
- * An entity that matches the <i>Hibernate Search</i> query and which has been returned by the
- * server.
+ * An entity that matches the <i>Hibernate Search</i> query and which has been returned by the server.
  * 
  * @author Christian Ribeaud
  */
@@ -48,9 +47,9 @@ public final class MatchingEntity implements Serializable, IEntityInformationHol
 
     private Space spaceOrNull;
 
-    private String fieldDescription;
+    private String match;
 
-    private String textFragment;
+    private double score;
 
     @Override
     public final EntityKind getEntityKind()
@@ -93,26 +92,6 @@ public final class MatchingEntity implements Serializable, IEntityInformationHol
     public void setSpace(Space spaceOrNull)
     {
         this.spaceOrNull = spaceOrNull;
-    }
-
-    public String getFieldDescription()
-    {
-        return fieldDescription;
-    }
-
-    public void setFieldDescription(String fieldDescription)
-    {
-        this.fieldDescription = fieldDescription;
-    }
-
-    public String getTextFragment()
-    {
-        return textFragment;
-    }
-
-    public void setTextFragment(String textFragment)
-    {
-        this.textFragment = textFragment;
     }
 
     public final String getIdentifier()
@@ -207,4 +186,23 @@ public final class MatchingEntity implements Serializable, IEntityInformationHol
         return getIdentifier();
     }
 
+    public String getMatch()
+    {
+        return match;
+    }
+
+    public void setMatch(String match)
+    {
+        this.match = match;
+    }
+
+    public double getScore()
+    {
+        return score;
+    }
+
+    public void setScore(double score)
+    {
+        this.score = score;
+    }
 }

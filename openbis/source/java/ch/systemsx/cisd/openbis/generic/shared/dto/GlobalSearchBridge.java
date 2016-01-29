@@ -73,11 +73,9 @@ public abstract class GlobalSearchBridge<T extends IEntityWithMetaprojects> impl
         if (person != null)
         {
             values.put("User id of " + role, person.getUserId());
-            values.put("First name of " + role, person.getFirstName());
-            values.put("Last name of " + role, person.getLastName());
+            values.put("Name of " + role, person.getLastName() + ", " + person.getFirstName());
             values.put("Email of " + role, person.getEmail());
         }
-
     }
 
     @Override
@@ -93,8 +91,17 @@ public abstract class GlobalSearchBridge<T extends IEntityWithMetaprojects> impl
             List<String> values = new ArrayList<>();
             for (Map.Entry<String, String> entry : data.entrySet())
             {
+                if (entry.getValue() == null)
+                {
+                    continue;
+                }
                 keys.add(entry.getKey());
-                values.add(entry.getValue());
+                String val = entry.getValue();
+                while (val.indexOf(" ||| ") != -1)
+                {
+                    val = val.replace(" ||| ", " \\|\\|\\| ");
+                }
+                values.add(val);
             }
 
             String indexedValue = StringUtils.joinList(values, " ||| ");
@@ -144,7 +151,7 @@ public abstract class GlobalSearchBridge<T extends IEntityWithMetaprojects> impl
 
         } catch (Exception e)
         {
-            e.printStackTrace(); // WHAT SHOULD BE DONE HERE?!
+            e.printStackTrace();
         }
     }
 }

@@ -424,6 +424,15 @@ public class TypedTableModelBuilder<T extends Serializable>
         }
 
         @Override
+        public void addMultilineValue(String valueOrNull)
+        {
+            setDataType(DataTypeCode.MULTILINE_VARCHAR);
+            StringTableCell value =
+                    valueOrNull == null ? EMPTY_CELL : new StringTableCell(valueOrNull);
+            addValue(value);
+        }
+
+        @Override
         public void addInteger(Long valueOrNull)
         {
             setDataType(DataTypeCode.INTEGER);
@@ -580,8 +589,7 @@ public class TypedTableModelBuilder<T extends Serializable>
     /**
      * Adds a column with specified id.
      * 
-     * @return an {@link IColumnMetaData} instance which allows to set title, default width, and/or
-     *         data type.
+     * @return an {@link IColumnMetaData} instance which allows to set title, default width, and/or data type.
      * @throws IllegalArgumentException if a column with specified is has already been added.
      */
     public IColumnMetaData addColumn(String id)
@@ -595,8 +603,7 @@ public class TypedTableModelBuilder<T extends Serializable>
     }
 
     /**
-     * Adds a row with optional row object. This method has to be called before adding values to
-     * columns.
+     * Adds a row with optional row object. This method has to be called before adding values to columns.
      */
     public void addRow(T objectOrNull)
     {

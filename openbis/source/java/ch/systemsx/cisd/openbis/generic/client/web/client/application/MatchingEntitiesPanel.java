@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs.ENTITY_TYPE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs.IDENTIFIER;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs.MATCHING_FIELD;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs.MATCH;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs.REGISTRATOR;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
@@ -189,6 +189,7 @@ public final class MatchingEntitiesPanel extends TypedTableGrid<MatchingEntity>
                 super.createColumnsDefinition();
         schema.setGridCellRendererFor(REGISTRATOR, PersonRenderer.REGISTRATOR_RENDERER);
         schema.setGridCellRendererFor(IDENTIFIER, createInternalLinkCellRenderer());
+        schema.setGridCellRendererFor(MATCH, createMultilineStringCellRenderer());
         return schema;
     }
 
@@ -221,19 +222,18 @@ public final class MatchingEntitiesPanel extends TypedTableGrid<MatchingEntity>
     @Override
     protected List<String> getColumnIdsOfFilters()
     {
-        return Arrays.asList(ENTITY_TYPE, IDENTIFIER, MATCHING_FIELD);
+        return Arrays.asList(ENTITY_TYPE, IDENTIFIER, MATCH);
     }
 
     @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        return new DatabaseModificationKind[]
-            { createOrDelete(ObjectKind.MATERIAL), edit(ObjectKind.MATERIAL),
-                    createOrDelete(ObjectKind.SAMPLE), edit(ObjectKind.SAMPLE),
-                    createOrDelete(ObjectKind.EXPERIMENT), edit(ObjectKind.EXPERIMENT),
-                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                    edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                    createOrDelete(ObjectKind.VOCABULARY_TERM), edit(ObjectKind.VOCABULARY_TERM) };
+        return new DatabaseModificationKind[] { createOrDelete(ObjectKind.MATERIAL), edit(ObjectKind.MATERIAL),
+                createOrDelete(ObjectKind.SAMPLE), edit(ObjectKind.SAMPLE),
+                createOrDelete(ObjectKind.EXPERIMENT), edit(ObjectKind.EXPERIMENT),
+                createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                createOrDelete(ObjectKind.VOCABULARY_TERM), edit(ObjectKind.VOCABULARY_TERM) };
     }
 
 }

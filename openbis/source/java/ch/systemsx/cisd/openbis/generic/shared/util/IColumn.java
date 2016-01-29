@@ -85,6 +85,11 @@ public interface IColumn
     public void addString(String valueOrNull);
 
     /**
+     * Adds a multiline string value to the column.
+     */
+    public void addMultilineValue(String valueOrNull);
+
+    /**
      * Adds an integer value to the column.
      */
     public void addInteger(Long valueOrNull);

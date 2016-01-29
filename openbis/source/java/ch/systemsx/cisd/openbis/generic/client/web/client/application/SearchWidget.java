@@ -198,7 +198,7 @@ public final class SearchWidget extends LayoutContainer
         boolean onlyWildcard = true;
         for (final char c : queryText.toCharArray())
         {
-            if (c != '*' && c != '?')
+            if (c != '*' && c != '?' && c != '|') // '|||' is a delimiter in field global_search in index
             {
                 onlyWildcard = false;
                 break;

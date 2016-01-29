@@ -11,8 +11,8 @@ public class ExperimentGlobalSearchBridge extends GlobalSearchBridge<ExperimentP
         Map<String, String> values = new HashMap<>();
 
         values.put("Perm ID", experiment.getPermId());
-        values.put("Identifier", experiment.getIdentifier());
         values.put("Code", experiment.getCode());
+        values.put("Identifier", experiment.getIdentifier());
         values.put("Registration date", dateFormat.format(experiment.getRegistrationDate()));
         values.put("Modification date", dateFormat.format(experiment.getModificationDate()));
 

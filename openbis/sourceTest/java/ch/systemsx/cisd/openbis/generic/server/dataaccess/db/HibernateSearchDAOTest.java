@@ -132,9 +132,9 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         {
             assertEquals(lastName, matchingEntity.getRegistrator().getFirstName());
 
-            String fieldDescription = matchingEntity.getFieldDescription();
-            if (fieldDescription.contains("First name of registrator") == false
-                    && fieldDescription.contains("First name of modifier") == false)
+            String fieldDescription = matchingEntity.getMatch();
+            if (fieldDescription.contains("Name of registrator") == false
+                    && fieldDescription.contains("Name of modifier") == false)
             {
                 fail("Field description '" + fieldDescription + "' neither contains 'First name of registrator' " +
                         "nor 'First name of modifier'.");
@@ -162,7 +162,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         for (MatchingEntity matchingEntity : hits)
         {
             AssertionUtil.assertContainsInsensitive(querySubstring, matchingEntity.getCode());
-            assertEquals("code", matchingEntity.getFieldDescription());
+            assertEquals("Code", matchingEntity.getMatch().substring(0, matchingEntity.getMatch().indexOf(":")));
         }
     }
 

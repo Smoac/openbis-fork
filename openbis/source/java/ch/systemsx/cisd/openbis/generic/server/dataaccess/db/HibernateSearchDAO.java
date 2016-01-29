@@ -26,6 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -338,10 +340,13 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
                     String[] fields = headerField.stringValue().split(splitString);
                     String[] content = dataField.stringValue().split(splitString);
-                    String[] metaprojects = metaprojectField.stringValue().split(" ");
+                    String[] metaprojects = new String[0];
 
-                    String matchingField = "unknown";
-                    String matchingText = "";
+                    String mpfs = metaprojectField.stringValue();
+                    if (mpfs.trim().length() > 0)
+                    {
+                        metaprojects = metaprojectField.stringValue().split(" ");
+                    }
 
                     List<String> query = new ArrayList<>();
                     if (useWildcardSearchMode)
@@ -361,62 +366,144 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                         }
                     }
 
-                    List<MatchingEntity> result = new ArrayList<>();
+                    Map<String, String> matchingFields = new HashMap<>();
+                    double score = 0.0;
 
                     for (int i = 0; i < content.length; i++)
                     {
                         for (String q : query)
                         {
+                            double currentScore = score;
+
                             if (useWildcardSearchMode)
                             {
-                                if (content[i].toLowerCase().matches("(?s).*" + q.toLowerCase().replace("*", ".*").replace("?", ".?") + ".*"))
+                                Pattern pattern = Pattern.compile("(?s)" + q.toLowerCase().replace("*", ".*").replace("?", ".?"));
+                                Matcher matcher = pattern.matcher(content[i].toLowerCase());
+
+                                while (matcher.find())
                                 {
-                                    matchingField = (fields.length == content.length) ? fields[i] : "Unknown";
-                                    matchingText = content[i];
-                                    MatchingEntity me = createMatchingEntity(((Document) tuple[1]), matchingText);
-                                    me.setFieldDescription(matchingField);
-                                    result.add(me);
+                                    int start = matcher.start();
+                                    int end = matcher.end();
+                                    score += getScore(content[i].toLowerCase(), start, end, fields[i], useWildcardSearchMode);
                                 }
                             } else
                             {
-                                if (content[i].toLowerCase().contains(q.toLowerCase()))
+                                String rest = content[i].toLowerCase();
+                                while (rest.length() > 0)
                                 {
-                                    matchingField = (fields.length == content.length) ? fields[i] : "Unknown";
-                                    matchingText = content[i];
-                                    MatchingEntity me = createMatchingEntity(((Document) tuple[1]), matchingText);
-                                    me.setFieldDescription(matchingField);
-                                    result.add(me);
+                                    int start = rest.indexOf(q.toLowerCase());
+                                    if (start == -1)
+                                    {
+                                        rest = "";
+                                    } else
+                                    {
+                                        int end = start + q.length();
+                                        rest = rest.substring(end);
+                                        score += getScore(content[i].toLowerCase(), start, end, fields[i], useWildcardSearchMode);
+                                    }
                                 }
+                            }
+
+                            if (score > currentScore)
+                            {
+                                matchingFields.put(fields[i], content[i]);
                             }
                         }
                     }
 
+                    Set<String> matchingMetaprojects = new HashSet<>();
                     for (int i = 0; i < metaprojects.length; i++)
                     {
+                        String mp = metaprojects[i].substring(1);
+                        String user = mp.substring(0, mp.indexOf("/"));
+                        if (!user.equals(userId))
+                        {
+                            continue;
+                        }
+
                         String value = metaprojects[i].substring(metaprojects[i].lastIndexOf("/") + 1);
                         for (String q : query)
                         {
                             if (useWildcardSearchMode)
                             {
-                                if (value.toLowerCase().matches(".*" + q.toLowerCase().replace("*", ".*").replace("?", ".?") + ".*"))
+                                Pattern pattern = Pattern.compile(q.toLowerCase().replace("*", ".*").replace("?", ".?"));
+                                Matcher matcher = pattern.matcher(value.toLowerCase());
+
+                                while (matcher.find())
                                 {
-                                    MatchingEntity me = createMatchingEntity(((Document) tuple[1]), value);
-                                    me.setFieldDescription("Tag");
-                                    result.add(me);
+                                    matchingMetaprojects.add(value);
+                                    int start = matcher.start();
+                                    int end = matcher.end();
+                                    score += getScore(value, start, end, "Tag", useWildcardSearchMode) * 5;
                                 }
                             } else
                             {
-                                if (value.toLowerCase().contains(q.toLowerCase()))
+                                String rest = value.toLowerCase();
+                                while (rest.length() > 0)
                                 {
-                                    MatchingEntity me = createMatchingEntity(((Document) tuple[1]), value);
-                                    me.setFieldDescription("Tag");
-                                    result.add(me);
+                                    int start = rest.indexOf(q.toLowerCase());
+                                    if (start == -1)
+                                    {
+                                        rest = "";
+                                    } else
+                                    {
+                                        matchingMetaprojects.add(value);
+                                        int end = start + q.length();
+                                        rest = rest.substring(end);
+                                        score += getScore(value, start, end, "Tag", useWildcardSearchMode) * 5;
+                                    }
                                 }
                             }
                         }
                     }
 
-                    return result;
+                    if (matchingMetaprojects.size() > 0)
+                    {
+                        List<String> mps = new ArrayList<>(matchingMetaprojects);
+                        Collections.sort(mps);
+                        matchingFields.put("Tags", StringUtils.join(mps, ","));
+                    }
+
+                    if (matchingFields.containsKey("Code") ||
+                            matchingFields.containsKey("Project code") ||
+                            matchingFields.containsKey("Space code"))
+                    {
+                        matchingFields.remove("Identifier");
+                    }
+
+                    List<String> keys = new ArrayList<String>(matchingFields.keySet());
+                    Collections.sort(keys);
+
+                    String text = "";
+                    for (String key : keys)
+                    {
+                        text = text + key + ": " + matchingFields.get(key) + "\n";
+                    }
+
+                    return createMatchingEntity((Document) tuple[1], text, score);
+                }
+
+                private double getScore(String text, int start, int end, String field, boolean wildcard)
+                {
+                    boolean fullmatch = (start == 0 || !StringUtils.isAlphanumeric(text.substring(start - 1, start))) &&
+                            (end == text.length() || !StringUtils.isAlphanumeric(text.substring(end, end + 1))) &&
+                            !wildcard; // full/partial matching not relevant for wildcard mode
+                    if (field.equals("Perm ID") || field.equals("Identifier") || field.equals("Code"))
+                    {
+                        if (fullmatch)
+                        {
+                            return 200;
+                        } else
+                        {
+                            return 100;
+                        }
+                    } else if (fullmatch)
+                    {
+                        return 10;
+                    } else
+                    {
+                        return 1;
+                    }
                 }
 
                 @Override
@@ -430,13 +517,13 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                     return result;
                 }
 
-                private MatchingEntity createMatchingEntity(final Document doc, final String matchingText)
+                private MatchingEntity createMatchingEntity(final Document doc, final String matchingText, double score)
                 {
                     final MatchingEntity result = new MatchingEntity();
 
                     // search properties
-                    result.setFieldDescription(fieldName);
-                    result.setTextFragment(matchingText);
+                    result.setMatch(matchingText);
+                    result.setScore(score);
 
                     // IIdentifiable properties
                     // NOTE: for contained sample this code is full code with container code part
@@ -512,27 +599,9 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             });
 
         List<?> list = hibernateQuery.list();
-        final List<List<MatchingEntity>> nestedResult = AbstractDAO.cast(list);
-        List<MatchingEntity> result = new ArrayList<>();
-        for (List<MatchingEntity> entities : nestedResult)
-        {
-            result.addAll(entities);
-        }
+        List<MatchingEntity> result = AbstractDAO.cast(list);
 
         return filterNulls(result);
-    }
-
-    // we need this for higlighter when wildcards are used
-    private static Query rewriteQuery(IndexReader indexReader, Query query)
-    {
-        try
-        {
-            return query.rewrite(indexReader);
-        } catch (IOException ex)
-        {
-            logSearchHighlightingError(ex);
-            return query;
-        }
     }
 
     // detailed search

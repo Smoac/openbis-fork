@@ -249,7 +249,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
-public final class CommonServer extends AbstractCommonServer<ICommonServerForInternalUse> implements
+public final class CommonServer extends AbstractCommonServer<ICommonServerForInternalUse>implements
         ICommonServerForInternalUse
 {
     private final LastModificationState lastModificationState;
@@ -401,7 +401,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Capability("UPDATE_SPACE")
     public void updateSpace(final String sessionToken,
             @AuthorizationGuard(guardClass = SpaceUpdatesPredicate.class)
-            final ISpaceUpdates updates)
+    final ISpaceUpdates updates)
     {
         assert sessionToken != null : "Unspecified session token";
         assert updates != null : "Unspecified updates";
@@ -431,8 +431,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     public void registerSpaceRole(String sessionToken, RoleCode roleCode,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            SpaceIdentifier spaceIdentifier, Grantee grantee)
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) SpaceIdentifier spaceIdentifier, Grantee grantee)
     {
         final Session session = getSession(sessionToken);
 
@@ -467,8 +466,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     public void deleteSpaceRole(String sessionToken, RoleCode roleCode,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            SpaceIdentifier spaceIdentifier, Grantee grantee)
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) SpaceIdentifier spaceIdentifier, Grantee grantee)
     {
         final Session session = getSession(sessionToken);
 
@@ -619,7 +617,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @ReturnValueFilter(validatorClass = SampleValidator.class)
     public List<Sample> listSamples(final String sessionToken,
             @AuthorizationGuard(guardClass = ListSampleCriteriaPredicate.class)
-            final ListSampleCriteria criteria)
+    final ListSampleCriteria criteria)
     {
         final Session session = getSession(sessionToken);
         final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
@@ -660,7 +658,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @ReturnValueFilter(validatorClass = SampleValidator.class)
     public List<Sample> listSamplesOnBehalfOfUser(final String sessionToken,
             @AuthorizationGuard(guardClass = ListSampleCriteriaPredicate.class)
-            final ListSampleCriteria criteria, String userId)
+    final ListSampleCriteria criteria, String userId)
     {
         final Session session = getSession(sessionToken);
 
@@ -703,7 +701,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
     public List<AbstractExternalData> listSampleExternalData(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
-            final TechId sampleId, final boolean showOnlyDirectlyConnected)
+    final TechId sampleId, final boolean showOnlyDirectlyConnected)
     {
         final Session session = getSession(sessionToken);
         final IDatasetLister datasetLister = createDatasetLister(session);
@@ -718,7 +716,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
     public List<AbstractExternalData> listExperimentExternalData(final String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            final TechId experimentId, boolean showOnlyDirectlyConnected)
+    final TechId experimentId, boolean showOnlyDirectlyConnected)
     {
         final Session session = getSession(sessionToken);
         final IDatasetLister datasetLister = createDatasetLister(session);
@@ -762,7 +760,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
     public List<AbstractExternalData> listDataSetRelationships(final String sessionToken,
             @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class)
-            final TechId datasetId, final DataSetRelationshipRole role)
+    final TechId datasetId, final DataSetRelationshipRole role)
     {
         final Session session = getSession(sessionToken);
         final IDatasetLister datasetLister = createDatasetLister(session);
@@ -910,6 +908,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                             useWildcardSearchMode, list.size(), maxSize);
             list.addAll(entities);
         }
+        Collections.sort(list, new Comparator<MatchingEntity>()
+            {
+                @Override
+                public int compare(MatchingEntity o1, MatchingEntity o2)
+                {
+                    return new Double(o2.getScore()).compareTo(o1.getScore());
+                }
+            });
         return list;
     }
 
@@ -954,8 +960,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Experiment> listExperiments(final String sessionToken,
             ExperimentType experimentType,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            ProjectIdentifier projectIdentifier)
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ProjectIdentifier projectIdentifier)
     {
         List<ProjectIdentifier> projectIdentifiers = projectIdentifier != null ? Collections.singletonList(projectIdentifier) : null;
         return listExperiments(sessionToken, experimentType, null, projectIdentifiers, false, false);
@@ -965,8 +970,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Experiment> listExperiments(final String sessionToken,
             ExperimentType experimentType,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            List<ProjectIdentifier> projectIdentifiers)
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) List<ProjectIdentifier> projectIdentifiers)
     {
         return listExperiments(sessionToken, experimentType, null, projectIdentifiers, false, false);
     }
@@ -975,8 +979,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Experiment> listExperimentsHavingSamples(final String sessionToken,
             ExperimentType experimentType,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            List<ProjectIdentifier> projectIdentifiers)
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) List<ProjectIdentifier> projectIdentifiers)
     {
         return listExperiments(sessionToken, experimentType, null, projectIdentifiers, true, false);
     }
@@ -985,8 +988,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Experiment> listExperimentsHavingDataSets(final String sessionToken,
             ExperimentType experimentType,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            List<ProjectIdentifier> projectIdentifiers)
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) List<ProjectIdentifier> projectIdentifiers)
     {
         return listExperiments(sessionToken, experimentType, null, projectIdentifiers, false, true);
     }
@@ -995,8 +997,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Experiment> listExperiments(final String sessionToken,
             ExperimentType experimentType,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            SpaceIdentifier spaceIdentifier)
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) SpaceIdentifier spaceIdentifier)
     {
         return listExperiments(sessionToken, experimentType, spaceIdentifier, null, false, false);
     }
@@ -1004,8 +1005,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Experiment> listExperiments(final String sessionToken,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            List<ExperimentIdentifier> experimentIdentifiers)
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) List<ExperimentIdentifier> experimentIdentifiers)
     {
         Session session = getSession(sessionToken);
         IExperimentTable experimentTable = businessObjectFactory.createExperimentTable(session);
@@ -1575,8 +1575,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("REGISTER_PROJECT")
     public void registerProject(String sessionToken,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            ProjectIdentifier projectIdentifier, String description, String leaderId,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ProjectIdentifier projectIdentifier, String description, String leaderId,
             Collection<NewAttachment> attachments)
     {
         final Session session = getSession(sessionToken);
@@ -1675,8 +1674,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public AbstractExternalData getDataSetInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class)
-            TechId datasetId)
+            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId)
     {
         final Session session = getSession(sessionToken);
         final IDataBO datasetBO = businessObjectFactory.createDataBO(session);
@@ -1698,8 +1696,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("WRITE_DATASET")
     public DataSetUpdateResult updateDataSet(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetUpdatesPredicate.class)
-            DataSetUpdatesDTO updates)
+            @AuthorizationGuard(guardClass = DataSetUpdatesPredicate.class) DataSetUpdatesDTO updates)
     {
         final Session session = getSession(sessionToken);
         final IDataBO dataSetBO = businessObjectFactory.createDataBO(session);
@@ -2038,8 +2035,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("DELETE_DATASET")
     public void deleteDataSets(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
-            List<String> dataSetCodes, String reason, DeletionType type, boolean isTrashEnabled)
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> dataSetCodes, String reason, DeletionType type,
+            boolean isTrashEnabled)
     {
         deleteDataSetsCommon(sessionToken, dataSetCodes, reason, type, false, isTrashEnabled);
     }
@@ -2048,8 +2045,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.INSTANCE_DISABLED)
     @Capability("FORCE_DELETE_DATASET")
     public void deleteDataSetsForced(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
-            List<String> dataSetCodes, String reason, DeletionType type, boolean isTrashEnabled)
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> dataSetCodes, String reason, DeletionType type,
+            boolean isTrashEnabled)
     {
         deleteDataSetsCommon(sessionToken, dataSetCodes, reason, type, true, isTrashEnabled);
     }
@@ -2100,8 +2097,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("DELETE_SAMPLE")
     public void deleteSamples(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdCollectionPredicate.class)
-            List<TechId> sampleIds, String reason, DeletionType deletionType)
+            @AuthorizationGuard(guardClass = SampleTechIdCollectionPredicate.class) List<TechId> sampleIds, String reason, DeletionType deletionType)
     {
         Session session = getSession(sessionToken);
         switch (deletionType)
@@ -2125,8 +2121,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("DELETE_EXPERIMENT")
     public void deleteExperiments(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdCollectionPredicate.class)
-            List<TechId> experimentIds, String reason, DeletionType deletionType)
+            @AuthorizationGuard(guardClass = ExperimentTechIdCollectionPredicate.class) List<TechId> experimentIds, String reason,
+            DeletionType deletionType)
     {
         Session session = getSession(sessionToken);
         IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
@@ -2176,8 +2172,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("DELETE_PROJECT")
     public void deleteProjects(String sessionToken,
-            @AuthorizationGuard(guardClass = ProjectTechIdCollectionPredicate.class)
-            List<TechId> projectIds, String reason)
+            @AuthorizationGuard(guardClass = ProjectTechIdCollectionPredicate.class) List<TechId> projectIds, String reason)
     {
         Session session = getSession(sessionToken);
         IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
@@ -2191,8 +2186,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     @Capability("DELETE_SPACE")
     public void deleteSpaces(String sessionToken,
-            @AuthorizationGuard(guardClass = SpaceTechIdCollectionPredicate.class)
-            List<TechId> spaceIds, String reason)
+            @AuthorizationGuard(guardClass = SpaceTechIdCollectionPredicate.class) List<TechId> spaceIds, String reason)
     {
         Session session = getSession(sessionToken);
         ISpaceBO spaceBO = businessObjectFactory.createSpaceBO(session);
@@ -2239,8 +2233,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("DELETE_EXPERIMENT_ATTACHMENT")
     public void deleteExperimentAttachments(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            TechId experimentId, List<String> fileNames, String reason)
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId, List<String> fileNames, String reason)
     {
         Session session = getSession(sessionToken);
         IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
@@ -2279,8 +2272,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("DELETE_SAMPLE_ATTACHMENT")
     public void deleteSampleAttachments(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
-            TechId sampleId, List<String> fileNames, String reason)
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleId, List<String> fileNames, String reason)
     {
         Session session = getSession(sessionToken);
         ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
@@ -2292,8 +2284,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("DELETE_PROJECT_ATTACHMENT")
     public void deleteProjectAttachments(String sessionToken,
-            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class)
-            TechId projectId, List<String> fileNames, String reason)
+            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId, List<String> fileNames, String reason)
     {
         Session session = getSession(sessionToken);
         IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
@@ -2311,8 +2302,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Attachment> listExperimentAttachments(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            TechId experimentId)
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId)
     {
         Session session = getSession(sessionToken);
         IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
@@ -2325,8 +2315,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Attachment> listSampleAttachments(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
-            TechId sampleId)
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleId)
     {
         Session session = getSession(sessionToken);
         ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
@@ -2338,8 +2327,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Attachment> listProjectAttachments(String sessionToken,
-            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class)
-            TechId projectId)
+            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId)
     {
         Session session = getSession(sessionToken);
         IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
@@ -2406,7 +2394,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public SampleParentWithDerived getSampleInfo(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
-            final TechId sampleId) throws UserFailureException
+    final TechId sampleId) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         assert sampleId != null : "Unspecified sample techId.";
@@ -2422,15 +2410,15 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                         session.tryGetPerson(), sample);
         return SampleTranslator.translate(getSampleTypeSlaveServerPlugin(sample.getSampleType())
                 .getSampleInfo(session, sample), session.getBaseIndexURL(), MetaprojectTranslator
-                .translate(metaprojectPEs), managedPropertyEvaluatorFactory);
+                        .translate(metaprojectPEs),
+                managedPropertyEvaluatorFactory);
     }
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @Capability("WRITE_SAMPLE")
     public SampleUpdateResult updateSample(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class)
-            SampleUpdatesDTO updates)
+            @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class) SampleUpdatesDTO updates)
     {
         final Session session = getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
@@ -2448,8 +2436,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Experiment getExperimentInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            ExperimentIdentifier identifier)
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ExperimentIdentifier identifier)
     {
         final Session session = getSession(sessionToken);
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
@@ -2476,8 +2463,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Experiment getExperimentInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            TechId experimentId)
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId)
     {
         final Session session = getSession(sessionToken);
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
@@ -2500,8 +2486,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @Capability("WRITE_EXPERIMENT_SAMPLE")
     public ExperimentUpdateResult updateExperiment(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class)
-            ExperimentUpdatesDTO updates)
+            @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class) ExperimentUpdatesDTO updates)
     {
         final Session session = getSession(sessionToken);
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
@@ -2517,8 +2502,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Project getProjectInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class)
-            TechId projectId)
+            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId)
     {
         final Session session = getSession(sessionToken);
         final IProjectBO bo = businessObjectFactory.createProjectBO(session);
@@ -2531,8 +2515,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Project getProjectInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            ProjectIdentifier projectIdentifier)
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ProjectIdentifier projectIdentifier)
     {
         final Session session = getSession(sessionToken);
         final IProjectBO bo = businessObjectFactory.createProjectBO(session);
@@ -2668,8 +2651,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("WRITE_PROJECT")
     public int updateProject(String sessionToken,
-            @AuthorizationGuard(guardClass = ProjectUpdatesPredicate.class)
-            ProjectUpdatesDTO updates)
+            @AuthorizationGuard(guardClass = ProjectUpdatesPredicate.class) ProjectUpdatesDTO updates)
     {
         final Session session = getSession(sessionToken);
         final IProjectBO bo = businessObjectFactory.createProjectBO(session);
@@ -2780,7 +2762,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                                 "[%s]\n%s%s\n",
                                 entityType.getCode(),
                                 firstSection ? "# Comments must be located after the type declaration ('[TYPE]').\n"
-                                        : "", section);
+                                        : "",
+                                section);
             }
             sb.append(section);
             firstSection = false;
@@ -3051,8 +3034,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public TableModel createReportFromDatasets(String sessionToken,
             DatastoreServiceDescription serviceDescription,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
-            List<String> datasetCodes)
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes)
     {
         Session session = getSession(sessionToken);
         IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
@@ -3063,8 +3045,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public TableModel createReportFromDatasets(String sessionToken, String serviceKey,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
-            List<String> datasetCodes)
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes)
     {
         Session session = getSession(sessionToken);
         IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
@@ -3086,8 +3067,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void processDatasets(String sessionToken,
             DatastoreServiceDescription serviceDescription,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
-            List<String> datasetCodes)
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes)
     {
         Session session = getSession(sessionToken);
         IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
@@ -3099,8 +3079,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("ARCHIVE_DATASET")
     public int archiveDatasets(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
-            List<String> datasetCodes, boolean removeFromDataStore)
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes, boolean removeFromDataStore)
     {
         return super.archiveDatasets(sessionToken, datasetCodes, removeFromDataStore);
     }
@@ -3109,8 +3088,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @Capability("UNARCHIVE_DATASET")
     public int unarchiveDatasets(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
-            List<String> datasetCodes)
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes)
     {
         return super.unarchiveDatasets(sessionToken, datasetCodes);
     }
@@ -3349,8 +3327,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("DELETE_FILTER")
     public void deleteFilters(String sessionToken,
-            @AuthorizationGuard(guardClass = DeleteGridCustomFilterPredicate.class)
-            List<TechId> filterIds)
+            @AuthorizationGuard(guardClass = DeleteGridCustomFilterPredicate.class) List<TechId> filterIds)
     {
         IGridCustomFilterOrColumnBO bo = createGridCustomFilterBO(sessionToken);
         deleteFiltersOrColumns(filterIds, bo);
@@ -3360,8 +3337,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("WRITE_FILTER")
     public void updateFilter(String sessionToken,
-            @AuthorizationGuard(guardClass = UpdateGridCustomFilterPredicate.class)
-            IExpressionUpdates updates)
+            @AuthorizationGuard(guardClass = UpdateGridCustomFilterPredicate.class) IExpressionUpdates updates)
     {
         assert updates != null : "Unspecified updates";
         createGridCustomFilterBO(sessionToken).update(updates);
@@ -3382,8 +3358,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("DELETE_CUSTOM_COLUMN")
     public void deleteGridCustomColumns(String sessionToken,
-            @AuthorizationGuard(guardClass = DeleteGridCustomColumnPredicate.class)
-            List<TechId> columnIds)
+            @AuthorizationGuard(guardClass = DeleteGridCustomColumnPredicate.class) List<TechId> columnIds)
     {
         IGridCustomFilterOrColumnBO bo = createGridCustomColumnBO(sessionToken);
         deleteFiltersOrColumns(columnIds, bo);
@@ -3393,8 +3368,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("WRITE_CUSTOM_COLUMN")
     public void updateGridCustomColumn(String sessionToken,
-            @AuthorizationGuard(guardClass = UpdateGridCustomColumnPredicate.class)
-            IExpressionUpdates updates)
+            @AuthorizationGuard(guardClass = UpdateGridCustomColumnPredicate.class) IExpressionUpdates updates)
     {
         assert updates != null : "Unspecified updates";
         createGridCustomColumnBO(sessionToken).update(updates);
@@ -3435,8 +3409,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     public int lockDatasets(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
-            List<String> datasetCodes)
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes)
     {
         Session session = getSession(sessionToken);
         IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
@@ -3447,8 +3420,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     public int unlockDatasets(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
-            List<String> datasetCodes)
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes)
     {
         Session session = getSession(sessionToken);
         IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
@@ -3460,8 +3432,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public LinkModel retrieveLinkFromDataSet(String sessionToken,
             DatastoreServiceDescription serviceDescription,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
-            String dataSetCode)
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode)
     {
         Session session = getSession(sessionToken);
         IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
@@ -3566,8 +3537,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public IEntityInformationHolderWithPermId getEntityInformationHolder(String sessionToken,
-            @AuthorizationGuard(guardClass = BasicEntityDescriptionPredicate.class)
-            BasicEntityDescription info)
+            @AuthorizationGuard(guardClass = BasicEntityDescriptionPredicate.class) BasicEntityDescription info)
     {
         Session session = getSession(sessionToken);
         IEntityInformationWithPropertiesHolder entity = getEntity(info, session);
@@ -3784,8 +3754,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @Capability("WRITE_DATASET_PROPERTIES")
     public void updateDataSetProperties(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class)
-            TechId entityId, List<PropertyUpdates> modifiedProperties)
+            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId entityId, List<PropertyUpdates> modifiedProperties)
     {
         checkSession(sessionToken);
         AbstractExternalData dataSet = getDataSetInfo(sessionToken, entityId);
@@ -3823,8 +3792,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @Capability("WRITE_EXPERIMENT_PROPERTIES")
     public void updateExperimentProperties(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            TechId entityId, List<PropertyUpdates> modifiedProperties)
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId entityId, List<PropertyUpdates> modifiedProperties)
     {
         checkSession(sessionToken);
         Experiment experiment = getExperimentInfo(sessionToken, entityId);
@@ -3849,8 +3817,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @Capability("WRITE_SAMPLE_PROPERTIES")
     public void updateSampleProperties(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
-            TechId entityId, List<PropertyUpdates> modifiedProperties)
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId entityId, List<PropertyUpdates> modifiedProperties)
     {
         checkSession(sessionToken);
         Map<String, String> properties = createPropertiesMap(modifiedProperties);
@@ -3915,7 +3882,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Capability("RESTORE")
     public void revertDeletions(final String sessionToken,
             @AuthorizationGuard(guardClass = RevertDeletionPredicate.class)
-            final List<TechId> deletionIds)
+    final List<TechId> deletionIds)
     {
         final Session session = getSession(sessionToken);
 
@@ -3969,7 +3936,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Capability("PURGE")
     public void deletePermanently(final String sessionToken,
             @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class)
-            final List<TechId> deletionIds)
+    final List<TechId> deletionIds)
     {
         deletePermanentlyCommon(sessionToken, deletionIds, false);
     }
@@ -3979,7 +3946,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Capability("FORCE_PURGE")
     public void deletePermanentlyForced(final String sessionToken,
             @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class)
-            final List<TechId> deletionIds)
+    final List<TechId> deletionIds)
     {
         deletePermanentlyCommon(sessionToken, deletionIds, true);
     }

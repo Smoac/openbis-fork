@@ -26,9 +26,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.MatchingEn
 public class MatchingEntitiesPanelColumnIDs
 {
     public static final String ENTITY_KIND = "ENTITY_KIND";
+
     public static final String ENTITY_TYPE = "ENTITY_TYPE";
+
     public static final String IDENTIFIER = "IDENTIFIER";
+
     public static final String REGISTRATOR = "REGISTRATOR";
-    public static final String MATCHING_FIELD = "MATCHING_FIELD";
-    public static final String MATCHING_TEXT = "MATCHING_TEXT";
+
+    public static final String MATCH = "MATCH";
+
+    public static final String RANK = "RANK";
+
 }
