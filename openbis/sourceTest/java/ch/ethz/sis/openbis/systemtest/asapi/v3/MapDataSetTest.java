@@ -87,6 +87,28 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
+    public void testMapByPermIdCaseInsensitive()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetPermId permId1 = new DataSetPermId("root_CONTAINER");
+
+        Map<IDataSetId, DataSet> map =
+                v3api.mapDataSets(sessionToken, Arrays.asList(permId1),
+                        new DataSetFetchOptions());
+
+        assertEquals(map.size(), 1);
+
+        Iterator<DataSet> iter = map.values().iterator();
+        assertEquals(iter.next().getPermId(), permId1);
+
+        assertEquals(map.get(permId1).getPermId().getPermId(), "ROOT_CONTAINER");
+        assertEquals(map.get(new DataSetPermId("ROOT_CONTAINER")).getPermId().getPermId(), "ROOT_CONTAINER");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
     public void testMapByIdsNonexistent()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);

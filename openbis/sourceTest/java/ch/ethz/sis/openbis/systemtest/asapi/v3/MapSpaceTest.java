@@ -65,6 +65,33 @@ public class MapSpaceTest extends AbstractTest
     }
 
     @Test
+    public void testMapByPermIdCaseInsensitive()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SpacePermId permId1 = new SpacePermId("CisD");
+        SpacePermId permId2 = new SpacePermId("/test-SPACE");
+
+        Map<ISpaceId, Space> map =
+                v3api.mapSpaces(sessionToken, Arrays.asList(permId1, permId2),
+                        new SpaceFetchOptions());
+
+        assertEquals(2, map.size());
+
+        Iterator<Space> iter = map.values().iterator();
+        assertEquals(iter.next().getPermId(), permId1);
+        assertEquals(iter.next().getPermId(), permId2);
+
+        assertEquals(map.get(permId1).getPermId().getPermId(), "CISD");
+        assertEquals(map.get(new SpacePermId("CISD")).getPermId().getPermId(), "CISD");
+
+        assertEquals(map.get(permId2).getPermId().getPermId(), "TEST-SPACE");
+        assertEquals(map.get(new SpacePermId("/TEST-SPACE")).getPermId().getPermId(), "TEST-SPACE");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
     public void testMapByIdsNonexistent()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);

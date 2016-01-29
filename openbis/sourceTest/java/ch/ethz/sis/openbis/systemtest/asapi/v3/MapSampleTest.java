@@ -147,7 +147,47 @@ public class MapSampleTest extends AbstractSampleTest
         String sampleSubCode = CodeConverter.tryToDatabase(identifier2.getSampleSubCode());
         String containerCode = CodeConverter.tryToDatabase(identifier2.tryGetContainerCode());
         return new SampleIdentifier(spaceCode, containerCode, sampleSubCode);
+    }
 
+    @Test
+    public void testMapByIdentifierCaseInsensitive()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleIdentifier identifier1 = new SampleIdentifier("/cisD/cp-TEST-1");
+        SampleIdentifier identifier2 = new SampleIdentifier("/Mp");
+        SampleIdentifier identifier3 = new SampleIdentifier("/mP:a03");
+        SampleIdentifier identifier4 = new SampleIdentifier("/cisd/cl1:A03");
+        SampleIdentifier identifier5 = new SampleIdentifier("//cL1:a01");
+
+        List<SampleIdentifier> identifiers = Arrays.asList(identifier1, identifier2, identifier3, identifier4, identifier5);
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, identifiers, new SampleFetchOptions());
+
+        assertEquals(map.size(), identifiers.size());
+
+        Iterator<Sample> iter = map.values().iterator();
+        assertEquals(iter.next().getIdentifier(), identifier1);
+        assertEquals(iter.next().getIdentifier(), identifier2);
+        assertEquals(iter.next().getIdentifier(), identifier3);
+        assertEquals(iter.next().getIdentifier(), identifier4);
+        assertEquals(iter.next().getIdentifier(), new SampleIdentifier("/CISD/CL1:A01"));
+
+        assertEquals(map.get(identifier1).getIdentifier().getIdentifier(), "/CISD/CP-TEST-1");
+        assertEquals(map.get(new SampleIdentifier("/CISD/CP-TEST-1")).getIdentifier().getIdentifier(), "/CISD/CP-TEST-1");
+
+        assertEquals(map.get(identifier2).getIdentifier().getIdentifier(), "/MP");
+        assertEquals(map.get(new SampleIdentifier("/MP")).getIdentifier().getIdentifier(), "/MP");
+
+        assertEquals(map.get(identifier3).getIdentifier().getIdentifier(), "/MP:A03");
+        assertEquals(map.get(new SampleIdentifier("/MP:A03")).getIdentifier().getIdentifier(), "/MP:A03");
+
+        assertEquals(map.get(identifier4).getIdentifier().getIdentifier(), "/CISD/CL1:A03");
+        assertEquals(map.get(new SampleIdentifier("/CISD/CL1:A03")).getIdentifier().getIdentifier(), "/CISD/CL1:A03");
+
+        assertEquals(map.get(identifier5).getIdentifier().getIdentifier(), "/CISD/CL1:A01");
+        assertEquals(map.get(new SampleIdentifier("//CL1:A01")).getIdentifier().getIdentifier(), "/CISD/CL1:A01");
+
+        v3api.logout(sessionToken);
     }
 
     @Test

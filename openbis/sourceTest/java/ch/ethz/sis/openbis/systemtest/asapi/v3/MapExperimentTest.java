@@ -124,6 +124,29 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
+    public void testMapByIdentifierCaseInsensitive()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentIdentifier identifier1 = new ExperimentIdentifier("/cisD/Noe/EXP-test-2");
+
+        Map<IExperimentId, Experiment> map =
+                v3api.mapExperiments(sessionToken,
+                        Arrays.asList(identifier1),
+                        new ExperimentFetchOptions());
+
+        assertEquals(1, map.size());
+
+        Iterator<Experiment> iter = map.values().iterator();
+        assertEquals(iter.next().getIdentifier(), identifier1);
+
+        assertEquals(map.get(identifier1).getIdentifier().getIdentifier(), "/CISD/NOE/EXP-TEST-2");
+        assertEquals(map.get(new ExperimentIdentifier("/CISD/NOE/EXP-TEST-2")).getIdentifier().getIdentifier(), "/CISD/NOE/EXP-TEST-2");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
     public void testMapByIdsNonexistent()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -794,7 +817,8 @@ public class MapExperimentTest extends AbstractExperimentTest
         assertEquals(entry.getPropertyValue(), "a description");
     }
 
-    @Test(enabled = false) // SSDM-2292
+    @Test(enabled = false)
+    // SSDM-2292
     public void testMapWithHistoryProject()
     {
         ExperimentCreation creation = new ExperimentCreation();

@@ -97,6 +97,26 @@ public class MapProjectTest extends AbstractTest
     }
 
     @Test
+    public void testMapByIdentifierCaseInsensitive()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ProjectIdentifier identifier1 = new ProjectIdentifier("/cisD/NeMo");
+
+        Map<IProjectId, Project> map = v3api.mapProjects(sessionToken, Arrays.asList(identifier1), new ProjectFetchOptions());
+
+        assertEquals(1, map.size());
+
+        Iterator<Project> iter = map.values().iterator();
+        assertEquals(iter.next().getIdentifier(), identifier1);
+
+        assertEquals(map.get(identifier1).getIdentifier().getIdentifier(), "/CISD/NEMO");
+        assertEquals(map.get(new ProjectIdentifier("/CISD/NEMO")).getIdentifier().getIdentifier(), "/CISD/NEMO");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
     public void testMapByIdsNonexistent()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);

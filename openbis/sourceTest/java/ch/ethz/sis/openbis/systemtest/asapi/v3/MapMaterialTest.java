@@ -20,6 +20,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -71,6 +72,30 @@ public class MapMaterialTest extends AbstractDataSetTest
         assertPropertiesNotFetched(bacteria);
 
         assertEquals(bacteria.getPermId(), bacteriaId);
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testMapByPermIdCaseInsensitive()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        MaterialPermId virusId = new MaterialPermId("VIRus2", "viRUS");
+
+        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(virusId),
+                new MaterialFetchOptions());
+
+        assertEquals(map.size(), 1);
+
+        Iterator<Material> iter = map.values().iterator();
+        assertEquals(iter.next().getPermId(), virusId);
+
+        assertEquals(map.get(virusId).getPermId().getCode(), "VIRUS2");
+        assertEquals(map.get(virusId).getPermId().getTypeCode(), "VIRUS");
+
+        assertEquals(map.get(new MaterialPermId("VIRUS2", "VIRUS")).getPermId().getCode(), "VIRUS2");
+        assertEquals(map.get(new MaterialPermId("VIRUS2", "VIRUS")).getPermId().getTypeCode(), "VIRUS");
 
         v3api.logout(sessionToken);
     }
