@@ -1154,7 +1154,7 @@ public class ProjectSampleTest extends BaseTest
     
     private void assertNotOlder(Date actualDate, Date referenceDate)
     {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         String renderedReferenceDate = format.format(referenceDate.getTime());
         String renderedActualDate = format.format(actualDate);
         assertEquals(renderedReferenceDate.compareTo(renderedActualDate) <= 0, true,
@@ -1163,14 +1163,7 @@ public class ProjectSampleTest extends BaseTest
     
     private Date sleep()
     {
-        Date now = new Date();
-        try
-        {
-            Thread.sleep(1100);
-        } catch (InterruptedException ex)
-        {
-            // silently ignored
-        }
+        Date now = daoFactory.getTransactionTimestamp();
         return now;
     }
     
