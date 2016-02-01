@@ -3,19 +3,19 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DataGlobalSearchBridge extends GlobalSearchBridge<DataPE>
+public class DataGlobalSearchBridge<T extends DataPE> extends GlobalSearchBridge<T>
 {
 
     @Override
-    public Map<String, String> collect(DataPE data)
+    public Map<String, IndexedValue> collect(DataPE data)
     {
-        Map<String, String> values = new HashMap<>();
+        Map<String, IndexedValue> values = new HashMap<>();
 
-        values.put("Perm ID", data.getPermId());
-        values.put("Registration date", dateFormat.format(data.getRegistrationDate()));
-        values.put("Modification date", dateFormat.format(data.getModificationDate()));
-        values.put("Access date", dateFormat.format(data.getAccessDate()));
-        values.put("DataSet type", data.getDataSetType().getCode());
+        put(values, "Perm ID", data.getPermId());
+        put(values, "Registration date", dateFormat.format(data.getRegistrationDate()));
+        put(values, "Modification date", dateFormat.format(data.getModificationDate()));
+        put(values, "Access date", dateFormat.format(data.getAccessDate()));
+        put(values, "DataSet type", data.getDataSetType().getCode());
         addProperties(values, data.getProperties());
         addPerson(values, "registrator", data.getRegistrator());
         addPerson(values, "modifier", data.getModifier());

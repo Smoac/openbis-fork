@@ -6,16 +6,16 @@ import java.util.Map;
 public class SampleGlobalSearchBridge extends GlobalSearchBridge<SamplePE>
 {
     @Override
-    public Map<String, String> collect(SamplePE sample)
+    public Map<String, IndexedValue> collect(SamplePE sample)
     {
-        Map<String, String> values = new HashMap<>();
+        Map<String, IndexedValue> values = new HashMap<>();
 
-        values.put("Perm ID", sample.getPermId());
-        values.put("Code", sample.getCode());
-        values.put("Identifier", sample.getIdentifier());
-        values.put("Registration date", dateFormat.format(sample.getRegistrationDate()));
-        values.put("Modification date", dateFormat.format(sample.getModificationDate()));
-        values.put("Sample type", sample.getSampleType().getCode());
+        put(values, "Perm ID", sample.getPermId());
+        put(values, "Code", sample.getCode());
+        put(values, "Identifier", sample.getIdentifier());
+        put(values, "Registration date", dateFormat.format(sample.getRegistrationDate()));
+        put(values, "Modification date", dateFormat.format(sample.getModificationDate()));
+        put(values, "Sample type", sample.getSampleType().getCode());
 
         if (sample.getExperiment() != null)
         {

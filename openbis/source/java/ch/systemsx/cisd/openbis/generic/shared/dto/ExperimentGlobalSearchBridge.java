@@ -6,17 +6,17 @@ import java.util.Map;
 public class ExperimentGlobalSearchBridge extends GlobalSearchBridge<ExperimentPE>
 {
     @Override
-    public Map<String, String> collect(ExperimentPE experiment)
+    public Map<String, IndexedValue> collect(ExperimentPE experiment)
     {
-        Map<String, String> values = new HashMap<>();
+        Map<String, IndexedValue> values = new HashMap<>();
 
-        values.put("Perm ID", experiment.getPermId());
-        values.put("Code", experiment.getCode());
-        values.put("Identifier", experiment.getIdentifier());
-        values.put("Registration date", dateFormat.format(experiment.getRegistrationDate()));
-        values.put("Modification date", dateFormat.format(experiment.getModificationDate()));
+        put(values, "Perm ID", experiment.getPermId());
+        put(values, "Code", experiment.getCode());
+        put(values, "Identifier", experiment.getIdentifier());
+        put(values, "Registration date", dateFormat.format(experiment.getRegistrationDate()));
+        put(values, "Modification date", dateFormat.format(experiment.getModificationDate()));
 
-        values.put("Experiment type", experiment.getExperimentType().getCode());
+        put(values, "Experiment type", experiment.getExperimentType().getCode());
 
         addProject(values, experiment.getProject());
 

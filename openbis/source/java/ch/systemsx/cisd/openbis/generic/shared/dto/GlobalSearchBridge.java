@@ -8,6 +8,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
@@ -23,58 +28,121 @@ import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 public abstract class GlobalSearchBridge<T extends IEntityWithMetaprojects> implements FieldBridge
 {
 
-    protected static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
-
-    protected abstract Map<String, String> collect(T entity);
-
-    protected void addSpace(Map<String, String> values, SpacePE space)
+    protected class IndexedValue
     {
-        values.put("Space code", space.getCode());
+        public final String displayValue;
+
+        public final String indexedValue;
+
+        public IndexedValue(String displayValue, String indexedValue)
+        {
+            this.displayValue = displayValue;
+            this.indexedValue = indexedValue;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "(" + displayValue + ", " + indexedValue + ")";
+        }
     }
 
-    protected void addProject(Map<String, String> values, ProjectPE project)
+    protected IndexedValue iv(String s)
     {
-        values.put("Project code", project.getCode());
+        return new IndexedValue(s, s);
+    }
+
+    protected void put(Map<String, IndexedValue> map, String key, String value)
+    {
+        map.put(key, new IndexedValue(value, value));
+    }
+
+    protected static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+
+    protected abstract Map<String, IndexedValue> collect(T entity);
+
+    protected void addSpace(Map<String, IndexedValue> values, SpacePE space)
+    {
+        put(values, "Space code", space.getCode());
+    }
+
+    protected void addProject(Map<String, IndexedValue> values, ProjectPE project)
+    {
+        put(values, "Project code", project.getCode());
         addSpace(values, project.getSpace());
     }
 
-    protected void addExperiment(Map<String, String> values, ExperimentPE experiment)
+    protected void addExperiment(Map<String, IndexedValue> values, ExperimentPE experiment)
     {
-        values.put("Experiment code", experiment.getCode());
+        put(values, "Experiment code", experiment.getCode());
         addProject(values, experiment.getProject());
     }
 
-    protected <U extends EntityPropertyPE> void addProperties(Map<String, String> values, Collection<U> properties)
+    protected <U extends EntityPropertyPE> void addProperties(Map<String, IndexedValue> values, Collection<U> properties)
     {
         if (properties != null)
         {
             for (U property : properties)
             {
-                values.put("Property '" + property.getEntityTypePropertyType().getPropertyType().getLabel() + "'", property.tryGetUntypedValue());
+                switch (property.getEntityTypePropertyType().getPropertyType().getType().getCode())
+                {
+                    case MULTILINE_VARCHAR:
+                    case XML:
+                        XMLInputFactory xif = XMLInputFactory.newFactory();
+                        StringBuffer value = new StringBuffer();
+                        String rawValue = property.tryGetUntypedValue().trim();
+                        try
+                        {
+                            if (!rawValue.startsWith("<") || !rawValue.endsWith(">"))
+                            {
+                                throw new XMLStreamException("early fail");
+                            }
+                            XMLStreamReader xsr = xif.createXMLStreamReader(new StringReader(rawValue));
+                            while (xsr.hasNext())
+                            {
+                                int x = xsr.next();
+                                if (x == XMLStreamConstants.CHARACTERS)
+                                {
+                                    value.append(xsr.getText() + " ");
+                                }
+                            }
+                        } catch (Exception e)
+                        {
+                            value = new StringBuffer(rawValue);
+                        }
+                        values.put("Property '" + property.getEntityTypePropertyType().getPropertyType().getLabel() + "'",
+                                new IndexedValue(property.tryGetUntypedValue(), value.toString()));
+                        break;
+                    default:
+                        put(values, "Property '" + property.getEntityTypePropertyType().getPropertyType().getLabel() + "'",
+                                property.tryGetUntypedValue());
+                        break;
+                }
+
             }
         }
     }
 
-    protected void addAttachments(Map<String, String> values, Collection<AttachmentPE> attachments)
+    protected void addAttachments(Map<String, IndexedValue> values, Collection<AttachmentPE> attachments)
     {
         if (attachments != null)
         {
             for (AttachmentPE attachment : attachments)
             {
-                values.put("Title of '" + attachment.getFileName() + "'", attachment.getTitle());
-                values.put("Description of '" + attachment.getFileName() + "'", attachment.getDescription());
-                values.put("File name of '" + attachment.getFileName() + "'", attachment.getFileName());
+                put(values, "Title of '" + attachment.getFileName() + "'", attachment.getTitle());
+                put(values, "Description of '" + attachment.getFileName() + "'", attachment.getDescription());
+                put(values, "File name of '" + attachment.getFileName() + "'", attachment.getFileName());
             }
         }
     }
 
-    protected void addPerson(Map<String, String> values, String role, PersonPE person)
+    protected void addPerson(Map<String, IndexedValue> values, String role, PersonPE person)
     {
         if (person != null)
         {
-            values.put("User id of " + role, person.getUserId());
-            values.put("Name of " + role, person.getLastName() + ", " + person.getFirstName());
-            values.put("Email of " + role, person.getEmail());
+            put(values, "User id of " + role, person.getUserId());
+            put(values, "Name of " + role, person.getLastName() + ", " + person.getFirstName());
+            put(values, "Email of " + role, person.getEmail());
         }
     }
 
@@ -85,33 +153,44 @@ public abstract class GlobalSearchBridge<T extends IEntityWithMetaprojects> impl
         {
             @SuppressWarnings("unchecked")
             T entity = (T) value;
-            Map<String, String> data = collect(entity);
+            Map<String, IndexedValue> data = collect(entity);
 
             List<String> keys = new ArrayList<>();
-            List<String> values = new ArrayList<>();
-            for (Map.Entry<String, String> entry : data.entrySet())
+            List<String> displayValues = new ArrayList<>();
+            List<String> indexedValues = new ArrayList<>();
+            for (Map.Entry<String, IndexedValue> entry : data.entrySet())
             {
                 if (entry.getValue() == null)
                 {
                     continue;
                 }
                 keys.add(entry.getKey());
-                String val = entry.getValue();
-                while (val.indexOf(" ||| ") != -1)
+
+                String displayVal = entry.getValue().displayValue;
+                while (displayVal.indexOf(" ||| ") != -1)
                 {
-                    val = val.replace(" ||| ", " \\|\\|\\| ");
+                    displayVal = displayVal.replace(" ||| ", " \\|\\|\\| ");
                 }
-                values.add(val);
+                displayValues.add(displayVal);
+
+                String indexedVal = entry.getValue().indexedValue;
+                while (indexedVal.indexOf(" ||| ") != -1)
+                {
+                    indexedVal = indexedVal.replace(" ||| ", " \\|\\|\\| ");
+                }
+                indexedValues.add(indexedVal);
+
             }
 
-            String indexedValue = StringUtils.joinList(values, " ||| ");
+            String indexedValue = StringUtils.joinList(indexedValues, " ||| ");
+            String displayValue = StringUtils.joinList(displayValues, " ||| ");
 
             WhitespaceAnalyzer an = new WhitespaceAnalyzer();
             Field field;
             try
             {
                 TokenStream tokenStream = an.tokenStream("global_search", new StringReader(indexedValue.toLowerCase()));
-                field = new Field("global_search", indexedValue, TextField.TYPE_STORED);
+                field = new Field("global_search", displayValue, TextField.TYPE_STORED);
                 field.setTokenStream(tokenStream);
             } catch (IOException e)
             {

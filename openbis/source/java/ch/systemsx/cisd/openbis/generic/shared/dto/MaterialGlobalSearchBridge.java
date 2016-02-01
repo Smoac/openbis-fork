@@ -6,15 +6,15 @@ import java.util.Map;
 public class MaterialGlobalSearchBridge extends GlobalSearchBridge<MaterialPE>
 {
     @Override
-    public Map<String, String> collect(MaterialPE material)
+    public Map<String, IndexedValue> collect(MaterialPE material)
     {
-        Map<String, String> values = new HashMap<>();
+        Map<String, IndexedValue> values = new HashMap<>();
 
-        values.put("Identifier", material.getIdentifier());
-        values.put("Registration date", dateFormat.format(material.getRegistrationDate()));
-        values.put("Modification date", dateFormat.format(material.getModificationDate()));
+        put(values, "Identifier", material.getIdentifier());
+        put(values, "Registration date", dateFormat.format(material.getRegistrationDate()));
+        put(values, "Modification date", dateFormat.format(material.getModificationDate()));
 
-        values.put("Material type", material.getMaterialType().getCode());
+        put(values, "Material type", material.getMaterialType().getCode());
 
         addProperties(values, material.getProperties());
         addPerson(values, "registrator", material.getRegistrator());

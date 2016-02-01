@@ -6,14 +6,13 @@ public class ExternalDataGlobalSearchBridge extends GlobalSearchBridge<ExternalD
 {
 
     @Override
-    public Map<String, String> collect(ExternalDataPE data)
+    public Map<String, IndexedValue> collect(ExternalDataPE data)
     {
-        DataGlobalSearchBridge db = new DataGlobalSearchBridge();
-        Map<String, String> values = db.collect(data);
-        values.put("Storage confirmed", data.isStorageConfirmation() ? "true" : "false");
+        DataGlobalSearchBridge<ExternalDataPE> db = new DataGlobalSearchBridge<>();
+        Map<String, IndexedValue> values = db.collect(data);
         if (data.getFileFormatType() != null)
         {
-            values.put("File format type", data.getFileFormatType().getCode());
+            put(values, "File format type", data.getFileFormatType().getCode());
         }
         return values;
     }
