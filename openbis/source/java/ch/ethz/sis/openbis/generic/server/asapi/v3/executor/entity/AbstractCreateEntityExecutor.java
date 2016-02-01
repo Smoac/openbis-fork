@@ -113,7 +113,7 @@ public abstract class AbstractCreateEntityExecutor<CREATION, PE, PERM_ID> implem
 
         save(context, new ArrayList<PE>(batchMap.values()), false);
 
-        for (PE entity : entitiesAll.values())
+        for (PE entity : batchMap.values())
         {
             PERM_ID permId = createPermId(context, entity);
             permIdsAll.add(permId);
