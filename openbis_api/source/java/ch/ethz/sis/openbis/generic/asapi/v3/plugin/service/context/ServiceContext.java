@@ -17,8 +17,6 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.context;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ServiceContext
@@ -34,5 +32,5 @@ public class ServiceContext
     {
         this.sessionToken = sessionToken;
     }
-    
+
 }

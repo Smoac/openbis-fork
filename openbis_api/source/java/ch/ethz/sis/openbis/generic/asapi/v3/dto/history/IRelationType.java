@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.history.IRelationType")
+@JsonObject("as.dto.history.IRelationType")
 public interface IRelationType
 {
 

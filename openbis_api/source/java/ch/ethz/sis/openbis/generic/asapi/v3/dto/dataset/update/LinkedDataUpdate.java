@@ -28,7 +28,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.dataset.update.LinkedDataUpdate")
+@JsonObject("as.dto.dataset.update.LinkedDataUpdate")
 public class LinkedDataUpdate implements Serializable
 {
     private static final long serialVersionUID = 1L;

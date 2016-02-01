@@ -23,11 +23,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ICustomASServiceId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@JsonObject("dto.service.search.CustomASServiceSearchCriteria")
+@JsonObject("as.dto.service.search.CustomASServiceSearchCriteria")
 public class CustomASServiceSearchCriteria extends AbstractObjectSearchCriteria<ICustomASServiceId>
 {
     private static final long serialVersionUID = 1L;
@@ -35,7 +33,7 @@ public class CustomASServiceSearchCriteria extends AbstractObjectSearchCriteria<
     public CustomASServiceSearchCriteria()
     {
     }
-    
+
     public CodeSearchCriteria withCode()
     {
         return with(new CodeSearchCriteria());

@@ -25,7 +25,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.experiment.create.CreateExperimentsOperationResult")
+@JsonObject("as.dto.experiment.create.CreateExperimentsOperationResult")
 public class CreateExperimentsOperationResult implements IOperationResult
 {
 

@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author Jakub Straszewski
  */
-@JsonObject("dto.common.interfaces.IParentChildrenHolder")
+@JsonObject("as.dto.common.interfaces.IParentChildrenHolder")
 public interface IParentChildrenHolder<T>
 {
     List<T> getParents();

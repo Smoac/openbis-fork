@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.dataset.fetchoptions.LocatorTypeSortOptions")
+@JsonObject("as.dto.dataset.fetchoptions.LocatorTypeSortOptions")
 public class LocatorTypeSortOptions extends SortOptions<LocatorType>
 {
 

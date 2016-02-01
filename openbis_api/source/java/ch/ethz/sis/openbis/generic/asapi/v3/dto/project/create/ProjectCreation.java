@@ -27,7 +27,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.project.create.ProjectCreation")
+@JsonObject("as.dto.project.create.ProjectCreation")
 public class ProjectCreation implements Serializable
 {
     private static final long serialVersionUID = 1L;

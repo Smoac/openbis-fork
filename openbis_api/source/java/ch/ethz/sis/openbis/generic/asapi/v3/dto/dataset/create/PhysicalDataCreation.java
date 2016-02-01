@@ -29,7 +29,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.dataset.create.PhysicalDataCreation")
+@JsonObject("as.dto.dataset.create.PhysicalDataCreation")
 public class PhysicalDataCreation implements Serializable
 {
     private static final long serialVersionUID = 1L;

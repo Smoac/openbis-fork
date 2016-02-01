@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("dto.experiment.id.ExperimentIdentifier")
+@JsonObject("as.dto.experiment.id.ExperimentIdentifier")
 public class ExperimentIdentifier extends ObjectIdentifier implements IExperimentId
 {
 

@@ -21,17 +21,17 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author juanf
  */
-@JsonObject("dto.common.search.NumberLessThanValue")
+@JsonObject("as.dto.common.search.NumberLessThanValue")
 public class NumberLessThanValue extends AbstractNumberValue
 {
 
     private static final long serialVersionUID = 1L;
-    
+
     public NumberLessThanValue()
     {
         super(null);
     }
-    
+
     public NumberLessThanValue(Number number)
     {
         super(number);

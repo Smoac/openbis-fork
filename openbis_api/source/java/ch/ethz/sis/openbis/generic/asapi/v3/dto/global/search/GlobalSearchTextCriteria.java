@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author Jakub Straszewski
  */
-@JsonObject("dto.global.search.GlobalSearchTextCriteria")
+@JsonObject("as.dto.global.search.GlobalSearchTextCriteria")
 public class GlobalSearchTextCriteria extends AbstractFieldSearchCriteria<StringContainsValue>
 {
 

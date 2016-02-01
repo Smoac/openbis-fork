@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.experiment.search.NoExperimentSearchCriteria")
+@JsonObject("as.dto.experiment.search.NoExperimentSearchCriteria")
 public class NoExperimentSearchCriteria implements ISearchCriteria
 {
 

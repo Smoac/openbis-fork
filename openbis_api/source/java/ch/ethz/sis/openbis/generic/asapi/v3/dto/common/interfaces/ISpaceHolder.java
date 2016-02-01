@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author Jakub Straszewski
  */
-@JsonObject("dto.common.interfaces.ISpaceHolder")
+@JsonObject("as.dto.common.interfaces.ISpaceHolder")
 public interface ISpaceHolder
 {
     Space getSpace();

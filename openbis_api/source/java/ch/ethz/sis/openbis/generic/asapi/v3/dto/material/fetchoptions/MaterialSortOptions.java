@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.material.fetchoptions.MaterialSortOptions")
+@JsonObject("as.dto.material.fetchoptions.MaterialSortOptions")
 public class MaterialSortOptions extends EntityWithPropertiesSortOptions<Material>
 {
 

@@ -22,7 +22,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.context.CustomASServi
 
 /**
  * Executor of a {@link CustomASService}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface ICustomASServiceExecutor

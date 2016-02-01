@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.deletion.AbstractObjectDeletionOptions")
+@JsonObject("as.dto.deletion.AbstractObjectDeletionOptions")
 public class AbstractObjectDeletionOptions implements Serializable
 {
 

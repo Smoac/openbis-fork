@@ -15,11 +15,14 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions;
 
+import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.fetchoptions.HistoryEntryFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
@@ -29,14 +32,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.io.Serializable;
-
 /*
  * Class automatically generated with DtoGenerator
  */
-@JsonObject("dto.experiment.fetchoptions.ExperimentFetchOptions")
+@JsonObject("as.dto.experiment.fetchoptions.ExperimentFetchOptions")
 public class ExperimentFetchOptions extends FetchOptions<Experiment> implements Serializable
 {
     private static final long serialVersionUID = 1L;

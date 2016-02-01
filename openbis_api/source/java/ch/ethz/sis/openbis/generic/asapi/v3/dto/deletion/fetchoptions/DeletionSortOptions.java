@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.deletion.fetchoptions.DeletionSortOptions")
+@JsonObject("as.dto.deletion.fetchoptions.DeletionSortOptions")
 public class DeletionSortOptions extends SortOptions<Deletion>
 {
 

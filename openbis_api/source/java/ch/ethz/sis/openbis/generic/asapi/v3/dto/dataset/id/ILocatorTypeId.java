@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("dto.dataset.id.ILocatorTypeId")
+@JsonObject("as.dto.dataset.id.ILocatorTypeId")
 public interface ILocatorTypeId extends IObjectId
 {
 

@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.common.fetchoptions.Sorting")
+@JsonObject("as.dto.common.fetchoptions.Sorting")
 public class Sorting implements Serializable
 {
 

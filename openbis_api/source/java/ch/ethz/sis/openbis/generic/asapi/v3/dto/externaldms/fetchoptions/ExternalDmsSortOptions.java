@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.externaldms.fetchoptions.ExternalDmsSortOptions")
+@JsonObject("as.dto.externaldms.fetchoptions.ExternalDmsSortOptions")
 public class ExternalDmsSortOptions extends SortOptions<ExternalDms>
 {
 

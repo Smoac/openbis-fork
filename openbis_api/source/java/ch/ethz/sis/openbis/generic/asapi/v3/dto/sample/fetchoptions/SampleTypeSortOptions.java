@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.sample.fetchoptions.SampleTypeSortOptions")
+@JsonObject("as.dto.sample.fetchoptions.SampleTypeSortOptions")
 public class SampleTypeSortOptions extends SortOptions<SampleType>
 {
 

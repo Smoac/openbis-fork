@@ -21,17 +21,17 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author juanf
  */
-@JsonObject("dto.common.search.NumberGreaterThanValue")
+@JsonObject("as.dto.common.search.NumberGreaterThanValue")
 public class NumberGreaterThanValue extends AbstractNumberValue
 {
 
     private static final long serialVersionUID = 1L;
-    
+
     public NumberGreaterThanValue()
     {
         super(null);
     }
-    
+
     public NumberGreaterThanValue(Number number)
     {
         super(number);

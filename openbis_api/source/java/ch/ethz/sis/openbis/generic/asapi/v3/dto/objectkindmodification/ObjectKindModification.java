@@ -15,20 +15,19 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.ObjectKind;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.OperationKind;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.fetchoptions.ObjectKindModificationFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
-import ch.systemsx.cisd.base.annotation.JsonObject;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.fetchoptions.ObjectKindModificationFetchOptions;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /*
  * Class automatically generated with DtoGenerator
  */
-@JsonObject("dto.objectkindmodification.ObjectKindModification")
+@JsonObject("as.dto.objectkindmodification.ObjectKindModification")
 public class ObjectKindModification implements Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -101,7 +100,7 @@ public class ObjectKindModification implements Serializable
     @Override
     public String toString()
     {
-        return "Last " + operationKind + " operation of an object of kind " + objectKind + " occured at " +  lastModificationTimeStamp;
+        return "Last " + operationKind + " operation of an object of kind " + objectKind + " occured at " + lastModificationTimeStamp;
     }
 
 }

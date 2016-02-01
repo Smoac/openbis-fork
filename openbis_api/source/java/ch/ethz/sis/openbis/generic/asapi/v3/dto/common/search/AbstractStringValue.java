@@ -18,7 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("dto.common.search.AbstractStringValue")
+@JsonObject("as.dto.common.search.AbstractStringValue")
 public abstract class AbstractStringValue extends AbstractValue<String>
 {
 

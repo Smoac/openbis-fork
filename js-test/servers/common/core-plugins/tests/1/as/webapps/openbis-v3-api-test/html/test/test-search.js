@@ -38,36 +38,43 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 				return fSearch(facade).then(function(results) {
 					var objects = results.getObjects();
 
+					c.assertTrue(objects.length > 1, "Got at least 2 objects");
+
 					c.ok("Sorting by " + fieldName);
 
 					var fieldGetterName = "get" + fieldName.substr(0, 1).toUpperCase() + fieldName.substr(1);
 
-					objects.sort(function(o1, o2) {
+					var comparatorAsc = function(o1, o2) {
 						var v1 = o1[fieldGetterName](fieldParameters);
 						var v2 = o2[fieldGetterName](fieldParameters);
 						return naturalsort(v1, v2);
-					});
+					};
 
-					var codes = objects.map(function(object) {
+					var comparatorDesc = function(o1, o2) {
+						return comparatorAsc(o2, o1);
+					};
+
+					objects.sort(comparatorAsc);
+					var codesAsc = objects.map(function(object) {
 						return object.code;
 					});
 
-					c.assertTrue(codes.length > 1, "Got at least 2 objects");
-
-					var secondFromStart = codes[1];
-					var secondFromEnd = codes[codes.length - 2];
+					objects.sort(comparatorDesc);
+					var codesDesc = objects.map(function(object) {
+						return object.code;
+					});
 
 					fetchOptions.from(1).count(1);
 					fetchOptions.sortBy()[fieldName](fieldParameters);
 
 					return fSearch(facade).then(function(results) {
 						c.ok("Got results ASC");
-						c.assertObjectsWithValues(results.getObjects(), "code", [ secondFromStart ]);
+						c.assertObjectsWithValues(results.getObjects(), "code", [ codesAsc[1] ]);
 						fetchOptions.sortBy()[fieldName](fieldParameters).desc();
 
 						return fSearch(facade).then(function(results) {
 							c.ok("Got results DESC");
-							c.assertObjectsWithValues(results.getObjects(), "code", [ secondFromEnd ]);
+							c.assertObjectsWithValues(results.getObjects(), "code", [ codesDesc[1] ]);
 							c.finish();
 						});
 					});

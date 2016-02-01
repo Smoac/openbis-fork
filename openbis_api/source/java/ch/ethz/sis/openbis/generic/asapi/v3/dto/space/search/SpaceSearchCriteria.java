@@ -27,7 +27,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.space.search.SpaceSearchCriteria")
+@JsonObject("as.dto.space.search.SpaceSearchCriteria")
 public class SpaceSearchCriteria extends AbstractObjectSearchCriteria<ISpaceId>
 {
 

@@ -15,6 +15,15 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment;
 
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IAttachmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
@@ -26,7 +35,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationD
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ITagsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
@@ -39,20 +47,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 /*
  * Class automatically generated with DtoGenerator
  */
-@JsonObject("dto.experiment.Experiment")
-public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder, IModificationDateHolder, IModifierHolder, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ITagsHolder
+@JsonObject("as.dto.experiment.Experiment")
+public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder, IModificationDateHolder, IModifierHolder, IPermIdHolder,
+        IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ITagsHolder
 {
     private static final long serialVersionUID = 1L;
 

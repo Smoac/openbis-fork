@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.sample.update.UpdateSamplesOperation")
+@JsonObject("as.dto.sample.update.UpdateSamplesOperation")
 public class UpdateSamplesOperation implements IOperation
 {
 

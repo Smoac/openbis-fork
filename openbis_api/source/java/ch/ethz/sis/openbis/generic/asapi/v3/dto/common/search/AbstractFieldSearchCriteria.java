@@ -18,7 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("dto.common.search.AbstractFieldSearchCriteria")
+@JsonObject("as.dto.common.search.AbstractFieldSearchCriteria")
 public abstract class AbstractFieldSearchCriteria<T> extends AbstractSearchCriteria
 {
 

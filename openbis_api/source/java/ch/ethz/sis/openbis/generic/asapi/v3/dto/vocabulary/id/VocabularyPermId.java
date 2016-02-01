@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("dto.vocabulary.id.VocabularyPermId")
+@JsonObject("as.dto.vocabulary.id.VocabularyPermId")
 public class VocabularyPermId extends ObjectPermId implements IVocabularyId
 {
 

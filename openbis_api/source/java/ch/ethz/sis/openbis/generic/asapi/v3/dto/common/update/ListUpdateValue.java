@@ -9,12 +9,12 @@ import java.util.List;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("dto.common.update.ListUpdateValue")
+@JsonObject("as.dto.common.update.ListUpdateValue")
 public class ListUpdateValue<ADD, REMOVE, SET, ACTION> implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    @JsonObject("dto.common.update.ListUpdateAction")
+    @JsonObject("as.dto.common.update.ListUpdateAction")
     public static class ListUpdateAction<T> implements Serializable
     {
         private static final long serialVersionUID = 1L;
@@ -33,19 +33,19 @@ public class ListUpdateValue<ADD, REMOVE, SET, ACTION> implements Serializable
 
     }
 
-    @JsonObject("dto.common.update.ListUpdateActionAdd")
+    @JsonObject("as.dto.common.update.ListUpdateActionAdd")
     public static class ListUpdateActionAdd<ADD> extends ListUpdateAction<ADD>
     {
         private static final long serialVersionUID = 1L;
     }
 
-    @JsonObject("dto.common.update.ListUpdateActionRemove")
+    @JsonObject("as.dto.common.update.ListUpdateActionRemove")
     public static class ListUpdateActionRemove<REMOVE> extends ListUpdateAction<REMOVE>
     {
         private static final long serialVersionUID = 1L;
     }
 
-    @JsonObject("dto.common.update.ListUpdateActionSet")
+    @JsonObject("as.dto.common.update.ListUpdateActionSet")
     public static class ListUpdateActionSet<SET> extends ListUpdateAction<SET>
     {
         private static final long serialVersionUID = 1L;

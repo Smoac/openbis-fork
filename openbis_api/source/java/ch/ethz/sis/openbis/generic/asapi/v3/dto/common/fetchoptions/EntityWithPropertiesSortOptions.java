@@ -27,7 +27,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.common.fetchoptions.EntityWithPropertiesSortOptions")
+@JsonObject("as.dto.common.fetchoptions.EntityWithPropertiesSortOptions")
 public class EntityWithPropertiesSortOptions<OBJECT extends ICodeHolder & IRegistrationDateHolder & IModificationDateHolder & IPropertiesHolder>
         extends EntitySortOptions<OBJECT>
 {

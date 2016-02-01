@@ -21,11 +21,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASService;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@JsonObject("dto.service.fetchoptions.CustomASServiceSortOptions")
+@JsonObject("as.dto.service.fetchoptions.CustomASServiceSortOptions")
 public class CustomASServiceSortOptions extends SortOptions<CustomASService>
 {
     private static final long serialVersionUID = 1L;

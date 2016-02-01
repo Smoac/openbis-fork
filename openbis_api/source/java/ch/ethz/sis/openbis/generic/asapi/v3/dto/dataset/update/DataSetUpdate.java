@@ -36,7 +36,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.dataset.update.DataSetUpdate")
+@JsonObject("as.dto.dataset.update.DataSetUpdate")
 public class DataSetUpdate implements Serializable
 {
     private static final long serialVersionUID = 1L;

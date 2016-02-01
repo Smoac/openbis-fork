@@ -24,20 +24,21 @@ import java.util.List;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("dto.common.search.DateFieldSearchCriteria")
+@JsonObject("as.dto.common.search.DateFieldSearchCriteria")
 public class DateFieldSearchCriteria extends AbstractFieldSearchCriteria<IDate>
 {
 
     private static final long serialVersionUID = 1L;
 
     private static final List<IDateFormat> DATE_FORMATS = new ArrayList<IDateFormat>();
-    
-    static {
+
+    static
+    {
         DATE_FORMATS.add(new ShortDateFormat());
         DATE_FORMATS.add(new NormalDateFormat());
         DATE_FORMATS.add(new LongDateFormat());
     }
-    
+
     private ITimeZone timeZone = new ServerTimeZone();
 
     DateFieldSearchCriteria(String fieldName, SearchFieldType fieldType)

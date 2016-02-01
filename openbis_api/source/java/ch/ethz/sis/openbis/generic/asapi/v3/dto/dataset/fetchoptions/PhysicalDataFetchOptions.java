@@ -15,21 +15,18 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.FileFormatTypeFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.LocatorTypeFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.StorageFormatFetchOptions;
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.io.Serializable;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /*
  * Class automatically generated with DtoGenerator
  */
-@JsonObject("dto.dataset.fetchoptions.PhysicalDataFetchOptions")
+@JsonObject("as.dto.dataset.fetchoptions.PhysicalDataFetchOptions")
 public class PhysicalDataFetchOptions extends FetchOptions<PhysicalData> implements Serializable
 {
     private static final long serialVersionUID = 1L;

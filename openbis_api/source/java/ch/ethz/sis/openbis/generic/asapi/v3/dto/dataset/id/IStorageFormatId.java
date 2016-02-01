@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("dto.dataset.id.IStorageFormatId")
+@JsonObject("as.dto.dataset.id.IStorageFormatId")
 public interface IStorageFormatId extends IObjectId
 {
 

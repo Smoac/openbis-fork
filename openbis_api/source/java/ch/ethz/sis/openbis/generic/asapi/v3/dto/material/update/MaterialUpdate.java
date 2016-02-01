@@ -33,7 +33,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author Jakub Straszewski
  */
-@JsonObject("dto.material.update.MaterialUpdate")
+@JsonObject("as.dto.material.update.MaterialUpdate")
 public class MaterialUpdate implements Serializable
 {
     private static final long serialVersionUID = 1L;

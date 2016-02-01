@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author Franz-Josef Elmer
  */
-@JsonObject("dto.service.id.CustomASServiceCode")
+@JsonObject("as.dto.service.id.CustomASServiceCode")
 public class CustomASServiceCode extends ObjectPermId implements ICustomASServiceId
 {
     private static final long serialVersionUID = 1L;

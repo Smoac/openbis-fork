@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.common.search.SearchResult")
+@JsonObject("as.dto.common.search.SearchResult")
 public class SearchResult<OBJECT> implements Serializable
 {
 

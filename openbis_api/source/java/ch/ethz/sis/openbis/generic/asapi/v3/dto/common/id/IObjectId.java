@@ -25,7 +25,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("dto.common.id.IObjectId")
+@JsonObject("as.dto.common.id.IObjectId")
 public interface IObjectId extends Serializable
 {
 

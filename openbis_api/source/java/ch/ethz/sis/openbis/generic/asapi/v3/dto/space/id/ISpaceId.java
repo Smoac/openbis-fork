@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("dto.space.id.ISpaceId")
+@JsonObject("as.dto.space.id.ISpaceId")
 public interface ISpaceId extends IObjectId
 {
 

@@ -35,7 +35,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.dataset.create.DataSetCreation")
+@JsonObject("as.dto.dataset.create.DataSetCreation")
 public class DataSetCreation implements Serializable, ICreationIdHolder
 {
     private static final long serialVersionUID = 1L;

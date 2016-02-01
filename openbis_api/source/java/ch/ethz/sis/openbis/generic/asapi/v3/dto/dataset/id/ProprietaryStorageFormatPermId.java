@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("dto.dataset.id.ProprietaryStorageFormatPermId")
+@JsonObject("as.dto.dataset.id.ProprietaryStorageFormatPermId")
 public class ProprietaryStorageFormatPermId extends StorageFormatPermId
 {
 

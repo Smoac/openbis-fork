@@ -26,7 +26,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author Jakub Straszewski
  */
-@JsonObject("dto.common.id.CreationId")
+@JsonObject("as.dto.common.id.CreationId")
 public class CreationId implements ISampleId, IDataSetId, IExperimentId, IProjectId, ISpaceId, IMaterialId
 {
     private static final long serialVersionUID = 1L;

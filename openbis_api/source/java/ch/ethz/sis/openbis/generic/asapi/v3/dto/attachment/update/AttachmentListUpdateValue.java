@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.attachment.update.AttachmentListUpdateValue")
+@JsonObject("as.dto.attachment.update.AttachmentListUpdateValue")
 public class AttachmentListUpdateValue extends ListUpdateValue<AttachmentCreation, IAttachmentId, AttachmentCreation, Object>
 {
 

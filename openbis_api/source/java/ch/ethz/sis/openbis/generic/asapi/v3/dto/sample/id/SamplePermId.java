@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("dto.sample.id.SamplePermId")
+@JsonObject("as.dto.sample.id.SamplePermId")
 public class SamplePermId extends ObjectPermId implements ISampleId
 {
 

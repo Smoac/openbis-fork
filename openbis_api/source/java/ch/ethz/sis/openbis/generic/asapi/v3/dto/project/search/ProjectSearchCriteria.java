@@ -28,7 +28,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.project.search.ProjectSearchCriteria")
+@JsonObject("as.dto.project.search.ProjectSearchCriteria")
 public class ProjectSearchCriteria extends AbstractObjectSearchCriteria<IProjectId>
 {
 

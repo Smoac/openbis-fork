@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("dto.sample.id.SampleIdentifier")
+@JsonObject("as.dto.sample.id.SampleIdentifier")
 public class SampleIdentifier extends ObjectIdentifier implements ISampleId
 {
 

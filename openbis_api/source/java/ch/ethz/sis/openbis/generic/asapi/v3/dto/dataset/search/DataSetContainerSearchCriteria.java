@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author Jakub Straszewski
  */
-@JsonObject("dto.dataset.search.DataSetContainerSearchCriteria")
+@JsonObject("as.dto.dataset.search.DataSetContainerSearchCriteria")
 public class DataSetContainerSearchCriteria extends DataSetSearchCriteria
 {
     private static final long serialVersionUID = 1L;

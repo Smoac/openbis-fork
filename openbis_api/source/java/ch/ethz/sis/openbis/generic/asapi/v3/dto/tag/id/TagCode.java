@@ -26,7 +26,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author Franz-Josef Elmer
  * @author Jakub Straszewski
  */
-@JsonObject("dto.tag.id.TagCode")
+@JsonObject("as.dto.tag.id.TagCode")
 public class TagCode implements ITagId, Serializable
 {
 

@@ -15,19 +15,19 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions;
 
+import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.io.Serializable;
-
 /*
  * Class automatically generated with DtoGenerator
  */
-@JsonObject("dto.vocabulary.fetchoptions.VocabularyFetchOptions")
+@JsonObject("as.dto.vocabulary.fetchoptions.VocabularyFetchOptions")
 public class VocabularyFetchOptions extends FetchOptions<Vocabulary> implements Serializable
 {
     private static final long serialVersionUID = 1L;

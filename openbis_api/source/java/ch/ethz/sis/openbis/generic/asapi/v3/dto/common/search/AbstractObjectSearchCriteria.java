@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.common.search.AbstractObjectSearchCriteria")
+@JsonObject("as.dto.common.search.AbstractObjectSearchCriteria")
 public class AbstractObjectSearchCriteria<ID extends IObjectId> extends AbstractCompositeSearchCriteria
 {
 

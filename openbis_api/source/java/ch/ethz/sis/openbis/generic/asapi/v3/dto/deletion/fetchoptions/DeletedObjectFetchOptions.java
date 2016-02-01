@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.deletion.fetchoptions.DeletedObjectFetchOptions")
+@JsonObject("as.dto.deletion.fetchoptions.DeletedObjectFetchOptions")
 public class DeletedObjectFetchOptions extends EmptyFetchOptions
 {
 

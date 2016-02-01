@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.attachment.fetchoptions.AttachmentSortOptions")
+@JsonObject("as.dto.attachment.fetchoptions.AttachmentSortOptions")
 public class AttachmentSortOptions extends SortOptions<Attachment>
 {
 

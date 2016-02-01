@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.dataset.fetchoptions.FileFormatTypeSortOptions")
+@JsonObject("as.dto.dataset.fetchoptions.FileFormatTypeSortOptions")
 public class FileFormatTypeSortOptions extends SortOptions<FileFormatType>
 {
 

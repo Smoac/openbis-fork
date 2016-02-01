@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.dataset.ArchivingStatus")
+@JsonObject("as.dto.dataset.ArchivingStatus")
 public enum ArchivingStatus
 {
     AVAILABLE, LOCKED, ARCHIVED, UNARCHIVE_PENDING, ARCHIVE_PENDING, BACKUP_PENDING

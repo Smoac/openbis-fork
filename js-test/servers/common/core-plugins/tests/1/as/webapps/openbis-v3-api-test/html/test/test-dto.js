@@ -9,14 +9,14 @@ define([ 'test/common' ], function(common) {
 			var c = new common(assert);
 			c.assertEqual(criteria.getFieldName(), expectedName, "Field  name");
 			c.assertEqual(criteria.getFieldType(), expextedType, "Field  type");
-			c.assertEqual(criteria.getFieldValue()["@type"], "dto.common.search." + expectedValueType, "Field  value type");
+			c.assertEqual(criteria.getFieldValue()["@type"], "as.dto.common.search." + expectedValueType, "Field  value type");
 			c.assertEqual(criteria.getFieldValue().getValue(), expectedValue, "Field  value");
 		}
 
 		var checkStringFieldSearchCriteria = function(assert, criteriaClassName, name, type) {
 			var done = assert.async();
 
-			require([ 'dto/common/search/' + criteriaClassName ], function(Criteria) {
+			require([ 'as/dto/common/search/' + criteriaClassName ], function(Criteria) {
 				var criteria = new Criteria(name, type);
 				criteria.thatEquals("ABC");
 				assertAttributes(assert, criteria, name, type, "StringEqualToValue", "ABC");
@@ -57,7 +57,7 @@ define([ 'test/common' ], function(common) {
 		var checkNumberFieldSearchCriteria = function(assert, criteriaClassName, name, type) {
 			var done = assert.async();
 
-			require([ 'dto/common/search/' + criteriaClassName ], function(Criteria) {
+			require([ 'as/dto/common/search/' + criteriaClassName ], function(Criteria) {
 				var criteria = new Criteria(name, type);
 				criteria.thatEquals(42);
 				assertAttributes(assert, criteria, name, type, "NumberEqualToValue", 42);
@@ -94,7 +94,7 @@ define([ 'test/common' ], function(common) {
 		var checkDateFieldSearchCriteria = function(assert, criteriaClassName, name, type) {
 			var done = assert.async();
 
-			require([ 'dto/common/search/' + criteriaClassName ], function(Criteria) {
+			require([ 'as/dto/common/search/' + criteriaClassName ], function(Criteria) {
 				var criteria = new Criteria(name, type);
 				checkDateFieldSearchCriteriaMethod(assert, criteria, "thatEquals", "EqualToValue", "equal", name, type);
 				checkDateFieldSearchCriteriaMethod(assert, criteria, "thatIsLaterThanOrEqualTo", "LaterThanOrEqualToValue", "later than or equal", name, type);

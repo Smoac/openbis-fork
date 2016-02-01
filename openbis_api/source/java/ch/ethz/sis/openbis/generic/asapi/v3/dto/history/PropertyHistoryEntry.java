@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.history.PropertyHistoryEntry")
+@JsonObject("as.dto.history.PropertyHistoryEntry")
 public class PropertyHistoryEntry extends HistoryEntry
 {
 

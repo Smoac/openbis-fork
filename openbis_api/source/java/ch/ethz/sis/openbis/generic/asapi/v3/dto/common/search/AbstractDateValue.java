@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.common.search.AbstractDateValue")
+@JsonObject("as.dto.common.search.AbstractDateValue")
 public class AbstractDateValue extends AbstractValue<String> implements IDate
 {
 

@@ -25,7 +25,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.material.search.MaterialSearchCriteria")
+@JsonObject("as.dto.material.search.MaterialSearchCriteria")
 public class MaterialSearchCriteria extends AbstractEntitySearchCriteria<IMaterialId>
 {
 

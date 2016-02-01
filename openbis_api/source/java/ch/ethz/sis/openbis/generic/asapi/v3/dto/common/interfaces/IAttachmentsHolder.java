@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author Jakub Straszewski
  */
-@JsonObject("dto.common.interfaces.IAttachmentsHolder")
+@JsonObject("as.dto.common.interfaces.IAttachmentsHolder")
 public interface IAttachmentsHolder
 {
     List<Attachment> getAttachments();

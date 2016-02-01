@@ -28,7 +28,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author Jakub Straszewski
  */
-@JsonObject("dto.common.update.FieldUpdateValue")
+@JsonObject("as.dto.common.update.FieldUpdateValue")
 public class FieldUpdateValue<T> implements Serializable
 {
     private static final long serialVersionUID = 1L;

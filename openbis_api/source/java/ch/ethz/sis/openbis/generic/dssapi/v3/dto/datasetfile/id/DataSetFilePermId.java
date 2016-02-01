@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("dto.id.datasetfile.DataSetFilePermId")
+@JsonObject("dss.dto.id.datasetfile.DataSetFilePermId")
 public class DataSetFilePermId implements IDataSetFileId
 {
 

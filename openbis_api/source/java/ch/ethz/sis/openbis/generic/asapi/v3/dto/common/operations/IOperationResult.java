@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.common.operations.IOperationResult")
+@JsonObject("as.dto.common.operations.IOperationResult")
 public interface IOperationResult
 {
 

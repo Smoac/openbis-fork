@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.space.create.SpaceCreation")
+@JsonObject("as.dto.space.create.SpaceCreation")
 public class SpaceCreation implements Serializable
 {
     private static final long serialVersionUID = 1L;

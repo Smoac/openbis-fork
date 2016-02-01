@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author Jakub Straszewski
  */
-@JsonObject("dto.common.interfaces.IModifierHolder")
+@JsonObject("as.dto.common.interfaces.IModifierHolder")
 public interface IModifierHolder
 {
     Person getModifier();

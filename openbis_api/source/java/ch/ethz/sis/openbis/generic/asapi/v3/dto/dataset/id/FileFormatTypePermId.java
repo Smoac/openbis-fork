@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("dto.dataset.id.FileFormatTypePermId")
+@JsonObject("as.dto.dataset.id.FileFormatTypePermId")
 public class FileFormatTypePermId extends ObjectPermId implements IFileFormatTypeId
 {
 

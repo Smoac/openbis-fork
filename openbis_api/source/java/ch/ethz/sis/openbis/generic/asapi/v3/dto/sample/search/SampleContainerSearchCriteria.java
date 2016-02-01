@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.sample.search.SampleContainerSearchCriteria")
+@JsonObject("as.dto.sample.search.SampleContainerSearchCriteria")
 public class SampleContainerSearchCriteria extends SampleSearchCriteria
 {
 

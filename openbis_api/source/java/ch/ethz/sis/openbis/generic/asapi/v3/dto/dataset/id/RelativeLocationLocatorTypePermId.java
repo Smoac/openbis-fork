@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("dto.dataset.id.RelativeLocationLocatorTypePermId")
+@JsonObject("as.dto.dataset.id.RelativeLocationLocatorTypePermId")
 public class RelativeLocationLocatorTypePermId extends LocatorTypePermId
 {
 

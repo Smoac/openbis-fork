@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.dataset.Complete")
+@JsonObject("as.dto.dataset.Complete")
 public enum Complete
 {
 

@@ -1,19 +1,19 @@
-define([ 'jquery', 'openbis', 'dto/space/create/SpaceCreation', 'dto/project/create/ProjectCreation', 'dto/experiment/create/ExperimentCreation', 'dto/sample/create/SampleCreation',
-		'dto/material/create/MaterialCreation', 'dto/attachment/create/AttachmentCreation', 'dto/space/update/SpaceUpdate', 'dto/project/update/ProjectUpdate',
-		'dto/experiment/update/ExperimentUpdate', 'dto/sample/update/SampleUpdate', 'dto/dataset/update/DataSetUpdate', 'dto/dataset/update/PhysicalDataUpdate', 'dto/material/update/MaterialUpdate',
-		'dto/space/delete/SpaceDeletionOptions', 'dto/project/delete/ProjectDeletionOptions', 'dto/experiment/delete/ExperimentDeletionOptions', 'dto/sample/delete/SampleDeletionOptions',
-		'dto/dataset/delete/DataSetDeletionOptions', 'dto/material/delete/MaterialDeletionOptions', 'dto/entitytype/id/EntityTypePermId', 'dto/space/id/SpacePermId', 'dto/project/id/ProjectPermId',
-		'dto/project/id/ProjectIdentifier', 'dto/experiment/id/ExperimentPermId', 'dto/experiment/id/ExperimentIdentifier', 'dto/sample/id/SamplePermId', 'dto/dataset/id/DataSetPermId',
-		'dto/dataset/id/FileFormatTypePermId', 'dto/material/id/MaterialPermId', 'dto/tag/id/TagCode', 'dto/space/search/SpaceSearchCriteria', 'dto/project/search/ProjectSearchCriteria',
-		'dto/experiment/search/ExperimentSearchCriteria', 'dto/sample/search/SampleSearchCriteria', 'dto/dataset/search/DataSetSearchCriteria', 'dto/material/search/MaterialSearchCriteria',
-		'dto/space/fetchoptions/SpaceFetchOptions', 'dto/project/fetchoptions/ProjectFetchOptions', 'dto/experiment/fetchoptions/ExperimentFetchOptions', 'dto/sample/fetchoptions/SampleFetchOptions',
-		'dto/dataset/fetchoptions/DataSetFetchOptions', 'dto/material/fetchoptions/MaterialFetchOptions', 'dto/deletion/fetchoptions/DeletionFetchOptions', 'dto/deletion/search/DeletionSearchOptions'
+define([ 'jquery', 'openbis', 'as/dto/space/create/SpaceCreation', 'as/dto/project/create/ProjectCreation', 'as/dto/experiment/create/ExperimentCreation', 'as/dto/sample/create/SampleCreation',
+		'as/dto/material/create/MaterialCreation', 'as/dto/attachment/create/AttachmentCreation', 'as/dto/space/update/SpaceUpdate', 'as/dto/project/update/ProjectUpdate',
+		'as/dto/experiment/update/ExperimentUpdate', 'as/dto/sample/update/SampleUpdate', 'as/dto/dataset/update/DataSetUpdate', 'as/dto/dataset/update/PhysicalDataUpdate', 'as/dto/material/update/MaterialUpdate',
+		'as/dto/space/delete/SpaceDeletionOptions', 'as/dto/project/delete/ProjectDeletionOptions', 'as/dto/experiment/delete/ExperimentDeletionOptions', 'as/dto/sample/delete/SampleDeletionOptions',
+		'as/dto/dataset/delete/DataSetDeletionOptions', 'as/dto/material/delete/MaterialDeletionOptions', 'as/dto/entitytype/id/EntityTypePermId', 'as/dto/space/id/SpacePermId', 'as/dto/project/id/ProjectPermId',
+		'as/dto/project/id/ProjectIdentifier', 'as/dto/experiment/id/ExperimentPermId', 'as/dto/experiment/id/ExperimentIdentifier', 'as/dto/sample/id/SamplePermId', 'as/dto/dataset/id/DataSetPermId',
+		'as/dto/dataset/id/FileFormatTypePermId', 'as/dto/material/id/MaterialPermId', 'as/dto/tag/id/TagCode', 'as/dto/space/search/SpaceSearchCriteria', 'as/dto/project/search/ProjectSearchCriteria',
+		'as/dto/experiment/search/ExperimentSearchCriteria', 'as/dto/sample/search/SampleSearchCriteria', 'as/dto/dataset/search/DataSetSearchCriteria', 'as/dto/material/search/MaterialSearchCriteria',
+		'as/dto/space/fetchoptions/SpaceFetchOptions', 'as/dto/project/fetchoptions/ProjectFetchOptions', 'as/dto/experiment/fetchoptions/ExperimentFetchOptions', 'as/dto/sample/fetchoptions/SampleFetchOptions',
+		'as/dto/dataset/fetchoptions/DataSetFetchOptions', 'as/dto/material/fetchoptions/MaterialFetchOptions', 'as/dto/deletion/fetchoptions/DeletionFetchOptions', 'as/dto/deletion/search/DeletionSearchCriteria'
 		 ], function($, openbis, SpaceCreation,
 		ProjectCreation, ExperimentCreation, SampleCreation, MaterialCreation, AttachmentCreation, SpaceUpdate, ProjectUpdate, ExperimentUpdate, SampleUpdate, DataSetUpdate, PhysicalDataUpdate,
 		MaterialUpdate, SpaceDeletionOptions, ProjectDeletionOptions, ExperimentDeletionOptions, SampleDeletionOptions, DataSetDeletionOptions, MaterialDeletionOptions, EntityTypePermId, SpacePermId,
 		ProjectPermId, ProjectIdentifier, ExperimentPermId, ExperimentIdentifier, SamplePermId, DataSetPermId, FileFormatTypePermId, MaterialPermId, TagCode, SpaceSearchCriteria,
 		ProjectSearchCriteria, ExperimentSearchCriteria, SampleSearchCriteria, DataSetSearchCriteria, MaterialSearchCriteria, SpaceFetchOptions, ProjectFetchOptions, ExperimentFetchOptions,
-		SampleFetchOptions, DataSetFetchOptions, MaterialFetchOptions, DeletionFetchOptions, DeletionSearchOptions) {
+		SampleFetchOptions, DataSetFetchOptions, MaterialFetchOptions, DeletionFetchOptions, DeletionSearchCriteria) {
 
 	/*
 	 * These tests should be run against openBIS instance with screening sprint
@@ -75,7 +75,7 @@ define([ 'jquery', 'openbis', 'dto/space/create/SpaceCreation', 'dto/project/cre
 		this.DataSetFetchOptions = DataSetFetchOptions;
 		this.MaterialFetchOptions = MaterialFetchOptions;
 		this.DeletionFetchOptions = DeletionFetchOptions;
-		this.DeletionSearchOptions = DeletionSearchOptions;
+		this.DeletionSearchCriteria = DeletionSearchCriteria;
 
 		this.generateId = function(base) {
 			var date = new Date();

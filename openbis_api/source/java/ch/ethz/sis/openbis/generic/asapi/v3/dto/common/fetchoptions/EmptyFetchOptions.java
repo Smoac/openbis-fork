@@ -2,7 +2,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("dto.common.fetchoptions.EmptyFetchOptions")
+@JsonObject("as.dto.common.fetchoptions.EmptyFetchOptions")
 public class EmptyFetchOptions extends FetchOptions<Void>
 {
 

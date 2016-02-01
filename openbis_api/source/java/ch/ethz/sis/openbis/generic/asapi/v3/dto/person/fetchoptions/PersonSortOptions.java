@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.person.fetchoptions.PersonSortOptions")
+@JsonObject("as.dto.person.fetchoptions.PersonSortOptions")
 public class PersonSortOptions extends SortOptions<Person>
 {
 

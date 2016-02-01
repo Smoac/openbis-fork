@@ -25,7 +25,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.common.search.AbstractCompositeSearchCriteria")
+@JsonObject("as.dto.common.search.AbstractCompositeSearchCriteria")
 public abstract class AbstractCompositeSearchCriteria extends AbstractSearchCriteria
 {
 

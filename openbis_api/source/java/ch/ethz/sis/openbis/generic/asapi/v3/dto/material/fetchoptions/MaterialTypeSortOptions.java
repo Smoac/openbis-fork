@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.material.fetchoptions.MaterialTypeSortOptions")
+@JsonObject("as.dto.material.fetchoptions.MaterialTypeSortOptions")
 public class MaterialTypeSortOptions extends SortOptions<MaterialType>
 {
 

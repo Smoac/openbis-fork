@@ -28,7 +28,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.space.update.SpaceUpdate")
+@JsonObject("as.dto.space.update.SpaceUpdate")
 public class SpaceUpdate implements Serializable
 {
 

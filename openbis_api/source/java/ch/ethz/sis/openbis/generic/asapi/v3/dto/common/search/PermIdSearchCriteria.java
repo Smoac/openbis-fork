@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.common.search.PermIdSearchCriteria")
+@JsonObject("as.dto.common.search.PermIdSearchCriteria")
 public class PermIdSearchCriteria extends StringFieldSearchCriteria
 {
 

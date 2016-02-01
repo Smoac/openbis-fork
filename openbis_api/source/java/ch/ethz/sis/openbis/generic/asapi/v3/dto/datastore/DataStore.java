@@ -15,23 +15,22 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.fetchoptions.DataStoreFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import java.io.Serializable;
+import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.io.Serializable;
-import java.util.Date;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.fetchoptions.DataStoreFetchOptions;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /*
  * Class automatically generated with DtoGenerator
  */
-@JsonObject("dto.datastore.DataStore")
+@JsonObject("as.dto.datastore.DataStore")
 public class DataStore implements Serializable, ICodeHolder, IModificationDateHolder, IRegistrationDateHolder
 {
     private static final long serialVersionUID = 1L;

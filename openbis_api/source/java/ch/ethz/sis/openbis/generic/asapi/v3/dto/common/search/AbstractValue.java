@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.common.search.AbstractValue")
+@JsonObject("as.dto.common.search.AbstractValue")
 abstract class AbstractValue<T> implements Serializable
 {
 

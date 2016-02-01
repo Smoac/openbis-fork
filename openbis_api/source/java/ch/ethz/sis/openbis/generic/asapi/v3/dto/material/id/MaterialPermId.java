@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("dto.material.id.MaterialPermId")
+@JsonObject("as.dto.material.id.MaterialPermId")
 public class MaterialPermId implements IMaterialId
 {
 

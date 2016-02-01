@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("dto.dataset.id.DataSetPermId")
+@JsonObject("as.dto.dataset.id.DataSetPermId")
 public class DataSetPermId extends ObjectPermId implements IDataSetId
 {
 

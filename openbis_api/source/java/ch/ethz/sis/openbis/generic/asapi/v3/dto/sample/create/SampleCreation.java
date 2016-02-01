@@ -35,7 +35,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.sample.create.SampleCreation")
+@JsonObject("as.dto.sample.create.SampleCreation")
 public class SampleCreation implements Serializable, ICreationIdHolder
 {
     private static final long serialVersionUID = 1L;

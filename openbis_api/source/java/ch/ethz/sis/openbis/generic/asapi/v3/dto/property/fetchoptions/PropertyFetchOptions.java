@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.property.fetchoptions.PropertyFetchOptions")
+@JsonObject("as.dto.property.fetchoptions.PropertyFetchOptions")
 public class PropertyFetchOptions extends EmptyFetchOptions
 {
 

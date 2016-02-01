@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.common.search.AbstractEntitySearchCriteria")
+@JsonObject("as.dto.common.search.AbstractEntitySearchCriteria")
 public class AbstractEntitySearchCriteria<ID extends IObjectId> extends AbstractObjectSearchCriteria<ID>
 {
 
@@ -64,7 +64,7 @@ public class AbstractEntitySearchCriteria<ID extends IObjectId> extends Abstract
     {
         return with(new NumberPropertySearchCriteria(propertyName));
     }
-    
+
     public StringPropertySearchCriteria withProperty(String propertyName)
     {
         return with(new StringPropertySearchCriteria(propertyName));

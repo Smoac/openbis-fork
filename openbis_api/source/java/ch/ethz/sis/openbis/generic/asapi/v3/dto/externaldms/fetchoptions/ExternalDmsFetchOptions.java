@@ -15,18 +15,18 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.fetchoptions;
 
+import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.io.Serializable;
-
 /*
  * Class automatically generated with DtoGenerator
  */
-@JsonObject("dto.externaldms.fetchoptions.ExternalDmsFetchOptions")
+@JsonObject("as.dto.externaldms.fetchoptions.ExternalDmsFetchOptions")
 public class ExternalDmsFetchOptions extends FetchOptions<ExternalDms> implements Serializable
 {
     private static final long serialVersionUID = 1L;

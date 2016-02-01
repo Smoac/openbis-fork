@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("dto.attachment.id.IAttachmentId")
+@JsonObject("as.dto.attachment.id.IAttachmentId")
 public interface IAttachmentId extends IObjectId
 {
 

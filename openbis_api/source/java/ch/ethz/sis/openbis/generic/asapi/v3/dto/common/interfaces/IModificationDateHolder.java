@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author Jakub Straszewski
  */
-@JsonObject("dto.common.interfaces.IModificationDateHolder")
+@JsonObject("as.dto.common.interfaces.IModificationDateHolder")
 public interface IModificationDateHolder
 {
     Date getModificationDate();

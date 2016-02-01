@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.common.id.ObjectTechId")
+@JsonObject("as.dto.common.id.ObjectTechId")
 public class ObjectTechId implements IObjectId
 {
 

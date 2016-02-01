@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("dto.dataset.id.LocatorTypePermId")
+@JsonObject("as.dto.dataset.id.LocatorTypePermId")
 public class LocatorTypePermId extends ObjectPermId implements ILocatorTypeId
 {
 

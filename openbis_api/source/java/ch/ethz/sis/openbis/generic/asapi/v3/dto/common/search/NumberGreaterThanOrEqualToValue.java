@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author juanf
  */
-@JsonObject("dto.common.search.NumberGreaterThanOrEqualToValue")
+@JsonObject("as.dto.common.search.NumberGreaterThanOrEqualToValue")
 public class NumberGreaterThanOrEqualToValue extends AbstractNumberValue
 {
 
@@ -31,7 +31,7 @@ public class NumberGreaterThanOrEqualToValue extends AbstractNumberValue
     {
         super(null);
     }
-    
+
     public NumberGreaterThanOrEqualToValue(Number number)
     {
         super(number);

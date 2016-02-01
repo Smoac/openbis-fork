@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.vocabulary.fetchoptions.VocabularyTermSortOptions")
+@JsonObject("as.dto.vocabulary.fetchoptions.VocabularyTermSortOptions")
 public class VocabularyTermSortOptions extends SortOptions<VocabularyTerm>
 {
 

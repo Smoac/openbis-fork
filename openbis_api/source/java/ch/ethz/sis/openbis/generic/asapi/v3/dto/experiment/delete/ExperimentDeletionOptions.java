@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.experiment.delete.ExperimentDeletionOptions")
+@JsonObject("as.dto.experiment.delete.ExperimentDeletionOptions")
 public class ExperimentDeletionOptions extends AbstractObjectDeletionOptions
 {
 

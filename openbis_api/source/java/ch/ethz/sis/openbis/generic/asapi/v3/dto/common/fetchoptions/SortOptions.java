@@ -25,7 +25,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.common.fetchoptions.SortOptions")
+@JsonObject("as.dto.common.fetchoptions.SortOptions")
 public abstract class SortOptions<OBJECT> implements Serializable
 {
 

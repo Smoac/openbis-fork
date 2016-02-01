@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("dto.dataset.id.BdsDirectoryStorageFormatPermId")
+@JsonObject("as.dto.dataset.id.BdsDirectoryStorageFormatPermId")
 public class BdsDirectoryStorageFormatPermId extends StorageFormatPermId
 {
 

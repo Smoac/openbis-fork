@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.deletion.id.DeletionTechId")
+@JsonObject("as.dto.deletion.id.DeletionTechId")
 public class DeletionTechId extends ObjectTechId implements IDeletionId
 {
 

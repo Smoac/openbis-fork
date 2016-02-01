@@ -25,7 +25,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("dto.vocabulary.id.VocabularyTermCode")
+@JsonObject("as.dto.vocabulary.id.VocabularyTermCode")
 public class VocabularyTermCode implements IVocabularyTermId, Serializable
 {
 

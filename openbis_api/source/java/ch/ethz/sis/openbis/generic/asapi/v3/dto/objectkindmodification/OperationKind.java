@@ -20,10 +20,10 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * Enumeration of operations which can be applied to an object.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-@JsonObject("dto.objectkindmodification.OperationKind")
+@JsonObject("as.dto.objectkindmodification.OperationKind")
 public enum OperationKind
 {
     CREATE_OR_DELETE, UPDATE

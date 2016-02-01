@@ -18,7 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("dto.common.search.SearchFieldType")
+@JsonObject("as.dto.common.search.SearchFieldType")
 public enum SearchFieldType
 {
     PROPERTY, ATTRIBUTE, ANY_PROPERTY, ANY_FIELD

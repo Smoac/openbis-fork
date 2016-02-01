@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("dto.vocabulary.id.IVocabularyId")
+@JsonObject("as.dto.vocabulary.id.IVocabularyId")
 public interface IVocabularyId extends IObjectId
 {
 

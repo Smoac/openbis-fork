@@ -657,7 +657,7 @@ public class DtoGenerator
         print("/*");
         print(" * Class automatically generated with %s", this.getClass().getSimpleName());
         print(" */");
-        print("@JsonObject(\"dto.%s.%s\")", jsonPackage, className);
+        print("@JsonObject(\"as.dto.%s.%s\")", jsonPackage, className);
 
         String extendsStr = "";
         if (extendsClass != null)

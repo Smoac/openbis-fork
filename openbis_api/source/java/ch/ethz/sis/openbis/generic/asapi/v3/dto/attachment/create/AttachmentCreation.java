@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.attachment.create.AttachmentCreation")
+@JsonObject("as.dto.attachment.create.AttachmentCreation")
 public class AttachmentCreation implements Serializable
 {
     private static final long serialVersionUID = 1L;

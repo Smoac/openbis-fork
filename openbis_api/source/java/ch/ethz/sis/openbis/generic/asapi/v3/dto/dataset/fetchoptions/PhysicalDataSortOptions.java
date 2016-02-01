@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.dataset.fetchoptions.PhysicalDataSortOptions")
+@JsonObject("as.dto.dataset.fetchoptions.PhysicalDataSortOptions")
 public class PhysicalDataSortOptions extends SortOptions<PhysicalData>
 {
 

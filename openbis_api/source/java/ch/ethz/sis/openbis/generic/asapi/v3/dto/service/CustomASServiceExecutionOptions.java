@@ -23,23 +23,21 @@ import java.util.Map;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@JsonObject("dto.service.CustomASServiceExecutionOptions")
+@JsonObject("as.dto.service.CustomASServiceExecutionOptions")
 public class CustomASServiceExecutionOptions implements Serializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     private final Map<String, Object> parameters = new HashMap<String, Object>();
-    
+
     public CustomASServiceExecutionOptions withParameter(String parameterName, Object value)
     {
         parameters.put(parameterName, value);
         return this;
     }
-    
+
     public Map<String, Object> getParameters()
     {
         return parameters;

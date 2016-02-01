@@ -15,20 +15,20 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset;
 
+import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.LinkedDataFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.io.Serializable;
-
 /*
  * Class automatically generated with DtoGenerator
  */
-@JsonObject("dto.dataset.LinkedData")
+@JsonObject("as.dto.dataset.LinkedData")
 public class LinkedData implements Serializable
 {
     private static final long serialVersionUID = 1L;

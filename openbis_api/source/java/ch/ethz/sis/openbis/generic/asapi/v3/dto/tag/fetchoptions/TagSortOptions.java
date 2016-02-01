@@ -26,7 +26,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.tag.fetchoptions.TagSortOptions")
+@JsonObject("as.dto.tag.fetchoptions.TagSortOptions")
 public class TagSortOptions extends SortOptions<Tag>
 {
 

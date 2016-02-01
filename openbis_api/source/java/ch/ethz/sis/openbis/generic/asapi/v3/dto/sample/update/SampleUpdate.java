@@ -38,7 +38,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.sample.update.SampleUpdate")
+@JsonObject("as.dto.sample.update.SampleUpdate")
 public class SampleUpdate implements Serializable
 {
     private static final long serialVersionUID = 1L;

@@ -15,6 +15,13 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.project;
 
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IAttachmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
@@ -35,18 +42,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-
 /*
  * Class automatically generated with DtoGenerator
  */
-@JsonObject("dto.project.Project")
-public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, IModificationDateHolder, IModifierHolder, IPermIdHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder
+@JsonObject("as.dto.project.Project")
+public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, IModificationDateHolder, IModifierHolder, IPermIdHolder,
+        IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder
 {
     private static final long serialVersionUID = 1L;
 

@@ -21,11 +21,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.ObjectKin
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@JsonObject("dto.objectkindmodification.fetchoptions.ObjectKindModificationSortOptions")
+@JsonObject("as.dto.objectkindmodification.fetchoptions.ObjectKindModificationSortOptions")
 public class ObjectKindModificationSortOptions extends SortOptions<ObjectKindModification>
 {
     private static final long serialVersionUID = 1L;

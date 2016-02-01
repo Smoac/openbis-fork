@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.common.fetchoptions.CacheMode")
+@JsonObject("as.dto.common.fetchoptions.CacheMode")
 public enum CacheMode
 {
 

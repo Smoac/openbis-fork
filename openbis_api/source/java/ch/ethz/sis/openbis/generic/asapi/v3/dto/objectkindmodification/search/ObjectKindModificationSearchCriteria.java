@@ -26,14 +26,13 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.Operation
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@JsonObject("dto.objectkindmodification.search.ObjectKindModificationSearchCriteria")
+@JsonObject("as.dto.objectkindmodification.search.ObjectKindModificationSearchCriteria")
 public class ObjectKindModificationSearchCriteria implements ISearchCriteria
 {
     private List<ObjectKind> objectKinds = new ArrayList<>();
+
     private List<OperationKind> operationKinds = new ArrayList<>();
 
     private static final long serialVersionUID = 1L;
@@ -43,7 +42,7 @@ public class ObjectKindModificationSearchCriteria implements ISearchCriteria
         this.objectKinds.addAll(Arrays.asList(someObjectKinds));
         return this;
     }
-    
+
     public ObjectKindModificationSearchCriteria withOperationKinds(OperationKind... someOperationKinds)
     {
         this.operationKinds.addAll(Arrays.asList(someOperationKinds));

@@ -15,24 +15,19 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ArchivingStatus;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.Complete;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.FileFormatType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.LocatorType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.StorageFormat;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.PhysicalDataFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.io.Serializable;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.PhysicalDataFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /*
  * Class automatically generated with DtoGenerator
  */
-@JsonObject("dto.dataset.PhysicalData")
+@JsonObject("as.dto.dataset.PhysicalData")
 public class PhysicalData implements Serializable
 {
     private static final long serialVersionUID = 1L;

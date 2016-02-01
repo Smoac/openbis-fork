@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.history.fetchoptions.HistoryEntrySortOptions")
+@JsonObject("as.dto.history.fetchoptions.HistoryEntrySortOptions")
 public class HistoryEntrySortOptions extends SortOptions<HistoryEntry>
 {
 

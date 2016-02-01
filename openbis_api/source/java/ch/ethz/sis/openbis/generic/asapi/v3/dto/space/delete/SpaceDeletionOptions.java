@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.space.delete.SpaceDeletionOptions")
+@JsonObject("as.dto.space.delete.SpaceDeletionOptions")
 public class SpaceDeletionOptions extends AbstractObjectDeletionOptions
 {
 

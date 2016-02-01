@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.dataset.search.DataSetSearchRelation")
+@JsonObject("as.dto.dataset.search.DataSetSearchRelation")
 enum DataSetSearchRelation
 {
 

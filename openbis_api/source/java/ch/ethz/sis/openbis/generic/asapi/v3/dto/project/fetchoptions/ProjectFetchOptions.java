@@ -15,6 +15,10 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions;
 
+import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
@@ -25,14 +29,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.io.Serializable;
-
 /*
  * Class automatically generated with DtoGenerator
  */
-@JsonObject("dto.project.fetchoptions.ProjectFetchOptions")
+@JsonObject("as.dto.project.fetchoptions.ProjectFetchOptions")
 public class ProjectFetchOptions extends FetchOptions<Project> implements Serializable
 {
     private static final long serialVersionUID = 1L;

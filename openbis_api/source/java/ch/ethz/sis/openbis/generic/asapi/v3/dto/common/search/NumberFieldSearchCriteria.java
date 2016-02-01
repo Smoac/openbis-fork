@@ -18,7 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("dto.common.search.NumberFieldSearchCriteria")
+@JsonObject("as.dto.common.search.NumberFieldSearchCriteria")
 public class NumberFieldSearchCriteria extends AbstractFieldSearchCriteria<AbstractNumberValue>
 {
 
@@ -33,12 +33,12 @@ public class NumberFieldSearchCriteria extends AbstractFieldSearchCriteria<Abstr
     {
         setFieldValue(new NumberEqualToValue(number));
     }
-    
+
     public void thatIsLessThan(Number number)
     {
         setFieldValue(new NumberLessThanValue(number));
     }
-    
+
     public void thatIsLessThanOrEqualTo(Number number)
     {
         setFieldValue(new NumberLessThanOrEqualToValue(number));
@@ -48,7 +48,7 @@ public class NumberFieldSearchCriteria extends AbstractFieldSearchCriteria<Abstr
     {
         setFieldValue(new NumberGreaterThanValue(number));
     }
-    
+
     public void thatIsGreaterThanOrEqualTo(Number number)
     {
         setFieldValue(new NumberGreaterThanOrEqualToValue(number));

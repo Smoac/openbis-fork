@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.common.search.NormalDateFormat")
+@JsonObject("as.dto.common.search.NormalDateFormat")
 public class NormalDateFormat implements IDateFormat
 {
 

@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.common.interfaces.IPermIdHolder")
+@JsonObject("as.dto.common.interfaces.IPermIdHolder")
 public interface IPermIdHolder
 {
 

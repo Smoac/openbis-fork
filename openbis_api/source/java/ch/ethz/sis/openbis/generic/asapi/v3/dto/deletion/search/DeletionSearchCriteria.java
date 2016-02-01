@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author Jakub Straszewski
  */
-@JsonObject("dto.deletion.search.DeletionSearchCriteria")
+@JsonObject("as.dto.deletion.search.DeletionSearchCriteria")
 public class DeletionSearchCriteria extends AbstractObjectSearchCriteria<IDeletionId>
 {
 

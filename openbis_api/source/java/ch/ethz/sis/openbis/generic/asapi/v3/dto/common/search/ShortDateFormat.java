@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.common.search.ShortDateFormat")
+@JsonObject("as.dto.common.search.ShortDateFormat")
 public class ShortDateFormat implements IDateFormat
 {
 

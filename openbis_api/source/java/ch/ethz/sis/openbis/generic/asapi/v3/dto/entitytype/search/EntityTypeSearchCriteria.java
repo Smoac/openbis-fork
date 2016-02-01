@@ -26,7 +26,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.entitytype.search.EntityTypeSearchCriteria")
+@JsonObject("as.dto.entitytype.search.EntityTypeSearchCriteria")
 public class EntityTypeSearchCriteria extends AbstractObjectSearchCriteria<IEntityTypeId>
 {
 

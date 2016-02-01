@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("dto.entitytype.id.EntityTypePermId")
+@JsonObject("as.dto.entitytype.id.EntityTypePermId")
 public class EntityTypePermId extends ObjectPermId implements IEntityTypeId
 {
 

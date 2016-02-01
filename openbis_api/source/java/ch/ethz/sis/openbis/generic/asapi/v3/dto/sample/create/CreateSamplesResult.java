@@ -25,7 +25,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.sample.create.CreateSamplesResult")
+@JsonObject("as.dto.sample.create.CreateSamplesResult")
 public class CreateSamplesResult implements IOperationResult
 {
 

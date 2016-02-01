@@ -30,7 +30,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.sample.search.SampleSearchCriteria")
+@JsonObject("as.dto.sample.search.SampleSearchCriteria")
 public class SampleSearchCriteria extends AbstractEntitySearchCriteria<ISampleId>
 {
 
@@ -63,7 +63,7 @@ public class SampleSearchCriteria extends AbstractEntitySearchCriteria<ISampleId
         with(new NoProjectSearchCriteria());
         return this;
     }
-    
+
     public ExperimentSearchCriteria withExperiment()
     {
         return with(new ExperimentSearchCriteria());

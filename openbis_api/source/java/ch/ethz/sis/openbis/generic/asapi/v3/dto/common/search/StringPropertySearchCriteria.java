@@ -21,17 +21,17 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.common.search.StringPropertySearchCriteria")
+@JsonObject("as.dto.common.search.StringPropertySearchCriteria")
 public class StringPropertySearchCriteria extends StringFieldSearchCriteria
 {
 
     private static final long serialVersionUID = 1L;
-    
+
     StringPropertySearchCriteria()
     {
         super(null, SearchFieldType.PROPERTY);
     }
-    
+
     StringPropertySearchCriteria(String fieldName)
     {
         super(fieldName, SearchFieldType.PROPERTY);

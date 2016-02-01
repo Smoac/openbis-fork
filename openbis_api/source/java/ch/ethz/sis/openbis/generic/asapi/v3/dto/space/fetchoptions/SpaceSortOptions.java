@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.space.fetchoptions.SpaceSortOptions")
+@JsonObject("as.dto.space.fetchoptions.SpaceSortOptions")
 public class SpaceSortOptions extends EntitySortOptions<Space>
 {
 

@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.dataset.DataSetKind")
+@JsonObject("as.dto.dataset.DataSetKind")
 public enum DataSetKind
 {
 

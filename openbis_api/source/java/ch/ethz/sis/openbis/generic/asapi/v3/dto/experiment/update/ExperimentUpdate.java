@@ -36,7 +36,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.experiment.update.ExperimentUpdate")
+@JsonObject("as.dto.experiment.update.ExperimentUpdate")
 public class ExperimentUpdate implements Serializable
 {
 

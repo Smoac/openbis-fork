@@ -15,21 +15,20 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions;
 
+import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EmptyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.io.Serializable;
-
 /*
  * Class automatically generated with DtoGenerator
  */
-@JsonObject("dto.attachment.fetchoptions.AttachmentFetchOptions")
+@JsonObject("as.dto.attachment.fetchoptions.AttachmentFetchOptions")
 public class AttachmentFetchOptions extends FetchOptions<Attachment> implements Serializable
 {
     private static final long serialVersionUID = 1L;

@@ -30,7 +30,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.experiment.create.ExperimentCreation")
+@JsonObject("as.dto.experiment.create.ExperimentCreation")
 public class ExperimentCreation implements Serializable
 {
     private static final long serialVersionUID = 1L;

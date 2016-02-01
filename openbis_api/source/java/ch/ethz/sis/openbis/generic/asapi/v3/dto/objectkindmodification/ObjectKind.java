@@ -19,12 +19,12 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * Enumeration of object kinds. An object kind is an attribute an object (like a sample, a data set type or a vocabulary term)
- * which can be created, deleted or updated.
- *
+ * Enumeration of object kinds. An object kind is an attribute an object (like a sample, a data set type or a vocabulary term) which can be created,
+ * deleted or updated.
+ * 
  * @author Franz-Josef Elmer
  */
-@JsonObject("dto.objectkindmodification.ObjectKind")
+@JsonObject("as.dto.objectkindmodification.ObjectKind")
 public enum ObjectKind
 {
     AUTHORIZATION_GROUP, SAMPLE, EXPERIMENT, MATERIAL, DATA_SET, SAMPLE_TYPE, EXPERIMENT_TYPE,

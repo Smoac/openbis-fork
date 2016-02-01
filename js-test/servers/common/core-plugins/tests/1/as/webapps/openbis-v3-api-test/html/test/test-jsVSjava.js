@@ -43,27 +43,27 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		//
 		var circularDependencies = {
 			"SampleChildrenSearchCriteria" : {
-				containerClass : "dto.sample.search.SampleSearchCriteria",
+				containerClass : "as.dto.sample.search.SampleSearchCriteria",
 				method : "withChildren"
 			},
 			"SampleContainerSearchCriteria" : {
-				containerClass : "dto.sample.search.SampleSearchCriteria",
+				containerClass : "as.dto.sample.search.SampleSearchCriteria",
 				method : "withContainer"
 			},
 			"SampleParentsSearchCriteria" : {
-				containerClass : "dto.sample.search.SampleSearchCriteria",
+				containerClass : "as.dto.sample.search.SampleSearchCriteria",
 				method : "withParents"
 			},
 			"DataSetChildrenSearchCriteria" : {
-				containerClass : "dto.dataset.search.DataSetSearchCriteria",
+				containerClass : "as.dto.dataset.search.DataSetSearchCriteria",
 				method : "withChildren"
 			},
 			"DataSetContainerSearchCriteria" : {
-				containerClass : "dto.dataset.search.DataSetSearchCriteria",
+				containerClass : "as.dto.dataset.search.DataSetSearchCriteria",
 				method : "withContainer"
 			},
 			"DataSetParentsSearchCriteria" : {
-				containerClass : "dto.dataset.search.DataSetSearchCriteria",
+				containerClass : "as.dto.dataset.search.DataSetSearchCriteria",
 				method : "withParents"
 			},
 		}

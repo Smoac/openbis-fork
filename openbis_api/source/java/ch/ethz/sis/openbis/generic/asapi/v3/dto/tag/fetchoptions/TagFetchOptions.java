@@ -15,19 +15,19 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions;
 
+import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.io.Serializable;
-
 /*
  * Class automatically generated with DtoGenerator
  */
-@JsonObject("dto.tag.fetchoptions.TagFetchOptions")
+@JsonObject("as.dto.tag.fetchoptions.TagFetchOptions")
 public class TagFetchOptions extends FetchOptions<Tag> implements Serializable
 {
     private static final long serialVersionUID = 1L;

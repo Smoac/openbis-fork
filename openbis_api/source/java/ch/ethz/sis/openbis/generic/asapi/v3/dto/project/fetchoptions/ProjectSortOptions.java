@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.project.fetchoptions.ProjectSortOptions")
+@JsonObject("as.dto.project.fetchoptions.ProjectSortOptions")
 public class ProjectSortOptions extends EntitySortOptions<Project>
 {
 

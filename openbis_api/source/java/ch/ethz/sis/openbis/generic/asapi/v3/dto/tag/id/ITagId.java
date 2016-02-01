@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.tag.id.ITagId")
+@JsonObject("as.dto.tag.id.ITagId")
 public interface ITagId extends IObjectId
 {
 

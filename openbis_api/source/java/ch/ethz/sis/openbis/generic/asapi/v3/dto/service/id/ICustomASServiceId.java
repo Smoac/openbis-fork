@@ -21,10 +21,10 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * Holds information that uniquely identifies a custom AS service.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-@JsonObject("dto.service.id.ICustomASServiceId")
+@JsonObject("as.dto.service.id.ICustomASServiceId")
 public interface ICustomASServiceId extends IObjectId
 {
 

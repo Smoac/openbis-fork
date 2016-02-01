@@ -21,7 +21,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.common.search.ModificationDateSearchCriteria")
+@JsonObject("as.dto.common.search.ModificationDateSearchCriteria")
 public class ModificationDateSearchCriteria extends DateFieldSearchCriteria
 {
 

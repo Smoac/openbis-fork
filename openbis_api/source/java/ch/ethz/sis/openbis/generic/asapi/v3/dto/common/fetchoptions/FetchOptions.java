@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("dto.common.fetchoptions.FetchOptions")
+@JsonObject("as.dto.common.fetchoptions.FetchOptions")
 public abstract class FetchOptions<OBJECT> implements Serializable
 {
 

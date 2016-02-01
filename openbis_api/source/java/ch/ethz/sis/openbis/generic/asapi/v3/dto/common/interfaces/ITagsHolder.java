@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author Jakub Straszewski
  */
-@JsonObject("dto.common.interfaces.ITagsHolder")
+@JsonObject("as.dto.common.interfaces.ITagsHolder")
 public interface ITagsHolder
 {
     Set<Tag> getTags();

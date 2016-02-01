@@ -32,7 +32,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.project.update.ProjectUpdate")
+@JsonObject("as.dto.project.update.ProjectUpdate")
 public class ProjectUpdate implements Serializable
 {
 

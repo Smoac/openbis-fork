@@ -28,7 +28,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author Jakub Straszewski
  */
-@JsonObject("dto.entity.datasetfile.DataSetFile")
+@JsonObject("dss.dto.entity.datasetfile.DataSetFile")
 public class DataSetFile implements Serializable
 {
     private static final long serialVersionUID = 1L;

@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author pkupczyk
  */
-@JsonObject("dto.externaldms.id.IExternalDmsId")
+@JsonObject("as.dto.externaldms.id.IExternalDmsId")
 public interface IExternalDmsId extends IObjectId
 {
 

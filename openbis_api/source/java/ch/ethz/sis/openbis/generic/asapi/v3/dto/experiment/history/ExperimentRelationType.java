@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("dto.experiment.history.ExperimentRelationType")
+@JsonObject("as.dto.experiment.history.ExperimentRelationType")
 public enum ExperimentRelationType implements IRelationType
 {
 
