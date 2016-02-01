@@ -132,7 +132,7 @@ public class MultiThreadExperimentOptimisticLockingTest extends
                         public void handleProgress(String phaseName, int totalItemsToProcess,
                                 int numItemsProcessed)
                         {
-                            if (phaseName.equals("createDataSets") && numItemsProcessed == 1
+                            if (phaseName.equals(CREATING_ENTITIES) && numItemsProcessed == 2
                                     && totalItemsToProcess == 2)
                             {
                                 messageChannelMain.send(ToolBox.FIRST_REGISTERED);
