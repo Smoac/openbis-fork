@@ -18,12 +18,10 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
 
-import java.io.Serializable;
-
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.ExecutionOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ServiceCode;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.CustomASServiceCode;
 
 /**
  * @author Franz-Josef Elmer
@@ -35,10 +33,10 @@ public class ExecuteServiceTest extends AbstractTest
     public void testSearchServices()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        ExecutionOptions options = new ExecutionOptions();
+        CustomASServiceExecutionOptions options = new CustomASServiceExecutionOptions();
         options.withParameter("name", Math.PI);
 
-        Serializable result = v3api.executeService(sessionToken, new ServiceCode("simple-service"), options);
+        Object result = v3api.executeCustomASService(sessionToken, new CustomASServiceCode("simple-service"), options);
 
         assertEquals(result, "hello 3.14159265359. Spaces: [Space CISD]");
     }

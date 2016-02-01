@@ -16,20 +16,15 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method;
 
-import java.util.List;
-
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASService;
-import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.ICustomASServiceExecutor;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ICustomASServiceId;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IServiceProvider
+public interface IExecuteCustomASServiceMethodExecutor
 {
-    public List<CustomASService> getCustomASServices();
-
-    public ICustomASServiceExecutor tryGetCustomASServiceExecutor(String code);
-
+    public Object executeService(String sessionToken, ICustomASServiceId serviceId, CustomASServiceExecutionOptions options);
 }

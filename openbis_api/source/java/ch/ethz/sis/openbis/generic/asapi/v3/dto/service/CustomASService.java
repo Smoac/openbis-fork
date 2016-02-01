@@ -15,29 +15,27 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.service;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.ServiceFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ServiceCode;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.CustomASServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.CustomASServiceCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 
 /*
  * Class automatically generated with DtoGenerator
  */
-@JsonObject("dto.service.Service")
-public class Service implements Serializable
+@JsonObject("dto.service.CustomASService")
+public class CustomASService implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
-    private ServiceFetchOptions fetchOptions;
+    private CustomASServiceFetchOptions fetchOptions;
 
     @JsonProperty
-    private ServiceCode code;
+    private CustomASServiceCode code;
 
     @JsonProperty
     private String label;
@@ -47,26 +45,26 @@ public class Service implements Serializable
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
-    public ServiceFetchOptions getFetchOptions()
+    public CustomASServiceFetchOptions getFetchOptions()
     {
         return fetchOptions;
     }
 
     // Method automatically generated with DtoGenerator
-    public void setFetchOptions(ServiceFetchOptions fetchOptions)
+    public void setFetchOptions(CustomASServiceFetchOptions fetchOptions)
     {
         this.fetchOptions = fetchOptions;
     }
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
-    public ServiceCode getCode()
+    public CustomASServiceCode getCode()
     {
         return code;
     }
 
     // Method automatically generated with DtoGenerator
-    public void setCode(ServiceCode code)
+    public void setCode(CustomASServiceCode code)
     {
         this.code = code;
     }
@@ -101,7 +99,7 @@ public class Service implements Serializable
     @Override
     public String toString()
     {
-        return "Service code: " + code;
+        return "CustomASService code: " + code;
     }
 
 }

@@ -27,9 +27,9 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.Service;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.ServiceFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.ServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.CustomASServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.CustomASServiceSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractSearchObjectManuallyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.SortAndPage;
@@ -40,8 +40,8 @@ import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
  * @author Franz-Josef Elmer
  */
 @Component
-public class SearchServiceMethodExecutor extends AbstractSearchObjectManuallyExecutor<ServiceSearchCriteria, Service>
-        implements ISearchServiceMethodExecutor
+public class SearchCustomASServiceMethodExecutor extends AbstractSearchObjectManuallyExecutor<CustomASServiceSearchCriteria, CustomASService>
+        implements ISearchCustomASServiceMethodExecutor
 {
     @Autowired
     private IServiceProvider serviceProvider;
@@ -50,17 +50,17 @@ public class SearchServiceMethodExecutor extends AbstractSearchObjectManuallyExe
     private IOpenBisSessionManager sessionManager;
 
     @Override
-    public SearchResult<Service> search(String sessionToken, ServiceSearchCriteria searchCriteria, ServiceFetchOptions fetchOptions)
+    public SearchResult<CustomASService> search(String sessionToken, CustomASServiceSearchCriteria searchCriteria, CustomASServiceFetchOptions fetchOptions)
     {
-        List<Service> services = search(new OperationContext(sessionManager.getSession(sessionToken)), searchCriteria);
-        List<Service> filtered = new ArrayList<>(new SortAndPage().sortAndPage(services, fetchOptions));
-        return new SearchResult<Service>(filtered, services.size());
+        List<CustomASService> services = search(new OperationContext(sessionManager.getSession(sessionToken)), searchCriteria);
+        List<CustomASService> filtered = new ArrayList<>(new SortAndPage().sortAndPage(services, fetchOptions));
+        return new SearchResult<CustomASService>(filtered, services.size());
     }
 
     @Override
-    protected List<Service> listAll()
+    protected List<CustomASService> listAll()
     {
-        return serviceProvider.getServices();
+        return serviceProvider.getCustomASServices();
     }
 
     @Override
@@ -77,7 +77,7 @@ public class SearchServiceMethodExecutor extends AbstractSearchObjectManuallyExe
     {
 
         @Override
-        protected String getFieldValue(Service object)
+        protected String getFieldValue(CustomASService object)
         {
             return object.getCode().getPermId();
         }

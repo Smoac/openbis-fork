@@ -16,19 +16,16 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method;
 
-import java.io.Serializable;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.ExecutionOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.IServiceId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ServiceCode;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.CustomASServiceCode;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ICustomASServiceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnsupportedObjectIdException;
-import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.IServiceExecutor;
-import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.context.ServiceContext;
+import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.ICustomASServiceExecutor;
+import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.context.CustomASServiceContext;
 
 /**
  * 
@@ -36,25 +33,25 @@ import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.context.ServiceContex
  * @author Franz-Josef Elmer
  */
 @Component
-public class ExecuteServiceMethodExecutor implements IExecuteServiceMethodExecutor
+public class ExecuteCustomASServiceMethodExecutor implements IExecuteCustomASServiceMethodExecutor
 {
     @Autowired
     private IServiceProvider serviceProvider;
 
     @Override
-    public Serializable executeService(String sessionToken, IServiceId serviceId, ExecutionOptions options)
+    public Object executeService(String sessionToken, ICustomASServiceId serviceId, CustomASServiceExecutionOptions options)
     {
-        if (serviceId instanceof ServiceCode == false)
+        if (serviceId instanceof CustomASServiceCode == false)
         {
             throw new UnsupportedObjectIdException(serviceId);
         }
-        ServiceCode serviceCode = (ServiceCode) serviceId;
-        IServiceExecutor serviceExecutor = serviceProvider.tryGetExecutor(serviceCode.getPermId());
+        CustomASServiceCode serviceCode = (CustomASServiceCode) serviceId;
+        ICustomASServiceExecutor serviceExecutor = serviceProvider.tryGetCustomASServiceExecutor(serviceCode.getPermId());
         if (serviceExecutor == null)
         {
             throw new ObjectNotFoundException(serviceId);
         }
-        ServiceContext serviceContext = new ServiceContext();
+        CustomASServiceContext serviceContext = new CustomASServiceContext();
         serviceContext.setSessionToken(sessionToken);
         return serviceExecutor.executeService(serviceContext, options);
     }

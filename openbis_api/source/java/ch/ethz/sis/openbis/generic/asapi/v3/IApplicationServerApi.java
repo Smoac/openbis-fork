@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -68,11 +67,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.ExecutionOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.Service;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.ServiceFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.IServiceId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.ServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.CustomASServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ICustomASServiceId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.CustomASServiceSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.delete.SpaceDeletionOptions;
@@ -160,7 +159,7 @@ public interface IApplicationServerApi extends IRpcService
 
     public SearchResult<Material> searchMaterials(String sessionToken, MaterialSearchCriteria searchCriteria, MaterialFetchOptions fetchOptions);
 
-    public SearchResult<Service> searchServices(String sessionToken, ServiceSearchCriteria searchCriteria, ServiceFetchOptions fetchOptions);
+    public SearchResult<CustomASService> searchCustomASServices(String sessionToken, CustomASServiceSearchCriteria searchCriteria, CustomASServiceFetchOptions fetchOptions);
 
     public SearchResult<ObjectKindModification> searchObjectKindModifications(String sessionToken,
             ObjectKindModificationSearchCriteria searchCriteria, ObjectKindModificationFetchOptions fetchOptions);
@@ -187,6 +186,6 @@ public interface IApplicationServerApi extends IRpcService
 
     public void confirmDeletions(String sessionToken, List<? extends IDeletionId> deletionIds);
 
-    public Serializable executeService(String sessionToken, IServiceId serviceId, ExecutionOptions options);
+    public Object executeCustomASService(String sessionToken, ICustomASServiceId serviceId, CustomASServiceExecutionOptions options);
 
 }

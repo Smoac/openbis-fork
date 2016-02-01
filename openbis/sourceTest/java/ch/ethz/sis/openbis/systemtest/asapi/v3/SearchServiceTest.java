@@ -21,9 +21,9 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.Service;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.ServiceFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.ServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.CustomASServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.CustomASServiceSearchCriteria;
 
 /**
  * @author Franz-Josef Elmer
@@ -35,10 +35,11 @@ public class SearchServiceTest extends AbstractTest
     public void testSearchServices()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        ServiceSearchCriteria searchCriteria = new ServiceSearchCriteria();
+        CustomASServiceSearchCriteria searchCriteria = new CustomASServiceSearchCriteria();
         searchCriteria.withCode().thatEquals("simple-service");
 
-        SearchResult<Service> result = v3api.searchServices(sessionToken, searchCriteria, new ServiceFetchOptions());
+        SearchResult<CustomASService> result = v3api.searchCustomASServices(sessionToken, searchCriteria, 
+                new CustomASServiceFetchOptions());
 
         assertEquals(result.getTotalCount(), 1);
     }
@@ -46,12 +47,13 @@ public class SearchServiceTest extends AbstractTest
     @Test
     public void testSearchAllServicesSortedPage2()
     {
-        ServiceFetchOptions fetchOptions = new ServiceFetchOptions();
+        CustomASServiceFetchOptions fetchOptions = new CustomASServiceFetchOptions();
         fetchOptions.from(2).count(1).sortBy();
-        SearchResult<Service> result = v3api.searchServices(systemSessionToken, new ServiceSearchCriteria(), 
+        SearchResult<CustomASService> result = v3api.searchCustomASServices(systemSessionToken, 
+                new CustomASServiceSearchCriteria(), 
                 fetchOptions);
         
-        assertEquals(result.getObjects().toString(), "[Service code: service3]");
+        assertEquals(result.getObjects().toString(), "[CustomASService code: service3]");
         assertEquals(result.getTotalCount(), 4);
     }
     
@@ -59,12 +61,13 @@ public class SearchServiceTest extends AbstractTest
     public void testSearchServiceByCode()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        ServiceSearchCriteria searchCriteria = new ServiceSearchCriteria();
+        CustomASServiceSearchCriteria searchCriteria = new CustomASServiceSearchCriteria();
         searchCriteria.withCode().thatStartsWith("simple");
         
-        SearchResult<Service> result = v3api.searchServices(sessionToken, searchCriteria, new ServiceFetchOptions());
+        SearchResult<CustomASService> result = v3api.searchCustomASServices(sessionToken, searchCriteria, new 
+                CustomASServiceFetchOptions());
         
-        assertEquals(result.getObjects().toString(), "[Service code: simple-service]");
+        assertEquals(result.getObjects().toString(), "[CustomASService code: simple-service]");
         assertEquals(result.getTotalCount(), 1);
     }
     

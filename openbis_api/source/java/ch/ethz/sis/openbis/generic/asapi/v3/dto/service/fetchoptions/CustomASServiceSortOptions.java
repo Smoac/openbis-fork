@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.plugin.service;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions;
 
-import java.io.Serializable;
-
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.ExecutionOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.Service;
-import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.context.ServiceContext;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASService;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * Executor of a {@link Service}.
+ * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IServiceExecutor
+@JsonObject("dto.service.fetchoptions.CustomASServiceSortOptions")
+public class CustomASServiceSortOptions extends SortOptions<CustomASService>
 {
-    public Serializable executeService(ServiceContext context, ExecutionOptions options);
+    private static final long serialVersionUID = 1L;
 }

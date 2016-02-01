@@ -18,7 +18,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.service;
 
 import java.io.Serializable;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.ExecutionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
 
 /**
  * 
@@ -27,5 +27,5 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.ExecutionOptions;
  */
 public interface IServiceScriptRunner
 {
-    public Serializable process(ExecutionOptions options);
+    public Serializable process(CustomASServiceExecutionOptions options);
 }

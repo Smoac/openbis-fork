@@ -14,34 +14,18 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.service;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * 
+ * Holds information that uniquely identifies a custom AS service.
  *
  * @author Franz-Josef Elmer
  */
-@JsonObject("dto.service.ExecutionOptions")
-public class ExecutionOptions implements Serializable
+@JsonObject("dto.service.id.ICustomASServiceId")
+public interface ICustomASServiceId extends IObjectId
 {
-    private static final long serialVersionUID = 1L;
-    
-    private final Map<String, Serializable> parameters = new HashMap<String, Serializable>();
-    
-    public ExecutionOptions withParameter(String parameterName, Serializable value)
-    {
-        parameters.put(parameterName, value);
-        return this;
-    }
-    
-    public Map<String, Serializable> getParameters()
-    {
-        return parameters;
-    }
+
 }

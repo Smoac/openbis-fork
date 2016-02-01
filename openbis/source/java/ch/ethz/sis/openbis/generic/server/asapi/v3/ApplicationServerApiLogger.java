@@ -69,11 +69,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.ExecutionOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.Service;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.ServiceFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.IServiceId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.ServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.CustomASServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ICustomASServiceId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.CustomASServiceSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.delete.SpaceDeletionOptions;
@@ -353,9 +353,9 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     }
 
     @Override
-    public SearchResult<Service> searchServices(String sessionToken, ServiceSearchCriteria searchCriteria, ServiceFetchOptions fetchOptions)
+    public SearchResult<CustomASService> searchCustomASServices(String sessionToken, CustomASServiceSearchCriteria searchCriteria, CustomASServiceFetchOptions fetchOptions)
     {
-        logAccess(sessionToken, "search-services", "SEARCH_CRITERIA:\n%s\nFETCH_OPTIONS:\n%s\n", searchCriteria, fetchOptions);
+        logAccess(sessionToken, "search-custom-as-services", "SEARCH_CRITERIA:\n%s\nFETCH_OPTIONS:\n%s\n", searchCriteria, fetchOptions);
         return null;
     }
 
@@ -368,9 +368,9 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     }
 
     @Override
-    public Serializable executeService(String sessionToken, IServiceId serviceId, ExecutionOptions options)
+    public Object executeCustomASService(String sessionToken, ICustomASServiceId serviceId, CustomASServiceExecutionOptions options)
     {
-        logAccess(sessionToken, "execute-service", "SERVICE_ID(%s) EXECUTION_OPTIONS(%s)", serviceId, options);
+        logAccess(sessionToken, "execute-custom-as-service", "SERVICE_ID(%s) EXECUTION_OPTIONS(%s)", serviceId, options);
         return null;
     }
 

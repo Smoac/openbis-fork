@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ETH Zuerich, SIS
+ * Copyright 2016 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method;
-
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.Service;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.ServiceFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.ServiceSearchCriteria;
+package ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.context;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public interface ISearchServiceMethodExecutor extends ISearchMethodExecutor<Service, ServiceSearchCriteria, ServiceFetchOptions>
+public class CustomASServiceContext extends ServiceContext
 {
 
 }

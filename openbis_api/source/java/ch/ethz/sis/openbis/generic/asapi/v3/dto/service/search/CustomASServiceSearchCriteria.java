@@ -19,7 +19,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractObjectSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.IServiceId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ICustomASServiceId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -27,12 +27,12 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  *
  * @author Franz-Josef Elmer
  */
-@JsonObject("dto.service.search.ServiceSearchCriteria")
-public class ServiceSearchCriteria extends AbstractObjectSearchCriteria<IServiceId>
+@JsonObject("dto.service.search.CustomASServiceSearchCriteria")
+public class CustomASServiceSearchCriteria extends AbstractObjectSearchCriteria<ICustomASServiceId>
 {
     private static final long serialVersionUID = 1L;
 
-    public ServiceSearchCriteria()
+    public CustomASServiceSearchCriteria()
     {
     }
     

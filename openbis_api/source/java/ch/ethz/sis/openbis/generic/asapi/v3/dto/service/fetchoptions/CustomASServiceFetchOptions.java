@@ -16,38 +16,36 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.Service;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASService;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 
 /*
  * Class automatically generated with DtoGenerator
  */
-@JsonObject("dto.service.fetchoptions.ServiceFetchOptions")
-public class ServiceFetchOptions extends FetchOptions<Service> implements Serializable
+@JsonObject("dto.service.fetchoptions.CustomASServiceFetchOptions")
+public class CustomASServiceFetchOptions extends FetchOptions<CustomASService> implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
-    private ServiceSortOptions sort;
+    private CustomASServiceSortOptions sort;
 
     // Method automatically generated with DtoGenerator
     @Override
-    public ServiceSortOptions sortBy()
+    public CustomASServiceSortOptions sortBy()
     {
         if (sort == null)
         {
-            sort = new ServiceSortOptions();
+            sort = new CustomASServiceSortOptions();
         }
         return sort;
     }
 
     // Method automatically generated with DtoGenerator
     @Override
-    public ServiceSortOptions getSortBy()
+    public CustomASServiceSortOptions getSortBy()
     {
         return sort;
     }

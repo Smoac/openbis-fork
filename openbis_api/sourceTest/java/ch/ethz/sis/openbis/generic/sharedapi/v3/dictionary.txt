@@ -996,3 +996,15 @@ getDataProducer
 getDataProductionDate
 setDataProducer
 setDataProductionDate
+
+Custom AS Service
+Custom AS Service Code
+Custom AS Service Context
+Custom AS Service Execution Options
+Custom AS Service Fetch Options
+Custom AS Service Search Criteria
+Custom AS Service Sort Options
+execute Custom AS Service
+I Custom AS Service Executor
+I Custom AS Service Id
+search Custom AS Services

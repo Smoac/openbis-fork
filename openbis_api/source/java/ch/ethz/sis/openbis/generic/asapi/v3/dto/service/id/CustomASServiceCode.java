@@ -16,16 +16,31 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * Holds information that uniquely identifies a generic service in openBIS.
- *
+ * Custom AS service code. This is the name of an AS core plugin of type 'services'.
+ * 
  * @author Franz-Josef Elmer
  */
-@JsonObject("dto.service.id.IServiceId")
-public interface IServiceId extends IObjectId
+@JsonObject("dto.service.id.CustomASServiceCode")
+public class CustomASServiceCode extends ObjectPermId implements ICustomASServiceId
 {
+    private static final long serialVersionUID = 1L;
 
+    public CustomASServiceCode(String code)
+    {
+        // case sensitive
+        super(code);
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    @SuppressWarnings("unused")
+    private CustomASServiceCode()
+    {
+    }
 }

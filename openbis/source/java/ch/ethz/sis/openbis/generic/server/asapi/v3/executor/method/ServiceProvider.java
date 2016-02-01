@@ -28,9 +28,9 @@ import javax.annotation.Resource;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.Service;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ServiceCode;
-import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.IServiceExecutor;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.CustomASServiceCode;
+import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.ICustomASServiceExecutor;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
@@ -50,8 +50,8 @@ public class ServiceProvider implements InitializingBean, IServiceProvider
     public static final String LABEL_KEY = "label";
     public static final String DESCRIPTION_KEY = "description";
     
-    private List<Service> services;
-    private Map<String, IServiceExecutor> executors = new HashMap<String, IServiceExecutor>();
+    private List<CustomASService> services;
+    private Map<String, ICustomASServiceExecutor> executors = new HashMap<String, ICustomASServiceExecutor>();
     
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     protected ExposablePropertyPlaceholderConfigurer configurer;
@@ -63,17 +63,17 @@ public class ServiceProvider implements InitializingBean, IServiceProvider
         SectionProperties[] sectionsProperties =
                 PropertyParametersUtil.extractSectionProperties(serviceProperties,
                         SERVICES_PROPERTY_KEY, false);
-        ArrayList<Service> list = new ArrayList<Service>();
+        ArrayList<CustomASService> list = new ArrayList<CustomASService>();
         for (SectionProperties sectionProperties : sectionsProperties)
         {
             String code = sectionProperties.getKey();
             Properties properties = sectionProperties.getProperties();
             String className = PropertyUtils.getMandatoryProperty(properties, CLASS_KEY);
-            Service service = new Service();
-            service.setCode(new ServiceCode(code));
+            CustomASService service = new CustomASService();
+            service.setCode(new CustomASServiceCode(code));
             service.setLabel(properties.getProperty(LABEL_KEY, code));
             service.setDescription(properties.getProperty(DESCRIPTION_KEY, ""));
-            IServiceExecutor serviceExecutor = ClassUtils.create(IServiceExecutor.class, className, properties);
+            ICustomASServiceExecutor serviceExecutor = ClassUtils.create(ICustomASServiceExecutor.class, className, properties);
             list.add(service);
             executors.put(code, serviceExecutor);
         }
@@ -81,13 +81,13 @@ public class ServiceProvider implements InitializingBean, IServiceProvider
     }
     
     @Override
-    public List<Service> getServices()
+    public List<CustomASService> getCustomASServices()
     {
         return services;
     }
     
     @Override
-    public IServiceExecutor tryGetExecutor(String code)
+    public ICustomASServiceExecutor tryGetCustomASServiceExecutor(String code)
     {
         return executors.get(code);
     }

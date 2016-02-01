@@ -63,8 +63,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.ServiceFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ServiceCode;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.CustomASServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.CustomASServiceCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
@@ -552,14 +552,14 @@ public class Generator extends AbstractGenerator
         return gen;
     }
 
-    private static DtoGenerator createServiceGenerator()
+    private static DtoGenerator createCustomASServiceGenerator()
     {
-        DtoGenerator gen = new DtoGenerator("service", "Service", ServiceFetchOptions.class);
-        gen.addSimpleField(ServiceCode.class, "code");
+        DtoGenerator gen = new DtoGenerator("service", "CustomASService", CustomASServiceFetchOptions.class);
+        gen.addSimpleField(CustomASServiceCode.class, "code");
         gen.addStringField("label");
         gen.addStringField("description");
 
-        gen.setToStringMethod("\"Service code: \" + code");
+        gen.setToStringMethod("\"CustomASService code: \" + code");
 
         return gen;
     }
@@ -625,7 +625,7 @@ public class Generator extends AbstractGenerator
         list.add(createDeletion());
         list.add(createDataStoreGenerator());
         list.add(createExternalDmsGenerator());
-        list.add(createServiceGenerator());
+        list.add(createCustomASServiceGenerator());
         list.add(createObjectKindModificationGenerator());
         // list.add(createGlobalSearchObject());
 

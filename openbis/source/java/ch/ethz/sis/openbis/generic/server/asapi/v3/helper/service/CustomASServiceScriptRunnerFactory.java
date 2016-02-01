@@ -19,7 +19,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.service;
 import java.io.Serializable;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.ExecutionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.context.ServiceContext;
 import ch.systemsx.cisd.common.jython.JythonUtils;
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
@@ -30,12 +30,12 @@ import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
  *
  * @author Franz-Josef Elmer
  */
-class ScriptRunnerFactory implements IScriptRunnerFactory
+class CustomASServiceScriptRunnerFactory implements IScriptRunnerFactory
 {
     private final String scriptPath;
     private final IApplicationServerApi applicationService;
 
-    public ScriptRunnerFactory(String scriptPath, IApplicationServerApi applicationService)
+    public CustomASServiceScriptRunnerFactory(String scriptPath, IApplicationServerApi applicationService)
     {
         this.scriptPath = scriptPath;
         this.applicationService = applicationService;
@@ -57,9 +57,9 @@ class ScriptRunnerFactory implements IScriptRunnerFactory
         try
         {
             Evaluator evaluator = new Evaluator("", pythonPath, null, scriptString, false);
-            evaluator.set("sessionToken", context.getSessionToken());
-            evaluator.set("applicationService", applicationService);
-            return new ServiceScriptRunner(evaluator);
+            String sessionToken = context.getSessionToken();
+            ExecutionContext executionContext = new ExecutionContext(sessionToken, applicationService);
+            return new ServiceScriptRunner(evaluator, executionContext);
         } catch (EvaluatorException ex)
         {
             throw new EvaluatorException(ex.getMessage() + " [" + scriptPath + "]");
@@ -72,9 +72,12 @@ class ScriptRunnerFactory implements IScriptRunnerFactory
         
         private Evaluator evaluator;
 
-        ServiceScriptRunner(Evaluator evaluator)
+        private ExecutionContext context;
+
+        ServiceScriptRunner(Evaluator evaluator, ExecutionContext context)
         {
             this.evaluator = evaluator;
+            this.context = context;
             if (evaluator.hasFunction(PROCESS_FUNCTION_NAME) == false)
             {
                 throw new EvaluatorException("Function '" + PROCESS_FUNCTION_NAME
@@ -84,9 +87,9 @@ class ScriptRunnerFactory implements IScriptRunnerFactory
         }
 
         @Override
-        public Serializable process(ExecutionOptions options)
+        public Serializable process(CustomASServiceExecutionOptions options)
         {
-            Object result = evaluator.evalFunction(PROCESS_FUNCTION_NAME, options.getParameters());
+            Object result = evaluator.evalFunction(PROCESS_FUNCTION_NAME, context, options.getParameters());
             if (result == null || result instanceof Serializable)
             {
                 return (Serializable) result;
@@ -96,4 +99,25 @@ class ScriptRunnerFactory implements IScriptRunnerFactory
         }
     }
 
+    public static final class ExecutionContext
+    {
+        private final String sessionToken;
+        private final IApplicationServerApi applicationService;
+
+        ExecutionContext(String sessionToken, IApplicationServerApi applicationService)
+        {
+            this.sessionToken = sessionToken;
+            this.applicationService = applicationService;
+        }
+
+        public String getSessionToken()
+        {
+            return sessionToken;
+        }
+
+        public IApplicationServerApi getApplicationService()
+        {
+            return applicationService;
+        }
+    }
 }

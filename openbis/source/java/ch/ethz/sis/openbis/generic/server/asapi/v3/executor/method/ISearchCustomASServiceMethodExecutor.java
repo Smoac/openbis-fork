@@ -16,17 +16,16 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method;
 
-import java.io.Serializable;
-
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.ExecutionOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.IServiceId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.CustomASServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.CustomASServiceSearchCriteria;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IExecuteServiceMethodExecutor
+public interface ISearchCustomASServiceMethodExecutor extends ISearchMethodExecutor<CustomASService, CustomASServiceSearchCriteria, CustomASServiceFetchOptions>
 {
-    public Serializable executeService(String sessionToken, IServiceId serviceId, ExecutionOptions options);
+
 }

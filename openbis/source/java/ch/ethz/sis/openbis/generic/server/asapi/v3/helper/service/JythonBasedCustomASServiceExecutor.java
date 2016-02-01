@@ -17,13 +17,12 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.service;
 
-import java.io.Serializable;
 import java.util.Properties;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.ExecutionOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.IServiceExecutor;
-import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.context.ServiceContext;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.ICustomASServiceExecutor;
+import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.context.CustomASServiceContext;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 
@@ -32,26 +31,25 @@ import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
  *
  * @author Franz-Josef Elmer
  */
-public class JythonBasedServiceExecutor implements IServiceExecutor
+public class JythonBasedCustomASServiceExecutor implements ICustomASServiceExecutor
 {
     private static final String SCRIPT_PATH = "script-path";
     
-    private final ScriptRunnerFactory factory;
+    private final CustomASServiceScriptRunnerFactory factory;
 
-    public JythonBasedServiceExecutor(Properties properties)
+    public JythonBasedCustomASServiceExecutor(Properties properties)
     {
         this(PropertyUtils.getMandatoryProperty(properties, SCRIPT_PATH), CommonServiceProvider.getApplicationServerApi());
     }
     
-    JythonBasedServiceExecutor(String scriptPath, IApplicationServerApi applicationService)
+    JythonBasedCustomASServiceExecutor(String scriptPath, IApplicationServerApi applicationService)
     {
-        factory = new ScriptRunnerFactory(scriptPath, applicationService);
+        factory = new CustomASServiceScriptRunnerFactory(scriptPath, applicationService);
     }
 
     @Override
-    public Serializable executeService(ServiceContext context, ExecutionOptions options)
+    public Object executeService(CustomASServiceContext context, CustomASServiceExecutionOptions options)
     {
         return factory.createServiceRunner(context).process(options);
     }
-
 }

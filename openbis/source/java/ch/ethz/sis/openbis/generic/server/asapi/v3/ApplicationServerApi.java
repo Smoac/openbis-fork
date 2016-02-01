@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -73,11 +72,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.ExecutionOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.Service;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.ServiceFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.IServiceId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.ServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.CustomASServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ICustomASServiceId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.CustomASServiceSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.delete.SpaceDeletionOptions;
@@ -99,7 +98,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteMateri
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteProjectMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteSampleMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteSpaceMethodExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IExecuteServiceMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IExecuteCustomASServiceMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapExperimentMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapMaterialMethodExecutor;
@@ -114,7 +113,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchMateri
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchObjectKindModificationMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchProjectMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchSampleMethodExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchServiceMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchCustomASServiceMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchSpaceMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateExperimentMethodExecutor;
@@ -223,7 +222,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     private ISearchMaterialMethodExecutor searchMaterialExecutor;
 
     @Autowired
-    private ISearchServiceMethodExecutor searchServiceExecutor;
+    private ISearchCustomASServiceMethodExecutor searchCustomASServiceExecutor;
 
     @Autowired
     private ISearchObjectKindModificationMethodExecutor searchObjectKindModificationExecutor;
@@ -256,7 +255,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     private IConfirmDeletionMethodExecutor confirmDeletionExecutor;
 
     @Autowired
-    private IExecuteServiceMethodExecutor executeServiceExecutor;
+    private IExecuteCustomASServiceMethodExecutor executeCustomASServiceExecutor;
 
     // @Autowired
     // private IGlobalSearchMethodExecutor globalSearchExecutor;
@@ -613,10 +612,10 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("SEARCH_SERVICES")
-    public SearchResult<Service> searchServices(String sessionToken, ServiceSearchCriteria searchCriteria, ServiceFetchOptions fetchOptions)
+    @Capability("SEARCH_CUSTOM_AS_SERVICES")
+    public SearchResult<CustomASService> searchCustomASServices(String sessionToken, CustomASServiceSearchCriteria searchCriteria, CustomASServiceFetchOptions fetchOptions)
     {
-        return searchServiceExecutor.search(sessionToken, searchCriteria, fetchOptions);
+        return searchCustomASServiceExecutor.search(sessionToken, searchCriteria, fetchOptions);
     }
 
     @Override
@@ -632,10 +631,10 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("EXECUTE_SERVICE")
-    public Serializable executeService(String sessionToken, IServiceId serviceId, ExecutionOptions options)
+    @Capability("EXECUTE_CUSTOM_AS_SERVICE")
+    public Object executeCustomASService(String sessionToken, ICustomASServiceId serviceId, CustomASServiceExecutionOptions options)
     {
-        return executeServiceExecutor.executeService(sessionToken, serviceId, options);
+        return executeCustomASServiceExecutor.executeService(sessionToken, serviceId, options);
     }
 
     // @Override

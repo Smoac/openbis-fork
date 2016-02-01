@@ -14,33 +14,34 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.service;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * Generic service code. This is the name of an AS core plugin of type 'services'.
  * 
+ *
  * @author Franz-Josef Elmer
  */
-@JsonObject("dto.service.id.ServiceCode")
-public class ServiceCode extends ObjectPermId implements IServiceId
+@JsonObject("dto.service.CustomASServiceExecutionOptions")
+public class CustomASServiceExecutionOptions implements Serializable
 {
     private static final long serialVersionUID = 1L;
-
-    public ServiceCode(String code)
+    
+    private final Map<String, Object> parameters = new HashMap<String, Object>();
+    
+    public CustomASServiceExecutionOptions withParameter(String parameterName, Object value)
     {
-        // case sensitive
-        super(code);
+        parameters.put(parameterName, value);
+        return this;
     }
-
-    //
-    // JSON-RPC
-    //
-
-    @SuppressWarnings("unused")
-    private ServiceCode()
+    
+    public Map<String, Object> getParameters()
     {
+        return parameters;
     }
 }

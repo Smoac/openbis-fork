@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions;
+package ch.ethz.sis.openbis.generic.asapi.v3.plugin.service;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.Service;
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.context.CustomASServiceContext;
 
 /**
- * 
+ * Executor of a {@link CustomASService}.
  *
  * @author Franz-Josef Elmer
  */
-@JsonObject("dto.service.fetchoptions.ServiceSortOptions")
-public class ServiceSortOptions extends SortOptions<Service>
+public interface ICustomASServiceExecutor
 {
-    private static final long serialVersionUID = 1L;
+    public Object executeService(CustomASServiceContext context, CustomASServiceExecutionOptions options);
 }
