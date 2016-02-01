@@ -25,11 +25,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
@@ -75,6 +77,9 @@ public class EntityValidationTest extends GenericSystemTestCase
     private static final String IMPOSSIBLE_TO_UPDATE_TYPE = "IMPOSSIBLE_TO_UPDATE";
 
     private static final int TEST_SCRIPT_ID = 8;
+    
+    @Autowired
+    private IDAOFactory daoFactory;
 
     /**
      * shortcut for registerNewSample(identifier, type, null)
@@ -335,13 +340,12 @@ public class EntityValidationTest extends GenericSystemTestCase
 
             AbstractExternalData dataset =
                     commonServer.getDataSetInfo(systemSessionToken, new TechId(26l));
-
+            
             DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
             updates.setDatasetId(new TechId(26));
             updates.setVersion(dataset.getVersion());
-            updates.setMetaprojectsOrNull(new String[]
-            { "TEST_METAPROJECTS" });
             updates.setExperimentIdentifierOrNull(new ExperimentIdentifier(dataset.getExperiment()));
+            updates.setSampleIdentifierOrNull(SampleIdentifierFactory.parse("/TEST-SPACE/FV-TEST"));
             updates.setProperties(Collections.<IEntityProperty> emptyList());
 
             etlService.updateDataSet(systemSessionToken, updates);
