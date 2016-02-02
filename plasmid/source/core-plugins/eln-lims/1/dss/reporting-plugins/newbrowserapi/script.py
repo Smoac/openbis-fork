@@ -18,7 +18,8 @@
 from ch.systemsx.cisd.openbis.dss.client.api.v1 import DssComponentFactory
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause, SearchOperator, MatchClauseAttribute
-
+from ch.systemsx.cisd.openbis.generic.shared.basic.dto import DataTypeCode;
+ 
 from java.util import ArrayList
 from java.util import Date;
 from java.text import SimpleDateFormat;
@@ -32,9 +33,18 @@ from net.lingala.zip4j.core import ZipFile
 from ch.systemsx.cisd.common.exceptions import UserFailureException
 
 from ch.ethz.ssdm.eln import PlasmapperConnector
+
 import time
 import subprocess
 import os.path
+
+from java.io import StringWriter
+from org.htmlcleaner import HtmlCleaner
+from org.htmlcleaner import SimpleHtmlSerializer
+from org.htmlcleaner import CleanerProperties
+
+#AS API
+from ch.systemsx.cisd.openbis.generic.shared.api.v1 import IGeneralInformationService;
 
 #For Screeening API
 from ch.systemsx.cisd.openbis.common.api.client import ServiceFinder;
@@ -45,6 +55,20 @@ from java.util import Arrays;
 #Plasmapper server used
 PLASMAPPER_BASE_URL = "http://wishart.biology.ualberta.ca"
 
+def getProperties(tr, parameters):
+	openBISURL = parameters.get("openBISURL");
+	sessionToken = parameters.get("sessionToken");
+	servFinder = ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
+	infService = servFinder.createService(IGeneralInformationService, openBISURL);
+	properties = infService.listPropertyTypes(sessionToken, False);
+	return properties
+
+def isPropertyRichText(properties, propertyCode):
+	for property in properties:
+		if property.getCode() == propertyCode and property.getCode() != "FREEFORM_TABLE_STATE":
+			return property.getDataType() == DataTypeCode.MULTILINE_VARCHAR;
+	return None;
+	
 def getSampleByIdentifierForUpdate(tr, identifier):
 	space = identifier.split("/")[1];
 	code = identifier.split("/")[2];
@@ -511,12 +535,20 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 	
 	#Assign sample properties
 	if sampleProperties != None:
+		properties = getProperties(tr, parameters);
+		
 		for key in sampleProperties.keySet():
+			cleanerProperties = CleanerProperties();
+			cleaner = HtmlCleaner(cleanerProperties);
+			htmlSerializer = SimpleHtmlSerializer(cleanerProperties);
+			
 			propertyValue = unicode(sampleProperties[key]);
 			if propertyValue == "":
 				propertyValue = None;
-			
-			sample.setPropertyValue(key,propertyValue);
+			elif isPropertyRichText(properties, key):
+				propertytagNode = cleaner.clean(propertyValue);
+				propertyValue = htmlSerializer.getAsString(propertytagNode);
+			sample.setPropertyValue(key, propertyValue);
 		
 	#Add sample parents
 	if sampleParents != None:

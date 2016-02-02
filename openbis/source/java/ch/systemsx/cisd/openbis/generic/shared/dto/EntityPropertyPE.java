@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.io.StringReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -26,6 +27,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -172,7 +177,29 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
                     // leave the original value
                 }
             } else if(DataTypeCode.MULTILINE_VARCHAR.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode())) {
-                field = new Field(fieldFullName, fieldValue.replaceAll("<[^>]+>", " "), luceneOptions.getStore(), indexingStrategy); //Strips out XML tags from text that can be rich text using HTML format
+                try
+                {
+                    XMLInputFactory xif = XMLInputFactory.newFactory();
+                    StringBuffer valueBuff = new StringBuffer();
+                    if (!fieldValue.startsWith("<") || !fieldValue.endsWith(">"))
+                    {
+                        throw new XMLStreamException("early fail");
+                    }
+                    XMLStreamReader xsr = xif.createXMLStreamReader(new StringReader(fieldValue));
+                    while (xsr.hasNext())
+                    {
+                        int x = xsr.next();
+                        if (x == XMLStreamConstants.CHARACTERS)
+                        {
+                            valueBuff.append(xsr.getText() + " ");
+                        }
+                    }
+                    fieldValue = valueBuff.toString();
+                } catch (Exception e)
+                {
+                    //Do Nothing
+                }
+                field = new Field(fieldFullName, fieldValue, luceneOptions.getStore(), indexingStrategy); //Strips out XML tags from text that can be rich text using HTML format
             } else {
                 field = new Field(fieldFullName, fieldValue, luceneOptions.getStore(), indexingStrategy);
             }
