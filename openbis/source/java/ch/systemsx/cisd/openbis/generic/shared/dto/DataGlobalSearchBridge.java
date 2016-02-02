@@ -14,7 +14,6 @@ public class DataGlobalSearchBridge<T extends DataPE> extends GlobalSearchBridge
         put(values, "Perm ID", data.getPermId());
         put(values, "Registration date", dateFormat.format(data.getRegistrationDate()));
         put(values, "Modification date", dateFormat.format(data.getModificationDate()));
-        put(values, "Access date", dateFormat.format(data.getAccessDate()));
         put(values, "DataSet type", data.getDataSetType().getCode());
         addProperties(values, data.getProperties());
         addPerson(values, "registrator", data.getRegistrator());

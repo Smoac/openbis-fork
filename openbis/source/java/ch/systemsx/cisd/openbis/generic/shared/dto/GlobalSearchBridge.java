@@ -160,7 +160,7 @@ public abstract class GlobalSearchBridge<T extends IEntityWithMetaprojects> impl
             List<String> indexedValues = new ArrayList<>();
             for (Map.Entry<String, IndexedValue> entry : data.entrySet())
             {
-                if (entry.getValue() == null)
+                if (entry.getValue().displayValue == null)
                 {
                     continue;
                 }
