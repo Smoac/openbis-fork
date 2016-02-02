@@ -24,6 +24,7 @@ public class DownloadFileTest extends AbstractFileTest
     {
         IDataSetFileId root = new DataSetFilePermId(new DataSetPermId(dataSetCode));
         DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
+        options.setRecursive(true);
 
         Map<String, String> contentMap = download(Arrays.asList(root), options);
 

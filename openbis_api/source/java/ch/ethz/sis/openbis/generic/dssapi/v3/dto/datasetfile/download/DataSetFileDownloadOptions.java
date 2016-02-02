@@ -26,7 +26,7 @@ public class DataSetFileDownloadOptions implements Serializable
 
     private static final long serialVersionUID = 1L;
 
-    private boolean recursive = true;
+    private boolean recursive = false;
 
     public boolean isRecursive()
     {
