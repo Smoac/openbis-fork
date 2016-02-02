@@ -181,7 +181,7 @@ public interface IApplicationServerApi extends IRpcService
 
     public void deleteMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialDeletionOptions deletionOptions);
 
-    public List<Deletion> searchDeletions(String sessionToken, DeletionSearchCriteria searchCriteria, DeletionFetchOptions fetchOptions);
+    public SearchResult<Deletion> searchDeletions(String sessionToken, DeletionSearchCriteria searchCriteria, DeletionFetchOptions fetchOptions);
 
     public void revertDeletions(String sessionToken, List<? extends IDeletionId> deletionIds);
 

@@ -23,6 +23,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.DeletionSearchCriteria;
@@ -45,19 +46,22 @@ public class SearchDeletionMethodExecutor extends AbstractMethodExecutor impleme
     private IDeletionTranslator translator;
 
     @Override
-    public List<Deletion> searchDeletions(final String sessionToken, final DeletionSearchCriteria criteria, final DeletionFetchOptions fetchOptions)
+    public SearchResult<Deletion> searchDeletions(final String sessionToken, final DeletionSearchCriteria criteria,
+            final DeletionFetchOptions fetchOptions)
     {
-        return executeInContext(sessionToken, new IMethodAction<List<Deletion>>()
+        return executeInContext(sessionToken, new IMethodAction<SearchResult<Deletion>>()
             {
                 @Override
-                public List<Deletion> execute(IOperationContext context)
+                public SearchResult<Deletion> execute(IOperationContext context)
                 {
-                    List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion> deletions = searchExecutor.search(context, criteria, fetchOptions);
+                    List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion> deletions =
+                            searchExecutor.search(context, criteria, fetchOptions);
 
                     Map<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion, Deletion> translatedMap =
                             translator.translate(new TranslationContext(context.getSession()), deletions, fetchOptions);
 
-                    return new ArrayList<Deletion>(translatedMap.values());
+                    List<Deletion> translated = new ArrayList<Deletion>(translatedMap.values());
+                    return new SearchResult<Deletion>(translated, translated.size());
                 }
             });
     }

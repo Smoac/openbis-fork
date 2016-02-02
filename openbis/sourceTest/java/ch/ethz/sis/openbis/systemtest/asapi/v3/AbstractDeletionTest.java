@@ -21,6 +21,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import junit.framework.Assert;
+
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
@@ -47,8 +50,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
-
-import junit.framework.Assert;
 
 /**
  * @author pkupczyk
@@ -220,10 +221,10 @@ public class AbstractDeletionTest extends AbstractTest
     private void assertDeletionExists(IDeletionId deletionId, boolean exists)
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        List<Deletion> result = v3api.searchDeletions(sessionToken, new DeletionSearchCriteria(), new DeletionFetchOptions());
+        SearchResult<Deletion> result = v3api.searchDeletions(sessionToken, new DeletionSearchCriteria(), new DeletionFetchOptions());
         Deletion found = null;
 
-        for (Deletion item : result)
+        for (Deletion item : result.getObjects())
         {
             if (item.getId().equals(deletionId))
             {

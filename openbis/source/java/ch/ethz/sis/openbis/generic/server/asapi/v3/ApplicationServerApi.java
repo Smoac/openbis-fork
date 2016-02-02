@@ -106,6 +106,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapProjectMe
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapSampleMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapSpaceMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IRevertDeletionMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchCustomASServiceMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchDeletionMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchExperimentMethodExecutor;
@@ -113,7 +114,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchMateri
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchObjectKindModificationMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchProjectMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchSampleMethodExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchCustomASServiceMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchSpaceMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateExperimentMethodExecutor;
@@ -583,7 +583,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public List<Deletion> searchDeletions(String sessionToken, DeletionSearchCriteria searchCriteria, DeletionFetchOptions fetchOptions)
+    public SearchResult<Deletion> searchDeletions(String sessionToken, DeletionSearchCriteria searchCriteria, DeletionFetchOptions fetchOptions)
     {
         return searchDeletionExecutor.searchDeletions(sessionToken, searchCriteria, fetchOptions);
     }
@@ -613,7 +613,8 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("SEARCH_CUSTOM_AS_SERVICES")
-    public SearchResult<CustomASService> searchCustomASServices(String sessionToken, CustomASServiceSearchCriteria searchCriteria, CustomASServiceFetchOptions fetchOptions)
+    public SearchResult<CustomASService> searchCustomASServices(String sessionToken, CustomASServiceSearchCriteria searchCriteria,
+            CustomASServiceFetchOptions fetchOptions)
     {
         return searchCustomASServiceExecutor.search(sessionToken, searchCriteria, fetchOptions);
     }

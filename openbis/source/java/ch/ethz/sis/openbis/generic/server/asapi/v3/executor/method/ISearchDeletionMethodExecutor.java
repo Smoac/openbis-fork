@@ -16,8 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method;
 
-import java.util.List;
-
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.DeletionSearchCriteria;
@@ -28,6 +27,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.DeletionSearchCr
 public interface ISearchDeletionMethodExecutor
 {
 
-    public List<Deletion> searchDeletions(String sessionToken, DeletionSearchCriteria criteria, DeletionFetchOptions fetchOptions);
+    public SearchResult<Deletion> searchDeletions(String sessionToken, DeletionSearchCriteria criteria, DeletionFetchOptions fetchOptions);
 
 }

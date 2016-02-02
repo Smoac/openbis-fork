@@ -16,7 +16,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 								c.ok("Entity was deleted");
 								return facade.searchDeletions(new c.DeletionSearchCriteria(), new c.DeletionFetchOptions()).then(function(afterDeletions) {
 									c.ok("Got after deletions");
-									c.assertEqual(beforeDeletions.length, afterDeletions.length, "No new deletions found");
+									c.assertEqual(beforeDeletions.getObjects().length, afterDeletions.getObjects().length, "No new deletions found");
 									return fFind(facade, permId).then(function(entityAfterDeletion) {
 										c.assertNull(entityAfterDeletion, "Entity was deleted");
 										c.finish();
@@ -46,8 +46,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 								c.ok("Entity was deleted");
 								return facade.searchDeletions(new c.DeletionSearchCriteria(), new c.DeletionFetchOptions()).then(function(afterDeletions) {
 									c.ok("Got after deletions");
-									c.assertEqual(afterDeletions.length, beforeDeletions.length + 1, "One new deletion");
-									c.assertEqual(afterDeletions[afterDeletions.length - 1].getId().getTechId(), deletionId.getTechId(), "Deletion ids match");
+									c.assertEqual(afterDeletions.getObjects().length, beforeDeletions.getObjects().length + 1, "One new deletion");
+									c.assertEqual(afterDeletions.getObjects()[afterDeletions.getObjects().length - 1].getId().getTechId(), deletionId.getTechId(), "Deletion ids match");
 									return fFind(facade, permId).then(function(entityAfterDeletion) {
 										c.assertNull(entityAfterDeletion, "Entity was deleted");
 										return facade.revertDeletions([ deletionId ]).then(function() {
@@ -83,8 +83,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 								c.ok("Entity was deleted");
 								return facade.searchDeletions(new c.DeletionSearchCriteria(), new c.DeletionFetchOptions()).then(function(deletionsAfterDeletion) {
 									c.ok("Got after deletions");
-									c.assertEqual(deletionsAfterDeletion.length, deletionsBeforeDeletion.length + 1, "One new deletion");
-									c.assertEqual(deletionsAfterDeletion[deletionsAfterDeletion.length - 1].getId().getTechId(), deletionId.getTechId(), "Deletion ids match");
+									c.assertEqual(deletionsAfterDeletion.getObjects().length, deletionsBeforeDeletion.getObjects().length + 1, "One new deletion");
+									c.assertEqual(deletionsAfterDeletion.getObjects()[deletionsAfterDeletion.getObjects().length - 1].getId().getTechId(), deletionId.getTechId(), "Deletion ids match");
 									return fFind(facade, permId).then(function(entityAfterDeletion) {
 										c.assertNull(entityAfterDeletion, "Entity was deleted");
 										return facade.confirmDeletions([ deletionId ]).then(function() {
@@ -92,7 +92,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 											return fFind(facade, permId).then(function(entityAfterConfirm) {
 												c.assertNull(entityAfterConfirm, "Entity is still gone");
 												return facade.searchDeletions(new c.DeletionSearchCriteria(), new c.DeletionFetchOptions()).then(function(deletionsAfterConfirm) {
-													c.assertEqual(deletionsAfterConfirm.length, deletionsBeforeDeletion.length, "New deletion is also gone");
+													c.assertEqual(deletionsAfterConfirm.getObjects().length, deletionsBeforeDeletion.getObjects().length, "New deletion is also gone");
 													c.finish();
 												});
 											});
