@@ -7,13 +7,17 @@ define([ 'jquery', 'openbis', 'as/dto/space/create/SpaceCreation', 'as/dto/proje
 		'as/dto/dataset/id/FileFormatTypePermId', 'as/dto/material/id/MaterialPermId', 'as/dto/tag/id/TagCode', 'as/dto/space/search/SpaceSearchCriteria', 'as/dto/project/search/ProjectSearchCriteria',
 		'as/dto/experiment/search/ExperimentSearchCriteria', 'as/dto/sample/search/SampleSearchCriteria', 'as/dto/dataset/search/DataSetSearchCriteria', 'as/dto/material/search/MaterialSearchCriteria',
 		'as/dto/space/fetchoptions/SpaceFetchOptions', 'as/dto/project/fetchoptions/ProjectFetchOptions', 'as/dto/experiment/fetchoptions/ExperimentFetchOptions', 'as/dto/sample/fetchoptions/SampleFetchOptions',
-		'as/dto/dataset/fetchoptions/DataSetFetchOptions', 'as/dto/material/fetchoptions/MaterialFetchOptions', 'as/dto/deletion/fetchoptions/DeletionFetchOptions', 'as/dto/deletion/search/DeletionSearchCriteria'
+		'as/dto/dataset/fetchoptions/DataSetFetchOptions', 'as/dto/material/fetchoptions/MaterialFetchOptions', 'as/dto/deletion/fetchoptions/DeletionFetchOptions', 'as/dto/deletion/search/DeletionSearchCriteria',
+		'as/dto/service/search/CustomASServiceSearchCriteria', 'as/dto/service/fetchoptions/CustomASServiceFetchOptions',
+		'as/dto/service/id/CustomASServiceCode', 'as/dto/service/CustomASServiceExecutionOptions'
 		 ], function($, openbis, SpaceCreation,
 		ProjectCreation, ExperimentCreation, SampleCreation, MaterialCreation, AttachmentCreation, SpaceUpdate, ProjectUpdate, ExperimentUpdate, SampleUpdate, DataSetUpdate, PhysicalDataUpdate,
 		MaterialUpdate, SpaceDeletionOptions, ProjectDeletionOptions, ExperimentDeletionOptions, SampleDeletionOptions, DataSetDeletionOptions, MaterialDeletionOptions, EntityTypePermId, SpacePermId,
 		ProjectPermId, ProjectIdentifier, ExperimentPermId, ExperimentIdentifier, SamplePermId, DataSetPermId, FileFormatTypePermId, MaterialPermId, TagCode, SpaceSearchCriteria,
 		ProjectSearchCriteria, ExperimentSearchCriteria, SampleSearchCriteria, DataSetSearchCriteria, MaterialSearchCriteria, SpaceFetchOptions, ProjectFetchOptions, ExperimentFetchOptions,
-		SampleFetchOptions, DataSetFetchOptions, MaterialFetchOptions, DeletionFetchOptions, DeletionSearchCriteria) {
+		SampleFetchOptions, DataSetFetchOptions, MaterialFetchOptions, DeletionFetchOptions, DeletionSearchCriteria,
+		CustomASServiceSearchCriteria, CustomASServiceFetchOptions,
+		CustomASServiceCode, CustomASServiceExecutionOptions) {
 
 	/*
 	 * These tests should be run against openBIS instance with screening sprint
@@ -76,6 +80,10 @@ define([ 'jquery', 'openbis', 'as/dto/space/create/SpaceCreation', 'as/dto/proje
 		this.MaterialFetchOptions = MaterialFetchOptions;
 		this.DeletionFetchOptions = DeletionFetchOptions;
 		this.DeletionSearchCriteria = DeletionSearchCriteria;
+		this.CustomASServiceSearchCriteria = CustomASServiceSearchCriteria;
+		this.CustomASServiceFetchOptions = CustomASServiceFetchOptions;
+		this.CustomASServiceCode = CustomASServiceCode;
+		this.CustomASServiceExecutionOptions = CustomASServiceExecutionOptions;
 
 		this.generateId = function(base) {
 			var date = new Date();

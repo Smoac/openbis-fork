@@ -39,5 +39,5 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 	}, {
 		fetchOptions : "CustomASServiceFetchOptions"
 	});
-	return Service;
+	return CustomASService;
 })

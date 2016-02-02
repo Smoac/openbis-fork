@@ -2,7 +2,7 @@ define([ "stjs"], function(stjs) {
 	var CustomASServiceExecutionOptions = function() {
 		this.parameters = {};
 	};
-	stjs.extend(ExecutionOptions, null, [ ], function(constructor, prototype) {
+	stjs.extend(CustomASServiceExecutionOptions, null, [ ], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.service.CustomASServiceExecutionOptions';
 		constructor.serialVersionUID = 1;
 		prototype.parameters = null;
