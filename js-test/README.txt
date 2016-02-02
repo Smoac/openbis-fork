@@ -27,6 +27,12 @@ If a test fails you can click on the test and only the failed test will be shown
 You can change the test code (e.g. in servers/common/core-plugins/tests/1/as/webapps/openbis-test/html/openbis-test.js).
 To see the changes you have to reload the frame (not the application) in the Web browser.
 
+Out comment the line
+
+require.urlArgs = 'now=' + Date.now();
+
+in servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/index.html if you want to debug
+Javascript in the browser.
 
 
 ==== The instructions below are probably out dated after the move from ANT to gradle
