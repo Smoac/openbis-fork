@@ -3,9 +3,11 @@ package ch.ethz.sis.openbis.generic.server.dssapi.v3;
 import java.io.InputStream;
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
@@ -32,7 +34,7 @@ public class DataStoreServerApiLogger extends AbstractServerLogger implements
     }
 
     @Override
-    public List<DataSetFile> searchFiles(String sessionToken, DataSetFileSearchCriteria searchCriteria)
+    public SearchResult<DataSetFile> searchFiles(String sessionToken, DataSetFileSearchCriteria searchCriteria, DataSetFileFetchOptions fetchOptions)
     {
         logAccess(sessionToken, "search-files", "SEARCH_CRITERION:\n%s\n", searchCriteria);
         return null;

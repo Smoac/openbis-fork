@@ -7,7 +7,9 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 
 public class SearchFileTest extends AbstractFileTest
@@ -19,7 +21,8 @@ public class SearchFileTest extends AbstractFileTest
         DataSetFileSearchCriteria sc = new DataSetFileSearchCriteria();
         sc.withDataSet().withPermId().thatEquals(dataSetCode);
 
-        List<DataSetFile> searchFiles = dss.searchFiles(sessionToken, sc);
+        SearchResult<DataSetFile> searchResult = dss.searchFiles(sessionToken, sc, new DataSetFileFetchOptions());
+        List<DataSetFile> searchFiles = searchResult.getObjects();
 
         assertThat(searchFiles, containsAll(filesAndDirectories));
         /* directory structure [dataset id]/original/[root folder] */

@@ -1,0 +1,14 @@
+<!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
+
+<suite name="V3" verbose="1">
+    <test name="V3">
+        <groups>
+            <run>
+                <exclude name="broken" />
+            </run>
+        </groups>
+        <packages>
+            <package name="ch.ethz.sis.openbis.generic.dss.systemtest.api.v3.*" />
+        </packages>
+    </test>
+</suite>

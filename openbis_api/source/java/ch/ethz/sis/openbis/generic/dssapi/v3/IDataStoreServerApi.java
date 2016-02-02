@@ -19,8 +19,10 @@ package ch.ethz.sis.openbis.generic.dssapi.v3;
 import java.io.InputStream;
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.systemsx.cisd.common.api.IRpcService;
@@ -42,7 +44,7 @@ public interface IDataStoreServerApi extends IRpcService
 
     public static final String JSON_SERVICE_URL = SERVICE_URL + ".json";
 
-    public List<DataSetFile> searchFiles(String sessionToken, DataSetFileSearchCriteria searchCriteria);
+    public SearchResult<DataSetFile> searchFiles(String sessionToken, DataSetFileSearchCriteria searchCriteria, DataSetFileFetchOptions fetchOptions);
 
     public InputStream downloadFiles(String sessionToken, List<? extends IDataSetFileId> fileIds,
             DataSetFileDownloadOptions downloadOptions);

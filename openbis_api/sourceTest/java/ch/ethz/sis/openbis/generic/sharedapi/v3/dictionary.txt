@@ -996,7 +996,6 @@ getDataProducer
 getDataProductionDate
 setDataProducer
 setDataProductionDate
-
 Custom AS Service
 Custom AS Service Code
 Custom AS Service Context
@@ -1008,3 +1007,5 @@ execute Custom AS Service
 I Custom AS Service Executor
 I Custom AS Service Id
 search Custom AS Services
+DataSetFileFetchOptions
+DataSetFileSortOptions
