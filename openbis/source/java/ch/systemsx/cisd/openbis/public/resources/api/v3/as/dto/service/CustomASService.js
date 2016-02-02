@@ -1,8 +1,8 @@
 define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
-	var Service = function() {
+	var CustomASService = function() {
 	};
-	stjs.extend(Service, null, [], function(constructor, prototype) {
-		prototype['@type'] = 'as.dto.service.Service';
+	stjs.extend(CustomASService, null, [], function(constructor, prototype) {
+		prototype['@type'] = 'as.dto.service.CustomASService';
 		constructor.serialVersionUID = 1;
 		prototype.fetchOptions = null;
 		prototype.code = null;
@@ -34,10 +34,10 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.description = description;
 		};
 		prototype.toString = function() {
-			return "Service " + this.code;
+			return "CustomASService " + this.code;
 		};
 	}, {
-		fetchOptions : "ServiceFetchOptions"
+		fetchOptions : "CustomASServiceFetchOptions"
 	});
 	return Service;
 })

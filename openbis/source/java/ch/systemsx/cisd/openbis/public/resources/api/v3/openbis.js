@@ -434,12 +434,12 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			});
 		}
 
-		this.searchServices = function(criteria, fetchOptions) {
+		this.searchCustomASServices = function(criteria, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
-					"method" : "searchServices",
+					"method" : "searchCustomASServices",
 					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
 				},
 				returnType : "SearchResult"
@@ -564,12 +564,12 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			});
 		}
 
-		this.executeService = function(serviceId, parameters) {
+		this.executeCustomASService = function(serviceId, parameters) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
-					"method" : "executeService",
+					"method" : "executeCustomASService",
 					"params" : [ thisFacade._private.sessionToken, serviceId, parameters ]
 				}
 			});

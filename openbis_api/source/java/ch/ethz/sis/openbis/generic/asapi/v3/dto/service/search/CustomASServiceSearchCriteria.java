@@ -43,7 +43,7 @@ public class CustomASServiceSearchCriteria extends AbstractObjectSearchCriteria<
     protected SearchCriteriaToStringBuilder createBuilder()
     {
         SearchCriteriaToStringBuilder builder = super.createBuilder();
-        builder.setName("SERVICE");
+        builder.setName("CUSTOM_AS_SERVICE");
         return builder;
     }
 }

@@ -1,10 +1,10 @@
 define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria", "as/dto/common/search/CodeSearchCriteria"], 
 	function(require, stjs, AbstractObjectSearchCriteria) {
-	var ServiceSearchCriteria = function() {
+	var CustomASServiceSearchCriteria = function() {
 		AbstractObjectSearchCriteria.call(this);
 	};
-	stjs.extend(ServiceSearchCriteria, AbstractObjectSearchCriteria, [ AbstractObjectSearchCriteria ], function(constructor, prototype) {
-		prototype['@type'] = 'as.dto.service.search.ServiceSearchCriteria';
+	stjs.extend(CustomASServiceSearchCriteria, AbstractObjectSearchCriteria, [ AbstractObjectSearchCriteria ], function(constructor, prototype) {
+		prototype['@type'] = 'as.dto.service.search.CustomASServiceSearchCriteria';
 		constructor.serialVersionUID = 1;
 		prototype.withCode = function() {
 			var CodeSearchCriteria = require("as/dto/common/search/CodeSearchCriteria");
@@ -13,7 +13,7 @@ define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria",
 		prototype.createBuilder = function() {
 			var AbstractCompositeSearchCriteria = require("as/dto/common/search/AbstractCompositeSearchCriteria");
 			var builder = AbstractCompositeSearchCriteria.prototype.createBuilder.call(this);
-			builder.setName("SERVICE");
+			builder.setName("CUSTOM_AS_SERVICE");
 			return builder;
 		};
 	}, {
@@ -22,5 +22,5 @@ define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria",
 			arguments : [ "ISearchCriteria" ]
 		}
 	});
-	return ServiceSearchCriteria;
+	return CustomASServiceSearchCriteria;
 })
