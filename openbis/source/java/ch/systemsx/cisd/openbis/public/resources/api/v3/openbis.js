@@ -564,13 +564,13 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			});
 		}
 
-		this.executeCustomASService = function(serviceId, parameters) {
+		this.executeCustomASService = function(serviceId, options) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
 					"method" : "executeCustomASService",
-					"params" : [ thisFacade._private.sessionToken, serviceId, parameters ]
+					"params" : [ thisFacade._private.sessionToken, serviceId, options ]
 				}
 			});
 		}
