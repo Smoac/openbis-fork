@@ -68,7 +68,17 @@ def isPropertyRichText(properties, propertyCode):
 		if property.getCode() == propertyCode and property.getCode() != "FREEFORM_TABLE_STATE":
 			return property.getDataType() == DataTypeCode.MULTILINE_VARCHAR;
 	return None;
-	
+
+def updateIfIsPropertyRichText(properties, propertyCode, propertyValue):
+	if isPropertyRichText(properties, propertyCode):
+		if propertyValue is not None:
+			cleanerProperties = CleanerProperties();
+			cleaner = HtmlCleaner(cleanerProperties);
+			htmlSerializer = SimpleHtmlSerializer(cleanerProperties);
+			propertytagNode = cleaner.clean(propertyValue);
+			return htmlSerializer.getAsString(propertytagNode);
+	return propertyValue;
+
 def getSampleByIdentifierForUpdate(tr, identifier):
 	space = identifier.split("/")[1];
 	code = identifier.split("/")[2];
@@ -325,6 +335,7 @@ def updateDataSet(tr, parameters, tableBuilder):
 	dataSetCode = parameters.get("dataSetCode"); #String
 	metadata = parameters.get("metadata"); #java.util.LinkedHashMap<String, String> where the key is the name
 	dataSet = tr.getDataSetForUpdate(dataSetCode);
+	properties = getProperties(tr, parameters);
 	#Hack - Fix Sample Lost bug from openBIS, remove when SSDM-1979 is fix
 	#Found in S211: In new openBIS versions if you set the already existing sample when doing a dataset update is deleted
 	#sampleIdentifier = parameters.get("sampleIdentifier"); #String
@@ -335,7 +346,8 @@ def updateDataSet(tr, parameters, tableBuilder):
 		propertyValue = unicode(metadata[key]);
 		if propertyValue == "":
 			propertyValue = None;
-		
+		else:
+			propertyValue = updateIfIsPropertyRichText(properties, key, propertyValue);
 		dataSet.setPropertyValue(key,propertyValue);
 	
 	#Return from the call
@@ -349,7 +361,8 @@ def insertDataSet(tr, parameters, tableBuilder):
 	fileNames = parameters.get("filenames"); #List<String>
 	isZipDirectoryUpload = parameters.get("isZipDirectoryUpload"); #String
 	metadata = parameters.get("metadata"); #java.util.LinkedHashMap<String, String> where the key is the name
-		
+	properties = getProperties(tr, parameters);
+	
 	#Create Dataset
 	dataSetSample = getSampleByIdentifierForUpdate(tr, sampleIdentifier);
 	dataSet = tr.createNewDataSet(dataSetType);
@@ -360,7 +373,8 @@ def insertDataSet(tr, parameters, tableBuilder):
 		propertyValue = unicode(metadata[key]);
 		if propertyValue == "":
 			propertyValue = None;
-		
+		else:
+			propertyValue = updateIfIsPropertyRichText(properties, key, propertyValue);
 		dataSet.setPropertyValue(key,propertyValue);
 	
 	#Move All Files using a tmp directory close to the datastore
@@ -536,7 +550,6 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 	#Assign sample properties
 	if sampleProperties != None:
 		properties = getProperties(tr, parameters);
-		
 		for key in sampleProperties.keySet():
 			cleanerProperties = CleanerProperties();
 			cleaner = HtmlCleaner(cleanerProperties);
@@ -545,9 +558,8 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 			propertyValue = unicode(sampleProperties[key]);
 			if propertyValue == "":
 				propertyValue = None;
-			elif isPropertyRichText(properties, key):
-				propertytagNode = cleaner.clean(propertyValue);
-				propertyValue = htmlSerializer.getAsString(propertytagNode);
+			else:
+				propertyValue = updateIfIsPropertyRichText(properties, key, propertyValue);
 			sample.setPropertyValue(key, propertyValue);
 		
 	#Add sample parents
@@ -619,6 +631,7 @@ def insertUpdateExperiment(tr, parameters, tableBuilder):
 	experimentType = parameters.get("experimentType"); #String
 	experimentIdentifier = parameters.get("experimentIdentifier"); #String
 	experimentProperties = parameters.get("experimentProperties"); #java.util.LinkedHashMap<String, String> where the key is the name
+	properties = getProperties(tr, parameters);
 	
 	experiment = None;
 	method = parameters.get("method");
@@ -631,7 +644,8 @@ def insertUpdateExperiment(tr, parameters, tableBuilder):
 		propertyValue = unicode(experimentProperties[key]);
 		if propertyValue == "":
 			propertyValue = None;
-		
+		else:
+			propertyValue = updateIfIsPropertyRichText(properties, key, propertyValue);
 		experiment.setPropertyValue(key,propertyValue);
 	
 	return True;
