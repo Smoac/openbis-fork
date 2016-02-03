@@ -450,11 +450,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             final IResultSetConfig<K, T> resultConfig, final IOriginalDataProvider<T> dataProvider,
             final K dataKey)
     {
-        int limit = resultConfig.getLimit();
-        if (limit == IResultSetConfig.NO_LIMIT)
-        {
-            limit = Integer.MAX_VALUE;
-        }
+        int limit = Integer.MAX_VALUE;
         operationLog.info("Retrieving " + limit + " record for a new key " + dataKey);
         List<T> rows = dataProvider.getOriginalData(limit);
         final List<TableModelColumnHeader> headers = dataProvider.getHeaders();
