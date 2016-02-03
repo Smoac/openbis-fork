@@ -213,8 +213,6 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			var dataSetViewer = new DataSetViewer("filesViewer", profile, null, mainController.serverFacade, profile.getDefaultDataStoreURL(), [this._dataSetFormModel.dataSet], false, false);
 			dataSetViewer.init();
 		}
-		
-		FormUtil.activateRichTextProperties();
 	}
 	
 	this._updateFileOptions = function() {
@@ -303,6 +301,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			var propertyGroupPropertiesOnForm = 0;
 			for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 				var propertyType = propertyTypeGroup.propertyTypes[j];
+				FormUtil.fixIfMultilinePropertyForForm(propertyType, this._dataSetFormModel.dataSet);
+				
 				if(!propertyType.showInEditViews && this._dataSetFormController.mode === FormMode.EDIT) { //Skip
 					continue;
 				}
@@ -400,5 +400,6 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		}
 		
 		$("#metadataContainer").append($wrapper);
+		FormUtil.activateRichTextProperties();
 	}
 }

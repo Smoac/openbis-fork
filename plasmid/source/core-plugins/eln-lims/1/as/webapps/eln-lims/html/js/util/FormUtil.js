@@ -628,4 +628,17 @@ var FormUtil = new function() {
 			}
 		}
 	}
+	
+	this.fixIfMultilinePropertyForForm = function(propertyType, entity) {
+		if(propertyType.dataType === "MULTILINE_VARCHAR") {
+			var originalValue = entity.properties[propertyType.code];
+			if(originalValue) {
+				var bodyStart = originalValue.indexOf("<body>");
+				var bodyEnd = originalValue.indexOf("</body>");
+				if(bodyStart !== -1 && bodyEnd !== -1) {
+					entity.properties[propertyType.code] = originalValue.substring(bodyStart + 6, bodyEnd);
+				}
+			}
+		}
+	}
 }
