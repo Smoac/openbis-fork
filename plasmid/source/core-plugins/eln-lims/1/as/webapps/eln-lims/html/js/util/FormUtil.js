@@ -614,7 +614,12 @@ var FormUtil = new function() {
 	// Rich Text Editor Support - (Summernote)
 	//
 	this.activateRichTextProperties = function() {
-		$('textarea').summernote();
+		$('textarea').summernote({toolbar: [
+		['Font Style', ['fontname', 'fontsize', 'color', 'bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
+		['Paragraph style ', ['style', 'ol', 'ul', 'paragraph', 'height']],
+		['Insert', ['link', 'table', 'hr']],
+		['Misc', ['fullscreen', 'undo', 'redo', 'help']],
+		]});
 	}
 	
 	this.updateModelRichTextProperties = function(properties) {
