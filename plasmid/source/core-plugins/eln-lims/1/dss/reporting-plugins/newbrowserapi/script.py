@@ -73,6 +73,7 @@ def updateIfIsPropertyRichText(properties, propertyCode, propertyValue):
 	if isPropertyRichText(properties, propertyCode):
 		if propertyValue is not None:
 			cleanerProperties = CleanerProperties();
+			cleanerProperties.setPruneTags("meta, link, script");
 			cleaner = HtmlCleaner(cleanerProperties);
 			htmlSerializer = SimpleHtmlSerializer(cleanerProperties);
 			propertytagNode = cleaner.clean(propertyValue);
