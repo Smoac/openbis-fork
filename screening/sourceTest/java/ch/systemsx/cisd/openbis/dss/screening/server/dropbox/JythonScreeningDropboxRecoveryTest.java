@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.TreeMap;
@@ -291,11 +292,12 @@ public class JythonScreeningDropboxRecoveryTest extends AbstractJythonDataSetHan
 
             // the recovery should happen here
 
+            List<String> codes = new LinkedList<String>();
             for (int i = 0; i < dataSets; i++)
             {
-                one(openBisService).setStorageConfirmed(DATA_SET_CODE + i);
-
+                codes.add(DATA_SET_CODE + i);
             }
+            one(openBisService).setStorageConfirmed(codes);
         }
 
         protected void registerDataSetsAndThrow(boolean canRecoverFromError)
