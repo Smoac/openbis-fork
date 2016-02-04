@@ -2895,25 +2895,30 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public void setStorageConfirmed(String sessionToken, String dataSetCode)
+    public void setStorageConfirmed(String sessionToken, List<String> dataSetCodes)
     {
         checkSession(sessionToken);
 
-        if (daoFactory.getDataDAO().confirmStorage(dataSetCode))
+        List<Long> dataSetIds = new LinkedList<Long>();
+        for (String dataSetCode : dataSetCodes)
         {
-            daoFactory.getPostRegistrationDAO().addDataSet(dataSetCode);
-        } else if (daoFactory.getDataDAO().exists(dataSetCode) == false)
-        {
-            throw new UserFailureException("Storage confirmation for a dataset: " + dataSetCode
-                    + " failed because the data set has been already deleted.");
-        }
 
+            if (daoFactory.getDataDAO().confirmStorage(dataSetCode))
+            {
+                daoFactory.getPostRegistrationDAO().addDataSet(dataSetCode);
+            } else if (daoFactory.getDataDAO().exists(dataSetCode) == false)
+            {
+                throw new UserFailureException("Storage confirmation for a dataset: " + dataSetCode
+                        + " failed because the data set has been already deleted.");
+            }
+
+            Long id = daoFactory.getDataDAO().tryToFindDataSetIdByCode(dataSetCode).getId();
+            dataSetIds.add(id);
+        }
         IFullTextIndexUpdateScheduler indexUpdater =
                 daoFactory.getPersistencyResources().getIndexUpdateScheduler();
-
-        Long id = daoFactory.getDataDAO().tryToFindDataSetIdByCode(dataSetCode).getId();
         indexUpdater.scheduleUpdate(IndexUpdateOperation.reindex(DataPE.class,
-                Collections.singletonList(id)));
+                dataSetIds));
     }
 
     @Override

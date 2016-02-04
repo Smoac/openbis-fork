@@ -721,9 +721,9 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
     }
 
     @Override
-    public void setStorageConfirmed(String sessionToken, String dataSetCode)
+    public void setStorageConfirmed(String sessionToken, List<String> dataSetCodes)
     {
-        logAccess(sessionToken, "setStorageConfirmed", "DATA_SET_CODE(%s)", dataSetCode);
+        logAccess(sessionToken, "setStorageConfirmed", "DATA_SET_CODE(%s)", dataSetCodes);
     }
 
     @Override

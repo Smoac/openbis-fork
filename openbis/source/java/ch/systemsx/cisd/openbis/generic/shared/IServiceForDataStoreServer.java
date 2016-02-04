@@ -719,21 +719,18 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
     public List<String> getTrustedCrossOriginDomains(String sessionToken);
 
     /**
-     * Marks the storage of dataset as confirmed. Adds the given dataset to post-registration queue
+     * Marks the storage of datasets as confirmed. Adds the given dataset to post-registration queue
      */
     @Transactional
-    @DatabaseUpdateModification(value =
-    { ObjectKind.DATA_SET })
-    @DatabaseCreateOrDeleteModification(value =
-    { ObjectKind.POSTREGISTRATION_QUEUE })
-    public void setStorageConfirmed(String sessionToken, String dataSetCode);
+    @DatabaseUpdateModification(value = { ObjectKind.DATA_SET })
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.POSTREGISTRATION_QUEUE })
+    public void setStorageConfirmed(String sessionToken, List<String> dataSetCodes);
 
     /**
      * Informs that the post-registration task for a given dataset was performed, and it should be removed from the post-registration queue.
      */
     @Transactional
-    @DatabaseCreateOrDeleteModification(value =
-    { ObjectKind.POSTREGISTRATION_QUEUE })
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.POSTREGISTRATION_QUEUE })
     public void markSuccessfulPostRegistration(String token, String dataSetCode);
 
     /**
