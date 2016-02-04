@@ -271,7 +271,7 @@ var common = {
   
   search_button: "Search",
   use_wildcard_checkbox_text: "*?",
-  use_wildcard_checkbox_text_long: "Search with Wildcards",
+  use_wildcard_checkbox_text_long: "Search with Wildcards (*?)",
   use_wildcard_checkbox_tooltip: "Check to treat '*' and '?' as wildcards in searched text. Note, that only whole words will match if you don't add '*' at the beginning and at the end of the text.",
   global_search: "[{0}]: '{1}'",
   identifier: "Identifier",
