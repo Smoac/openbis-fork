@@ -732,11 +732,15 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                 protected void setStorageConfirmed()
                 {
-                    one(openBisService).setStorageConfirmed(DATA_SET_CODE);
 
                     if (testCase.shouldRegisterTwoDataSets)
                     {
-                        one(openBisService).setStorageConfirmed(DATA_SET_CODE_1);
+                        // two transactions
+                        one(openBisService).setStorageConfirmed(Arrays.asList(DATA_SET_CODE));
+                        one(openBisService).setStorageConfirmed(Arrays.asList(DATA_SET_CODE_1));
+                    } else
+                    {
+                        one(openBisService).setStorageConfirmed(Collections.singletonList(DATA_SET_CODE));
                     }
                 }
 
@@ -1199,8 +1203,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     one(openBisService).performEntityOperations(with(operations));
                     will(returnValue(new AtomicEntityOperationResult()));
 
-                    one(openBisService).setStorageConfirmed(DATA_SET_CODE + 1);
-                    one(openBisService).setStorageConfirmed(DATA_SET_CODE + 2);
+                    one(openBisService).setStorageConfirmed(Arrays.asList(DATA_SET_CODE + 1, DATA_SET_CODE + 2));
                 }
             });
 
@@ -1284,7 +1287,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
                     will(returnValue(new AtomicEntityOperationResult()));
 
-                    one(openBisService).setStorageConfirmed(DATA_SET_CODE);
+                    one(openBisService).setStorageConfirmed(Arrays.asList(DATA_SET_CODE));
                 }
             });
 
@@ -1347,7 +1350,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
                     will(returnValue(new AtomicEntityOperationResult()));
 
-                    one(openBisService).setStorageConfirmed(DATA_SET_CODE);
+                    one(openBisService).setStorageConfirmed(Arrays.asList(DATA_SET_CODE));
                 }
             });
 
@@ -1484,7 +1487,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
                     will(returnValue(new AtomicEntityOperationResult()));
 
-                    one(openBisService).setStorageConfirmed(DATA_SET_CODE);
+                    one(openBisService).setStorageConfirmed(Arrays.asList(DATA_SET_CODE));
                 }
             });
 
@@ -1553,7 +1556,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     one(openBisService).performEntityOperations(with(atomicOperationDetails));
                     will(returnValue(new AtomicEntityOperationResult()));
 
-                    one(openBisService).setStorageConfirmed(DATA_SET_CODE);
+                    one(openBisService).setStorageConfirmed(Collections.singletonList(DATA_SET_CODE));
                 }
             });
 
@@ -1840,7 +1843,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     oneOf(storageRecoveryManager).registrationCompleted(
                             with(any(DataSetStorageAlgorithmRunner.class)));
 
-                    one(openBisService).setStorageConfirmed(DATA_SET_CODE);
+                    one(openBisService).setStorageConfirmed(Collections.singletonList(DATA_SET_CODE));
                 }
             });
 

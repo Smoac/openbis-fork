@@ -569,7 +569,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     one(shareIdManager).setShareId(DATA_SET_CODE, "1");
 
                     allowing(limsService).setStorageConfirmed(with(equal(SESSION_TOKEN)),
-                            with(equal(DATA_SET_CODE)));
+                            with(equal(Collections.singletonList(DATA_SET_CODE))));
                 }
             });
         final LogMonitoringAppender appender =
@@ -620,7 +620,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     one(shareIdManager).setShareId(DATA_SET_CODE, "1");
 
                     allowing(limsService).setStorageConfirmed(with(equal(SESSION_TOKEN)),
-                            with(equal(DATA_SET_CODE)));
+                            with(equal(Collections.singletonList(DATA_SET_CODE))));
                 }
             });
         final LogMonitoringAppender appender =
@@ -863,7 +863,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     one(shareIdManager).setShareId(DATA_SET_CODE, "1");
 
                     allowing(limsService).setStorageConfirmed(with(equal(SESSION_TOKEN)),
-                            with(equal(DATA_SET_CODE)));
+                            with(equal(Collections.singletonList(DATA_SET_CODE))));
                 }
             });
         final LogMonitoringAppender appender =

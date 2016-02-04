@@ -21,6 +21,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
@@ -529,7 +530,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                                 with(any(AtomicEntityOperationDetails.class)));
                         will(returnValue(new AtomicEntityOperationResult()));
 
-                        one(openBisService).setStorageConfirmed(with(any(String.class)));
+                        one(openBisService).setStorageConfirmed(with(any(List.class)));
                     }
                 }
             });

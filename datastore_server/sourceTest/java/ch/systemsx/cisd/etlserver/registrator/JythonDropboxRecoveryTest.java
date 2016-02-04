@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
 
 import org.jmock.Expectations;
@@ -89,8 +90,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         int index = 0;
         for (RecoveryTestCase t : testCases)
         {
-            resultsList[index++] = new Object[]
-            { t };
+            resultsList[index++] = new Object[] { t };
         }
 
         return resultsList;
@@ -1152,14 +1152,21 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             will(doAll(makeFileSystemUnavailableAction(),
                     returnValue(EntityOperationsState.OPERATION_SUCCEEDED)));
 
-            // third try - fail at storage confirmation
-            setStorageConfirmed(true);
-
-            // fourth try - success
-            setStorageConfirmed(false);
             if (withContainer)
             {
-                setStorageConfirmed(CONTAINER_DATA_SET_CODE, false);
+                // third try - fail at storage confirmation
+                setStorageConfirmed(true, CONTAINER_DATA_SET_CODE);
+
+                // fourth try - success
+                setStorageConfirmed(false, CONTAINER_DATA_SET_CODE);
+            } else
+            {
+                // third try - fail at storage confirmation
+                setStorageConfirmed(true);
+
+                // fourth try - success
+                setStorageConfirmed(false);
+
             }
         }
     }
@@ -1311,18 +1318,25 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         /**
          * @param shouldFail - if true the call to as should throw an exception
          */
-        protected void setStorageConfirmed(boolean shouldFail)
+        protected void setStorageConfirmed(boolean shouldFail, String... additionalCodes)
         {
-            setStorageConfirmed(DATA_SET_CODE, shouldFail);
+            List<String> codes = new LinkedList<String>();
+            codes.add(DATA_SET_CODE);
+
+            for (String code : additionalCodes)
+            {
+                codes.add(code);
+            }
+            setStorageConfirmed(codes, shouldFail);
         }
 
         /**
-         * @param dataSetCode - the dataset to be confirmed
+         * @param dataSetCodes - the datasets to be confirmed
          * @param shouldFail - if true the call to as should throw an exception
          */
-        protected void setStorageConfirmed(String dataSetCode, boolean shouldFail)
+        protected void setStorageConfirmed(List<String> dataSetCodes, boolean shouldFail)
         {
-            one(openBisService).setStorageConfirmed(dataSetCode);
+            one(openBisService).setStorageConfirmed(dataSetCodes);
             if (shouldFail)
             {
                 will(throwException(new EnvironmentFailureException(

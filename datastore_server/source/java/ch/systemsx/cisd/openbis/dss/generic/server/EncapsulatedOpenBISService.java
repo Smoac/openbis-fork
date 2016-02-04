@@ -291,10 +291,11 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     // IEncapsulatedOpenBISService
     //
     @Override
-    public String getSessionToken() {
+    public String getSessionToken()
+    {
         return session.getSessionToken();
     }
-    
+
     @Override
     public Experiment tryGetExperiment(ExperimentIdentifier experimentIdentifier)
     {
@@ -904,9 +905,9 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public void setStorageConfirmed(String dataSetCode)
+    public void setStorageConfirmed(List<String> dataSetCodes)
     {
-        service.setStorageConfirmed(session.getSessionToken(), dataSetCode);
+        service.setStorageConfirmed(session.getSessionToken(), dataSetCodes);
     }
 
     @Override
@@ -1053,7 +1054,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public InputStream getAttachmentContent(AttachmentHolderKind attachmentHolderKind, Long attachmentHolderId, String fileName, Integer versionOrNull)
+    public InputStream getAttachmentContent(AttachmentHolderKind attachmentHolderKind, Long attachmentHolderId, String fileName,
+            Integer versionOrNull)
     {
         AttachmentWithContent attachment =
                 service.getAttachment(session.getSessionToken(), attachmentHolderKind, attachmentHolderId, fileName, versionOrNull);

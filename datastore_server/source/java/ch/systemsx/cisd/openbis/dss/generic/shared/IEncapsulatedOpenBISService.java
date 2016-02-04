@@ -363,7 +363,7 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
      */
     @ManagedAuthentication
     public boolean isDataSetOnTrashCanOrDeleted(String dataSetCode);
-    
+
     //
     // Archiving
     //
@@ -484,10 +484,10 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     public List<String> getTrustedCrossOriginDomains();
 
     /**
-     * {@link IServiceForDataStoreServer#setStorageConfirmed(String, String)}
+     * {@link IServiceForDataStoreServer#setStorageConfirmed(String, List)}
      */
     @ManagedAuthentication
-    public void setStorageConfirmed(String dataSetCode);
+    public void setStorageConfirmed(List<String> dataSetCodes);
 
     /**
      * {@link IServiceForDataStoreServer#markSuccessfulPostRegistration(String, String)}

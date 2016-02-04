@@ -18,6 +18,7 @@ package ch.systemsx.cisd.etlserver.registrator.v1;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -199,12 +200,17 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     {
         try
         {
+            List<String> codes = new LinkedList<String>();
             for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
             {
                 String dataSetCode = storageAlgorithm.getDataSetInformation().getDataSetCode();
-                openBISService.setStorageConfirmed(dataSetCode);
+                codes.add(dataSetCode);
             }
-            dssRegistrationLog.info(operationLog, "Storage has been confirmed in openBIS Application Server.");
+            if (false == codes.isEmpty())
+            {
+                openBISService.setStorageConfirmed(codes);
+                dssRegistrationLog.info(operationLog, "Storage has been confirmed in openBIS Application Server.");
+            }
         } catch (final Exception ex)
         {
             dssRegistrationLog.error(operationLog, "Error during storage confirmation", ex);

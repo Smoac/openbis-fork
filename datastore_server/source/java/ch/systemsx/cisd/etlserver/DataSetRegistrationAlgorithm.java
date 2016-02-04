@@ -574,12 +574,12 @@ public class DataSetRegistrationAlgorithm
 
     private final void plainRegisterDataSet(NewExternalData data, final String relativePath,
             final StorageFormat storageFormat, final BooleanOrUnknown isCompleteFlag)
-            throws Throwable
+                    throws Throwable
     {
         updateExternalData(data, relativePath, storageFormat, isCompleteFlag);
         // Finally: register the data set in the database.
         registerDataSetInApplicationServer(data);
-        state.openBisService.setStorageConfirmed(data.getCode());
+        state.openBisService.setStorageConfirmed(Collections.singletonList(data.getCode()));
     }
 
     private final NewExternalData updateExternalData(NewExternalData data,

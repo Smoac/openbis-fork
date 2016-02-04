@@ -18,6 +18,7 @@ package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.concurrent.locks.Lock;
 
 import org.jmock.Expectations;
@@ -294,7 +295,7 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
             context.checking(new Expectations()
                 {
                     {
-                        one(openBisService).setStorageConfirmed(DATA_SET_CODE);
+                        one(openBisService).setStorageConfirmed(Collections.singletonList(DATA_SET_CODE));
                     }
                 });
         }
