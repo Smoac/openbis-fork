@@ -959,24 +959,15 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                     allowing(keyGenerator).createKey();
                     will(returnValue(KEY));
 
-                    one(originalDataProvider).getOriginalData(maxSize);
                     DataHolder[] rows = new DataHolder[size];
                     for (int i = 0; i < rows.length; i++)
                     {
                         rows[i] = new DataHolder(i + "-a" + i % 2);
                     }
+                    one(originalDataProvider).getOriginalData(Integer.MAX_VALUE);
                     will(returnValue(Arrays.asList(rows)));
-
                     one(originalDataProvider).getHeaders();
                     will(returnValue(Arrays.asList()));
-
-                    // if (size >= maxSize)
-                    // {
-                    // one(originalDataProvider).getOriginalData(Integer.MAX_VALUE);
-                    // will(returnValue(Arrays.asList(rows)));
-                    // one(originalDataProvider).getHeaders();
-                    // will(returnValue(Arrays.asList()));
-                    // }
 
                     allowing(customColumnsProvider).getGridCustomColumn(SESSION_TOKEN,
                             GRID_DISPLAY_ID);
