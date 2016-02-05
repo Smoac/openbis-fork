@@ -377,7 +377,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
                             if (useWildcardSearchMode)
                             {
-                                Pattern pattern = Pattern.compile("(?s)" + q.toLowerCase().replace("*", ".*").replace("?", ".?"));
+                                Pattern pattern = Pattern.compile("(?s)(^|\\s)" + q.toLowerCase().replace("*", ".*").replace("?", ".?") + "($|\\s)");
                                 Matcher matcher = pattern.matcher(content[i].toLowerCase());
 
                                 while (matcher.find())
@@ -488,7 +488,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                     boolean fullmatch = (start == 0 || !StringUtils.isAlphanumeric(text.substring(start - 1, start))) &&
                             (end == text.length() || !StringUtils.isAlphanumeric(text.substring(end, end + 1))) &&
                             !wildcard; // full/partial matching not relevant for wildcard mode
-                    if (field.equals("Perm ID") || field.equals("Identifier") || field.equals("Code"))
+                    if (field.equals("Perm ID") || field.equals("Code"))
                     {
                         if (fullmatch)
                         {
