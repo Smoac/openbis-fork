@@ -635,11 +635,9 @@ var FormUtil = new function() {
 		}
 	}
 	
-	this.fixIfMultilinePropertyForForm = function(propertyType, entity) {
-		if(propertyType.dataType === "MULTILINE_VARCHAR") {
-			var originalValue = entity.properties[propertyType.code];
-			entity.properties[propertyType.code] = this.sanitizeRichHTMLText(originalValue);
-		}
+	this.fixStringPropertiesForForm = function(propertyType, entity) {
+		var originalValue = entity.properties[propertyType.code];
+		entity.properties[propertyType.code] = this.sanitizeRichHTMLText(originalValue);
 	}
 	
 	this.sanitizeRichHTMLText = function(originalValue) {

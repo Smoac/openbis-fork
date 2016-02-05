@@ -415,7 +415,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var propertyGroupPropertiesOnForm = 0;
 		for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 			var propertyType = propertyTypeGroup.propertyTypes[j];
-			FormUtil.fixIfMultilinePropertyForForm(propertyType, this._sampleFormModel.sample);
+			FormUtil.fixStringPropertiesForForm(propertyType, this._sampleFormModel.sample);
 			if(!propertyType.showInEditViews && this._sampleFormModel.mode === FormMode.EDIT) { //Skip
 				continue;
 			}
