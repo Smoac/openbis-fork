@@ -614,12 +614,13 @@ var FormUtil = new function() {
 	// Rich Text Editor Support - (Summernote)
 	//
 	this.activateRichTextProperties = function() {
-		$('textarea').summernote({toolbar: [
+		$('textarea').summernote({
+			toolbar: [
 		['Font Style', ['fontname', 'fontsize', 'color', 'bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
 		['Paragraph style ', ['style', 'ol', 'ul', 'paragraph', 'height']],
 		['Insert', ['link', 'table', 'hr']],
-		['Misc', ['fullscreen', 'undo', 'redo', 'help']],
-		]});
+		['Misc', ['fullscreen', 'undo', 'redo', 'help']],],
+		disableDragAndDrop: true});
 	}
 	
 	this.updateModelRichTextProperties = function(properties) {
@@ -638,11 +639,15 @@ var FormUtil = new function() {
 		if(propertyType.dataType === "MULTILINE_VARCHAR") {
 			var originalValue = entity.properties[propertyType.code];
 			if(originalValue) {
+				//Take envelope out if pressent
 				var bodyStart = originalValue.indexOf("<body>");
 				var bodyEnd = originalValue.indexOf("</body>");
 				if(bodyStart !== -1 && bodyEnd !== -1) {
-					entity.properties[propertyType.code] = originalValue.substring(bodyStart + 6, bodyEnd);
+					originalValue = originalValue.substring(bodyStart + 6, bodyEnd);
 				}
+				//Clean the contents
+				originalValue = html.sanitize(originalValue);
+				entity.properties[propertyType.code] = originalValue;
 			}
 		}
 	}
