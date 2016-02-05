@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,6 +29,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -73,6 +78,8 @@ import org.springframework.jdbc.support.JdbcAccessor;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
+import ch.systemsx.cisd.common.collection.CollectionUtils;
+import ch.systemsx.cisd.common.collection.CollectionUtils.ICollectionFilter;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -112,6 +119,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     private final HibernateSearchContext hibernateSearchContext;
 
     private Map<String, DocValuesType> fieldTypesCache;
+
+    private final XMLInputFactory xif = XMLInputFactory.newFactory();
 
     HibernateSearchDAO(final SessionFactory sessionFactory,
             HibernateSearchContext hibernateSearchContext)
@@ -378,17 +387,18 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                             if (useWildcardSearchMode)
                             {
                                 Pattern pattern = Pattern.compile("(?s)(^|\\s)" + q.toLowerCase().replace("*", ".*").replace("?", ".?") + "($|\\s)");
-                                Matcher matcher = pattern.matcher(content[i].toLowerCase());
 
+                                String cont = stripXml(content[i].toLowerCase());
+                                Matcher matcher = pattern.matcher(cont);
                                 while (matcher.find())
                                 {
                                     int start = matcher.start();
                                     int end = matcher.end();
-                                    score += getScore(content[i].toLowerCase(), start, end, fields[i], useWildcardSearchMode);
+                                    score += getScore(cont, start, end, fields[i], useWildcardSearchMode);
                                 }
                             } else
                             {
-                                String rest = content[i].toLowerCase();
+                                String rest = stripXml(content[i].toLowerCase());
                                 while (rest.length() > 0)
                                 {
                                     int start = rest.indexOf(q.toLowerCase());
@@ -481,6 +491,34 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                     }
 
                     return createMatchingEntity((Document) tuple[1], text, score);
+                }
+
+                private String stripXml(String cont)
+                {
+                    if (cont.startsWith("<") && cont.endsWith(">"))
+                    {
+
+                        StringBuffer value = new StringBuffer();
+                        try
+                        {
+                            XMLStreamReader xsr = xif.createXMLStreamReader(new StringReader(cont));
+                            while (xsr.hasNext())
+                            {
+                                int x = xsr.next();
+                                if (x == XMLStreamConstants.CHARACTERS)
+                                {
+                                    value.append(xsr.getText() + " ");
+                                }
+                            }
+                        } catch (Exception e)
+                        {
+                            value = new StringBuffer(cont);
+                        }
+                        return value.toString();
+                    } else
+                    {
+                        return cont;
+                    }
                 }
 
                 private double getScore(String text, int start, int end, String field, boolean wildcard)
@@ -600,8 +638,15 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
         List<?> list = hibernateQuery.list();
         List<MatchingEntity> result = AbstractDAO.cast(list);
+        return CollectionUtils.filter(result, new ICollectionFilter<MatchingEntity>()
+            {
+                @Override
+                public boolean isPresent(MatchingEntity element)
+                {
+                    return element != null && element.getScore() > 0.0;
+                }
+            });
 
-        return filterNulls(result);
     }
 
     // detailed search
