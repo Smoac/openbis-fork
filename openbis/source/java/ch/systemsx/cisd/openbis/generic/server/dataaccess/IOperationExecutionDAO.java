@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2007 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,20 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
+package ch.systemsx.cisd.openbis.generic.server.dataaccess;
+
+import ch.systemsx.cisd.openbis.generic.shared.dto.OperationExecutionPE;
 
 /**
- * A static class which holds the database version.
+ * <i>Data Access Object</i> for {@link OperationExecutionPE}.
  * 
- * @author Christian Ribeaud
+ * @author pkupczyk
  */
-public final class DatabaseVersionHolder
+public interface IOperationExecutionDAO extends IGenericDAO<OperationExecutionPE>
 {
-    /** Current version of the database. */
-    private static final String DATABASE_VERSION = "153"; // S223
 
-    private DatabaseVersionHolder()
-    {
-        // Can not be instantiated
-    }
+    void createOrUpdate(OperationExecutionPE execution);
 
-    /** Returns the current version of the database. */
-    public final static String getDatabaseVersion()
-    {
-        return DATABASE_VERSION;
-    }
+    OperationExecutionPE tryFindByCode(String code);
+
 }

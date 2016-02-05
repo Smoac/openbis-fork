@@ -21,8 +21,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 /**
  * This class lists the validation messages.
  * <p>
- * Each field definition follows schema:
- * <code>&lt;field-name&gt;_&lt;validation-annotation&gt;_MESSAGE</code>.
+ * Each field definition follows schema: <code>&lt;field-name&gt;_&lt;validation-annotation&gt;_MESSAGE</code>.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -245,6 +244,8 @@ public final class ValidationMessages
     public static final String OWNER_NOT_NULL_MESSAGE = "Owner" + CAN_NOT_BE_NULL;
 
     public static final String METAPROJECT_NOT_NULL_MESSAGE = "Metaproject" + CAN_NOT_BE_NULL;
+
+    public static final String STATE_NOT_NULL_MESSAGE = "State" + CAN_NOT_BE_NULL;
 
     private ValidationMessages()
     {

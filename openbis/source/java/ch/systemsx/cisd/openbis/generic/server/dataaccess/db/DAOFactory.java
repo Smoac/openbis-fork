@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IOperationExecutionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPostRegistrationDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
@@ -136,6 +137,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final IExternalDataManagementSystemDAO externalDataManagementSystemDAO;
 
+    private final IOperationExecutionDAO operationExecutionDAO;
+
     private DatabaseConfigurationContext context;
 
     public DAOFactory(final DatabaseConfigurationContext context,
@@ -182,6 +185,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
                 new EntityHistoryDAO(getPersistencyResources());
         externalDataManagementSystemDAO =
                 new ExternalDataManagementSystemDAO(sessionFactory);
+        operationExecutionDAO =
+                new OperationExecutionDAO(sessionFactory, historyCreator);
     }
 
     //
@@ -193,7 +198,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     {
         return UpdateUtils.getTransactionTimeStamp(getSessionFactory());
     }
-    
+
     @Override
     public final ISampleTypeDAO getSampleTypeDAO()
     {
@@ -340,6 +345,12 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public IExternalDataManagementSystemDAO getExternalDataManagementSystemDAO()
     {
         return externalDataManagementSystemDAO;
+    }
+
+    @Override
+    public IOperationExecutionDAO getOperationExecutionDAO()
+    {
+        return operationExecutionDAO;
     }
 
     @Override

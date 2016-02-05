@@ -62,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IOperationExecutionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPostRegistrationDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
@@ -357,7 +358,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
     {
         return daoFactory.getTransactionTimestamp();
     }
-    
+
     @Override
     public final ISpaceDAO getSpaceDAO()
     {
@@ -586,6 +587,12 @@ abstract class AbstractBusinessObject implements IDAOFactory
         return daoFactory.getMetaprojectDAO();
     }
 
+    @Override
+    public final IOperationExecutionDAO getOperationExecutionDAO()
+    {
+        return daoFactory.getOperationExecutionDAO();
+    }
+
     protected RelationshipTypePE getParentChildRelationshipType()
     {
         return RelationshipUtils.getParentChildRelationshipType(getRelationshipTypeDAO());
@@ -620,7 +627,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
             entityAsModifiableBean.setModificationDate(getTransactionTimeStamp());
         }
     }
-    
+
     protected Date getTransactionTimeStamp()
     {
         return daoFactory.getTransactionTimestamp();

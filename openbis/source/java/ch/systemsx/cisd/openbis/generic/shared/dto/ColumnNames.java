@@ -78,6 +78,8 @@ public final class ColumnNames
 
     public static final String DESCRIPTION_COLUMN = "description";
 
+    public static final String ERROR_COLUMN = "error";
+
     public static final String DOWNLOAD_URL_COLUMN = "download_url";
 
     public static final String REMOTE_URL_COLUMN = "remote_url";
@@ -332,11 +334,17 @@ public final class ColumnNames
 
     public static final String CREATION_DATE_COLUMN = "creation_date";
 
+    public static final String START_DATE_COLUMN = "start_date";
+
+    public static final String FINISH_DATE_COLUMN = "finish_date";
+
     public static final String METAPROJECT_ID_COLUMN = "mepr_id";
 
     public static final String IS_PRIVATE_COLUMN = "private";
 
     public static final String ACCESS_TIMESTAMP = "access_timestamp";
+
+    public static final String STATE = "state";
 
     private ColumnNames()
     {

@@ -118,4 +118,8 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
 
     /** Returns an implementation of {@link IExternalDataManagementSystemDAO}. */
     public IExternalDataManagementSystemDAO getExternalDataManagementSystemDAO();
+
+    /** Returns an implementation of {@link IOperationExecutionDAO}. */
+    public IOperationExecutionDAO getOperationExecutionDAO();
+
 }

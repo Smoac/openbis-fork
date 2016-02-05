@@ -171,6 +171,8 @@ public final class TableNames
 
     public static final String METAPROJECT_ASSIGNMENTS_ALL_TABLE = "metaproject_assignments_all";
 
+    public static final String OPERATION_EXECUTIONS_TABLE = "operation_executions";
+
     private TableNames()
     {
         // This class can not be instantiated.
