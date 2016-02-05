@@ -638,17 +638,21 @@ var FormUtil = new function() {
 	this.fixIfMultilinePropertyForForm = function(propertyType, entity) {
 		if(propertyType.dataType === "MULTILINE_VARCHAR") {
 			var originalValue = entity.properties[propertyType.code];
-			if(originalValue) {
-				//Take envelope out if pressent
-				var bodyStart = originalValue.indexOf("<body>");
-				var bodyEnd = originalValue.indexOf("</body>");
-				if(bodyStart !== -1 && bodyEnd !== -1) {
-					originalValue = originalValue.substring(bodyStart + 6, bodyEnd);
-				}
-				//Clean the contents
-				originalValue = html.sanitize(originalValue);
-				entity.properties[propertyType.code] = originalValue;
-			}
+			entity.properties[propertyType.code] = this.sanitizeRichHTMLText(originalValue);
 		}
+	}
+	
+	this.sanitizeRichHTMLText = function(originalValue) {
+		if(typeof originalValue === "string") {
+			//Take envelope out if pressent
+			var bodyStart = originalValue.indexOf("<body>");
+			var bodyEnd = originalValue.indexOf("</body>");
+			if(bodyStart !== -1 && bodyEnd !== -1) {
+				originalValue = originalValue.substring(bodyStart + 6, bodyEnd);
+			}
+			//Clean the contents
+			originalValue = html.sanitize(originalValue);
+		}
+		return originalValue;
 	}
 }

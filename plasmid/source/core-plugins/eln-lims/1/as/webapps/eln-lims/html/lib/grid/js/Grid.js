@@ -332,7 +332,7 @@ $.extend(Grid.prototype, {
 				} else {
 					value = data[column.property];
 				}
-				item[column.property] = value;
+				item[column.property] = FormUtil.sanitizeRichHTMLText(value);
 			});
 			items.push(item);
 		});
