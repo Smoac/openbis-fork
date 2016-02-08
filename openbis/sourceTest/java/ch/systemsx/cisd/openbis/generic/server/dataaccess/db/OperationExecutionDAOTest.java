@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.Date;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -33,10 +34,81 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.OperationExecutionState;
 public final class OperationExecutionDAOTest extends AbstractDAOTest
 {
 
+    @Test(expectedExceptions = DataIntegrityViolationException.class)
+    public void testCreateRunningWithoutStartDate()
+    {
+        OperationExecutionPE execution = new OperationExecutionPE();
+        execution.setCode("testCode");
+        execution.setState(OperationExecutionState.RUNNING);
+        execution.setDescription("testDescription");
+        execution.setStartDate(null);
+        createOrUpdateAndReload(execution);
+    }
+
+    public void testCreateRunningWithStartDate()
+    {
+        OperationExecutionPE execution = new OperationExecutionPE();
+        execution.setCode("testCode");
+        execution.setState(OperationExecutionState.RUNNING);
+        execution.setDescription("testDescription");
+        execution.setStartDate(new Date());
+        createOrUpdateAndReload(execution);
+    }
+
+    @Test(expectedExceptions = DataIntegrityViolationException.class)
+    public void testCreateFinishedWithoutFinishDate()
+    {
+        OperationExecutionPE execution = new OperationExecutionPE();
+        execution.setCode("testCode");
+        execution.setState(OperationExecutionState.FINISHED);
+        execution.setDescription("testDescription");
+        execution.setStartDate(new Date());
+        execution.setFinishDate(null);
+        createOrUpdateAndReload(execution);
+    }
+
+    @Test
+    public void testCreateFinishedWithFinishDate()
+    {
+        OperationExecutionPE execution = new OperationExecutionPE();
+        execution.setCode("testCode");
+        execution.setState(OperationExecutionState.FINISHED);
+        execution.setDescription("testDescription");
+        execution.setStartDate(new Date());
+        execution.setFinishDate(new Date());
+        createOrUpdateAndReload(execution);
+    }
+
+    @Test(expectedExceptions = DataIntegrityViolationException.class)
+    public void testCreateFailedWithoutError()
+    {
+        OperationExecutionPE execution = new OperationExecutionPE();
+        execution.setCode("testCode");
+        execution.setState(OperationExecutionState.FAILED);
+        execution.setDescription("testDescription");
+        execution.setStartDate(new Date());
+        execution.setFinishDate(new Date());
+        execution.setError(null);
+        createOrUpdateAndReload(execution);
+    }
+
+    @Test
+    public void testCreateNotFailedWithError()
+    {
+        OperationExecutionPE execution = new OperationExecutionPE();
+        execution.setCode("testCode");
+        execution.setState(OperationExecutionState.FAILED);
+        execution.setDescription("testDescription");
+        execution.setStartDate(new Date());
+        execution.setFinishDate(new Date());
+        execution.setError("testError");
+        createOrUpdateAndReload(execution);
+    }
+
     @Test
     public void testCreateAndUpdateAndFind()
     {
-        final String CODE = "testExecution";
+        final String CODE = "testCode";
         final String DESCRIPTION = "testDescription";
         final String ERROR = "testError";
 

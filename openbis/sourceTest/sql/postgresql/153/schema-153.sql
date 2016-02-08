@@ -1253,7 +1253,9 @@ CREATE TABLE operation_executions (
     creation_date time_stamp_dfl,
     start_date time_stamp,
     finish_date time_stamp,
-    CONSTRAINT operation_executions_state_error_check CHECK ((((state)::text = 'FAILED'::text) OR (error IS NULL)))
+    CONSTRAINT operation_executions_state_error_check CHECK (((((state)::text <> 'FAILED'::text) AND (error IS NULL)) OR (((state)::text = 'FAILED'::text) AND (error IS NOT NULL)))),
+    CONSTRAINT operation_executions_state_finish_date_check CHECK (((((state)::text = ANY ((ARRAY['NEW'::character varying, 'SCHEDULED'::character varying, 'RUNNING'::character varying])::text[])) AND (finish_date IS NULL)) OR (((state)::text = ANY ((ARRAY['FINISHED'::character varying, 'FAILED'::character varying])::text[])) AND (finish_date IS NOT NULL)))),
+    CONSTRAINT operation_executions_state_start_date_check CHECK (((((state)::text = ANY ((ARRAY['NEW'::character varying, 'SCHEDULED'::character varying])::text[])) AND (start_date IS NULL)) OR (((state)::text = ANY ((ARRAY['RUNNING'::character varying, 'FINISHED'::character varying, 'FAILED'::character varying])::text[])) AND (start_date IS NOT NULL))))
 );
 CREATE SEQUENCE operation_executions_id_seq
     START WITH 1
