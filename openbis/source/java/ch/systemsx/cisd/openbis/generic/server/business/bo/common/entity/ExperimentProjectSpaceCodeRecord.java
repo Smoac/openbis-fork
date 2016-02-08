@@ -9,6 +9,8 @@ import ch.rinn.restrictions.Private;
 @Private
 public class ExperimentProjectSpaceCodeRecord
 {
+    public long id;
+    
     public String e_code;
 
     public String e_permid;

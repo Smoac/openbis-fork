@@ -790,23 +790,31 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return ids;
     }
 
+    private static LongSet extractExperimentIds(Long2ObjectMap<AbstractExternalData> datasetMap)
+    {
+        LongSet ids = new LongOpenHashSet();
+        for (AbstractExternalData dataset : datasetMap.values())
+        {
+            Experiment experiment = dataset.getExperiment();
+            if (experiment != null)
+            {
+                ids.add(experiment.getId());
+            }
+        }
+        return ids;
+    }
+    
     // assumes that the connection to experiment has been already established and experiment has the
     // id set.
     private void enrichWithExperiments(Long2ObjectMap<AbstractExternalData> datasetMap)
     {
-        Long2ObjectMap<Experiment> experimentMap = new Long2ObjectOpenHashMap<Experiment>();
+        LongSet ids = extractExperimentIds(datasetMap);
+        Long2ObjectMap<Experiment> experiments = referencedEntityDAO.getExperiments(ids);
 
         for (AbstractExternalData dataset : datasetMap.values())
         {
             long experimentId = dataset.getExperiment().getId();
-            Experiment experiment = experimentMap.get(experimentId);
-            // null value is put if experiment is from different db instance
-            if (experimentMap.containsKey(experimentId) == false)
-            {
-                experiment = referencedEntityDAO.tryGetExperiment(experimentId);
-                experimentMap.put(experimentId, experiment);
-            }
-            dataset.setExperiment(experiment);
+            dataset.setExperiment(experiments.get(experimentId));
         }
     }
 

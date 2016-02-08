@@ -38,6 +38,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
     { SampleReferenceRecord.class })
 public interface ISecondaryEntityListingQuery extends BaseQuery
 {
+    public static final String SELECT_FROM_EXPERIMENTS 
+            = "select e.id as id, e.code as e_code, e.perm_id as e_permid, e.del_id as del_id, et.code as et_code, "
+            + "p.code as p_code, p.id as p_id, p.perm_id as p_perm_id, g.code as spc_code, g.dbin_id as dbin_id from experiments e "
+            + "join experiment_types et on e.exty_id=et.id join projects p on e.proj_id=p.id "
+            + "join spaces g on p.space_id=g.id";
+    
     public static final int FETCH_SIZE = 1000;
 
     //
@@ -49,12 +55,13 @@ public interface ISecondaryEntityListingQuery extends BaseQuery
      * 
      * @param experimentId The id of the experiment to get the code for.
      */
-    @Select("select e.code as e_code, e.perm_id as e_permid, e.del_id as del_id, et.code as et_code, "
-            + "p.code as p_code, p.id as p_id, p.perm_id as p_perm_id, g.code as spc_code, g.dbin_id as dbin_id from experiments e "
-            + "join experiment_types et on e.exty_id=et.id join projects p on e.proj_id=p.id "
-            + "join spaces g on p.space_id=g.id where e.id=?{1}")
+    @Select(SELECT_FROM_EXPERIMENTS + " where e.id=?{1}")
     public ExperimentProjectSpaceCodeRecord getExperimentAndProjectAndGroupCodeForId(
             long experimentId);
+    
+    @Select(sql = SELECT_FROM_EXPERIMENTS + " where e.id = any(?{1})", parameterBindings =
+            { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<ExperimentProjectSpaceCodeRecord> getExperiments(LongSet experimentIds);
 
     //
     // Samples
