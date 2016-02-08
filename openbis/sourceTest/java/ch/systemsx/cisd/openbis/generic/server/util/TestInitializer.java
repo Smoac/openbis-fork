@@ -115,6 +115,10 @@ public class TestInitializer
                 System.setProperty("script-folder", scriptFolder);
 
                 IndexCreationUtil.main(databaseKind, temporaryFile.getAbsolutePath(), String.valueOf(getCreateDBFromScratch()));
+
+                operationLog.info("Created Lucene index in '" + temporaryFile.getAbsolutePath() + "'. The index is based on data from '"
+                        + scriptFolder + "' script folder.");
+
             } catch (Exception ex)
             {
                 operationLog.error("Couldn't create Lucene index", ex);
@@ -166,6 +170,9 @@ public class TestInitializer
     {
         File targetPath = new File(TestInitializer.LUCENE_INDEX_PATH).getAbsoluteFile();
         FileUtilities.deleteRecursively(targetPath);
+
+        operationLog.info("Removed Lucene index from '" + targetPath + "'.");
+
         targetPath.mkdirs();
         File srcPath = new File(LUCENE_INDEX_TEMPLATE_PATH).getAbsoluteFile();
         try
@@ -180,8 +187,12 @@ public class TestInitializer
                 });
             new File(srcPath, FullTextIndexerRunnable.FULL_TEXT_INDEX_MARKER_FILENAME)
                     .createNewFile();
+
+            operationLog.info("Copied Lucene index from '" + srcPath + "' to '" + targetPath + "'.");
+
         } catch (IOException ex)
         {
+            operationLog.error("Could not copy Lucene index from '" + srcPath + "' to '" + targetPath + "'.", ex);
             throw new IOExceptionUnchecked(ex);
         }
     }
