@@ -162,7 +162,7 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
 
                     allowing(
                             openBisService).setStorageConfirmed(
-                            with(any(String.class)));
+                            with(any(List.class)));
 
                 }
             });
