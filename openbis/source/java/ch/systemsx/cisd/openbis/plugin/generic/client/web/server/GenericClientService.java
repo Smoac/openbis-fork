@@ -234,7 +234,7 @@ public class GenericClientService extends AbstractClientService implements IGene
                                             operationKind, sessionToken);
                             // Execute task
                             genericServer.registerOrUpdateSamples(sessionToken, asyncInfo.getSamples());
-                            if (isCreateContinuousSampleCodes)
+                            if (isAutoGenerateCodes && isCreateContinuousSampleCodes)
                             {
                                 updateTemporaryCodes(sessionToken, asyncInfo);
                             }
@@ -246,7 +246,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             } else
             {
                 genericServer.registerOrUpdateSamples(sessionToken, info.getSamples());
-                if (isCreateContinuousSampleCodes)
+                if (isAutoGenerateCodes && isCreateContinuousSampleCodes)
                 {
                     updateTemporaryCodes(sessionToken, info);
                 }
