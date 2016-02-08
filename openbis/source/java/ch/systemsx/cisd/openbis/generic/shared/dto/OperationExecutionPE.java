@@ -72,19 +72,19 @@ public class OperationExecutionPE implements IIdHolder, Serializable
     @SequenceGenerator(name = SequenceNames.OPERATION_EXECUTIONS_SEQUENCE, sequenceName = SequenceNames.OPERATION_EXECUTIONS_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.OPERATION_EXECUTIONS_SEQUENCE)
-    public final Long getId()
+    public Long getId()
     {
         return id;
     }
 
-    public final void setId(final Long id)
+    public void setId(Long id)
     {
         this.id = id;
     }
 
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
-    public final String getCode()
+    public String getCode()
     {
         return code;
     }
@@ -113,7 +113,7 @@ public class OperationExecutionPE implements IIdHolder, Serializable
         return description;
     }
 
-    public void setDescription(final String description)
+    public void setDescription(String description)
     {
         this.description = description;
     }
@@ -124,7 +124,7 @@ public class OperationExecutionPE implements IIdHolder, Serializable
         return error;
     }
 
-    public void setError(final String error)
+    public void setError(String error)
     {
         this.error = error;
     }
