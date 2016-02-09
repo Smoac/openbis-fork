@@ -37,6 +37,7 @@ from ch.ethz.ssdm.eln import PlasmapperConnector
 import time
 import subprocess
 import os.path
+import re
 
 from java.io import StringWriter
 from org.htmlcleaner import HtmlCleaner
@@ -96,6 +97,11 @@ def getSampleByIdentifierForUpdate(tr, identifier):
    	else:
    		raise UserFailureException(identifier + " Not found by search service.");
    	
+def username(sessiontoken):
+    m = re.compile('(.*)-[^-]*').match(sessiontoken)
+    if m:
+        return m.group(1)
+
 def process(tr, parameters, tableBuilder):
 	method = parameters.get("method");
 	
@@ -103,7 +109,7 @@ def process(tr, parameters, tableBuilder):
 	result = None;
 	# Obtain the user using the dropbox
 	sessionToken = parameters.get("sessionToken"); #String
-	sessionId = sessionToken.split("-")[0]; #String
+	sessionId = username(sessionToken); #String
 	if sessionId == userId:
 		tr.setUserId(userId);
 	else:
