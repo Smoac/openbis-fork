@@ -148,6 +148,16 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			var $updateBtn = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : btnText });
 			$formColumn.append($updateBtn);
 		}
+		
+		//
+		// Experiment Table
+		//
+		var $experimentsContainer = $("<div>");
+		$formColumn.append($experimentsContainer);
+		
+		var experimentTableController = new ExperimentTableController(this._projectFormController, "Experiments", this._projectFormModel.project);
+		experimentTableController.init($experimentsContainer);
+		
 		$container.append($form);
 		FormUtil.activateRichTextProperties();
 	}

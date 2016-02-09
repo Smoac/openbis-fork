@@ -391,6 +391,46 @@ $.extend(DefaultProfile.prototype, {
 			return null;
 		}
 	
+		this.getAllPropertiCodesForExperimentTypeCode = function(typeCode) {
+			var allPropertiCodes = new Array();
+			var type = this.getExperimentTypeForExperimentTypeCode(typeCode);
+			for(var i = 0; i < type.propertyTypeGroups.length; i++) {
+				var propertyGroup = type.propertyTypeGroups[i].propertyTypes;
+				for(var j = 0; j < propertyGroup.length; j++) {
+					var propertyType = propertyGroup[j];
+					allPropertiCodes.push(propertyType.code);
+				}
+			}
+			return allPropertiCodes;
+		}
+		
+		this.getPropertiesDisplayNamesForExperimentTypeCode = function(typeCode, propertiesTypeCode) {
+			var allPropertiDisplayNames = new Array();
+			for(var i = 0; i < propertiesTypeCode.length; i++) {
+				var propertyTypeCode = propertiesTypeCode[i];
+				var propertyTypeDisplayName = this.getPropertyDisplayNamesForExperimentTypeCode(typeCode, propertyTypeCode);
+				allPropertiDisplayNames.push(propertyTypeDisplayName);
+			}
+			return allPropertiDisplayNames;
+		}
+		
+		this.getPropertyDisplayNamesForExperimentTypeCode = function(typeCode, propertyTypeCode) {
+			var propertyDisplayName = "";
+			var type = this.getExperimentTypeForExperimentTypeCode(typeCode);
+		
+			for(var i = 0; i < type.propertyTypeGroups.length; i++) {
+				var propertyGroup = type.propertyTypeGroups[i].propertyTypes;
+				for(var j = 0; j < propertyGroup.length; j++) {
+					var propertyType = propertyGroup[j];
+					if(propertyType.code === propertyTypeCode) {
+						propertyDisplayName = propertyType.label;
+					}
+				}
+			}
+		
+			return propertyDisplayName;
+		}
+		
 		this.getAllPropertiCodesForTypeCode = function(typeCode) {
 			var allPropertiCodes = new Array();
 			var sampleType = this.getSampleTypeForSampleTypeCode(typeCode);
