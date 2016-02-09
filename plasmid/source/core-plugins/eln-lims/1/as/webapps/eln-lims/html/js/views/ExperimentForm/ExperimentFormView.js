@@ -257,6 +257,11 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 					continue;
 				}
 			} else {
+				if(propertyType.code === "SHOW_IN_PROJECT_OVERVIEW") {
+					if(!(profile.inventorySpaces.length > 0 && $.inArray(this._experimentFormModel.experiment.identifier.split("/")[1], profile.inventorySpaces) === -1)) {
+						continue;
+					}
+				}
 				var $controlGroup =  null;
 				
 				var value = this._experimentFormModel.experiment.properties[propertyType.code];

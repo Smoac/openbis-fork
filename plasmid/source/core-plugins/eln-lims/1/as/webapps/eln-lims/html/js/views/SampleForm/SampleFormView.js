@@ -277,7 +277,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// GENERATE CHILDREN
 		//
-		if((this._sampleFormModel.mode !== FormMode.VIEW) && this._sampleFormModel.isELNSubExperiment) {
+		if((this._sampleFormModel.mode !== FormMode.VIEW) && this._sampleFormModel.isELNSample) {
 			var $generateChildrenBtn = $("<a>", { 'class' : 'btn btn-default', 'style' : 'margin-left:25px;', 'id' : 'generate_children'}).text("Generate Children");
 			$generateChildrenBtn.click(function(event) {
 				_this._generateChildren();
@@ -428,6 +428,11 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					continue;
 				}
 			} else {
+				if(propertyType.code === "SHOW_IN_PROJECT_OVERVIEW") {
+					if(!(profile.inventorySpaces.length > 0 && $.inArray(this._sampleFormModel.sample.spaceCode, profile.inventorySpaces) === -1)) {
+						continue;
+					}
+				}
 				var $controlGroup =  null;
 				var value = this._sampleFormModel.sample.properties[propertyType.code];
 				if(!value && propertyType.code.charAt(0) === '$') {

@@ -315,6 +315,12 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 						continue;
 					}
 				} else {
+					if(propertyType.code === "SHOW_IN_PROJECT_OVERVIEW") {
+						if(!(profile.inventorySpaces.length > 0 && $.inArray(this._dataSetFormModel.sample.identifier.split("/")[1], profile.inventorySpaces) === -1)) {
+							continue;
+						}
+					}
+					
 					var value = "";
 					if(this._dataSetFormModel.mode !== FormMode.CREATE) {
 						value = this._dataSetFormModel.dataSet.properties[propertyType.code];

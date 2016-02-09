@@ -495,7 +495,7 @@ def initELNMasterData():
 										]);
 	
 	createVocabularyWithTerms("ELN_TYPES_METADATA", "The presence of this vocabulary indicates the ELN Plugin that the ELN master data script was executed.", [
-											["TYPES_VERSION", "Types Version S216", None]
+											["TYPES_VERSION", "Types Version S223", None]
 										]);
 	##
 	## Property Types for annotations
@@ -513,12 +513,14 @@ def initELNMasterData():
 	##
 	createDataSetTypeWithProperties("ELN_PREVIEW", "PHYSICAL", "ELN Preview image", [
 		["NAME", "General", "Name", DataType.VARCHAR, None,	"Name", None, None],
+		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
 		["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName, None]
 	]);
 	
 	createDataSetTypeWithProperties("SEQ_FILE", "PHYSICAL", "", [
 		["NAME", "General", "Name", DataType.VARCHAR, None,	"Name", None, None],
+		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
 		["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName, None]
 		
@@ -526,18 +528,21 @@ def initELNMasterData():
 	
 	createDataSetTypeWithProperties("RAW_DATA", "PHYSICAL", "", [
 		["NAME", "General", "Name", DataType.VARCHAR, None,	"Name", None, None],
+		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
 		["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName, None]
 	]);
 	
 	createDataSetTypeWithProperties("ANALYZED_DATA", "PHYSICAL", "", [
 		["NAME", "General", "Name", DataType.VARCHAR, None,	"Name", None, None],
+		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
 		["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName, None]
 	]);
 	
 	createDataSetTypeWithProperties("DRAWING_BOARD", "PHYSICAL", "", [
 		["NAME", "General", "Name", DataType.VARCHAR, None,	"Name", None, None],
+		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
 		["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName, None]
 	]);
@@ -552,6 +557,7 @@ def initELNMasterData():
 	
 	createExperimentTypeWithProperties("DEFAULT_EXPERIMENT", "Default Experiment", [
 		["NAME", 				"General", "Name", 					DataType.VARCHAR, 			None,	"Name", None, None],
+		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["EXPERIMENTAL_GOALS", 	"General", "Experimental goals", 	DataType.MULTILINE_VARCHAR, None,	"Goal of the experiment", None, None],
 		["GRANT", 				"General", "Grant", 				DataType.VARCHAR,			None,	"grant name", None, None],
 		["START_DATE", 			"General", "Start Date", 			DataType.TIMESTAMP, 		None,	"Start Date", None, None],
@@ -567,6 +573,7 @@ def initELNMasterData():
 	annotationsScriptName = createAnnotationsScriptForType("ANTIBODY");
 	createSampleTypeWithProperties("ANTIBODY", "", [
 		["NAME", 				"General", 				"Name", 				DataType.VARCHAR,				None,		"Name", None, None],
+		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["HOST", 				"General", 				"Host", 				DataType.CONTROLLEDVOCABULARY,	"HOST", 	"Host used to produce the antibody", None, None],
 		["FOR_WHAT", 			"General", 				"For what", 			DataType.MULTILINE_VARCHAR,		None, 		"For what kind of experimental application/readout this sample is used in the lab", None, None],
 		["DETECTION", 			"General", 				"Detection",			DataType.CONTROLLEDVOCABULARY,	"DETECTION","Protein detection system (fill in this information only for secondary antibodies)", None, None],
@@ -586,6 +593,7 @@ def initELNMasterData():
 	annotationsScriptName = createAnnotationsScriptForType("CHEMICAL");
 	createSampleTypeWithProperties("CHEMICAL", "", [
 		["NAME", 				"General", 				"Name", 				DataType.MULTILINE_VARCHAR,		None,		"Name", None, None],
+		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["SUPPLIER", 			"Supplier and storage", "Supplier", 			DataType.MULTILINE_VARCHAR,		None,		"Supplier of the product", None, None],
 		["ARTICLE_NUMBER", 		"Supplier and storage", "Art. Number",			DataType.MULTILINE_VARCHAR,		None,		"Article number of the product", None, None],
 		["STORAGE", 			"Supplier and storage", "Storage", 				DataType.CONTROLLEDVOCABULARY,	"STORAGE",	"Storage conditions of the product", None, None],
@@ -596,6 +604,7 @@ def initELNMasterData():
 	annotationsScriptName = createAnnotationsScriptForType("ENZYME");
 	createSampleTypeWithProperties("ENZYME", "", [
 		["NAME", 				"General",				"Name",					DataType.MULTILINE_VARCHAR,		None,		"Name", None, None],
+		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["SUPPLIER", 			"Supplier and storage",	"Supplier",				DataType.MULTILINE_VARCHAR,		None,		"Supplier of the product", None, None],
 		["ARTICLE_NUMBER", 		"Supplier and storage",	"Art. Number",			DataType.MULTILINE_VARCHAR,		None,		"Article number of the product", None, None],
 		["KIT", 				"Supplier and storage",	"Kit including",		DataType.MULTILINE_VARCHAR,		None,		"What the company includes with the enzyme", None, None],
@@ -607,6 +616,7 @@ def initELNMasterData():
 	annotationsScriptName = createAnnotationsScriptForType("MEDIA");
 	createSampleTypeWithProperties("MEDIA", "", [
 		["NAME", 				"General",				"Name",					DataType.MULTILINE_VARCHAR,		None,			"Name", None, None],
+		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["FOR_WHAT", 			"General",				"For what",				DataType.MULTILINE_VARCHAR,		None,			"For what kind of experimental application/readout this sample is used in the lab", None, None],
 		["ORGANISM", 			"General",				"Organism",				DataType.CONTROLLEDVOCABULARY,	"ORGANISM",		"For what organism this medium is used", None, None],
 		["STORAGE", 			"Storage",				"Storage",				DataType.CONTROLLEDVOCABULARY,	"STORAGE",		"Storage conditions of the product", None, None],
@@ -621,6 +631,7 @@ def initELNMasterData():
 	annotationsScriptName = createAnnotationsScriptForType("SOLUTION_BUFFER");
 	createSampleTypeWithProperties("SOLUTION_BUFFER", "", [
 		["NAME", 				"General",				"Name",					DataType.MULTILINE_VARCHAR,		None,			"Name", None, None],
+		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["FOR_WHAT", 			"General",				"For what",				DataType.MULTILINE_VARCHAR,		None,			"For what kind of experimental application/readout this sample is used in the lab", None, None],
 		["DETAILS", 			"Recipe",				"Details",				DataType.MULTILINE_VARCHAR,		None,			"Details and tips about how to prepare the solution/buffer", None, None],
 		["STORAGE", 			"Storage",				"Storage",				DataType.CONTROLLEDVOCABULARY,	"STORAGE",		"Storage conditions of the product", None, None],
@@ -635,6 +646,7 @@ def initELNMasterData():
 	annotationsScriptName = createAnnotationsScriptForType("OLIGO");
 	createSampleTypeWithProperties("OLIGO", "", [
 	  ["NAME", 				"General",				"Name",			DataType.VARCHAR,				None,				"Target of the oligonucleotide", None, None],
+		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["DIRECTION", 				"Details",			"Direction",				DataType.CONTROLLEDVOCABULARY, "DIRECTION",			"Direction of the oligonucleotide", None, None],
 		["RESTRICTION_ENZYME", 		"Details",			"Restriction Enzyme",		DataType.MULTILINE_VARCHAR,		None,				"Restriction sites in the oligonucleotide", None, None],
 		["MODIFICATIONS", 			"Details",			"Modifications",			DataType.MULTILINE_VARCHAR,		None,				"Modifications of the ordered oligonucleotide", None, None],
@@ -646,6 +658,7 @@ def initELNMasterData():
 	annotationsScriptName = createAnnotationsScriptForType("RNA");
 	createSampleTypeWithProperties("RNA", "", [
 		["NAME", 				"General",				"Name of RNA",			DataType.VARCHAR,				None,				"Name of the RNA: species/number/strand", None, None],
+		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["TARGET", 					"General",				"Target of the RNA",	DataType.VARCHAR,				None,				"Target of the oligonucleotide", None, None],
 		["TYPE", 					"General",				"Type of RNA",			DataType.CONTROLLEDVOCABULARY,	"RNA_TYPE",			"Type of RNA in terms of function: mimic of RNAi or inhibitor of RNAi", None, None],
 		["STRAND", 					"Details",				"Strand",				DataType.CONTROLLEDVOCABULARY,	"STRAND",			"Double or single strand RNA", None, None],
@@ -663,6 +676,7 @@ def initELNMasterData():
 	annotationsScriptName = createAnnotationsScriptForType("PLASMID");
 	createSampleTypeWithProperties("PLASMID", "", [
 		["NAME", 					"General",				"Plasmid",							DataType.VARCHAR,				None,								"Plasmid name", None, None],
+		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["OWNER", 							"General",				"Owner",							DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None, None],
 		["OWNER_NUMBER", 					"General",				"Owner number",						DataType.MULTILINE_VARCHAR,		None,								"Owner number", None, None],
 		["BACKBONE", 						"Details",				"Backbone",							DataType.CONTROLLEDVOCABULARY,	"BACKBONE",							"Backbone of the plasmid", None, None],
@@ -681,6 +695,7 @@ def initELNMasterData():
 	annotationsScriptName = createAnnotationsScriptForType("BACTERIA");
 	createSampleTypeWithProperties("BACTERIA", "", [
 		["NAME", 			"General",				"Bacteria strain name",				DataType.VARCHAR,				None,								"Bacterial strain name", None, None],
+		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["OWNER", 							"General",				"Owner",							DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None, None],
 		["OWNER_NUMBER", 					"General",				"Owner number",						DataType.MULTILINE_VARCHAR,		None,								"Owner number", None, None],
 		["GENETIC_MODIFICATION", 			"Genotype",				"Genetic modifications",			DataType.MULTILINE_VARCHAR,		None,								"Genetic modifications composed by the Plasmid ancestors", None, genotypeSampleScriptName],
@@ -698,6 +713,7 @@ def initELNMasterData():
 	annotationsScriptName = createAnnotationsScriptForType("YEAST");
 	createSampleTypeWithProperties("YEAST", "", [
 		["NAME", 							"General",				"Yeast strain name",					DataType.MULTILINE_VARCHAR,		None,								"Yeast strain name", None, None],
+		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None, None],
 		["OWNER_NUMBER", 					"General",				"Owner number",							DataType.MULTILINE_VARCHAR,		None,								"Owner number", None, None],
 		["GENETIC_MODIFICATION", 			"Genotype",				"Genetic modifications",				DataType.MULTILINE_VARCHAR,		None,								"Genetic modifications composed by the Plasmid ancestors", None, genotypeSampleScriptName],
@@ -718,6 +734,7 @@ def initELNMasterData():
 	annotationsScriptName = createAnnotationsScriptForType("CELL_LINE");
 	createSampleTypeWithProperties("CELL_LINE", "", [
 		["NAME", 					"General",				"Cell line name",						DataType.VARCHAR,				None,								"Name of the cell line", None, None],
+		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None, None],
 		["OWNER_NUMBER", 					"General",				"Owner number",							DataType.MULTILINE_VARCHAR,		None,								"Owner number", None, None],
 		["GENETIC_MODIFICATION", 			"Genotype",				"Genetic modifications",				DataType.MULTILINE_VARCHAR,		None,								"Genetic modifications composed by the Plasmid ancestors", None, genotypeSampleScriptName],
@@ -744,6 +761,7 @@ def initELNMasterData():
 	annotationsScriptName = createAnnotationsScriptForType("FLY");
 	createSampleTypeWithProperties("FLY", "", [
 		["NAME", 				"General",				"Fly strain name",						DataType.VARCHAR,				None,								"Fly strain name", None, None],
+		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None, None],
 		["OWNER_NUMBER", 					"General",				"Owner number",							DataType.MULTILINE_VARCHAR,		None,								"Owner number", None, None],
 		["GENETIC_MODIFICATION", 			"Genotype",				"Genetic modifications",				DataType.MULTILINE_VARCHAR,		None,								"Genetic modifications composed by the Plasmid ancestors", None, genotypeSampleScriptName],
@@ -790,6 +808,7 @@ def initELNMasterData():
 	annotationsScriptName = createAnnotationsScriptForType("EXPERIMENTAL_STEP");
 	createSampleTypeWithProperties("EXPERIMENTAL_STEP", "", [
 		["NAME", 							"General",				"Name",									DataType.MULTILINE_VARCHAR,		None,								"Name", None, None],
+		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None, None],
 		["EXPERIMENTAL_GOALS", 				"General",				"Experimental Goals",					DataType.MULTILINE_VARCHAR,		None,								"Goal of the experiment", None, None],
 		["EXPERIMENTAL_RESULTS", 			"General",				"Experimental Results",					DataType.MULTILINE_VARCHAR,		None,								"Brief summary of the results obtained", None, None],
@@ -807,6 +826,7 @@ def initELNMasterData():
 	annotationsScriptName = createAnnotationsScriptForType("GENERAL_PROTOCOL");
 	createSampleTypeWithProperties("GENERAL_PROTOCOL", "", [
 		["NAME", 					"General",			"Name",						DataType.MULTILINE_VARCHAR,		None,				"Name", None, None],
+		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["FOR_WHAT", 				"General",			"For what",					DataType.MULTILINE_VARCHAR,		None,				"For what kind of experimental application/readout this sample is used in the lab", None, None],
 		["PROTOCOL_TYPE", 			"General",			"Protocol type",			DataType.CONTROLLEDVOCABULARY,	"PROTOCOL_TYPE",	"Category a protocol belongs", None, None],
 		["MATERIALS", 				"Materials",		"Materials",				DataType.MULTILINE_VARCHAR,		None,				"Machines (and relative set up), special labware required for the protocol.", None, None],
@@ -823,6 +843,7 @@ def initELNMasterData():
 	annotationsScriptName = createAnnotationsScriptForType("PCR_PROTOCOL");
 	createSampleTypeWithProperties("PCR_PROTOCOL", "", [
 		["NAME", 					"General",			"Name",						DataType.MULTILINE_VARCHAR,		None,				"Name", None, None],
+		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["FOR_WHAT", 				"General",			"For what",					DataType.MULTILINE_VARCHAR,		None,				"For what kind of experimental application/readout this sample is used in the lab", None, None],
 		["TEMPLATE", 				"General",			"Template",					DataType.CONTROLLEDVOCABULARY,	"TEMPLATE",			"Type of template used in the PCR protocol", None, None],
 		["REACTION_MIX", 			"Materials",		"Reaction mix",				DataType.MULTILINE_VARCHAR,		None,				"Reaction mix recipe for the PCR", None, None],
@@ -838,6 +859,7 @@ def initELNMasterData():
 	annotationsScriptName = createAnnotationsScriptForType("WESTERN_BLOTTING_PROTOCOL");
 	createSampleTypeWithProperties("WESTERN_BLOTTING_PROTOCOL", "", [
 		["NAME", 					"General",			"Name",						DataType.MULTILINE_VARCHAR,		None,				"Name", None, None],
+		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["FOR_WHAT", 				"General",			"For what",					DataType.MULTILINE_VARCHAR,		None,				"For what kind of experimental application/readout this sample is used in the lab", None, None],
 		["STORAGE", 				"General", 			"Storage",					DataType.CONTROLLEDVOCABULARY,	"STORAGE",			"Storage conditions of the product", None, None],
 		["MEMBRANE", 				"Materials", 		"Membrane",					DataType.CONTROLLEDVOCABULARY,	"MEMBRANE",			"Membrane used for western blotting", None, None],
@@ -850,6 +872,7 @@ def initELNMasterData():
 	annotationsScriptName = createAnnotationsScriptForType("DRAWING_BOARD");
 	createSampleTypeWithProperties("DRAWING_BOARD", "", [
 		["NAME", 					"General",			"Name",						DataType.MULTILINE_VARCHAR,		None,				"Name", None, None],
+		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users", commentsSampleScriptName, None],
 		["ANNOTATIONS_STATE",		"Comments",			"Annotations State",		DataType.XML,					None,				"Annotations State", annotationsScriptName, None]
 	]);
