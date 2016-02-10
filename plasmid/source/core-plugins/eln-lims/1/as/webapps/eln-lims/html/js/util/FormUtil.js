@@ -637,7 +637,9 @@ var FormUtil = new function() {
 	
 	this.fixStringPropertiesForForm = function(propertyType, entity) {
 		var originalValue = entity.properties[propertyType.code];
-		entity.properties[propertyType.code] = this.sanitizeRichHTMLText(originalValue);
+		if (propertyType.dataType !== "XML") {
+			entity.properties[propertyType.code] = this.sanitizeRichHTMLText(originalValue);
+		}
 	}
 	
 	this.sanitizeRichHTMLText = function(originalValue) {
