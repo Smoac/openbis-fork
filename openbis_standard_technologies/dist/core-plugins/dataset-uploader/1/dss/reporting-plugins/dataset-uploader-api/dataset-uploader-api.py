@@ -15,9 +15,9 @@
 #
 
 # IDataSetRegistrationTransactionV2 Class
-from ch.systemsx.cisd.openbis.dss.client.api.v1 import DssComponentFactory
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause, SearchOperator, MatchClauseAttribute
+from ch.systemsx.cisd.openbis.dss.generic.shared import ServiceProvider
 
 from org.apache.commons.io import IOUtils
 from java.io import File
@@ -122,13 +122,14 @@ def insertDataSet(tr, parameters, tableBuilder):
 	tempDirFile.mkdirs();
 	
 	#tempDir = System.getProperty("java.io.tmpdir");
-	dss_component = DssComponentFactory.tryCreate(parameters.get("sessionID"), parameters.get("openBISURL"));
-	
+	session_token = parameters.get("sessionID");
+	dss_service = ServiceProvider.getDssServiceRpcGeneric().getService();
+
 	for fileName in fileNames:
 		folderFile = File(tempDir + "/" + folderName);
 		folderFile.mkdir();
 		temFile = File(tempDir + "/" + folderName + "/" + fileName);
-		inputStream = dss_component.getFileFromSessionWorkspace(fileName);
+		inputStream = dss_service.getFileFromSessionWorkspace(session_token, fileName);
 		outputStream = FileOutputStream(temFile);
 		IOUtils.copyLarge(inputStream, outputStream);
 		IOUtils.closeQuietly(inputStream);
@@ -151,7 +152,7 @@ def insertDataSet(tr, parameters, tableBuilder):
 	
 	#Clean Files from workspace
 	for fileName in fileNames:
-		dss_component.deleteSessionWorkspaceFile(fileName);
+		dss_service.deleteSessionWorkspaceFile(session_token, fileName);
 	
 	#Return from the call
 	return True;
