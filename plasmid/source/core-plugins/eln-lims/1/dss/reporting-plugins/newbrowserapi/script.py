@@ -680,6 +680,7 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	
 	# Attributes
 	samplePermId = fechOptions.get("samplePermId");
+	withExperimentWithProjectPermId = fechOptions.get("withExperimentWithProjectPermId");
 	sampleIdentifier = fechOptions.get("sampleIdentifier");
 	sampleCode = fechOptions.get("sampleCode");
 	sampleTypeCode = fechOptions.get("sampleTypeCode");
@@ -715,6 +716,8 @@ def searchSamples(tr, parameters, tableBuilder, sessionId):
 	#Attributes
 	if samplePermId is not None:
 		criterion.withPermId().thatEquals(samplePermId);
+	if withExperimentWithProjectPermId is not None:
+		criterion.withExperiment().withProject().withPermId().thatEquals(withExperimentWithProjectPermId);
 	if sampleIdentifier is not None:
 		criterion.withId().thatEquals(SampleIdentifier(sampleIdentifier));
 	if sampleCode is not None:

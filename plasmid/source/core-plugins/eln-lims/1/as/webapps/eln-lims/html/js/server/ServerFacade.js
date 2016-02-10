@@ -664,7 +664,7 @@ function ServerFacade(openbisServer) {
 				var json = result.result.rows[0][2].value;
 				var jsonParsed = JSON.parse(json);
 				require(["util/Json"], function(Json){
-					Json.fromJson(jsonParsed).done(function(data) {
+					Json.fromJson("SearchResult", jsonParsed).done(function(data) {
 						var v3Samples = data.objects;
 						var samplesAsV1 = localReference.getV3SamplesAsV1(v3Samples);
 						callbackFunction(samplesAsV1);
@@ -685,6 +685,7 @@ function ServerFacade(openbisServer) {
 		
 		//Attributes
 		var samplePermId = fechOptions["samplePermId"];
+		var withExperimentWithProjectPermId = fechOptions["withExperimentWithProjectPermId"];
 		var sampleIdentifier = fechOptions["sampleIdentifier"];
 		var sampleCode = fechOptions["sampleCode"];
 		var sampleTypeCode = fechOptions["sampleTypeCode"];
@@ -704,7 +705,6 @@ function ServerFacade(openbisServer) {
 		var withChildren = fechOptions["withChildren"];
 		var withAncestors = fechOptions["withAncestors"];
 		var withDescendants = fechOptions["withDescendants"];
-		var withExperimentWithProjectPermId = fechOptions["withExperimentWithProjectPermId"];
 		
 		var matchClauses = [];
 		
