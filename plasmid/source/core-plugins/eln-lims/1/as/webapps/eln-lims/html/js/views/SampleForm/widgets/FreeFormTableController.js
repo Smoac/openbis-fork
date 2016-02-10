@@ -31,7 +31,6 @@ function FreeFormTableController(sample, isEnabled) {
 	}
 	
 	this.load = function() {
-		$("#" + this._freeFormTableModel.samplePropertyCode).parent().parent().hide(); //Hide State Field
 		var state = sample.properties[this._freeFormTableModel.samplePropertyCode];
 		if(state && state !== "") {
 			this._freeFormTableModel.tables = JSON.parse(state);

@@ -422,7 +422,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			
 			
 			
-			if(propertyType.code === "ANNOTATIONS_STATE") {
+			if(propertyType.code === "ANNOTATIONS_STATE" || propertyType.code === "FREEFORM_TABLE_STATE") {
 				continue;
 			} else if(propertyType.code === "XMLCOMMENTS") {
 				var $commentsContainer = $("<div>");
