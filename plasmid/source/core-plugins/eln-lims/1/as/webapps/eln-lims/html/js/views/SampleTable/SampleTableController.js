@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-function SampleTableController(parentController, title, experimentIdentifier) {
+function SampleTableController(parentController, title, experimentIdentifier, projectPermId, showInProjectOverview) {
 	this._parentController = parentController;
-	this._sampleTableModel = new SampleTableModel(title, experimentIdentifier);
+	this._sampleTableModel = new SampleTableModel(title, experimentIdentifier, projectPermId, showInProjectOverview);
 	this._sampleTableView = new SampleTableView(this, this._sampleTableModel);
 	
 	this.init = function($container) {
@@ -28,7 +28,7 @@ function SampleTableController(parentController, title, experimentIdentifier) {
 			Util.unblockUI();
 		};
 		
-		if(this._sampleTableModel.experimentIdentifier) {
+		if(this._sampleTableModel.experimentIdentifier || projectPermId) {
 			this._loadExperimentData(callback);
 		} else {
 			callback();
@@ -37,7 +37,13 @@ function SampleTableController(parentController, title, experimentIdentifier) {
 	
 	this._loadExperimentData = function(callback) {
 		var _this = this;
-		mainController.serverFacade.searchWithExperiment(this._sampleTableModel.experimentIdentifier, function(experimentSamples) {
+		
+		var properyKeyValueList = null;
+		if (this._sampleTableModel.showInProjectOverview) {
+			properyKeyValueList = [{ "SHOW_IN_PROJECT_OVERVIEW" : "\"true\"" }];
+		}
+		
+		mainController.serverFacade.searchWithExperiment(this._sampleTableModel.experimentIdentifier, this._sampleTableModel.projectPermId, properyKeyValueList, function(experimentSamples) {
 			_this._sampleTableModel.allSamples = experimentSamples;
 			for(var i = 0; i < experimentSamples.length; i++) {
 				if(_this._sampleTableModel.sampleTypes[experimentSamples[i].sampleTypeCode]) {

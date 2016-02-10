@@ -704,6 +704,7 @@ function ServerFacade(openbisServer) {
 		var withChildren = fechOptions["withChildren"];
 		var withAncestors = fechOptions["withAncestors"];
 		var withDescendants = fechOptions["withDescendants"];
+		var withExperimentWithProjectPermId = fechOptions["withExperimentWithProjectPermId"];
 		
 		var matchClauses = [];
 		
@@ -811,6 +812,23 @@ function ServerFacade(openbisServer) {
 		
 		//Sub Queries
 		var subCriterias = [];
+		
+		if(withExperimentWithProjectPermId) {
+			subCriterias.push({
+				"@type" : "SearchSubCriteria",
+				"targetEntityKind" : "EXPERIMENT",	
+				"criteria" : {
+					matchClauses : [{
+							"@type":"AttributeMatchClause",
+							fieldType : "ATTRIBUTE",			
+							attribute : "PROJECT_PERM_ID",
+							desiredValue : withExperimentWithProjectPermId
+					}],
+					operator : "MATCH_ALL_CLAUSES"
+				}
+			});
+		}
+		
 		if(sampleExperimentIdentifier) {
 			var sampleExperimentIdentifierParts = sampleExperimentIdentifier.split("/");
 			subCriterias.push({
@@ -929,12 +947,14 @@ function ServerFacade(openbisServer) {
 		}, callbackFunction);
 	}
 	
-	this.searchWithExperiment = function(experimentIdentifier, callbackFunction)
+	this.searchWithExperiment = function(experimentIdentifier, projectPermId, properyKeyValueList, callbackFunction)
 	{	
 		this.searchSamples({
 			"sampleExperimentIdentifier" : experimentIdentifier,
+			"withExperimentWithProjectPermId" : projectPermId,
 			"withProperties" : true,
-			"withParents" : true
+			"withParents" : true,
+			"properyKeyValueList" : properyKeyValueList
 		}, callbackFunction);
 	}
 	

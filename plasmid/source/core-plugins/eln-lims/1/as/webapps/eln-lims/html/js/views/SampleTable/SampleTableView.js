@@ -64,7 +64,9 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		$toolbox.append("Sample Type: ");
 		
 		if(this._sampleTableModel.experimentIdentifier) {
-			$toolbox.append(this._getExperimentSampleTypesDropdown()).append(" ").append(this._getOptionsMenu());
+			$toolbox.append(this._getLoadedSampleTypesDropdown()).append(" ").append(this._getOptionsMenu());
+		} else if(this._sampleTableModel.projectPermId) {
+			$toolbox.append(this._getLoadedSampleTypesDropdown());
 		} else {
 			$toolbox.append(this._getAllSampleTypesDropdown());
 		}
@@ -116,7 +118,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		return $dropDownMenu;
 	}
 	
-	this._getExperimentSampleTypesDropdown = function() {
+	this._getLoadedSampleTypesDropdown = function() {
 		var _this = this;
 		var	$sampleTypesSelector = $('<select>', { 'id' : 'sampleTypeCodesToShow', class : 'form-control' });
 		$sampleTypesSelector.append($('<option>', { 'value' : '' }).text(''));

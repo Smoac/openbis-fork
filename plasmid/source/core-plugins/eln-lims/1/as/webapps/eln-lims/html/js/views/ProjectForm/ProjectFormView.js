@@ -158,6 +158,12 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		var experimentTableController = new ExperimentTableController(this._projectFormController, "Experiments", this._projectFormModel.project);
 		experimentTableController.init($experimentsContainer);
 		
+		var $samplesContainer = $("<div>");
+		$formColumn.append($samplesContainer);
+		
+		var sampleTableController = new SampleTableController(this._projectFormController, "Samples", null, this._projectFormModel.project.permId, true);
+		sampleTableController.init($samplesContainer);
+		
 		$container.append($form);
 		FormUtil.activateRichTextProperties();
 	}
