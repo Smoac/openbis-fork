@@ -93,7 +93,7 @@ function SampleFormController(mainController, mode, sample) {
 				Util.showError(data.error.message);
 			} else {
 				Util.showSuccess("Sample Deleted");
-				if(_this._sampleFormModel.isELNSubExperiment) {
+				if(_this._sampleFormModel.isELNSample) {
 					mainController.sideMenu.deleteUniqueIdAndMoveToParent(_this._sampleFormModel.sample.identifier);
 				} else {
 					mainController.changeView('showSamplesPage', ":" + _this._sampleFormModel.sample.experimentIdentifierOrNull);
@@ -306,7 +306,7 @@ function SampleFormController(mainController, mode, sample) {
 			}
 			
 			var callbackOk = function() {
-				if((isCopyWithNewCode || _this._sampleFormModel.mode === FormMode.CREATE || _this._sampleFormModel.mode === FormMode.EDIT) && _this._sampleFormModel.isELNSubExperiment) {
+				if((isCopyWithNewCode || _this._sampleFormModel.mode === FormMode.CREATE || _this._sampleFormModel.mode === FormMode.EDIT) && _this._sampleFormModel.isELNSample) {
 					mainController.sideMenu.refreshSubExperiment(_this._sampleFormModel.sample.experimentIdentifierOrNull);
 				}
 				
