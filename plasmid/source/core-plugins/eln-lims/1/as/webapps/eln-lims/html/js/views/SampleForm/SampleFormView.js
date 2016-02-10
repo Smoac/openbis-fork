@@ -420,7 +420,11 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				continue;
 			}
 			
-			if(propertyType.code === "XMLCOMMENTS") {
+			
+			
+			if(propertyType.code === "ANNOTATIONS_STATE") {
+				continue;
+			} else if(propertyType.code === "XMLCOMMENTS") {
 				var $commentsContainer = $("<div>");
 				$fieldset.append($commentsContainer);
 				var isAvailable = this._sampleFormController._addCommentsWidget($commentsContainer);

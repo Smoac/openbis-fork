@@ -68,13 +68,8 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 				Util.showError("You need a property with code ANNOTATIONS_STATE on this entity to store the state of the annotations.");
 			}
 		} else {
-			//Hide State Field
-			var fieldset = $("#ANNOTATIONS_STATE").parent().parent().parent();
-			fieldset.hide();
-			
 			//Update Values
-			var stateField = mainController.currentView._sampleFormModel.sample.properties["ANNOTATIONS_STATE"];
-			this.stateObj = FormUtil.getAnnotationsFromField(stateField);
+			this.stateObj = FormUtil.getAnnotationsFromSample(mainController.currentView._sampleFormModel.sample);
 		}
 	}
 	

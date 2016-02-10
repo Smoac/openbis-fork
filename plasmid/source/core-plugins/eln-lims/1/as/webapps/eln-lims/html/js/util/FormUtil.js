@@ -41,7 +41,13 @@ var FormUtil = new function() {
 	}
 	
 	this.getAnnotationsFromSample = function(sample) {
-		return this.getAnnotationsFromField(sample.properties["ANNOTATIONS_STATE"]);
+		var field = sample.properties["ANNOTATIONS_STATE"];
+		var stateFieldValue = Util.getEmptyIfNull(field);
+		if(stateFieldValue === "") {
+			stateFieldValue = undefined;
+			sample.properties["ANNOTATIONS_STATE"] = undefined;
+		}
+		return this.getAnnotationsFromField(stateFieldValue);
 	}
 	
 	this.getAnnotationsFromField = function(field) {
