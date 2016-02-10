@@ -54,6 +54,7 @@ _openbisInternal.prototype.ajaxRequest = function(settings) {
 	settings.type = "POST";
 	settings.processData = false;
 	settings.dataType = "json";
+	settings.jsonp = false;
 	settings.data = this.jsonRequestData(settings.data);
 	settings.success = this.ajaxRequestSuccess(settings.success);
 	// we call the same settings.success function for backward compatibility
