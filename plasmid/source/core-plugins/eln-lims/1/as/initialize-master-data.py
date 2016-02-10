@@ -513,14 +513,12 @@ def initELNMasterData():
 	##
 	createDataSetTypeWithProperties("ELN_PREVIEW", "PHYSICAL", "ELN Preview image", [
 		["NAME", "General", "Name", DataType.VARCHAR, None,	"Name", None, None],
-		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
 		["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName, None]
 	]);
 	
 	createDataSetTypeWithProperties("SEQ_FILE", "PHYSICAL", "", [
 		["NAME", "General", "Name", DataType.VARCHAR, None,	"Name", None, None],
-		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
 		["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName, None]
 		
@@ -528,21 +526,18 @@ def initELNMasterData():
 	
 	createDataSetTypeWithProperties("RAW_DATA", "PHYSICAL", "", [
 		["NAME", "General", "Name", DataType.VARCHAR, None,	"Name", None, None],
-		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
 		["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName, None]
 	]);
 	
 	createDataSetTypeWithProperties("ANALYZED_DATA", "PHYSICAL", "", [
 		["NAME", "General", "Name", DataType.VARCHAR, None,	"Name", None, None],
-		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
 		["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName, None]
 	]);
 	
 	createDataSetTypeWithProperties("DRAWING_BOARD", "PHYSICAL", "", [
 		["NAME", "General", "Name", DataType.VARCHAR, None,	"Name", None, None],
-		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
 		["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
 		["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName, None]
 	]);
