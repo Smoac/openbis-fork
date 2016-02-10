@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2016 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search;
 
-import java.util.List;
-
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractSearchCriteria;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * @author pkupczyk
+ * @author Jakub Straszewski
  */
-public interface ISearchObjectExecutor<CRITERIA extends AbstractSearchCriteria, OBJECT>
+@JsonObject("as.dto.global.search.GlobalSearchObjectKind")
+public enum GlobalSearchObjectKind
 {
-
-    public List<OBJECT> search(IOperationContext context, CRITERIA criteria);
-
+    EXPERIMENT, SAMPLE, DATA_SET, MATERIAL
 }

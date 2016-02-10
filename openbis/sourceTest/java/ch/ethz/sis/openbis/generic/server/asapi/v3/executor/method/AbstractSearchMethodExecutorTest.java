@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.CacheMode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractObjectSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
@@ -39,7 +39,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.cache.SearchCacheEntry;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.cache.SearchCacheKey;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.ISearchObjectExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.AbstractSearchMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
@@ -278,7 +277,7 @@ public class AbstractSearchMethodExecutorTest
         }
 
         @Override
-        protected Collection doSearchAndTranslate(IOperationContext context, AbstractObjectSearchCriteria criteria, 
+        protected Collection doSearchAndTranslate(IOperationContext context, AbstractSearchCriteria criteria, 
                 FetchOptions fetchOptions)
         {
             return Collections.emptySet();

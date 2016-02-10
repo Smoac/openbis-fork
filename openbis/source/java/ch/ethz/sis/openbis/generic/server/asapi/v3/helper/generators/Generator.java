@@ -8,6 +8,7 @@ import java.util.List;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EmptyFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IParentChildrenHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ArchivingStatus;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.Complete;
@@ -41,8 +42,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifi
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.fetchoptions.ExternalDmsFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchObjectKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.fetchoptions.HistoryEntryFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
@@ -577,26 +581,27 @@ public class Generator extends AbstractGenerator
         return gen;
     }
 
-    // private static DtoGenerator createGlobalSearchObject()
-    // {
-    // DtoGenerator gen = new DtoGenerator("global", "GlobalSearchObject", GlobalSearchObjectFetchOptions.class);
-    //
-    // gen.addSimpleField(GlobalSearchObjectKind.class, "objectKind");
-    // gen.addSimpleField(EntityTypePermId.class, "entityTypeId");
-    // gen.addSimpleField(IObjectId.class, "objectId");
-    // gen.addStringField("registratorEmail");
-    // gen.addStringField("matchingField");
-    // gen.addStringField("matchingText");
-    //
-    // gen.addFetchedField(DataSet.class, "dataSet", "Data Set", DataSetFetchOptions.class);
-    // gen.addFetchedField(Sample.class, "sample", "Sample", SampleFetchOptions.class);
-    // gen.addFetchedField(Material.class, "material", "Material", MaterialFetchOptions.class);
-    // gen.addFetchedField(Project.class, "project", "Project", ProjectFetchOptions.class);
-    // gen.addFetchedField(Experiment.class, "experiment", "Experiment", ExperimentFetchOptions.class);
-    // gen.addFetchedField(Space.class, "space", "Space", SpaceFetchOptions.class);
-    //
-    // return gen;
-    // }
+    private static DtoGenerator createGlobalSearchObject()
+    {
+        DtoGenerator gen = new DtoGenerator("global", "GlobalSearchObject", GlobalSearchObjectFetchOptions.class);
+
+        gen.addSimpleField(GlobalSearchObjectKind.class, "objectKind");
+        gen.addSimpleField(IObjectId.class, "objectPermId");
+        gen.addSimpleField(IObjectId.class, "objectIdentifier");
+        gen.addStringField("match");
+        gen.addSimpleField(double.class, "score");
+
+        gen.addFetchedField(Experiment.class, "experiment", "Experiment", ExperimentFetchOptions.class);
+        gen.addFetchedField(Sample.class, "sample", "Sample", SampleFetchOptions.class);
+        gen.addFetchedField(DataSet.class, "dataSet", "Data Set", DataSetFetchOptions.class);
+        gen.addFetchedField(Material.class, "material", "Material", MaterialFetchOptions.class);
+        // gen.addFetchedField(Project.class, "project", "Project", ProjectFetchOptions.class);
+        // gen.addFetchedField(Space.class, "space", "Space", SpaceFetchOptions.class);
+
+        gen.setToStringMethod("\"GlobalSearchObject kind: \" + objectKind + \", permId: \" + objectPermId + \", identifier: \" + objectIdentifier");
+
+        return gen;
+    }
 
     public static void main(String[] args) throws FileNotFoundException
     {
@@ -627,7 +632,7 @@ public class Generator extends AbstractGenerator
         list.add(createExternalDmsGenerator());
         list.add(createCustomASServiceGenerator());
         list.add(createObjectKindModificationGenerator());
-        // list.add(createGlobalSearchObject());
+        list.add(createGlobalSearchObject());
 
         for (DtoGenerator gen : list)
         {

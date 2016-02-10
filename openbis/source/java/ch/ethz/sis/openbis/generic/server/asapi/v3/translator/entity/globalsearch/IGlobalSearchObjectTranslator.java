@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.globalsearch;
 
-import java.util.List;
-
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractSearchCriteria;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.GlobalSearchObject;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 
 /**
  * @author pkupczyk
  */
-public interface ISearchObjectExecutor<CRITERIA extends AbstractSearchCriteria, OBJECT>
+public interface IGlobalSearchObjectTranslator extends ITranslator<MatchingEntity, GlobalSearchObject, GlobalSearchObjectFetchOptions>
 {
-
-    public List<OBJECT> search(IOperationContext context, CRITERIA criteria);
 
 }

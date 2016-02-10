@@ -20,7 +20,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOptions;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.globalsearch.GlobalSearchObjectComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.tag.TagComparatorFactory;
 
 /**
@@ -34,25 +34,29 @@ public abstract class ComparatorFactory
 
     static
     {
+        factories.add(new GlobalSearchObjectComparatorFactory());
         factories.add(new TagComparatorFactory());
         factories.add(new EntityWithPropertiesComparatorFactory());
         factories.add(new EntityComparatorFactory());
     }
 
-    public abstract boolean accepts(SortOptions<?> sortOptions);
+    public abstract boolean accepts(Class<?> sortOptionsClass);
 
     public abstract Comparator getComparator(String field);
 
-    public static ComparatorFactory getInstance(SortOptions<?> sortOptions)
+    public abstract Comparator getDefaultComparator();
+
+    public static ComparatorFactory getInstance(Class<?> sortOptionsClass)
     {
         for (ComparatorFactory factory : factories)
         {
-            if (factory.accepts(sortOptions))
+            if (factory.accepts(sortOptionsClass))
             {
                 return factory;
             }
         }
 
-        throw new IllegalArgumentException("Comparator factory for sort options " + sortOptions.getClass() + " not found");
+        return null;
     }
+
 }

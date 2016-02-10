@@ -18,7 +18,6 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.tag;
 
 import java.util.Comparator;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagSortOptions;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.CodeComparator;
@@ -32,9 +31,9 @@ public class TagComparatorFactory extends ComparatorFactory
 {
 
     @Override
-    public boolean accepts(SortOptions<?> sortOptions)
+    public boolean accepts(Class<?> sortOptionsClass)
     {
-        return sortOptions instanceof TagSortOptions;
+        return TagSortOptions.class.isAssignableFrom(sortOptionsClass);
     }
 
     @Override
@@ -50,6 +49,12 @@ public class TagComparatorFactory extends ComparatorFactory
         {
             return null;
         }
+    }
+
+    @Override
+    public Comparator<Tag> getDefaultComparator()
+    {
+        return new CodeComparator<Tag>();
     }
 
 }

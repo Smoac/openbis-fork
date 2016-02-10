@@ -442,7 +442,7 @@ public class AbstractTest extends SystemTestCase
             });
     }
 
-    private void assertNotFetched(final IDelegatedAction action)
+    protected void assertNotFetched(final IDelegatedAction action)
     {
         try
         {

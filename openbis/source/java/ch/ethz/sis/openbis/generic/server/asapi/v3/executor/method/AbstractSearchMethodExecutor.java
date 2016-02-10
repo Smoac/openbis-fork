@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.CacheMode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractObjectSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.cache.ISearchCache;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.cache.SearchCacheCleanupListener;
@@ -44,7 +44,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 /**
  * @author pkupczyk
  */
-public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERIA extends AbstractObjectSearchCriteria<?>, FETCH_OPTIONS extends FetchOptions<OBJECT>>
+public abstract class AbstractSearchMethodExecutor<OBJECT, OBJECT_PE, CRITERIA extends AbstractSearchCriteria, FETCH_OPTIONS extends FetchOptions<OBJECT>>
         extends AbstractMethodExecutor implements ISearchMethodExecutor<OBJECT, CRITERIA, FETCH_OPTIONS>
 {
 

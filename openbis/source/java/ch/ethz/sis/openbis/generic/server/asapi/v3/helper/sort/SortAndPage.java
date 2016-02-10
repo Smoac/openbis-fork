@@ -72,11 +72,10 @@ public class SortAndPage
             return objects;
         }
 
-        boolean hasSorting = fo.getSortBy() != null && false == fo.getSortBy().getSortings().isEmpty();
+        Comparator comparator = getComparator(fo);
 
-        if (hasSorting)
+        if (comparator != null)
         {
-            Comparator comparator = getComparator(fo);
             Collection sorted = null;
 
             if (objects instanceof List)
@@ -206,11 +205,22 @@ public class SortAndPage
         }
 
         SortOptions sortBy = (SortOptions) fetchOptions.getSortBy();
+        Class<?> sortByClass = null;
+
+        if (sortBy != null)
+        {
+            sortByClass = sortBy.getClass();
+        } else
+        {
+            FetchOptionsMethods foMethods = methodsCache.getFetchOptionsMethods(fetchOptions);
+            sortByClass = foMethods.getSortByClass();
+        }
 
         if (sortBy != null)
         {
             final List<Sorting> sortings = sortBy.getSortings();
-            if (sortings != null && sortings.size() > 0)
+
+            if (sortings != null && false == sortings.isEmpty())
             {
                 final Comparator[] comparators = new Comparator[sortings.size()];
                 final int[] directions = new int[sortings.size()];
@@ -220,7 +230,14 @@ public class SortAndPage
                 {
                     if (sorting.getField() != null)
                     {
-                        Comparator aComparator = ComparatorFactory.getInstance(sortBy).getComparator(sorting.getField());
+                        ComparatorFactory comparatorFactory = ComparatorFactory.getInstance(sortByClass);
+
+                        if (comparatorFactory == null)
+                        {
+                            throw new IllegalArgumentException("Comparator factory for sort by " + sortByClass + " not found");
+                        }
+
+                        Comparator aComparator = comparatorFactory.getComparator(sorting.getField());
 
                         if (aComparator == null)
                         {
@@ -254,7 +271,16 @@ public class SortAndPage
                     };
             }
         }
-        return null;
+
+        ComparatorFactory comparatorFactory = ComparatorFactory.getInstance(sortByClass);
+
+        if (comparatorFactory != null)
+        {
+            return comparatorFactory.getDefaultComparator();
+        } else
+        {
+            return null;
+        }
     }
 
     private class MethodsCache
@@ -299,6 +325,8 @@ public class SortAndPage
 
         private Map<String, Method> withMethods = new HashMap<String, Method>();
 
+        private Class<?> sortByClass;
+
         public FetchOptionsMethods(Class clazz)
         {
             try
@@ -315,12 +343,23 @@ public class SortAndPage
                         withMethods.put(fieldName, withMethod);
 
                         fieldNames.add(fieldName);
+                    } else if (method.getName().equals("sortBy"))
+                    {
+                        if (sortByClass == null || sortByClass.isAssignableFrom(method.getReturnType()))
+                        {
+                            sortByClass = method.getReturnType();
+                        }
                     }
                 }
             } catch (Exception e)
             {
                 throw new RuntimeException("Finding methods for fetch options class: " + clazz.getName() + " failed.", e);
             }
+        }
+
+        public Class<?> getSortByClass()
+        {
+            return sortByClass;
         }
 
         public Collection<String> getFieldNames()

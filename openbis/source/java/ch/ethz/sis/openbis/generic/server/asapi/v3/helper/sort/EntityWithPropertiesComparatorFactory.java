@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort;
 import java.util.Comparator;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EntityWithPropertiesSortOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
@@ -33,9 +32,9 @@ public class EntityWithPropertiesComparatorFactory<OBJECT extends ICodeHolder & 
 {
 
     @Override
-    public boolean accepts(SortOptions<?> sortOptions)
+    public boolean accepts(Class<?> sortOptionsClass)
     {
-        return sortOptions instanceof EntityWithPropertiesSortOptions;
+        return EntityWithPropertiesSortOptions.class.isAssignableFrom(sortOptionsClass);
     }
 
     @Override
