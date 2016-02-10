@@ -77,7 +77,6 @@ public class ExposablePropertyPlaceholderConfigurer extends PropertyPlaceholderC
             final ConfigurableListableBeanFactory beanFactoryToProcess, final Properties props)
             throws BeansException
     {
-        super.processProperties(beanFactoryToProcess, props);
         resolvedProps = new Properties();
         for (final Object key : props.keySet())
         {
@@ -85,6 +84,7 @@ public class ExposablePropertyPlaceholderConfigurer extends PropertyPlaceholderC
             resolvedProps.setProperty(keyStr, getResolvedProperty(props, keyStr));
         }
         injectPropertiesInto(resolvedProps);
+        super.processProperties(beanFactoryToProcess, resolvedProps);
     }
     
     protected void injectPropertiesInto(Properties properties)
