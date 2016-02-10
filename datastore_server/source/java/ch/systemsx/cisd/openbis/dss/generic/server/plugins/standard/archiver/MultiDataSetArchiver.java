@@ -34,6 +34,7 @@ import org.apache.commons.lang.time.DateUtils;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -62,6 +63,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataStoreServiceInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IUnarchivingPreparation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IncomingShareIdProvider;
@@ -544,16 +546,31 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     @Override
     protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> dataSets, ArchiverTaskContext context)
     {
+        DatasetProcessingStatuses result = new DatasetProcessingStatuses();
         List<String> dataSetCodes = translateToDataSetCodes(dataSets);
         Set<Long> containerIds = assertUnarchivingCapacityNotExceeded(dataSetCodes);
         assertNoAvailableDatasets(dataSetCodes);
         
         context.getUnarchivingPreparation().prepareForUnarchiving(dataSets);
 
+        IMultiDataSetFileOperationsManager operations = getFileOperations();
         for (Long containerId : containerIds)
         {
             MultiDataSetArchiverContainerDTO container = getReadonlyQuery().getContainerForId(containerId);
-            getFileOperations().restoreDataSetsFromContainerInFinalDestination(container.getPath(), dataSets);
+            Status status = operations.restoreDataSetsFromContainerInFinalDestination(container.getPath(), dataSets);
+            if (status.isError())
+            {
+                result.addResult(dataSets, status, Operation.UNARCHIVE);
+                return result;
+            }
+        }
+        
+        IHierarchicalContentProvider contentProvider = context.getHierarchicalContentProvider();
+        for (String dataSetCode : dataSetCodes)
+        {
+            IHierarchicalContent content = contentProvider.asContentWithoutModifyingAccessTimestamp(dataSetCode);
+            IHierarchicalContentNode rootNode = content.getRootNode();
+            assertFilesExists(dataSetCode, rootNode);
         }
 
         for (String dataSetCode : dataSetCodes)
@@ -561,9 +578,44 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             getService().notifyDatasetAccess(dataSetCode);
         }
 
-        DatasetProcessingStatuses result = new DatasetProcessingStatuses();
         result.addResult(dataSets, Status.OK, Operation.UNARCHIVE);
         return result;
+    }
+    
+    private void assertFilesExists(String dataSetCode, IHierarchicalContentNode node)
+    {
+        File file;
+        try
+        {
+            file = node.getFile();
+        } catch (UnsupportedOperationException ex)
+        {
+            throw createException(dataSetCode, node, ex);
+        }
+        if (file.exists() == false)
+        {
+            throw createException(dataSetCode, node, null);
+        }
+        if (node.isDirectory())
+        {
+            for (IHierarchicalContentNode child : node.getChildNodes())
+            {
+                assertFilesExists(dataSetCode, child);
+            }
+        }
+    }
+
+    private EnvironmentFailureException createException(String dataSetCode,
+            IHierarchicalContentNode node, Exception exOrNull)
+    {
+        String message = "Data set " + dataSetCode + ": File '" + node.getRelativePath() 
+                + "' does not exist.";
+        if (exOrNull != null)
+        {
+            return new EnvironmentFailureException(message + " (reason: " + exOrNull.getMessage() + ")", 
+                    exOrNull);
+        }
+        return new EnvironmentFailureException(message);
     }
 
     private void assertNoAvailableDatasets(List<String> dataSetCodes)

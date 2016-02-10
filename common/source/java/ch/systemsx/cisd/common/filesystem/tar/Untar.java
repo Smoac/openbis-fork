@@ -125,13 +125,14 @@ public class Untar implements Closeable
         }
     }
 
-    public File getEntryInLocation(TarArchiveEntry entry, final Map<String, File> locations)
+    private File getEntryInLocation(TarArchiveEntry entry, final Map<String, File> locations)
     {
         String[] parts = entry.getName().split("/", 2);
         String head = parts[0];
         String tail = parts[1];
 
-        return new File(locations.get(head), tail);
+        File parent = locations.get(head);
+        return parent == null ? null : new File(parent, tail);
     }
 
     private void extractEntry(TarArchiveEntry entry, final File entryFile, final List<TarArchiveEntry> dirEntries) throws FileNotFoundException,
