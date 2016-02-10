@@ -39,21 +39,26 @@ def getSampleByIdentifierForUpdate(tr, identifier):
 	criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, code));
 	criteria.setOperator(SearchOperator.MATCH_ALL_CLAUSES);
 	
-   	searchService = tr.getSearchService();
-   	found = list(searchService.searchForSamples(criteria));
-   	if len(found) == 1:
-   		return tr.makeSampleMutable(found[0]);
-   	else:
-   		raise UserFailureException(identifier + " Not found by search service.");
-   	
+	searchService = tr.getSearchService();
+	found = list(searchService.searchForSamples(criteria));
+	if len(found) == 1:
+		return tr.makeSampleMutable(found[0]);
+	else:
+		raise UserFailureException(identifier + " Not found by search service.");	
+
+def username(sessiontoken):
+	m = re.compile('(.*)-[^-]*').match(sessiontoken)
+	if m:
+		return m.group(1)
+
 def process(tr, parameters, tableBuilder):
 	method = parameters.get("method");
-	
+
 	isOk = False;
 	result = None;
 	# Obtain the user using the dropbox
 	sessionToken = parameters.get("sessionToken"); #String
-	sessionId = sessionToken.split("-")[0]; #String
+	sessionId = username(sessionToken); #String
 	if sessionId == userId:
 		tr.setUserId(userId);
 	else:
