@@ -17,6 +17,8 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 import java.util.Iterator;
@@ -137,12 +139,504 @@ public class GlobalSearchTest extends AbstractTest
         assertSimpleStuff(result);
     }
 
+    @Test
+    public void testSearchWithObjectKindsSpecified()
+    {
+        GlobalSearchObject object = null;
+
+        // experiment
+        object = searchAndAssertOneOrNone(TEST_USER, "200811050951882-1028", GlobalSearchObjectKind.EXPERIMENT);
+        assertExperiment(object, "200811050951882-1028", "/CISD/NEMO/EXP1", "Perm ID: 200811050951882-1028");
+
+        object = searchAndAssertOneOrNone(TEST_USER, "200811050951882-1028", GlobalSearchObjectKind.SAMPLE);
+        assertNull(object);
+
+        // sample
+        object = searchAndAssertOneOrNone(TEST_USER, "200902091219327-1025", GlobalSearchObjectKind.SAMPLE);
+        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "Perm ID: 200902091219327-1025");
+
+        object = searchAndAssertOneOrNone(TEST_USER, "200902091219327-1025", GlobalSearchObjectKind.DATA_SET);
+        assertNull(object);
+
+        // data set
+        object = searchAndAssertOneOrNone(TEST_USER, "20081105092159111-1", GlobalSearchObjectKind.DATA_SET);
+        assertDataSet(object, "20081105092159111-1", "Perm ID: 20081105092159111-1");
+
+        object = searchAndAssertOneOrNone(TEST_USER, "20081105092159111-1", GlobalSearchObjectKind.MATERIAL);
+        assertNull(object);
+
+        // material
+        object = searchAndAssertOneOrNone(TEST_USER, "HSV1", GlobalSearchObjectKind.MATERIAL);
+        assertMaterial(object, "HSV1", "VIRUS", "Identifier: HSV1");
+
+        object = searchAndAssertOneOrNone(TEST_USER, "HSV1", GlobalSearchObjectKind.EXPERIMENT);
+        assertNull(object);
+    }
+
+    @Test
+    public void testSearchWithObjectKindsNotSpecified()
+    {
+        GlobalSearchObject object = null;
+
+        // experiment
+        object = searchAndAssertOneOrNone(TEST_USER, "200811050951882-1028");
+        assertExperiment(object, "200811050951882-1028", "/CISD/NEMO/EXP1", "Perm ID: 200811050951882-1028");
+
+        // sample
+        object = searchAndAssertOneOrNone(TEST_USER, "200902091219327-1025");
+        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "Perm ID: 200902091219327-1025");
+
+        // data set
+        object = searchAndAssertOneOrNone(TEST_USER, "20081105092159111-1");
+        assertDataSet(object, "20081105092159111-1", "Perm ID: 20081105092159111-1");
+
+        // material
+        object = searchAndAssertOneOrNone(TEST_USER, "HSV1");
+        assertMaterial(object, "HSV1", "VIRUS", "Identifier: HSV1");
+    }
+
+    @Test
+    public void testSearchWithContainsAndWildCardsEnabled()
+    {
+        GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatContains("stuf*");
+        criteria.withWildCards();
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, new GlobalSearchObjectFetchOptions());
+        assertStuff(result);
+    }
+
+    @Test
+    public void testSearchWithContainsAndWildCardsDisabled()
+    {
+        GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatContains("stuf*");
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, new GlobalSearchObjectFetchOptions());
+        assertEquals(result.getObjects().size(), 0);
+    }
+
+    @Test(enabled = false)
+    // enable when SSDM-3164 is done
+    public void testSearchWithContainsExactlyAndWildCardsEnabled()
+    {
+        GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatContainsExactly("simple stuf*");
+        criteria.withWildCards();
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, new GlobalSearchObjectFetchOptions());
+        assertSimpleStuff(result);
+    }
+
+    @Test
+    public void testSearchWithContainsExactlyAndWildCardsDisabled()
+    {
+        GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatContainsExactly("simple stuf*");
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, new GlobalSearchObjectFetchOptions());
+        assertEquals(result.getObjects().size(), 0);
+    }
+
+    @Test
+    public void testSearchWithSortingByScoreAsc()
+    {
+        GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatContains("simple stuff");
+
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.sortBy().score();
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
+        List<GlobalSearchObject> objects = result.getObjects();
+
+        assertEquals(objects.get(0).getScore(), 1.0);
+        assertEquals(objects.get(objects.size() - 1).getScore(), 20.0);
+    }
+
+    @Test
+    public void testSearchWithSortingByScoreDesc()
+    {
+        GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatContains("simple stuff");
+
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.sortBy().score().desc();
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
+        List<GlobalSearchObject> objects = result.getObjects();
+
+        assertEquals(objects.get(0).getScore(), 20.0);
+        assertEquals(objects.get(objects.size() - 1).getScore(), 1.0);
+    }
+
+    @Test
+    public void testSearchWithSortingByObjectKindAsc()
+    {
+        GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatContains("simple stuff");
+
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.sortBy().objectKind();
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
+        List<GlobalSearchObject> objects = result.getObjects();
+
+        assertEquals(objects.get(0).getObjectKind(), GlobalSearchObjectKind.EXPERIMENT);
+        assertEquals(objects.get(objects.size() - 1).getObjectKind(), GlobalSearchObjectKind.MATERIAL);
+    }
+
+    @Test
+    public void testSearchWithSortingByObjectKindDesc()
+    {
+        GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatContains("simple stuff");
+
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.sortBy().objectKind().desc();
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
+        List<GlobalSearchObject> objects = result.getObjects();
+
+        assertEquals(objects.get(0).getObjectKind(), GlobalSearchObjectKind.MATERIAL);
+        assertEquals(objects.get(objects.size() - 1).getObjectKind(), GlobalSearchObjectKind.EXPERIMENT);
+    }
+
+    @Test
+    public void testSearchWithSortingByObjectPermIdAsc()
+    {
+        GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatContains("simple stuff");
+
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.sortBy().objectPermId();
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
+        List<GlobalSearchObject> objects = result.getObjects();
+
+        assertEquals(objects.get(0).getObjectPermId().toString(), "200811050951882-1028");
+        assertEquals(objects.get(objects.size() - 1).getObjectPermId().toString(), "HSV1 (VIRUS)");
+    }
+
+    @Test
+    public void testSearchWithSortingByObjectPermIdDesc()
+    {
+        GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatContains("simple stuff");
+
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.sortBy().objectPermId().desc();
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
+        List<GlobalSearchObject> objects = result.getObjects();
+
+        assertEquals(objects.get(0).getObjectPermId().toString(), "HSV1 (VIRUS)");
+        assertEquals(objects.get(objects.size() - 1).getObjectPermId().toString(), "200811050951882-1028");
+    }
+
+    @Test
+    public void testSearchWithSortingByObjectIdentifierAsc()
+    {
+        GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatContains("simple stuff");
+
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.sortBy().objectIdentifier();
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
+        List<GlobalSearchObject> objects = result.getObjects();
+
+        assertEquals(objects.get(0).getObjectIdentifier().toString(), "/CISD/CP-TEST-1");
+        assertEquals(objects.get(objects.size() - 1).getObjectIdentifier().toString(), "HSV1 (VIRUS)");
+    }
+
+    @Test
+    public void testSearchWithSortingByObjectIdentifierDesc()
+    {
+        GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatContains("simple stuff");
+
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.sortBy().objectIdentifier().desc();
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
+        List<GlobalSearchObject> objects = result.getObjects();
+
+        assertEquals(objects.get(0).getObjectIdentifier().toString(), "HSV1 (VIRUS)");
+        assertEquals(objects.get(objects.size() - 1).getObjectIdentifier().toString(), "/CISD/CP-TEST-1");
+    }
+
+    @Test
+    public void testSearchWithPaging()
+    {
+        GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatContains("simple stuff");
+
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.from(1).count(2);
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
+        List<GlobalSearchObject> objects = result.getObjects();
+
+        assertEquals(result.getTotalCount(), 8);
+        assertEquals(objects.size(), 2);
+
+        assertExperiment(objects.get(0), "201108050937246-1031", "/CISD/DEFAULT/EXP-Y", "Property 'Description': A simple experiment");
+        assertExperiment(objects.get(1), "200811050951882-1028", "/CISD/NEMO/EXP1", "Property 'Description': A simple experiment");
+    }
+
+    @Test
+    public void testSearchWithExperimentPermIdAndNothingFetched()
+    {
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+
+        GlobalSearchObject object = searchAndAssertOne(TEST_USER, "200811050951882-1028", fo);
+
+        assertExperiment(object, "200811050951882-1028", "/CISD/NEMO/EXP1", "Perm ID: 200811050951882-1028");
+        assertExperimentNotFetched(object);
+        assertSampleNotFetched(object);
+        assertDataSetNotFetched(object);
+        assertMaterialNotFetched(object);
+    }
+
+    @Test
+    public void testSearchWithExperimentPermIdAndExperimentFetched()
+    {
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.withExperiment();
+
+        GlobalSearchObject object = searchAndAssertOne(TEST_USER, "200811050951882-1028", fo);
+
+        assertExperiment(object, "200811050951882-1028", "/CISD/NEMO/EXP1", "Perm ID: 200811050951882-1028");
+        assertEquals(object.getExperiment().getCode(), "EXP1");
+        assertSampleNotFetched(object);
+        assertDataSetNotFetched(object);
+        assertMaterialNotFetched(object);
+    }
+
+    @Test
+    public void testSearchWithExperimentPermIdAndNonExperimentFetched()
+    {
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.withSample();
+
+        GlobalSearchObject object = searchAndAssertOne(TEST_USER, "200811050951882-1028", fo);
+
+        assertExperiment(object, "200811050951882-1028", "/CISD/NEMO/EXP1", "Perm ID: 200811050951882-1028");
+        assertExperimentNotFetched(object);
+        assertNull(object.getSample());
+        assertDataSetNotFetched(object);
+        assertMaterialNotFetched(object);
+    }
+
+    @Test
+    public void testSearchWithSamplePermIdAndNothingFetched()
+    {
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+
+        GlobalSearchObject object = searchAndAssertOne(TEST_USER, "200902091219327-1025", fo);
+
+        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "Perm ID: 200902091219327-1025");
+        assertExperimentNotFetched(object);
+        assertSampleNotFetched(object);
+        assertDataSetNotFetched(object);
+        assertMaterialNotFetched(object);
+    }
+
+    @Test
+    public void testSearchWithSamplePermIdAndSampleFetched()
+    {
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.withSample();
+
+        GlobalSearchObject object = searchAndAssertOne(TEST_USER, "200902091219327-1025", fo);
+
+        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "Perm ID: 200902091219327-1025");
+        assertEquals(object.getSample().getCode(), "CP-TEST-1");
+        assertExperimentNotFetched(object);
+        assertDataSetNotFetched(object);
+        assertMaterialNotFetched(object);
+    }
+
+    @Test
+    public void testSearchWithSamplePermIdAndNonSampleFetched()
+    {
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.withExperiment();
+
+        GlobalSearchObject object = searchAndAssertOne(TEST_USER, "200902091219327-1025", fo);
+
+        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "Perm ID: 200902091219327-1025");
+        assertNull(object.getExperiment());
+        assertSampleNotFetched(object);
+        assertDataSetNotFetched(object);
+        assertMaterialNotFetched(object);
+    }
+
+    @Test
+    public void testSearchWithDataSetPermIdAndNothingFetched()
+    {
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+
+        GlobalSearchObject object = searchAndAssertOne(TEST_USER, "20081105092159111-1", fo);
+
+        assertDataSet(object, "20081105092159111-1", "Perm ID: 20081105092159111-1");
+        assertExperimentNotFetched(object);
+        assertSampleNotFetched(object);
+        assertDataSetNotFetched(object);
+        assertMaterialNotFetched(object);
+    }
+
+    @Test
+    public void testSearchWithDataSetPermIdAndDataSetFetched()
+    {
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.withDataSet();
+
+        GlobalSearchObject object = searchAndAssertOne(TEST_USER, "20081105092159111-1", fo);
+
+        assertDataSet(object, "20081105092159111-1", "Perm ID: 20081105092159111-1");
+        assertEquals(object.getDataSet().getCode(), "20081105092159111-1");
+        assertExperimentNotFetched(object);
+        assertSampleNotFetched(object);
+        assertMaterialNotFetched(object);
+    }
+
+    @Test
+    public void testSearchWithDataSetPermIdAndNonDataSetFetched()
+    {
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.withExperiment();
+
+        GlobalSearchObject object = searchAndAssertOne(TEST_USER, "20081105092159111-1", fo);
+
+        assertDataSet(object, "20081105092159111-1", "Perm ID: 20081105092159111-1");
+        assertNull(object.getExperiment());
+        assertSampleNotFetched(object);
+        assertDataSetNotFetched(object);
+        assertMaterialNotFetched(object);
+    }
+
+    @Test(enabled = false)
+    // enable when SSDM-3164 is done
+    public void testSearchWithMaterialPermIdAndNothingFetched()
+    {
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+
+        GlobalSearchObject object = searchAndAssertOne(TEST_USER, "HSV1 (VIRUS)", fo);
+
+        assertMaterial(object, "HSV1", "VIRUS", "Perm ID: 20081105092159111-1");
+        assertExperimentNotFetched(object);
+        assertSampleNotFetched(object);
+        assertDataSetNotFetched(object);
+        assertMaterialNotFetched(object);
+    }
+
+    @Test(enabled = false)
+    // enable when SSDM-3164 is done
+    public void testSearchWithMaterialPermIdAndMaterialFetched()
+    {
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.withMaterial();
+
+        GlobalSearchObject object = searchAndAssertOne(TEST_USER, "HSV1 (VIRUS)", fo);
+
+        assertMaterial(object, "HSV1", "VIRUS", "Perm ID: 20081105092159111-1");
+        assertEquals(object.getMaterial().getPermId().toString(), "HSV1 (VIRUS)");
+        assertExperimentNotFetched(object);
+        assertSampleNotFetched(object);
+        assertDataSetNotFetched(object);
+    }
+
+    @Test(enabled = false)
+    // enable when SSDM-3164 is done
+    public void testSearchWithMaterialPermIdAndNonMaterialFetched()
+    {
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.withExperiment();
+
+        GlobalSearchObject object = searchAndAssertOne(TEST_USER, "HSV1 (VIRUS)", fo);
+
+        assertMaterial(object, "HSV1", "VIRUS", "Perm ID: 20081105092159111-1");
+        assertNull(object.getExperiment());
+        assertSampleNotFetched(object);
+        assertDataSetNotFetched(object);
+        assertMaterialNotFetched(object);
+    }
+
+    @Test
+    public void testSearchWithMaterialCodeAndNothingFetched()
+    {
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+
+        GlobalSearchObject object = searchAndAssertOne(TEST_USER, "HSV1", fo);
+
+        assertMaterial(object, "HSV1", "VIRUS", "Identifier: HSV1");
+        assertExperimentNotFetched(object);
+        assertSampleNotFetched(object);
+        assertDataSetNotFetched(object);
+        assertMaterialNotFetched(object);
+    }
+
+    @Test
+    public void testSearchWithMaterialCodeAndMaterialFetched()
+    {
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.withMaterial();
+
+        GlobalSearchObject object = searchAndAssertOne(TEST_USER, "HSV1", fo);
+
+        assertMaterial(object, "HSV1", "VIRUS", "Identifier: HSV1");
+        assertEquals(object.getMaterial().getPermId().toString(), "HSV1 (VIRUS)");
+        assertExperimentNotFetched(object);
+        assertSampleNotFetched(object);
+        assertDataSetNotFetched(object);
+    }
+
+    @Test
+    public void testSearchWithMaterialCodeAndNonMaterialFetched()
+    {
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.withExperiment();
+
+        GlobalSearchObject object = searchAndAssertOne(TEST_USER, "HSV1", fo);
+
+        assertMaterial(object, "HSV1", "VIRUS", "Identifier: HSV1");
+        assertNull(object.getExperiment());
+        assertSampleNotFetched(object);
+        assertDataSetNotFetched(object);
+        assertMaterialNotFetched(object);
+    }
+
     private SearchResult<GlobalSearchObject> search(String user, GlobalSearchCriteria criteria, GlobalSearchObjectFetchOptions fetchOptions)
     {
         String sessionToken = v3api.login(user, PASSWORD);
         SearchResult<GlobalSearchObject> result = v3api.searchGlobally(sessionToken, criteria, fetchOptions);
         v3api.logout(sessionToken);
         return result;
+    }
+
+    private GlobalSearchObject searchAndAssertOne(String user, String permId, GlobalSearchObjectFetchOptions fetchOptions)
+    {
+        GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatContainsExactly(permId);
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fetchOptions);
+        assertEquals(result.getObjects().size(), 1);
+
+        return result.getObjects().get(0);
+    }
+
+    private GlobalSearchObject searchAndAssertOneOrNone(String user, String permId, GlobalSearchObjectKind... objectKinds)
+    {
+        GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatContainsExactly(permId);
+        criteria.withObjectKind().in(objectKinds);
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, new GlobalSearchObjectFetchOptions());
+        assertTrue(result.getObjects().size() <= 1);
+
+        return result.getObjects().isEmpty() ? null : result.getObjects().get(0);
     }
 
     private void assertStuff(SearchResult<GlobalSearchObject> result)
@@ -183,37 +677,41 @@ public class GlobalSearchTest extends AbstractTest
 
     private void assertExperiment(GlobalSearchObject object, String permId, String identifier, String match)
     {
+        assertNotNull(object);
         assertEquals(object.getObjectKind(), GlobalSearchObjectKind.EXPERIMENT);
         assertEquals(object.getObjectPermId(), new ExperimentPermId(permId));
         assertEquals(object.getObjectIdentifier(), new ExperimentIdentifier(identifier));
-        assertEquals(object.getMatch(), match + "\n");
+        assertEquals(object.getMatch().trim(), match);
         assertTrue(object.getScore() > 0);
     }
 
     private void assertSample(GlobalSearchObject object, String permId, String identifier, String match)
     {
+        assertNotNull(object);
         assertEquals(object.getObjectKind(), GlobalSearchObjectKind.SAMPLE);
         assertEquals(object.getObjectPermId(), new SamplePermId(permId));
         assertEquals(object.getObjectIdentifier(), new SampleIdentifier(identifier));
-        assertEquals(object.getMatch(), match + "\n");
+        assertEquals(object.getMatch().trim(), match);
         assertTrue(object.getScore() > 0);
     }
 
     private void assertDataSet(GlobalSearchObject object, String code, String match)
     {
+        assertNotNull(object);
         assertEquals(object.getObjectKind(), GlobalSearchObjectKind.DATA_SET);
         assertEquals(object.getObjectPermId(), new DataSetPermId(code));
         assertEquals(object.getObjectIdentifier(), new DataSetPermId(code));
-        assertEquals(object.getMatch(), match + "\n");
+        assertEquals(object.getMatch().trim(), match);
         assertTrue(object.getScore() > 0);
     }
 
     private void assertMaterial(GlobalSearchObject object, String code, String typeCode, String match)
     {
+        assertNotNull(object);
         assertEquals(object.getObjectKind(), GlobalSearchObjectKind.MATERIAL);
         assertEquals(object.getObjectPermId(), new MaterialPermId(code, typeCode));
         assertEquals(object.getObjectIdentifier(), new MaterialPermId(code, typeCode));
-        assertEquals(object.getMatch(), match + "\n");
+        assertEquals(object.getMatch().trim(), match);
         assertTrue(object.getScore() > 0);
     }
 

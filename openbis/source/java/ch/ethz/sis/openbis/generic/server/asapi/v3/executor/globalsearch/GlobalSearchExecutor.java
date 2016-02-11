@@ -18,7 +18,8 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.globalsearch;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumSet;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -54,7 +55,7 @@ public class GlobalSearchExecutor implements IGlobalSearchExecutor
     {
         String userName = context.getSession().getUserName();
         String queryText = getQueryText(criteria);
-        List<SearchableEntity> entityKinds = getEntityKinds(criteria);
+        Collection<SearchableEntity> entityKinds = getEntityKinds(criteria);
         boolean wildCards = getWildCards(criteria);
 
         final List<MatchingEntity> list = new ArrayList<MatchingEntity>();
@@ -111,7 +112,7 @@ public class GlobalSearchExecutor implements IGlobalSearchExecutor
         return StringUtils.join(texts, " ");
     }
 
-    private List<SearchableEntity> getEntityKinds(GlobalSearchCriteria criteria)
+    private Collection<SearchableEntity> getEntityKinds(GlobalSearchCriteria criteria)
     {
         GlobalSearchObjectKindCriteria lastObjectKindSubCriteria = null;
 
@@ -123,13 +124,14 @@ public class GlobalSearchExecutor implements IGlobalSearchExecutor
             }
         }
 
-        if (lastObjectKindSubCriteria == null)
+        if (lastObjectKindSubCriteria == null || lastObjectKindSubCriteria.getObjectKinds() == null
+                || lastObjectKindSubCriteria.getObjectKinds().isEmpty())
         {
             return Arrays.asList(SearchableEntity.values());
         } else
         {
-            EnumSet<GlobalSearchObjectKind> objectKinds = lastObjectKindSubCriteria.getObjectKinds();
-            List<SearchableEntity> entityKinds = new ArrayList<SearchableEntity>();
+            List<GlobalSearchObjectKind> objectKinds = lastObjectKindSubCriteria.getObjectKinds();
+            Collection<SearchableEntity> entityKinds = new HashSet<SearchableEntity>();
 
             for (GlobalSearchObjectKind objectKind : objectKinds)
             {

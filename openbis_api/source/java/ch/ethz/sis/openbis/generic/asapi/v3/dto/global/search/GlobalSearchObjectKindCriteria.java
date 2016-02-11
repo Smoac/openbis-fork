@@ -16,7 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search;
 
-import java.util.EnumSet;
+import java.util.Arrays;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractSearchCriteria;
@@ -30,20 +30,26 @@ public class GlobalSearchObjectKindCriteria extends AbstractSearchCriteria
 {
     private static final long serialVersionUID = 1L;
 
-    EnumSet<GlobalSearchObjectKind> objectKinds;
+    List<GlobalSearchObjectKind> objectKinds;
 
     public void in(List<GlobalSearchObjectKind> kinds)
     {
-        this.objectKinds = EnumSet.copyOf(objectKinds);
+        this.objectKinds = kinds;
     }
 
     public void in(GlobalSearchObjectKind... kinds)
     {
-        this.objectKinds = EnumSet.copyOf(objectKinds);
+        this.objectKinds = Arrays.asList(kinds);
     }
 
-    public EnumSet<GlobalSearchObjectKind> getObjectKinds()
+    public List<GlobalSearchObjectKind> getObjectKinds()
     {
         return objectKinds;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "with object kinds " + objectKinds;
     }
 }
