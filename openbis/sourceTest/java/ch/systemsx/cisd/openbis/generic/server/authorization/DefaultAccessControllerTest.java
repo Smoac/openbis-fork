@@ -355,6 +355,24 @@ public final class DefaultAccessControllerTest
         context.assertIsSatisfied();
     }
     
+    @Test
+    public void testIsAuthorizedWithGardedArgumentWithRolesOverridden3() throws Exception
+    {
+        final IAuthSession session = AuthorizationTestUtil.createSession();
+        session.tryGetPerson().setRoleAssignments(createRoleAssignments());
+        final Method method = MyInterface.class.getMethod("myMethodWithGardedArgumentWithRolesOverridden3",
+                String.class, String.class, String.class);
+        assertNotNull(method);
+        Argument<?>[] arguments = createArguments(method);
+        
+        final Status authorized = accessController.isAuthorized(session, method, arguments);
+        
+        assertEquals("ERROR: \"None of method roles '[SPACE_POWER_USER, SPACE_ADMIN, INSTANCE_ADMIN]' "
+                + "could be found in roles of user 'John Doe'.\"", authorized.toString());
+        assertEquals(null, project.getDescription());
+        context.assertIsSatisfied();
+    }
+    
     private Argument<?>[] createArguments(final Method method)
     {
         List<Argument<?>> arguments = new ArrayList<>();
@@ -412,13 +430,22 @@ public final class DefaultAccessControllerTest
                 @AuthorizationGuard(name = "ARG1", guardClass = MockPredicate.class,
                         rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER })
                 String argument1);
-        
+
         @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
         @Capability("MY_CAP2")
         public void myMethodWithGardedArgumentWithRolesOverridden2(String sessionToken,
                 @AuthorizationGuard(name = "ARG1", guardClass = MockPredicate.class,
-                rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER })
-        String argument1);
+                        rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER })
+                String argument1);
+
+        @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+        public void myMethodWithGardedArgumentWithRolesOverridden3(String sessionToken,
+                @AuthorizationGuard(name = "ARG1", guardClass = MockPredicate.class,
+                        rolesAllowed = { RoleWithHierarchy.SPACE_POWER_USER })
+                String argument1,
+                @AuthorizationGuard(name = "ARG2", guardClass = MockPredicate.class,
+                rolesAllowed = { RoleWithHierarchy.SPACE_USER })
+                String argument2);
     }
 
     /**

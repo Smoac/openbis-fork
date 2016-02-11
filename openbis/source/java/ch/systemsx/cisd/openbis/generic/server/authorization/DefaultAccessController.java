@@ -147,13 +147,14 @@ public final class DefaultAccessController implements IAccessController
                     Set<RoleWithHierarchy> argumentRoles = getArgumentRoles(method, argument, methodRoles);
                     List<RoleWithIdentifier> relevantRoles = getRelevantRoles(userRoles, argumentRoles);
                     status = checkNotEmpty(relevantRoles, argumentRoles, session);
-                    if (status.isOK())
+                    if (status.isError())
                     {
-                        status = predicateExecutor.evaluate(person, relevantRoles, argument);
-                        if (status.isError())
-                        {
-                            break;
-                        }
+                        break;
+                    }
+                    status = predicateExecutor.evaluate(person, relevantRoles, argument);
+                    if (status.isError())
+                    {
+                        break;
                     }
                 }
             } else
