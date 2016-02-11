@@ -1007,5 +1007,25 @@ execute Custom AS Service
 I Custom AS Service Executor
 I Custom AS Service Id
 search Custom AS Services
-DataSetFileFetchOptions
-DataSetFileSortOptions
+DataSet File Fetch Options
+DataSet File Sort Options
+get Match
+get Object Identifier
+get Object PermId
+get Score
+Global Search WildCards Criteria
+OBJECT_IDENTIFIER
+OBJECT_KIND
+OBJECT_PERM_ID
+object Identifier
+object Kind
+object PermId
+score
+SCORE
+set Match
+set Object Identifier
+set Object PermId
+set Score
+String Contains Exactly Value
+that Contains Exactly
+with WildCards
