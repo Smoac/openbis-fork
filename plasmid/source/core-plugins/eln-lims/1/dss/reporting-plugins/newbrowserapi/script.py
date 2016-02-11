@@ -419,10 +419,6 @@ def insertDataSet(tr, parameters, tableBuilder):
 		if 	temFile.getName().endswith(".fasta") and dataSetType == "SEQ_FILE" and PLASMAPPER_BASE_URL != None:
 			futureSVG = File(tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".svg"));
 			futureHTML = File(tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".html"));
-			print "SVG: " + futureSVG.getAbsolutePath();
-			print "SVG: " + str(futureSVG.exists());
-			#File(tempDir + "/" + folderName + "/generated/").mkdirs();
-			print "BEFORE PLASMAPPER";
 			try:
 				PlasmapperConnector.downloadPlasmidMap(
 					PLASMAPPER_BASE_URL,
@@ -432,8 +428,6 @@ def insertDataSet(tr, parameters, tableBuilder):
 				);
 			except:
 				raise UserFailureException("Plasmapper service unavailable, try to upload your dataset later."); 
-			print "AFTER PLASMAPPER";
-			print "SVG: " + str(futureSVG.exists());
 			tr.moveFile(temFile.getParentFile().getAbsolutePath(), dataSet);
 		else:
 			tr.moveFile(temFile.getAbsolutePath(), dataSet);
@@ -496,7 +490,6 @@ def copySample(tr, parameters, tableBuilder):
 def getCopySampleChildrenPropertyValue(propCode, propValue, notCopyProperties, defaultBenchPropertyList, defaultBenchProperties):
 	isPropertyToSkip = any(propCode == s for s in notCopyProperties);
 	isDefaultBenchProperty = any(propCode == s for s in defaultBenchPropertyList);
-	print propCode + " " + str(isPropertyToSkip) + " " + str(isDefaultBenchProperty);
 	if isPropertyToSkip:
 		return None;
 	elif isDefaultBenchProperty:
@@ -507,6 +500,8 @@ def getCopySampleChildrenPropertyValue(propCode, propValue, notCopyProperties, d
 def batchOperation(tr, parameters, tableBuilder):
 	for operationParameters in parameters.get("operations"):
 		if operationParameters.get("method") == "updateSample":
+			operationParameters["openBISURL"] = parameters.get("openBISURL");
+			operationParameters["sessionToken"] = parameters.get("sessionToken");
 			insertUpdateSample(tr, operationParameters, tableBuilder);
 	return True;
 	
@@ -553,22 +548,16 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 	#Assign experiment
 	if experiment != None:
 		sample.setExperiment(experiment);
-	
 	#Assign sample properties
 	if sampleProperties != None:
 		properties = getProperties(tr, parameters);
 		for key in sampleProperties.keySet():
-			cleanerProperties = CleanerProperties();
-			cleaner = HtmlCleaner(cleanerProperties);
-			htmlSerializer = SimpleHtmlSerializer(cleanerProperties);
-			
-			propertyValue = unicode(sampleProperties[key]);
+			propertyValue = sampleProperties[key];
 			if propertyValue == "":
 				propertyValue = None;
 			else:
 				propertyValue = updateIfIsPropertyRichText(properties, key, propertyValue);
-			sample.setPropertyValue(key, propertyValue);
-		
+			sample.setPropertyValue(key, unicode(propertyValue));
 	#Add sample parents
 	if sampleParents != None:
 		sample.setParentSampleIdentifiers(sampleParents);
