@@ -15,7 +15,8 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileS
 public class SearchFileTest extends AbstractFileTest
 {
 
-    @Test
+    @Test(enabled = false)
+    // enable it again once datastore server system tests Lucene problem is resolved
     public void allFilesOfGivenDatasetsAreReturned() throws Exception
     {
         DataSetFileSearchCriteria sc = new DataSetFileSearchCriteria();
