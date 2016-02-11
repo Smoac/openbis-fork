@@ -164,7 +164,18 @@ public class SecondaryEntityDAO
         }
         return result;
     }
-
+    
+    public Long2ObjectMap<Experiment> getExperiments(LongSet experimentIds)
+    {
+        Iterable<ExperimentProjectSpaceCodeRecord> experimentRecords = query.getExperiments(experimentIds);
+        Long2ObjectMap<Experiment> result = new Long2ObjectOpenHashMap<Experiment>();
+        for (ExperimentProjectSpaceCodeRecord record : experimentRecords)
+        {
+            result.put(record.id, tryCreateExperiment(record.id, record));
+        }
+        return result;
+    }
+    
     public LongSet getSampleDescendantIdsAndSelf(Long sampleId)
     {
         LongSet results = new LongOpenHashSet();

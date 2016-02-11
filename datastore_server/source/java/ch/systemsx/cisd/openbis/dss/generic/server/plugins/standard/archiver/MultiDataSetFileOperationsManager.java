@@ -241,9 +241,7 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
         }
 
         File stageArchiveContainerFile = new File(getFinalArchive().getDestination(), containerPath);
-        packageManager.extractMultiDataSets(stageArchiveContainerFile, dataSetToLocation);
-
-        return Status.OK;
+        return packageManager.extractMultiDataSets(stageArchiveContainerFile, dataSetToLocation);
     }
 
     @Override

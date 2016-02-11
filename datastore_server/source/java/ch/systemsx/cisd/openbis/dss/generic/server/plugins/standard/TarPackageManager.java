@@ -55,7 +55,7 @@ public class TarPackageManager extends AbstractPackageManager
 
     private final int bufferSize;
     
-    private final ISimpleLogger ioSpeedLogger;
+    protected final ISimpleLogger logger;
 
     private Long maxQueueSize;
 
@@ -65,7 +65,7 @@ public class TarPackageManager extends AbstractPackageManager
         bufferSize = PropertyUtils.getInt(properties, BUFFER_SIZE_KEY, DEFAULT_BUFFER_SIZE);
         long maxSize = PropertyUtils.getLong(properties, MAXIMUM_QUEUE_SIZE_IN_BYTES_KEY, 5 * bufferSize);
         maxQueueSize = maxSize == 0 ? null : maxSize;
-        this.ioSpeedLogger = ioSpeedLogger;
+        this.logger = ioSpeedLogger;
     }
 
     @Override
@@ -126,7 +126,7 @@ public class TarPackageManager extends AbstractPackageManager
         if (onlyMetaData)
         {
             final ISingleDataSetPathInfoProvider pathInfoProvider 
-                    = new TarBasedPathInfoProvider(packageFile, bufferSize, ioSpeedLogger);
+                    = new TarBasedPathInfoProvider(packageFile, bufferSize, logger);
             return new PathInfoProviderBasedHierarchicalContent(pathInfoProvider, null, new IDelegatedAction()
                 {
                     @Override
@@ -135,7 +135,7 @@ public class TarPackageManager extends AbstractPackageManager
                     }
                 });
         }
-        return new TarBasedHierarchicalContent(packageFile, tempFolder, bufferSize, ioSpeedLogger);
+        return new TarBasedHierarchicalContent(packageFile, tempFolder, bufferSize, logger);
     }
 
 }

@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.tar.Untar;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDataSetPackager;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.TarPackageManager;
 
@@ -60,6 +61,7 @@ public class MultiDataSetPackageManager extends TarPackageManager implements IMu
             return Status.OK;
         } catch (Exception ex)
         {
+            logger.log(LogLevel.ERROR, "Error during untaring " + packageFile, ex);
             return Status.createError(ex.toString());
         } finally
         {

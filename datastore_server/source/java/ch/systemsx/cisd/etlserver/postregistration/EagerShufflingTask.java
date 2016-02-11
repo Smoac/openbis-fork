@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.postregistration;
 
 import java.io.File;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -60,6 +61,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  */
 public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalDataSets
 {
+    private static final int SHARES_CACHING_TIMEOUT = 60 * 60 * 1000;
+
     @Private
     public static final String SHARE_FINDER_KEY = "share-finder";
 
@@ -176,11 +179,27 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
             return null;
         }
     }
+    
+    private List<Share> shares;
+    private Date sharesTimestamp;
 
     @Override
     public IPostRegistrationTaskExecutor createExecutor(String dataSetCode)
     {
         return new Executor(dataSetCode);
+    }
+
+    private List<Share> getShares()
+    {
+        if (shares == null || sharesTimestamp == null 
+                || sharesTimestamp.getTime() + SHARES_CACHING_TIMEOUT < System.currentTimeMillis())
+        {
+            shares = SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode, 
+                    FilterOptions.AVAILABLE_FOR_SHUFFLING,
+                    incomingShares, freeSpaceProvider, service, logger);
+            sharesTimestamp = new Date();
+        }
+        return shares;
     }
 
     private final class Executor implements IPostRegistrationTaskExecutor
@@ -199,17 +218,15 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
         @Override
         public ICleanupTask createCleanupTask()
         {
-            List<Share> shares =
-                    SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode, FilterOptions.AVAILABLE_FOR_SHUFFLING,
-                            incomingShares, freeSpaceProvider, service, logger);
-            dataSet = findDataSet(shares, dataSetCode);
+            List<Share> currentShares = getShares();
+            dataSet = findDataSet(currentShares, dataSetCode);
             if (dataSet.getStatus().isAvailable() == false)
             {
                 logger.log(LogLevel.WARN, "Data set " + dataSetCode + " couldn't been shuffled because "
                         + "its archiving status is " + dataSet.getStatus());
                 return new NoCleanupTask();
             }
-            shareWithMostFreeOrNull = finder.tryToFindShare(dataSet, shares);
+            shareWithMostFreeOrNull = finder.tryToFindShare(dataSet, currentShares);
             if (shareWithMostFreeOrNull == null)
             {
                 String message = "No share found for shuffling data set " + dataSetCode + ".";
