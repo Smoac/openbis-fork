@@ -43,6 +43,7 @@ import ch.systemsx.cisd.common.test.LogMonitoringAppender;
  * 
  * @author Bernd Rinn
  */
+@Test(timeOut = 2000)
 public class DirectoryScanningTimerTaskTest
 {
 
