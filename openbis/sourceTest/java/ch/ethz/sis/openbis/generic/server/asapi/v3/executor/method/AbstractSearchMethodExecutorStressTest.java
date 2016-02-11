@@ -74,7 +74,7 @@ public class AbstractSearchMethodExecutorStressTest
         LogInitializer.init();
     }
 
-    @Test
+    @Test(timeOut = 30000)
     public void testConcurrencyWithoutEvicting() throws InterruptedException
     {
         for (int run = 0; run < 5; run++)
@@ -96,7 +96,7 @@ public class AbstractSearchMethodExecutorStressTest
         }
     }
 
-    @Test
+    @Test(timeOut = 30000)
     public void testConcurrencyWithEvicting() throws InterruptedException
     {
         for (int run = 0; run < 5; run++)
