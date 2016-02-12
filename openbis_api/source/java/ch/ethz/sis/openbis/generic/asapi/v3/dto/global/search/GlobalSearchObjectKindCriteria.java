@@ -32,12 +32,12 @@ public class GlobalSearchObjectKindCriteria extends AbstractSearchCriteria
 
     List<GlobalSearchObjectKind> objectKinds;
 
-    public void in(List<GlobalSearchObjectKind> kinds)
+    public void thatIn(List<GlobalSearchObjectKind> kinds)
     {
         this.objectKinds = kinds;
     }
 
-    public void in(GlobalSearchObjectKind... kinds)
+    public void thatIn(GlobalSearchObjectKind... kinds)
     {
         this.objectKinds = Arrays.asList(kinds);
     }

@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author Jakub Straszewski
  */
-@JsonObject("as.dto.global.search.GlobalSearchCriteria ")
+@JsonObject("as.dto.global.search.GlobalSearchCriteria")
 public class GlobalSearchCriteria extends AbstractCompositeSearchCriteria
 {
 

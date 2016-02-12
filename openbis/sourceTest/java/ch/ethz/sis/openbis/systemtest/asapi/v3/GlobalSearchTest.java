@@ -631,7 +631,7 @@ public class GlobalSearchTest extends AbstractTest
     {
         GlobalSearchCriteria criteria = new GlobalSearchCriteria();
         criteria.withText().thatContainsExactly(permId);
-        criteria.withObjectKind().in(objectKinds);
+        criteria.withObjectKind().thatIn(objectKinds);
 
         SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, new GlobalSearchObjectFetchOptions());
         assertTrue(result.getObjects().size() <= 1);

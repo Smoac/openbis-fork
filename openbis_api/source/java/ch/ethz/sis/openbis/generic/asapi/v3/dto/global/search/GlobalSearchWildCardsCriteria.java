@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author Jakub Straszewski
  */
-@JsonObject("as.dto.global.search.GlobalSearchWildCardCriteria")
+@JsonObject("as.dto.global.search.GlobalSearchWildCardsCriteria")
 public class GlobalSearchWildCardsCriteria extends AbstractSearchCriteria
 {
     private static final long serialVersionUID = 1L;
