@@ -13,7 +13,7 @@ public class DbAccess
     private static final String FASTQ_GZ_SUFFIX = ".fastq.gz";
 
     /**
-     * Connecting to the pathifno_DB
+     * Connecting to the pathinfo_DB
      * @return Connection
      */
     static Connection connectToDB(Parameters params)
@@ -33,6 +33,7 @@ public class DbAccess
         } catch (SQLException e)
         {
             e.printStackTrace();
+            System.out.println("No PathinfoDB available");
         }
         return connection;
     }
