@@ -97,7 +97,7 @@ public class JsonSerializerFactory extends BeanSerializerFactory
 
         Class<?> contentClass = contentType.getRawClass();
 
-        if (contentClass.equals(Object.class) || contentClass.isAnnotationPresent(JsonObject.class))
+        if (contentClass.equals(Object.class) || (contentClass.isAnnotationPresent(JsonObject.class) && false == contentClass.isEnum()))
         {
             BeanDescription bean = config.introspectClassAnnotations(contentType.getRawClass());
             AnnotatedClass ac = bean.getClassInfo();

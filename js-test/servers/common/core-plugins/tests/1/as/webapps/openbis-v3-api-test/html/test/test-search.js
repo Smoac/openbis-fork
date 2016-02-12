@@ -497,5 +497,122 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			}, fo);
 		});
 
+		QUnit.test("searchGlobally() withText thatContains", function(assert) {
+			var c = new common(assert);
+
+			var fSearch = function(facade) {
+				var criteria = new c.GlobalSearchCriteria();
+				criteria.withText().thatContains("20130412150049446-204 20130412140147735-20 20130417094936021-428 H2O");
+				return facade.searchGlobally(criteria, c.createGlobalSearchObjectFetchOptions());
+			}
+
+			var fCheck = function(facade, objects) {
+				c.assertEqual(objects.length, 4);
+
+				var object0 = objects[0];
+				c.assertEqual(object0.getObjectKind(), "EXPERIMENT", "ObjectKind");
+				c.assertEqual(object0.getObjectPermId().getPermId(), "20130412150049446-204", "ObjectPermId");
+				c.assertEqual(object0.getObjectIdentifier().getIdentifier(), "/TEST/TEST-PROJECT/TEST-EXPERIMENT", "ObjectIdentifier");
+				c.assertEqual(object0.getMatch(), "Perm ID: 20130412150049446-204", "Match");
+				c.assertNotNull(object0.getScore(), "Score");
+				c.assertEqual(object0.getExperiment().getCode(), "TEST-EXPERIMENT", "Experiment");
+				c.assertNull(object0.getSample(), "Sample");
+				c.assertNull(object0.getDataSet(), "DataSet");
+				c.assertNull(object0.getMaterial(), "Material");
+
+				var object1 = objects[1];
+				c.assertEqual(object1.getObjectKind(), "SAMPLE", "ObjectKind");
+				c.assertEqual(object1.getObjectPermId().getPermId(), "20130412140147735-20", "ObjectPermId");
+				c.assertEqual(object1.getObjectIdentifier().getIdentifier(), "/PLATONIC/PLATE-1", "ObjectIdentifier");
+				c.assertEqual(object1.getMatch(), "Perm ID: 20130412140147735-20", "Match");
+				c.assertNotNull(object1.getScore(), "Score");
+				c.assertNull(object1.getExperiment(), "Experiment");
+				c.assertEqual(object1.getSample().getCode(), "PLATE-1", "Sample");
+				c.assertNull(object1.getDataSet(), "DataSet");
+				c.assertNull(object1.getMaterial(), "Material");
+
+				var object2 = objects[2];
+				c.assertEqual(object2.getObjectKind(), "DATA_SET", "ObjectKind");
+				c.assertEqual(object2.getObjectPermId().getPermId(), "20130417094936021-428", "ObjectPermId");
+				c.assertEqual(object2.getObjectIdentifier().getPermId(), "20130417094936021-428", "ObjectIdentifier");
+				c.assertEqual(object2.getMatch(), "Perm ID: 20130417094936021-428", "Match");
+				c.assertNotNull(object2.getScore(), "Score");
+				c.assertNull(object2.getExperiment(), "Experiment");
+				c.assertNull(object2.getSample(), "Sample");
+				c.assertEqual(object2.getDataSet().getCode(), "20130417094936021-428", "DataSet");
+				c.assertNull(object2.getMaterial(), "Material");
+
+				var object3 = objects[3];
+				c.assertEqual(object3.getObjectKind(), "MATERIAL", "ObjectKind");
+				c.assertEqual(object3.getObjectPermId().getCode(), "H2O", "ObjectPermId 1");
+				c.assertEqual(object3.getObjectPermId().getTypeCode(), "COMPOUND", "ObjectPermId 2");
+				c.assertEqual(object3.getObjectIdentifier().getCode(), "H2O", "ObjectIdentifier 1");
+				c.assertEqual(object3.getObjectIdentifier().getTypeCode(), "COMPOUND", "ObjectIdentifier 2");
+				c.assertEqual(object3.getMatch(), "Identifier: H2O", "Match");
+				c.assertNotNull(object3.getScore(), "Score");
+				c.assertNull(object3.getExperiment(), "Experiment");
+				c.assertNull(object3.getSample(), "Sample");
+				c.assertNull(object3.getDataSet(), "DataSet");
+				c.assertEqual(object3.getMaterial().getCode(), "H2O", "Material");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchGlobally() withText thatContainsExactly", function(assert) {
+			var c = new common(assert);
+
+			var fSearch = function(facade) {
+				var criteria = new c.GlobalSearchCriteria();
+				criteria.withText().thatContainsExactly("407 description");
+				return facade.searchGlobally(criteria, c.createGlobalSearchObjectFetchOptions());
+			}
+
+			var fCheck = function(facade, objects) {
+				c.assertEqual(objects.length, 1);
+
+				var object0 = objects[0];
+				c.assertEqual(object0.getObjectKind(), "DATA_SET", "ObjectKind");
+				c.assertEqual(object0.getObjectPermId().getPermId(), "20130415100158230-407", "ObjectPermId");
+				c.assertEqual(object0.getObjectIdentifier().getPermId(), "20130415100158230-407", "ObjectIdentifier");
+				c.assertEqual(object0.getMatch(), "Property 'Description': 407 description", "Match");
+				c.assertNotNull(object0.getScore(), "Score");
+				c.assertNull(object0.getExperiment(), "Experiment");
+				c.assertNull(object0.getSample(), "Sample");
+				c.assertEqual(object0.getDataSet().getCode(), "20130415100158230-407", "DataSet");
+				c.assertNull(object0.getMaterial(), "Material");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchGlobally() withObjectKind thatIn", function(assert) {
+			var c = new common(assert);
+
+			var fSearch = function(facade) {
+				var criteria = new c.GlobalSearchCriteria();
+				criteria.withText().thatContains("20130412150049446-204 20130412140147735-20 20130417094936021-428 H2O");
+				criteria.withObjectKind().thatIn(["EXPERIMENT"]);
+				return facade.searchGlobally(criteria, c.createGlobalSearchObjectFetchOptions());
+			}
+
+			var fCheck = function(facade, objects) {
+				c.assertEqual(objects.length, 1);
+
+				var object0 = objects[0];
+				c.assertEqual(object0.getObjectKind(), "EXPERIMENT", "ObjectKind");
+				c.assertEqual(object0.getObjectPermId().getPermId(), "20130412150049446-204", "ObjectPermId");
+				c.assertEqual(object0.getObjectIdentifier().getIdentifier(), "/TEST/TEST-PROJECT/TEST-EXPERIMENT", "ObjectIdentifier");
+				c.assertEqual(object0.getMatch(), "Perm ID: 20130412150049446-204", "Match");
+				c.assertNotNull(object0.getScore(), "Score");
+				c.assertEqual(object0.getExperiment().getCode(), "TEST-EXPERIMENT", "Experiment");
+				c.assertNull(object0.getSample(), "Sample");
+				c.assertNull(object0.getDataSet(), "DataSet");
+				c.assertNull(object0.getMaterial(), "Material");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
 	}
 });

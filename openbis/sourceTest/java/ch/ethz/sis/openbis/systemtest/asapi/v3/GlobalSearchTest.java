@@ -681,7 +681,7 @@ public class GlobalSearchTest extends AbstractTest
         assertEquals(object.getObjectKind(), GlobalSearchObjectKind.EXPERIMENT);
         assertEquals(object.getObjectPermId(), new ExperimentPermId(permId));
         assertEquals(object.getObjectIdentifier(), new ExperimentIdentifier(identifier));
-        assertEquals(object.getMatch().trim(), match);
+        assertEquals(object.getMatch(), match);
         assertTrue(object.getScore() > 0);
     }
 
@@ -691,7 +691,7 @@ public class GlobalSearchTest extends AbstractTest
         assertEquals(object.getObjectKind(), GlobalSearchObjectKind.SAMPLE);
         assertEquals(object.getObjectPermId(), new SamplePermId(permId));
         assertEquals(object.getObjectIdentifier(), new SampleIdentifier(identifier));
-        assertEquals(object.getMatch().trim(), match);
+        assertEquals(object.getMatch(), match);
         assertTrue(object.getScore() > 0);
     }
 
@@ -701,7 +701,7 @@ public class GlobalSearchTest extends AbstractTest
         assertEquals(object.getObjectKind(), GlobalSearchObjectKind.DATA_SET);
         assertEquals(object.getObjectPermId(), new DataSetPermId(code));
         assertEquals(object.getObjectIdentifier(), new DataSetPermId(code));
-        assertEquals(object.getMatch().trim(), match);
+        assertEquals(object.getMatch(), match);
         assertTrue(object.getScore() > 0);
     }
 
@@ -711,7 +711,7 @@ public class GlobalSearchTest extends AbstractTest
         assertEquals(object.getObjectKind(), GlobalSearchObjectKind.MATERIAL);
         assertEquals(object.getObjectPermId(), new MaterialPermId(code, typeCode));
         assertEquals(object.getObjectIdentifier(), new MaterialPermId(code, typeCode));
-        assertEquals(object.getMatch().trim(), match);
+        assertEquals(object.getMatch(), match);
         assertTrue(object.getScore() > 0);
     }
 

@@ -6,6 +6,7 @@ define([ "require", "stjs", "util/Exceptions", "as/dto/common/search/AbstractSea
 	stjs.extend(GlobalSearchObjectKindCriteria, AbstractSearchCriteria, [ AbstractSearchCriteria ], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.global.search.GlobalSearchObjectKindCriteria';
 		constructor.serialVersionUID = 1;
+		prototype.objectKinds = null;
 
 		prototype.thatIn = function(objectKinds) {
 			this.objectKinds = objectKinds;

@@ -458,6 +458,18 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			});
 		}
 
+		this.searchGlobally = function(criteria, fetchOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "searchGlobally",
+					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
+				},
+				returnType : "SearchResult"
+			});
+		}
+
 		this.deleteSpaces = function(ids, deletionOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({

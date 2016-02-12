@@ -123,7 +123,7 @@ public class JsonDeserializerFactory extends BeanDeserializerFactory
 
         Class<?> contentClass = contentType.getRawClass();
 
-        if (contentClass.equals(Object.class) || contentClass.isAnnotationPresent(JsonObject.class))
+        if (contentClass.equals(Object.class) || (contentClass.isAnnotationPresent(JsonObject.class) && false == contentClass.isEnum()))
         {
             DeserializationConfig config = ctxt.getConfig();
 

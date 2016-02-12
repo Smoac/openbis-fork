@@ -19,6 +19,8 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search;
 import java.util.Arrays;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractSearchCriteria;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -30,7 +32,8 @@ public class GlobalSearchObjectKindCriteria extends AbstractSearchCriteria
 {
     private static final long serialVersionUID = 1L;
 
-    List<GlobalSearchObjectKind> objectKinds;
+    @JsonProperty
+    private List<GlobalSearchObjectKind> objectKinds;
 
     public void thatIn(List<GlobalSearchObjectKind> kinds)
     {

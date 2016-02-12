@@ -151,7 +151,11 @@ public class GlobalSearchObjectTranslator extends AbstractCachingTranslator<Matc
         object.setObjectKind(getObjectKind(input));
         object.setObjectPermId(getObjectPermId(input));
         object.setObjectIdentifier(getObjectIdentifier(input));
-        object.setMatch(input.getMatch());
+        if (input.getMatch() != null)
+        {
+            // trim as it can contain \n character at the end sometimes
+            object.setMatch(input.getMatch().trim());
+        }
         object.setScore(input.getScore());
         object.setFetchOptions(new GlobalSearchObjectFetchOptions());
 

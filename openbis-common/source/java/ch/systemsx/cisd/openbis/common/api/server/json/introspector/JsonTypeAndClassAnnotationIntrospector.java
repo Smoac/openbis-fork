@@ -53,6 +53,10 @@ public class JsonTypeAndClassAnnotationIntrospector extends JacksonAnnotationInt
     @Override
     public String findTypeName(AnnotatedClass ac)
     {
+        if (ac.getRawType() != null && ac.getRawType().isEnum())
+        {
+            return null;
+        }
         JsonObject tn = ac.getAnnotation(JsonObject.class);
         return (tn == null) ? null : tn.value();
     }
