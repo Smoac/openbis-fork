@@ -977,7 +977,7 @@ GlobalSearchObjectSortOptions
 GlobalSearchTextCriteria
 hasDataSet
 hasMaterial
-in
+thatIn
 searchGlobally
 setDataSet
 setEntityKind
