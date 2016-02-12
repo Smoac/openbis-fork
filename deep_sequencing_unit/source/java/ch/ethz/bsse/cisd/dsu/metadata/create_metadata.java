@@ -41,7 +41,6 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.io.PropertyIOUtils;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.common.api.client.ServiceFinder;
@@ -98,9 +97,10 @@ public class create_metadata
     private static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
 
     private static final char[] HEX_CHARACTERS =
-    { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', };
+            { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', };
 
     private static final Map<String, String> SEQUENCER_NAMING;
+
     static
     {
         SEQUENCER_NAMING = new HashMap<String, String>();
@@ -119,21 +119,15 @@ public class create_metadata
 
     public static void main(String[] args)
     {
-        try
-        {
-            HashMap<String, String[]> commandLineMap = parseCommandLine(args);
-            extract(commandLineMap);
-        } catch (EnvironmentFailureException ex)
-        {
-            System.err.println(ex);
-        } catch (Throwable ex)
-        {
-            System.err.println(ex);
-        }
+        HashMap<String, String[]> commandLineMap = parseCommandLine(args);
+        extract(commandLineMap);
     }
 
     private static void extract(HashMap<String, String[]> commandLineMap)
     {
+
+        Connection connection = null;
+
         LogInitializer.init();
         Properties props = PropertyIOUtils.loadProperties(SERVICE_PROPERTIES_FILE);
         Parameters params = new Parameters(props);
@@ -159,7 +153,8 @@ public class create_metadata
 
         EnumSet<SampleFetchOption> fetchOptions = EnumSet.of(SampleFetchOption.CHILDREN, SampleFetchOption.PROPERTIES);
         EnumSet<SampleFetchOption> flowcellFetchOptions = EnumSet.of(SampleFetchOption.PROPERTIES);
-        Connection connection = DbAccess.connectToDB(params);
+
+        connection = DbAccess.connectToDB(params);
 
         for (String sampleCode : sampleCodeList)
         {
@@ -191,7 +186,12 @@ public class create_metadata
                         System.out.println("Skipping..." + sample.getCode() + ". No Data Set found.");
                         continue;
                     }
-                    HashMap<String, Integer> dbResult = DbAccess.doQuery(connection, permId);
+
+                    HashMap<String, Integer> dbResult = new HashMap<String, Integer>();
+                    if (connection != null)
+                    {
+                        dbResult = DbAccess.doQuery(connection, permId);
+                    }
 
                     for (Sample child : children)
                     {
@@ -207,6 +207,7 @@ public class create_metadata
 
                             List<Sample> flowcellList = searchSample(infoService, sessionToken, flowcellCode, flowcellFetchOptions);
                             flowcellMap = getProperties(flowcellList);
+
                             writeTSVFile(sampleMap, flowcellMap, dbResult, outputFolder);
                         }
                     }
@@ -338,13 +339,20 @@ public class create_metadata
         for (DataSet ds : flowLaneDatasets)
         {
             HashMap<String, String> dsProperties = ds.getProperties();
-            String index1 = dsProperties.get(INDEX1_PROPERTY_CODE);
-            String index2 = dsProperties.get(INDEX2_PROPERTY_CODE);
-            if (ds.getDataSetTypeCode().equals(DATASET_TYPE_CODE_FASTQ_GZ) &&
-                    index1.equals(sample_index1) && index2.equals(sample_index2))
+            String datasetIndex1 = dsProperties.get(INDEX1_PROPERTY_CODE);
+            String datasetIndex2 = dsProperties.get(INDEX2_PROPERTY_CODE);
+            if (datasetIndex1 == null)
             {
-                permId = ds.getCode();
-                permIdMap.put(permId, ds.getSampleIdentifierOrNull());
+                System.out.println("No index found for dataset " + ds.getCode() + ". Set the indices properly for the data sets and try again.");
+            } else
+            {
+
+                if (ds.getDataSetTypeCode().equals(DATASET_TYPE_CODE_FASTQ_GZ) &&
+                        datasetIndex1.equals(sample_index1) && datasetIndex2.equals(sample_index2))
+                {
+                    permId = ds.getCode();
+                    permIdMap.put(permId, ds.getSampleIdentifierOrNull());
+                }
             }
         }
         if (permIdMap.size() == 0)
@@ -419,8 +427,7 @@ public class create_metadata
             {
                 String[] outputArray = line.getOptionValues(CL_PARAMETER_OUTPUT_FOLDER);
                 commandLineMap.put(CL_PARAMETER_OUTPUT_FOLDER, outputArray);
-            }
-            else
+            } else
             {
                 String cwd = System.getProperty("user.dir");
                 String[] arrayCwd = cwd.split("@"); // just use a split with a not valid char to convert the String into String []
