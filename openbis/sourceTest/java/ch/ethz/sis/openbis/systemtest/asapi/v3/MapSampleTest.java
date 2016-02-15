@@ -166,6 +166,34 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
+    public void testMapBySharedComponentIdentifierWithOmittedContainerCodeAndNotUniqueComponentCode()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleCreation sharedContainer = new SampleCreation();
+        sharedContainer.setCode("MP2");
+        sharedContainer.setTypeId(new EntityTypePermId("MASTER_PLATE"));
+        sharedContainer.setProperty("$PLATE_GEOMETRY", "384_WELLS_16X24");
+
+        // creating shared sample /MP2:A03 (/MP:A03 already exists)
+        SampleCreation sharedComponent = new SampleCreation();
+        sharedComponent.setCode("A03");
+        sharedComponent.setTypeId(new EntityTypePermId("WELL"));
+        sharedComponent.setContainerId(new SampleIdentifier("/MP2"));
+
+        v3api.createSamples(sessionToken, Arrays.asList(sharedContainer, sharedComponent));
+
+        // there is more than one shared sample with A03 code (/MP:A03 and /MP2:A03)
+        // therefore nothing should be found if we don't specify the container code
+        SampleIdentifier identifier1 = new SampleIdentifier("/A03");
+
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, Arrays.asList(identifier1), new SampleFetchOptions());
+        assertEquals(map.size(), 0);
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
     public void testMapBySpaceComponentIdentifier()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
