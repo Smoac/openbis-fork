@@ -16,27 +16,30 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import net.lemnik.eodsql.QueryTool;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.TechIdStringIdentifierRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.AbstractListTechIdById;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleIdentifier>
 {
-    private String homeSpaceCodeOrNull; 
-    
+    private String homeSpaceCodeOrNull;
+
     public ListSampleTechIdByIdentifier(String homeSpaceCodeOrNull)
     {
         this.homeSpaceCodeOrNull = homeSpaceCodeOrNull;
@@ -47,12 +50,12 @@ public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleI
     {
         return SampleIdentifier.class;
     }
-    
+
     @Override
     protected Map<Long, SampleIdentifier> createIdsByTechIdsMap(List<SampleIdentifier> ids)
     {
         Map<SampleIdentifierParts, Map<String, SampleIdentifier>> groupedIdentifiers = groupIdentifiers(ids);
-        
+
         Map<Long, SampleIdentifier> result = new HashMap<>();
         SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
         for (Entry<SampleIdentifierParts, Map<String, SampleIdentifier>> entry : groupedIdentifiers.entrySet())
@@ -74,9 +77,9 @@ public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleI
         Map<SampleIdentifierParts, Map<String, SampleIdentifier>> groupedIdentifiers = new HashMap<>();
         for (SampleIdentifier sampleIdentifier : ids)
         {
-            FullSampleIdentifier fullSampleIdentifier = new FullSampleIdentifier(sampleIdentifier.getIdentifier(), 
+            FullSampleIdentifier fullSampleIdentifier = new FullSampleIdentifier(sampleIdentifier.getIdentifier(),
                     homeSpaceCodeOrNull);
-            
+
             SampleIdentifierParts key = fullSampleIdentifier.getParts();
             Map<String, SampleIdentifier> identifiersByCode = groupedIdentifiers.get(key);
             if (identifiersByCode == null)
@@ -89,17 +92,32 @@ public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleI
         return groupedIdentifiers;
     }
 
-    private List<TechIdStringIdentifierRecord> list(SampleQuery query, SampleIdentifierParts key, Collection<String> codes)
+    private List<TechIdStringIdentifierRecord> list(final SampleQuery query, final SampleIdentifierParts key, final Collection<String> codes)
     {
-        String[] codesArray = codes.toArray(new String[codes.size()]);
-        String spaceCode = key.getSpaceCodeOrNull();
-        String projectCode = key.getProjectCodeOrNull();
-        String containerCode = key.getContainerCodeOrNull();
+        final String[] codesArray = codes.toArray(new String[codes.size()]);
+        final String spaceCode = key.getSpaceCodeOrNull();
+        final String projectCode = key.getProjectCodeOrNull();
+        final String containerCode = key.getContainerCodeOrNull();
+
         if (spaceCode == null)
         {
             if (containerCode == null)
             {
-                return query.listSharedSampleTechIdsByCodes(codesArray);
+                return listWithoutContainerOrWithSomeContainerAndUniqueCode(query, codesArray, new IListAction()
+                    {
+                        @Override
+                        public List<TechIdStringIdentifierRecord> list(String[] codesToList)
+                        {
+                            return query.listSharedSampleTechIdsByCodesWithoutContainer(codesToList);
+                        }
+                    }, new IListAction()
+                    {
+                        @Override
+                        public List<TechIdStringIdentifierRecord> list(String[] codesToList)
+                        {
+                            return query.listSharedSampleTechIdsByCodesWithSomeContainer(codesToList);
+                        }
+                    });
             }
             return query.listSharedSampleTechIdsByContainerCodeAndCodes(containerCode, codesArray);
         }
@@ -107,15 +125,98 @@ public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleI
         {
             if (containerCode == null)
             {
-                return query.listSpaceSampleTechIdsByCodes(spaceCode, codesArray);
+                return listWithoutContainerOrWithSomeContainerAndUniqueCode(query, codesArray, new IListAction()
+                    {
+                        @Override
+                        public List<TechIdStringIdentifierRecord> list(String[] codesToList)
+                        {
+                            return query.listSpaceSampleTechIdsByCodesWithoutContainer(spaceCode, codesToList);
+                        }
+                    }, new IListAction()
+                    {
+                        @Override
+                        public List<TechIdStringIdentifierRecord> list(String[] codesToList)
+                        {
+                            return query.listSpaceSampleTechIdsByCodesWithSomeContainer(spaceCode, codesToList);
+                        }
+                    });
             }
             return query.listSpaceSampleTechIdsByContainerCodeAndCodes(spaceCode, containerCode, codesArray);
         }
         if (containerCode == null)
         {
-            return query.listProjectSampleTechIdsByCodes(spaceCode, projectCode, codesArray);
+            return listWithoutContainerOrWithSomeContainerAndUniqueCode(query, codesArray, new IListAction()
+                {
+                    @Override
+                    public List<TechIdStringIdentifierRecord> list(String[] codesToList)
+                    {
+                        return query.listProjectSampleTechIdsByCodesWithoutContainer(spaceCode, projectCode, codesToList);
+                    }
+                }, new IListAction()
+                {
+                    @Override
+                    public List<TechIdStringIdentifierRecord> list(String[] codesToList)
+                    {
+                        return query.listProjectSampleTechIdsByCodesWithSomeContainer(spaceCode, projectCode, codesToList);
+                    }
+                });
         }
         return query.listProjectSampleTechIdsByContainerCodeAndCodes(spaceCode, projectCode, containerCode, codesArray);
+    }
+
+    private List<TechIdStringIdentifierRecord> listWithoutContainerOrWithSomeContainerAndUniqueCode(SampleQuery query, String[] codes,
+            IListAction listWithoutContainer, IListAction listWithSomeContainer)
+    {
+        try
+        {
+            List<TechIdStringIdentifierRecord> foundWithoutContainer = listWithoutContainer.list(codes);
+
+            Set<String> codesNotFound = new HashSet<String>(Arrays.asList(codes));
+            for (TechIdStringIdentifierRecord found : foundWithoutContainer)
+            {
+                codesNotFound.remove(found.identifier);
+            }
+
+            if (codesNotFound.isEmpty())
+            {
+                return foundWithoutContainer;
+            }
+
+            List<TechIdStringIdentifierRecord> allFound = new LinkedList<TechIdStringIdentifierRecord>(foundWithoutContainer);
+
+            List<TechIdStringIdentifierRecord> foundWithSomeContainer = listWithSomeContainer.list(codesNotFound.toArray(new String[] {}));
+            Map<String, TechIdStringIdentifierRecord> foundWithSomeContainerMap = new HashMap<String, TechIdStringIdentifierRecord>();
+            Map<String, Integer> foundWithSomeContainerCounter = new HashMap<String, Integer>();
+
+            for (TechIdStringIdentifierRecord found : foundWithSomeContainer)
+            {
+                foundWithSomeContainerMap.put(found.identifier, found);
+
+                Integer counter = foundWithSomeContainerCounter.get(found.identifier);
+                counter = counter == null ? 1 : counter + 1;
+                foundWithSomeContainerCounter.put(found.identifier, counter);
+            }
+
+            for (Map.Entry<String, Integer> counterEntry : foundWithSomeContainerCounter.entrySet())
+            {
+                if (counterEntry.getValue() == 1)
+                {
+                    TechIdStringIdentifierRecord found = foundWithSomeContainerMap.get(counterEntry.getKey());
+                    allFound.add(found);
+                }
+            }
+
+            return allFound;
+
+        } catch (Exception e)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
+        }
+    }
+
+    private static interface IListAction
+    {
+        public List<TechIdStringIdentifierRecord> list(String[] codesToList);
     }
 
 }

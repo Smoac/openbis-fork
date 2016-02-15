@@ -63,11 +63,12 @@ public abstract class AbstractCreateEntityExecutor<CREATION, PE, PERM_ID> implem
                 context.popProgress();
             }
 
+            daoFactory.getSessionFactory().getCurrentSession().flush();
             reloadEntities(context, entitiesAll);
 
             updateAll(context, entitiesAll);
+            
             daoFactory.getSessionFactory().getCurrentSession().flush();
-
             reloadEntities(context, entitiesAll);
 
             checkBusinessRules(context, entitiesAll.values());
