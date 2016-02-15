@@ -130,7 +130,64 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapByComponentIdentifierWithOmittedContainerCodeAndUniqueComponentCode()
+    public void testMapBySharedComponentIdentifier()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleIdentifier identifier1 = new SampleIdentifier("/MP:A03");
+
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, Arrays.asList(identifier1), new SampleFetchOptions());
+
+        assertEquals(map.size(), 1);
+
+        Sample sample1 = map.get(identifier1);
+
+        assertEquals(sample1.getIdentifier().getIdentifier(), "/MP:A03");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testMapBySharedComponentIdentifierWithOmittedContainerCodeAndUniqueComponentCode()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleIdentifier identifier1 = new SampleIdentifier("/A03");
+
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, Arrays.asList(identifier1), new SampleFetchOptions());
+
+        assertEquals(map.size(), 1);
+
+        Sample sample1 = map.get(identifier1);
+
+        assertEquals(sample1.getIdentifier().getIdentifier(), "/MP:A03");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testMapBySpaceComponentIdentifier()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleIdentifier identifier1 = new SampleIdentifier("/CISD/PLATE_WELLSEARCH:WELL-A01");
+        SampleIdentifier identifier2 = new SampleIdentifier("/CISD/PLATE_WELLSEARCH:WELL-A02");
+
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, Arrays.asList(identifier1, identifier2), new SampleFetchOptions());
+
+        assertEquals(map.size(), 2);
+
+        Sample sample1 = map.get(identifier1);
+        Sample sample2 = map.get(identifier2);
+
+        assertEquals(sample1.getIdentifier().getIdentifier(), "/CISD/PLATE_WELLSEARCH:WELL-A01");
+        assertEquals(sample2.getIdentifier().getIdentifier(), "/CISD/PLATE_WELLSEARCH:WELL-A02");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testMapBySpaceComponentIdentifierWithOmittedContainerCodeAndUniqueComponentCode()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -151,7 +208,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapByComponentIdentifierWithOmittedContainerCodeAndNotUniqueComponentCode()
+    public void testMapBySpaceComponentIdentifierWithOmittedContainerCodeAndNotUniqueComponentCode()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -166,7 +223,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapByComponentIdentifierWithOmittedContainerCodeAndUniqueAndNotUniqueComponentCodes()
+    public void testMapBySpaceComponentIdentifierWithOmittedContainerCodeAndUniqueAndNotUniqueComponentCodes()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
