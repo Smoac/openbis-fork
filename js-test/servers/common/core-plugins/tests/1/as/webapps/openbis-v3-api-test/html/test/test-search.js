@@ -642,5 +642,30 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			testSearch(c, fSearch, fCheck);
 		});
 
+		QUnit.test("searchObjectKindModifications()", function(assert) {
+			var c = new common(assert);
+
+			var fSearch = function(facade) {
+				var criteria = new c.ObjectKindModificationSearchCriteria();
+				criteria.withObjectKind().thatIn([ "SAMPLE", "EXPERIMENT" ]);
+				criteria.withOperationKind().thatIn([ "CREATE_OR_DELETE" ]);
+				return facade.searchObjectKindModifications(criteria, c.createObjectKindModificationFetchOptions());
+			}
+
+			var fCheck = function(facade, objects) {
+				c.assertEqual(objects.length, 2);
+
+				var object0 = objects[0];
+				c.assertEqual(object0.getObjectKind(), "SAMPLE", "ObjectKind");
+				c.assertNotNull(object0.getLastModificationTimeStamp(), "LastModificationTimeStamp");
+
+				var object1 = objects[1];
+				c.assertEqual(object1.getObjectKind(), "EXPERIMENT", "ObjectKind");
+				c.assertNotNull(object1.getLastModificationTimeStamp(), "LastModificationTimeStamp");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
 	}
 });
