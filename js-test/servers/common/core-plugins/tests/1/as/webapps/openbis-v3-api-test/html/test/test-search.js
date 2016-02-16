@@ -592,7 +592,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			var fSearch = function(facade) {
 				var criteria = new c.GlobalSearchCriteria();
 				criteria.withText().thatContains("20130412150049446-204 20130412140147735-20 20130417094936021-428 H2O");
-				criteria.withObjectKind().thatIn(["EXPERIMENT"]);
+				criteria.withObjectKind().thatIn([ "EXPERIMENT" ]);
 				return facade.searchGlobally(criteria, c.createGlobalSearchObjectFetchOptions());
 			}
 
@@ -608,6 +608,34 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 				c.assertEqual(object0.getExperiment().getCode(), "TEST-EXPERIMENT", "Experiment");
 				c.assertNull(object0.getSample(), "Sample");
 				c.assertNull(object0.getDataSet(), "DataSet");
+				c.assertNull(object0.getMaterial(), "Material");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchGlobally() withWildCards", function(assert) {
+			var c = new common(assert);
+
+			var fSearch = function(facade) {
+				var criteria = new c.GlobalSearchCriteria();
+				criteria.withText().thatContains("256x25*");
+				criteria.withWildCards();
+				return facade.searchGlobally(criteria, c.createGlobalSearchObjectFetchOptions());
+			}
+
+			var fCheck = function(facade, objects) {
+				c.assertEqual(objects.length, 1);
+
+				var object0 = objects[0];
+				c.assertEqual(object0.getObjectKind(), "DATA_SET", "ObjectKind");
+				c.assertEqual(object0.getObjectPermId().getPermId(), "20130412142942295-198", "ObjectPermId");
+				c.assertEqual(object0.getObjectIdentifier().getPermId(), "20130412142942295-198", "ObjectIdentifier");
+				c.assertEqual(object0.getMatch(), "Property 'Resolution': 256x256", "Match");
+				c.assertNotNull(object0.getScore(), "Score");
+				c.assertEqual(object0.getDataSet().getCode(), "20130412142942295-198", "DataSet");
+				c.assertNull(object0.getExperiment(), "Experiment");
+				c.assertNull(object0.getSample(), "Sample");
 				c.assertNull(object0.getMaterial(), "Material");
 			}
 
