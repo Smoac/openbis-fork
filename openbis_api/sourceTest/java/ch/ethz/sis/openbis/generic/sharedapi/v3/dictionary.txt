@@ -936,8 +936,10 @@ search Object Kind Modifications
 set Last Modification Time Stamp
 set Object Kind
 set Operation Kind
-with Object Kinds
-with Operation Kinds
+with Object Kind
+with Operation Kind
+ObjectKindCriteria
+OperationKindCriteria
 
 AUTHORIZATION_GROUP
 CREATE_OR_DELETE
@@ -990,7 +992,6 @@ setRegistratorEmail
 withDataSetUsing
 withMaterial
 withMaterialUsing
-withObjectKind
 withText
 getDataProducer
 getDataProductionDate

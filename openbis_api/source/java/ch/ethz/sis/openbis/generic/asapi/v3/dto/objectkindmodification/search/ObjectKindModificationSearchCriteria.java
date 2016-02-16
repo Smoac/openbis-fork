@@ -16,46 +16,35 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.search;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.ObjectKind;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.OperationKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractCompositeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author Franz-Josef Elmer
  */
 @JsonObject("as.dto.objectkindmodification.search.ObjectKindModificationSearchCriteria")
-public class ObjectKindModificationSearchCriteria implements ISearchCriteria
+public class ObjectKindModificationSearchCriteria extends AbstractCompositeSearchCriteria
 {
-    private List<ObjectKind> objectKinds = new ArrayList<>();
-
-    private List<OperationKind> operationKinds = new ArrayList<>();
 
     private static final long serialVersionUID = 1L;
 
-    public ObjectKindModificationSearchCriteria withObjectKinds(ObjectKind... someObjectKinds)
+    public ObjectKindCriteria withObjectKind()
     {
-        this.objectKinds.addAll(Arrays.asList(someObjectKinds));
-        return this;
+        return with(new ObjectKindCriteria());
     }
 
-    public ObjectKindModificationSearchCriteria withOperationKinds(OperationKind... someOperationKinds)
+    public OperationKindCriteria withOperationKind()
     {
-        this.operationKinds.addAll(Arrays.asList(someOperationKinds));
-        return this;
+        return with(new OperationKindCriteria());
     }
 
-    public List<ObjectKind> getObjectKinds()
+    @Override
+    protected SearchCriteriaToStringBuilder createBuilder()
     {
-        return objectKinds;
+        SearchCriteriaToStringBuilder builder = super.createBuilder();
+        builder.setName("OBJECT_KIND_MODIFICATION_SEARCH");
+        return builder;
     }
 
-    public List<OperationKind> getOperationKinds()
-    {
-        return operationKinds;
-    }
 }

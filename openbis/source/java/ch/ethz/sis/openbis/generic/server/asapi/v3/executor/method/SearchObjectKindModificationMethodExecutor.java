@@ -24,18 +24,19 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.ObjectKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.ObjectKindModification;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.OperationKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.fetchoptions.ObjectKindModificationFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.search.ObjectKindCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.search.ObjectKindModificationSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.search.OperationKindCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Component
@@ -62,27 +63,57 @@ public class SearchObjectKindModificationMethodExecutor implements ISearchObject
                 objectKindModification.setLastModificationTimeStamp(date);
                 objectKindModification.setFetchOptions(fetchOptions);
                 result.add(objectKindModification);
-            } 
+            }
         }
         return new SearchResult<>(result, result.size());
     }
-    
-    private List<ObjectKind> getObjectKinds(ObjectKindModificationSearchCriteria searchCriteria)
+
+    private List<ObjectKind> getObjectKinds(ObjectKindModificationSearchCriteria criteria)
     {
-        List<ObjectKind> objectKinds = searchCriteria.getObjectKinds();
-        return objectKinds == null || objectKinds.isEmpty() ? Arrays.asList(ObjectKind.values()) : objectKinds;
+        ObjectKindCriteria lastCriteria = null;
+
+        for (ISearchCriteria subCriteria : criteria.getCriteria())
+        {
+            if (subCriteria instanceof ObjectKindCriteria)
+            {
+                lastCriteria = (ObjectKindCriteria) subCriteria;
+            }
+        }
+
+        if (lastCriteria == null || lastCriteria.getObjectKinds() == null || lastCriteria.getObjectKinds().isEmpty())
+        {
+            return Arrays.asList(ObjectKind.values());
+        } else
+        {
+            return lastCriteria.getObjectKinds();
+        }
     }
-    
-    private List<OperationKind> getOperationKinds(ObjectKindModificationSearchCriteria searchCriteria)
+
+    private List<OperationKind> getOperationKinds(ObjectKindModificationSearchCriteria criteria)
     {
-        List<OperationKind> operationKinds = searchCriteria.getOperationKinds();
-        return operationKinds == null || operationKinds.isEmpty() ? Arrays.asList(OperationKind.values()) : operationKinds;
+        OperationKindCriteria lastCriteria = null;
+
+        for (ISearchCriteria subCriteria : criteria.getCriteria())
+        {
+            if (subCriteria instanceof OperationKindCriteria)
+            {
+                lastCriteria = (OperationKindCriteria) subCriteria;
+            }
+        }
+
+        if (lastCriteria == null || lastCriteria.getOperationKinds() == null || lastCriteria.getOperationKinds().isEmpty())
+        {
+            return Arrays.asList(OperationKind.values());
+        } else
+        {
+            return lastCriteria.getOperationKinds();
+        }
     }
-    
+
     private DatabaseModificationKind translate(ObjectKind objectKind, OperationKind operationKind)
     {
-        ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind translatedObjectKind 
-                = DatabaseModificationKind.ObjectKind.valueOf(objectKind.name());
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind translatedObjectKind =
+                DatabaseModificationKind.ObjectKind.valueOf(objectKind.name());
         switch (operationKind)
         {
             case CREATE_OR_DELETE:

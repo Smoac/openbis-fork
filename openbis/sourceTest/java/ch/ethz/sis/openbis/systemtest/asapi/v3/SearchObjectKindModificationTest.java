@@ -36,8 +36,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.update.ProjectUpdate;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class SearchObjectKindModificationTest extends AbstractTest
@@ -47,13 +45,12 @@ public class SearchObjectKindModificationTest extends AbstractTest
     {
         ObjectKindModificationSearchCriteria searchCriteria = new ObjectKindModificationSearchCriteria();
         ObjectKindModificationFetchOptions fetchOptions = new ObjectKindModificationFetchOptions();
-        
-        SearchResult<ObjectKindModification> searchResult 
-                = v3api.searchObjectKindModifications(systemSessionToken, searchCriteria, fetchOptions);
-        
+
+        SearchResult<ObjectKindModification> searchResult = v3api.searchObjectKindModifications(systemSessionToken, searchCriteria, fetchOptions);
+
         assertEquals(searchResult.getTotalCount(), ObjectKind.values().length * OperationKind.values().length);
     }
-    
+
     @Test
     public void testSearchForProjectModifications()
     {
@@ -64,13 +61,12 @@ public class SearchObjectKindModificationTest extends AbstractTest
         projectUpdate.setDescription("time stamp: " + date);
         v3api.updateProjects(systemSessionToken, Arrays.asList(projectUpdate));
         ObjectKindModificationSearchCriteria searchCriteria = new ObjectKindModificationSearchCriteria();
-        searchCriteria.withObjectKinds(ObjectKind.PROJECT, ObjectKind.SAMPLE);
-        searchCriteria.withOperationKinds(OperationKind.UPDATE);
+        searchCriteria.withObjectKind().thatIn(ObjectKind.PROJECT, ObjectKind.SAMPLE);
+        searchCriteria.withOperationKind().thatIn(OperationKind.UPDATE);
         ObjectKindModificationFetchOptions fetchOptions = new ObjectKindModificationFetchOptions();
-        
-        SearchResult<ObjectKindModification> searchResult 
-                = v3api.searchObjectKindModifications(systemSessionToken, searchCriteria, fetchOptions);
-        
+
+        SearchResult<ObjectKindModification> searchResult = v3api.searchObjectKindModifications(systemSessionToken, searchCriteria, fetchOptions);
+
         assertEquals(searchResult.getTotalCount(), 2);
         List<ObjectKindModification> modifications = searchResult.getObjects();
         for (ObjectKindModification modification : modifications)
@@ -79,11 +75,11 @@ public class SearchObjectKindModificationTest extends AbstractTest
             ObjectKind objectKind = modification.getObjectKind();
             if (objectKind == ObjectKind.SAMPLE)
             {
-                assertTrue(lastModificationTimeStamp.getTime() < date.getTime(), 
+                assertTrue(lastModificationTimeStamp.getTime() < date.getTime(),
                         "Expected date (" + date + ") >= " + modification);
             } else if (objectKind == ObjectKind.PROJECT)
             {
-                assertTrue(lastModificationTimeStamp.getTime() >= date.getTime(), 
+                assertTrue(lastModificationTimeStamp.getTime() >= date.getTime(),
                         "Expected date (" + date + ") < " + modification);
             } else
             {
