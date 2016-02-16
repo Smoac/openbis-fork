@@ -534,11 +534,11 @@ var common = {
   menu_processing: "Actions",
 
   menu_archiving: "Archiving",
-  ARCHIVING_MENU_BACKUP: "Add to Archive",
-  ARCHIVING_MENU_ARCHIVE: "Archive",
+  ARCHIVING_MENU_BACKUP: "Copy to Archive",
+  ARCHIVING_MENU_ARCHIVE: "Move to Archive",
   ARCHIVING_MENU_UNARCHIVE: "Unarchive",
-  ARCHIVING_MENU_LOCK: "Disable",
-  ARCHIVING_MENU_UNLOCK: "Enable",
+  ARCHIVING_MENU_LOCK: "Lock",
+  ARCHIVING_MENU_UNLOCK: "Unlock",
   
   GENERAL_IMPORT_MENU: "General Batch Import",
   
