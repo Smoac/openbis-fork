@@ -199,10 +199,14 @@ public class GroupingDAG<T>
 
         for (T item : levelItems)
         {
-            for (T son : graph.get(item))
+            Collection<T> items = graph.get(item);
+            if (items != null)
             {
-                allSonsInTheLevel.add(son);
-                dependenciesCount.put(son, dependenciesCount.get(son) - 1);
+                for (T son : items)
+                {
+                    allSonsInTheLevel.add(son);
+                    dependenciesCount.put(son, dependenciesCount.get(son) - 1);
+                }
             }
         }
         for (T son : allSonsInTheLevel)
