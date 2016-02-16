@@ -212,6 +212,11 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
         operationLog.info("Feeding finished.");
     }
     
+    @Override
+    public void clearCache()
+    {
+    }
+
     private List<SimpleDataSetInformationDTO> filteredDataSets(List<SimpleDataSetInformationDTO> dataSets, Set<String> processedDataSets)
     {
         List<SimpleDataSetInformationDTO> result = new ArrayList<>();

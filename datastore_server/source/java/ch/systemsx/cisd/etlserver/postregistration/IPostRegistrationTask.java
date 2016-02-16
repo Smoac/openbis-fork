@@ -30,6 +30,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 public interface IPostRegistrationTask
 {
     /**
+     * Clear potential cache.
+     */
+    public void clearCache();
+    
+    /**
      * Returns <code>true</code> if this task needs a lock onto the data store.
      */
     public boolean requiresDataStoreLock();

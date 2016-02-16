@@ -35,4 +35,9 @@ public abstract class AbstractPostRegistrationTask implements IPostRegistrationT
         this.properties = properties;
         this.service = service;
     }
+
+    @Override
+    public void clearCache()
+    {
+    }
 }
