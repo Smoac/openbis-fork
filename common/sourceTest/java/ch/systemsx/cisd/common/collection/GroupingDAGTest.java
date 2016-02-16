@@ -29,7 +29,6 @@ import java.util.Map;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.collection.GroupingDAG;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
@@ -62,7 +61,6 @@ public class GroupingDAGTest extends AssertJUnit
             adjacencyMap.put(childCode, Arrays.asList("CHAIN_" + (i - 1)));
         }
 
-
         List<List<String>> groups = sortTopologically(adjacencyMap);
 
         assertAllEntitiesPresent(adjacencyMap.keySet(), groups);
@@ -79,6 +77,24 @@ public class GroupingDAGTest extends AssertJUnit
         {
             assertEquals(1, group.size());
         }
+    }
+
+    @Test
+    public void testIndependentWithOneExtraPair()
+    {
+        HashMap<String, Collection<String>> adjacencyMap =
+                new HashMap<String, Collection<String>>();
+
+        adjacencyMap.put("A", new ArrayList<String>());
+        adjacencyMap.put("B", Arrays.asList("A"));
+        adjacencyMap.put("C", Arrays.asList("A", "B"));
+        adjacencyMap.put("D", Arrays.asList("C", "B", "A"));
+        adjacencyMap.put("E", Arrays.asList("C", "D"));
+        adjacencyMap.put("X", Arrays.asList("Z"));
+
+        List<List<String>> groups = sortTopologically(adjacencyMap);
+
+        assertEquals("[[E, X], [D, Z], [C], [B], [A]]", groups.toString());
     }
 
     @Test
