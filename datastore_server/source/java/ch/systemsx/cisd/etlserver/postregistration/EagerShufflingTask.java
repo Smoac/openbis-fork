@@ -184,6 +184,12 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
     private Date sharesTimestamp;
 
     @Override
+    public void clearCache()
+    {
+        sharesTimestamp = null;
+    }
+
+    @Override
     public IPostRegistrationTaskExecutor createExecutor(String dataSetCode)
     {
         return new Executor(dataSetCode);

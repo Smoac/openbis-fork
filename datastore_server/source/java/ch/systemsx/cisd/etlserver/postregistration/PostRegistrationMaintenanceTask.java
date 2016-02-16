@@ -185,6 +185,7 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
                 for (Entry<String, IPostRegistrationTask> entry : tasks)
                 {
                     IPostRegistrationTask task = entry.getValue();
+                    task.clearCache();
                     String taskName = entry.getKey();
                     executor.execute(task, taskName, code, dataSet.isContainer());
                 }
