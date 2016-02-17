@@ -58,6 +58,8 @@ public class AbstractSearchMethodExecutorTest
     private static final String SESSION_TOKEN2 = "sessionToken2";
 
     private MessageChannel channel;
+    
+    private MessageChannel channel2;
 
     private TestSearchMethodExecutor executor;
 
@@ -65,7 +67,8 @@ public class AbstractSearchMethodExecutorTest
     public void setUpExecutor()
     {
         LogInitializer.init();
-        channel = new MessageChannelBuilder(1000).logger(new ConsoleLogger()).getChannel();
+        channel = new MessageChannelBuilder(1000).name("ch1").logger(new ConsoleLogger()).getChannel();
+        channel2 = new MessageChannelBuilder(1000).name("ch2").logger(new ConsoleLogger()).getChannel();
         executor = new TestSearchMethodExecutor();
         executor.addSession(SESSION_TOKEN1, createSession("user1"));
         executor.addSession(SESSION_TOKEN2, createSession("user2"));
@@ -150,11 +153,11 @@ public class AbstractSearchMethodExecutorTest
                     if (currentThread == t1)
                     {
                         channel.send("t1.get started");
-                        channel.assertNextMessage("t2.get started");
+                        channel2.assertNextMessage("t2.get started");
                         channel.send("t1.get finished");
                     } else
                     {
-                        channel.send("t2.get started");
+                        channel2.send("t2.get started");
                     }
                 }
             });
