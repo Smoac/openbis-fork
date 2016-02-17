@@ -52,7 +52,8 @@ public class VerifySampleExecutor implements IVerifySampleExecutor
     {
         verifyEntityPropertyExecutor.verify(context, samples);
         verifySampleExperimentExecutor.verify(context, samples);
-        verifySampleProjectExecutor.verify(context, samples);
+        // TODO: project samples
+//        verifySampleProjectExecutor.verify(context, samples);
         verifySampleContainerExecutor.verify(context, samples);
         verifySampleParentsExecutor.verify(context, samples);
     }
