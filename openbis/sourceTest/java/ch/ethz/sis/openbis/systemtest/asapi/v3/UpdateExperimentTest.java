@@ -33,7 +33,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
@@ -125,6 +124,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         assertEquals(experiment.getIdentifier().getIdentifier(), "/CISD/NOE/TEST_EXPERIMENT");
     }
     
+    /*
     @Test(groups = "project-samples")
     public void testMovingExperimentWithProjectSamplesToADifferentProject()
     {
@@ -157,7 +157,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         AssertionUtil.assertCollectionSize(samples, 1);
         AssertionUtil.assertCollectionSize(experiments, 1);
     }
-
+*/
     @Test
     public void testUpdateWithProjectNull()
     {

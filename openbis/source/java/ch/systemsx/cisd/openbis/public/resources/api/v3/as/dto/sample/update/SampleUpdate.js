@@ -6,7 +6,6 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 	var SampleUpdate = function() {
 		this.properties = {};
 		this.experimentId = new FieldUpdateValue();
-		this.projectId = new FieldUpdateValue();
 		this.spaceId = new FieldUpdateValue();
 		this.tagIds = new IdListUpdateValue();
 		this.containerId = new FieldUpdateValue();
@@ -21,7 +20,6 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		prototype.sampleId = null;
 		prototype.properties = null;
 		prototype.experimentId = null;
-		prototype.projectId = null;
 		prototype.spaceId = null;
 		prototype.tagIds = null;
 		prototype.containerId = null;
@@ -35,12 +33,6 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		};
 		prototype.setSampleId = function(sampleId) {
 			this.sampleId = sampleId;
-		};
-		prototype.getProjectId = function() {
-			return this.projectId;
-		};
-		prototype.setProjectId = function(projectId) {
-			this.projectId.setValue(projectId);
 		};
 		prototype.getExperimentId = function() {
 			return this.experimentId;
@@ -101,10 +93,6 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		experimentId : {
 			name : "FieldUpdateValue",
 			arguments : [ "IExperimentId" ]
-		},
-		projectId : {
-			name : "FieldUpdateValue",
-			arguments : [ "IProjectId" ]
 		},
 		spaceId : {
 			name : "FieldUpdateValue",

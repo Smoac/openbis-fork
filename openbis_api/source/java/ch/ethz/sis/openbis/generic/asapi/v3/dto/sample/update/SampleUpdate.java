@@ -29,7 +29,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue.ListUpdateAction;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
@@ -48,9 +47,6 @@ public class SampleUpdate implements Serializable
 
     @JsonProperty
     private FieldUpdateValue<IExperimentId> experimentId = new FieldUpdateValue<IExperimentId>();
-
-    @JsonProperty
-    private FieldUpdateValue<IProjectId> projectId = new FieldUpdateValue<IProjectId>();
 
     @JsonProperty
     private FieldUpdateValue<ISpaceId> spaceId = new FieldUpdateValue<ISpaceId>();
@@ -98,18 +94,6 @@ public class SampleUpdate implements Serializable
     public void setExperimentId(IExperimentId experimentId)
     {
         this.experimentId.setValue(experimentId);
-    }
-
-    @JsonIgnore
-    public FieldUpdateValue<IProjectId> getProjectId()
-    {
-        return projectId;
-    }
-
-    @JsonIgnore
-    public void setProjectId(IProjectId projectId)
-    {
-        this.projectId.setValue(projectId);
     }
 
     @JsonIgnore

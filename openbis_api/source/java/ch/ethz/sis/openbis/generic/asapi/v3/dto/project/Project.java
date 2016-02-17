@@ -37,7 +37,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -46,8 +45,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.project.Project")
-public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, IModificationDateHolder, IModifierHolder, IPermIdHolder,
-        IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder
+public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, IModificationDateHolder, IModifierHolder, IPermIdHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -74,9 +72,6 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
 
     @JsonProperty
     private List<Experiment> experiments;
-
-    @JsonProperty
-    private List<Sample> samples;
 
     @JsonProperty
     private List<HistoryEntry> history;
@@ -209,26 +204,6 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
     public void setExperiments(List<Experiment> experiments)
     {
         this.experiments = experiments;
-    }
-
-    // Method automatically generated with DtoGenerator
-    @JsonIgnore
-    public List<Sample> getSamples()
-    {
-        if (getFetchOptions().hasSamples())
-        {
-            return samples;
-        }
-        else
-        {
-            throw new NotFetchedException("Samples have not been fetched.");
-        }
-    }
-
-    // Method automatically generated with DtoGenerator
-    public void setSamples(List<Sample> samples)
-    {
-        this.samples = samples;
     }
 
     // Method automatically generated with DtoGenerator

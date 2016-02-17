@@ -23,7 +23,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractCompositeS
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search.NoProjectSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search.ProjectSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -53,7 +52,9 @@ public class ProjectSearchCriteriaTranslator extends AbstractFieldFromCompositeS
     @Override
     protected boolean doAccepts(ISearchCriteria criteria)
     {
-        return criteria instanceof NoProjectSearchCriteria || criteria instanceof ProjectSearchCriteria;
+        // TODO: project samples
+//        return criteria instanceof NoProjectSearchCriteria || criteria instanceof ProjectSearchCriteria;
+        return criteria instanceof ProjectSearchCriteria;
     }
 
     @Override
@@ -64,10 +65,11 @@ public class ProjectSearchCriteriaTranslator extends AbstractFieldFromCompositeS
             throw new IllegalArgumentException("Project criteria can be used only in experiment or sample criteria, "
                     + "but was used in: " + context.peekEntityKind() + " context.");
         }
-        if (criteria instanceof NoProjectSearchCriteria)
-        {
-            return new SearchCriteriaTranslationResult(new DetailedSearchCriterion(PROJECT_ID_FIELD, NullBridge.NULL));
-        }
+        // TODO: project samples
+//        if (criteria instanceof NoProjectSearchCriteria)
+//        {
+//            return new SearchCriteriaTranslationResult(new DetailedSearchCriterion(PROJECT_ID_FIELD, NullBridge.NULL));
+//        }
         AbstractCompositeSearchCriteria compositeCriteria = (AbstractCompositeSearchCriteria) criteria;
         Collection<ISearchCriteria> subCriteria = compositeCriteria.getCriteria();
         if (subCriteria.isEmpty())

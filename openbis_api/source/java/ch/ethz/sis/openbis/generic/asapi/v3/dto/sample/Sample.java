@@ -41,7 +41,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
@@ -54,8 +53,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.sample.Sample")
-public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IModificationDateHolder, IModifierHolder,
-        IParentChildrenHolder<Sample>, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder, ITagsHolder
+public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IModificationDateHolder, IModifierHolder, IParentChildrenHolder<Sample>, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder, ITagsHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -79,9 +77,6 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
 
     @JsonProperty
     private SampleType type;
-
-    @JsonProperty
-    private Project project;
 
     @JsonProperty
     private Space space;
@@ -225,26 +220,6 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
     public void setType(SampleType type)
     {
         this.type = type;
-    }
-
-    // Method automatically generated with DtoGenerator
-    @JsonIgnore
-    public Project getProject()
-    {
-        if (getFetchOptions().hasProject())
-        {
-            return project;
-        }
-        else
-        {
-            throw new NotFetchedException("Project has not been fetched.");
-        }
-    }
-
-    // Method automatically generated with DtoGenerator
-    public void setProject(Project project)
-    {
-        this.project = project;
     }
 
     // Method automatically generated with DtoGenerator

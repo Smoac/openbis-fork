@@ -21,8 +21,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToSt
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.NoExperimentSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search.NoProjectSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search.ProjectSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -51,17 +49,6 @@ public class SampleSearchCriteria extends AbstractEntitySearchCriteria<ISampleId
     public SpaceSearchCriteria withSpace()
     {
         return with(new SpaceSearchCriteria());
-    }
-
-    public ProjectSearchCriteria withProject()
-    {
-        return with(new ProjectSearchCriteria());
-    }
-
-    public SampleSearchCriteria withoutProject()
-    {
-        with(new NoProjectSearchCriteria());
-        return this;
     }
 
     public ExperimentSearchCriteria withExperiment()

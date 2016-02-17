@@ -29,7 +29,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationResults;
@@ -102,10 +101,11 @@ public class ProjectTranslator extends AbstractCachingTranslator<Long, Project, 
             relations.put(IProjectExperimentTranslator.class, experimentTranslator.translate(context, projectIds, fetchOptions.withExperiments()));
         }
 
-        if (fetchOptions.hasSamples())
-        {
-            relations.put(IProjectSampleTranslator.class, sampleTranslator.translate(context, projectIds, fetchOptions.withSamples()));
-        }
+        // TODO: project samples
+//        if (fetchOptions.hasSamples())
+//        {
+//            relations.put(IProjectSampleTranslator.class, sampleTranslator.translate(context, projectIds, fetchOptions.withSamples()));
+//        }
 
         if (fetchOptions.hasRegistrator())
         {
@@ -161,11 +161,12 @@ public class ProjectTranslator extends AbstractCachingTranslator<Long, Project, 
             result.getFetchOptions().withExperimentsUsing(fetchOptions.withExperiments());
         }
 
-        if (fetchOptions.hasSamples())
-        {
-            result.setSamples((List<Sample>) relations.get(IProjectSampleTranslator.class, projectId));
-            result.getFetchOptions().withSamplesUsing(fetchOptions.withSamples());
-        }
+        // TODO: project samples
+//        if (fetchOptions.hasSamples())
+//        {
+//            result.setSamples((List<Sample>) relations.get(IProjectSampleTranslator.class, projectId));
+//            result.getFetchOptions().withSamplesUsing(fetchOptions.withSamples());
+//        }
 
         if (fetchOptions.hasRegistrator())
         {

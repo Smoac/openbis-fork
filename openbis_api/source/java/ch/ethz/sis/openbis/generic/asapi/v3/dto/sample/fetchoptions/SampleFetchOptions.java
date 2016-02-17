@@ -26,7 +26,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.Experime
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.fetchoptions.HistoryEntryFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
@@ -43,9 +42,6 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
 
     @JsonProperty
     private SampleTypeFetchOptions type;
-
-    @JsonProperty
-    private ProjectFetchOptions project;
 
     @JsonProperty
     private SpaceFetchOptions space;
@@ -112,28 +108,6 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
     public boolean hasType()
     {
         return type != null;
-    }
-
-    // Method automatically generated with DtoGenerator
-    public ProjectFetchOptions withProject()
-    {
-        if (project == null)
-        {
-            project = new ProjectFetchOptions();
-        }
-        return project;
-    }
-
-    // Method automatically generated with DtoGenerator
-    public ProjectFetchOptions withProjectUsing(ProjectFetchOptions fetchOptions)
-    {
-        return project = fetchOptions;
-    }
-
-    // Method automatically generated with DtoGenerator
-    public boolean hasProject()
-    {
-        return project != null;
     }
 
     // Method automatically generated with DtoGenerator

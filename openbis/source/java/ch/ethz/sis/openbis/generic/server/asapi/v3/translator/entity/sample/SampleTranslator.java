@@ -126,10 +126,11 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
             relations.put(ISampleSpaceTranslator.class, spaceTranslator.translate(context, sampleIds, fetchOptions.withSpace()));
         }
 
-        if (fetchOptions.hasProject())
-        {
-            relations.put(ISampleProjectTranslator.class, projectTranslator.translate(context, sampleIds, fetchOptions.withProject()));
-        }
+        // TODO: project samples
+//        if (fetchOptions.hasProject())
+//        {
+//            relations.put(ISampleProjectTranslator.class, projectTranslator.translate(context, sampleIds, fetchOptions.withProject()));
+//        }
 
         if (fetchOptions.hasProperties())
         {
@@ -208,7 +209,10 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
 
         result.setPermId(new SamplePermId(baseRecord.permId));
         result.setCode(baseRecord.code);
-        result.setIdentifier(new SampleIdentifier(baseRecord.spaceCode, baseRecord.projectCode,
+        // TODO: project samples
+//        result.setIdentifier(new SampleIdentifier(baseRecord.spaceCode, baseRecord.projectCode,
+//                baseRecord.containerCode, baseRecord.code));
+        result.setIdentifier(new SampleIdentifier(baseRecord.spaceCode, 
                 baseRecord.containerCode, baseRecord.code));
         result.setModificationDate(baseRecord.modificationDate);
         result.setRegistrationDate(baseRecord.registrationDate);
@@ -225,11 +229,12 @@ public class SampleTranslator extends AbstractCachingTranslator<Long, Sample, Sa
             result.getFetchOptions().withSpaceUsing(fetchOptions.withSpace());
         }
 
-        if (fetchOptions.hasProject())
-        {
-            result.setProject(relations.get(ISampleProjectTranslator.class, sampleId));
-            result.getFetchOptions().withProjectUsing(fetchOptions.withProject());
-        }
+        // TODO: project samples
+//        if (fetchOptions.hasProject())
+//        {
+//            result.setProject(relations.get(ISampleProjectTranslator.class, sampleId));
+//            result.getFetchOptions().withProjectUsing(fetchOptions.withProject());
+//        }
 
         if (fetchOptions.hasProperties())
         {

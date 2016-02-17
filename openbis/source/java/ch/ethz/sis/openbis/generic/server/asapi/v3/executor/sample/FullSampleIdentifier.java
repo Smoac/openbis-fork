@@ -169,8 +169,12 @@ public class FullSampleIdentifier
     @Override
     public String toString()
     {
+        // TODO: project samples
+//        return new SampleIdentifier(sampleIdentifierParts.getSpaceCodeOrNull(), 
+//                sampleIdentifierParts.getProjectCodeOrNull(), sampleIdentifierParts.getContainerCodeOrNull(), 
+//                sampleCode).toString();
         return new SampleIdentifier(sampleIdentifierParts.getSpaceCodeOrNull(), 
-                sampleIdentifierParts.getProjectCodeOrNull(), sampleIdentifierParts.getContainerCodeOrNull(), 
+                sampleIdentifierParts.getContainerCodeOrNull(), 
                 sampleCode).toString();
     }
     
