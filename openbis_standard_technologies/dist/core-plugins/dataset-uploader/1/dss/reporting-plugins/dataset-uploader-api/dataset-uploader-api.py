@@ -29,6 +29,7 @@ from ch.systemsx.cisd.common.exceptions import UserFailureException
 import time
 import subprocess
 import os.path
+import re
 
 def getSampleByIdentifierForUpdate(tr, identifier):
 	space = identifier.split("/")[1];
