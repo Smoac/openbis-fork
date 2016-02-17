@@ -46,6 +46,29 @@ public class GlobalSearchTest extends AbstractTest
 {
 
     @Test
+    public void testSearchWithAuthorized()
+    {
+        GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatContainsExactly("200902091219327-1025");
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, new GlobalSearchObjectFetchOptions());
+        assertEquals(result.getObjects().size(), 1);
+
+        GlobalSearchObject object = result.getObjects().get(0);
+        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "Perm ID: 200902091219327-1025");
+    }
+
+    @Test
+    public void testSearchWithUnauthorized()
+    {
+        GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatContainsExactly("200902091219327-1025");
+
+        SearchResult<GlobalSearchObject> result = search(TEST_SPACE_USER, criteria, new GlobalSearchObjectFetchOptions());
+        assertEquals(result.getObjects().size(), 0);
+    }
+
+    @Test
     public void testSearchWithOneContainsOneWord()
     {
         GlobalSearchCriteria criteria = new GlobalSearchCriteria();
