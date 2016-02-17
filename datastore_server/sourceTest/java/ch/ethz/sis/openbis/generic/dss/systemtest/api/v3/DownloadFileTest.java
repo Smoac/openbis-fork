@@ -20,6 +20,19 @@ public class DownloadFileTest extends AbstractFileTest
 {
 
     @Test
+    public void testDownloadUnauthorized()
+    {
+        String spaceSessionToken = gis.tryToAuthenticateForAllServices("test_space", "password");
+
+        InputStream stream = dss.downloadFiles(spaceSessionToken, Arrays.asList(new DataSetFilePermId(new DataSetPermId(dataSetCode))),
+                new DataSetFileDownloadOptions());
+
+        DataSetFileDownloadReader reader = new DataSetFileDownloadReader(stream);
+
+        assertNull(reader.read());
+    }
+
+    @Test
     public void testDownloadAllFiles() throws Exception
     {
         IDataSetFileId root = new DataSetFilePermId(new DataSetPermId(dataSetCode));
@@ -128,8 +141,7 @@ public class DownloadFileTest extends AbstractFileTest
         assertEquals(getContent(download2.getDataSetFile().getPath()).length(), download2.getDataSetFile().getFileLength());
     }
 
-    private Map<String, String> download(@SuppressWarnings("hiding")
-    List<IDataSetFileId> files, DataSetFileDownloadOptions options)
+    private Map<String, String> download(@SuppressWarnings("hiding") List<IDataSetFileId> files, DataSetFileDownloadOptions options)
     {
         try
         {

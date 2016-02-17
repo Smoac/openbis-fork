@@ -49,6 +49,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermI
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.dssapi.v3.download.DataSetFileDownloadInputStream;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -63,6 +64,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IPluginTaskInfo
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DssSessionAuthorizationHolder;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
@@ -211,22 +213,26 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
                 if (filePermId.getDataSetId() instanceof DataSetPermId)
                 {
                     String dataSetCode = ((DataSetPermId) filePermId.getDataSetId()).getPermId();
-                    String filePath = filePermId.getFilePath();
+                    Status authorizationStatus = DssSessionAuthorizationHolder.getAuthorizer().checkDatasetAccess(sessionToken, dataSetCode);
 
-                    IHierarchicalContent content = contentProvider.asContent(dataSetCode);
-                    IHierarchicalContentNode node = content.getNode(filePath);
-
-                    if (node.isDirectory() && downloadOptions.isRecursive())
+                    if (authorizationStatus.isOK())
                     {
-                        for (IHierarchicalContentNode child : iterate(node))
+                        String filePath = filePermId.getFilePath();
+
+                        IHierarchicalContent content = contentProvider.asContent(dataSetCode);
+                        IHierarchicalContentNode node = content.getNode(filePath);
+
+                        if (node.isDirectory() && downloadOptions.isRecursive())
                         {
-                            contentNodes.put(child, dataSetCode);
+                            for (IHierarchicalContentNode child : iterate(node))
+                            {
+                                contentNodes.put(child, dataSetCode);
+                            }
+                        } else
+                        {
+                            contentNodes.put(node, dataSetCode);
                         }
-                    } else
-                    {
-                        contentNodes.put(node, dataSetCode);
                     }
-
                 } else
                 {
                     throw new IllegalArgumentException("Unsupported dataSetId: " + fileId);
