@@ -52,7 +52,7 @@ public class PropertyIOUtils
         List<String> lines = FileUtilities.loadToStringList(propertiesFile);
         for (int i = 0; i < lines.size(); i++)
         {
-            String line = lines.get(i);
+            String line = lines.get(i).trim();
             if (line.length() == 0 || line.startsWith("#"))
             {
                 continue;
