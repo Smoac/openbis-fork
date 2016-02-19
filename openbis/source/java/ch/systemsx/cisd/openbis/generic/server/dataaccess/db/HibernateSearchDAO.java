@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -246,6 +245,41 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         }
     }
 
+    private static List<String> subqueries(String input)
+    {
+        List<String> result = new ArrayList<>();
+        String q = input.trim();
+        if (q.length() == 0)
+        {
+            return result;
+        }
+
+        Pattern pattern;
+        if (q.startsWith("\""))
+        {
+            pattern = Pattern.compile("^\"(.*?)\"[$|\\s](.*$)");
+        } else
+        {
+            pattern = Pattern.compile("^(.*?)\\s(.*)$");
+        }
+
+        Matcher matcher = pattern.matcher(q);
+        if (matcher.find())
+        {
+            result.add(matcher.group(1));
+            result.addAll(subqueries(matcher.group(2)));
+        } else
+        {
+            if (q.startsWith("\"") && q.endsWith("\"") && q.length() > 1)
+            {
+                q = q.substring(1, q.length() - 1);
+            }
+            result.add(q);
+        }
+
+        return result;
+    }
+
     private final List<MatchingEntity> searchTermInField(final String userId,
             final FullTextSession fullTextSession, final String fieldName, final String userQuery,
             final SearchableEntity searchableEntity, Analyzer analyzer, IndexReader indexReader,
@@ -264,88 +298,65 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
         if (useWildcardSearchMode)
         {
-            String q = QueryParser.escape(userQuery.toLowerCase());
-            q = q.replace("\\*", "*");
-            q = q.replace("\\?", "?");
 
-            Query globalQuery = new WildcardQuery(new Term("global_search", q));
-            Query metaprojectQuery = new WildcardQuery(new Term("global_search_metaprojects", "/" + userId + "/" + q));
+            List<String> subqueries = subqueries(userQuery.toLowerCase());
+
             BooleanQuery bq = new BooleanQuery();
-            bq.add(globalQuery, Occur.SHOULD);
-            bq.add(metaprojectQuery, Occur.SHOULD);
-            query = bq;
-        } else
-        {
-
-            boolean startQuote = false;
-            boolean endQuote = false;
-
-            String[] subqueries = userQuery.split("\"\\s+\"");
-            if (subqueries[0].length() > 0 && subqueries[0].substring(0, 1).equals("\""))
+            for (String q : subqueries)
             {
-                subqueries[0] = subqueries[0].substring(1);
-                startQuote = true;
-            }
-            int last = subqueries.length - 1;
-            if (subqueries[last].length() > 1 && subqueries[last].substring(subqueries[last].length() - 1, subqueries[last].length()).equals("\""))
-            {
-                subqueries[last] = subqueries[last].substring(0, subqueries[last].length() - 1);
-                endQuote = true;
-            }
+                String subquery = QueryParser.escape(q);
+                subquery = subquery.replace("\\*", "*");
+                subquery = subquery.replace("\\?", "?");
 
-            if (startQuote && endQuote)
-            {
+                String[] parts = subquery.split("\\s+");
 
-                BooleanQuery bq = new BooleanQuery();
-
-                for (String subquery : subqueries)
+                SpanQuery[] queryParts = new SpanQuery[parts.length];
+                for (int i = 0; i < parts.length; i++)
                 {
-                    String[] parts = subquery.toLowerCase().split("\\s+");
-
-                    SpanQuery[] queryParts = new SpanQuery[parts.length];
-                    for (int i = 0; i < parts.length; i++)
-                    {
-                        String term = QueryParser.escape(parts[i]);
-                        if (i == 0)
-                        {
-                            term = "*" + term;
-                        }
-                        if (i == parts.length - 1)
-                        {
-                            term = term + "*";
-                        }
-                        queryParts[i] = new SpanMultiTermQueryWrapper<WildcardQuery>(
-                                new WildcardQuery(new Term("global_search", term)));
-                    }
-                    bq.add(new SpanNearQuery(queryParts, 0, true), Occur.SHOULD);
+                    String term = parts[i];
+                    queryParts[i] = new SpanMultiTermQueryWrapper<WildcardQuery>(
+                            new WildcardQuery(new Term("global_search", term)));
                 }
-                query = bq;
-
-            } else
-            {
-                String[] parts = userQuery.toLowerCase().split("\\s+");
+                bq.add(new SpanNearQuery(queryParts, 0, true), Occur.SHOULD);
                 if (parts.length == 1)
                 {
-                    BooleanQuery bq = new BooleanQuery();
-
-                    bq.add(new WildcardQuery(new Term("global_search", "*" + QueryParser.escape(parts[0]) + "*")), Occur.SHOULD);
-                    bq.add(new WildcardQuery(new Term("global_search_metaprojects", "/" + userId + "/*" + QueryParser.escape(parts[0]) + "*")),
+                    bq.add(new WildcardQuery(new Term("global_search_metaprojects", "/" + userId + "/" + parts[0])),
                             Occur.SHOULD);
-
-                    query = bq;
-                } else
-                {
-                    BooleanQuery bq = new BooleanQuery();
-                    for (int i = 0; i < parts.length; i++)
-                    {
-                        String term = "*" + QueryParser.escape(parts[i]) + "*";
-                        bq.add(new WildcardQuery(new Term("global_search", term)), Occur.SHOULD);
-                        bq.add(new WildcardQuery(new Term("global_search_metaprojects", "/" + userId + "/" + term)),
-                                Occur.SHOULD);
-                    }
-                    query = bq;
                 }
             }
+            query = bq;
+
+        } else
+        {
+            List<String> subqueries = subqueries(userQuery.toLowerCase());
+
+            BooleanQuery bq = new BooleanQuery();
+
+            for (String subquery : subqueries)
+            {
+                String[] parts = subquery.split("\\s+");
+
+                SpanQuery[] queryParts = new SpanQuery[parts.length];
+                for (int i = 0; i < parts.length; i++)
+                {
+                    String term = QueryParser.escape(parts[i]);
+                    if (i == 0)
+                    {
+                        term = "*" + term;
+                    }
+                    if (i == parts.length - 1)
+                    {
+                        term = term + "*";
+                    }
+                    queryParts[i] = new SpanMultiTermQueryWrapper<WildcardQuery>(
+                            new WildcardQuery(new Term("global_search", term)));
+                }
+                bq.add(new SpanNearQuery(queryParts, 0, true), Occur.SHOULD);
+                bq.add(new WildcardQuery(new Term("global_search_metaprojects", "/" + userId + "/*" + QueryParser.escape(parts[0]) + "*")),
+                        Occur.SHOULD);
+
+            }
+            query = bq;
         }
 
         final FullTextQuery hibernateQuery =
@@ -381,40 +392,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                         metaprojects = metaprojectField.stringValue().split(" ");
                     }
 
-                    List<String> query = new ArrayList<>();
-                    if (useWildcardSearchMode)
-                    {
-                        query.addAll(Arrays.asList(userQuery.split(" ")));
-                    } else
-                    {
-
-                        boolean startQuote = false;
-                        boolean endQuote = false;
-                        String[] subqueries = userQuery.split("\"\\s+\"");
-                        if (subqueries[0].length() > 0 && subqueries[0].substring(0, 1).equals("\""))
-                        {
-                            subqueries[0] = subqueries[0].substring(1);
-                            startQuote = true;
-                        }
-                        int last = subqueries.length - 1;
-                        if (subqueries[last].length() > 1
-                                && subqueries[last].substring(subqueries[last].length() - 1, subqueries[last].length()).equals("\""))
-                        {
-                            subqueries[last] = subqueries[last].substring(0, subqueries[last].length() - 1);
-                            endQuote = true;
-                        }
-
-                        if (startQuote && endQuote)
-                        {
-                            query.addAll(Arrays.asList(subqueries));
-                        } else if (userQuery.contains(" "))
-                        {
-                            query.addAll(Arrays.asList(userQuery.split(" ")));
-                        } else
-                        {
-                            query.add(userQuery);
-                        }
-                    }
+                    List<String> query = subqueries(userQuery.toLowerCase());
 
                     Map<String, String> matchingFields = new HashMap<>();
                     double score = 0.0;
@@ -427,7 +405,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
                             if (useWildcardSearchMode)
                             {
-                                Pattern pattern = Pattern.compile("(?s)(^|\\s)" + q.toLowerCase().replace("*", ".*").replace("?", ".?") + "($|\\s)");
+                                Pattern pattern = Pattern.compile("(?s)(^|\\s)" + q.replace("*", ".*").replace("?", ".?") + "($|\\s)");
 
                                 String cont = stripXml(content[i].toLowerCase());
                                 Matcher matcher = pattern.matcher(cont);
@@ -442,7 +420,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                                 String rest = stripXml(content[i].toLowerCase());
                                 while (rest.length() > 0)
                                 {
-                                    int start = rest.indexOf(q.toLowerCase());
+                                    int start = rest.indexOf(q);
                                     if (start == -1)
                                     {
                                         rest = "";

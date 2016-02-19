@@ -237,8 +237,7 @@ public class GlobalSearchTest extends AbstractTest
         assertEquals(result.getObjects().size(), 0);
     }
 
-    @Test(enabled = false)
-    // enable when SSDM-3164 is done
+    @Test
     public void testSearchWithContainsExactlyAndWildCardsEnabled()
     {
         GlobalSearchCriteria criteria = new GlobalSearchCriteria();
