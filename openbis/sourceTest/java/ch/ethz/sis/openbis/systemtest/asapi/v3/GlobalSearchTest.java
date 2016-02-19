@@ -17,8 +17,8 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 import java.util.Iterator;
@@ -136,8 +136,7 @@ public class GlobalSearchTest extends AbstractTest
         assertSimpleStuff(result);
     }
 
-    @Test(enabled = false)
-    // enable when SSDM-3164 is done
+    @Test
     public void testSearchWithMultipleContainsExactlyOneWord()
     {
         GlobalSearchCriteria criteria = new GlobalSearchCriteria();
@@ -149,9 +148,8 @@ public class GlobalSearchTest extends AbstractTest
         assertSimpleOrStuff(result);
     }
 
-    @Test(enabled = false)
-    // enable when SSDM-3164 is done
-    public void testSearchWithMulipleContainsExactlyMultipleWords()
+    @Test
+    public void testSearchWithMultipleContainsExactlyMultipleWords()
     {
         GlobalSearchCriteria criteria = new GlobalSearchCriteria();
         criteria.withText().thatContainsExactly("simple stuff");
@@ -190,7 +188,7 @@ public class GlobalSearchTest extends AbstractTest
 
         // material
         object = searchAndAssertOneOrNone(TEST_USER, "HSV1", GlobalSearchObjectKind.MATERIAL);
-        assertMaterial(object, "HSV1", "VIRUS", "Identifier: HSV1");
+        assertMaterial(object, "HSV1", "VIRUS", "Identifier: HSV1 (VIRUS)");
 
         object = searchAndAssertOneOrNone(TEST_USER, "HSV1", GlobalSearchObjectKind.EXPERIMENT);
         assertNull(object);
@@ -215,7 +213,7 @@ public class GlobalSearchTest extends AbstractTest
 
         // material
         object = searchAndAssertOneOrNone(TEST_USER, "HSV1");
-        assertMaterial(object, "HSV1", "VIRUS", "Identifier: HSV1");
+        assertMaterial(object, "HSV1", "VIRUS", "Identifier: HSV1 (VIRUS)");
     }
 
     @Test
@@ -540,23 +538,21 @@ public class GlobalSearchTest extends AbstractTest
         assertMaterialNotFetched(object);
     }
 
-    @Test(enabled = false)
-    // enable when SSDM-3164 is done
+    @Test
     public void testSearchWithMaterialPermIdAndNothingFetched()
     {
         GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
 
         GlobalSearchObject object = searchAndAssertOne(TEST_USER, "HSV1 (VIRUS)", fo);
 
-        assertMaterial(object, "HSV1", "VIRUS", "Perm ID: 20081105092159111-1");
+        assertMaterial(object, "HSV1", "VIRUS", "Identifier: HSV1 (VIRUS)");
         assertExperimentNotFetched(object);
         assertSampleNotFetched(object);
         assertDataSetNotFetched(object);
         assertMaterialNotFetched(object);
     }
 
-    @Test(enabled = false)
-    // enable when SSDM-3164 is done
+    @Test
     public void testSearchWithMaterialPermIdAndMaterialFetched()
     {
         GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
@@ -564,15 +560,14 @@ public class GlobalSearchTest extends AbstractTest
 
         GlobalSearchObject object = searchAndAssertOne(TEST_USER, "HSV1 (VIRUS)", fo);
 
-        assertMaterial(object, "HSV1", "VIRUS", "Perm ID: 20081105092159111-1");
+        assertMaterial(object, "HSV1", "VIRUS", "Identifier: HSV1 (VIRUS)");
         assertEquals(object.getMaterial().getPermId().toString(), "HSV1 (VIRUS)");
         assertExperimentNotFetched(object);
         assertSampleNotFetched(object);
         assertDataSetNotFetched(object);
     }
 
-    @Test(enabled = false)
-    // enable when SSDM-3164 is done
+    @Test
     public void testSearchWithMaterialPermIdAndNonMaterialFetched()
     {
         GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
@@ -580,7 +575,7 @@ public class GlobalSearchTest extends AbstractTest
 
         GlobalSearchObject object = searchAndAssertOne(TEST_USER, "HSV1 (VIRUS)", fo);
 
-        assertMaterial(object, "HSV1", "VIRUS", "Perm ID: 20081105092159111-1");
+        assertMaterial(object, "HSV1", "VIRUS", "Identifier: HSV1 (VIRUS)");
         assertNull(object.getExperiment());
         assertSampleNotFetched(object);
         assertDataSetNotFetched(object);
@@ -594,7 +589,7 @@ public class GlobalSearchTest extends AbstractTest
 
         GlobalSearchObject object = searchAndAssertOne(TEST_USER, "HSV1", fo);
 
-        assertMaterial(object, "HSV1", "VIRUS", "Identifier: HSV1");
+        assertMaterial(object, "HSV1", "VIRUS", "Identifier: HSV1 (VIRUS)");
         assertExperimentNotFetched(object);
         assertSampleNotFetched(object);
         assertDataSetNotFetched(object);
@@ -609,7 +604,7 @@ public class GlobalSearchTest extends AbstractTest
 
         GlobalSearchObject object = searchAndAssertOne(TEST_USER, "HSV1", fo);
 
-        assertMaterial(object, "HSV1", "VIRUS", "Identifier: HSV1");
+        assertMaterial(object, "HSV1", "VIRUS", "Identifier: HSV1 (VIRUS)");
         assertEquals(object.getMaterial().getPermId().toString(), "HSV1 (VIRUS)");
         assertExperimentNotFetched(object);
         assertSampleNotFetched(object);
@@ -624,7 +619,7 @@ public class GlobalSearchTest extends AbstractTest
 
         GlobalSearchObject object = searchAndAssertOne(TEST_USER, "HSV1", fo);
 
-        assertMaterial(object, "HSV1", "VIRUS", "Identifier: HSV1");
+        assertMaterial(object, "HSV1", "VIRUS", "Identifier: HSV1 (VIRUS)");
         assertNull(object.getExperiment());
         assertSampleNotFetched(object);
         assertDataSetNotFetched(object);

@@ -276,27 +276,51 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             query = bq;
         } else
         {
-            if (userQuery.startsWith("\"") && userQuery.endsWith("\"") && userQuery.length() > 2)
+
+            boolean startQuote = false;
+            boolean endQuote = false;
+
+            String[] subqueries = userQuery.split("\"\\s+\"");
+            if (subqueries[0].length() > 0 && subqueries[0].substring(0, 1).equals("\""))
+            {
+                subqueries[0] = subqueries[0].substring(1);
+                startQuote = true;
+            }
+            int last = subqueries.length - 1;
+            if (subqueries[last].length() > 1 && subqueries[last].substring(subqueries[last].length() - 1, subqueries[last].length()).equals("\""))
+            {
+                subqueries[last] = subqueries[last].substring(0, subqueries[last].length() - 1);
+                endQuote = true;
+            }
+
+            if (startQuote && endQuote)
             {
 
-                String[] parts = userQuery.toLowerCase().substring(1, userQuery.length() - 1).split("\\s+");
+                BooleanQuery bq = new BooleanQuery();
 
-                SpanQuery[] queryParts = new SpanQuery[parts.length];
-                for (int i = 0; i < parts.length; i++)
+                for (String subquery : subqueries)
                 {
-                    String term = QueryParser.escape(parts[i]);
-                    if (i == 0)
-                    {
-                        term = "*" + term;
-                    } else if (i == parts.length - 1)
-                    {
-                        term = term + "*";
-                    }
-                    queryParts[i] = new SpanMultiTermQueryWrapper<WildcardQuery>(
-                            new WildcardQuery(new Term("global_search", term)));
-                }
+                    String[] parts = subquery.toLowerCase().split("\\s+");
 
-                query = new SpanNearQuery(queryParts, 0, true);
+                    SpanQuery[] queryParts = new SpanQuery[parts.length];
+                    for (int i = 0; i < parts.length; i++)
+                    {
+                        String term = QueryParser.escape(parts[i]);
+                        if (i == 0)
+                        {
+                            term = "*" + term;
+                        }
+                        if (i == parts.length - 1)
+                        {
+                            term = term + "*";
+                        }
+                        queryParts[i] = new SpanMultiTermQueryWrapper<WildcardQuery>(
+                                new WildcardQuery(new Term("global_search", term)));
+                    }
+                    bq.add(new SpanNearQuery(queryParts, 0, true), Occur.SHOULD);
+                }
+                query = bq;
+
             } else
             {
                 String[] parts = userQuery.toLowerCase().split("\\s+");
@@ -363,9 +387,26 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                         query.addAll(Arrays.asList(userQuery.split(" ")));
                     } else
                     {
-                        if (userQuery.startsWith("\"") && userQuery.endsWith("\""))
+
+                        boolean startQuote = false;
+                        boolean endQuote = false;
+                        String[] subqueries = userQuery.split("\"\\s+\"");
+                        if (subqueries[0].length() > 0 && subqueries[0].substring(0, 1).equals("\""))
                         {
-                            query.add(userQuery.substring(1, userQuery.length() - 1));
+                            subqueries[0] = subqueries[0].substring(1);
+                            startQuote = true;
+                        }
+                        int last = subqueries.length - 1;
+                        if (subqueries[last].length() > 1
+                                && subqueries[last].substring(subqueries[last].length() - 1, subqueries[last].length()).equals("\""))
+                        {
+                            subqueries[last] = subqueries[last].substring(0, subqueries[last].length() - 1);
+                            endQuote = true;
+                        }
+
+                        if (startQuote && endQuote)
+                        {
+                            query.addAll(Arrays.asList(subqueries));
                         } else if (userQuery.contains(" "))
                         {
                             query.addAll(Arrays.asList(userQuery.split(" ")));
