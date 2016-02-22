@@ -548,7 +548,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 				c.assertEqual(object3.getObjectPermId().getTypeCode(), "COMPOUND", "ObjectPermId 2");
 				c.assertEqual(object3.getObjectIdentifier().getCode(), "H2O", "ObjectIdentifier 1");
 				c.assertEqual(object3.getObjectIdentifier().getTypeCode(), "COMPOUND", "ObjectIdentifier 2");
-				c.assertEqual(object3.getMatch(), "Identifier: H2O", "Match");
+				c.assertEqual(object3.getMatch(), "Identifier: H2O (COMPOUND)", "Match");
 				c.assertNotNull(object3.getScore(), "Score");
 				c.assertNull(object3.getExperiment(), "Experiment");
 				c.assertNull(object3.getSample(), "Sample");
