@@ -489,7 +489,7 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
         @Override
         public int hashCode()
         {
-            return code.hashCode() + kind.hashCode();
+            return (id == null ? code.hashCode() : id.intValue()) + 37 * kind.hashCode();
         }
 
         @Override
@@ -498,7 +498,7 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
             if (o instanceof EntityIdentifier)
             {
                 EntityIdentifier e = (EntityIdentifier) o;
-                return (e.code.equals(code)) && e.kind.equals(kind);
+                return (e.id != null ? e.id.equals(id) : id == null && e.code.equals(code)) && e.kind.equals(kind);
             } else
             {
                 throw new IllegalArgumentException(o.toString());
