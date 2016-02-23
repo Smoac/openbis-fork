@@ -325,6 +325,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 					.append($("<th>", { "style" : "width: 35%;"}).html("Type"))
 					.append($("<th>").html("Name"))
 					.append($("<th>", { "style" : "width: 15%;"}).html("Size (MB)"))
+					.append($("<th>", { "style" : "width: 15%;"}).html("Operations"))
 //					.append($("<th>").html("Preview"))
 			)
 		);
@@ -357,13 +358,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 				} else {
 					$tableRow.append(
 								$("<td>").append(
-									$("<a>")
-											.attr("href", downloadUrl)
-											.attr("download", 'download')
-											.html(datasetFiles[i].pathInDataSet)
-											.click(function(event) {
-												event.stopPropagation();
-											})
+									$("<p>").text(datasetFiles[i].pathInDataSet)
 								)
 							);
 					
@@ -372,20 +367,23 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 					$tableRow.append($("<td>").html(sizeInMbThreeDecimals));
 				}
 				 
-//				if(this._isPreviewable(datasetFiles[i])) {
-//					$tableRow.append($("<td>").append(
-//												$("<a>")
-//													.attr("href", downloadUrl)
-//													.attr("target", "_blank")
-//													.append($("<span>").attr("class", "glyphicon glyphicon-search"))
-//													.click(function(event) {
-//														event.stopPropagation();
-//													})
-//											)
-//									);
-//				} else {
-//					$tableRow.append($("<td>"));
-//				}
+				if(this._isPreviewable(datasetFiles[i])) {
+					var $previewBtn = $("<a>").attr("href", downloadUrl)
+									.attr("target", "_blank")
+									.append($("<span>").attr("class", "glyphicon glyphicon-search"))
+									.click(function(event) {
+										event.stopPropagation();
+									});
+					var $downloadBtn = $("<a>").attr("href", downloadUrl)
+									.attr("download", 'download')
+									.append($("<span>").attr("class", "glyphicon glyphicon-download"))
+									.click(function(event) {
+										event.stopPropagation();
+									});
+					$tableRow.append($("<td>").append($previewBtn).append($downloadBtn));
+				} else {
+					$tableRow.append($("<td>").append($previewBtn));
+				}
 				
 				//Open DataSet
 				if(this.enableOpenDataset) {
