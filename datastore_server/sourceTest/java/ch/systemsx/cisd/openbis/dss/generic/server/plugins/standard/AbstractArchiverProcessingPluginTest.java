@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.logging.LogUtils;
 import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin.DatasetProcessingStatuses;
@@ -52,7 +53,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
-import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -230,7 +230,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
                     : BooleanStatus.createFalse();
         }
     }
-    
+
     @Friend(toClasses = AbstractArchiverProcessingPlugin.class)
     private static final class MockArchiver extends AbstractArchiverProcessingPlugin implements
             IAbstractArchiverMethods
@@ -323,7 +323,8 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
     @BeforeMethod
     public void beforeMethod()
     {
-        TestInitializer.init();
+        LogInitializer.init();
+
         logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.DEBUG);
         context = new Mockery();
         statusChecker = context.mock(IStatusChecker.class);
@@ -338,7 +339,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
         dataStoreService =
                 ServiceProviderTestWrapper.mock(context, IDataStoreServiceInternal.class);
         shareIdManager = ServiceProviderTestWrapper.mock(context, IShareIdManager.class);
-        
+
         pauseFile = new File(workingDirectory, "pause-file");
 
         File dataSet1 = new File(workingDirectory, "1/ds1");
