@@ -39,7 +39,6 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 	this.enableUpload = enableUpload;
 	this.enableOpenDataset = enableOpenDataset;
 	this.sampleDataSets = {};
-	this.sampleDataSetsFiles = {};
 	this.datastoreDownloadURL = datastoreDownloadURL
 	
 	this._isPreviewable = function(file) {
@@ -59,142 +58,25 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		return false;
 	}
 	
-	this._isImage = function(file) {
-		if(!file.isDirectory) {
-			var haveExtension = file.pathInDataSet.lastIndexOf(".");
-			if( haveExtension !== -1 && (haveExtension + 1 < file.pathInDataSet.length)) {
-				var extension = file.pathInDataSet.substring(haveExtension + 1, file.pathInDataSet.length).toLowerCase();
-				
-				return 	extension === "svg" ||
-						extension === "jpg" || extension === "jpeg" ||
-						extension === "png" ||
-						extension === "gif";
-			}
-		}
-		return false;
-	}
-	
-	this._init = function(datasets) {
-		//
-		// Loading Message
-		//
-		var $container = $("#"+this.containerId);
-		$container.empty();
-		
-		var $containerTitle = $("<div>", {"id" : this.containerIdTitle });
-		$container.append($containerTitle);
-		$container.append($("<div>", {"id" : this.containerIdContent }));
-		
-		$containerTitle.append($("<legend>").html("Files"));
-		$containerTitle.append($("<p>")
-							.append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
-							.append(" Loading datasets."));
-		
-		//
-		//
-		//
-		var localReference = this;
-		var listFilesCallList = [];
-		
-		var callback = function() { //Just enqueues the next call
-			var getCall = listFilesCallList.pop();
-			if(getCall) {
-				getCall(callback);
-			} else {
-				//Switch Title
-				$containerTitle.empty();
-				
-				//Upload Button
-				var $uploadButton = "";
-				if(enableUpload) {
-					$uploadButton = $("<a>", { class: "btn btn-default" }).append($("<span>", { class: "glyphicon glyphicon-upload" })).append(" Upload");
-					$uploadButton.click(function() { 
-						mainController.changeView('showCreateDataSetPageFromPermId',localReference.sample.permId); //TO-DO Fix Global Access
-					});
-				}
-				
-				$containerTitle.append($("<legend>").append("Files ").append($uploadButton));
-				
-				//Switch
-				$containerTitle.append(localReference._getSwitch());				
-				
-				//Repaint
-				localReference.repaintFiles();
-			}
-		}
-		
-		for(var i = 0; i < datasets.length; i++) { //DataSets for sample
-			var dataset = datasets[i];
-			var listFilesForDataSet = function(dataset){ return function() { //Files in dataset
-				localReference.serverFacade.listFilesForDataSet(dataset.code, "/", true, function(files) {
-					localReference.sampleDataSets[dataset.code] = dataset;
-					localReference.sampleDataSetsFiles[dataset.code] = files.result;
-					callback();
-				});
-			}}	
-			listFilesCallList.push(listFilesForDataSet(dataset));
-		}
-		
-		callback();
-	}
-	
 	this.init = function() {
-		//
 		// Loading the datasets
-		//
 		if(datasets) {
-			this._init(datasets);
+			this.updateDatasets(datasets);
+			this.repaintDatasets();
 		} else {
-			var localReference = this;
+			var _this = this;
 			this.serverFacade.listDataSetsForSample(this.sample, true, function(datasets) {
-				localReference._init(datasets.result);
+				_this.updateDatasets(datasets.result);
+				_this.repaintDatasets();
 			});
 		}
 	}
 	
-	this._getSwitch = function() {
-		var _this = this;
-		var $switch = $("<div>", {"class" : "switch-toggle well", "style" : "width:80%; margin-left: auto; margin-right: auto; min-height: 38px !important;"});
-		$switch.change(function(event) {
-			var mode = $('input[name=dataSetVieweMode]:checked').val();
-			switch(mode) {
-				case "imageMode":
-					_this.repaintImages();
-					break;
-				case "fileMode":
-					_this.repaintFiles();
-					break;
-			}
-		});
-		
-		$switch
-			.append($("<input>", {"value" : "fileMode", "id" : "fileMode","name" : "dataSetVieweMode", "type" : "radio", "checked" : ""}))
-			.append($("<label>", {"for" : "fileMode", "onclick" : "", "style" : "padding-top:3px;"}).append("Files"))
-			.append($("<input>", {"value" : "imageMode", "id" : "imageMode", "name" : "dataSetVieweMode", "type" : "radio"}))
-			.append($("<label>", {"for" : "imageMode", "onclick" : "", "style" : "padding-top:3px;"}).append("Image Previews"));
-
-		$switch.append($("<a>", {"class" : "btn btn-primary"}));
-		return $switch;
-	}
-	
-	this._isDisplayed = function(dataSetTypeCode, fileName) {
-		var passes = false;
-		this.profile.dataSetViewerConf["DATA_SET_TYPES"].forEach(function(type) {
-			var datasetTypePattern = new RegExp(type, "")
-			passes = passes || datasetTypePattern.test(dataSetTypeCode);
-		});
-		
-		if (!passes) {
-			return false;
+	this.updateDatasets = function(datasets) {
+		for(var i = 0; i < datasets.length; i++) { //DataSets for sample
+			var dataset = datasets[i];
+			this.sampleDataSets[dataset.code] = dataset;
 		}
-		
-		passes = false;
-		this.profile.dataSetViewerConf["FILE_NAMES"].forEach(function(name) {
-			var fileNamePattern = new RegExp(name, "")
-			passes = passes || fileNamePattern.test(fileName);
-		});
-		
-		return passes;
 	}
 	
 	this._repaintTestsPassed = function($container) {
@@ -225,90 +107,95 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		
 		return true;
 	}
-	this.repaintImages = function() {
-		var $container = $("#"+this.containerIdContent);
-		$container.empty();
-		
-		if(!this._repaintTestsPassed($container)) {
-			return;
-		}
-		
-		for(var datasetCode in this.sampleDataSets) {
-			var dataset = this.sampleDataSets[datasetCode];
-			var datasetFiles = this.sampleDataSetsFiles[datasetCode];
-			
-			if(!datasetFiles) {
-				$container.append($("<p>")
-						.append($("<span>", { class: "glyphicon glyphicon-ban-circle" }))
-						.append(" Please configure properly trusted-cross-origin-domains for this web app, datasets can't be retrieved from the DSS server."));
-				return;
+	
+	this.lastUsedPath = [];
+	this.updateDirectoryView = function(code, path, isBack) {
+		var _this = this;
+		this.serverFacade.listFilesForDataSet(code, path, false, function(files) {
+			if(!isBack) {
+				_this.lastUsedPath.push(path);
 			}
-		}
+			_this.repaintFiles(code, files.result);
+		});
+	}
+	
+	this.repaintDatasets = function() {
+		var _this = this;
+		
 		//
-		_this = this;
-		var maxImages = 30;
-		var numImages = 0;
-		for(var datasetCode in this.sampleDataSets) {
-			var dataset = this.sampleDataSets[datasetCode];
-			var datasetFiles = this.sampleDataSetsFiles[datasetCode];
-			
-			datasetFiles.forEach(
-				function(file) {
-					if (numImages < maxImages && _this._isImage(file) &&  _this._isDisplayed(dataset.dataSetTypeCode, file.pathInDataSet)) {
-						var $image = null;
-						var isSEQSVG = null;
-						var srcPath = _this.datastoreDownloadURL + '/' + dataset.code + "/" + file.pathInDataSet + "?sessionID=" + _this.serverFacade.getSession();
-						
-						if(dataset.dataSetTypeCode === "SEQ_FILE" && file.pathInDataSet.toLowerCase().endsWith(".svg")) {
-							$image = $("<span>", { "class" : "zoomableImage", "style" : "width:300px; height:300px;" });
-							isSEQSVG = true;
-							var svgLoad = function(srcPath, $imageBox) {
-								d3.xml(srcPath, "image/svg+xml", function(xml) {
-									var imageSvg = document.importNode(xml.documentElement, true);
-									d3.select(imageSvg)
-										.attr("width", 300)
-										.attr("height", 300)
-										.attr("viewBox", "200 200 650 650");
-									$imageBox.append($(imageSvg));
-								});
-							}
-							svgLoad(srcPath, $image);
-						} else {
-							$image = $("<img>", {"class" : "zoomableImage", "style" : "width:300px", "src" : srcPath });
-							isSEQSVG = false;
-						}
-						
-						$image.css({
-							"margin-right" : "10px"
-						});
-						
-						var clickFunc = function(path, isSEQSVGFix) {
-							return function() {
-								Util.showImage(path, isSEQSVGFix);
-							};
-						}
-						
-						$image.click(clickFunc(srcPath, isSEQSVG));
-						$container.append($image);
-						numImages++
-					}
+		// Container
+		//
+		var $containerTitle = $("<div>", {"id" : this.containerIdTitle });
+		var $containerContent = $("<div>", {"id" : this.containerIdContent });
+		
+		
+		//
+		// Upload Button
+		//
+		var $uploadButton = "";
+		if(this.enableUpload) {
+			$uploadButton = $("<a>", { class: "btn btn-default" }).append($("<span>", { class: "glyphicon glyphicon-upload" })).append(" Upload");
+			$uploadButton.click(function() { 
+				mainController.changeView('showCreateDataSetPageFromPermId',localReference.sample.permId); //TO-DO Fix Global Access
 			});
 		}
 		
-		if(numImages === maxImages) {
-			$container.append($("<p>")
-					.append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
-					.append(" You can't see more than " + maxImages + " image at the same time, please use the file browser mode."));
-		}
-	}
-	
-	this.repaintFiles = function() {
-		var $container = $("#"+this.containerIdContent);
-		$container.empty();
-		
-		if(!this._repaintTestsPassed($container)) {
+		$containerTitle.append($("<legend>").append("Files ").append($uploadButton));
+		//
+		// Tests
+		//
+		if(!this._repaintTestsPassed($containerContent)) {
 			return;
 		}
+		
+		//
+		// Simple Datasets Table
+		//
+		var tableClass = "table";
+		if(this.enableOpenDataset) {
+			tableClass += " table-hover";
+		}
+		
+		var $dataSetsTable = $("<table>", { class: tableClass });
+		$dataSetsTable.append($("<thead>").append($("<tr>")
+					.append($("<th>", { "style" : "width: 35%;"}).html("Type"))
+					.append($("<th>").html("Name"))
+					.append($("<th>", { "style" : "width: 15%;"}).html("Size (MB)"))
+					.append($("<th>", { "style" : "width: 15%;"}).html("Operations"))));
+		
+		for(var datasetCode in this.sampleDataSets) {
+			var dataset = this.sampleDataSets[datasetCode];
+			var getDatasetLinkEvent = function(code) {
+				return function(event) {
+					_this.updateDirectoryView(code, "/");
+					event.stopPropagation();
+				};
+			}
+			var $datasetLink = $("<a>").text(dataset.code).click(getDatasetLinkEvent(dataset.code));
+			
+			$dataSetsTable.append($("<tbody>").append($("<tr>")
+					.append($("<td>", { "style" : "width: 35%;"}).html(dataset.dataSetTypeCode))
+					.append($("<td>").append($datasetLink))
+					.append($("<td>", { "style" : "width: 15%;"}).text(""))
+					.append($("<td>", { "style" : "width: 15%;"}).text(""))));
+			
+		}
+		
+		$containerContent.append($dataSetsTable);
+		
+		//
+		//
+		//
+		var $mainContainer = $("#"+this.containerId);
+		$mainContainer.empty();
+		$mainContainer.append($containerTitle).append($containerContent);
+	}
+	
+	this.repaintFiles = function(datasetCode, datasetFiles) {
+		var _this = this;
+		
+		var $container = $("#"+this.containerIdContent);
+		$container.empty();
 		
 		//
 		// Simple Files Table
@@ -321,84 +208,86 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		$dataSetsTable.append(
 			$("<thead>").append(
 				$("<tr>")
-//					.append($("<th>").html("Code"))
-					.append($("<th>", { "style" : "width: 35%;"}).html("Type"))
 					.append($("<th>").html("Name"))
 					.append($("<th>", { "style" : "width: 15%;"}).html("Size (MB)"))
 					.append($("<th>", { "style" : "width: 15%;"}).html("Operations"))
-//					.append($("<th>").html("Preview"))
 			)
 		);
 		
 		var $dataSetsTableBody = $("<tbody>");
+		//
+		// Back
+		//
+		var $directoryLink = $("<a>").text("..").click(function(event) {
+			_this.updateDirectoryView(datasetCode, parent);
+			event.stopPropagation();
+		});
 		
-		for(var datasetCode in this.sampleDataSets) {
-			var dataset = this.sampleDataSets[datasetCode];
-			var datasetFiles = this.sampleDataSetsFiles[datasetCode];
-			
-			if(!datasetFiles) {
-				$container.append($("<p>")
-						.append($("<span>", { class: "glyphicon glyphicon-ban-circle" }))
-						.append(" Please configure properly trusted-cross-origin-domains for this web app, datasets can't be retrieved from the DSS server."));
-				return;
+		var backClick = function(event) {
+			if(_this.lastUsedPath.length === 1) {
+				_this.repaintDatasets();
+			} else {
+				_this.updateDirectoryView(datasetCode, _this.lastUsedPath[_this.lastUsedPath.length - 2], true);
+			}
+			_this.lastUsedPath.pop();
+			event.stopPropagation();
+		};
+		
+		var $tableRow = $("<tr>")
+							.append($("<td>").append($("<a>").text("..").click(backClick)))
+							.append($("<td>"));
+		$dataSetsTableBody.append($tableRow);
+		
+		//
+		// Files/Directories
+		//
+		var dataset = this.sampleDataSets[datasetCode];
+		for(var i = 0; i < datasetFiles.length; i++) {
+			var $tableRow = $("<tr>");
+			var downloadUrl = datastoreDownloadURL + '/' + datasetCode + "/" + encodeURIComponent(datasetFiles[i].pathInDataSet) + "?sessionID=" + this.serverFacade.getSession();
+			if(datasetFiles[i].isDirectory) {
+				var getDirectoyClickFuncion = function(datasetCode, pathInDataSet) {
+					return function() {
+						_this.updateDirectoryView(datasetCode, pathInDataSet);
+					};
+				};
+				
+				var dirFunc = getDirectoyClickFuncion(datasetCode, datasetFiles[i].pathInDataSet);
+				var $directoryLink = $("<a>").text(datasetFiles[i].pathInDataSet)
+											.click(function(event) {
+												dirFunc();
+												event.stopPropagation();
+											});
+				
+				$tableRow.append($("<td>").append($directoryLink));
+				$tableRow.append($("<td>"));
+			} else {
+				$tableRow.append($("<td>").append($("<p>").text(datasetFiles[i].pathInDataSet)));
+				
+				var sizeInMb = parseInt(datasetFiles[i].fileSize) / 1024 / 1024;
+				var sizeInMbThreeDecimals = Math.floor(sizeInMb * 1000) / 1000;
+				$tableRow.append($("<td>").html(sizeInMbThreeDecimals));
+			}
+			 
+			if(this._isPreviewable(datasetFiles[i])) {
+				var $previewBtn = $("<a>").attr("href", downloadUrl)
+								.attr("target", "_blank")
+								.append($("<span>").attr("class", "glyphicon glyphicon-search"))
+								.click(function(event) {
+									event.stopPropagation();
+								});
+				var $downloadBtn = $("<a>").attr("href", downloadUrl)
+								.attr("download", 'download')
+								.append($("<span>").attr("class", "glyphicon glyphicon-download"))
+								.click(function(event) {
+									event.stopPropagation();
+								});
+				$tableRow.append($("<td>").append($previewBtn).append($downloadBtn));
+			} else {
+				$tableRow.append($("<td>").append($previewBtn));
 			}
 			
-			for(var i = 0; i < datasetFiles.length; i++) {
-				
-				var href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), "showViewDataSetPageFromPermId", datasetCode);
-				var $datasetLink = $("<a>", {"class" : "browser-compatible-javascript-link", "href" : href }).append(dataset.code);
-				var $tableRow = $("<tr>")
-//									.append($("<td>").html($datasetLink))
-									.append($("<td>").html(dataset.dataSetTypeCode));
-				
-				var downloadUrl = datastoreDownloadURL + '/' + dataset.code + "/" + encodeURIComponent(datasetFiles[i].pathInDataSet) + "?sessionID=" + this.serverFacade.getSession();
-				if(datasetFiles[i].isDirectory) {
-					$tableRow.append($("<td>").html(datasetFiles[i].pathInDataSet));
-					$tableRow.append($("<td>"));
-				} else {
-					$tableRow.append(
-								$("<td>").append(
-									$("<p>").text(datasetFiles[i].pathInDataSet)
-								)
-							);
-					
-					var sizeInMb = parseInt(datasetFiles[i].fileSize) / 1024 / 1024;
-					var sizeInMbThreeDecimals = Math.floor(sizeInMb * 1000) / 1000;
-					$tableRow.append($("<td>").html(sizeInMbThreeDecimals));
-				}
-				 
-				if(this._isPreviewable(datasetFiles[i])) {
-					var $previewBtn = $("<a>").attr("href", downloadUrl)
-									.attr("target", "_blank")
-									.append($("<span>").attr("class", "glyphicon glyphicon-search"))
-									.click(function(event) {
-										event.stopPropagation();
-									});
-					var $downloadBtn = $("<a>").attr("href", downloadUrl)
-									.attr("download", 'download')
-									.append($("<span>").attr("class", "glyphicon glyphicon-download"))
-									.click(function(event) {
-										event.stopPropagation();
-									});
-					$tableRow.append($("<td>").append($previewBtn).append($downloadBtn));
-				} else {
-					$tableRow.append($("<td>").append($previewBtn));
-				}
-				
-				//Open DataSet
-				if(this.enableOpenDataset) {
-					$tableRow.attr('style', 'cursor: pointer;');
-					
-					var clickFunction = function(datasetCode) {
-						return function(event) {
-							mainController.changeView('showViewDataSetPageFromPermId', datasetCode);
-						};
-					}
-					$tableRow.click(clickFunction(dataset.code));
-				}
-				
-				$dataSetsTableBody.append($tableRow);
-			}
+			$dataSetsTableBody.append($tableRow);
 		}
 		
 		$dataSetsTable.append($dataSetsTableBody);
