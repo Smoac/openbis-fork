@@ -239,7 +239,6 @@ public class GeneralInformationChangingService extends
     }
 
     @Override
-    @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public final String registerSamples(
             final String sessionToken,
@@ -257,7 +256,6 @@ public class GeneralInformationChangingService extends
     }
 
     @Override
-    @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public final String updateSamples(
             final String sessionToken,
@@ -274,7 +272,6 @@ public class GeneralInformationChangingService extends
     }
 
     @Override
-    @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public final Map<String, Object> uploadedSamplesInfo(
             final String sessionToken,
