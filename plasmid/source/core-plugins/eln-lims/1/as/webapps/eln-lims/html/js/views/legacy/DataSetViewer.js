@@ -291,14 +291,13 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 				};
 				
 				var dirFunc = getDirectoyClickFuncion(datasetCode, datasetFiles[i].pathInDataSet);
-				var $directoryLink = $("<a>").text(pathInDatasetDisplayName)
+				var $directoryLink = $("<a>").text("/" + pathInDatasetDisplayName)
 											.click(function(event) {
 												dirFunc();
 												event.stopPropagation();
 											});
 				
-				$tableRow.append($("<td>").append($directoryLink));
-				$tableRow.append($("<td>"));
+				$tableRow.append($("<td>").append($directoryLink)).append($("<td>")).append($("<td>"));
 				$tableRow.click(dirFunc);
 			} else {
 				$tableRow.append($("<td>").append($("<p>").text(pathInDatasetDisplayName)));
@@ -306,24 +305,26 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 				var sizeInMb = parseInt(datasetFiles[i].fileSize) / 1024 / 1024;
 				var sizeInMbThreeDecimals = Math.floor(sizeInMb * 1000) / 1000;
 				$tableRow.append($("<td>").html(sizeInMbThreeDecimals));
-			}
-			 
-			if(this._isPreviewable(datasetFiles[i])) {
+				
 				var $previewBtn = $("<a>").attr("href", downloadUrl)
-								.attr("target", "_blank")
-								.append($("<span>").attr("class", "glyphicon glyphicon-search"))
-								.click(function(event) {
-									event.stopPropagation();
-								});
+				.attr("target", "_blank")
+				.append($("<span>").attr("class", "glyphicon glyphicon-search"))
+				.click(function(event) {
+					event.stopPropagation();
+				});
+				
 				var $downloadBtn = $("<a>").attr("href", downloadUrl)
-								.attr("download", 'download')
-								.append($("<span>").attr("class", "glyphicon glyphicon-download"))
-								.click(function(event) {
-									event.stopPropagation();
-								});
-				$tableRow.append($("<td>").append($previewBtn).append($downloadBtn));
-			} else {
-				$tableRow.append($("<td>").append($previewBtn));
+				.attr("download", 'download')
+				.append($("<span>").attr("class", "glyphicon glyphicon-download"))
+				.click(function(event) {
+					event.stopPropagation();
+				});
+
+				if(this._isPreviewable(datasetFiles[i])) {
+					$tableRow.append($("<td>").append($previewBtn).append($downloadBtn));
+				} else {
+					$tableRow.append($("<td>").append($downloadBtn));
+				}
 			}
 			
 			$dataSetsTableBody.append($tableRow);
