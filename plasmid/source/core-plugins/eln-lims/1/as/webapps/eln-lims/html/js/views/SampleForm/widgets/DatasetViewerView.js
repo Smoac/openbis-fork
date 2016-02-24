@@ -1,124 +1,28 @@
 /*
  * Copyright 2014 ETH Zuerich, Scientific IT Services
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
-/**
- * Creates an instance of DataSetViewer.
- *
- * @constructor
- * @this {DataSetViewer}
- * @param {String} containerId The container where the DataSetViewer will be atached.
- * @param {String} profile Global configuration.
- * @param {Sample} sample The sample where to check for the data.
- * @param {ServerFacade} serverFacade Point of contact to make calls to the server
- * @param {String} datastoreDownloadURL The datastore url in format http://localhost:8889/datastore_server.
- * @param {Map} datasets API result with the datasets to show.
- * @param {Boolean} enableUpload If true, the button to create datasets is shown, this will require the sample to be present.
- * @param {Boolean} enableOpenDataset If true, pressing on a row opens the dataset form on view mode for the given dataset.
- */
-function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableOpenDataset) {
-	this.containerId = containerId;
-	this.containerIdTitle = containerId + "-title";
-	this.containerIdContent = containerId + "-content";
-	
-	this.profile = profile;
-	this.serverFacade = serverFacade;
-	
-	this.sample = sample;
-	this.datasets = datasets;
-	
-	this.enableUpload = enableUpload;
-	this.enableOpenDataset = enableOpenDataset;
-	this.sampleDataSets = {};
-	this.datastoreDownloadURL = datastoreDownloadURL
-	this.lastUsedPath = [];
-	
-	this._isPreviewable = function(file) {
-		if(!file.isDirectory) {
-			var haveExtension = file.pathInDataSet.lastIndexOf(".");
-			if( haveExtension !== -1 && (haveExtension + 1 < file.pathInDataSet.length)) {
-				var extension = file.pathInDataSet.substring(haveExtension + 1, file.pathInDataSet.length).toLowerCase();
-				
-				return 	extension === "svg" || 
-						extension === "jpg" || extension === "jpeg" ||
-						extension === "png" ||
-						extension === "gif" ||
-						extension === "html" ||
-						extension === "pdf";
-			}
-		}
-		return false;
-	}
-	
-	this.init = function() {
-		// Loading the datasets
-		if(datasets) {
-			this.updateDatasets(datasets);
-			this.repaintDatasets();
-		} else {
-			var _this = this;
-			this.serverFacade.listDataSetsForSample(this.sample, true, function(datasets) {
-				_this.updateDatasets(datasets.result);
-				_this.repaintDatasets();
-			});
-		}
-	}
-	
-	this.updateDatasets = function(datasets) {
-		for(var i = 0; i < datasets.length; i++) { //DataSets for sample
-			var dataset = datasets[i];
-			this.sampleDataSets[dataset.code] = dataset;
-		}
-	}
-	
-	this._repaintTestsPassed = function($container) {
-		//
-		// No data store URL
-		//
-		if(datastoreDownloadURL === null) {
-			$container.append("<br>");
-			$container.append($("<p>")
-					.append($("<span>", { class: "glyphicon glyphicon-ban-circle" }))
-					.append(" Please configure properly your DSS server properly, looks like is not reachable."));
-			return false;
-		}
-		
-		//
-		// Don't paint data sets for entities that don't have
-		//
-		var numberOfDatasets = 0;
-		for(var datasetCode in this.sampleDataSets) {
-			numberOfDatasets++;
-		}
-		
-		if(numberOfDatasets === 0) {
-			$container.append("<br>");
-			$container.append($("<p>")
-								.append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
-								.append(" No datasets found."));
-			return false;
-		}
-		
-		return true;
-	}
+function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
+	this._dataSetViewerController = dataSetViewerController;
+	this._dataSetViewerModel = dataSetViewerModel;
 	
 	this.updateDirectoryView = function(code, path, isBack) {
 		var _this = this;
-		this.serverFacade.listFilesForDataSet(code, path, false, function(files) {
+		mainController.serverFacade.listFilesForDataSet(code, path, false, function(files) {
 			if(!isBack) {
-				_this.lastUsedPath.push(path);
+				_this._dataSetViewerModel.lastUsedPath.push(path);
 			}
 			_this.repaintFiles(code, files.result);
 		});
@@ -130,8 +34,8 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		//
 		// Container
 		//
-		var $containerTitle = $("<div>", {"id" : this.containerIdTitle });
-		var $containerContent = $("<div>", {"id" : this.containerIdContent });
+		var $containerTitle = $("<div>", {"id" : this._dataSetViewerModel.containerIdTitle });
+		var $containerContent = $("<div>", {"id" : this._dataSetViewerModel.containerIdContent });
 		
 		
 		//
@@ -141,7 +45,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		if(this.enableUpload) {
 			$uploadButton = $("<a>", { class: "btn btn-default" }).append($("<span>", { class: "glyphicon glyphicon-upload" })).append(" Upload New Dataset");
 			$uploadButton.click(function() { 
-				mainController.changeView('showCreateDataSetPageFromPermId',_this.sample.permId); //TO-DO Fix Global Access
+				mainController.changeView('showCreateDataSetPageFromPermId',_this._dataSetViewerModel.sample.permId); //TO-DO Fix Global Access
 			});
 		}
 		
@@ -150,13 +54,13 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		//
 		// Tests
 		//
-		this._repaintTestsPassed($containerContent);
+		this._dataSetViewerController._repaintTestsPassed($containerContent);
 		
 		//
 		// Simple Datasets Table
 		//
 		var tableClass = "table";
-		if(this.enableOpenDataset) {
+		if(this._dataSetViewerModel.enableOpenDataset) {
 			tableClass += " table-hover";
 		}
 		
@@ -168,8 +72,8 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		var tbody = $("<tbody>");
 		$dataSetsTable.append(tbody);
 		
-		for(var datasetCode in this.sampleDataSets) {
-			var dataset = this.sampleDataSets[datasetCode];
+		for(var datasetCode in this._dataSetViewerModel.sampleDataSets) {
+			var dataset = this._dataSetViewerModel.sampleDataSets[datasetCode];
 			var getDatasetLinkEvent = function(code) {
 				return function(event) {
 					_this.updateDirectoryView(code, "/");
@@ -187,7 +91,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 			
 			var $datasetFormClickBtn = "";
 			
-			if(this.enableOpenDataset) {
+			if(this._dataSetViewerModel.enableOpenDataset) {
 				$datasetFormClickBtn = $("<a>").append($("<span>").attr("class", "glyphicon glyphicon-search")).click(datasetFormClick(dataset.code));
 			}
 			
@@ -207,17 +111,16 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		//
 		//
 		//
-		var $mainContainer = $("#"+this.containerId);
+		var $mainContainer = $("#"+this._dataSetViewerModel.containerId);
 		$mainContainer.empty();
 		$mainContainer.append($containerTitle).append($containerContent);
 	}
 	
 	this.repaintFiles = function(datasetCode, datasetFiles) {
 		var _this = this;
-		var parentPath = this.lastUsedPath[this.lastUsedPath.length - 1];
-		var $container = $("#"+this.containerIdContent);
+		var parentPath = this._dataSetViewerModel.lastUsedPath[this._dataSetViewerModel.lastUsedPath.length - 1];
+		var $container = $("#"+this._dataSetViewerModel.containerIdContent);
 		$container.empty();
-		
 		
 		// Path
 		$container.append($("<legend>").append("Path: " + parentPath));
@@ -226,7 +129,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		// Simple Files Table
 		//
 		var tableClass = "table";
-		if(this.enableOpenDataset) {
+		if(this._dataSetViewerModel.enableOpenDataset) {
 			tableClass += " table-hover";
 		}
 		var $dataSetsTable = $("<table>", { class: tableClass });
@@ -249,12 +152,12 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		});
 		
 		var backClick = function(event) {
-			if(_this.lastUsedPath.length === 1) {
+			if(_this._dataSetViewerModel.lastUsedPath.length === 1) {
 				_this.repaintDatasets();
 			} else {
-				_this.updateDirectoryView(datasetCode, _this.lastUsedPath[_this.lastUsedPath.length - 2], true);
+				_this.updateDirectoryView(datasetCode, _this._dataSetViewerModel.lastUsedPath[_this._dataSetViewerModel.lastUsedPath.length - 2], true);
 			}
-			_this.lastUsedPath.pop();
+			_this._dataSetViewerModel.lastUsedPath.pop();
 			event.stopPropagation();
 		};
 		
@@ -268,10 +171,10 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		//
 		// Files/Directories
 		//
-		var dataset = this.sampleDataSets[datasetCode];
+		var dataset = this._dataSetViewerModel.sampleDataSets[datasetCode];
 		for(var i = 0; i < datasetFiles.length; i++) {
 			var $tableRow = $("<tr>");
-			var downloadUrl = datastoreDownloadURL + '/' + datasetCode + "/" + encodeURIComponent(datasetFiles[i].pathInDataSet) + "?sessionID=" + this.serverFacade.getSession();
+			var downloadUrl = this._dataSetViewerModel.datastoreDownloadURL + '/' + datasetCode + "/" + encodeURIComponent(datasetFiles[i].pathInDataSet) + "?sessionID=" + mainController.serverFacade.getSession();
 			var pathInDatasetDisplayName = "";
 			var lastSlash = datasetFiles[i].pathInDataSet.lastIndexOf("/");
 			if(lastSlash !== -1) {
@@ -318,7 +221,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 					event.stopPropagation();
 				});
 
-				if(this._isPreviewable(datasetFiles[i])) {
+				if(this._dataSetViewerController._isPreviewable(datasetFiles[i])) {
 					$tableRow.append($("<td>").append($previewBtn).append($downloadBtn));
 				} else {
 					$tableRow.append($("<td>").append($downloadBtn));
