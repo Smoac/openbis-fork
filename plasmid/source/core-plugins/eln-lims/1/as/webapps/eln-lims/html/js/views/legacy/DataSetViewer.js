@@ -181,10 +181,15 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 			var datasetFormClick = function(datasetCode) {
 				return function(event) {
 					mainController.changeView('showViewDataSetPageFromPermId', datasetCode);
+					event.stopPropagation();
 				};
 			}
 			
-			var $datasetFormClickBtn = $("<a>").append($("<span>").attr("class", "glyphicon glyphicon-search")).click(datasetFormClick(dataset.code));
+			var $datasetFormClickBtn = "";
+			
+			if(this.enableOpenDataset) {
+				$datasetFormClickBtn = $("<a>").append($("<span>").attr("class", "glyphicon glyphicon-search")).click(datasetFormClick(dataset.code));
+			}
 			
 			var tRow = $("<tr>")
 					.append($("<td>", { "style" : "width: 35%;"}).html(dataset.dataSetTypeCode))
