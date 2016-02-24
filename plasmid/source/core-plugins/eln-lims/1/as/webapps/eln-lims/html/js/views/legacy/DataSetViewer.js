@@ -30,12 +30,15 @@
  */
 function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableOpenDataset) {
 	this.containerId = containerId;
-	this.profile = profile;
 	this.containerIdTitle = containerId + "-title";
 	this.containerIdContent = containerId + "-content";
+	
+	this.profile = profile;
 	this.serverFacade = serverFacade;
+	
 	this.sample = sample;
 	this.datasets = datasets;
+	
 	this.enableUpload = enableUpload;
 	this.enableOpenDataset = enableOpenDataset;
 	this.sampleDataSets = {};
@@ -136,7 +139,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		if(this.enableUpload) {
 			$uploadButton = $("<a>", { class: "btn btn-default" }).append($("<span>", { class: "glyphicon glyphicon-upload" })).append(" Upload");
 			$uploadButton.click(function() { 
-				mainController.changeView('showCreateDataSetPageFromPermId',localReference.sample.permId); //TO-DO Fix Global Access
+				mainController.changeView('showCreateDataSetPageFromPermId',_this.sample.permId); //TO-DO Fix Global Access
 			});
 		}
 		
@@ -162,6 +165,8 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 					.append($("<th>").html("Name"))
 					.append($("<th>", { "style" : "width: 15%;"}).html("Size (MB)"))
 					.append($("<th>", { "style" : "width: 15%;"}).html("Operations"))));
+		var tbody = $("<tbody>");
+		$dataSetsTable.append(tbody);
 		
 		for(var datasetCode in this.sampleDataSets) {
 			var dataset = this.sampleDataSets[datasetCode];
@@ -173,11 +178,22 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 			}
 			var $datasetLink = $("<a>").text(dataset.code).click(getDatasetLinkEvent(dataset.code));
 			
-			$dataSetsTable.append($("<tbody>").append($("<tr>")
+			var datasetFormClick = function(datasetCode) {
+				return function(event) {
+					mainController.changeView('showViewDataSetPageFromPermId', datasetCode);
+				};
+			}
+			
+			var $datasetFormClickBtn = $("<a>").append($("<span>").attr("class", "glyphicon glyphicon-search")).click(datasetFormClick(dataset.code));
+			
+			var tRow = $("<tr>")
 					.append($("<td>", { "style" : "width: 35%;"}).html(dataset.dataSetTypeCode))
 					.append($("<td>").append($datasetLink))
-					.append($("<td>", { "style" : "width: 15%;"}).text(""))
-					.append($("<td>", { "style" : "width: 15%;"}).text(""))));
+					.append($("<td>", { "style" : "width: 15%;"}).text("?"))
+					.append($("<td>", { "style" : "width: 15%;"}).append($datasetFormClickBtn));
+			
+			tRow.click(getDatasetLinkEvent(dataset.code));
+			tbody.append(tRow);
 			
 		}
 		
@@ -235,7 +251,9 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		
 		var $tableRow = $("<tr>")
 							.append($("<td>").append($("<a>").text("..").click(backClick)))
+							.append($("<td>"))
 							.append($("<td>"));
+			$tableRow.click(backClick);
 		$dataSetsTableBody.append($tableRow);
 		
 		//
@@ -261,6 +279,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 				
 				$tableRow.append($("<td>").append($directoryLink));
 				$tableRow.append($("<td>"));
+				$tableRow.click(dirFunc);
 			} else {
 				$tableRow.append($("<td>").append($("<p>").text(datasetFiles[i].pathInDataSet)));
 				
