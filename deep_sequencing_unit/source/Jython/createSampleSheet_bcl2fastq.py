@@ -1,6 +1,6 @@
 '''
 @copyright:
-Copyright 2015 ETH Zuerich, SIS
+Copyright 2016 ETH Zuerich, SIS
  
 @license:
 Licensed under the Apache License, Version 2.0 (the 'License');
@@ -664,13 +664,14 @@ def create_sample_sheet_dict(service, barcodesPerLaneDict, containedSamples, sam
             index2=""
             if config_dict['index2Name'] in lane_sample_properties[key]:
                 index2 = lane_sample_properties[key][config_dict['index2Name']]
+                # Not needed, won't use it any more
                 indexNumber = index2Vocabulary[lane_sample_properties[key][config_dict['index2Name']]].split()[2]
         
-            try:
-                kit = lane_sample_properties[key][config_dict['kit']]
-                prefix = kitsDict[kit][0]
-            except:
-                prefix = ""
+            #try:
+            #    kit = lane_sample_properties[key][config_dict['kit']]
+            #    prefix = kitsDict[kit][0]
+            #except:
+            #    prefix = ""
     
             len_index1 = index_length_dict[int(lane_int)][0]
             len_index2 = index_length_dict[int(lane_int)][1]
@@ -687,12 +688,12 @@ def create_sample_sheet_dict(service, barcodesPerLaneDict, containedSamples, sam
               
                 line = separator.join([lane_string + key,
                                     key + '_' + sanitize_string(lane_sample_properties[key][config_dict['externalSampleName']]) + '_' + index1[0:len_index1] + '_' + index2[0:len_index2],
-                                    "", "", index1Vocabulary[index1].split()[1], index1[0:len_index1], prefix + indexNumber, index2_processed, key, ""])
+                                    "", "","", index1[0:len_index1], indexNumber, index2_processed, key, ""])
                 sampleSheetDict[lane_int + '_' + key] = [line]
 
             else:
                 line = separator.join([lane_string + key, key + '_' + sanitize_string(lane_sample_properties[key][config_dict['externalSampleName']]) + '_' + index1[0:len_index1],
-                                       "", "", index1Vocabulary[index1].split()[1], index1[0:len_index1], key, ""])
+                                       "", "","", index1[0:len_index1], key, ""])
                 sampleSheetDict[lane_int + '_' + key] = [line]
     
     csv_file_name = config_dict['SampleSheetFileName'] + '_' + flowCellName
