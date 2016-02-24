@@ -33,7 +33,7 @@ public abstract class AbstractDateObjectValue extends AbstractValue<Date> implem
 
     protected String getFormattedValue()
     {
-        return null;
+        return getValue().toString();
     }
 
 }

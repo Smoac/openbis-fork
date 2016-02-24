@@ -21,6 +21,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateEqualToValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateLaterThanOrEqualToValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateObjectEarlierThanOrEqualToValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateObjectEqualToValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateObjectLaterThanOrEqualToValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IDate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
 
@@ -39,7 +40,7 @@ public abstract class AbstractEntityAttributeProvider implements IEntityAttribut
         } else if (date instanceof DateEarlierThanOrEqualToValue || date instanceof DateObjectEarlierThanOrEqualToValue)
         {
             return earlier;
-        } else if (date instanceof DateLaterThanOrEqualToValue || date instanceof DateLaterThanOrEqualToValue)
+        } else if (date instanceof DateLaterThanOrEqualToValue || date instanceof DateObjectLaterThanOrEqualToValue)
         {
             return later;
         } else
