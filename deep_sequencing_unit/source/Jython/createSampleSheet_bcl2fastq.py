@@ -688,7 +688,7 @@ def create_sample_sheet_dict(service, barcodesPerLaneDict, containedSamples, sam
               
                 line = separator.join([lane_string + key,
                                     key + '_' + sanitize_string(lane_sample_properties[key][config_dict['externalSampleName']]) + '_' + index1[0:len_index1] + '_' + index2[0:len_index2],
-                                    "", "","", index1[0:len_index1], indexNumber, index2_processed, key, ""])
+                                    "", "","", index1[0:len_index1],"", index2_processed, key, ""])
                 sampleSheetDict[lane_int + '_' + key] = [line]
 
             else:
