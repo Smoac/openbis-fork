@@ -59,45 +59,43 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		//
 		// Simple Datasets Table
 		//
-		var tableClass = "table";
-		if(this._dataSetViewerModel.enableOpenDataset) {
-			tableClass += " table-hover";
-		}
+		var tableClass = "table table-hover";
 		
 		var $dataSetsTable = $("<table>", { class: tableClass });
 		$dataSetsTable.append($("<thead>").append($("<tr>")
-					.append($("<th>", { "style" : "width: 35%;"}).html("Type"))
-					.append($("<th>", { "style" : "width: 50%;"}).html("Code"))
-					.append($("<th>", { "style" : "width: 15%;"}).html("Operations"))));
+					.append($("<th>", { "style" : "width: 50%;"}).text("Type"))
+					.append($("<th>", { "style" : "width: 50%;"}).text("Code"))));
 		var tbody = $("<tbody>");
 		$dataSetsTable.append(tbody);
 		
 		for(var datasetCode in this._dataSetViewerModel.sampleDataSets) {
 			var dataset = this._dataSetViewerModel.sampleDataSets[datasetCode];
+			
 			var getDatasetLinkEvent = function(code) {
 				return function(event) {
 					_this.updateDirectoryView(code, "/");
-					event.stopPropagation();
-				};
-			}
-			var $datasetLink = $("<a>").text(dataset.code).click(getDatasetLinkEvent(dataset.code));
-			
-			var datasetFormClick = function(datasetCode) {
-				return function(event) {
-					mainController.changeView('showViewDataSetPageFromPermId', datasetCode);
-					event.stopPropagation();
 				};
 			}
 			
 			var $datasetFormClickBtn = "";
 			
 			if(this._dataSetViewerModel.enableOpenDataset) {
-				$datasetFormClickBtn = $("<a>").append($("<span>").attr("class", "glyphicon glyphicon-search")).click(datasetFormClick(dataset.code));
+				var href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), 'showViewDataSetPageFromPermId', datasetCode);
+				$datasetFormClickBtn = $("<a>", {"href": href, "class" : "browser-compatible-javascript-link" }).append(datasetCode);
+				
+				var getDatasetFormClick = function(datasetCode) {
+					return function(event) {
+						mainController.changeView('showViewDataSetPageFromPermId', datasetCode);
+					};
+				}
+				
+				$datasetFormClickBtn.click(getDatasetFormClick(datasetCode));
+			} else {
+				$datasetFormClickBtn = dataset.code;
 			}
 			
-			var tRow = $("<tr>")
+			var tRow = $("<tr>", { "style" : "cursor:pointer;" })
 					.append($("<td>").html(dataset.dataSetTypeCode))
-					.append($("<td>").append($datasetLink))
 					.append($("<td>").append($datasetFormClickBtn));
 			
 			tRow.click(getDatasetLinkEvent(dataset.code));
@@ -128,17 +126,13 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		//
 		// Simple Files Table
 		//
-		var tableClass = "table";
-		if(this._dataSetViewerModel.enableOpenDataset) {
-			tableClass += " table-hover";
-		}
+		var tableClass = "table table-hover";
 		var $dataSetsTable = $("<table>", { class: tableClass });
 		$dataSetsTable.append(
 			$("<thead>").append(
 				$("<tr>")
-					.append($("<th>", { "style" : "width: 70%;"}).html("Name"))
-					.append($("<th>", { "style" : "width: 15%;"}).html("Size (MB)"))
-					.append($("<th>", { "style" : "width: 15%;"}).html("Operations"))
+					.append($("<th>", { "style" : "width: 80%;"}).html("Name"))
+					.append($("<th>", { "style" : "width: 20%;"}).html("Size (MB)"))
 			)
 		);
 		
@@ -161,9 +155,8 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 			event.stopPropagation();
 		};
 		
-		var $tableRow = $("<tr>")
-							.append($("<td>").append($("<a>").text("..").click(backClick)))
-							.append($("<td>"))
+		var $tableRow = $("<tr>", { "style" : "cursor:pointer;" })
+							.append($("<td>").append("..").click(backClick))
 							.append($("<td>"));
 			$tableRow.click(backClick);
 		$dataSetsTableBody.append($tableRow);
@@ -192,40 +185,22 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 				};
 				
 				var dirFunc = getDirectoyClickFuncion(datasetCode, datasetFiles[i].pathInDataSet);
-				var $directoryLink = $("<a>").text("/" + pathInDatasetDisplayName)
-											.click(function(event) {
-												dirFunc();
-												event.stopPropagation();
-											});
-				
-				$tableRow.append($("<td>").append($directoryLink)).append($("<td>")).append($("<td>"));
+				$tableRow.attr("style", "cursor:pointer;");
+				$tableRow.append($("<td>").append("/" + pathInDatasetDisplayName)).append($("<td>"));
 				$tableRow.click(dirFunc);
 			} else {
-				$tableRow.append($("<td>").append($("<p>").text(pathInDatasetDisplayName)));
+				var $pathInDatasetDisplayNameWithDownload = $("<a>").attr("href", downloadUrl)
+				.attr("target", "_blank")
+				.append(pathInDatasetDisplayName)
+				.click(function(event) {
+					event.stopPropagation();
+				});
+				
+				$tableRow.append($("<td>").append($pathInDatasetDisplayNameWithDownload));
 				
 				var sizeInMb = parseInt(datasetFiles[i].fileSize) / 1024 / 1024;
 				var sizeInMbThreeDecimals = Math.floor(sizeInMb * 1000) / 1000;
 				$tableRow.append($("<td>").html(sizeInMbThreeDecimals));
-				
-				var $previewBtn = $("<a>").attr("href", downloadUrl)
-				.attr("target", "_blank")
-				.append($("<span>").attr("class", "glyphicon glyphicon-search"))
-				.click(function(event) {
-					event.stopPropagation();
-				});
-				
-				var $downloadBtn = $("<a>").attr("href", downloadUrl)
-				.attr("download", 'download')
-				.append($("<span>").attr("class", "glyphicon glyphicon-download"))
-				.click(function(event) {
-					event.stopPropagation();
-				});
-
-				if(this._dataSetViewerController._isPreviewable(datasetFiles[i])) {
-					$tableRow.append($("<td>").append($previewBtn).append($downloadBtn));
-				} else {
-					$tableRow.append($("<td>").append($downloadBtn));
-				}
 			}
 			
 			$dataSetsTableBody.append($tableRow);
