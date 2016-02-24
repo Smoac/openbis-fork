@@ -163,8 +163,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		var $dataSetsTable = $("<table>", { class: tableClass });
 		$dataSetsTable.append($("<thead>").append($("<tr>")
 					.append($("<th>", { "style" : "width: 35%;"}).html("Type"))
-					.append($("<th>").html("Name"))
-					.append($("<th>", { "style" : "width: 15%;"}).html("Size (MB)"))
+					.append($("<th>", { "style" : "width: 50%;"}).html("Code"))
 					.append($("<th>", { "style" : "width: 15%;"}).html("Operations"))));
 		var tbody = $("<tbody>");
 		$dataSetsTable.append(tbody);
@@ -193,10 +192,9 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 			}
 			
 			var tRow = $("<tr>")
-					.append($("<td>", { "style" : "width: 35%;"}).html(dataset.dataSetTypeCode))
+					.append($("<td>").html(dataset.dataSetTypeCode))
 					.append($("<td>").append($datasetLink))
-					.append($("<td>", { "style" : "width: 15%;"}).text("?"))
-					.append($("<td>", { "style" : "width: 15%;"}).append($datasetFormClickBtn));
+					.append($("<td>").append($datasetFormClickBtn));
 			
 			tRow.click(getDatasetLinkEvent(dataset.code));
 			tbody.append(tRow);
@@ -235,7 +233,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		$dataSetsTable.append(
 			$("<thead>").append(
 				$("<tr>")
-					.append($("<th>").html("Name"))
+					.append($("<th>", { "style" : "width: 70%;"}).html("Name"))
 					.append($("<th>", { "style" : "width: 15%;"}).html("Size (MB)"))
 					.append($("<th>", { "style" : "width: 15%;"}).html("Operations"))
 			)
