@@ -43,6 +43,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 	this.enableOpenDataset = enableOpenDataset;
 	this.sampleDataSets = {};
 	this.datastoreDownloadURL = datastoreDownloadURL
+	this.lastUsedPath = [];
 	
 	this._isPreviewable = function(file) {
 		if(!file.isDirectory) {
@@ -87,6 +88,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		// No data store URL
 		//
 		if(datastoreDownloadURL === null) {
+			$container.append("<br>");
 			$container.append($("<p>")
 					.append($("<span>", { class: "glyphicon glyphicon-ban-circle" }))
 					.append(" Please configure properly your DSS server properly, looks like is not reachable."));
@@ -102,6 +104,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		}
 		
 		if(numberOfDatasets === 0) {
+			$container.append("<br>");
 			$container.append($("<p>")
 								.append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
 								.append(" No datasets found."));
@@ -111,7 +114,6 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		return true;
 	}
 	
-	this.lastUsedPath = [];
 	this.updateDirectoryView = function(code, path, isBack) {
 		var _this = this;
 		this.serverFacade.listFilesForDataSet(code, path, false, function(files) {
@@ -148,9 +150,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		//
 		// Tests
 		//
-		if(!this._repaintTestsPassed($containerContent)) {
-			return;
-		}
+		this._repaintTestsPassed($containerContent);
 		
 		//
 		// Simple Datasets Table
