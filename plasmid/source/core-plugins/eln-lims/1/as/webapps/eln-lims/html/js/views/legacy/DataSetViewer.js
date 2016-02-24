@@ -137,13 +137,14 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		//
 		var $uploadButton = "";
 		if(this.enableUpload) {
-			$uploadButton = $("<a>", { class: "btn btn-default" }).append($("<span>", { class: "glyphicon glyphicon-upload" })).append(" Upload");
+			$uploadButton = $("<a>", { class: "btn btn-default" }).append($("<span>", { class: "glyphicon glyphicon-upload" })).append(" Upload New Dataset");
 			$uploadButton.click(function() { 
 				mainController.changeView('showCreateDataSetPageFromPermId',_this.sample.permId); //TO-DO Fix Global Access
 			});
 		}
 		
-		$containerTitle.append($("<legend>").append("Files ").append($uploadButton));
+		$containerTitle.append($("<div>").append($uploadButton));
+		
 		//
 		// Tests
 		//
@@ -202,6 +203,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 			
 		}
 		
+		$containerContent.append($("<legend>").append("Datasets:"));
 		$containerContent.append($dataSetsTable);
 		
 		//
@@ -214,9 +216,13 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 	
 	this.repaintFiles = function(datasetCode, datasetFiles) {
 		var _this = this;
-		
+		var parentPath = this.lastUsedPath[this.lastUsedPath.length - 1];
 		var $container = $("#"+this.containerIdContent);
 		$container.empty();
+		
+		
+		// Path
+		$container.append($("<legend>").append("Path: " + parentPath));
 		
 		//
 		// Simple Files Table
@@ -268,6 +274,15 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		for(var i = 0; i < datasetFiles.length; i++) {
 			var $tableRow = $("<tr>");
 			var downloadUrl = datastoreDownloadURL + '/' + datasetCode + "/" + encodeURIComponent(datasetFiles[i].pathInDataSet) + "?sessionID=" + this.serverFacade.getSession();
+			var pathInDatasetDisplayName = "";
+			var lastSlash = datasetFiles[i].pathInDataSet.lastIndexOf("/");
+			if(lastSlash !== -1) {
+				pathInDatasetDisplayName = datasetFiles[i].pathInDataSet.substring(lastSlash + 1);
+			} else {
+				pathInDatasetDisplayName = datasetFiles[i].pathInDataSet;
+			}
+			
+			
 			if(datasetFiles[i].isDirectory) {
 				var getDirectoyClickFuncion = function(datasetCode, pathInDataSet) {
 					return function() {
@@ -276,7 +291,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 				};
 				
 				var dirFunc = getDirectoyClickFuncion(datasetCode, datasetFiles[i].pathInDataSet);
-				var $directoryLink = $("<a>").text(datasetFiles[i].pathInDataSet)
+				var $directoryLink = $("<a>").text(pathInDatasetDisplayName)
 											.click(function(event) {
 												dirFunc();
 												event.stopPropagation();
@@ -286,7 +301,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 				$tableRow.append($("<td>"));
 				$tableRow.click(dirFunc);
 			} else {
-				$tableRow.append($("<td>").append($("<p>").text(datasetFiles[i].pathInDataSet)));
+				$tableRow.append($("<td>").append($("<p>").text(pathInDatasetDisplayName)));
 				
 				var sizeInMb = parseInt(datasetFiles[i].fileSize) / 1024 / 1024;
 				var sizeInMbThreeDecimals = Math.floor(sizeInMb * 1000) / 1000;
