@@ -47,6 +47,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.StorageFormatPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.ExternalDmsPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgressListener;
@@ -2589,13 +2590,18 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     {
         SampleIdentifier sampleIdentifier = newData.getSampleIdentifierOrNull();
         String permId = newData.getSamplePermIdOrNull();
-        if (permId != null)
+        if (sampleIdentifier != null)
         {
-            creation.setSampleId(new SamplePermId(permId));
-        } else if (sampleIdentifier != null)
-        {
-            creation.setSampleId(new ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier(
-                    sampleIdentifier.toString()));
+            ISampleId sampleId;
+            if (permId != null)
+            {
+                sampleId = new SamplePermId(permId);
+            } else
+            {
+                sampleId = new ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier(
+                        sampleIdentifier.toString());
+            }
+            creation.setSampleId(sampleId);
         }
     }
 
