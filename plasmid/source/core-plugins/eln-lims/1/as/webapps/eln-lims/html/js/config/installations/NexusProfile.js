@@ -7,6 +7,7 @@ $.extend(NexusProfile.prototype, StandardProfile.prototype, {
 	init: function(serverFacade){
 		DefaultProfile.prototype.init.call(this, serverFacade);
 		
+		this.propertyReplacingCode = "CELLARIO_BC";
 		this.inventorySpaces = ["LIBRARIES"];
 		this.searchSamplesUsingV3OnDropbox = true;
 		this.searchSamplesUsingV3OnDropboxRunCustom = true;
