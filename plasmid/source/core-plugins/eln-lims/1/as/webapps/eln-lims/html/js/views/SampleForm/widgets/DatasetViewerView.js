@@ -42,7 +42,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		// Upload Button
 		//
 		var $uploadButton = "";
-		if(this.enableUpload) {
+		if(this._dataSetViewerModel.enableUpload) {
 			$uploadButton = $("<a>", { class: "btn btn-default" }).append($("<span>", { class: "glyphicon glyphicon-upload" })).append(" Upload New Dataset");
 			$uploadButton.click(function() { 
 				mainController.changeView('showCreateDataSetPageFromPermId',_this._dataSetViewerModel.sample.permId); //TO-DO Fix Global Access
