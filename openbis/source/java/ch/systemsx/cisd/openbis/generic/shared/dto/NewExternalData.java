@@ -77,6 +77,8 @@ public class NewExternalData implements Serializable
     private ExperimentIdentifier experimentIdentifierOrNull;
 
     private SampleIdentifier sampleIdentifierOrNull;
+    
+    private String samplePermIdOrNull;
 
     public ExperimentIdentifier getExperimentIdentifierOrNull()
     {
@@ -96,6 +98,16 @@ public class NewExternalData implements Serializable
     public void setSampleIdentifierOrNull(SampleIdentifier sampleIdentifierOrNull)
     {
         this.sampleIdentifierOrNull = sampleIdentifierOrNull;
+    }
+
+    public String getSamplePermIdOrNull()
+    {
+        return samplePermIdOrNull;
+    }
+
+    public void setSamplePermIdOrNull(String samplePermId)
+    {
+        this.samplePermIdOrNull = samplePermId;
     }
 
     /** Returns <code>dataSetType</code>. */

@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,7 +27,13 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 
 /**
@@ -102,12 +110,26 @@ public class JavaDropboxSystemTest extends SystemTestCase
         List<AbstractExternalData> x = openBISService.listDataSetsByCode(codes);
 
         assertEquals("Exactly one dataset should have been imported.", 1, x.size());
-
-        for (AbstractExternalData a : x)
+        assertEquals("/CISD/PLATE_WELLSEARCH:DP1-A", x.get(0).getSampleIdentifier());
+        
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "PLATE_WELLSEARCH"));
+        List<Sample> samples = openBISService.searchForSamples(searchCriteria);
+        assertEquals("[/CISD/PLATE_WELLSEARCH]", extractIdentifiers(samples).toString());
+        List<Sample> components = openBISService.listSamples(ListSampleCriteria.createForContainer(new TechId(samples.get(0))));
+        assertEquals("[/CISD/PLATE_WELLSEARCH:DP1-A, /CISD/PLATE_WELLSEARCH:WELL-A01, /CISD/PLATE_WELLSEARCH:WELL-A02]", 
+                extractIdentifiers(components).toString());
+    }
+    
+    private List<String> extractIdentifiers(List<Sample> samples)
+    {
+        List<String> identifiers = new ArrayList<>();
+        for (Sample sample : samples)
         {
-            assertEquals("/CISD/JAVA-TEST", a.getSampleIdentifier());
-            assertEquals("/CISD/NEMO/EXP-TEST-1", a.getExperiment().getIdentifier());
+            identifiers.add(sample.getIdentifier());
         }
+        Collections.sort(identifiers);
+        return identifiers;
     }
 
     private void createExampleDataSet(File exampleDataSet)

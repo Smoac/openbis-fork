@@ -228,6 +228,7 @@ public class ConversionUtils
         data.setDataStoreCode(dataStoreCode);
         data.setExperimentIdentifierOrNull(dataSetInformation.getExperimentIdentifier());
         data.setSampleIdentifierOrNull(dataSetInformation.getSampleIdentifier());
+        data.setSamplePermIdOrNull(getSamplePermIdOrNull(dataSetInformation));
         data.setParentDataSetCodes(dataSetInformation.getParentDataSetCodes());
 
         data.setStorageFormat(storageFormat);
@@ -237,6 +238,12 @@ public class ConversionUtils
         data.getExtractableData().setDataSetProperties(newProperties);
 
         return data;
+    }
+
+    private static String getSamplePermIdOrNull(DataSetInformation dataSetInformation)
+    {
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample = dataSetInformation.tryToGetSample();
+        return sample == null ? null : sample.getPermId();
     }
 
     public static NewLinkDataSet convertToNewLinkDataSet(

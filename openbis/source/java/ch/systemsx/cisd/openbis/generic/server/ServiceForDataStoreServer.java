@@ -47,6 +47,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.StorageFormatPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.ExternalDmsPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgressListener;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
@@ -2475,11 +2476,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             }
 
             // sample
-            if (newData.getSampleIdentifierOrNull() != null)
-            {
-                creation.setSampleId(new ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier(newData.getSampleIdentifierOrNull()
-                        .toString()));
-            }
+            injectSampleId(creation, newData);
 
             // data store
             if (newData.getDataStoreCode() != null)
@@ -2586,6 +2583,20 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
         List<DataSetPermId> ids = createDataSetExecutor.create(context, creations);
         return ids.size();
+    }
+
+    private void injectSampleId(DataSetCreation creation, NewExternalData newData)
+    {
+        SampleIdentifier sampleIdentifier = newData.getSampleIdentifierOrNull();
+        String permId = newData.getSamplePermIdOrNull();
+        if (permId != null)
+        {
+            creation.setSampleId(new SamplePermId(permId));
+        } else if (sampleIdentifier != null)
+        {
+            creation.setSampleId(new ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier(
+                    sampleIdentifier.toString()));
+        }
     }
 
     private void checkDataSetCreationAllowed(Session session,

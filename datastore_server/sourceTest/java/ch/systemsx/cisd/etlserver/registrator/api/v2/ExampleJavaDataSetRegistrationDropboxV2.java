@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
 
 /**
  * An example dropbox implemented in Java.
@@ -30,12 +30,11 @@ public class ExampleJavaDataSetRegistrationDropboxV2 extends
     @Override
     public void process(IDataSetRegistrationTransactionV2 transaction)
     {
-        String sampleId = "/CISD/JAVA-TEST";
-        ISample sample = transaction.createNewSample(sampleId, "DYNAMIC_PLATE");
-        IExperimentImmutable exp =
-                transaction.getSearchService().getExperiment("/CISD/NEMO/EXP-TEST-1");
-        sample.setExperiment(exp);
-        IDataSet dataSet = transaction.createNewDataSet();
+        @SuppressWarnings("deprecation")
+        ISampleImmutable container = transaction.getSample("/CISD/PLATE_WELLSEARCH");
+        ISample sample = transaction.createNewSample("/CISD/DP1-A", "NORMAL");
+        sample.setContainer(container);
+        IDataSet dataSet = transaction.createNewDataSet("UNKNOWN");
         dataSet.setSample(sample);
         transaction.moveFile(transaction.getIncoming().getAbsolutePath(), dataSet);
     }
