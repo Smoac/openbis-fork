@@ -62,15 +62,6 @@ if [ -z "$DATABASES" ]; then
     echo "At least one database has to be specified in $CONFIGURATION_FILE."
     exit 1
 fi
-INDEX=`getValue $CONFIGURATION_FILE index`
-if [ -z "$INDEX" ]; then
-    echo "Index not specified in $CONFIGURATION_FILE."
-fi
-INDEX="$OPENBIS_AS_ROOT"$INDEX
-if [ ! -d "$INDEX" ]; then
-    echo "Index folder $INDEX doesn't exist."
-    exit 1
-fi
 TIMESTAMP=`date +%Y-%m-%d_%H%M%S`
 SNAPSHOT_FOLDER_NAME="openbis-snapshot-$TIMESTAMP"
 SNAPSHOT="$REPOSITORY/$SNAPSHOT_FOLDER_NAME"
@@ -81,7 +72,6 @@ SNAPSHOT="$REPOSITORY/$SNAPSHOT_FOLDER_NAME"
 #
 echo "==== Creating snapshot $SNAPSHOT.tgz"
 
-mkdir -p "$INDEX"
 mkdir -p "$SNAPSHOT"
 cp -p "$CONFIGURATION_FILE" "$SNAPSHOT/snapshot.config"
 ############## dump the store ##############
@@ -111,17 +101,6 @@ for db in $DATABASES; do
     fi
     echo "Database '$db' has been successfully dumped."
 done
-############## dump index ##############
-if ! tar -cf "$SNAPSHOT/index.tar" -C "$INDEX" .; then
-    echo "Error creating index dump. Snapshot creation aborted."
-    exit 1
-fi
-echo "Dump of index $INDEX has been successfully created."
-############## packaging ##############
-if ! tar -zcf "$SNAPSHOT.tgz" -C "$REPOSITORY" "$SNAPSHOT_FOLDER_NAME"; then
-    echo "Error packaging snapshot $SNAPSHOT."
-    exit 1
-fi
 rm -rf "$SNAPSHOT"
 
 echo "==== $SNAPSHOT.tgz successfully created."
