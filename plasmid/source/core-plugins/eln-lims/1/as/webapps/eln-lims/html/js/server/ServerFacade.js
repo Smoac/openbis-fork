@@ -936,6 +936,15 @@ function ServerFacade(openbisServer) {
 		}, callbackFunction);
 	}
 	
+	this.searchByTypeWithParents = function(sampleType, callbackFunction)
+	{
+		this.searchSamples({
+			"sampleTypeCode" : sampleType,
+			"withProperties" : true,
+			"withParents" : true,
+		}, callbackFunction);
+	}
+	
 	this.searchWithType = function(sampleType, sampleCode, includeAncestorsAndDescendants, callbackFunction)
 	{
 		this.searchSamples({
