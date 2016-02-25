@@ -369,6 +369,7 @@ public class DtoGenerator
 
         printFetchOptionsFields();
         printFetchOptionsAccessors();
+        printFetchOptionsStringBuilder();
 
         endBlock();
     }
@@ -424,8 +425,7 @@ public class DtoGenerator
         if (field.fetchOptions != null)
         {
             printGetterWithFetchOptions(field);
-        }
-        else
+        } else
         {
             printBasicGetter(field);
         }
@@ -438,8 +438,7 @@ public class DtoGenerator
         if (field.fetchOptions != null)
         {
             printGetterWithFetchOptionsJS(field);
-        }
-        else
+        } else
         {
             printBasicGetterJS(field);
         }
@@ -536,8 +535,7 @@ public class DtoGenerator
         if (field.plural)
         {
             print("throw new NotFetchedException(\"%s have not been fetched.\");", field.description);
-        }
-        else
+        } else
         {
             print("throw new NotFetchedException(\"%s has not been fetched.\");", field.description);
         }
@@ -576,8 +574,7 @@ public class DtoGenerator
         if (field.definitionClassName.equals("Boolean"))
         {
             print("public %s is%s()", field.definitionClassName, field.getCapitalizedName());
-        }
-        else
+        } else
         {
             print("public %s get%s()", field.definitionClassName, field.getCapitalizedName());
         }
@@ -592,8 +589,7 @@ public class DtoGenerator
         if (field.definitionClassName.equals("Boolean"))
         {
             print("this.is%s = function()", field.getCapitalizedName());
-        }
-        else
+        } else
         {
             print("this.get%s = function()", field.getCapitalizedName());
         }
@@ -733,6 +729,24 @@ public class DtoGenerator
         print("");
     }
 
+    private void printFetchOptionsStringBuilder()
+    {
+        print("@Override");
+        print("public FetchOptionsToStringBuilder getFetchOptionsStringBuilder()");
+        startBlock();
+        print("FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder(\"" + this.className + "\", this);");
+        for (DTOField field : fields)
+        {
+            if (field.fetchOptions != null)
+            {
+                print("f.addFetchOption(\"" + field.getCapitalizedName() + "\", " + field.fieldName + ");");
+            }
+        }
+        print("return f;");
+        endBlock();
+        print("");
+    }
+
     protected void printJsonPropertyAnnotation(DTOField field)
     {
         if (field.fieldName.equalsIgnoreCase(field.getPersistentName()))
@@ -777,6 +791,7 @@ public class DtoGenerator
         imports.add(Serializable.class.getName());
         imports.add(FetchOptions.class.getName());
         imports.add("ch.ethz.sis.openbis.generic.asapi.v3.dto." + subPackage + "." + className);
+        imports.add("ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder");
 
         for (DTOField field : fields)
         {
