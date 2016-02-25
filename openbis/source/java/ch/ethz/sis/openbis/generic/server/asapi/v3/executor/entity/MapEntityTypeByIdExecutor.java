@@ -60,7 +60,7 @@ public class MapEntityTypeByIdExecutor implements IMapEntityTypeByIdExecutor
                 new LinkedList<IListObjectById<? extends IEntityTypeId, EntityTypePE>>();
         listers.add(new ListEntityTypeByPermId(daoFactory, entityKind));
 
-        return new MapObjectById<IEntityTypeId, EntityTypePE>().map(listers, entityTypeIds);
+        return new MapObjectById<IEntityTypeId, EntityTypePE>().map(context, listers, entityTypeIds);
     }
 
 }

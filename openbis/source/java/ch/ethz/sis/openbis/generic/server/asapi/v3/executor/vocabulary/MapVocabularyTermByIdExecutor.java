@@ -65,7 +65,7 @@ public class MapVocabularyTermByIdExecutor implements IMapVocabularyTermByIdExec
             listers.add(new ListVocabularyTermByCode(vocabulary));
         }
 
-        return new MapObjectById<IVocabularyTermId, VocabularyTermPE>().map(listers, vocabularyTermIds);
+        return new MapObjectById<IVocabularyTermId, VocabularyTermPE>().map(context, listers, vocabularyTermIds);
     }
 
 }

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.FileFormatTypePermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.AbstractListObjectById;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
@@ -50,7 +51,7 @@ public class ListFileFormatTypeByPermId extends AbstractListObjectById<FileForma
     }
 
     @Override
-    public List<FileFormatTypePE> listByIds(List<FileFormatTypePermId> ids)
+    public List<FileFormatTypePE> listByIds(IOperationContext context, List<FileFormatTypePermId> ids)
     {
         List<FileFormatTypePE> types = new ArrayList<FileFormatTypePE>();
 

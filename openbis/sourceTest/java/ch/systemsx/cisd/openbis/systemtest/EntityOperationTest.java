@@ -28,6 +28,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
@@ -647,7 +648,7 @@ public class EntityOperationTest extends SystemTestCase
                         new DataSetBuilder().code(dataSetCode).type("HCS_IMAGE")
                                 .store(new DataStoreBuilder("STANDARD").getStore())
                                 .fileFormat("XML").location("a/b/c").property("COMMENT", "my data")
-                                .sample(new SampleBuilder().identifier("/CISD/CP1-A1").getSample())
+                                .sample(new SampleBuilder().identifier("/CISD/WELL-A01").getSample())
                                 .getDataSet()).create();
 
         AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
@@ -657,6 +658,30 @@ public class EntityOperationTest extends SystemTestCase
         assertEquals(dataSetCode, dataSet.getCode());
         assertEquals("HCS_IMAGE", dataSet.getDataSetType().getCode());
         assertEquals("[COMMENT: my data]", dataSet.getProperties().toString());
+        assertEquals("/CISD/PLATE_WELLSEARCH:WELL-A01", dataSet.getSampleIdentifier());
+    }
+    
+    @Test
+    public void testCreateDataSetForUnknownSample()
+    {
+        String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
+        String dataSetCode = "DS-1";
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder().dataSet(
+                        new DataSetBuilder().code(dataSetCode).type("HCS_IMAGE")
+                        .store(new DataStoreBuilder("STANDARD").getStore())
+                        .fileFormat("XML").location("a/b/c").property("COMMENT", "my data")
+                        .sample(new SampleBuilder().identifier("/CISD/A01").getSample())
+                        .getDataSet()).create();
+        
+        try
+        {
+            etlService.performEntityOperations(sessionToken, eo);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Object with SampleIdentifier = [/CISD/A01] has not been found.", ex.getMessage());
+        }
     }
 
     @Test

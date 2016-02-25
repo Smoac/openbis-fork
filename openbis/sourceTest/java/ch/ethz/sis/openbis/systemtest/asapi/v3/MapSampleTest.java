@@ -156,11 +156,7 @@ public class MapSampleTest extends AbstractSampleTest
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, Arrays.asList(identifier1), new SampleFetchOptions());
 
-        assertEquals(map.size(), 1);
-
-        Sample sample1 = map.get(identifier1);
-
-        assertEquals(sample1.getIdentifier().getIdentifier(), "/MP:A03");
+        assertEquals(map.size(), 0);
 
         v3api.logout(sessionToken);
     }
@@ -224,13 +220,7 @@ public class MapSampleTest extends AbstractSampleTest
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, Arrays.asList(identifier1, identifier2), new SampleFetchOptions());
 
-        assertEquals(map.size(), 2);
-
-        Sample sample1 = map.get(identifier1);
-        Sample sample2 = map.get(identifier2);
-
-        assertEquals(sample1.getIdentifier().getIdentifier(), "/CISD/PLATE_WELLSEARCH:WELL-A01");
-        assertEquals(sample2.getIdentifier().getIdentifier(), "/CISD/PLATE_WELLSEARCH:WELL-A02");
+        assertEquals(map.size(), 0);
 
         v3api.logout(sessionToken);
     }
@@ -260,10 +250,7 @@ public class MapSampleTest extends AbstractSampleTest
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, Arrays.asList(identifier1, identifier2), new SampleFetchOptions());
 
-        assertEquals(map.size(), 1);
-
-        Sample sample1 = map.get(identifier1);
-        assertEquals(sample1.getIdentifier().getIdentifier(), "/CISD/PLATE_WELLSEARCH:WELL-A01");
+        assertEquals(map.size(), 0);
 
         v3api.logout(sessionToken);
     }

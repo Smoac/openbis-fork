@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.TechIdStringIdentifierRecord;
 
 /**
@@ -33,7 +34,7 @@ public abstract class AbstractListTechIdByPermId<ID extends ObjectPermId> extend
 {
 
     @Override
-    protected Map<Long, ID> createIdsByTechIdsMap(List<ID> ids)
+    protected Map<Long, ID> createIdsByTechIdsMap(IOperationContext context, List<ID> ids)
     {
         List<String> permIds = new ArrayList<>(ids.size());
         for (ID permId : ids)

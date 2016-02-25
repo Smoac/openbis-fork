@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.AbstractListObjectById;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
@@ -59,7 +60,7 @@ public class ListExperimentByIdentifier extends AbstractListObjectById<Experimen
     }
 
     @Override
-    public List<ExperimentPE> listByIds(List<ExperimentIdentifier> experimentIdentifiers)
+    public List<ExperimentPE> listByIds(IOperationContext context, List<ExperimentIdentifier> experimentIdentifiers)
     {
         List<ExperimentPE> experiments = new LinkedList<ExperimentPE>();
 

@@ -52,6 +52,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgressListener;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ICreateDataSetExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ListSampleTechIdByIdentifier;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.DummyAuthenticationService;
@@ -2427,6 +2428,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         }
 
         IOperationContext context = new OperationContext(session);
+        context.setAttribute(ListSampleTechIdByIdentifier.CONTAINER_SHORTCUT_ALLOWED_ATTRIBUTE, true);
         context.addProgressListener(new IProgressListener()
             {
                 @Override

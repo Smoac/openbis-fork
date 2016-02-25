@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.AbstractListObjectById;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
@@ -52,7 +53,7 @@ public class ListEntityTypeByPermId extends AbstractListObjectById<EntityTypePer
     }
 
     @Override
-    public List<EntityTypePE> listByIds(List<EntityTypePermId> ids)
+    public List<EntityTypePE> listByIds(IOperationContext context, List<EntityTypePermId> ids)
     {
         List<String> permIds = new LinkedList<String>();
 

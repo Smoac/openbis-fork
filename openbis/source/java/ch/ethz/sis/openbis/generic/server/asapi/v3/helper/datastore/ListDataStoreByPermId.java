@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.AbstractListObjectById;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -50,7 +51,7 @@ public class ListDataStoreByPermId extends AbstractListObjectById<DataStorePermI
     }
 
     @Override
-    public List<DataStorePE> listByIds(List<DataStorePermId> ids)
+    public List<DataStorePE> listByIds(IOperationContext context, List<DataStorePermId> ids)
     {
         List<DataStorePE> dataStores = new LinkedList<DataStorePE>();
 

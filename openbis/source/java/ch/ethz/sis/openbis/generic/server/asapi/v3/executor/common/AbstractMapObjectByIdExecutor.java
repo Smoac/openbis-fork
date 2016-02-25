@@ -47,7 +47,7 @@ public abstract class AbstractMapObjectByIdExecutor<ID extends IObjectId, OBJECT
 
         List<IListObjectById<? extends ID, OBJECT>> listers = new ArrayList<IListObjectById<? extends ID, OBJECT>>();
         addListers(context, listers);
-        return new MapObjectById<ID, OBJECT>().map(listers, ids);
+        return new MapObjectById<ID, OBJECT>().map(context, listers, ids);
     }
 
     protected abstract void addListers(IOperationContext context, List<IListObjectById<? extends ID, OBJECT>> listers);

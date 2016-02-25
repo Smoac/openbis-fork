@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.AbstractListObjectById;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
@@ -50,7 +51,7 @@ public class ListVocabularyByPermId extends AbstractListObjectById<VocabularyPer
     }
 
     @Override
-    public List<VocabularyPE> listByIds(List<VocabularyPermId> ids)
+    public List<VocabularyPE> listByIds(IOperationContext context, List<VocabularyPermId> ids)
     {
         List<VocabularyPE> vocabularies = new LinkedList<VocabularyPE>();
 

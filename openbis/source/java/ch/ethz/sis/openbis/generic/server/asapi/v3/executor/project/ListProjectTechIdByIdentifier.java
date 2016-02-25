@@ -25,6 +25,7 @@ import java.util.Set;
 import net.lemnik.eodsql.QueryTool;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.TechIdStringIdentifierRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.AbstractListTechIdById;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
@@ -45,7 +46,7 @@ public class ListProjectTechIdByIdentifier extends AbstractListTechIdById<Projec
     }
 
     @Override
-    protected Map<Long, ProjectIdentifier> createIdsByTechIdsMap(List<ProjectIdentifier> ids)
+    protected Map<Long, ProjectIdentifier> createIdsByTechIdsMap(IOperationContext context, List<ProjectIdentifier> ids)
     {
         Map<String, Map<String, ProjectIdentifier>> groupedIdentifiers = new HashMap<>();
         for (ProjectIdentifier projectIdentifier : ids)

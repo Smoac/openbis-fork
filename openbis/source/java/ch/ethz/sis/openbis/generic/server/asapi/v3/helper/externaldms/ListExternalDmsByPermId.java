@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.ExternalDmsPermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.AbstractListObjectById;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataManagementSystemDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
@@ -50,7 +51,7 @@ public class ListExternalDmsByPermId extends AbstractListObjectById<ExternalDmsP
     }
 
     @Override
-    public List<ExternalDataManagementSystemPE> listByIds(List<ExternalDmsPermId> ids)
+    public List<ExternalDataManagementSystemPE> listByIds(IOperationContext context, List<ExternalDmsPermId> ids)
     {
         List<ExternalDataManagementSystemPE> externalDmses = new LinkedList<ExternalDataManagementSystemPE>();
 

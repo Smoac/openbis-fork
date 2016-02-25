@@ -25,6 +25,7 @@ import java.util.Set;
 import net.lemnik.eodsql.QueryTool;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.TechIdStringIdentifierRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.AbstractListTechIdById;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
@@ -44,7 +45,7 @@ public class ListMaterialsTechIdByPermId  extends AbstractListTechIdById<Materia
     }
 
     @Override
-    protected Map<Long, MaterialPermId> createIdsByTechIdsMap(List<MaterialPermId> ids)
+    protected Map<Long, MaterialPermId> createIdsByTechIdsMap(IOperationContext context, List<MaterialPermId> ids)
     {
         Map<String, Map<String, MaterialPermId>> groupedIdentifiers = new HashMap<>();
         for (MaterialPermId permId : ids)

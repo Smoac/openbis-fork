@@ -18,6 +18,8 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common;
 
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+
 /**
  * @author pkupczyk
  */
@@ -28,6 +30,6 @@ public interface IListObjectById<ID, OBJECT>
 
     public ID createId(OBJECT entity);
 
-    public List<OBJECT> listByIds(List<ID> ids);
+    public List<OBJECT> listByIds(IOperationContext context, List<ID> ids);
 
 }

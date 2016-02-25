@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.LocatorTypePermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.AbstractListObjectById;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
@@ -50,7 +51,7 @@ public class ListLocatorTypeByPermId extends AbstractListObjectById<LocatorTypeP
     }
 
     @Override
-    public List<LocatorTypePE> listByIds(List<LocatorTypePermId> ids)
+    public List<LocatorTypePE> listByIds(IOperationContext context, List<LocatorTypePermId> ids)
     {
         List<LocatorTypePE> types = new ArrayList<LocatorTypePE>();
 

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.AbstractListObjectById;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -51,7 +52,7 @@ public class ListDataSetByPermId extends AbstractListObjectById<DataSetPermId, D
     }
 
     @Override
-    public List<DataPE> listByIds(List<DataSetPermId> ids)
+    public List<DataPE> listByIds(IOperationContext context, List<DataSetPermId> ids)
     {
         Set<String> codes = new HashSet<String>();
 

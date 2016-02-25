@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.AbstractListObjectById;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -51,7 +52,7 @@ public class ListProjectByIdentifier extends AbstractListObjectById<ProjectIdent
     }
 
     @Override
-    public List<ProjectPE> listByIds(List<ProjectIdentifier> ids)
+    public List<ProjectPE> listByIds(IOperationContext context, List<ProjectIdentifier> ids)
     {
         List<ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier> identifiers =
                 new LinkedList<ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier>();

@@ -29,6 +29,7 @@ import java.util.Set;
 import net.lemnik.eodsql.QueryTool;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.TechIdStringIdentifierRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.AbstractListTechIdById;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -38,6 +39,8 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
  */
 public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleIdentifier>
 {
+    public static final String CONTAINER_SHORTCUT_ALLOWED_ATTRIBUTE = "container-shortcut-allowed";
+    
     private String homeSpaceCodeOrNull;
 
     public ListSampleTechIdByIdentifier(String homeSpaceCodeOrNull)
@@ -52,17 +55,17 @@ public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleI
     }
 
     @Override
-    protected Map<Long, SampleIdentifier> createIdsByTechIdsMap(List<SampleIdentifier> ids)
+    protected Map<Long, SampleIdentifier> createIdsByTechIdsMap(IOperationContext context, List<SampleIdentifier> ids)
     {
         Map<SampleIdentifierParts, Map<String, SampleIdentifier>> groupedIdentifiers = groupIdentifiers(ids);
-
+        boolean containerShortcutAllowed = getContainerShortcutAllowed(context);
         Map<Long, SampleIdentifier> result = new HashMap<>();
         SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
         for (Entry<SampleIdentifierParts, Map<String, SampleIdentifier>> entry : groupedIdentifiers.entrySet())
         {
             SampleIdentifierParts key = entry.getKey();
             Map<String, SampleIdentifier> identifiersByCode = entry.getValue();
-            List<TechIdStringIdentifierRecord> records = list(query, key, identifiersByCode.keySet());
+            List<TechIdStringIdentifierRecord> records = list(query, key, identifiersByCode.keySet(), containerShortcutAllowed);
             for (TechIdStringIdentifierRecord record : records)
             {
                 String sampleCode = record.identifier;
@@ -70,6 +73,12 @@ public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleI
             }
         }
         return result;
+    }
+    
+    private boolean getContainerShortcutAllowed(IOperationContext context)
+    {
+        Object value = context.getAttribute(CONTAINER_SHORTCUT_ALLOWED_ATTRIBUTE);
+        return Boolean.TRUE.equals(value);
     }
 
     private Map<SampleIdentifierParts, Map<String, SampleIdentifier>> groupIdentifiers(List<SampleIdentifier> ids)
@@ -92,7 +101,8 @@ public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleI
         return groupedIdentifiers;
     }
 
-    private List<TechIdStringIdentifierRecord> list(final SampleQuery query, final SampleIdentifierParts key, final Collection<String> codes)
+    private List<TechIdStringIdentifierRecord> list(final SampleQuery query, final SampleIdentifierParts key, 
+            final Collection<String> codes, boolean containerShortcutAllowed)
     {
         final String[] codesArray = codes.toArray(new String[codes.size()]);
         final String spaceCode = key.getSpaceCodeOrNull();
@@ -117,7 +127,7 @@ public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleI
                         {
                             return query.listSharedSampleTechIdsByCodesWithSomeContainer(codesToList);
                         }
-                    });
+                    }, containerShortcutAllowed);
             }
             return query.listSharedSampleTechIdsByContainerCodeAndCodes(containerCode, codesArray);
         }
@@ -139,7 +149,7 @@ public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleI
                         {
                             return query.listSpaceSampleTechIdsByCodesWithSomeContainer(spaceCode, codesToList);
                         }
-                    });
+                    }, containerShortcutAllowed);
             }
             return query.listSpaceSampleTechIdsByContainerCodeAndCodes(spaceCode, containerCode, codesArray);
         }
@@ -159,13 +169,14 @@ public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleI
                     {
                         return query.listProjectSampleTechIdsByCodesWithSomeContainer(spaceCode, projectCode, codesToList);
                     }
-                });
+                }, containerShortcutAllowed);
         }
         return query.listProjectSampleTechIdsByContainerCodeAndCodes(spaceCode, projectCode, containerCode, codesArray);
     }
 
-    private List<TechIdStringIdentifierRecord> listWithoutContainerOrWithSomeContainerAndUniqueCode(SampleQuery query, String[] codes,
-            IListAction listWithoutContainer, IListAction listWithSomeContainer)
+    private List<TechIdStringIdentifierRecord> listWithoutContainerOrWithSomeContainerAndUniqueCode(SampleQuery query, 
+            String[] codes, IListAction listWithoutContainer, IListAction listWithSomeContainer, 
+            boolean containerShortcutAllowed)
     {
         try
         {
@@ -177,7 +188,7 @@ public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleI
                 codesNotFound.remove(found.identifier);
             }
 
-            if (codesNotFound.isEmpty())
+            if (codesNotFound.isEmpty() || containerShortcutAllowed == false)
             {
                 return foundWithoutContainer;
             }

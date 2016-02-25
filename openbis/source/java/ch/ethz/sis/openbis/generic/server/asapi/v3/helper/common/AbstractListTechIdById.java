@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+
 /**
  * @author Franz-Josef Elmer
  */
@@ -35,12 +37,12 @@ public abstract class AbstractListTechIdById<ID> extends AbstractListObjectById<
     }
 
     @Override
-    public List<Long> listByIds(List<ID> ids)
+    public List<Long> listByIds(IOperationContext context, List<ID> ids)
     {
-        idsByTechIds = createIdsByTechIdsMap(ids);
+        idsByTechIds = createIdsByTechIdsMap(context, ids);
         return new ArrayList<>(idsByTechIds.keySet());
     }
 
-    protected abstract Map<Long, ID> createIdsByTechIdsMap(List<ID> ids);
+    protected abstract Map<Long, ID> createIdsByTechIdsMap(IOperationContext context, List<ID> ids);
 
 }

@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.DeletionTechId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.AbstractListObjectById;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
@@ -50,7 +51,7 @@ public class ListDeletionByTechId extends AbstractListObjectById<DeletionTechId,
     }
 
     @Override
-    public List<DeletionPE> listByIds(List<DeletionTechId> ids)
+    public List<DeletionPE> listByIds(IOperationContext context, List<DeletionTechId> ids)
     {
         List<Long> techIds = new LinkedList<Long>();
 

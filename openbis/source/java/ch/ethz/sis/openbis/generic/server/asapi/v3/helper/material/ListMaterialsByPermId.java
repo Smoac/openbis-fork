@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.AbstractListObjectById;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -52,7 +53,7 @@ public class ListMaterialsByPermId extends AbstractListObjectById<MaterialPermId
     }
 
     @Override
-    public List<MaterialPE> listByIds(List<MaterialPermId> ids)
+    public List<MaterialPE> listByIds(IOperationContext context, List<MaterialPermId> ids)
     {
         System.out.println("list by ids: " + ids);
         Set<MaterialIdentifier> codes = new HashSet<MaterialIdentifier>();

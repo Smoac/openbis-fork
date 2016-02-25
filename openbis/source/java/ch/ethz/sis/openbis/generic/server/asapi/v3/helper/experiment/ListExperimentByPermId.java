@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.AbstractListObjectById;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -50,7 +51,7 @@ public class ListExperimentByPermId extends AbstractListObjectById<ExperimentPer
     }
 
     @Override
-    public List<ExperimentPE> listByIds(List<ExperimentPermId> ids)
+    public List<ExperimentPE> listByIds(IOperationContext context, List<ExperimentPermId> ids)
     {
         List<String> permIds = new LinkedList<String>();
 

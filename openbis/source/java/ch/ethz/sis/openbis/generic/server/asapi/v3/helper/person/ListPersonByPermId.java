@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.AbstractListObjectById;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -50,7 +51,7 @@ public class ListPersonByPermId extends AbstractListObjectById<PersonPermId, Per
     }
 
     @Override
-    public List<PersonPE> listByIds(List<PersonPermId> ids)
+    public List<PersonPE> listByIds(IOperationContext context, List<PersonPermId> ids)
     {
         List<String> userIds = new LinkedList<String>();
 
