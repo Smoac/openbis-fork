@@ -53,12 +53,20 @@ function DataSetViewerController(containerId, profile, sample, serverFacade, dat
 		// Loading the datasets
 		if(this._datasetViewerModel.datasets) {
 			this.updateDatasets(this._datasetViewerModel.datasets);
+			
 			this._datasetViewerView.repaintDatasets();
+			if(!this._datasetViewerModel.enableOpenDataset && this._datasetViewerModel.datasets.length === 1) {
+				this._datasetViewerView.updateDirectoryView(datasets[0].code, "/");
+			}
 		} else {
 			var _this = this;
 			this.serverFacade.listDataSetsForSample(this.sample, true, function(datasets) {
 				_this.updateDatasets(datasets.result);
+				
 				_this._datasetViewerView.repaintDatasets();
+				if(!_this._datasetViewerModel.enableOpenDataset && _this._datasetViewerModel.datasets.length === 1) {
+					_this._datasetViewerView.updateDirectoryView(datasets[0].code, "/");
+				}
 			});
 		}
 	}
