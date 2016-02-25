@@ -20,6 +20,7 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -77,4 +78,12 @@ public class VocabularyFetchOptions extends FetchOptions<Vocabulary> implements 
     {
         return sort;
     }
+    @Override
+    public FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
+    {
+        FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("Vocabulary", this);
+        f.addFetchOption("Registrator", registrator);
+        return f;
+    }
+
 }

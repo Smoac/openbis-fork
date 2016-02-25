@@ -15,15 +15,18 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions;
 
+import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.GlobalSearchObject;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
 
 /*
  * Class automatically generated with DtoGenerator
@@ -153,4 +156,15 @@ public class GlobalSearchObjectFetchOptions extends FetchOptions<GlobalSearchObj
     {
         return sort;
     }
+    @Override
+    public FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
+    {
+        FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("GlobalSearchObject", this);
+        f.addFetchOption("Experiment", experiment);
+        f.addFetchOption("Sample", sample);
+        f.addFetchOption("DataSet", dataSet);
+        f.addFetchOption("Material", material);
+        return f;
+    }
+
 }

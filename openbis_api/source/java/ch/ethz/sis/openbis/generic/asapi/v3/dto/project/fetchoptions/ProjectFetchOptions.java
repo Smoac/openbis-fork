@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.fetchoptions.HistoryEntryFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
@@ -231,4 +232,18 @@ public class ProjectFetchOptions extends FetchOptions<Project> implements Serial
     {
         return sort;
     }
+    @Override
+    public FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
+    {
+        FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("Project", this);
+        f.addFetchOption("Experiments", experiments);
+        f.addFetchOption("History", history);
+        f.addFetchOption("Space", space);
+        f.addFetchOption("Registrator", registrator);
+        f.addFetchOption("Modifier", modifier);
+        f.addFetchOption("Leader", leader);
+        f.addFetchOption("Attachments", attachments);
+        return f;
+    }
+
 }

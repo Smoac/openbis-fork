@@ -20,6 +20,7 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.ObjectKindModification;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -51,4 +52,11 @@ public class ObjectKindModificationFetchOptions extends FetchOptions<ObjectKindM
     {
         return sort;
     }
+    @Override
+    public FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
+    {
+        FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("ObjectKindModification", this);
+        return f;
+    }
+
 }

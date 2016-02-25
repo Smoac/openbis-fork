@@ -50,7 +50,7 @@ public class Tag implements Serializable, ICodeHolder, IPermIdHolder, IRegistrat
     @JsonProperty
     private String description;
 
-    @JsonProperty(value = "private")
+    @JsonProperty(value="private")
     private Boolean isPrivate;
 
     @JsonProperty

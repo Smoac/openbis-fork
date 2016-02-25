@@ -20,6 +20,7 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.fetchoptions.HistoryEntryFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
@@ -205,4 +206,17 @@ public class MaterialFetchOptions extends FetchOptions<Material> implements Seri
     {
         return sort;
     }
+    @Override
+    public FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
+    {
+        FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("Material", this);
+        f.addFetchOption("Type", type);
+        f.addFetchOption("History", history);
+        f.addFetchOption("Registrator", registrator);
+        f.addFetchOption("Properties", properties);
+        f.addFetchOption("MaterialProperties", materialProperties);
+        f.addFetchOption("Tags", tags);
+        return f;
+    }
+
 }

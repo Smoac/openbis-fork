@@ -51,8 +51,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.experiment.Experiment")
-public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder, IModificationDateHolder, IModifierHolder, IPermIdHolder,
-        IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ITagsHolder
+public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder, IModificationDateHolder, IModifierHolder, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ITagsHolder
 {
     private static final long serialVersionUID = 1L;
 

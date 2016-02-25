@@ -1,6 +1,7 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions;
 
 import java.io.Serializable;
+import java.util.HashSet;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -55,4 +56,16 @@ public abstract class FetchOptions<OBJECT> implements Serializable
 
     public abstract SortOptions<OBJECT> getSortBy();
 
+    public FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
+    {
+        FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("?", this);
+        f.setName("kuba");
+        return f;
+    }
+
+    @Override
+    public String toString()
+    {
+        return getFetchOptionsStringBuilder().toString("", new HashSet<FetchOptions<?>>());
+    }
 }

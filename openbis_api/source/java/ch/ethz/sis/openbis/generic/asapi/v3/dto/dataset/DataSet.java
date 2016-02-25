@@ -49,8 +49,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.dataset.DataSet")
-public class DataSet implements Serializable, ICodeHolder, IModificationDateHolder, IModifierHolder, IParentChildrenHolder<DataSet>, IPermIdHolder,
-        IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ITagsHolder
+public class DataSet implements Serializable, ICodeHolder, IModificationDateHolder, IModifierHolder, IParentChildrenHolder<DataSet>, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ITagsHolder
 {
     private static final long serialVersionUID = 1L;
 

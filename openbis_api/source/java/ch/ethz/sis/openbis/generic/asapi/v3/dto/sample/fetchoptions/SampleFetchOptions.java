@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.fetchoptions.HistoryEntryFetchOptions;
@@ -435,4 +436,26 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
     {
         return sort;
     }
+    @Override
+    public FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
+    {
+        FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("Sample", this);
+        f.addFetchOption("Type", type);
+        f.addFetchOption("Space", space);
+        f.addFetchOption("Experiment", experiment);
+        f.addFetchOption("Properties", properties);
+        f.addFetchOption("MaterialProperties", materialProperties);
+        f.addFetchOption("Parents", parents);
+        f.addFetchOption("Children", children);
+        f.addFetchOption("Container", container);
+        f.addFetchOption("Components", components);
+        f.addFetchOption("DataSets", dataSets);
+        f.addFetchOption("History", history);
+        f.addFetchOption("Tags", tags);
+        f.addFetchOption("Registrator", registrator);
+        f.addFetchOption("Modifier", modifier);
+        f.addFetchOption("Attachments", attachments);
+        return f;
+    }
+
 }

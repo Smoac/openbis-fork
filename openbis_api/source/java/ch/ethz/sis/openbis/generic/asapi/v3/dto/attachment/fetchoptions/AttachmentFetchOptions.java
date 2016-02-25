@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EmptyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -128,4 +129,14 @@ public class AttachmentFetchOptions extends FetchOptions<Attachment> implements 
     {
         return sort;
     }
+    @Override
+    public FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
+    {
+        FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("Attachment", this);
+        f.addFetchOption("Registrator", registrator);
+        f.addFetchOption("PreviousVersion", previousVersion);
+        f.addFetchOption("Content", content);
+        return f;
+    }
+
 }

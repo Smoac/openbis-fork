@@ -20,6 +20,7 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -126,4 +127,14 @@ public class PhysicalDataFetchOptions extends FetchOptions<PhysicalData> impleme
     {
         return sort;
     }
+    @Override
+    public FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
+    {
+        FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("PhysicalData", this);
+        f.addFetchOption("StorageFormat", storageFormat);
+        f.addFetchOption("FileFormatType", fileFormatType);
+        f.addFetchOption("LocatorType", locatorType);
+        return f;
+    }
+
 }

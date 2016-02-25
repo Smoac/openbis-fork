@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.sun.org.apache.xerces.internal.dom.EntityImpl;
-
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**

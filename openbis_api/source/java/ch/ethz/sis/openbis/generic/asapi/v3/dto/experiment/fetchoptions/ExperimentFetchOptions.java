@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.fetchoptions.HistoryEntryFetchOptions;
@@ -335,4 +336,22 @@ public class ExperimentFetchOptions extends FetchOptions<Experiment> implements 
     {
         return sort;
     }
+    @Override
+    public FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
+    {
+        FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("Experiment", this);
+        f.addFetchOption("Type", type);
+        f.addFetchOption("Project", project);
+        f.addFetchOption("DataSets", dataSets);
+        f.addFetchOption("Samples", samples);
+        f.addFetchOption("History", history);
+        f.addFetchOption("Properties", properties);
+        f.addFetchOption("MaterialProperties", materialProperties);
+        f.addFetchOption("Tags", tags);
+        f.addFetchOption("Registrator", registrator);
+        f.addFetchOption("Modifier", modifier);
+        f.addFetchOption("Attachments", attachments);
+        return f;
+    }
+
 }
