@@ -1030,3 +1030,6 @@ set Score
 String Contains Exactly Value
 that Contains Exactly
 with WildCards
+add Fetch Option
+Fetch Options To String Builder
+get Fetch Options String Builder
