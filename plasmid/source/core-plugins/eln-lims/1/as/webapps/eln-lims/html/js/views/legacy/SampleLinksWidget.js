@@ -440,7 +440,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			var info = $("<span>");
 			
 			var displayNameAsCode = sampleToAdd.code;
-			if(sampleToAdd.properties) {
+			if(sampleToAdd.properties && sampleToAdd.properties[profile.propertyReplacingCode]) {
 				displayNameAsCode = sampleToAdd.properties[profile.propertyReplacingCode];
 			}
 			
