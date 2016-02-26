@@ -93,7 +93,7 @@ var PrintUtil = new function() {
 				$newInspectorTable
 				.append($("<tr>")
 							.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLabel"}).append(propLabel + ":")))
-							.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(extraProp.value)))
+							.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak", "style" : "overflow: auto;" }).append(extraProp.value)))
 						);
 			}
 		}
@@ -145,7 +145,7 @@ var PrintUtil = new function() {
 						$newInspectorTable
 						.append($("<tr>")
 									.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLabel"}).append(propertyLabel + ":")))
-									.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(propertyContent)))
+									.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak", "style" : "overflow: auto;" }).append(propertyContent)))
 								);
 					}
 				}
@@ -159,7 +159,7 @@ var PrintUtil = new function() {
 				$newInspectorTable
 					.append($("<tr>")
 								.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLabel"}).append("Parents:")))
-								.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak"}).append(allParentCodesAsText)))
+								.append($("<td>", { "class" : "property", "colspan" : "1" }).append($("<p>", { "class" : "inspectorLineBreak", "style" : "overflow: auto;" }).append(allParentCodesAsText)))
 							);
 			}
 				
