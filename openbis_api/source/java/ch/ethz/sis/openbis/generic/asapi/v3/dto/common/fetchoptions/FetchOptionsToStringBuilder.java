@@ -21,12 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import ch.systemsx.cisd.base.annotation.JsonObject;
-
 /**
  * @author pkupczyk
  */
-@JsonObject("as.dto.common.search.SearchCriteriaToStringBuilder")
 public class FetchOptionsToStringBuilder
 {
     private String name;
