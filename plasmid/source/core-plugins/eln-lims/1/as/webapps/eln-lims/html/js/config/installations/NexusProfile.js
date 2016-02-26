@@ -34,8 +34,16 @@ $.extend(NexusProfile.prototype, StandardProfile.prototype, {
 						mainController.serverFacade.customELNApi({
 							"plate_identifier" : plate_identifier,
 							"expiry_date" : expiry_date
-						}, function(result) {
-							Util.unblockUI();
+						}, function(error, result) {
+							if(!error) {
+								Util.showSuccess("Plate Retired", function() {
+									Util.unblockUI();
+								});
+							} else {
+								Util.showError(error, function() {
+									Util.unblockUI();
+								});
+							}
 						}, "plate_version_service");
 					}
 					var $retireButton = FormUtil.getButtonWithText("Retire Plate!", retireAction, "btn-warning");
