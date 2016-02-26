@@ -12,6 +12,54 @@ $.extend(NexusProfile.prototype, StandardProfile.prototype, {
 		this.searchSamplesUsingV3OnDropbox = true;
 		this.searchSamplesUsingV3OnDropboxRunCustom = true;
 		
+		this.sampleFormContentExtra = function(sampleTypeCode, sample, containerId) {
+			if(sampleTypeCode === "PLATE") {
+				var clickFunc = function() {
+					//Data
+					var $plateCode = FormUtil.getFieldForLabelWithText("Plate Identifier", sample.identifier, "plate_identifier");
+					var $dateField = FormUtil._getDatePickerField("expiry_date", "Expiry Date", true);
+					
+					var $expiryDate = FormUtil.getFieldForComponentWithLabel($dateField,"Expiry Date(*)");
+					
+					//Cancel/Ok buttons
+					var $cancelButton = $("<a>", { "class" : "btn btn-default" }).append("<span class='glyphicon glyphicon-remove'></span>");
+					$cancelButton.click(function(event) { 
+						Util.unblockUI();
+					});
+					
+					var retireAction = function() {
+						var plate_identifier = sample.identifier;
+						var expiry_date = $($($dateField.children()[0]).children()[0]).val();
+						
+						mainController.serverFacade.customELNApi({
+							"plate_identifier" : plate_identifier,
+							"expiry_date" : expiry_date
+						}, function(result) {
+							Util.unblockUI();
+						}, "plate_version_service");
+					}
+					var $retireButton = FormUtil.getButtonWithText("Retire Plate!", retireAction, "btn-warning");
+					
+					// Mounting the widget with the components
+					var $retirePlateWidget = $("<div>");
+					$retirePlateWidget.append($("<div>", {"style" : "text-align:right;"}).append($cancelButton));
+					$retirePlateWidget.append($("<form>", { "class" : "form-horizontal" , "style" : "margin-left:20px; margin-right:20px;"})
+												.append($("<h1>").append("Retire Plate"))
+												.append($plateCode)
+												.append($expiryDate)
+												.append($("<br>")).append($retireButton)
+											);
+					
+					// Show Widget
+					Util.blockUI($retirePlateWidget, {'text-align' : 'left', 'top' : '10%', 'width' : '60%', 'left' : '10%', 'right' : '10%', 'height' : '40%', 'overflow' : 'auto'});
+					
+				};
+				$("#" + containerId)
+						.append($("<br>"))
+						.append(FormUtil.getButtonWithText("Retire Plate", clickFunc, "btn-warning"));
+			}
+		}
+		
 		this.storagesConfiguration = {
 			"isEnabled" : true,
 			/*

@@ -412,8 +412,12 @@ var FormUtil = new function() {
 		return $pinBtn;
 	}
 	
-	this.getButtonWithText = function(text, clickEvent) {
-		var $pinBtn = $("<a>", { 'class' : 'btn btn-default' });
+	this.getButtonWithText = function(text, clickEvent, btnClass) {
+		var auxBtnClass = "btn-default";
+		if(btnClass) {
+			auxBtnClass = btnClass;
+		}
+		var $pinBtn = $("<a>", { 'class' : 'btn ' + auxBtnClass });
 		$pinBtn.append(text);
 		$pinBtn.click(clickEvent);
 		return $pinBtn;
