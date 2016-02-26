@@ -164,8 +164,9 @@ public class V3APIReport
         {
             boolean isPublic = Modifier.isPublic(method.getModifiers());
             boolean isAbstract = Modifier.isAbstract(method.getModifiers());
+            boolean hasJsonIgnore = method.getAnnotation(JsonIgnore.class) != null;
 
-            if (false == isAbstract && isPublic)
+            if (false == isAbstract && isPublic && false == hasJsonIgnore)
             {
                 methods.add(method);
             }
