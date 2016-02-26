@@ -3,6 +3,8 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions;
 import java.io.Serializable;
 import java.util.HashSet;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @JsonObject("as.dto.common.fetchoptions.FetchOptions")

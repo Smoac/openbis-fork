@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
@@ -232,6 +233,8 @@ public class ProjectFetchOptions extends FetchOptions<Project> implements Serial
     {
         return sort;
     }
+
+    @JsonIgnore
     @Override
     public FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

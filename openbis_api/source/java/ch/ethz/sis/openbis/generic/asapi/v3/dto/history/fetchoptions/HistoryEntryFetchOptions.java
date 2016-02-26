@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.history.fetchoptions;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
@@ -78,6 +79,8 @@ public class HistoryEntryFetchOptions extends FetchOptions<HistoryEntry> impleme
     {
         return sort;
     }
+
+    @JsonIgnore
     @Override
     public FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {
