@@ -20,7 +20,7 @@ configurations.all {
 
 task wrapper(type: Wrapper) {
     gradleVersion = '1.8'
-    distributionUrl = "http://svncisd.ethz.ch/repos/cisd/ivy-repository/trunk/gradle/distribution/1.8/gradle-1.8-all.zip"
+    distributionUrl = "http://svnsis.ethz.ch/repos/cisd/ivy-repository/trunk/gradle/distribution/1.8/gradle-1.8-all.zip"
 }
 
 sourceCompatibility='1.7'
