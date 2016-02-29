@@ -75,7 +75,16 @@ var PrintUtil = new function() {
 		} else {
 			var nameLabel = entity.properties[profile.propertyReplacingCode];
 			if(!nameLabel) {
-				nameLabel = entity.code;
+				if(entity.sampleTypeCode) {
+					var href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), "showViewSamplePageFromPermId", entity.permId);
+					var codeLink = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).append(entity.code);
+					codeLink.click(function() {
+						mainController.changeView("showViewSamplePageFromPermId", entity.permId);
+					});
+					nameLabel = codeLink;
+				} else {
+					nameLabel = entity.code;
+				}
 			}
 			$newInspector.append($("<strong>").append(nameLabel));
 		}
