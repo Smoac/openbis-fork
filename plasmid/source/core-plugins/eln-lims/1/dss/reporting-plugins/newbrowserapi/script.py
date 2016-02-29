@@ -51,6 +51,15 @@ from ch.systemsx.cisd.openbis.generic.shared.api.v1 import IGeneralInformationSe
 from ch.systemsx.cisd.openbis.common.api.client import ServiceFinder;
 from java.util import Arrays;
 
+from ch.ethz.sis.openbis.generic.asapi.v3 import IApplicationServerApi
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleFetchOptions;
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search import SampleSearchCriteria;
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search import SearchResult;
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SampleIdentifier;
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SamplePermId
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id import ExperimentIdentifier;
+from ch.ethz.sis.openbis.generic.server.sharedapi.v3.json import GenericObjectMapper;
+	
 #from ch.systemsx.cisd.common.ssl import SslCertificateHelper;
 
 #Plasmapper server used
@@ -647,15 +656,6 @@ def insertUpdateExperiment(tr, parameters, tableBuilder):
 	return True;
 
 def searchSamples(tr, parameters, tableBuilder, sessionId):
-	from ch.ethz.sis.openbis.generic.asapi.v3 import IApplicationServerApi
-	from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleFetchOptions;
-	from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search import SampleSearchCriteria;
-	from ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search import SearchResult;
-	from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SampleIdentifier;
-	from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SamplePermId
-	from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id import ExperimentIdentifier;
-	from ch.ethz.sis.openbis.generic.server.sharedapi.v3.json import GenericObjectMapper;
-	
 	openBISURL = parameters.get("openBISURL");
 	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi, openBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
 	
