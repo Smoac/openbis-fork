@@ -2,10 +2,10 @@
 # Fetches "openBIS for HCS" administration scripts from source repository to the bin folder in current directory.
 
 # setup scripts for the generic openBIS version 
-SVN_DIR_GENERIC=svncisd.ethz.ch/repos/cisd/openbis/trunk/dist/admin
+SVN_DIR_GENERIC=svnsis.ethz.ch/repos/cisd/openbis/trunk/dist/admin
 
 #setup scripts for screening version
-SVN_DIR_SCREENING=svncisd.ethz.ch/repos/cisd/screening/trunk/dist/admin
+SVN_DIR_SCREENING=svnsis.ethz.ch/repos/cisd/screening/trunk/dist/admin
 
 
 BASE=`dirname "$0"`

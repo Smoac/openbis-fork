@@ -2,8 +2,8 @@
 # Updates all the admin scripts to the version found in SVN.
 
 # screening-specific
-SVN=svncisd.ethz.ch/repos/cisd/screening/trunk/dist/admin
-SVN2=svncisd.ethz.ch/repos/cisd/installation/trunk/resource/installer/bin/backup-databases.sh
+SVN=svnsis.ethz.ch/repos/cisd/screening/trunk/dist/admin
+SVN2=svnsis.ethz.ch/repos/cisd/installation/trunk/resource/installer/bin/backup-databases.sh
 
 # set directory
 BASE=`dirname "$0"`

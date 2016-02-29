@@ -16,7 +16,7 @@ fi
 FULL_VER=S$VER.$SUBVER
 SPRINT_SERVER=sprint-openbis.ethz.ch
 SPRINT_INSTALL_SCRIPT=sprint_install.sh
-# this folder is publicly accessible at http://svncisd.ethz.ch/doc/javadoc/
+# this folder is publicly accessible at http://svnsis.ethz.ch/doc/javadoc/
 JAVADOC_FOLDER=~/fileserver/doc/openbis
 
 # Unset this to do a dry-run (like rsync -n) and set it to actually execute the commands

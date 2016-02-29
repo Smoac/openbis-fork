@@ -2,7 +2,7 @@
 # Updates all the admin scripts to the version found in SVN.
 
 # screening-specific
-SVN=svncisd.ethz.ch/repos/cisd/openbis/trunk/dist/admin
+SVN=svnsis.ethz.ch/repos/cisd/openbis/trunk/dist/admin
 
 # set directory
 BASE=`dirname "$0"`

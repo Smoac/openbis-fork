@@ -7,7 +7,7 @@
 SPRINT_SERVER=sprint-openbis.ethz.ch
 SPRINT_INSTALL_SCRIPT=sprint_install.sh
 
-svn checkout http://svncisd.ethz.ch/repos/cisd/build_resources/trunk build_resources
+svn checkout http://svnsis.ethz.ch/repos/cisd/build_resources/trunk build_resources
 cd build_resources
 echo Building openBIS...
 ./build.sh --private openbis_all
