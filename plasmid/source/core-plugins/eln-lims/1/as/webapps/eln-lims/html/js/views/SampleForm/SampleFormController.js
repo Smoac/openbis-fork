@@ -33,10 +33,12 @@ function SampleFormController(mainController, mode, sample) {
 				
 				//Load view
 				_this._sampleFormView.repaint($container);
+				Util.unblockUI();
 			});
 		} else {
 			//Load view
 			_this._sampleFormView.repaint($container);
+			Util.unblockUI();
 		}
 		
 	}

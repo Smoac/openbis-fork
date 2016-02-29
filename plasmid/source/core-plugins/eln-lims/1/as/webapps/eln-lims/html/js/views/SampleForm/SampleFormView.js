@@ -72,12 +72,34 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		var $formTitle = $("<div>");
 		var nameLabel = this._sampleFormModel.sample.properties[profile.propertyReplacingCode];
-		var entityPath = null;
-		if(this._sampleFormModel.sample.experimentIdentifierOrNull) {
-			entityPath = this._sampleFormModel.sample.experimentIdentifierOrNull + "/" + this._sampleFormModel.sample.code;
-		} else {
-			entityPath = this._sampleFormModel.sample.identifier;
+		var entityPath = $("<span>");
+		
+		
+		var codeWithContainer = this._sampleFormModel.sample.code;
+		if(this._sampleFormModel.mode !== FormMode.CREATE) {
+			var containerIdentifierEnd = this._sampleFormModel.sample.identifier.lastIndexOf(":");
+			if(containerIdentifierEnd !== -1) {
+				var containerCodeStart = this._sampleFormModel.sample.identifier.lastIndexOf("/") + 1;
+				var codeWithContainerParts = this._sampleFormModel.sample.identifier.substring(containerCodeStart).split(":");
+				var containerCode = codeWithContainerParts[0];
+				var containerCodeLink = $("<a>", { "class" : "browser-compatible-javascript-link" }).append(containerCode);
+				containerCodeLink.click(function() {
+					Util.blockUI();
+					var containerIdentifier = _this._sampleFormModel.sample.identifier.substring(0, containerIdentifierEnd);
+					mainController.serverFacade.searchWithIdentifiers([containerIdentifier], function(containerSample) {
+						mainController.changeView("showViewSamplePageFromPermId", containerSample[0].permId);
+					});
+				});
+				codeWithContainer = $("<span>").append(containerCodeLink).append(":").append(codeWithContainerParts[1]);
+			}
 		}
+		
+		if(this._sampleFormModel.sample.experimentIdentifierOrNull) {
+			entityPath.append(this._sampleFormModel.sample.experimentIdentifierOrNull).append("/").append(codeWithContainer);
+		} else {
+			entityPath.append("/").append(this._sampleFormModel.sample.spaceCode).append("/").append(codeWithContainer);
+		}
+		
 		var isName = (nameLabel)?true:false;
 		
 		var title = null;
@@ -100,11 +122,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				.append($("<h4>", { "style" : "font-weight:normal;" } ).append(entityPath));
 		} else {
 			if(this._sampleFormModel.mode !== FormMode.CREATE) {
-				title += entityPath;
+				$formTitle.append($("<h2>").append(title).append(entityPath));
+			} else {
+				$formTitle.append($("<h2>").append(title));
 			}
-			
-			$formTitle
-				.append($("<h2>").append(title));
 		}
 		
 		//
