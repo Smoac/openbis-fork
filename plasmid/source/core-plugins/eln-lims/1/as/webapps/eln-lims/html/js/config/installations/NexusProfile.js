@@ -13,7 +13,7 @@ $.extend(NexusProfile.prototype, StandardProfile.prototype, {
 		this.searchSamplesUsingV3OnDropboxRunCustom = true;
 		
 		this.sampleFormContentExtra = function(sampleTypeCode, sample, containerId) {
-			if(sampleTypeCode === "PLATE") {
+			if(sampleTypeCode === "PLATE" && sample.spaceCode === "LIBRARIES") {
 				var clickFunc = function() {
 					//Data
 					var $plateCode = FormUtil.getFieldForLabelWithText("Plate Identifier", sample.identifier, "plate_identifier");
@@ -31,21 +31,34 @@ $.extend(NexusProfile.prototype, StandardProfile.prototype, {
 						var plate_identifier = sample.identifier;
 						var expiry_date = $($($dateField.children()[0]).children()[0]).val();
 						
-						mainController.serverFacade.customELNApi({
-							"plate_identifier" : plate_identifier,
-							"expiry_date" : expiry_date
-						}, function(error, result) {
-							if(!error) {
-								Util.showSuccess("Plate Retired", function() {
-									Util.unblockUI();
-								});
-							} else {
-								Util.showError(error, function() {
-									Util.unblockUI();
-								});
-							}
-						}, "plate_version_service");
-					}
+						if(!expiry_date) {
+							Util.showError("Expiry date missing.", function() {}, true);
+							return;
+						}
+						
+						Util.unblockUI();
+						
+						require([	'openbis',
+						         	'as/dto/service/id/CustomASServiceCode',
+						         	'as/dto/service/CustomASServiceExecutionOptions'], function(openbis, CustomASServiceCode, CustomASServiceExecutionOptions) {
+							var testProtocol = window.location.protocol;
+							var testHost = window.location.hostname;
+							var testPort = window.location.port;
+							var testUrl = testProtocol + "//" + testHost + ":" + testPort;
+							var testApiUrl = testUrl + "/openbis/openbis/rmi-application-server-v3.json";
+							
+							var v3Api = new openbis(testApiUrl);
+							v3Api._private.sessionToken = mainController.serverFacade.getSession();
+							
+							var serviceCode = new CustomASServiceCode("plate_version_service");
+							var serviceOptions = new CustomASServiceExecutionOptions();
+							serviceOptions.withParameter("plate_identifier", plate_identifier).withParameter("expiry_date", expiry_date);
+							
+							v3Api.executeCustomASService(serviceCode, serviceOptions).then(function(result) {
+								Util.showSuccess("Plate Retired");
+							});
+						});
+					};
 					var $retireButton = FormUtil.getButtonWithText("Retire Plate!", retireAction, "btn-warning");
 					
 					// Mounting the widget with the components
