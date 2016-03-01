@@ -32,6 +32,31 @@ function DataSetFormController() {
 			openBIS.listDataSetTypes(
 					function(datasetsData) {
 						dataSetFormModel.dataSetTypes = datasetsData.result;
+						
+						var vocabularyFixingPass = function() {
+							var intToVocabulary = {};
+							for(var dIdx = 0; dIdx < dataSetFormModel.dataSetTypes.length; dIdx++) {
+								var datasetType = dataSetFormModel.dataSetTypes[dIdx];
+								for(var pgIdx = 0; pgIdx < datasetType.propertyTypeGroups.length; pgIdx++) {
+									var propertyGroup = datasetType.propertyTypeGroups[pgIdx].propertyTypes;
+									for(var pIdx = 0; pIdx < propertyGroup.length; pIdx++) {
+										var propertyType = propertyGroup[pIdx];
+										if (propertyType.dataType === "CONTROLLEDVOCABULARY" && propertyType.vocabulary && propertyType.vocabulary["@id"]) {
+											if(propertyType.terms && propertyType.terms.length > propertyType.vocabulary.terms.length) {
+												propertyType.vocabulary.terms = propertyType.terms;
+											}
+											intToVocabulary[propertyType.vocabulary["@id"]] = propertyType.vocabulary;
+										} else {
+											propertyType.vocabulary = intToVocabulary[propertyType.vocabulary];
+										}
+									}
+								}
+							}
+						}
+						
+						vocabularyFixingPass();
+						vocabularyFixingPass();
+						
 						dataSetFormView.repaint($container);
 					}
 			);
