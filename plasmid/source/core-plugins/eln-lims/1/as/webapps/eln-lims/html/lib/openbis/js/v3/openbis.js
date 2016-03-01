@@ -1,4 +1,4 @@
-define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
+define(['util/Json'], function(stjsUtil) {
 
 	var __private = function() {
 
