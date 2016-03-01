@@ -72,7 +72,7 @@ $.extend(NexusProfile.prototype, StandardProfile.prototype, {
 											);
 					
 					// Show Widget
-					Util.blockUI($retirePlateWidget, {'text-align' : 'left', 'top' : '10%', 'width' : '60%', 'left' : '10%', 'right' : '10%', 'height' : '40%', 'overflow' : 'auto'});
+					Util.blockUI($retirePlateWidget, {'text-align' : 'left', 'top' : '10%', 'width' : '80%', 'left' : '10%', 'right' : '10%', 'height' : '300px', 'overflow' : 'auto'});
 					
 				};
 				$("#" + containerId)
