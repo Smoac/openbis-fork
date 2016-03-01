@@ -1,9 +1,44 @@
 /**
  * Tests for loading, setting, and getting SearchCriteria beans.
  */
-define([ 'test/common' ], function(common) {
+define([ 'underscore', 'test/common' ], function(_, common) {
 	return function() {
 		QUnit.module("DTO tests");
+
+
+		QUnit.test("EachSetCorrespondsGet", function(assert) {
+			var c = new common(assert);
+
+			var running = 0;
+
+			_.each(_.functions(c), function(el) {
+				var prop = c[el];
+				if (prop.prototype && prop.prototype['@type']) {
+					var dto = new prop(++running); // just in case the constructor expects something
+					_.chain(_.allKeys(dto))
+						.filter(function(el) {
+							return el.startsWith('set');
+						})
+						.each(function(setter) {
+							var getter = setter.replace(/^set/, 'get');
+							if (_.isFunction(dto[getter])) {
+
+								var value = String(running); // string is more universal
+								running++;
+
+								dto[setter](value);
+								var result = dto[getter]();
+								if (result['@type'] && result['getValue']) {
+									result = result['getValue']();
+								}
+								c.assertEqual(result, value, "Getter " + getter + " of type " + dto['@type'] + " returns same as was put by setter " + setter);
+							}
+						});
+				}
+
+			});
+		});
+
 
 		var assertAttributes = function(assert, criteria, expectedName, expextedType, expectedValueType, expectedValue) {
 			var c = new common(assert);
