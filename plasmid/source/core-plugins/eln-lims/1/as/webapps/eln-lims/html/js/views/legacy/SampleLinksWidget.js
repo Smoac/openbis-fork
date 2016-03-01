@@ -453,10 +453,6 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 				
 				codeLink.click(function() {
 					mainController.changeView("showViewSamplePageFromPermId", sampleToAdd.permId);
-//					var url = document.location.href;
-//					url = url.substring(0,url.lastIndexOf("/?") + 1);
-//					url = url+"?viewName=showViewSamplePageFromPermId&viewData=" + sampleToAdd.permId + "&hideMenu=true";
-//					var newWindow = window.open(url);
 				});
 			}
 			
