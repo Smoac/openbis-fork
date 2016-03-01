@@ -428,7 +428,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			
 			var name = null;
 			if(sampleToAdd.properties) {
-				name = sampleToAdd.properties["NAME"];
+				name = sampleToAdd.properties[profile.propertyReplacingCode];
 				if(!name) {
 					name = sampleToAdd.properties["PLASMID_NAME"];
 				}
@@ -439,12 +439,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			
 			var info = $("<span>");
 			
-			var displayNameAsCode = sampleToAdd.code;
-			if(sampleToAdd.properties && sampleToAdd.properties[profile.propertyReplacingCode]) {
-				displayNameAsCode = sampleToAdd.properties[profile.propertyReplacingCode];
-			}
-			
-			var codeLink = displayNameAsCode;
+			var codeLink = sampleToAdd.code;
 			if(this.isDisabled) {
 				var style = "";
 				var notFound = "";
@@ -454,7 +449,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 				}
 				
 				var href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), "showViewSamplePageFromPermId", sampleToAdd.permId);
-				codeLink = $("<a>", { "style" : style, "href" : href, "class" : "browser-compatible-javascript-link" }).append(displayNameAsCode + notFound);
+				codeLink = $("<a>", { "style" : style, "href" : href, "class" : "browser-compatible-javascript-link" }).append(sampleToAdd.code + notFound);
 				
 				codeLink.click(function() {
 					mainController.changeView("showViewSamplePageFromPermId", sampleToAdd.permId);
