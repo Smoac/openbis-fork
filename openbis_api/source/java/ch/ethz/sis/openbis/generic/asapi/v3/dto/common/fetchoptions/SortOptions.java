@@ -21,8 +21,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
-import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 
 /**
  * @author pkupczyk
@@ -71,6 +72,7 @@ public abstract class SortOptions<OBJECT> implements Serializable
         {
             strings.add(sort.toString());
         }
-        return StringUtils.joinList(strings, ", ");
+        return StringUtils.join(strings, ", ");
     }
+
 }
