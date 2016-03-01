@@ -46,4 +46,9 @@ public class SortOrder implements Serializable
         return asc;
     }
 
+    @Override
+    public String toString()
+    {
+        return isAsc() ? "ASC" : "DESC";
+    }
 }

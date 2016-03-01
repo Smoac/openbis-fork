@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -61,4 +62,14 @@ public abstract class SortOptions<OBJECT> implements Serializable
         return sortings;
     }
 
+    @Override
+    public String toString()
+    {
+        List<String> strings = new ArrayList<>();
+        for (Sorting sort : sortings)
+        {
+            strings.add(sort.toString());
+        }
+        return String.join(", ", strings);
+    }
 }

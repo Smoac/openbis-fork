@@ -21,9 +21,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
 /**
- * @author pkupczyk
+ * @author jakubs
  */
+@JsonObject("as.dto.common.fetchoptions.FetchOptionsToStringBuilder")
 public class FetchOptionsToStringBuilder
 {
     private String name;
@@ -42,12 +45,6 @@ public class FetchOptionsToStringBuilder
         this.keys = new ArrayList<>();
     }
 
-    public FetchOptionsToStringBuilder setName(String name)
-    {
-        this.name = name;
-        return this;
-    }
-
     public FetchOptionsToStringBuilder addFetchOption(String key, FetchOptions<?> fo)
     {
         childrenFetchOptions.put(key, fo);
@@ -62,7 +59,13 @@ public class FetchOptionsToStringBuilder
 
         if (indentation.isEmpty())
         {
-            sb.append(this.name + "\n");
+            if (this.mainFetchOptions.getSortBy() != null)
+            {
+                sb.append(this.name + " " + this.mainFetchOptions.getSortBy() + "\n");
+            } else
+            {
+                sb.append(this.name + "\n");
+            }
         }
 
         processed.add(this.mainFetchOptions);
@@ -74,13 +77,19 @@ public class FetchOptionsToStringBuilder
             FetchOptions<?> subOptions = childrenFetchOptions.get(key);
             if (subOptions != null)
             {
+                String sortOptionsPart = "";
+                if (subOptions.getSortBy() != null)
+                {
+                    sortOptionsPart = " " + subOptions.getSortBy();
+                }
+
                 FetchOptionsToStringBuilder sbb = subOptions.getFetchOptionsStringBuilder();
                 if (processed.contains(subOptions))
                 {
-                    sb.append(indentation + "with " + key + "(recursive) \n");
+                    sb.append(indentation + "with " + key + sortOptionsPart + "(recursive)\n");
                 } else
                 {
-                    sb.append(indentation + "with " + key + "\n");
+                    sb.append(indentation + "with " + key + sortOptionsPart + "\n");
                     sb.append(sbb.toString(indentation, processed));
                 }
             }

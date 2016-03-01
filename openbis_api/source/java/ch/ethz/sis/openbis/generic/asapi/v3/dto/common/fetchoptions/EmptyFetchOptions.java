@@ -20,4 +20,10 @@ public class EmptyFetchOptions extends FetchOptions<Void>
         return null;
     }
 
+    @Override
+    public FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
+    {
+        return new FetchOptionsToStringBuilder("Empty", this);
+    }
+
 }

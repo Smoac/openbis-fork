@@ -20,6 +20,7 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -48,5 +49,11 @@ public class DataSetFileFetchOptions extends FetchOptions<DataSetFile> implement
     public DataSetFileSortOptions getSortBy()
     {
         return sort;
+    }
+
+    @Override
+    protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
+    {
+        return new FetchOptionsToStringBuilder("DataSetFile", this);
     }
 }

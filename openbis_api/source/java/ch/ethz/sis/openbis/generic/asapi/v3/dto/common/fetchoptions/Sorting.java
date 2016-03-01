@@ -54,4 +54,9 @@ public class Sorting implements Serializable
         return order;
     }
 
+    @Override
+    public String toString()
+    {
+        return "order by " + field + " " + order;
+    }
 }

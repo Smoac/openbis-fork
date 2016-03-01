@@ -58,13 +58,7 @@ public abstract class FetchOptions<OBJECT> implements Serializable
 
     public abstract SortOptions<OBJECT> getSortBy();
 
-    @JsonIgnore
-    public FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
-    {
-        FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("?", this);
-        f.setName("kuba");
-        return f;
-    }
+    protected abstract FetchOptionsToStringBuilder getFetchOptionsStringBuilder();
 
     @Override
     public String toString()
