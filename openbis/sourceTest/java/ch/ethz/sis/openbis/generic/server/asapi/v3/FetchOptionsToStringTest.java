@@ -104,9 +104,11 @@ public class FetchOptionsToStringTest extends AssertJUnit
         fe.withRegistrator().withSpace().withProjects();
         fe.withTags().withOwnerUsing(author);
         fe.withType();
+        fe.sortBy().code().asc();
+        fe.sortBy().modificationDate();
         author.withSpace();
 
-        assertEquals("Sample\n" +
+        assertEquals("Sample order by CODE ASC, order by MODIFICATION_DATE ASC\n" +
                 "    with Type\n" +
                 "    with Properties\n" +
                 "    with MaterialProperties\n" +
@@ -124,12 +126,12 @@ public class FetchOptionsToStringTest extends AssertJUnit
                 "        with Author\n" +
                 "            with Space\n" +
                 "    with Tags\n" +
-                "        with Owner(recursive) \n" +
+                "        with Owner(recursive)\n" +
                 "    with Registrator\n" +
                 "        with Space\n" +
                 "            with Projects\n" +
-                "    with Modifier(recursive) \n" +
-                "", fe.toString());
+                "    with Modifier(recursive)\n"
+                + "", fe.toString());
     }
 
     @Test
@@ -192,7 +194,9 @@ public class FetchOptionsToStringTest extends AssertJUnit
         fe.withMaterialProperties().withProperties();
         fe.withMaterialProperties().withRegistrator();
         fe.withModifierUsing(fe.withMaterialProperties().withRegistrator());
-        fe.withParents();
+        fe.withParents().sortBy().modificationDate().asc();
+        fe.withParents().sortBy().code().desc();
+        fe.withParents().sortBy().registrationDate().desc();
         fe.withPhysicalData();
         fe.withProperties();
         fe.withRegistrator().withRegistrator().withRegistrator();
@@ -206,7 +210,7 @@ public class FetchOptionsToStringTest extends AssertJUnit
                 "    with LinkedData\n" +
                 "        with ExternalDms\n" +
                 "    with Experiment\n" +
-                "        with DataSets(recursive) \n" +
+                "        with DataSets(recursive)\n" +
                 "    with Sample\n" +
                 "        with Attachments\n" +
                 "            with Content\n" +
@@ -215,16 +219,16 @@ public class FetchOptionsToStringTest extends AssertJUnit
                 "        with History\n" +
                 "        with Registrator\n" +
                 "        with Properties\n" +
-                "    with Parents\n" +
+                "    with Parents order by MODIFICATION_DATE ASC, order by CODE DESC, order by REGISTRATION_DATE DESC\n" +
                 "    with Children\n" +
                 "        with Properties\n" +
                 "    with Components\n" +
-                "        with Children(recursive) \n" +
+                "        with Children(recursive)\n" +
                 "    with Tags\n" +
                 "        with Owner\n" +
                 "    with History\n" +
                 "        with Author\n" +
-                "    with Modifier(recursive) \n" +
+                "    with Modifier(recursive)\n" +
                 "    with Registrator\n" +
                 "        with Registrator\n" +
                 "            with Registrator\n" +
@@ -284,7 +288,7 @@ public class FetchOptionsToStringTest extends AssertJUnit
                 "    with Type\n" +
                 "    with Project\n" +
                 "    with DataSets\n" +
-                "        with Experiment(recursive) \n" +
+                "        with Experiment(recursive)\n" +
                 "        with Properties\n" +
                 "        with MaterialProperties\n" +
                 "    with Samples\n" +
@@ -300,11 +304,11 @@ public class FetchOptionsToStringTest extends AssertJUnit
                 "                        with Registrator\n" +
                 "                            with Space\n" +
                 "                                with Projects\n" +
-                "                                    with Experiments(recursive) \n" +
+                "                                    with Experiments(recursive)\n" +
                 "    with Modifier\n" +
                 "    with Attachments\n" +
                 "        with PreviousVersion\n" +
-                "            with PreviousVersion(recursive) \n" +
+                "            with PreviousVersion(recursive)\n" +
                 "        with Content\n" +
                 "", fe.toString());
     }
@@ -346,7 +350,7 @@ public class FetchOptionsToStringTest extends AssertJUnit
                 "            with Registrator\n" +
                 "                with Space\n" +
                 "                    with Projects\n" +
-                "                        with Space(recursive) \n" +
+                "                        with Space(recursive)\n" +
                 "        with Attachments\n" +
                 "", fe.toString());
     }
@@ -385,11 +389,11 @@ public class FetchOptionsToStringTest extends AssertJUnit
         fe.withModifier();
         assertEquals("Project\n" +
                 "    with Experiments\n" +
-                "        with Project(recursive) \n" +
+                "        with Project(recursive)\n" +
                 "    with History\n" +
                 "        with Author\n" +
                 "            with Space\n" +
-                "                with Projects(recursive) \n" +
+                "                with Projects(recursive)\n" +
                 "    with Modifier\n" +
                 "    with Leader\n" +
                 "        with Space\n" +
@@ -399,7 +403,7 @@ public class FetchOptionsToStringTest extends AssertJUnit
                 "    with Attachments\n" +
                 "        with Registrator\n" +
                 "            with Space\n" +
-                "                with Projects(recursive) \n" +
+                "                with Projects(recursive)\n" +
                 "        with Content\n" +
                 "", fe.toString());
     }
@@ -444,13 +448,13 @@ public class FetchOptionsToStringTest extends AssertJUnit
                 "            with Projects\n" +
                 "                with Experiments\n" +
                 "                    with MaterialProperties\n" +
-                "                        with MaterialProperties(recursive) \n" +
+                "                        with MaterialProperties(recursive)\n" +
                 "                    with Registrator\n" +
                 "    with Properties\n" +
                 "    with MaterialProperties\n" +
                 "        with MaterialProperties\n" +
                 "            with MaterialProperties\n" +
-                "                with MaterialProperties(recursive) \n" +
+                "                with MaterialProperties(recursive)\n" +
                 "    with Tags\n" +
                 "", fe.toString());
     }
@@ -475,7 +479,7 @@ public class FetchOptionsToStringTest extends AssertJUnit
                 "    with Owner\n" +
                 "        with Space\n" +
                 "            with Samples\n" +
-                "                with Tags(recursive) \n" +
+                "                with Tags(recursive)\n" +
                 "", fe.toString());
     }
 
@@ -508,7 +512,7 @@ public class FetchOptionsToStringTest extends AssertJUnit
                 "            with Projects\n" +
                 "                with Experiments\n" +
                 "                    with History\n" +
-                "                with History(recursive) \n" +
+                "                with History(recursive)\n" +
                 "", fe.toString());
     }
 
@@ -533,7 +537,7 @@ public class FetchOptionsToStringTest extends AssertJUnit
         assertEquals("Person\n" +
                 "    with Space\n" +
                 "        with Registrator\n" +
-                "    with Registrator(recursive) \n" +
+                "    with Registrator(recursive)\n" +
                 "", fe.toString());
     }
 
