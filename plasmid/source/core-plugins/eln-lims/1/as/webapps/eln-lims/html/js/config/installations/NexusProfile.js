@@ -36,11 +36,12 @@ $.extend(NexusProfile.prototype, StandardProfile.prototype, {
 							return;
 						}
 						
-						Util.unblockUI();
+						Util.blockUI();
 						
 						require([	'openbis',
 						         	'as/dto/service/id/CustomASServiceCode',
 						         	'as/dto/service/CustomASServiceExecutionOptions'], function(openbis, CustomASServiceCode, CustomASServiceExecutionOptions) {
+							
 							var testProtocol = window.location.protocol;
 							var testHost = window.location.hostname;
 							var testPort = window.location.port;
@@ -54,8 +55,14 @@ $.extend(NexusProfile.prototype, StandardProfile.prototype, {
 							var serviceOptions = new CustomASServiceExecutionOptions();
 							serviceOptions.withParameter("plate_identifier", plate_identifier).withParameter("expiry_date", expiry_date);
 							
-							v3Api.executeCustomASService(serviceCode, serviceOptions).then(function(result) {
+							v3Api.executeCustomASService(serviceCode, serviceOptions)
+							.done(function(result) {
 								Util.showSuccess("Plate Retired");
+								Util.unblockUI();
+							})
+							.fail(function(result) {
+								Util.showError("Plate Not Retired");
+								Util.unblockUI();
 							});
 						});
 					};
