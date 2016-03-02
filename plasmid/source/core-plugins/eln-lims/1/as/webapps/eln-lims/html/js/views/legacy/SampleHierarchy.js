@@ -307,8 +307,10 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 							'style' : 'cursor:pointer; width:13px; height:18px;',
 						}));
 				
-				var nameLabel = sample.properties[profile.propertyReplacingCode];
-				if(!nameLabel) {
+				var nameLabel = null;
+				if(sample.properties[profile.propertyReplacingCode]) {
+					nameLabel = sample.code + "(" + sample.properties[profile.propertyReplacingCode] + ")";
+				} else {
 					nameLabel = sample.code;
 				}
 				
