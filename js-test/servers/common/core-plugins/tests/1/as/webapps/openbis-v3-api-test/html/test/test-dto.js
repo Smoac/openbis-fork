@@ -5,7 +5,6 @@ define([ 'underscore', 'test/common' ], function(_, common) {
 	return function() {
 		QUnit.module("DTO tests");
 
-/*
 		QUnit.test("EachSetCorrespondsGet", function(assert) {
 			var c = new common(assert);
 
@@ -38,7 +37,7 @@ define([ 'underscore', 'test/common' ], function(_, common) {
 
 			});
 		});
-*/
+
 		var assertAttributes = function(assert, criteria, expectedName, expextedType, expectedValueType, expectedValue) {
 			var c = new common(assert);
 			c.assertEqual(criteria.getFieldName(), expectedName, "Field  name");
