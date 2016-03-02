@@ -152,17 +152,19 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		//
 		// Experiment Table
 		//
-		var $experimentsContainer = $("<div>");
-		$formColumn.append($experimentsContainer);
-		
-		var experimentTableController = new ExperimentTableController(this._projectFormController, "Experiments", this._projectFormModel.project);
-		experimentTableController.init($experimentsContainer);
-		
-		var $samplesContainer = $("<div>");
-		$formColumn.append($samplesContainer);
-		
-		var sampleTableController = new SampleTableController(this._projectFormController, "Samples", null, this._projectFormModel.project.permId, true);
-		sampleTableController.init($samplesContainer);
+		if(this._projectFormModel.mode !== FormMode.CREATE) {
+			var $experimentsContainer = $("<div>");
+			$formColumn.append($experimentsContainer);
+			
+			var experimentTableController = new ExperimentTableController(this._projectFormController, "Experiments", this._projectFormModel.project);
+			experimentTableController.init($experimentsContainer);
+			
+			var $samplesContainer = $("<div>");
+			$formColumn.append($samplesContainer);
+			
+			var sampleTableController = new SampleTableController(this._projectFormController, "Samples", null, this._projectFormModel.project.permId, true);
+			sampleTableController.init($samplesContainer);
+		}
 		
 		$container.append($form);
 		FormUtil.activateRichTextProperties();
