@@ -39,7 +39,6 @@ define([ 'underscore', 'test/common' ], function(_, common) {
 			});
 		});
 
-
 		var assertAttributes = function(assert, criteria, expectedName, expextedType, expectedValueType, expectedValue) {
 			var c = new common(assert);
 			c.assertEqual(criteria.getFieldName(), expectedName, "Field  name");
