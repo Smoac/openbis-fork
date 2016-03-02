@@ -84,10 +84,10 @@ function ProjectFormController(mainController, mode, project) {
 				} else if (response.result.columns[0].title === "STATUS" && response.result.rows[0][0].value === "OK") { //Success Case
 					var message = "";
 					if(_this._projectFormModel.mode === FormMode.CREATE) {
-						message = "Created.";
+						message = "Project Created.";
 						_this._mainController.sideMenu.refreshProject(_this._projectFormModel.project.spaceCode, _this._projectFormModel.project.code);
 					} else if(_this._projectFormModel.mode === FormMode.EDIT) {
-						message = "Updated.";
+						message = "Project " + _this._projectFormModel.project.code + " Updated.";
 					}
 					
 					var callbackOk = function() {
