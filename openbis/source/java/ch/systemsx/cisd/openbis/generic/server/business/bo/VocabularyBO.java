@@ -186,7 +186,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         final VocabularyTermPE vocabularyTermPE = new VocabularyTermPE();
         vocabularyTermPE.setCode(code);
         vocabularyTermPE.setDescription(description);
-        if (label.length() > 0)
+        if (label != null && label.length() > 0)
         {
             vocabularyTermPE.setLabel(label);
         }
