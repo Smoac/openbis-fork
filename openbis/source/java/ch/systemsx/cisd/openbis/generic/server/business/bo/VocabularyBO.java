@@ -83,8 +83,8 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
     private boolean allowChangingInternallyManaged = false;
 
     public VocabularyBO(final IDAOFactory daoFactory, final Session session,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IRelationshipService relationshipService)
     {
         super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);
@@ -93,8 +93,8 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
     // For tests only
     @Private
     VocabularyBO(final IDAOFactory daoFactory, final Session session, VocabularyPE vocabulary,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IRelationshipService relationshipService)
     {
         super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);
@@ -186,7 +186,10 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         final VocabularyTermPE vocabularyTermPE = new VocabularyTermPE();
         vocabularyTermPE.setCode(code);
         vocabularyTermPE.setDescription(description);
-        vocabularyTermPE.setLabel(label);
+        if (label.length() > 0)
+        {
+            vocabularyTermPE.setLabel(label);
+        }
         vocabularyTermPE.setRegistrator(findPerson());
         vocabularyTermPE.setOrdinal(ordinal);
         vocabularyTermPE.setOfficial(isOfficial);
