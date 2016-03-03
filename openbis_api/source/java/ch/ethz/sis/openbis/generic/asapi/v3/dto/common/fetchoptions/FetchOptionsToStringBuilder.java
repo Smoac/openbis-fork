@@ -26,7 +26,6 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author jakubs
  */
-@JsonObject("as.dto.common.fetchoptions.FetchOptionsToStringBuilder")
 public class FetchOptionsToStringBuilder
 {
     private String name;
