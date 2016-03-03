@@ -26,6 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.reflections.ReflectionUtils;
 import org.reflections.Reflections;
 import org.reflections.scanners.ResourcesScanner;
@@ -34,6 +35,8 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.common.collection.CollectionUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -52,6 +55,10 @@ public class V3APIReport
     private static final String[] PUBLIC_PACKAGES = {
             "ch.ethz.sis.openbis.generic.dssapi.v3",
             "ch.ethz.sis.openbis.generic.asapi.v3"
+    };
+    
+    private static final String[] IGNORE_CLASSES = {
+        "ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder"
     };
 
     @Test
@@ -92,16 +99,16 @@ public class V3APIReport
 
         Multimap<String, String> map = reflections.getStore().get(SubTypesScanner.class);
 
-        Collection<String> nonInnerClassNames = Collections2.filter(map.values(), new Predicate<String>()
+        Collection<String> nonInnerAndNonIgnoredClassNames = Collections2.filter(map.values(), new Predicate<String>()
             {
 
                 @Override
                 public boolean apply(String item)
                 {
-                    return false == item.contains("$");
+                    return false == item.contains("$") && false == ArrayUtils.contains(IGNORE_CLASSES, item);
                 }
             });
-        Collection<String> uniqueClassNames = new TreeSet<String>(nonInnerClassNames);
+        Collection<String> uniqueClassNames = new TreeSet<String>(nonInnerAndNonIgnoredClassNames);
         Collection<Class<?>> uniqueClasses = ImmutableSet.copyOf(ReflectionUtils.forNames(uniqueClassNames));
 
         for (Class<?> uniqueClass : uniqueClasses)
