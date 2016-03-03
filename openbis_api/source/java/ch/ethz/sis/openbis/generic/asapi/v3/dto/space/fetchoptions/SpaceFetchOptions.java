@@ -15,11 +15,6 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions;
 
-import java.io.Serializable;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
@@ -27,6 +22,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetc
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 
 /*
  * Class automatically generated with DtoGenerator
@@ -131,10 +128,8 @@ public class SpaceFetchOptions extends FetchOptions<Space> implements Serializab
     {
         return sort;
     }
-
-    @JsonIgnore
     @Override
-    public FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
+    protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {
         FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("Space", this);
         f.addFetchOption("Registrator", registrator);

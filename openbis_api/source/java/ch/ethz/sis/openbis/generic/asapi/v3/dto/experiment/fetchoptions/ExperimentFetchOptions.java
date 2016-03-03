@@ -15,16 +15,12 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions;
 
-import java.io.Serializable;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.fetchoptions.HistoryEntryFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
@@ -33,6 +29,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyFe
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 
 /*
  * Class automatically generated with DtoGenerator
@@ -337,10 +335,8 @@ public class ExperimentFetchOptions extends FetchOptions<Experiment> implements 
     {
         return sort;
     }
-
-    @JsonIgnore
     @Override
-    public FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
+    protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {
         FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("Experiment", this);
         f.addFetchOption("Type", type);

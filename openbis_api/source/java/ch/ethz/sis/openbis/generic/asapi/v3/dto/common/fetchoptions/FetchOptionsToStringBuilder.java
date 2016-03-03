@@ -21,8 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import ch.systemsx.cisd.base.annotation.JsonObject;
-
 /**
  * @author jakubs
  */

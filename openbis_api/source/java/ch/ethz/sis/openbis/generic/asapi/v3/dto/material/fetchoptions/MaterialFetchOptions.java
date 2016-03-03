@@ -15,19 +15,18 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions;
 
-import java.io.Serializable;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.fetchoptions.HistoryEntryFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 
 /*
  * Class automatically generated with DtoGenerator
@@ -207,10 +206,8 @@ public class MaterialFetchOptions extends FetchOptions<Material> implements Seri
     {
         return sort;
     }
-
-    @JsonIgnore
     @Override
-    public FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
+    protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {
         FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("Material", this);
         f.addFetchOption("Type", type);

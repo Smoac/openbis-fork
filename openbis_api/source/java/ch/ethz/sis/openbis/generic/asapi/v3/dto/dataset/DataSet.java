@@ -15,15 +15,6 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModifierHolder;
@@ -33,6 +24,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHol
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ITagsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.LinkedData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.DataStore;
@@ -44,6 +38,13 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /*
  * Class automatically generated with DtoGenerator

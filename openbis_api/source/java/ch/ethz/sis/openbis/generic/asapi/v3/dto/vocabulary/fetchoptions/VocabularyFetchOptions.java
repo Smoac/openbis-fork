@@ -15,16 +15,13 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions;
 
-import java.io.Serializable;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 
 /*
  * Class automatically generated with DtoGenerator
@@ -79,10 +76,8 @@ public class VocabularyFetchOptions extends FetchOptions<Vocabulary> implements 
     {
         return sort;
     }
-
-    @JsonIgnore
     @Override
-    public FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
+    protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {
         FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("Vocabulary", this);
         f.addFetchOption("Registrator", registrator);

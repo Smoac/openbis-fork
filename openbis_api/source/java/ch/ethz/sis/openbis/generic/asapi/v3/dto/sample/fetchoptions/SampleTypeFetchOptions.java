@@ -15,15 +15,12 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions;
 
-import java.io.Serializable;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 
 /*
  * Class automatically generated with DtoGenerator
@@ -53,10 +50,8 @@ public class SampleTypeFetchOptions extends FetchOptions<SampleType> implements 
     {
         return sort;
     }
-
-    @JsonIgnore
     @Override
-    public FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
+    protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {
         FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("SampleType", this);
         return f;

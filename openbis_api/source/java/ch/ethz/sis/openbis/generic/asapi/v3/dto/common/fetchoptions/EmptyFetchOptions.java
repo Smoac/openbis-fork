@@ -21,7 +21,7 @@ public class EmptyFetchOptions extends FetchOptions<Void>
     }
 
     @Override
-    public FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
+    protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {
         return new FetchOptionsToStringBuilder("Empty", this);
     }

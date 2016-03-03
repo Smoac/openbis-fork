@@ -15,14 +15,15 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification;
 
-import java.io.Serializable;
-import java.util.Date;
-
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.ObjectKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.OperationKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.fetchoptions.ObjectKindModificationFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.fetchoptions.ObjectKindModificationFetchOptions;
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import java.io.Serializable;
+import java.util.Date;
 
 /*
  * Class automatically generated with DtoGenerator

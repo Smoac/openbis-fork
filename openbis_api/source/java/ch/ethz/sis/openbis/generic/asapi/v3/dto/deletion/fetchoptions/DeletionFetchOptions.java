@@ -15,15 +15,13 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions;
 
-import java.io.Serializable;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.Deletion;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletedObjectFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 
 /*
  * Class automatically generated with DtoGenerator
@@ -78,10 +76,8 @@ public class DeletionFetchOptions extends FetchOptions<Deletion> implements Seri
     {
         return sort;
     }
-
-    @JsonIgnore
     @Override
-    public FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
+    protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {
         FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("Deletion", this);
         f.addFetchOption("DeletedObjects", deletedObjects);
