@@ -732,7 +732,7 @@ public class DtoGenerator
     private void printFetchOptionsStringBuilder()
     {
         print("@Override");
-        print("public FetchOptionsToStringBuilder getFetchOptionsStringBuilder()");
+        print("protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()");
         startBlock();
         print("FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder(\"" + this.className + "\", this);");
         for (DTOField field : fields)
