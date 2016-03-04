@@ -479,6 +479,8 @@ def copySample(tr, parameters, tableBuilder):
 			childParents = childCopy.getParentSampleIdentifiers();
 			childParents.add(sampleIdentifier);
 			childCopy.setParentSampleIdentifiers(childParents);
+			if(child.getExperiment() is not None):
+				childCopy.setExperiment(child.getExperiment());
 			searchService = tr.getSearchService();
 			propertiesDefinitions = searchService.listPropertiesDefinitionsForSampleType(child.getSampleType());
 			for propertyDefinition in propertiesDefinitions:
