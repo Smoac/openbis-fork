@@ -375,7 +375,11 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 							$component.prop('disabled', true);
 						}
 						
-						$component.change(changeEvent(propertyType));
+						if(propertyType.dataType === "TIMESTAMP") {
+							$component.on("dp.change", changeEvent(propertyType));
+						} else {
+							$component.change(changeEvent(propertyType));
+						}
 						
 						//Update values if is into edit mode
 						if(this._dataSetFormModel.mode === FormMode.EDIT) {

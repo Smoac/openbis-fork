@@ -512,7 +512,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 						$component.prop('disabled', true);
 					}
 					
-					$component.change(changeEvent(propertyType));
+					if(propertyType.dataType === "TIMESTAMP") {
+						$component.on("dp.change", changeEvent(propertyType));
+					} else {
+						$component.change(changeEvent(propertyType));
+					}
+					
 					$controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
 				}
 				$fieldset.append($controlGroup);

@@ -613,7 +613,7 @@ var FormUtil = new function() {
 		
 		$subComponent.append($input);
 		$subComponent.append($spanAddOn);
-		$subComponent.datetimepicker({ language: 'en' });
+		$subComponent.datetimepicker({ format : 'YYYY-MM-DD HH:mm:ss', useCurrent : false });
 		$component.append($subComponent);
 		
 		return $component;
