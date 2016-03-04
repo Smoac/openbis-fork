@@ -181,8 +181,10 @@ function SampleFormController(mainController, mode, sample) {
 					child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["NAME_PROPERTY"]] = $("#childrenStorageSelector").val();
 					child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["ROW_PROPERTY"]] = 1;
 					child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["COLUMN_PROPERTY"]] = 1;
+					child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["BOX_SIZE_PROPERTY"]] = "1X1";
 					child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["BOX_PROPERTY"]] = experimentIdentifier.replace(/\//g,'\/') + "_" + _this._sampleFormModel.sample.code + "_EXP_RESULTS";
 					child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["USER_PROPERTY"]] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
+					child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["POSITION_PROPERTY"]] = "A1";
 				}
 				samplesToCreate.push(child);
 			}
@@ -229,6 +231,8 @@ function SampleFormController(mainController, mode, sample) {
 		if(isCopyWithNewCode) {
 			parameters["method"] = "copySample";
 			parameters["sampleCode"] = isCopyWithNewCode;
+			parameters["notCopyProperties"] = [];
+			parameters["defaultBenchPropertyList"] = [];
 			if(!linkParentsOnCopy) {
 				parameters["sampleParents"] = [];
 			}
@@ -236,19 +240,20 @@ function SampleFormController(mainController, mode, sample) {
 				parameters["sampleChildren"] = [];
 			} else if(profile.storagesConfiguration["isEnabled"]) {
 				//1. All properties belonging to benches, to not to copy
-				parameters["notCopyProperties"] = [];
-				parameters["defaultBenchPropertyList"] = [];
 				for(var i = 0; i < profile.storagesConfiguration["STORAGE_PROPERTIES"].length; i++) {
 					var storagePropertyGroup = profile.storagesConfiguration["STORAGE_PROPERTIES"][i];
 					var listToUse = "notCopyProperties";
 					if(i === 0) {
 						listToUse = "defaultBenchPropertyList";
 					}
+					
 					parameters[listToUse].push(storagePropertyGroup["NAME_PROPERTY"]);
 					parameters[listToUse].push(storagePropertyGroup["ROW_PROPERTY"]);
 					parameters[listToUse].push(storagePropertyGroup["COLUMN_PROPERTY"]);
 					parameters[listToUse].push(storagePropertyGroup["BOX_PROPERTY"]);
+					parameters[listToUse].push(storagePropertyGroup["BOX_SIZE_PROPERTY"]);
 					parameters[listToUse].push(storagePropertyGroup["USER_PROPERTY"]);
+					parameters[listToUse].push(storagePropertyGroup["POSITION_PROPERTY"]);
 				}
 				
 				//2. Default Bench properties
@@ -263,7 +268,9 @@ function SampleFormController(mainController, mode, sample) {
 				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["ROW_PROPERTY"]] = 1;
 				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["COLUMN_PROPERTY"]] = 1;
 				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["BOX_PROPERTY"]] = this._sampleFormModel.sample.experimentIdentifierOrNull.replace(/\//g,'\/') + "_" + isCopyWithNewCode + "_EXP_RESULTS";
+				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["BOX_SIZE_PROPERTY"]] = "1X1";
 				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["USER_PROPERTY"]] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
+				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["POSITION_PROPERTY"]] = "A1";
 			}
 			parameters["sampleChildrenNew"] = [];
 			parameters["sampleChildrenRemoved"] = [];
