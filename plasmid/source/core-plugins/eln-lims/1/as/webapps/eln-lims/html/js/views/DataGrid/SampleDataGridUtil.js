@@ -96,7 +96,7 @@ var SampleDataGridUtil = new function() {
 		
 		var propertyColumnsToSort = [];
 		for (var idx = 0; idx < propertyCodes.length; idx++) {
-			var propertiesToSkip = ["NAME"];
+			var propertiesToSkip = ["NAME", "XMLCOMMENTS", "ANNOTATIONS_STATE"];
 			var propertyCode = propertyCodes[idx];
 			if($.inArray(propertyCode, propertiesToSkip) !== -1) {
 				continue;
