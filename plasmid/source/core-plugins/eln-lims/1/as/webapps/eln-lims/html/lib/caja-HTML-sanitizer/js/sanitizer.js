@@ -905,43 +905,44 @@ var html = (function(html4) {
                         }
                         break;
                     case html4.atype['STYLE']:
-                        if ('undefined' === typeof parseCssDeclarations) {
-                            value = null;
-                            if (opt_logger) {
-                                log(opt_logger, tagName, attribName, oldValue, value);
-                            }
-                            break;
-                        }
-                        var sanitizedDeclarations = [];
-                        parseCssDeclarations(
-                            value,
-                            {
-                                'declaration': function (property, tokens) {
-                                    var normProp = property.toLowerCase();
-                                    sanitizeCssProperty(
-                                        normProp, tokens,
-                                        opt_naiveUriRewriter
-                                            ? function (url) {
-                                            return safeUri(
-                                                url, html4.ueffects.SAME_DOCUMENT,
-                                                html4.ltypes.SANDBOXED,
-                                                {
-                                                    "TYPE": "CSS",
-                                                    "CSS_PROP": normProp
-                                                }, opt_naiveUriRewriter);
-                                        }
-                                            : null);
-                                    if (tokens.length) {
-                                        sanitizedDeclarations.push(
-                                            normProp + ': ' + tokens.join(' '));
-                                    }
-                                }
-                            });
-                        value = sanitizedDeclarations.length > 0 ?
-                            sanitizedDeclarations.join(' ; ') : null;
-                        if (opt_logger) {
-                            log(opt_logger, tagName, attribName, oldValue, value);
-                        }
+// TODO: Configure style tags to be allowed
+//                        if ('undefined' === typeof parseCssDeclarations) {
+//                            value = null;
+//                            if (opt_logger) {
+//                                log(opt_logger, tagName, attribName, oldValue, value);
+//                            }
+//                            break;
+//                        }
+//                        var sanitizedDeclarations = [];
+//                        parseCssDeclarations(
+//                            value,
+//                            {
+//                                'declaration': function (property, tokens) {
+//                                    var normProp = property.toLowerCase();
+//                                    sanitizeCssProperty(
+//                                        normProp, tokens,
+//                                        opt_naiveUriRewriter
+//                                            ? function (url) {
+//                                            return safeUri(
+//                                                url, html4.ueffects.SAME_DOCUMENT,
+//                                                html4.ltypes.SANDBOXED,
+//                                                {
+//                                                    "TYPE": "CSS",
+//                                                    "CSS_PROP": normProp
+//                                                }, opt_naiveUriRewriter);
+//                                        }
+//                                            : null);
+//                                    if (tokens.length) {
+//                                        sanitizedDeclarations.push(
+//                                            normProp + ': ' + tokens.join(' '));
+//                                    }
+//                                }
+//                            });
+//                        value = sanitizedDeclarations.length > 0 ?
+//                            sanitizedDeclarations.join(' ; ') : null;
+//                        if (opt_logger) {
+//                            log(opt_logger, tagName, attribName, oldValue, value);
+//                        }
                         break;
                     case html4.atype['ID']:
                     case html4.atype['IDREF']:
