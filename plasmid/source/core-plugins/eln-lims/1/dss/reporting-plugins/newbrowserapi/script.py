@@ -817,14 +817,6 @@ def searchSamplesCustom(tr, parameters, tableBuilder, v3, criterion, fetchOption
 	# SEARCH CUSTOM PLACEHOLDER END
 	
 def searchSamplesNexus(tr, parameters, tableBuilder, v3, criterion, fetchOptions):
-	from ch.ethz.sis.openbis.generic.asapi.v3 import IApplicationServerApi
-	from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleFetchOptions;
-	from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search import SampleSearchCriteria;
-	from ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search import SearchResult;
-	from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SampleIdentifier;
-	from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SamplePermId
-	from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id import ExperimentIdentifier;
-	from ch.ethz.sis.openbis.generic.server.sharedapi.v3.json import GenericObjectMapper;
 	
 	toReturnPermIds = []; #
 	#Right Givers: The sample with all his descendants
