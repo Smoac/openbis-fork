@@ -578,6 +578,8 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 			child = tr.createNewSample(newSampleChild["identifier"], newSampleChild["sampleTypeCode"]); #Create Sample given his id
 			sampleChildrenNewIdentifiers.append(newSampleChild["identifier"]);
 			child.setParentSampleIdentifiers([sampleIdentifier]);
+			if experiment != None:
+				child.setExperiment(experiment);
 			for key in newSampleChild["properties"].keySet():
 				propertyValue = unicode(newSampleChild["properties"][key]);
 				if propertyValue == "":
