@@ -67,33 +67,15 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 				.append($("<h2>").append(title));
 		}
 		$formColumn.append($formTitle);
-		$formColumn.append($("<br>"));
-		
-		if(this._experimentFormModel.mode !== FormMode.CREATE) {
-			//Delete
-			$formTitle.append("&nbsp;");
-			$formTitle.append(FormUtil.getDeleteButton(function(reason) {
-				_this._experimentFormController.deleteExperiment(reason);
-			}, true));
-		}
 		
 		//
-		// Create Sub Experiment
+		// Toolbar
 		//
-		if(this._experimentFormModel.mode === FormMode.VIEW) {
-			var $editBtn = $("<a>", { "class" : "btn btn-default"}).append("<span class='glyphicon glyphicon-edit'></span> Enable Editing");
-			$editBtn.click(function() {
-				mainController.changeView("showEditExperimentPageFromIdentifier", _this._experimentFormModel.experiment.identifier);
-			});
-			$formTitle.append("&nbsp;");
-			$formTitle.append($editBtn);
-		}
-		
+		var toolbarModel = [];
 		if(this._experimentFormModel.mode !== FormMode.CREATE) {
-			//Add Experiment Step
+			//Create Experiment Step
 			if(profile.getSampleTypeForSampleTypeCode("EXPERIMENTAL_STEP") && !profile.isSampleTypeHidden("EXPERIMENTAL_STEP")) {
-				$formTitle.append("&nbsp;");
-				$formTitle.append(FormUtil.getButtonWithText("Create Exp. Step", function() {
+				var $createBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
 					var argsMap = {
 							"sampleTypeCode" : "EXPERIMENTAL_STEP",
 							"experimentIdentifier" : _this._experimentFormModel.experiment.identifier
@@ -101,9 +83,24 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 					var argsMapStr = JSON.stringify(argsMap);
 					Util.unblockUI();
 					mainController.changeView("showCreateSubExperimentPage", argsMapStr);
-				}));
+				});
+				toolbarModel.push({ component : $createBtn, tooltip: "Create Experimental Step" });
 			}
+			
+			//Edit
+			var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
+				mainController.changeView("showEditExperimentPageFromIdentifier", _this._experimentFormModel.experiment.identifier);
+			});
+			toolbarModel.push({ component : $editBtn, tooltip: "Edit" });
+			
+			//Delete
+			var $deleteBtn = FormUtil.getDeleteButton(function(reason) {
+				_this._experimentFormController.deleteExperiment(reason);
+			}, true);
+			toolbarModel.push({ component : $deleteBtn, tooltip: "Delete" });
 		}
+		
+		$formColumn.append(FormUtil.getToolbar(toolbarModel));
 		
 		//
 		// Identification Info on Create
