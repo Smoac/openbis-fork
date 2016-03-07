@@ -283,25 +283,41 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         //
         // Body
         //
-        var rootNode = { title : "Main Menu", key : "MAIN_MENU", menuData : this._sideMenuWidgetModel.menuStructure };
-        var sourceByKey = { "MAIN_MENU" : rootNode };
-        var treeModel = [rootNode];
-        var todo = [this._sideMenuWidgetModel.menuStructure];
+//        var rootNode = { title : "Main Menu", key : "MAIN_MENU", menuData : this._sideMenuWidgetModel.menuStructure };
+//        var sourceByKey = { "MAIN_MENU" : rootNode };
+//        var treeModel = [rootNode];
+        
+        var sourceByKey = { };
+        var treeModel = [];
+        var todo = this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.slice();
 
         while(todo.length > 0) {
         	var modelNode = todo.shift();
-        	var treeModelNode = sourceByKey[modelNode.uniqueId];
+        	
         	if(modelNode.newMenuIfSelected && modelNode.newMenuIfSelected.children.length !== 0) {
-        		treeModelNode.folder = true;
-        		if(!treeModelNode.children) {
-        			treeModelNode.children = [];
-        		}
-        		
         		for(var cIdx = 0; cIdx < modelNode.newMenuIfSelected.children.length; cIdx++) {
         			var modelNodeChild = modelNode.newMenuIfSelected.children[cIdx];
         			var $titleWithLink = this._getDisplayNameLinkForNode(modelNodeChild, true);
-        			treeModelChild = {title : $titleWithLink.outerHTML, key : modelNodeChild.uniqueId, menuData : modelNodeChild};
-        			treeModelNode.children.push(treeModelChild);
+        			var treeModelChild = {title : $titleWithLink.outerHTML, key : modelNodeChild.uniqueId, menuData : modelNodeChild};
+        			
+        			//Add Source if not found
+        			var treeModelRoot = null;
+        			if(!sourceByKey[modelNode.uniqueId]) {
+        				treeModelRoot = {title : modelNode.displayName, key : modelNode.uniqueId, menuData : modelNode};
+        				treeModel.push(treeModelRoot);
+        				sourceByKey[modelNode.uniqueId] = treeModelRoot;
+        			} else {
+        				treeModelRoot = sourceByKey[modelNode.uniqueId];
+        			}
+        			
+        			//Create children if new
+        			treeModelRoot.folder = true;
+            		if(!treeModelRoot.children) {
+            			treeModelRoot.children = [];
+            		}
+            		treeModelRoot.children.push(treeModelChild);
+            		
+            		//Push child for next
         			todo.push(modelNodeChild);
         			sourceByKey[treeModelChild.key] = treeModelChild;
         		}
@@ -365,12 +381,14 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         //Expand Tree Node
         var expandToParent = function(tree, menuData, isRoot) {
         	var node = tree.fancytree("getTree").getNodeByKey(menuData.uniqueId);
-        	node.setExpanded(true);
-        	if(isRoot) {
-        		node.setActive(true);
-        	}
-        	if(menuData.parent) {
-        		expandToParent(tree, menuData.parent, false);
+        	if(node) {
+        		node.setExpanded(true);
+            	if(isRoot) {
+            		node.setActive(true);
+            	}
+            	if(menuData.parent) {
+            		expandToParent(tree, menuData.parent, false);
+            	}
         	}
         }
         
