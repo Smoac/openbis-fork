@@ -131,8 +131,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// Toolbar
 		//
+		var toolbarModel = [];
 		if(this._sampleFormModel.mode !== FormMode.CREATE) {
-			var toolbarModel = [];
 			
 			//Edit
 			if(this._sampleFormModel.mode === FormMode.VIEW) {
