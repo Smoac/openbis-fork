@@ -85,6 +85,39 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		//
 		// Metadata Fields
 		//
+		$formColumn.append($("<legend>").append("General"));
+		
+		var description = Util.getEmptyIfNull(this._projectFormModel.project.description);
+		if(this._projectFormModel.mode !== FormMode.VIEW) {
+			var $textBox = FormUtil._getTextBox(null, "Description", false);
+			$textBox.keyup(function(event){
+				_this._projectFormModel.project.description = $(this).val();
+				_this._projectFormModel.isFormDirty = true;
+			});
+			$textBox.val(description);
+			$formColumn.append(FormUtil.getFieldForComponentWithLabel($textBox, "Description"));
+		} else {
+			$formColumn.append(FormUtil.getFieldForLabelWithText("Description", description));
+		}
+		
+		// Experiment And Samples Table
+		if(this._projectFormModel.mode !== FormMode.CREATE) {
+			var $experimentsContainer = $("<div>");
+			$formColumn.append($experimentsContainer);
+			
+			var experimentTableController = new ExperimentTableController(this._projectFormController, "Experiments", this._projectFormModel.project);
+			experimentTableController.init($experimentsContainer);
+			
+			var $samplesContainer = $("<div>");
+			$formColumn.append($samplesContainer);
+			
+			var sampleTableController = new SampleTableController(this._projectFormController, "Samples", null, this._projectFormModel.project.permId, true);
+			sampleTableController.init($samplesContainer);
+		}
+		
+		//
+		// Identification info
+		//
 		$formColumn.append($("<legend>").append("Identification Info"));
 		
 		$formColumn.append(FormUtil.getFieldForLabelWithText("Space", this._projectFormModel.project.spaceCode));
@@ -105,23 +138,6 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			$formColumn.append(FormUtil.getFieldForLabelWithText("Code", this._projectFormModel.project.code));
 		}
 		
-		
-		var description = Util.getEmptyIfNull(this._projectFormModel.project.description);
-		if(this._projectFormModel.mode !== FormMode.VIEW) {
-			var $textBox = FormUtil._getTextBox(null, "Description", false);
-			$textBox.keyup(function(event){
-				_this._projectFormModel.project.description = $(this).val();
-				_this._projectFormModel.isFormDirty = true;
-			});
-			$textBox.val(description);
-			$formColumn.append(FormUtil.getFieldForComponentWithLabel($textBox, "Description"));
-		} else {
-			$formColumn.append(FormUtil.getFieldForLabelWithText("Description", description));
-		}
-		
-		//
-		// Registration and modification info
-		//
 		if(this._projectFormModel.mode !== FormMode.CREATE) {
 			var registrationDetails = this._projectFormModel.project.registrationDetails;
 			
@@ -136,21 +152,6 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			
 			var $modificationDate = FormUtil.getFieldForLabelWithText("Modification Date", Util.getFormatedDate(new Date(registrationDetails.modificationDate)));
 			$formColumn.append($modificationDate);
-		}
-		
-		// Experiment And Samples Table
-		if(this._projectFormModel.mode !== FormMode.CREATE) {
-			var $experimentsContainer = $("<div>");
-			$formColumn.append($experimentsContainer);
-			
-			var experimentTableController = new ExperimentTableController(this._projectFormController, "Experiments", this._projectFormModel.project);
-			experimentTableController.init($experimentsContainer);
-			
-			var $samplesContainer = $("<div>");
-			$formColumn.append($samplesContainer);
-			
-			var sampleTableController = new SampleTableController(this._projectFormController, "Samples", null, this._projectFormModel.project.permId, true);
-			sampleTableController.init($samplesContainer);
 		}
 		
 		//Create/Update Button
