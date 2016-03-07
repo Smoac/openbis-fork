@@ -136,10 +136,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			
 			//Edit
 			if(this._sampleFormModel.mode === FormMode.VIEW) {
-				var $editButton = $("<a>", { 'class' : 'btn btn-default'} )
-									.append($('<span>', { 'class' : 'glyphicon glyphicon-edit' }));
-				
-				$editButton.click(function() {
+				var $editButton = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
 					mainController.changeView('showEditSamplePageFromPermId', _this._sampleFormModel.sample.permId);
 				});
 				toolbarModel.push({ component : $editButton, tooltip: "Enable Editing" });
