@@ -24,7 +24,8 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		$container.empty();
 		if(this._sampleTableModel.title) {
 			var $title = $("<h1>").append(this._sampleTableModel.title);
-			
+			var $createButton = null;
+			$container.append($title);
 			if(this._sampleTableModel.experimentIdentifier) {
 				var experimentCode = this._sampleTableModel.experimentIdentifier.split("/")[3];
 				var allSampleTypes = profile.getAllSampleTypes();
@@ -43,9 +44,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 				
 				//Add Sample Type
 				if(sampleTypeCode !== null && !profile.isSampleTypeHidden(sampleTypeCode)) {
-					
-					$title.append("&nbsp;");
-					$title.append(FormUtil.getButtonWithText("Create " + sampleTypeCode, function() {
+					$createButton = FormUtil.getButtonWithText("Create " + sampleTypeCode, function() {
 						var argsMap = {
 								"sampleTypeCode" : sampleTypeCode,
 								"experimentIdentifier" : _this._sampleTableModel.experimentIdentifier
@@ -53,10 +52,9 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 						var argsMapStr = JSON.stringify(argsMap);
 						Util.unblockUI();
 						mainController.changeView("showCreateSubExperimentPage", argsMapStr);
-					}));
+					});
 				}
 			}
-			$container.append($title);
 		}
 		
 		var $toolbox = $("<div>", { 'id' : 'toolBoxContainer', class : 'toolBox'});
@@ -69,6 +67,10 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			$toolbox.append(this._getLoadedSampleTypesDropdown());
 		} else {
 			$toolbox.append(this._getAllSampleTypesDropdown());
+		}
+		
+		if($createButton) {
+			$toolbox.append($createButton);
 		}
 		
 		$container.append($toolbox);
