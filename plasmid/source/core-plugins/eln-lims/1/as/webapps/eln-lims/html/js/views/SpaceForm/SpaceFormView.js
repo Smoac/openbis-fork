@@ -29,13 +29,17 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 		
 		var $formTitle = $("<h2>").append("Space " + this._spaceFormModel.space.code);
 		
-		var $btn = $("<a>", { "class" : "btn btn-default"}).append("Create Project");
-		$btn.click(function() {
+		//
+		// Toolbar
+		//
+		var toolbarModel = [];
+		var $createProj = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
 			_this._spaceFormController.createProject();
 		});
+		toolbarModel.push({ component : $createProj, tooltip: "Create Project" });
 		
 		$formColumn.append($formTitle);
-		$formColumn.append($btn);
+		$formColumn.append(FormUtil.getToolbar(toolbarModel));
 		$formColumn.append("<br>");
 		
 		$container.append($form);
