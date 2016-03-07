@@ -665,4 +665,19 @@ var FormUtil = new function() {
 		}
 		return originalValue;
 	}
+	
+	this.getToolbar = function(toolbarModel) {
+		var $toolbarContainer = $("<div>");
+		
+		for(var tbIdx = 0; tbIdx < toolbarModel.length; tbIdx++) {
+			var $toolbarComponent = toolbarModel[tbIdx].component;
+			var toolbarComponentTooltip = toolbarModel[tbIdx].tooltip;
+			$toolbarComponent.attr("title", toolbarComponentTooltip);
+			$toolbarComponent.tooltipster();
+			$toolbarContainer.append($toolbarComponent);
+			$toolbarContainer.append("&nbsp;");
+		}
+		
+		return $toolbarContainer;
+	}
 }

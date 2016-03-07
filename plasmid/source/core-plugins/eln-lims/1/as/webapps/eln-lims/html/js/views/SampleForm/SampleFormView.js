@@ -129,9 +129,28 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		}
 		
 		//
-		// TITLE BUTTONS
+		// Toolbar
 		//
 		if(this._sampleFormModel.mode !== FormMode.CREATE) {
+			var toolbarModel = [];
+			
+			//Edit
+			if(this._sampleFormModel.mode === FormMode.VIEW) {
+				var $editButton = $("<a>", { 'class' : 'btn btn-default'} )
+									.append($('<span>', { 'class' : 'glyphicon glyphicon-edit' }));
+				
+				$editButton.click(function() {
+					mainController.changeView('showEditSamplePageFromPermId', _this._sampleFormModel.sample.permId);
+				});
+				toolbarModel.push({ component : $editButton, tooltip: "Enable Editing" });
+			}
+			
+			//Copy
+			var $copyButton = $("<a>", { 'class' : 'btn btn-default'} )
+			.append($('<img>', { 'src' : './img/copy-icon.png', 'style' : 'width:16px; height:16px;' }));
+			$copyButton.click(_this._getCopyButtonEvent());
+			toolbarModel.push({ component : $copyButton, tooltip: "Copy" });
+			
 			//Delete
 			var warningText = null;
 			if(this._sampleFormModel.sample.children.length > 0 || this._sampleFormModel.datasets.length > 0) {
@@ -163,51 +182,35 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					}
 				}
 			}
-				
-			$formTitle.append(FormUtil.getDeleteButton(function(reason) {
+			
+			var $deleteButton = FormUtil.getDeleteButton(function(reason) {
 				_this._sampleFormController.deleteSample(reason);
-			}, true, warningText));
-			//Hierarchy
-			$formTitle.append("&nbsp;");
-			$formTitle.append(FormUtil.getHierarchyButton(this._sampleFormModel.sample.permId));
-			//Table hierarchy
-			$formTitle.append("&nbsp;");
-			var $tableHierarchyButton = $("<a>", { 'class' : 'btn btn-default'} )
-			.append($('<img>', { 'src' : './img/hierarchy-icon.png', 'style' : 'width:16px; height:17px;' }))
-			.append(' T');
-			$tableHierarchyButton.click(function () {
-				mainController.changeView('showSampleHierarchyTablePage', _this._sampleFormModel.sample.permId);
-			});
-			$formTitle.append($tableHierarchyButton);
-			//Copy
-			$formTitle.append("&nbsp;");
-			var $copyButton = $("<a>", { 'class' : 'btn btn-default'} )
-										.append($('<img>', { 'src' : './img/copy-icon.png', 'style' : 'width:16px; height:16px;' }));
-			$copyButton.click(_this._getCopyButtonEvent());
-			$formTitle.append($copyButton);
+			}, true, warningText);
+			toolbarModel.push({ component : $deleteButton, tooltip: "Delete" });
+			
 			//Print
-			$formTitle.append("&nbsp;");
 			var $printButton = $("<a>", { 'class' : 'btn btn-default'} ).append($('<span>', { 'class' : 'glyphicon glyphicon-print' }));
 			$printButton.click(function() {
 				PrintUtil.printEntity(_this._sampleFormModel.sample);
 			});
-			$formTitle.append($printButton);
-			//Edit
-			if(this._sampleFormModel.mode === FormMode.VIEW) {
-				$formTitle.append("&nbsp;");
-				var $editButton = $("<a>", { 'class' : 'btn btn-default'} )
-									.append($('<span>', { 'class' : 'glyphicon glyphicon-edit' }))
-									.append(' Enable Editing');
-				
-				$editButton.click(function() {
-					mainController.changeView('showEditSamplePageFromPermId', _this._sampleFormModel.sample.permId);
-				});
-				
-				$formTitle.append($editButton);
-			}
+			toolbarModel.push({ component : $printButton, tooltip: "Print" });
+			
+			//Hierarchy Graph
+			var $hierarchyGraph = FormUtil.getButtonWithImage("./img/hierarchy-icon.png", function () {
+				mainController.changeView('showSampleHierarchyPage', _this._sampleFormModel.sample.permId);
+			});
+			toolbarModel.push({ component : $hierarchyGraph, tooltip: "Hierarchy Graph" });
+			
+			//Hierarchy Table
+			var $hierarchyTable = FormUtil.getButtonWithIcon("glyphicon-list", function () {
+				mainController.changeView('showSampleHierarchyTablePage', _this._sampleFormModel.sample.permId);
+			});
+			
+			toolbarModel.push({ component : $hierarchyTable, tooltip: "Hierarchy Table" });
 		}
 		
 		$formColumn.append($formTitle);
+		$formColumn.append(FormUtil.getToolbar(toolbarModel));
 		$formColumn.append($("<br>"));
 		//
 		// PREVIEW IMAGE
