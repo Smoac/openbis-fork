@@ -307,11 +307,6 @@ function MainController(profile) {
 				this._showSampleHierarchyTablePage(arg);
 				window.scrollTo(0,0);
 				break;
-			case "showCreateSamplePage":
-				document.title = "Create Sample " + arg;
-				this._showCreateSamplePage(arg);
-				window.scrollTo(0,0);
-				break;
 			case "showEditSamplePageFromPermId":
 				var _this = this;
 				this.serverFacade.searchWithUniqueId(arg, function(data) {
@@ -491,17 +486,6 @@ function MainController(profile) {
 				sampleTypeCode : sampleTypeCode,
 				experimentIdentifierOrNull : experimentIdentifier,
 				spaceCode : experimentIdentifier.substring(1, experimentIdentifier.indexOf('/', 1)),
-				properties : {}
-		}
-		var sampleFormController = new SampleFormController(this, FormMode.CREATE, sample);
-		this.currentView = sampleFormController;
-		sampleFormController.init($("#mainContainer"));
-	}
-	
-	this._showCreateSamplePage = function(sampleTypeCode) {
-		//Show Form
-		var sample = {
-				sampleTypeCode : sampleTypeCode,
 				properties : {}
 		}
 		var sampleFormController = new SampleFormController(this, FormMode.CREATE, sample);

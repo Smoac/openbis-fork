@@ -175,9 +175,8 @@ function SampleHierarchy(serverFacade, containerId, profile, sample) {
 		var _this = this;
 		$("#sampleTypeSelector").on("change", function(event) {
 			var sampleTypeCode = $("#sampleTypeSelector")[0].value;
-			mainController.changeView('showCreateSamplePage', sampleTypeCode);
 			_this.serverFacade.searchWithUniqueId(permId, function(data) {
-				
+				mainController.changeView('showCreateSubExperimentPage', "{\"sampleTypeCode\":\"" + sampleTypeCode + "\",\"experimentIdentifier\":\"" + data[0].experimentIdentifierOrNull + "\"}");
 				var setParent = function() {
 					mainController.currentView._sampleFormModel.sampleLinksParents.addSample(data[0]);
 					Util.unblockUI();
