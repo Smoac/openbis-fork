@@ -39,25 +39,21 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		var title = null;
 		if(this._projectFormModel.mode === FormMode.CREATE) {
 			title = "Create Project ";
+		} else if (this._projectFormModel.mode === FormMode.EDIT) {
+			title = "Update Project /" + this._projectFormModel.project.spaceCode + "/" + this._projectFormModel.project.code;
 		} else {
 			title = "Project /" + this._projectFormModel.project.spaceCode + "/" + this._projectFormModel.project.code;
 		}
 		var $formTitle = $("<h2>").append(title);
 		$formColumn.append($formTitle);
 		
-		var $toolbar = $("<div>");
-		$formColumn.append($toolbar);
-		
+		//
+		// Toolbar
+		//
+		var toolbarModel = [];
 		if(this._projectFormModel.mode !== FormMode.CREATE) {
-			//Delete
-			$toolbar.append(FormUtil.getDeleteButton(function(reason) {
-				_this._projectFormController.deleteProject(reason);
-			}, true));
-		}
-		
-		if(this._projectFormModel.mode === FormMode.VIEW) {
-			var $createExpBtn = $("<a>", { "class" : "btn btn-default"}).append("Create Experiment");
-			$createExpBtn.click(function() {
+			//Create Experiment
+			var $createExpBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
 				var $dropdown = FormUtil.getExperimentTypeDropdown("experimentTypeDropdown", true);
 				Util.blockUI("Select the type for the Experiment: <br><br>" + $dropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='experimentTypeDropdownCancel'>Cancel</a>");
 				
@@ -70,17 +66,22 @@ function ProjectFormView(projectFormController, projectFormModel) {
 					Util.unblockUI();
 				});
 			});
-			$toolbar.append("&nbsp;");
-			$toolbar.append($createExpBtn);
-			$toolbar.append("&nbsp;");
-			var $editBtn = $("<a>", { "class" : "btn btn-default"}).append("<span class='glyphicon glyphicon-edit'></span> Enable Editing");
-			$editBtn.click(function() {
+			toolbarModel.push({ component : $createExpBtn, tooltip: "Create Experiment" });
+			
+			//Edit
+			var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
 				_this._projectFormController.enableEditing();
 			});
-			$toolbar.append($editBtn);
+			toolbarModel.push({ component : $editBtn, tooltip: "Edit" });
+			
+			//Delete
+			var $deleteBtn = FormUtil.getDeleteButton(function(reason) {
+				_this._projectFormController.deleteProject(reason);
+			}, true);
+			toolbarModel.push({ component : $deleteBtn, tooltip: "Delete" });
 		}
+		$formColumn.append(FormUtil.getToolbar(toolbarModel));
 		
-		$formColumn.append("<br>");
 		//
 		// Metadata Fields
 		//
