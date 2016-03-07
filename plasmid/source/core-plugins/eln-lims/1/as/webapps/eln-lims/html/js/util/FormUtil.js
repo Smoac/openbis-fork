@@ -14,8 +14,8 @@ var FormUtil = new function() {
 	this.formColumClass = 'col-md-12'
 	this.labelColumnClass = 'col-md-2';
 	this.shortControlColumnClass = 'col-md-5';
-	this.controlColumnClass = 'col-md-6';
-	this.controlColumnClassBig = 'col-md-10';
+	this.controlColumnClass = 'col-md-9';
+	this.controlColumnClassBig = 'col-md-9';
 	//
 	// Annotations
 	//
@@ -631,6 +631,7 @@ var FormUtil = new function() {
 		['Insert', ['link', 'table', 'hr']],
 		['Misc', ['fullscreen', 'undo', 'redo', 'help']],],
 		disableDragAndDrop: true});
+		$('.note-editable.panel-body').css({ "min-height" : "200px" });
 	}
 	
 	this.updateModelRichTextProperties = function(properties) {
