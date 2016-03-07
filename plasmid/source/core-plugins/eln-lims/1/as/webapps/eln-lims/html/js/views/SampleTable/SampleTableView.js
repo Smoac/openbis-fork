@@ -23,7 +23,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		var _this = this;
 		$container.empty();
 		if(this._sampleTableModel.title) {
-			var $title = $("<h1>").append(this._sampleTableModel.title);
+			var $title = $("<h2>").append(this._sampleTableModel.title);
 			$container.append($title);
 		}
 		
@@ -63,19 +63,23 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			}
 		}
 		
+		var tableToolbarModel = [];
 		if(this._sampleTableModel.experimentIdentifier) {
 			var $sampleTypes = this._getLoadedSampleTypesDropdown();
-			toolbarModel.push({ component : $sampleTypes, tooltip: "Select a sample type to visualize on the table" });
+			tableToolbarModel.push({ component : $sampleTypes, tooltip: "Select a sample type to visualize on the table" });
 			var $options = this._getOptionsMenu();
 			toolbarModel.push({ component : $options, tooltip: null });
 		} else if(this._sampleTableModel.projectPermId) {
 			var $sampleTypes = this._getLoadedSampleTypesDropdown();
-			toolbarModel.push({ component : $sampleTypes, tooltip: "Select a sample type to visualize on the table" });
+			tableToolbarModel.push({ component : $sampleTypes, tooltip: "Select a sample type to visualize on the table" });
 		} else {
 			var $allSampleTypes = this._getAllSampleTypesDropdown();
-			toolbarModel.push({ component : $allSampleTypes, tooltip: "Select a sample type to visualize on the table" });
+			tableToolbarModel.push({ component : $allSampleTypes, tooltip: "Select a sample type to visualize on the table" });
 		}
+		
 		$container.append(FormUtil.getToolbar(toolbarModel));
+		$container.append("<br>");
+		$container.append(FormUtil.getToolbar(tableToolbarModel));
 		$container.append(this._tableContainer);
 	}
 	
