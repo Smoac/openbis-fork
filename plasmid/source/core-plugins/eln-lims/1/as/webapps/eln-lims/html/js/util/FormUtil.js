@@ -667,13 +667,15 @@ var FormUtil = new function() {
 	}
 	
 	this.getToolbar = function(toolbarModel) {
-		var $toolbarContainer = $("<div>");
+		var $toolbarContainer = $("<div>", { class : 'toolBox' });
 		
 		for(var tbIdx = 0; tbIdx < toolbarModel.length; tbIdx++) {
 			var $toolbarComponent = toolbarModel[tbIdx].component;
 			var toolbarComponentTooltip = toolbarModel[tbIdx].tooltip;
-			$toolbarComponent.attr("title", toolbarComponentTooltip);
-			$toolbarComponent.tooltipster();
+			if(toolbarComponentTooltip) {
+				$toolbarComponent.attr("title", toolbarComponentTooltip);
+				$toolbarComponent.tooltipster();
+			}
 			$toolbarContainer.append($toolbarComponent);
 			$toolbarContainer.append("&nbsp;");
 		}
