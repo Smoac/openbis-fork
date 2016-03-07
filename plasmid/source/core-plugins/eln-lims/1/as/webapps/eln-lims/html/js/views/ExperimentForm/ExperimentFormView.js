@@ -118,14 +118,8 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			this._paintPropertiesForSection($formColumn, propertyTypeGroup, i);
 		}
 		
-		//Create/Update Buttons
-		if(this._experimentFormModel.mode === FormMode.EDIT || this._experimentFormModel.mode === FormMode.CREATE) {
-			var $updateBtn = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : title });
-			$formColumn.append($updateBtn);
-		}
-		
 		//
-		// Identification Info on Create
+		// Identification Info on not Create
 		//
 		if(this._experimentFormModel.mode !== FormMode.CREATE) {
 			this._paintIdentificationInfo($formColumn);
@@ -138,6 +132,12 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			$formColumn.append(sampleListContainer);
 			var sampleList = new SampleTableController(this._experimentFormController, null, this._experimentFormModel.experiment.identifier);
 			sampleList.init(sampleListContainer);
+		}
+		
+		//Create/Update Buttons
+		if(this._experimentFormModel.mode === FormMode.EDIT || this._experimentFormModel.mode === FormMode.CREATE) {
+			var $updateBtn = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : title });
+			$formColumn.append($("<br>")).append($updateBtn);
 		}
 		
 		$container.append($form);

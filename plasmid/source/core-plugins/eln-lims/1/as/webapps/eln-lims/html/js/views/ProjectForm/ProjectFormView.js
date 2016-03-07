@@ -138,21 +138,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			$formColumn.append($modificationDate);
 		}
 		
-		if(this._projectFormModel.mode !== FormMode.VIEW) {
-			var btnText = null;
-			if(this._projectFormModel.mode === FormMode.CREATE) {
-				btnText = "Create Project";
-			} else if(this._projectFormModel.mode === FormMode.EDIT) {
-				btnText = "Update Project " + this._projectFormModel.project.code;
-			}
-			
-			var $updateBtn = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : btnText });
-			$formColumn.append($updateBtn);
-		}
-		
-		//
-		// Experiment Table
-		//
+		// Experiment And Samples Table
 		if(this._projectFormModel.mode !== FormMode.CREATE) {
 			var $experimentsContainer = $("<div>");
 			$formColumn.append($experimentsContainer);
@@ -165,6 +151,19 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			
 			var sampleTableController = new SampleTableController(this._projectFormController, "Samples", null, this._projectFormModel.project.permId, true);
 			sampleTableController.init($samplesContainer);
+		}
+		
+		//Create/Update Button
+		if(this._projectFormModel.mode !== FormMode.VIEW) {
+			var btnText = null;
+			if(this._projectFormModel.mode === FormMode.CREATE) {
+				btnText = "Create Project";
+			} else if(this._projectFormModel.mode === FormMode.EDIT) {
+				btnText = "Update Project " + this._projectFormModel.project.code;
+			}
+			
+			var $updateBtn = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : btnText });
+			$formColumn.append($updateBtn);
 		}
 		
 		$container.append($form);
