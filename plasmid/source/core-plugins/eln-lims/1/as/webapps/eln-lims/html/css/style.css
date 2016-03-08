@@ -28,9 +28,10 @@
 }
 
 .table td {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/*   white-space: nowrap;
+   	overflow: hidden;
+	text-overflow: ellipsis; */
+  word-wrap: break-word;
 }
 
 .form-group {
