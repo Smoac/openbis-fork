@@ -79,11 +79,26 @@ var ExperimentDataGridUtil = new function() {
 				var newVocabularyColumnFunc = getVocabularyColumn(propertyType);
 				propertyColumnsToSort.push(newVocabularyColumnFunc());
 			} else {
+				var maxLineLength = 300;
+				var getRenderFunction = function(propertyType) {
+					return function(data) {
+						var propValue = data[propertyType.code];
+						if(propValue) {
+							propValue = propValue.substring(0, maxLineLength);
+							if(data[propertyType.code].length > maxLineLength) {
+								propValue += "...";
+							}
+						}
+						return propValue;
+					}
+				}
+				
 				propertyColumnsToSort.push({
 					label : propertyCodesDisplayNames[idx],
 					property : propertyCodes[idx],
 					isExportable: true,
-					sortable : true
+					sortable : true,
+					render : getRenderFunction(propertyType)
 				});
 			}
 		}
