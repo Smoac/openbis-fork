@@ -307,11 +307,11 @@ function SampleFormController(mainController, mode, sample) {
 			
 			var message = "";
 			if(isCopyWithNewCode) {
-				message = "Copied with new code: " + isCopyWithNewCode + ".";
+				message = "Sample copied with new code: " + isCopyWithNewCode + ".";
 			} else if(_this._sampleFormModel.mode === FormMode.CREATE) {
-				message = "Created.";
+				message = "Sample Created.";
 			} else if(_this._sampleFormModel.mode === FormMode.EDIT) {
-				message = "Updated.";
+				message = "Sample Updated.";
 			}
 			
 			var callbackOk = function() {
@@ -340,7 +340,7 @@ function SampleFormController(mainController, mode, sample) {
 				
 				searchUntilFound(); //First call
 			}
-			Util.showSuccess(sampleTypeDisplayName + " " + message, callbackOk);
+			Util.showSuccess(message, callbackOk);
 			_this._sampleFormModel.isFormDirty = false;
 		} else { //This should never happen
 			Util.showError("Unknown Error.", function() {Util.unblockUI();});

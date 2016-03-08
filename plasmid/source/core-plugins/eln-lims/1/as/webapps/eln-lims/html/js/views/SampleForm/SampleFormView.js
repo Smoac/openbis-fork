@@ -27,7 +27,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		
 		var $form = $("<span>", { "class" : "row col-md-8"});
 		
-		var $formColumn = $("<form>", { 
+		var $formColumn = $("<form>", {
 			"class" : "form-horizontal form-panel-one", 
 			'role' : "form",
 			'action' : 'javascript:void(0);',
@@ -70,11 +70,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// TITLE
 		//
-		var $formTitle = $("<div>");
-		var nameLabel = this._sampleFormModel.sample.properties[profile.propertyReplacingCode];
+		
 		var entityPath = $("<span>");
-		
-		
 		var codeWithContainer = this._sampleFormModel.sample.code;
 		if(this._sampleFormModel.mode !== FormMode.CREATE) {
 			var containerIdentifierEnd = this._sampleFormModel.sample.identifier.lastIndexOf(":");
@@ -100,33 +97,30 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			entityPath.append("/").append(this._sampleFormModel.sample.spaceCode).append("/").append(codeWithContainer);
 		}
 		
-		var isName = (nameLabel)?true:false;
+		var $formTitle = $("<div>");
+		
+		var nameLabel = this._sampleFormModel.sample.properties[profile.propertyReplacingCode];
+		if(!nameLabel) {
+			nameLabel = this._sampleFormModel.sample.code;
+		}
 		
 		var title = null;
+		
 		switch(this._sampleFormModel.mode) {
 	    	case FormMode.CREATE:
 	    		title = "Create Sample " + this._sampleFormModel.sample.sampleTypeCode;
 	    		break;
 	    	case FormMode.EDIT:
-	    		title = "Update Sample ";
+	    		title = "Update Sample: " + nameLabel;
 	    		break;
 	    	case FormMode.VIEW:
-	    		title = "Sample ";
+	    		title = "Sample: " + nameLabel;
 	    		break;
 		}
 		
-		if(isName) {
-			title += nameLabel;
-			$formTitle
-				.append($("<h2>").append(title))
-				.append($("<h4>", { "style" : "font-weight:normal;" } ).append(entityPath));
-		} else {
-			if(this._sampleFormModel.mode !== FormMode.CREATE) {
-				$formTitle.append($("<h2>").append(title).append(entityPath));
-			} else {
-				$formTitle.append($("<h2>").append(title));
-			}
-		}
+		$formTitle
+			.append($("<h2>").append(title))
+			.append($("<h4>", { "style" : "font-weight:normal;" } ).append(entityPath));
 		
 		//
 		// Toolbar
@@ -360,7 +354,17 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// FORM SUBMIT
 		//
 		if(this._sampleFormModel.mode !== FormMode.VIEW) {
-			var $updateBtn = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : title });
+			var btnTitle = null;
+			switch(this._sampleFormModel.mode) {
+		    	case FormMode.CREATE:
+		    		btnTitle = "Create Sample";
+		    		break;
+		    	case FormMode.EDIT:
+		    		btnTitle = "Update Sample";
+		    		break;
+			}
+			
+			var $updateBtn = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : btnTitle });
 			$formColumn.append($("<br>"));
 			$formColumn.append($updateBtn);
 		}
