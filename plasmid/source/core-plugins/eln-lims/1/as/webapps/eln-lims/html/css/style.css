@@ -66,7 +66,18 @@ h1, h2, legend {
 	padding: 8px 12px 6px 14px !important;
 }
 */
- 
+
+/*
+ * Inline Form
+ */
+.form-inline > .form-group {
+	margin-right: 10px;
+}
+
+.form-inline > .form-group > label {
+	margin-right: 5px;
+}
+
 /* 
  * Login Screen 
  */

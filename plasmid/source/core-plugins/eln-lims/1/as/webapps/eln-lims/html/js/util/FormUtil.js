@@ -284,6 +284,32 @@ var FormUtil = new function() {
 		return $component;
 	}
 	
+	this.getEntityTypeDropdown = function() {
+
+		var $component = $("<select>", {class : 'form-control'});
+		
+		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
+		$component.append($("<option>").attr('value', 'Experiment').text('Experiment'));
+		$component.append($("<option>").attr('value', 'Sample').text('Sample'));
+		$component.append($("<option>").attr('value', 'Dataset').text('Dataset'));
+		
+		return $component;
+	}
+	
+	this.getDropdown = function(mapVals, placeHolder) {
+
+		var $component = $("<select>", {class : 'form-control'});
+		if(placeHolder) {
+			$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text(placeHolder));
+		}
+		for(var mIdx = 0; mIdx < mapVals.length; mIdx++) {
+			$component.append($("<option>").attr('value', mapVals[mIdx].value).text(mapVals[mIdx].label));
+		}
+		
+		return $component;
+	}
+	
+	
 	this.getDataSetsDropDown = function(code, dataSetTypes) {
 		var $component = $("<select>", { class : 'form-control ' });
 		$component.attr('id', code);
@@ -442,7 +468,7 @@ var FormUtil = new function() {
 	//
 	// Get Field with container to obtain a correct layout
 	//
-	this.getFieldForComponentWithLabel = function($component, label, postComponent) {
+	this.getFieldForComponentWithLabel = function($component, label, postComponent, isInline) {
 		var $fieldset = $('<div>');
 		
 		var $controlGroup = $('<div>', {class : 'form-group'});
@@ -455,21 +481,37 @@ var FormUtil = new function() {
 		if(label) {
 			labelText = label + requiredText + ":";
 		}
+		var labelColumnClass = ""
+		if(!isInline) {
+			labelColumnClass = this.labelColumnClass;
+		}
+		var $controlLabel = $('<label>', { class : 'control-label ' + labelColumnClass }).html(labelText);
 		
-		var $controlLabel = $('<label>', { class : 'control-label ' + this.labelColumnClass }).html(labelText);
-		var $controls = $('<div>', { class : 'controls ' + this.controlColumnClass });
+		var controlColumnClass = ""
+		if(!isInline) {
+			controlColumnClass = this.controlColumnClass;
+		}
+		var $controls = $('<div>', { class : 'controls ' + controlColumnClass });
 			
 		$controlGroup.append($controlLabel);
-		$controlGroup.append($controls);
+		
+		if(isInline) {
+			$controlGroup.append($component);
+		} else {
+			$controls.append($component);
+			$controlGroup.append($controls);
+		}
+		
 		if(postComponent) {
 			$controlGroup.append(postComponent);
 		}
 		$fieldset.append($controlGroup);
 		
-		$controls.append($component);
-		
-		
-		return $fieldset;
+		if(isInline) {
+			return $controlGroup;
+		} else {
+			return $fieldset;
+		}
 	}
 	
 	this.getFieldForLabelWithText = function(label, text, id, postComponent, cssForText) {
