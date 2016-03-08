@@ -37,14 +37,22 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		// Title
 		//
 		var title = null;
+		var entityPath = null;
 		if(this._projectFormModel.mode === FormMode.CREATE) {
-			title = "Create Project ";
+			title = "Create Project";
+			entityPath = "";
 		} else if (this._projectFormModel.mode === FormMode.EDIT) {
-			title = "Update Project /" + this._projectFormModel.project.spaceCode + "/" + this._projectFormModel.project.code;
+			title = "Update Project: " + this._projectFormModel.project.code;
+			entityPath = "/" + this._projectFormModel.project.spaceCode + "/" + this._projectFormModel.project.code;
 		} else {
-			title = "Project /" + this._projectFormModel.project.spaceCode + "/" + this._projectFormModel.project.code;
+			title = "Project: " + this._projectFormModel.project.code;
+			entityPath = "/" + this._projectFormModel.project.spaceCode + "/" + this._projectFormModel.project.code;
 		}
-		var $formTitle = $("<h2>").append(title);
+		
+		var $formTitle = $("<div>");
+			$formTitle
+				.append($("<h2>").append(title))
+				.append($("<h4>", { "style" : "font-weight:normal;" } ).append(entityPath));
 		$formColumn.append($formTitle);
 		
 		//
@@ -160,7 +168,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			if(this._projectFormModel.mode === FormMode.CREATE) {
 				btnText = "Create Project";
 			} else if(this._projectFormModel.mode === FormMode.EDIT) {
-				btnText = "Update Project " + this._projectFormModel.project.code;
+				btnText = "Update Project";
 			}
 			
 			var $updateBtn = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : btnText });

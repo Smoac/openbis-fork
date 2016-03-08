@@ -58,6 +58,10 @@ function ProjectFormController(mainController, mode, project) {
 		if(this._mainController.profile.allDataStores.length > 0) {
 			var method = "";
 			if(this._projectFormModel.mode === FormMode.CREATE) {
+				if(!this._projectFormModel.project.code) {
+					Util.showError("Code Missing.");
+					return;
+				}
 				method = "insertProject";
 			} else if(this._projectFormModel.mode === FormMode.EDIT) {
 				method = "updateProject";
@@ -87,7 +91,7 @@ function ProjectFormController(mainController, mode, project) {
 						message = "Project Created.";
 						_this._mainController.sideMenu.refreshProject(_this._projectFormModel.project.spaceCode, _this._projectFormModel.project.code);
 					} else if(_this._projectFormModel.mode === FormMode.EDIT) {
-						message = "Project " + _this._projectFormModel.project.code + " Updated.";
+						message = "Project Updated.";
 					}
 					
 					var callbackOk = function() {
