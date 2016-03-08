@@ -104,9 +104,9 @@ function ExperimentFormController(mainController, mode, experiment) {
 					
 					var message = "";
 					if(_this._experimentFormModel.mode === FormMode.CREATE) {
-						message = "Created.";
+						message = "Experiment Created.";
 					} else if(_this._experimentFormModel.mode === FormMode.EDIT) {
-						message = "Updated.";
+						message = "Experiment Updated.";
 					}
 					
 					var callbackOk = function() {
@@ -129,7 +129,7 @@ function ExperimentFormController(mainController, mode, experiment) {
 						Util.unblockUI();
 					}
 					
-					Util.showSuccess(experimentTypeDisplayName + " " + message, callbackOk);
+					Util.showSuccess(message, callbackOk);
 				} else { //This should never happen
 					Util.showError("Unknown Error.", function() {Util.unblockUI();});
 				}

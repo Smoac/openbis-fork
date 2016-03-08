@@ -38,34 +38,31 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		//
 		var $formTitle = $("<div>");
 		var nameLabel = this._experimentFormModel.experiment.properties[profile.propertyReplacingCode];
-		var entityPath = this._experimentFormModel.experiment.identifier;
-		var isName = (nameLabel)?true:false;
+		if(!nameLabel) {
+			nameLabel = this._experimentFormModel.experiment.code;
+		}
+		var entityPath = null;
 		
 		var title = null;
 		switch(this._experimentFormModel.mode) {
 	    	case FormMode.CREATE:
 	    		title = "Create Experiment " + this._experimentFormModel.experiment.experimentTypeCode;
+	    		entityPath = "";
 	    		break;
 	    	case FormMode.EDIT:
-	    		title = "Update Experiment ";
+	    		title = "Update Experiment: " + nameLabel;
+	    		entityPath = this._experimentFormModel.experiment.identifier;
 	    		break;
 	    	case FormMode.VIEW:
-	    		title = "Experiment ";
+	    		title = "Experiment: " + nameLabel;
+	    		entityPath = this._experimentFormModel.experiment.identifier;
 	    		break;
 		}
 		
-		if(isName) {
-			title += nameLabel;
-			$formTitle
-				.append($("<h2>").append(title))
-				.append($("<h4>", { "style" : "font-weight:normal;" } ).append(entityPath));
-		} else {
-			if(this._experimentFormModel.mode !== FormMode.CREATE) {
-				title += entityPath;
-			}
-			$formTitle
-				.append($("<h2>").append(title));
-		}
+		$formTitle
+			.append($("<h2>").append(title))
+			.append($("<h4>", { "style" : "font-weight:normal;" } ).append(entityPath));
+		
 		$formColumn.append($formTitle);
 		
 		//
@@ -136,8 +133,20 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		
 		//Create/Update Buttons
 		if(this._experimentFormModel.mode === FormMode.EDIT || this._experimentFormModel.mode === FormMode.CREATE) {
-			var $updateBtn = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : title });
-			$formColumn.append($("<br>")).append($updateBtn);
+			var btnTitle = "";
+			switch(this._experimentFormModel.mode) {
+		    	case FormMode.CREATE:
+		    		btnTitle = "Create Experiment";
+		    		break;
+		    	case FormMode.EDIT:
+		    		btnTitle = "Update Experiment";
+		    		break;
+			}
+			
+			
+			$formColumn.append($("<br>"));
+			var $updateBtn = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : btnTitle });
+			$formColumn.append($updateBtn);
 		}
 		
 		$container.append($form);
