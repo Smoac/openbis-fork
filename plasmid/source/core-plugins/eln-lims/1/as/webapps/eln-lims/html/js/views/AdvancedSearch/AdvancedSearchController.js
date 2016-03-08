@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-function AdvancedSearchController(mainController, mode) {
+function AdvancedSearchController(mainController) {
 	this._mainController = mainController;
-	this._advancedSearchModel = new AdvancedSearchModel(mode);
+	this._advancedSearchModel = new AdvancedSearchModel();
 	this._advancedSearchView = new AdvancedSearchView(this, this._advancedSearchModel);
 
 	this.init = function($container) {

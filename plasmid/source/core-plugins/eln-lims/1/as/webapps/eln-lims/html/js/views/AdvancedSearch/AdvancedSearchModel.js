@@ -14,6 +14,16 @@
  * limitations under the License.
  */
 
-function AdvancedSearchModel(mode) {
-	this.mode = mode;
+function AdvancedSearchModel() {
+	
+	this.criteria = {
+		entityKind : null,
+		logicalOperator : null,
+		rule : []
+	}
+	
+	this.resetModel = function(entityKind) {
+		this.criteria.entityKind = entityKind;
+		this.criteria.rule = [];
+	}	
 }

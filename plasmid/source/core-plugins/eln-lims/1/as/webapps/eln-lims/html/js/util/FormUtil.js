@@ -284,18 +284,6 @@ var FormUtil = new function() {
 		return $component;
 	}
 	
-	this.getEntityTypeDropdown = function() {
-
-		var $component = $("<select>", {class : 'form-control'});
-		
-		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
-		$component.append($("<option>").attr('value', 'Experiment').text('Experiment'));
-		$component.append($("<option>").attr('value', 'Sample').text('Sample'));
-		$component.append($("<option>").attr('value', 'Dataset').text('Dataset'));
-		
-		return $component;
-	}
-	
 	this.getDropdown = function(mapVals, placeHolder) {
 
 		var $component = $("<select>", {class : 'form-control'});
