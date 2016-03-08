@@ -66,13 +66,16 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 
 		var andOrOptions = [{value : "AND", label : "AND"}, {value : "OR", label : "OR"}];
 		var $andOrDropdownComponent = FormUtil.getDropdown(andOrOptions, "Select logical operator");
+		var _this = this;
+		$andOrDropdownComponent.change(function() {
+			_this._advancedSearchModel.criteria.logicalOperator = $(this).val();
+		});
 		$menuPanelContainer.append(FormUtil.getFieldForComponentWithLabel($andOrDropdownComponent, "Using", null, true));
 		
-		var $submitButton = FormUtil.getButtonWithIcon('glyphicon-search').append(" Search");
-		
-		$submitButton.click(function() {
-			_this._advancedSearchController.search();
+		var $submitButton = FormUtil.getButtonWithIcon('glyphicon-search', function() {
+			alert("Do Search");
 		});
+		
 		$menuPanelContainer.append($submitButton);
 	}
 	
@@ -88,8 +91,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		$fieldTypeDropdownComponent = FormUtil.getDropdown(fieldTypeOptions, "All");
 		
 		//todo there should be ONE add button at the top! (?)
-		this._$addButton = $("<button>", { class : "btn btn-default", text: "+"});
-		this._$addButton.click(function() {
+		this._$addButton = FormUtil.getButtonWithIcon('glyphicon-plus', function() {
 			_this._paintInputRow();
 		});
 		
@@ -229,8 +231,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	}
 	
 	this._getMinusButtonComponentForRow = function($tbody, $row) {
-		var $minusButton = $("<button>", { class : "btn btn-default", text: "-"});
-		$minusButton.click(function() {
+		var $minusButton = FormUtil.getButtonWithIcon('glyphicon-minus', function() {
 			if($tbody.children().length > 1) {
 				$row.remove();
 			} else {
