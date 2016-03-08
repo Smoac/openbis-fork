@@ -20,5 +20,6 @@
 	<classpathentry kind="lib" path="/libraries/sis-base/sis-base.jar" sourcepath="/libraries/sis-base/sis-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/openbis-apis/dss/dss_client.jar"/>
 	<classpathentry kind="lib" path="/libraries/openbis-apis/query/openbis-query-api.jar" sourcepath="/libraries/openbis-apis/query/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/activation/activation.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
