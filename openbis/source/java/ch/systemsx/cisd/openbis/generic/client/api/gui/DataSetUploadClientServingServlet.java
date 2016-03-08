@@ -32,8 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetTypeFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 
 @Controller
-@RequestMapping(
-{ "/" + BasicConstant.DATA_SET_UPLOAD_CLIENT_PATH,
+@RequestMapping({ "/" + BasicConstant.DATA_SET_UPLOAD_CLIENT_PATH,
         "/openbis/" + BasicConstant.DATA_SET_UPLOAD_CLIENT_PATH,
         "/openbis/openbis/" + BasicConstant.DATA_SET_UPLOAD_CLIENT_PATH })
 public class DataSetUploadClientServingServlet extends AbstractWebStartClientServingServlet
@@ -53,7 +52,7 @@ public class DataSetUploadClientServingServlet extends AbstractWebStartClientSer
                             + "  <resources>\n"
                             + "    <j2se version='1.5+'/>\n"
                             + "    <jar href='aopalliance.jar'/>\n"
-                            + "    <jar href='cisd-base.jar'/>\n"
+                            + "    <jar href='sis-base.jar'/>\n"
                             + "    <jar href='spring-aop.jar'/>\n"
                             + "    <jar href='spring-beans.jar'/>\n"
                             + "    <jar href='spring-context.jar'/>\n"

@@ -70,7 +70,7 @@ dependencies {
 		    	project(path:':datastore_server', configuration: 'archives'),
 		    	project(path:':rtd_phosphonetx', configuration: 'archives'),
 		    	project(path:':screening', configuration: 'archives'),
-		    	'cisd:cisd-base:+:sources',
+		    	'sis:sis-base:+:sources',
 		    	'cisd:cisd-args4j:+:sources',
 		    	'cisd:cisd-hotdeploy:+:sources'
 

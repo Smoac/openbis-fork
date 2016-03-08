@@ -63,7 +63,7 @@ public abstract class AbstractFileUploadDownloadServlet extends AbstractCIFEXSer
                             + "  <resources>\n"
                             + "    <j2se version='1.5+'/>\n"
                             + "    <jar href='cifex.jar'/>\n"
-                            + "    <jar href='cisd-base.jar'/>\n"
+                            + "    <jar href='sis-base.jar'/>\n"
                             + "    <jar href='spring-web.jar'/>\n"
                             + "    <jar href='spring-context.jar'/>\n"
                             + "    <jar href='spring-beans.jar'/>\n"

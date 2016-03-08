@@ -6,7 +6,7 @@ configurations.create('libJars')
 dependencies {
     compile project(':common')
     
-    libJars 'cisd:cisd-base:+',
+    libJars 'sis:sis-base:+',
         'cisd:cisd-args4j:+',
         'apache:log4j:+',
         'javax:activation:+',
@@ -24,7 +24,7 @@ jar {
     })
     manifest {
         attributes("Main-Class": "ch.systemsx.cisd.datamover.Main",
-                   "Class-Path": "log4j.jar cisd-base.jar cisd-args4j.jar commons-lang.jar commons-io.jar activation.jar mail.jar",
+                   "Class-Path": "log4j.jar sis-base.jar cisd-args4j.jar commons-lang.jar commons-io.jar activation.jar mail.jar",
                    "Version": project.versionNumber,
                    "Build-Number": "${project.versionNumber} (r${project.revisionNumber},${project.cleanFlag})")
     }
@@ -40,7 +40,7 @@ task dist(type: Zip, dependsOn: jar) {
         into 'lib'
     }
     rename 'log4j.*', 'log4j.jar'
-    rename 'cisd-base.*', 'cisd-base.jar'
+    rename 'sis-base.*', 'sis-base.jar'
     rename 'cisd-args4j.*', 'cisd-args4j.jar'
     rename 'datamover.*jar', 'datamover.jar'
     rename 'commons-lang.*', 'commons-lang.jar' 

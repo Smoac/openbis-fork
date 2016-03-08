@@ -45,8 +45,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ParameterName
  * @author Franz-Josef Elmer
  */
 @Controller
-@RequestMapping(
-{ "/" + IMAGE_VIEWER_LAUNCH_URL, "/openbis/" + IMAGE_VIEWER_LAUNCH_URL })
+@RequestMapping({ "/" + IMAGE_VIEWER_LAUNCH_URL, "/openbis/" + IMAGE_VIEWER_LAUNCH_URL })
 public class ImageViewerLaunchServlet extends AbstractServlet
 {
     public static final Template JNLP_TEMPLATE = new Template(
@@ -63,7 +62,7 @@ public class ImageViewerLaunchServlet extends AbstractServlet
                     + "  <resources>\n"
                     + "    <j2se version='1.5+'/>\n"
                     + "    <jar href='openbis.jar'/>\n"
-                    + "    <jar href='cisd-base.jar'/>\n"
+                    + "    <jar href='sis-base.jar'/>\n"
                     + "    <jar href='image-viewer.jar'/>\n"
                     + "    <jar href='spring-aop.jar'/>\n"
                     + "    <jar href='spring-beans.jar'/>\n"
@@ -124,7 +123,7 @@ public class ImageViewerLaunchServlet extends AbstractServlet
             // where there are no wells. Extend API to load images in such cases.
             // for (String dataSet : getParams(request, ParameterNames.DATA_SETS))
             // {
-            // builder.append("    <argument>").append(dataSet + ":0.0").append("</argument>\n");
+            // builder.append(" <argument>").append(dataSet + ":0.0").append("</argument>\n");
             // }
             for (String dataSetAndWells : getParams(request, ParameterNames.DATA_SET_AND_WELLS))
             {

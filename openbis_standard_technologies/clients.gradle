@@ -1,7 +1,7 @@
 configurations.create('webStartJars')
 configurations.create('appbundler')
 dependencies {
-    webStartJars 'cisd:cisd-base:+',
+    webStartJars 'sis:sis-base:+',
                  'cisd:cisd-args4j:+',
                  'cglib:cglib-nodep:+',
                  'jline:jline:+',
@@ -90,7 +90,7 @@ task createDssClientJar(type: Jar) {
     
     from (project(':datastore_server').fileTree(dir: 'resource', includes: ['ok.png', 'wrong.png', 'wait.gif']))
     
-    def dssClientJars = ['aopalliance.jar','cisd-base.jar', 'cisd-args4j.jar', 'cglib-nodep.jar ', 'jline.jar', 
+    def dssClientJars = ['aopalliance.jar','sis-base.jar', 'cisd-args4j.jar', 'cglib-nodep.jar ', 'jline.jar', 
                     'spring-aop.jar', 'spring-beans.jar','spring-context.jar','spring-core.jar','spring-web.jar','spring-webmvc.jar','spring-expression.jar',
                      'stream-supporting-httpinvoker.jar', 'poi.jar', 'poi-ooxml.jar', 'poi-ooxml-schemas.jar', 
                      'commons-codec.jar', 'httpclient.jar', 'httpcore.jar', 'commons-io.jar', 'commons-lang.jar',
@@ -169,7 +169,7 @@ task dssUploadGuiStandalone << {
             include(name: "aopalliance.jar")
         	include(name: "cglib-nodep.jar")
         	include(name: "cisd-args4j.jar")
-        	include(name: "cisd-base.jar")
+        	include(name: "sis-base.jar")
         	include(name: "commons-codec.jar")
         	include(name: "httpclient.jar")
             include(name: "httpcore.jar")
@@ -204,7 +204,7 @@ task dssUploadGuiStandaloneJar(type: Jar, dependsOn: dssUploadGuiStandalone) {
             include "aopalliance.jar"
         	include "cglib-nodep.jar"
         	include "cisd-args4j.jar"
-        	include "cisd-base.jar"
+        	include "sis-base.jar"
         	include "commons-codec.jar"
         	include "httpclient.jar"
             include "httpcore.jar"

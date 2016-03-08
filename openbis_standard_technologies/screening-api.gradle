@@ -80,7 +80,7 @@ task screeningApiJavaDocZip(type: Zip, dependsOn: screeningApiJavaDoc) {
 
 configurations.create('batteries')
 dependencies {
-	batteries 'cisd:cisd-base:+',
+	batteries   'sis:sis-base:+',
                 'apache:httpclient:+',
                 'apache:httpcore:+',
                 'apache:log4j:+',

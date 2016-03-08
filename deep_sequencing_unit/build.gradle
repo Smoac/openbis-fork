@@ -23,7 +23,7 @@ dependencies {
 
     testCompile project(path: ':datastore_server', configuration: 'tests')
     
-    trackingClient 'cisd:cisd-base:+',
+    trackingClient 'sis:sis-base:+',
                     'javax:activation:+',
                     'javax:mail:+',
                     'apache:log4j:+',

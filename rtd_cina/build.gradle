@@ -45,7 +45,7 @@ task cinaDssClient(type: Zip) {
 	baseName 'dss_client-cina'
 	from (project(':openbis_standard_technologies').copyJarsForWebStart.outputs.getFiles().getAsFileTree().matching {
         include 'cisd-args4j.jar'
-        include 'cisd-base.jar'
+        include 'sis-base.jar'
         include 'aopalliance.jar'
         include 'commons-codec.jar'
         include 'httpclient.jar'

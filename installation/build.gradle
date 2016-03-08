@@ -39,7 +39,7 @@ dependencies {
     
     archives 'apache:commons-io:+',
             'apache:log4j:+',
-            'cisd:cisd-base:+',
+            'sis:sis-base:+',
             'postgresql:postgresql:+'
             
 }

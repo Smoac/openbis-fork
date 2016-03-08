@@ -4,7 +4,7 @@ configurations.create('adminConsoleLibs')
 dependencies {
     adminConsolePartialLibs 'google:gwt-user:2.4'
 
-    adminConsoleLibs 'cisd:cisd-base:+',
+    adminConsoleLibs 'sis:sis-base:+',
                     'apache:httpclient:+',
                     'apache:httpcore:+',
                     'apache:commons-logging:+',
@@ -65,7 +65,7 @@ task adminConsole(type: Jar) {
 	}
     manifest {
 	    attributes("Main-Class": "ch.systemsx.cisd.openbis.generic.client.console.AdminConsole",
-    	           "Class-Path": "openbis-admin-console.jar cisd-base.jar commons-codec.jar httpclient.jar httpcore.jar aopalliance.jar commons-io.jar commons-logging.jar log4j.jar jline.jar spring-aop.jar spring-beans.jar spring-context.jar spring-core.jar spring-web.jar spring-webmvc.jar spring-expression.jar marathon-spring-util.jar")
+    	           "Class-Path": "openbis-admin-console.jar sis-base.jar commons-codec.jar httpclient.jar httpcore.jar aopalliance.jar commons-io.jar commons-logging.jar log4j.jar jline.jar spring-aop.jar spring-beans.jar spring-context.jar spring-core.jar spring-web.jar spring-webmvc.jar spring-expression.jar marathon-spring-util.jar")
     }	
 }
 
