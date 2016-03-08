@@ -30,7 +30,11 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		// Title
 		//
 		var $title = $('<div>');
-		var nameLabel = this._dataSetFormModel.dataSet.properties[profile.propertyReplacingCode]; //sample.properties[profile.propertyReplacingCode];
+		var nameLabel = this._dataSetFormModel.dataSet.properties[profile.propertyReplacingCode];
+		if(!nameLabel) {
+			nameLabel = this._dataSetFormModel.dataSet.code;
+		}
+		
 		var entityPath = null;
 		if(this._dataSetFormModel.sample && this._dataSetFormModel.sample.experimentIdentifierOrNull) { //Both Sample and Experiment exist
 			entityPath = this._dataSetFormModel.sample.experimentIdentifierOrNull + "/" + this._dataSetFormModel.sample.code + "/" + this._dataSetFormModel.dataSet.code;
@@ -41,57 +45,38 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		var titleText = null;
 		if(this._dataSetFormModel.mode === FormMode.CREATE) {
 			titleText = 'Create Dataset';
+			entityPath = "";
 		} else if(this._dataSetFormModel.mode === FormMode.EDIT) {
-			titleText = 'Update Dataset '; //+ this._dataSetFormModel.dataSet.code;
+			titleText = 'Update Dataset: ' + nameLabel;
 		} else if(this._dataSetFormModel.mode === FormMode.VIEW) {
-			titleText = 'Dataset '; //+ this._dataSetFormModel.dataSet.code;
+			titleText = 'Dataset: ' + nameLabel;
 		}
 		
-		var isName = (nameLabel)?true:false;
-		if(isName) {
-			titleText += nameLabel;
-			$title
-				.append($("<h2>").append(titleText))
-				.append($("<h4>", { "style" : "font-weight:normal;" } ).append(entityPath));
-		} else {
-			if(this._dataSetFormModel.mode !== FormMode.CREATE) {
-				titleText += entityPath;
-			}
-			
-			$title
-				.append($("<h2>").append(titleText));
-		}
+		$title
+			.append($("<h2>").append(titleText))
+			.append($("<h4>", { "style" : "font-weight:normal;" } ).append(entityPath));
 		$wrapper.append($title);
 		
 		//
 		// Toolbar
 		//
-		var $toolbar = $('<div>');
-		$wrapper.append($toolbar);
-		
-		//Delete Button
+		var toolbarModel = [];
 		if(this._dataSetFormModel.mode !== FormMode.CREATE) {
-			$toolbar.append(FormUtil.getDeleteButton(function(reason) {
-				_this._dataSetFormController.deleteDataSet(reason);
-			}, true));
-			$toolbar.append("&nbsp;");
-		}
-		
-		//Edit Button
-		if(this._dataSetFormModel.mode === FormMode.VIEW) {
-			$title.append("&nbsp;");
-			var $editButton = $("<a>", { 'class' : 'btn btn-default'} )
-				.append($('<span>', { 'class' : 'glyphicon glyphicon-edit' }))
-				.append(' Enable Editing');
-		
-			$editButton.click(function() {
-				mainController.changeView('showEditDataSetPageFromPermId', _this._dataSetFormModel.dataSet.code);
-			});
+			//Edit Button
+			if(this._dataSetFormModel.mode === FormMode.VIEW) {
+				var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
+					mainController.changeView('showEditDataSetPageFromPermId', _this._dataSetFormModel.dataSet.code);
+				});
+				toolbarModel.push({ component : $editBtn, tooltip: "Edit" });
+			}
 			
-			$toolbar.append($editButton)
+			//Delete Button
+			var $deleteBtn = FormUtil.getDeleteButton(function(reason) {
+				_this._dataSetFormController.deleteDataSet(reason);
+			}, true);
+			toolbarModel.push({ component : $deleteBtn, tooltip: "Delete" });
 		}
-		
-		$wrapper.append("<br>");
+		$wrapper.append(FormUtil.getToolbar(toolbarModel));
 		
 		//Drop Down DataSetType Field Set
 		var $dataSetTypeFieldSet = $('<div>');
@@ -162,10 +147,17 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		
 		//Submit Button
 		if(this._dataSetFormModel.mode !== FormMode.VIEW) {
+			var btnText = "";
+			if(this._dataSetFormModel.mode === FormMode.CREATE) {
+				btnText = 'Create Dataset';
+			} else if(this._dataSetFormModel.mode === FormMode.EDIT) {
+				btnText = 'Update Dataset';
+			}
+			
 			var $submitButton = $('<fieldset>')
 			.append($('<div>', { class : "form-group"}))
 			.append($('<div>', {class: FormUtil.controlColumnClass})
-						.append($('<input>', { class : 'btn btn-primary', 'type' : 'submit', 'value' : titleText})));
+						.append($('<input>', { class : 'btn btn-primary', 'type' : 'submit', 'value' : btnText})));
 			$wrapper.append($submitButton);
 		}
 		
