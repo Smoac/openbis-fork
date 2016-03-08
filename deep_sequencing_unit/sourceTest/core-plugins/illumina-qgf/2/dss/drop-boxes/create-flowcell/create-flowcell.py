@@ -127,11 +127,13 @@ def send_email(mailClient, persistent_map):
     katja = EMailAddress("katja.eschbach@bsse.ethz.ch")
     philippe = EMailAddress("philippe.demougin@unibas.ch")
     elodie = EMailAddress("belodie@ethz.ch")
+    fabian = EMailAddress("fabian.koechl@bsse.ethz.ch")
 
     subject = "Automatically created new " + persistent_map[1] + " flow cell " + persistent_map[0]  + " in openBIS"
-    body = "A new run got started with flow cell: " + persistent_map [0] + "\nHave a good day!"
-    mailClient.sendEmailMessage(subject, body, replyTo, fromAddress, ina, katja, christian,
-                                 philippe, manuel, elodie);
+    body = "A new run got started with flow cell: " + persistent_map [0] + \
+           "\n Direct Link: https://openbis-dsu.bsse.ethz.ch/openbis/index.html?#entity=SAMPLE&permId=" + persistent_map[2] + "\nHave a good day! :-)"
+    mailClient.sendEmailMessage(subject, body, replyTo, fromAddress, ina, katja, christian, philippe, manuel, elodie, fabian);
+    #mailClient.sendEmailMessage(subject, body, replyTo, fromAddress, manuel);
 
 
 def post_storage(context):
@@ -157,7 +159,7 @@ def setFcProperty(searchId, my_dict, runInfo, newFlowCell):
 
 
 def set_index_lengths (readMap, newFlowCell):
-
+	
     indexCount = 0
     readCount = 0
 
@@ -234,7 +236,6 @@ def process(transaction):
         fc_id = tray_and_fcId
     else:
         fc_id = tray_and_fcId[1:]
-    transaction.getRegistrationContext().getPersistentMap().put(PERSISTENT_KEY_MAP, [fc_id, model])
 
     # Parse the RunInfo.xml and RunParameters.xml
     runInfo = parseXmlFile(os.path.join(incomingPath, RUNINFO)) 
@@ -246,6 +247,8 @@ def process(transaction):
     # get the number of lanes
     max_lanes = runInfo.getAllchildren('FlowcellLayout')[0].attrib[RUNINFO_XML['LANECOUNT']]
     new_flowcell = create_or_update_flowcell(transaction, fc_id)
+    permId = new_flowcell.getPermId()
+    transaction.getRegistrationContext().getPersistentMap().put(PERSISTENT_KEY_MAP, [fc_id, model, permId])
 
     flow_lanes = new_flowcell.getContainedSamples()
     if len(flow_lanes) is 0:
@@ -274,7 +277,7 @@ def process(transaction):
         new_flowcell.setPropertyValue("FLOWCELLTYPE", runParameters.getXmlElement(RUNPARAMETERS_XML['FLOWCELL']))
         new_flowcell.setPropertyValue("SBS_KIT", runParameters.getXmlElement(RUNPARAMETERS_XML['SBS']))
         new_flowcell.setPropertyValue("CONTROL_SOFTWARE_VERSION", runParameters.getXmlElement(RUNPARAMETERS_XML['CONTROL_SOFTWARE_VERSION']))
-        if (new_flowcell.getPropertyValue("END_TYPE")) == "PAIRED_END":
+        if (new_flowcell.getPropertyValue("END_TYPE") == "PAIRED_END"):
             new_flowcell.setPropertyValue("PAIRED_END_KIT", runParameters.getXmlElement(RUNPARAMETERS_XML['PE']))
         set_run_mode(transaction, new_flowcell, run_mode)
 
