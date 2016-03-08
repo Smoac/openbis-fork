@@ -85,11 +85,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		var $table = $("<table>", { class : "table"});
 		$thead = $("<thead>");
 		this._$tbody = $("<tbody>");
-		
-		//initialize dropdowns & buttons
-		var fieldTypeOptions = [{value : "Property", label : "Property"}, {value : "Attribute", label : "Attribute"}, {value : "Parent", label : "Parent"}, {value : "Children", label : "Children"}, {value : "Space", label : "Space"}];
-		$fieldTypeDropdownComponent = FormUtil.getDropdown(fieldTypeOptions, "All");
-		
+
 		//todo there should be ONE add button at the top! (?)
 		this._$addButton = FormUtil.getButtonWithIcon('glyphicon-plus', function() {
 			_this._paintInputRow();
@@ -133,12 +129,15 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	//how to make an on-select event??
 	this._getNewFieldTypeDropdownComponent = function($newFieldNameContainer) {
 		var _this = this;
-		var fieldTypeOptions = [{value : "Property", label : "Property"}, {value : "Attribute", label : "Attribute"}, {value : "Parent", label : "Parent"}, {value : "Children", label : "Children"}, {value : "Space", label : "Space"}];
-		var $fieldTypeComponent = FormUtil.getDropdown(fieldTypeOptions, "All");
+		var fieldTypeOptions = [{value : "All", label : "All"}, {value : "Property", label : "Property"}, {value : "Attribute", label : "Attribute"}, {value : "Parent", label : "Parent"}, {value : "Children", label : "Children"}, {value : "Space", label : "Space"}];
+		var $fieldTypeComponent = FormUtil.getDropdown(fieldTypeOptions, "Select Field Type");
 		$fieldTypeComponent.change(function() {
 			var selectedValue = $(this).val();
 			$newFieldNameContainer.empty();
 			switch(selectedValue) {
+				case "All":
+					//Do Nothing
+				break;
 				case "Property":
 					$newFieldNameContainer.append(_this._getNewPropertyDropdown());
 					break;
