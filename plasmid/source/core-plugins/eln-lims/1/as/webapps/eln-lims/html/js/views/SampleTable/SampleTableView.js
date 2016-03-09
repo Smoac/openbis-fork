@@ -22,10 +22,15 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	this.repaint = function($container) {
 		var _this = this;
 		$container.empty();
-		if(this._sampleTableModel.title) {
-			var $title = $("<h2>").append(this._sampleTableModel.title);
-			$container.append($title);
+		var $title = $("<div>");
+		if(this._sampleTableModel.experimentIdentifier) {
+			$title
+				.append($("<h2>").append("Experiment: " + this._sampleTableModel.experimentIdentifier.substring(this._sampleTableModel.experimentIdentifier.lastIndexOf("/") + 1)))
+				.append($("<h4>", { "style" : "font-weight:normal;" } ).append(this._sampleTableModel.experimentIdentifier));
+		} else if(this._sampleTableModel.title) {
+			$title.append($("<h2>").append(this._sampleTableModel.title));
 		}
+		$container.append($title);
 		
 		//
 		// Toolbar
