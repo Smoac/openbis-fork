@@ -342,6 +342,10 @@ $.extend(DefaultProfile.prototype, {
 			return false;
 		}
 	
+		this.getPropertyTypes = function() {
+			return this.allPropertyTypes;
+		}
+		
 		this.getPropertyType = function(propertyTypeCode) {
 			for (var i = 0; i < this.allPropertyTypes.length; i++) {
 				if(this.allPropertyTypes[i].code === propertyTypeCode) {
