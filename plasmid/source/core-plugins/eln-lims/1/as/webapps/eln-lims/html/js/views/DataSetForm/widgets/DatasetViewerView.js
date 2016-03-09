@@ -20,16 +20,6 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 	this.$listIcon = null;
 	this.$treeIcon = null;
 	
-	this.updateDirectoryView = function(code, path, isBack) {
-		var _this = this;
-		mainController.serverFacade.listFilesForDataSet(code, path, false, function(files) {
-			if(!isBack) {
-				_this._dataSetViewerModel.lastUsedPath.push(path);
-			}
-			_this.repaintFiles(code, files.result);
-		});
-	}
-	
 	this.repaintDatasets = function() {
 		var _this = this;
 		
@@ -75,7 +65,11 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 			
 			var getDatasetLinkEvent = function(code) {
 				return function(event) {
-					_this.updateDirectoryView(code, "/");
+					var repaintEvent = function(code, files) {
+						_this.repaintFiles(code, files.result);
+					}
+					
+					_this.updateDirectoryView(code, "/", repaintEvent);
 				};
 			}
 			
@@ -169,9 +163,9 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		var $tree = $("<div>", { "id" : "tree" });
 		$container.append($tree);
 		
-		var treeModel = [{ title : datasetCode, key : datasetCode, menuData : datasetFiles, folder : true, children : [] }];
+		var treeModel = [{ title : datasetCode, key : "/", menuData : datasetFiles, folder : true, lazy : true }];
 		
-		glyph_opts = {
+		var glyph_opts = {
         	    map: {
         	      doc: "glyphicon glyphicon-file",
         	      docOpen: "glyphicon glyphicon-file",
@@ -191,10 +185,15 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
         };
 		
         var onActivate = function(event, data) {
-    		data.node.setExpanded(true);
+    		
     	};
     	
     	var onClick = function(event, data){
+    		
+    	};
+    	
+    	var onLazyLoad = function(event, data){
+    		var pathToLoad = data.node.key;
     		
     	};
     	
@@ -203,9 +202,33 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
         	glyph: glyph_opts,
         	source: treeModel,
         	activate: onActivate,
-        	click: onClick
+        	click: onClick,
+        	lazyLoad : onLazyLoad
         });
         
+	}
+	
+	this.updateDirectoryView = function(code, path, isBack, repaintEvent) {
+		var _this = this;
+		mainController.serverFacade.listFilesForDataSet(code, path, false, function(files) {
+			if(!isBack) {
+				_this._dataSetViewerModel.lastUsedPath.push(path);
+			}
+			
+			if(!repaintEvent) {
+				switch(_this._dataSetViewerModel.dataSetViewerMode) {
+					case DataSetViewerMode.LIST:
+						_this.repaintFiles(code, files.result);
+						break;
+					case DataSetViewerMode.TREE:
+						//
+						break;
+				}
+			} else {
+				repaintEvent(code, files);
+			}
+			
+		});
 	}
 	
 	this.repaintFilesAsList = function(datasetCode, datasetFiles, $container) {
@@ -230,7 +253,11 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		// Back
 		//
 		var $directoryLink = $("<a>").text("..").click(function(event) {
-			_this.updateDirectoryView(datasetCode, parent);
+			var repaintEvent = function(code, files) {
+				_this.repaintFiles(code, files.result);
+			};
+			
+			_this.updateDirectoryView(datasetCode, parent, repaintEvent);
 			event.stopPropagation();
 		});
 		
@@ -238,7 +265,11 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 			if(_this._dataSetViewerModel.lastUsedPath.length === 1) {
 				_this.repaintDatasets();
 			} else {
-				_this.updateDirectoryView(datasetCode, _this._dataSetViewerModel.lastUsedPath[_this._dataSetViewerModel.lastUsedPath.length - 2], true);
+				var repaintEvent = function(code, files) {
+					_this.repaintFiles(code, files.result);
+				};
+				
+				_this.updateDirectoryView(datasetCode, _this._dataSetViewerModel.lastUsedPath[_this._dataSetViewerModel.lastUsedPath.length - 2], true, repaintEvent);
 			}
 			_this._dataSetViewerModel.lastUsedPath.pop();
 			event.stopPropagation();
@@ -269,7 +300,11 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 			if(datasetFiles[i].isDirectory) {
 				var getDirectoyClickFuncion = function(datasetCode, pathInDataSet) {
 					return function() {
-						_this.updateDirectoryView(datasetCode, pathInDataSet);
+						var repaintEvent = function(code, files) {
+							_this.repaintFiles(code, files.result);
+						};
+						
+						_this.updateDirectoryView(datasetCode, pathInDataSet, repaintEvent);
 					};
 				};
 				
