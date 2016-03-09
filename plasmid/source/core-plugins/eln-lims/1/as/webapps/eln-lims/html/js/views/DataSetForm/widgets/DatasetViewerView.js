@@ -17,6 +17,8 @@
 function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 	this._dataSetViewerController = dataSetViewerController;
 	this._dataSetViewerModel = dataSetViewerModel;
+	this.$listIcon = null;
+	this.$treeIcon = null;
 	
 	this.updateDirectoryView = function(code, path, isBack) {
 		var _this = this;
@@ -122,6 +124,52 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		
 		// Path
 		$container.append($("<legend>").append("Path: " + parentPath));
+		var $filesContainer = $("<div>");
+		
+		// Toolbar
+		var _this = this;
+		var switchViewMode = function() {
+			switch(_this._dataSetViewerModel.dataSetViewerMode) {
+				case DataSetViewerMode.LIST:
+					_this.$listIcon.attr("disabled","");
+					_this.$treeIcon.removeAttr("disabled");
+					_this.repaintFilesAsList(datasetCode, datasetFiles, $filesContainer);
+					break;
+				case DataSetViewerMode.TREE:
+					_this.$treeIcon.attr("disabled","");
+					_this.$listIcon.removeAttr("disabled");
+					_this.repaintFilesAsTree(datasetCode, datasetFiles, $filesContainer);
+					break;
+			}
+		}
+		
+		var toolbarModel = [];
+		this.$listIcon = FormUtil.getButtonWithIcon('glyphicon-list', function() {
+			_this._dataSetViewerModel.dataSetViewerMode = DataSetViewerMode.LIST;
+			switchViewMode();
+		});
+
+		toolbarModel.push({ component : this.$listIcon, tooltip: "Show items in a list" });
+		this.$treeIcon = FormUtil.getButtonWithIcon('glyphicon-align-left', function() {
+			_this._dataSetViewerModel.dataSetViewerMode = DataSetViewerMode.TREE;
+			switchViewMode();
+		});
+		toolbarModel.push({ component : this.$treeIcon, tooltip: "Show items in a tree" });
+		
+		//Build view and trigger refresh
+		$container.append(FormUtil.getToolbar(toolbarModel));
+		$container.append($filesContainer);
+		
+		switchViewMode();
+	}
+	
+	this.repaintFilesAsTree = function(datasetCode, datasetFiles, $container) {
+		
+	}
+	
+	this.repaintFilesAsList = function(datasetCode, datasetFiles, $container) {
+		$container.empty();
+		var _this = this;
 		
 		//
 		// Simple Files Table

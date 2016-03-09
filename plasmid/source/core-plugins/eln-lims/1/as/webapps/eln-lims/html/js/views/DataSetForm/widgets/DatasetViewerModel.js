@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+var DataSetViewerMode = {
+    LIST : 0,
+    TREE : 1
+}
+
 function DataSetViewerModel(containerId, profile, sample, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableOpenDataset) {
 	this.containerId = containerId;
 	this.containerIdTitle = containerId + "-title";
@@ -30,4 +35,7 @@ function DataSetViewerModel(containerId, profile, sample, serverFacade, datastor
 	this.sampleDataSets = {};
 	this.datastoreDownloadURL = datastoreDownloadURL
 	this.lastUsedPath = [];
+	
+	this.dataSetViewerMode = DataSetViewerMode.LIST;
+	
 }
