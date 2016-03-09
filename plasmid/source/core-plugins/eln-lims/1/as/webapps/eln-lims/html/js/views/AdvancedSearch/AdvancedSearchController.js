@@ -24,4 +24,8 @@ function AdvancedSearchController(mainController) {
 		_this._advancedSearchView.repaint($container);
 	}
 	
+	this.search = function() {
+		var model = this._advancedSearchModel.criteria;
+		Util.showInfo(JSON.stringify(model));
+	}
 }

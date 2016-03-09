@@ -73,8 +73,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		$menuPanelContainer.append(FormUtil.getFieldForComponentWithLabel($andOrDropdownComponent, "Using", null, true));
 		
 		var $submitButton = FormUtil.getButtonWithIcon('glyphicon-search', function() {
-			var model = _this._advancedSearchModel.criteria;
-			Util.showInfo(JSON.stringify(model));
+			_this._advancedSearchController.search();
 		});
 		
 		$menuPanelContainer.append($submitButton);
