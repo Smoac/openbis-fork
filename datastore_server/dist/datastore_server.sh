@@ -149,7 +149,7 @@ fi
 
 # Unpack native libraries
 rm -rf $LIB_FOLDER/native
-unzip -q lib/cisd-base-*.jar -d $LIB_FOLDER native/*
+unzip -q lib/sis-base-*.jar -d $LIB_FOLDER native/*
 unzip -q lib/hdf5-macosx-*.jar -d $LIB_FOLDER native/*
 unzip -q lib/hdf5-linux-*.jar -d $LIB_FOLDER native/*
 unzip -q lib/hdf5-windows-*.jar -d $LIB_FOLDER native/*
