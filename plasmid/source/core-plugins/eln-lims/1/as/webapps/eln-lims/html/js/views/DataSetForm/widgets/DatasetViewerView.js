@@ -164,7 +164,8 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 	}
 	
 	this.repaintFilesAsTree = function(datasetCode, datasetFiles, $container) {
-		
+		$container.empty();
+		var _this = this;
 	}
 	
 	this.repaintFilesAsList = function(datasetCode, datasetFiles, $container) {
