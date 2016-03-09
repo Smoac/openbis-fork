@@ -166,6 +166,46 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 	this.repaintFilesAsTree = function(datasetCode, datasetFiles, $container) {
 		$container.empty();
 		var _this = this;
+		var $tree = $("<div>", { "id" : "tree" });
+		$container.append($tree);
+		
+		var treeModel = [{ title : datasetCode, key : datasetCode, menuData : datasetFiles, folder : true, children : [] }];
+		
+		glyph_opts = {
+        	    map: {
+        	      doc: "glyphicon glyphicon-file",
+        	      docOpen: "glyphicon glyphicon-file",
+        	      checkbox: "glyphicon glyphicon-unchecked",
+        	      checkboxSelected: "glyphicon glyphicon-check",
+        	      checkboxUnknown: "glyphicon glyphicon-share",
+        	      dragHelper: "glyphicon glyphicon-play",
+        	      dropMarker: "glyphicon glyphicon-arrow-right",
+        	      error: "glyphicon glyphicon-warning-sign",
+        	      expanderClosed: "glyphicon glyphicon-plus-sign",
+        	      expanderLazy: "glyphicon glyphicon-plus-sign",  // glyphicon-expand
+        	      expanderOpen: "glyphicon glyphicon-minus-sign",  // glyphicon-collapse-down
+        	      folder: "glyphicon glyphicon-folder-close",
+        	      folderOpen: "glyphicon glyphicon-folder-open",
+        	      loading: "glyphicon glyphicon-refresh"
+        	    }
+        };
+		
+        var onActivate = function(event, data) {
+    		data.node.setExpanded(true);
+    	};
+    	
+    	var onClick = function(event, data){
+    		
+    	};
+    	
+    	$tree.fancytree({
+        	extensions: ["dnd", "edit", "glyph"], //, "wide"
+        	glyph: glyph_opts,
+        	source: treeModel,
+        	activate: onActivate,
+        	click: onClick
+        });
+        
 	}
 	
 	this.repaintFilesAsList = function(datasetCode, datasetFiles, $container) {
