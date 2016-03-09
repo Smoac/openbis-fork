@@ -18,6 +18,7 @@ $JVM -DSTOP.PORT=$JETTY_STOP_PORT \
      $JAVA_OPTS $JAVA_MEM_OPTS \
      $OPENBIS_OPTS \
      -Dpython.path=$JETTY_LIB_PATH \
+     -Dnative.libpath=$JETTY_BIN_DIR/../webapps/openbis/WEB-INF/lib/native \
      -jar ../jetty-dist/start.jar --lib=lib/logging/*.jar:webapps/openbis/WEB-INF/lib/*.jar etc/jetty-started.xml >> logs/jetty.out 2>&1 &
 
 # Write PID to PID file
