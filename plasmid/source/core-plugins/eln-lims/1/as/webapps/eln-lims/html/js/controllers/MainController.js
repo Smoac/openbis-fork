@@ -181,12 +181,16 @@ function MainController(profile) {
 		//
 		//
 		switch (newViewChange) {
+			case "showAdvancedSearchPage":
+				document.title = "Advanced Search";
+				this._showAdvancedSearchPage();
+				window.scrollTo(0,0);
+				break;
 			case "showUserManagerPage":
 				document.title = "User Manager";
 				this._showUserManager();
 				window.scrollTo(0,0);
 				break;
-			
 			case "showVocabularyManagerPage":
 				document.title = "Vocabulary Manager";
 				this._showVocabularyManager();
@@ -569,6 +573,13 @@ function MainController(profile) {
 	this._showEditDataSetPage = function(sample, dataset) {
 		//Show Form
 		var newView = new DataSetFormController(this, FormMode.EDIT, sample, dataset);
+		newView.init($("#mainContainer"));
+		this.currentView = newView;
+	}
+	
+	this._showAdvancedSearchPage = function() {
+		//Show Form
+		var newView = new AdvancedSearchController(this);
 		newView.init($("#mainContainer"));
 		this.currentView = newView;
 	}
