@@ -5,7 +5,7 @@ Prerequisites for developing
 
 1. There are three Eclipse projects which belong together:
    openbis_knime, openbis_knime.feature and openbis_knime.update-site
-   All three have to be checked out (they won't compile properly until KNIME plugin-in is installed).
+   All three have to be checked out (they won't compile properly until KNIME plug-in is installed).
 2. In addition the KNIME Node Development Tools plug-in has to be installed.
    The update site is http://www.knime.org/update/3.1/
    
@@ -26,7 +26,7 @@ For manual integration test with KNIME do the following:
    features/ and plugins/ folder of project openbis_knime.update-site
 5. Install/update openBIS KNIME Nodes of the KNIME application from the local update site 
    file:/<absolut path to your Eclipse workspace>/openbis_knime.update-site
-   Be sure that update site http://tech.knime.org/update/community-contributions/nightly/ is defined for
+   Be sure that update site http://update.knime.org/community-contributions/3.1/ is defined for
    the KNIME application.
    
 Build and deploy a new version
@@ -41,5 +41,5 @@ Build and deploy a new version
    ch.systemsx.cisd.openbis.knime
 6. Click on the 'Build' button. This creates/update artifacts.jar, content.jar, 
    features/ and plugins/ folder of project openbis_knime.update-site
-7. Copy these two JARs and folders to openbis@lascar:/links/groups/cisd/doc/openbis/knime-update-site
+7. Copy these two JARs and folders to openbis@lascar:/links/groups/sis/doc/openbis/knime-update-site
 
