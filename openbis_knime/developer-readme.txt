@@ -7,7 +7,7 @@ Prerequisites for developing
    openbis_knime, openbis_knime.feature and openbis_knime.update-site
    All three have to be checked out (they won't compile properly until KNIME plugin-in is installed).
 2. In addition the KNIME Node Development Tools plug-in has to be installed.
-   The update site is http://www.knime.org/update/2.7/
+   The update site is http://www.knime.org/update/3.1/
    
 Developing and Testing
 ======================

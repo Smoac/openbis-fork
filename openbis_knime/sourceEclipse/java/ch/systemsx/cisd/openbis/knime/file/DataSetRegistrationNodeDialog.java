@@ -262,7 +262,7 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
                 }
             });
         addField(fields, "Owner type", ownerTypeComboBox)
-            .setToolTipText("The type of owner the new data set will directly be linked to.");
+            .setToolTipText("The type of entity the new data set will directly be linked to.");
         ownerField = new JTextField(20);
         setOwnerToolTip();
         JPanel textFieldWithButton = new JPanel(new BorderLayout());
