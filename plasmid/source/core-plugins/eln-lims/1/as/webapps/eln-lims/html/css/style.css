@@ -78,6 +78,14 @@ h1, h2, legend {
 	margin-right: 5px;
 }
 
+.form-inline > div > .form-group {
+	margin-right: 10px;
+}
+
+.form-inline > div > .form-group > label {
+	margin-right: 5px;
+}
+
 /* 
  * Login Screen 
  */
