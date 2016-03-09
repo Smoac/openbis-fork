@@ -19,11 +19,11 @@ function AdvancedSearchModel() {
 	this.criteria = {
 		entityKind : null,
 		logicalOperator : null,
-		rule : []
+		rules : { } // { "UUIDv4" : { type : "PROPERTY", name : "GENE", value : "aa" } }
 	}
 	
 	this.resetModel = function(entityKind) {
 		this.criteria.entityKind = entityKind;
-		this.criteria.rule = [];
+		this.criteria.rules = {};
 	}	
 }

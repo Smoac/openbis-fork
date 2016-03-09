@@ -291,7 +291,11 @@ var FormUtil = new function() {
 			$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text(placeHolder));
 		}
 		for(var mIdx = 0; mIdx < mapVals.length; mIdx++) {
-			$component.append($("<option>").attr('value', mapVals[mIdx].value).text(mapVals[mIdx].label));
+			var $option = $("<option>").attr('value', mapVals[mIdx].value).text(mapVals[mIdx].label);
+			if(mapVals[mIdx].disabled) {
+				$option.attr('disabled', '');
+			}
+			$component.append($option);
 		}
 		
 		return $component;

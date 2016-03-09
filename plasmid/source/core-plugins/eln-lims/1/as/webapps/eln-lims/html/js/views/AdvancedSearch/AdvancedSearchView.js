@@ -73,7 +73,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		$menuPanelContainer.append(FormUtil.getFieldForComponentWithLabel($andOrDropdownComponent, "Using", null, true));
 		
 		var $submitButton = FormUtil.getButtonWithIcon('glyphicon-search', function() {
-			alert("Do Search");
+			var model = _this._advancedSearchModel.criteria;
+			Util.showInfo(JSON.stringify(model));
 		});
 		
 		$menuPanelContainer.append($submitButton);
@@ -113,13 +114,24 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	//
 	
 	this._paintInputRow = function() {
-		var $newRow = $("<tr>");
+		var _this = this;
+		var uuidValue = Util.guid();
+		this._advancedSearchModel.criteria.rules[uuidValue] = { };
 		
+		var $newRow = $("<tr>", { id : uuidValue });
+		var $fieldValue = $("<input>", { class : "form-control", type: "text"});
+		$fieldValue.change(function() {
+			var $thisComponent = $(this);
+			//Get uuid and value and update model (type only)
+			var uuid = $($($thisComponent.parent()).parent()).attr("id");
+			var selectedValue = $thisComponent.val();
+			_this._advancedSearchModel.criteria.rules[uuid].value = selectedValue; //Update model
+		});
 		var $newFieldNameContainer = $("<td>");
 		
 			$newRow.append($("<td>").append(this._getNewFieldTypeDropdownComponent($newFieldNameContainer)))
 					.append($newFieldNameContainer)
-					.append($("<td>").append($("<input>", { class : "form-control", type: "text"})))
+					.append($("<td>").append($fieldValue))
 					.append($("<td>").append(this._getMinusButtonComponentForRow(this._$tbody, $newRow)));
 					
 		this._$tbody.append($newRow);
@@ -132,7 +144,13 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		var fieldTypeOptions = [{value : "All", label : "All"}, {value : "Property", label : "Property"}, {value : "Attribute", label : "Attribute"}, {value : "Parent", label : "Parent"}, {value : "Children", label : "Children"}, {value : "Space", label : "Space"}];
 		var $fieldTypeComponent = FormUtil.getDropdown(fieldTypeOptions, "Select Field Type");
 		$fieldTypeComponent.change(function() {
-			var selectedValue = $(this).val();
+			var $thisComponent = $(this);
+			
+			//Get uuid and value and update model (type only)
+			var uuid = $($($thisComponent.parent()).parent()).attr("id");
+			var selectedValue = $thisComponent.val();
+			_this._advancedSearchModel.criteria.rules[uuid].type = selectedValue; //Update model
+			
 			$newFieldNameContainer.empty();
 			switch(selectedValue) {
 				case "All":
@@ -142,13 +160,13 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					$newFieldNameContainer.append(_this._getNewPropertyDropdown());
 					break;
 				case "Attribute":
-					$newFieldNameContainer.append(null);
+					$newFieldNameContainer.append(_this._getNewAttributeDropdown(_this._advancedSearchModel.criteria.entityKind));
 					break;	
 				case "Parent":
-					$newFieldNameContainer.append(null);
+					$newFieldNameContainer.append(_this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "Parent"));
 					break;
 				case "Children":
-					$newFieldNameContainer.append(null);
+					$newFieldNameContainer.append(_this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "Children"));
 					break;
 				case "Space":
 					//Do Nothing
@@ -160,58 +178,103 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		return $fieldTypeComponent;
 	}
 	
+	this._getNewMergedDropdown = function(entityKind, parentOrChildren) {
+		var _this = this;
+		var model = null;
+		var attributesModel = this._getFieldNameAttributesByEntityKind(entityKind);
+		attributesModel.push({ value : "", label : "-------------------------", disabled : true });
+		var propertiesModel = this._getFieldNameProperties();
+		model = attributesModel.concat(propertiesModel);
+		var $dropdown = FormUtil.getDropdown(model, "Select a property or attribute");
+		$dropdown.change(function() {
+			var $thisComponent = $(this);
+			//Get uuid and value and update model (type only)
+			var uuid = $($($thisComponent.parent()).parent()).attr("id");
+			var selectedValue = $thisComponent.val();
+			_this._advancedSearchModel.criteria.rules[uuid].name = selectedValue; //Update model
+			//alert("updated model! type is now " + _this._advancedSearchModel.criteria.rules[uuid].type + " and name is " + _this._advancedSearchModel.criteria.rules[uuid].name);
+		});
+		
+		return $dropdown;
+	}
 	
 	this._getNewPropertyDropdown = function() {
+		var _this = this;
+		var model = this._getFieldNameProperties();
+		var $dropdown = FormUtil.getDropdown(model, "Select a property");
+		$dropdown.change(function() {
+			var $thisComponent = $(this);
+			//Get uuid and value and update model (type only)
+			var uuid = $($($thisComponent.parent()).parent()).attr("id");
+			var selectedValue = $thisComponent.val();
+			_this._advancedSearchModel.criteria.rules[uuid].name = selectedValue; //Update model
+			//alert("updated model! type is now " + _this._advancedSearchModel.criteria.rules[uuid].type + " and name is " + _this._advancedSearchModel.criteria.rules[uuid].name);
+		});
+		return $dropdown;
+	}
+	
+	this._getFieldNameProperties = function() {
 		var model = [];
 		var allProp = profile.getPropertyTypes();
 		for(var pIdx = 0; pIdx < allProp.length; pIdx++) {
 			var prop = allProp[pIdx];
-			model.push({ value : prop.code, label : prop.label });
+			model.push({ value : "PROP." + prop.code, label : prop.label });
 		}
-		var $dropdown = FormUtil.getDropdown(model, "Select a property");
-		return $dropdown;
+		return model;
 	}
 	
 	this._getNewAttributeDropdown = function(entityKind) {
+		var _this = this;
+		var model = this._getFieldNameAttributesByEntityKind(entityKind);
+		var $dropdown = FormUtil.getDropdown(model, "Select an attribute");
+		$dropdown.change(function() {
+			var $thisComponent = $(this);
+			//Get uuid and value and update model (type only)
+			var uuid = $($($thisComponent.parent()).parent()).attr("id");
+			var selectedValue = $thisComponent.val();
+			_this._advancedSearchModel.criteria.rules[uuid].name = selectedValue; //Update model
+			//alert("updated model! type is now " + _this._advancedSearchModel.criteria.rules[uuid].type + " and name is " + _this._advancedSearchModel.criteria.rules[uuid].name);
+
+		});
+		return $dropdown;
+	}
+	
+	this._getFieldNameAttributesByEntityKind = function(entityKind) {
 		var model = null;
 		switch(entityKind) {
 			case "EXPERIMENT":
-				model = [{ value : "CODE", label : "Code" }, 
-				         { value : "EXPERIMENT_TYPE", label : "Experiment Type" }, 
-				         { value : "PERM_ID", label : "Perm Id" }, 
-				         { value : "PROJECT", label : "Project" }, 
-				         { value : "PROJECT_PERM_ID", label : "Project Perm Id" }, 
-				         { value : "PROJECT_SPACE", label : "Space" }, 
-				         { value : "METAPROJECT", label : "Metaproject" }, 
-				         { value : "REGISTRATION_DATE", label : "Registration Date" }, 
-				         { value : "MODIFICATION_DATE", label : "Modification Date" }];
+				model = [{ value : "ATTR.CODE", label : "Code" }, 
+				         { value : "ATTR.EXPERIMENT_TYPE", label : "Experiment Type" }, 
+				         { value : "ATTR.PERM_ID", label : "Perm Id" }, 
+				         { value : "ATTR.PROJECT", label : "Project" }, 
+				         { value : "ATTR.PROJECT_PERM_ID", label : "Project Perm Id" }, 
+				         { value : "ATTR.PROJECT_SPACE", label : "Space" }, 
+				         { value : "ATTR.METAPROJECT", label : "Metaproject" }, 
+				         { value : "ATTR.REGISTRATION_DATE", label : "Registration Date" }, 
+				         { value : "ATTR.MODIFICATION_DATE", label : "Modification Date" }];
 				break;
 			case "SAMPLE":
-				model = [{ value : "CODE", label: "Code" },
-				         { value : "SAMPLE_TYPE", label: "Sample Type" },
-				         { value : "PERM_ID", label: "Perm Id" },
-				         { value : "SPACE", label: "Space" },
-						 { value : "PROJECT", label: "Project" },
-				         { value : "PROJECT_PERM_ID", label: "Project Perm Id" },
-//						 { value : "PROJECT_SPACE", label: "Project Space" },
-				         { value : "METAPROJECT", label: "Metaproject" },
-						 { value : "REGISTRATION_DATE", label: "Registration Date" }, 
-						 { value : "MODIFICATION_DATE", label: "Modification Date" }];
+				model = [{ value : "ATTR.CODE", label: "Code" },
+				         { value : "ATTR.SAMPLE_TYPE", label: "Sample Type" },
+				         { value : "ATTR.PERM_ID", label: "Perm Id" },
+				         { value : "ATTR.SPACE", label: "Space" },
+						 { value : "ATTR.PROJECT", label: "Project" },
+				         { value : "ATTR.PROJECT_PERM_ID", label: "Project Perm Id" },
+				         { value : "ATTR.METAPROJECT", label: "Metaproject" },
+						 { value : "ATTR.REGISTRATION_DATE", label: "Registration Date" }, 
+						 { value : "ATTR.MODIFICATION_DATE", label: "Modification Date" }];
 				break;
 			case "DATASET":
-				model = [{ value : "CODE", label : "Code" }, 
-				         { value : "DATA_SET_TYPE", label : "Data Set Type" }, 
-//				         { value : "FILE_TYPE", label : "File Type" },
-//				         { value : "STORAGE_CONFIRMATION", label : "Storage Confirmation" },
-				         { value : "METAPROJECT", label : "Metaproject" }, 
-				         { value : "REGISTRATION_DATE", label : "Registration Date" },
-				         { value : "MODIFICATION_DATE", label : "Modification Date" }];
+				model = [{ value : "ATTR.CODE", label : "Code" }, 
+				         { value : "ATTR.DATA_SET_TYPE", label : "Data Set Type" }, 
+				         { value : "ATTR.METAPROJECT", label : "Metaproject" }, 
+				         { value : "ATTR.REGISTRATION_DATE", label : "Registration Date" },
+				         { value : "ATTR.MODIFICATION_DATE", label : "Modification Date" }];
 				break;
 			default:
 				//Do Nothing
 		}
-		var $dropdown = FormUtil.getDropdown(model, "Select an attribute");
-		return $dropdown;
+		return model;
 	}
 	
 	this._getEntityTypeDropdown = function() {
@@ -222,16 +285,19 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			$component.append($("<option>").attr('value', 'DATASET').text('Dataset'));
 			var _this = this;
 			$component.change(function() {
-				_this._advancedSearchModel.resetModel($(this).val());
-				_this._paintCriteriaPanel(_this._$searchCriteriaPanelContainer);
+				_this._advancedSearchModel.resetModel($(this).val()); //Restart model
+				_this._paintCriteriaPanel(_this._$searchCriteriaPanelContainer); //Restart view
 			});
 			
 		return $component;
 	}
 	
 	this._getMinusButtonComponentForRow = function($tbody, $row) {
+		var _this = this;
 		var $minusButton = FormUtil.getButtonWithIcon('glyphicon-minus', function() {
 			if($tbody.children().length > 1) {
+				var uuid = $row.attr("id");
+				delete _this._advancedSearchModel.criteria.rules[uuid];
 				$row.remove();
 			} else {
 				Util.showError("There must be at least one row of search criteria present.");
