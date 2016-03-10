@@ -69,7 +69,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 						_this.repaintFiles(code, files.result);
 					}
 					
-					_this.updateDirectoryView(code, "/", repaintEvent);
+					_this.updateDirectoryView(code, "/", false, repaintEvent);
 				};
 			}
 			
@@ -112,12 +112,9 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 	
 	this.repaintFiles = function(datasetCode, datasetFiles) {
 		var _this = this;
-		var parentPath = this._dataSetViewerModel.lastUsedPath[this._dataSetViewerModel.lastUsedPath.length - 1];
 		var $container = $("#"+this._dataSetViewerModel.containerIdContent);
 		$container.empty();
 		
-		// Path
-		$container.append($("<legend>").append("Path: " + parentPath));
 		var $filesContainer = $("<div>");
 		
 		// Toolbar
@@ -258,6 +255,10 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		$container.empty();
 		var _this = this;
 		
+		// Path
+		var parentPath = this._dataSetViewerModel.lastUsedPath[this._dataSetViewerModel.lastUsedPath.length - 1];
+		$container.append($("<legend>").append("Path: " + parentPath));
+		
 		//
 		// Simple Files Table
 		//
@@ -280,7 +281,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 				_this.repaintFiles(code, files.result);
 			};
 			
-			_this.updateDirectoryView(datasetCode, parent, repaintEvent);
+			_this.updateDirectoryView(datasetCode, parent, false, repaintEvent);
 			event.stopPropagation();
 		});
 		
@@ -327,7 +328,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 							_this.repaintFiles(code, files.result);
 						};
 						
-						_this.updateDirectoryView(datasetCode, pathInDataSet, repaintEvent);
+						_this.updateDirectoryView(datasetCode, pathInDataSet, false, repaintEvent);
 					};
 				};
 				
