@@ -21,12 +21,6 @@ define([ "require", "stjs", "as/dto/common/search/AbstractCompositeSearchCriteri
 			var GlobalSearchWildCardsCriteria = require("as/dto/global/search/GlobalSearchWildCardsCriteria");
 			return this.addCriteria(new GlobalSearchWildCardsCriteria());
 		};
-		prototype.createBuilder = function() {
-			var AbstractCompositeSearchCriteria = require("as/dto/common/search/AbstractCompositeSearchCriteria");
-			var builder = AbstractCompositeSearchCriteria.prototype.createBuilder.call(this);
-			builder.setName("GLOBAL_SEARCH");
-			return builder;
-		};
 	}, {
 		criteria : {
 			name : "Collection",

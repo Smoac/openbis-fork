@@ -17,12 +17,6 @@ define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria",
 			var PermIdSearchCriteria = require("as/dto/common/search/PermIdSearchCriteria");
 			return this.addCriteria(new PermIdSearchCriteria());
 		};
-		prototype.createBuilder = function() {
-			var AbstractCompositeSearchCriteria = require("as/dto/common/search/AbstractCompositeSearchCriteria");
-			var builder = AbstractCompositeSearchCriteria.prototype.createBuilder.call(this);
-			builder.setName("TYPE");
-			return builder;
-		};
 	}, {
 		criteria : {
 			name : "Collection",

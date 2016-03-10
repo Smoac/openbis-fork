@@ -29,17 +29,6 @@ define([ "stjs", "as/dto/common/search/AbstractSearchCriteria", "as/dto/common/s
 		prototype.withAndOperator = function() {
 			this.operator = SearchOperator.AND;
 		}
-		prototype.toString = function() {
-			return this.toString("");
-		};
-		prototype.toString = function(indentation) {
-			return this.createBuilder().toString(indentation);
-		};
-		prototype.createBuilder = function() {
-			var builder = new SearchCriteriaToStringBuilder();
-			builder.setCriteria(this.criteria);
-			return builder;
-		};
 	}, {
 		criteria : {
 			name : "Collection",

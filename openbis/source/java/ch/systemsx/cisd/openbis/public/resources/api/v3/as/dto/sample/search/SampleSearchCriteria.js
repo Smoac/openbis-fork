@@ -47,11 +47,6 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 		prototype.getRelation = function() {
 			return this.relation;
 		};
-		prototype.createBuilder = function() {
-			var builder = AbstractEntitySearchCriteria.prototype.createBuilder.call(this);
-			builder.setName(this.relation.name());
-			return builder;
-		};
 	}, {
 		relation : {
 			name : "Enum",
