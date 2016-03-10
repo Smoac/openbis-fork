@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.jstest.service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
@@ -54,13 +53,13 @@ public class V3ApiDtoTestService implements ICustomASServiceExecutor
     {
         for (Method method : obj.getClass().getMethods())
         {
-            if (method.getParameterCount() == 1) {
-                Parameter parameter = method.getParameters()[0];
-                Class<?> type = parameter.getType();
+            Class<?>[] parameterTypes = method.getParameterTypes();
+            if (parameterTypes.length == 1) {
+                Class<?> type = parameterTypes[0];
                 if (type.isPrimitive() || type.equals(String.class) || type.equals(Date.class)){
                     try
                     {
-                        setItUp(obj, method, parameter);
+                        setItUp(obj, method, type);
                     } catch (Exception e)
                     {
                         e.printStackTrace();
@@ -71,16 +70,15 @@ public class V3ApiDtoTestService implements ICustomASServiceExecutor
         return obj;
     }
 
-    private void setItUp(Object obj, Method method, Parameter parameter) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException
+    private void setItUp(Object obj, Method method, Class<?> type) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException
     {
-        method.invoke(obj, getValue(parameter));
+        method.invoke(obj, getValue(type));
     }
 
-    private Object getValue(Parameter parameter)
+    private Object getValue(Class<?> type)
     {
         double random = Math.random();
         long rnd = (long) (random*1000000);
-        Class<?> type = parameter.getType();
         if (type == String.class) {
             return String.valueOf(random);
         } 

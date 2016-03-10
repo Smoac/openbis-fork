@@ -5,22 +5,29 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		var testUpdate = function(c, fCreate, fUpdate, fFind, fCheck, fCheckError) {
 			c.start();
 
-			c.createFacadeAndLogin().then(function(facade) {
-				return fCreate(facade).then(function(permIds) {
-					c.assertTrue(permIds != null && permIds.length == 1, "Entity was created");
-					return fFind(facade, permIds[0]).then(function(entity) {
-						c.assertNotNull(entity, "Entity can be found");
-						return fUpdate(facade, permIds[0]).then(function() {
-							c.ok("Entity was updated");
-							return fFind(facade, permIds[0]).then(function(entity) {
-								if (fCheck) {
-									fCheck(entity);
-								}
-								c.finish();
-							});
-						});
-					});
-				});
+			var ctx = {
+				facade: null,
+				permIds: null
+			};
+			c.createFacadeAndLogin()
+			.then(function(facade) {
+				ctx.facade = facade;
+				return fCreate(facade)
+			}).then(function(permIds) {
+				ctx.permIds = permIds;
+				c.assertTrue(permIds != null && permIds.length == 1, "Entity was created");
+				return fFind(ctx.facade, permIds[0])
+			}).then(function(entity) {
+				c.assertNotNull(entity, "Entity can be found");
+				return fUpdate(ctx.facade, ctx.permIds[0])
+			}).then(function() {
+				c.ok("Entity was updated");
+				return fFind(ctx.facade, ctx.permIds[0])
+			}).then(function(entity) {
+				if (fCheck) {
+					fCheck(entity);
+				}
+				c.finish();
 			}).fail(function(error) {
 				if (fCheckError) {
 					fCheckError(error.message);
