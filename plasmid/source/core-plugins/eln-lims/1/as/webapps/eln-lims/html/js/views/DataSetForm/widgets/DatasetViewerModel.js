@@ -38,4 +38,30 @@ function DataSetViewerModel(containerId, profile, sample, serverFacade, datastor
 	
 	this.dataSetViewerMode = DataSetViewerMode.LIST;
 	
+	this.getDownloadLink = function(datasetCode, datasetFile, isShowSize) {
+		var downloadUrl = this.datastoreDownloadURL + '/' + datasetCode + "/" + encodeURIComponent(datasetFile.pathInDataSet) + "?sessionID=" + mainController.serverFacade.getSession();
+		
+		var sizeInMb = parseInt(datasetFile.fileSize) / 1024 / 1024;
+		var sizeInMbThreeDecimals = Math.floor(sizeInMb * 1000) / 1000;
+		var size = null;
+		var unit = null;
+		if(sizeInMbThreeDecimals < 1) {
+			size = sizeInMbThreeDecimals * 1000;
+			unit = "Kb";
+		} else {
+			size = sizeInMbThreeDecimals;
+			unit = "Mb";
+		}
+		
+		var $link = $("<a>").attr("href", downloadUrl)
+							.attr("target", "_blank")
+							.append(datasetFile.pathInListing.replace("_", "%20"))
+							.append(" ("+ size + unit +")")
+							.click(function(event) {
+								event.stopPropagation();
+							});
+		
+		return $link;
+	}
+	
 }

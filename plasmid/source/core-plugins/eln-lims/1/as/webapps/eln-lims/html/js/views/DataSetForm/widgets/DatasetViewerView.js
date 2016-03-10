@@ -138,7 +138,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		this.$listIcon = FormUtil.getButtonWithIcon('glyphicon-list', function() {
 			var attr = $(this).attr('disabled');
 			if (typeof attr !== typeof undefined && attr !== false) {
-				
+				//Do nothing
 			} else {
 				_this._dataSetViewerModel.dataSetViewerMode = DataSetViewerMode.LIST;
 				switchViewMode();
@@ -149,7 +149,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		this.$treeIcon = FormUtil.getButtonWithIcon('glyphicon-align-left', function() {
 			var attr = $(this).attr('disabled');
 			if (typeof attr !== typeof undefined && attr !== false) {
-				
+				//Do nothing
 			} else {
 				_this._dataSetViewerModel.dataSetViewerMode = DataSetViewerMode.TREE;
 				switchViewMode();
@@ -199,7 +199,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
     		
     	};
     	
-    	var onLazyLoad = function(event, data){
+    	var onLazyLoad = function(event, data) {
     		var dfd = new $.Deferred();
     	    data.result = dfd.promise();
     	    
@@ -208,7 +208,15 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
     			var results = [];
     			for(var fIdx = 0; fIdx < files.result.length; fIdx++) {
     				var file = files.result[fIdx];
-    				results.push({ title : file.pathInListing, key : file.pathInDataSet, menuData : file, folder : file.isDirectory, lazy : file.isDirectory });
+    				
+    				var titleValue = null;
+    				if(file.isDirectory) {
+    					titleValue = file.pathInListing;
+    				} else {
+    					var $fileLink = _this._dataSetViewerModel.getDownloadLink(datasetCode, file, true);
+    					titleValue = $fileLink[0].outerHTML;
+    				}
+    				results.push({ title : titleValue, key : file.pathInDataSet, menuData : file, folder : file.isDirectory, lazy : file.isDirectory });
     			}
     			
     			dfd.resolve(results);
@@ -311,7 +319,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		var dataset = this._dataSetViewerModel.sampleDataSets[datasetCode];
 		for(var i = 0; i < datasetFiles.length; i++) {
 			var $tableRow = $("<tr>");
-			var downloadUrl = this._dataSetViewerModel.datastoreDownloadURL + '/' + datasetCode + "/" + encodeURIComponent(datasetFiles[i].pathInDataSet) + "?sessionID=" + mainController.serverFacade.getSession();
+			
 			var pathInDatasetDisplayName = "";
 			var lastSlash = datasetFiles[i].pathInDataSet.lastIndexOf("/");
 			if(lastSlash !== -1) {
@@ -337,12 +345,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 				$tableRow.append($("<td>").append("/" + pathInDatasetDisplayName)).append($("<td>"));
 				$tableRow.click(dirFunc);
 			} else {
-				var $pathInDatasetDisplayNameWithDownload = $("<a>").attr("href", downloadUrl)
-				.attr("target", "_blank")
-				.append(pathInDatasetDisplayName)
-				.click(function(event) {
-					event.stopPropagation();
-				});
+				var $pathInDatasetDisplayNameWithDownload = this._dataSetViewerModel.getDownloadLink(datasetCode, datasetFiles[i]);
 				
 				$tableRow.append($("<td>").append($pathInDatasetDisplayNameWithDownload));
 				
