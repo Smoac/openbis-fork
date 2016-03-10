@@ -1,24 +1,4 @@
-define([ 'jquery', 'openbis', 'as/dto/space/create/SpaceCreation', 'as/dto/project/create/ProjectCreation', 'as/dto/experiment/create/ExperimentCreation', 'as/dto/sample/create/SampleCreation',
-		'as/dto/material/create/MaterialCreation', 'as/dto/attachment/create/AttachmentCreation', 'as/dto/space/update/SpaceUpdate', 'as/dto/project/update/ProjectUpdate',
-		'as/dto/experiment/update/ExperimentUpdate', 'as/dto/sample/update/SampleUpdate', 'as/dto/dataset/update/DataSetUpdate', 'as/dto/dataset/update/PhysicalDataUpdate',
-		'as/dto/material/update/MaterialUpdate', 'as/dto/space/delete/SpaceDeletionOptions', 'as/dto/project/delete/ProjectDeletionOptions', 'as/dto/experiment/delete/ExperimentDeletionOptions',
-		'as/dto/sample/delete/SampleDeletionOptions', 'as/dto/dataset/delete/DataSetDeletionOptions', 'as/dto/material/delete/MaterialDeletionOptions', 'as/dto/entitytype/id/EntityTypePermId',
-		'as/dto/space/id/SpacePermId', 'as/dto/project/id/ProjectPermId', 'as/dto/project/id/ProjectIdentifier', 'as/dto/experiment/id/ExperimentPermId', 'as/dto/experiment/id/ExperimentIdentifier',
-		'as/dto/sample/id/SamplePermId', 'as/dto/dataset/id/DataSetPermId', 'as/dto/dataset/id/FileFormatTypePermId', 'as/dto/material/id/MaterialPermId', 'as/dto/tag/id/TagCode',
-		'as/dto/space/search/SpaceSearchCriteria', 'as/dto/project/search/ProjectSearchCriteria', 'as/dto/experiment/search/ExperimentSearchCriteria', 'as/dto/sample/search/SampleSearchCriteria',
-		'as/dto/dataset/search/DataSetSearchCriteria', 'as/dto/material/search/MaterialSearchCriteria', 'as/dto/space/fetchoptions/SpaceFetchOptions',
-		'as/dto/project/fetchoptions/ProjectFetchOptions', 'as/dto/experiment/fetchoptions/ExperimentFetchOptions', 'as/dto/sample/fetchoptions/SampleFetchOptions',
-		'as/dto/dataset/fetchoptions/DataSetFetchOptions', 'as/dto/material/fetchoptions/MaterialFetchOptions', 'as/dto/deletion/fetchoptions/DeletionFetchOptions',
-		'as/dto/deletion/search/DeletionSearchCriteria', 'as/dto/service/search/CustomASServiceSearchCriteria', 'as/dto/service/fetchoptions/CustomASServiceFetchOptions',
-		'as/dto/service/id/CustomASServiceCode', 'as/dto/service/CustomASServiceExecutionOptions', 'as/dto/global/search/GlobalSearchCriteria',
-		'as/dto/global/fetchoptions/GlobalSearchObjectFetchOptions', 'as/dto/objectkindmodification/search/ObjectKindModificationSearchCriteria',
-		'as/dto/objectkindmodification/fetchoptions/ObjectKindModificationFetchOptions' ], function($, openbis, SpaceCreation, ProjectCreation, ExperimentCreation, SampleCreation, MaterialCreation,
-		AttachmentCreation, SpaceUpdate, ProjectUpdate, ExperimentUpdate, SampleUpdate, DataSetUpdate, PhysicalDataUpdate, MaterialUpdate, SpaceDeletionOptions, ProjectDeletionOptions,
-		ExperimentDeletionOptions, SampleDeletionOptions, DataSetDeletionOptions, MaterialDeletionOptions, EntityTypePermId, SpacePermId, ProjectPermId, ProjectIdentifier, ExperimentPermId,
-		ExperimentIdentifier, SamplePermId, DataSetPermId, FileFormatTypePermId, MaterialPermId, TagCode, SpaceSearchCriteria, ProjectSearchCriteria, ExperimentSearchCriteria, SampleSearchCriteria,
-		DataSetSearchCriteria, MaterialSearchCriteria, SpaceFetchOptions, ProjectFetchOptions, ExperimentFetchOptions, SampleFetchOptions, DataSetFetchOptions, MaterialFetchOptions,
-		DeletionFetchOptions, DeletionSearchCriteria, CustomASServiceSearchCriteria, CustomASServiceFetchOptions, CustomASServiceCode, CustomASServiceExecutionOptions, GlobalSearchCriteria,
-		GlobalSearchObjectFetchOptions, ObjectKindModificationSearchCriteria, ObjectKindModificationFetchOptions) {
+define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, _, dtos) {
 
 	/*
 	 * These tests should be run against openBIS instance with screening sprint
@@ -37,58 +17,62 @@ define([ 'jquery', 'openbis', 'as/dto/space/create/SpaceCreation', 'as/dto/proje
 	var Common = function(assert) {
 		this.assert = assert;
 
-		this.SpaceCreation = SpaceCreation;
-		this.ProjectCreation = ProjectCreation;
-		this.ExperimentCreation = ExperimentCreation;
-		this.SampleCreation = SampleCreation;
-		this.MaterialCreation = MaterialCreation;
-		this.AttachmentCreation = AttachmentCreation;
-		this.SpaceUpdate = SpaceUpdate;
-		this.ProjectUpdate = ProjectUpdate;
-		this.ExperimentUpdate = ExperimentUpdate;
-		this.SampleUpdate = SampleUpdate;
-		this.DataSetUpdate = DataSetUpdate;
-		this.PhysicalDataUpdate = PhysicalDataUpdate;
-		this.MaterialUpdate = MaterialUpdate;
-		this.SpaceDeletionOptions = SpaceDeletionOptions;
-		this.ProjectDeletionOptions = ProjectDeletionOptions;
-		this.ExperimentDeletionOptions = ExperimentDeletionOptions;
-		this.SampleDeletionOptions = SampleDeletionOptions;
-		this.DataSetDeletionOptions = DataSetDeletionOptions;
-		this.MaterialDeletionOptions = MaterialDeletionOptions;
-		this.EntityTypePermId = EntityTypePermId;
-		this.SpacePermId = SpacePermId;
-		this.ProjectPermId = ProjectPermId;
-		this.ProjectIdentifier = ProjectIdentifier;
-		this.ExperimentPermId = ExperimentPermId;
-		this.ExperimentIdentifier = ExperimentIdentifier;
-		this.SamplePermId = SamplePermId;
-		this.DataSetPermId = DataSetPermId;
-		this.FileFormatTypePermId = FileFormatTypePermId;
-		this.MaterialPermId = MaterialPermId;
-		this.TagCode = TagCode;
-		this.SpaceSearchCriteria = SpaceSearchCriteria;
-		this.ProjectSearchCriteria = ProjectSearchCriteria;
-		this.ExperimentSearchCriteria = ExperimentSearchCriteria;
-		this.SampleSearchCriteria = SampleSearchCriteria;
-		this.DataSetSearchCriteria = DataSetSearchCriteria;
-		this.MaterialSearchCriteria = MaterialSearchCriteria;
-		this.SpaceFetchOptions = SpaceFetchOptions;
-		this.ProjectFetchOptions = ProjectFetchOptions;
-		this.ExperimentFetchOptions = ExperimentFetchOptions;
-		this.SampleFetchOptions = SampleFetchOptions;
-		this.DataSetFetchOptions = DataSetFetchOptions;
-		this.MaterialFetchOptions = MaterialFetchOptions;
-		this.DeletionFetchOptions = DeletionFetchOptions;
-		this.DeletionSearchCriteria = DeletionSearchCriteria;
-		this.CustomASServiceSearchCriteria = CustomASServiceSearchCriteria;
-		this.CustomASServiceFetchOptions = CustomASServiceFetchOptions;
-		this.CustomASServiceCode = CustomASServiceCode;
-		this.CustomASServiceExecutionOptions = CustomASServiceExecutionOptions;
-		this.GlobalSearchCriteria = GlobalSearchCriteria;
-		this.GlobalSearchObjectFetchOptions = GlobalSearchObjectFetchOptions;
-		this.ObjectKindModificationSearchCriteria = ObjectKindModificationSearchCriteria;
-		this.ObjectKindModificationFetchOptions = ObjectKindModificationFetchOptions;
+		this.SpaceCreation = dtos.SpaceCreation;
+		this.ProjectCreation = dtos.ProjectCreation;
+		this.ExperimentCreation = dtos.ExperimentCreation;
+		this.SampleCreation = dtos.SampleCreation;
+		this.MaterialCreation = dtos.MaterialCreation;
+		this.AttachmentCreation = dtos.AttachmentCreation;
+		this.SpaceUpdate = dtos.SpaceUpdate;
+		this.ProjectUpdate = dtos.ProjectUpdate;
+		this.ExperimentUpdate = dtos.ExperimentUpdate;
+		this.SampleUpdate = dtos.SampleUpdate;
+		this.DataSetUpdate = dtos.DataSetUpdate;
+		this.PhysicalDataUpdate = dtos.PhysicalDataUpdate;
+		this.MaterialUpdate = dtos.MaterialUpdate;
+		this.SpaceDeletionOptions = dtos.SpaceDeletionOptions;
+		this.ProjectDeletionOptions = dtos.ProjectDeletionOptions;
+		this.ExperimentDeletionOptions = dtos.ExperimentDeletionOptions;
+		this.SampleDeletionOptions = dtos.SampleDeletionOptions;
+		this.DataSetDeletionOptions = dtos.DataSetDeletionOptions;
+		this.MaterialDeletionOptions = dtos.MaterialDeletionOptions;
+		this.EntityTypePermId = dtos.EntityTypePermId;
+		this.SpacePermId = dtos.SpacePermId;
+		this.ProjectPermId = dtos.ProjectPermId;
+		this.ProjectIdentifier = dtos.ProjectIdentifier;
+		this.ExperimentPermId = dtos.ExperimentPermId;
+		this.ExperimentIdentifier = dtos.ExperimentIdentifier;
+		this.SamplePermId = dtos.SamplePermId;
+		this.DataSetPermId = dtos.DataSetPermId;
+		this.FileFormatTypePermId = dtos.FileFormatTypePermId;
+		this.MaterialPermId = dtos.MaterialPermId;
+		this.TagCode = dtos.TagCode;
+		this.SpaceSearchCriteria = dtos.SpaceSearchCriteria;
+		this.ProjectSearchCriteria = dtos.ProjectSearchCriteria;
+		this.ExperimentSearchCriteria = dtos.ExperimentSearchCriteria;
+		this.SampleSearchCriteria = dtos.SampleSearchCriteria;
+		this.DataSetSearchCriteria = dtos.DataSetSearchCriteria;
+		this.MaterialSearchCriteria = dtos.MaterialSearchCriteria;
+		this.SpaceFetchOptions = dtos.SpaceFetchOptions;
+		this.ProjectFetchOptions = dtos.ProjectFetchOptions;
+		this.ExperimentFetchOptions = dtos.ExperimentFetchOptions;
+		this.SampleFetchOptions = dtos.SampleFetchOptions;
+		this.DataSetFetchOptions = dtos.DataSetFetchOptions;
+		this.MaterialFetchOptions = dtos.MaterialFetchOptions;
+		this.DeletionFetchOptions = dtos.DeletionFetchOptions;
+		this.DeletionSearchCriteria = dtos.DeletionSearchCriteria;
+		this.CustomASServiceSearchCriteria = dtos.CustomASServiceSearchCriteria;
+		this.CustomASServiceFetchOptions = dtos.CustomASServiceFetchOptions;
+		this.CustomASServiceCode = dtos.CustomASServiceCode;
+		this.CustomASServiceExecutionOptions = dtos.CustomASServiceExecutionOptions;
+		this.GlobalSearchCriteria = dtos.GlobalSearchCriteria;
+		this.GlobalSearchObjectFetchOptions = dtos.GlobalSearchObjectFetchOptions;
+		this.ObjectKindModificationSearchCriteria = dtos.ObjectKindModificationSearchCriteria;
+		this.ObjectKindModificationFetchOptions = dtos.ObjectKindModificationFetchOptions;
+
+		this.getDtos = function() {
+			return dtos;
+		}
 
 		this.generateId = function(base) {
 			var date = new Date();
@@ -98,7 +82,7 @@ define([ 'jquery', 'openbis', 'as/dto/space/create/SpaceCreation', 'as/dto/proje
 
 		this.createSpace = function(facade) {
 			var c = this;
-			var creation = new SpaceCreation();
+			var creation = new dtos.SpaceCreation();
 			creation.setCode(c.generateId("SPACE"));
 			return facade.createSpaces([ creation ]).then(function(permIds) {
 				return permIds[0];
@@ -108,7 +92,7 @@ define([ 'jquery', 'openbis', 'as/dto/space/create/SpaceCreation', 'as/dto/proje
 		this.createProject = function(facade) {
 			var c = this;
 			return c.createSpace(facade).then(function(spacePermId) {
-				var creation = new ProjectCreation();
+				var creation = new dtos.ProjectCreation();
 				creation.setCode(c.generateId("PROJECT"));
 				creation.setSpaceId(spacePermId);
 				return facade.createProjects([ creation ]).then(function(permIds) {
@@ -120,9 +104,9 @@ define([ 'jquery', 'openbis', 'as/dto/space/create/SpaceCreation', 'as/dto/proje
 		this.createExperiment = function(facade) {
 			var c = this;
 			return c.createProject(facade).then(function(projectPermId) {
-				var creation = new ExperimentCreation();
+				var creation = new dtos.ExperimentCreation();
 				creation.setCode(c.generateId("EXPERIMENT"));
-				creation.setTypeId(new EntityTypePermId("UNKNOWN"));
+				creation.setTypeId(new dtos.EntityTypePermId("UNKNOWN"));
 				creation.setProjectId(projectPermId);
 				return facade.createExperiments([ creation ]).then(function(permIds) {
 					return permIds[0];
@@ -133,9 +117,9 @@ define([ 'jquery', 'openbis', 'as/dto/space/create/SpaceCreation', 'as/dto/proje
 		this.createSample = function(facade) {
 			var c = this;
 			return c.createSpace(facade).then(function(spacePermId) {
-				var creation = new SampleCreation();
+				var creation = new dtos.SampleCreation();
 				creation.setCode(c.generateId("SAMPLE"));
-				creation.setTypeId(new EntityTypePermId("UNKNOWN"));
+				creation.setTypeId(new dtos.EntityTypePermId("UNKNOWN"));
 				creation.setSpaceId(spacePermId);
 				return facade.createSamples([ creation ]).then(function(permIds) {
 					return permIds[0];
@@ -146,7 +130,7 @@ define([ 'jquery', 'openbis', 'as/dto/space/create/SpaceCreation', 'as/dto/proje
 		this.createDataSet = function(facade) {
 			var c = this;
 			return this.getResponseFromJSTestAggregationService(facade, {}, function(response) {
-				return new DataSetPermId(response.result.rows[0][0].value);
+				return new dtos.DataSetPermId(response.result.rows[0][0].value);
 			});
 		}.bind(this);
 
@@ -168,9 +152,9 @@ define([ 'jquery', 'openbis', 'as/dto/space/create/SpaceCreation', 'as/dto/proje
 
 		this.createMaterial = function(facade) {
 			var c = this;
-			var creation = new MaterialCreation();
+			var creation = new dtos.MaterialCreation();
 			creation.setCode(c.generateId("MATERIAL"));
-			creation.setTypeId(new EntityTypePermId("COMPOUND"));
+			creation.setTypeId(new dtos.EntityTypePermId("COMPOUND"));
 			return facade.createMaterials([ creation ]).then(function(permIds) {
 				return permIds[0];
 			});
@@ -220,42 +204,42 @@ define([ 'jquery', 'openbis', 'as/dto/space/create/SpaceCreation', 'as/dto/proje
 
 		this.deleteSpace = function(facade, id) {
 			var c = this;
-			var options = new SpaceDeletionOptions();
+			var options = new dtos.SpaceDeletionOptions();
 			options.setReason("test reason");
 			return facade.deleteSpaces([ id ], options);
 		}.bind(this);
 
 		this.deleteProject = function(facade, id) {
 			var c = this;
-			var options = new ProjectDeletionOptions();
+			var options = new dtos.ProjectDeletionOptions();
 			options.setReason("test reason");
 			return facade.deleteProjects([ id ], options);
 		}.bind(this);
 
 		this.deleteExperiment = function(facade, id) {
 			var c = this;
-			var options = new ExperimentDeletionOptions();
+			var options = new dtos.ExperimentDeletionOptions();
 			options.setReason("test reason");
 			return facade.deleteExperiments([ id ], options);
 		}.bind(this);
 
 		this.deleteSample = function(facade, id) {
 			var c = this;
-			var options = new SampleDeletionOptions();
+			var options = new dtos.SampleDeletionOptions();
 			options.setReason("test reason");
 			return facade.deleteSamples([ id ], options);
 		}.bind(this);
 
 		this.deleteDataSet = function(facade, id) {
 			var c = this;
-			var options = new DataSetDeletionOptions();
+			var options = new dtos.DataSetDeletionOptions();
 			options.setReason("test reason");
 			return facade.deleteDataSets([ id ], options);
 		}.bind(this);
 
 		this.deleteMaterial = function(facade, id) {
 			var c = this;
-			var options = new MaterialDeletionOptions();
+			var options = new dtos.MaterialDeletionOptions();
 			options.setReason("test reason");
 			return facade.deleteMaterials([ id ], options);
 		}.bind(this);
@@ -289,7 +273,7 @@ define([ 'jquery', 'openbis', 'as/dto/space/create/SpaceCreation', 'as/dto/proje
 		};
 
 		this.createSpaceFetchOptions = function() {
-			var fo = new SpaceFetchOptions();
+			var fo = new dtos.SpaceFetchOptions();
 			fo.withProjects();
 			fo.withSamples();
 			fo.withRegistrator();
@@ -297,7 +281,7 @@ define([ 'jquery', 'openbis', 'as/dto/space/create/SpaceCreation', 'as/dto/proje
 		};
 
 		this.createProjectFetchOptions = function() {
-			var fo = new ProjectFetchOptions();
+			var fo = new dtos.ProjectFetchOptions();
 			fo.withSpace();
 			fo.withExperiments();
 			fo.withRegistrator();
@@ -308,7 +292,7 @@ define([ 'jquery', 'openbis', 'as/dto/space/create/SpaceCreation', 'as/dto/proje
 		};
 
 		this.createExperimentFetchOptions = function() {
-			var fo = new ExperimentFetchOptions();
+			var fo = new dtos.ExperimentFetchOptions();
 			fo.withType();
 			fo.withProject().withSpace();
 			fo.withDataSets();
@@ -324,7 +308,7 @@ define([ 'jquery', 'openbis', 'as/dto/space/create/SpaceCreation', 'as/dto/proje
 		};
 
 		this.createSampleFetchOptions = function() {
-			var fo = new SampleFetchOptions();
+			var fo = new dtos.SampleFetchOptions();
 			fo.withType();
 			fo.withExperiment().withProject().withSpace();
 			fo.withSpace();
@@ -345,7 +329,7 @@ define([ 'jquery', 'openbis', 'as/dto/space/create/SpaceCreation', 'as/dto/proje
 		};
 
 		this.createDataSetFetchOptions = function() {
-			var fo = new DataSetFetchOptions();
+			var fo = new dtos.DataSetFetchOptions();
 			fo.withType();
 			fo.withExperiment().withProject().withSpace();
 			fo.withSample();
@@ -366,7 +350,7 @@ define([ 'jquery', 'openbis', 'as/dto/space/create/SpaceCreation', 'as/dto/proje
 		};
 
 		this.createMaterialFetchOptions = function() {
-			var fo = new MaterialFetchOptions();
+			var fo = new dtos.MaterialFetchOptions();
 			fo.withType();
 			fo.withHistory();
 			fo.withRegistrator();
@@ -377,7 +361,7 @@ define([ 'jquery', 'openbis', 'as/dto/space/create/SpaceCreation', 'as/dto/proje
 		};
 
 		this.createGlobalSearchObjectFetchOptions = function() {
-			var fo = new GlobalSearchObjectFetchOptions();
+			var fo = new dtos.GlobalSearchObjectFetchOptions();
 			fo.withExperiment();
 			fo.withSample();
 			fo.withDataSet();
@@ -386,7 +370,7 @@ define([ 'jquery', 'openbis', 'as/dto/space/create/SpaceCreation', 'as/dto/proje
 		};
 		
 		this.createObjectKindModificationFetchOptions = function() {
-			var fo = new ObjectKindModificationFetchOptions();
+			var fo = new dtos.ObjectKindModificationFetchOptions();
 			return fo;
 		};
 

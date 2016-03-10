@@ -39,7 +39,7 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 			}
 			
 			testAction(c, fAction, fCheck);
-		})
+		});
 		
 		QUnit.test("executeCustomASService()", function(assert){
 			var c = new common(assert);
@@ -60,6 +60,6 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 			}
 			
 			testAction(c, fAction, fCheck);
-		})
+		});
 	}
 })

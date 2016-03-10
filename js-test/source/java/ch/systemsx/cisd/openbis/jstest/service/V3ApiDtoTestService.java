@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.jstest.service;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.ICustomASServiceExecutor;
 import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.context.CustomASServiceContext;
 
@@ -44,19 +44,61 @@ public class V3ApiDtoTestService implements ICustomASServiceExecutor
         Map<String, Object> parameters = options.getParameters();
         String sessionToken = context.getSessionToken();
         System.out.println("SESSION TOKEN: " + sessionToken);
-        Set<Entry<String, Object>> entrySet = parameters.entrySet();
         System.out.println("PARAMETERS:");
-        for (Entry<String, Object> entry : entrySet)
+        
+        Object obj = parameters.get("object");
+        return parameters.containsKey("echo") ? obj : populate(obj);
+    }
+
+    private Object populate(Object obj)
+    {
+        for (Method method : obj.getClass().getMethods())
         {
-            String key = entry.getKey();
-            Object value = entry.getValue();
-            System.out.println(">>>>> " + key + " = " + value + (value == null ? "" : "[" + value.getClass().getName() + "]"));
+            if (method.getParameterCount() == 1) {
+                Parameter parameter = method.getParameters()[0];
+                Class<?> type = parameter.getType();
+                if (type.isPrimitive() || type.equals(String.class) || type.equals(Date.class)){
+                    try
+                    {
+                        setItUp(obj, method, parameter);
+                    } catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                } 
+            }
         }
-        Space space = new Space();
-        space.setCode("SPACE1");
-        space.setDescription("a space");
-        space.setRegistrationDate(new Date(1234567890));
-        return space;
+        return obj;
+    }
+
+    private void setItUp(Object obj, Method method, Parameter parameter) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException
+    {
+        method.invoke(obj, getValue(parameter));
+    }
+
+    private Object getValue(Parameter parameter)
+    {
+        double random = Math.random();
+        long rnd = (long) (random*1000000);
+        Class<?> type = parameter.getType();
+        if (type == String.class) {
+            return String.valueOf(random);
+        } 
+        
+        if (type == Date.class) {
+            return new Date(rnd);
+        } 
+
+        if (type == Long.class) {
+            return rnd;
+        } 
+        
+        if (type == Boolean.class) {
+            return random < 0.5;
+        } 
+        
+        
+        return null;
     }
 
 }
