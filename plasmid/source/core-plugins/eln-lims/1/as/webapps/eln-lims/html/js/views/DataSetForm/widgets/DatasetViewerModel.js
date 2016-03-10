@@ -34,7 +34,7 @@ function DataSetViewerModel(containerId, profile, sample, serverFacade, datastor
 	this.enableOpenDataset = enableOpenDataset;
 	this.sampleDataSets = {};
 	this.datastoreDownloadURL = datastoreDownloadURL
-	this.lastUsedPath = [];
+	this.lastUsedPathList = [];
 	
 	this.dataSetViewerMode = DataSetViewerMode.LIST;
 	

@@ -222,7 +222,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
     			dfd.resolve(results);
 			};
 			
-			_this.updateDirectoryView(datasetCode, pathToLoad, false, repaintEvent);
+			_this.updateDirectoryView(datasetCode, pathToLoad, true, repaintEvent);
     	};
     	
     	$tree.fancytree({
@@ -236,11 +236,11 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
         
 	}
 	
-	this.updateDirectoryView = function(code, path, isBack, repaintEvent) {
+	this.updateDirectoryView = function(code, path, notAddPath, repaintEvent) {
 		var _this = this;
 		mainController.serverFacade.listFilesForDataSet(code, path, false, function(files) {
-			if(!isBack) {
-				_this._dataSetViewerModel.lastUsedPath.push(path);
+			if(!notAddPath) {
+				_this._dataSetViewerModel.lastUsedPathList.push(path);
 			}
 			
 			if(!repaintEvent) {
@@ -264,7 +264,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		var _this = this;
 		
 		// Path
-		var parentPath = this._dataSetViewerModel.lastUsedPath[this._dataSetViewerModel.lastUsedPath.length - 1];
+		var parentPath = this._dataSetViewerModel.lastUsedPathList[this._dataSetViewerModel.lastUsedPathList.length - 1];
 		$container.append($("<legend>").append("Path: " + parentPath));
 		
 		//
@@ -294,16 +294,16 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		});
 		
 		var backClick = function(event) {
-			if(_this._dataSetViewerModel.lastUsedPath.length === 1) {
+			if(_this._dataSetViewerModel.lastUsedPathList.length === 1) {
 				_this.repaintDatasets();
 			} else {
 				var repaintEvent = function(code, files) {
 					_this.repaintFiles(code, files.result);
 				};
 				
-				_this.updateDirectoryView(datasetCode, _this._dataSetViewerModel.lastUsedPath[_this._dataSetViewerModel.lastUsedPath.length - 2], true, repaintEvent);
+				_this.updateDirectoryView(datasetCode, _this._dataSetViewerModel.lastUsedPathList[_this._dataSetViewerModel.lastUsedPathList.length - 2], true, repaintEvent);
 			}
-			_this._dataSetViewerModel.lastUsedPath.pop();
+			_this._dataSetViewerModel.lastUsedPathList.pop();
 			event.stopPropagation();
 		};
 		
