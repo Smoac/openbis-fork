@@ -55,7 +55,7 @@ function DataSetViewerModel(containerId, profile, sample, serverFacade, datastor
 		
 		var $link = $("<a>").attr("href", downloadUrl)
 							.attr("target", "_blank")
-							.append(datasetFile.pathInListing.replace("_", "%20"))
+							.append(datasetFile.pathInListing)
 							.append(" ("+ size + unit +")")
 							.click(function(event) {
 								event.stopPropagation();
