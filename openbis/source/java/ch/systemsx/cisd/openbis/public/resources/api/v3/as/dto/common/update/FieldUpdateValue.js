@@ -15,6 +15,9 @@ define([ "stjs" ], function(stjs) {
 		 * value for update
 		 */
 		prototype.setValue = function(value) {
+			if (this.value === value) {
+				return;
+			}
 			this.value = value;
 			this.isModified = true;
 		};
