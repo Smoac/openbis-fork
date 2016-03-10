@@ -14,11 +14,6 @@
  * limitations under the License.
  */
 
-var DataSetViewerMode = {
-    LIST : 0,
-    TREE : 1
-}
-
 function DataSetViewerModel(containerId, profile, sample, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableOpenDataset) {
 	this.containerId = containerId;
 	this.containerIdTitle = containerId + "-title";
@@ -33,10 +28,7 @@ function DataSetViewerModel(containerId, profile, sample, serverFacade, datastor
 	this.enableUpload = enableUpload;
 	this.enableOpenDataset = enableOpenDataset;
 	this.sampleDataSets = {};
-	this.datastoreDownloadURL = datastoreDownloadURL
-	this.lastUsedPathList = [];
-	
-	this.dataSetViewerMode = DataSetViewerMode.LIST;
+	this.datastoreDownloadURL = datastoreDownloadURL;
 	
 	this.getDownloadLink = function(datasetCode, datasetFile, isShowSize) {
 		var downloadUrl = this.datastoreDownloadURL + '/' + datasetCode + "/" + encodeURIComponent(datasetFile.pathInDataSet) + "?sessionID=" + mainController.serverFacade.getSession();

@@ -53,20 +53,12 @@ function DataSetViewerController(containerId, profile, sample, serverFacade, dat
 		// Loading the datasets
 		if(this._datasetViewerModel.datasets) {
 			this.updateDatasets(this._datasetViewerModel.datasets);
-			
 			this._datasetViewerView.repaintDatasets();
-			if(!this._datasetViewerModel.enableOpenDataset && this._datasetViewerModel.datasets.length === 1) {
-				this._datasetViewerView.updateDirectoryView(datasets[0].code, "/");
-			}
 		} else {
 			var _this = this;
 			this.serverFacade.listDataSetsForSample(this.sample, true, function(datasets) {
 				_this.updateDatasets(datasets.result);
-				
 				_this._datasetViewerView.repaintDatasets();
-				if(!_this._datasetViewerModel.enableOpenDataset && _this._datasetViewerModel.datasets.length === 1) {
-					_this._datasetViewerView.updateDirectoryView(datasets[0].code, "/");
-				}
 			});
 		}
 	}
@@ -76,37 +68,6 @@ function DataSetViewerController(containerId, profile, sample, serverFacade, dat
 			var dataset = datasets[i];
 			this._datasetViewerModel.sampleDataSets[dataset.code] = dataset;
 		}
-	}
-	
-	this._repaintTestsPassed = function($container) {
-		//
-		// No data store URL
-		//
-		if(this._datasetViewerModel.datastoreDownloadURL === null) {
-			$container.append("<br>");
-			$container.append($("<p>")
-					.append($("<span>", { class: "glyphicon glyphicon-ban-circle" }))
-					.append(" Please configure properly your DSS server properly, looks like is not reachable."));
-			return false;
-		}
-		
-		//
-		// Don't paint data sets for entities that don't have
-		//
-		var numberOfDatasets = 0;
-		for(var datasetCode in this._datasetViewerModel.sampleDataSets) {
-			numberOfDatasets++;
-		}
-		
-		if(numberOfDatasets === 0) {
-			$container.append("<br>");
-			$container.append($("<p>")
-								.append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
-								.append(" No datasets found."));
-			return false;
-		}
-		
-		return true;
 	}
 	
 }
