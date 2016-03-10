@@ -22,7 +22,7 @@ def process(tr, parameters, tableBuilder):
     rootDirectory = getRootDir(tr)
     dropboxesList = listAllDropboxes()
 
-    logDirectory = getLogsDir(rootDirectory)
+    logDirectory = getLogsDir(tr)
 
     dropboxInProcess = os.listdir(os.path.join(logDirectory, "in-process"))
     dropboxFailed = os.listdir(os.path.join(logDirectory, "failed"))
@@ -55,8 +55,13 @@ def process(tr, parameters, tableBuilder):
         detailInfoBuilder.buildRow(detailInfoMap)
 
 
-def getLogsDir(rootDirectory):
-    return os.path.join(rootDirectory, "servers/datastore_server/log-registrations")
+def getLogsDir(tr):
+    defaultDir = System.getProperty("user.dir")
+    dir = getProperty(tr, "dss-registration-log-dir")
+    if dir is None:
+        return os.path.join(defaultDir, "log-registrations")
+    else:
+        return dir        
 
 
 def listAllDropboxes():
