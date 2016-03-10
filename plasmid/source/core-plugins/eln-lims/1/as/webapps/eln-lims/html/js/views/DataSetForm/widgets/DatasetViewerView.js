@@ -139,14 +139,24 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		
 		var toolbarModel = [];
 		this.$listIcon = FormUtil.getButtonWithIcon('glyphicon-list', function() {
-			_this._dataSetViewerModel.dataSetViewerMode = DataSetViewerMode.LIST;
-			switchViewMode();
+			var attr = $(this).attr('disabled');
+			if (typeof attr !== typeof undefined && attr !== false) {
+				
+			} else {
+				_this._dataSetViewerModel.dataSetViewerMode = DataSetViewerMode.LIST;
+				switchViewMode();
+			}
 		});
 
 		toolbarModel.push({ component : this.$listIcon, tooltip: "Show items in a list" });
 		this.$treeIcon = FormUtil.getButtonWithIcon('glyphicon-align-left', function() {
-			_this._dataSetViewerModel.dataSetViewerMode = DataSetViewerMode.TREE;
-			switchViewMode();
+			var attr = $(this).attr('disabled');
+			if (typeof attr !== typeof undefined && attr !== false) {
+				
+			} else {
+				_this._dataSetViewerModel.dataSetViewerMode = DataSetViewerMode.TREE;
+				switchViewMode();
+			}
 		});
 		toolbarModel.push({ component : this.$treeIcon, tooltip: "Show items in a tree" });
 		
@@ -193,8 +203,21 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
     	};
     	
     	var onLazyLoad = function(event, data){
+    		var dfd = new $.Deferred();
+    	    data.result = dfd.promise();
+    	    
     		var pathToLoad = data.node.key;
-    		
+    		var repaintEvent = function(code, files) {
+    			var results = [];
+    			for(var fIdx = 0; fIdx < files.result.length; fIdx++) {
+    				var file = files.result[fIdx];
+    				results.push({ title : file.pathInListing, key : file.pathInDataSet, menuData : file, folder : file.isDirectory, lazy : file.isDirectory });
+    			}
+    			
+    			dfd.resolve(results);
+			};
+			
+			_this.updateDirectoryView(datasetCode, pathToLoad, false, repaintEvent);
     	};
     	
     	$tree.fancytree({
