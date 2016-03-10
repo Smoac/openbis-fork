@@ -13,7 +13,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 						return fUpdate(facade, permIds[0]).then(function() {
 							c.ok("Entity was updated");
 							return fFind(facade, permIds[0]).then(function(entity) {
-								fCheck(entity);
+								if (fCheck) {
+									fCheck(entity);
+								}
 								c.finish();
 							});
 						});
