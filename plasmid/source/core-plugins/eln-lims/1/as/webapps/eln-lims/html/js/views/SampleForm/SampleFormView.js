@@ -133,7 +133,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				var $editButton = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
 					mainController.changeView('showEditSamplePageFromPermId', _this._sampleFormModel.sample.permId);
 				});
-				toolbarModel.push({ component : $editButton, tooltip: "Enable Editing" });
+				toolbarModel.push({ component : $editButton, tooltip: "Edit" });
 			}
 			
 			//Copy
