@@ -294,27 +294,29 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         while(todo.length > 0) {
         	var modelNode = todo.shift();
         	
+			//Add Root Source if not found
+			var treeModelRoot = null;
+			if(!sourceByKey[modelNode.uniqueId]) {
+				treeModelRoot = {title : modelNode.displayName, key : modelNode.uniqueId, menuData : modelNode};
+				treeModel.push(treeModelRoot);
+				sourceByKey[modelNode.uniqueId] = treeModelRoot;
+			} else {
+				treeModelRoot = sourceByKey[modelNode.uniqueId];
+			}
+			
+			//Create children if new
+    		if(modelNode.newMenuIfSelected && !treeModelRoot.children) {
+    			treeModelRoot.folder = true;
+    			treeModelRoot.children = [];
+    		}
+    		
         	if(modelNode.newMenuIfSelected && modelNode.newMenuIfSelected.children.length !== 0) {
         		for(var cIdx = 0; cIdx < modelNode.newMenuIfSelected.children.length; cIdx++) {
         			var modelNodeChild = modelNode.newMenuIfSelected.children[cIdx];
         			var $titleWithLink = this._getDisplayNameLinkForNode(modelNodeChild, true);
         			var treeModelChild = {title : $titleWithLink.outerHTML, key : modelNodeChild.uniqueId, menuData : modelNodeChild};
         			
-        			//Add Source if not found
-        			var treeModelRoot = null;
-        			if(!sourceByKey[modelNode.uniqueId]) {
-        				treeModelRoot = {title : modelNode.displayName, key : modelNode.uniqueId, menuData : modelNode};
-        				treeModel.push(treeModelRoot);
-        				sourceByKey[modelNode.uniqueId] = treeModelRoot;
-        			} else {
-        				treeModelRoot = sourceByKey[modelNode.uniqueId];
-        			}
-        			
-        			//Create children if new
-        			treeModelRoot.folder = true;
-            		if(!treeModelRoot.children) {
-            			treeModelRoot.children = [];
-            		}
+        			//Add Child
             		treeModelRoot.children.push(treeModelChild);
             		
             		//Push child for next
