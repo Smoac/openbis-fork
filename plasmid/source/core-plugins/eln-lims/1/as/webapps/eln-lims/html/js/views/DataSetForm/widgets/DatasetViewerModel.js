@@ -41,17 +41,15 @@ function DataSetViewerModel(containerId, profile, sample, serverFacade, datastor
 	this.getDownloadLink = function(datasetCode, datasetFile, isShowSize) {
 		var downloadUrl = this.datastoreDownloadURL + '/' + datasetCode + "/" + encodeURIComponent(datasetFile.pathInDataSet) + "?sessionID=" + mainController.serverFacade.getSession();
 		
-		var sizeInMb = parseInt(datasetFile.fileSize) / 1024 / 1024;
-		var sizeInMbThreeDecimals = Math.floor(sizeInMb * 1000) / 1000;
 		var size = null;
-		var unit = null;
-		if(sizeInMbThreeDecimals < 1) {
-			size = sizeInMbThreeDecimals * 1000;
-			unit = "Kb";
-		} else {
-			size = sizeInMbThreeDecimals;
+		if(parseInt(datasetFile.fileSize) / 1024 > 1024) {
+			size = parseInt(datasetFile.fileSize) / 1024 / 1024;
 			unit = "Mb";
+		} else {
+			size = parseInt(datasetFile.fileSize) / 1024;
+			unit = "Kb";
 		}
+		var size = Math.floor(size * 10) / 10; //Rounded to one decimal
 		
 		var $link = $("<a>").attr("href", downloadUrl)
 							.attr("target", "_blank")
