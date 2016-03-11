@@ -148,7 +148,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	//how to make an on-select event??
 	this._getNewFieldTypeDropdownComponent = function($newFieldNameContainer) {
 		var _this = this;
-		var fieldTypeOptions = [{value : "All", label : "All", selected : true }, {value : "Property", label : "Property"}, {value : "Attribute", label : "Attribute"}, {value : "Parent", label : "Parent"}, {value : "Children", label : "Children"}, {value : "Space", label : "Space"}];
+		var fieldTypeOptions = [{value : "All", label : "All", selected : true }, {value : "Property", label : "Property"}, {value : "Attribute", label : "Attribute"}, {value : "Parent", label : "Parent"}, {value : "Children", label : "Children"}];
 		var $fieldTypeComponent = FormUtil.getDropdown(fieldTypeOptions, "Select Field Type");
 		$fieldTypeComponent.change(function() {
 			var $thisComponent = $(this);
@@ -227,6 +227,11 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			var prop = allProp[pIdx];
 			model.push({ value : "PROP." + prop.code, label : prop.label });
 		}
+		
+		model.sort(function(propertyA, propertyB) {
+			return propertyA.label.localeCompare(propertyB.label);
+		});
+		
 		return model;
 	}
 	
@@ -265,8 +270,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				         { value : "ATTR.SAMPLE_TYPE", label: "Sample Type" },
 				         { value : "ATTR.PERM_ID", label: "Perm Id" },
 				         { value : "ATTR.SPACE", label: "Space" },
-						 { value : "ATTR.PROJECT", label: "Project" },
-				         { value : "ATTR.PROJECT_PERM_ID", label: "Project Perm Id" },
 				         { value : "ATTR.METAPROJECT", label: "Metaproject" },
 						 { value : "ATTR.REGISTRATION_DATE", label: "Registration Date" }, 
 						 { value : "ATTR.MODIFICATION_DATE", label: "Modification Date" }];
@@ -278,8 +281,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				         { value : "ATTR.REGISTRATION_DATE", label : "Registration Date" },
 				         { value : "ATTR.MODIFICATION_DATE", label : "Modification Date" }];
 				break;
-			default:
-				//Do Nothing
 		}
 		return model;
 	}
@@ -289,6 +290,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		var model = [{ value : 'EXPERIMENT', label : "Experiment" },
 		             { value : 'SAMPLE', label : "Sample", selected : true },
 		             { value : 'DATASET', label : "Dataset" }];
+		this._advancedSearchModel.resetModel('SAMPLE');
 		var $dropdown = FormUtil.getDropdown(model, 'Select Entity Type to search for');
 		
 		$dropdown.change(function() {

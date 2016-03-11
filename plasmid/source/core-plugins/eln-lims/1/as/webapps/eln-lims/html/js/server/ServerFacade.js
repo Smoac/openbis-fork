@@ -602,7 +602,8 @@ function ServerFacade(openbisServer) {
 	this.searchForSamplesAdvanced = function(advancedSearchCriteria, callback) {
 		require(['openbis', 
 		         'as/dto/sample/search/SampleSearchCriteria',
-		         'as/dto/sample/fetchoptions/SampleFetchOptions'], function(openbis, SampleSearchCriteria, SampleFetchOptions) {
+		         'as/dto/sample/fetchoptions/SampleFetchOptions',
+		         'as/dto/common/search/DateObjectEqualToValue'], function(openbis, SampleSearchCriteria, SampleFetchOptions, DateObjectEqualToValue) {
 			
 			//Boilerplate
 			var testProtocol = window.location.protocol;
@@ -615,162 +616,10 @@ function ServerFacade(openbisServer) {
 			var v3Api = new openbis(testApiUrl);
 			v3Api._private.sessionToken = mainController.serverFacade.getSession();
 			
-			//SearchResult<Sample> searchSamples(String sessionToken, SampleSearchCriteria searchCriteria, SampleFetchOptions fetchOptions);
-			//TO-DO Setting the searchCriteria given the advancedSearchCriteria model
+			//Setting the searchCriteria given the advancedSearchCriteria model
 			var searchCriteria = new SampleSearchCriteria();
 			
-			var operator = advancedSearchCriteria.logicalOperator;
-			if (!operator) {
-				operator = "AND";
-			}
-			searchCriteria.withOperator(operator);
-			
-			
-			var ruleKeys = Object.keys(advancedSearchCriteria.rules);
-			for (var idx = 0; idx < ruleKeys.length; idx++)
-			{
-				var fieldType = null;
-				var fieldNameUnparsed = null;
-				var fieldName = null;
-				var fieldValue = null;
-				
-				fieldType = advancedSearchCriteria.rules[ruleKeys[idx]].type;
-				fieldNameUnparsed = advancedSearchCriteria.rules[ruleKeys[idx]].name;
-				if (fieldNameUnparsed === undefined) {
-					fieldNameUnparsed = null;
-				} else if (fieldNameUnparsed.indexOf(".") != -1) {
-					fieldName = fieldNameUnparsed.substring(fieldNameUnparsed.indexOf(".") + 1, fieldNameUnparsed.length);
-				}
-				fieldValue = advancedSearchCriteria.rules[ruleKeys[idx]].value;
-				
-				//alert("fieldType is " + fieldType + " fieldName is " + fieldName + " fieldValue is " + fieldValue + " fieldNameUnparsed is " + fieldNameUnparsed);
-				
-				//Case 1: fieldType = all
-				if(fieldType === "All") {
-					searchCriteria.withAnyField().thatEquals(fieldValue);
-				}
-
-				//Case 2: fieldType = property
-				else if(fieldType === "Property") {
-					searchCriteria.withProperty(fieldName).thatEquals(fieldValue);
-				}
-
-				//Case 3: fieldType = attribute
-				else if(fieldType === "Attribute"){
-					switch(fieldName) {
-						case "CODE":
-							searchCriteria.withCode().thatEquals(fieldValue);
-							break;	
-						case "SAMPLE_TYPE":
-							searchCriteria.withType().withCode().thatEquals(fieldValue);
-							break;
-						case "PERM_ID":
-							searchCriteria.withPermId().thatEquals(fieldValue);
-							break;
-						case "SPACE":
-							searchCriteria.withSpace().withCode().thatEquals(fieldValue);
-							break;
-						case "PROJECT":
-							searchCriteria.withProject().withCode().thatEquals(fieldValue);
-							break;
-						case "PROJECT_PERM_ID":
-							searchCriteria.withProject().withPermId().thatEquals(fieldValue);
-							break;
-						case "METAPROJECT":
-							searchCriteria.withTag().withCode().thatEquals(fieldValue);
-							break;
-						case "REGISTRATION_DATE": //must be format 2009-08-18
-							searchCriteria.withRegistrationDate().thatEquals(fieldValue);
-							break;
-						case "MODIFICATION_DATE": //must be format 2009-08-18
-							searchCriteria.withModificationDate().thatEquals(fieldValue);
-							break;
-						default:
-							//Do Nothing
-					}
-				}
-				
-				//Case 4: Parents
-				else if (fieldType === "Parent"){
-					if(fieldNameUnparsed.indexOf("ATTR.") != -1){
-						switch(fieldName) {
-							case "CODE":
-								searchCriteria.withParents().withCode().thatEquals(fieldValue);
-								break;	
-							case "SAMPLE_TYPE":
-								searchCriteria.withParents().withType().withCode().thatEquals(fieldValue);
-								break;
-							case "PERM_ID":
-								searchCriteria.withParents().withPermId().thatEquals(fieldValue);
-								break;
-							case "SPACE":
-								searchCriteria.withParents().withSpace().withCode().thatEquals(fieldValue);
-								break;
-							case "PROJECT":
-								searchCriteria.withParents().withProject().withCode().thatEquals(fieldValue);
-								break;
-							case "PROJECT_PERM_ID":
-								searchCriteria.withParents().withProject().withPermId().thatEquals(fieldValue);
-								break;
-							case "METAPROJECT":
-								searchCriteria.withParents().withTag().withCode().thatEquals(fieldValue);
-								break;
-							case "REGISTRATION_DATE": //must be format 2009-08-18
-								searchCriteria.withParents().withRegistrationDate().thatEquals(fieldValue);
-								break;
-							case "MODIFICATION_DATE": //must be format 2009-08-18
-								searchCriteria.withParents().withModificationDate().thatEquals(fieldValue);
-								break;
-							default:
-								//Do Nothing
-						}	
-					}else if(fieldNameUnparsed.indexOf("PROP.") != -1){
-						searchCriteria.withParents().withProperty(fieldName).thatEquals(fieldValue);
-					}
-				}//end parent
-				
-				//Case 5: CHildren
-				else if (fieldType === "Children"){
-					if(fieldNameUnparsed.indexOf("ATTR.") != -1){
-						switch(fieldName) {
-							case "CODE":
-								searchCriteria.withChildren().withCode().thatEquals(fieldValue);
-								break;	
-							case "SAMPLE_TYPE":
-								searchCriteria.withChildren().withType().withCode().thatEquals(fieldValue);
-								break;
-							case "PERM_ID":
-								searchCriteria.withChildren().withPermId().thatEquals(fieldValue);
-								break;
-							case "SPACE":
-								searchCriteria.withChildren().withSpace().withCode().thatEquals(fieldValue);
-								break;
-							case "PROJECT":
-								searchCriteria.withChildren().withProject().withCode().thatEquals(fieldValue);
-								break;
-							case "PROJECT_PERM_ID":
-								searchCriteria.withChildren().withProject().withPermId().thatEquals(fieldValue);
-								break;
-							case "METAPROJECT":
-								searchCriteria.withChildren().withTag().withCode().thatEquals(fieldValue);
-								break;
-							case "REGISTRATION_DATE": //must be format 2009-08-18
-								searchCriteria.withChildren().withRegistrationDate().thatEquals(fieldValue);
-								break;
-							case "MODIFICATION_DATE": //must be format 2009-08-18
-								searchCriteria.withChildren().withModificationDate().thatEquals(fieldValue);
-								break;
-							default:
-								//Do Nothing
-						}	
-					} else if(fieldNameUnparsed.indexOf("PROP.") != -1){
-						searchCriteria.withChildren().withProperty(fieldName).thatEquals(fieldValue);
-					}				
-				}	//end children					
-				
-			}
-			
-			//TO-DO Setting the fetchOptions given standard settings
+			//Setting the fetchOptions given standard settings
 			var fetchOptions = new SampleFetchOptions();
 			fetchOptions.withTags();
 			fetchOptions.withType();
@@ -781,8 +630,90 @@ function ServerFacade(openbisServer) {
 			fetchOptions.withParents();
 			fetchOptions.withProperties();
 			
-			//to get all levels
-			//fetchOptions.withParentsWith(fetchOptions);
+			//Operator
+			var operator = advancedSearchCriteria.logicalOperator;
+			if (!operator) {
+				operator = "AND";
+			}
+			searchCriteria.withOperator(operator);
+			
+			//Rules
+			var ruleKeys = Object.keys(advancedSearchCriteria.rules);
+			for (var idx = 0; idx < ruleKeys.length; idx++)
+			{
+				var fieldType = advancedSearchCriteria.rules[ruleKeys[idx]].type;
+				var fieldName = advancedSearchCriteria.rules[ruleKeys[idx]].name;
+				var fieldNameType = null;
+				var fieldValue = advancedSearchCriteria.rules[ruleKeys[idx]].value;
+				
+				if(fieldName) {
+					var firstDotIndex = fieldName.indexOf(".");
+					fieldNameType = fieldName.substring(0, firstDotIndex);
+					fieldName = fieldName.substring(firstDotIndex + 1, fieldName.length);
+				}
+				
+				var setPropertyCriteria = function(criteria, propertyName, propertyValue) {
+					criteria.withProperty(propertyName).thatEquals(propertyValue);
+				}
+				
+				var setAttributeCriteria = function(criteria, attributeName, attributeValue) {
+					switch(attributeName) {
+						case "CODE":
+							criteria.withCode().thatEquals(attributeValue);
+							break;	
+						case "SAMPLE_TYPE":
+							criteria.withType().withCode().thatEquals(attributeValue);
+							break;
+						case "PERM_ID":
+							criteria.withPermId().thatEquals(attributeValue);
+							break;
+						case "SPACE":
+							criteria.withSpace().withCode().thatEquals(attributeValue);
+							break;
+						case "METAPROJECT":
+							criteria.withTag().withCode().thatEquals(attributeValue);
+							break;
+						case "REGISTRATION_DATE": //must be format 2009-08-18 ?
+							criteria.withRegistrationDate().thatEquals(new DateObjectEqualToValue(attributeValue));
+							break;
+						case "MODIFICATION_DATE": //must be format 2009-08-18 ?
+							criteria.withModificationDate().thatEquals(new DateObjectEqualToValue(attributeValue));
+							break;
+					}
+				}
+				
+				switch(fieldType) {
+					case "All":
+						searchCriteria.withAnyField().thatEquals(fieldValue);
+						break;
+					case "Property":
+						setPropertyCriteria(searchCriteria, fieldName, fieldValue);
+						break;
+					case "Attribute":
+						setAttributeCriteria(searchCriteria, fieldName, fieldValue);
+						break;
+					case "Parent":
+						switch(fieldNameType) {
+							case "PROP":
+								setPropertyCriteria(searchCriteria.withParents(), fieldName, fieldValue);
+								break;
+							case "ATTR":
+								setAttributeCriteria(searchCriteria.withParents(), fieldName, fieldValue);
+								break;
+						}
+						break;
+					case "Children":
+						switch(fieldNameType) {
+							case "PROP":
+								setPropertyCriteria(searchCriteria.withChildren(), fieldName, fieldValue);
+								break;
+							case "ATTR":
+								setAttributeCriteria(searchCriteria.withChildren(), fieldName, fieldValue);
+								break;
+						}
+						break;
+				}
+			}
 			
 			v3Api.searchSamples(searchCriteria, fetchOptions)
 			.done(function(result) {

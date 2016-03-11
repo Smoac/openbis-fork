@@ -387,6 +387,9 @@ function SideMenuWidgetController(mainController) {
                                     );
                         }
                         utilities.newMenuIfSelected.children.push(
+                                new SideMenuWidgetComponent(true, false, "ADVANCED SEARCH", "ADVANCED_SEARCH", utilities, null, "showAdvancedSearchPage", null, "")
+                                );                        
+                        utilities.newMenuIfSelected.children.push(
                                 new SideMenuWidgetComponent(true, false, "TRASHCAN", "TRASHCAN", utilities, null, "showTrashcanPage", null, "")
                                 );
                         utilities.newMenuIfSelected.children.push(
