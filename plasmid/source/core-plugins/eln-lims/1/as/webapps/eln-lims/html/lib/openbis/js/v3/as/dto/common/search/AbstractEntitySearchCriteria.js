@@ -65,12 +65,6 @@ define(
 					var AnyFieldSearchCriteria = require("as/dto/common/search/AnyFieldSearchCriteria");
 					return this.addCriteria(new AnyFieldSearchCriteria());
 				};
-				prototype.createBuilder = function() {
-					var AbstractCompositeSearchCriteria = require("as/dto/common/search/AbstractCompositeSearchCriteria");
-					var builder = AbstractCompositeSearchCriteria.prototype.createBuilder.call(this);
-					builder.setOperator(this.operator);
-					return builder;
-				};
 			}, {
 				operator : {
 					name : "Enum",

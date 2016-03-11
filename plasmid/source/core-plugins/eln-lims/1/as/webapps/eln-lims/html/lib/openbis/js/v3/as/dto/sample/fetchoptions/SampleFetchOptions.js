@@ -3,7 +3,7 @@
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", 'as/dto/sample/fetchoptions/SampleTypeFetchOptions', 'as/dto/space/fetchoptions/SpaceFetchOptions',
-		'as/dto/project/fetchoptions/ProjectFetchOptions', 'as/dto/experiment/fetchoptions/ExperimentFetchOptions', 'as/dto/property/fetchoptions/PropertyFetchOptions', 'as/dto/tag/fetchoptions/TagFetchOptions',
+		'as/dto/experiment/fetchoptions/ExperimentFetchOptions', 'as/dto/property/fetchoptions/PropertyFetchOptions', 'as/dto/tag/fetchoptions/TagFetchOptions',
 		'as/dto/person/fetchoptions/PersonFetchOptions', 'as/dto/attachment/fetchoptions/AttachmentFetchOptions', 'as/dto/material/fetchoptions/MaterialFetchOptions',
 		'as/dto/dataset/fetchoptions/DataSetFetchOptions', 'as/dto/history/fetchoptions/HistoryEntryFetchOptions', 'as/dto/sample/fetchoptions/SampleSortOptions' ], function(require, stjs, FetchOptions) {
 	var SampleFetchOptions = function() {
@@ -12,7 +12,6 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", 'as/dto/s
 		prototype['@type'] = 'as.dto.sample.fetchoptions.SampleFetchOptions';
 		constructor.serialVersionUID = 1;
 		prototype.type = null;
-		prototype.project = null;
 		prototype.space = null;
 		prototype.experiment = null;
 		prototype.properties = null;
@@ -40,19 +39,6 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", 'as/dto/s
 		};
 		prototype.hasType = function() {
 			return this.type != null;
-		};
-		prototype.withProject = function() {
-			if (this.project == null) {
-				var ProjectFetchOptions = require("as/dto/project/fetchoptions/ProjectFetchOptions");
-				this.project = new ProjectFetchOptions();
-			}
-			return this.project;
-		};
-		prototype.withProjectUsing = function(fetchOptions) {
-			return this.project = fetchOptions;
-		};
-		prototype.hasProject = function() {
-			return this.project != null;
 		};
 		prototype.withSpace = function() {
 			if (this.space == null) {
@@ -244,7 +230,6 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", 'as/dto/s
 		};
 	}, {
 		type : "SampleTypeFetchOptions",
-		project : "ProjectFetchOptions",
 		space : "SpaceFetchOptions",
 		experiment : "ExperimentFetchOptions",
 		properties : "PropertyFetchOptions",

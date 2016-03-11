@@ -19,11 +19,6 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 		prototype.withAndOperator = function() {
 			return this.withOperator(SearchOperator.AND);
 		};
-		prototype.createBuilder = function() {
-			var builder = AbstractEntitySearchCriteria.prototype.createBuilder.call(this);
-			builder.setName("EXPERIMENT");
-			return builder;
-		};
 	}, {
 		operator : {
 			name : "Enum",

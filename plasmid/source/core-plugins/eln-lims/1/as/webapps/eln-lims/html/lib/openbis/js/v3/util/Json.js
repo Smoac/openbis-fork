@@ -87,7 +87,7 @@ define([ "underscore" ], function(_) {
 				if (jsonObject in hashedObjects) {
 					return hashedObjects[jsonObject];
 				} else {
-					throw "Object with id: " + jsonObject + " and type: " + jsonType + " haven't been found in cache";
+					throw "Object with id: " + JSON.stringify(jsonObject) + " and type: " + jsonType + " haven't been found in cache";
 				}
 			} else {
 				return jsonObject;
@@ -102,7 +102,11 @@ define([ "underscore" ], function(_) {
 		var moduleName = typeToModuleName(jsonType);
 		var module = modulesMap[moduleName];
 		var moduleFieldTypeMap = module.$typeDescription || {};
-		var object = new module;
+		try {
+			var object = new module(""); // some entities have a mandatory non-null constructor parameters
+		} catch(e) {
+			throw "Failed deserializing object " + JSON.stringify(jsonObject) + " into type " + jsonType + " with error " + e.message;
+		}
 
 		if (jsonId) {
 			if (jsonId in hashedObjects) {

@@ -3,7 +3,7 @@
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
 define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", 'as/dto/person/fetchoptions/PersonFetchOptions', 'as/dto/space/fetchoptions/SpaceFetchOptions',
-		'as/dto/sample/fetchoptions/SampleFetchOptions', 'as/dto/experiment/fetchoptions/ExperimentFetchOptions', 'as/dto/attachment/fetchoptions/AttachmentFetchOptions',
+		'as/dto/experiment/fetchoptions/ExperimentFetchOptions', 'as/dto/attachment/fetchoptions/AttachmentFetchOptions',
 		'as/dto/project/fetchoptions/ProjectSortOptions', 'as/dto/history/fetchoptions/HistoryEntryFetchOptions' ], function(require, stjs, FetchOptions) {
 	var ProjectFetchOptions = function() {
 	};
@@ -11,7 +11,6 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", 'as/dto/p
 		prototype['@type'] = 'as.dto.project.fetchoptions.ProjectFetchOptions';
 		constructor.serialVersionUID = 1;
 		prototype.experiments = null;
-		prototype.samples = null;
 		prototype.space = null;
 		prototype.registrator = null;
 		prototype.modifier = null;
@@ -31,19 +30,6 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", 'as/dto/p
 		};
 		prototype.hasExperiments = function() {
 			return this.experiments != null;
-		};
-		prototype.withSamples = function() {
-			if (this.samples == null) {
-				var SampleFetchOptions = require("as/dto/sample/fetchoptions/SampleFetchOptions");
-				this.samples = new SampleFetchOptions();
-			}
-			return this.samples;
-		};
-		prototype.withSamplesUsing = function(fetchOptions) {
-			return this.samples = fetchOptions;
-		};
-		prototype.hasSamples = function() {
-			return this.samples != null;
 		};
 		prototype.withSpace = function() {
 			if (this.space == null) {
@@ -135,7 +121,6 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", 'as/dto/p
 		};
 	}, {
 		experiments : "ExperimentFetchOptions",
-		samples : "SampleFetchOptions",
 		space : "SpaceFetchOptions",
 		registrator : "PersonFetchOptions",
 		modifier : "PersonFetchOptions",

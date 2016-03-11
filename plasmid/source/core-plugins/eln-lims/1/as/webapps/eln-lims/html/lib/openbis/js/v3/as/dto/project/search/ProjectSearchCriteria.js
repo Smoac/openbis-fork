@@ -21,12 +21,6 @@ define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria",
 			var SpaceSearchCriteria = require("as/dto/space/search/SpaceSearchCriteria");
 			return this.addCriteria(new SpaceSearchCriteria());
 		};
-		prototype.createBuilder = function() {
-			var AbstractCompositeSearchCriteria = require("as/dto/common/search/AbstractCompositeSearchCriteria");
-			var builder = AbstractCompositeSearchCriteria.prototype.createBuilder.call(this);
-			builder.setName("PROJECT");
-			return builder;
-		};
 	}, {
 		criteria : {
 			name : "Collection",
