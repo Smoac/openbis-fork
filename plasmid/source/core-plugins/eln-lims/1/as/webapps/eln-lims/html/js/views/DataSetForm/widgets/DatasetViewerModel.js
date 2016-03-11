@@ -62,9 +62,7 @@ function DataSetViewerModel(containerId, profile, sample, serverFacade, datastor
 			return 	extension === "svg" || 
 					extension === "jpg" || extension === "jpeg" ||
 					extension === "png" ||
-					extension === "gif" ||
-					extension === "html" ||
-					extension === "pdf";
+					extension === "gif";
 		}
 		return false;
 	}
