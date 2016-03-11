@@ -6,6 +6,7 @@ from SimpleInfoObject import SimpleInfoObject
 from SimpleInfoBuilder import SimpleInfoBuilder
 from DetailInfoObject import DetailInfoObject
 from DetailInfoBuilder import DetailInfoBuilder
+from java.lang import System
 
 
 def process(tr, parameters, tableBuilder):
