@@ -342,8 +342,9 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			}];
 			
 			//Add properties as columns dynamically depending on the results
-			var foundPropertyCodes = {};
 			
+			//1. Get properties with actual data
+			var foundPropertyCodes = {};
 			for(var rIdx = 0; rIdx < results.objects.length; rIdx++) {
 				var entity = results.objects[rIdx];
 				for(var propertyCode in entity.properties) {
@@ -353,14 +354,22 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				}
 			}
 			
+			//2. Get columns
+			var propertyColumnsToSort = [];
 			for(var propertyCode in foundPropertyCodes) {
-				columns.push({
+				propertyColumnsToSort.push({
 					label : profile.getPropertyType(propertyCode).label,
 					property : propertyCode,
 					sortable : true
 				});
 			}
-			//
+			
+			//3. Sort column properties by label
+			propertyColumnsToSort.sort(function(propertyA, propertyB) {
+				return propertyA.label.localeCompare(propertyB.label);
+			});
+			columns = columns.concat(propertyColumnsToSort);
+			
 			
 			var getDataRows = function(callback) {
 				var rows = [];
