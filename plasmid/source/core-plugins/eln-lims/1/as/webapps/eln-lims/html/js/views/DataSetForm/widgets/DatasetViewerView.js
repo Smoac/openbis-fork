@@ -86,7 +86,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
         	}
     	};
     	
-    	var onClick = function(event, data){
+    	var onClick = function(event, data) {
     		
     	};
     	
@@ -98,21 +98,29 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
     		var parentDatasetCode = data.node.data.datasetCode;
     		
     		var repaintEvent = function(code, files) {
-    			var results = [];
-    			for(var fIdx = 0; fIdx < files.result.length; fIdx++) {
-    				var file = files.result[fIdx];
-    				
-    				var titleValue = null;
-    				if(file.isDirectory) {
-    					titleValue = file.pathInListing;
-    				} else {
-    					var $fileLink = _this._dataSetViewerModel.getDownloadLink(code, file, true);
-    					titleValue = $fileLink[0].outerHTML;
-    				}
-    				results.push({ title : titleValue, key : file.pathInDataSet, folder : file.isDirectory, lazy : file.isDirectory, datasetCode : parentDatasetCode });
+    			if(!files.result) {
+    				Util.showError("Files can't be found, most probably the DSS is down, contact your admin.");
+    			} else {
+    				var results = [];
+        			for(var fIdx = 0; fIdx < files.result.length; fIdx++) {
+        				var file = files.result[fIdx];
+        				
+        				var titleValue = null;
+        				if(file.isDirectory) {
+        					titleValue = file.pathInListing;
+        				} else {
+        					var $fileLink = _this._dataSetViewerModel.getDownloadLink(code, file, true);
+        					titleValue = $fileLink[0].outerHTML;
+        					var previewLink = _this._dataSetViewerModel.getPreviewLink(code, file);
+        					if(previewLink) {
+        						titleValue = previewLink + " " + titleValue;
+        					}
+        				}
+        				results.push({ title : titleValue, key : file.pathInDataSet, folder : file.isDirectory, lazy : file.isDirectory, datasetCode : parentDatasetCode });
+        			}
+        			
+        			dfd.resolve(results);
     			}
-    			
-    			dfd.resolve(results);
 			};
 			
 			_this.updateDirectoryView(parentDatasetCode, pathToLoad, true, repaintEvent);

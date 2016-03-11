@@ -54,4 +54,34 @@ function DataSetViewerModel(containerId, profile, sample, serverFacade, datastor
 		return $link;
 	}
 	
+	this._isPreviewableImage = function(pathInDataSet) {
+		var haveExtension = pathInDataSet.lastIndexOf(".");
+		if( haveExtension !== -1 && (haveExtension + 1 < pathInDataSet.length)) {
+			var extension = pathInDataSet.substring(haveExtension + 1, pathInDataSet.length).toLowerCase();
+			
+			return 	extension === "svg" || 
+					extension === "jpg" || extension === "jpeg" ||
+					extension === "png" ||
+					extension === "gif" ||
+					extension === "html" ||
+					extension === "pdf";
+		}
+		return false;
+	}
+	
+	this.getPreviewLink = function(datasetCode, datasetFile) {
+		var previewLink = null;
+		if(this._isPreviewableImage(datasetFile.pathInDataSet)) {
+			var imageURLAsString = profile.getDefaultDataStoreURL() + "/" + datasetCode + "/" + datasetFile.pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
+			var onclick = "Util.showImage(\"" + imageURLAsString + "\");"
+			previewLink = "<span onclick='" + onclick + "' class='glyphicon glyphicon-search'></span>";
+//			previewLink = FormUtil.getButtonWithIcon("glyphicon-search", function() {
+//				var imageURL = profile.getDefaultDataStoreURL() + '/' + datasetCode + "/" + datasetFile.pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
+//				Util.showImage(imageURL);
+//				event.stopPropagation();
+//			});
+		}
+		return previewLink;
+	}
+	
 }

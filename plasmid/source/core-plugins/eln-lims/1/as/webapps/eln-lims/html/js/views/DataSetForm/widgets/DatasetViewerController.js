@@ -32,23 +32,6 @@ function DataSetViewerController(containerId, profile, sample, serverFacade, dat
 	this._datasetViewerModel = new DataSetViewerModel(containerId, profile, sample, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableOpenDataset);
 	this._datasetViewerView = new DataSetViewerView(this, this._datasetViewerModel);
 	
-	this._isPreviewable = function(file) {
-		if(!file.isDirectory) {
-			var haveExtension = file.pathInDataSet.lastIndexOf(".");
-			if( haveExtension !== -1 && (haveExtension + 1 < file.pathInDataSet.length)) {
-				var extension = file.pathInDataSet.substring(haveExtension + 1, file.pathInDataSet.length).toLowerCase();
-				
-				return 	extension === "svg" || 
-						extension === "jpg" || extension === "jpeg" ||
-						extension === "png" ||
-						extension === "gif" ||
-						extension === "html" ||
-						extension === "pdf";
-			}
-		}
-		return false;
-	}
-	
 	this.init = function() {
 		// Loading the datasets
 		if(this._datasetViewerModel.datasets) {
