@@ -26,6 +26,12 @@ function AdvancedSearchController(mainController) {
 	
 	this.search = function() {
 		var model = this._advancedSearchModel.criteria;
-		Util.showInfo(JSON.stringify(model));
+//		Util.showInfo(JSON.stringify(model));
+		
+		var callbackFunction = function(result) {
+			Util.showInfo("Call Succeeded: " + JSON.stringify(result).length);
+			//TO-DO Render table with results
+		};
+		mainController.serverFacade.searchForSamplesAdvanced(model, callbackFunction);
 	}
 }

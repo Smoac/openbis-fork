@@ -597,6 +597,153 @@ function ServerFacade(openbisServer) {
 	}
 	
 	//
+	// New Advanced Search
+	//
+	this.searchForSamplesAdvanced = function(advancedSearchCriteria, callback) {
+		require(['openbis', 
+		         'as/dto/sample/search/SampleSearchCriteria',
+		         'as/dto/sample/fetchoptions/SampleFetchOptions'], function(openbis, SampleSearchCriteria, SampleFetchOptions) {
+			
+			//Boilerplate
+			var testProtocol = window.location.protocol;
+			var testHost = window.location.hostname;
+			var testPort = window.location.port;
+			
+			var testUrl = testProtocol + "//" + testHost + ":" + testPort;
+			var testApiUrl = testUrl + "/openbis/openbis/rmi-application-server-v3.json";
+			
+			var v3Api = new openbis(testApiUrl);
+			v3Api._private.sessionToken = mainController.serverFacade.getSession();
+			
+			//SearchResult<Sample> searchSamples(String sessionToken, SampleSearchCriteria searchCriteria, SampleFetchOptions fetchOptions);
+			//TO-DO Setting the searchCriteria given the advancedSearchCriteria model
+			var searchCriteria = new SampleSearchCriteria();
+			
+			/*var operator = advancedSearchCriteria.logicalOperator;
+			searchCriteria.withOperator(operator);
+			
+			var fieldType = null;
+			var fieldName = null;
+			var fieldValue = null;
+
+			var ruleKeys = Object.keys(advancedSearchCriteria.rules);
+			for (var idx = 0; idx < ruleKeys.length; idx++)
+			{
+
+				fieldType = advancedSearchCriteria.rules[ruleKeys[idx]].type;
+				fieldName = advancedSearchCriteria.rules[ruleKeys[idx]].name;
+				if (fieldName.indexOf(".") > 0)
+					fieldName = fieldName.substring(fieldName.indexOf(".")+1,fieldName.length);
+				fieldValue = advancedSearchCriteria.rules[ruleKeys[idx]].value;
+				
+				//Case 1: fieldType = all
+				if(fieldType === "All") {
+					searchCriteria.withAnyField().thatEquals(fieldValue);
+					//alert("All! type is " + fieldType + " name is " + fieldName + " val is " + fieldValue);
+				}
+
+				//Case 2: fieldType = property
+				else if(fieldType === "Property") {
+					searchCriteria.withProperty(fieldName).thatEquals(fieldValue);
+				}
+
+				//Case 3: fieldType = attribute
+				else if(fieldType === "Attribute"){
+					switch(fieldName) {
+						case "CODE":
+							searchCriteria.withCode().thatEquals(fieldValue);
+							break;	
+						case "SAMPLE_TYPE":
+							searchCriteria.withType().withCode().thatEquals(fieldValue);
+							break;
+						case "PERM_ID":
+							searchCriteria.withPermId().thatEquals(fieldValue);
+							break;
+						case "SPACE":
+							searchCriteria.withSpace().withCode().thatEquals(fieldValue);
+							break;
+						case "PROJECT":
+							searchCriteria.withProject().withCode().thatEquals(fieldValue);
+							break;
+						case "PROJECT_PERM_ID":
+							searchCriteria.withProject().withPermId().thatEquals(fieldValue);
+							break;
+						case "METAPROJECT":
+							//???
+							break;
+						case "REGISTRATION_DATE": //must be format 2009-08-18
+							searchCriteria.withRegistrationDate().thatEquals(fieldValue);
+							break;
+						case "MODIFICATION_DATE": //must be format 2009-08-18
+							searchCriteria.withModificationDate().thatEquals(fieldValue);
+							break;
+						default:
+							//Do Nothing
+					}
+				}
+				
+				//case 4 = Parents
+				else if (fieldType == "Parent"){
+					if(fieldValue.indexOf("ATTR.") > 0){
+						switch(fieldName) {
+							case "CODE":
+								searchCriteria.withParents().withCode().thatEquals(fieldValue);
+								break;	
+							case "SAMPLE_TYPE":
+								searchCriteria.withParents().withType().withCode().thatEquals(fieldValue);
+								break;
+							case "PERM_ID":
+								searchCriteria.withParents().withPermId().thatEquals(fieldValue);
+								break;
+							case "SPACE":
+								searchCriteria.withParents().withSpace().withCode().thatEquals(fieldValue);
+								break;
+							case "PROJECT":
+								searchCriteria.withParents().withProject().withCode().thatEquals(fieldValue);
+								break;
+							case "PROJECT_PERM_ID":
+								searchCriteria.withParents().withProject().withPermId().thatEquals(fieldValue);
+								break;
+							case "METAPROJECT":
+								//???
+								break;
+							case "REGISTRATION_DATE": //must be format 2009-08-18
+								searchCriteria.withParents().withRegistrationDate().thatEquals(fieldValue);
+								break;
+							case "MODIFICATION_DATE": //must be format 2009-08-18
+								searchCriteria.withParents().withModificationDate().thatEquals(fieldValue);
+								break;
+							default:
+								//Do Nothing
+						}	
+					}else if(fieldValue.indexOf("PROP.") > 0){
+						searchCriteria.withParents().withProperty(fieldName).thatEquals(fieldValue);
+					}
+				}//end parent
+				
+				
+				//case 5 = CHildren
+				else if (fieldType == "Children"){
+					//copy & paste the code above.				
+				}						
+			
+			}*/
+			
+			//TO-DO Setting the fetchOptions given standard settings
+			var fetchOptions = new SampleFetchOptions();
+			
+			v3Api.searchSamples(searchCriteria, fetchOptions)
+			.done(function(result) {
+				callback(result);  //this will call the method defined in the AdvancedSearchController which will display the table
+			})
+			.fail(function(result) {
+				Util.showError("Call failed to server: " + JSON.stringify(result));
+				Util.unblockUI();
+			});
+		});
+	}
+	
+	//
 	// Search Samples
 	//
 	
