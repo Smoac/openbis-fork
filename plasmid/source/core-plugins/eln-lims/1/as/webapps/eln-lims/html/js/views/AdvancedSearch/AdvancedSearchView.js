@@ -36,11 +36,14 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			'role' : "form",
 			'action' : 'javascript:void(0);'
 		});
+		$mainPanel.append($("<h2>").append("Advanced Search"));
+		
 		
 		//Search Menu Panel
 		this._$menuPanelContainer = $("<div>");
-		this._paintMenuPanel(this._$menuPanelContainer);
 		$mainPanel.append(this._$menuPanelContainer);
+		this._paintMenuPanel(this._$menuPanelContainer);
+		$mainPanel.append($("<br>"));
 		
 		//Search Criteria Panel
 		//table to select field type, name, and value
@@ -48,10 +51,12 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		this._paintCriteriaPanel(this._$searchCriteriaPanelContainer);
 		$mainPanel.append(this._$searchCriteriaPanelContainer);
 		
+		//
+		
 		//Search Results Panel
 		this._$dataGridContainer = $("<div>");
 		$mainPanel.append(this._$dataGridContainer);
-		//TODO
+		//
 		
 		//Triggers Layout refresh
 		$container.append($mainPanel);
@@ -85,7 +90,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	this._paintCriteriaPanel = function($searchCriteriaPanelContainer) {
 		$searchCriteriaPanelContainer.empty();
 		var _this = this;
-		var $table = $("<table>", { class : "table"});
+		var $table = $("<table>", { class : "table table-bordered"});
 		$thead = $("<thead>");
 		this._$tbody = $("<tbody>");
 
@@ -143,7 +148,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	//how to make an on-select event??
 	this._getNewFieldTypeDropdownComponent = function($newFieldNameContainer) {
 		var _this = this;
-		var fieldTypeOptions = [{value : "All", label : "All"}, {value : "Property", label : "Property"}, {value : "Attribute", label : "Attribute"}, {value : "Parent", label : "Parent"}, {value : "Children", label : "Children"}, {value : "Space", label : "Space"}];
+		var fieldTypeOptions = [{value : "All", label : "All", selected : true }, {value : "Property", label : "Property"}, {value : "Attribute", label : "Attribute"}, {value : "Parent", label : "Parent"}, {value : "Children", label : "Children"}, {value : "Space", label : "Space"}];
 		var $fieldTypeComponent = FormUtil.getDropdown(fieldTypeOptions, "Select Field Type");
 		$fieldTypeComponent.change(function() {
 			var $thisComponent = $(this);
@@ -280,18 +285,18 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	}
 	
 	this._getEntityTypeDropdown = function() {
-		var $component = $("<select>", { class : 'form-control' } );
-			$component.append($("<option>").attr('value', '').attr('disabled', '').attr('selected', '').text('Select Entity Type to search for'));
-			$component.append($("<option>").attr('value', 'EXPERIMENT').text('Experiment'));
-			$component.append($("<option>").attr('value', 'SAMPLE').text('Sample'));
-			$component.append($("<option>").attr('value', 'DATASET').text('Dataset'));
-			var _this = this;
-			$component.change(function() {
-				_this._advancedSearchModel.resetModel($(this).val()); //Restart model
-				_this._paintCriteriaPanel(_this._$searchCriteriaPanelContainer); //Restart view
-			});
-			
-		return $component;
+		var _this = this;
+		var model = [{ value : 'EXPERIMENT', label : "Experiment" },
+		             { value : 'SAMPLE', label : "Sample", selected : true },
+		             { value : 'DATASET', label : "Dataset" }];
+		var $dropdown = FormUtil.getDropdown(model, 'Select Entity Type to search for');
+		
+		$dropdown.change(function() {
+			_this._advancedSearchModel.resetModel($(this).val()); //Restart model
+			_this._paintCriteriaPanel(_this._$searchCriteriaPanelContainer); //Restart view
+		});
+		
+		return $dropdown;
 	}
 	
 	this._getMinusButtonComponentForRow = function($tbody, $row) {
@@ -329,17 +334,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			}, {
 				label : 'Matched',
 				property : 'matched',
-				sortable : true,
-				filter : function(data, filter) {
-					var matchedValue = data.matched.text();
-					return matchedValue.toLowerCase().indexOf(filter) !== -1;
-				},
-				sort : function(data1, data2, asc) {
-					var value1 = data1.matched.text();
-					var value2 = data2.matched.text();
-					var sortDirection = (asc)? 1 : -1;
-					return sortDirection * naturalSort(value1, value2);
-				}
+				sortable : true
 			}, {
 				label : '-----------',
 				property : '-----------',
@@ -352,13 +347,15 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			for(var rIdx = 0; rIdx < results.objects.length; rIdx++) {
 				var entity = results.objects[rIdx];
 				for(var propertyCode in entity.properties) {
-					foundPropertyCodes[propertyCode] = true;
+					if(entity.properties[propertyCode]) {
+						foundPropertyCodes[propertyCode] = true;
+					}
 				}
 			}
 			
 			for(var propertyCode in foundPropertyCodes) {
 				columns.push({
-					label : propertyCode,
+					label : profile.getPropertyType(propertyCode).label,
 					property : propertyCode,
 					sortable : true
 				});
@@ -369,23 +366,15 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				var rows = [];
 				for(var rIdx = 0; rIdx < results.objects.length; rIdx++) {
 					var entity = results.objects[rIdx];
-					var entityKind = null;
-					var entityType = null;
-					var code = entity.code;
-					
-					switch(entity["@type"]) {
-						case "as.dto.sample.Sample":
-							entityKind = "Sample";
-							entityType = entity.type.code;
-							break;
-					}
 					
 					//properties
 					var rowData = {
-							entityKind : entityKind,
-							entityType : entityType,
-							code : code,
-							matched : "TO-DO"
+							entityKind : entity["@type"].substring(entity["@type"].lastIndexOf(".") + 1, entity["@type"].length),
+							entityType : entity.type.code,
+							code : entity.code,
+							permId : entity.permId.permId,
+							matched : "TO-DO",
+							entityObject: entity
 					};
 					
 					for(var propertyCode in entity.properties) {
@@ -399,7 +388,11 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			};
 			
 			var rowClick = function(e) {
-//				mainController.changeView('showViewSamplePageFromPermId', e.data.permId);
+				switch(e.data["@type"]) {
+					case "as.dto.sample.Sample":
+						mainController.changeView('showViewSamplePageFromPermId', e.data.permId);
+						break;
+				}
 			}
 			
 			var dataGrid = new DataGridController("Search Results", columns, getDataRows, rowClick, false, "ADVANCED_SEARCH_OPENBIS");
