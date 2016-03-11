@@ -20,6 +20,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	this._$menuPanelContainer = null;
 	this._$searchCriteriaPanelContainer = null;
 	this._$tbody = null;
+	this._$dataGridContainer = null;
 	
 	//
 	// Main Repaint Method
@@ -48,6 +49,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		$mainPanel.append(this._$searchCriteriaPanelContainer);
 		
 		//Search Results Panel
+		this._$dataGridContainer = $("<div>");
+		$mainPanel.append(this._$dataGridContainer);
 		//TODO
 		
 		//Triggers Layout refresh
@@ -64,7 +67,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		var $entityTypeDropdown = this._getEntityTypeDropdown();
 		$menuPanelContainer.append(FormUtil.getFieldForComponentWithLabel($entityTypeDropdown, "Search For", null, true));
 
-		var andOrOptions = [{value : "AND", label : "AND"}, {value : "OR", label : "OR"}];
+		var andOrOptions = [{value : "AND", label : "AND", selected : true}, {value : "OR", label : "OR"}];
 		var $andOrDropdownComponent = FormUtil.getDropdown(andOrOptions, "Select logical operator");
 		var _this = this;
 		$andOrDropdownComponent.change(function() {
@@ -303,6 +306,104 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			}
 		});
 		return $minusButton;
+	}
+	
+	this.renderResults = function(results) {
+		var dataGridController = this._getGridForResults(results);
+		dataGridController.init(this._$dataGridContainer);
+	}
+	
+	this._getGridForResults = function(results) {
+			var columns = [ {
+				label : 'Entity Kind',
+				property : 'entityKind',
+				sortable : true
+			}, {
+				label : 'Entity Type',
+				property : 'entityType',
+				sortable : true
+			}, {
+				label : 'Code',
+				property : 'code',
+				sortable : true
+			}, {
+				label : 'Matched',
+				property : 'matched',
+				sortable : true,
+				filter : function(data, filter) {
+					var matchedValue = data.matched.text();
+					return matchedValue.toLowerCase().indexOf(filter) !== -1;
+				},
+				sort : function(data1, data2, asc) {
+					var value1 = data1.matched.text();
+					var value2 = data2.matched.text();
+					var sortDirection = (asc)? 1 : -1;
+					return sortDirection * naturalSort(value1, value2);
+				}
+			}, {
+				label : '-----------',
+				property : '-----------',
+				sortable : true
+			}];
+			
+			//Add properties as columns dynamically depending on the results
+			var foundPropertyCodes = {};
+			
+			for(var rIdx = 0; rIdx < results.objects.length; rIdx++) {
+				var entity = results.objects[rIdx];
+				for(var propertyCode in entity.properties) {
+					foundPropertyCodes[propertyCode] = true;
+				}
+			}
+			
+			for(var propertyCode in foundPropertyCodes) {
+				columns.push({
+					label : propertyCode,
+					property : propertyCode,
+					sortable : true
+				});
+			}
+			//
+			
+			var getDataRows = function(callback) {
+				var rows = [];
+				for(var rIdx = 0; rIdx < results.objects.length; rIdx++) {
+					var entity = results.objects[rIdx];
+					var entityKind = null;
+					var entityType = null;
+					var code = entity.code;
+					
+					switch(entity["@type"]) {
+						case "as.dto.sample.Sample":
+							entityKind = "Sample";
+							entityType = entity.type.code;
+							break;
+					}
+					
+					//properties
+					var rowData = {
+							entityKind : entityKind,
+							entityType : entityType,
+							code : code,
+							matched : "TO-DO"
+					};
+					
+					for(var propertyCode in entity.properties) {
+						rowData[propertyCode] = entity.properties[propertyCode];
+					}
+					
+					//Add the row data
+					rows.push(rowData);
+				}
+				callback(rows);
+			};
+			
+			var rowClick = function(e) {
+//				mainController.changeView('showViewSamplePageFromPermId', e.data.permId);
+			}
+			
+			var dataGrid = new DataGridController("Search Results", columns, getDataRows, rowClick, false, "ADVANCED_SEARCH_OPENBIS");
+			return dataGrid;
 	}
 	
 }

@@ -295,6 +295,9 @@ var FormUtil = new function() {
 			if(mapVals[mIdx].disabled) {
 				$option.attr('disabled', '');
 			}
+			if(mapVals[mIdx].selected) {
+				$option.attr('selected', '');
+			}
 			$component.append($option);
 		}
 		

@@ -25,12 +25,13 @@ function AdvancedSearchController(mainController) {
 	}
 	
 	this.search = function() {
+		var _this = this;
 		var model = this._advancedSearchModel.criteria;
-//		Util.showInfo(JSON.stringify(model));
 		
-		var callbackFunction = function(result) {
-			Util.showInfo("Call Succeeded: " + JSON.stringify(result).length);
-			//TO-DO Render table with results
+		Util.blockUI();
+		var callbackFunction = function(results) {
+			_this._advancedSearchView.renderResults(results);
+			Util.unblockUI();
 		};
 		mainController.serverFacade.searchForSamplesAdvanced(model, callbackFunction);
 	}
