@@ -397,8 +397,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			};
 			
 			var rowClick = function(e) {
-				switch(e.data["@type"]) {
-					case "as.dto.sample.Sample":
+				switch(e.data.entityKind) {
+					case "Sample":
 						mainController.changeView('showViewSamplePageFromPermId', e.data.permId);
 						break;
 				}

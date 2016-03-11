@@ -772,6 +772,7 @@ function ServerFacade(openbisServer) {
 			
 			//TO-DO Setting the fetchOptions given standard settings
 			var fetchOptions = new SampleFetchOptions();
+			fetchOptions.withTags();
 			fetchOptions.withType();
 			fetchOptions.withSpace();
 			fetchOptions.withExperiment();
