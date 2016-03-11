@@ -599,121 +599,17 @@ function ServerFacade(openbisServer) {
 	//
 	// New Advanced Search
 	//
-	this.searchForEntitiesAdvanced = function(advancedSearchCriteria, searchCriteria, fetchOptions, v3Api, searchFunction, callback) {
-		//Setting the searchCriteria given the advancedSearchCriteria model
-		var searchCriteria = searchCriteria;
-		
-		//Setting the fetchOptions given standard settings
-		var fetchOptions = fetchOptions;
-		fetchOptions.withTags();
-		fetchOptions.withType();
-		fetchOptions.withSpace();
-		fetchOptions.withExperiment();
-		fetchOptions.withRegistrator();
-		fetchOptions.withModifier();
-		fetchOptions.withParents();
-		fetchOptions.withProperties();
-		
-		//Operator
-		var operator = advancedSearchCriteria.logicalOperator;
-		if (!operator) {
-			operator = "AND";
-		}
-		searchCriteria.withOperator(operator);
-		
-		//Rules
-		var ruleKeys = Object.keys(advancedSearchCriteria.rules);
-		for (var idx = 0; idx < ruleKeys.length; idx++)
-		{
-			var fieldType = advancedSearchCriteria.rules[ruleKeys[idx]].type;
-			var fieldName = advancedSearchCriteria.rules[ruleKeys[idx]].name;
-			var fieldNameType = null;
-			var fieldValue = advancedSearchCriteria.rules[ruleKeys[idx]].value;
-			
-			if(fieldName) {
-				var firstDotIndex = fieldName.indexOf(".");
-				fieldNameType = fieldName.substring(0, firstDotIndex);
-				fieldName = fieldName.substring(firstDotIndex + 1, fieldName.length);
-			}
-			
-			var setPropertyCriteria = function(criteria, propertyName, propertyValue) {
-				criteria.withProperty(propertyName).thatEquals(propertyValue);
-			}
-			
-			var setAttributeCriteria = function(criteria, attributeName, attributeValue) {
-				switch(attributeName) {
-					case "CODE":
-						criteria.withCode().thatEquals(attributeValue);
-						break;	
-					case "SAMPLE_TYPE":
-						criteria.withType().withCode().thatEquals(attributeValue);
-						break;
-					case "PERM_ID":
-						criteria.withPermId().thatEquals(attributeValue);
-						break;
-					case "SPACE":
-						criteria.withSpace().withCode().thatEquals(attributeValue);
-						break;
-					case "METAPROJECT":
-						criteria.withTag().withCode().thatEquals(attributeValue);
-						break;
-					case "REGISTRATION_DATE": //must be format 2009-08-18 ?
-						criteria.withRegistrationDate().thatEquals(new DateObjectEqualToValue(attributeValue));
-						break;
-					case "MODIFICATION_DATE": //must be format 2009-08-18 ?
-						criteria.withModificationDate().thatEquals(new DateObjectEqualToValue(attributeValue));
-						break;
-				}
-			}
-			
-			switch(fieldType) {
-				case "All":
-					searchCriteria.withAnyField().thatEquals(fieldValue);
-					break;
-				case "Property":
-					setPropertyCriteria(searchCriteria, fieldName, fieldValue);
-					break;
-				case "Attribute":
-					setAttributeCriteria(searchCriteria, fieldName, fieldValue);
-					break;
-				case "Parent":
-					switch(fieldNameType) {
-						case "PROP":
-							setPropertyCriteria(searchCriteria.withParents(), fieldName, fieldValue);
-							break;
-						case "ATTR":
-							setAttributeCriteria(searchCriteria.withParents(), fieldName, fieldValue);
-							break;
-					}
-					break;
-				case "Children":
-					switch(fieldNameType) {
-						case "PROP":
-							setPropertyCriteria(searchCriteria.withChildren(), fieldName, fieldValue);
-							break;
-						case "ATTR":
-							setAttributeCriteria(searchCriteria.withChildren(), fieldName, fieldValue);
-							break;
-					}
-					break;
-			}
-		}
-		
-		v3Api[searchFunction](searchCriteria, fetchOptions)
-		.done(function(result) {
-			callback(result);  //this will call the method defined in the AdvancedSearchController which will display the table
-		})
-		.fail(function(result) {
-			Util.showError("Call failed to server: " + JSON.stringify(result));
-			Util.unblockUI();
-		});
+	this.searchForSamplesAdvanced = function(advancedSearchCriteria, callback) {
+		var criteriaClass = 'as/dto/sample/search/SampleSearchCriteria';
+		var fetchOptionsClass = 'as/dto/sample/fetchoptions/SampleFetchOptions';
+		var searchMethodName = 'searchSamples';
+		this.searchForEntityAdvanced(advancedSearchCriteria, callback, criteriaClass, fetchOptionsClass, searchMethodName);
 	}
 	
-	this.searchForSamplesAdvanced = function(advancedSearchCriteria, callback) {
-		var _this = this;
+	this.searchForEntityAdvanced = function(advancedSearchCriteria, callback, criteriaClass, fetchOptionsClass, searchMethodName) {
 		require(['openbis', 
-		         'as/dto/sample/search/SampleSearchCriteria',
-		         'as/dto/sample/fetchoptions/SampleFetchOptions',
+		         criteriaClass,
+		         fetchOptionsClass,
 		         'as/dto/common/search/DateObjectEqualToValue'], function(openbis, SampleSearchCriteria, SampleFetchOptions, DateObjectEqualToValue) {
 			
 			//Boilerplate
@@ -732,13 +628,108 @@ function ServerFacade(openbisServer) {
 			
 			//Setting the fetchOptions given standard settings
 			var fetchOptions = new SampleFetchOptions();
+			fetchOptions.withTags();
+			fetchOptions.withType();
+			fetchOptions.withSpace();
+			fetchOptions.withExperiment();
+			fetchOptions.withRegistrator();
+			fetchOptions.withModifier();
+			fetchOptions.withParents();
+			fetchOptions.withProperties();
 			
-			_this.searchForEntitiesAdvanced(advancedSearchCriteria,
-											searchCriteria, 
-											fetchOptions, 
-											v3Api,
-											"searchSamples",
-											callback);
+			//Operator
+			var operator = advancedSearchCriteria.logicalOperator;
+			if (!operator) {
+				operator = "AND";
+			}
+			searchCriteria.withOperator(operator);
+			
+			//Rules
+			var ruleKeys = Object.keys(advancedSearchCriteria.rules);
+			for (var idx = 0; idx < ruleKeys.length; idx++)
+			{
+				var fieldType = advancedSearchCriteria.rules[ruleKeys[idx]].type;
+				var fieldName = advancedSearchCriteria.rules[ruleKeys[idx]].name;
+				var fieldNameType = null;
+				var fieldValue = advancedSearchCriteria.rules[ruleKeys[idx]].value;
+				
+				if(fieldName) {
+					var firstDotIndex = fieldName.indexOf(".");
+					fieldNameType = fieldName.substring(0, firstDotIndex);
+					fieldName = fieldName.substring(firstDotIndex + 1, fieldName.length);
+				}
+				
+				var setPropertyCriteria = function(criteria, propertyName, propertyValue) {
+					criteria.withProperty(propertyName).thatEquals(propertyValue);
+				}
+				
+				var setAttributeCriteria = function(criteria, attributeName, attributeValue) {
+					switch(attributeName) {
+						case "CODE":
+							criteria.withCode().thatEquals(attributeValue);
+							break;	
+						case "SAMPLE_TYPE":
+							criteria.withType().withCode().thatEquals(attributeValue);
+							break;
+						case "PERM_ID":
+							criteria.withPermId().thatEquals(attributeValue);
+							break;
+						case "SPACE":
+							criteria.withSpace().withCode().thatEquals(attributeValue);
+							break;
+						case "METAPROJECT":
+							criteria.withTag().withCode().thatEquals(attributeValue);
+							break;
+						case "REGISTRATION_DATE": //must be format 2009-08-18 ?
+							criteria.withRegistrationDate().thatEquals(new DateObjectEqualToValue(attributeValue));
+							break;
+						case "MODIFICATION_DATE": //must be format 2009-08-18 ?
+							criteria.withModificationDate().thatEquals(new DateObjectEqualToValue(attributeValue));
+							break;
+					}
+				}
+				
+				switch(fieldType) {
+					case "All":
+						searchCriteria.withAnyField().thatEquals(fieldValue);
+						break;
+					case "Property":
+						setPropertyCriteria(searchCriteria, fieldName, fieldValue);
+						break;
+					case "Attribute":
+						setAttributeCriteria(searchCriteria, fieldName, fieldValue);
+						break;
+					case "Parent":
+						switch(fieldNameType) {
+							case "PROP":
+								setPropertyCriteria(searchCriteria.withParents(), fieldName, fieldValue);
+								break;
+							case "ATTR":
+								setAttributeCriteria(searchCriteria.withParents(), fieldName, fieldValue);
+								break;
+						}
+						break;
+					case "Children":
+						switch(fieldNameType) {
+							case "PROP":
+								setPropertyCriteria(searchCriteria.withChildren(), fieldName, fieldValue);
+								break;
+							case "ATTR":
+								setAttributeCriteria(searchCriteria.withChildren(), fieldName, fieldValue);
+								break;
+						}
+						break;
+				}
+			}
+			
+			v3Api[searchMethodName](searchCriteria, fetchOptions)
+			.done(function(result) {
+				callback(result);  //this will call the method defined in the AdvancedSearchController which will display the table
+			})
+			.fail(function(result) {
+				Util.showError("Call failed to server: " + JSON.stringify(result));
+				Util.unblockUI();
+			});
 		});
 	}
 	
