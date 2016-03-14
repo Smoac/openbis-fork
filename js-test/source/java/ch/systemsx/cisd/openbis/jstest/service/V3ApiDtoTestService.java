@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.jstest.service;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Map;
@@ -41,12 +40,11 @@ public class V3ApiDtoTestService implements ICustomASServiceExecutor
     public Object executeService(CustomASServiceContext context, CustomASServiceExecutionOptions options)
     {
         Map<String, Object> parameters = options.getParameters();
-        String sessionToken = context.getSessionToken();
-        System.out.println("SESSION TOKEN: " + sessionToken);
         System.out.println("PARAMETERS:");
-        
         Object obj = parameters.get("object");
-        return parameters.containsKey("echo") ? obj : populate(obj);
+        boolean echo = parameters.containsKey("echo");
+        System.out.println("echo: " + echo + ", object: " + obj + " (" + obj.getClass().getName() + ")");
+        return echo ? obj : populate(obj);
     }
 
     private Object populate(Object obj)
@@ -70,7 +68,7 @@ public class V3ApiDtoTestService implements ICustomASServiceExecutor
         return obj;
     }
 
-    private void setItUp(Object obj, Method method, Class<?> type) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException
+    private void setItUp(Object obj, Method method, Class<?> type) throws Exception
     {
         method.invoke(obj, getValue(type));
     }
