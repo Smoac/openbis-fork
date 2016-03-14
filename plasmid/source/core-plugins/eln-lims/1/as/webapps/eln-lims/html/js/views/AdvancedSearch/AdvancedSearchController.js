@@ -33,6 +33,17 @@ function AdvancedSearchController(mainController) {
 			_this._advancedSearchView.renderResults(results);
 			Util.unblockUI();
 		};
-		mainController.serverFacade.searchForSamplesAdvanced(model, callbackFunction);
+		
+		switch(this._advancedSearchModel.criteria.entityKind) {
+			case "SAMPLE":
+				mainController.serverFacade.searchForSamplesAdvanced(model, callbackFunction);
+				break;
+			case "EXPERIMENT":
+				mainController.serverFacade.searchForExperimentsAdvanced(model, callbackFunction);
+				break;
+			case "DATASET":
+				mainController.serverFacade.searchForDataSetsAdvanced(model, callbackFunction);
+				break;
+		}
 	}
 }

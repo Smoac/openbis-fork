@@ -599,6 +599,21 @@ function ServerFacade(openbisServer) {
 	//
 	// New Advanced Search
 	//
+	
+	this.searchForDataSetsAdvanced = function(advancedSearchCriteria, callback) {
+		var criteriaClass = 'as/dto/dataset/search/DataSetSearchCriteria';
+		var fetchOptionsClass = 'as/dto/dataset/fetchoptions/DataSetFetchOptions';
+		var searchMethodName = 'searchDataSets';
+		this.searchForEntityAdvanced(advancedSearchCriteria, callback, criteriaClass, fetchOptionsClass, searchMethodName);
+	}
+	
+	this.searchForExperimentsAdvanced = function(advancedSearchCriteria, callback) {
+		var criteriaClass = 'as/dto/experiment/search/ExperimentSearchCriteria';
+		var fetchOptionsClass = 'as/dto/experiment/fetchoptions/ExperimentFetchOptions';
+		var searchMethodName = 'searchExperiments';
+		this.searchForEntityAdvanced(advancedSearchCriteria, callback, criteriaClass, fetchOptionsClass, searchMethodName);
+	}
+	
 	this.searchForSamplesAdvanced = function(advancedSearchCriteria, callback) {
 		var criteriaClass = 'as/dto/sample/search/SampleSearchCriteria';
 		var fetchOptionsClass = 'as/dto/sample/fetchoptions/SampleFetchOptions';
@@ -610,7 +625,7 @@ function ServerFacade(openbisServer) {
 		require(['openbis', 
 		         criteriaClass,
 		         fetchOptionsClass,
-		         'as/dto/common/search/DateObjectEqualToValue'], function(openbis, SampleSearchCriteria, SampleFetchOptions, DateObjectEqualToValue) {
+		         'as/dto/common/search/DateObjectEqualToValue'], function(openbis, EntitySearchCriteria, EntityFetchOptions, DateObjectEqualToValue) {
 			
 			//Boilerplate
 			var testProtocol = window.location.protocol;
@@ -624,17 +639,24 @@ function ServerFacade(openbisServer) {
 			v3Api._private.sessionToken = mainController.serverFacade.getSession();
 			
 			//Setting the searchCriteria given the advancedSearchCriteria model
-			var searchCriteria = new SampleSearchCriteria();
+			var searchCriteria = new EntitySearchCriteria();
 			
 			//Setting the fetchOptions given standard settings
-			var fetchOptions = new SampleFetchOptions();
+			var fetchOptions = new EntityFetchOptions();
 			fetchOptions.withTags();
 			fetchOptions.withType();
-			fetchOptions.withSpace();
-			fetchOptions.withExperiment();
+			if(fetchOptions.withSpace) {
+				fetchOptions.withSpace();
+			}
+			if(fetchOptions.withExperiment) {
+				fetchOptions.withExperiment();
+			}
 			fetchOptions.withRegistrator();
 			fetchOptions.withModifier();
-			fetchOptions.withParents();
+			if(fetchOptions.withParents) {
+				fetchOptions.withParents();
+			}
+			
 			fetchOptions.withProperties();
 			
 			//Operator
@@ -665,26 +687,40 @@ function ServerFacade(openbisServer) {
 				
 				var setAttributeCriteria = function(criteria, attributeName, attributeValue) {
 					switch(attributeName) {
+						//Basic
 						case "CODE":
 							criteria.withCode().thatEquals(attributeValue);
-							break;	
-						case "SAMPLE_TYPE":
-							criteria.withType().withCode().thatEquals(attributeValue);
 							break;
 						case "PERM_ID":
 							criteria.withPermId().thatEquals(attributeValue);
 							break;
+						case "METAPROJECT":
+							criteria.withTag().withCode().thatEquals(attributeValue); //TO-DO To Test
+							break;
+						case "REGISTRATION_DATE": //TO-DO To Test, must be format 2009-08-18 ?
+							criteria.withRegistrationDate().thatEquals(new DateObjectEqualToValue(attributeValue));
+							break;
+						case "MODIFICATION_DATE": //TO-DO To Test, must be format 2009-08-18 ?
+							criteria.withModificationDate().thatEquals(new DateObjectEqualToValue(attributeValue));
+							break;
+						case "SAMPLE_TYPE":
+						case "EXPERIMENT_TYPE":
+						case "DATA_SET_TYPE":
+							criteria.withType().withCode().thatEquals(attributeValue);
+							break;
+						//Sample
 						case "SPACE":
 							criteria.withSpace().withCode().thatEquals(attributeValue);
 							break;
-						case "METAPROJECT":
-							criteria.withTag().withCode().thatEquals(attributeValue);
+						//Experiment
+						case "PROJECT":
+							criteria.withProject().withCode().thatEquals(attributeValue);
 							break;
-						case "REGISTRATION_DATE": //must be format 2009-08-18 ?
-							criteria.withRegistrationDate().thatEquals(new DateObjectEqualToValue(attributeValue));
+						case "PROJECT_PERM_ID":
+							criteria.withProject().withPermId().thatEquals(attributeValue);
 							break;
-						case "MODIFICATION_DATE": //must be format 2009-08-18 ?
-							criteria.withModificationDate().thatEquals(new DateObjectEqualToValue(attributeValue));
+						case "PROJECT_SPACE":
+							criteria.withProject().withSpace().withCode().thatEquals(attributeValue);
 							break;
 					}
 				}

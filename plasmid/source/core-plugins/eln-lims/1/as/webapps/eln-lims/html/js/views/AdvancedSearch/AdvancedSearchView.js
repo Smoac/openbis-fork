@@ -136,7 +136,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		});
 		var $newFieldNameContainer = $("<td>");
 		
-			$newRow.append($("<td>").append(this._getNewFieldTypeDropdownComponent($newFieldNameContainer)))
+			$newRow.append($("<td>").append(this._getNewFieldTypeDropdownComponent($newFieldNameContainer, this._advancedSearchModel.criteria.entityKind)))
 					.append($newFieldNameContainer)
 					.append($("<td>").append($fieldValue))
 					.append($("<td>").append(this._getMinusButtonComponentForRow(this._$tbody, $newRow)));
@@ -146,9 +146,33 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	
 	//should make new objects every time. otherwise, using the same object will produce odd results!
 	//how to make an on-select event??
-	this._getNewFieldTypeDropdownComponent = function($newFieldNameContainer) {
+	this._getNewFieldTypeDropdownComponent = function($newFieldNameContainer, entityKind) {
 		var _this = this;
-		var fieldTypeOptions = [{value : "All", label : "All", selected : true }, {value : "Property", label : "Property"}, {value : "Attribute", label : "Attribute"}, {value : "Parent", label : "Parent"}, {value : "Children", label : "Children"}];
+		var fieldTypeOptions = null;
+		switch(entityKind) {
+			case "SAMPLE":
+				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
+				                    {value : "Property", label : "Property"}, 
+				                    {value : "Attribute", label : "Attribute"}, 
+				                    {value : "Parent", label : "Parent"}, 
+				                    {value : "Children", label : "Children"}];
+				break;
+			case "EXPERIMENT":
+				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
+				                    {value : "Property", label : "Property"}, 
+				                    {value : "Attribute", label : "Attribute"}];
+				break;
+			case "DATASET":
+				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
+				                    {value : "Property", label : "Property"}, 
+				                    {value : "Attribute", label : "Attribute"},
+// ELN-UI don't support this yet
+//				                    {value : "Parent", label : "Parent"}, 
+//				                    {value : "Children", label : "Children"}
+				                    ];
+				break;
+		}
+		
 		var $fieldTypeComponent = FormUtil.getDropdown(fieldTypeOptions, "Select Field Type");
 		$fieldTypeComponent.change(function() {
 			var $thisComponent = $(this);
@@ -175,9 +199,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				case "Children":
 					$newFieldNameContainer.append(_this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "Children"));
 					break;
-				case "Space":
-					//Do Nothing
-					break;	
 				default:
 					//Do Nothing
 			}
@@ -260,8 +281,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				         { value : "ATTR.PERM_ID", label : "Perm Id" }, 
 				         { value : "ATTR.PROJECT", label : "Project" }, 
 				         { value : "ATTR.PROJECT_PERM_ID", label : "Project Perm Id" }, 
-				         { value : "ATTR.PROJECT_SPACE", label : "Space" }, 
-				         { value : "ATTR.METAPROJECT", label : "Metaproject" }, 
+				         { value : "ATTR.PROJECT_SPACE", label : "Project Space" }, 
+				         { value : "ATTR.METAPROJECT", label : "Tag" }, 
 				         { value : "ATTR.REGISTRATION_DATE", label : "Registration Date" }, 
 				         { value : "ATTR.MODIFICATION_DATE", label : "Modification Date" }];
 				break;
@@ -270,14 +291,14 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				         { value : "ATTR.SAMPLE_TYPE", label: "Sample Type" },
 				         { value : "ATTR.PERM_ID", label: "Perm Id" },
 				         { value : "ATTR.SPACE", label: "Space" },
-				         { value : "ATTR.METAPROJECT", label: "Metaproject" },
+				         { value : "ATTR.METAPROJECT", label: "Tag" },
 						 { value : "ATTR.REGISTRATION_DATE", label: "Registration Date" }, 
 						 { value : "ATTR.MODIFICATION_DATE", label: "Modification Date" }];
 				break;
 			case "DATASET":
 				model = [{ value : "ATTR.CODE", label : "Code" }, 
 				         { value : "ATTR.DATA_SET_TYPE", label : "Data Set Type" }, 
-				         { value : "ATTR.METAPROJECT", label : "Metaproject" }, 
+				         { value : "ATTR.METAPROJECT", label : "Tag" }, 
 				         { value : "ATTR.REGISTRATION_DATE", label : "Registration Date" },
 				         { value : "ATTR.MODIFICATION_DATE", label : "Modification Date" }];
 				break;
@@ -334,6 +355,10 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				property : 'code',
 				sortable : true
 			}, {
+				label : 'Identifier',
+				property : 'identifier',
+				sortable : true
+			}, {
 				label : 'Matched',
 				property : 'matched',
 				sortable : true
@@ -388,6 +413,10 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 							entityObject: entity
 					};
 					
+					if(entity.identifier) {
+						rowData.identifier = entity.identifier.identifier;
+					}
+					
 					for(var propertyCode in entity.properties) {
 						rowData[propertyCode] = entity.properties[propertyCode];
 					}
@@ -402,6 +431,12 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				switch(e.data.entityKind) {
 					case "Sample":
 						mainController.changeView('showViewSamplePageFromPermId', e.data.permId);
+						break;
+					case "Experiment":
+						mainController.changeView('showExperimentPageFromIdentifier', e.data.identifier);
+						break;
+					case "DataSet":
+						mainController.changeView('showViewDataSetPageFromPermId', e.data.permId);
 						break;
 				}
 			}
