@@ -133,7 +133,7 @@ def calculateBuildInfo() {
         project.ext.versionNumber = 'SNAPSHOT'
         def url = output.findAll({ it.startsWith('URL:')})[0].split('URL:')[1].trim()
         if (url.contains('/trunk') == false) {
-            pathElements = url.split('/')
+            def pathElements = url.split('/')
             project.ext.versionNumber = 'libraries' == pathElements[-2] ? pathElements[-3] : pathElements[-2]
         }
     } else {
@@ -246,7 +246,7 @@ compileTestJava {
 }
 
 def createJvmArgs() {
-    args = ['-cp', configurations.ecj.asPath, 'org.eclipse.jdt.internal.compiler.batch.Main', '-nowarn']
+    def args = ['-cp', configurations.ecj.asPath, 'org.eclipse.jdt.internal.compiler.batch.Main', '-nowarn']
     appendCompatibilityOption(args, '-source', sourceCompatibility)
     appendCompatibilityOption(args, '-target', targetCompatibility)
     return args
