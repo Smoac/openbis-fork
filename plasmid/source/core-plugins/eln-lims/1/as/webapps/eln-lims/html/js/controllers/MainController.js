@@ -605,7 +605,7 @@ function MainController(profile) {
 					
 					$("#search").addClass("search-query-searching");
 					if(!searchDomain || searchDomain === profile.getSearchDomains()[0].name) { //Global Search
-						localReference.serverFacade.searchWithText(value, function(data) {
+						localReference.serverFacade.searchGlobally(value, function(data) {
 							$("#search").removeClass("search-query-searching");
 							
 							var columns = [ {

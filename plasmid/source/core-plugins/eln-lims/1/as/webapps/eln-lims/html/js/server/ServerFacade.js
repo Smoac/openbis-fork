@@ -604,7 +604,7 @@ function ServerFacade(openbisServer) {
 		var fetchOptionsClass = 'as/dto/sample/fetchoptions/SampleFetchOptions';
 		var searchMethodName = 'searchSamples';
 		this.searchForEntityAdvanced(advancedSearchCriteria, callback, criteriaClass, fetchOptionsClass, searchMethodName);
-	}
+	} 
 	
 	this.searchForEntityAdvanced = function(advancedSearchCriteria, callback, criteriaClass, fetchOptionsClass, searchMethodName) {
 		require(['openbis', 
@@ -1257,32 +1257,44 @@ function ServerFacade(openbisServer) {
 	}
 	
 	//
-	// Free Text Search
+	// Globale Search
 	//
-	this.searchWithText = function(freeText, callbackFunction)
+	this.searchGlobally = function(freeText, callbackFunction)
 	{
 		var _this = this;
-		var regEx = /\d{4}-\d{2}-\d{2}/g;
-		var match = freeText.match(regEx);
-		
-		if(match && match.length === 1) { //Search With Date Mode, we merge results with dates found on registration and modification fields what is slow for large number of entities
-			this.searchSamples(this._getCriteriaWithDate(freeText, true, false), function(samples1) {
-				_this.searchSamples(_this._getCriteriaWithDate(freeText, false, true), function(samples2) {
-					_this.searchSamples(_this._getCriteriaWithDate(freeText, false, false), function(samples3) {
-						var results = samples1.concat(samples2).concat(samples3).uniqueOBISEntity();
-						callbackFunction(results);
-					});
-				});
+		require(['openbis', 'as/dto/global/search/GlobalSearchCriteria', 
+		         'as/dto/global/fetchoptions/GlobalSearchObjectFetchOptions'], 
+		         function(openbis, GlobalSearchCriteria, GlobalSearchObjectFetchOptions){
+			var protocol = window.location.protocol;
+			var host = window.location.hostname;
+			var port = window.location.port;
+			var url = protocol + "//" + host + ":" + port;
+			var v3api = new openbis(url + "/openbis/openbis/rmi-application-server-v3.json");
+			v3api._private.sessionToken = mainController.serverFacade.getSession();
+			var searchCriteria = new GlobalSearchCriteria();
+			searchCriteria.withText().thatContains(freeText);
+			var fetchOptions = new GlobalSearchObjectFetchOptions();
+			var sampleFetchOptions = fetchOptions.withSample();
+			sampleFetchOptions.withSpace();
+			sampleFetchOptions.withType();
+			sampleFetchOptions.withRegistrator();
+			sampleFetchOptions.withModifier();
+			sampleFetchOptions.withExperiment();
+			v3api.searchGlobally(searchCriteria, fetchOptions).done(function(results) {
+				var v1Samples = [];
+				var objects = results.getObjects();
+				for (var i = 0; i < objects.length; i++) {
+					var sample = objects[i].getSample();
+					if (sample) {
+						v1Samples.push(_this.getV3SampleAsV1(sample));
+					}
+				}
+				callbackFunction(v1Samples);
+			}).fail(function(error) {
+				Util.showError("Call failed to server: " + JSON.stringify(error));
+				Util.unblockUI();
 			});
-		} else if(match && match.length > 1) {
-			Util.showError("Search only supports one date at a time!");
-			callbackFunction([]);
-		} else { //Normal Search
-			this.searchSamples(this._getCriteriaWithDate(freeText, false, false), function(samples) {
-				callbackFunction(samples);
-			});
-			callbackFunction([]);
-		}
+		});
 	}
 	
 	this._getCriteriaWithDate = function(freeText, isRegistrationDate, isModificationDate) {

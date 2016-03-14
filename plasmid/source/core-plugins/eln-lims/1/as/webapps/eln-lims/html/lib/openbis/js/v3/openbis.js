@@ -1,4 +1,4 @@
-define(['util/Json'], function(stjsUtil) {
+define([ 'util/Json' ], function(stjsUtil) {
 
 	var __private = function() {
 
@@ -452,6 +452,18 @@ define(['util/Json'], function(stjsUtil) {
 				url : openbisUrl,
 				data : {
 					"method" : "searchObjectKindModifications",
+					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
+				},
+				returnType : "SearchResult"
+			});
+		}
+
+		this.searchGlobally = function(criteria, fetchOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "searchGlobally",
 					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
 				},
 				returnType : "SearchResult"
