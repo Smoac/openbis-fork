@@ -62,17 +62,31 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		if(this._projectFormModel.mode !== FormMode.CREATE) {
 			//Create Experiment
 			var $createExpBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
-				var $dropdown = FormUtil.getExperimentTypeDropdown("experimentTypeDropdown", true);
-				Util.blockUI("Select the type for the Experiment: <br><br>" + $dropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='experimentTypeDropdownCancel'>Cancel</a>");
 				
-				$("#experimentTypeDropdown").on("change", function(event) {
-					var experimentTypeCode = $("#experimentTypeDropdown")[0].value;
-					_this._projectFormController.createNewExperiment(experimentTypeCode);
-				});
+				var showSelectExperimentType = function() {
+					var $dropdown = FormUtil.getExperimentTypeDropdown("experimentTypeDropdown", true);
+					Util.blockUI("Select the type for the Experiment: <br><br>" + $dropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='experimentTypeDropdownCancel'>Cancel</a>");
+					
+					$("#experimentTypeDropdown").on("change", function(event) {
+						var experimentTypeCode = $("#experimentTypeDropdown")[0].value;
+						_this._projectFormController.createNewExperiment(experimentTypeCode);
+					});
+					
+					$("#experimentTypeDropdownCancel").on("click", function(event) { 
+						Util.unblockUI();
+					});
+				}
 				
-				$("#experimentTypeDropdownCancel").on("click", function(event) { 
-					Util.unblockUI();
-				});
+				if(profile.isInventorySpace(_this._projectFormModel.project.spaceCode)) {
+					var experimentType = profile.getExperimentTypeForExperimentTypeCode(_this._projectFormModel.project.spaceCode);
+					if(experimentType) {
+						_this._projectFormController.createNewExperiment(_this._projectFormModel.project.spaceCode);
+					} else {
+						showSelectExperimentType();
+					}
+				} else {
+					showSelectExperimentType();
+				}
 			});
 			toolbarModel.push({ component : $createExpBtn, tooltip: "Create Experiment" });
 			

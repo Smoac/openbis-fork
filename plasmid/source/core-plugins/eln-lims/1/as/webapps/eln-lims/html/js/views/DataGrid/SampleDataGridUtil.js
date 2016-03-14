@@ -71,7 +71,7 @@ var SampleDataGridUtil = new function() {
 							for(var pathIdx = 0; pathIdx < dataFiles.result.length; pathIdx++) {
 								if(!dataFiles.result[pathIdx].isDirectory) {
 									var downloadUrl = profile.allDataStores[0].downloadUrl + '/' + dataset.code + "/" + dataFiles.result[pathIdx].pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
-									var previewImage = $("<img>", { 'src' : downloadUrl, 'class' : 'zoomableImage', 'style' : 'height:80px;' });
+									var previewImage = $("<img>", { 'src' : downloadUrl, 'class' : 'zoomableImage', 'style' : 'width:100%;' });
 									previewImage.click(function(event) {
 										Util.showImage(downloadUrl);
 										event.stopPropagation();

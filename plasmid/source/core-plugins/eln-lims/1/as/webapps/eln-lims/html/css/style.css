@@ -59,6 +59,11 @@ h1, h2, legend {
 	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 	font-weight: 300;
 }
+
+.control-label {
+	word-wrap: break-word;
+}
+
 /*
 .btn {
 	min-width: 45px !important;
