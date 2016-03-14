@@ -59,7 +59,7 @@ def process(tr, parameters, tableBuilder):
 def getLogsDir(tr):
     defaultDir = System.getProperty("user.dir")
     dir = getProperty(tr, "dss-registration-log-dir")
-    if dir is None:
+    if dir is None or os.path.isdir(dir) == False:
         return os.path.join(defaultDir, "log-registrations")
     else:
         return dir        
