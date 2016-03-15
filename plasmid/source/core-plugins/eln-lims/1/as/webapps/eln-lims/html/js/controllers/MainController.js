@@ -81,7 +81,7 @@ function MainController(profile) {
 			var viewName = queryString.viewName;
 			var viewData = queryString.viewData
 			if(viewName && viewData) {
-				localReference.changeView(viewName, viewData);
+				localReference._changeView(viewName, viewData, false);
 			}
 		}
 		window.addEventListener("popstate", function(e) {backButtonLogic(e);}); 
@@ -156,6 +156,9 @@ function MainController(profile) {
 	// Main View Changer - Everything on the application rely on this method to alter the views, arg should be a string
 	//
 	this.changeView = function(newViewChange, arg) {
+		this._changeView(newViewChange, arg, true);
+	}
+	this._changeView = function(newViewChange, arg, shouldBePushToHistory) {
 		//
 		// Dirty forms management, to avoid loosing changes.
 		//
@@ -396,9 +399,11 @@ function MainController(profile) {
 		//
 		// Permanent URLs
 		//
-		var menuUniqueId = this.sideMenu.getCurrentNodeId();
-		var url = Util.getURLFor(menuUniqueId, newViewChange, arg);
-		history.pushState(null, "", url); //History Push State
+		if (shouldBePushToHistory) {
+			var menuUniqueId = this.sideMenu.getCurrentNodeId();
+			var url = Util.getURLFor(menuUniqueId, newViewChange, arg);
+			history.pushState(null, "", url); //History Push State
+		}
 		//
 		// Refresh Functionality
 		//
