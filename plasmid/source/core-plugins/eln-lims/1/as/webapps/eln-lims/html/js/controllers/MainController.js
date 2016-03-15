@@ -722,7 +722,7 @@ function MainController(profile) {
 										permId : sample.permId,
 										code : sample.code,
 										sampleTypeCode : sample.sampleTypeCode,
-										matched : $container
+										matched : $container[0].outerHTML
 									});
 								}
 								

@@ -335,7 +335,8 @@ $.extend(Grid.prototype, {
 	renderData : function(dataList) {
 		var thisGrid = this;
 		var items = [];
-
+		var maxLineLength = 300;
+		
 		dataList.forEach(function(data) {
 			var item = {};
 			thisGrid.getVisibleColumns().forEach(function(column) {
@@ -344,6 +345,9 @@ $.extend(Grid.prototype, {
 					value = column.render(data);
 				} else {
 					value = data[column.property];
+					if(value && value.length > maxLineLength) {
+						value = value.substring(0, maxLineLength) + "...";
+					}
 				}
 				item[column.property] = FormUtil.sanitizeRichHTMLText(value);
 			});
