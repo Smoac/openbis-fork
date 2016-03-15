@@ -1320,59 +1320,26 @@ function ServerFacade(openbisServer) {
 			sampleFetchOptions.withModifier();
 			sampleFetchOptions.withExperiment();
 			sampleFetchOptions.withProperties();
+			
+			var experimentFetchOptions = fetchOptions.withExperiment();
+			experimentFetchOptions.withType();
+			experimentFetchOptions.withRegistrator();
+			experimentFetchOptions.withModifier();
+			experimentFetchOptions.withProperties();
+			
+			var dataSetFetchOptions = fetchOptions.withDataSet();
+			dataSetFetchOptions.withType();
+			dataSetFetchOptions.withRegistrator();
+			dataSetFetchOptions.withModifier();
+			dataSetFetchOptions.withProperties();
+			
 			v3api.searchGlobally(searchCriteria, fetchOptions).done(function(results) {
-				var v1Samples = [];
-				var objects = results.getObjects();
-				for (var i = 0; i < objects.length; i++) {
-					var sample = objects[i].getSample();
-					if (sample) {
-						var v1Sample = _this.getV3SampleAsV1(sample);
-						v1Sample.properties["*SCORE"] = objects[i].score;
-						v1Sample.properties["*MATCHED"] = objects[i].match;
-						v1Samples.push(v1Sample);
-					}
-				}
-				callbackFunction(v1Samples);
+				callbackFunction(results);
 			}).fail(function(error) {
 				Util.showError("Call failed to server: " + JSON.stringify(error));
 				Util.unblockUI();
 			});
 		});
-	}
-	
-	this._getCriteriaWithDate = function(freeText, isRegistrationDate, isModificationDate) {
-		//Find dates on string and delete them to use them differently on the search
-		var regEx = /\d{4}-\d{2}-\d{2}/g;
-		var match = freeText.match(regEx);
-		freeText = freeText.replace(regEx, "");
-		if(!isRegistrationDate && !isModificationDate && match && match.length > 0) {
-			for(var mIdx = 0; mIdx < match.length; mIdx++) {
-				freeText += " " + match[mIdx].replace(/-/g, "");
-			}
-		}
-		
-		//Build Search
-		var sampleCriteria = {
-			"withProperties" : true
-		};
-		
-		if(freeText) {
-			sampleCriteria["anyFieldContains"] = freeText;
-		}
-		
-		if(match && match.length > 0) {
-			for(var mIdx = 0; mIdx < match.length; mIdx++) {
-				if(isRegistrationDate) {
-					sampleCriteria["registrationDate"] = match[mIdx];
-				}
-				
-				if(isModificationDate) {
-					sampleCriteria["modificationDate"] = match[mIdx];
-				}
-			}
-		}
-		
-		return sampleCriteria;
 	}
 	
 	//

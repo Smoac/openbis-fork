@@ -127,6 +127,12 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		
 		var $newRow = $("<tr>", { id : uuidValue });
 		var $fieldValue = $("<input>", { class : "form-control", type: "text"});
+		
+		if(this._advancedSearchModel.forceFreeTextSearch) {
+			$fieldValue.val(this._advancedSearchModel.forceFreeTextSearch);
+			this._advancedSearchModel.forceFreeTextSearch = undefined;
+		}
+		
 		$fieldValue.change(function() {
 			var $thisComponent = $(this);
 			//Get uuid and value and update model (type only)
@@ -150,6 +156,9 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		var _this = this;
 		var fieldTypeOptions = null;
 		switch(entityKind) {
+			case "ALL":
+				fieldTypeOptions = [{value : "All", label : "All", selected : true }];
+				break;
 			case "SAMPLE":
 				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
 				                    {value : "Property", label : "Property"}, 
@@ -308,10 +317,11 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	
 	this._getEntityTypeDropdown = function() {
 		var _this = this;
-		var model = [{ value : 'EXPERIMENT', label : "Experiment" },
-		             { value : 'SAMPLE', label : "Sample", selected : true },
+		var model = [{ value : 'ALL', label : "All", selected : true },
+		             { value : 'EXPERIMENT', label : "Experiment" },
+		             { value : 'SAMPLE', label : "Sample" },
 		             { value : 'DATASET', label : "Dataset" }];
-		this._advancedSearchModel.resetModel('SAMPLE');
+		this._advancedSearchModel.resetModel('ALL');
 		var $dropdown = FormUtil.getDropdown(model, 'Select Entity Type to search for');
 		
 		$dropdown.change(function() {
@@ -358,15 +368,28 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Identifier',
 				property : 'identifier',
 				sortable : true
-			}, {
+			}];
+			
+			columns.push({
 				label : 'Matched',
 				property : 'matched',
+				isExportable: false,
 				sortable : true
-			}, {
-				label : '-----------',
-				property : '-----------',
+			});
+			
+			columns.push({
+				label : 'Score',
+				property : 'score',
+				isExportable: false,
 				sortable : true
-			}];
+			});
+			
+			columns.push({
+				label : '---------------',
+				property : null,
+				isExportable: false,
+				sortable : false
+			});
 			
 			//Add properties as columns dynamically depending on the results
 			
@@ -424,17 +447,33 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				for(var rIdx = 0; rIdx < results.objects.length; rIdx++) {
 					var entity = results.objects[rIdx];
 					
+					var rowData = {};
+					
+					if(entity["@type"] === "as.dto.global.GlobalSearchObject") {
+						rowData.matched = entity.match;
+						rowData.score = entity.score;
+						
+						switch(entity.objectKind) {
+							case "SAMPLE":
+								entity = entity.sample;
+							break;
+							case "EXPERIMENT":
+								entity = entity.experiment;
+							break;
+							case "DATA_SET":
+								entity = entity.dataSet;
+							break;
+						}
+					}
+					
 					//properties
-					var rowData = {
-							entityKind : entity["@type"].substring(entity["@type"].lastIndexOf(".") + 1, entity["@type"].length),
-							entityType : entity.type.code,
-							code : entity.code,
-							permId : entity.permId.permId,
-							registrationDate : (entity.registrator && entity.registrator.registrationDate)?Util.getFormatedDate(new Date(entity.registrator.registrationDate)):null,
-							modificationDate : (entity.modifier && entity.modifier.registrationDate)?Util.getFormatedDate(new Date(entity.modifier.registrationDate)):null,
-							matched : "TO-DO",
-							entityObject: entity
-					};
+					rowData.entityKind = entity["@type"].substring(entity["@type"].lastIndexOf(".") + 1, entity["@type"].length);
+					rowData.entityType = entity.type.code;
+					rowData.code =  entity.code;
+					rowData.permId = entity.permId.permId;
+					rowData.registrationDate = (entity.registrator && entity.registrator.registrationDate)?Util.getFormatedDate(new Date(entity.registrator.registrationDate)):null;
+					rowData.modificationDate = (entity.modifier && entity.modifier.registrationDate)?Util.getFormatedDate(new Date(entity.modifier.registrationDate)):null;
+					rowData.entityObject = entity;
 					
 					if(entity.identifier) {
 						rowData.identifier = entity.identifier.identifier;

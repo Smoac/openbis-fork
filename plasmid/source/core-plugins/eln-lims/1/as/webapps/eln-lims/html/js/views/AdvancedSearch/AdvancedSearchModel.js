@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-function AdvancedSearchModel() {
+function AdvancedSearchModel(forceFreeTextSearch) {
+	
+	this.forceFreeTextSearch = forceFreeTextSearch;
 	
 	this.criteria = {
 		entityKind : null,

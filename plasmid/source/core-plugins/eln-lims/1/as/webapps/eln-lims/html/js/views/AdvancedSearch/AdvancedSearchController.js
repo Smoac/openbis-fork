@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-function AdvancedSearchController(mainController) {
+function AdvancedSearchController(mainController, forceFreeTextSearch) {
 	this._mainController = mainController;
-	this._advancedSearchModel = new AdvancedSearchModel();
+	this._advancedSearchModel = new AdvancedSearchModel(forceFreeTextSearch);
 	this._advancedSearchView = new AdvancedSearchView(this, this._advancedSearchModel);
 
 	this.init = function($container) {
@@ -35,6 +35,13 @@ function AdvancedSearchController(mainController) {
 		};
 		
 		switch(this._advancedSearchModel.criteria.entityKind) {
+			case "ALL":
+				var freeText = "";
+				for(var ruleId in model.rules) {
+					freeText += " " +  model.rules[ruleId].value;
+				}
+				mainController.serverFacade.searchGlobally(freeText, callbackFunction);
+				break;
 			case "SAMPLE":
 				mainController.serverFacade.searchForSamplesAdvanced(model, callbackFunction);
 				break;

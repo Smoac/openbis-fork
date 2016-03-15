@@ -186,7 +186,8 @@ function MainController(profile) {
 		switch (newViewChange) {
 			case "showAdvancedSearchPage":
 				document.title = "Advanced Search";
-				this._showAdvancedSearchPage();
+				var freeTextForGlobalSearch = arg;
+				this._showAdvancedSearchPage(freeTextForGlobalSearch);
 				window.scrollTo(0,0);
 				break;
 			case "showUserManagerPage":
@@ -582,10 +583,11 @@ function MainController(profile) {
 		this.currentView = newView;
 	}
 	
-	this._showAdvancedSearchPage = function() {
+	this._showAdvancedSearchPage = function(freeText) {
 		//Show Form
-		var newView = new AdvancedSearchController(this);
+		var newView = new AdvancedSearchController(this, freeText);
 		newView.init($("#mainContainer"));
+		newView.search();
 		this.currentView = newView;
 	}
 	
@@ -610,92 +612,8 @@ function MainController(profile) {
 					
 					$("#search").addClass("search-query-searching");
 					if(!searchDomain || searchDomain === profile.getSearchDomains()[0].name) { //Global Search
-						localReference.serverFacade.searchGlobally(value, function(data) {
-							$("#search").removeClass("search-query-searching");
-							
-							var columns = [ {
-								label : 'Score',
-								property : 'score',
-								sortable : true
-							}, {
-								label : 'Code',
-								property : 'code',
-								sortable : true
-							}, {
-								label : 'Preview',
-								property : 'preview',
-								sortable : false,
-								render : function(data) {
-									var previewContainer = $("<div>");
-									mainController.serverFacade.searchDataSetsWithTypeForSamples("ELN_PREVIEW", [data.permId], function(data) {
-										data.result.forEach(function(dataset) {
-											var listFilesForDataSetCallback = function(dataFiles) {
-												var downloadUrl = profile.allDataStores[0].downloadUrl + '/' + dataset.code + "/" + dataFiles.result[1].pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
-												var previewImage = $("<img>", { 'src' : downloadUrl, 'class' : 'zoomableImage', 'style' : 'height:80px;' });
-												previewImage.click(function(event) {
-													Util.showImage(downloadUrl);
-													event.stopPropagation();
-												});
-												previewContainer.append(previewImage);
-											};
-											mainController.serverFacade.listFilesForDataSet(dataset.code, "/", true, listFilesForDataSetCallback);
-										});
-									});
-									return previewContainer;
-								},
-								filter : function(data, filter) {
-									return false;
-								},
-								sort : function(data1, data2, asc) {
-									return 0;
-								}
-							}, {
-								label : 'Sample Type',
-								property : 'sampleTypeCode',
-								sortable : true
-							}, {
-								label : 'Matched',
-								property : 'matched',
-								sortable : true,
-								filter : function(data, filter) {
-									var matchedValue = data.matched.text();
-									return matchedValue.toLowerCase().indexOf(filter) !== -1;
-								},
-								sort : function(data1, data2, asc) {
-									var value1 = data1.matched.text();
-									var value2 = data2.matched.text();
-									var sortDirection = (asc)? 1 : -1;
-									return sortDirection * naturalSort(value1, value2);
-								}
-							}];
-							columns.push(SampleDataGridUtil.createOperationsColumn());
-							
-							var getDataList = function(callback) {
-								var dataList = [];
-								for(var i = 0; i < data.length; i++) {
-									var sample = data[i];									
-									//properties
-									dataList.push({
-										score : sample.properties["*SCORE"],
-										permId : sample.permId,
-										code : sample.code,
-										sampleTypeCode : sample.sampleTypeCode,
-										matched : sample.properties["*MATCHED"]
-									});
-								}
-								
-								callback(dataList);
-							};
-							
-							var rowClick = function(e) {
-								mainController.changeView('showViewSamplePageFromPermId', e.data.permId);
-							}
-							
-							var dataGrid = new DataGridController("Search Results", columns, getDataList, rowClick, true, "SEARCH_OPENBIS");
-							localReference.currentView = dataGrid;
-							dataGrid.init($("#mainContainer"));
-							history.pushState(null, "", ""); //History Push State
-						});
+						$("#search").removeClass("search-query-searching");
+						localReference.changeView("showAdvancedSearchPage", value);
 					} else { //Search Domain
 						localReference.serverFacade.searchOnSearchDomain(searchDomain, value, function(data) {
 							var dataSetCodes = [];
