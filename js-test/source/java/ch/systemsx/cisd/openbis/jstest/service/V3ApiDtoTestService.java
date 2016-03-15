@@ -38,6 +38,8 @@ import ch.ethz.sis.openbis.generic.server.sharedapi.v3.json.GenericObjectMapper;
  */
 public class V3ApiDtoTestService implements ICustomASServiceExecutor
 {
+    private static final String PACKAGE_PREFIX = "ch.ethz.sis.";
+
     public V3ApiDtoTestService(Properties properties)
     {
     }
@@ -49,7 +51,19 @@ public class V3ApiDtoTestService implements ICustomASServiceExecutor
         System.out.println("PARAMETERS:");
         Object obj = parameters.get("object");
         boolean echo = parameters.containsKey("echo");
-        System.out.println("echo: " + echo + ", object: " + obj + " (" + obj.getClass().getName() + ")");
+        String name = obj.getClass().getName();
+        System.out.println("echo: " + echo + ", object: " + obj + " (" + name + ")");
+        if (name.startsWith(PACKAGE_PREFIX) == false)
+        {
+            if (name.startsWith("java.") && name.endsWith("Map"))
+            {
+                throw new IllegalArgumentException("Map class detected (" + name + "). This is a hint "
+                        + "that no appropirated class found for deserialization. "
+                        + "This is most probably caused by missing default constructor. Object: " + obj);
+            }
+            throw new IllegalArgumentException("Fully qualified class named doesn't start with '" + PACKAGE_PREFIX 
+                    + "': " + name + ". Object: " + obj);
+        }
         return echo ? obj : populate(obj);
     }
 
