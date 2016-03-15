@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.openbis.jstest.service;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -47,33 +50,48 @@ public class V3ApiDtoTestService implements ICustomASServiceExecutor
         return echo ? obj : populate(obj);
     }
 
-    private Object populate(Object obj)
+    public static Object populate(Object obj)
     {
+        List<String> ignore = new ArrayList<>();
+        for (Method ign : Object.class.getMethods()) {
+            ignore.add(ign.getName());
+        }
+        
+        List<String> methds = new ArrayList<>();
+        
         for (Method method : obj.getClass().getMethods())
         {
+            if (ignore.contains(method.getName())) {
+                continue;
+            }
+            methds.add(method.getName());
+            
             Class<?>[] parameterTypes = method.getParameterTypes();
             if (parameterTypes.length == 1) {
                 Class<?> type = parameterTypes[0];
-                if (type.isPrimitive() || type.equals(String.class) || type.equals(Date.class)){
+                {
                     try
                     {
                         setItUp(obj, method, type);
                     } catch (Exception e)
                     {
-                        e.printStackTrace();
+//                        return method.getName() + " " + getValue(type);
+//                        e.printStackTrace();
                     }
                 } 
+            } else {
+                
             }
         }
         return obj;
     }
 
-    private void setItUp(Object obj, Method method, Class<?> type) throws Exception
+    public static void setItUp(Object obj, Method method, Class<?> type) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException
     {
         method.invoke(obj, getValue(type));
     }
 
-    private Object getValue(Class<?> type)
+    public static Object getValue(Class<?> type)
     {
         double random = Math.random();
         long rnd = (long) (random*1000000);
@@ -96,5 +114,4 @@ public class V3ApiDtoTestService implements ICustomASServiceExecutor
         
         return null;
     }
-
 }
