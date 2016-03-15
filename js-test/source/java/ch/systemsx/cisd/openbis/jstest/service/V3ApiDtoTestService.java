@@ -85,14 +85,14 @@ public class V3ApiDtoTestService implements ICustomASServiceExecutor
             return new Date(rnd);
         } 
 
-        if (type == Long.class) {
+        if (type == Long.class || type == Long.TYPE) {
             return rnd;
         } 
         
-        if (type == Boolean.class) {
+        if (type == Boolean.class || type == Boolean.TYPE) {
             return random < 0.5;
         } 
-        
+        System.out.println("Complex type: " + type.getName());
         
         return null;
     }

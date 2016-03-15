@@ -49,7 +49,7 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 					var dtos = Array.prototype.slice.call(arguments);
 					var roundtrips = _.map(dtos, function(dto){
 
-						c.ok("Testing " + dto['@type']);
+						c.ok("======== Testing " + dto['@type']);
 						c.ok('Rountrip ok.');
 
 						var proto = require(dto['@type'].replace(/\./g, '/'));
@@ -74,6 +74,7 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 
 									if (setter) {
 										subj[setter](val);
+										c.ok("FIELD: " + key + " = >" + val + "<")
 									} else {
 										c.ok("Skipping field " + key + " that has no setter.");
 									}
