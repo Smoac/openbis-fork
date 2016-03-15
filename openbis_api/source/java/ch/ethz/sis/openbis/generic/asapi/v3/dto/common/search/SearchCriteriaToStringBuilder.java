@@ -18,12 +18,9 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search;
 
 import java.util.Collection;
 
-import ch.systemsx.cisd.base.annotation.JsonObject;
-
 /**
  * @author pkupczyk
  */
-@JsonObject("as.dto.common.search.SearchCriteriaToStringBuilder")
 public class SearchCriteriaToStringBuilder
 {
 

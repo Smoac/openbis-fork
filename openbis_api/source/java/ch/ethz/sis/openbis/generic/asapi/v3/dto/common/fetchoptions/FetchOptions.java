@@ -45,7 +45,13 @@ public abstract class FetchOptions<OBJECT> implements Serializable
 
     public FetchOptions<OBJECT> cacheMode(CacheMode mode)
     {
-        this.cacheMode = mode;
+        if (mode == null)
+        {
+            this.cacheMode = CacheMode.NO_CACHE;
+        } else
+        {
+            this.cacheMode = mode;
+        }
         return this;
     }
 

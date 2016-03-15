@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -42,7 +43,11 @@ public abstract class AbstractCompositeSearchCriteria extends AbstractSearchCrit
 
     public void setCriteria(Collection<ISearchCriteria> criteria)
     {
-        this.criteria = criteria;
+        if (criteria == null) {
+            this.criteria.clear();
+        } else {
+            this.criteria = criteria;
+        }
     }
 
     protected <T extends ISearchCriteria> T with(T criterion)
