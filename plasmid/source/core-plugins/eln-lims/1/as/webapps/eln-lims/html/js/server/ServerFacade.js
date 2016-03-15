@@ -687,7 +687,7 @@ function ServerFacade(openbisServer) {
 				
 				var setAttributeCriteria = function(criteria, attributeName, attributeValue) {
 					switch(attributeName) {
-						//Basic
+						//Used by all entities
 						case "CODE":
 							criteria.withCode().thatEquals(attributeValue);
 							break;
@@ -695,24 +695,24 @@ function ServerFacade(openbisServer) {
 							criteria.withPermId().thatEquals(attributeValue);
 							break;
 						case "METAPROJECT":
-							criteria.withTag().withCode().thatEquals(attributeValue); //TO-DO To Test
+							criteria.withTag().withCode().thatEquals(attributeValue); //TO-DO To Test, currently not supported by ELN UI
 							break;
-						case "REGISTRATION_DATE": //TO-DO To Test, must be format 2009-08-18 ?
-							criteria.withRegistrationDate().thatEquals(new DateObjectEqualToValue(attributeValue));
+						case "REGISTRATION_DATE": //Must be a string object with format 2009-08-18
+							criteria.withRegistrationDate().thatEquals(attributeValue);
 							break;
-						case "MODIFICATION_DATE": //TO-DO To Test, must be format 2009-08-18 ?
-							criteria.withModificationDate().thatEquals(new DateObjectEqualToValue(attributeValue));
+						case "MODIFICATION_DATE": //Must be a string object with format 2009-08-18
+							criteria.withModificationDate().thatEquals(attributeValue);
 							break;
 						case "SAMPLE_TYPE":
 						case "EXPERIMENT_TYPE":
 						case "DATA_SET_TYPE":
 							criteria.withType().withCode().thatEquals(attributeValue);
 							break;
-						//Sample
+						//Only Sample
 						case "SPACE":
 							criteria.withSpace().withCode().thatEquals(attributeValue);
 							break;
-						//Experiment
+						//Only Experiment
 						case "PROJECT":
 							criteria.withProject().withCode().thatEquals(attributeValue);
 							break;

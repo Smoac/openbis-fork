@@ -282,7 +282,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				         { value : "ATTR.PROJECT", label : "Project" }, 
 				         { value : "ATTR.PROJECT_PERM_ID", label : "Project Perm Id" }, 
 				         { value : "ATTR.PROJECT_SPACE", label : "Project Space" }, 
-				         { value : "ATTR.METAPROJECT", label : "Tag" }, 
+//				         { value : "ATTR.METAPROJECT", label : "Tag" }, TO-DO Not supported by ELN yet
 				         { value : "ATTR.REGISTRATION_DATE", label : "Registration Date" }, 
 				         { value : "ATTR.MODIFICATION_DATE", label : "Modification Date" }];
 				break;
@@ -291,14 +291,14 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				         { value : "ATTR.SAMPLE_TYPE", label: "Sample Type" },
 				         { value : "ATTR.PERM_ID", label: "Perm Id" },
 				         { value : "ATTR.SPACE", label: "Space" },
-				         { value : "ATTR.METAPROJECT", label: "Tag" },
+//				         { value : "ATTR.METAPROJECT", label: "Tag" }, TO-DO Not supported by ELN yet
 						 { value : "ATTR.REGISTRATION_DATE", label: "Registration Date" }, 
 						 { value : "ATTR.MODIFICATION_DATE", label: "Modification Date" }];
 				break;
 			case "DATASET":
 				model = [{ value : "ATTR.CODE", label : "Code" }, 
 				         { value : "ATTR.DATA_SET_TYPE", label : "Data Set Type" }, 
-				         { value : "ATTR.METAPROJECT", label : "Tag" }, 
+//				         { value : "ATTR.METAPROJECT", label : "Tag" }, TO-DO Not supported by ELN yet
 				         { value : "ATTR.REGISTRATION_DATE", label : "Registration Date" },
 				         { value : "ATTR.MODIFICATION_DATE", label : "Modification Date" }];
 				break;
@@ -397,6 +397,27 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			});
 			columns = columns.concat(propertyColumnsToSort);
 			
+			//4. Add registration/modification date columns
+			columns.push({
+				label : '---------------',
+				property : null,
+				isExportable: false,
+				sortable : false
+			});
+			
+			columns.push({
+				label : 'Registration Date',
+				property : 'registrationDate',
+				isExportable: false,
+				sortable : true
+			});
+			
+			columns.push({
+				label : 'Modification Date',
+				property : 'modificationDate',
+				isExportable: false,
+				sortable : true
+			});
 			
 			var getDataRows = function(callback) {
 				var rows = [];
@@ -409,6 +430,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 							entityType : entity.type.code,
 							code : entity.code,
 							permId : entity.permId.permId,
+							registrationDate : (entity.registrator && entity.registrator.registrationDate)?Util.getFormatedDate(new Date(entity.registrator.registrationDate)):null,
+							modificationDate : (entity.modifier && entity.modifier.registrationDate)?Util.getFormatedDate(new Date(entity.modifier.registrationDate)):null,
 							matched : "TO-DO",
 							entityObject: entity
 					};
