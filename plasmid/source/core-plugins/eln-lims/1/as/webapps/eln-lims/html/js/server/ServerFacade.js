@@ -627,145 +627,148 @@ function ServerFacade(openbisServer) {
 		         fetchOptionsClass,
 		         'as/dto/common/search/DateObjectEqualToValue'], function(openbis, EntitySearchCriteria, EntityFetchOptions, DateObjectEqualToValue) {
 			
-			//Boilerplate
-			var testProtocol = window.location.protocol;
-			var testHost = window.location.hostname;
-			var testPort = window.location.port;
-			
-			var testUrl = testProtocol + "//" + testHost + ":" + testPort;
-			var testApiUrl = testUrl + "/openbis/openbis/rmi-application-server-v3.json";
-			
-			var v3Api = new openbis(testApiUrl);
-			v3Api._private.sessionToken = mainController.serverFacade.getSession();
-			
-			//Setting the searchCriteria given the advancedSearchCriteria model
-			var searchCriteria = new EntitySearchCriteria();
-			
-			//Setting the fetchOptions given standard settings
-			var fetchOptions = new EntityFetchOptions();
-			fetchOptions.withTags();
-			fetchOptions.withType();
-			if(fetchOptions.withSpace) {
-				fetchOptions.withSpace();
-			}
-			if(fetchOptions.withExperiment) {
-				fetchOptions.withExperiment();
-			}
-			fetchOptions.withRegistrator();
-			fetchOptions.withModifier();
-			if(fetchOptions.withParents) {
-				fetchOptions.withParents();
-			}
-			
-			fetchOptions.withProperties();
-			
-			//Operator
-			var operator = advancedSearchCriteria.logicalOperator;
-			if (!operator) {
-				operator = "AND";
-			}
-			searchCriteria.withOperator(operator);
-			
-			//Rules
-			var ruleKeys = Object.keys(advancedSearchCriteria.rules);
-			for (var idx = 0; idx < ruleKeys.length; idx++)
-			{
-				var fieldType = advancedSearchCriteria.rules[ruleKeys[idx]].type;
-				var fieldName = advancedSearchCriteria.rules[ruleKeys[idx]].name;
-				var fieldNameType = null;
-				var fieldValue = advancedSearchCriteria.rules[ruleKeys[idx]].value;
+			try {
+				//Boilerplate
+				var testProtocol = window.location.protocol;
+				var testHost = window.location.hostname;
+				var testPort = window.location.port;
 				
-				if(fieldName) {
-					var firstDotIndex = fieldName.indexOf(".");
-					fieldNameType = fieldName.substring(0, firstDotIndex);
-					fieldName = fieldName.substring(firstDotIndex + 1, fieldName.length);
+				var testUrl = testProtocol + "//" + testHost + ":" + testPort;
+				var testApiUrl = testUrl + "/openbis/openbis/rmi-application-server-v3.json";
+				
+				var v3Api = new openbis(testApiUrl);
+				v3Api._private.sessionToken = mainController.serverFacade.getSession();
+				
+				//Setting the searchCriteria given the advancedSearchCriteria model
+				var searchCriteria = new EntitySearchCriteria();
+				
+				//Setting the fetchOptions given standard settings
+				var fetchOptions = new EntityFetchOptions();
+				fetchOptions.withTags();
+				fetchOptions.withType();
+				if(fetchOptions.withSpace) {
+					fetchOptions.withSpace();
+				}
+				if(fetchOptions.withExperiment) {
+					fetchOptions.withExperiment();
+				}
+				fetchOptions.withRegistrator();
+				fetchOptions.withModifier();
+				if(fetchOptions.withParents) {
+					fetchOptions.withParents();
 				}
 				
-				var setPropertyCriteria = function(criteria, propertyName, propertyValue) {
-					criteria.withProperty(propertyName).thatEquals(propertyValue);
-				}
+				fetchOptions.withProperties();
 				
-				var setAttributeCriteria = function(criteria, attributeName, attributeValue) {
-					switch(attributeName) {
-						//Used by all entities
-						case "CODE":
-							criteria.withCode().thatEquals(attributeValue);
+				//Operator
+				var operator = advancedSearchCriteria.logicalOperator;
+				if (!operator) {
+					operator = "AND";
+				}
+				searchCriteria.withOperator(operator);
+				
+				//Rules
+				var ruleKeys = Object.keys(advancedSearchCriteria.rules);
+				for (var idx = 0; idx < ruleKeys.length; idx++)
+				{
+					var fieldType = advancedSearchCriteria.rules[ruleKeys[idx]].type;
+					var fieldName = advancedSearchCriteria.rules[ruleKeys[idx]].name;
+					var fieldNameType = null;
+					var fieldValue = advancedSearchCriteria.rules[ruleKeys[idx]].value;
+					
+					if(fieldName) {
+						var firstDotIndex = fieldName.indexOf(".");
+						fieldNameType = fieldName.substring(0, firstDotIndex);
+						fieldName = fieldName.substring(firstDotIndex + 1, fieldName.length);
+					}
+					
+					var setPropertyCriteria = function(criteria, propertyName, propertyValue) {
+						criteria.withProperty(propertyName).thatEquals(propertyValue);
+					}
+					
+					var setAttributeCriteria = function(criteria, attributeName, attributeValue) {
+						switch(attributeName) {
+							//Used by all entities
+							case "CODE":
+								criteria.withCode().thatEquals(attributeValue);
+								break;
+							case "PERM_ID":
+								criteria.withPermId().thatEquals(attributeValue);
+								break;
+							case "METAPROJECT":
+								criteria.withTag().withCode().thatEquals(attributeValue); //TO-DO To Test, currently not supported by ELN UI
+								break;
+							case "REGISTRATION_DATE": //Must be a string object with format 2009-08-18
+								criteria.withRegistrationDate().thatEquals(attributeValue);
+								break;
+							case "MODIFICATION_DATE": //Must be a string object with format 2009-08-18
+								criteria.withModificationDate().thatEquals(attributeValue);
+								break;
+							case "SAMPLE_TYPE":
+							case "EXPERIMENT_TYPE":
+							case "DATA_SET_TYPE":
+								criteria.withType().withCode().thatEquals(attributeValue);
+								break;
+							//Only Sample
+							case "SPACE":
+								criteria.withSpace().withCode().thatEquals(attributeValue);
+								break;
+							//Only Experiment
+							case "PROJECT":
+								criteria.withProject().withCode().thatEquals(attributeValue);
+								break;
+							case "PROJECT_PERM_ID":
+								criteria.withProject().withPermId().thatEquals(attributeValue);
+								break;
+							case "PROJECT_SPACE":
+								criteria.withProject().withSpace().withCode().thatEquals(attributeValue);
+								break;
+						}
+					}
+					
+					switch(fieldType) {
+						case "All":
+							searchCriteria.withAnyField().thatEquals(fieldValue);
 							break;
-						case "PERM_ID":
-							criteria.withPermId().thatEquals(attributeValue);
+						case "Property":
+							setPropertyCriteria(searchCriteria, fieldName, fieldValue);
 							break;
-						case "METAPROJECT":
-							criteria.withTag().withCode().thatEquals(attributeValue); //TO-DO To Test, currently not supported by ELN UI
+						case "Attribute":
+							setAttributeCriteria(searchCriteria, fieldName, fieldValue);
 							break;
-						case "REGISTRATION_DATE": //Must be a string object with format 2009-08-18
-							criteria.withRegistrationDate().thatEquals(attributeValue);
+						case "Parent":
+							switch(fieldNameType) {
+								case "PROP":
+									setPropertyCriteria(searchCriteria.withParents(), fieldName, fieldValue);
+									break;
+								case "ATTR":
+									setAttributeCriteria(searchCriteria.withParents(), fieldName, fieldValue);
+									break;
+							}
 							break;
-						case "MODIFICATION_DATE": //Must be a string object with format 2009-08-18
-							criteria.withModificationDate().thatEquals(attributeValue);
-							break;
-						case "SAMPLE_TYPE":
-						case "EXPERIMENT_TYPE":
-						case "DATA_SET_TYPE":
-							criteria.withType().withCode().thatEquals(attributeValue);
-							break;
-						//Only Sample
-						case "SPACE":
-							criteria.withSpace().withCode().thatEquals(attributeValue);
-							break;
-						//Only Experiment
-						case "PROJECT":
-							criteria.withProject().withCode().thatEquals(attributeValue);
-							break;
-						case "PROJECT_PERM_ID":
-							criteria.withProject().withPermId().thatEquals(attributeValue);
-							break;
-						case "PROJECT_SPACE":
-							criteria.withProject().withSpace().withCode().thatEquals(attributeValue);
+						case "Children":
+							switch(fieldNameType) {
+								case "PROP":
+									setPropertyCriteria(searchCriteria.withChildren(), fieldName, fieldValue);
+									break;
+								case "ATTR":
+									setAttributeCriteria(searchCriteria.withChildren(), fieldName, fieldValue);
+									break;
+							}
 							break;
 					}
 				}
 				
-				switch(fieldType) {
-					case "All":
-						searchCriteria.withAnyField().thatEquals(fieldValue);
-						break;
-					case "Property":
-						setPropertyCriteria(searchCriteria, fieldName, fieldValue);
-						break;
-					case "Attribute":
-						setAttributeCriteria(searchCriteria, fieldName, fieldValue);
-						break;
-					case "Parent":
-						switch(fieldNameType) {
-							case "PROP":
-								setPropertyCriteria(searchCriteria.withParents(), fieldName, fieldValue);
-								break;
-							case "ATTR":
-								setAttributeCriteria(searchCriteria.withParents(), fieldName, fieldValue);
-								break;
-						}
-						break;
-					case "Children":
-						switch(fieldNameType) {
-							case "PROP":
-								setPropertyCriteria(searchCriteria.withChildren(), fieldName, fieldValue);
-								break;
-							case "ATTR":
-								setAttributeCriteria(searchCriteria.withChildren(), fieldName, fieldValue);
-								break;
-						}
-						break;
-				}
+				v3Api[searchMethodName](searchCriteria, fetchOptions)
+				.done(function(result) {
+					callback(result);  //this will call the method defined in the AdvancedSearchController which will display the table
+				})
+				.fail(function(result) {
+					Util.showError("Call failed to server: " + JSON.stringify(result));
+				});
+			} catch(exception) {
+				Util.showError(exception.name + ": " + exception.message);
 			}
-			
-			v3Api[searchMethodName](searchCriteria, fetchOptions)
-			.done(function(result) {
-				callback(result);  //this will call the method defined in the AdvancedSearchController which will display the table
-			})
-			.fail(function(result) {
-				Util.showError("Call failed to server: " + JSON.stringify(result));
-				Util.unblockUI();
-			});
 		});
 	}
 	
