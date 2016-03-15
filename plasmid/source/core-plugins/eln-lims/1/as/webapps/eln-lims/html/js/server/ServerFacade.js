@@ -1323,7 +1323,9 @@ function ServerFacade(openbisServer) {
 				for (var i = 0; i < objects.length; i++) {
 					var sample = objects[i].getSample();
 					if (sample) {
-						v1Samples.push(_this.getV3SampleAsV1(sample));
+						var v1Sample = _this.getV3SampleAsV1(sample);
+						v1Sample.properties["*SCORE"] = objects[i].score;
+						v1Samples.push(v1Sample);
 					}
 				}
 				callbackFunction(v1Samples);

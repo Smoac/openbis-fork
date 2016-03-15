@@ -609,6 +609,10 @@ function MainController(profile) {
 							$("#search").removeClass("search-query-searching");
 							
 							var columns = [ {
+								label : 'Score',
+								property : 'score',
+								sortable : true
+							}, {
 								label : 'Code',
 								property : 'code',
 								sortable : true
@@ -719,6 +723,7 @@ function MainController(profile) {
 									
 									//properties
 									dataList.push({
+										score : sample.properties["*SCORE"],
 										permId : sample.permId,
 										code : sample.code,
 										sampleTypeCode : sample.sampleTypeCode,
