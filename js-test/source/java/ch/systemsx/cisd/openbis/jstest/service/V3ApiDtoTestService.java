@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.jstest.service;
 
+import java.io.ByteArrayOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -24,9 +25,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.DeletionTechId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.ICustomASServiceExecutor;
 import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.context.CustomASServiceContext;
+import ch.ethz.sis.openbis.generic.server.sharedapi.v3.json.GenericObjectMapper;
 
 /**
  * 
@@ -113,5 +116,19 @@ public class V3ApiDtoTestService implements ICustomASServiceExecutor
         System.out.println("Complex type: " + type.getName());
         
         return null;
+    }
+
+    
+    public static void main(String[] args)
+    {
+        GenericObjectMapper gom = new GenericObjectMapper();
+        
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            Object populate = populate(new DeletionTechId(0l));
+            gom.writeValue(out, populate);
+            System.out.println(out.toString());
+        } catch(Exception e) {
+            System.out.println(e);
+        }
     }
 }
