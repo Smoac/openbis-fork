@@ -130,6 +130,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		
 		if(this._advancedSearchModel.forceFreeTextSearch) {
 			$fieldValue.val(this._advancedSearchModel.forceFreeTextSearch);
+			this._advancedSearchModel.criteria.rules[uuidValue].value = this._advancedSearchModel.forceFreeTextSearch; //Update model
 			this._advancedSearchModel.forceFreeTextSearch = undefined;
 		}
 		

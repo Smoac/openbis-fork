@@ -38,7 +38,9 @@ function AdvancedSearchController(mainController, forceFreeTextSearch) {
 			case "ALL":
 				var freeText = "";
 				for(var ruleId in model.rules) {
-					freeText += " " +  model.rules[ruleId].value;
+					if(model.rules[ruleId].value) {
+						freeText += " " +  model.rules[ruleId].value;
+					}
 				}
 				mainController.serverFacade.searchGlobally(freeText, callbackFunction);
 				break;
