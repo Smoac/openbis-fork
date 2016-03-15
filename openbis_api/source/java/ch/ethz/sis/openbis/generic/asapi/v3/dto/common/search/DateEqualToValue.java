@@ -27,6 +27,11 @@ public class DateEqualToValue extends AbstractDateValue
 
     private static final long serialVersionUID = 1L;
 
+    DateEqualToValue()
+    {
+    	super(null);
+    }
+    
     DateEqualToValue(String value)
     {
         super(value);
