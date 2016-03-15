@@ -1325,6 +1325,7 @@ function ServerFacade(openbisServer) {
 					if (sample) {
 						var v1Sample = _this.getV3SampleAsV1(sample);
 						v1Sample.properties["*SCORE"] = objects[i].score;
+						v1Sample.properties["*MATCHED"] = objects[i].match;
 						v1Samples.push(v1Sample);
 					}
 				}

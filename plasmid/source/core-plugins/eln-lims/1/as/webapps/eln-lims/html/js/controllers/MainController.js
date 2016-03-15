@@ -667,67 +667,15 @@ function MainController(profile) {
 							
 							var getDataList = function(callback) {
 								var dataList = [];
-								var words = value.split(" ");
-								var searchRegexpes = [];
-								for(var sIdx = 0; sIdx < words.length; sIdx++) {
-									var word = words[sIdx];
-									searchRegexpes[sIdx] = new RegExp(word, "i");
-								}
-								
-								var addMatchedPairs = function(matchedPairs, fieldName, fieldValue) {
-									for(var tIdx = 0; tIdx < searchRegexpes.length; tIdx++) {
-										if(searchRegexpes[tIdx].test(fieldValue)) {
-											var match = {};
-											match.name = fieldName;
-											match.found = words[tIdx];
-											match.value = fieldValue;
-											matchedPairs.push(match);
-										}
-									}
-								}
-								
 								for(var i = 0; i < data.length; i++) {
-									var matchedPairs = [];
-									var sample = data[i];
-									
-									addMatchedPairs(matchedPairs, "Code", sample.code); //Check Code
-									addMatchedPairs(matchedPairs, "Sample Type", sample.sampleTypeCode); //Check Type
-									
-									//Check Properties
-									for (propertyName in sample.properties) {
-										var propertyValue = sample.properties[propertyName];
-										addMatchedPairs(matchedPairs, "Property " + propertyName, propertyValue); //Check Properties
-									}
-									
-									//Check date fields
-									var regEx = /\d{4}-\d{2}-\d{2}/g;
-									var match = value.match(regEx);
-									if(match && match.length === 1) {
-										var registrationDateValue = Util.getFormatedDate(new Date(sample.registrationDetails.registrationDate));
-										if(registrationDateValue.indexOf(match[0]) !== -1) {
-											matchedPairs.push({ name : "Registration Date", value : registrationDateValue, found : match[0]});
-										}
-										var modificationDateValue = Util.getFormatedDate(new Date(sample.registrationDetails.modificationDate));
-										if(modificationDateValue.indexOf(match[0]) !== -1) {
-											matchedPairs.push({ name : "Modification Date", value : modificationDateValue, found : match[0]});
-										}
-									}
-									
-									var $container = $("<p>");
-									for(var mIdx = 0; mIdx < matchedPairs.length; mIdx++) {
-										if(mIdx < 0) {
-											$container.append($("<br>"));
-										}
-										$container.append($("<p>").append($("<strong>").append(matchedPairs[mIdx].name + ": ")).append("Found \"" + matchedPairs[mIdx].found + "\" in \"" + matchedPairs[mIdx].value + "\""));
-									}
-									
+									var sample = data[i];									
 									//properties
 									dataList.push({
 										score : sample.properties["*SCORE"],
 										permId : sample.permId,
 										code : sample.code,
 										sampleTypeCode : sample.sampleTypeCode,
-										matched : $container[0].outerHTML
+										matched : sample.properties["*MATCHED"]
 									});
 								}
 								
