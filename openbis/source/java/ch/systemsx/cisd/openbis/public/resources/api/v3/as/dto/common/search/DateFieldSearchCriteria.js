@@ -9,7 +9,7 @@ define([ "require", "stjs", "util/Exceptions", "as/dto/common/search/AbstractFie
 	};
 
 	stjs.extend(DateFieldSearchCriteria, AbstractFieldSearchCriteria, [ AbstractFieldSearchCriteria ], function(constructor, prototype) {
-		prototype['@type'] = 'as.dto.search.DateFieldSearchCriteria';
+		prototype['@type'] = 'as.dto.common.search.DateFieldSearchCriteria';
 		constructor.serialVersionUID = 1;
 		var ShortDateFormat = require("as/dto/common/search/ShortDateFormat");
 		var NormalDateFormat = require("as/dto/common/search/NormalDateFormat");

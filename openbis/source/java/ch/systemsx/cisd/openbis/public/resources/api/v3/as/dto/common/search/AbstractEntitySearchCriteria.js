@@ -11,7 +11,7 @@ define(
 				AbstractObjectSearchCriteria.call(this);
 			};
 			stjs.extend(AbstractEntitySearchCriteria, AbstractObjectSearchCriteria, [ AbstractObjectSearchCriteria ], function(constructor, prototype) {
-				prototype['@type'] = 'as.dto.search.AbstractEntitySearchCriteria';
+				prototype['@type'] = 'as.dto.common.search.AbstractEntitySearchCriteria';
 				constructor.serialVersionUID = 1;
 				prototype.operator = SearchOperator.AND;
 				prototype.withOperator = function(anOperator) {

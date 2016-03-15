@@ -12,7 +12,7 @@ define([ "stjs", "util/Exceptions", "as/dto/attachment/id/IAttachmentId" ], func
 		this.setFileName(fileName);
 	};
 	stjs.extend(AttachmentFileName, null, [ IAttachmentId ], function(constructor, prototype) {
-		prototype['@type'] = 'as.dto.id.attachment.AttachmentFileName';
+		prototype['@type'] = 'as.dto.attachment.id.AttachmentFileName';
 		constructor.serialVersionUID = 1;
 		prototype.fileName = null;
 		prototype.getFileName = function() {
