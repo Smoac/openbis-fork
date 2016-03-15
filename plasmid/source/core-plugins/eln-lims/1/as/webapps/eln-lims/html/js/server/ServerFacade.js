@@ -1316,6 +1316,7 @@ function ServerFacade(openbisServer) {
 			sampleFetchOptions.withRegistrator();
 			sampleFetchOptions.withModifier();
 			sampleFetchOptions.withExperiment();
+			sampleFetchOptions.withProperties();
 			v3api.searchGlobally(searchCriteria, fetchOptions).done(function(results) {
 				var v1Samples = [];
 				var objects = results.getObjects();
