@@ -401,6 +401,20 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			var foundPropertyCodes = {};
 			for(var rIdx = 0; rIdx < results.objects.length; rIdx++) {
 				var entity = results.objects[rIdx];
+				if(isGlobalSearch) {
+					switch(entity.objectKind) {
+						case "SAMPLE":
+							entity = entity.sample;
+						break;
+						case "EXPERIMENT":
+							entity = entity.experiment;
+						break;
+						case "DATA_SET":
+							entity = entity.dataSet;
+						break;
+					}
+				}
+				
 				for(var propertyCode in entity.properties) {
 					if(entity.properties[propertyCode]) {
 						foundPropertyCodes[propertyCode] = true;
