@@ -348,11 +348,12 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	}
 	
 	this.renderResults = function(results) {
-		var dataGridController = this._getGridForResults(results);
+		var isGlobalSearch = this._advancedSearchModel.criteria.entityKind === "ALL";
+		var dataGridController = this._getGridForResults(results, isGlobalSearch);
 		dataGridController.init(this._$dataGridContainer);
 	}
 	
-	this._getGridForResults = function(results) {
+	this._getGridForResults = function(results, isGlobalSearch) {
 			var columns = [ {
 				label : 'Entity Kind',
 				property : 'entityKind',
@@ -371,19 +372,21 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				sortable : true
 			}];
 			
-			columns.push({
-				label : 'Matched',
-				property : 'matched',
-				isExportable: false,
-				sortable : true
-			});
-			
-			columns.push({
-				label : 'Score',
-				property : 'score',
-				isExportable: false,
-				sortable : true
-			});
+			if(isGlobalSearch) {
+				columns.push({
+					label : 'Matched',
+					property : 'matched',
+					isExportable: false,
+					sortable : true
+				});
+				
+				columns.push({
+					label : 'Score',
+					property : 'score',
+					isExportable: false,
+					sortable : true
+				});
+			}
 			
 			columns.push({
 				label : '---------------',
@@ -450,7 +453,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					
 					var rowData = {};
 					
-					if(entity["@type"] === "as.dto.global.GlobalSearchObject") {
+					if(isGlobalSearch) {
 						rowData.matched = entity.match;
 						rowData.score = entity.score;
 						
