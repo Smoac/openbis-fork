@@ -1296,7 +1296,7 @@ function ServerFacade(openbisServer) {
 	}
 	
 	//
-	// Globale Search
+	// Global Search
 	//
 	this.searchGlobally = function(freeText, callbackFunction)
 	{
@@ -1340,6 +1340,70 @@ function ServerFacade(openbisServer) {
 				Util.unblockUI();
 			});
 		});
+	}
+	
+	//
+	// Legacy Global Search
+	//
+	this.searchWithText = function(freeText, callbackFunction)
+	{
+		var _this = this;
+		var regEx = /\d{4}-\d{2}-\d{2}/g;
+		var match = freeText.match(regEx);
+		
+		if(match && match.length === 1) { //Search With Date Mode, we merge results with dates found on registration and modification fields what is slow for large number of entities
+			this.searchSamples(this._getCriteriaWithDate(freeText, true, false), function(samples1) {
+				_this.searchSamples(_this._getCriteriaWithDate(freeText, false, true), function(samples2) {
+					_this.searchSamples(_this._getCriteriaWithDate(freeText, false, false), function(samples3) {
+						var results = samples1.concat(samples2).concat(samples3).uniqueOBISEntity();
+						callbackFunction(results);
+					});
+				});
+			});
+		} else if(match && match.length > 1) {
+			Util.showError("Search only supports one date at a time!");
+			callbackFunction([]);
+		} else { //Normal Search
+			this.searchSamples(this._getCriteriaWithDate(freeText, false, false), function(samples) {
+				callbackFunction(samples);
+			});
+			callbackFunction([]);
+		}
+	}
+	
+	this._getCriteriaWithDate = function(freeText, isRegistrationDate, isModificationDate) {
+		//Find dates on string and delete them to use them differently on the search
+		var regEx = /\d{4}-\d{2}-\d{2}/g;
+		var match = freeText.match(regEx);
+		freeText = freeText.replace(regEx, "");
+		if(!isRegistrationDate && !isModificationDate && match && match.length > 0) {
+			for(var mIdx = 0; mIdx < match.length; mIdx++) {
+				freeText += " " + match[mIdx].replace(/-/g, "");
+			}
+		}
+		
+		//Build Search
+		var sampleCriteria = {
+			"withProperties" : true
+		};
+		
+		if(freeText) {
+			sampleCriteria["anyFieldContains"] = freeText;
+		}
+		
+		if(match && match.length > 0) {
+			for(var mIdx = 0; mIdx < match.length; mIdx++) {
+				if(isRegistrationDate) {
+					sampleCriteria["registrationDate"] = match[mIdx];
+				}
+				
+				if(isModificationDate) {
+					sampleCriteria["modificationDate"] = match[mIdx];
+				}
+			}
+		}
+		
+		return sampleCriteria;
 	}
 	
 	//

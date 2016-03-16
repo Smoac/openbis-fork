@@ -614,8 +614,12 @@ function MainController(profile) {
 					
 					$("#search").addClass("search-query-searching");
 					if(!searchDomain || searchDomain === profile.getSearchDomains()[0].name) { //Global Search
-						$("#search").removeClass("search-query-searching");
-						localReference.changeView("showAdvancedSearchPage", value);
+						if(profile.searchSamplesUsingV3OnDropbox) {
+							localReference._legacyGlobalSearch(value);
+						} else {
+							$("#search").removeClass("search-query-searching");
+							localReference.changeView("showAdvancedSearchPage", value);
+						}
 					} else { //Search Domain
 						localReference.serverFacade.searchOnSearchDomain(searchDomain, value, function(data) {
 							var dataSetCodes = [];
@@ -754,5 +758,160 @@ function MainController(profile) {
 		}
 		
 		setTimeout(possibleSearch(localSearchId), 800);
+	}
+	
+	this._legacyGlobalSearch = function(value) {
+		var localReference = this;
+		localReference.serverFacade.searchWithText(value, function(data) {
+			$("#search").removeClass("search-query-searching");
+			
+			var columns = [ {
+				label : 'Code',
+				property : 'code',
+				sortable : true
+			}, {
+				label : 'Score',
+				property : 'score',
+				sortable : true
+			}, {
+				label : 'Preview',
+				property : 'preview',
+				sortable : false,
+				render : function(data) {
+					var previewContainer = $("<div>");
+					mainController.serverFacade.searchDataSetsWithTypeForSamples("ELN_PREVIEW", [data.permId], function(data) {
+						data.result.forEach(function(dataset) {
+							var listFilesForDataSetCallback = function(dataFiles) {
+								var downloadUrl = profile.allDataStores[0].downloadUrl + '/' + dataset.code + "/" + dataFiles.result[1].pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
+								var previewImage = $("<img>", { 'src' : downloadUrl, 'class' : 'zoomableImage', 'style' : 'height:80px;' });
+								previewImage.click(function(event) {
+									Util.showImage(downloadUrl);
+									event.stopPropagation();
+								});
+								previewContainer.append(previewImage);
+							};
+							mainController.serverFacade.listFilesForDataSet(dataset.code, "/", true, listFilesForDataSetCallback);
+						});
+					});
+					return previewContainer;
+				},
+				filter : function(data, filter) {
+					return false;
+				},
+				sort : function(data1, data2, asc) {
+					return 0;
+				}
+			}, {
+				label : 'Sample Type',
+				property : 'sampleTypeCode',
+				sortable : true
+			}, {
+				label : 'Matched',
+				property : 'matched',
+				sortable : true,
+				filter : function(data, filter) {
+					var matchedValue = data.matched.text();
+					return matchedValue.toLowerCase().indexOf(filter) !== -1;
+				},
+				sort : function(data1, data2, asc) {
+					var value1 = data1.matched.text();
+					var value2 = data2.matched.text();
+					var sortDirection = (asc)? 1 : -1;
+					return sortDirection * naturalSort(value1, value2);
+				}
+			}];
+			columns.push(SampleDataGridUtil.createOperationsColumn());
+			
+			var getDataList = function(callback) {
+				var dataList = [];
+				var words = value.split(" ");
+				var searchRegexpes = [];
+				for(var sIdx = 0; sIdx < words.length; sIdx++) {
+					var word = words[sIdx];
+					searchRegexpes[sIdx] = new RegExp(word, "i");
+				}
+				
+				var addMatchedPairs = function(matchedPairs, fieldName, fieldValue) {
+					for(var tIdx = 0; tIdx < searchRegexpes.length; tIdx++) {
+						if(searchRegexpes[tIdx].test(fieldValue)) {
+							var match = {};
+							match.name = fieldName;
+							match.found = words[tIdx];
+							match.value = fieldValue;
+							matchedPairs.push(match);
+						}
+					}
+				}
+				
+				for(var i = 0; i < data.length; i++) {
+					var matchedPairs = [];
+					var sample = data[i];
+					
+					addMatchedPairs(matchedPairs, "Code", sample.code); //Check Code
+					addMatchedPairs(matchedPairs, "Sample Type", sample.sampleTypeCode); //Check Type
+					
+					//Check Properties
+					for (propertyName in sample.properties) {
+						var propertyValue = sample.properties[propertyName];
+						addMatchedPairs(matchedPairs, "Property " + propertyName, propertyValue); //Check Properties
+					}
+					
+					//Check date fields
+					var regEx = /\d{4}-\d{2}-\d{2}/g;
+					var match = value.match(regEx);
+					if(match && match.length === 1) {
+						var registrationDateValue = Util.getFormatedDate(new Date(sample.registrationDetails.registrationDate));
+						if(registrationDateValue.indexOf(match[0]) !== -1) {
+							matchedPairs.push({ name : "Registration Date", value : registrationDateValue, found : match[0]});
+						}
+						var modificationDateValue = Util.getFormatedDate(new Date(sample.registrationDetails.modificationDate));
+						if(modificationDateValue.indexOf(match[0]) !== -1) {
+							matchedPairs.push({ name : "Modification Date", value : modificationDateValue, found : match[0]});
+						}
+					}
+					
+					var $container = $("<p>");
+					var score = 0;
+					for(var mIdx = 0; mIdx < matchedPairs.length; mIdx++) {
+						switch(matchedPairs[mIdx].name) {
+							case "Code":
+								score+= 1000;
+								break;
+							case "Sample Type":
+								score+= 100;
+								break;
+							default:
+								score+= 10;
+								break;
+							break;
+						}
+						if(mIdx < 0) {
+							$container.append($("<br>"));
+						}
+						$container.append($("<p>").append($("<strong>").append(matchedPairs[mIdx].name + ": ")).append("Found \"" + matchedPairs[mIdx].found + "\" in \"" + matchedPairs[mIdx].value + "\""));
+					}
+					
+					//properties
+					dataList.push({
+						permId : sample.permId,
+						code : sample.code,
+						score : score,
+						sampleTypeCode : sample.sampleTypeCode,
+						matched : $container
+					});
+				}
+				
+				callback(dataList);
+			};
+			
+			var rowClick = function(e) {
+				mainController.changeView('showViewSamplePageFromPermId', e.data.permId);
+			}
+			
+			var dataGrid = new DataGridController("Search Results", columns, getDataList, rowClick, true, "SEARCH_OPENBIS");
+			localReference.currentView = dataGrid;
+			dataGrid.init($("#mainContainer"));
+			history.pushState(null, "", ""); //History Push State
+		});
 	}
 }
