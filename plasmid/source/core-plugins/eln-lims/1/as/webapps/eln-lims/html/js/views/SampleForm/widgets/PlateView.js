@@ -446,7 +446,7 @@ function PlateView(plateController, plateModel) {
 	this._repaintWellToColor = function(row, column, rgbColor, txt, isDisabled) {
 		var $cell = this._gridTableCells[row][column].cell;
 		var currentTooltip = this._gridTableCells[row][column].tooltip;
-		var newToolTip = this._$featureVectorDatasetsDropdown.val();
+		var newToolTip = (this._$featureVectorDatasetsDropdown)?this._$featureVectorDatasetsDropdown.val():null;
 		
 		if(currentTooltip !== newToolTip) {
 			this._setToolTip($cell, row, column);
