@@ -680,6 +680,8 @@ function ServerFacade(openbisServer) {
 						var firstDotIndex = fieldName.indexOf(".");
 						fieldNameType = fieldName.substring(0, firstDotIndex);
 						fieldName = fieldName.substring(firstDotIndex + 1, fieldName.length);
+					} else {
+						fieldValue = "*";
 					}
 					
 					var setPropertyCriteria = function(criteria, propertyName, propertyValue) {

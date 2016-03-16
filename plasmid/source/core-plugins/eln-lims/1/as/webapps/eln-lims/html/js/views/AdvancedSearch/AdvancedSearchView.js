@@ -143,7 +143,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		});
 		var $newFieldNameContainer = $("<td>");
 		
-			$newRow.append($("<td>").append(this._getNewFieldTypeDropdownComponent($newFieldNameContainer, this._advancedSearchModel.criteria.entityKind)))
+			$newRow.append($("<td>").append(this._getNewFieldTypeDropdownComponent($newFieldNameContainer, this._advancedSearchModel.criteria.entityKind, uuidValue)))
 					.append($newFieldNameContainer)
 					.append($("<td>").append($fieldValue))
 					.append($("<td>").append(this._getMinusButtonComponentForRow(this._$tbody, $newRow)));
@@ -153,7 +153,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	
 	//should make new objects every time. otherwise, using the same object will produce odd results!
 	//how to make an on-select event??
-	this._getNewFieldTypeDropdownComponent = function($newFieldNameContainer, entityKind) {
+	this._getNewFieldTypeDropdownComponent = function($newFieldNameContainer, entityKind, uuid) {
 		var _this = this;
 		var fieldTypeOptions = null;
 		switch(entityKind) {
@@ -182,6 +182,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				                    ];
 				break;
 		}
+		
+		this._advancedSearchModel.criteria.rules[uuid].type = "All"; //Update model with defaults
 		
 		var $fieldTypeComponent = FormUtil.getDropdown(fieldTypeOptions, "Select Field Type");
 		$fieldTypeComponent.change(function() {
@@ -521,7 +523,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				}
 			}
 			
-			var dataGrid = new DataGridController("Search Results", columns, getDataRows, rowClick, false, "ADVANCED_SEARCH_OPENBIS");
+			var dataGrid = new DataGridController("Search Results", columns, getDataRows, rowClick, false, "ADVANCED_SEARCH_OPENBIS_" + this._advancedSearchModel.criteria.entityKind);
 			return dataGrid;
 	}
 	
