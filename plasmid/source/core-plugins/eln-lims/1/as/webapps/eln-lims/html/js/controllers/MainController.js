@@ -901,7 +901,9 @@ function MainController(profile) {
 					});
 				}
 				
-				dataList.sort(function(e1, e2) { return e1.score < e2.score });
+				dataList = dataList.sort(function(e1, e2) { 
+					return e2.score - e1.score; 
+				});
 				callback(dataList);
 			};
 			
