@@ -33,7 +33,7 @@ public class SampleCodeGeneratorByType extends EntityCodeGenerator
     public static interface MaxQuery extends BaseQuery
     {
         @Select(sql = "SELECT max(substr(code, length(?{1})+1)::int) "
-                + "FROM samples_all WHERE code similar to ?{1} || '[1234567890]+'")
+                + "FROM samples_all WHERE UPPER(code) similar to UPPER(?{1}) || '[1234567890]+'")
         public int getMaxCode(String prefix);
     }
 
