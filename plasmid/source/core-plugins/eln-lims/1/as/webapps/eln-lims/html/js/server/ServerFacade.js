@@ -1315,6 +1315,7 @@ function ServerFacade(openbisServer) {
 			var v3api = new openbis(url + "/openbis/openbis/rmi-application-server-v3.json");
 			v3api._private.sessionToken = mainController.serverFacade.getSession();
 			var searchCriteria = new GlobalSearchCriteria();
+			searchCriteria.withWildCards();
 			searchCriteria.withText().thatContains(freeText);
 			var fetchOptions = new GlobalSearchObjectFetchOptions();
 			var sampleFetchOptions = fetchOptions.withSample();
