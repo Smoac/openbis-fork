@@ -26,8 +26,7 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IStorageFormatId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.StorageFormatPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermCode;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary.IMapVocabularyTermByIdExecutor;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -57,7 +56,7 @@ public class MapStorageFormatByIdExecutor implements IMapStorageFormatByIdExecut
 
                 if (id instanceof StorageFormatPermId)
                 {
-                    termId = new VocabularyTermCode(((StorageFormatPermId) id).getPermId());
+                    termId = new VocabularyTermPermId(StorageFormat.VOCABULARY_CODE, ((StorageFormatPermId) id).getPermId());
                 } else
                 {
                     throw new UserFailureException("Unsupported storageFormat: " + id);
@@ -68,7 +67,7 @@ public class MapStorageFormatByIdExecutor implements IMapStorageFormatByIdExecut
         }
 
         Map<IVocabularyTermId, VocabularyTermPE> termMap =
-                mapVocabularyTermByIdExecutor.map(context, new VocabularyPermId(StorageFormat.VOCABULARY_CODE), idsMap.keySet());
+                mapVocabularyTermByIdExecutor.map(context, idsMap.keySet());
         Map<IStorageFormatId, VocabularyTermPE> formatMap = new HashMap<IStorageFormatId, VocabularyTermPE>();
 
         for (Map.Entry<IVocabularyTermId, VocabularyTermPE> termEntry : termMap.entrySet())

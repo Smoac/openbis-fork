@@ -16,56 +16,40 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.IListObjectById;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.MapObjectById;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.vocabulary.ListVocabularyTermByCode;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.vocabulary.ListVocabularyTermByPermId;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class MapVocabularyTermByIdExecutor implements IMapVocabularyTermByIdExecutor
+public class MapVocabularyTermByIdExecutor extends AbstractMapObjectByIdExecutor<IVocabularyTermId, VocabularyTermPE>
+        implements IMapVocabularyTermByIdExecutor
 {
 
-    @Autowired
-    private IMapVocabularyByIdExecutor mapVocabularyByIdExecutor;
+    private IVocabularyDAO vocabularyDAO;
 
     @Override
-    public Map<IVocabularyTermId, VocabularyTermPE> map(IOperationContext context, IVocabularyId vocabularyId,
-            Collection<? extends IVocabularyTermId> vocabularyTermIds)
+    protected void addListers(IOperationContext context, List<IListObjectById<? extends IVocabularyTermId, VocabularyTermPE>> listers)
     {
-        List<IListObjectById<? extends IVocabularyTermId, VocabularyTermPE>> listers =
-                new LinkedList<IListObjectById<? extends IVocabularyTermId, VocabularyTermPE>>();
+        listers.add(new ListVocabularyTermByPermId(vocabularyDAO));
+    }
 
-        if (vocabularyId != null)
-        {
-            Map<IVocabularyId, VocabularyPE> vocabularies = mapVocabularyByIdExecutor.map(context, Collections.singleton(vocabularyId));
-
-            VocabularyPE vocabulary = vocabularies.get(vocabularyId);
-            if (vocabulary == null)
-            {
-                throw new ObjectNotFoundException(vocabularyId);
-            }
-
-            listers.add(new ListVocabularyTermByCode(vocabulary));
-        }
-
-        return new MapObjectById<IVocabularyTermId, VocabularyTermPE>().map(context, listers, vocabularyTermIds);
+    @Autowired
+    private void setDAOFactory(IDAOFactory daoFactory)
+    {
+        vocabularyDAO = daoFactory.getVocabularyDAO();
     }
 
 }

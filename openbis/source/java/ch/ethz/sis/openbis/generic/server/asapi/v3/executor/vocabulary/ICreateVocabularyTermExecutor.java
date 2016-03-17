@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary;
 
-import java.util.Collection;
-import java.util.Map;
-
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyTermCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.ICreateEntityExecutor;
 
 /**
  * @author pkupczyk
  */
-public interface IMapVocabularyTermByIdExecutor
+public interface ICreateVocabularyTermExecutor extends ICreateEntityExecutor<VocabularyTermCreation, VocabularyTermPermId>
 {
-
-    public Map<IVocabularyTermId, VocabularyTermPE> map(IOperationContext context, Collection<? extends IVocabularyTermId> vocabularyTermIds);
 
 }

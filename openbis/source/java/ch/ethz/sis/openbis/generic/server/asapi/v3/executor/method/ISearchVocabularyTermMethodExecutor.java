@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method;
 
-import java.util.Collection;
-import java.util.Map;
-
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
 
 /**
  * @author pkupczyk
  */
-public interface IMapVocabularyTermByIdExecutor
+public interface ISearchVocabularyTermMethodExecutor extends
+        ISearchMethodExecutor<VocabularyTerm, VocabularyTermSearchCriteria, VocabularyTermFetchOptions>
 {
-
-    public Map<IVocabularyTermId, VocabularyTermPE> map(IOperationContext context, Collection<? extends IVocabularyTermId> vocabularyTermIds);
 
 }

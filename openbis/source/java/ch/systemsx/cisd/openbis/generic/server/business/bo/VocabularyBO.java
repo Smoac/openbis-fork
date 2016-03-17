@@ -124,7 +124,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         }
     }
 
-    private void addNewTerms(List<VocabularyTerm> newTerms, Long previousTermOrdinal,
+    private List<VocabularyTermPE> addNewTerms(List<VocabularyTerm> newTerms, Long previousTermOrdinal,
             boolean isOfficial)
     {
         assert vocabularyPE != null : UNSPECIFIED_VOCABULARY;
@@ -144,33 +144,48 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
             increaseVocabularyTermOrdinals(currentTermOrdinal, newTerms.size());
         }
 
+        List<VocabularyTermPE> results = new ArrayList<VocabularyTermPE>();
+
         for (VocabularyTerm newTerm : newTerms)
         {
-            addTerm(newTerm, currentTermOrdinal++, isOfficial);
+            VocabularyTermPE result = addTerm(newTerm, currentTermOrdinal++, isOfficial);
+            results.add(result);
         }
+
+        return results;
     }
 
     @Override
-    public void addNewTerms(List<VocabularyTerm> newTermCodes, Long previousTermOrdinal)
+    public List<VocabularyTermPE> addNewTerms(List<VocabularyTerm> newTermCodes, Long previousTermOrdinal)
     {
-        addNewTerms(newTermCodes, previousTermOrdinal, true);
+        return addNewTerms(newTermCodes, previousTermOrdinal, true);
     }
 
     @Override
-    public void addNewUnofficialTerm(String code, String label, String description,
+    public VocabularyTermPE addNewUnofficialTerm(String code, String label, String description,
             Long previousTermOrdinal)
     {
         assert vocabularyPE != null : UNSPECIFIED_VOCABULARY;
         assert code != null : "Unspecified vocabulary term code";
-        assert previousTermOrdinal != null : "Unspecified previous term ordinal";
+
         if (vocabularyPE.isManagedInternally() && false == allowChangingInternallyManaged)
         {
             throw new UserFailureException(
                     "Not allowed to add terms to an internally managed vocabulary.");
         }
 
-        increaseVocabularyTermOrdinals(previousTermOrdinal + 1, 1);
-        addTerm(code, description, label, previousTermOrdinal + 1, false);
+        Long currentTermOrdinal;
+        if (previousTermOrdinal == null)
+        {
+            currentTermOrdinal = getVocabularyTermDAO().getMaximumOrdinal(vocabularyPE) + 1;
+        } else
+        {
+            currentTermOrdinal = previousTermOrdinal + 1;
+            // need to shift existing terms to create space for new terms
+            increaseVocabularyTermOrdinals(currentTermOrdinal, 1);
+        }
+
+        return addTerm(code, description, label, currentTermOrdinal, false);
     }
 
     /** shift terms in vocabulary by specified increment starting from term with specified ordinal */
@@ -180,7 +195,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
                 .increaseVocabularyTermOrdinals(vocabularyPE, startOrdinal, increment);
     }
 
-    private void addTerm(String code, String description, String label, Long ordinal,
+    private VocabularyTermPE addTerm(String code, String description, String label, Long ordinal,
             Boolean isOfficial)
     {
         final VocabularyTermPE vocabularyTermPE = new VocabularyTermPE();
@@ -194,11 +209,13 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         vocabularyTermPE.setOrdinal(ordinal);
         vocabularyTermPE.setOfficial(isOfficial);
         vocabularyPE.addTerm(vocabularyTermPE);
+
+        return vocabularyTermPE;
     }
 
-    private void addTerm(VocabularyTerm term, Long ordinal, Boolean isOfficial)
+    private VocabularyTermPE addTerm(VocabularyTerm term, Long ordinal, Boolean isOfficial)
     {
-        addTerm(term.getCode(), term.getDescription(), term.getLabel(), ordinal, isOfficial);
+        return addTerm(term.getCode(), term.getDescription(), term.getLabel(), ordinal, isOfficial);
     }
 
     @Override

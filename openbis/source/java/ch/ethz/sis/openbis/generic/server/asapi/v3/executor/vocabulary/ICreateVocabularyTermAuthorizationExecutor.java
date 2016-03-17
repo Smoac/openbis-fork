@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,16 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary;
 
-import java.util.Collection;
-import java.util.Map;
-
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
 /**
  * @author pkupczyk
  */
-public interface IMapVocabularyTermByIdExecutor
+public interface ICreateVocabularyTermAuthorizationExecutor
 {
 
-    public Map<IVocabularyTermId, VocabularyTermPE> map(IOperationContext context, Collection<? extends IVocabularyTermId> vocabularyTermIds);
+    public void checkCreateOfficialTerm(IOperationContext context);
+
+    public void checkCreateUnofficialTerm(IOperationContext context);
 
 }

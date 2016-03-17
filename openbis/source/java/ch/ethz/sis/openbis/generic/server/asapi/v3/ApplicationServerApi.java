@@ -88,6 +88,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.update.SpaceUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyTermCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IConfirmDeletionMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateExperimentMethodExecutor;
@@ -95,6 +100,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateMateri
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateProjectMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateSampleMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateSpaceMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateVocabularyTermMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteExperimentMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteMaterialMethodExecutor;
@@ -119,6 +125,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchObject
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchProjectMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchSampleMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchSpaceMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchVocabularyTermMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateExperimentMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateMaterialMethodExecutor;
@@ -170,6 +177,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private ICreateMaterialMethodExecutor createMaterialExecutor;
+
+    @Autowired
+    private ICreateVocabularyTermMethodExecutor createVocabularyTermExecutor;
 
     @Autowired
     private IUpdateSpaceMethodExecutor updateSpaceExecutor;
@@ -224,6 +234,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private ISearchMaterialMethodExecutor searchMaterialExecutor;
+
+    @Autowired
+    private ISearchVocabularyTermMethodExecutor searchVocabularyTermExecutor;
 
     @Autowired
     private ISearchCustomASServiceMethodExecutor searchCustomASServiceExecutor;
@@ -363,6 +376,15 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public List<MaterialPermId> createMaterials(String sessionToken, List<MaterialCreation> creations)
     {
         return createMaterialExecutor.create(sessionToken, creations);
+    }
+
+    @Override
+    @Transactional
+    // @RolesAllowed and @Capability are checked later depending whether an official or unofficial term is created
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
+    public List<VocabularyTermPermId> createVocabularyTerms(String sessionToken, List<VocabularyTermCreation> creations)
+    {
+        return createVocabularyTermExecutor.create(sessionToken, creations);
     }
 
     @Override
@@ -525,6 +547,15 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public SearchResult<VocabularyTerm> searchVocabularyTerms(String sessionToken, VocabularyTermSearchCriteria searchCriteria,
+            VocabularyTermFetchOptions fetchOptions)
+    {
+        return searchVocabularyTermExecutor.search(sessionToken, searchCriteria, fetchOptions);
+    }
+
+    @Override
     @Transactional
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.SPACE, ObjectKind.DELETION })
     @RolesAllowed({ RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
@@ -626,7 +657,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("SEARCH_OBJECT_KIND_MODIFICATIONSERVICES")
+    @Capability("SEARCH_OBJECT_KIND_MODIFICATION_SERVICES")
     public SearchResult<ObjectKindModification> searchObjectKindModifications(String sessionToken,
             ObjectKindModificationSearchCriteria searchCriteria, ObjectKindModificationFetchOptions fetchOptions)
     {

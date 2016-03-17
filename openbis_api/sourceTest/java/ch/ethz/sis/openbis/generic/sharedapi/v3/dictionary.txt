@@ -1033,3 +1033,20 @@ with WildCards
 add Fetch Option
 Fetch Options To String Builder
 get Fetch Options String Builder
+create Vocabulary Terms
+get Previous Term Id
+get Term Code
+get Vocabulary Code
+get Vocabulary Id
+ordinal
+ORDINAL
+search Vocabulary Terms
+set Previous Term Id
+set Vocabulary Id
+Vocabulary Code Search Criteria
+Vocabulary Term Code Search Criteria
+Vocabulary Term Creation
+Vocabulary Term PermId
+Vocabulary Term Search Criteria
+with Term Code
+with Vocabulary Code

@@ -40,8 +40,7 @@ public interface IVocabularyBO extends IEntityBusinessObject
     /**
      * Defines a new vocabulary.
      * <p>
-     * After invocation of this method {@link IBusinessObject#save()} should be invoked to store the
-     * new vocabulary in the <i>Data Access Layer</i>.
+     * After invocation of this method {@link IBusinessObject#save()} should be invoked to store the new vocabulary in the <i>Data Access Layer</i>.
      * </p>
      * 
      * @throws UserFailureException if given <var>vocabulary</var> does already exist.
@@ -56,8 +55,7 @@ public interface IVocabularyBO extends IEntityBusinessObject
     /**
      * Loads specified vocabulary from the database.
      * 
-     * @deprecated Code of a user vocabulary can be modified so it cannot be used as a universal
-     *             vocabulary business identifier.
+     * @deprecated Code of a user vocabulary can be modified so it cannot be used as a universal vocabulary business identifier.
      * @throws UserFailureException if no vocabulary found for <code>vocabularyCode</code>.
      */
     @Deprecated
@@ -74,7 +72,7 @@ public interface IVocabularyBO extends IEntityBusinessObject
      * 
      * @param previousTermOrdinal ordinal of term after which new terms should be added
      */
-    void addNewTerms(List<VocabularyTerm> newTerms, Long previousTermOrdinal);
+    List<VocabularyTermPE> addNewTerms(List<VocabularyTerm> newTerms, Long previousTermOrdinal);
 
     /**
      * Add unofficial terms with specified label and description to a loaded vocabulary.
@@ -84,7 +82,7 @@ public interface IVocabularyBO extends IEntityBusinessObject
      * @description description of the term
      * @param previousTermOrdinal ordinal of term after which new terms should be added
      */
-    void addNewUnofficialTerm(String code, String label, String description,
+    VocabularyTermPE addNewUnofficialTerm(String code, String label, String description,
             Long previousTermOrdinal);
 
     /**
@@ -112,14 +110,12 @@ public interface IVocabularyBO extends IEntityBusinessObject
     void deleteByTechId(TechId vocabularyId, String reason);
 
     /**
-     * Adds new terms, updates the details (label, description) of existing terms and updates the
-     * order.
+     * Adds new terms, updates the details (label, description) of existing terms and updates the order.
      */
     void updateTerms(List<VocabularyTerm> terms);
 
     /**
-     * If set to true, than there will be no checking if the internally modified vocabulary is
-     * updated
+     * If set to true, than there will be no checking if the internally modified vocabulary is updated
      */
     void setAllowChangingInternallyManaged(boolean allowChangingInternallyManaged);
 

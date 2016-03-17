@@ -22,6 +22,7 @@ import java.util.List;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.globalsearch.GlobalSearchObjectComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.tag.TagComparatorFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.vocabulary.VocabularyTermComparatorFactory;
 
 /**
  * @author pkupczyk
@@ -36,6 +37,7 @@ public abstract class ComparatorFactory
     {
         factories.add(new GlobalSearchObjectComparatorFactory());
         factories.add(new TagComparatorFactory());
+        factories.add(new VocabularyTermComparatorFactory());
         factories.add(new EntityWithPropertiesComparatorFactory());
         factories.add(new EntityComparatorFactory());
     }
