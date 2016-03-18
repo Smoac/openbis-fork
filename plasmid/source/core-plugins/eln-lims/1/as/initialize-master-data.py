@@ -495,7 +495,7 @@ def initELNMasterData():
 										]);
 	
 	createVocabularyWithTerms("ELN_TYPES_METADATA", "The presence of this vocabulary indicates the ELN Plugin that the ELN master data script was executed.", [
-											["TYPES_VERSION", "Types Version S223", None]
+											["TYPES_VERSION", "Types Version S226", None]
 										]);
 	##
 	## Property Types for annotations
@@ -553,6 +553,7 @@ def initELNMasterData():
 	createExperimentTypeWithProperties("DEFAULT_EXPERIMENT", "Default Experiment", [
 		["NAME", 				"General", "Name", 					DataType.VARCHAR, 			None,	"Name", None, None],
 		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
+		["FINISHED_FLAG", 		"General", "Finished Flag", 		DataType.BOOLEAN, 			None,	"Marks the experiment as finished", None, None],
 		["EXPERIMENTAL_GOALS", 	"General", "Experimental goals", 	DataType.MULTILINE_VARCHAR, None,	"Goal of the experiment", None, None],
 		["GRANT", 				"General", "Grant", 				DataType.VARCHAR,			None,	"grant name", None, None],
 		["START_DATE", 			"General", "Start Date", 			DataType.TIMESTAMP, 		None,	"Start Date", None, None],
@@ -804,6 +805,7 @@ def initELNMasterData():
 	createSampleTypeWithProperties("EXPERIMENTAL_STEP", "", [
 		["NAME", 							"General",				"Name",									DataType.MULTILINE_VARCHAR,		None,								"Name", None, None],
 		["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,	"Show in project overview", None, None],
+		["FINISHED_FLAG", 					"General", 				"Finished Flag", 						DataType.BOOLEAN, 				None,								"Marks the experiment as finished", None, None],
 		["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None, None],
 		["EXPERIMENTAL_GOALS", 				"General",				"Experimental Goals",					DataType.MULTILINE_VARCHAR,		None,								"Goal of the experiment", None, None],
 		["EXPERIMENTAL_RESULTS", 			"General",				"Experimental Results",					DataType.MULTILINE_VARCHAR,		None,								"Brief summary of the results obtained", None, None],
