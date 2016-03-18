@@ -13,9 +13,7 @@ var ExperimentDataGridUtil = new function() {
 			isExportable: true,
 			sortable : true,
 			render : function(data) {
-				var href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), "showExperimentPageFromIdentifier", data.identifier);
-				var link = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).append(data.identifier);
-				return link;
+				return FormUtil.getFormLink(data.identifier, "Experiment", data.identifier);;
 			},
 			filter : function(data, filter) {
 				return data.identifier.toLowerCase().indexOf(filter) !== -1;
@@ -33,7 +31,10 @@ var ExperimentDataGridUtil = new function() {
 				label : 'Name',
 				property : 'NAME',
 				isExportable: true,
-				sortable : true
+				sortable : true,
+				render : function(data) {
+					return FormUtil.getFormLink(data.NAME, "Experiment", data.identifier);;
+				}
 			});
 		}
 		

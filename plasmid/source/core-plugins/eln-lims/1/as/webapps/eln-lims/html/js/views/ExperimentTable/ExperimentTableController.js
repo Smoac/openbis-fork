@@ -71,9 +71,7 @@ function ExperimentTableController(parentController, title, project, showInProje
 			}
 			
 			//Click event
-			var rowClick = function(e) {
-				mainController.changeView('showExperimentPageFromIdentifier', e.data.identifier);
-			}
+			var rowClick = null;
 			
 			//Create and display table
 			var dataGridController = ExperimentDataGridUtil.getExperimentDataGrid(selectedTypeCode, experiments, rowClick);
