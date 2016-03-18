@@ -335,21 +335,39 @@ $.extend(Grid.prototype, {
 	renderData : function(dataList) {
 		var thisGrid = this;
 		var items = [];
-		var maxLineLength = 300;
+		var maxLineLength = 200;
 		
 		dataList.forEach(function(data) {
 			var item = {};
 			thisGrid.getVisibleColumns().forEach(function(column) {
+				//1. Render
 				var value = null;
 				if (column.render) {
 					value = column.render(data);
 				} else {
 					value = data[column.property];
-					if(value && value.length > maxLineLength) {
-						value = value.substring(0, maxLineLength) + "...";
-					}
 				}
-				item[column.property] = FormUtil.sanitizeRichHTMLText(value);
+				
+				//2. Sanitize
+				var value = FormUtil.sanitizeRichHTMLText(value);
+				
+				//3. Shorten
+				var finalValue = null;
+				if(value && value.length > maxLineLength) {
+					finalValue = value.substring(0, maxLineLength) + "...";
+				} else {
+					finalValue = value;
+				}
+				
+				//4. Tooltip
+				if(value !== finalValue) {
+					finalValue = $("<div>").append(finalValue);
+					finalValue.tooltipster({
+		                content: $(value)
+		            });
+				}
+				
+				item[column.property] = finalValue;
 			});
 			items.push(item);
 		});
