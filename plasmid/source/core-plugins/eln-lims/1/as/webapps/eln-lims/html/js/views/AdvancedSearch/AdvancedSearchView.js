@@ -365,6 +365,35 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	}
 	
 	this._getGridForResults = function(results, isGlobalSearch) {
+		
+			var getCodeClick = function(data) {
+				var href = null;
+				var click = null;
+				switch(data.entityKind) {
+					case "Sample":
+						href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), "showViewSamplePageFromPermId", data.permId);
+						click = function() {
+							mainController.changeView('showViewSamplePageFromPermId', data.permId);
+						}
+						break;
+					case "Experiment":
+						href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), "showExperimentPageFromIdentifier", data.identifier);
+						click = function() {
+							mainController.changeView('showExperimentPageFromIdentifier', data.identifier);
+						}
+						break;
+					case "DataSet":
+						href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), "showViewDataSetPageFromPermId", data.permId);
+						click = function() {
+							mainController.changeView('showViewDataSetPageFromPermId', data.permId);
+						}
+						break;
+				}
+				var link = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).append(data.code);
+				link.click(click);
+				return link;
+			}
+		
 			var columns = [ {
 				label : 'Entity Kind',
 				property : 'entityKind',
@@ -379,7 +408,10 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Code',
 				property : 'code',
 				isExportable: true,
-				sortable : true
+				sortable : true,
+				render : function(data) {
+					return getCodeClick(data);
+				}
 			}, {
 				label : 'Identifier',
 				property : 'identifier',
@@ -531,21 +563,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				callback(rows);
 			};
 			
-			var rowClick = function(e) {
-				switch(e.data.entityKind) {
-					case "Sample":
-						mainController.changeView('showViewSamplePageFromPermId', e.data.permId);
-						break;
-					case "Experiment":
-						mainController.changeView('showExperimentPageFromIdentifier', e.data.identifier);
-						break;
-					case "DataSet":
-						mainController.changeView('showViewDataSetPageFromPermId', e.data.permId);
-						break;
-				}
-			}
-			
-			var dataGrid = new DataGridController("Search Results", columns, getDataRows, rowClick, false, "ADVANCED_SEARCH_OPENBIS_" + this._advancedSearchModel.criteria.entityKind);
+			var dataGrid = new DataGridController("Search Results", columns, getDataRows, null, false, "ADVANCED_SEARCH_OPENBIS_" + this._advancedSearchModel.criteria.entityKind);
 			return dataGrid;
 	}
 	
