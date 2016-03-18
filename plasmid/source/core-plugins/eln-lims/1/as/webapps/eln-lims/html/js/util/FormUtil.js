@@ -592,7 +592,7 @@ var FormUtil = new function() {
 	// Form Fields
 	//
 	this._getBooleanField = function(id, alt) {
-		return $('<div>', {'class' : 'checkbox'}).append($('<input>', {'type' : 'checkbox', 'id' : id, 'alt' : alt, 'placeholder' : alt }));
+		return $('<div>', {'class' : 'checkbox'}).append($('<label>').append($('<input>', {'type' : 'checkbox', 'id' : id, 'alt' : alt, 'placeholder' : alt })));
 	}
 	
 	this.getDropDownForTerms = function(id, terms, alt, isRequired) {

@@ -352,7 +352,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 								_this._dataSetFormModel.isFormDirty = true;
 								var field = $(this);
 								if(propertyType.dataType === "BOOLEAN") {
-									_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = field.children()[0].checked;
+									_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = $(field.children()[0]).children()[0].checked;
 								} else if (propertyType.dataType === "TIMESTAMP") {
 									var timeValue = $($(field.children()[0]).children()[0]).val();
 									_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = timeValue;
@@ -376,7 +376,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 						//Update values if is into edit mode
 						if(this._dataSetFormModel.mode === FormMode.EDIT) {
 							if(propertyType.dataType === "BOOLEAN") {
-								$($component.children()[0]).prop('checked', value === "true");
+								$($($component.children()[0]).children()[0]).prop('checked', value === "true");
 							} else if(propertyType.dataType === "TIMESTAMP") {
 								$($($component.children()[0]).children()[0]).val(value);
 							} else {
