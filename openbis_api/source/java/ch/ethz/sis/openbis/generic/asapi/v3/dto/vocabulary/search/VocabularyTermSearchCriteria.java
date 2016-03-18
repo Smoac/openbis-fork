@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractObjectSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
@@ -35,14 +36,19 @@ public class VocabularyTermSearchCriteria extends AbstractObjectSearchCriteria<I
     {
     }
 
+    public PermIdSearchCriteria withPermId()
+    {
+        return with(new PermIdSearchCriteria());
+    }
+
+    public VocabularyTermCodeSearchCriteria withCode()
+    {
+        return with(new VocabularyTermCodeSearchCriteria());
+    }
+
     public VocabularyCodeSearchCriteria withVocabularyCode()
     {
         return with(new VocabularyCodeSearchCriteria());
-    }
-
-    public VocabularyTermCodeSearchCriteria withTermCode()
-    {
-        return with(new VocabularyTermCodeSearchCriteria());
     }
 
     public VocabularyTermSearchCriteria withOrOperator()

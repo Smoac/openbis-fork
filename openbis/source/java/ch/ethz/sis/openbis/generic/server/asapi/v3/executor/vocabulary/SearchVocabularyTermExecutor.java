@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyCodeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermCodeSearchCriteria;
@@ -50,6 +51,9 @@ public class SearchVocabularyTermExecutor extends AbstractSearchObjectManuallyEx
         if (criteria instanceof IdSearchCriteria<?>)
         {
             return new IdMatcher();
+        } else if (criteria instanceof PermIdSearchCriteria)
+        {
+            return new PermIdMatcher();
         } else if (criteria instanceof VocabularyCodeSearchCriteria)
         {
             return new VocabularyCodeMatcher();
@@ -76,11 +80,22 @@ public class SearchVocabularyTermExecutor extends AbstractSearchObjectManuallyEx
             } else if (id instanceof VocabularyTermPermId)
             {
                 VocabularyTermPermId termId = (VocabularyTermPermId) id;
-                return object.getCode().equals(termId.getTermCode()) && object.getVocabulary().getCode().equals(termId.getVocabularyCode());
+                return object.getCode().equals(termId.getCode()) && object.getVocabulary().getCode().equals(termId.getVocabularyCode());
             } else
             {
                 throw new IllegalArgumentException("Unknown id: " + id.getClass());
             }
+        }
+
+    }
+
+    private class PermIdMatcher extends StringFieldMatcher
+    {
+
+        @Override
+        protected String getFieldValue(VocabularyTermPE object)
+        {
+            return new VocabularyTermPermId(object.getCode(), object.getVocabulary().getCode()).toString();
         }
 
     }

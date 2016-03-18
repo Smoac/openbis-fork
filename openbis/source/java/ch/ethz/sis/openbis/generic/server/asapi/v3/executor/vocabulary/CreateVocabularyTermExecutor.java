@@ -116,7 +116,7 @@ public class CreateVocabularyTermExecutor implements ICreateVocabularyTermExecut
         for (VocabularyTermCreation creation : creations)
         {
             VocabularyTermPE createdTerm = createdTermsMap.get(creation);
-            permIds.add(new VocabularyTermPermId(createdTerm.getVocabulary().getCode(), createdTerm.getCode()));
+            permIds.add(new VocabularyTermPermId(createdTerm.getCode(), createdTerm.getVocabulary().getCode()));
         }
 
         return permIds;

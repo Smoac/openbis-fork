@@ -62,6 +62,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
@@ -729,6 +731,17 @@ public class AbstractTest extends SystemTestCase
         for (Material material : materials)
         {
             actualSet.add(material.getPermId());
+        }
+
+        assertCollectionContainsOnly(actualSet, expectedPermIds);
+    }
+
+    protected static void assertVocabularyTermPermIds(Collection<VocabularyTerm> terms, VocabularyTermPermId... expectedPermIds)
+    {
+        Set<VocabularyTermPermId> actualSet = new HashSet<VocabularyTermPermId>();
+        for (VocabularyTerm term : terms)
+        {
+            actualSet.add(term.getPermId());
         }
 
         assertCollectionContainsOnly(actualSet, expectedPermIds);

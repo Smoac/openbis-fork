@@ -17,11 +17,13 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -33,12 +35,15 @@ import java.util.Date;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.vocabulary.VocabularyTerm")
-public class VocabularyTerm implements Serializable, ICodeHolder, IModificationDateHolder, IRegistrationDateHolder, IRegistratorHolder
+public class VocabularyTerm implements Serializable, ICodeHolder, IModificationDateHolder, IPermIdHolder, IRegistrationDateHolder, IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
     private VocabularyTermFetchOptions fetchOptions;
+
+    @JsonProperty
+    private VocabularyTermPermId permId;
 
     @JsonProperty
     private String code;
@@ -78,6 +83,20 @@ public class VocabularyTerm implements Serializable, ICodeHolder, IModificationD
     public void setFetchOptions(VocabularyTermFetchOptions fetchOptions)
     {
         this.fetchOptions = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    @Override
+    public VocabularyTermPermId getPermId()
+    {
+        return permId;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setPermId(VocabularyTermPermId permId)
+    {
+        this.permId = permId;
     }
 
     // Method automatically generated with DtoGenerator

@@ -210,7 +210,7 @@ public class CreateVocabularyTermTest extends AbstractTest
         try
         {
             VocabularyTermCreation creation = termCreation();
-            creation.setPreviousTermId(new VocabularyTermPermId("ORGANISM", "IDONTEXIST"));
+            creation.setPreviousTermId(new VocabularyTermPermId("IDONTEXIST", "ORGANISM"));
             createTerms(TEST_USER, PASSWORD, creation);
 
             fail();
@@ -228,7 +228,7 @@ public class CreateVocabularyTermTest extends AbstractTest
         try
         {
             VocabularyTermCreation creation = termCreation();
-            creation.setPreviousTermId(new VocabularyTermPermId("GENDER", "MALE"));
+            creation.setPreviousTermId(new VocabularyTermPermId("MALE", "GENDER"));
             createTerms(TEST_USER, PASSWORD, creation);
 
             fail();
@@ -245,11 +245,11 @@ public class CreateVocabularyTermTest extends AbstractTest
     {
         VocabularyTermCreation creation1 = termCreation();
         creation1.setCode("NEW1");
-        creation1.setPreviousTermId(new VocabularyTermPermId("ORGANISM", "HUMAN"));
+        creation1.setPreviousTermId(new VocabularyTermPermId("HUMAN", "ORGANISM"));
 
         VocabularyTermCreation creation2 = termCreation();
         creation2.setCode("NEW2");
-        creation2.setPreviousTermId(new VocabularyTermPermId("ORGANISM", "NEW1"));
+        creation2.setPreviousTermId(new VocabularyTermPermId("NEW1", "ORGANISM"));
 
         List<VocabularyTerm> termsBefore = listTerms(creation1.getVocabularyId());
         assertTerms(termsBefore, "RAT", "DOG", "HUMAN", "GORILLA", "FLY");
@@ -265,16 +265,16 @@ public class CreateVocabularyTermTest extends AbstractTest
     {
         VocabularyTermCreation creation1 = termCreation();
         creation1.setCode("NEW1");
-        creation1.setPreviousTermId(new VocabularyTermPermId("ORGANISM", "HUMAN"));
+        creation1.setPreviousTermId(new VocabularyTermPermId("HUMAN", "ORGANISM"));
 
         VocabularyTermCreation creation2 = termCreation();
         creation2.setCode("NEW2");
-        creation2.setPreviousTermId(new VocabularyTermPermId("ORGANISM", "GORILLA"));
+        creation2.setPreviousTermId(new VocabularyTermPermId("GORILLA", "ORGANISM"));
 
         VocabularyTermCreation creation3 = termCreation();
         creation3.setCode("NEW3");
         creation3.setOfficial(false);
-        creation3.setPreviousTermId(new VocabularyTermPermId("ORGANISM", "NEW2"));
+        creation3.setPreviousTermId(new VocabularyTermPermId("NEW2", "ORGANISM"));
 
         VocabularyTermCreation creation4 = termCreation();
         creation4.setCode("NEW4");
@@ -319,7 +319,7 @@ public class CreateVocabularyTermTest extends AbstractTest
         for (VocabularyTermCreation creation : creations)
         {
             String vocabularyCode = ((VocabularyPermId) creation.getVocabularyId()).getPermId();
-            criteria.withId().thatEquals(new VocabularyTermPermId(vocabularyCode, creation.getCode()));
+            criteria.withId().thatEquals(new VocabularyTermPermId(creation.getCode(), vocabularyCode));
         }
 
         // build fetch options
@@ -339,7 +339,7 @@ public class CreateVocabularyTermTest extends AbstractTest
         {
             VocabularyTermCreation creation = creations[i];
             VocabularyTermPermId permId = permIds.get(i);
-            assertEquals(permId.getTermCode(), creation.getCode());
+            assertEquals(permId.getCode(), creation.getCode());
             assertEquals(permId.getVocabularyCode(), ((VocabularyPermId) creation.getVocabularyId()).getPermId());
         }
 
@@ -381,7 +381,7 @@ public class CreateVocabularyTermTest extends AbstractTest
         List<VocabularyTerm> termsBefore = listTerms(creation.getVocabularyId());
         assertTerms(termsBefore, "RAT", "DOG", "HUMAN", "GORILLA", "FLY");
 
-        creation.setPreviousTermId(new VocabularyTermPermId("ORGANISM", "HUMAN"));
+        creation.setPreviousTermId(new VocabularyTermPermId("HUMAN", "ORGANISM"));
         createTerms(TEST_USER, PASSWORD, creation);
 
         List<VocabularyTerm> termsAfter = listTerms(creation.getVocabularyId());

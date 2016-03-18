@@ -28,6 +28,10 @@ public class VocabularyTermBaseRecord extends ObjectBaseRecord
 
     public String code;
 
+    public String vocabularyCode;
+
+    public boolean isInternalNamespace;
+
     public String label;
 
     public String description;

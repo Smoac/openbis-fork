@@ -31,18 +31,18 @@ public class VocabularyTermPermId implements IVocabularyTermId, Serializable
 
     private static final long serialVersionUID = 1L;
 
+    private String code;
+
     private String vocabularyCode;
 
-    private String termCode;
-
     /**
+     * @param code Vocabulary term code, e.g. "MY_TERM".
      * @param vocabularyCode Vocabulary code, e.g. "MY_VOCABULARY"
-     * @param termCode Vocabulary term code, e.g. "MY_TERM".
      */
-    public VocabularyTermPermId(String vocabularyCode, String termCode)
+    public VocabularyTermPermId(String code, String vocabularyCode)
     {
+        setCode(code != null ? code.toUpperCase() : null);
         setVocabularyCode(vocabularyCode != null ? vocabularyCode.toUpperCase() : null);
-        setTermCode(termCode != null ? termCode.toUpperCase() : null);
     }
 
     //
@@ -69,18 +69,18 @@ public class VocabularyTermPermId implements IVocabularyTermId, Serializable
         this.vocabularyCode = vocabularyCode;
     }
 
-    public String getTermCode()
+    public String getCode()
     {
-        return termCode;
+        return code;
     }
 
-    private void setTermCode(String termCode)
+    private void setCode(String code)
     {
-        if (termCode == null)
+        if (code == null)
         {
-            throw new IllegalArgumentException("Term code cannot be null");
+            throw new IllegalArgumentException("Code cannot be null");
         }
-        this.termCode = termCode;
+        this.code = code;
     }
 
     @Override
@@ -89,7 +89,7 @@ public class VocabularyTermPermId implements IVocabularyTermId, Serializable
         final int prime = 31;
         int result = 1;
         result = prime * result + ((vocabularyCode == null) ? 0 : vocabularyCode.hashCode());
-        result = prime * result + ((termCode == null) ? 0 : termCode.hashCode());
+        result = prime * result + ((code == null) ? 0 : code.hashCode());
         return result;
     }
 
@@ -119,13 +119,13 @@ public class VocabularyTermPermId implements IVocabularyTermId, Serializable
         {
             return false;
         }
-        if (termCode == null)
+        if (code == null)
         {
-            if (other.termCode != null)
+            if (other.code != null)
             {
                 return false;
             }
-        } else if (!termCode.equals(other.termCode))
+        } else if (!code.equals(other.code))
         {
             return false;
         }
@@ -135,7 +135,7 @@ public class VocabularyTermPermId implements IVocabularyTermId, Serializable
     @Override
     public String toString()
     {
-        return getTermCode() + " (" + getVocabularyCode() + ")";
+        return getCode() + " (" + getVocabularyCode() + ")";
     }
 
 }

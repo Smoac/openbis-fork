@@ -23,9 +23,11 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationResults;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 
 /**
  * @author pkupczyk
@@ -81,6 +83,8 @@ public class VocabularyTermTranslator extends AbstractCachingTranslator<Long, Vo
         TranslationResults relations = (TranslationResults) objectRelations;
         VocabularyTermBaseRecord baseRecord = relations.get(IVocabularyTermBaseTranslator.class, termId);
 
+        result.setPermId(new VocabularyTermPermId(baseRecord.code,
+                CodeConverter.tryToBusinessLayer(baseRecord.vocabularyCode, baseRecord.isInternalNamespace)));
         result.setCode(baseRecord.code);
         result.setLabel(baseRecord.label);
         result.setDescription(baseRecord.description);

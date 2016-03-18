@@ -56,7 +56,7 @@ public class MapStorageFormatByIdExecutor implements IMapStorageFormatByIdExecut
 
                 if (id instanceof StorageFormatPermId)
                 {
-                    termId = new VocabularyTermPermId(StorageFormat.VOCABULARY_CODE, ((StorageFormatPermId) id).getPermId());
+                    termId = new VocabularyTermPermId(((StorageFormatPermId) id).getPermId(), StorageFormat.VOCABULARY_CODE);
                 } else
                 {
                     throw new UserFailureException("Unsupported storageFormat: " + id);

@@ -52,7 +52,7 @@ public class ListVocabularyTermByPermId extends AbstractListObjectById<Vocabular
     @Override
     public VocabularyTermPermId createId(VocabularyTermPE term)
     {
-        return new VocabularyTermPermId(term.getVocabulary().getCode(), term.getCode());
+        return new VocabularyTermPermId(term.getCode(), term.getVocabulary().getCode());
     }
 
     @Override
@@ -83,7 +83,7 @@ public class ListVocabularyTermByPermId extends AbstractListObjectById<Vocabular
 
         for (VocabularyTermPermId id : ids)
         {
-            VocabularyTermPE term = termsMap.get(id.getVocabularyCode() + " " + id.getTermCode());
+            VocabularyTermPE term = termsMap.get(id.getVocabularyCode() + " " + id.getCode());
             if (term != null)
             {
                 terms.add(term);
