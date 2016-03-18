@@ -665,7 +665,7 @@ var FormUtil = new function() {
 			toolbar: [
 		['Font Style', ['fontname', 'fontsize', 'color', 'bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
 		['Paragraph style ', ['style', 'ol', 'ul', 'paragraph', 'height']],
-		['Insert', ['link', 'table', 'hr']],
+		['Insert', ['link', 'table', 'hr', 'specialCharacter']],
 		['Misc', ['fullscreen', 'undo', 'redo', 'help']],],
 		disableDragAndDrop: true});
 		$('.note-editable.panel-body').css({ "min-height" : "200px" });
