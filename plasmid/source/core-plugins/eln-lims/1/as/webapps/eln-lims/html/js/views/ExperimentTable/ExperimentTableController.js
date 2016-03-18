@@ -22,13 +22,16 @@ function ExperimentTableController(parentController, title, project, showInProje
 	this.init = function($container) {
 		var _this = this;
 		Util.blockUI();
-		
+		this._experimentTableModel.reset();
 		var callback = function(data) {
 			var typeCount = 0;
 			var lastType = null;
 			for(var i = 0; i < data.result.length; i++) {
 				var item = data.result[i];
-				if(item.properties["SHOW_IN_PROJECT_OVERVIEW"]) {
+				
+				var showOnlyOverview = _this._experimentTableModel.showInProjectOverview && item.properties["SHOW_IN_PROJECT_OVERVIEW"] === "true";
+				var showAll = !_this._experimentTableModel.showInProjectOverview;
+				if(showOnlyOverview || showAll) {
 					_this._experimentTableModel.allExperiments.push(item);
 					if(!_this._experimentTableModel.types[item.experimentTypeCode]) {
 						lastType = item.experimentTypeCode;
@@ -66,7 +69,11 @@ function ExperimentTableController(parentController, title, project, showInProje
 			for (var idx = 0; idx < this._experimentTableModel.allExperiments.length; idx++) {
 				var exptoCheckType = this._experimentTableModel.allExperiments[idx];
 				if(exptoCheckType.experimentTypeCode === selectedTypeCode) {
-					experiments.push(exptoCheckType);
+					var showOnlyOverview = this._experimentTableModel.showInProjectOverview && exptoCheckType.properties["SHOW_IN_PROJECT_OVERVIEW"] === "true";
+					var showAll = !this._experimentTableModel.showInProjectOverview;
+					if(showOnlyOverview || showAll) {
+						experiments.push(exptoCheckType);
+					}
 				}
 			}
 			

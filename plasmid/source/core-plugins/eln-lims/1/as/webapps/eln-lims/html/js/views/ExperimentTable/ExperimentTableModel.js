@@ -18,6 +18,9 @@ function ExperimentTableModel(title, project, showInProjectOverview) {
 	this.title = title;
 	this.project = project;
 	this.showInProjectOverview = showInProjectOverview;
-	this.types = {};
-	this.allExperiments = new Array();
+	
+	this.reset = function() {
+		this.types = {};
+		this.allExperiments = new Array();
+	}
 }

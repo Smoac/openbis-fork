@@ -18,10 +18,13 @@ function ExperimentTableView(experimentTableController, experimentTableModel) {
 	this._experimentTableModel = experimentTableModel;
 	this._tableContainer = $("<div>");
 	this.typeSelector = null;
+	this._$container = null;
 	
 	this.repaint = function($container) {
 		var _this = this;
+		this._$container = $container;
 		$container.empty();
+		this._tableContainer.empty();
 		if(this._experimentTableModel.title) {
 			var $title = $("<h1>").append(this._experimentTableModel.title);
 			$container.append($title);
@@ -29,6 +32,9 @@ function ExperimentTableView(experimentTableController, experimentTableModel) {
 		
 		var toolbarModel = [];
 		toolbarModel.push({ component : this._getProjectExperimentTypesDropdown(), tooltip: "Select an experiment type to visualize on the table" });
+		toolbarModel.push({ component : this._showExperimentFromOverviewDropdown(), tooltip: "Select if showing all experiments or only overview ones" });
+
+		
 		$container.append(FormUtil.getToolbar(toolbarModel));
 		$container.append(this._tableContainer);
 	}
@@ -42,6 +48,27 @@ function ExperimentTableView(experimentTableController, experimentTableModel) {
 	//
 	this.getTypeSelector = function() {
 		return this.typeSelector;
+	}
+	
+	this._showExperimentFromOverviewDropdown = function() {
+		var _this = this;
+		var expDropModel = [{value : "OVERVIEW", label : "Show only overview experiments", selected : this._experimentTableModel.showInProjectOverview },
+		                          {value : "ALL", label : "Show all experiments", selected : !this._experimentTableModel.showInProjectOverview }];
+		
+		var $experimentDropdown = FormUtil.getDropdown(expDropModel, "Select what experiments to show");
+		
+		$experimentDropdown.change(function() {
+			switch($(this).val()){
+				case "OVERVIEW":
+						_this._experimentTableModel.showInProjectOverview = true;
+					break;
+				case "ALL":
+						_this._experimentTableModel.showInProjectOverview = false;
+					break;
+			}
+			_this._experimentTableController.init(_this._$container);
+		});
+		return $("<span>").append($experimentDropdown);
 	}
 	
 	this._getProjectExperimentTypesDropdown = function() {

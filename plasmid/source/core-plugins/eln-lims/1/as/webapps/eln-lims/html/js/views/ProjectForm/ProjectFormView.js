@@ -127,7 +127,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			var $experimentsContainer = $("<div>");
 			$formColumn.append($experimentsContainer);
 			
-			var experimentTableController = new ExperimentTableController(this._projectFormController, "Experiments", this._projectFormModel.project);
+			var experimentTableController = new ExperimentTableController(this._projectFormController, "Experiments", this._projectFormModel.project, true);
 			experimentTableController.init($experimentsContainer);
 			
 			var $samplesContainer = $("<div>");
