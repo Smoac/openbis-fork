@@ -27,11 +27,9 @@ function ExperimentTableView(experimentTableController, experimentTableModel) {
 			$container.append($title);
 		}
 		
-		var $toolbox = $("<div>", { 'id' : 'toolBoxContainer', class : 'toolBox'});
-		$toolbox.append("Experiment Type: ");
-		$toolbox.append(this._getProjectExperimentTypesDropdown()).append(" ").append();
-		
-		$container.append($toolbox);
+		var toolbarModel = [];
+		toolbarModel.push({ component : this._getProjectExperimentTypesDropdown(), tooltip: "Select an experiment type to visualize on the table" });
+		$container.append(FormUtil.getToolbar(toolbarModel));
 		$container.append(this._tableContainer);
 	}
 	
@@ -49,7 +47,7 @@ function ExperimentTableView(experimentTableController, experimentTableModel) {
 	this._getProjectExperimentTypesDropdown = function() {
 		var _this = this;
 		var	$typesSelector = $('<select>', { class : 'form-control' });
-		$typesSelector.append($('<option>', { 'value' : '' }).text(''));
+		$typesSelector.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select an experiment type"));
 		for(typeCode in this._experimentTableModel.types) {
 			$typesSelector.append($('<option>', { 'value' : typeCode }).text(typeCode));
 		}
