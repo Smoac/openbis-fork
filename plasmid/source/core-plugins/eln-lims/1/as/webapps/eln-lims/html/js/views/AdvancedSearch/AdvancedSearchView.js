@@ -164,6 +164,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
 				                    {value : "Property", label : "Property"}, 
 				                    {value : "Attribute", label : "Attribute"}, 
+				                    {value : "Experiment", label : "Experiment"}, 
 				                    {value : "Parent", label : "Parent"}, 
 				                    {value : "Children", label : "Children"}];
 				break;
@@ -205,11 +206,14 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				case "Attribute":
 					$newFieldNameContainer.append(_this._getNewAttributeDropdown(_this._advancedSearchModel.criteria.entityKind));
 					break;	
+				case "Experiment":
+					$newFieldNameContainer.append(_this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "EXPERIMENT"));
+					break;
 				case "Parent":
-					$newFieldNameContainer.append(_this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "Parent"));
+					$newFieldNameContainer.append(_this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "PARENT"));
 					break;
 				case "Children":
-					$newFieldNameContainer.append(_this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "Children"));
+					$newFieldNameContainer.append(_this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "CHILDREN"));
 					break;
 				default:
 					//Do Nothing
@@ -218,10 +222,15 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		return $fieldTypeComponent;
 	}
 	
-	this._getNewMergedDropdown = function(entityKind, parentOrChildren) {
+	this._getNewMergedDropdown = function(entityKind, parentOrChildrenOrExperiment) {
 		var _this = this;
 		var model = null;
-		var attributesModel = this._getFieldNameAttributesByEntityKind(entityKind);
+		var attributesModel = null;
+		if(parentOrChildrenOrExperiment === "Experiment") {
+			attributesModel = this._getFieldNameAttributesByEntityKind("Experiment");
+		} else {
+			attributesModel = this._getFieldNameAttributesByEntityKind(entityKind);
+		}
 		attributesModel.push({ value : "", label : "-------------------------", disabled : true });
 		var propertiesModel = this._getFieldNameProperties();
 		model = attributesModel.concat(propertiesModel);
@@ -359,18 +368,27 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			var columns = [ {
 				label : 'Entity Kind',
 				property : 'entityKind',
+				isExportable: true,
 				sortable : true
 			}, {
 				label : 'Entity Type',
 				property : 'entityType',
+				isExportable: true,
 				sortable : true
 			}, {
 				label : 'Code',
 				property : 'code',
+				isExportable: true,
 				sortable : true
 			}, {
 				label : 'Identifier',
 				property : 'identifier',
+				isExportable: true,
+				sortable : true
+			}, {
+				label : 'Experiment',
+				property : 'experiment',
+				isExportable: false,
 				sortable : true
 			}];
 			
@@ -378,14 +396,14 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				columns.push({
 					label : 'Matched',
 					property : 'matched',
-					isExportable: false,
+					isExportable: true,
 					sortable : true
 				});
 				
 				columns.push({
 					label : 'Score',
 					property : 'score',
-					isExportable: false,
+					isExportable: true,
 					sortable : true
 				});
 			}
@@ -451,14 +469,14 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			columns.push({
 				label : 'Registration Date',
 				property : 'registrationDate',
-				isExportable: false,
+				isExportable: true,
 				sortable : true
 			});
 			
 			columns.push({
 				label : 'Modification Date',
 				property : 'modificationDate',
-				isExportable: false,
+				isExportable: true,
 				sortable : true
 			});
 			
@@ -488,6 +506,10 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					
 					//properties
 					rowData.entityKind = entity["@type"].substring(entity["@type"].lastIndexOf(".") + 1, entity["@type"].length);
+					if(entity.experiment) {
+						rowData.experiment = entity.experiment.code;
+					}
+					
 					rowData.entityType = entity.type.code;
 					rowData.code =  entity.code;
 					rowData.permId = entity.permId.permId;
