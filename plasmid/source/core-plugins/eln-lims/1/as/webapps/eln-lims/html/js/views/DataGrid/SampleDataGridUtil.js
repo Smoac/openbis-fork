@@ -13,9 +13,7 @@ var SampleDataGridUtil = new function() {
 			isExportable: true,
 			sortable : true,
 			render : function(data) {
-				var href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), "showViewSamplePageFromPermId", data.permId);
-				var link = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).append(data.identifier);
-				return link;
+				return FormUtil.getFormLink(data.identifier, "Sample", data.permId);
 			},
 			filter : function(data, filter) {
 				return data.identifier.toLowerCase().indexOf(filter) !== -1;
@@ -33,7 +31,10 @@ var SampleDataGridUtil = new function() {
 				label : 'Name',
 				property : 'NAME',
 				isExportable: true,
-				sortable : true
+				sortable : true,
+				render : function(data) {
+					return FormUtil.getFormLink(data.NAME, "Sample", data.permId);
+				}
 			});
 		}
 		

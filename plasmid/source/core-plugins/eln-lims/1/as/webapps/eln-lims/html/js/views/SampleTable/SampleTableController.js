@@ -82,13 +82,8 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 				}
 			}
 			
-			//Click event
-			var rowClick = function(e) {
-				mainController.changeView('showViewSamplePageFromPermId', e.data.permId);
-			}
-			
 			//Create and display table
-			var dataGridController = SampleDataGridUtil.getSampleDataGrid(selectedSampleTypeCode, samples, rowClick);
+			var dataGridController = SampleDataGridUtil.getSampleDataGrid(selectedSampleTypeCode, samples, null);
 			dataGridController.init(this._sampleTableView.getTableContainer());
 		}
 	}
