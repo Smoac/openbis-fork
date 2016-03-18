@@ -13,7 +13,7 @@ var ExperimentDataGridUtil = new function() {
 			isExportable: true,
 			sortable : true,
 			render : function(data) {
-				return FormUtil.getFormLink(data.identifier, "Experiment", data.identifier);;
+				return FormUtil.getFormLink(data.identifier, "Experiment", data.identifier);
 			},
 			filter : function(data, filter) {
 				return data.identifier.toLowerCase().indexOf(filter) !== -1;
