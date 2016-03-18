@@ -388,6 +388,14 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				isExportable: true,
 				sortable : true
 			}, {
+				label : 'Name',
+				property : 'NAME',
+				isExportable: true,
+				sortable : true,
+				render : function(data) {
+					return getLinkOnClick(data.NAME, data);
+				}
+			}, {
 				label : 'Code',
 				property : 'code',
 				isExportable: true,
@@ -463,6 +471,11 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			//2. Get columns
 			var propertyColumnsToSort = [];
 			for(var propertyCode in foundPropertyCodes) {
+				var propertiesToSkip = ["NAME", "XMLCOMMENTS", "ANNOTATIONS_STATE"];
+				if($.inArray(propertyCode, propertiesToSkip) !== -1) {
+					continue;
+				}
+				
 				propertyColumnsToSort.push({
 					label : profile.getPropertyType(propertyCode).label,
 					property : propertyCode,
