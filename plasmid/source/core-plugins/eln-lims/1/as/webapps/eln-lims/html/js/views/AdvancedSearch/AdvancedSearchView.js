@@ -366,13 +366,13 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	
 	this._getGridForResults = function(results, isGlobalSearch) {
 		
-			var getCodeClick = function(data) {
+			var getLinkOnClick = function(code, data) {
 				switch(data.entityKind) {
 					case "Experiment":
-						return FormUtil.getFormLink(data.code, data.entityKind, data.identifier);
+						return FormUtil.getFormLink(code, data.entityKind, data.identifier);
 						break;
 					default:
-						return FormUtil.getFormLink(data.code, data.entityKind, data.permId);
+						return FormUtil.getFormLink(code, data.entityKind, data.permId);
 						break;
 				}
 			}
@@ -393,13 +393,16 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				isExportable: true,
 				sortable : true,
 				render : function(data) {
-					return getCodeClick(data);
+					return getLinkOnClick(data.code, data);
 				}
 			}, {
 				label : 'Identifier',
 				property : 'identifier',
 				isExportable: true,
-				sortable : true
+				sortable : true,
+				render : function(data) {
+					return getLinkOnClick(data.identifier, data);
+				}
 			}, {
 				label : 'Experiment',
 				property : 'experiment',
