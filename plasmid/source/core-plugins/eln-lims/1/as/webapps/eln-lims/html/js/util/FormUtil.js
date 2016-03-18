@@ -720,4 +720,27 @@ var FormUtil = new function() {
 		
 		return $toolbarContainer;
 	}
+	
+	this.getFormLink = function(displayName, entityKind, permIdOrIdentifier) {
+		var view = null;
+		switch(entityKind) {
+			case "Sample":
+				view = "showViewSamplePageFromPermId";
+				break;
+			case "Experiment":
+				view = "showExperimentPageFromIdentifier";
+				break;
+			case "DataSet":
+				view = "showViewDataSetPageFromPermId";
+				break;
+		}
+		
+		var href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), view, permIdOrIdentifier);
+		var click = function() {
+			mainController.changeView(view, permIdOrIdentifier);
+		}
+		var link = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).append(displayName);
+		link.click(click);
+		return link;
+	}
 }

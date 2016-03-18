@@ -367,31 +367,14 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	this._getGridForResults = function(results, isGlobalSearch) {
 		
 			var getCodeClick = function(data) {
-				var href = null;
-				var click = null;
 				switch(data.entityKind) {
-					case "Sample":
-						href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), "showViewSamplePageFromPermId", data.permId);
-						click = function() {
-							mainController.changeView('showViewSamplePageFromPermId', data.permId);
-						}
-						break;
 					case "Experiment":
-						href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), "showExperimentPageFromIdentifier", data.identifier);
-						click = function() {
-							mainController.changeView('showExperimentPageFromIdentifier', data.identifier);
-						}
+						return FormUtil.getFormLink(data.code, data.entityKind, data.identifier);
 						break;
-					case "DataSet":
-						href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), "showViewDataSetPageFromPermId", data.permId);
-						click = function() {
-							mainController.changeView('showViewDataSetPageFromPermId', data.permId);
-						}
+					default:
+						return FormUtil.getFormLink(data.code, data.entityKind, data.permId);
 						break;
 				}
-				var link = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).append(data.code);
-				link.click(click);
-				return link;
 			}
 		
 			var columns = [ {
