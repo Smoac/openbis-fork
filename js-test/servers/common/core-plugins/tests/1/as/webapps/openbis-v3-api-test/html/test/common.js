@@ -492,6 +492,28 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 			});
 		};
 
+		this.shallowEqual = function(actual, expected, message) {
+			function oneWay(from, to) {
+				var isBad = _.chain(_.keys(from))
+				.filter(function(k) {
+					return !_.isFunction(from[k]) && !_.isArray(from[k]) && !_.isObject(from[k])
+						&& !_.isFunction(to[k]) && !_.isArray(to[k]) && !_.isObject(to[k]);
+				})
+				.any(function(k) {
+					if (from[k] !== to[k]) {
+						return true;
+					}
+				}).value();
+
+				if (isBad) {
+					assert.propEqual(actual, expected);
+				}
+			}
+
+			oneWay(actual, expected);
+			oneWay(expected, actual);
+		};
+
 		this.start = function() {
 			this.done = this.assert.async();
 		};

@@ -25,7 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.DeletionTechId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.NumberLessThanValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchTextCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.ICustomASServiceExecutor;
 import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.context.CustomASServiceContext;
@@ -86,6 +87,8 @@ public class V3ApiDtoTestService implements ICustomASServiceExecutor
             Class<?>[] parameterTypes = method.getParameterTypes();
             if (parameterTypes.length == 1) {
                 Class<?> type = parameterTypes[0];
+                // remove this if, we also want to set complex ones to null and see if they still work
+                if (type.isPrimitive() || type.equals(String.class) || type.equals(Date.class))  
                 {
                     try
                     {
@@ -124,6 +127,10 @@ public class V3ApiDtoTestService implements ICustomASServiceExecutor
             return rnd;
         } 
         
+        if (type == Integer.class || type == Integer.TYPE) {
+            return (int)rnd;
+        } 
+        
         if (type == Boolean.class || type == Boolean.TYPE) {
             return random < 0.5;
         } 
@@ -138,9 +145,14 @@ public class V3ApiDtoTestService implements ICustomASServiceExecutor
         GenericObjectMapper gom = new GenericObjectMapper();
         
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            Object populate = populate(new DeletionTechId(0l));
+            Object readValue2 = gom.readValue("{\"@id\":2,\"fieldName\":\"anything\",\"fieldType\":\"ANY_FIELD\",\"fieldValue\":null,\"@type\":\"as.dto.global.search.GlobalSearchTextCriteria\"}", GlobalSearchTextCriteria.class);
+            Object populate = populate(readValue2);
             gom.writeValue(out, populate);
-            System.out.println(out.toString());
+            String json = out.toString();
+            System.out.println(json);
+            
+            Object readValue = gom.readValue("{\"@id\":2,\"fieldName\":\"anything\",\"fieldType\":\"ANY_FIELD\",\"fieldValue\":null,\"@type\":\"as.dto.global.search.GlobalSearchTextCriteria\"}", GlobalSearchTextCriteria.class);
+            System.out.println(readValue);
         } catch(Exception e) {
             System.out.println(e);
         }

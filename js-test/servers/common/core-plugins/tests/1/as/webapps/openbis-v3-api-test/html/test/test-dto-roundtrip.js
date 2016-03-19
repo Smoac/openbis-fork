@@ -29,12 +29,25 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 			var id = new c.CustomASServiceCode("custom-service-a");
 			var actionFacade;
 
+			// those classes cannot be deserialized if the value is an empty string, must be a null
+			var nullParamRegexes = [/number.*value/i, /SamplesOperation/];
+
+			var instantiate = function(proto) {
+				var initWithNull = _.any(nullParamRegexes, function (regex) {
+							return proto.prototype["@type"].search(regex) > 0;
+						});
+				return new proto(initWithNull ? null : ""); 
+			};
+
 			var fAction = function(facade) {
 				actionFacade = facade;
 
-				return _.chain(c.getDtos())
+				return _.chain(
+						// [c.getDtos().GlobalSearchTextCriteria]
+						c.getDtos()
+					)
 					.map(function(proto) {
-						return new c.CustomASServiceExecutionOptions().withParameter("object", new proto(""));
+						return new c.CustomASServiceExecutionOptions().withParameter("object", instantiate(proto));
 					})
 					.map(function(options) {
 						return facade.executeCustomASService(id, options);
@@ -54,29 +67,41 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 
 						var proto = require(dto['@type'].replace(/\./g, '/'));
 						if (proto) {
-							var subj = new proto("");
+							var subj = instantiate(proto);
 
-							_.chain(_.keys(dto))
+							_.chain(_.allKeys(dto))
 							.filter(function(key) {
-								return !key.startsWith("@");
+								return !key.startsWith("@") && !_.isFunction(dto[key]);
 							})
 							.each(function(key){
 								var val = dto[key];
+								var isSetValue = false;
+
 								if (val && _.isFunction(val.getValue)) {
 									val = val.getValue();
+									isSetValue = true;
 								}
 
-								if (val) {
-									var setter = _.find(_.functions(subj), function(fn) {
-										return fn.toLowerCase() === key.toLowerCase() || fn.toLowerCase() === "set" + key.toLowerCase();
-									});
-									c.ok("Setter: [set]" + key);
-
-									if (setter) {
-										subj[setter](val);
-										c.ok("FIELD: " + key + " = >" + val + "<")
+								if (val && !_.isFunction(val)) {
+									if (isSetValue) {
+										if (_.isFunction(dto[key].setValue) && subj[key] && _.isFunction(subj[key].setValue)) {
+											subj[key].setValue(val);
+											c.ok("FIELD: " + key + " = setValue >" + val + "<")
+										} else {
+											c.ok("Skipping setValue field: " + key);
+										}
 									} else {
-										c.ok("Skipping field " + key + " that has no setter.");
+										var setter = _.find(_.functions(subj), function(fn) {
+											return fn.toLowerCase() === key.toLowerCase() || fn.toLowerCase() === "set" + key.toLowerCase();
+										});
+										c.ok("Setter: [set]" + key);
+
+										if (setter) {
+											subj[setter](val);
+											c.ok("FIELD: " + key + " = >" + val + "<")
+										} else {
+											c.ok("Skipping field " + key + " that has no setter.");
+										}
 									}
 								} else {
 									c.ok("Skipping field " + key + " as it's empty (i.e. complex).");
@@ -88,7 +113,10 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 							var options = new c.CustomASServiceExecutionOptions().withParameter("object", subj).withParameter("echo", "true");
 							return actionFacade.executeCustomASService(id, options)
 								.then(function(res) {
-									assert.deepEqual(JSON.parse(JSON.stringify(res)), JSON.parse(JSON.stringify(dto)), "Reconstructed " + dto['@type'] + " from Java template has same fields as the one generated and initialized by java.");
+									// here dto is what was filled by java service, res is what we reconstructed based on it
+									// deepEqual(actual, expected)
+									c.shallowEqual(JSON.parse(JSON.stringify(res)), JSON.parse(JSON.stringify(dto)), "Checking whether reconstructed " + dto['@type'] + " from Java template has same fields as the one generated and initialized by java.");
+									// assert.propEqual(JSON.parse(JSON.stringify(res)), JSON.parse(JSON.stringify(dto)), "Checking whether reconstructed " + dto['@type'] + " from Java template has same fields as the one generated and initialized by java.");
 								});
 
 						} else {
