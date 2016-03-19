@@ -113,7 +113,7 @@ public class Vocabulary implements Serializable, ICodeHolder, IModificationDateH
     @Override
     public Person getRegistrator()
     {
-        if (getFetchOptions().hasRegistrator())
+        if (getFetchOptions() != null && getFetchOptions().hasRegistrator())
         {
             return registrator;
         }

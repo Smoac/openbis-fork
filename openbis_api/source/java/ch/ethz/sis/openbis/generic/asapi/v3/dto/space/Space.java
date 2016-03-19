@@ -155,7 +155,7 @@ public class Space implements Serializable, ICodeHolder, IModificationDateHolder
     @Override
     public Person getRegistrator()
     {
-        if (getFetchOptions().hasRegistrator())
+        if (getFetchOptions() != null && getFetchOptions().hasRegistrator())
         {
             return registrator;
         }
@@ -175,7 +175,7 @@ public class Space implements Serializable, ICodeHolder, IModificationDateHolder
     @JsonIgnore
     public List<Sample> getSamples()
     {
-        if (getFetchOptions().hasSamples())
+        if (getFetchOptions() != null && getFetchOptions().hasSamples())
         {
             return samples;
         }
@@ -195,7 +195,7 @@ public class Space implements Serializable, ICodeHolder, IModificationDateHolder
     @JsonIgnore
     public List<Project> getProjects()
     {
-        if (getFetchOptions().hasProjects())
+        if (getFetchOptions() != null && getFetchOptions().hasProjects())
         {
             return projects;
         }

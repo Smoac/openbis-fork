@@ -191,7 +191,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     @JsonIgnore
     public ExperimentType getType()
     {
-        if (getFetchOptions().hasType())
+        if (getFetchOptions() != null && getFetchOptions().hasType())
         {
             return type;
         }
@@ -211,7 +211,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     @JsonIgnore
     public Project getProject()
     {
-        if (getFetchOptions().hasProject())
+        if (getFetchOptions() != null && getFetchOptions().hasProject())
         {
             return project;
         }
@@ -231,7 +231,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     @JsonIgnore
     public List<DataSet> getDataSets()
     {
-        if (getFetchOptions().hasDataSets())
+        if (getFetchOptions() != null && getFetchOptions().hasDataSets())
         {
             return dataSets;
         }
@@ -251,7 +251,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     @JsonIgnore
     public List<Sample> getSamples()
     {
-        if (getFetchOptions().hasSamples())
+        if (getFetchOptions() != null && getFetchOptions().hasSamples())
         {
             return samples;
         }
@@ -271,7 +271,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     @JsonIgnore
     public List<HistoryEntry> getHistory()
     {
-        if (getFetchOptions().hasHistory())
+        if (getFetchOptions() != null && getFetchOptions().hasHistory())
         {
             return history;
         }
@@ -292,7 +292,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     @Override
     public Map<String, String> getProperties()
     {
-        if (getFetchOptions().hasProperties())
+        if (getFetchOptions() != null && getFetchOptions().hasProperties())
         {
             return properties;
         }
@@ -313,7 +313,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     @Override
     public Map<String, Material> getMaterialProperties()
     {
-        if (getFetchOptions().hasMaterialProperties())
+        if (getFetchOptions() != null && getFetchOptions().hasMaterialProperties())
         {
             return materialProperties;
         }
@@ -334,7 +334,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     @Override
     public Set<Tag> getTags()
     {
-        if (getFetchOptions().hasTags())
+        if (getFetchOptions() != null && getFetchOptions().hasTags())
         {
             return tags;
         }
@@ -355,7 +355,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     @Override
     public Person getRegistrator()
     {
-        if (getFetchOptions().hasRegistrator())
+        if (getFetchOptions() != null && getFetchOptions().hasRegistrator())
         {
             return registrator;
         }
@@ -376,7 +376,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     @Override
     public Person getModifier()
     {
-        if (getFetchOptions().hasModifier())
+        if (getFetchOptions() != null && getFetchOptions().hasModifier())
         {
             return modifier;
         }
@@ -397,7 +397,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     @Override
     public List<Attachment> getAttachments()
     {
-        if (getFetchOptions().hasAttachments())
+        if (getFetchOptions() != null && getFetchOptions().hasAttachments())
         {
             return attachments;
         }

@@ -127,7 +127,7 @@ public class PhysicalData implements Serializable
     @JsonIgnore
     public StorageFormat getStorageFormat()
     {
-        if (getFetchOptions().hasStorageFormat())
+        if (getFetchOptions() != null && getFetchOptions().hasStorageFormat())
         {
             return storageFormat;
         }
@@ -147,7 +147,7 @@ public class PhysicalData implements Serializable
     @JsonIgnore
     public FileFormatType getFileFormatType()
     {
-        if (getFetchOptions().hasFileFormatType())
+        if (getFetchOptions() != null && getFetchOptions().hasFileFormatType())
         {
             return fileFormatType;
         }
@@ -167,7 +167,7 @@ public class PhysicalData implements Serializable
     @JsonIgnore
     public LocatorType getLocatorType()
     {
-        if (getFetchOptions().hasLocatorType())
+        if (getFetchOptions() != null && getFetchOptions().hasLocatorType())
         {
             return locatorType;
         }

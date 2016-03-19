@@ -188,7 +188,7 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
     @JsonIgnore
     public List<Experiment> getExperiments()
     {
-        if (getFetchOptions().hasExperiments())
+        if (getFetchOptions() != null && getFetchOptions().hasExperiments())
         {
             return experiments;
         }
@@ -208,7 +208,7 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
     @JsonIgnore
     public List<HistoryEntry> getHistory()
     {
-        if (getFetchOptions().hasHistory())
+        if (getFetchOptions() != null && getFetchOptions().hasHistory())
         {
             return history;
         }
@@ -229,7 +229,7 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
     @Override
     public Space getSpace()
     {
-        if (getFetchOptions().hasSpace())
+        if (getFetchOptions() != null && getFetchOptions().hasSpace())
         {
             return space;
         }
@@ -250,7 +250,7 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
     @Override
     public Person getRegistrator()
     {
-        if (getFetchOptions().hasRegistrator())
+        if (getFetchOptions() != null && getFetchOptions().hasRegistrator())
         {
             return registrator;
         }
@@ -271,7 +271,7 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
     @Override
     public Person getModifier()
     {
-        if (getFetchOptions().hasModifier())
+        if (getFetchOptions() != null && getFetchOptions().hasModifier())
         {
             return modifier;
         }
@@ -291,7 +291,7 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
     @JsonIgnore
     public Person getLeader()
     {
-        if (getFetchOptions().hasLeader())
+        if (getFetchOptions() != null && getFetchOptions().hasLeader())
         {
             return leader;
         }
@@ -312,7 +312,7 @@ public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, I
     @Override
     public List<Attachment> getAttachments()
     {
-        if (getFetchOptions().hasAttachments())
+        if (getFetchOptions() != null && getFetchOptions().hasAttachments())
         {
             return attachments;
         }

@@ -87,7 +87,7 @@ public class Deletion implements Serializable
     @JsonIgnore
     public List<DeletedObject> getDeletedObjects()
     {
-        if (getFetchOptions().hasDeletedObjects())
+        if (getFetchOptions() != null && getFetchOptions().hasDeletedObjects())
         {
             return deletedObjects;
         }

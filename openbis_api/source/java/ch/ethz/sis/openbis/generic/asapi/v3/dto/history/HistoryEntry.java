@@ -87,7 +87,7 @@ public class HistoryEntry implements Serializable
     @JsonIgnore
     public Person getAuthor()
     {
-        if (getFetchOptions().hasAuthor())
+        if (getFetchOptions() != null && getFetchOptions().hasAuthor())
         {
             return author;
         }

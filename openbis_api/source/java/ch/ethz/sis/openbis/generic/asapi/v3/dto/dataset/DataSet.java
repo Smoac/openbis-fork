@@ -177,7 +177,7 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     @JsonIgnore
     public DataSetType getType()
     {
-        if (getFetchOptions().hasType())
+        if (getFetchOptions() != null && getFetchOptions().hasType())
         {
             return type;
         }
@@ -197,7 +197,7 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     @JsonIgnore
     public DataStore getDataStore()
     {
-        if (getFetchOptions().hasDataStore())
+        if (getFetchOptions() != null && getFetchOptions().hasDataStore())
         {
             return dataStore;
         }
@@ -243,7 +243,7 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     @JsonIgnore
     public PhysicalData getPhysicalData()
     {
-        if (getFetchOptions().hasPhysicalData())
+        if (getFetchOptions() != null && getFetchOptions().hasPhysicalData())
         {
             return physicalData;
         }
@@ -263,7 +263,7 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     @JsonIgnore
     public LinkedData getLinkedData()
     {
-        if (getFetchOptions().hasLinkedData())
+        if (getFetchOptions() != null && getFetchOptions().hasLinkedData())
         {
             return linkedData;
         }
@@ -283,7 +283,7 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     @JsonIgnore
     public Experiment getExperiment()
     {
-        if (getFetchOptions().hasExperiment())
+        if (getFetchOptions() != null && getFetchOptions().hasExperiment())
         {
             return experiment;
         }
@@ -303,7 +303,7 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     @JsonIgnore
     public Sample getSample()
     {
-        if (getFetchOptions().hasSample())
+        if (getFetchOptions() != null && getFetchOptions().hasSample())
         {
             return sample;
         }
@@ -324,7 +324,7 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     @Override
     public Map<String, String> getProperties()
     {
-        if (getFetchOptions().hasProperties())
+        if (getFetchOptions() != null && getFetchOptions().hasProperties())
         {
             return properties;
         }
@@ -345,7 +345,7 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     @Override
     public Map<String, Material> getMaterialProperties()
     {
-        if (getFetchOptions().hasMaterialProperties())
+        if (getFetchOptions() != null && getFetchOptions().hasMaterialProperties())
         {
             return materialProperties;
         }
@@ -366,7 +366,7 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     @Override
     public List<DataSet> getParents()
     {
-        if (getFetchOptions().hasParents())
+        if (getFetchOptions() != null && getFetchOptions().hasParents())
         {
             return parents;
         }
@@ -387,7 +387,7 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     @Override
     public List<DataSet> getChildren()
     {
-        if (getFetchOptions().hasChildren())
+        if (getFetchOptions() != null && getFetchOptions().hasChildren())
         {
             return children;
         }
@@ -407,7 +407,7 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     @JsonIgnore
     public List<DataSet> getContainers()
     {
-        if (getFetchOptions().hasContainers())
+        if (getFetchOptions() != null && getFetchOptions().hasContainers())
         {
             return containers;
         }
@@ -427,7 +427,7 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     @JsonIgnore
     public List<DataSet> getComponents()
     {
-        if (getFetchOptions().hasComponents())
+        if (getFetchOptions() != null && getFetchOptions().hasComponents())
         {
             return components;
         }
@@ -448,7 +448,7 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     @Override
     public Set<Tag> getTags()
     {
-        if (getFetchOptions().hasTags())
+        if (getFetchOptions() != null && getFetchOptions().hasTags())
         {
             return tags;
         }
@@ -468,7 +468,7 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     @JsonIgnore
     public List<HistoryEntry> getHistory()
     {
-        if (getFetchOptions().hasHistory())
+        if (getFetchOptions() != null && getFetchOptions().hasHistory())
         {
             return history;
         }
@@ -503,7 +503,7 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     @Override
     public Person getModifier()
     {
-        if (getFetchOptions().hasModifier())
+        if (getFetchOptions() != null && getFetchOptions().hasModifier())
         {
             return modifier;
         }
@@ -538,7 +538,7 @@ public class DataSet implements Serializable, ICodeHolder, IModificationDateHold
     @Override
     public Person getRegistrator()
     {
-        if (getFetchOptions().hasRegistrator())
+        if (getFetchOptions() != null && getFetchOptions().hasRegistrator())
         {
             return registrator;
         }

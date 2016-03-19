@@ -70,7 +70,7 @@ public class LinkedData implements Serializable
     @JsonIgnore
     public ExternalDms getExternalDms()
     {
-        if (getFetchOptions().hasExternalDms())
+        if (getFetchOptions() != null && getFetchOptions().hasExternalDms())
         {
             return externalDms;
         }

@@ -206,7 +206,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
     @JsonIgnore
     public SampleType getType()
     {
-        if (getFetchOptions().hasType())
+        if (getFetchOptions() != null && getFetchOptions().hasType())
         {
             return type;
         }
@@ -227,7 +227,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
     @Override
     public Space getSpace()
     {
-        if (getFetchOptions().hasSpace())
+        if (getFetchOptions() != null && getFetchOptions().hasSpace())
         {
             return space;
         }
@@ -247,7 +247,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
     @JsonIgnore
     public Experiment getExperiment()
     {
-        if (getFetchOptions().hasExperiment())
+        if (getFetchOptions() != null && getFetchOptions().hasExperiment())
         {
             return experiment;
         }
@@ -268,7 +268,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
     @Override
     public Map<String, String> getProperties()
     {
-        if (getFetchOptions().hasProperties())
+        if (getFetchOptions() != null && getFetchOptions().hasProperties())
         {
             return properties;
         }
@@ -289,7 +289,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
     @Override
     public Map<String, Material> getMaterialProperties()
     {
-        if (getFetchOptions().hasMaterialProperties())
+        if (getFetchOptions() != null && getFetchOptions().hasMaterialProperties())
         {
             return materialProperties;
         }
@@ -310,7 +310,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
     @Override
     public List<Sample> getParents()
     {
-        if (getFetchOptions().hasParents())
+        if (getFetchOptions() != null && getFetchOptions().hasParents())
         {
             return parents;
         }
@@ -331,7 +331,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
     @Override
     public List<Sample> getChildren()
     {
-        if (getFetchOptions().hasChildren())
+        if (getFetchOptions() != null && getFetchOptions().hasChildren())
         {
             return children;
         }
@@ -351,7 +351,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
     @JsonIgnore
     public Sample getContainer()
     {
-        if (getFetchOptions().hasContainer())
+        if (getFetchOptions() != null && getFetchOptions().hasContainer())
         {
             return container;
         }
@@ -371,7 +371,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
     @JsonIgnore
     public List<Sample> getComponents()
     {
-        if (getFetchOptions().hasComponents())
+        if (getFetchOptions() != null && getFetchOptions().hasComponents())
         {
             return components;
         }
@@ -391,7 +391,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
     @JsonIgnore
     public List<DataSet> getDataSets()
     {
-        if (getFetchOptions().hasDataSets())
+        if (getFetchOptions() != null && getFetchOptions().hasDataSets())
         {
             return dataSets;
         }
@@ -411,7 +411,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
     @JsonIgnore
     public List<HistoryEntry> getHistory()
     {
-        if (getFetchOptions().hasHistory())
+        if (getFetchOptions() != null && getFetchOptions().hasHistory())
         {
             return history;
         }
@@ -432,7 +432,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
     @Override
     public Set<Tag> getTags()
     {
-        if (getFetchOptions().hasTags())
+        if (getFetchOptions() != null && getFetchOptions().hasTags())
         {
             return tags;
         }
@@ -453,7 +453,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
     @Override
     public Person getRegistrator()
     {
-        if (getFetchOptions().hasRegistrator())
+        if (getFetchOptions() != null && getFetchOptions().hasRegistrator())
         {
             return registrator;
         }
@@ -474,7 +474,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
     @Override
     public Person getModifier()
     {
-        if (getFetchOptions().hasModifier())
+        if (getFetchOptions() != null && getFetchOptions().hasModifier())
         {
             return modifier;
         }
@@ -495,7 +495,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IM
     @Override
     public List<Attachment> getAttachments()
     {
-        if (getFetchOptions().hasAttachments())
+        if (getFetchOptions() != null && getFetchOptions().hasAttachments())
         {
             return attachments;
         }

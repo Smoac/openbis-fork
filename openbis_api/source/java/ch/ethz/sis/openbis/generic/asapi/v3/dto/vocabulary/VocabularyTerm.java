@@ -169,7 +169,7 @@ public class VocabularyTerm implements Serializable, ICodeHolder, IModificationD
     @JsonIgnore
     public Vocabulary getVocabulary()
     {
-        if (getFetchOptions().hasVocabulary())
+        if (getFetchOptions() != null && getFetchOptions().hasVocabulary())
         {
             return vocabulary;
         }
@@ -204,7 +204,7 @@ public class VocabularyTerm implements Serializable, ICodeHolder, IModificationD
     @Override
     public Person getRegistrator()
     {
-        if (getFetchOptions().hasRegistrator())
+        if (getFetchOptions() != null && getFetchOptions().hasRegistrator())
         {
             return registrator;
         }

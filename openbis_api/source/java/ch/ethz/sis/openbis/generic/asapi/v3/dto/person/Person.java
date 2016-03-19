@@ -179,7 +179,7 @@ public class Person implements Serializable, IPermIdHolder, IRegistrationDateHol
     @Override
     public Space getSpace()
     {
-        if (getFetchOptions().hasSpace())
+        if (getFetchOptions() != null && getFetchOptions().hasSpace())
         {
             return space;
         }
@@ -200,7 +200,7 @@ public class Person implements Serializable, IPermIdHolder, IRegistrationDateHol
     @Override
     public Person getRegistrator()
     {
-        if (getFetchOptions().hasRegistrator())
+        if (getFetchOptions() != null && getFetchOptions().hasRegistrator())
         {
             return registrator;
         }

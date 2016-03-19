@@ -148,7 +148,7 @@ public class GlobalSearchObject implements Serializable
     @JsonIgnore
     public Experiment getExperiment()
     {
-        if (getFetchOptions().hasExperiment())
+        if (getFetchOptions() != null && getFetchOptions().hasExperiment())
         {
             return experiment;
         }
@@ -168,7 +168,7 @@ public class GlobalSearchObject implements Serializable
     @JsonIgnore
     public Sample getSample()
     {
-        if (getFetchOptions().hasSample())
+        if (getFetchOptions() != null && getFetchOptions().hasSample())
         {
             return sample;
         }
@@ -188,7 +188,7 @@ public class GlobalSearchObject implements Serializable
     @JsonIgnore
     public DataSet getDataSet()
     {
-        if (getFetchOptions().hasDataSet())
+        if (getFetchOptions() != null && getFetchOptions().hasDataSet())
         {
             return dataSet;
         }
@@ -208,7 +208,7 @@ public class GlobalSearchObject implements Serializable
     @JsonIgnore
     public Material getMaterial()
     {
-        if (getFetchOptions().hasMaterial())
+        if (getFetchOptions() != null && getFetchOptions().hasMaterial())
         {
             return material;
         }

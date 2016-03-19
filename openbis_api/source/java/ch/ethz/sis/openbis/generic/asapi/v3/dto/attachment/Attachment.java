@@ -178,7 +178,7 @@ public class Attachment implements Serializable, IRegistrationDateHolder, IRegis
     @Override
     public Person getRegistrator()
     {
-        if (getFetchOptions().hasRegistrator())
+        if (getFetchOptions() != null && getFetchOptions().hasRegistrator())
         {
             return registrator;
         }
@@ -198,7 +198,7 @@ public class Attachment implements Serializable, IRegistrationDateHolder, IRegis
     @JsonIgnore
     public Attachment getPreviousVersion()
     {
-        if (getFetchOptions().hasPreviousVersion())
+        if (getFetchOptions() != null && getFetchOptions().hasPreviousVersion())
         {
             return previousVersion;
         }
@@ -218,7 +218,7 @@ public class Attachment implements Serializable, IRegistrationDateHolder, IRegis
     @JsonIgnore
     public byte[] getContent()
     {
-        if (getFetchOptions().hasContent())
+        if (getFetchOptions() != null && getFetchOptions().hasContent())
         {
             return content;
         }

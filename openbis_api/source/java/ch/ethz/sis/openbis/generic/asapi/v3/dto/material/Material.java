@@ -125,7 +125,7 @@ public class Material implements Serializable, ICodeHolder, IModificationDateHol
     @JsonIgnore
     public MaterialType getType()
     {
-        if (getFetchOptions().hasType())
+        if (getFetchOptions() != null && getFetchOptions().hasType())
         {
             return type;
         }
@@ -145,7 +145,7 @@ public class Material implements Serializable, ICodeHolder, IModificationDateHol
     @JsonIgnore
     public List<HistoryEntry> getHistory()
     {
-        if (getFetchOptions().hasHistory())
+        if (getFetchOptions() != null && getFetchOptions().hasHistory())
         {
             return history;
         }
@@ -180,7 +180,7 @@ public class Material implements Serializable, ICodeHolder, IModificationDateHol
     @Override
     public Person getRegistrator()
     {
-        if (getFetchOptions().hasRegistrator())
+        if (getFetchOptions() != null && getFetchOptions().hasRegistrator())
         {
             return registrator;
         }
@@ -215,7 +215,7 @@ public class Material implements Serializable, ICodeHolder, IModificationDateHol
     @Override
     public Map<String, String> getProperties()
     {
-        if (getFetchOptions().hasProperties())
+        if (getFetchOptions() != null && getFetchOptions().hasProperties())
         {
             return properties;
         }
@@ -236,7 +236,7 @@ public class Material implements Serializable, ICodeHolder, IModificationDateHol
     @Override
     public Map<String, Material> getMaterialProperties()
     {
-        if (getFetchOptions().hasMaterialProperties())
+        if (getFetchOptions() != null && getFetchOptions().hasMaterialProperties())
         {
             return materialProperties;
         }
@@ -257,7 +257,7 @@ public class Material implements Serializable, ICodeHolder, IModificationDateHol
     @Override
     public Set<Tag> getTags()
     {
-        if (getFetchOptions().hasTags())
+        if (getFetchOptions() != null && getFetchOptions().hasTags())
         {
             return tags;
         }

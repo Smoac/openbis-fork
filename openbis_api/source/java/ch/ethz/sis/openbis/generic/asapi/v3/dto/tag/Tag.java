@@ -142,7 +142,7 @@ public class Tag implements Serializable, ICodeHolder, IPermIdHolder, IRegistrat
     @JsonIgnore
     public Person getOwner()
     {
-        if (getFetchOptions().hasOwner())
+        if (getFetchOptions() != null && getFetchOptions().hasOwner())
         {
             return owner;
         }
