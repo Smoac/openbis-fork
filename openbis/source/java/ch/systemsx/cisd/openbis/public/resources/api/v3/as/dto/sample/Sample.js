@@ -66,7 +66,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.modificationDate = modificationDate;
 		};
 		prototype.getType = function() {
-			if (this.getFetchOptions().hasType()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasType()) {
 				return this.type;
 			} else {
 				throw new exceptions.NotFetchedException("Sample type has not been fetched.");
@@ -76,7 +76,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.type = type;
 		};
 		prototype.getSpace = function() {
-			if (this.getFetchOptions().hasSpace()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasSpace()) {
 				return this.space;
 			} else {
 				throw new exceptions.NotFetchedException("Space has not been fetched.");
@@ -86,7 +86,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.space = space;
 		};
 		prototype.getExperiment = function() {
-			if (this.getFetchOptions().hasExperiment()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasExperiment()) {
 				return this.experiment;
 			} else {
 				throw new exceptions.NotFetchedException("Experiment has not been fetched.");
@@ -100,7 +100,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			return properties ? properties[propertyName] : null;
 		};
 		prototype.getProperties = function() {
-			if (this.getFetchOptions().hasProperties()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasProperties()) {
 				return this.properties;
 			} else {
 				throw new exceptions.NotFetchedException("Properties have not been fetched.");
@@ -114,7 +114,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			return properties ? properties[propertyName] : null;
 		};
 		prototype.getMaterialProperties = function() {
-			if (this.getFetchOptions().hasMaterialProperties()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasMaterialProperties()) {
 				return this.materialProperties;
 			} else {
 				throw new exceptions.NotFetchedException("Material properties have not been fetched.");
@@ -124,7 +124,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.materialProperties = materialProperties;
 		};
 		prototype.getParents = function() {
-			if (this.getFetchOptions().hasParents()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasParents()) {
 				return this.parents;
 			} else {
 				throw new exceptions.NotFetchedException("Parents has not been fetched.");
@@ -134,7 +134,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.parents = parents;
 		};
 		prototype.getChildren = function() {
-			if (this.getFetchOptions().hasChildren()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasChildren()) {
 				return this.children;
 			} else {
 				throw new exceptions.NotFetchedException("Children has not been fetched.");
@@ -144,7 +144,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.children = children;
 		};
 		prototype.getContainer = function() {
-			if (this.getFetchOptions().hasContainer()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasContainer()) {
 				return this.container;
 			} else {
 				throw new exceptions.NotFetchedException("Container sample has not been fetched.");
@@ -154,7 +154,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.container = container;
 		};
 		prototype.getComponents = function() {
-			if (this.getFetchOptions().hasComponents()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasComponents()) {
 				return this.components;
 			} else {
 				throw new exceptions.NotFetchedException("Component samples has not been fetched.");
@@ -164,7 +164,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.components = components;
 		};
 		prototype.getDataSets = function() {
-			if (this.getFetchOptions().hasDataSets()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasDataSets()) {
 				return this.dataSets;
 			} else {
 				throw new exceptions.NotFetchedException("Data sets have not been fetched.");
@@ -174,7 +174,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.dataSets = dataSets;
 		};
 		prototype.getHistory = function() {
-			if (this.getFetchOptions().hasHistory()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasHistory()) {
 				return this.history;
 			} else {
 				throw new exceptions.NotFetchedException("History has not been fetched.");
@@ -184,7 +184,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.history = history;
 		};
 		prototype.getTags = function() {
-			if (this.getFetchOptions().hasTags()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasTags()) {
 				return this.tags;
 			} else {
 				throw new exceptions.NotFetchedException("Tags has not been fetched.");
@@ -194,7 +194,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.tags = tags;
 		};
 		prototype.getRegistrator = function() {
-			if (this.getFetchOptions().hasRegistrator()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasRegistrator()) {
 				return this.registrator;
 			} else {
 				throw new exceptions.NotFetchedException("Registrator has not been fetched.");
@@ -204,7 +204,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.registrator = registrator;
 		};
 		prototype.getModifier = function() {
-			if (this.getFetchOptions().hasModifier()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasModifier()) {
 				return this.modifier;
 			} else {
 				throw new exceptions.NotFetchedException("Modifier has not been fetched.");
@@ -214,7 +214,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.modifier = modifier;
 		};
 		prototype.getAttachments = function() {
-			if (this.getFetchOptions().hasAttachments()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasAttachments()) {
 				return this.attachments;
 			} else {
 				throw new exceptions.NotFetchedException("Attachments has not been fetched.");

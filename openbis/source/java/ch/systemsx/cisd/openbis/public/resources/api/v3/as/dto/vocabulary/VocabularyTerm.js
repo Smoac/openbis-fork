@@ -56,7 +56,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.official = official;
 		};
 		prototype.getVocabulary = function() {
-			if (this.getFetchOptions().hasVocabulary()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasVocabulary()) {
 				return this.vocabulary;
 			} else {
 				throw new exceptions.NotFetchedException("Vocabulary has not been fetched.");
@@ -72,7 +72,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.registrationDate = registrationDate;
 		};
 		prototype.getRegistrator = function() {
-			if (this.getFetchOptions().hasRegistrator()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasRegistrator()) {
 				return this.registrator;
 			} else {
 				throw new exceptions.NotFetchedException("Registrator has not been fetched.");

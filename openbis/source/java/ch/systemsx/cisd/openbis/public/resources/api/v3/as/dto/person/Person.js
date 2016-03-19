@@ -67,7 +67,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.active = active;
 		};
 		prototype.getSpace = function() {
-			if (this.getFetchOptions().hasSpace()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasSpace()) {
 				return this.space;
 			} else {
 				throw new exceptions.NotFetchedException("Space has not been fetched.");
@@ -77,7 +77,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.space = space;
 		};
 		prototype.getRegistrator = function() {
-			if (this.getFetchOptions().hasRegistrator()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasRegistrator()) {
 				return this.registrator;
 			} else {
 				throw new exceptions.NotFetchedException("Registrator has not been fetched.");

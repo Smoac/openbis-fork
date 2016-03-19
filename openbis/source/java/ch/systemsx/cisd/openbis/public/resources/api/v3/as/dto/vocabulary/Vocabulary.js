@@ -40,7 +40,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.registrationDate = registrationDate;
 		};
 		prototype.getRegistrator = function() {
-			if (this.getFetchOptions().hasRegistrator()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasRegistrator()) {
 				return this.registrator;
 			} else {
 				throw new exceptions.NotFetchedException("Registrator has not been fetched.");

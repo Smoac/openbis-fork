@@ -6,7 +6,10 @@ define([ "stjs", "as/dto/common/operations/IOperation" ], function(stjs, IOperat
 	};
 	stjs.extend(CreateExperimentsOperation, null, [ IOperation ], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.experiment.create.CreateExperimentsOperation';
-		prototype.newExperiments = null;
+		prototype.creations = null;
+		prototype.getCreations = function() {
+			return this.creations;
+		};
 	}, {
 		newExperiments : {
 			name : "List",

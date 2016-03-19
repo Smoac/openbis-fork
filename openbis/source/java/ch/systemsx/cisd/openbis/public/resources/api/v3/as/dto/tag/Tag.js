@@ -52,7 +52,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.registrationDate = registrationDate;
 		};
 		prototype.getOwner = function() {
-			if (this.getFetchOptions().hasOwner()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasOwner()) {
 				return this.owner;
 			} else {
 				throw new exceptions.NotFetchedException("Owner has not been fetched.");

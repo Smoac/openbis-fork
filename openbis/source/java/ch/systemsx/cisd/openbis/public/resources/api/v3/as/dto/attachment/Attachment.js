@@ -68,7 +68,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.registrationDate = registrationDate;
 		};
 		prototype.getRegistrator = function() {
-			if (this.getFetchOptions().hasRegistrator()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasRegistrator()) {
 				return this.registrator;
 			} else {
 				throw new exceptions.NotFetchedException("Registrator has not been fetched.");
@@ -78,7 +78,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.registrator = registrator;
 		};
 		prototype.getPreviousVersion = function() {
-			if (this.getFetchOptions().hasPreviousVersion()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasPreviousVersion()) {
 				return this.previousVersion;
 			} else {
 				throw new exceptions.NotFetchedException("Previous version of attachment  has not been fetched.");
@@ -88,7 +88,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.previousVersion = previousVersion;
 		};
 		prototype.getContent = function() {
-			if (this.getFetchOptions().hasContent()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasContent()) {
 				return this.content;
 			} else {
 				throw new exceptions.NotFetchedException("Content has not been fetched.");

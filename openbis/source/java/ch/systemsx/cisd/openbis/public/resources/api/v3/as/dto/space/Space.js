@@ -55,7 +55,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.modificationDate = modificationDate;
 		};
 		prototype.getRegistrator = function() {
-			if (this.getFetchOptions().hasRegistrator()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasRegistrator()) {
 				return this.registrator;
 			} else {
 				throw new exceptions.NotFetchedException("Registrator has not been fetched.");
@@ -65,7 +65,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.registrator = registrator;
 		};
 		prototype.getSamples = function() {
-			if (this.getFetchOptions().hasSamples()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasSamples()) {
 				return this.samples;
 			} else {
 				throw new exceptions.NotFetchedException("Samples have not been fetched.");
@@ -75,7 +75,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.samples = samples;
 		};
 		prototype.getProjects = function() {
-			if (this.getFetchOptions().hasProjects()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasProjects()) {
 				return this.projects;
 			} else {
 				throw new exceptions.NotFetchedException("Projects have not been fetched.");

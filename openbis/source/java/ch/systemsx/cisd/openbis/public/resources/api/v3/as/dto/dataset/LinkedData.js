@@ -25,7 +25,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.externalCode = externalCode;
 		};
 		prototype.getExternalDms = function() {
-			if (this.getFetchOptions().hasExternalDms()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasExternalDms()) {
 				return this.externalDms;
 			} else {
 				throw new exceptions.NotFetchedException("External data management system has not been fetched.");

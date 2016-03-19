@@ -52,7 +52,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.score = score;
 		};
 		prototype.getExperiment = function() {
-			if (this.getFetchOptions().hasExperiment()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasExperiment()) {
 				return this.experiment;
 			} else {
 				throw new exceptions.NotFetchedException("Experiment has not been fetched.");
@@ -62,7 +62,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.experiment = experiment;
 		};
 		prototype.getSample = function() {
-			if (this.getFetchOptions().hasSample()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasSample()) {
 				return this.sample;
 			} else {
 				throw new exceptions.NotFetchedException("Sample has not been fetched.");
@@ -72,7 +72,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.sample = sample;
 		};
 		prototype.getDataSet = function() {
-			if (this.getFetchOptions().hasDataSet()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasDataSet()) {
 				return this.dataSet;
 			} else {
 				throw new exceptions.NotFetchedException("Data set has not been fetched.");
@@ -82,7 +82,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.dataSet = dataSet;
 		};
 		prototype.getMaterial = function() {
-			if (this.getFetchOptions().hasMaterial()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasMaterial()) {
 				return this.material;
 			} else {
 				throw new exceptions.NotFetchedException("Material has not been fetched.");

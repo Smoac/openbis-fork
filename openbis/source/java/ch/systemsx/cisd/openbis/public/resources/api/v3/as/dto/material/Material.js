@@ -38,7 +38,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.code = code;
 		};
 		prototype.getType = function() {
-			if (this.getFetchOptions().hasType()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasType()) {
 				return this.type;
 			} else {
 				throw new exceptions.NotFetchedException("Material type has not been fetched.");
@@ -48,7 +48,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.type = type;
 		};
 		prototype.getHistory = function() {
-			if (this.getFetchOptions().hasHistory()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasHistory()) {
 				return this.history;
 			} else {
 				throw new exceptions.NotFetchedException("History has not been fetched.");
@@ -64,7 +64,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.registrationDate = registrationDate;
 		};
 		prototype.getRegistrator = function() {
-			if (this.getFetchOptions().hasRegistrator()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasRegistrator()) {
 				return this.registrator;
 			} else {
 				throw new exceptions.NotFetchedException("Registrator has not been fetched.");
@@ -84,7 +84,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			return properties ? properties[propertyName] : null;
 		};
 		prototype.getProperties = function() {
-			if (this.getFetchOptions().hasProperties()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasProperties()) {
 				return this.properties;
 			} else {
 				throw new exceptions.NotFetchedException("Properties has not been fetched.");
@@ -98,7 +98,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			return properties ? properties[propertyName] : null;
 		};
 		prototype.getMaterialProperties = function() {
-			if (this.getFetchOptions().hasMaterialProperties()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasMaterialProperties()) {
 				return this.materialProperties;
 			} else {
 				throw new exceptions.NotFetchedException("Material properties has not been fetched.");
@@ -108,7 +108,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.materialProperties = materialProperties;
 		};
 		prototype.getTags = function() {
-			if (this.getFetchOptions().hasTags()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasTags()) {
 				return this.tags;
 			} else {
 				throw new exceptions.NotFetchedException("Tags has not been fetched.");

@@ -526,7 +526,7 @@ public class DtoGenerator
         printGetterAnnotation(field);
         print("public %s get%s()", field.definitionClassName, field.getCapitalizedName());
         startBlock();
-        print("if (getFetchOptions().has%s())", field.getCapitalizedName());
+        print("if (getFetchOptions() != null && getFetchOptions().has%s())", field.getCapitalizedName());
         startBlock();
         print("return %s;", field.getPersistentName());
         endBlock();
@@ -549,7 +549,7 @@ public class DtoGenerator
     {
         print("this.get%s = function()", field.getCapitalizedName());
         startBlock();
-        print("if (this.getFetchOptions().has%s())", field.getCapitalizedName());
+        print("if (getFetchOptions() != null && this.getFetchOptions().has%s())", field.getCapitalizedName());
         startBlock();
         print("return %s;", field.getPersistentName());
         endBlock();

@@ -65,7 +65,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.modificationDate = modificationDate;
 		};
 		prototype.getExperiments = function() {
-			if (this.getFetchOptions().hasExperiments()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasExperiments()) {
 				return this.experiments;
 			} else {
 				throw new exceptions.NotFetchedException("Experiments have not been fetched.");
@@ -75,7 +75,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.experiments = experiments;
 		};
 		prototype.getHistory = function() {
-			if (this.getFetchOptions().hasHistory()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasHistory()) {
 				return this.history;
 			} else {
 				throw new exceptions.NotFetchedException("History have not been fetched.");
@@ -85,7 +85,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.history = history;
 		};
 		prototype.getSpace = function() {
-			if (this.getFetchOptions().hasSpace()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasSpace()) {
 				return this.space;
 			} else {
 				throw new exceptions.NotFetchedException("Space has not been fetched.");
@@ -95,7 +95,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.space = space;
 		};
 		prototype.getRegistrator = function() {
-			if (this.getFetchOptions().hasRegistrator()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasRegistrator()) {
 				return this.registrator;
 			} else {
 				throw new exceptions.NotFetchedException("Registrator has not been fetched.");
@@ -105,7 +105,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.registrator = registrator;
 		};
 		prototype.getModifier = function() {
-			if (this.getFetchOptions().hasModifier()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasModifier()) {
 				return this.modifier;
 			} else {
 				throw new exceptions.NotFetchedException("Modifier has not been fetched.");
@@ -115,7 +115,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.modifier = modifier;
 		};
 		prototype.getLeader = function() {
-			if (this.getFetchOptions().hasLeader()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasLeader()) {
 				return this.leader;
 			} else {
 				throw new exceptions.NotFetchedException("Leader has not been fetched.");
@@ -125,7 +125,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.leader = leader;
 		};
 		prototype.getAttachments = function() {
-			if (this.getFetchOptions().hasAttachments()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasAttachments()) {
 				return this.attachments;
 			} else {
 				throw new exceptions.NotFetchedException("Attachments have not been fetched.");

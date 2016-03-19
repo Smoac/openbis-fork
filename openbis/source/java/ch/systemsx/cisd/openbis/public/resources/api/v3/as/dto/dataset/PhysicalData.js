@@ -46,7 +46,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.size = size;
 		};
 		prototype.getStorageFormat = function() {
-			if (this.getFetchOptions().hasStorageFormat()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasStorageFormat()) {
 				return this.storageFormat;
 			} else {
 				throw new exceptions.NotFetchedException("Storage format has not been fetched.");
@@ -56,7 +56,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.storageFormat = storageFormat;
 		};
 		prototype.getFileFormatType = function() {
-			if (this.getFetchOptions().hasFileFormatType()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasFileFormatType()) {
 				return this.fileFormatType;
 			} else {
 				throw new exceptions.NotFetchedException("File format type has not been fetched.");
@@ -66,7 +66,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.fileFormatType = fileFormatType;
 		};
 		prototype.getLocatorType = function() {
-			if (this.getFetchOptions().hasLocatorType()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasLocatorType()) {
 				return this.locatorType;
 			} else {
 				throw new exceptions.NotFetchedException("Locator type has not been fetched.");

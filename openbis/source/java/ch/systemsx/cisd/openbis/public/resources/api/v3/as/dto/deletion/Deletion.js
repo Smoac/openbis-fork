@@ -31,7 +31,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.reason = reason;
 		};
 		prototype.getDeletedObjects = function() {
-			if (this.getFetchOptions().hasDeletedObjects()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasDeletedObjects()) {
 				return this.deletedObjects;
 			} else {
 				throw new exceptions.NotFetchedException("Deleted objects have not been fetched.");

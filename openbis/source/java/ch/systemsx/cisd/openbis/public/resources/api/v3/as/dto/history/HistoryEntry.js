@@ -28,7 +28,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.validTo = validTo;
 		};
 		prototype.getAuthor = function() {
-			if (this.getFetchOptions().hasAuthor()) {
+			if (this.getFetchOptions() && this.getFetchOptions().hasAuthor()) {
 				return this.author;
 			} else {
 				throw new exceptions.NotFetchedException("Author has not been fetched.");

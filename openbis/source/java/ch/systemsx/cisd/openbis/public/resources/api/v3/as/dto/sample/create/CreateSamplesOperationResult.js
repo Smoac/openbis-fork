@@ -2,11 +2,11 @@
  * @author pkupczyk
  */
 define([ "stjs", "as/dto/common/operations/IOperationResult" ], function(stjs, IOperationResult) {
-	var CreateSamplesResult = function(permIds) {
+	var CreateSamplesOperationResult = function(permIds) {
 		this.permIds = permIds;
 	};
-	stjs.extend(CreateSamplesResult, null, [ IOperationResult ], function(constructor, prototype) {
-		prototype['@type'] = 'as.dto.sample.create.CreateSamplesResult';
+	stjs.extend(CreateSamplesOperationResult, null, [ IOperationResult ], function(constructor, prototype) {
+		prototype['@type'] = 'as.dto.sample.create.CreateSamplesOperationResult';
 		prototype.permIds = null;
 		prototype.getPermIds = function() {
 			return this.permIds;
@@ -17,5 +17,5 @@ define([ "stjs", "as/dto/common/operations/IOperationResult" ], function(stjs, I
 			arguments : [ "SamplePermId" ]
 		}
 	});
-	return CreateSamplesResult;
+	return CreateSamplesOperationResult;
 })
