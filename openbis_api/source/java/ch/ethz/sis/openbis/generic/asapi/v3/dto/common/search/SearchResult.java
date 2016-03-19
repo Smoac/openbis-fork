@@ -34,6 +34,12 @@ public class SearchResult<OBJECT> implements Serializable
 
     private int totalCount;
 
+    @SuppressWarnings("unused")
+    private SearchResult() 
+    {
+        this(null, 0);
+    }
+    
     public SearchResult(List<OBJECT> objects, int totalCount)
     {
         this.objects = objects;

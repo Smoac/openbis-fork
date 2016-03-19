@@ -28,7 +28,21 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 @JsonObject("as.dto.experiment.create.CreateExperimentsOperationResult")
 public class CreateExperimentsOperationResult implements IOperationResult
 {
+    private List<ExperimentPermId> permIds;
 
-    private List<ExperimentPermId> newExperimentIds;
+    @SuppressWarnings("unused")
+    private CreateExperimentsOperationResult() 
+    {
+        
+    }
+    
+    public CreateExperimentsOperationResult(List<ExperimentPermId> permIds)
+    {
+        this.permIds = permIds;
+    }
 
+    public List<ExperimentPermId> getPermIds()
+    {
+        return permIds;
+    }
 }

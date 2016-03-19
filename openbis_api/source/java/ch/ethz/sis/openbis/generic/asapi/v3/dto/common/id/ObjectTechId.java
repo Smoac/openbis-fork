@@ -76,7 +76,7 @@ public class ObjectTechId implements IObjectId
     @Override
     public String toString()
     {
-        return getTechId().toString();
+        return String.valueOf(getTechId());
     }
 
     @Override

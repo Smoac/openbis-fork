@@ -19,7 +19,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @JsonObject("as.dto.common.search.StringFieldSearchCriteria")
-public class StringFieldSearchCriteria extends AbstractFieldSearchCriteria<AbstractStringValue>
+public abstract class StringFieldSearchCriteria extends AbstractFieldSearchCriteria<AbstractStringValue>
 {
 
     private static final long serialVersionUID = 1L;

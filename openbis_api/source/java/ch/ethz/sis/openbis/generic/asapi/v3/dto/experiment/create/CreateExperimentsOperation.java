@@ -27,7 +27,22 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 @JsonObject("as.dto.experiment.create.CreateExperimentsOperation")
 public class CreateExperimentsOperation implements IOperation
 {
+    private List<ExperimentCreation> creations;
 
-    private List<ExperimentCreation> newExperiments;
+    @SuppressWarnings("unused")
+    private CreateExperimentsOperation() 
+    {
+        
+    }
+    
+    public CreateExperimentsOperation(List<ExperimentCreation> creations)
+    {
+        this.creations = creations;
+    }
+
+    public List<ExperimentCreation> getCreations()
+    {
+        return creations;
+    }
 
 }

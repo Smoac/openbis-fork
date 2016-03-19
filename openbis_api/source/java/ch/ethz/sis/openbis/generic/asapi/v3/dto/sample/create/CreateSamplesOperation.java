@@ -27,8 +27,13 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 @JsonObject("as.dto.sample.create.CreateSamplesOperation")
 public class CreateSamplesOperation implements IOperation
 {
-
     private List<SampleCreation> creations;
+    
+    @SuppressWarnings("unused")
+    private CreateSamplesOperation() 
+    {
+        
+    }
 
     public CreateSamplesOperation(List<SampleCreation> creations)
     {

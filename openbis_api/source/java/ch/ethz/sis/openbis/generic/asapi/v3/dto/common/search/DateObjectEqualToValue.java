@@ -25,6 +25,11 @@ public class DateObjectEqualToValue extends AbstractDateObjectValue
 {
     private static final long serialVersionUID = 1L;
 
+    private DateObjectEqualToValue()
+    {
+        super(null);
+    }
+
     public DateObjectEqualToValue(Date value)
     {
         super(value);

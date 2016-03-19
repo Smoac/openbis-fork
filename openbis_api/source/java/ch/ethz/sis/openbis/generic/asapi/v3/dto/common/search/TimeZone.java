@@ -29,6 +29,9 @@ public class TimeZone implements ITimeZone
     private static final long serialVersionUID = 1L;
 
     private int hourOffset;
+    
+    @SuppressWarnings("unused")
+    private TimeZone() {}
 
     public TimeZone(int hourOffset)
     {

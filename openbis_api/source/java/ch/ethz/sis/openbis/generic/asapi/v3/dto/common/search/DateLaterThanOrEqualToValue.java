@@ -26,6 +26,11 @@ public class DateLaterThanOrEqualToValue extends AbstractDateValue
 {
 
     private static final long serialVersionUID = 1L;
+    
+    private DateLaterThanOrEqualToValue() 
+    {
+        super(null);
+    }
 
     DateLaterThanOrEqualToValue(String value)
     {

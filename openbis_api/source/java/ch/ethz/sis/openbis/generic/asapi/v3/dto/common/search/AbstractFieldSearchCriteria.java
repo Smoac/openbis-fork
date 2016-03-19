@@ -24,9 +24,9 @@ public abstract class AbstractFieldSearchCriteria<T> extends AbstractSearchCrite
 
     private static final long serialVersionUID = 1L;
 
-    private String fieldName;
+    private final String fieldName;
 
-    private SearchFieldType fieldType;
+    private final SearchFieldType fieldType;
 
     private T fieldValue;
 

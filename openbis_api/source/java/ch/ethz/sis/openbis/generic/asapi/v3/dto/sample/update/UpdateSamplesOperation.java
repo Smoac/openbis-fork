@@ -27,8 +27,13 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 @JsonObject("as.dto.sample.update.UpdateSamplesOperation")
 public class UpdateSamplesOperation implements IOperation
 {
-
     private List<SampleUpdate> updates;
+    
+    @SuppressWarnings("unused")
+    private UpdateSamplesOperation() 
+    {
+    
+    }
 
     public UpdateSamplesOperation(List<SampleUpdate> updates)
     {

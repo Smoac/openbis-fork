@@ -19,7 +19,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @JsonObject("as.dto.common.search.NumberFieldSearchCriteria")
-public class NumberFieldSearchCriteria extends AbstractFieldSearchCriteria<AbstractNumberValue>
+public abstract class NumberFieldSearchCriteria extends AbstractFieldSearchCriteria<AbstractNumberValue>
 {
 
     private static final long serialVersionUID = 1L;

@@ -25,7 +25,12 @@ public class DateObjectLaterThanOrEqualToValue extends AbstractDateObjectValue
 {
     private static final long serialVersionUID = 1L;
 
-    DateObjectLaterThanOrEqualToValue(Date value)
+    DateObjectLaterThanOrEqualToValue()
+    {
+        super(null);
+    }
+
+    public DateObjectLaterThanOrEqualToValue(Date value)
     {
         super(value);
     }

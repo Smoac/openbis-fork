@@ -25,13 +25,18 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("as.dto.sample.create.CreateSamplesResult")
-public class CreateSamplesResult implements IOperationResult
+@JsonObject("as.dto.sample.create.CreateSamplesOperationResult")
+public class CreateSamplesOperationResult implements IOperationResult
 {
-
     private List<SamplePermId> permIds;
+    
+    @SuppressWarnings("unused")
+    private CreateSamplesOperationResult() 
+    {
+        
+    }
 
-    public CreateSamplesResult(List<SamplePermId> permIds)
+    public CreateSamplesOperationResult(List<SamplePermId> permIds)
     {
         this.permIds = permIds;
     }

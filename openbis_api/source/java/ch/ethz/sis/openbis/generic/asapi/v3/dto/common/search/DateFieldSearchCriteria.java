@@ -25,7 +25,7 @@ import java.util.List;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @JsonObject("as.dto.common.search.DateFieldSearchCriteria")
-public class DateFieldSearchCriteria extends AbstractFieldSearchCriteria<IDate>
+public abstract class DateFieldSearchCriteria extends AbstractFieldSearchCriteria<IDate>
 {
 
     private static final long serialVersionUID = 1L;

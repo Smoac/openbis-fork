@@ -27,7 +27,7 @@ public class NumberEqualToValue extends AbstractNumberValue
 
     private static final long serialVersionUID = 1L;
 
-    public NumberEqualToValue()
+    private NumberEqualToValue()
     {
         super(null);
     }
