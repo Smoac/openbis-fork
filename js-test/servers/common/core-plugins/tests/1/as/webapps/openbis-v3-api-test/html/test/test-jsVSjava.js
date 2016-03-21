@@ -161,8 +161,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 
 							if (jsClassName) {
 								var failedLoadingErrorHandler = function(javaClassName) {
-									return function() {
-										var errorResult = "Java class with jsonObjectAnnotation missing in Javascript: " + javaClassName;
+									return function(err) {
+										var errorResult = "Java class with jsonObjectAnnotation missing in Javascript: " + javaClassName + " (" + err + ")";
 										testsResults.error.push(errorResult);
 										console.info(errorResult);
 										doNext();
