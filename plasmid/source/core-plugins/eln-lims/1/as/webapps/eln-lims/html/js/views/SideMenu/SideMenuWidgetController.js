@@ -30,7 +30,7 @@ function SideMenuWidgetController(mainController) {
     // External API for real time updates
     //
     
-    this.deleteUniqueIdAndMoveToParent = function(uniqueId, notMoveToParent) {
+    this.deleteUniqueIdAndMoveToParent = function(uniqueId, notMoveToParent, notRepaint) {
     	var itemsToCheck = [this._sideMenuWidgetModel.menuStructure];
     	var currentItem = null;
     	while(currentItem = itemsToCheck.shift()) {
@@ -44,7 +44,9 @@ function SideMenuWidgetController(mainController) {
             				mainController.changeView(currentItem.newViewIfSelected, currentItem.newViewIfSelectedData);
             			}
             			
-            			this._sideMenuWidgetView.repaint();
+            			if(!notRepaint) {
+            				this._sideMenuWidgetView.repaint();
+            			}
             			return;
             		}
             		itemsToCheck.push(currentItemChild);
@@ -371,44 +373,78 @@ function SideMenuWidgetController(mainController) {
                             projectNode.newMenuIfSelected.children.sort(naturalSortSideMenuWidgetComponent); //Sort Experiments
                         }
 
-
+                        //Clean unused menu parts
+                        if(!profile.mainMenu.showLabNotebook) {
+                        	_this.deleteUniqueIdAndMoveToParent("LAB_NOTEBOOK", true, true);
+                        }
+                        
+                        if(!profile.mainMenu.showInventory) {
+                        	_this.deleteUniqueIdAndMoveToParent("INVENTORY", true, true);
+                        }
+                        
                         //Fill Utils
                         var utilities = new SideMenuWidgetComponent(true, true, "UTILITIES", "UTILITIES", _this._sideMenuWidgetModel.menuStructure, { children : [] } , null, null, "");
                         _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(utilities);
-//                        utilities.newMenuIfSelected.children.push(
-//                                new SideMenuWidgetComponent(true, false, "DRAWING BOARD", "DRAWING_BOARD", utilities, null, "showDrawingBoard", null, "")
-//                                );
-                        utilities.newMenuIfSelected.children.push(
-                                new SideMenuWidgetComponent(true, false, "SAMPLE BROWSER", "SAMPLE_BROWSER", utilities, null, "showSamplesPage", null, "")
+                        
+            			_this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
+                                new SideMenuWidgetComponent(true, false, "ABOUT", "ABOUT", _this._sideMenuWidgetModel.menuStructure, null, "showAbout", null, "")
+                        );
+            			
+                        if(profile.mainMenu.showDrawingBoard) {
+                        	utilities.newMenuIfSelected.children.push(
+                                	new SideMenuWidgetComponent(true, false, "DRAWING BOARD", "DRAWING_BOARD", utilities, null, "showDrawingBoard", null, "")
                                 );
-                        if (profile.storagesConfiguration["isEnabled"]) {
+                        }
+                        
+                        if(profile.mainMenu.showSampleBrowser) {
+                        	 utilities.newMenuIfSelected.children.push(
+                                     new SideMenuWidgetComponent(true, false, "SAMPLE BROWSER", "SAMPLE_BROWSER", utilities, null, "showSamplesPage", null, "")
+                                     );
+                        }
+                       
+                        if(profile.mainMenu.showStorageManager && profile.storagesConfiguration["isEnabled"]) {
                         	utilities.newMenuIfSelected.children.push(
                                     new SideMenuWidgetComponent(true, false, "STORAGE MANAGER", "STORAGE_MANAGER", utilities, null, "showStorageManager", null, "")
                                     );
                         }
-                        utilities.newMenuIfSelected.children.push(
-                                new SideMenuWidgetComponent(true, false, "ADVANCED SEARCH", "ADVANCED_SEARCH", utilities, null, "showAdvancedSearchPage", null, "")
-                                );                        
-                        utilities.newMenuIfSelected.children.push(
-                                new SideMenuWidgetComponent(true, false, "TRASHCAN", "TRASHCAN", utilities, null, "showTrashcanPage", null, "")
-                                );
-                        utilities.newMenuIfSelected.children.push(
-                                new SideMenuWidgetComponent(true, false, "VOCABULARY VIEWER", "VOCABULARY_VIEWER", utilities, null, "showVocabularyManagerPage", null, "")
-                                );
                         
-                        mainController.serverFacade.listPersons(function(data) {
-                			if(data.result && data.result.length > 0) {
-                				utilities.newMenuIfSelected.children.push(
-                                        new SideMenuWidgetComponent(true, false, "USER MANAGER", "USER_MANAGER", utilities, null, "showUserManagerPage", null, "")
-                                );
-                			}
-                			
-                			_this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
-                                    new SideMenuWidgetComponent(true, false, "ABOUT", "ABOUT", _this._sideMenuWidgetModel.menuStructure, null, "showAbout", null, "")
+                        if(profile.mainMenu.showAdvancedSearch) {
+                        	utilities.newMenuIfSelected.children.push(
+                                    new SideMenuWidgetComponent(true, false, "ADVANCED SEARCH", "ADVANCED_SEARCH", utilities, null, "showAdvancedSearchPage", null, "")
                                     );
-                			_this._sideMenuWidgetView.repaintFirst($container);
+                        }
+                        
+                        if(profile.mainMenu.showTrashcan) {
+                        	utilities.newMenuIfSelected.children.push(
+                                    new SideMenuWidgetComponent(true, false, "TRASHCAN", "TRASHCAN", utilities, null, "showTrashcanPage", null, "")
+                                    );
+                        }
+                        
+                        if(profile.mainMenu.showVocabularyViewer) {
+	                        utilities.newMenuIfSelected.children.push(
+	                                new SideMenuWidgetComponent(true, false, "VOCABULARY VIEWER", "VOCABULARY_VIEWER", utilities, null, "showVocabularyManagerPage", null, "")
+	                                );
+                        }
+                        
+                        var nextToDo = function() {
+                        	_this._sideMenuWidgetView.repaintFirst($container);
                 			initCallback();
-                        });
+                        }
+                        
+                        if(profile.mainMenu.showUserManager) {
+                        	mainController.serverFacade.listPersons(function(data) {
+                    			if(data.result && data.result.length > 0) {
+                    				utilities.newMenuIfSelected.children.push(
+                                            new SideMenuWidgetComponent(true, false, "USER MANAGER", "USER_MANAGER", utilities, null, "showUserManagerPage", null, "")
+                                    );
+                    			}
+                    			
+                    			nextToDo();
+                            });
+                        } else {
+                        	nextToDo();
+                        }
+                        
                     });
 
                 });

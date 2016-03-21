@@ -36,6 +36,17 @@ $.extend(DefaultProfile.prototype, {
 		//
 		// DEFAULTS, TYPICALLY DON'T TOUCH IF YOU DON'T KNOW WHAT YOU DO
 		//
+		this.mainMenu = {
+				showLabNotebook : true,
+				showInventory : true,
+				showDrawingBoard : false,
+				showSampleBrowser : true,
+				showStorageManager : true,
+				showAdvancedSearch : true,
+				showTrashcan : true,
+				showVocabularyViewer : true,
+				showUserManager : true
+		}
 		
 		this.searchDomains = [ { "@id" : -1, "@type" : "GobalSearch", label : "Global", name : "global"}];
 		this.inventorySpaces = ["MATERIALS", "METHODS"];
