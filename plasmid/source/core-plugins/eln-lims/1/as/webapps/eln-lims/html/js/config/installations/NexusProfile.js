@@ -7,6 +7,18 @@ $.extend(NexusProfile.prototype, StandardProfile.prototype, {
 	init: function(serverFacade){
 		DefaultProfile.prototype.init.call(this, serverFacade);
 		
+		this.mainMenu = {
+				showLabNotebook : false,
+				showInventory : false,
+				showDrawingBoard : false,
+				showSampleBrowser : true,
+				showStorageManager : false,
+				showAdvancedSearch : false,
+				showTrashcan : true,
+				showVocabularyViewer : false,
+				showUserManager : false
+		}
+		
 		this.propertyReplacingCode = "CELLARIO_BC";
 		this.inventorySpaces = ["LIBRARIES"];
 		this.searchSamplesUsingV3OnDropbox = true;
