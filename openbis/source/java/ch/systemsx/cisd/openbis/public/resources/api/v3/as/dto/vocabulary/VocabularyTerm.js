@@ -9,6 +9,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype['@type'] = 'as.dto.vocabulary.VocabularyTerm';
 		constructor.serialVersionUID = 1;
 		prototype.fetchOptions = null;
+		prototype.permId = null;
 		prototype.code = null;
 		prototype.label = null;
 		prototype.description = null;
@@ -24,6 +25,12 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 		prototype.setFetchOptions = function(fetchOptions) {
 			this.fetchOptions = fetchOptions;
+		};
+		prototype.getPermId = function() {
+			return this.permId;
+		};
+		prototype.setPermId = function(permId) {
+			this.permId = permId;
 		};
 		prototype.getCode = function() {
 			return this.code;
