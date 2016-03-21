@@ -14,7 +14,7 @@ $.extend(NexusProfile.prototype, StandardProfile.prototype, {
 				showSampleBrowser : true,
 				showStorageManager : false,
 				showAdvancedSearch : false,
-				showTrashcan : true,
+				showTrashcan : false,
 				showVocabularyViewer : false,
 				showUserManager : false
 		}
