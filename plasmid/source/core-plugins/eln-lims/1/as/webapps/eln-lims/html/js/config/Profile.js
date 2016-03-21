@@ -87,7 +87,12 @@ $.extend(DefaultProfile.prototype, {
 		};
 		
 		this.isSampleTypeHidden = function(sampleTypeCode) {
-			return ($.inArray(sampleTypeCode, this.hideTypes["sampleTypeCodes"]) !== -1);
+			var sampleType = this.getSampleTypeForSampleTypeCode(sampleTypeCode);
+			if(sampleType && sampleType.listable) {
+				return ($.inArray(sampleTypeCode, this.hideTypes["sampleTypeCodes"]) !== -1);
+			} else {
+				return true;
+			}
 		}
 		
 		this.isExperimentTypeHidden = function(experimentTypeCode) {
