@@ -37,6 +37,11 @@ public class VocabularyTermSortOptions extends SortOptions<VocabularyTerm>
 
     @JsonIgnore
     public static final String ORDINAL = "ORDINAL";
+    
+    public VocabularyTermSortOptions() 
+    {
+        
+    }
 
     public SortOrder code()
     {
