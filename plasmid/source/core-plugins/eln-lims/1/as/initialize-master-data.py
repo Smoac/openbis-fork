@@ -501,7 +501,7 @@ def initELNMasterData():
 	## Property Types for annotations
 	##
 	
-	createProperty("COMMENTS", DataType.VARCHAR, "Comments", "", None);
+	createProperty("COMMENTS", DataType.MULTILINE_VARCHAR, "Comments", "", None);
 	createProperty("QUANTITY", DataType.VARCHAR, "Quantity", "", None);
 	createProperty("PLASMID_ANNOTATION", DataType.VARCHAR, "Plasmid annotation", "", None);
 	createProperty("PLASMID_RELATIONSHIP", DataType.CONTROLLEDVOCABULARY, "Plasmid relationship", "", "PLASMID_RELATIONSHIP");
