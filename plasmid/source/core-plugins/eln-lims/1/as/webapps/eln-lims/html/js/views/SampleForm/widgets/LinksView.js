@@ -29,7 +29,7 @@ function LinksView(linksController, linksModel) {
 	//
 	// External API
 	//
-	this.addSample = function(sample) {
+	this.updateSample = function(sample, isAdd) {
 		var sampleTypeCode = sample.sampleTypeCode;
 		var $dataGridContainer = sampleGridContainerByType[sampleTypeCode];
 		var samplesOnGrid = linksModel.samplesByType[sampleTypeCode];
@@ -41,12 +41,17 @@ function LinksView(linksController, linksModel) {
 		}
 		
 		//Check if the sample is already added
+		var foundAtIndex = -1;
 		for(var sIdx = 0; sIdx < samplesOnGrid.length; sIdx++) {
 			if(samplesOnGrid[sIdx].permId === sample.permId) {
-				Util.showError("Sample " + sample.code + " already present, it will not be added again.");
+				foundAtIndex = sIdx;
+				if(isAdd) {
+					Util.showError("Sample " + sample.code + " already present, it will not be added again.");
+				}
 				return;
 			}
 		}
+		
 		
 		//Create Layout
 		if(!$dataGridContainer) { //Create if is not there yet
@@ -64,7 +69,13 @@ function LinksView(linksController, linksModel) {
 		
 		//Render Grid
 		$dataGridContainer.empty();
-		samplesOnGrid.push(sample);
+		
+		if(isAdd) {
+			samplesOnGrid.push(sample);
+		} else {
+			linksModel.samplesByType[sampleTypeCode] = samplesOnGrid.splice(foundAtIndex, 1);
+			samplesOnGrid = linksModel.samplesByType[sampleTypeCode];
+		}
 		
 		var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, samplesOnGrid, null, linksView.getCustomOperationsForGrid(), linksView.getCustomAnnotationColumns(sampleTypeCode), "ANNOTATIONS");
 		dataGrid.init($dataGridContainer);

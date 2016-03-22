@@ -35,7 +35,7 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 	}
 	
 	this.addSample = function(sample) {
-		linksView.addSample(sample);
+		linksView.updateSample(sample, true);
 	}
 	
 	this.getSamples = function() {
