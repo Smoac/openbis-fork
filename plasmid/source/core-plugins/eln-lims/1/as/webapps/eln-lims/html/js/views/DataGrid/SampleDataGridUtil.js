@@ -184,39 +184,7 @@ var SampleDataGridUtil = new function() {
 		}
 		
 		//Fill data model
-		var getDataList = function(callback) {
-			var dataList = [];
-			for(var sIdx = 0; sIdx < samples.length; sIdx++) {
-				var sample = samples[sIdx];
-				var sampleModel = { '$object' : sample,
-									'identifier' : sample.identifier, 
-									'default_space' : sample.spaceCode,
-									'permId' : sample.permId,
-									'experiment' : sample.experimentIdentifierOrNull,
-									'registrationDate' : Util.getFormatedDate(new Date(sample.registrationDetails.registrationDate)),
-									'modificationDate' : Util.getFormatedDate(new Date(sample.registrationDetails.modificationDate))
-								};
-				for (var pIdx = 0; pIdx < propertyCodes.length; pIdx++) {
-					var propertyCode = propertyCodes[pIdx];
-					sampleModel[propertyCode] = sample.properties[propertyCode];
-				}
-				
-				var parents = "";
-				if(sample.parents) {
-					for (var paIdx = 0; paIdx < sample.parents.length; paIdx++) {
-						if(paIdx !== 0) {
-							parents += ", ";
-						}
-						parents += sample.parents[paIdx].identifier;
-					}
-				}
-				
-				sampleModel['parents'] = parents;
-				
-				dataList.push(sampleModel);
-			}
-			callback(dataList);
-		};
+		var getDataList = SampleDataGridUtil.getDataList(sampleTypeCode, samples);
 			
 		//Create and return a data grid controller
 		var configKey = "SAMPLE_TABLE_"+ sampleType.code;
@@ -224,8 +192,12 @@ var SampleDataGridUtil = new function() {
 		return dataGridController;
 	}
 	
-	this.getDataList = function(samples, callback) {
-		return function() {
+	this.getDataList = function(sampleTypeCode, samples) {
+		return function(callback) {
+			var sampleType = profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
+			var propertyCodes = profile.getAllPropertiCodesForTypeCode(sampleTypeCode);
+			var propertyCodesDisplayNames = profile.getPropertiesDisplayNamesForTypeCode(sampleTypeCode, propertyCodes);
+			
 			var dataList = [];
 			for(var sIdx = 0; sIdx < samples.length; sIdx++) {
 				var sample = samples[sIdx];

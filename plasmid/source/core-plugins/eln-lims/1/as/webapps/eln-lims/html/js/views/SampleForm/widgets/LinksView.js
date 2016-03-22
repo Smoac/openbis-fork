@@ -19,7 +19,9 @@ function LinksView(linksController, linksModel) {
 	var linksModel = linksModel;
 	var linksView = this;
 	
-	var sampleGridByType = {};
+	var sampleGridContainerByType = {};
+	var samplesOnGridByType = {};
+	
 	var samplesByTypeCache = {};
 	
 	var $samplePicker = $("<div>");
@@ -29,25 +31,31 @@ function LinksView(linksController, linksModel) {
 	//
 	this.addSample = function(sample) {
 		var sampleTypeCode = sample.sampleTypeCode;
-		var dataGrid = sampleGridByType[sampleTypeCode];
-		if(!dataGrid) { //Create if is not there yet
+		var $dataGridContainer = sampleGridContainerByType[sampleTypeCode];
+		var samplesOnGrid = samplesOnGridByType[sampleTypeCode];
+		
+		if(!$dataGridContainer) { //Create if is not there yet
 			//Layout
 			var $sampleTableContainer = $("<div>");
 			$sampleTableContainer.append($("<legend>").append(sampleTypeCode));
 			
-			var $dataGridContainer = $("<div>");
+			$dataGridContainer = $("<div>");
 			$sampleTableContainer.append($dataGridContainer);
 			
-			dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, [sample], null, linksView.getCustomOperationsForGrid());
-			dataGrid.init($dataGridContainer);
+			sampleGridContainerByType[sampleTypeCode] = $dataGridContainer;
 			
 			$savedContainer.append($sampleTableContainer);
-			
-			//Save grid widget on cache
-			sampleGridByType[sampleTypeCode] = dataGrid;
 		}
 		
-//		dataGrid._grid.getDataList = SampleDataGridUtil.getDataList([sample]);
+		if(!samplesOnGrid) {
+			samplesOnGrid = [];
+			samplesOnGridByType[sampleTypeCode] = samplesOnGrid;
+		}
+		
+		$dataGridContainer.empty();
+		samplesOnGrid.push(sample);
+		var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, samplesOnGrid, null, linksView.getCustomOperationsForGrid());
+		dataGrid.init($dataGridContainer);
 	}
 	
 	this.repaint = function($container) {
