@@ -49,7 +49,7 @@ public class JettyHttpInvokerRequestExecutor extends AbstractHttpInvokerRequestE
     {
         Request request =
                 client.POST(config.getServiceUrl()).content(new BytesContentProvider(baos.toByteArray()))
-                        .timeout(serverTimeoutInMillis, TimeUnit.MILLISECONDS);
+                        .idleTimeout(serverTimeoutInMillis, TimeUnit.MILLISECONDS);
 
         FutureResponseListener listener = new FutureResponseListener(request, (int) RESPONSE_BUFFER_SIZE);
         request.send(listener);
@@ -165,7 +165,7 @@ public class JettyHttpInvokerRequestExecutor extends AbstractHttpInvokerRequestE
         }
 
         InputStreamResponseListener listener = new InputStreamResponseListener();
-        postMethod.timeout(serverTimeoutInMillis, TimeUnit.MILLISECONDS).send(listener);
+        postMethod.idleTimeout(serverTimeoutInMillis, TimeUnit.MILLISECONDS).send(listener);
 
         final RemoteInvocationResult ret =
                 readRemoteInvocationResult(listener.getInputStream(), config
