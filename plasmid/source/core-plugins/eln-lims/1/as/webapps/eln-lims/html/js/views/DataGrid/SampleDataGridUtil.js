@@ -1,5 +1,5 @@
 var SampleDataGridUtil = new function() {
-	this.getSampleDataGrid = function(sampleTypeCode, samples, rowClick, customOperations) {
+	this.getSampleDataGrid = function(sampleTypeCode, samples, rowClick, customOperations, configPostKey) {
 		var sampleType = profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 		var propertyCodes = profile.getAllPropertiCodesForTypeCode(sampleTypeCode);
 		var propertyCodesDisplayNames = profile.getPropertiesDisplayNamesForTypeCode(sampleTypeCode, propertyCodes);
@@ -187,7 +187,10 @@ var SampleDataGridUtil = new function() {
 		var getDataList = SampleDataGridUtil.getDataList(sampleTypeCode, samples);
 			
 		//Create and return a data grid controller
-		var configKey = "SAMPLE_TABLE_"+ sampleType.code;
+		var configKey = "SAMPLE_TABLE_" + sampleType.code;
+		if(configPostKey) {
+			configKey += "_" + configPostKey;
+		}
 		var dataGridController = new DataGridController(null, columns, getDataList, rowClick, false, configKey);
 		return dataGridController;
 	}

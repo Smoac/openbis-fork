@@ -54,7 +54,7 @@ function LinksView(linksController, linksModel) {
 		
 		$dataGridContainer.empty();
 		samplesOnGrid.push(sample);
-		var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, samplesOnGrid, null, linksView.getCustomOperationsForGrid());
+		var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, samplesOnGrid, null, linksView.getCustomOperationsForGrid(), "ANNOTATIONS");
 		dataGrid.init($dataGridContainer);
 	}
 	
