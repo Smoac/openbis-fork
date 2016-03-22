@@ -65,8 +65,8 @@ function LinksView(linksController, linksModel) {
 		//Render Grid
 		$dataGridContainer.empty();
 		samplesOnGrid.push(sample);
-		var customColumns = linksView.getCustomAnnotationColumns(sampleTypeCode);
-		var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, samplesOnGrid, null, linksView.getCustomOperationsForGrid(), customColumns, "ANNOTATIONS");
+		
+		var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, samplesOnGrid, null, linksView.getCustomOperationsForGrid(), linksView.getCustomAnnotationColumns(sampleTypeCode), "ANNOTATIONS");
 		dataGrid.init($dataGridContainer);
 	}
 	
@@ -110,29 +110,31 @@ function LinksView(linksController, linksModel) {
 			isExportable: true,
 			sortable : true,
 			render : function(data) {
-				var $field = FormUtil.getFieldForPropertyType(propertyType);
 				var sample = data["$object"];
-				
-				if (propertyType.dataType === "MULTILINE_VARCHAR") {
-					$field.css({
-						"height" : "100%",
-						"width" : "100%"
-					});
-				}
-				
 				var currentValue = linksModel.readState(sample.permId, propertyType.code);
-				if(currentValue) {
-					FormUtil.setFieldValue(propertyType, $field, currentValue);
+				
+				if(linksModel.isDisabled) {
+					return currentValue;
+				} else {
+					var $field = FormUtil.getFieldForPropertyType(propertyType);
+					if (propertyType.dataType === "MULTILINE_VARCHAR") {
+						$field.css({
+							"height" : "100%",
+							"width" : "100%"
+						});
+					}
+					if(currentValue) {
+						FormUtil.setFieldValue(propertyType, $field, currentValue);
+					}
+					$field.change(function() {
+						var $field = $(this);
+						propertyTypeValue = FormUtil.getFieldValue(propertyType, $field);
+						sample[propertyAnnotationCode] = propertyTypeValue;
+						linksModel.writeState(sample, propertyType.code, propertyTypeValue, false);
+					});
+					return $field;
 				}
 				
-				$field.change(function() {
-					var $field = $(this);
-					propertyTypeValue = FormUtil.getFieldValue(propertyType, $field);
-					sample[propertyAnnotationCode] = propertyTypeValue;
-					linksModel.writeState(sample, propertyType.code, propertyTypeValue, false);
-				});
-				
-				return $field;
 			}
 		};
 	}
@@ -167,7 +169,11 @@ function LinksView(linksController, linksModel) {
 				});
 				$list.append($copyAndLink);
 				
-				return $dropDownMenu;
+				if(linksModel.isDisabled) {
+					return "";
+				} else {
+					return $dropDownMenu;
+				}
 			}
 		}
 	}
