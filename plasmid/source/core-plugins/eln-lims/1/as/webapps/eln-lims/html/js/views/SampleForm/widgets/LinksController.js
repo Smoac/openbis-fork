@@ -33,6 +33,10 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 		linksView.addSample(sample);
 	}
 	
+	this.getSamples = function() {
+		return [];
+	}
+	
 	this.getSamplesIdentifiers = function() {
 		return [];
 	}

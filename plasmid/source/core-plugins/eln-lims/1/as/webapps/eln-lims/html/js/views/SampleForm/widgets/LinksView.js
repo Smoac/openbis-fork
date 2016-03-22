@@ -66,7 +66,8 @@ function LinksView(linksController, linksModel) {
 		//Render Grid
 		$dataGridContainer.empty();
 		samplesOnGrid.push(sample);
-		var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, samplesOnGrid, null, linksView.getCustomOperationsForGrid(), "ANNOTATIONS");
+		var customColumns = linksView.getCustomAnnotationColumns(sampleTypeCode);
+		var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, samplesOnGrid, null, linksView.getCustomOperationsForGrid(), customColumns, "ANNOTATIONS");
 		dataGrid.init($dataGridContainer);
 	}
 	
@@ -82,8 +83,59 @@ function LinksView(linksController, linksModel) {
 	// Internal API
 	//
 	
-	linksView.getCustomAnnotationColumns = function() {
+	linksView.getCustomAnnotationColumns = function(sampleTypeCode) {
+		var annotationDefinitions = linksModel.sampleTypeHints;
 		
+		var extraColumns = [];
+		if(annotationDefinitions) {
+			for(var aIdx = 0; aIdx < annotationDefinitions.length; aIdx++) {
+				var annotationDefinition = annotationDefinitions[aIdx];
+				if(annotationDefinition.TYPE === sampleTypeCode) {
+					var annotationProperties = annotationDefinition.ANNOTATION_PROPERTIES;
+					for(var pIdx = 0; pIdx < annotationProperties.length; pIdx++) {
+						var annotationProperty = annotationProperties[pIdx];
+						var propertyType = profile.getPropertyType(annotationProperty.TYPE);
+						extraColumns.push(linksView.getCustomField(propertyType));
+					}
+				}
+			}
+		}
+		return extraColumns;
+	}
+	
+	linksView.getCustomField = function(propertyType) {
+		var propertyAnnotationCode = "$ANNOTATION::" + propertyType.code;
+		return {
+			label : "Annot.::" + propertyType.label,
+			property : propertyAnnotationCode,
+			isExportable: true,
+			sortable : true,
+			render : function(data) {
+				var $field = FormUtil.getFieldForPropertyType(propertyType);
+				var sample = data["$object"];
+				
+				if (propertyType.dataType === "MULTILINE_VARCHAR") {
+					$field.css({
+						"height" : "100%",
+						"width" : "100%"
+					});
+				}
+				
+				var currentValue = linksModel.readState(sample.permId, propertyType.code);
+				if(currentValue) {
+					FormUtil.setFieldValue(propertyType, $field, currentValue);
+				}
+				
+				$field.change(function() {
+					var $field = $(this);
+					propertyTypeValue = FormUtil.getFieldValue(propertyType, $field);
+					sample[propertyAnnotationCode] = propertyTypeValue;
+					linksModel.writeState(sample, propertyType.code, propertyTypeValue, false);
+				});
+				
+				return $field;
+			}
+		};
 	}
 	
 	linksView.getCustomOperationsForGrid = function() {

@@ -1,5 +1,5 @@
 var SampleDataGridUtil = new function() {
-	this.getSampleDataGrid = function(sampleTypeCode, samples, rowClick, customOperations, configPostKey) {
+	this.getSampleDataGrid = function(sampleTypeCode, samples, rowClick, customOperations, customColumns, configPostKey) {
 		var sampleType = profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 		var propertyCodes = profile.getAllPropertiCodesForTypeCode(sampleTypeCode);
 		var propertyCodesDisplayNames = profile.getPropertiesDisplayNamesForTypeCode(sampleTypeCode, propertyCodes);
@@ -36,6 +36,10 @@ var SampleDataGridUtil = new function() {
 					return FormUtil.getFormLink(data.NAME, "Sample", data.permId);
 				}
 			});
+		}
+		
+		if(customColumns) {
+			columns = columns.concat(customColumns);
 		}
 		
 		columns.push({

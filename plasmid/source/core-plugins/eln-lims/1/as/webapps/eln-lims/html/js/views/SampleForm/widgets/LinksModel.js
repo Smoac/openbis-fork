@@ -24,28 +24,35 @@ function LinksModel(title, sampleTypeHints, isDisabled, samplesToEdit, showAnnot
 	
 	this.writeState = function(sample, propertyTypeCode, propertyTypeValue, isDelete) {
 
-		this._readState();
+		this.loadState();
 		
-		var sampleTypeAnnotations = linksModel.stateObj[sample.permId];
+		var sampleTypeAnnotations = this.stateObj[sample.permId];
 		if(!sampleTypeAnnotations) {
 			sampleTypeAnnotations = {};
-			linksModel.stateObj[sample.permId] = sampleTypeAnnotations;
+			this.stateObj[sample.permId] = sampleTypeAnnotations;
 		}
 		
 		sampleTypeAnnotations["identifier"] =  sample.identifier; //Adds code to the annotations if not present
 		sampleTypeAnnotations["sampleType"] =  sample.sampleTypeCode; //Adds sampleType code to the annotations if not present
 		
 		if(isDelete) {
-			delete linksModel.stateObj[sample.permId];
+			delete this.stateObj[sample.permId];
 		} else if(propertyTypeCode && propertyTypeValue !== null && propertyTypeValue !== undefined) {
 			sampleTypeAnnotations[propertyTypeCode] = propertyTypeValue;
 		}
 		
-		var xmlDoc = FormUtil.getXMLFromAnnotations(linksModel.stateObj);
+		var xmlDoc = FormUtil.getXMLFromAnnotations(this.stateObj);
 		mainController.currentView._sampleFormModel.sample.properties["ANNOTATIONS_STATE"] = xmlDoc;
 	}
 	
-	this.readState = function() {
+	this.readState = function(permId, propertyTypeCode) {
+		if(this.stateObj[permId] && this.stateObj[permId][propertyTypeCode]) {
+			return this.stateObj[permId][propertyTypeCode];
+		}
+		return null;
+	}
+	
+	this.loadState = function() {
 		var isStateFieldAvailable = false;
 		
 		if(mainController.currentView._sampleFormModel.sample) {
@@ -60,7 +67,9 @@ function LinksModel(title, sampleTypeHints, isDisabled, samplesToEdit, showAnnot
 			}
 		} else {
 			//Update Values
-			linksModel.stateObj = FormUtil.getAnnotationsFromSample(mainController.currentView._sampleFormModel.sample);
+			this.stateObj = FormUtil.getAnnotationsFromSample(mainController.currentView._sampleFormModel.sample);
 		}
 	}
+	
+	this.loadState();
 }

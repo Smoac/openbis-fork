@@ -589,6 +589,29 @@ var FormUtil = new function() {
 	}
 	
 	//
+	// Read/Write Fields
+	//
+	this.setFieldValue = function(propertyType, $field, value) {
+		if(propertyType.dataType === "BOOLEAN") {
+			$($($field.children()[0]).children()[0]).prop('checked', value === "true");
+		} else if(propertyType.dataType === "TIMESTAMP") {
+			$($($field.children()[0]).children()[0]).val(value);
+		} else {
+			$field.val(value);
+		}
+	}
+	
+	this.getFieldValue = function(propertyType, $field) {
+		var propertyTypeValue;
+		if (propertyType.dataType === "BOOLEAN") {
+			propertyTypeValue = $field.children().is(":checked");
+		} else {
+			propertyTypeValue = $field.val();
+		}
+		return propertyTypeValue;
+	}
+	
+	//
 	// Form Fields
 	//
 	this._getBooleanField = function(id, alt) {
