@@ -1,5 +1,5 @@
 var SampleDataGridUtil = new function() {
-	this.getSampleDataGrid = function(sampleTypeCode, samples, rowClick) {
+	this.getSampleDataGrid = function(sampleTypeCode, samples, rowClick, customOperations) {
 		var sampleType = profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 		var propertyCodes = profile.getAllPropertiCodesForTypeCode(sampleTypeCode);
 		var propertyCodesDisplayNames = profile.getPropertiesDisplayNamesForTypeCode(sampleTypeCode, propertyCodes);
@@ -177,14 +177,19 @@ var SampleDataGridUtil = new function() {
 			sortable : true
 		});
 		
-		columns.push(this.createOperationsColumn());
+		if(customOperations) {
+			columns.push(customOperations);
+		} else {
+			columns.push(this.createOperationsColumn());
+		}
 		
 		//Fill data model
 		var getDataList = function(callback) {
 			var dataList = [];
 			for(var sIdx = 0; sIdx < samples.length; sIdx++) {
 				var sample = samples[sIdx];
-				var sampleModel = { 'identifier' : sample.identifier, 
+				var sampleModel = { '$object' : sample,
+									'identifier' : sample.identifier, 
 									'default_space' : sample.spaceCode,
 									'permId' : sample.permId,
 									'experiment' : sample.experimentIdentifierOrNull,
@@ -217,6 +222,42 @@ var SampleDataGridUtil = new function() {
 		var configKey = "SAMPLE_TABLE_"+ sampleType.code;
 		var dataGridController = new DataGridController(null, columns, getDataList, rowClick, false, configKey);
 		return dataGridController;
+	}
+	
+	this.getDataList = function(samples, callback) {
+		return function() {
+			var dataList = [];
+			for(var sIdx = 0; sIdx < samples.length; sIdx++) {
+				var sample = samples[sIdx];
+				var sampleModel = { '$object' : sample,
+									'identifier' : sample.identifier, 
+									'default_space' : sample.spaceCode,
+									'permId' : sample.permId,
+									'experiment' : sample.experimentIdentifierOrNull,
+									'registrationDate' : Util.getFormatedDate(new Date(sample.registrationDetails.registrationDate)),
+									'modificationDate' : Util.getFormatedDate(new Date(sample.registrationDetails.modificationDate))
+								};
+				for (var pIdx = 0; pIdx < propertyCodes.length; pIdx++) {
+					var propertyCode = propertyCodes[pIdx];
+					sampleModel[propertyCode] = sample.properties[propertyCode];
+				}
+				
+				var parents = "";
+				if(sample.parents) {
+					for (var paIdx = 0; paIdx < sample.parents.length; paIdx++) {
+						if(paIdx !== 0) {
+							parents += ", ";
+						}
+						parents += sample.parents[paIdx].identifier;
+					}
+				}
+				
+				sampleModel['parents'] = parents;
+				
+				dataList.push(sampleModel);
+			}
+			callback(dataList);
+		};
 	}
 	
 	this.createOperationsColumn = function() {

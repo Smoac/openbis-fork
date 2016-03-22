@@ -17,19 +17,87 @@
 function LinksView(linksController, linksModel) {
 	var linksController = linksController;
 	var linksModel = linksModel;
-	var sampleTablesByTypeContainers = {};
+	var linksView = this;
+	
+	var sampleGridByType = {};
 	var samplesByTypeCache = {};
 	
 	var $samplePicker = $("<div>");
+	var $savedContainer = null;
+	//
+	// External API
+	//
+	this.addSample = function(sample) {
+		var sampleTypeCode = sample.sampleTypeCode;
+		var dataGrid = sampleGridByType[sampleTypeCode];
+		if(!dataGrid) { //Create if is not there yet
+			//Layout
+			var $sampleTableContainer = $("<div>");
+			$sampleTableContainer.append($("<legend>").append(sampleTypeCode));
+			
+			var $dataGridContainer = $("<div>");
+			$sampleTableContainer.append($dataGridContainer);
+			
+			dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, [sample], null, linksView.getCustomOperationsForGrid());
+			dataGrid.init($dataGridContainer);
+			
+			$savedContainer.append($sampleTableContainer);
+			
+			//Save grid widget on cache
+			sampleGridByType[sampleTypeCode] = dataGrid;
+		}
+		
+//		dataGrid._grid.getDataList = SampleDataGridUtil.getDataList([sample]);
+	}
 	
 	this.repaint = function($container) {
+		$savedContainer = $container;
 		$container.empty();
 		$container.append($("<legend>").append(linksModel.title));
 		$container.append($samplePicker);
-		$container.append(this._getAddAnyBtn());
+		$container.append(linksView.getAddAnyBtn());
 	}
 	
-	this._showSamplePicker = function(sampleType) {
+	//
+	// Internal API
+	//
+	
+	linksView.getCustomOperationsForGrid = function() {
+		return {
+			label : "Operations",
+			property : 'operations',
+			isExportable: false,
+			sortable : false,
+			render : function(data) {
+				//Dropdown Setup
+				var $dropDownMenu = $("<span>", { class : 'dropdown table-options-dropdown' });
+				var $caret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default'}).append("Operations ").append($("<b>", { class : 'caret' }));
+				var $list = $("<ul>", { class : 'dropdown-menu', 'role' : 'menu', 'aria-labelledby' :'sampleTableDropdown' });
+				$dropDownMenu.append($caret);
+				$dropDownMenu.append($list);
+				
+				var clickFunction = function($dropDown) {
+					return function(event) {
+						event.stopPropagation();
+						event.preventDefault();
+						$caret.dropdown('toggle');
+					};
+				}
+				$dropDownMenu.dropdown();
+				$dropDownMenu.click(clickFunction($dropDownMenu));
+				
+				var $copyAndLink = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Copy and Link'}).append("Copy and Link"));
+				$copyAndLink.click(function(e) {
+					
+				});
+				$list.append($copyAndLink);
+				
+				return $dropDownMenu;
+			}
+		}
+	}
+	
+	linksView.showSamplePicker = function(sampleType) {
 		$samplePicker.empty();
 		
 		//Close Button
@@ -65,10 +133,8 @@ function LinksView(linksController, linksModel) {
 		}
 	}
 			
-	this._getAddAnyBtn = function() {
-		var _this = this;
-		
-		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
+	linksView.getAddAnyBtn = function() {
+		var enabledFunction = function() {
 			var $sampleTypesDropdown = FormUtil.getSampleTypeDropdown("sampleTypeSelector", true);
 			Util.blockUI("Select type: <br><br>" + $sampleTypesDropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='sampleTypeSelectorCancel'>Cancel</a>");
 			
@@ -76,14 +142,19 @@ function LinksView(linksController, linksModel) {
 				var sampleTypeCode = $(this).val();
 				var sampleType = profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 				
-				_this._showSamplePicker(sampleType);
+				linksView.showSamplePicker(sampleType);
 				Util.unblockUI();
 			});
 			
 			$("#sampleTypeSelectorCancel").on("click", function(event) { 
 				Util.unblockUI();
 			});
-		});
+		};
+		
+		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-plus", (linksModel.isDisabled)?null:enabledFunction);
+		if(linksModel.isDisabled) {
+			$addBtn.attr("disabled", "");
+		}
 		
 		return $addBtn;
 	}
