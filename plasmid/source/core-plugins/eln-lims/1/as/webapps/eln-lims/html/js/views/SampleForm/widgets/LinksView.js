@@ -26,6 +26,7 @@ function LinksView(linksController, linksModel) {
 	
 	var $samplePicker = $("<div>");
 	var $savedContainer = null;
+	
 	//
 	// External API
 	//
@@ -34,6 +35,21 @@ function LinksView(linksController, linksModel) {
 		var $dataGridContainer = sampleGridContainerByType[sampleTypeCode];
 		var samplesOnGrid = samplesOnGridByType[sampleTypeCode];
 		
+		//Create Model
+		if(!samplesOnGrid) {
+			samplesOnGrid = [];
+			samplesOnGridByType[sampleTypeCode] = samplesOnGrid;
+		}
+		
+		//Check if the sample is already added
+		for(var sIdx = 0; sIdx < samplesOnGrid.length; sIdx++) {
+			if(samplesOnGrid[sIdx].permId === sample.permId) {
+				Util.showError("Sample " + sample.code + " already present, it will not be added again.");
+				return;
+			}
+		}
+		
+		//Create Layout
 		if(!$dataGridContainer) { //Create if is not there yet
 			//Layout
 			var $sampleTableContainer = $("<div>");
@@ -47,11 +63,7 @@ function LinksView(linksController, linksModel) {
 			$savedContainer.append($sampleTableContainer);
 		}
 		
-		if(!samplesOnGrid) {
-			samplesOnGrid = [];
-			samplesOnGridByType[sampleTypeCode] = samplesOnGrid;
-		}
-		
+		//Render Grid
 		$dataGridContainer.empty();
 		samplesOnGrid.push(sample);
 		var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, samplesOnGrid, null, linksView.getCustomOperationsForGrid(), "ANNOTATIONS");
@@ -69,6 +81,10 @@ function LinksView(linksController, linksModel) {
 	//
 	// Internal API
 	//
+	
+	linksView.getCustomAnnotationColumns = function() {
+		
+	}
 	
 	linksView.getCustomOperationsForGrid = function() {
 		return {
