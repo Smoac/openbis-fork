@@ -59,17 +59,17 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SampleIdentifier;
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SamplePermId
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id import ExperimentIdentifier;
 from ch.ethz.sis.openbis.generic.server.sharedapi.v3.json import GenericObjectMapper;
+from ch.systemsx.cisd.openbis.dss.generic.server import DataStoreServer
 	
 #from ch.systemsx.cisd.common.ssl import SslCertificateHelper;
 
 #Plasmapper server used
 PLASMAPPER_BASE_URL = "http://wishart.biology.ualberta.ca"
-
+OPENBISURL = DataStoreServer.getConfigParameters().getServerURL() + "/openbis/openbis"
 def getProperties(tr, parameters):
-	openBISURL = parameters.get("openBISURL");
 	sessionToken = parameters.get("sessionToken");
 	servFinder = ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
-	infService = servFinder.createService(IGeneralInformationService, openBISURL);
+	infService = servFinder.createService(IGeneralInformationService, OPENBISURL);
 	properties = infService.listPropertyTypes(sessionToken, False);
 	return properties
 
@@ -184,14 +184,14 @@ def process(tr, parameters, tableBuilder):
 		row.setCell("STATUS","FAIL");
 		row.setCell("MESSAGE", "Operation Failed");
 
-def listFeatureVectorDatasets(openBISURL, sessionToken, samplePlatePermId):
+def listFeatureVectorDatasets(sessionToken, samplePlatePermId):
 	from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1 import IScreeningApiServer;
 	from ch.systemsx.cisd.openbis.dss.screening.shared.api.v1 import IDssServiceRpcScreening;
 	from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import PlateIdentifier;
 	from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import FeatureVectorDatasetReference;
 	
 	screeningFinder = ServiceFinder("openbis", IScreeningApiServer.SERVICE_URL);
-	screeningServiceAS = screeningFinder.createService(IScreeningApiServer, openBISURL);
+	screeningServiceAS = screeningFinder.createService(IScreeningApiServer, OPENBISURL);
 	
 	plateIdentifier = PlateIdentifier.createFromPermId(samplePlatePermId);
 	featureVectorDatasets = screeningServiceAS.listFeatureVectorDatasets(sessionToken, Arrays.asList(plateIdentifier));
@@ -208,11 +208,10 @@ def listFeatureVectorDatasetsPermIds(tr, parameters, tableBuilder):
 	from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import PlateIdentifier;
 	from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import FeatureVectorDatasetReference;
 	
-	openBISURL = parameters.get("openBISURL");
 	sessionToken = parameters.get("sessionToken");
 	samplePlatePermId = parameters.get("samplePlatePermId");
 
-	featureVectorDatasets = listFeatureVectorDatasets(openBISURL, sessionToken, samplePlatePermId);
+	featureVectorDatasets = listFeatureVectorDatasets(sessionToken, samplePlatePermId);
 	featureVectorDatasetCodes = [];
 	for featureVectorDataset in featureVectorDatasets:
 		featureVectorDatasetCodes.append(featureVectorDataset.getDatasetCode());
@@ -225,19 +224,18 @@ def listAvailableFeatures(tr, parameters, tableBuilder):
 	from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import PlateIdentifier;
 	from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import FeatureVectorDatasetReference;
 		
-	openBISURL = parameters.get("openBISURL");
 	sessionToken = parameters.get("sessionToken");
 	samplePlatePermId = parameters.get("samplePlatePermId");
 	featureVectorDatasetPermId = parameters.get("featureVectorDatasetPermId");
 	
 	featureVectorDataset = None;
-	featureVectorDatasets = listFeatureVectorDatasets(openBISURL, sessionToken, samplePlatePermId);
+	featureVectorDatasets = listFeatureVectorDatasets(sessionToken, samplePlatePermId);
 	for featureVectorDataset in featureVectorDatasets:
 		if featureVectorDataset.getDatasetCode() == featureVectorDatasetPermId:
 			featureVectorDataset = featureVectorDataset;
 	
 	screeningFinder = ServiceFinder("openbis", IScreeningApiServer.SERVICE_URL);
-	screeningServiceDSS = screeningFinder.createService(IDssServiceRpcScreening, openBISURL);
+	screeningServiceDSS = screeningFinder.createService(IDssServiceRpcScreening, OPENBISURL);
 	featureInformationList = screeningServiceDSS.listAvailableFeatures(sessionToken, [featureVectorDataset]);
 	features = {};
 	for featureInformation in featureInformationList:
@@ -251,20 +249,19 @@ def getFeaturesFromFeatureVector(tr, parameters, tableBuilder):
 	from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import PlateIdentifier;
 	from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import FeatureVectorDatasetReference;
 	
-	openBISURL = parameters.get("openBISURL");
 	sessionToken = parameters.get("sessionToken");
 	samplePlatePermId = parameters.get("samplePlatePermId");
 	featureVectorDatasetPermId = parameters.get("featureVectorDatasetPermId");
 	featuresCodesFromFeatureVector = parameters.get("featuresCodesFromFeatureVector");
 	
 	featureVectorDataset = None;
-	featureVectorDatasets = listFeatureVectorDatasets(openBISURL, sessionToken, samplePlatePermId);
+	featureVectorDatasets = listFeatureVectorDatasets(sessionToken, samplePlatePermId);
 	for featureVectorDatasetAux in featureVectorDatasets:
 		if featureVectorDatasetAux.getDatasetCode() == featureVectorDatasetPermId:
 			featureVectorDataset = featureVectorDatasetAux;
 	
 	screeningFinder = ServiceFinder("openbis", IScreeningApiServer.SERVICE_URL);
-	screeningServiceDSS = screeningFinder.createService(IDssServiceRpcScreening, openBISURL);
+	screeningServiceDSS = screeningFinder.createService(IDssServiceRpcScreening, OPENBISURL);
 	featuresFromFeatureVector = screeningServiceDSS.loadFeatures(sessionToken, [featureVectorDataset], featuresCodesFromFeatureVector);
 	return getJsonForData(featuresFromFeatureVector);
 
@@ -400,7 +397,7 @@ def insertDataSet(tr, parameters, tableBuilder):
 	tempDirFile.mkdirs();
 	
 	#tempDir = System.getProperty("java.io.tmpdir");
-	dss_component = DssComponentFactory.tryCreate(parameters.get("sessionID"), parameters.get("openBISURL"));
+	dss_component = DssComponentFactory.tryCreate(parameters.get("sessionID"), OPENBISURL);
 	
 	for fileName in fileNames:
 		folderFile = File(tempDir + "/" + folderName);
@@ -511,7 +508,6 @@ def getCopySampleChildrenPropertyValue(propCode, propValue, notCopyProperties, d
 def batchOperation(tr, parameters, tableBuilder):
 	for operationParameters in parameters.get("operations"):
 		if operationParameters.get("method") == "updateSample":
-			operationParameters["openBISURL"] = parameters.get("openBISURL");
 			operationParameters["sessionToken"] = parameters.get("sessionToken");
 			insertUpdateSample(tr, operationParameters, tableBuilder);
 	return True;
@@ -660,8 +656,7 @@ def insertUpdateExperiment(tr, parameters, tableBuilder):
 	return True;
 
 def searchSamples(tr, parameters, tableBuilder, sessionId):
-	openBISURL = parameters.get("openBISURL");
-	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi, openBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
+	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi, OPENBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
 	
 	###############
 	############### V3 Search

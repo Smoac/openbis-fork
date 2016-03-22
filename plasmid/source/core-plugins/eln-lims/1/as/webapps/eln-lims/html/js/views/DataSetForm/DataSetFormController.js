@@ -132,8 +132,7 @@ function DataSetFormController(mainController, mode, sample, dataSet) {
 				//Metadata
 				"metadata" : metadata,
 				//For Moving files
-				"sessionID" : mainController.serverFacade.openbisServer.getSession(),
-				"openBISURL" : mainController.serverFacade.openbisServer._internal.openbisUrl
+				"sessionID" : mainController.serverFacade.openbisServer.getSession()
 		};
 			
 		if(profile.allDataStores.length > 0) {
