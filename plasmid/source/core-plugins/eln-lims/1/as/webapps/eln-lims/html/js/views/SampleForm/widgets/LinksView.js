@@ -52,7 +52,7 @@ function LinksView(linksController, linksModel) {
 		if(!$dataGridContainer) { //Create if is not there yet
 			//Layout
 			var $sampleTableContainer = $("<div>");
-			$sampleTableContainer.append($("<legend>").append(sampleTypeCode));
+			$sampleTableContainer.append($("<div>").append(sampleTypeCode + ":"));
 			
 			$dataGridContainer = $("<div>");
 			$sampleTableContainer.append($dataGridContainer);
