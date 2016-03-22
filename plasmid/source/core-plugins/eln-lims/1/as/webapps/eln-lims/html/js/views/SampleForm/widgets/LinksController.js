@@ -15,11 +15,14 @@
  */
 
 function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, showAnnotableTypes) {
-	var linksModel = new LinksModel(title, sampleTypeHints, isDisabled, samplesToEdit, showAnnotableTypes);
+	var linksModel = new LinksModel(title, sampleTypeHints, isDisabled, showAnnotableTypes);
 	var linksView = new LinksView(this, linksModel);
 	
 	this.init = function($container) {
 		linksView.repaint($container);
+		for(var sIdx = 0; sIdx < samplesToEdit.length; sIdx++) {
+			this.addSample(samplesToEdit[sIdx]);
+		}
 	}
 	
 	//

@@ -20,7 +20,6 @@ function LinksView(linksController, linksModel) {
 	var linksView = this;
 	
 	var sampleGridContainerByType = {};
-	var samplesOnGridByType = {};
 	
 	var samplesByTypeCache = {};
 	
@@ -33,12 +32,12 @@ function LinksView(linksController, linksModel) {
 	this.addSample = function(sample) {
 		var sampleTypeCode = sample.sampleTypeCode;
 		var $dataGridContainer = sampleGridContainerByType[sampleTypeCode];
-		var samplesOnGrid = samplesOnGridByType[sampleTypeCode];
+		var samplesOnGrid = linksModel.samplesByType[sampleTypeCode];
 		
 		//Create Model
 		if(!samplesOnGrid) {
 			samplesOnGrid = [];
-			samplesOnGridByType[sampleTypeCode] = samplesOnGrid;
+			linksModel.samplesByType[sampleTypeCode] = samplesOnGrid;
 		}
 		
 		//Check if the sample is already added
