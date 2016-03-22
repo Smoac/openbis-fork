@@ -20,8 +20,10 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 	
 	this.init = function($container) {
 		linksView.repaint($container);
-		for(var sIdx = 0; sIdx < samplesToEdit.length; sIdx++) {
-			this.addSample(samplesToEdit[sIdx]);
+		if(samplesToEdit) {
+			for(var sIdx = 0; sIdx < samplesToEdit.length; sIdx++) {
+				this.addSample(samplesToEdit[sIdx]);
+			}
 		}
 	}
 	
@@ -37,11 +39,21 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 	}
 	
 	this.getSamples = function() {
-		return [];
+		var allSamples = [];
+		for(var sampleTypeCode in linksModel.samplesByType) {
+			allSamples = allSamples.concat(linksModel.samplesByType[sampleTypeCode]);
+		}
+		return allSamples;
 	}
 	
 	this.getSamplesIdentifiers = function() {
-		return [];
+		var allSamples = this.getSamples();
+		var allSamplesIdentifiers = [];
+		for(var sIdx = 0; sIdx < allSamples.length; sIdx++) {
+			var sample = allSamples[sIdx];
+			allSamplesIdentifiers.push(sample.identifier);
+		}
+		return allSamplesIdentifiers;
 	}
 	
 	this.getSamplesRemovedIdentifiers = function() {

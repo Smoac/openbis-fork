@@ -126,10 +126,10 @@ function LinksView(linksController, linksModel) {
 					if(currentValue) {
 						FormUtil.setFieldValue(propertyType, $field, currentValue);
 					}
+					$field.attr("id", ""); //Fix for current summernote behaviour
 					$field.change(function() {
 						var $field = $(this);
 						propertyTypeValue = FormUtil.getFieldValue(propertyType, $field);
-						sample[propertyAnnotationCode] = propertyTypeValue;
 						linksModel.writeState(sample, propertyType.code, propertyTypeValue, false);
 					});
 					return $field;
