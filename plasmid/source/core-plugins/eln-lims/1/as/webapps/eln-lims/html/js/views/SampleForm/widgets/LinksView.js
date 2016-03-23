@@ -94,7 +94,7 @@ function LinksView(linksController, linksModel) {
 	this.repaint = function($container) {
 		$savedContainer = $container;
 		$container.empty();
-		$container.append($("<legend>").append(linksModel.title).append("&nbsp;").append(linksView.getAddAnyBtn()).css("margin-top", "5px"));
+		$container.append($("<legend>").append(linksModel.title).append("&nbsp;").append(linksView.getAddAnyBtn()).css("margin-top", "20px").css("margin-bottom", "20px"));
 		$container.append($samplePicker);
 	}
 	
