@@ -57,7 +57,8 @@ body {
 
 h1, h2, legend {
 	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-	font-weight: 300;
+	font-weight: 400;
+	color : black;
 }
 
 .control-label {
