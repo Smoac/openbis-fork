@@ -29,8 +29,7 @@ function LinksView(linksController, linksModel) {
 	//
 	// External API
 	//
-	this.updateSample = function(sample, isAdd) {
-		var sampleTypeCode = sample.sampleTypeCode;
+	linksView.initContainerForType = function(sampleTypeCode) {
 		var $dataGridContainer = sampleGridContainerByType[sampleTypeCode];
 		var samplesOnGrid = linksModel.samplesByType[sampleTypeCode];
 		
@@ -39,6 +38,29 @@ function LinksView(linksController, linksModel) {
 			samplesOnGrid = [];
 			linksModel.samplesByType[sampleTypeCode] = samplesOnGrid;
 		}
+		
+		//Create Layout
+		if(!$dataGridContainer) { //Create if is not there yet
+			//Layout
+			var $sampleTableContainer = $("<div>");
+			var $samplePickerContainer = $("<div>");
+			
+			$sampleTableContainer.append($("<div>").append(sampleTypeCode + ":").append("&nbsp;").append(linksView.getAddBtn($samplePickerContainer, sampleTypeCode)));
+			$sampleTableContainer.append($samplePickerContainer);
+			$dataGridContainer = $("<div>");
+			$sampleTableContainer.append($dataGridContainer);
+			
+			sampleGridContainerByType[sampleTypeCode] = $dataGridContainer;
+			
+			$savedContainer.append($sampleTableContainer);
+		}
+	}
+	
+	this.updateSample = function(sample, isAdd) {
+		var sampleTypeCode = sample.sampleTypeCode;
+		linksView.initContainerForType(sampleTypeCode);
+		var $dataGridContainer = sampleGridContainerByType[sampleTypeCode];
+		var samplesOnGrid = linksModel.samplesByType[sampleTypeCode];
 		
 		//Check if the sample is already added
 		var foundAtIndex = -1;
@@ -50,21 +72,6 @@ function LinksView(linksController, linksModel) {
 				}
 				return;
 			}
-		}
-		
-		
-		//Create Layout
-		if(!$dataGridContainer) { //Create if is not there yet
-			//Layout
-			var $sampleTableContainer = $("<div>");
-			$sampleTableContainer.append($("<div>").append(sampleTypeCode + ":"));
-			
-			$dataGridContainer = $("<div>");
-			$sampleTableContainer.append($dataGridContainer);
-			
-			sampleGridContainerByType[sampleTypeCode] = $dataGridContainer;
-			
-			$savedContainer.append($sampleTableContainer);
 		}
 		
 		//Render Grid
@@ -84,9 +91,8 @@ function LinksView(linksController, linksModel) {
 	this.repaint = function($container) {
 		$savedContainer = $container;
 		$container.empty();
-		$container.append($("<legend>").append(linksModel.title));
+		$container.append($("<legend>").append(linksModel.title).append("&nbsp;").append(linksView.getAddAnyBtn()));
 		$container.append($samplePicker);
-		$container.append(linksView.getAddAnyBtn());
 	}
 	
 	//
@@ -189,42 +195,63 @@ function LinksView(linksController, linksModel) {
 		}
 	}
 	
-	linksView.showSamplePicker = function(sampleType) {
-		$samplePicker.empty();
+	linksView.showSamplePicker = function($container, sampleTypeCode) {
+		$container.empty();
+		$container.css({
+			"margin" : "5px",
+			"padding" : "5px",
+			"background-color" : "#f6f6f6"
+		});
 		
 		//Close Button
 		var $closeBtn = FormUtil.getButtonWithIcon("glyphicon-remove", function() {
-			$samplePicker.empty();
+			$container.empty();
 		});
 		var $closeBtnContainer = $("<div>").append($closeBtn).css({"text-align" : "right", "padding-right" : "2px"});
-		$samplePicker.append($closeBtnContainer);
+		$container.append($closeBtnContainer);
+		
+		//Title
+		$container.append($("<div>").append("Select " + sampleTypeCode + ":"));
 		
 		//Grid Contaienr
 		var $gridContainer = $("<div>");
-		$samplePicker.append($gridContainer);
+		$container.append($gridContainer);
 		
 		//Show Table Logic
 		var showTableFunction = function(samples) {
-			samplesByTypeCache[sampleType.code] = samples;
+			samplesByTypeCache[sampleTypeCode] = samples;
 			
 			var rowClick = function(e) {
 				linksController.addSample(e.data["$object"]);
-				$samplePicker.empty();
+				$container.empty();
 			}
 			
-			var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleType.code, samples, rowClick);
+			var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, samples, rowClick);
 			dataGrid.init($gridContainer);
 		}
 		
 		//Check Cache and Show Table
-		var sampleTypeCache = samplesByTypeCache[sampleType.code];
+		var sampleTypeCache = samplesByTypeCache[sampleTypeCode];
 		if(sampleTypeCache) {
 			showTableFunction(sampleTypeCache);
 		} else {
-			mainController.serverFacade.searchWithType(sampleType.code, null, false, showTableFunction);
+			mainController.serverFacade.searchWithType(sampleTypeCode, null, false, showTableFunction);
 		}
 	}
 			
+	linksView.getAddBtn = function($container, sampleTypeCode) {
+		var enabledFunction = function() {
+			linksView.showSamplePicker($container, sampleTypeCode);
+		};
+		
+		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-plus", (linksModel.isDisabled)?null:enabledFunction);
+		if(linksModel.isDisabled) {
+			$addBtn.attr("disabled", "");
+		}
+		
+		return $addBtn;
+	}
+	
 	linksView.getAddAnyBtn = function() {
 		var enabledFunction = function() {
 			var $sampleTypesDropdown = FormUtil.getSampleTypeDropdown("sampleTypeSelector", true);
@@ -232,9 +259,7 @@ function LinksView(linksController, linksModel) {
 			
 			$("#sampleTypeSelector").on("change", function(event) {
 				var sampleTypeCode = $(this).val();
-				var sampleType = profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
-				
-				linksView.showSamplePicker(sampleType);
+				linksView.showSamplePicker($samplePicker, sampleTypeCode);
 				Util.unblockUI();
 			});
 			
