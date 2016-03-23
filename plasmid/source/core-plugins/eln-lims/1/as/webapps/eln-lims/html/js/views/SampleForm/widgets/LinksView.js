@@ -71,8 +71,10 @@ function LinksView(linksController, linksModel) {
 				foundAtIndex = sIdx;
 				if(isAdd) {
 					Util.showError("Sample " + sample.code + " already present, it will not be added again.");
+					return;
+				} else {
+					break;
 				}
-				break;
 			}
 		}
 		

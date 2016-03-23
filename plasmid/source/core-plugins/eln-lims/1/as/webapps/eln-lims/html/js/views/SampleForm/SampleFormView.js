@@ -258,15 +258,13 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var isDisabled = this._sampleFormModel.mode === FormMode.VIEW;
 		
 		var currentParentsLinks = (this._sampleFormModel.sample)?this._sampleFormModel.sample.parents:null;
-		this._sampleFormModel.sampleLinksParents = new SampleLinksWidget(sampleParentsWidgetId,
-																		profile,
-																		mainController.serverFacade,
-																		"Parents",
+
+		this._sampleFormModel.sampleLinksParents = new LinksController("Parents",
 																		requiredParents,
 																		isDisabled,
 																		currentParentsLinks,
 																		this._sampleFormModel.mode === FormMode.CREATE || this._sampleFormModel.mode === FormMode.EDIT);
-		
+		this._sampleFormModel.sampleLinksParents.init($sampleParentsWidget);
 		//
 		// LINKS TO CHILDREN
 		//
@@ -280,15 +278,13 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		$formColumn.append($sampleChildrenWidget);
 		
 		var currentChildrenLinks = (this._sampleFormModel.sample)?this._sampleFormModel.sample.children:null;
-		this._sampleFormModel.sampleLinksChildren = new SampleLinksWidget(sampleChildrenWidgetId,
-														profile,
-														mainController.serverFacade,
-														"Children",
+		this._sampleFormModel.sampleLinksChildren = new LinksController("Children",
 														requiredChildren,
 														isDisabled,
 														currentChildrenLinks,
 														this._sampleFormModel.mode === FormMode.CREATE);
 		
+		this._sampleFormModel.sampleLinksChildren.init($sampleChildrenWidget);
 		//
 		// GENERATE CHILDREN
 		//
@@ -391,17 +387,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// TO-DO: Legacy code to be refactored
 		//
-		
-		//Repaint parents and children after updating the property state to show the annotations
-		if(this._sampleFormModel.mode !== FormMode.VIEW ||
-				this._sampleFormModel.mode === FormMode.VIEW && currentParentsLinks && currentParentsLinks.length !== 0) {
-			this._sampleFormModel.sampleLinksParents.repaint();
-		}
-		if(this._sampleFormModel.mode !== FormMode.VIEW ||
-				this._sampleFormModel.mode === FormMode.VIEW && currentChildrenLinks && currentChildrenLinks.length !== 0) {
-			this._sampleFormModel.sampleLinksChildren.repaint();
-		}
-		
 		if(this._sampleFormModel.mode !== FormMode.CREATE) {
 			//Preview image
 			this._reloadPreviewImage();
