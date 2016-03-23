@@ -24,7 +24,6 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     this._sideMenuWidgetController = sideMenuWidgetController;
     this._sideMenuWidgetModel = sideMenuWidgetModel;
     
-    var $toggleMenuButtonIcon = null;
     var $toggleNavButtonIcon = null;
     var toggleMenuSizeBig = false;
     var DISPLAY_NAME_LENGTH_SHORT = 15;
@@ -45,30 +44,6 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	this._updateNavButtonIcon();
     	this.repaint();
     }
-    
-    this.toggleMenuSize = function() {
-    	toggleMenuSizeBig = !toggleMenuSizeBig;
-    	if(toggleMenuSizeBig) {
-    		$toggleMenuButtonIcon.removeClass("glyphicon-menu-right");
-    		$toggleMenuButtonIcon.addClass("glyphicon-menu-left");
-        	$("#sideMenu").removeClass("col-md-2");
-        	$("#mainContainer").removeClass("col-md-10");
-        	$("#sideMenu").addClass("col-md-6");
-        	$("#mainContainer").addClass("col-md-6");
-        	cutDisplayNameAtLength = DISPLAY_NAME_LENGTH_LONG;
-    	} else {
-    		$toggleMenuButtonIcon.removeClass("glyphicon-menu-left");
-    		$toggleMenuButtonIcon.addClass("glyphicon-menu-right");
-    		$("#sideMenu").removeClass("col-md-6");
-    		$("#mainContainer").removeClass("col-md-6");
-    		$("#sideMenu").addClass("col-md-2");
-    		$("#mainContainer").addClass("col-md-10");
-    		cutDisplayNameAtLength = DISPLAY_NAME_LENGTH_SHORT;
-    	}
-    	if(!this._sideMenuWidgetModel.isTreeNavigation) {
-    		this.repaint();
-    	}
-    };
     
     this.hideSideMenu = function() {
         this._sideMenuWidgetModel.$container.hide();
@@ -107,12 +82,6 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                 .append($("<a>", {"href": "javascript:mainController.sideMenu.hideSideMenu();"})
                         .append($("<span>", {"class": "glyphicon glyphicon-resize-full"}))
                         );
-        
-        $toggleMenuButtonIcon = $("<span>", {"class": "glyphicon glyphicon-menu-right"});
-        var $toggleMenuButton = $("<li>")
-        .append($("<a>", {"href": "javascript:mainController.sideMenu.toggleMenuSize();"})
-                .append($toggleMenuButtonIcon)
-                );
         
         $toggleNavButtonIcon = $("<span>", { "class" : "glyphicon" });
         this._updateNavButtonIcon();
@@ -207,7 +176,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 
         $headerItemList.append($logoutButton);
         $headerItemList.append($toggleButton);
-        $headerItemList.append($toggleMenuButton);
+        //$headerItemList.append($toggleMenuButton);
         $headerItemList.append($toggleNavButton);
         
         $headerItemList2.append($searchForm);
