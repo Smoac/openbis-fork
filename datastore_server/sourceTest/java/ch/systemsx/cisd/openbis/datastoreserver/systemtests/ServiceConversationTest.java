@@ -531,7 +531,7 @@ public class ServiceConversationTest
             final TestService serviceB)
     {
         final int NUMBER_OF_CALLS = 10;
-        final MessageChannel channel = new MessageChannel();
+        final MessageChannel channel = new MessageChannel(2 * TIMEOUT);
 
         context.checking(new Expectations()
             {
@@ -557,7 +557,7 @@ public class ServiceConversationTest
                     for (int i = 0; i < NUMBER_OF_CALLS; i++)
                     {
                         Assert.assertEquals(getServiceOnClientSide1(serviceAInterface).echo(i), i);
-                        ConcurrencyUtilities.sleep(TIMEOUT / 10);
+                        ConcurrencyUtilities.sleep(TIMEOUT / NUMBER_OF_CALLS);
                     }
                     channel.send("finished");
                 }
@@ -573,7 +573,7 @@ public class ServiceConversationTest
                         Assert.assertEquals(
                                 getServiceOnClientSide2(serviceBInterface)
                                         .echo(NUMBER_OF_CALLS + i), NUMBER_OF_CALLS + i);
-                        ConcurrencyUtilities.sleep(TIMEOUT / 10);
+                        ConcurrencyUtilities.sleep(TIMEOUT / NUMBER_OF_CALLS);
                     }
                     channel.send("finished");
                 }
@@ -617,7 +617,7 @@ public class ServiceConversationTest
                 + clientManager2.getConversationCount() + " server: "
                 + serverManager.getConversationCount());
     }
-
+    
     private BaseServiceConversationClientManager createClientManager()
     {
         return new BaseServiceConversationClientManager();

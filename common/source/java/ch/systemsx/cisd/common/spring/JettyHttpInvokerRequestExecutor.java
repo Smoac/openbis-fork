@@ -41,7 +41,8 @@ public class JettyHttpInvokerRequestExecutor extends AbstractHttpInvokerRequestE
     public JettyHttpInvokerRequestExecutor(HttpClient client, long serverTimeoutInMillis)
     {
         this.client = client;
-        this.serverTimeoutInMillis = serverTimeoutInMillis;
+        this.serverTimeoutInMillis 
+                = serverTimeoutInMillis <= 0 ? serverTimeoutInMillis : Math.max(1000, serverTimeoutInMillis);
     }
 
     protected RemoteInvocationResult doExecuteBasicRequest(HttpInvokerClientConfiguration config, 

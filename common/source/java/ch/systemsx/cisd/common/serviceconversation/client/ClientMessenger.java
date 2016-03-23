@@ -180,10 +180,16 @@ class ClientMessenger implements IServiceConversation
                                 "Timeout while waiting on message from service.");
                 final String exceptionDescription =
                         ServiceExecutionException.getDescriptionFromException(exception);
-                synchronized (this)
+                try
                 {
-                    transportToService.send(new ServiceMessage(serviceConversationId,
-                            nextOutgoingMessageIndex(), true, exceptionDescription));
+                    synchronized (this)
+                    {
+                        transportToService.send(new ServiceMessage(serviceConversationId,
+                                nextOutgoingMessageIndex(), true, exceptionDescription));
+                    }
+                } catch (RuntimeException ex)
+                {
+                    operationLog.warn("Sending time out exception failed", ex);
                 }
                 throw exception;
             } else
