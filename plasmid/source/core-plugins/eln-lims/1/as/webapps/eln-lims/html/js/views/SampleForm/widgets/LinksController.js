@@ -20,6 +20,13 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 	
 	this.init = function($container) {
 		linksView.repaint($container);
+		
+		if(sampleTypeHints && showAnnotableTypes) {
+			for(var sIdx = 0; sIdx < sampleTypeHints.length; sIdx++) {
+				linksView.initContainerForType(sampleTypeHints[sIdx].TYPE);
+			}
+		}
+		
 		if(samplesToEdit) {
 			for(var sIdx = 0; sIdx < samplesToEdit.length; sIdx++) {
 				this.addSample(samplesToEdit[sIdx]);

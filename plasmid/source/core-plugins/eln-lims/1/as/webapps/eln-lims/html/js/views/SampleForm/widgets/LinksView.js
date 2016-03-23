@@ -45,7 +45,10 @@ function LinksView(linksController, linksModel) {
 			var $sampleTableContainer = $("<div>");
 			var $samplePickerContainer = $("<div>");
 			
-			$sampleTableContainer.append($("<div>").append(sampleTypeCode + ":").append("&nbsp;").append(linksView.getAddBtn($samplePickerContainer, sampleTypeCode)));
+			$sampleTableContainer.append($("<div>").append(sampleTypeCode + ":")
+													.append("&nbsp;")
+													.append(linksView.getAddBtn($samplePickerContainer, sampleTypeCode))
+													.css("margin","5px"));
 			$sampleTableContainer.append($samplePickerContainer);
 			$dataGridContainer = $("<div>");
 			$sampleTableContainer.append($dataGridContainer);
