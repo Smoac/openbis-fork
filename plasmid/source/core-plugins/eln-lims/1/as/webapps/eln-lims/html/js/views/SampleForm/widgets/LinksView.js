@@ -128,6 +128,7 @@ function LinksView(linksController, linksModel) {
 			label : "Annot.::" + propertyType.label,
 			property : propertyAnnotationCode,
 			isExportable: true,
+			showByDefault: true,
 			sortable : true,
 			render : function(data) {
 				var sample = data["$object"];
@@ -199,7 +200,7 @@ function LinksView(linksController, linksModel) {
 	}
 	
 	linksView.showSamplePicker = function($container, sampleTypeCode) {
-		$container.empty();
+		$container.empty().show();
 		$container.css({
 			"margin" : "5px",
 			"padding" : "5px",
@@ -208,7 +209,7 @@ function LinksView(linksController, linksModel) {
 		
 		//Close Button
 		var $closeBtn = FormUtil.getButtonWithIcon("glyphicon-remove", function() {
-			$container.empty();
+			$container.empty().hide();
 		});
 		var $closeBtnContainer = $("<div>").append($closeBtn).css({"text-align" : "right", "padding-right" : "2px"});
 		$container.append($closeBtnContainer);
@@ -226,7 +227,7 @@ function LinksView(linksController, linksModel) {
 			
 			var rowClick = function(e) {
 				linksController.addSample(e.data["$object"]);
-				$container.empty();
+				$container.empty().hide();
 			}
 			
 			var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, samples, rowClick);
