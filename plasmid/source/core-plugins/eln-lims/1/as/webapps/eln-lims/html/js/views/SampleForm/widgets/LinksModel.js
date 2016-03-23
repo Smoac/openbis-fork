@@ -19,6 +19,7 @@ function LinksModel(title, sampleTypeHints, isDisabled, showInfo) {
 	this.sampleTypeHints = sampleTypeHints;
 	this.isDisabled = isDisabled;
 	this.showInfo = showInfo;
+	this.samplesRemoved = [];
 	this.samplesByType = {};
 	this.stateObj = {};
 	

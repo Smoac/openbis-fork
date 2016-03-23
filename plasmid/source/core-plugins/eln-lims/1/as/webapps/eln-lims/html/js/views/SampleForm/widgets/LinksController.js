@@ -64,6 +64,6 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 	}
 	
 	this.getSamplesRemovedIdentifiers = function() {
-		return [];
+		return linksView.samplesRemoved;
 	}
 }

@@ -20,7 +20,6 @@ function LinksView(linksController, linksModel) {
 	var linksView = this;
 	
 	var sampleGridContainerByType = {};
-	
 	var samplesByTypeCache = {};
 	
 	var $samplePicker = $("<div>");
@@ -73,7 +72,7 @@ function LinksView(linksController, linksModel) {
 				if(isAdd) {
 					Util.showError("Sample " + sample.code + " already present, it will not be added again.");
 				}
-				return;
+				break;
 			}
 		}
 		
@@ -83,8 +82,7 @@ function LinksView(linksController, linksModel) {
 		if(isAdd) {
 			samplesOnGrid.push(sample);
 		} else {
-			linksModel.samplesByType[sampleTypeCode] = samplesOnGrid.splice(foundAtIndex, 1);
-			samplesOnGrid = linksModel.samplesByType[sampleTypeCode];
+			samplesOnGrid.splice(foundAtIndex, 1);
 		}
 		
 		var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, samplesOnGrid, null, linksView.getCustomOperationsForGrid(), linksView.getCustomAnnotationColumns(sampleTypeCode), "ANNOTATIONS", linksModel.isDisabled);
@@ -94,7 +92,7 @@ function LinksView(linksController, linksModel) {
 	this.repaint = function($container) {
 		$savedContainer = $container;
 		$container.empty();
-		$container.append($("<legend>").append(linksModel.title).append("&nbsp;").append(linksView.getAddAnyBtn()));
+		$container.append($("<legend>").append(linksModel.title).append("&nbsp;").append(linksView.getAddAnyBtn()).css("margin-top", "5px"));
 		$container.append($samplePicker);
 	}
 	
@@ -165,6 +163,7 @@ function LinksView(linksController, linksModel) {
 			label : "Operations",
 			property : 'operations',
 			isExportable: false,
+			showByDefault: true,
 			sortable : false,
 			render : function(data) {
 				//Dropdown Setup
@@ -189,6 +188,17 @@ function LinksView(linksController, linksModel) {
 					
 				});
 				$list.append($copyAndLink);
+				
+				var $delete = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Remove'}).append("Remove"));
+				
+				var getDeleteFunc = function(sample) {
+					return function(e) {
+						linksView.updateSample(sample, false);
+					};
+				}
+				
+				$delete.click(getDeleteFunc(data["$object"]));
+				$list.append($delete);
 				
 				if(linksModel.isDisabled) {
 					return "";
