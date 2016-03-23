@@ -5,7 +5,7 @@ function DittrichLabProfile(serverFacade) {
 
 $.extend(DittrichLabProfile.prototype, StandardProfile.prototype, {
 	init: function(serverFacade){
-		DefaultProfile.prototype.init.call(this, serverFacade);
+		StandardProfile.prototype.init.call(this, serverFacade);
 		
 		
 	
@@ -274,32 +274,8 @@ $.extend(DittrichLabProfile.prototype, StandardProfile.prototype, {
 														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
 													},
 					                             	{
-														"LABEL" : "Fly",
-														"TYPE": "FLY",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
 														"LABEL" : "Media",
 														"TYPE": "MEDIA",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Oligo",
-														"TYPE": "OLIGO",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Plasmid",
-														"TYPE": "PLASMID",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "RNA",
-														"TYPE": "RNA",
 														"MIN_COUNT" : 0,
 														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
 													},
@@ -316,23 +292,23 @@ $.extend(DittrichLabProfile.prototype, StandardProfile.prototype, {
 														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
 													},
 					                             	{
-														"LABEL" : "General protocol",
-														"TYPE": "GENERAL_PROTOCOL",
+														"LABEL" : "Chip",
+														"TYPE": "CHIP",
 														"MIN_COUNT" : 0,
 														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
 													},
 					                             	{
-														"LABEL" : "PCR protocol",
-														"TYPE": "PCR_PROTOCOL",
+														"LABEL" : "Fluorophore",
+														"TYPE": "FLUOROPHORE",
 														"MIN_COUNT" : 0,
 														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                       {
-														"LABEL" : "Western blotting protocol",
-														"TYPE": "WESTERN_BLOTTING_PROTOCOL",
+													},																										
+					                             	{
+														"LABEL" : "General protocol",
+														"TYPE": "GENERAL_PROTOCOL",
 														"MIN_COUNT" : 0,
 														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													}																																			
+													}																																
 												],
 				}
 		
