@@ -90,7 +90,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.update.SpaceUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyTermCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.delete.VocabularyTermDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IConfirmDeletionMethodExecutor;
@@ -107,6 +109,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteMateri
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteProjectMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteSampleMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteSpaceMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteVocabularyTermMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IExecuteCustomASServiceMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGlobalSearchMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapDataSetMethodExecutor;
@@ -263,6 +266,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     private IDeleteMaterialMethodExecutor deleteMaterialExecutor;
 
     @Autowired
+    private IDeleteVocabularyTermMethodExecutor deleteVocabularyTermExecutor;
+
+    @Autowired
     private ISearchDeletionMethodExecutor searchDeletionExecutor;
 
     @Autowired
@@ -370,7 +376,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @Transactional
-    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     @Capability("CREATE_MATERIAL")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
     public List<MaterialPermId> createMaterials(String sessionToken, List<MaterialCreation> creations)
@@ -613,6 +619,16 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public void deleteMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialDeletionOptions deletionOptions)
     {
         deleteMaterialExecutor.delete(sessionToken, materialIds, deletionOptions);
+    }
+
+    @Override
+    @Transactional
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.VOCABULARY_TERM, ObjectKind.DELETION })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("DELETE_VOCABULARY_TERM")
+    public void deleteVocabularyTerms(String sessionToken, List<? extends IVocabularyTermId> termIds, VocabularyTermDeletionOptions deletionOptions)
+    {
+        deleteVocabularyTermExecutor.delete(sessionToken, termIds, deletionOptions);
     }
 
     @Override

@@ -444,6 +444,18 @@ public class AbstractTest extends SystemTestCase
             });
     }
 
+    protected void assertVocabularyNotFetched(final VocabularyTerm term)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    term.getVocabulary();
+                }
+            });
+    }
+
     protected void assertNotFetched(final IDelegatedAction action)
     {
         try

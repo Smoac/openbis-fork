@@ -1050,3 +1050,7 @@ Vocabulary Term PermId
 Vocabulary Term Search Criteria
 with Term Code
 with Vocabulary Code
+delete Vocabulary Terms
+get Replacements
+replace
+Vocabulary Term Deletion Options

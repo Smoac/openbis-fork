@@ -35,6 +35,69 @@ public class SearchVocabularyTermTest extends AbstractTest
 {
 
     @Test
+    public void testSearchWithEmptyFetchOptions()
+    {
+        VocabularyTermFetchOptions fetchOptions = new VocabularyTermFetchOptions();
+        VocabularyTerm term = search(new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"), fetchOptions);
+
+        assertEquals(term.getPermId(), new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"));
+        assertEquals(term.getCode(), "PROPRIETARY");
+        assertEquals(term.getDescription(), "proprietary description");
+        assertEquals(term.getLabel(), "proprietary label");
+        assertEquals(term.getOrdinal(), Long.valueOf(1));
+        assertEquals(term.isOfficial(), Boolean.TRUE);
+        assertEqualsDate(term.getModificationDate(), "2008-11-05 09:18:00");
+        assertEqualsDate(term.getRegistrationDate(), "2008-11-05 09:18:00");
+        assertRegistratorNotFetched(term);
+        assertVocabularyNotFetched(term);
+    }
+
+    @Test
+    public void testSearchWithVocabularyFetched()
+    {
+        VocabularyTermFetchOptions fetchOptions = new VocabularyTermFetchOptions();
+        fetchOptions.withVocabulary().withRegistrator();
+
+        VocabularyTerm term = search(new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"), fetchOptions);
+
+        assertEquals(term.getPermId(), new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"));
+        assertEquals(term.getCode(), "PROPRIETARY");
+        assertEquals(term.getDescription(), "proprietary description");
+        assertEquals(term.getLabel(), "proprietary label");
+        assertEquals(term.getOrdinal(), Long.valueOf(1));
+        assertEquals(term.isOfficial(), Boolean.TRUE);
+        assertEqualsDate(term.getModificationDate(), "2008-11-05 09:18:00");
+        assertEqualsDate(term.getRegistrationDate(), "2008-11-05 09:18:00");
+        assertRegistratorNotFetched(term);
+
+        assertEquals(term.getVocabulary().getCode(), "$STORAGE_FORMAT");
+        assertEquals(term.getVocabulary().getDescription(), "The on-disk storage format of a data set");
+        assertEqualsDate(term.getVocabulary().getRegistrationDate(), "2008-11-05 09:18:00");
+        assertEqualsDate(term.getVocabulary().getModificationDate(), "2009-03-23 15:34:44");
+        assertEquals(term.getVocabulary().getRegistrator().getUserId(), "system");
+    }
+
+    @Test
+    public void testSearchWithRegistratorFetched()
+    {
+        VocabularyTermFetchOptions fetchOptions = new VocabularyTermFetchOptions();
+        fetchOptions.withRegistrator();
+
+        VocabularyTerm term = search(new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"), fetchOptions);
+
+        assertEquals(term.getPermId(), new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"));
+        assertEquals(term.getCode(), "PROPRIETARY");
+        assertEquals(term.getDescription(), "proprietary description");
+        assertEquals(term.getLabel(), "proprietary label");
+        assertEquals(term.getOrdinal(), Long.valueOf(1));
+        assertEquals(term.isOfficial(), Boolean.TRUE);
+        assertEqualsDate(term.getModificationDate(), "2008-11-05 09:18:00");
+        assertEqualsDate(term.getRegistrationDate(), "2008-11-05 09:18:00");
+        assertEquals(term.getRegistrator().getUserId(), "system");
+        assertVocabularyNotFetched(term);
+    }
+
+    @Test
     public void testSearchWithEmptyCriteria()
     {
         testSearch(new VocabularyTermSearchCriteria(), 17);
@@ -182,20 +245,15 @@ public class SearchVocabularyTermTest extends AbstractTest
 
     private void testSearch(VocabularyTermSearchCriteria criteria, VocabularyTermPermId... expectedPermIds)
     {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
         VocabularyTermFetchOptions fetchOptions = new VocabularyTermFetchOptions();
         fetchOptions.sortBy().code().asc();
 
-        SearchResult<VocabularyTerm> searchResult =
-                v3api.searchVocabularyTerms(sessionToken, criteria, fetchOptions);
-        List<VocabularyTerm> terms = searchResult.getObjects();
+        List<VocabularyTerm> terms = search(criteria, fetchOptions);
 
         assertVocabularyTermPermIds(terms, expectedPermIds);
-        v3api.logout(sessionToken);
     }
 
-    private void testSearch(VocabularyTermSearchCriteria criteria, int expectedCount)
+    private List<VocabularyTerm> testSearch(VocabularyTermSearchCriteria criteria, int expectedCount)
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -205,6 +263,36 @@ public class SearchVocabularyTermTest extends AbstractTest
         assertEquals(searchResult.getObjects().size(), expectedCount);
 
         v3api.logout(sessionToken);
+
+        return searchResult.getObjects();
+    }
+
+    private VocabularyTerm search(VocabularyTermPermId permId, VocabularyTermFetchOptions fetchOptions)
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        VocabularyTermSearchCriteria criteria = new VocabularyTermSearchCriteria();
+        criteria.withId().thatEquals(permId);
+
+        SearchResult<VocabularyTerm> searchResult =
+                v3api.searchVocabularyTerms(sessionToken, criteria, fetchOptions);
+
+        assertEquals(searchResult.getObjects().size(), 1);
+
+        v3api.logout(sessionToken);
+
+        return searchResult.getObjects().get(0);
+    }
+
+    private List<VocabularyTerm> search(VocabularyTermSearchCriteria criteria, VocabularyTermFetchOptions fetchOptions)
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SearchResult<VocabularyTerm> searchResult = v3api.searchVocabularyTerms(sessionToken, criteria, fetchOptions);
+
+        v3api.logout(sessionToken);
+
+        return searchResult.getObjects();
     }
 
 }
