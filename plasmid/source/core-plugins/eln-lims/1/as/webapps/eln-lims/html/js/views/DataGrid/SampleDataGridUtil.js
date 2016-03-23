@@ -1,5 +1,5 @@
 var SampleDataGridUtil = new function() {
-	this.getSampleDataGrid = function(sampleTypeCode, samples, rowClick, customOperations, customColumns, configPostKey) {
+	this.getSampleDataGrid = function(sampleTypeCode, samples, rowClick, customOperations, customColumns, configPostKey, isOperationsDisabled) {
 		var sampleType = profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 		var propertyCodes = profile.getAllPropertiCodesForTypeCode(sampleTypeCode);
 		var propertyCodesDisplayNames = profile.getPropertiesDisplayNamesForTypeCode(sampleTypeCode, propertyCodes);
@@ -181,9 +181,9 @@ var SampleDataGridUtil = new function() {
 			sortable : true
 		});
 		
-		if(customOperations) {
+		if(!isOperationsDisabled && customOperations) {
 			columns.push(customOperations);
-		} else {
+		} else if(!isOperationsDisabled) {
 			columns.push(this.createOperationsColumn());
 		}
 		

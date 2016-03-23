@@ -87,7 +87,7 @@ function LinksView(linksController, linksModel) {
 			samplesOnGrid = linksModel.samplesByType[sampleTypeCode];
 		}
 		
-		var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, samplesOnGrid, null, linksView.getCustomOperationsForGrid(), linksView.getCustomAnnotationColumns(sampleTypeCode), "ANNOTATIONS");
+		var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, samplesOnGrid, null, linksView.getCustomOperationsForGrid(), linksView.getCustomAnnotationColumns(sampleTypeCode), "ANNOTATIONS", linksModel.isDisabled);
 		dataGrid.init($dataGridContainer);
 	}
 	
@@ -230,7 +230,7 @@ function LinksView(linksController, linksModel) {
 				$container.empty().hide();
 			}
 			
-			var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, samples, rowClick);
+			var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, samples, rowClick, null, null, null, true);
 			dataGrid.init($gridContainer);
 		}
 		
