@@ -414,7 +414,7 @@ public class CreateVocabularyTermTest extends AbstractTest
             actualCodes.add(actualTerm.getCode());
         }
 
-        assertEquals(actualCodes, Arrays.asList(expectedCodes));
+        assertEquals(actualCodes, Arrays.asList(expectedCodes), "Actual codes: " + actualCodes + ", Expected codes: " + expectedCodes);
     }
 
 }
