@@ -531,7 +531,7 @@ public class ServiceConversationTest
             final TestService serviceB)
     {
         final int NUMBER_OF_CALLS = 10;
-        final MessageChannel channel = new MessageChannel(2 * TIMEOUT);
+        final MessageChannel channel = new MessageChannel(Math.max(1000, 2 * TIMEOUT));
 
         context.checking(new Expectations()
             {
