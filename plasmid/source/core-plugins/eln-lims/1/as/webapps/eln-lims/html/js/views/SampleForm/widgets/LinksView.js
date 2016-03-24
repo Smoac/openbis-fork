@@ -188,14 +188,33 @@ function LinksView(linksController, linksModel) {
 				if(profile.isSampleTypeProtocol(data["$object"].sampleTypeCode)) {
 					var $copyAndLink = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Use as template'}).append("Use as template"));
 					$copyAndLink.click(function(e) {
+						var newCode = "/DEFAULT_LAB_NOTEBOOK/TEST_NEW_FROM_PARENT_" + Util.guid();
+						
 						mainController.serverFacade.customELNApi({
 							"method" : "copyAndLinkAsParent",
-							"newSampleIdentifier" : "/DEFAULT_LAB_NOTEBOOK/TEST_NEW_FROM_PARENT_" + Util.guid(),
+							"newSampleIdentifier" : newCode,
 							"sampleIdentifierToCopyAndLinkAsParent" : data["$object"].identifier,
 							"experimentIdentifierToAssignToCopy" : mainController.currentView._sampleFormModel.sample.experimentIdentifierOrNull
 						}, function(error, result) {
-							Util.showInfo(result.message);
+							if(error) {
+								Util.showError(error);
+							} else {
+								var searchUntilFound = null;
+							    searchUntilFound = function() {
+									mainController.serverFacade.searchWithIdentifiers([newCode], function(results) {
+										if(results.length > 0) {
+											linksView.updateSample(data["$object"], false);
+											linksView.updateSample(results[0], true);
+										} else {
+											searchUntilFound();
+										}
+									});
+								};
+								
+								searchUntilFound();
+							}
 						});
+						
 					});
 					$list.append($copyAndLink);
 				}
