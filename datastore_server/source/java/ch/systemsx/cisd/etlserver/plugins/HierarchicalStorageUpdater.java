@@ -52,8 +52,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  */
 public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceTask
 {
-    public static final String STOREROOT_DIR_KEY = "storeroot-dir";
-
+    public static final String STOREROOT_DIR_LINK_PATH_KEY = "storeroot-dir-link-path";
+    
     public static final String HIERARCHY_ROOT_DIR_KEY = "hierarchy-root-dir";
 
     public static final String HIERARCHY_LINK_NAMING_STRATEGY = "link-naming-strategy";
@@ -104,14 +104,13 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
     public void setUp(String pluginName, Properties pluginProperties)
     {
         LogInitializer.init();
-        // TODO 2010-03-23, Piotr Buczek: pluginProperties contain all needed properties
-        // There is no need to load service properties once again.
-        Properties properties = DssPropertyParametersUtil.loadServiceProperties();
-        String storeRootFileName =
-                PropertyUtils.getMandatoryProperty(properties, STOREROOT_DIR_KEY);
-        String hierarchyRootFileName =
-                PropertyUtils.getMandatoryProperty(properties, pluginName + "."
-                        + HIERARCHY_ROOT_DIR_KEY);
+        String storeRootFileName = pluginProperties.getProperty(STOREROOT_DIR_LINK_PATH_KEY);
+        if (storeRootFileName == null)
+        {
+            storeRootFileName = PropertyUtils.getMandatoryProperty(pluginProperties, DssPropertyParametersUtil.STOREROOT_DIR_KEY);
+        }
+        String hierarchyRootFileName = 
+                PropertyUtils.getMandatoryProperty(pluginProperties, HIERARCHY_ROOT_DIR_KEY);
 
         openBISService = ServiceProvider.getOpenBISService();
         linkNamingStrategy = createLinkNamingStrategy(pluginProperties);

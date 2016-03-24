@@ -179,15 +179,11 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
     private HierarchicalStorageUpdater createUpdater(boolean linkFromFirstChild)
     {
         final String pluginName = "hierarchical-storage-updater";
-        final String pluginPrefix = pluginName + ".";
-
-        System.setProperty(DssPropertyParametersUtil.OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
-                + HierarchicalStorageUpdater.STOREROOT_DIR_KEY, getStoreRoot().getAbsolutePath());
-        System.setProperty(DssPropertyParametersUtil.OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
-                + pluginPrefix + HierarchicalStorageUpdater.HIERARCHY_ROOT_DIR_KEY,
-                getHierarchyRoot().getAbsolutePath());
 
         Properties properties = new Properties();
+        properties.setProperty(DssPropertyParametersUtil.STOREROOT_DIR_KEY, getStoreRoot().getAbsolutePath());
+        properties.setProperty(HierarchicalStorageUpdater.HIERARCHY_ROOT_DIR_KEY, 
+                getHierarchyRoot().getAbsolutePath());
         if (linkFromFirstChild)
         {
             properties.put(HierarchicalStorageUpdater.LINK_SOURCE_SUBFOLDER + "." + DATASET_TYPE,
