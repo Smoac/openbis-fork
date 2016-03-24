@@ -18,6 +18,8 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -83,6 +85,7 @@ public class VocabularyTermPermId implements IVocabularyTermId, Serializable
         this.code = code;
     }
 
+    @JsonIgnore
     @Override
     public int hashCode()
     {
@@ -93,6 +96,7 @@ public class VocabularyTermPermId implements IVocabularyTermId, Serializable
         return result;
     }
 
+    @JsonIgnore
     @Override
     public boolean equals(Object obj)
     {
