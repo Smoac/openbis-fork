@@ -16,19 +16,24 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyCodeSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermCodeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractSearchObjectManuallyExecutor;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
 /**
@@ -38,6 +43,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 public class SearchVocabularyTermExecutor extends AbstractSearchObjectManuallyExecutor<VocabularyTermSearchCriteria, VocabularyTermPE> implements
         ISearchVocabularyTermExecutor
 {
+
+    @Autowired
+    private ISearchVocabularyExecutor searchVocabularyExecutor;
 
     @Override
     protected List<VocabularyTermPE> listAll()
@@ -54,12 +62,12 @@ public class SearchVocabularyTermExecutor extends AbstractSearchObjectManuallyEx
         } else if (criteria instanceof PermIdSearchCriteria)
         {
             return new PermIdMatcher();
-        } else if (criteria instanceof VocabularyCodeSearchCriteria)
+        } else if (criteria instanceof CodeSearchCriteria)
         {
-            return new VocabularyCodeMatcher();
-        } else if (criteria instanceof VocabularyTermCodeSearchCriteria)
+            return new CodeMatcher();
+        } else if (criteria instanceof VocabularySearchCriteria)
         {
-            return new VocabularyTermCodeMatcher();
+            return new VocabularyMatcher();
         } else
         {
             throw new IllegalArgumentException("Unknown search criteria: " + criteria.getClass());
@@ -79,8 +87,8 @@ public class SearchVocabularyTermExecutor extends AbstractSearchObjectManuallyEx
                 return true;
             } else if (id instanceof VocabularyTermPermId)
             {
-                VocabularyTermPermId termId = (VocabularyTermPermId) id;
-                return object.getCode().equals(termId.getCode()) && object.getVocabulary().getCode().equals(termId.getVocabularyCode());
+                VocabularyTermPermId permId = (VocabularyTermPermId) id;
+                return object.getCode().equals(permId.getCode()) && object.getVocabulary().getCode().equals(permId.getVocabularyCode());
             } else
             {
                 throw new IllegalArgumentException("Unknown id: " + id.getClass());
@@ -100,24 +108,37 @@ public class SearchVocabularyTermExecutor extends AbstractSearchObjectManuallyEx
 
     }
 
-    private class VocabularyCodeMatcher extends StringFieldMatcher
-    {
-
-        @Override
-        protected String getFieldValue(VocabularyTermPE object)
-        {
-            return object.getVocabulary().getCode();
-        }
-
-    }
-
-    private class VocabularyTermCodeMatcher extends StringFieldMatcher
+    private class CodeMatcher extends StringFieldMatcher
     {
 
         @Override
         protected String getFieldValue(VocabularyTermPE object)
         {
             return object.getCode();
+        }
+
+    }
+
+    private class VocabularyMatcher extends Matcher
+    {
+
+        @Override
+        public List<VocabularyTermPE> getMatching(IOperationContext context, List<VocabularyTermPE> objects, ISearchCriteria criteria)
+        {
+            List<VocabularyPE> vocabularyList = searchVocabularyExecutor.search(context, (VocabularySearchCriteria) criteria);
+            Set<VocabularyPE> vocabularySet = new HashSet<VocabularyPE>(vocabularyList);
+
+            List<VocabularyTermPE> matches = new ArrayList<VocabularyTermPE>();
+
+            for (VocabularyTermPE object : objects)
+            {
+                if (vocabularySet.contains(object.getVocabulary()))
+                {
+                    matches.add(object);
+                }
+            }
+
+            return matches;
         }
 
     }

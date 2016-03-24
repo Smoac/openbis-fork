@@ -394,7 +394,7 @@ public class CreateVocabularyTermTest extends AbstractTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         VocabularyTermSearchCriteria criteria = new VocabularyTermSearchCriteria();
-        criteria.withVocabularyCode().thatEquals(((VocabularyPermId) vocabularyId).getPermId());
+        criteria.withVocabulary().withCode().thatEquals(((VocabularyPermId) vocabularyId).getPermId());
 
         VocabularyTermFetchOptions fetchOptions = new VocabularyTermFetchOptions();
         fetchOptions.sortBy().ordinal().asc();

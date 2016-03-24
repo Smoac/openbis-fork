@@ -441,7 +441,7 @@ public class DeleteVocabularyTermTest extends AbstractDeletionTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         VocabularyTermSearchCriteria criteria = new VocabularyTermSearchCriteria();
-        criteria.withVocabularyCode().thatEquals(vocabularyCode);
+        criteria.withVocabulary().withCode().thatEquals(vocabularyCode);
 
         SearchResult<VocabularyTerm> result = v3api.searchVocabularyTerms(sessionToken, criteria, new VocabularyTermFetchOptions());
         v3api.logout(sessionToken);

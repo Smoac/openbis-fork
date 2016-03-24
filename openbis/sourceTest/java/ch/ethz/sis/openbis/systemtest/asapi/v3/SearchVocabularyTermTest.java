@@ -191,7 +191,7 @@ public class SearchVocabularyTermTest extends AbstractTest
     public void testSearchWithVocabularyCodeThatEquals()
     {
         VocabularyTermSearchCriteria criteria = new VocabularyTermSearchCriteria();
-        criteria.withVocabularyCode().thatEquals("HUMAN");
+        criteria.withVocabulary().withCode().thatEquals("HUMAN");
         testSearch(criteria, new VocabularyTermPermId("CHILD", "HUMAN"), new VocabularyTermPermId("MAN", "HUMAN"),
                 new VocabularyTermPermId("WOMAN", "HUMAN"));
     }
@@ -200,7 +200,7 @@ public class SearchVocabularyTermTest extends AbstractTest
     public void testSearchWithVocabularyCodeThatContains()
     {
         VocabularyTermSearchCriteria criteria = new VocabularyTermSearchCriteria();
-        criteria.withVocabularyCode().thatContains("MA");
+        criteria.withVocabulary().withCode().thatContains("MA");
         testSearch(criteria, new VocabularyTermPermId("BDS_DIRECTORY", "$STORAGE_FORMAT"), new VocabularyTermPermId("CHILD", "HUMAN"),
                 new VocabularyTermPermId("MAN", "HUMAN"), new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"),
                 new VocabularyTermPermId("WOMAN", "HUMAN"));
@@ -210,7 +210,7 @@ public class SearchVocabularyTermTest extends AbstractTest
     public void testSearchWithVocabularyCodeThatStartsWith()
     {
         VocabularyTermSearchCriteria criteria = new VocabularyTermSearchCriteria();
-        criteria.withVocabularyCode().thatStartsWith("G");
+        criteria.withVocabulary().withCode().thatStartsWith("G");
         testSearch(criteria, new VocabularyTermPermId("FEMALE", "GENDER"), new VocabularyTermPermId("MALE", "GENDER"));
     }
 
@@ -218,7 +218,7 @@ public class SearchVocabularyTermTest extends AbstractTest
     public void testSearchWithVocabularyCodeThatEndsWith()
     {
         VocabularyTermSearchCriteria criteria = new VocabularyTermSearchCriteria();
-        criteria.withVocabularyCode().thatEndsWith("T");
+        criteria.withVocabulary().withCode().thatEndsWith("T");
         testSearch(criteria, new VocabularyTermPermId("BDS_DIRECTORY", "$STORAGE_FORMAT"),
                 new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"));
     }

@@ -21,19 +21,19 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
-@JsonObject("as.dto.vocabulary.search.VocabularyTermSearchCriteria")
-public class VocabularyTermSearchCriteria extends AbstractObjectSearchCriteria<IVocabularyTermId>
+@JsonObject("as.dto.vocabulary.search.VocabularySearchCriteria")
+public class VocabularySearchCriteria extends AbstractObjectSearchCriteria<IVocabularyId>
 {
 
     private static final long serialVersionUID = 1L;
 
-    public VocabularyTermSearchCriteria()
+    public VocabularySearchCriteria()
     {
     }
 
@@ -47,26 +47,21 @@ public class VocabularyTermSearchCriteria extends AbstractObjectSearchCriteria<I
         return with(new CodeSearchCriteria());
     }
 
-    public VocabularySearchCriteria withVocabulary()
+    public VocabularySearchCriteria withOrOperator()
     {
-        return with(new VocabularySearchCriteria());
+        return (VocabularySearchCriteria) withOperator(SearchOperator.OR);
     }
 
-    public VocabularyTermSearchCriteria withOrOperator()
+    public VocabularySearchCriteria withAndOperator()
     {
-        return (VocabularyTermSearchCriteria) withOperator(SearchOperator.OR);
-    }
-
-    public VocabularyTermSearchCriteria withAndOperator()
-    {
-        return (VocabularyTermSearchCriteria) withOperator(SearchOperator.AND);
+        return (VocabularySearchCriteria) withOperator(SearchOperator.AND);
     }
 
     @Override
     protected SearchCriteriaToStringBuilder createBuilder()
     {
         SearchCriteriaToStringBuilder builder = super.createBuilder();
-        builder.setName("VOCABULARY_TERM");
+        builder.setName("VOCABULARY");
         return builder;
     }
 
