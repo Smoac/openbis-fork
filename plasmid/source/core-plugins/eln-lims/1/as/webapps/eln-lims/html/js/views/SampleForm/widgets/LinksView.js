@@ -132,7 +132,12 @@ function LinksView(linksController, linksModel) {
 		});
 		
 		$("#copyAccept").on("click", function(event) {
-			callback($("#newSampleCodeForCopy").val());
+			var code = $("#newSampleCodeForCopy").val();
+			if(code) {
+				callback(code);
+			} else {
+				Util.showError("Code missing.");
+			}
 		});
 		
 		$("#copyCancel").on("click", function(event) { 
