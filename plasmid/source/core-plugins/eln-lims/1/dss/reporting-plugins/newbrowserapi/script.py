@@ -133,6 +133,9 @@ def process(tr, parameters, tableBuilder):
 	if method == "registerUserPassword":
 		isOk = registerUserPassword(tr, parameters, tableBuilder);
 	
+	if method == "copyAndLinkAsParent":
+		isOk = copyAndLinkAsParent(tr, parameters, tableBuilder);
+	
 	if method == "batchOperation":
 		isOk = batchOperation(tr, parameters, tableBuilder);
 		
@@ -442,6 +445,32 @@ def insertDataSet(tr, parameters, tableBuilder):
 		dss_component.deleteSessionWorkspaceFile(fileName);
 	
 	#Return from the call
+	return True;
+
+def copyAndLinkAsParent(tr, parameters, tableBuilder):
+	newSampleIdentifier = parameters.get("newSampleIdentifier"); #String
+	sampleIdentifierToCopyAndLinkAsParent = parameters.get("sampleIdentifierToCopyAndLinkAsParent"); #String
+	experimentIdentifierToAssignToCopy = parameters.get("experimentIdentifierToAssignToCopy"); #String
+	
+	#Create new Sample
+	sampleToCopyAndLinkAsParent = getSampleByIdentifierForUpdate(tr, sampleIdentifierToCopyAndLinkAsParent); #Retrieve Sample
+	newSample = tr.createNewSample(newSampleIdentifier, sampleToCopyAndLinkAsParent.getSampleType()); #Create Sample given his id
+	
+	#Assign Parent
+	newSample.setParentSampleIdentifiers([sampleIdentifierToCopyAndLinkAsParent]);
+	
+	#Assign properties
+	propertiesDefinitions = searchService.listPropertiesDefinitionsForSampleType(sampleToCopyAndLinkAsParent.getSampleType());
+	for propertyDefinition in propertiesDefinitions:
+		propCode = propertyDefinition.getPropertyTypeCode();
+		propValue = sampleToCopyAndLinkAsParent.getPropertyValue(propCode);
+		if propValue is not None:
+			newSample.setPropertyValue(propCode, propValue);
+	
+	#Assign Experiment
+	experimentToAssignToCopy = tr.getExperiment(experimentIdentifierToAssignToCopy);
+	newSample.setExperiment(experimentToAssignToCopy);
+	
 	return True;
 	
 def copySample(tr, parameters, tableBuilder):

@@ -185,11 +185,20 @@ function LinksView(linksController, linksModel) {
 				$dropDownMenu.dropdown();
 				$dropDownMenu.click(clickFunction($dropDownMenu));
 				
-				var $copyAndLink = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Copy and Link'}).append("Copy and Link"));
-				$copyAndLink.click(function(e) {
-					
-				});
-				$list.append($copyAndLink);
+				if(profile.isSampleTypeProtocol(data["$object"].sampleTypeCode)) {
+					var $copyAndLink = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Use as template'}).append("Use as template"));
+					$copyAndLink.click(function(e) {
+						mainController.serverFacade.customELNApi({
+							"method" : "copyAndLinkAsParent",
+							"newSampleIdentifier" : "/DEFAULT_LAB_NOTEBOOK/TEST_NEW_FROM_PARENT_" + Util.guid(),
+							"sampleIdentifierToCopyAndLinkAsParent" : data["$object"].identifier,
+							"experimentIdentifierToAssignToCopy" : mainController.currentView._sampleFormModel.sample.experimentIdentifierOrNull
+						}, function(error, result) {
+							Util.showInfo(result.message);
+						});
+					});
+					$list.append($copyAndLink);
+				}
 				
 				var $delete = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Remove'}).append("Remove"));
 				
@@ -262,10 +271,10 @@ function LinksView(linksController, linksModel) {
 		
 		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-plus", (linksModel.isDisabled)?null:enabledFunction);
 		if(linksModel.isDisabled) {
-			$addBtn.attr("disabled", "");
+			return "";
+		} else {
+			return $addBtn;
 		}
-		
-		return $addBtn;
 	}
 	
 	linksView.getAddAnyBtn = function() {
@@ -285,10 +294,11 @@ function LinksView(linksController, linksModel) {
 		};
 		
 		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-plus", (linksModel.isDisabled)?null:enabledFunction);
-		if(linksModel.isDisabled) {
-			$addBtn.attr("disabled", "");
-		}
 		
-		return $addBtn;
+		if(linksModel.isDisabled) {
+			return "";
+		} else {
+			return $addBtn;
+		}
 	}
 }

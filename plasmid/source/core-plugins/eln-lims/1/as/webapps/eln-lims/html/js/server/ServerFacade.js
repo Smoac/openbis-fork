@@ -453,6 +453,10 @@ function ServerFacade(openbisServer) {
 	// ELN Custom API
  	//
  	this.customELNApi = function(parameters, callbackFunction, service) {
+ 		if(!service) {
+ 			service = "newbrowserapi";
+ 		}
+ 		
  		var dataStoreCode = profile.getDefaultDataStoreCode();
  		this.createReportFromAggregationService(dataStoreCode, parameters, function(data) {
  			var error = null;

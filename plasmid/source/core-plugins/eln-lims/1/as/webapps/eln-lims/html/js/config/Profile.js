@@ -50,6 +50,7 @@ $.extend(DefaultProfile.prototype, {
 		
 		this.searchDomains = [ { "@id" : -1, "@type" : "GobalSearch", label : "Global", name : "global"}];
 		this.inventorySpaces = ["MATERIALS", "METHODS"];
+		this.sampleTypeProtocols = ["GENERAL_PROTOCOL", "PCR_PROTOCOL", "WESTERN_BLOTTING_PROTOCOL"];
 		this.searchSamplesUsingV3OnDropbox = false;
 		this.searchSamplesUsingV3OnDropboxRunCustom = false;
 		this.isInventorySpace = function(spaceCode) {
@@ -85,6 +86,10 @@ $.extend(DefaultProfile.prototype, {
 		this.storagesConfiguration = {
 			"isEnabled" : false
 		};
+		
+		this.isSampleTypeProtocol = function(sampleTypeCode) {
+			return ($.inArray(sampleTypeCode, this.sampleTypeProtocols) !== -1);
+		}
 		
 		this.isSampleTypeHidden = function(sampleTypeCode) {
 			var sampleType = this.getSampleTypeForSampleTypeCode(sampleTypeCode);
