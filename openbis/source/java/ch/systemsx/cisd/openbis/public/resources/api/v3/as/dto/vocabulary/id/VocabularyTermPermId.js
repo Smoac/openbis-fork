@@ -32,7 +32,7 @@ define([ "stjs", "util/Exceptions", "as/dto/vocabulary/id/IVocabularyTermId" ], 
 		};
 		prototype.setVocabularyCode = function(vocabularyCode) {
 			if (vocabularyCode == null) {
-				throw new exceptions.IllegalArgumentException("Vocabulary code cannot be null");
+//				throw new exceptions.IllegalArgumentException("Vocabulary code cannot be null");
 			}
 			this.vocabularyCode = vocabularyCode;
 		};
