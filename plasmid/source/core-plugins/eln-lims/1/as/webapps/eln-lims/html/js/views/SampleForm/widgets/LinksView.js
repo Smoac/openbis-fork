@@ -190,6 +190,7 @@ function LinksView(linksController, linksModel) {
 					$copyAndLink.click(function(e) {
 						var newCode = "/DEFAULT_LAB_NOTEBOOK/TEST_NEW_FROM_PARENT_" + Util.guid();
 						
+						Util.blockUI();
 						mainController.serverFacade.customELNApi({
 							"method" : "copyAndLinkAsParent",
 							"newSampleIdentifier" : newCode,
@@ -205,6 +206,7 @@ function LinksView(linksController, linksModel) {
 										if(results.length > 0) {
 											linksView.updateSample(data["$object"], false);
 											linksView.updateSample(results[0], true);
+											Util.unblockUI();
 										} else {
 											searchUntilFound();
 										}
