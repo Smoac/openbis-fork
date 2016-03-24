@@ -60,16 +60,15 @@ if System.getProperty('os.name')  == 'Mac OS X':
 NOHUP_REGEX = 'nohup*.txt'
 COMMAND_LINE_INVOCATION = 'Command-line invocation'
 MISMATCH_REGEX = r'(barcode-mismatches) ([0-9])'
-
+mismatch_dict = {0: 'NONE', 1:'ONE', 2:'TWO'}
+MISMATCH_ABREVIATION = "_MM_"
 
 def get_mismatches(file):
-    
-    mismatch_dict = {0: 'NONE', 1:'ONE', 2:'TWO'}
     
     command_line_regex = re.compile(COMMAND_LINE_INVOCATION)
     mismatch_regex = re.compile(MISMATCH_REGEX)
     command_line_list = []
-    mismatches = "NONE"
+    mismatches = 0
     number_of_lines_to_read = 5
 
     if file:
@@ -79,11 +78,20 @@ def get_mismatches(file):
             if re.search(command_line_regex, line):
                 command_line_list.append(line)
                 rr = re.search(mismatch_regex, line)
-                mismatches = mismatch_dict[int(rr.group().split()[1])]
+                mismatches = int(rr.group().split()[1])
     else:
         print("File " + str(file) + " not found!")
+    return command_line_list, mismatches
 
-    return command_line_list, mismatches 
+
+def mismatch_string_builder (mismatches, file_part_name):
+    
+    if mismatches > 0:
+        mismatch_string = MISMATCH_ABREVIATION + str(mismatches)
+    else:
+        mismatch_string = ""
+    meta_data_file_name = file_part_name + mismatch_string + METADATA_FILE_SUFFIX
+    return meta_data_file_name
 
 
 def checkOnFileSize(file):
@@ -155,8 +163,6 @@ def writeMetadataFile(transaction, folder_name, meta_data_file_name, sequencing_
             
             meta_data_file.write((MISMATCH_IN_INDEX + "\t" + dataSet.getPropertyValue(MISMATCH_IN_INDEX) + "\n").encode('utf-8'))
             meta_data_file.write((BCL_VERSION + "\t" + flow_lane_sample.getPropertyValue(BCL_VERSION)).encode('utf-8'))
-
-
     except IOError:
         print ('File error, could not write '+ file)
     finally:
@@ -231,28 +237,35 @@ def searchParents (search_service, parents):
     return foundParents
 
 
-def renameFiles (fastq_files, undetermined, flow_cell_id):
+def renameFiles (fastq_files, undetermined, flow_cell_id, mismatches):
     
     newFastqFileList = []
     for file in fastq_files:
+        folder = os.path.dirname(file)
+        fileName = os.path.basename(file)
+        filepart, suffix = fileName.split('.',1)
         if undetermined:
-            folder = os.path.dirname(file)
-            fileName = os.path.basename(file)
-            filepart, suffix = fileName.split('.',1)
-            new_file =  folder + "/" + flow_cell_id + '_' + filepart + "." + suffix
+            if mismatches > 0:
+                new_file =  folder + "/" + flow_cell_id + '_' + filepart + MISMATCH_ABREVIATION + str(mismatches) + "." + suffix
+            else:
+                new_file =  folder + "/" + flow_cell_id + '_' + filepart + "." + suffix
             print ("Renaming file " + file + " to " + new_file)
             os.rename(file, new_file)
         else:
-            new_file = file
+            if mismatches > 0:
+                new_file = folder + "/" + filepart + MISMATCH_ABREVIATION + str(mismatches) + "." + suffix
+                print ("Renaming file " + file + " to " + new_file)
+                os.rename(file, new_file)
+            else:
+                new_file = file
         newFastqFileList.append(new_file)
     return newFastqFileList
 
 
-def put_files_to_dataset (transaction, dataSet, fastq_files, folder_name, flow_cell_id, sample_space, undetermined):
+def put_files_to_dataset (transaction, dataSet, fastq_files, folder_name, sample_space):
 
     for file in fastq_files:
-        print("SAMPLE_SPACE")
-        print(sample_space)
+        print("SAMPLE_SPACE:" + sample_space)
         extraCopySciCore (sample_space, file, folder_name)
         transaction.moveFile(file, dataSet, folder_name)
 
@@ -307,8 +320,11 @@ def get_vocabulary_descriptions (transaction, vocabulary_name):
 # -------------------------------------------------------------------------------
 
 
-def process_regular_samples(transaction, name, sample_code, flowLane, fastq_files, first_fastq_file,
-                             search_unique_sample, fcMetaDataDict, dataSet, flow_lane_sample):
+def process_regular_samples(transaction, name, sample_code, flowCellId, flowLane, fastq_files, first_fastq_file,
+                             search_unique_sample, fcMetaDataDict, dataSet, flow_lane_sample, mismatches):
+
+    newFastqFiles = renameFiles(fastq_files, False, flowCellId, mismatches)
+
     foundSample = search_unique_sample(transaction, sample_code)
     sequencing_sample = foundSample[0].getSample()
     experiment = sequencing_sample.getExperiment()
@@ -321,25 +337,28 @@ def process_regular_samples(transaction, name, sample_code, flowLane, fastq_file
     if (INDEX2 in sequencing_sample_properties_dict) and (fcMetaDataDict[INDEXREAD2] > 0):
         dataSet.setPropertyValue(INDEX2, sequencing_sample_properties_dict[INDEX2])
     dataSet.setPropertyValue(EXTERNAL_SAMPLE_NAME, sequencing_sample_properties_dict[EXTERNAL_SAMPLE_NAME])
+   
     sample_space = foundSample[0].getSpace()
     filepart, suffix = first_fastq_file.split('.', 1)
-    meta_data_file_name = filepart.rsplit('_', 2)[0] + METADATA_FILE_SUFFIX
+
+    meta_data_file_name = mismatch_string_builder(mismatches, filepart.rsplit('_', 2)[0])
+    
     # get a file from the IDataSetRegistrationTransaction so it is automatically part of the data set
     meta_data_file_path = transaction.createNewFile(dataSet, name, meta_data_file_name)
     writeMetadataFile(transaction, name, meta_data_file_path, sequencing_sample_properties_dict, fcMetaDataDict,
-                       experiment, sample_space, fastq_files, flowLane, dataSet, flow_lane_sample)
+                       experiment, sample_space, newFastqFiles, flowLane, dataSet, flow_lane_sample)
     
-    return fastq_files, sample_space
+    return newFastqFiles, sample_space
 
 
 def process_undetermined(transaction, undetermined, name, flowCellId, flowLane, fastq_files, first_fastq_file,
-                          search_service, fcMetaDataDict, parents, dataSet, flow_lane_sample):
+                          search_service, fcMetaDataDict, parents, dataSet, flow_lane_sample, mismatches):
     sample_space = ""
     newFastqFiles = []
     sample_space_list = []
     lane_parents = searchParents(search_service, parents)
     print "Found " + str(lane_parents.size()) + " parents"
-    newFastqFiles = renameFiles(fastq_files, undetermined, flowCellId)
+    newFastqFiles = renameFiles(fastq_files, undetermined, flowCellId, mismatches)
     for parent in lane_parents:
         sequencing_sample_properties_dict = get_sample_properties(transaction, parent)
         parent_sample = parent.getSample()
@@ -352,7 +371,8 @@ def process_undetermined(transaction, undetermined, name, flowCellId, flowLane, 
         # as those samples do not have a NCBI ORGANISM TAXONOMY
         if NCBI_ORGANISM_TAXONOMY not in sequencing_sample_properties_dict:
             print sample_code + ": Processing Sample without NCBI ORGANISM TAXONOMY: ILLUMINA_SEQUENCING_NEUROSTEMX_SINGLECELL"
-            meta_data_file_path = transaction.createNewFile(dataSet, name, sample_code + '_' + flowCellId + '_' + first_fastq_file.split('.')[0] + METADATA_FILE_SUFFIX)
+            meta_data_file_name = mismatch_string_builder(mismatches, sample_code + '_' + flowCellId + '_' + first_fastq_file.split('.')[0])
+            meta_data_file_path = transaction.createNewFile(dataSet, name, meta_data_file_name)
             writeMetadataFile(transaction, name, meta_data_file_path, sequencing_sample_properties_dict, fcMetaDataDict,
                                experiment, sample_space, newFastqFiles, flowLane, dataSet, flow_lane_sample)
 
@@ -360,13 +380,15 @@ def process_undetermined(transaction, undetermined, name, flowCellId, flowLane, 
          (INDEX2 not in sequencing_sample_properties_dict or sequencing_sample_properties_dict[INDEX2] == 'NOINDEX') and \
           (sequencing_sample_properties_dict[NCBI_ORGANISM_TAXONOMY] != PHIX_TAXONOMY_ID):
             print 'NONINDEXED sample and Taxonomy id is NOT ' + PHIX_TAXONOMY_ID + ', probably a pool: ' + sample_code
-            meta_data_file_path = transaction.createNewFile(dataSet, name, sample_code + '_' + flowCellId + '_' + first_fastq_file.split('.')[0] + METADATA_FILE_SUFFIX)
+            meta_data_file_name = mismatch_string_builder(mismatches, sample_code + '_' + flowCellId + '_' + first_fastq_file.split('.')[0])
+            meta_data_file_path = transaction.createNewFile(dataSet, name, meta_data_file_name)
             writeMetadataFile(transaction, name, meta_data_file_path, sequencing_sample_properties_dict, fcMetaDataDict,
                                experiment, sample_space, newFastqFiles, flowLane, dataSet, flow_lane_sample)
 
         else:
             print sample_code + ": Create parent meta data file"
-            meta_data_file_path = transaction.createNewFile(dataSet, name, 'PARENT_' + sample_code + '_' + flowCellId + METADATA_FILE_SUFFIX)
+            meta_data_file_name = mismatch_string_builder(mismatches, 'PARENT_' + sample_code + '_' + flowCellId)
+            meta_data_file_path = transaction.createNewFile(dataSet, name, meta_data_file_name)
             writeMetadataFile(transaction, name, meta_data_file_path, sequencing_sample_properties_dict, fcMetaDataDict, 
                               experiment, sample_space, [], flowLane, dataSet, flow_lane_sample)
    
@@ -381,7 +403,7 @@ def process_undetermined(transaction, undetermined, name, flowCellId, flowLane, 
 def process(transaction):
 
     undetermined = False
-    mismatches = "NONE"
+    mismatches = 0
     print("\n" + str(datetime.now()))
 
     incoming_path = transaction.getIncoming().getAbsolutePath()
@@ -413,19 +435,22 @@ def process(transaction):
     dataSet.setMeasuredData(False)
     dataSet.setPropertyValue(INDEX1, DEFAULT_INDEX)
     dataSet.setPropertyValue(INDEX2, DEFAULT_INDEX)
-    dataSet.setPropertyValue(MISMATCH_IN_INDEX, mismatches)
+    dataSet.setPropertyValue(MISMATCH_IN_INDEX, mismatch_dict[mismatches])
+    
+    if mismatches > 0:
+        name += MISMATCH_ABREVIATION + str(mismatches)
     dirName = transaction.createNewDirectory(dataSet,name)
 
     if undetermined:
         fastq_files, sample_space = process_undetermined(transaction, undetermined, name, flowCellId, flowLane,
                                 fastq_files, first_fastq_file, search_service, fcMetaDataDict, parents, dataSet,
-                                flow_lane_immutable[0]) 
+                                flow_lane_immutable[0], mismatches) 
     else:
-        fastq_files, sample_space = process_regular_samples(transaction, name, sample_code, flowLane,
+        fastq_files, sample_space = process_regular_samples(transaction, name, sample_code, flowCellId, flowLane,
                                 fastq_files, first_fastq_file, search_unique_sample, fcMetaDataDict, dataSet,
-                                flow_lane_immutable[0])
+                                flow_lane_immutable[0], mismatches)
 
-    put_files_to_dataset (transaction, dataSet, fastq_files, name, flowCellId, sample_space, undetermined)
+    put_files_to_dataset (transaction, dataSet, fastq_files, name, sample_space)
 
     sa = transaction.getSampleForUpdate(flow_lane_immutable[0].getSampleIdentifier())
     sa.setPropertyValue("DATA_TRANSFERRED", create_openbis_timestamp_now())
