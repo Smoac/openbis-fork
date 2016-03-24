@@ -54,6 +54,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 /**
  * @author pkupczyk
  */
+@Test(groups = { "before remote api" })
 public class DeleteVocabularyTermTest extends AbstractDeletionTest
 {
 

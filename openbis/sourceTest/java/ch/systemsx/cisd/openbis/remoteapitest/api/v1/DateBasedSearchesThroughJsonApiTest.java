@@ -39,8 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseTimeAttribute;
 import ch.systemsx.cisd.openbis.remoteapitest.RemoteApiTestCase;
 
-@Test(groups =
-{ "remote api" })
+@Test(groups = { "remote api" }, dependsOnGroups = { "before remote api" })
 public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
 {
 
@@ -154,8 +153,7 @@ public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
         SearchCriteria criteria =
                 criteriaWith(
                         registrationDate(moreThanOrEqual("2009-02-01", "+1")),
-                        registrationDate(lessThanOrEqual("2009-03-01", "+1"))
-                );
+                        registrationDate(lessThanOrEqual("2009-03-01", "+1")));
 
         List<DataSet> result = generalInformationService.searchForDataSets(sessionToken, criteria);
 
@@ -180,8 +178,7 @@ public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
         SearchCriteria criteria =
                 criteriaWith(
                         registrationDate(lessThanOrEqual("2010-01-01", "+1")),
-                        modificationDate(equals("2011-05-09", "+1"))
-                );
+                        modificationDate(equals("2011-05-09", "+1")));
 
         List<DataSet> result = generalInformationService.searchForDataSets(sessionToken, criteria);
 
@@ -205,8 +202,7 @@ public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
         SearchCriteria criteria =
                 criteriaWith(
                         registrationDate(moreThanOrEqual("2010-01-01", "+1")),
-                        modificationDate(equals("2011-05-09", "+1"))
-                );
+                        modificationDate(equals("2011-05-09", "+1")));
 
         List<DataSet> result = generalInformationService.searchForDataSets(sessionToken, criteria);
 
@@ -538,9 +534,9 @@ public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
 
         /*
          * for hamcrest 1.3
-         * @Override public void describeMismatchSafely(Collection<T> actualItems, Description mismatchDescription) {
-         * mismatchDescription.appendText("These elements were missing: "); for (Identifier<T> identifier : this.identifiers) { if
-         * (!identifier.foundIn(actualItems)) { mismatchDescription.appendText(identifier.toString() + " "); } } }
+         * @Override public void describeMismatchSafely(Collection<T> actualItems, Description mismatchDescription) { mismatchDescription.appendText(
+         * "These elements were missing: "); for (Identifier<T> identifier : this.identifiers) { if (!identifier.foundIn(actualItems)) {
+         * mismatchDescription.appendText(identifier.toString() + " "); } } }
          */
     }
 
@@ -579,15 +575,16 @@ public class DateBasedSearchesThroughJsonApiTest extends RemoteApiTestCase
 
         /*
          * for hamcrest 1.3
-         * @Override public void describeMismatchSafely(Collection<T> actualItems, Description mismatchDescription) {
-         * mismatchDescription.appendText("These unwanted elements were found: "); for (Identifier<T> identifier : this.identifiers) { if
-         * (identifier.foundIn(actualItems)) { mismatchDescription.appendText(identifier.toString() + " "); } } }
+         * @Override public void describeMismatchSafely(Collection<T> actualItems, Description mismatchDescription) { mismatchDescription.appendText(
+         * "These unwanted elements were found: "); for (Identifier<T> identifier : this.identifiers) { if (identifier.foundIn(actualItems)) {
+         * mismatchDescription.appendText(identifier.toString() + " "); } } }
          */
     }
 
     // This list contains all the datasets that are found in the database.
     // When this test is able to create it's own test data, these can and should be removed.
     private static List<DataSetInfo> allDataSets;
+
     {
         allDataSets = new ArrayList<DataSetInfo>();
 

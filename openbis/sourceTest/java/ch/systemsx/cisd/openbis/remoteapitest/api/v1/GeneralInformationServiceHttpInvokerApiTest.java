@@ -42,13 +42,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 
 /**
- * Verifies that an instance of {@link IGeneralInformationService} is published via
- * {@link HttpInvokerServiceExporter} and that it is correctly functioning with external clients.
+ * Verifies that an instance of {@link IGeneralInformationService} is published via {@link HttpInvokerServiceExporter} and that it is correctly
+ * functioning with external clients.
  * 
  * @author Kaloyan Enimanev
  */
-@Test(groups =
-    { "remote api" })
+@Test(groups = { "remote api" }, dependsOnGroups = { "before remote api" })
 public class GeneralInformationServiceHttpInvokerApiTest extends
         GeneralInformationServiceJsonApiTest
 {

@@ -31,13 +31,12 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.remoteapitest.RemoteApiTestCase;
 
 /**
- * Verifies that an instance of {@link IGeneralInformationService} is published via JSON-RPC and
- * that it is correctly functioning with external clients.
+ * Verifies that an instance of {@link IGeneralInformationService} is published via JSON-RPC and that it is correctly functioning with external
+ * clients.
  * 
  * @author Kaloyan Enimanev
  */
-@Test(groups =
-    { "remote api" })
+@Test(groups = { "remote api" }, dependsOnGroups = { "before remote api" })
 public class GeneralInformationChangingServiceJsonApiTest extends RemoteApiTestCase
 {
     protected IGeneralInformationService generalInfoService;

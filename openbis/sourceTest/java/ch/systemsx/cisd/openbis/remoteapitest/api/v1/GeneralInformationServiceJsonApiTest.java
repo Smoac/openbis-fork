@@ -78,7 +78,7 @@ import ch.systemsx.cisd.openbis.remoteapitest.RemoteApiTestCase;
  * 
  * @author Kaloyan Enimanev
  */
-@Test(groups = { "remote api" })
+@Test(groups = { "remote api" }, dependsOnGroups = { "before remote api" })
 public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
 {
     protected IGeneralInformationService generalInformationService;

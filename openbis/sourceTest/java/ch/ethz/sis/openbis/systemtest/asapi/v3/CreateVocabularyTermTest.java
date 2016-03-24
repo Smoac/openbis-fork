@@ -38,6 +38,7 @@ import ch.systemsx.cisd.common.test.AssertionUtil;
 /**
  * @author pkupczyk
  */
+@Test(groups = { "before remote api" })
 public class CreateVocabularyTermTest extends AbstractTest
 {
 
@@ -251,14 +252,13 @@ public class CreateVocabularyTermTest extends AbstractTest
         creation2.setCode("NEW2");
         creation2.setPreviousTermId(new VocabularyTermPermId("NEW1", "ORGANISM"));
 
-        List<String> terms = extractCodes(listTerms(creation1.getVocabularyId()));
+        List<VocabularyTerm> termsBefore = listTerms(creation1.getVocabularyId());
+        assertTerms(termsBefore, "RAT", "DOG", "HUMAN", "GORILLA", "FLY");
 
         createTerms(TEST_USER, PASSWORD, creation1, creation2);
 
         List<VocabularyTerm> termsAfter = listTerms(creation1.getVocabularyId());
-        terms.add(terms.indexOf("HUMAN") + 1, creation1.getCode());
-        terms.add(terms.indexOf("NEW1") + 1, creation2.getCode());
-        assertTerms(termsAfter, terms);
+        assertTerms(termsAfter, "RAT", "DOG", "HUMAN", "NEW1", "NEW2", "GORILLA", "FLY");
     }
 
     @Test
@@ -281,16 +281,13 @@ public class CreateVocabularyTermTest extends AbstractTest
         creation4.setCode("NEW4");
         creation4.setPreviousTermId(null);
 
-        List<String> terms = extractCodes(listTerms(creation1.getVocabularyId()));
+        List<VocabularyTerm> termsBefore = listTerms(creation1.getVocabularyId());
+        assertTerms(termsBefore, "RAT", "DOG", "HUMAN", "GORILLA", "FLY");
 
         createTerms(TEST_USER, PASSWORD, creation1, creation2, creation3, creation4);
 
         List<VocabularyTerm> termsAfter = listTerms(creation1.getVocabularyId());
-        terms.add(terms.indexOf("HUMAN") + 1, creation1.getCode());
-        terms.add(terms.indexOf("GORILLA") + 1, creation2.getCode());
-        terms.add(terms.indexOf("NEW2") + 1, creation3.getCode());
-        terms.add(creation4.getCode());
-        assertTerms(termsAfter, terms);
+        assertTerms(termsAfter, "RAT", "DOG", "HUMAN", "NEW1", "GORILLA", "NEW2", "NEW3", "FLY", "NEW4");
     }
 
     private VocabularyTermCreation termCreation()
@@ -370,26 +367,26 @@ public class CreateVocabularyTermTest extends AbstractTest
 
     private void createWithPreviousTermNull(VocabularyTermCreation creation)
     {
-        List<String> terms = extractCodes(listTerms(creation.getVocabularyId()));
+        List<VocabularyTerm> termsBefore = listTerms(creation.getVocabularyId());
+        assertTerms(termsBefore, "RAT", "DOG", "HUMAN", "GORILLA", "FLY");
 
         creation.setPreviousTermId(null);
         createTerms(TEST_USER, PASSWORD, creation);
 
         List<VocabularyTerm> termsAfter = listTerms(creation.getVocabularyId());
-        terms.add(creation.getCode());
-        assertTerms(termsAfter, terms);
+        assertTerms(termsAfter, "RAT", "DOG", "HUMAN", "GORILLA", "FLY", creation.getCode());
     }
 
     private void createWithPreviousTermNotNull(VocabularyTermCreation creation)
     {
-        List<String> terms = extractCodes(listTerms(creation.getVocabularyId()));
+        List<VocabularyTerm> termsBefore = listTerms(creation.getVocabularyId());
+        assertTerms(termsBefore, "RAT", "DOG", "HUMAN", "GORILLA", "FLY");
 
         creation.setPreviousTermId(new VocabularyTermPermId("HUMAN", "ORGANISM"));
         createTerms(TEST_USER, PASSWORD, creation);
 
         List<VocabularyTerm> termsAfter = listTerms(creation.getVocabularyId());
-        terms.add(terms.indexOf("HUMAN") + 1, creation.getCode());
-        assertTerms(termsAfter, terms);
+        assertTerms(termsAfter, "RAT", "DOG", "HUMAN", creation.getCode(), "GORILLA", "FLY");
     }
 
     private List<VocabularyTerm> listTerms(IVocabularyId vocabularyId)
@@ -409,21 +406,17 @@ public class CreateVocabularyTermTest extends AbstractTest
         return results.getObjects();
     }
 
-    private void assertTerms(List<VocabularyTerm> actualTerms, List<String> expectedCodes)
-    {
-        List<String> actualCodes = extractCodes(actualTerms);
-        assertEquals(actualCodes, expectedCodes, 
-                "Actual codes: " + actualCodes + ", Expected codes: " + expectedCodes);
-    }
-
-    private List<String> extractCodes(List<VocabularyTerm> actualTerms)
+    private void assertTerms(List<VocabularyTerm> actualTerms, String... expectedCodes)
     {
         List<String> actualCodes = new ArrayList<String>();
+
         for (VocabularyTerm actualTerm : actualTerms)
         {
             actualCodes.add(actualTerm.getCode());
         }
-        return actualCodes;
+
+        assertEquals(actualCodes, Arrays.asList(expectedCodes),
+                "Actual codes: " + actualCodes + ", Expected codes: " + Arrays.asList(expectedCodes));
     }
 
 }

@@ -37,13 +37,11 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.remoteapitest.RemoteApiTestCase;
 
 /**
- * Verifies that an instance of {@link IQueryApiServer} is published via JSON-RPC and that it is
- * correctly functioning with external clients.
+ * Verifies that an instance of {@link IQueryApiServer} is published via JSON-RPC and that it is correctly functioning with external clients.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-@Test(groups =
-    { "remote api" })
+@Test(groups = { "remote api" }, dependsOnGroups = { "before remote api" })
 public class QueryApiServerJsonTest extends RemoteApiTestCase
 {
     private static final String SERVICE_URL = TestInstanceHostUtils.getOpenBISUrl() + "/openbis/"
