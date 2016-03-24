@@ -376,7 +376,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// INIT
 		//
 		$container.append($form).append($rightPanel);
-		FormUtil.activateRichTextProperties();
 		
 		//
 		// Extra content
@@ -501,7 +500,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 						$component.prop('disabled', true);
 					}
 					
-					if(propertyType.dataType === "TIMESTAMP") {
+					if(propertyType.dataType === "MULTILINE_VARCHAR") {
+						$component = FormUtil.activateRichTextProperties($component, changeEvent(propertyType));
+					} else if(propertyType.dataType === "TIMESTAMP") {
 						$component.on("dp.change", changeEvent(propertyType));
 					} else {
 						$component.change(changeEvent(propertyType));

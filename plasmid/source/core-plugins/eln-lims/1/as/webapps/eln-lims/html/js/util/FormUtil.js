@@ -683,16 +683,10 @@ var FormUtil = new function() {
 	//
 	// Rich Text Editor Support - (Summernote)
 	//
-	this.activateRichTextProperties = function(component, componentOnChange) {
-		var $textAreas = null;
+	this.activateRichTextProperties = function($component, componentOnChange) {
+		$("body").append($component);
 		
-		if(component) {
-			$textAreas = component;
-		} else {
-			$textAreas = $('textarea');
-		}
-		
-		$textAreas.summernote({
+		$component.summernote({
 			toolbar: [
 		['Font Style', ['fontname', 'fontsize', 'color', 'bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
 		['Paragraph style ', ['style', 'ol', 'ul', 'paragraph', 'height']],
@@ -700,22 +694,15 @@ var FormUtil = new function() {
 		['Misc', ['fullscreen', 'undo', 'redo', 'help']],],
 		disableDragAndDrop: true});
 		
-		if(componentOnChange) {
-			$textAreas.on("summernote.change", componentOnChange);
-		}
+		$component.on("summernote.change", componentOnChange);
+		
 		$('.note-editable.panel-body').css({ "min-height" : "200px" });
-	}
-	
-	this.updateModelRichTextProperties = function(properties) {
-		var summernoteProperties = $('textarea');
-		for(var nIdx = 0; nIdx < summernoteProperties.length; nIdx++) {
-			var textarea = $(summernoteProperties[nIdx]);
-			var id = textarea[0].id;
-			var val = textarea.val();
-			if(id && val) {
-				properties[id] = val;
-			}
-		}
+		
+		var $editor = $component.next();
+		$component.detach();
+		$editor.detach();
+		
+		return $editor;
 	}
 	
 	this.fixStringPropertiesForForm = function(propertyType, entity) {

@@ -362,17 +362,6 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 							}
 						}
 						
-						//Avoid modifications in properties managed by scripts
-						if(propertyType.managed || propertyType.dinamic) {
-							$component.prop('disabled', true);
-						}
-						
-						if(propertyType.dataType === "TIMESTAMP") {
-							$component.on("dp.change", changeEvent(propertyType));
-						} else {
-							$component.change(changeEvent(propertyType));
-						}
-						
 						//Update values if is into edit mode
 						if(this._dataSetFormModel.mode === FormMode.EDIT) {
 							if(propertyType.dataType === "BOOLEAN") {
@@ -384,6 +373,19 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 							}
 						} else {
 							$component.val(""); //HACK-FIX: Not all browsers show the placeholder in Bootstrap 3 if you don't set an empty value.
+						}
+						
+						//Avoid modifications in properties managed by scripts
+						if(propertyType.managed || propertyType.dinamic) {
+							$component.prop('disabled', true);
+						}
+						
+						if(propertyType.dataType === "MULTILINE_VARCHAR") {
+							$component = FormUtil.activateRichTextProperties($component, changeEvent(propertyType));
+						} else if(propertyType.dataType === "TIMESTAMP") {
+							$component.on("dp.change", changeEvent(propertyType));
+						} else {
+							$component.change(changeEvent(propertyType));
 						}
 						
 						$controls.append($component);
@@ -402,6 +404,5 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		}
 		
 		$("#metadataContainer").append($wrapper);
-		FormUtil.activateRichTextProperties();
 	}
 }

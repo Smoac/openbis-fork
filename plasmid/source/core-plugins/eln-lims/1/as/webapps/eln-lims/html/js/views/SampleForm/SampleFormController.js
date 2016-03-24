@@ -162,7 +162,6 @@ function SampleFormController(mainController, mode, sample) {
 		var sampleExperiment = null;
 		var sampleCode = this._sampleFormModel.sample.code;
 		var properties = this._sampleFormModel.sample.properties;
-		FormUtil.updateModelRichTextProperties(properties);
 		
 		var experimentIdentifier = this._sampleFormModel.sample.experimentIdentifierOrNull;
 		

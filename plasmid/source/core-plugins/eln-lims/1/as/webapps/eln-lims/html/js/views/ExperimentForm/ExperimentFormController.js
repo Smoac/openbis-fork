@@ -74,8 +74,6 @@ function ExperimentFormController(mainController, mode, experiment) {
 			method = "updateExperiment";
 		}
 		
-		FormUtil.updateModelRichTextProperties(this._experimentFormModel.experiment.properties);
-		
 		var parameters = {
 				//API Method
 				"method" : method,

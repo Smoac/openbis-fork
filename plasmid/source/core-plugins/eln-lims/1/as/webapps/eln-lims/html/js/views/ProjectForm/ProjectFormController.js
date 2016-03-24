@@ -67,9 +67,6 @@ function ProjectFormController(mainController, mode, project) {
 				method = "updateProject";
 			}
 			
-			//Summernote Description
-			this._projectFormModel.project.description = $($('textarea')[0]).val();
-			
 			var parameters = {
 					//API Method
 					"method" : method,

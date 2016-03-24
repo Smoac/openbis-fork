@@ -112,11 +112,12 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		var description = Util.getEmptyIfNull(this._projectFormModel.project.description);
 		if(this._projectFormModel.mode !== FormMode.VIEW) {
 			var $textBox = FormUtil._getTextBox(null, "Description", false);
-			$textBox.keyup(function(event){
+			var textBoxEvent = function(event) {
 				_this._projectFormModel.project.description = $(this).val();
 				_this._projectFormModel.isFormDirty = true;
-			});
+			};
 			$textBox.val(description);
+			$textBox = FormUtil.activateRichTextProperties($textBox, textBoxEvent);
 			$formColumn.append(FormUtil.getFieldForComponentWithLabel($textBox, "Description"));
 		} else {
 			$formColumn.append(FormUtil.getFieldForLabelWithText("Description", description));
@@ -190,6 +191,5 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		}
 		
 		$container.append($form);
-		FormUtil.activateRichTextProperties();
 	}
 }
