@@ -6,7 +6,7 @@ define([
          'test/test-map', 
          'test/test-delete', 
 
-         'test/test-dto', 
+//         'test/test-dto', 
          'test/test-dto-roundtrip', 
          'test/test-custom-services' 
          ], function() {
