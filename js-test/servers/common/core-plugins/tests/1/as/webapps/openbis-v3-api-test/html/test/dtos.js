@@ -294,7 +294,7 @@ var sources = [
 	'as/dto/vocabulary/id/IVocabularyId',
 	'as/dto/vocabulary/id/IVocabularyTermId',
 	'as/dto/vocabulary/id/VocabularyPermId',
-	'as/dto/vocabulary/id/VocabularyTermCode',
+	'as/dto/vocabulary/id/VocabularyTermPermId',
 	'as/dto/vocabulary/Vocabulary',
 	'as/dto/vocabulary/VocabularyTerm',	
 	'as/dto/vocabulary/search/VocabularyCodeSearchCriteria',
