@@ -297,9 +297,9 @@ var sources = [
 	'as/dto/vocabulary/id/VocabularyTermCode',
 	'as/dto/vocabulary/Vocabulary',
 	'as/dto/vocabulary/VocabularyTerm',	
-	'as/dto/vocabulary/search/VocabularyCodeSearchCriteria.js',
-	'as/dto/vocabulary/search/VocabularyTermCodeSearchCriteria.js',
-	'as/dto/vocabulary/search/VocabularyTermSearchCriteria.js'
+	'as/dto/vocabulary/search/VocabularyCodeSearchCriteria',
+	'as/dto/vocabulary/search/VocabularyTermCodeSearchCriteria',
+	'as/dto/vocabulary/search/VocabularyTermSearchCriteria'
  ];
 
 define(sources, 
