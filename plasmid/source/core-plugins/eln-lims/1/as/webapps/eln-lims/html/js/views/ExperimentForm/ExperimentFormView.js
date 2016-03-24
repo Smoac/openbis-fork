@@ -179,6 +179,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		} else if(this._experimentFormModel.mode === FormMode.CREATE) {
 			var $codeField = FormUtil._getInputField("text", null, "code", null, true);
 			$codeField.keyup(function() {
+				_this._experimentFormModel.isFormDirty = true;
 				var caretPosition = this.selectionStart;
 				$(this).val($(this).val().toUpperCase());
 				this.selectionStart = caretPosition;
@@ -205,6 +206,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 					var currentIdentifier = _this._experimentFormModel.experiment.identifier.split("/");
 					var experimentIdentifier = "/" + currentIdentifier[1] + "/" + currentIdentifier[2] + "/" + _this._experimentFormModel.experiment.code;
 					_this._experimentFormModel.experiment.identifier = experimentIdentifier;
+					_this._experimentFormModel.isFormDirty = true;
 				});
 			});
 		}
