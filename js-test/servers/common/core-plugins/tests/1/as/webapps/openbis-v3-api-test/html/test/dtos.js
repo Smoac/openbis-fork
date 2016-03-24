@@ -299,7 +299,8 @@ var sources = [
 	'as/dto/vocabulary/VocabularyTerm',	
 	'as/dto/vocabulary/search/VocabularyCodeSearchCriteria',
 	'as/dto/vocabulary/search/VocabularyTermCodeSearchCriteria',
-	'as/dto/vocabulary/search/VocabularyTermSearchCriteria'
+	'as/dto/vocabulary/search/VocabularyTermSearchCriteria',
+	'as/dto/vocabulary/create/VocabularyTermCreation'
  ];
 
 define(sources, 
