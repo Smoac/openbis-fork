@@ -102,6 +102,44 @@ function LinksView(linksController, linksModel) {
 	// Internal API
 	//
 	
+	linksView.showCopyProtocolPopUp = function(callback) {
+		Util.blockUINoMessage();
+		var component = "<div class='form-horizontal'>"
+			component += "<legend>Copy Protocol</legend>";
+			component += "<div class='form-group " + FormUtil.shortformColumClass + "'>";
+			component += "<label class='control-label  " + FormUtil.labelColumnClass+ "'>Code&nbsp;(*):</label>";
+			component += "<div class='" + FormUtil.shortControlColumnClass + "'>";
+			component += "<input type='text' class='form-control' placeholder='Code' id='newSampleCodeForCopy' pattern='[a-zA-Z0-9_\\-\\.]+' required>";
+			component += "</div>";
+			component += "<div class='" + FormUtil.shortControlColumnClass + "'>";
+			component += " (Allowed characters are: letters, numbers, '-', '_', '.')";
+			component += "</div>";
+			component += "</div>";
+			
+		var css = {
+				'text-align' : 'left',
+				'top' : '15%',
+				'width' : '70%',
+				'left' : '15%',
+				'right' : '20%',
+				'overflow' : 'auto'
+		};
+		
+		Util.blockUI(component + "<br><br><br> <a class='btn btn-default' id='copyAccept'>Accept</a> <a class='btn btn-default' id='copyCancel'>Cancel</a>", css);
+		
+		$("#newSampleCodeForCopy").on("keyup", function(event) {
+			$(this).val($(this).val().toUpperCase());
+		});
+		
+		$("#copyAccept").on("click", function(event) {
+			callback($("#newSampleCodeForCopy").val());
+		});
+		
+		$("#copyCancel").on("click", function(event) { 
+			Util.unblockUI();
+		});
+	}
+	
 	linksView.getCustomAnnotationColumns = function(sampleTypeCode) {
 		var annotationDefinitions = linksModel.sampleTypeHints;
 		
@@ -188,35 +226,38 @@ function LinksView(linksController, linksModel) {
 				if(profile.isSampleTypeProtocol(data["$object"].sampleTypeCode)) {
 					var $copyAndLink = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Use as template'}).append("Use as template"));
 					$copyAndLink.click(function(e) {
-						var newCode = "/DEFAULT_LAB_NOTEBOOK/TEST_NEW_FROM_PARENT_" + Util.guid();
 						
-						Util.blockUI();
-						mainController.serverFacade.customELNApi({
-							"method" : "copyAndLinkAsParent",
-							"newSampleIdentifier" : newCode,
-							"sampleIdentifierToCopyAndLinkAsParent" : data["$object"].identifier,
-							"experimentIdentifierToAssignToCopy" : mainController.currentView._sampleFormModel.sample.experimentIdentifierOrNull
-						}, function(error, result) {
-							if(error) {
-								Util.showError(error);
-							} else {
-								var searchUntilFound = null;
-							    searchUntilFound = function() {
-									mainController.serverFacade.searchWithIdentifiers([newCode], function(results) {
-										if(results.length > 0) {
-											linksView.updateSample(data["$object"], false);
-											linksView.updateSample(results[0], true);
-											Util.unblockUI();
-										} else {
-											searchUntilFound();
-										}
-									});
-								};
-								
-								searchUntilFound();
-							}
-						});
+						var copyAndLink = function(code) {
+							var newSampleIdentifier = "/" + mainController.currentView._sampleFormModel.sample.spaceCode + "/" + code;
+							Util.blockUI();
+							mainController.serverFacade.customELNApi({
+								"method" : "copyAndLinkAsParent",
+								"newSampleIdentifier" : newSampleIdentifier,
+								"sampleIdentifierToCopyAndLinkAsParent" : data["$object"].identifier,
+								"experimentIdentifierToAssignToCopy" : mainController.currentView._sampleFormModel.sample.experimentIdentifierOrNull
+							}, function(error, result) {
+								if(error) {
+									Util.showError(error);
+								} else {
+									var searchUntilFound = null;
+								    searchUntilFound = function() {
+										mainController.serverFacade.searchWithIdentifiers([newSampleIdentifier], function(results) {
+											if(results.length > 0) {
+												linksView.updateSample(data["$object"], false);
+												linksView.updateSample(results[0], true);
+												Util.unblockUI();
+											} else {
+												searchUntilFound();
+											}
+										});
+									};
+									
+									searchUntilFound();
+								}
+							});
+						};
 						
+						linksView.showCopyProtocolPopUp(copyAndLink);
 					});
 					$list.append($copyAndLink);
 				}
