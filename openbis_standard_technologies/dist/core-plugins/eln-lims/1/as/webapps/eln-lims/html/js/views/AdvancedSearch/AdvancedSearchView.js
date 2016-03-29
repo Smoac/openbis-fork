@@ -226,8 +226,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		var _this = this;
 		var model = null;
 		var attributesModel = null;
-		if(parentOrChildrenOrExperiment === "Experiment") {
-			attributesModel = this._getFieldNameAttributesByEntityKind("Experiment");
+		if(parentOrChildrenOrExperiment === "EXPERIMENT") {
+			attributesModel = this._getFieldNameAttributesByEntityKind("EXPERIMENT");
 		} else {
 			attributesModel = this._getFieldNameAttributesByEntityKind(entityKind);
 		}
