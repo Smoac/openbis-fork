@@ -808,6 +808,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				for(var i = 0; i < generatedChildrenCodes.length; i++) {
 					var virtualSample = new Object();
 					virtualSample.newSample = true;
+					virtualSample.permId = Util.guid();
 					virtualSample.code = generatedChildrenCodes[i];
 					virtualSample.identifier = "/" + generatedChildrenSpace + "/" + virtualSample.code;
 					virtualSample.sampleTypeCode = generatedChildrenType;

@@ -208,17 +208,31 @@ var SampleDataGridUtil = new function() {
 			var dataList = [];
 			for(var sIdx = 0; sIdx < samples.length; sIdx++) {
 				var sample = samples[sIdx];
+				
+				var registrationDate = null;
+				if(sample.registrationDetails && sample.registrationDetails.registrationDate) {
+					registrationDate = Util.getFormatedDate(new Date(sample.registrationDetails.registrationDate));
+				}
+				
+				var modificationDate = null;
+				if(sample.registrationDetails && sample.registrationDetails.modificationDate) {
+					modificationDate = Util.getFormatedDate(new Date(sample.registrationDetails.modificationDate));
+				}
+				
 				var sampleModel = { '$object' : sample,
 									'identifier' : sample.identifier, 
 									'default_space' : sample.spaceCode,
 									'permId' : sample.permId,
 									'experiment' : sample.experimentIdentifierOrNull,
-									'registrationDate' : Util.getFormatedDate(new Date(sample.registrationDetails.registrationDate)),
-									'modificationDate' : Util.getFormatedDate(new Date(sample.registrationDetails.modificationDate))
+									'registrationDate' : registrationDate,
+									'modificationDate' : modificationDate
 								};
-				for (var pIdx = 0; pIdx < propertyCodes.length; pIdx++) {
-					var propertyCode = propertyCodes[pIdx];
-					sampleModel[propertyCode] = sample.properties[propertyCode];
+				
+				if(sample.properties) {
+					for (var pIdx = 0; pIdx < propertyCodes.length; pIdx++) {
+						var propertyCode = propertyCodes[pIdx];
+						sampleModel[propertyCode] = sample.properties[propertyCode];
+					}
 				}
 				
 				var parents = "";

@@ -53,6 +53,18 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 		return allSamples;
 	}
 	
+	this.getSampleByIdentifier = function(identifier) {
+		for(var sampleTypeCode in linksModel.samplesByType) {
+			var samplesByType = linksModel.samplesByType[sampleTypeCode];
+			for(var sIdx = 0; sIdx < samplesByType.length; sIdx++) {
+				if(samplesByType[sIdx].identifier === identifier) {
+					return samplesByType[sIdx];
+				}
+			}
+		}
+		return null;
+	}
+	
 	this.getSamplesIdentifiers = function() {
 		var allSamples = this.getSamples();
 		var allSamplesIdentifiers = [];
