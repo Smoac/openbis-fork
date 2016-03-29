@@ -622,31 +622,36 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         for (FeatureTableRow featureTableRow : datasetFeatures.getFeatures())
         {
             WellLocation wellPosition = featureTableRow.getWellLocation();
-            double[] values = getFloatFeaturesAsDouble(featureTableRow);
-            featureVectors.add(new FeatureVector(convert(wellPosition), values));
+            featureVectors.add(getFeatureVector(convert(wellPosition), featureTableRow));
         }
         return new FeatureVectorDataset(dataset, datasetFeatures.getFeatureCodes(),
                 datasetFeatures.getFeatureLabels(), featureVectors);
     }
 
-    // TODO 2010-11-29, Tomasz Pylak: allow to access Vocabulary Features in the API
-    private static double[] getFloatFeaturesAsDouble(FeatureTableRow featureTableRow)
+    private static FeatureVector getFeatureVector(WellPosition position, FeatureTableRow featureTableRow)
     {
         FeatureValue[] featureValues = featureTableRow.getFeatureValues();
         double[] doubleValues = new double[featureValues.length];
+        String[] vocabularyTerms = new String[featureValues.length];
+        boolean[] vocabularyFeatureFlags = new boolean[featureValues.length];
+
         for (int i = 0; i < featureValues.length; ++i)
         {
             FeatureValue featureValue = featureValues[i];
             if (featureValue.isFloat())
             {
                 doubleValues[i] = featureValue.asFloat();
+            } else if (featureValue.isVocabularyTerm())
+            {
+                vocabularyFeatureFlags[i] = true;
+                vocabularyTerms[i] = featureValue.tryAsVocabularyTerm();
+                doubleValues[i] = Double.NaN;
             } else
             {
-                // convert a vocabulary term to NaN
-                doubleValues[i] = Double.NaN;
+                throw new IllegalStateException("Feature can be only either a float or a vocabulary term");
             }
         }
-        return doubleValues;
+        return new FeatureVector(position, doubleValues, vocabularyFeatureFlags, vocabularyTerms);
     }
 
     private static WellPosition convert(WellLocation wellPosition)
@@ -694,8 +699,9 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     private FeatureVectorWithDescription createFeatureVector(FeatureTableRow featureTableRow,
             final List<String> featureCodes)
     {
+        FeatureVector feature = getFeatureVector(featureTableRow.getReference().getWellPosition(), featureTableRow);
         return new FeatureVectorWithDescription(featureTableRow.getReference(), featureCodes,
-                getFloatFeaturesAsDouble(featureTableRow));
+                feature.getValues());
     }
 
     @Override

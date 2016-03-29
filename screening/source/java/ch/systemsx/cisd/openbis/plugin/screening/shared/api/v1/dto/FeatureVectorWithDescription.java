@@ -32,6 +32,14 @@ public class FeatureVectorWithDescription extends FeatureVector implements IFeat
         this.featureNames = featureNames;
     }
 
+    public FeatureVectorWithDescription(FeatureVectorDatasetWellReference dataset,
+            List<String> featureNames, double[] values, boolean[] vocabularyFeatureFlags, String[] vocabularyTerms)
+    {
+        super(dataset.getWellPosition(), values, vocabularyFeatureFlags, vocabularyTerms);
+        this.datasetWellReference = dataset;
+        this.featureNames = featureNames;
+    }
+
     /**
      * Identifier of the dataset and well of this feature vector.
      */
