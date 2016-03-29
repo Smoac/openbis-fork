@@ -1056,3 +1056,7 @@ replace
 Vocabulary Term Deletion Options
 Create Samples Operation Result
 Vocabulary Search Criteria
+get Vocabulary Term Id
+set Vocabulary Term Id
+update Vocabulary Terms
+Vocabulary Term Update

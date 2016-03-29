@@ -95,6 +95,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.Vocabula
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyTermUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IConfirmDeletionMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateExperimentMethodExecutor;
@@ -135,6 +136,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateMateri
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateProjectMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateSampleMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateSpaceMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateVocabularyTermMethodExecutor;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
@@ -201,6 +203,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private IUpdateMaterialMethodExecutor updateMaterialExecutor;
+
+    @Autowired
+    private IUpdateVocabularyTermMethodExecutor updateVocabularyTermExecutor;
 
     @Autowired
     private IMapSpaceMethodExecutor mapSpaceExecutor;
@@ -451,6 +456,15 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public void updateDataSets(String sessionToken, List<DataSetUpdate> updates)
     {
         updateDataSetExecutor.update(sessionToken, updates);
+    }
+
+    @Override
+    @Transactional
+    // @RolesAllowed and @Capability are checked later depending whether an official or unofficial term is updated
+    @DatabaseUpdateModification(value = ObjectKind.VOCABULARY_TERM)
+    public void updateVocabularyTerms(String sessionToken, List<VocabularyTermUpdate> vocabularyTermUpdates)
+    {
+        updateVocabularyTermExecutor.update(sessionToken, vocabularyTermUpdates);
     }
 
     @Override

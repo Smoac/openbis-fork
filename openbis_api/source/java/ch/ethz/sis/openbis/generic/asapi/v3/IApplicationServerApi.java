@@ -90,6 +90,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.Vocabula
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyTermUpdate;
 import ch.systemsx.cisd.common.api.IRpcService;
 
 /**
@@ -142,6 +143,8 @@ public interface IApplicationServerApi extends IRpcService
     public void updateDataSets(String sessionToken, List<DataSetUpdate> dataSetUpdates);
 
     public void updateMaterials(String sessionToken, List<MaterialUpdate> materialUpdates);
+
+    public void updateVocabularyTerms(String sessionToken, List<VocabularyTermUpdate> vocabularyTermUpdates);
 
     public Map<ISpaceId, Space> mapSpaces(String sessionToken, List<? extends ISpaceId> spaceIds,
             SpaceFetchOptions fetchOptions);

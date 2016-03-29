@@ -32,14 +32,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTerm
  * @author pkupczyk
  */
 @Test(groups = { "before remote api" })
-public class SearchVocabularyTermTest extends AbstractTest
+public class SearchVocabularyTermTest extends AbstractVocabularyTermTest
 {
 
     @Test
     public void testSearchWithEmptyFetchOptions()
     {
         VocabularyTermFetchOptions fetchOptions = new VocabularyTermFetchOptions();
-        VocabularyTerm term = search(new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"), fetchOptions);
+        VocabularyTerm term = searchTerm(new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"), fetchOptions);
 
         assertEquals(term.getPermId(), new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"));
         assertEquals(term.getCode(), "PROPRIETARY");
@@ -59,7 +59,7 @@ public class SearchVocabularyTermTest extends AbstractTest
         VocabularyTermFetchOptions fetchOptions = new VocabularyTermFetchOptions();
         fetchOptions.withVocabulary().withRegistrator();
 
-        VocabularyTerm term = search(new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"), fetchOptions);
+        VocabularyTerm term = searchTerm(new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"), fetchOptions);
 
         assertEquals(term.getPermId(), new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"));
         assertEquals(term.getCode(), "PROPRIETARY");
@@ -84,7 +84,7 @@ public class SearchVocabularyTermTest extends AbstractTest
         VocabularyTermFetchOptions fetchOptions = new VocabularyTermFetchOptions();
         fetchOptions.withRegistrator();
 
-        VocabularyTerm term = search(new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"), fetchOptions);
+        VocabularyTerm term = searchTerm(new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"), fetchOptions);
 
         assertEquals(term.getPermId(), new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"));
         assertEquals(term.getCode(), "PROPRIETARY");
@@ -249,7 +249,7 @@ public class SearchVocabularyTermTest extends AbstractTest
         VocabularyTermFetchOptions fetchOptions = new VocabularyTermFetchOptions();
         fetchOptions.sortBy().code().asc();
 
-        List<VocabularyTerm> terms = search(criteria, fetchOptions);
+        List<VocabularyTerm> terms = searchTerms(criteria, fetchOptions);
 
         assertVocabularyTermPermIds(terms, expectedPermIds);
     }
@@ -262,34 +262,6 @@ public class SearchVocabularyTermTest extends AbstractTest
                 v3api.searchVocabularyTerms(sessionToken, criteria, new VocabularyTermFetchOptions());
 
         assertEquals(searchResult.getObjects().size(), expectedCount);
-
-        v3api.logout(sessionToken);
-
-        return searchResult.getObjects();
-    }
-
-    private VocabularyTerm search(VocabularyTermPermId permId, VocabularyTermFetchOptions fetchOptions)
-    {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        VocabularyTermSearchCriteria criteria = new VocabularyTermSearchCriteria();
-        criteria.withId().thatEquals(permId);
-
-        SearchResult<VocabularyTerm> searchResult =
-                v3api.searchVocabularyTerms(sessionToken, criteria, fetchOptions);
-
-        assertEquals(searchResult.getObjects().size(), 1);
-
-        v3api.logout(sessionToken);
-
-        return searchResult.getObjects().get(0);
-    }
-
-    private List<VocabularyTerm> search(VocabularyTermSearchCriteria criteria, VocabularyTermFetchOptions fetchOptions)
-    {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        SearchResult<VocabularyTerm> searchResult = v3api.searchVocabularyTerms(sessionToken, criteria, fetchOptions);
 
         v3api.logout(sessionToken);
 

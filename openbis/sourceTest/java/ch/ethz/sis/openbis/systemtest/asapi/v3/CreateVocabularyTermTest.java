@@ -17,9 +17,7 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.fail;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,74 +27,49 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyTermCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
-import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * @author pkupczyk
  */
 @Test(groups = { "before remote api" })
-public class CreateVocabularyTermTest extends AbstractTest
+public class CreateVocabularyTermTest extends AbstractVocabularyTermTest
 {
 
-    @Test
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Vocabulary term vocabulary id cannot be null.*")
     public void testCreateWithVocabularyIdNull()
     {
-        try
-        {
-            String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-            VocabularyTermCreation creation = termCreation();
-            creation.setVocabularyId(null);
+        VocabularyTermCreation creation = termCreation();
+        creation.setVocabularyId(null);
 
-            v3api.createVocabularyTerms(sessionToken, Arrays.asList(creation));
-
-            fail();
-        } catch (Exception e)
-        {
-            AssertionUtil.assertContains("Vocabulary term vocabulary id cannot be null", e.getMessage());
-        }
+        v3api.createVocabularyTerms(sessionToken, Arrays.asList(creation));
     }
 
-    @Test
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Vocabulary term code cannot be null or empty.*")
     public void testCreateWithCodeNull()
     {
-        try
-        {
-            String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-            VocabularyTermCreation creation = termCreation();
-            creation.setCode(null);
+        VocabularyTermCreation creation = termCreation();
+        creation.setCode(null);
 
-            v3api.createVocabularyTerms(sessionToken, Arrays.asList(creation));
-
-            fail();
-        } catch (Exception e)
-        {
-            AssertionUtil.assertContains("Vocabulary term code cannot be null or empty", e.getMessage());
-        }
+        v3api.createVocabularyTerms(sessionToken, Arrays.asList(creation));
     }
 
-    @Test
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Vocabulary term HUMAN \\(ORGANISM\\) already exists.*")
     public void testCreateWithCodeDuplicated()
     {
-        try
-        {
-            String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-            VocabularyTermCreation creation = termCreation();
-            creation.setCode("HUMAN");
+        VocabularyTermCreation creation = termCreation();
+        creation.setCode("HUMAN");
 
-            v3api.createVocabularyTerms(sessionToken, Arrays.asList(creation));
-
-            fail();
-        } catch (Exception e)
-        {
-            AssertionUtil.assertContains("Vocabulary term HUMAN (ORGANISM) already exists", e.getMessage());
-        }
+        v3api.createVocabularyTerms(sessionToken, Arrays.asList(creation));
     }
 
     @Test
@@ -107,22 +80,12 @@ public class CreateVocabularyTermTest extends AbstractTest
         createTerms(TEST_USER, PASSWORD, creation);
     }
 
-    @Test
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*None of method roles '\\[SPACE_POWER_USER, SPACE_ADMIN, INSTANCE_ADMIN, SPACE_ETL_SERVER, INSTANCE_ETL_SERVER\\]' could be found in roles of user 'observer'.*")
     public void testCreateWithOfficalTermAndUnauthorizedUser()
     {
-        try
-        {
-            VocabularyTermCreation creation = termCreation();
-            creation.setOfficial(true);
-            createTerms(TEST_GROUP_OBSERVER, PASSWORD, creation);
-
-            fail();
-        } catch (Exception e)
-        {
-            AssertionUtil.assertContains(
-                    "None of method roles '[SPACE_POWER_USER, SPACE_ADMIN, INSTANCE_ADMIN, SPACE_ETL_SERVER, INSTANCE_ETL_SERVER]' could be found in roles of user 'observer'",
-                    e.getMessage());
-        }
+        VocabularyTermCreation creation = termCreation();
+        creation.setOfficial(true);
+        createTerms(TEST_GROUP_OBSERVER, PASSWORD, creation);
     }
 
     @Test
@@ -149,22 +112,12 @@ public class CreateVocabularyTermTest extends AbstractTest
         createTerms(TEST_USER, PASSWORD, creation);
     }
 
-    @Test
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*None of method roles '\\[SPACE_USER, SPACE_POWER_USER, SPACE_ADMIN, INSTANCE_ADMIN, SPACE_ETL_SERVER, INSTANCE_ETL_SERVER\\]' could be found in roles of user 'observer'.*")
     public void testCreateWithUnofficalTermAndUnauthorizedUser()
     {
-        try
-        {
-            VocabularyTermCreation creation = termCreation();
-            creation.setOfficial(false);
-            createTerms(TEST_GROUP_OBSERVER, PASSWORD, creation);
-
-            fail();
-        } catch (Exception e)
-        {
-            AssertionUtil.assertContains(
-                    "None of method roles '[SPACE_USER, SPACE_POWER_USER, SPACE_ADMIN, INSTANCE_ADMIN, SPACE_ETL_SERVER, INSTANCE_ETL_SERVER]' could be found in roles of user 'observer'",
-                    e.getMessage());
-        }
+        VocabularyTermCreation creation = termCreation();
+        creation.setOfficial(false);
+        createTerms(TEST_GROUP_OBSERVER, PASSWORD, creation);
     }
 
     @Test
@@ -190,55 +143,27 @@ public class CreateVocabularyTermTest extends AbstractTest
         createTerms(TEST_USER, PASSWORD, creation);
     }
 
-    @Test
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Not allowed to add terms to an internally managed vocabulary.*")
     public void testCreateWithInternallyManagedVocabularyAndUnauthorizedUser()
     {
-        try
-        {
-            VocabularyTermCreation creation = termCreationInternallyManaged();
-            createTerms(TEST_SPACE_USER, PASSWORD, creation);
-
-            fail();
-        } catch (Exception e)
-        {
-            AssertionUtil.assertContains("Not allowed to add terms to an internally managed vocabulary", e.getMessage());
-        }
+        VocabularyTermCreation creation = termCreationInternallyManaged();
+        createTerms(TEST_SPACE_USER, PASSWORD, creation);
     }
 
-    @Test
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Position of term TIGER \\(ORGANISM\\) could not be found as the specified previous term IDONTEXIST \\(ORGANISM\\) does not exist.*")
     public void testCreateWithPreviousTermNonexistent()
     {
-        try
-        {
-            VocabularyTermCreation creation = termCreation();
-            creation.setPreviousTermId(new VocabularyTermPermId("IDONTEXIST", "ORGANISM"));
-            createTerms(TEST_USER, PASSWORD, creation);
-
-            fail();
-        } catch (Exception e)
-        {
-            AssertionUtil.assertContains(
-                    "Position of term TIGER (ORGANISM) could not be found as the specified previous term IDONTEXIST (ORGANISM) does not exist",
-                    e.getMessage());
-        }
+        VocabularyTermCreation creation = termCreation();
+        creation.setPreviousTermId(new VocabularyTermPermId("IDONTEXIST", "ORGANISM"));
+        createTerms(TEST_USER, PASSWORD, creation);
     }
 
-    @Test
-    public void testCreateWithPreviousTermFromDifferentDictionary()
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Position of term TIGER \\(ORGANISM\\) could not be found as the specified previous term MALE \\(GENDER\\) is in a different vocabulary \\(GENDER\\).*")
+    public void testCreateWithPreviousTermFromDifferentVocabulary()
     {
-        try
-        {
-            VocabularyTermCreation creation = termCreation();
-            creation.setPreviousTermId(new VocabularyTermPermId("MALE", "GENDER"));
-            createTerms(TEST_USER, PASSWORD, creation);
-
-            fail();
-        } catch (Exception e)
-        {
-            AssertionUtil.assertContains(
-                    "Position of term TIGER (ORGANISM) could not be found as the specified previous term MALE (GENDER) is in a different vocabulary (GENDER)",
-                    e.getMessage());
-        }
+        VocabularyTermCreation creation = termCreation();
+        creation.setPreviousTermId(new VocabularyTermPermId("MALE", "GENDER"));
+        createTerms(TEST_USER, PASSWORD, creation);
     }
 
     @Test
@@ -387,36 +312,6 @@ public class CreateVocabularyTermTest extends AbstractTest
 
         List<VocabularyTerm> termsAfter = listTerms(creation.getVocabularyId());
         assertTerms(termsAfter, "RAT", "DOG", "HUMAN", creation.getCode(), "GORILLA", "FLY");
-    }
-
-    private List<VocabularyTerm> listTerms(IVocabularyId vocabularyId)
-    {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        VocabularyTermSearchCriteria criteria = new VocabularyTermSearchCriteria();
-        criteria.withVocabulary().withCode().thatEquals(((VocabularyPermId) vocabularyId).getPermId());
-
-        VocabularyTermFetchOptions fetchOptions = new VocabularyTermFetchOptions();
-        fetchOptions.sortBy().ordinal().asc();
-
-        SearchResult<VocabularyTerm> results = v3api.searchVocabularyTerms(sessionToken, criteria, fetchOptions);
-
-        v3api.logout(sessionToken);
-
-        return results.getObjects();
-    }
-
-    private void assertTerms(List<VocabularyTerm> actualTerms, String... expectedCodes)
-    {
-        List<String> actualCodes = new ArrayList<String>();
-
-        for (VocabularyTerm actualTerm : actualTerms)
-        {
-            actualCodes.add(actualTerm.getCode());
-        }
-
-        assertEquals(actualCodes, Arrays.asList(expectedCodes),
-                "Actual codes: " + actualCodes + ", Expected codes: " + Arrays.asList(expectedCodes));
     }
 
 }

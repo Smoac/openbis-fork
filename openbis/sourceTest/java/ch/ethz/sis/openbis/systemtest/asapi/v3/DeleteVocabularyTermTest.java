@@ -20,42 +20,26 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyTermCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.delete.VocabularyTermDeletionOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * @author pkupczyk
  */
 @Test(groups = { "before remote api" })
-public class DeleteVocabularyTermTest extends AbstractDeletionTest
+public class DeleteVocabularyTermTest extends AbstractVocabularyTermTest
 {
 
     @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*None of method roles '\\[SPACE_POWER_USER, SPACE_ADMIN, INSTANCE_ADMIN, SPACE_ETL_SERVER, INSTANCE_ETL_SERVER\\]' could be found in roles of user 'observer'.*")
@@ -434,82 +418,6 @@ public class DeleteVocabularyTermTest extends AbstractDeletionTest
 
         terms = searchTerms(vocabularyCode);
         assertVocabularyTermPermIds(terms, termIdRat, termIdDog, termIdHuman, termIdGorilla);
-    }
-
-    private List<VocabularyTerm> searchTerms(String vocabularyCode)
-    {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        VocabularyTermSearchCriteria criteria = new VocabularyTermSearchCriteria();
-        criteria.withVocabulary().withCode().thatEquals(vocabularyCode);
-
-        SearchResult<VocabularyTerm> result = v3api.searchVocabularyTerms(sessionToken, criteria, new VocabularyTermFetchOptions());
-        v3api.logout(sessionToken);
-        return result.getObjects();
-    }
-
-    private Experiment getExperiment(String permId)
-    {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        ExperimentPermId id = new ExperimentPermId(permId);
-
-        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.withProperties();
-
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(id), fetchOptions);
-        assertEquals(map.size(), 1);
-
-        v3api.logout(sessionToken);
-
-        return map.get(id);
-    }
-
-    private Sample getSample(String permId)
-    {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        SamplePermId id = new SamplePermId(permId);
-
-        SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.withProperties();
-
-        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, Arrays.asList(id), fetchOptions);
-        assertEquals(map.size(), 1);
-
-        v3api.logout(sessionToken);
-
-        return map.get(id);
-    }
-
-    private DataSet getDataSet(String permId)
-    {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        DataSetPermId id = new DataSetPermId(permId);
-
-        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
-        fetchOptions.withProperties();
-
-        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(id), fetchOptions);
-        assertEquals(map.size(), 1);
-
-        return map.get(id);
-    }
-
-    private Material getMaterial(String materialCode, String materialTypeCode)
-    {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        MaterialPermId id = new MaterialPermId(materialCode, materialTypeCode);
-
-        MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
-        fetchOptions.withProperties();
-
-        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(id), fetchOptions);
-        assertEquals(map.size(), 1);
-
-        return map.get(id);
     }
 
 }
