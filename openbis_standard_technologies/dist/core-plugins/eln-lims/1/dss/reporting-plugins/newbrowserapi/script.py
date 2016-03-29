@@ -237,8 +237,9 @@ def listAvailableFeatures(tr, parameters, tableBuilder):
 		if featureVectorDataset.getDatasetCode() == featureVectorDatasetPermId:
 			featureVectorDataset = featureVectorDataset;
 	
-	screeningFinder = ServiceFinder("openbis", IScreeningApiServer.SERVICE_URL);
-	screeningServiceDSS = screeningFinder.createService(IDssServiceRpcScreening, OPENBISURL);
+	from ch.systemsx.cisd.openbis.dss.generic.server import DssScreeningApplicationContext
+	screeningServiceDSS = DssScreeningApplicationContext.getInstance().getBean("data-store-rpc-service-screening-logic-target")
+
 	featureInformationList = screeningServiceDSS.listAvailableFeatures(sessionToken, [featureVectorDataset]);
 	features = {};
 	for featureInformation in featureInformationList:
@@ -263,8 +264,9 @@ def getFeaturesFromFeatureVector(tr, parameters, tableBuilder):
 		if featureVectorDatasetAux.getDatasetCode() == featureVectorDatasetPermId:
 			featureVectorDataset = featureVectorDatasetAux;
 	
-	screeningFinder = ServiceFinder("openbis", IScreeningApiServer.SERVICE_URL);
-	screeningServiceDSS = screeningFinder.createService(IDssServiceRpcScreening, OPENBISURL);
+	from ch.systemsx.cisd.openbis.dss.generic.server import DssScreeningApplicationContext
+	screeningServiceDSS = DssScreeningApplicationContext.getInstance().getBean("data-store-rpc-service-screening-logic-target")
+	
 	featuresFromFeatureVector = screeningServiceDSS.loadFeatures(sessionToken, [featureVectorDataset], featuresCodesFromFeatureVector);
 	return getJsonForData(featuresFromFeatureVector);
 
