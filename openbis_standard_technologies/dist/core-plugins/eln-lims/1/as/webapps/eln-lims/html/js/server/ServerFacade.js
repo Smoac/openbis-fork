@@ -743,6 +743,16 @@ function ServerFacade(openbisServer) {
 						case "Attribute":
 							setAttributeCriteria(searchCriteria, fieldName, fieldValue);
 							break;
+						case "Experiment":
+							switch(fieldNameType) {
+								case "PROP":
+									setPropertyCriteria(searchCriteria.withExperiment(), fieldName, fieldValue);
+									break;
+								case "ATTR":
+									setAttributeCriteria(searchCriteria.withExperiment(), fieldName, fieldValue);
+									break;
+							}
+							break;
 						case "Parent":
 							switch(fieldNameType) {
 								case "PROP":
