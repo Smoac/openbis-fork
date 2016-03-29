@@ -77,6 +77,10 @@ data_set_type_HCS_ANALYSIS_WELL_FEATURES = tr.getOrCreateNewDataSetType('HCS_ANA
 data_set_type_HCS_ANALYSIS_WELL_FEATURES.setDescription('HCS image analysis well feature vectors.')
 data_set_type_HCS_ANALYSIS_WELL_FEATURES.setContainerType(False)
 
+data_set_type_HCS_ANALYSIS_CONTAINER_WELL_FEATURES = tr.getOrCreateNewDataSetType('HCS_ANALYSIS_CONTAINER_WELL_FEATURES')
+data_set_type_HCS_ANALYSIS_CONTAINER_WELL_FEATURES.setDescription('Cotainer for HCS image analysis well feature vectors.')
+data_set_type_HCS_ANALYSIS_CONTAINER_WELL_FEATURES.setContainerType(True)
+
 data_set_type_HCS_IMAGE_OVERVIEW = tr.getOrCreateNewDataSetType('HCS_IMAGE_OVERVIEW')
 data_set_type_HCS_IMAGE_OVERVIEW.setDescription('Overview High Content Screening Images. Generated from raw images.')
 data_set_type_HCS_IMAGE_OVERVIEW.setContainerType(False)
