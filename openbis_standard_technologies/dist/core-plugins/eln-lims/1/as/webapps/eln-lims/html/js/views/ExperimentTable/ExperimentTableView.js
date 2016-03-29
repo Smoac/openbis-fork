@@ -31,9 +31,8 @@ function ExperimentTableView(experimentTableController, experimentTableModel) {
 		}
 		
 		var toolbarModel = [];
-		toolbarModel.push({ component : this._getProjectExperimentTypesDropdown(), tooltip: "Select an experiment type to visualize on the table" });
 		toolbarModel.push({ component : this._showExperimentFromOverviewDropdown(), tooltip: "Select if showing all experiments or only overview ones" });
-
+		toolbarModel.push({ component : this._getProjectExperimentTypesDropdown(), tooltip: "Select an experiment type to visualize on the table" });
 		
 		$container.append(FormUtil.getToolbar(toolbarModel));
 		$container.append(this._tableContainer);
