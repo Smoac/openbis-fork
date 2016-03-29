@@ -65,7 +65,7 @@ $.extend(NexusProfile.prototype, StandardProfile.prototype, {
 							
 							var serviceCode = new CustomASServiceCode("plate_version_service");
 							var serviceOptions = new CustomASServiceExecutionOptions();
-							serviceOptions.withParameter("plate_identifier", plate_identifier).withParameter("expiry_date", expiry_date);
+							serviceOptions.withParameter("plate_identifier", plate_identifier).withParameter("expiry_date", expiry_date).withParameter("action", "new_version");
 							
 							v3Api.executeCustomASService(serviceCode, serviceOptions)
 							.done(function(result) {
