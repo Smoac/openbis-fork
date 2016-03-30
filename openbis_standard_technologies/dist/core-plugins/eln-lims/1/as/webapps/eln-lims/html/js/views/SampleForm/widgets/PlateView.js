@@ -449,7 +449,7 @@ function PlateView(plateController, plateModel) {
 		}
 	}
 	
-	this._djb2Code = function(str){
+	this._djb2Code = function(str) {
         var hash = 5381;
         for (i = 0; i < str.length; i++) {
             char = str.charCodeAt(i);
@@ -597,7 +597,7 @@ function PlateView(plateController, plateModel) {
 		var isVocabulary = this._isFeatureVocabulary(featureVectorDatasetCode, featureCode);
 		
 		for(var rowsIdx = 1; rowsIdx < featuresData.featureVectors.length; rowsIdx++) {
-			for(var colsIdx = 1; colsIdx < featuresData.featureVectors.length; colsIdx++) {
+			for(var colsIdx = 1; colsIdx < featuresData.featureVectors[rowsIdx].length; colsIdx++) {
 				var wellData = featuresData.featureVectors[rowsIdx][colsIdx];
 				if(!isVocabulary) { //Don't support vocabularies on Max/Min Scale
 					var value = wellData.values[featureIndex];
