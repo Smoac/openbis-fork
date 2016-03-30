@@ -296,7 +296,7 @@ function PlateView(plateController, plateModel) {
 								for(var vIdx = 0; vIdx < wellData.values.length; vIdx++) {
 									var value = wellData.values[vIdx];
 									if(value.toPrecision) {
-										wellData.values[vIdx] = value.toPrecision(9);
+										wellData.values[vIdx] = parseFloat(value.toPrecision(9));
 									}
 								}
 								dataByPosition[wellRow][wellColumn] = wellData;
@@ -696,7 +696,7 @@ function PlateView(plateController, plateModel) {
 			
 			shiftedMaxValue =  maxValue + shiftedMinValue;
 			var colorStepSize = shiftedMaxValue / this._plateModel.numHeatmapColors;
-			
+				
 			//4. Paint Colors
 			for(var rowsIdx = 1; rowsIdx < featuresData.featureVectors.length; rowsIdx++) {
 				for(var colsIdx = 1; colsIdx < featuresData.featureVectors[rowsIdx].length; colsIdx++) {
@@ -741,7 +741,8 @@ function PlateView(plateController, plateModel) {
 		}
 		
 		for(var i = 1; i <= numSteps; i++) {
-			$rowColor.append($("<td>").append(colorStepSize*i - shift));
+			var colorStepSizeI = colorStepSize*i;
+			$rowColor.append($("<td>").append(parseFloat(colorStepSizeI.toPrecision(9)) - shift));
 		}
 		
 		this._$scale.empty();
