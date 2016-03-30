@@ -434,14 +434,29 @@ function PlateView(plateController, plateModel) {
 	// Utility methods to handle table cells
 	//
 	
-	this._hexToRgb = function(hex) {
-	    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-	    return result ? {
-	        r: parseInt(result[1], 16),
-	        g: parseInt(result[2], 16),
-	        b: parseInt(result[3], 16)
-	    } : null;
+	this._textToColor = function(text) {
+		if(text) {
+			var hash = this._djb2Code(text);
+			var rgb = {
+				r: (hash & 0xFF0000) >> 16,
+				g: (hash & 0x00FF00) >> 8,
+				b: hash & 0x0000FF
+			};
+			
+			return "rgb(" + rgb.r + "," + rgb.g + "," + rgb.b + ")";
+		} else {
+			return null;
+		}
 	}
+	
+	this._djb2Code = function(str){
+        var hash = 5381;
+        for (i = 0; i < str.length; i++) {
+            char = str.charCodeAt(i);
+            hash = ((hash << 5) + hash) + char; /* hash * 33 + c */
+        }
+        return hash;
+    }
 	
 	this._repaintWellToColor = function(row, column, rgbColor, txt, isDisabled) {
 		var $cell = this._gridTableCells[row][column].cell;
@@ -459,17 +474,8 @@ function PlateView(plateController, plateModel) {
 			opacity = 0.3;
 		}
 		
-		//Redundant coding
-		var fontColor = "#ffffff";
-//		var rgb = this._hexToRgb(rgbColor);
-//		fontColor = (rgb && (rgb.r*0.299 + rgb.g*0.587 + rgb.b*0.114) > 186)?"#000000":"#ffffff";
-//		$cell.empty();
-//		if(txt) {
-//			$cell.append(txt);
-//		}
-		
 		//Single Cell CSS Update
-		$cell.css({ "background-color" : rgbColor, "opacity" : opacity, "color" : fontColor });
+		$cell.css({ "background-color" : rgbColor, "opacity" : opacity });
 	}
 	
 	this._cleanGrid = function() {
@@ -654,54 +660,63 @@ function PlateView(plateController, plateModel) {
 		var isVocabulary = this._isFeatureVocabulary(featureVectorDatasetCode, featureCode);
 		
 		if(isVocabulary) { //Don't paint vocabularies
-			return;
-		}
-		
-		//3. Define Color Step
-		var minMaxScale = this._getMaxMinScale(featureVectorDatasetCode, featureCode);
-		if(!visibleScale) {
-			visibleScale = minMaxScale;
-		}
-		var minValue = minMaxScale.min;
-		var maxValue = minMaxScale.max;
-		var shiftedMaxValue = null;
-		var shiftedMinValue = null;
-		var totalValuesScale = maxValue - minValue;
-		
-		if(minValue < 0) {
-			shiftedMinValue = Math.abs(minValue);
-		} else {
-			shiftedMinValue = 0;
-		}
-		
-		shiftedMaxValue =  maxValue + shiftedMinValue;
-		var colorStepSize = shiftedMaxValue / this._plateModel.numHeatmapColors;
-		
-		//4. Paint Colors
-		for(var rowsIdx = 1; rowsIdx < featuresData.featureVectors.length; rowsIdx++) {
-			for(var colsIdx = 1; colsIdx < featuresData.featureVectors[rowsIdx].length; colsIdx++) {
-				var wellData = featuresData.featureVectors[rowsIdx][colsIdx];
-				if(wellData.values[featureIndex] !== "NaN") {
-					var isOutOfScaleRange = wellData.values[featureIndex] < visibleScale.min || wellData.values[featureIndex] > visibleScale.max;
-					var value = wellData.values[featureIndex] + shiftedMinValue;
-					var valueColorStep = Math.ceil(value / colorStepSize);
-					if (valueColorStep === 0) { //Corner case - lower value and negative number
-						valueColorStep = 1;
-					} else if(isNaN(valueColorStep) && value === 0) { //Corner case - all numbers are 0
-						valueColorStep = 1;
+			this._repaintScaleDropDown(false, true);
+			for(var rowsIdx = 1; rowsIdx < featuresData.featureVectors.length; rowsIdx++) {
+				for(var colsIdx = 1; colsIdx < featuresData.featureVectors[rowsIdx].length; colsIdx++) {
+					var wellData = featuresData.featureVectors[rowsIdx][colsIdx];
+					if(wellData.vocabularyTerms[featureIndex]) {
+						var color = this._textToColor(wellData.vocabularyTerms[featureIndex]);
+						this._repaintWellToColor(rowsIdx, colsIdx, color, "", false);
 					}
-					var color = this._getColorForStepBetweenWhiteAndBlack(valueColorStep, this._plateModel.numHeatmapColors);
-					this._repaintWellToColor(rowsIdx, colsIdx, color, valueColorStep, isOutOfScaleRange);
-				} else {
-					this._repaintWellToColor(rowsIdx, colsIdx, "#ffffff", "", true); //Out of scale NaN value
 				}
 			}
-		}
-		
-		//5. Paint Scale
-		this._setScaleFields(visibleScale.min, visibleScale.max);
-		if(totalValuesScale > 0) {
-			this._repaintScale(shiftedMinValue, colorStepSize, this._plateModel.numHeatmapColors);
+		} else {
+			//3. Define Color Step
+			var minMaxScale = this._getMaxMinScale(featureVectorDatasetCode, featureCode);
+			if(!visibleScale) {
+				visibleScale = minMaxScale;
+			}
+			var minValue = minMaxScale.min;
+			var maxValue = minMaxScale.max;
+			var shiftedMaxValue = null;
+			var shiftedMinValue = null;
+			var totalValuesScale = maxValue - minValue;
+			
+			if(minValue < 0) {
+				shiftedMinValue = Math.abs(minValue);
+			} else {
+				shiftedMinValue = 0;
+			}
+			
+			shiftedMaxValue =  maxValue + shiftedMinValue;
+			var colorStepSize = shiftedMaxValue / this._plateModel.numHeatmapColors;
+			
+			//4. Paint Colors
+			for(var rowsIdx = 1; rowsIdx < featuresData.featureVectors.length; rowsIdx++) {
+				for(var colsIdx = 1; colsIdx < featuresData.featureVectors[rowsIdx].length; colsIdx++) {
+					var wellData = featuresData.featureVectors[rowsIdx][colsIdx];
+					if(wellData.values[featureIndex] !== "NaN") {
+						var isOutOfScaleRange = wellData.values[featureIndex] < visibleScale.min || wellData.values[featureIndex] > visibleScale.max;
+						var value = wellData.values[featureIndex] + shiftedMinValue;
+						var valueColorStep = Math.ceil(value / colorStepSize);
+						if (valueColorStep === 0) { //Corner case - lower value and negative number
+							valueColorStep = 1;
+						} else if(isNaN(valueColorStep) && value === 0) { //Corner case - all numbers are 0
+							valueColorStep = 1;
+						}
+						var color = this._getColorForStepBetweenWhiteAndBlack(valueColorStep, this._plateModel.numHeatmapColors);
+						this._repaintWellToColor(rowsIdx, colsIdx, color, valueColorStep, isOutOfScaleRange);
+					} else {
+						this._repaintWellToColor(rowsIdx, colsIdx, "#ffffff", "", true); //Out of scale NaN value
+					}
+				}
+			}
+			
+			//5. Paint Scale
+			this._setScaleFields(visibleScale.min, visibleScale.max);
+			if(totalValuesScale > 0) {
+				this._repaintScale(shiftedMinValue, colorStepSize, this._plateModel.numHeatmapColors);
+			}
 		}
 	}
 	
@@ -715,10 +730,6 @@ function PlateView(plateController, plateModel) {
 		var $rowColor = $("<tr>");
 		$scaleTable.append($rowColor);
 		
-//		for(var i = 1; i <= numSteps; i++) {
-//			$rowIndex.append($("<td>").append(i));
-//		}
-		
 		for(var i = 1; i <= numSteps; i++) {
 			$rowValue.append($("<td>", { "style" : "background-color:" + this._getColorForStepBetweenWhiteAndBlack(i, numSteps) + ";" }));
 		}
@@ -727,16 +738,7 @@ function PlateView(plateController, plateModel) {
 			$rowColor.append($("<td>").append(colorStepSize*i - shift));
 		}
 		
-//		for(var i = 1; i <= numSteps; i++) {
-//			var $row = $("<tr>")
-//				.append($("<td>").append(i))
-//				.append($("<td>", { "style" : "background-color:" + this._getColorForStepBetweenWhiteAndBlack(i, numSteps) + ";" }))
-//				.append($("<td>").append(colorStepSize*i - shift));
-//			$scaleTable.append($row);
-//		}
-		
 		this._$scale.empty();
-//		this._$scale.append($("<legend>").append("Scale"));
 		this._$scale.append($scaleTable);
 	}
 	
