@@ -293,6 +293,12 @@ function PlateView(plateController, plateModel) {
 								if(!dataByPosition[wellRow]) {
 									dataByPosition[wellRow] = [];
 								}
+								for(var vIdx = 0; vIdx < wellData.values.length; vIdx++) {
+									var value = wellData.values[vIdx];
+									if(value.toPrecision) {
+										wellData.values[vIdx] = value.toPrecision(9);
+									}
+								}
 								dataByPosition[wellRow][wellColumn] = wellData;
 							}
 							receivedData.featureVectors = dataByPosition;
