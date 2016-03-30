@@ -1,4 +1,4 @@
-	// primitives and abstracts - we don't need to test them as they cannot be instantiated
+	// primitives and abstracts - we don't need to test them as they cannot be instantiated 
 
 	// 'as/dto/common/fetchoptions/CacheMode',
 	// 'as/dto/common/search/AbstractCompositeSearchCriteria',
@@ -299,7 +299,8 @@ var sources = [
 	'as/dto/vocabulary/VocabularyTerm',	
 	'as/dto/vocabulary/search/VocabularySearchCriteria',
 	'as/dto/vocabulary/search/VocabularyTermSearchCriteria',
-	'as/dto/vocabulary/create/VocabularyTermCreation'
+	'as/dto/vocabulary/create/VocabularyTermCreation',
+	'as/dto/vocabulary/update/VocabularyTermUpdate'
  ];
 
 define(sources, 
