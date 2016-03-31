@@ -154,7 +154,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 
 
         var searchElement = $("<input>", {"id": "search", "type": "text", "class": "form-control search-query", "placeholder": "Search"});
-        searchElement.keyup(searchFunction);
+        searchElement.change(searchFunction);
 
         var $searchForm = $("<li>")
                 .append($("<form>", {"class": "navbar-form", "onsubmit": "return false;", "style": "padding-right:0px;"})
