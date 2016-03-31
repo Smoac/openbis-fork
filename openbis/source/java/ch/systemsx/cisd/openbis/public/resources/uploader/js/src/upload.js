@@ -133,7 +133,7 @@ var Uploader = new function () {
 
 
     function showUploadingError(id) {
-        Util.showError("Uploading of \'" + progress[id].file.name + "\' failed");
+        alert("Uploading of \'" + progress[id].file.name + "\' failed");
     }
     
 
