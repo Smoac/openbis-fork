@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.jython.JythonUtils;
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
+import ch.systemsx.cisd.common.jython.v27.Evaluator27;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.resource.IReleasable;
@@ -177,13 +178,43 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
 
         try
         {
-            Evaluator evaluator = createEvaluatorWithContentProviders(context, scriptString, pythonPath);
+            Evaluator27 evaluator = createEvaluator27WithContentProviders(context, scriptString, pythonPath);
 
             return new RequestHandlerPluginScriptRunner(evaluator);
         } catch (EvaluatorException ex)
         {
             throw new EvaluatorException(ex.getMessage() + " [" + scriptPath + "]");
         }
+    }
+
+    private Evaluator27 createEvaluator27WithContentProviders(DataSetProcessingContext context, String scriptString, String[] pythonPath)
+    {
+        final Evaluator27 evaluator = new Evaluator27("", pythonPath, scriptPath, null, scriptString, false);
+
+        evaluator.set(SEARCH_SERVICE_VARIABLE_NAME, createUserSearchService(context));
+        evaluator.set(SEARCH_SERVICE_UNFILTERED_VARIABLE_NAME, createUnfilteredSearchService());
+
+        evaluator.set(MAIL_SERVICE_VARIABLE_NAME, createMailService(context));
+        evaluator.set(DATA_SOURCE_QUERY_SERVICE_VARIABLE_NAME, createDataSourceQueryService());
+        evaluator.set(AUTHORIZATION_SERVICE, createAuthorizationService());
+        evaluator.set(USER_ID, context.getUserId());
+        evaluator.set(USER_SESSION_TOKEN, context.trySessionToken());
+        final ISessionWorkspaceProvider workspaceProvider =
+                context.tryGetSessionWorkspaceProvider();
+        if (workspaceProvider != null)
+        {
+            evaluator.set(SESSION_WORKSPACE_PROVIDER_NAME, workspaceProvider);
+        }
+
+        DataSetContentProvider contentProvider =
+                new DataSetContentProvider(context.getHierarchicalContentProvider());
+        evaluator.set(CONTENT_PROVIDER_VARIABLE_NAME, contentProvider);
+
+        DataSetContentProvider contentProviderUnfiltered =
+                new DataSetContentProvider(context.getHierarchicalContentProviderUnfiltered());
+        evaluator.set(CONTENT_PROVIDER_UNFILTERED_VARIABLE_NAME, contentProviderUnfiltered);
+
+        return evaluator;
     }
 
     protected Evaluator createEvaluator(String scriptString, String[] pythonPath, DataSetProcessingContext context)
@@ -436,9 +467,9 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     {
         private final static String FUNCTION_NAME = "handle";
 
-        private final Evaluator evaluator;
+        private final Evaluator27 evaluator;
 
-        RequestHandlerPluginScriptRunner(Evaluator evaluator)
+        RequestHandlerPluginScriptRunner(Evaluator27 evaluator)
         {
             this.evaluator = evaluator;
             if (false == evaluator.hasFunction(FUNCTION_NAME))
