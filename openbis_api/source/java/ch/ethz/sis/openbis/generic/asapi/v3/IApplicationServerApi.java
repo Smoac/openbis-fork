@@ -161,6 +161,9 @@ public interface IApplicationServerApi extends IRpcService
 
     public Map<IMaterialId, Material> mapMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialFetchOptions fetchOptions);
 
+    public Map<IVocabularyTermId, VocabularyTerm> mapVocabularyTerms(String sessionToken, List<? extends IVocabularyTermId> vocabularyTermIds,
+            VocabularyTermFetchOptions fetchOptions);
+
     public SearchResult<Space> searchSpaces(String sessionToken, SpaceSearchCriteria searchCriteria, SpaceFetchOptions fetchOptions);
 
     public SearchResult<Project> searchProjects(String sessionToken, ProjectSearchCriteria searchCriteria, ProjectFetchOptions fetchOptions);

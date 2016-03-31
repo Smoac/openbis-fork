@@ -268,6 +268,14 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     }
 
     @Override
+    public Map<IVocabularyTermId, VocabularyTerm> mapVocabularyTerms(String sessionToken, List<? extends IVocabularyTermId> vocabularyTermIds,
+            VocabularyTermFetchOptions fetchOptions)
+    {
+        logAccess(sessionToken, "map-vocabulary-terms", "VOCABULARY_TERM_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(vocabularyTermIds), fetchOptions);
+        return null;
+    }
+
+    @Override
     public Map<IDataSetId, DataSet> mapDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetFetchOptions fetchOptions)
     {
         logAccess(sessionToken, "map-data-sets", "DATA_SET_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(dataSetIds), fetchOptions);

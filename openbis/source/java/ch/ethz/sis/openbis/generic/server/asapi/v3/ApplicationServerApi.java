@@ -119,6 +119,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapMaterialM
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapProjectMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapSampleMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapSpaceMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapVocabularyTermMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IRevertDeletionMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchCustomASServiceMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchDataSetMethodExecutor;
@@ -224,6 +225,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private IMapMaterialMethodExecutor mapMaterialExecutor;
+
+    @Autowired
+    private IMapVocabularyTermMethodExecutor mapVocabularyTermExecutor;
 
     @Autowired
     private ISearchSpaceMethodExecutor searchSpaceExecutor;
@@ -515,6 +519,15 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public Map<IMaterialId, Material> mapMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialFetchOptions fetchOptions)
     {
         return mapMaterialExecutor.map(sessionToken, materialIds, fetchOptions);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public Map<IVocabularyTermId, VocabularyTerm> mapVocabularyTerms(String sessionToken, List<? extends IVocabularyTermId> vocabularyTermIds,
+            VocabularyTermFetchOptions fetchOptions)
+    {
+        return mapVocabularyTermExecutor.map(sessionToken, vocabularyTermIds, fetchOptions);
     }
 
     @Override
