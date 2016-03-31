@@ -132,16 +132,8 @@ var Uploader = new function () {
     }
 
 
-    function deleteFile(id) {
-        $.ajax("delete-file.php", {
-            async: true,
-            data: {
-                id: id,
-                filename: progress[id].file.name
-            }
-        }).done(function(data) {
-            $("#upload-" + id).addClass("deleted");
-        });
+    function showUploadingError(id) {
+        Util.showError("Uploading of \'" + progress[id].file.name + "\' failed");
     }
     
 
@@ -219,14 +211,14 @@ var Uploader = new function () {
                     $("#progressbar-" + id).addClass("aborted");
                     $("#upload-" + id).addClass("aborted");
                     $("#action-bar-" + id).remove();
-                    deleteFile(id);
+                    showUploadingError(id);
                     delete progress[id];
                 };
                 xhr.onerror = function(e) {
                     $("#progressbar-" + id).addClass("bad");
                     $("#upload-" + id).addClass("bad");
                     $("#action-bar-" + id).remove();
-                    deleteFile(id);
+                    showUploadingError(id);
                     delete progress[id];
                 };
                 xhr.send(e.target.result);
