@@ -245,6 +245,10 @@ public class PathInfoProviderBasedHierarchicalContent implements IHierarchicalCo
         {
             List<DataSetPathInfo> pathInfos =
                     dataSetPathInfoProvider.listChildrenPathInfos(pathInfo);
+            if (pathInfos == null)
+            {
+                throw new IllegalArgumentException("No children path infos for " + pathInfo.getRelativePath());
+            }
             List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
             for (DataSetPathInfo child : pathInfos)
             {
