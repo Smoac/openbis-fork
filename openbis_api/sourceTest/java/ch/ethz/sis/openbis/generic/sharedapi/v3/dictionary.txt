@@ -1061,3 +1061,6 @@ set Vocabulary Term Id
 update Vocabulary Terms
 Vocabulary Term Update
 map Vocabulary Terms
+get Replaced Id
+get Replacement Id
+Vocabulary Term Replacement
