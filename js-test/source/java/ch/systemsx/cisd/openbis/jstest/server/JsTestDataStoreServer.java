@@ -30,28 +30,32 @@ public abstract class JsTestDataStoreServer extends TestDataStoreServer
     protected String getCommand()
     {
         String classpath = System.getProperty("selenium.dss-runtime-classpath");
-        if (classpath == null || classpath.length() == 0) {
+        if (classpath == null || classpath.length() == 0)
+        {
             classpath = System.getProperty("java.class.path");
         }
-        
+
         try
         {
             File extraClassPath = new File("../../../targets/gradle/classes/test");
-            if(extraClassPath.exists()) {
+            if (extraClassPath.exists())
+            {
                 classpath += ":" + (extraClassPath).getCanonicalPath();
-            } else {
+            } else
+            {
                 throw new RuntimeException("Classpath Missing: " + extraClassPath);
             }
-            
+
         } catch (Exception e)
         {
             e.printStackTrace();
             System.err.println("Extra classpath missing, check JsTestDataStoreServer for details.");
             System.exit(-1);
         }
-        
+
         return "java -ea -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address="
-                    + getDebugPort()
-                    + " -Dfile.encoding=UTF-8 -classpath "+ classpath +" ch.systemsx.cisd.openbis.dss.generic.DataStoreServer";
+                + getDebugPort()
+                + " -Dfile.encoding=UTF-8 -Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog -classpath " + classpath
+                + " ch.systemsx.cisd.openbis.dss.generic.DataStoreServer";
     }
 }

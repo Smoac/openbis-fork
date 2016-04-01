@@ -1,4 +1,4 @@
-	// primitives and abstracts - we don't need to test them as they cannot be instantiated 
+	// primitives and abstracts - we don't need to test them as they cannot be instantiated  
 
 	// 'as/dto/common/fetchoptions/CacheMode',
 	// 'as/dto/common/search/AbstractCompositeSearchCriteria',
@@ -74,6 +74,8 @@
 	// 'as/dto/common/search/NumberFieldSearchCriteria',
 	// 'as/dto/common/search/StringFieldSearchCriteria',
 	// 'as/dto/common/search/TimeZone',
+	// 'as/dto/vocabulary/id/IVocabularyId',
+	// 'as/dto/vocabulary/id/IVocabularyTermId',
 
 
 // these are the DTOs that can be "manually" created on the client
@@ -291,8 +293,6 @@ var sources = [
 	'as/dto/vocabulary/fetchoptions/VocabularySortOptions',
 	'as/dto/vocabulary/fetchoptions/VocabularyTermFetchOptions',
 	'as/dto/vocabulary/fetchoptions/VocabularyTermSortOptions',
-	'as/dto/vocabulary/id/IVocabularyId',
-	'as/dto/vocabulary/id/IVocabularyTermId',
 	'as/dto/vocabulary/id/VocabularyPermId',
 	'as/dto/vocabulary/id/VocabularyTermPermId',
 	'as/dto/vocabulary/Vocabulary',
@@ -300,6 +300,8 @@ var sources = [
 	'as/dto/vocabulary/search/VocabularySearchCriteria',
 	'as/dto/vocabulary/search/VocabularyTermSearchCriteria',
 	'as/dto/vocabulary/create/VocabularyTermCreation',
+	'as/dto/vocabulary/delete/VocabularyTermDeletionOptions',
+	'as/dto/vocabulary/delete/VocabularyTermReplacement',
 	'as/dto/vocabulary/update/VocabularyTermUpdate'
  ];
 

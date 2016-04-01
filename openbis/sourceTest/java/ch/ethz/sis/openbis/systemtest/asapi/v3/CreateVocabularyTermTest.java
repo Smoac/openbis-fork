@@ -50,6 +50,17 @@ public class CreateVocabularyTermTest extends AbstractVocabularyTermTest
         v3api.createVocabularyTerms(sessionToken, Arrays.asList(creation));
     }
 
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Vocabulary IDONTEXIST does not exist.*")
+    public void testCreateWithVocabularyIdNonexistent()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        VocabularyTermCreation creation = termCreation();
+        creation.setVocabularyId(new VocabularyPermId("IDONTEXIST"));
+
+        v3api.createVocabularyTerms(sessionToken, Arrays.asList(creation));
+    }
+
     @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Vocabulary term code cannot be null or empty.*")
     public void testCreateWithCodeNull()
     {

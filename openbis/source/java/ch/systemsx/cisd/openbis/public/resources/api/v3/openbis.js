@@ -206,6 +206,21 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			});
 		}
 
+		this.createVocabularyTerms = function(creations) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "createVocabularyTerms",
+					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "VocabularyTermPermId" ]
+				}
+			});
+		}
+
 		this.updateSpaces = function(updates) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -267,6 +282,17 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				url : openbisUrl,
 				data : {
 					"method" : "updateMaterials",
+					"params" : [ thisFacade._private.sessionToken, updates ]
+				}
+			});
+		}
+
+		this.updateVocabularyTerms = function(updates) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "updateVocabularyTerms",
 					"params" : [ thisFacade._private.sessionToken, updates ]
 				}
 			});
@@ -362,6 +388,21 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			});
 		}
 
+		this.mapVocabularyTerms = function(ids, fetchOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "mapVocabularyTerms",
+					"params" : [ thisFacade._private.sessionToken, ids, fetchOptions ]
+				},
+				returnType : {
+					name : "Map",
+					arguments : [ "IVocabularyTermId", "VocabularyTerm" ]
+				}
+			});
+		}
+
 		this.searchSpaces = function(criteria, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -428,6 +469,18 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				url : openbisUrl,
 				data : {
 					"method" : "searchMaterials",
+					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
+				},
+				returnType : "SearchResult"
+			});
+		}
+
+		this.searchVocabularyTerms = function(criteria, fetchOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "searchVocabularyTerms",
 					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
 				},
 				returnType : "SearchResult"
@@ -534,6 +587,17 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				url : openbisUrl,
 				data : {
 					"method" : "deleteMaterials",
+					"params" : [ thisFacade._private.sessionToken, ids, deletionOptions ]
+				}
+			});
+		}
+
+		this.deleteVocabularyTerms = function(ids, deletionOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "deleteVocabularyTerms",
 					"params" : [ thisFacade._private.sessionToken, ids, deletionOptions ]
 				}
 			});

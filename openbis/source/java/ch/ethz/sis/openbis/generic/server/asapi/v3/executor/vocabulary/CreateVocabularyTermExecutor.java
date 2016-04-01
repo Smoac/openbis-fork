@@ -77,7 +77,6 @@ public class CreateVocabularyTermExecutor implements ICreateVocabularyTermExecut
         checkAccess(context, creations);
 
         Map<IVocabularyId, Collection<VocabularyTermCreation>> termsMap = new HashMap<IVocabularyId, Collection<VocabularyTermCreation>>();
-        Set<IVocabularyTermId> previousTermsIds = new HashSet<IVocabularyTermId>();
 
         for (VocabularyTermCreation creation : creations)
         {
@@ -88,26 +87,24 @@ public class CreateVocabularyTermExecutor implements ICreateVocabularyTermExecut
                 termsMap.put(creation.getVocabularyId(), terms);
             }
             terms.add(creation);
-
-            if (creation.getPreviousTermId() != null)
-            {
-                previousTermsIds.add(creation.getPreviousTermId());
-            }
         }
 
         Map<IVocabularyId, VocabularyPE> vocabularyMap = mapVocabularyByIdExecutor.map(context, termsMap.keySet());
+
+        for (IVocabularyId vocabularyId : termsMap.keySet())
+        {
+            if (false == vocabularyMap.containsKey(vocabularyId))
+            {
+                throw new UserFailureException("Vocabulary " + vocabularyId + " does not exist.");
+            }
+        }
+
         Map<VocabularyTermCreation, VocabularyTermPE> createdTermsMap = new HashMap<VocabularyTermCreation, VocabularyTermPE>();
 
         for (Map.Entry<IVocabularyId, VocabularyPE> vocabularyEntry : vocabularyMap.entrySet())
         {
             IVocabularyId vocabularyId = vocabularyEntry.getKey();
             VocabularyPE vocabulary = vocabularyEntry.getValue();
-
-            if (vocabulary == null)
-            {
-                throw new UserFailureException("Vocabulary with id " + vocabularyId + " does not exist.");
-            }
-
             createdTermsMap.putAll(createTerms(context, vocabulary, termsMap.get(vocabularyId)));
         }
 
@@ -183,6 +180,9 @@ public class CreateVocabularyTermExecutor implements ICreateVocabularyTermExecut
             if (existingTermCodes.contains(creation.getCode()))
             {
                 throw new UserFailureException("Vocabulary term " + creation.getCode() + " (" + vocabulary.getCode() + ") already exists.");
+            } else
+            {
+                existingTermCodes.add(creation.getCode());
             }
 
             Long previousTermOrdinal = getPreviousTermOrdinal(context, vocabulary, creation);

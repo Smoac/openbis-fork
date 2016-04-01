@@ -87,7 +87,7 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
 
     @Override
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
-    @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
+    @Length(min = 1, max = 50, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regexp = AbstractIdAndCodeHolder.TERM_CODE_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.TERM_CODE_PATTERN_MESSAGE)
     public String getCode()
     {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ETH Zuerich, CISD
+ * Copyright 2016 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,38 +16,47 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.delete;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serializable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.AbstractObjectDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
-@JsonObject("as.dto.vocabulary.delete.VocabularyTermDeletionOptions")
-public class VocabularyTermDeletionOptions extends AbstractObjectDeletionOptions
+@JsonObject("as.dto.vocabulary.delete.VocabularyTermReplacement")
+public class VocabularyTermReplacement implements Serializable
 {
 
     private static final long serialVersionUID = 1L;
 
-    @JsonProperty
-    private List<VocabularyTermReplacement> replacements = new ArrayList<VocabularyTermReplacement>();
+    private IVocabularyTermId replacedId;
 
-    @JsonIgnore
-    public void replace(IVocabularyTermId replacedId, IVocabularyTermId replacementId)
+    private IVocabularyTermId replacementId;
+
+    //
+    // JSON-RPC
+    //
+
+    @SuppressWarnings("unused")
+    private VocabularyTermReplacement()
     {
-        replacements.add(new VocabularyTermReplacement(replacedId, replacementId));
     }
 
-    @JsonIgnore
-    public List<VocabularyTermReplacement> getReplacements()
+    public VocabularyTermReplacement(IVocabularyTermId replacedId, IVocabularyTermId replacementId)
     {
-        return replacements;
+        this.replacedId = replacedId;
+        this.replacementId = replacementId;
+    }
+
+    public IVocabularyTermId getReplacedId()
+    {
+        return replacedId;
+    }
+
+    public IVocabularyTermId getReplacementId()
+    {
+        return replacementId;
     }
 
 }

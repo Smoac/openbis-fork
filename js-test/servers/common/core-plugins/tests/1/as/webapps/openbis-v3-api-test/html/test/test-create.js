@@ -160,5 +160,32 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			testCreate(c, fCreate, c.findMaterial, fCheck);
 		});
 
+		QUnit.test("createVocabularyTerms()", function(assert) {
+			var c = new common(assert);
+			var code = c.generateId("VOCABULARY_TERM");
+
+			var fCreate = function(facade) {
+				var termCreation = new c.VocabularyTermCreation();
+				termCreation.setVocabularyId(new c.VocabularyPermId("TEST-VOCABULARY"));
+				termCreation.setCode(code);
+				termCreation.setLabel("test label");
+				termCreation.setDescription("test description");
+				termCreation.setOfficial(true);
+				termCreation.setPreviousTermId(new c.VocabularyTermPermId("TEST-TERM-1", "TEST-VOCABULARY"))
+				return facade.createVocabularyTerms([ termCreation ]);
+			}
+
+			var fCheck = function(term) {
+				c.assertEqual(term.getCode(), code, "Term code");
+				c.assertEqual(term.getVocabulary().getCode(), "TEST-VOCABULARY", "Term vocabulary code");
+				c.assertEqual(term.getLabel(), "test label", "Term label");
+				c.assertEqual(term.getDescription(), "test description", "Term description");
+				c.assertEqual(term.isOfficial(), true, "Term official");
+				c.assertEqual(term.getOrdinal(), 2, "Term ordinal");
+			}
+
+			testCreate(c, fCreate, c.findVocabularyTerm, fCheck);
+		});
+
 	}
 });
