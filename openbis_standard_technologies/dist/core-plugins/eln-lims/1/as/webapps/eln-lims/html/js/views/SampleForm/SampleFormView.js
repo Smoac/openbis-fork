@@ -381,7 +381,11 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// Extra content
 		//
 		//Extra components
-		profile.sampleFormContentExtra(this._sampleFormModel.sample.sampleTypeCode, this._sampleFormModel.sample, "sample-form-content-extra");
+		try {
+			profile.sampleFormContentExtra(this._sampleFormModel.sample.sampleTypeCode, this._sampleFormModel.sample, "sample-form-content-extra");
+		} catch(err) {
+			Util.manageError(err);
+		}
 		
 		//
 		// TO-DO: Legacy code to be refactored

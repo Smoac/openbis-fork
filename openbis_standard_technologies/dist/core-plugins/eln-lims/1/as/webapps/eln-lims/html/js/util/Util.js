@@ -464,6 +464,19 @@ var Util = new function() {
 		return [row, column];
 	}
 	
+	this.manageError = function(err) {
+		Util.showError(	"Remember, it happens even on the best families.<br/>Please take a screenshot of the error report, add a description of the steps that lead to it and send it to your admin. <br/><br/>" +
+						"<div style='color:black; background-color:lightgrey; padding:10px;'>" + 
+						"User Agent: " + navigator.userAgent + "<br/>" +
+						"URL: " + window.location.href + "<br/>" +
+						"Session: " + mainController.serverFacade.openbisServer.getSession() + "<br/>" +
+						"---------------------------------------------------------------------- <br/>" +
+						"Error Name: " + err.name + "<br/>" +
+						"Error Message: " + err.message + "<br/>" +
+						"Error Stack: " + err.stack.replace(new RegExp('\n', 'g'), '<br/>') +
+						"</div>");
+	}
+	
 	//
 	// URL Utils
 	//

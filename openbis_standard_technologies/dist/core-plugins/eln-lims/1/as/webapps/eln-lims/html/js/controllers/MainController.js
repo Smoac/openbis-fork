@@ -183,219 +183,226 @@ function MainController(profile) {
 		//
 		//
 		//
-		switch (newViewChange) {
-			case "showAdvancedSearchPage":
-				document.title = "Advanced Search";
-				var freeTextForGlobalSearch = arg;
-				this._showAdvancedSearchPage(freeTextForGlobalSearch);
-				window.scrollTo(0,0);
-				break;
-			case "showUserManagerPage":
-				document.title = "User Manager";
-				this._showUserManager();
-				window.scrollTo(0,0);
-				break;
-			case "showVocabularyManagerPage":
-				document.title = "Vocabulary Manager";
-				this._showVocabularyManager();
-				window.scrollTo(0,0);
-				break;
-			case "showTrashcanPage":
-				document.title = "Trashcan Manager";
-				this._showTrashcan();
-				window.scrollTo(0,0);
-				break;
-			case "showStorageManager":
-				document.title = "Storage Manager";
-				this._showStorageManager();
-				window.scrollTo(0,0);
-				break;
-			case "showBlancPage":
-				document.title = "Main Menu";
-				this._showBlancPage();
-				window.scrollTo(0,0);
-				break;
-			case "showSearchPage":
-				document.title = "Search";
-				var cleanText = decodeURIComponent(arg); //If the JSON is written on the URL we need to clean special chars
-				var argsMap = JSON.parse(cleanText);
-				var searchText = argsMap["searchText"];
-				var searchDomain = argsMap["searchDomain"];
-				var searchDomainLabel = argsMap["searchDomainLabel"];
-				this._showSearchPage(searchText, searchDomain, searchDomainLabel);
-				window.scrollTo(0,0);
-				break;
-			case "showSpacePage":
-				var _this = this;
-				this.serverFacade.getSpaceFromCode(arg, function(space) {
-					document.title = "Space " + space.code;
-					_this._showSpacePage(space);
+		
+		try {
+			switch (newViewChange) {
+				case "showAdvancedSearchPage":
+					document.title = "Advanced Search";
+					var freeTextForGlobalSearch = arg;
+					this._showAdvancedSearchPage(freeTextForGlobalSearch);
 					window.scrollTo(0,0);
-				});
-				break;
-			case "showProjectPageFromIdentifier":
-				var _this = this;
-				this.serverFacade.getProjectFromIdentifier(arg, function(project) {
-					document.title = "Project " + project.code;
-					_this._showProjectPage(project);
+					break;
+				case "showUserManagerPage":
+					document.title = "User Manager";
+					this._showUserManager();
 					window.scrollTo(0,0);
-				});
-				break;
-			case "showProjectPageFromPermId":
-				var _this = this;
-				this.serverFacade.getProjectFromPermId(arg, function(project) {
-					document.title = "Project " + project.code;
-					_this._showProjectPage(project);
+					break;
+				case "showVocabularyManagerPage":
+					document.title = "Vocabulary Manager";
+					this._showVocabularyManager();
 					window.scrollTo(0,0);
-				});
-				break;
-			case "showEditProjectPageFromPermId":
-				var _this = this;
-				this.serverFacade.getProjectFromPermId(arg, function(project) {
-					document.title = "Project " + project.code;
-					_this._showEditProjectPage(project);
+					break;
+				case "showTrashcanPage":
+					document.title = "Trashcan Manager";
+					this._showTrashcan();
 					window.scrollTo(0,0);
-				});
-				break;
-			case "showCreateProjectPage":
-				document.title = "Create Project";
-				this._showCreateProjectPage(arg);
-				window.scrollTo(0,0);
-				break;
-			case "showCreateExperimentPage":
-				var cleanText = decodeURIComponent(arg); //If the JSON is written on the URL we need to clean special chars
-				var argsMap = JSON.parse(cleanText);
-				var experimentTypeCode = argsMap["experimentTypeCode"];
-				var projectIdentifier = argsMap["projectIdentifier"];
-				document.title = "Create Experiment " + experimentTypeCode;
-				var experiment = {
-						experimentTypeCode : experimentTypeCode,
-						identifier : projectIdentifier
-				}
-				this._showExperimentPage(experiment, FormMode.CREATE);
-				window.scrollTo(0,0);
-				break;
-			case "showExperimentPageFromIdentifier":
-				var _this = this;
-				this.serverFacade.listExperimentsForIdentifiers([arg], function(data) {
-					document.title = "Experiment " + arg;
-					_this._showExperimentPage(data.result[0], FormMode.VIEW);
+					break;
+				case "showStorageManager":
+					document.title = "Storage Manager";
+					this._showStorageManager();
 					window.scrollTo(0,0);
-				});
-				break;
-			case "showEditExperimentPageFromIdentifier":
-				var _this = this;
-				this.serverFacade.listExperimentsForIdentifiers([arg], function(data) {
-					document.title = "Experiment " + arg;
-					_this._showExperimentPage(data.result[0], FormMode.EDIT);
+					break;
+				case "showBlancPage":
+					document.title = "Main Menu";
+					this._showBlancPage();
 					window.scrollTo(0,0);
-				});
-				break;
-			case "showCreateSubExperimentPage":
-				var cleanText = decodeURIComponent(arg); //If the JSON is written on the URL we need to clean special chars
-				var argsMap = JSON.parse(cleanText);
-				var sampleTypeCode = argsMap["sampleTypeCode"];
-				var experimentIdentifier = argsMap["experimentIdentifier"];
-				document.title = "Create Sample " + arg;
-				this._showCreateSubExperimentPage(sampleTypeCode, experimentIdentifier);
-				window.scrollTo(0,0);
-				break;
-			case "showSamplesPage":
-				document.title = "Sample Browser";
-				this._showSamplesPage(arg);
-				window.scrollTo(0,0);
-				break;
-			case "showSampleHierarchyPage":
-				document.title = "Hierarchy " + arg;
-				this._showSampleHierarchyPage(arg);
-				window.scrollTo(0,0);
-				break;
-			case "showSampleHierarchyTablePage":
-				document.title = "Table Hierarchy " + arg;
-				this._showSampleHierarchyTablePage(arg);
-				window.scrollTo(0,0);
-				break;
-			case "showEditSamplePageFromPermId":
-				var _this = this;
-				this.serverFacade.searchWithUniqueId(arg, function(data) {
-					if(!data[0]) {
-						window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
-					} else {
-						document.title = "Sample " + data[0].code;
-						var isELNSubExperiment = $.inArray(data[0].spaceCode, _this.profile.inventorySpaces) === -1 && _this.profile.inventorySpaces.length > 0;
-						_this._showEditSamplePage(data[0], isELNSubExperiment);
+					break;
+				case "showSearchPage":
+					document.title = "Search";
+					var cleanText = decodeURIComponent(arg); //If the JSON is written on the URL we need to clean special chars
+					var argsMap = JSON.parse(cleanText);
+					var searchText = argsMap["searchText"];
+					var searchDomain = argsMap["searchDomain"];
+					var searchDomainLabel = argsMap["searchDomainLabel"];
+					this._showSearchPage(searchText, searchDomain, searchDomainLabel);
+					window.scrollTo(0,0);
+					break;
+				case "showSpacePage":
+					var _this = this;
+					this.serverFacade.getSpaceFromCode(arg, function(space) {
+						document.title = "Space " + space.code;
+						_this._showSpacePage(space);
 						window.scrollTo(0,0);
-					}
-				});
-				break;
-			case "showViewSamplePageFromPermId":
-				var _this = this;
-				this.serverFacade.searchWithUniqueId(arg, function(data) {
-					if(!data[0]) {
-						window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
-					} else {
-						document.title = "Sample " + data[0].code;
-						var isELNSubExperiment = $.inArray(data[0].spaceCode, _this.profile.inventorySpaces) === -1&& _this.profile.inventorySpaces.length > 0;
-						_this._showViewSamplePage(data[0], isELNSubExperiment);
+					});
+					break;
+				case "showProjectPageFromIdentifier":
+					var _this = this;
+					this.serverFacade.getProjectFromIdentifier(arg, function(project) {
+						document.title = "Project " + project.code;
+						_this._showProjectPage(project);
 						window.scrollTo(0,0);
-					}
-				});
-				break;
-			case "showCreateDataSetPageFromPermId":
-				var _this = this;
-				this.serverFacade.searchWithUniqueId(arg, function(data) {
-					if(!data[0]) {
-						window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
-					} else {
-						document.title = "Create Data Set for " + data[0].code;
-						_this._showCreateDataSetPage(data[0]);
+					});
+					break;
+				case "showProjectPageFromPermId":
+					var _this = this;
+					this.serverFacade.getProjectFromPermId(arg, function(project) {
+						document.title = "Project " + project.code;
+						_this._showProjectPage(project);
 						window.scrollTo(0,0);
+					});
+					break;
+				case "showEditProjectPageFromPermId":
+					var _this = this;
+					this.serverFacade.getProjectFromPermId(arg, function(project) {
+						document.title = "Project " + project.code;
+						_this._showEditProjectPage(project);
+						window.scrollTo(0,0);
+					});
+					break;
+				case "showCreateProjectPage":
+					document.title = "Create Project";
+					this._showCreateProjectPage(arg);
+					window.scrollTo(0,0);
+					break;
+				case "showCreateExperimentPage":
+					var cleanText = decodeURIComponent(arg); //If the JSON is written on the URL we need to clean special chars
+					var argsMap = JSON.parse(cleanText);
+					var experimentTypeCode = argsMap["experimentTypeCode"];
+					var projectIdentifier = argsMap["projectIdentifier"];
+					document.title = "Create Experiment " + experimentTypeCode;
+					var experiment = {
+							experimentTypeCode : experimentTypeCode,
+							identifier : projectIdentifier
 					}
-				});
-				break;
-			case "showViewDataSetPageFromPermId":
-				var _this = this;
-				this.serverFacade.searchDataSetWithUniqueId(arg, function(dataSetData) {
-					if(!dataSetData.result || !dataSetData.result[0]) {
-						window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
-					} else {
-						_this.serverFacade.searchWithIdentifiers([dataSetData.result[0].sampleIdentifierOrNull], function(sampleData) {
-							document.title = "Data Set " + dataSetData.result[0].code;
-							_this._showViewDataSetPage(sampleData[0], dataSetData.result[0]);
+					this._showExperimentPage(experiment, FormMode.CREATE);
+					window.scrollTo(0,0);
+					break;
+				case "showExperimentPageFromIdentifier":
+					var _this = this;
+					this.serverFacade.listExperimentsForIdentifiers([arg], function(data) {
+						document.title = "Experiment " + arg;
+						_this._showExperimentPage(data.result[0], FormMode.VIEW);
+						window.scrollTo(0,0);
+					});
+					break;
+				case "showEditExperimentPageFromIdentifier":
+					var _this = this;
+					this.serverFacade.listExperimentsForIdentifiers([arg], function(data) {
+						document.title = "Experiment " + arg;
+						_this._showExperimentPage(data.result[0], FormMode.EDIT);
+						window.scrollTo(0,0);
+					});
+					break;
+				case "showCreateSubExperimentPage":
+					var cleanText = decodeURIComponent(arg); //If the JSON is written on the URL we need to clean special chars
+					var argsMap = JSON.parse(cleanText);
+					var sampleTypeCode = argsMap["sampleTypeCode"];
+					var experimentIdentifier = argsMap["experimentIdentifier"];
+					document.title = "Create Sample " + arg;
+					this._showCreateSubExperimentPage(sampleTypeCode, experimentIdentifier);
+					window.scrollTo(0,0);
+					break;
+				case "showSamplesPage":
+					document.title = "Sample Browser";
+					this._showSamplesPage(arg);
+					window.scrollTo(0,0);
+					break;
+				case "showSampleHierarchyPage":
+					document.title = "Hierarchy " + arg;
+					this._showSampleHierarchyPage(arg);
+					window.scrollTo(0,0);
+					break;
+				case "showSampleHierarchyTablePage":
+					document.title = "Table Hierarchy " + arg;
+					this._showSampleHierarchyTablePage(arg);
+					window.scrollTo(0,0);
+					break;
+				case "showEditSamplePageFromPermId":
+					var _this = this;
+					this.serverFacade.searchWithUniqueId(arg, function(data) {
+						if(!data[0]) {
+							window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
+						} else {
+							document.title = "Sample " + data[0].code;
+							var isELNSubExperiment = $.inArray(data[0].spaceCode, _this.profile.inventorySpaces) === -1 && _this.profile.inventorySpaces.length > 0;
+							_this._showEditSamplePage(data[0], isELNSubExperiment);
 							window.scrollTo(0,0);
-						});
-					}
-				});
-				break;
-			case "showEditDataSetPageFromPermId":
-				var _this = this;
-				this.serverFacade.searchDataSetWithUniqueId(arg, function(dataSetData) {
-					if(!dataSetData.result || !dataSetData.result[0]) {
-						window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
-					} else {
-						_this.serverFacade.searchWithIdentifiers([dataSetData.result[0].sampleIdentifierOrNull], function(sampleData) {
-							document.title = "Data Set " + dataSetData.result[0].code;
-							_this._showEditDataSetPage(sampleData[0], dataSetData.result[0]);
+						}
+					});
+					break;
+				case "showViewSamplePageFromPermId":
+					var _this = this;
+					this.serverFacade.searchWithUniqueId(arg, function(data) {
+						if(!data[0]) {
+							window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
+						} else {
+							document.title = "Sample " + data[0].code;
+							var isELNSubExperiment = $.inArray(data[0].spaceCode, _this.profile.inventorySpaces) === -1&& _this.profile.inventorySpaces.length > 0;
+							_this._showViewSamplePage(data[0], isELNSubExperiment);
 							window.scrollTo(0,0);
-						});
-					}
-				});
-				break;
-			case "showDrawingBoard":
-				var _this = this;
-				document.title = "Drawing board";
-				_this._showDrawingBoard();
-				window.scrollTo(0,0);
-				break;
-			case "showAbout":
-				$.get('version.txt', function(data) {
-					Util.showInfo("Current Version: " + data);
-				}, 'text');
-				break;
-			default:
-				window.alert("The system tried to create a non existing view");
-				break;
+						}
+					});
+					break;
+				case "showCreateDataSetPageFromPermId":
+					var _this = this;
+					this.serverFacade.searchWithUniqueId(arg, function(data) {
+						if(!data[0]) {
+							window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
+						} else {
+							document.title = "Create Data Set for " + data[0].code;
+							_this._showCreateDataSetPage(data[0]);
+							window.scrollTo(0,0);
+						}
+					});
+					break;
+				case "showViewDataSetPageFromPermId":
+					var _this = this;
+					this.serverFacade.searchDataSetWithUniqueId(arg, function(dataSetData) {
+						if(!dataSetData.result || !dataSetData.result[0]) {
+							window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
+						} else {
+							_this.serverFacade.searchWithIdentifiers([dataSetData.result[0].sampleIdentifierOrNull], function(sampleData) {
+								document.title = "Data Set " + dataSetData.result[0].code;
+								_this._showViewDataSetPage(sampleData[0], dataSetData.result[0]);
+								window.scrollTo(0,0);
+							});
+						}
+					});
+					break;
+				case "showEditDataSetPageFromPermId":
+					var _this = this;
+					this.serverFacade.searchDataSetWithUniqueId(arg, function(dataSetData) {
+						if(!dataSetData.result || !dataSetData.result[0]) {
+							window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
+						} else {
+							_this.serverFacade.searchWithIdentifiers([dataSetData.result[0].sampleIdentifierOrNull], function(sampleData) {
+								document.title = "Data Set " + dataSetData.result[0].code;
+								_this._showEditDataSetPage(sampleData[0], dataSetData.result[0]);
+								window.scrollTo(0,0);
+							});
+						}
+					});
+					break;
+				case "showDrawingBoard":
+					var _this = this;
+					document.title = "Drawing board";
+					_this._showDrawingBoard();
+					window.scrollTo(0,0);
+					break;
+				case "showAbout":
+					$.get('version.txt', function(data) {
+						Util.showInfo("Current Version: " + data);
+					}, 'text');
+					break;
+				default:
+					window.alert("The system tried to create a non existing view");
+					break;
+			}
+		} catch(err) {
+			Util.manageError(err);
 		}
+		
+
 		
 		//
 		// Permanent URLs
