@@ -6,11 +6,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			c.start();
 
 			var ctx = {
-				facade: null,
-				permIds: null
+				facade : null,
+				permIds : null
 			};
-			c.createFacadeAndLogin()
-			.then(function(facade) {
+			c.createFacadeAndLogin().then(function(facade) {
 				ctx.facade = facade;
 				return fCreate(facade)
 			}).then(function(permIds) {
@@ -360,6 +359,34 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			}
 
 			testUpdate(c, fCreate, fUpdate, c.findMaterial, fCheck);
+		});
+
+		QUnit.test("updateVocabularyTerms()", function(assert) {
+			var c = new common(assert);
+			var code = c.generateId("VOCABULARY_TERM");
+			var description = "Description of " + code;
+
+			var fCreate = function(facade) {
+				var termCreation = new c.VocabularyTermCreation();
+				termCreation.setVocabularyId(new c.VocabularyPermId("TEST-VOCABULARY"));
+				termCreation.setCode(code);
+				return facade.createVocabularyTerms([ termCreation ]);
+			}
+
+			var fUpdate = function(facade, permId) {
+				var termUpdate = new c.VocabularyTermUpdate();
+				termUpdate.setVocabularyTermId(permId);
+				termUpdate.setDescription(description);
+				return facade.updateVocabularyTerms([ termUpdate ]);
+			}
+
+			var fCheck = function(term) {
+				c.assertEqual(term.getCode(), code, "Term code");
+				c.assertEqual(term.getVocabulary().getCode(), "TEST-VOCABULARY", "Term vocabulary code");
+				c.assertEqual(term.getDescription(), description, "Term description");
+			}
+
+			testUpdate(c, fCreate, fUpdate, c.findVocabularyTerm, fCheck);
 		});
 
 	}

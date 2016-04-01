@@ -667,5 +667,26 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			testSearch(c, fSearch, fCheck);
 		});
 
+		QUnit.test("searchVocabularyTerms()", function(assert) {
+			var c = new common(assert);
+
+			var fSearch = function(facade) {
+				var criteria = new c.VocabularyTermSearchCriteria();
+				criteria.withCode().thatEquals("BDS_DIRECTORY");
+				return facade.searchVocabularyTerms(criteria, c.createVocabularyTermFetchOptions());
+			}
+
+			var fCheck = function(facade, terms) {
+				c.assertEqual(terms.length, 1);
+				var term = terms[0];
+				c.assertEqual(term.getCode(), "BDS_DIRECTORY", "Code");
+				c.assertEqual(term.getVocabulary().getCode(), "$STORAGE_FORMAT", "Vocabulary code");
+				c.assertEqual(term.getOrdinal(), 2, "Ordinal");
+				c.assertEqual(term.isOfficial(), true, "Official");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
 	}
 });
