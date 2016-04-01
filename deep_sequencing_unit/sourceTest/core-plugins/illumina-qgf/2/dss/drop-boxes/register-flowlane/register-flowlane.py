@@ -436,6 +436,7 @@ def process(transaction):
     dataSet.setPropertyValue(INDEX1, DEFAULT_INDEX)
     dataSet.setPropertyValue(INDEX2, DEFAULT_INDEX)
     dataSet.setPropertyValue(MISMATCH_IN_INDEX, mismatch_dict[mismatches])
+    dataSet.setPropertyValue(BCL_VERSION, flow_lane_immutable[0].getPropertyValue(BCL_VERSION))
     
     if mismatches > 0:
         name += MISMATCH_ABREVIATION + str(mismatches)
