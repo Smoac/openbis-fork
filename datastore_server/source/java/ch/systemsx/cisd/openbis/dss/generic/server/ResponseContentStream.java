@@ -64,7 +64,7 @@ public class ResponseContentStream
         String headerContentDisposition = "inline;";
         if (fileNameOrNull != null)
         {
-            headerContentDisposition += " filename=" + fileNameOrNull;
+            headerContentDisposition += " filename=\"" + fileNameOrNull + "\"";
         }
         return new ResponseContentStream(inputStream, responseSize, contentType,
                 headerContentDisposition);
