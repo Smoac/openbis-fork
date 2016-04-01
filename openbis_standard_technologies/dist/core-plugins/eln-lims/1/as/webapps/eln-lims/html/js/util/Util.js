@@ -470,6 +470,7 @@ var Util = new function() {
 						"User Agent: " + navigator.userAgent + "<br/>" +
 						"URL: " + window.location.href + "<br/>" +
 						"Session: " + mainController.serverFacade.openbisServer.getSession() + "<br/>" +
+						"Time: " + new Date() + "<br/>" +
 						"---------------------------------------------------------------------- <br/>" +
 						"Error Name: " + err.name + "<br/>" +
 						"Error Message: " + err.message + "<br/>" +
