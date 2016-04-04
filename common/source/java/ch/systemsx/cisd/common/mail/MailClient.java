@@ -75,21 +75,21 @@ public final class MailClient extends Authenticator implements IMailClient
     private static final String UNICODE_CHARSET = "utf-8";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, MailClient.class);
-    
+
     private final Properties properties;
-    
+
     public MailClient(final String from, final String smtpHost)
     {
         this(from, smtpHost, null, null, null, null);
     }
-    
+
     public MailClient(
-                final String from,
-                final String smtpHost,
-                final String smtpPort,
-                final String smtpUsername,
-                final String smtpPassword,
-                final String testAddress)
+            final String from,
+            final String smtpHost,
+            final String smtpPort,
+            final String smtpUsername,
+            final String smtpPassword,
+            final String testAddress)
     {
         assert from != null;
         assert smtpHost != null;
@@ -97,33 +97,38 @@ public final class MailClient extends Authenticator implements IMailClient
         properties = new Properties();
         properties.put(JavaMailProperties.MAIL_FROM, from);
         properties.put(JavaMailProperties.MAIL_SMTP_HOST, smtpHost);
-        if(smtpPort != null) {
+        if (smtpPort != null)
+        {
             properties.put(JavaMailProperties.MAIL_SMTP_PORT, smtpPort);
         }
-        if(smtpUsername != null) {
+        if (smtpUsername != null)
+        {
             properties.put(JavaMailProperties.MAIL_SMTP_USER, smtpUsername);
         }
-        if(smtpPassword != null) {
+        if (smtpPassword != null)
+        {
             properties.put(MailClient.MAIL_SMTP_PASSWORD, smtpPassword);
         }
-        if(testAddress != null) {
+        if (testAddress != null)
+        {
             properties.put(MailClient.MAIL_TEST_ADDRESS, testAddress);
         }
         init();
     }
-    
+
     public MailClient(MailClientParameters parameters)
     {
         this(parameters.getPropertiesInstance());
     }
-    
+
     public MailClient(Properties properties)
     {
         this.properties = ExtendedProperties.createWith(properties);
         init();
     }
-    
-    private void init() {
+
+    private void init()
+    {
         //Add some properties that don't need to come form the service
         String smtpUsername = properties.getProperty(JavaMailProperties.MAIL_SMTP_USER);
         String smtpPassword = properties.getProperty(MailClient.MAIL_SMTP_PASSWORD);
@@ -131,16 +136,18 @@ public final class MailClient extends Authenticator implements IMailClient
         {
             properties.put(JavaMailProperties.MAIL_SMTP_AUTH, Boolean.TRUE.toString());
         }
-        
-        properties.put(JavaMailProperties.MAIL_DEBUG,operationLog.isDebugEnabled() ? Boolean.TRUE.toString() : Boolean.FALSE.toString());
+
+        properties.put(JavaMailProperties.MAIL_DEBUG, operationLog.isDebugEnabled() ? Boolean.TRUE.toString() : Boolean.FALSE.toString());
         properties.put(JavaMailProperties.MAIL_TRANSPORT_PROTOCOL, "smtp");
-        
+
         //Get properties from System
         try
         {
             Properties systemProperties = System.getProperties();
-            for(String key:systemProperties.stringPropertyNames()) {
-                if(!properties.containsKey(key)) {
+            for (String key : systemProperties.stringPropertyNames())
+            {
+                if (!properties.containsKey(key))
+                {
                     properties.put(key, systemProperties.getProperty(key));
                 }
             }
@@ -150,8 +157,10 @@ public final class MailClient extends Authenticator implements IMailClient
         }
 
         //Clear all properties not staring with mail.
-        for(String key:properties.stringPropertyNames()) {
-            if(!key.startsWith("mail.")) {
+        for (String key : properties.stringPropertyNames())
+        {
+            if (!key.startsWith("mail."))
+            {
                 properties.remove(key);
             }
         }
@@ -168,8 +177,7 @@ public final class MailClient extends Authenticator implements IMailClient
                 operationLog.info("Sending test email.");
             }
             // subject, content, replyToOrNull, fromOrNull, recipients
-            sendEmailMessage("test", "", null, null, new EMailAddress[]
-                { new EMailAddress(testAddress) });
+            sendEmailMessage("test", "", null, null, new EMailAddress[] { new EMailAddress(testAddress) });
         } else
         {
             if (operationLog.isInfoEnabled())
@@ -383,7 +391,7 @@ public final class MailClient extends Authenticator implements IMailClient
             throws EnvironmentFailureException
     {
         String from = properties.getProperty(JavaMailProperties.MAIL_FROM);
-        
+
         final InternetAddress fromPerMail =
                 (fromOrNull != null) ? fromOrNull : createInternetAddress(from);
         if (operationLog.isInfoEnabled())
@@ -398,7 +406,7 @@ public final class MailClient extends Authenticator implements IMailClient
             if (replyTo != null)
             {
                 InternetAddress[] replyToAddress =
-                    { replyTo };
+                        { replyTo };
                 msg.setReplyTo(replyToAddress);
             }
             msg.addRecipients(Message.RecipientType.TO, recipients);
@@ -440,7 +448,7 @@ public final class MailClient extends Authenticator implements IMailClient
     private void send(MimeMessage msg) throws MessagingException
     {
         String smtpHost = properties.getProperty(JavaMailProperties.MAIL_SMTP_HOST);
-        
+
         if (smtpHost.startsWith(FILE_PREFIX))
         {
             // We don't have a real SMTP server
@@ -456,7 +464,7 @@ public final class MailClient extends Authenticator implements IMailClient
     private void writeMessageToFile(MimeMessage msg) throws MessagingException
     {
         String smtpHost = properties.getProperty(JavaMailProperties.MAIL_SMTP_HOST);
-        
+
         File emailFolder = new File(smtpHost.substring(FILE_PREFIX.length()));
         if (emailFolder.exists())
         {
@@ -474,7 +482,7 @@ public final class MailClient extends Authenticator implements IMailClient
                         + emailFolder.getAbsolutePath() + "'.");
             }
         }
-        File file = FileUtilities.createNextNumberedFile(new File(emailFolder, "email"), null);
+        File file = FileUtilities.createTimestampUniqueFile(new File(emailFolder, "email"), null);
         StringBuilder builder = new StringBuilder();
         final Enumeration<String> headers = msg.getAllHeaderLines();
         while (headers.hasMoreElements())
@@ -512,7 +520,7 @@ public final class MailClient extends Authenticator implements IMailClient
     {
         String smtpUsername = properties.getProperty(JavaMailProperties.MAIL_SMTP_USER);
         String smtpPassword = properties.getProperty(MailClient.MAIL_SMTP_PASSWORD);
-        
+
         return new PasswordAuthentication(smtpUsername, smtpPassword);
     }
 

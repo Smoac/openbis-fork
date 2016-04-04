@@ -35,10 +35,13 @@ import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -86,7 +89,7 @@ import ch.systemsx.cisd.common.string.StringUtilities.IUniquenessChecker;
  * <p>
  * If you are tempted to add new functionality to this class, ensure that the new functionality does
  * not yet exist in <code>org.apache.common.io.FileUtils</code>, see <a
- * href="http://jakarta.apache.org/commons/io/api-release/org/apache/commons/io/FileUtils.html"
+ * href="https://commons.apache.org/proper/commons-io/apidocs/org/apache/commons/io/FileUtils.html"
  * >javadoc</a>.
  * 
  * @author Bernd Rinn
@@ -94,12 +97,13 @@ import ch.systemsx.cisd.common.string.StringUtilities.IUniquenessChecker;
 public final class FileUtilities
 {
     public static final List<String> HDF5_FILE_TYPES = Arrays.asList("h5", "h5ar");
-    
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             FileUtilities.class);
+
     private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE,
             FileUtilities.class);
-    
+
     private FileUtilities()
     {
         // Can not be instantiated.
@@ -1371,6 +1375,50 @@ public final class FileUtilities
         return new File(uniqueFilePath);
     }
 
+    public final static File createTimestampUniqueFile(final File path, final Pattern regex)
+    {
+        return createTimestampUniqueFile(path);
+    }
+
+    /**
+     * Creates a time stamp numbered file in <var>path</var>.
+     * 
+     */
+    public final static File createTimestampUniqueFile(final File path)
+    {
+        assert path != null;
+        final String filePath = path.getPath();
+
+        String uniqueTimestamp = getUniqueTimestamp();
+        String uniqueFilePath = filePath + uniqueTimestamp;
+
+        while (new File(uniqueFilePath).exists() == true)
+        {
+            uniqueTimestamp = getUniqueTimestamp();
+            uniqueFilePath = filePath + uniqueTimestamp;
+
+        }
+        return new File(uniqueFilePath);
+    }
+
+    /**
+     * @return
+     * The format of the unique string consists of a time stamp and a unique random number:
+     * <var>_yyyy_MM_dd_HH_mm_ss_SSS_</var> + unique_number
+     */
+    public final static String getUniqueTimestamp()
+    {
+
+        final String DATE_FORMAT = "_yyyy_MM_dd_HH_mm_ss_SSS_";
+
+        int random_int = (int) (Math.random() * 1000);
+        long timestamp = System.currentTimeMillis();
+        Date date = new Date(timestamp);
+        DateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+        return formatter.format(date) + random_int;
+
+    }
+
     /**
      * For given <var>root</var> and <var>file</var> extracts the relative path.
      * <p>
@@ -2303,7 +2351,7 @@ public final class FileUtilities
         if (file == null)
         {
             throw new IllegalArgumentException("Unspecified file.");
-        } 
+        }
         if (file.exists() == false)
         {
             throw new IllegalArgumentException("File does not exists: " + file);
@@ -2337,9 +2385,9 @@ public final class FileUtilities
             throw CheckedExceptionTunnel.wrapIfNecessary(exception);
         }
         throw new EnvironmentFailureException("The size of the folder '" + file
-                + "' couldn't be determined:\n command: " + result.getCommandName() 
-                + "\n commad line arguments: " + result.getCommandLine() 
-                + "\n output: " + result.getOutput() 
-                + "\n error output: "+ result.getErrorOutput());
+                + "' couldn't be determined:\n command: " + result.getCommandName()
+                + "\n commad line arguments: " + result.getCommandLine()
+                + "\n output: " + result.getOutput()
+                + "\n error output: " + result.getErrorOutput());
     }
 }
