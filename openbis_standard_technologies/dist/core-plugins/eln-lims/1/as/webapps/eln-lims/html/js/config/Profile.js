@@ -57,6 +57,8 @@ $.extend(DefaultProfile.prototype, {
 			return ($.inArray(spaceCode, this.inventorySpaces) !== -1);
 		}
 		
+		this.directLinkURL = null; //To be set during initialization using info retrieved from the DSS configuration by the reporting plugin
+		
 		this.hideCodes = true;
 		this.hideTypes = {
 				"sampleTypeCodes" : [],
@@ -651,6 +653,16 @@ $.extend(DefaultProfile.prototype, {
 			});
 		}
 		
+		this.initDirectLinkURL = function(callback) {
+			var _this = this;
+			this.serverFacade.getDirectLinkURL(function(error, result) {
+				if(!error) {
+					_this.directLinkURL = result.data;
+				}
+				callback();
+			});
+		}
+		
 		//
 		// Initializes
 		//
@@ -660,7 +672,9 @@ $.extend(DefaultProfile.prototype, {
 			this.initPropertyTypes(function(){
 				_this.initVocabulariesForSampleTypes(function() {
 					_this.initSearchDomains(function() {
-						callbackWhenDone();
+						_this.initDirectLinkURL(function() {
+							callbackWhenDone();
+						});
 					});
 				});
 			});

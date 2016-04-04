@@ -403,6 +403,10 @@ function ServerFacade(openbisServer) {
 		return GET;
 	}
 
+	this.getDirectLinkURL = function(callbackFunction) {
+		this.customELNApi({ "method" : "getDirectLinkURL"}, callbackFunction);
+	}
+	
 	//
 	// Sample Others functions
 	//

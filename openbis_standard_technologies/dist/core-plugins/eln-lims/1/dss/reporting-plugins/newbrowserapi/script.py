@@ -60,12 +60,38 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SamplePermId
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id import ExperimentIdentifier;
 from ch.ethz.sis.openbis.generic.server.sharedapi.v3.json import GenericObjectMapper;
 from ch.systemsx.cisd.openbis.dss.generic.server import DataStoreServer
-	
+from ch.systemsx.cisd.common.shared.basic.string import StringUtils
+
 #from ch.systemsx.cisd.common.ssl import SslCertificateHelper;
 
 #Plasmapper server used
 PLASMAPPER_BASE_URL = "http://wishart.biology.ualberta.ca"
 OPENBISURL = DataStoreServer.getConfigParameters().getServerURL() + "/openbis/openbis"
+def getConfigParameterAsString(propertyKey):
+	properties = DataStoreServer.getConfigParameters().getProperties();
+	property = properties.getProperty(propertyKey);
+	if StringUtils.isBlank(property):
+		return None;
+	else:
+		return property;
+
+def getDirectLinkURL():
+	ftpServerEnable = getConfigParameterAsString("ftp.server.enable");
+	ftpServerPort = getConfigParameterAsString("ftp.server.port");
+	ftpServerUseSsl = getConfigParameterAsString("ftp.server.use-ssl");
+	useSsl = getConfigParameterAsString("use-ssl");
+	protocol = None;
+	if ftpServerEnable == "true" and (ftpServerUseSsl == "true" or useSsl == "true"):
+		protocol = "ftps";
+	elif ftpServerEnable == "true":
+		protocol = "ftp";
+	
+	directLinkURL = None;
+	if protocol is not None:
+		directLinkURL = protocol + "://$URL:" + str(ftpServerPort) + "/";
+	
+	return getJsonForData(directLinkURL);
+
 def getProperties(tr, parameters):
 	sessionToken = parameters.get("sessionToken");
 	servFinder = ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
@@ -132,6 +158,9 @@ def process(tr, parameters, tableBuilder):
 		isOk = True;
 	if method == "registerUserPassword":
 		isOk = registerUserPassword(tr, parameters, tableBuilder);
+	if method == "getDirectLinkURL":
+		result = getDirectLinkURL();
+		isOk = True;
 	
 	if method == "copyAndLinkAsParent":
 		isOk = copyAndLinkAsParent(tr, parameters, tableBuilder);
