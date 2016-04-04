@@ -167,6 +167,16 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 			});
 		}.bind(this);
 
+		this.createVocabularyTerm = function(facade) {
+			var c = this;
+			var creation = new dtos.VocabularyTermCreation();
+			creation.setCode(c.generateId("VOCABULARY_TERM"));
+			creation.setVocabularyId(new c.VocabularyPermId("TEST-VOCABULARY"));
+			return facade.createVocabularyTerms([ creation ]).then(function(permIds) {
+				return permIds[0];
+			});
+		}.bind(this);
+
 		this.findSpace = function(facade, id) {
 			var c = this;
 			return facade.mapSpaces([ id ], c.createSpaceFetchOptions()).then(function(spaces) {
@@ -256,6 +266,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 			var options = new dtos.MaterialDeletionOptions();
 			options.setReason("test reason");
 			return facade.deleteMaterials([ id ], options);
+		}.bind(this);
+		
+		this.deleteVocabularyTerm = function(facade, id) {
+			var c = this;
+			var options = new dtos.VocabularyTermDeletionOptions();
+			options.setReason("test reason");
+			return facade.deleteVocabularyTerms([ id ], options);
 		}.bind(this);
 
 		this.getObjectProperty = function(object, propertyName) {

@@ -153,6 +153,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			var c = new common(assert);
 			testDeleteWithoutTrash(c, c.createMaterial, c.findMaterial, c.deleteMaterial);
 		});
+		
+		QUnit.test("deleteVocabularyTerm()", function(assert) {
+			var c = new common(assert);
+			testDeleteWithoutTrash(c, c.createVocabularyTerm, c.findVocabularyTerm, c.deleteVocabularyTerm);
+		});
 
 	}
 });

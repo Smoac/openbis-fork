@@ -269,5 +269,29 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			testMap(c, fCreate, fMap, fMapEmptyFetchOptions, fechOptionsTestConfig);
 		});
 		
+		QUnit.test("mapVocabularyTerms()", function(assert) {
+			var c = new common(assert);
+			var fo = new c.VocabularyTermFetchOptions();
+			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
+			fechOptionsTestConfig.SortBy = null;
+			
+			var fCreate = function(facade) {
+				return $.when(c.createVocabularyTerm(facade), c.createVocabularyTerm(facade)).then(function(permId1, permId2) {
+					return [ permId1, permId2 ];
+				});
+			}
+			
+			var fMap = function(facade, permIds) {
+				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
+				return facade.mapVocabularyTerms(permIds, fo);
+			}
+			
+			var fMapEmptyFetchOptions = function(facade, permIds) {
+				return facade.mapVocabularyTerms(permIds, new c.VocabularyTermFetchOptions());
+			}
+			
+			testMap(c, fCreate, fMap, fMapEmptyFetchOptions, fechOptionsTestConfig);
+		});
+		
 	}
 });
