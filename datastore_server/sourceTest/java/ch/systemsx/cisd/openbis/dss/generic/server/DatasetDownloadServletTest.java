@@ -426,7 +426,7 @@ public class DatasetDownloadServletTest
                     one(response).setContentType("text/plain");
                     one(response).setContentLength(EXAMPLE_FILE_CONTENT.length());
                     one(response).setHeader("Content-Disposition",
-                            "inline; filename=" + EXAMPLE_FILE_NAME);
+                            "inline; filename=\"" + EXAMPLE_FILE_NAME + "\"");
                     one(response).getOutputStream();
                     will(returnValue(new ServletOutputStream()
                         {
@@ -486,7 +486,7 @@ public class DatasetDownloadServletTest
                     one(response).setContentLength(84);
                     one(response).addHeader("Cache-Control", "max-age=7200");
                     one(response).setHeader("Content-Disposition",
-                            "inline; filename=" + EXAMPLE_FILE_NAME);
+                            "inline; filename=\"" + EXAMPLE_FILE_NAME + "\"");
                     one(response).getOutputStream();
                     will(returnValue(new ServletOutputStream()
                         {
