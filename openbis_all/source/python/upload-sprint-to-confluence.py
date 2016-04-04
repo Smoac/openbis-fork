@@ -76,13 +76,10 @@ def fetchBinaries(version):
   print "trying to delete existing eln-lims artifacts"
   os.system("rm -r eln-lims")
   print "Checking out ELN from svn"
-  svnresult = os.system("svn export svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/tags/sprint/S{0}.x/S{0}.{1}/plasmid/source/core-plugins/eln-lims".format(major, minor))
+  svnresult = os.system("svn export svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/tags/sprint/S{0}.x/S{0}.{1}/openbis_standard_technologies/dist/core-plugins/eln-lims".format(major, minor))
   if svnresult != 0:
     raise Exception("Fetching ELN from svn failed. Aborting")
   
-  print "removing installations from eln"
-  os.system("rm -r eln-lims/1/as/webapps/eln-lims/html/js/config/installations")
-
   print "Creating a tar archive"
   os.system("tar -cvzf {1}/eln-lims-{0}.tar.gz eln-lims".format(version, DOWNLOAD_FOLDER))
 
