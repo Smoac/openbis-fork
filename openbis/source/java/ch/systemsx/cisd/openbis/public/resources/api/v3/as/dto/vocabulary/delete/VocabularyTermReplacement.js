@@ -1,5 +1,7 @@
 define([ "stjs" ], function(stjs) {
-	var VocabularyTermReplacement = function() {
+	var VocabularyTermReplacement = function(replacedId, replacementId) {
+		this.replacedId = replacedId ? replacedId : null;
+		this.replacementId = replacementId ? replacementId : null;
 	};
 	stjs.extend(VocabularyTermReplacement, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.vocabulary.delete.VocabularyTermReplacement';

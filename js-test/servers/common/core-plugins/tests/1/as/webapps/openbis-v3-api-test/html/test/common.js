@@ -267,11 +267,19 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 			options.setReason("test reason");
 			return facade.deleteMaterials([ id ], options);
 		}.bind(this);
-		
+
 		this.deleteVocabularyTerm = function(facade, id) {
 			var c = this;
 			var options = new dtos.VocabularyTermDeletionOptions();
 			options.setReason("test reason");
+			return facade.deleteVocabularyTerms([ id ], options);
+		}.bind(this);
+
+		this.replaceVocabularyTerm = function(facade, id) {
+			var c = this;
+			var options = new dtos.VocabularyTermDeletionOptions();
+			options.setReason("test reason");
+			options.replace(id, new c.VocabularyTermPermId("TEST-TERM-1", "TEST-VOCABULARY"));
 			return facade.deleteVocabularyTerms([ id ], options);
 		}.bind(this);
 

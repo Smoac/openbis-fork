@@ -18,6 +18,8 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.delete;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -30,18 +32,11 @@ public class VocabularyTermReplacement implements Serializable
 
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
     private IVocabularyTermId replacedId;
 
+    @JsonProperty
     private IVocabularyTermId replacementId;
-
-    //
-    // JSON-RPC
-    //
-
-    @SuppressWarnings("unused")
-    private VocabularyTermReplacement()
-    {
-    }
 
     public VocabularyTermReplacement(IVocabularyTermId replacedId, IVocabularyTermId replacementId)
     {
@@ -57,6 +52,27 @@ public class VocabularyTermReplacement implements Serializable
     public IVocabularyTermId getReplacementId()
     {
         return replacementId;
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    @SuppressWarnings("unused")
+    private VocabularyTermReplacement()
+    {
+    }
+
+    @SuppressWarnings("unused")
+    private void setReplacedId(IVocabularyTermId replacedId)
+    {
+        this.replacedId = replacedId;
+    }
+
+    @SuppressWarnings("unused")
+    private void setReplacementId(IVocabularyTermId replacementId)
+    {
+        this.replacementId = replacementId;
     }
 
 }

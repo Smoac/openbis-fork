@@ -17,7 +17,20 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			var data = settings.data;
 			data["id"] = "1";
 			data["jsonrpc"] = "2.0";
-			settings.data = JSON.stringify(stjsUtil.decycle(data));
+
+			// decycle each parameter separately (jackson does not recognize
+			// object ids across different parameters)
+
+			if (data.params && data.params.length > 0) {
+				var newParams = [];
+				data.params.forEach(function(param) {
+					var newParam = stjsUtil.decycle(param);
+					newParams.push(newParam);
+				});
+				data.params = newParams;
+			}
+
+			settings.data = JSON.stringify(data);
 
 			var originalSuccess = settings.success || function() {
 			};
