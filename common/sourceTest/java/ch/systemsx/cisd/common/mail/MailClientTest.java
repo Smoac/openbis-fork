@@ -49,7 +49,7 @@ public final class MailClientTest extends AbstractFileSystemTestCase
         assert emailFolder.isDirectory();
         File[] files = emailFolder.listFiles();
         assertEquals(1, files.length);
-        assertEquals("email", files[0].getName());
+        assertTrue(files[0].getName().matches("email.*"));
         List<String> lines = FileUtilities.loadToStringList(files[0]);
         assertEquals(8, lines.size());
         assertTrue(lines.get(0).startsWith("Date: "));
@@ -65,8 +65,8 @@ public final class MailClientTest extends AbstractFileSystemTestCase
         files = emailFolder.listFiles();
         Arrays.sort(files);
         assertEquals(2, files.length);
-        assertEquals("email", files[0].getName());
-        assertEquals("email1", files[1].getName());
+        assertTrue(files[0].getName().matches("email.*"));
+        assertTrue(files[1].getName().matches("email.*"));
         lines = FileUtilities.loadToStringList(files[1]);
         assertEquals(5, lines.size());
         assertTrue(lines.get(0).startsWith("Date: "));
@@ -80,9 +80,9 @@ public final class MailClientTest extends AbstractFileSystemTestCase
         files = emailFolder.listFiles();
         Arrays.sort(files);
         assertEquals(3, files.length);
-        assertEquals("email", files[0].getName());
-        assertEquals("email1", files[1].getName());
-        assertEquals("email2", files[2].getName());
+        assertTrue(files[0].getName().matches("email.*"));
+        assertTrue(files[1].getName().matches("email.*"));
+        assertTrue(files[2].getName().matches("email.*"));
         lines = FileUtilities.loadToStringList(files[2]);
         assertEquals(5, lines.size());
         assertTrue(lines.get(0).startsWith("Date: "));
@@ -106,14 +106,15 @@ public final class MailClientTest extends AbstractFileSystemTestCase
                 new EMailAddress("a@b.c"), new EMailAddress("d@e.f"));
         File[] files = emailFolder.listFiles();
         assertEquals(1, files.length);
-        assertEquals("email", files[0].getName());
+        assertTrue(files[0].getName().matches("email.*"));
         List<String> lines = FileUtilities.loadToStringList(files[0]);
         assertEquals("Reply-To: \"User, Special\" <user@reply.com>", lines.get(2));
 
         // second mail
         mailClient.sendEmailMessage("some message", "Hello world\nHow are you today?",
                 new EMailAddress("user@reply.com", "User;\" Special"), null, new EMailAddress(
-                        "a@b.c"), new EMailAddress("d@e.f"));
+                        "a@b.c"),
+                new EMailAddress("d@e.f"));
         files = emailFolder.listFiles();
         Arrays.sort(files);
         lines = FileUtilities.loadToStringList(files[1]);
@@ -139,7 +140,7 @@ public final class MailClientTest extends AbstractFileSystemTestCase
         assert emailFolder.isDirectory();
         File[] files = emailFolder.listFiles();
         assertEquals(1, files.length);
-        assertEquals("email", files[0].getName());
+        assertTrue(files[0].getName().matches("email.*"));
         String fileContent = FileUtilities.loadToString(files[0]);
 
         // Split the file into lines and check one line at a time
