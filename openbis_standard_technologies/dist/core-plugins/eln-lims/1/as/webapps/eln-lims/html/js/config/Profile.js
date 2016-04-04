@@ -657,7 +657,10 @@ $.extend(DefaultProfile.prototype, {
 			var _this = this;
 			this.serverFacade.getDirectLinkURL(function(error, result) {
 				if(!error) {
-					_this.directLinkURL = result.data;
+					var hostName = window.location.hostname;
+					var directLinkURL = result.data;
+						directLinkURL = directLinkURL.replace("$URL", hostName);
+					_this.directLinkURL = directLinkURL;
 				}
 				callback();
 			});
