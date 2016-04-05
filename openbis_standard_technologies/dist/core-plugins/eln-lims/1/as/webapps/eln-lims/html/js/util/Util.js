@@ -236,13 +236,20 @@ var Util = new function() {
 				'overflow' : 'hidden'
 		};
 		
-		var $window = $("<div>").append($("<h1>").append("Direct Link"))
+		var $close = $("<div>", { style : "float:right;" })
+							.append($("<a>", { class : 'btn btn-default' }).append($("<span>", { class : 'glyphicon glyphicon-remove' }))).click(function() {
+								Util.unblockUI();
+							});
+		
+		var $window = $("<div>").append($close).append($("<h1>").append("Direct Link"))
 											.append("Please use this link to access the folder though the network: ")
 											.append($("<br>"))
 											.append("Directly clicking on it will open the default application.")
 											.append($("<br>"))
 											.append($("<a>", { "href" : directLink, "target" : "_blank"}).append(directLink));
-		$window.css("margin", "10px");
+		$window.css("margin-bottom", "10px");
+		$window.css("margin-left", "10px");
+		$window.css("margin-right", "10px");
 		
 		Util.blockUI($window, css);
 	}
