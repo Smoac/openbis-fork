@@ -1064,3 +1064,33 @@ map Vocabulary Terms
 get Replaced Id
 get Replacement Id
 Vocabulary Term Replacement
+
+BOOLEAN
+CONTROLLEDVOCABULARY
+HYPERLINK
+INTEGER
+LABEL
+MULTILINE_VARCHAR
+REAL
+TIMESTAMP
+VARCHAR
+XML
+Data Type Code
+get Data Type Code
+get Property Assignments
+get Property Type
+has Property Assignments
+is Internal Name Space
+is Mandatory
+label
+Property Assignment
+Property Assignment Fetch Options
+Property Assignment Sort Options
+Property Type
+set Data Type Code
+set Internal Name Space
+set Mandatory
+set Property Assignments
+set Property Type
+with Property Assignments
+with Property Assignments Using

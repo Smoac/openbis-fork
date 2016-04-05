@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.globalsearch.GlobalSearchObjectComparatorFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.property.PropertyAssignmentComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.tag.TagComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.vocabulary.VocabularyTermComparatorFactory;
 
@@ -40,6 +41,7 @@ public abstract class ComparatorFactory
         factories.add(new VocabularyTermComparatorFactory());
         factories.add(new EntityWithPropertiesComparatorFactory());
         factories.add(new EntityComparatorFactory());
+        factories.add(new PropertyAssignmentComparatorFactory());
     }
 
     public abstract boolean accepts(Class<?> sortOptionsClass);

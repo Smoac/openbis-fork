@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
@@ -31,7 +32,32 @@ public class ExperimentTypeFetchOptions extends FetchOptions<ExperimentType> imp
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
+    private PropertyAssignmentFetchOptions propertyAssignments;
+
+    @JsonProperty
     private ExperimentTypeSortOptions sort;
+
+    // Method automatically generated with DtoGenerator
+    public PropertyAssignmentFetchOptions withPropertyAssignments()
+    {
+        if (propertyAssignments == null)
+        {
+            propertyAssignments = new PropertyAssignmentFetchOptions();
+        }
+        return propertyAssignments;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public PropertyAssignmentFetchOptions withPropertyAssignmentsUsing(PropertyAssignmentFetchOptions fetchOptions)
+    {
+        return propertyAssignments = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasPropertyAssignments()
+    {
+        return propertyAssignments != null;
+    }
 
     // Method automatically generated with DtoGenerator
     @Override
@@ -54,6 +80,7 @@ public class ExperimentTypeFetchOptions extends FetchOptions<ExperimentType> imp
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {
         FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("ExperimentType", this);
+        f.addFetchOption("PropertyAssignments", propertyAssignments);
         return f;
     }
 

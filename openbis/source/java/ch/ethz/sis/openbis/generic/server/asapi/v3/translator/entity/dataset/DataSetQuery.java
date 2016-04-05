@@ -22,6 +22,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.Obje
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.ObjectRelationRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.history.HistoryPropertyRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.property.MaterialPropertyRecord;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.property.PropertyAssignmentRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.property.PropertyRecord;
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 
@@ -183,5 +184,13 @@ public interface DataSetQuery extends ObjectQuery
     @Select(sql = "select d.id as objectId, d.pers_id_modifier as relatedId from data d where d.id = any(?{1})", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getModifierIds(LongSet dataSetIds);
+    
+    @Select(sql = "select dsty_id as objectId, id as relatedId from data_set_type_property_types where dsty_id = any(?{1})", 
+            parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getPropertyAssignmentIds(LongSet dataSetTypeIds);
+    
+    @Select(sql = "select * from data_set_type_property_types where id = any(?{1})", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<PropertyAssignmentRecord> getPropertyAssignments(LongSet dataSetTypePropertyTypeIds);
 
 }

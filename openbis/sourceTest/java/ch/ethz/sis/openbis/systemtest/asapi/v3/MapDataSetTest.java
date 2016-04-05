@@ -32,6 +32,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ArchivingStatus;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.Complete;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.FileFormatType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.LinkedData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.LocatorType;
@@ -51,6 +52,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.PropertyHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataTypeCode;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
@@ -237,6 +240,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertEquals(dataSet.getType().getDescription(), "High Content Screening Image");
         assertEquals(dataSet.getType().getKind(), DataSetKind.PHYSICAL);
         assertEqualsDate(dataSet.getType().getModificationDate(), "2009-03-23 15:34:44");
+        assertEquals(dataSet.getType().getFetchOptions().hasPropertyAssignments(), false);
 
         assertPhysicalDataNotFetched(dataSet);
         assertExperimentNotFetched(dataSet);
@@ -272,7 +276,35 @@ public class MapDataSetTest extends AbstractDataSetTest
 
         v3api.logout(sessionToken);
     }
-
+    
+    @Test
+    public void testMapWithTypeWithPropertyAssignments()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        DataSetPermId permId = new DataSetPermId("20081105092159111-1");
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withType().withPropertyAssignments().sortBy().code().desc();
+        
+        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(permId), fetchOptions);
+        
+        assertEquals(map.size(), 1);
+        DataSet dataSet = map.get(permId);
+        DataSetType type = dataSet.getType();
+        assertEquals(type.getFetchOptions().hasPropertyAssignments(), true);
+        List<PropertyAssignment> propertyAssignments = type.getPropertyAssignments();
+        assertEquals(propertyAssignments.get(0).getPropertyType().getCode(), "GENDER");
+        assertEquals(propertyAssignments.get(0).getPropertyType().getLabel(), "Gender");
+        assertEquals(propertyAssignments.get(0).getPropertyType().getDescription(), "The gender of the living organism");
+        assertEquals(propertyAssignments.get(0).getPropertyType().isInternalNameSpace(), false);
+        assertEquals(propertyAssignments.get(0).getPropertyType().getDataTypeCode(), DataTypeCode.CONTROLLEDVOCABULARY);
+        assertEquals(propertyAssignments.get(0).isMandatory(), false);
+        assertEquals(propertyAssignments.get(1).getPropertyType().getCode(), "COMMENT");
+        assertEquals(propertyAssignments.get(2).getPropertyType().getCode(), "BACTERIUM");
+        assertEquals(propertyAssignments.get(3).getPropertyType().getCode(), "ANY_MATERIAL");
+        assertEquals(propertyAssignments.size(), 4);
+        v3api.logout(sessionToken);
+    }
+    
     @Test
     public void testMapWithExperiment()
     {

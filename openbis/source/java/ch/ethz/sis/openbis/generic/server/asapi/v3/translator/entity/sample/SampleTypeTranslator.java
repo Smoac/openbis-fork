@@ -16,14 +16,18 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.sample;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.SortAndPage;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationResults;
@@ -39,20 +43,29 @@ public class SampleTypeTranslator extends AbstractCachingTranslator<Long, Sample
     @Autowired
     private ISampleTypeBaseTranslator baseTranslator;
 
+    @Autowired
+    private ISamplePropertyAssignmentTranslator assignmentTranslator;
+
     @Override
     protected SampleType createObject(TranslationContext context, Long typeId, SampleTypeFetchOptions fetchOptions)
     {
         final SampleType type = new SampleType();
-        type.setFetchOptions(new SampleTypeFetchOptions());
+        type.setFetchOptions(fetchOptions);
         return type;
     }
 
     @Override
-    protected TranslationResults getObjectsRelations(TranslationContext context, Collection<Long> typeIds, SampleTypeFetchOptions fetchOptions)
+    protected TranslationResults getObjectsRelations(TranslationContext context, Collection<Long> typeIds, 
+            SampleTypeFetchOptions fetchOptions)
     {
         TranslationResults relations = new TranslationResults();
 
         relations.put(ISampleTypeBaseTranslator.class, baseTranslator.translate(context, typeIds, null));
+        if (fetchOptions.hasPropertyAssignments())
+        {
+            relations.put(ISamplePropertyAssignmentTranslator.class, 
+                    assignmentTranslator.translate(context, typeIds, fetchOptions.withPropertyAssignments()));
+        }
 
         return relations;
     }
@@ -73,6 +86,13 @@ public class SampleTypeTranslator extends AbstractCachingTranslator<Long, Sample
         result.setShowParentMetadata(baseRecord.showParentMetadata);
         result.setSubcodeUnique(baseRecord.subcodeUnique);
         result.setModificationDate(baseRecord.modificationDate);
+        
+        if (fetchOptions.hasPropertyAssignments())
+        {
+            Collection<PropertyAssignment> assignments = relations.get(ISamplePropertyAssignmentTranslator.class, typeId);
+            List<PropertyAssignment> propertyAssignments = new ArrayList<>(assignments);
+            result.setPropertyAssignments(new SortAndPage().sortAndPage(propertyAssignments, fetchOptions.withPropertyAssignments()));
+        }
     }
 
 }

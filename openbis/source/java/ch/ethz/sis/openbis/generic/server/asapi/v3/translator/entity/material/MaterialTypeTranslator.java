@@ -16,7 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.material;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,6 +26,8 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.SortAndPage;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationResults;
@@ -38,12 +42,15 @@ public class MaterialTypeTranslator extends AbstractCachingTranslator<Long, Mate
 
     @Autowired
     private IMaterialTypeBaseTranslator baseTranslator;
+    
+    @Autowired
+    private IMaterialPropertyAssignmentTranslator assignmentTranslator;
 
     @Override
     protected MaterialType createObject(TranslationContext context, Long typeId, MaterialTypeFetchOptions fetchOptions)
     {
         final MaterialType materialType = new MaterialType();
-        materialType.setFetchOptions(new MaterialTypeFetchOptions());
+        materialType.setFetchOptions(fetchOptions);
         return materialType;
     }
 
@@ -53,6 +60,11 @@ public class MaterialTypeTranslator extends AbstractCachingTranslator<Long, Mate
         TranslationResults relations = new TranslationResults();
 
         relations.put(IMaterialTypeBaseTranslator.class, baseTranslator.translate(context, typeIds, null));
+        if (fetchOptions.hasPropertyAssignments())
+        {
+            relations.put(IMaterialPropertyAssignmentTranslator.class, 
+                    assignmentTranslator.translate(context, typeIds, fetchOptions.withPropertyAssignments()));
+        }
 
         return relations;
     }
@@ -68,6 +80,13 @@ public class MaterialTypeTranslator extends AbstractCachingTranslator<Long, Mate
         result.setCode(baseRecord.code);
         result.setDescription(baseRecord.description);
         result.setModificationDate(baseRecord.modificationDate);
+        
+        if (fetchOptions.hasPropertyAssignments())
+        {
+            Collection<PropertyAssignment> assignments = relations.get(IMaterialPropertyAssignmentTranslator.class, typeId);
+            List<PropertyAssignment> propertyAssignments = new ArrayList<>(assignments);
+            result.setPropertyAssignments(new SortAndPage().sortAndPage(propertyAssignments, fetchOptions.withPropertyAssignments()));
+        }
     }
 
 }

@@ -16,19 +16,19 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.material;
 
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
-
 import java.util.List;
-
-import net.lemnik.eodsql.Select;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.ObjectQuery;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.ObjectRelationRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.history.HistoryPropertyRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.property.MaterialPropertyRecord;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.property.PropertyAssignmentRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.property.PropertyRecord;
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
+
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import net.lemnik.eodsql.Select;
 
 /**
  * @author pkupczyk
@@ -79,5 +79,13 @@ public interface MaterialQuery extends ObjectQuery
 
     @Select(sql = "select ma.mate_id as objectId, ma.mepr_id as relatedId from metaproject_assignments ma where ma.mate_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getTagIds(LongSet materialIds);
+    
+    @Select(sql = "select maty_id as objectId, id as relatedId from material_type_property_types where maty_id = any(?{1})", 
+            parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getPropertyAssignmentIds(LongSet materialTypeIds);
+    
+    @Select(sql = "select * from material_type_property_types where id = any(?{1})", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<PropertyAssignmentRecord> getPropertyAssignments(LongSet materialTypePropertyTypeIds);
 
 }

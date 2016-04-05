@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -36,6 +37,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFe
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.update.MaterialUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataTypeCode;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 
@@ -151,32 +154,7 @@ public class MapMaterialTest extends AbstractDataSetTest
 
         v3api.logout(sessionToken);
     }
-
-    @Test
-    public void testMapWithMaterialProperties()
-    {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
-        fetchOptions.withMaterialProperties().withProperties();
-
-        MaterialPermId selfParentId = new MaterialPermId("SRM_1", "SELF_REF");
-        MaterialPermId selfChildId = new MaterialPermId("SRM_1A", "SELF_REF");
-
-        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(selfChildId, selfParentId), fetchOptions);
-
-        Material parent = map.get(selfParentId);
-        Material child = map.get(selfChildId);
-
-        Map<String, Material> materialProperties = parent.getMaterialProperties();
-
-        Material childFromProperties = materialProperties.get("ANY_MATERIAL");
-
-        assertEquals(selfChildId, childFromProperties.getPermId());
-        assertEquals(true, child == childFromProperties);
-        assertEquals(childFromProperties.getProperties().get("DESCRIPTION"), "Material wich is attached material");
-    }
-
+    
     @Test
     public void testMapWithType()
     {
@@ -195,6 +173,71 @@ public class MapMaterialTest extends AbstractDataSetTest
         assertEquals(type.getPermId(), new EntityTypePermId("SELF_REF"));
         assertEquals(type.getDescription(), "Self Referencing Material");
         assertEqualsDate(type.getModificationDate(), "2012-03-13 15:34:44");
+        assertEquals(type.getFetchOptions().hasPropertyAssignments(), false);
+        
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testMapWithTypeAndPropertyAssignmentsSortByLabelDesc()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
+        fetchOptions.withType().withPropertyAssignments().sortBy().label().desc();
+        List<MaterialPermId> materialIds = Arrays.asList(new MaterialPermId("GFP", "CONTROL"));
+        
+        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, materialIds, fetchOptions);
+
+        assertEquals(map.size(), 1);
+        Material material = map.values().iterator().next();
+        MaterialType type = material.getType();
+        assertEquals(type.getCode(), "CONTROL");
+        assertEquals(type.getFetchOptions().hasPropertyAssignments(), true);
+        List<PropertyAssignment> propertyAssignments = type.getPropertyAssignments();
+        assertEquals(propertyAssignments.get(0).getPropertyType().getCode(), "VOLUME");
+        assertEquals(propertyAssignments.get(0).getPropertyType().getLabel(), "Volume");
+        assertEquals(propertyAssignments.get(0).getPropertyType().getDescription(), "The volume of this person");
+        assertEquals(propertyAssignments.get(0).getPropertyType().isInternalNameSpace(), false);
+        assertEquals(propertyAssignments.get(0).getPropertyType().getDataTypeCode(), DataTypeCode.REAL);
+        assertEquals(propertyAssignments.get(0).isMandatory(), false);
+        assertEquals(extractCodes(propertyAssignments).toString(), 
+                "[VOLUME, IS_VALID, SIZE, PURCHASE_DATE, EYE_COLOR, DESCRIPTION]");
+        assertEquals(propertyAssignments.size(), 6);
+        
+        v3api.logout(sessionToken);
+    }
+    
+    @Test
+    public void testMapWithTypeAndPropertyAssignmentsSortByCodeAsc()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
+        fetchOptions.withType().withPropertyAssignments().sortBy().code().asc();
+        List<MaterialPermId> materialIds = Arrays.asList(new MaterialPermId("GFP", "CONTROL"));
+        
+        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, materialIds, fetchOptions);
+        
+        assertEquals(map.size(), 1);
+        Material material = map.values().iterator().next();
+        MaterialType type = material.getType();
+        assertEquals(type.getCode(), "CONTROL");
+        assertEquals(type.getFetchOptions().hasPropertyAssignments(), true);
+        List<PropertyAssignment> propertyAssignments = type.getPropertyAssignments();
+        assertEquals(extractCodes(propertyAssignments).toString(), 
+                "[DESCRIPTION, EYE_COLOR, IS_VALID, PURCHASE_DATE, SIZE, VOLUME]");
+        assertEquals(propertyAssignments.size(), 6);
+        
+        v3api.logout(sessionToken);
+    }
+    
+    private List<String> extractCodes(List<PropertyAssignment> propertyAssignments)
+    {
+        List<String> codes = new ArrayList<>();
+        for (PropertyAssignment propertyAssignment : propertyAssignments)
+        {
+            codes.add(propertyAssignment.getPropertyType().getCode());
+        }
+        return codes;
     }
 
     @Test

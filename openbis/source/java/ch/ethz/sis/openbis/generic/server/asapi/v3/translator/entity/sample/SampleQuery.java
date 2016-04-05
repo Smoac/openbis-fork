@@ -22,6 +22,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.Obje
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.ObjectRelationRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.history.HistoryPropertyRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.property.MaterialPropertyRecord;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.property.PropertyAssignmentRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.property.PropertyRecord;
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 
@@ -139,4 +140,12 @@ public interface SampleQuery extends ObjectQuery
     @Select(sql = "select s.id as objectId, s.proj_id as relatedId from samples s where s.id = any(?{1})", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getProjectIds(LongSet sampleIds);
+    
+    @Select(sql = "select saty_id as objectId, id as relatedId from sample_type_property_types where saty_id = any(?{1})", 
+            parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getPropertyAssignmentIds(LongSet sampleTypeIds);
+    
+    @Select(sql = "select * from sample_type_property_types where id = any(?{1})", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<PropertyAssignmentRecord> getPropertyAssignments(LongSet sampleTypePropertyTypeIds);
 }

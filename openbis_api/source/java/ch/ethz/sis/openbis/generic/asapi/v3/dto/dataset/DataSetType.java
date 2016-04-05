@@ -15,18 +15,21 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset;
 
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
-import java.util.Date;
 
 /*
  * Class automatically generated with DtoGenerator
@@ -53,6 +56,9 @@ public class DataSetType implements Serializable, ICodeHolder, IModificationDate
 
     @JsonProperty
     private Date modificationDate;
+
+    @JsonProperty
+    private List<PropertyAssignment> propertyAssignments;
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
@@ -133,6 +139,26 @@ public class DataSetType implements Serializable, ICodeHolder, IModificationDate
     public void setModificationDate(Date modificationDate)
     {
         this.modificationDate = modificationDate;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public List<PropertyAssignment> getPropertyAssignments()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasPropertyAssignments())
+        {
+            return propertyAssignments;
+        }
+        else
+        {
+            throw new NotFetchedException("Property assigments have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setPropertyAssignments(List<PropertyAssignment> propertyAssignments)
+    {
+        this.propertyAssignments = propertyAssignments;
     }
 
     // Method automatically generated with DtoGenerator

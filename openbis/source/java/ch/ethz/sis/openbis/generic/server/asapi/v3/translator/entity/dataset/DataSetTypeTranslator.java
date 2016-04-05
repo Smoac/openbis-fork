@@ -16,7 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.dataset;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,6 +27,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.SortAndPage;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationResults;
@@ -39,12 +43,15 @@ public class DataSetTypeTranslator extends AbstractCachingTranslator<Long, DataS
 
     @Autowired
     private IDataSetTypeBaseTranslator baseTranslator;
+    
+    @Autowired
+    private IDataSetPropertyAssignmentTranslator assignmentTranslator;
 
     @Override
     protected DataSetType createObject(TranslationContext context, Long typeId, DataSetTypeFetchOptions fetchOptions)
     {
         final DataSetType type = new DataSetType();
-        type.setFetchOptions(new DataSetTypeFetchOptions());
+        type.setFetchOptions(fetchOptions);
         return type;
     }
 
@@ -54,6 +61,11 @@ public class DataSetTypeTranslator extends AbstractCachingTranslator<Long, DataS
         TranslationResults relations = new TranslationResults();
 
         relations.put(IDataSetTypeBaseTranslator.class, baseTranslator.translate(context, typeIds, null));
+        if (fetchOptions.hasPropertyAssignments())
+        {
+            relations.put(IDataSetPropertyAssignmentTranslator.class, 
+                    assignmentTranslator.translate(context, typeIds, fetchOptions.withPropertyAssignments()));
+        }
 
         return relations;
     }
@@ -70,6 +82,13 @@ public class DataSetTypeTranslator extends AbstractCachingTranslator<Long, DataS
         result.setKind(DataSetKind.valueOf(baseRecord.kind));
         result.setDescription(baseRecord.description);
         result.setModificationDate(baseRecord.modificationDate);
+        
+        if (fetchOptions.hasPropertyAssignments())
+        {
+            Collection<PropertyAssignment> assignments = relations.get(IDataSetPropertyAssignmentTranslator.class, typeId);
+            List<PropertyAssignment> propertyAssignments = new ArrayList<>(assignments);
+            result.setPropertyAssignments(new SortAndPage().sortAndPage(propertyAssignments, fetchOptions.withPropertyAssignments()));
+        }
     }
 
 }

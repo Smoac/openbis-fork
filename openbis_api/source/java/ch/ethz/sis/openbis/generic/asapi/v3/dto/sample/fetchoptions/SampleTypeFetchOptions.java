@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -31,7 +32,32 @@ public class SampleTypeFetchOptions extends FetchOptions<SampleType> implements 
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
+    private PropertyAssignmentFetchOptions propertyAssignments;
+
+    @JsonProperty
     private SampleTypeSortOptions sort;
+
+    // Method automatically generated with DtoGenerator
+    public PropertyAssignmentFetchOptions withPropertyAssignments()
+    {
+        if (propertyAssignments == null)
+        {
+            propertyAssignments = new PropertyAssignmentFetchOptions();
+        }
+        return propertyAssignments;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public PropertyAssignmentFetchOptions withPropertyAssignmentsUsing(PropertyAssignmentFetchOptions fetchOptions)
+    {
+        return propertyAssignments = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasPropertyAssignments()
+    {
+        return propertyAssignments != null;
+    }
 
     // Method automatically generated with DtoGenerator
     @Override
@@ -54,6 +80,7 @@ public class SampleTypeFetchOptions extends FetchOptions<SampleType> implements 
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {
         FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("SampleType", this);
+        f.addFetchOption("PropertyAssignments", propertyAssignments);
         return f;
     }
 

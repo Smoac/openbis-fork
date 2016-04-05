@@ -61,6 +61,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
@@ -126,7 +127,6 @@ public class Generator extends AbstractGenerator
 
         // potentially missing fields:
 
-        // type.getSampleTypePropertyTypes();
         // type.getValidationScript();
 
         DtoGenerator gen = new DtoGenerator("sample", "SampleType", SampleTypeFetchOptions.class);
@@ -143,6 +143,8 @@ public class Generator extends AbstractGenerator
         addModificationDate(gen);
 
         gen.setToStringMethod("\"SampleType \" + code");
+        gen.addPluralFetchedField("List<PropertyAssignment>", List.class.getName(), "propertyAssignments", 
+                "Property assigments", PropertyAssignmentFetchOptions.class);
 
         return gen;
     }
@@ -212,8 +214,8 @@ public class Generator extends AbstractGenerator
         addModificationDate(gen);
 
         gen.setToStringMethod("\"ExperimentType \" + code");
-
-        // TODO add property definitions
+        gen.addPluralFetchedField("List<PropertyAssignment>", List.class.getName(), "propertyAssignments", 
+                "Property assigments", PropertyAssignmentFetchOptions.class);
 
         // TODO add validation script
         return gen;
@@ -275,8 +277,8 @@ public class Generator extends AbstractGenerator
         addModificationDate(gen);
 
         gen.setToStringMethod("\"DataSetType \" + code");
-
-        // TODO add property definitions
+        gen.addPluralFetchedField("List<PropertyAssignment>", List.class.getName(), "propertyAssignments", 
+                "Property assigments", PropertyAssignmentFetchOptions.class);
 
         // TODO add validation script
         return gen;
@@ -517,6 +519,8 @@ public class Generator extends AbstractGenerator
         addModificationDate(gen);
 
         gen.setToStringMethod("\"MaterialType \" + code");
+        gen.addPluralFetchedField("List<PropertyAssignment>", List.class.getName(), "propertyAssignments", 
+                "Property assigments", PropertyAssignmentFetchOptions.class);
 
         return gen;
     }

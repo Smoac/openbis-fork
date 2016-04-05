@@ -57,6 +57,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataTypeCode;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
@@ -335,9 +337,38 @@ public class MapExperimentTest extends AbstractExperimentTest
         assertRegistratorNotFetched(experiment);
         assertModifierNotFetched(experiment);
         assertAttachmentsNotFetched(experiment);
+        assertEquals(type.getFetchOptions().hasPropertyAssignments(), false);
         v3api.logout(sessionToken);
     }
 
+    @Test
+    public void testMapWithTypeAndPropertyAssignments()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.withType().withPropertyAssignments().sortBy().code().desc();
+        ExperimentPermId permId = new ExperimentPermId("200811050951882-1028");
+        
+        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(permId), fetchOptions);
+        
+        assertEquals(1, map.size());
+        Experiment experiment = map.get(permId);
+        ExperimentType type = experiment.getType();
+        assertEquals(type.getCode(), "SIRNA_HCS");
+        assertEquals(type.getFetchOptions().hasPropertyAssignments(), true);
+        List<PropertyAssignment> propertyAssignments = type.getPropertyAssignments();
+        assertEquals(propertyAssignments.get(0).getPropertyType().getCode(), "PURCHASE_DATE");
+        assertEquals(propertyAssignments.get(0).getPropertyType().getLabel(), "Purchased");
+        assertEquals(propertyAssignments.get(0).getPropertyType().getDescription(), "When material has been bought");
+        assertEquals(propertyAssignments.get(0).getPropertyType().isInternalNameSpace(), false);
+        assertEquals(propertyAssignments.get(0).getPropertyType().getDataTypeCode(), DataTypeCode.TIMESTAMP);
+        assertEquals(propertyAssignments.get(0).isMandatory(), false);
+        assertEquals(propertyAssignments.get(1).getPropertyType().getCode(), "GENDER");
+        assertEquals(propertyAssignments.get(2).getPropertyType().getCode(), "DESCRIPTION");
+        assertEquals(propertyAssignments.size(), 3);
+        v3api.logout(sessionToken);
+    }
+    
     @Test
     public void testMapWithTypeReused()
     {

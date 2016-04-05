@@ -51,6 +51,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataTypeCode;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
@@ -1033,11 +1035,10 @@ public class MapSampleTest extends AbstractSampleTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
-        // fetch parents and their properties
         fetchOptions.withType();
 
-        Map<ISampleId, Sample> map =
-                v3api.mapSamples(sessionToken, Collections.singletonList(new SamplePermId("200811050946559-979")), fetchOptions);
+        List<SamplePermId> sampleIds = Collections.singletonList(new SamplePermId("200811050946559-979"));
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, sampleIds, fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());
 
         assertEquals(samples.size(), 1);
@@ -1055,12 +1056,49 @@ public class MapSampleTest extends AbstractSampleTest
         assertFalse(type.isSubcodeUnique());
         assertEquals(type.getGeneratedCodePrefix(), "S");
         assertEqualsDate(type.getModificationDate(), "2009-03-23 15:34:44");
+        assertEquals(type.getFetchOptions().hasPropertyAssignments(), false);
 
         assertExperimentNotFetched(sample);
         assertPropertiesNotFetched(sample);
         assertParentsNotFetched(sample);
         assertChildrenNotFetched(sample);
         assertSpaceNotFetched(sample);
+        v3api.logout(sessionToken);
+    }
+    
+    @Test
+    public void testMapWithTypeAndPropertyAssignments()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withType().withPropertyAssignments().sortBy().label().desc();
+        
+        List<SamplePermId> sampleIds = Collections.singletonList(new SamplePermId("200811050917877-331"));
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, sampleIds, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
+        
+        assertEquals(samples.size(), 1);
+        
+        Sample sample = samples.get(0);
+        assertEquals(sample.getIdentifier().toString(), "/CISD/MP002-1");
+        
+        SampleType type = sample.getType();
+        assertEquals(type.getCode(), "MASTER_PLATE");
+        assertEquals(type.getFetchOptions().hasPropertyAssignments(), true);
+        List<PropertyAssignment> propertyAssignments = type.getPropertyAssignments();
+        assertEquals(propertyAssignments.get(0).getPropertyType().getCode(), "PLATE_GEOMETRY");
+        assertEquals(propertyAssignments.get(0).getPropertyType().getLabel(), "Plate Geometry");
+        assertEquals(propertyAssignments.get(0).getPropertyType().getDescription(), "Plate Geometry");
+        assertEquals(propertyAssignments.get(0).getPropertyType().isInternalNameSpace(), true);
+        assertEquals(propertyAssignments.get(0).getPropertyType().getDataTypeCode(), DataTypeCode.CONTROLLEDVOCABULARY);
+        assertEquals(propertyAssignments.get(0).isMandatory(), true);
+        assertEquals(propertyAssignments.get(1).getPropertyType().getCode(), "DESCRIPTION");
+        assertEquals(propertyAssignments.get(1).getPropertyType().getLabel(), "Description");
+        assertEquals(propertyAssignments.get(1).getPropertyType().getDescription(), "A Description");
+        assertEquals(propertyAssignments.get(1).getPropertyType().isInternalNameSpace(), false);
+        assertEquals(propertyAssignments.get(1).getPropertyType().getDataTypeCode(), DataTypeCode.VARCHAR);
+        assertEquals(propertyAssignments.get(1).isMandatory(), false);
+        assertEquals(propertyAssignments.size(), 2);
         v3api.logout(sessionToken);
     }
 

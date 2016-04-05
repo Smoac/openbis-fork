@@ -16,7 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.experiment;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,6 +26,8 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.SortAndPage;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationResults;
@@ -38,12 +42,15 @@ public class ExperimentTypeTranslator extends AbstractCachingTranslator<Long, Ex
 
     @Autowired
     private IExperimentTypeBaseTranslator baseTranslator;
+    
+    @Autowired
+    private IExperimentPropertyAssignmentTranslator assignmentTranslator;
 
     @Override
     protected ExperimentType createObject(TranslationContext context, Long typeId, ExperimentTypeFetchOptions fetchOptions)
     {
         final ExperimentType type = new ExperimentType();
-        type.setFetchOptions(new ExperimentTypeFetchOptions());
+        type.setFetchOptions(fetchOptions);
         return type;
     }
 
@@ -53,6 +60,11 @@ public class ExperimentTypeTranslator extends AbstractCachingTranslator<Long, Ex
         TranslationResults relations = new TranslationResults();
 
         relations.put(IExperimentTypeBaseTranslator.class, baseTranslator.translate(context, typeIds, null));
+        if (fetchOptions.hasPropertyAssignments())
+        {
+            relations.put(IExperimentPropertyAssignmentTranslator.class, 
+                    assignmentTranslator.translate(context, typeIds, fetchOptions.withPropertyAssignments()));
+        }
 
         return relations;
     }
@@ -68,6 +80,13 @@ public class ExperimentTypeTranslator extends AbstractCachingTranslator<Long, Ex
         result.setCode(baseRecord.code);
         result.setDescription(baseRecord.description);
         result.setModificationDate(baseRecord.modificationDate);
+        
+        if (fetchOptions.hasPropertyAssignments())
+        {
+            Collection<PropertyAssignment> assignments = relations.get(IExperimentPropertyAssignmentTranslator.class, typeId);
+            List<PropertyAssignment> propertyAssignments = new ArrayList<>(assignments);
+            result.setPropertyAssignments(new SortAndPage().sortAndPage(propertyAssignments, fetchOptions.withPropertyAssignments()));
+        }
     }
 
 }
