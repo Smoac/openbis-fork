@@ -23,12 +23,14 @@ import static org.testng.Assert.fail;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +49,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.create.AttachmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IAttachmentsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModifierHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IParentChildrenHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
@@ -59,6 +62,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
@@ -663,6 +667,46 @@ public class AbstractTest extends SystemTestCase
     {
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         assertEquals(format.format(actualDate), format.format(new Date()));
+    }
+
+    protected List<String> extractCodes(List<? extends ICodeHolder> types)
+    {
+        List<String> codes = new ArrayList<>();
+        for (ICodeHolder sampleType : types)
+        {
+            codes.add(sampleType.getCode());
+        }
+        return codes;
+    }
+
+    protected PropertyAssignment getPropertyAssignment(List<PropertyAssignment> propertyAssignments, String code)
+    {
+        List<String> codes = new ArrayList<>();
+        for (PropertyAssignment propertyAssignment : propertyAssignments)
+        {
+            String propertyCode = propertyAssignment.getPropertyType().getCode();
+            codes.add(propertyCode);
+            if (propertyCode.equals(code))
+            {
+                return propertyAssignment;
+            }
+        }
+        throw new AssertionError("No property '" + code + "' found in " + codes);
+    }
+
+    protected void assertOrder(List<PropertyAssignment> propertyAssignments, String...codes)
+    {
+        Set<String> codesSet = new LinkedHashSet<>(Arrays.asList(codes));
+        List<String> propertyCodes = new ArrayList<>();
+        for (PropertyAssignment assignment : propertyAssignments)
+        {
+            String code = assignment.getPropertyType().getCode();
+            if (codesSet.contains(code))
+            {
+                propertyCodes.add(code);
+            }
+        }
+        assertEquals(propertyCodes.toString(), codesSet.toString());
     }
 
     protected static void assertSpaceCodes(Collection<Space> spaces, String... expectedCodes)

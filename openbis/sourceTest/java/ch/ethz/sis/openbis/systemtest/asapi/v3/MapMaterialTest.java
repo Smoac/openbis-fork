@@ -18,11 +18,9 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -228,36 +226,6 @@ public class MapMaterialTest extends AbstractDataSetTest
         v3api.logout(sessionToken);
     }
     
-    private PropertyAssignment getPropertyAssignment(List<PropertyAssignment> propertyAssignments, String code)
-    {
-        List<String> codes = new ArrayList<>();
-        for (PropertyAssignment propertyAssignment : propertyAssignments)
-        {
-            String propertyCode = propertyAssignment.getPropertyType().getCode();
-            codes.add(propertyCode);
-            if (propertyCode.equals(code))
-            {
-                return propertyAssignment;
-            }
-        }
-        throw new AssertionError("No property '" + code + "' found in " + codes);
-    }
-    
-    private void assertOrder(List<PropertyAssignment> propertyAssignments, String...codes)
-    {
-        Set<String> codesSet = new LinkedHashSet<>(Arrays.asList(codes));
-        List<String> propertyCodes = new ArrayList<>();
-        for (PropertyAssignment assignment : propertyAssignments)
-        {
-            String code = assignment.getPropertyType().getCode();
-            if (codesSet.contains(code))
-            {
-                propertyCodes.add(code);
-            }
-        }
-        assertEquals(propertyCodes.toString(), codesSet.toString());
-    }
-
     @Test
     public void testMapWithRegistrator()
     {
