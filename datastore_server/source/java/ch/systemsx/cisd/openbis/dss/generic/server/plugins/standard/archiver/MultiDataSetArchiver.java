@@ -409,6 +409,10 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                 {
                     throw new RuntimeException(status.tryGetErrorMessage());
                 }
+            } catch (RuntimeException ex)
+            {
+                operationLog.error("Sanity check for data set " + dataSetCode + " failed: " + ex);
+                throw ex;
             } finally
             {
                 if (content != null)
