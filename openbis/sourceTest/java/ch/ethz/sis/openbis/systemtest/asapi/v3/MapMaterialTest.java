@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -194,14 +195,14 @@ public class MapMaterialTest extends AbstractDataSetTest
         assertEquals(type.getCode(), "CONTROL");
         assertEquals(type.getFetchOptions().hasPropertyAssignments(), true);
         List<PropertyAssignment> propertyAssignments = type.getPropertyAssignments();
-        assertEquals(propertyAssignments.get(0).getPropertyType().getCode(), "VOLUME");
-        assertEquals(propertyAssignments.get(0).getPropertyType().getLabel(), "Volume");
-        assertEquals(propertyAssignments.get(0).getPropertyType().getDescription(), "The volume of this person");
-        assertEquals(propertyAssignments.get(0).getPropertyType().isInternalNameSpace(), false);
-        assertEquals(propertyAssignments.get(0).getPropertyType().getDataTypeCode(), DataTypeCode.REAL);
-        assertEquals(propertyAssignments.get(0).isMandatory(), false);
-        assertEquals(extractCodes(propertyAssignments).toString(), 
-                "[VOLUME, IS_VALID, SIZE, PURCHASE_DATE, EYE_COLOR, DESCRIPTION]");
+        PropertyAssignment propertyAssignment = getPropertyAssignment(propertyAssignments, "VOLUME");
+        assertEquals(propertyAssignment.getPropertyType().getCode(), "VOLUME");
+        assertEquals(propertyAssignment.getPropertyType().getLabel(), "Volume");
+        assertEquals(propertyAssignment.getPropertyType().getDescription(), "The volume of this person");
+        assertEquals(propertyAssignment.getPropertyType().isInternalNameSpace(), false);
+        assertEquals(propertyAssignment.getPropertyType().getDataTypeCode(), DataTypeCode.REAL);
+        assertEquals(propertyAssignment.isMandatory(), false);
+        assertOrder(propertyAssignments, "VOLUME", "IS_VALID", "SIZE", "PURCHASE_DATE", "EYE_COLOR", "DESCRIPTION");
         assertEquals(propertyAssignments.size(), 6);
         
         v3api.logout(sessionToken);
@@ -223,21 +224,40 @@ public class MapMaterialTest extends AbstractDataSetTest
         assertEquals(type.getCode(), "CONTROL");
         assertEquals(type.getFetchOptions().hasPropertyAssignments(), true);
         List<PropertyAssignment> propertyAssignments = type.getPropertyAssignments();
-        assertEquals(extractCodes(propertyAssignments).toString(), 
-                "[DESCRIPTION, EYE_COLOR, IS_VALID, PURCHASE_DATE, SIZE, VOLUME]");
+        assertOrder(propertyAssignments, "DESCRIPTION", "EYE_COLOR", "IS_VALID", "PURCHASE_DATE", "SIZE", "VOLUME");
         assertEquals(propertyAssignments.size(), 6);
         
         v3api.logout(sessionToken);
     }
     
-    private List<String> extractCodes(List<PropertyAssignment> propertyAssignments)
+    private PropertyAssignment getPropertyAssignment(List<PropertyAssignment> propertyAssignments, String code)
     {
         List<String> codes = new ArrayList<>();
         for (PropertyAssignment propertyAssignment : propertyAssignments)
         {
-            codes.add(propertyAssignment.getPropertyType().getCode());
+            String propertyCode = propertyAssignment.getPropertyType().getCode();
+            codes.add(propertyCode);
+            if (propertyCode.equals(code))
+            {
+                return propertyAssignment;
+            }
         }
-        return codes;
+        throw new AssertionError("No property '" + code + "' found in " + codes);
+    }
+    
+    private void assertOrder(List<PropertyAssignment> propertyAssignments, String...codes)
+    {
+        Set<String> codesSet = new LinkedHashSet<>(Arrays.asList(codes));
+        List<String> propertyCodes = new ArrayList<>();
+        for (PropertyAssignment assignment : propertyAssignments)
+        {
+            String code = assignment.getPropertyType().getCode();
+            if (codesSet.contains(code))
+            {
+                propertyCodes.add(code);
+            }
+        }
+        assertEquals(propertyCodes.toString(), codesSet.toString());
     }
 
     @Test
