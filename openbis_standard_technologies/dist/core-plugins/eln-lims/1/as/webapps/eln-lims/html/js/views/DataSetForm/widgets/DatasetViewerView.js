@@ -109,6 +109,10 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
         				var titleValue = null;
         				if(file.isDirectory) {
         					titleValue = file.pathInListing;
+        					var directLink = _this._dataSetViewerModel.getDirectDirectoryLink(code, file);
+        					if(directLink) {
+        						titleValue = directLink + " " + titleValue;
+        					}
         				} else {
         					var $fileLink = _this._dataSetViewerModel.getDownloadLink(code, file, true);
         					titleValue = $fileLink[0].outerHTML;
