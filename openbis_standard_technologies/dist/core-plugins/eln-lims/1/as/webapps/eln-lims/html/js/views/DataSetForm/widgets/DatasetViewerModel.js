@@ -68,9 +68,10 @@ function DataSetViewerModel(containerId, profile, sample, serverFacade, datastor
 	}
 	
 	this.getDirectDirectoryLink = function(datasetCode, datasetFile) {
-		var directLinkURL = profile.directLinkURL + this.sample.experimentIdentifierOrNull.substring(1) + "/" + datasetCode + "/" + datasetFile.pathInDataSet + "/";
-		var directLink = "<span onclick=\"" + "window.open('" + directLinkURL + "')" + "\" class='glyphicon glyphicon-hdd'></span>";
-		return directLink;
+		var directLink = profile.directLinkURL + this.sample.experimentIdentifierOrNull.substring(1) + "/" + datasetCode + "/" + datasetFile.pathInDataSet + "/";
+		var directLinkComponent = "<span onclick=\"" + "Util.showDirectLink('" + directLink + "')" + "\" class='glyphicon glyphicon-hdd'></span>";
+//		var directLink = "<span onclick=\"" + "window.open('" + directLinkURL + "')" + "\" class='glyphicon glyphicon-hdd'></span>";
+		return directLinkComponent;
 	}
 	
 	this.getPreviewLink = function(datasetCode, datasetFile) {
@@ -79,11 +80,6 @@ function DataSetViewerModel(containerId, profile, sample, serverFacade, datastor
 			var imageURLAsString = profile.getDefaultDataStoreURL() + "/" + datasetCode + "/" + datasetFile.pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
 			var onclick = "Util.showImage(\"" + imageURLAsString + "\");"
 			previewLink = "<span onclick='" + onclick + "' class='glyphicon glyphicon-search'></span>";
-//			previewLink = FormUtil.getButtonWithIcon("glyphicon-search", function() {
-//				var imageURL = profile.getDefaultDataStoreURL() + '/' + datasetCode + "/" + datasetFile.pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
-//				Util.showImage(imageURL);
-//				event.stopPropagation();
-//			});
 		}
 		return previewLink;
 	}

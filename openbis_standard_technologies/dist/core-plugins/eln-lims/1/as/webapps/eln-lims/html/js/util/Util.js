@@ -226,6 +226,27 @@ var Util = new function() {
 		});
 	}
 
+	this.showDirectLink = function(directLink) {
+		var css = {
+				'text-align' : 'left',
+				'top' : '15%',
+				'width' : '80%',
+				'left' : '10%',
+				'right' : '10%',
+				'overflow' : 'hidden'
+		};
+		
+		var $window = $("<div>").append($("<h1>").append("Direct Link"))
+											.append("Please use this link to access the folder though the network: ")
+											.append($("<br>"))
+											.append("Directly clicking on it will open the default application.")
+											.append($("<br>"))
+											.append($("<a>", { "href" : directLink, "target" : "_blank"}).append(directLink));
+		$window.css("margin", "10px");
+		
+		Util.blockUI($window, css);
+	}
+	
 	//HACK: This method is intended to be used by naughty SVG images that don't provide a correct with/height and don't resize correctly
 	this.loadSVGImage = function(imageURL, containerWidth, containerHeight, callback, isSEQSVG) {
 		d3.xml(imageURL, "image/svg+xml", 
