@@ -14,6 +14,17 @@ define([ "stjs" ], function(stjs) {
 		prototype.code = null;
 		prototype.description = null;
 		prototype.modificationDate = null;
+		prototype.propertyAssignments = null;
+		prototype.getPropertyAssignments = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasPropertyAssignments()) {
+				return this.propertyAssignments;
+			} else {
+				throw new exceptions.NotFetchedException("Property assignments have not been fetched.");
+			}
+		};
+		prototype.setPropertyAssignments = function(propertyAssignments) {
+			this.propertyAssignments = propertyAssignments;
+		};
 		prototype.getFetchOptions = function() {
 			return this.fetchOptions;
 		};

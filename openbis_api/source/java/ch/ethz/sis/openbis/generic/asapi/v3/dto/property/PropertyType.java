@@ -18,6 +18,8 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.property;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -31,14 +33,19 @@ public class PropertyType implements ICodeHolder, Serializable
 {
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
     private String code;
     
+    @JsonProperty
     private String label;
     
+    @JsonProperty
     private String description;
     
+    @JsonProperty
     private DataTypeCode dataTypeCode;
     
+    @JsonProperty
     private boolean internalNameSpace;
 
     @Override

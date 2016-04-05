@@ -18,6 +18,8 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.property;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -30,8 +32,10 @@ public class PropertyAssignment implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
     private boolean mandatory;
     
+    @JsonProperty
     private PropertyType propertyType;
     
     public boolean isMandatory()

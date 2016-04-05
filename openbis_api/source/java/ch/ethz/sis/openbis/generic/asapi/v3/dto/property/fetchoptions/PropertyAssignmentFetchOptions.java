@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
@@ -32,6 +34,7 @@ public class PropertyAssignmentFetchOptions extends FetchOptions<PropertyAssignm
 
     private static final long serialVersionUID = 1L;
     
+    @JsonProperty
     private PropertyAssignmentSortOptions sort;
 
     @Override
