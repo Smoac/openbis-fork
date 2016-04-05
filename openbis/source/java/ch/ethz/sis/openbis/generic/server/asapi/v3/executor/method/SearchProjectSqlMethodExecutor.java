@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search.ProjectSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.ISearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.ISearchProjectExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.project.IProjectTranslator;
@@ -36,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
  * @author pkupczyk
  */
 @Component
-public class SearchProjectSqlMethodExecutor extends AbstractSearchMethodExecutor<Project, Long, ProjectSearchCriteria, ProjectFetchOptions>
+public class SearchProjectSqlMethodExecutor extends AbstractIdSearchMethodExecutor<Project, ProjectPE, ProjectSearchCriteria, ProjectFetchOptions>
         implements ISearchProjectMethodExecutor
 {
 
@@ -47,24 +45,9 @@ public class SearchProjectSqlMethodExecutor extends AbstractSearchMethodExecutor
     private IProjectTranslator translator;
 
     @Override
-    protected ISearchObjectExecutor<ProjectSearchCriteria, Long> getSearchExecutor()
+    protected List<ProjectPE> searchPEs(IOperationContext context, ProjectSearchCriteria criteria)
     {
-        return new ISearchObjectExecutor<ProjectSearchCriteria, Long>()
-            {
-                @Override
-                public List<Long> search(IOperationContext context, ProjectSearchCriteria criteria)
-                {
-                    List<ProjectPE> projects = searchExecutor.search(context, criteria);
-                    List<Long> ids = new ArrayList<Long>();
-
-                    for (ProjectPE project : projects)
-                    {
-                        ids.add(project.getId());
-                    }
-
-                    return ids;
-                }
-            };
+        return searchExecutor.search(context, criteria);
     }
 
     @Override

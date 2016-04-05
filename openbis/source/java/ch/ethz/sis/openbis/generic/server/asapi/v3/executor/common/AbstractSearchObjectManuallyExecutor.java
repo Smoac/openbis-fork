@@ -26,15 +26,8 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractObjectSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractStringValue;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AnyStringValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringContainsValue;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringEndsWithValue;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringEqualToValue;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringFieldSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringStartsWithValue;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 
@@ -50,7 +43,7 @@ public abstract class AbstractSearchObjectManuallyExecutor<CRITERIA extends Abst
 
     protected abstract List<OBJECT> listAll();
 
-    protected abstract Matcher getMatcher(ISearchCriteria criteria);
+    protected abstract Matcher<OBJECT> getMatcher(ISearchCriteria criteria);
 
     @Override
     public List<OBJECT> search(IOperationContext context, CRITERIA criteria)
@@ -78,7 +71,7 @@ public abstract class AbstractSearchObjectManuallyExecutor<CRITERIA extends Abst
 
             for (ISearchCriteria subCriteria : criteria.getCriteria())
             {
-                Matcher matcher = getMatcher(subCriteria);
+                Matcher<OBJECT> matcher = getMatcher(subCriteria);
 
                 List<OBJECT> partialMatch = matcher.getMatching(context, objects, subCriteria);
                 if (partialMatch == null)
@@ -109,83 +102,6 @@ public abstract class AbstractSearchObjectManuallyExecutor<CRITERIA extends Abst
                 throw new IllegalArgumentException("Unknown search operator: " + criteria.getOperator());
             }
         }
-    }
-
-    protected abstract class Matcher
-    {
-
-        public abstract List<OBJECT> getMatching(IOperationContext context, List<OBJECT> objects, ISearchCriteria criteria);
-
-    }
-
-    protected abstract class SimpleFieldMatcher extends Matcher
-    {
-
-        @Override
-        public List<OBJECT> getMatching(IOperationContext context, List<OBJECT> objects, ISearchCriteria criteria)
-        {
-            List<OBJECT> matches = new ArrayList<OBJECT>();
-
-            for (OBJECT object : objects)
-            {
-                if (isMatching(context, object, criteria))
-                {
-                    matches.add(object);
-                }
-            }
-
-            return matches;
-        }
-
-        protected abstract boolean isMatching(IOperationContext context, OBJECT object, ISearchCriteria criteria);
-
-    }
-
-    protected abstract class StringFieldMatcher extends SimpleFieldMatcher
-    {
-
-        @Override
-        protected boolean isMatching(IOperationContext context, OBJECT object, ISearchCriteria criteria)
-        {
-            AbstractStringValue fieldValue = ((StringFieldSearchCriteria) criteria).getFieldValue();
-
-            if (fieldValue == null || fieldValue.getValue() == null || fieldValue instanceof AnyStringValue)
-            {
-                return true;
-            }
-
-            String actualValue = getFieldValue(object);
-
-            if (actualValue == null)
-            {
-                actualValue = "";
-            } else
-            {
-                actualValue = actualValue.toLowerCase();
-            }
-
-            String searchedValue = fieldValue.getValue().toLowerCase();
-
-            if (fieldValue instanceof StringEqualToValue)
-            {
-                return actualValue.equals(searchedValue);
-            } else if (fieldValue instanceof StringContainsValue)
-            {
-                return actualValue.contains(searchedValue);
-            } else if (fieldValue instanceof StringStartsWithValue)
-            {
-                return actualValue.startsWith(searchedValue);
-            } else if (fieldValue instanceof StringEndsWithValue)
-            {
-                return actualValue.endsWith(searchedValue);
-            } else
-            {
-                throw new IllegalArgumentException("Unknown string value: " + criteria.getClass());
-            }
-        }
-
-        protected abstract String getFieldValue(OBJECT object);
-
     }
 
 }

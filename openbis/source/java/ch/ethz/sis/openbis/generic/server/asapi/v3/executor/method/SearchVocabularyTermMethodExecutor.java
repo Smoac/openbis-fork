@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.ISearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary.ISearchVocabularyTermExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.vocabulary.IVocabularyTermTranslator;
@@ -37,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
  */
 @Component
 public class SearchVocabularyTermMethodExecutor
-        extends AbstractSearchMethodExecutor<VocabularyTerm, Long, VocabularyTermSearchCriteria, VocabularyTermFetchOptions>
+        extends AbstractIdSearchMethodExecutor<VocabularyTerm, VocabularyTermPE, VocabularyTermSearchCriteria, VocabularyTermFetchOptions>
         implements ISearchVocabularyTermMethodExecutor
 {
 
@@ -48,24 +46,9 @@ public class SearchVocabularyTermMethodExecutor
     private IVocabularyTermTranslator translator;
 
     @Override
-    protected ISearchObjectExecutor<VocabularyTermSearchCriteria, Long> getSearchExecutor()
+    protected List<VocabularyTermPE> searchPEs(IOperationContext context, VocabularyTermSearchCriteria criteria)
     {
-        return new ISearchObjectExecutor<VocabularyTermSearchCriteria, Long>()
-            {
-                @Override
-                public List<Long> search(IOperationContext context, VocabularyTermSearchCriteria criteria)
-                {
-                    List<VocabularyTermPE> terms = searchExecutor.search(context, criteria);
-                    List<Long> ids = new ArrayList<Long>();
-
-                    for (VocabularyTermPE term : terms)
-                    {
-                        ids.add(term.getId());
-                    }
-
-                    return ids;
-                }
-            };
+        return searchExecutor.search(context, criteria);
     }
 
     @Override

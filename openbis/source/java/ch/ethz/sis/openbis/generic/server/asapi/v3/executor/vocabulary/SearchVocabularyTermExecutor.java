@@ -33,6 +33,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularySear
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractSearchObjectManuallyExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.CodeMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.Matcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.SimpleFieldMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.StringFieldMatcher;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
@@ -54,7 +58,7 @@ public class SearchVocabularyTermExecutor extends AbstractSearchObjectManuallyEx
     }
 
     @Override
-    protected Matcher getMatcher(ISearchCriteria criteria)
+    protected Matcher<VocabularyTermPE> getMatcher(ISearchCriteria criteria)
     {
         if (criteria instanceof IdSearchCriteria<?>)
         {
@@ -64,7 +68,7 @@ public class SearchVocabularyTermExecutor extends AbstractSearchObjectManuallyEx
             return new PermIdMatcher();
         } else if (criteria instanceof CodeSearchCriteria)
         {
-            return new CodeMatcher();
+            return new CodeMatcher<VocabularyTermPE>();
         } else if (criteria instanceof VocabularySearchCriteria)
         {
             return new VocabularyMatcher();
@@ -74,7 +78,7 @@ public class SearchVocabularyTermExecutor extends AbstractSearchObjectManuallyEx
         }
     }
 
-    private class IdMatcher extends SimpleFieldMatcher
+    private class IdMatcher extends SimpleFieldMatcher<VocabularyTermPE>
     {
 
         @Override
@@ -97,7 +101,7 @@ public class SearchVocabularyTermExecutor extends AbstractSearchObjectManuallyEx
 
     }
 
-    private class PermIdMatcher extends StringFieldMatcher
+    private class PermIdMatcher extends StringFieldMatcher<VocabularyTermPE>
     {
 
         @Override
@@ -108,18 +112,7 @@ public class SearchVocabularyTermExecutor extends AbstractSearchObjectManuallyEx
 
     }
 
-    private class CodeMatcher extends StringFieldMatcher
-    {
-
-        @Override
-        protected String getFieldValue(VocabularyTermPE object)
-        {
-            return object.getCode();
-        }
-
-    }
-
-    private class VocabularyMatcher extends Matcher
+    private class VocabularyMatcher extends Matcher<VocabularyTermPE>
     {
 
         @Override

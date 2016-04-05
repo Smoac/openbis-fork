@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.ISearchObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.space.ISearchSpaceExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.space.ISpaceTranslator;
@@ -36,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
  * @author pkupczyk
  */
 @Component
-public class SearchSpaceSqlMethodExecutor extends AbstractSearchMethodExecutor<Space, Long, SpaceSearchCriteria, SpaceFetchOptions> implements
+public class SearchSpaceSqlMethodExecutor extends AbstractIdSearchMethodExecutor<Space, SpacePE, SpaceSearchCriteria, SpaceFetchOptions> implements
         ISearchSpaceMethodExecutor
 {
 
@@ -47,24 +45,9 @@ public class SearchSpaceSqlMethodExecutor extends AbstractSearchMethodExecutor<S
     private ISpaceTranslator translator;
 
     @Override
-    protected ISearchObjectExecutor<SpaceSearchCriteria, Long> getSearchExecutor()
+    protected List<SpacePE> searchPEs(IOperationContext context, SpaceSearchCriteria criteria)
     {
-        return new ISearchObjectExecutor<SpaceSearchCriteria, Long>()
-            {
-                @Override
-                public List<Long> search(IOperationContext context, SpaceSearchCriteria criteria)
-                {
-                    List<SpacePE> spaces = searchExecutor.search(context, criteria);
-                    List<Long> ids = new ArrayList<Long>();
-
-                    for (SpacePE space : spaces)
-                    {
-                        ids.add(space.getId());
-                    }
-
-                    return ids;
-                }
-            };
+        return searchExecutor.search(context, criteria);
     }
 
     @Override

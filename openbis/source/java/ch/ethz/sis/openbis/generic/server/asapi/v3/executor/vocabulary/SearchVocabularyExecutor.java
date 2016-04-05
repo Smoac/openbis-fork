@@ -28,6 +28,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularySearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractSearchObjectManuallyExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.CodeMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.Matcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.SimpleFieldMatcher;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 
 /**
@@ -45,21 +48,21 @@ public class SearchVocabularyExecutor extends AbstractSearchObjectManuallyExecut
     }
 
     @Override
-    protected Matcher getMatcher(ISearchCriteria criteria)
+    protected Matcher<VocabularyPE> getMatcher(ISearchCriteria criteria)
     {
         if (criteria instanceof IdSearchCriteria<?>)
         {
             return new IdMatcher();
         } else if (criteria instanceof CodeSearchCriteria || criteria instanceof PermIdSearchCriteria)
         {
-            return new CodeMatcher();
+            return new CodeMatcher<VocabularyPE>();
         } else
         {
             throw new IllegalArgumentException("Unknown search criteria: " + criteria.getClass());
         }
     }
 
-    private class IdMatcher extends SimpleFieldMatcher
+    private class IdMatcher extends SimpleFieldMatcher<VocabularyPE>
     {
 
         @Override
@@ -81,16 +84,4 @@ public class SearchVocabularyExecutor extends AbstractSearchObjectManuallyExecut
         }
 
     }
-
-    private class CodeMatcher extends StringFieldMatcher
-    {
-
-        @Override
-        protected String getFieldValue(VocabularyPE object)
-        {
-            return object.getCode();
-        }
-
-    }
-
 }

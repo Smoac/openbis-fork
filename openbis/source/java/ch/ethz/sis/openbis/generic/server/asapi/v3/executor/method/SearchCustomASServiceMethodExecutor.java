@@ -32,6 +32,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.CustomASSer
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.CustomASServiceSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractSearchObjectManuallyExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.Matcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.StringFieldMatcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.SortAndPage;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
@@ -64,7 +66,7 @@ public class SearchCustomASServiceMethodExecutor extends AbstractSearchObjectMan
     }
 
     @Override
-    protected Matcher getMatcher(ISearchCriteria criteria)
+    protected Matcher<CustomASService> getMatcher(ISearchCriteria criteria)
     {
         if (criteria instanceof CodeSearchCriteria)
         {
@@ -73,7 +75,7 @@ public class SearchCustomASServiceMethodExecutor extends AbstractSearchObjectMan
         throw new IllegalArgumentException("Unknown search criteria: " + criteria.getClass());
     }
 
-    private class CodeMatcher extends StringFieldMatcher
+    private class CodeMatcher extends StringFieldMatcher<CustomASService>
     {
 
         @Override

@@ -34,6 +34,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search.ProjectSearchCrit
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractSearchObjectManuallyExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.CodeMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.Matcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.SimpleFieldMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.StringFieldMatcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.space.ISearchSpaceExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -55,14 +59,14 @@ public class SearchProjectExecutor extends AbstractSearchObjectManuallyExecutor<
     }
 
     @Override
-    protected Matcher getMatcher(ISearchCriteria criteria)
+    protected Matcher<ProjectPE> getMatcher(ISearchCriteria criteria)
     {
         if (criteria instanceof IdSearchCriteria<?>)
         {
             return new IdMatcher();
         } else if (criteria instanceof CodeSearchCriteria)
         {
-            return new CodeMatcher();
+            return new CodeMatcher<ProjectPE>();
         } else if (criteria instanceof PermIdSearchCriteria)
         {
             return new PermIdMatcher();
@@ -75,7 +79,7 @@ public class SearchProjectExecutor extends AbstractSearchObjectManuallyExecutor<
         }
     }
 
-    private class IdMatcher extends SimpleFieldMatcher
+    private class IdMatcher extends SimpleFieldMatcher<ProjectPE>
     {
 
         @Override
@@ -100,18 +104,7 @@ public class SearchProjectExecutor extends AbstractSearchObjectManuallyExecutor<
 
     }
 
-    private class CodeMatcher extends StringFieldMatcher
-    {
-
-        @Override
-        protected String getFieldValue(ProjectPE object)
-        {
-            return object.getCode();
-        }
-
-    }
-
-    private class PermIdMatcher extends StringFieldMatcher
+    private class PermIdMatcher extends StringFieldMatcher<ProjectPE>
     {
 
         @Override
@@ -122,7 +115,7 @@ public class SearchProjectExecutor extends AbstractSearchObjectManuallyExecutor<
 
     }
 
-    private class SpaceMatcher extends Matcher
+    private class SpaceMatcher extends Matcher<ProjectPE>
     {
 
         @Override

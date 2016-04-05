@@ -28,6 +28,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractSearchObjectManuallyExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.CodeMatcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.Matcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.SimpleFieldMatcher;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
@@ -44,21 +47,21 @@ public class SearchSpaceExecutor extends AbstractSearchObjectManuallyExecutor<Sp
     }
 
     @Override
-    protected Matcher getMatcher(ISearchCriteria criteria)
+    protected Matcher<SpacePE> getMatcher(ISearchCriteria criteria)
     {
         if (criteria instanceof IdSearchCriteria<?>)
         {
             return new IdMatcher();
         } else if (criteria instanceof PermIdSearchCriteria || criteria instanceof CodeSearchCriteria)
         {
-            return new CodeMatcher();
+            return new CodeMatcher<SpacePE>();
         } else
         {
             throw new IllegalArgumentException("Unknown search criteria: " + criteria.getClass());
         }
     }
 
-    private class IdMatcher extends SimpleFieldMatcher
+    private class IdMatcher extends SimpleFieldMatcher<SpacePE>
     {
 
         @Override
@@ -76,17 +79,6 @@ public class SearchSpaceExecutor extends AbstractSearchObjectManuallyExecutor<Sp
             {
                 throw new IllegalArgumentException("Unknown id: " + id.getClass());
             }
-        }
-
-    }
-
-    private class CodeMatcher extends StringFieldMatcher
-    {
-
-        @Override
-        protected String getFieldValue(SpacePE object)
-        {
-            return object.getCode();
         }
 
     }
