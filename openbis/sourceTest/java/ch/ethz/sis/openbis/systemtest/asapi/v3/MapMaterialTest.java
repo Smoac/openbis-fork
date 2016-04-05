@@ -203,7 +203,6 @@ public class MapMaterialTest extends AbstractDataSetTest
         assertEquals(propertyAssignment.getPropertyType().getDataTypeCode(), DataTypeCode.REAL);
         assertEquals(propertyAssignment.isMandatory(), false);
         assertOrder(propertyAssignments, "VOLUME", "IS_VALID", "SIZE", "PURCHASE_DATE", "EYE_COLOR", "DESCRIPTION");
-        assertEquals(propertyAssignments.size(), 6);
         
         v3api.logout(sessionToken);
     }
@@ -225,7 +224,6 @@ public class MapMaterialTest extends AbstractDataSetTest
         assertEquals(type.getFetchOptions().hasPropertyAssignments(), true);
         List<PropertyAssignment> propertyAssignments = type.getPropertyAssignments();
         assertOrder(propertyAssignments, "DESCRIPTION", "EYE_COLOR", "IS_VALID", "PURCHASE_DATE", "SIZE", "VOLUME");
-        assertEquals(propertyAssignments.size(), 6);
         
         v3api.logout(sessionToken);
     }
