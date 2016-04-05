@@ -592,7 +592,7 @@ function MainController(profile) {
 	
 	this._showAdvancedSearchPage = function(freeText) {
 		//Show Form
-		var newView = new AdvancedSearchController(this, freeText);
+		var newView = new AdvancedSearchController(this, "*" + freeText + "*");
 		newView.init($("#mainContainer"));
 		if(freeText) {
 			newView.search();
