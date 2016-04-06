@@ -13,7 +13,7 @@ define([ "stjs", "as/dto/common/fetchoptions/FetchOptions" ], function(stjs, Fet
 		prototype.withPropertyAssignments = function() {
 			if (this.propertyAssignments == null) {
 				var PropertyAssignmentFetchOptions = require("as/dto/property/fetchoptions/PropertyAssignmentFetchOptions");
-				this.type = new PropertyAssignmentFetchOptions();
+				this.propertyAssignments = new PropertyAssignmentFetchOptions();
 			}
 			return this.propertyAssignments;
 		};

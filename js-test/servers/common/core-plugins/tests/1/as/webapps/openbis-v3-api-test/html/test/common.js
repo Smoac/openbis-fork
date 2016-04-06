@@ -40,6 +40,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 		this.MaterialDeletionOptions = dtos.MaterialDeletionOptions;
 		this.VocabularyTermDeletionOptions = dtos.VocabularyTermDeletionOptions;
 		this.EntityTypePermId = dtos.EntityTypePermId;
+		this.EntityTypeSearchCriteria = dtos.EntityTypeSearchCriteria;
 		this.SpacePermId = dtos.SpacePermId;
 		this.ProjectPermId = dtos.ProjectPermId;
 		this.ProjectIdentifier = dtos.ProjectIdentifier;
@@ -62,9 +63,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 		this.SpaceFetchOptions = dtos.SpaceFetchOptions;
 		this.ProjectFetchOptions = dtos.ProjectFetchOptions;
 		this.ExperimentFetchOptions = dtos.ExperimentFetchOptions;
+		this.ExperimentTypeFetchOptions = dtos.ExperimentTypeFetchOptions;
 		this.SampleFetchOptions = dtos.SampleFetchOptions;
+		this.SampleTypeFetchOptions = dtos.SampleTypeFetchOptions;
 		this.DataSetFetchOptions = dtos.DataSetFetchOptions;
+		this.DataSetTypeFetchOptions = dtos.DataSetTypeFetchOptions;
 		this.MaterialFetchOptions = dtos.MaterialFetchOptions;
+		this.MaterialTypeFetchOptions = dtos.MaterialTypeFetchOptions;
 		this.VocabularyTermFetchOptions = dtos.VocabularyTermFetchOptions;
 		this.DeletionFetchOptions = dtos.DeletionFetchOptions;
 		this.DeletionSearchCriteria = dtos.DeletionSearchCriteria;

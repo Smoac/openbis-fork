@@ -211,6 +211,36 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			}, fo);
 		});
 
+		QUnit.test("searchExperimentTypes()", function(assert) {
+			var c = new common(assert);
+
+			var fSearch = function(facade) {
+				var criteria = new c.EntityTypeSearchCriteria();
+				criteria.withCode().thatStartsWith("HT");
+				var fetchOptions = new c.ExperimentTypeFetchOptions();
+				fetchOptions.withPropertyAssignments();
+				return facade.searchExperimentTypes(criteria, fetchOptions);
+			}
+
+			var fCheck = function(facade, experimentTypes) {
+				c.assertEqual(experimentTypes.length, 1, "Number of experiment types");
+				var type = experimentTypes[0];
+				c.assertEqual(type.getCode(), "HT_SEQUENCING", "Experiment type code");
+				c.assertEqual(type.getFetchOptions().hasPropertyAssignments(), true);
+				var assignments = type.getPropertyAssignments();
+				c.assertEqual(assignments.length, 1, "Number of property assignments");
+				c.assertEqual(assignments[0].isMandatory(), false, "Mandatory property assignment?");
+				var propertyType = assignments[0].getPropertyType();
+				c.assertEqual(propertyType.getCode(), "EXPERIMENT_DESIGN", "Property type code");
+				c.assertEqual(propertyType.getLabel(), "Experiment Design", "Property type label");
+				c.assertEqual(propertyType.getDescription(), "", "Property type description");
+				c.assertEqual(propertyType.getDataTypeCode(), "CONTROLLEDVOCABULARY", "Property data type code");
+				c.assertEqual(propertyType.isInternalNameSpace(), false, "Property type internal name space?");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
 		QUnit.test("searchSamples()", function(assert) {
 			var c = new common(assert);
 
@@ -329,6 +359,37 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			testSearch(c, fSearch, fCheck);
 		});
 
+		QUnit.test("searchSampleTypes()", function(assert) {
+			var c = new common(assert);
+
+			var fSearch = function(facade) {
+				var criteria = new c.EntityTypeSearchCriteria();
+				criteria.withCode().thatStartsWith("MA");
+				var fetchOptions = new c.SampleTypeFetchOptions();
+				fetchOptions.withPropertyAssignments().sortBy().label().desc();
+				return facade.searchSampleTypes(criteria, fetchOptions);
+			}
+
+			var fCheck = function(facade, sampleTypes) {
+				c.assertEqual(sampleTypes.length, 1, "Number of sample types");
+				var type = sampleTypes[0];
+				c.assertEqual(type.getCode(), "MASTER_SAMPLE", "Sample type code");
+				c.assertEqual(type.getFetchOptions().hasPropertyAssignments(), true);
+				var assignments = type.getPropertyAssignments();
+				c.assertEqual(assignments.length, 8, "Number of property assignments");
+				c.assertEqual(assignments[0].isMandatory(), true, "Mandatory property assignment?");
+				var propertyType = assignments[0].getPropertyType();
+				c.assertEqual(propertyType.getCode(), "SAMPLE_KIND", "Property type code");
+				c.assertEqual(propertyType.getLabel(), "Sample Kind", "Property type label");
+				c.assertEqual(propertyType.getDescription(), "", "Property type description");
+				c.assertEqual(propertyType.getDataTypeCode(), "CONTROLLEDVOCABULARY", "Property data type code");
+				c.assertEqual(propertyType.isInternalNameSpace(), false, "Property type internal name space?");
+				c.assertEqual(assignments[1].getPropertyType().getCode(), "NCBI_ORGANISM_TAXONOMY", "Second property type code");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+		
 		QUnit.test("searchDataSets()", function(assert) {
 			var c = new common(assert);
 
@@ -461,6 +522,38 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			testSearch(c, fSearch, fCheck);
 		});
 
+		QUnit.test("searchDataSetTypes()", function(assert) {
+			var c = new common(assert);
+
+			var fSearch = function(facade) {
+				var criteria = new c.EntityTypeSearchCriteria();
+				criteria.withCode().thatStartsWith("MA");
+				var fetchOptions = new c.DataSetTypeFetchOptions();
+				fetchOptions.withPropertyAssignments().sortBy().code().asc();
+				return facade.searchDataSetTypes(criteria, fetchOptions);
+			}
+
+			var fCheck = function(facade, dataSetTypes) {
+				c.assertEqual(dataSetTypes.length, 1, "Number of data set types");
+				var type = dataSetTypes[0];
+				c.assertEqual(type.getCode(), "MACS_OUTPUT", "Data set type code");
+				c.assertEqual(type.getFetchOptions().hasPropertyAssignments(), true);
+				var assignments = type.getPropertyAssignments();
+				c.assertEqual(assignments.length, 2, "Number of property assignments");
+				c.assertEqual(assignments[0].isMandatory(), false, "Mandatory property assignment?");
+				var propertyType = assignments[0].getPropertyType();
+				c.assertEqual(propertyType.getCode(), "MACS_VERSION", "Property type code");
+				c.assertEqual(propertyType.getLabel(), "MACS VERSION", "Property type label");
+				c.assertEqual(propertyType.getDescription(), "", "Property type description");
+				c.assertEqual(propertyType.getDataTypeCode(), "CONTROLLEDVOCABULARY", "Property data type code");
+				c.assertEqual(propertyType.isInternalNameSpace(), false, "Property type internal name space?");
+				c.assertEqual(assignments[1].getPropertyType().getCode(), "NOTES", "Second property type code");
+				c.assertEqual(assignments[1].getPropertyType().getDataTypeCode(), "MULTILINE_VARCHAR", "Second property data type code");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
 		QUnit.test("searchMaterials()", function(assert) {
 			var c = new common(assert);
 
@@ -495,6 +588,38 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			testSearchWithPagingAndSortingByAll(c, function(facade) {
 				return facade.searchMaterials(criteria, fo);
 			}, fo);
+		});
+
+		QUnit.test("searchMaterialTypes()", function(assert) {
+			var c = new common(assert);
+
+			var fSearch = function(facade) {
+				var criteria = new c.EntityTypeSearchCriteria();
+				criteria.withCode().thatStartsWith("G");
+				var fetchOptions = new c.MaterialTypeFetchOptions();
+				fetchOptions.withPropertyAssignments().sortBy().code().desc();
+				return facade.searchMaterialTypes(criteria, fetchOptions);
+			}
+
+			var fCheck = function(facade, materialTypes) {
+				c.assertEqual(materialTypes.length, 1, "Number of material types");
+				var type = materialTypes[0];
+				c.assertEqual(type.getCode(), "GENE", "Material type code");
+				c.assertEqual(type.getFetchOptions().hasPropertyAssignments(), true);
+				var assignments = type.getPropertyAssignments();
+				c.assertEqual(assignments.length, 2, "Number of property assignments");
+				c.assertEqual(assignments[0].isMandatory(), false, "Mandatory property assignment?");
+				var propertyType = assignments[0].getPropertyType();
+				c.assertEqual(propertyType.getCode(), "GENE_SYMBOLS", "Property type code");
+				c.assertEqual(propertyType.getLabel(), "Gene symbols", "Property type label");
+				c.assertEqual(propertyType.getDescription(), "", "Property type description");
+				c.assertEqual(propertyType.getDataTypeCode(), "VARCHAR", "Property data type code");
+				c.assertEqual(propertyType.isInternalNameSpace(), false, "Property type internal name space?");
+				c.assertEqual(assignments[1].getPropertyType().getCode(), "DESCRIPTION", "Second property type code");
+				c.assertEqual(assignments[1].getPropertyType().getDescription(), "A Description", "Second property type description");
+			}
+
+			testSearch(c, fSearch, fCheck);
 		});
 
 		QUnit.test("searchGlobally() withText thatContains", function(assert) {
