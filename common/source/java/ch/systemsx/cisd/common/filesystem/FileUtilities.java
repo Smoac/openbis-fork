@@ -1414,7 +1414,7 @@ public final class FileUtilities
         long timestamp = System.currentTimeMillis();
         Date date = new Date(timestamp);
         DateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
-        return formatter.format(date) + uniqueIncrement;
+        return formatter.format(date) + uniqueIncrement.incrementAndGet();
 
     }
 
