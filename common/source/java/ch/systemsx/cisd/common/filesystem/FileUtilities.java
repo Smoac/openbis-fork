@@ -44,6 +44,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
@@ -1401,21 +1402,19 @@ public final class FileUtilities
         return new File(uniqueFilePath);
     }
 
+    private static AtomicInteger uniqueIncrement = new AtomicInteger();
+
     /**
-     * @return
-     * The format of the unique string consists of a time stamp and a unique random number:
-     * <var>_yyyy_MM_dd_HH_mm_ss_SSS_</var> + unique_number
+     * @return The format of the unique string consists of a time stamp and a unique number: <var>_yyyy_MM_dd_HH_mm_ss_SSS_</var> + unique_number
      */
     public final static String getUniqueTimestamp()
     {
-
         final String DATE_FORMAT = "_yyyy_MM_dd_HH_mm_ss_SSS_";
 
-        int random_int = (int) (Math.random() * 1000);
         long timestamp = System.currentTimeMillis();
         Date date = new Date(timestamp);
         DateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
-        return formatter.format(date) + random_int;
+        return formatter.format(date) + uniqueIncrement;
 
     }
 
