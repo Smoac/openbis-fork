@@ -363,9 +363,9 @@ $.extend(Grid.prototype, {
 				
 				//4. Tooltip
 				if(value !== finalValue) {
-					finalValue = $("<div>").append(finalValue);
+					finalValue = $("<div>").html(finalValue);
 					finalValue.tooltipster({
-		                content: $(value)
+		                content: $("<span>").html(value)
 		            });
 				}
 				
