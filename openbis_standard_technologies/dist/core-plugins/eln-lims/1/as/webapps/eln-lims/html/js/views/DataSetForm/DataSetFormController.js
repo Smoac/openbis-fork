@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-function DataSetFormController(mainController, mode, sample, dataSet) {
-	this._mainController = mainController;
-	this._dataSetFormModel = new DataSetFormModel(mode, sample, dataSet);
+function DataSetFormController(parentController, mode, sample, dataSet, isMini) {
+	this._parentController = parentController;
+	this._dataSetFormModel = new DataSetFormModel(mode, sample, dataSet, isMini);
 	this._dataSetFormView = new DataSetFormView(this, this._dataSetFormModel);
 	
 	this.init = function($container) {

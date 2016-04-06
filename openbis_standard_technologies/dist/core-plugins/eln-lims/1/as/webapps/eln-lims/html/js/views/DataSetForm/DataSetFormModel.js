@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-function DataSetFormModel(mode, sample, dataSet) {
+function DataSetFormModel(mode, sample, dataSet, isMini) {
 	this.mode = mode;
+	this.isMini = isMini;
 	this.isFormDirty = false;
 	
 	this.sample = sample;

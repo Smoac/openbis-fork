@@ -24,6 +24,11 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		
 		//Clean and prepare container
 		var $wrapper = $('<form>', { class : 'form-horizontal ', 'id' : 'mainDataSetForm', 'role' : 'form'});
+		if(this._dataSetFormModel.isMini) {
+			$wrapper.css('margin', '10px');
+			$wrapper.css('padding', '10px');
+			$wrapper.css('background-color', '#f8f8f8');
+		}
 		$wrapper.submit(function(event) {_this._dataSetFormController.submitDataSet(); event.preventDefault();});
 		
 		//
@@ -55,7 +60,10 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		$title
 			.append($("<h2>").append(titleText))
 			.append($("<h4>", { "style" : "font-weight:normal;" } ).append(entityPath));
-		$wrapper.append($title);
+		
+		if(!this._dataSetFormModel.isMini) {
+			$wrapper.append($title);
+		}
 		
 		//
 		// Toolbar
@@ -76,28 +84,41 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			}, true);
 			toolbarModel.push({ component : $deleteBtn, tooltip: "Delete" });
 		}
-		$wrapper.append(FormUtil.getToolbar(toolbarModel));
+		
+		if(!this._dataSetFormModel.isMini) {
+			$wrapper.append(FormUtil.getToolbar(toolbarModel));
+		}
 		
 		//Drop Down DataSetType Field Set
 		var $dataSetTypeFieldSet = $('<div>');
-		$dataSetTypeFieldSet.append($('<legend>').text('Identification Info'));
+		if(!this._dataSetFormModel.isMini) {
+			$dataSetTypeFieldSet.append($('<legend>').text('Identification Info'));
+		}
 		$wrapper.append($dataSetTypeFieldSet);
 		
 		var $dataSetTypeSelector = null;
 		if(this._dataSetFormModel.mode === FormMode.CREATE) {
 			$dataSetTypeSelector = FormUtil.getDataSetsDropDown('DATASET_TYPE', this._dataSetFormModel.dataSetTypes);
 			$dataSetTypeSelector.change(function() { 
-				_this._repaintMetadata(
-						_this._dataSetFormController._getDataSetType($('#DATASET_TYPE').val())
-				);
+				if(!_this._dataSetFormModel.isMini) {
+					_this._repaintMetadata(
+							_this._dataSetFormController._getDataSetType($('#DATASET_TYPE').val())
+					);
+				}
 				_this.isFormDirty = true;
 			});
 			
 			var $dataSetTypeDropDown = $('<div>', { class : 'form-group'});
-			$dataSetTypeDropDown.append($('<label>', {class: "control-label " + FormUtil.labelColumnClass}).html('Data Set Type&nbsp;(*):'));
+			if(!this._dataSetFormModel.isMini) {
+				$dataSetTypeDropDown.append($('<label>', {class: "control-label " + FormUtil.labelColumnClass}).html('Data Set Type&nbsp;(*):'));
+			}
+			
+			var $dataSetTypeDropDowContainer = $('<div>', {class: FormUtil.controlColumnClass});
+			if(this._dataSetFormModel.isMini) {
+				$dataSetTypeDropDowContainer.css('width', '100%');
+			}
 			$dataSetTypeDropDown.append(
-				$('<div>', {class: FormUtil.controlColumnClass})
-					.append($dataSetTypeSelector)
+				$dataSetTypeDropDowContainer.append($dataSetTypeSelector)
 			);
 			$dataSetTypeFieldSet.append($dataSetTypeDropDown);
 		} else {
@@ -112,7 +133,10 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		if(this._dataSetFormModel.sample.experimentIdentifierOrNull) {
 			owner = this._dataSetFormModel.sample.experimentIdentifierOrNull + "/" + this._dataSetFormModel.sample.code;
 		}
-		$dataSetTypeFieldSet.append(FormUtil.getFieldForLabelWithText(ownerName, owner));
+		
+		if(!this._dataSetFormModel.isMini) {
+			$dataSetTypeFieldSet.append(FormUtil.getFieldForLabelWithText(ownerName, owner));
+		}
 		
 		//
 		// Registration and modification info
@@ -158,7 +182,9 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			.append($('<div>', { class : "form-group"}))
 			.append($('<div>', {class: FormUtil.controlColumnClass})
 						.append($('<input>', { class : 'btn btn-primary', 'type' : 'submit', 'value' : btnText})));
+			
 			$wrapper.append($submitButton);
+			
 		}
 		
 		//Attach to main form

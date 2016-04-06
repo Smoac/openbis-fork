@@ -371,6 +371,11 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		
 		var $dataSetViewerContainer = $("<div>", { 'id' : 'dataSetViewerContainer', 'style' : 'margin-top:10px;'});
 		$rightPanel.append($dataSetViewerContainer);
+
+		var $inlineDataSetForm = $("<div>");
+		$rightPanel.append($inlineDataSetForm);
+		var $dataSetFormController = new DataSetFormController(this, FormMode.CREATE, this._sampleFormModel.sample, null, true);
+			$dataSetFormController.init($inlineDataSetForm);
 		
 		//
 		// INIT
