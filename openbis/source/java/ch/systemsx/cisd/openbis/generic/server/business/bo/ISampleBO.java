@@ -61,6 +61,11 @@ public interface ISampleBO extends IEntityBusinessObject
     void tryToLoadBySampleIdentifier(SampleIdentifier identifier);
 
     /**
+     * Tries to load the samlpe with specified permId.
+     */
+    void tryToLoadBySamplePermId(String permId);
+
+    /**
      * Enrich with property types.
      */
     public void enrichWithPropertyTypes();

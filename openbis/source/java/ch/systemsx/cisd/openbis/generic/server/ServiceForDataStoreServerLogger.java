@@ -83,6 +83,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityCollectionForCreationOr
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -906,6 +907,27 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
     public List<AbstractExternalData> listNotArchivedDatasetsWithMetaproject(String sessionToken, final IMetaprojectId metaprojectId)
     {
         logAccess(Level.DEBUG, sessionToken, "listNotArchivedDatasetsWithMetaproject", "TAG(%s)", metaprojectId);
+        return null;
+    }
+
+    @Override
+    public Experiment tryGetExperimentByPermId(String sessionToken, PermId permId) throws UserFailureException
+    {
+        logAccess(Level.DEBUG, sessionToken, "tryGetExperimentByPermId", "PERM_ID(%s)", permId);
+        return null;
+    }
+
+    @Override
+    public Project tryGetProjectByPermId(String sessionToken, PermId permId) throws UserFailureException
+    {
+        logAccess(Level.DEBUG, sessionToken, "tryGetProjectByPermId", "PERM_ID(%s)", permId);
+        return null;
+    }
+
+    @Override
+    public Sample tryGetSampleByPermId(String sessionToken, PermId permId) throws UserFailureException
+    {
+        logAccess(Level.DEBUG, sessionToken, "tryGetSampleByPermId", "PERM_ID(%s)", permId);
         return null;
     }
 

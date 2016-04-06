@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
  * 
  * @author Bernd Rinn
  */
-public class ProjectPermIdPredicate extends AbstractSpacePredicate<String>
+public class ProjectPermIdPredicate extends AbstractSpacePredicate<PermId>
 {
 
     @Override
@@ -40,10 +40,10 @@ public class ProjectPermIdPredicate extends AbstractSpacePredicate<String>
 
     @Override
     protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles,
-            String permId)
+            PermId permId)
     {
         final ProjectPE project =
-                authorizationDataProvider.tryGetProjectByPermId(new PermId(permId));
+                authorizationDataProvider.tryGetProjectByPermId(permId);
         if (project == null)
         {
             return Status.createError(String.format("There is no project with perm id '%s'."

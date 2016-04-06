@@ -131,6 +131,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         sample = tryToGetSampleByIdentifier(identifier);
     }
 
+    @Override
     public void tryToLoadBySamplePermId(String permId)
     {
         assert permId != null : "Unspecified perm id.";
@@ -376,7 +377,8 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
                             + filename
                             + "' "
                             + (versionOrNull == null ? "(latest version)" : "(version '"
-                                    + versionOrNull + "')") + " not found in sample '"
+                                    + versionOrNull + "')")
+                            + " not found in sample '"
                             + sample.getIdentifier() + "'.");
         }
     }

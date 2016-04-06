@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.ProjectIden
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.ProjectPermIdId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.ProjectTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
@@ -59,7 +60,7 @@ public class ProjectIdPredicate extends AbstractProjectPredicate<IProjectId>
         if (projectId instanceof ProjectPermIdId)
         {
             ProjectPermIdId permIdId = (ProjectPermIdId) projectId;
-            return projectPermIdPredicate.doEvaluation(person, allowedRoles, permIdId.getPermId());
+            return projectPermIdPredicate.doEvaluation(person, allowedRoles, new PermId(permIdId.getPermId()));
         }
         if (projectId instanceof ProjectTechIdId)
         {

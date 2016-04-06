@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -55,7 +56,7 @@ public class ProjectUpdatesPredicate extends AbstractProjectPredicate<ProjectUpd
         } else if (updates.getPermId() != null)
         {
             status = projectPermIdPredicate.doEvaluation(person,
-                    allowedRoles, updates.getPermId());
+                    allowedRoles, new PermId(updates.getPermId()));
         } else
         {
             status = projectAugmentedCodePredicate.doEvaluation(person,

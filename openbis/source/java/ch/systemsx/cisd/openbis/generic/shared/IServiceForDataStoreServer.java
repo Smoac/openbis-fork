@@ -79,6 +79,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityCollectionForCreationOr
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -869,5 +870,35 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
      */
     @Transactional(readOnly = true)
     public List<AbstractExternalData> listNotArchivedDatasetsWithMetaproject(String sessionToken, IMetaprojectId metaprojectId);
+
+    /**
+     * Returns the specified experiment or <code>null</code> if not found.
+     * 
+     * @param sessionToken the user authentication token. Must not be <code>null</code>.
+     * @param permId a perm id which uniquely identifies the experiment.
+     */
+    @Transactional(readOnly = true)
+    public Experiment tryGetExperimentByPermId(String sessionToken,
+            PermId permId) throws UserFailureException;
+
+    /**
+     * Returns the specified project or <code>null</code> if not found.
+     * 
+     * @param sessionToken the user authentication token. Must not be <code>null</code>.
+     * @param permId a perm id which uniquely identifies the project.
+     */
+    @Transactional(readOnly = true)
+    public Project tryGetProjectByPermId(String sessionToken,
+            PermId permId) throws UserFailureException;
+
+    /**
+     * Returns the specified sample or <code>null</code> if not found.
+     * 
+     * @param sessionToken the user authentication token. Must not be <code>null</code>.
+     * @param permId a perm id which uniquely identifies the sample.
+     */
+    @Transactional(readOnly = true)
+    public Sample tryGetSampleByPermId(String sessionToken,
+            PermId permId) throws UserFailureException;
 
 }
