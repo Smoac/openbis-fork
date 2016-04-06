@@ -196,6 +196,27 @@ public interface IEncapsulatedBasicOpenBISService
     public Map<IObjectId, List<Metaproject>> listMetaprojectsForEntities(Collection<? extends IObjectId> entityIds);
 
     /**
+     * Tries to get the project of specified permId or <code>null</code> if not found.
+     */
+    @ManagedAuthentication
+    public Project tryGetProjectByPermId(String permId)
+            throws UserFailureException;
+
+    /**
+     * Tries to get the experiment of specified permId or <code>null</code> if not found.
+     */
+    @ManagedAuthentication
+    public Experiment tryGetExperimentByPermId(String permId)
+            throws UserFailureException;
+
+    /**
+     * Tries to get the sample of specified permId or <code>null</code> if not found.
+     */
+    @ManagedAuthentication
+    public Sample tryGetSampleByPermId(String permId)
+            throws UserFailureException;
+
+    /**
      * Returns the session token used by the service.
      */
     @ManagedAuthentication

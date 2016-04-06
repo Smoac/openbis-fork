@@ -92,6 +92,14 @@ public class SearchService implements ISearchService
     }
 
     @Override
+    public IProjectImmutable getProjectByPermId(String permId)
+    {
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project projectOrNull =
+                openBisService.tryGetProjectByPermId(permId);
+        return (null == projectOrNull) ? null : new ProjectImmutable(projectOrNull);
+    }
+
+    @Override
     public ISpaceImmutable getSpace(String spaceCode)
     {
         SpaceIdentifier spaceIdentifier = new SpaceIdentifier(spaceCode);
@@ -447,6 +455,14 @@ public class SearchService implements ISearchService
     }
 
     @Override
+    public ISampleImmutable getSampleByPermId(String permId)
+    {
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sampleOrNull =
+                openBisService.tryGetSampleByPermId(permId);
+        return (null == sampleOrNull) ? null : new SampleImmutable(sampleOrNull);
+    }
+
+    @Override
     public IMaterialImmutable getMaterial(String materialCode, String materialType)
     {
         MaterialIdentifier materialIdentifier = new MaterialIdentifier(materialCode, materialType);
@@ -466,4 +482,13 @@ public class SearchService implements ISearchService
         }
         return getMaterial(materialId.getCode(), materialId.getTypeCode());
     }
+
+    @Override
+    public IExperimentImmutable getExperimentByPermId(String permId)
+    {
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experimentOrNull =
+                openBisService.tryGetExperimentByPermId(permId);
+        return (null == experimentOrNull) ? null : new ExperimentImmutable(experimentOrNull);
+    }
+
 }

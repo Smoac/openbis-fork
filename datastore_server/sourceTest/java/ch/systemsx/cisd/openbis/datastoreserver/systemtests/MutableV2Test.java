@@ -45,6 +45,7 @@ public class MutableV2Test extends MutableTest
     @Override
     protected void assertAfter()
     {
+        super.assertAfter();
         List<ParsedLogEntry> logEntries = getLogEntries();
         for (ParsedLogEntry logEntry : logEntries)
         {

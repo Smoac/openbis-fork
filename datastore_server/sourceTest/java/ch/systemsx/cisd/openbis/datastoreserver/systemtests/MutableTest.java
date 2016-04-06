@@ -118,9 +118,9 @@ public abstract class MutableTest extends SystemTestCase
 
     protected void assertAfter()
     {
-        Assert.assertEquals(getProjectAttachments().size(), beforeProjectAttachmentCount + 2);
-        Assert.assertEquals(getExperimentAttachments().size(), beforeExperimentAttachmentCount + 2);
-        Assert.assertEquals(getSampleAttachments().size(), beforeSampleAttachmentCount + 2);
+        Assert.assertEquals(getProjectAttachments().size(), beforeProjectAttachmentCount + 3, "Number of project attachments");
+        Assert.assertEquals(getExperimentAttachments().size(), beforeExperimentAttachmentCount + 3, "Number of experiment attachments");
+        Assert.assertEquals(getSampleAttachments().size(), beforeSampleAttachmentCount + 3, "Number of sample attachments");
         Assert.assertEquals(getMaterialProperty(), "mutable material description 2");
         Assert.assertEquals(getDataSetProperty(), "mutable data set comment 2");
     }

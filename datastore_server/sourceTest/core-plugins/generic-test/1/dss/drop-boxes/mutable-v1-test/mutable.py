@@ -12,8 +12,14 @@ def test(tr):
 
     mutableProject2 = tr.makeProjectMutable(project);
     addAttachment(mutableProject2, "project_2")
-
+    
+    projectByPermId = tr.getSearchService().getProjectByPermId("20120814110011738-104")
+    mutableProject3 = tr.makeProjectMutable(projectByPermId);
+    addAttachment(mutableProject3, "project_3")
+    
     if(mutableProject2 is not mutableProject1):
+        raise Exception('More than object for the same project in the DB was returned')
+    if(mutableProject3 is not mutableProject1):
         raise Exception('More than object for the same project in the DB was returned')
     
     # EXPERIMENT
@@ -26,20 +32,34 @@ def test(tr):
     mutableExperiment2 = tr.makeExperimentMutable(experiment)
     addAttachment(mutableExperiment2, "experiment_2")
     
+    experimentByPermId = tr.getSearchService().getExperimentByPermId("200811050940555-1032")
+    mutableExperiment3 = tr.makeExperimentMutable(experimentByPermId)
+    addAttachment(mutableExperiment3, "experiment_3")
+        
     if(mutableExperiment2 is not mutableExperiment1):
+        raise Exception('More than object for the same experiment in the DB was returned')
+    
+    if(mutableExperiment3 is not mutableExperiment1):
         raise Exception('More than object for the same experiment in the DB was returned')
 
     # SAMPLE
 
     sample = tr.getSample("/TEST-SPACE/FV-TEST")
-    
+        
     mutableSample1 = tr.getSampleForUpdate("/TEST-SPACE/FV-TEST")
     addAttachment(mutableSample1, "sample_1")
 
     mutableSample2 = tr.makeSampleMutable(sample)
     addAttachment(mutableSample2, "sample_2")
-    
+
+    sampleByPermId = tr.getSearchService().getSampleByPermId("201206191219327-1054")
+    mutableSample3 = tr.makeSampleMutable(sampleByPermId)
+    addAttachment(mutableSample3, "sample_3")
+
     if(mutableSample2 is not mutableSample1):
+        raise Exception('More than object for the same sample in the DB was returned')
+
+    if(mutableSample3 is not mutableSample1):
         raise Exception('More than object for the same sample in the DB was returned')
     
     # MATERIAL

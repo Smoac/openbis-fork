@@ -224,4 +224,21 @@ public interface ISearchService
      */
     List<IMaterialImmutable> listAllMaterials(String materialTypeCode);
 
+    /**
+     * Get a sample from the openBIS AS by its perm id. Returns null if the sample does not exist.
+     * 
+     * @return A sample or null
+     */
+    ISampleImmutable getSampleByPermId(String permId);
+
+    /**
+     * Get a project from the openBIS AS by its perm id.
+     */
+    IProjectImmutable getProjectByPermId(String permId);
+
+    /**
+     * Get an experiment from the openBIS AS by its perm id.
+     */
+    IExperimentImmutable getExperimentByPermId(String permId);
+
 }

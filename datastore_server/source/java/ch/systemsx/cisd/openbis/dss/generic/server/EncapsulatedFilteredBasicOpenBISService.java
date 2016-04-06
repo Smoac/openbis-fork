@@ -274,6 +274,28 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
     }
 
     @Override
+    public Experiment tryGetExperimentByPermId(String permId) throws UserFailureException
+    {
+        Experiment experiment = encapsulatedService.tryGetExperimentByPermId(permId);
+        return AuthorizationHelper.filterToVisible(encapsulatedService, userName, experiment,
+                experimentIdMapper, AuthorizationHelper.EntityKind.EXPERIMENT);
+    }
+
+    @Override
+    public Project tryGetProjectByPermId(String permId) throws UserFailureException
+    {
+        return encapsulatedService.tryGetProjectByPermId(permId);
+    }
+
+    @Override
+    public Sample tryGetSampleByPermId(String permId) throws UserFailureException
+    {
+        Sample sample = encapsulatedService.tryGetSampleByPermId(permId);
+        return AuthorizationHelper.filterToVisible(encapsulatedService, userName, sample,
+                sampleIdMapper, AuthorizationHelper.EntityKind.SAMPLE);
+    }
+
+    @Override
     public String getSessionToken()
     {
         return systemSessionToken;

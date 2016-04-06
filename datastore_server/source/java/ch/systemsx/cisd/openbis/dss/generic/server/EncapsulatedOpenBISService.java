@@ -94,6 +94,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
@@ -480,7 +481,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     {
         return service.isDataSetOnTrashCanOrDeleted(session.getSessionToken(), dataSetCode);
     }
-    
+
     @Override
     public void updateShareIdAndSize(String dataSetCode, String shareId, long size)
             throws UserFailureException
@@ -512,7 +513,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     @Override
     public boolean compareAndSetDataSetStatus(String dataSetCode, DataSetArchivingStatus oldStatus,
             DataSetArchivingStatus newStatus, boolean newPresentInArchive)
-            throws UserFailureException
+                    throws UserFailureException
     {
         assert dataSetCode != null : "missing data set codes";
         assert oldStatus != null : "missing old status";
@@ -1068,4 +1069,24 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return service.listNotArchivedDatasetsWithMetaproject(session.getSessionToken(), metaprojectId);
     }
 
+    @Override
+    public Experiment tryGetExperimentByPermId(String permId) throws UserFailureException
+    {
+        assert permId != null : " Unspecified experiment perm id.";
+        return service.tryGetExperimentByPermId(session.getSessionToken(), new PermId(permId));
+    }
+
+    @Override
+    public Project tryGetProjectByPermId(String permId) throws UserFailureException
+    {
+        assert permId != null : " Unspecified project perm id.";
+        return service.tryGetProjectByPermId(session.getSessionToken(), new PermId(permId));
+    }
+
+    @Override
+    public Sample tryGetSampleByPermId(String permId) throws UserFailureException
+    {
+        assert permId != null : " Unspecified sample perm id.";
+        return service.tryGetSampleByPermId(session.getSessionToken(), new PermId(permId));
+    }
 }
