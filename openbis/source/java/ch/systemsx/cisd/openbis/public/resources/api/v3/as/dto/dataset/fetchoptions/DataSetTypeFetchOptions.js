@@ -2,7 +2,8 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "stjs", "as/dto/common/fetchoptions/FetchOptions" ], function(stjs, FetchOptions) {
+define([ "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/dataset/fetchoptions/DataSetTypeSortOptions",
+         "as/dto/property/fetchoptions/PropertyAssignmentFetchOptions" ], function(stjs, FetchOptions) {
 	var DataSetTypeFetchOptions = function() {
 	};
 	stjs.extend(DataSetTypeFetchOptions, FetchOptions, [ FetchOptions ], function(constructor, prototype) {

@@ -1,4 +1,4 @@
-define([ "stjs", "as/dto/common/fetchoptions/FetchOptions" ], function(stjs, FetchOptions) {
+define([ "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/property/fetchoptions/PropertyAssignmentSortOptions" ], function(stjs, FetchOptions) {
 	var PropertyAssignmentFetchOptions = function() {
 	};
 	stjs.extend(PropertyAssignmentFetchOptions, FetchOptions, [ FetchOptions ], function(constructor, prototype) {
