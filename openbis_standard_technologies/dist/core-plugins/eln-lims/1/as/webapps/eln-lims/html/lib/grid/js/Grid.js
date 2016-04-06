@@ -55,6 +55,8 @@ $.extend(Grid.prototype, {
 			e.stopPropagation();
 		});
 		
+
+		
 		var defaultNumColumns = 5; //Including last always
 		
 		thisGrid.columns.forEach(function(column, columnIndex) {
@@ -79,6 +81,7 @@ $.extend(Grid.prototype, {
 			var label = $("<label>", { style : 'white-space: nowrap;' }).attr("role", "menuitem").append(checkbox).append("&nbsp;").append(column.label);
 			var item = $("<li>").attr("role", "presentation").append(label);
 			columnList.append(item);
+			
 		});
 	},
 
@@ -257,13 +260,6 @@ $.extend(Grid.prototype, {
 		if(thisGrid.onColumnsChange) {
 			thisGrid.onColumnsChange(columnsModel);
 		}
-		
-		// HACK: Add a dummy empty column (repeater does not properly handle visibility of the last column)
-		columns.push({
-			label : null,
-			property : null,
-			sortable : false
-		});
 
 		return columns;
 	},
@@ -410,32 +406,31 @@ $.extend(Grid.prototype, {
 				result.items.push(item);
 			});
 
-			// add some delay (repeater does not properly layout columns without it)
-			setTimeout(function() {
-				thisGrid.result = result;
-				callback(result);
-				
-				 //HACK: Fixes extra headers added on this fuelux 3.1.0 when rendering again
-				var tableHeads = $(thisGrid.panel).find('thead');
-				if(tableHeads.length > 1) {
-					for(var hIdx = 0; hIdx < tableHeads.length - 1; hIdx++) {
-						$(tableHeads[hIdx]).remove();
-					}
+			thisGrid.result = result;
+			callback(result);
+			
+			//HACK: Fixes header problems due to css incompatibilities
+			var tableHeaders = $(thisGrid.panel).find('thead').find('th');
+			for(var hIdx = 0; hIdx < tableHeaders.length; hIdx++) {
+				var $th = $(tableHeaders[hIdx]);
+				// HACK - Fixes chevron problems
+				var notSorted = $th.find('.sorted').length === 0;
+				if(notSorted) {
+					$($th.find('span')).attr('class', 'glyphicon rlc');
 				}
-				//HACK:	Legacy Hacks no longer needed
-				$(window).trigger('resize'); // HACK: Fixes table rendering issues when refreshing the grid on fuelux 3.1.0 for all browsers
-				$(thisGrid.panel).hide().show(0); // HACK: Fixes Chrome rendering issues when refreshing the grid on fuelux 3.1.0
-				
-				// HACK: Fix that only works if there is only one table at a time (dont works Safari)
-				var newWidth = $(".repeater-list-wrapper > .table").width();
-				$(".repeater").width(newWidth);
-				
-				var optionsDropdowns = $(".dropdown.table-options-dropdown");
-				for(var i = 0; i < optionsDropdowns.length; i++) {
-					var $dropdownTD = $(optionsDropdowns[i]).parent();
-					$dropdownTD.css({ "overflow" : "visible" });
+				// HACK - Fixes double headers
+				if($th[0].childNodes.length === 3) {
+					var $div = $($th[0].childNodes[2]).detach();
+					$th.empty();
+					$th.append($div);
 				}
-			}, 1);
+			}
+			
+			var optionsDropdowns = $(".dropdown.table-options-dropdown");
+			for(var i = 0; i < optionsDropdowns.length; i++) {
+				var $dropdownTD = $(optionsDropdowns[i]).parent();
+				$dropdownTD.css({ "overflow" : "visible" });
+			}
 		});
 	},
 
