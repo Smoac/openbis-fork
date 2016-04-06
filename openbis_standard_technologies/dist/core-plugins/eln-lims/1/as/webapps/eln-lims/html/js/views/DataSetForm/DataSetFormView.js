@@ -182,8 +182,9 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			.append($('<div>', { class : "form-group"}))
 			.append($('<div>', {class: FormUtil.controlColumnClass})
 						.append($('<input>', { class : 'btn btn-primary', 'type' : 'submit', 'value' : btnText})));
-			
-			$wrapper.append($submitButton);
+			if(!_this._dataSetFormModel.isMini){
+				$wrapper.append($submitButton);
+			}
 			
 		}
 		
@@ -199,9 +200,15 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				if(dataSetTypeCode != null) {
 					$("#DATASET_TYPE").val(dataSetTypeCode);
 					$("#DATASET_TYPE").prop('disabled', true);
-					_this._repaintMetadata(
-							_this._dataSetFormController._getDataSetType(dataSetTypeCode)
-					);
+					if(!_this._dataSetFormModel.isMini){
+						_this._repaintMetadata(
+								_this._dataSetFormController._getDataSetType(dataSetTypeCode)
+						);
+					}
+				}
+				
+				if(_this._dataSetFormModel.isMini){
+					_this._dataSetFormController.submitDataSet();
 				}
 			}
 			
