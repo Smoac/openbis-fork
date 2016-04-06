@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmu
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMetaprojectAssignments;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMetaprojectContent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMetaprojectImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IProjectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IPropertyAssignmentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
@@ -306,4 +307,29 @@ public class SearchService implements ISearchService
                 openBisService.listMetaprojectsForEntity(Translator.translate(entity.getEntityId()));
         return ConversionUtils.convertToMetaprojectsImmutable(metaprojects);
     }
+
+    @Override
+    public IExperimentImmutable getExperimentByPermId(String permId)
+    {
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experimentOrNull =
+                openBisService.tryGetExperimentByPermId(permId);
+        return (null == experimentOrNull) ? null : new ExperimentImmutable(experimentOrNull);
+    }
+
+    @Override
+    public ISampleImmutable getSampleByPermId(String permId)
+    {
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sampleOrNull =
+                openBisService.tryGetSampleByPermId(permId);
+        return (null == sampleOrNull) ? null : new SampleImmutable(sampleOrNull);
+    }
+
+    @Override
+    public IProjectImmutable getProjectByPermId(String permId)
+    {
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project projectOrNull =
+                openBisService.tryGetProjectByPermId(permId);
+        return (null == projectOrNull) ? null : new ProjectImmutable(projectOrNull);
+    }
+
 }
