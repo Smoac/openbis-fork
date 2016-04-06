@@ -1094,3 +1094,7 @@ set Property Assignments
 set Property Type
 with Property Assignments
 with Property Assignments Using
+search Sample Types
+search Experiment Types
+search Data Set Types
+search Material Types
