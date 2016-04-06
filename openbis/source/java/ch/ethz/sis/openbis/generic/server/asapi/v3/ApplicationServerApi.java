@@ -26,9 +26,11 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
@@ -128,6 +130,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapVocabular
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IRevertDeletionMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchCustomASServiceMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchDataSetMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchDataSetTypeMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchDeletionMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchExperimentMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchExperimentTypeMethodExecutor;
@@ -257,6 +260,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Autowired
     private ISearchDataSetMethodExecutor searchDataSetExecutor;
 
+    @Autowired
+    private ISearchDataSetTypeMethodExecutor searchDataSetTypeExecutor;
+    
     @Autowired
     private ISearchMaterialMethodExecutor searchMaterialExecutor;
 
@@ -569,6 +575,8 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public SearchResult<ExperimentType> searchExperimentTypes(String sessionToken, EntityTypeSearchCriteria searchCriteria,
             ExperimentTypeFetchOptions fetchOptions)
     {
@@ -598,6 +606,15 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public SearchResult<DataSet> searchDataSets(String sessionToken, DataSetSearchCriteria searchCriteria, DataSetFetchOptions fetchOptions)
     {
         return searchDataSetExecutor.search(sessionToken, searchCriteria, fetchOptions);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public SearchResult<DataSetType> searchDataSetTypes(String sessionToken, EntityTypeSearchCriteria searchCriteria,
+            DataSetTypeFetchOptions fetchOptions)
+    {
+        return searchDataSetTypeExecutor.search(sessionToken, searchCriteria, fetchOptions);
     }
 
     @Override

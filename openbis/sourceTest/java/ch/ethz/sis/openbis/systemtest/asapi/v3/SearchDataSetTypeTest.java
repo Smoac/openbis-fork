@@ -24,9 +24,9 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.CodeComparator;
 
@@ -35,7 +35,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.CodeComparator;
  *
  * @author Franz-Josef Elmer
  */
-public class SearchExperimentTypeTest extends AbstractTest
+public class SearchDataSetTypeTest extends AbstractTest
 {
     @Test
     public void testSearchWithCodeThatStartsWithD()
@@ -43,14 +43,14 @@ public class SearchExperimentTypeTest extends AbstractTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
         searchCriteria.withCode().thatStartsWith("D");
-        ExperimentTypeFetchOptions fetchOptions = new ExperimentTypeFetchOptions();
+        DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
         
-        SearchResult<ExperimentType> searchResult = v3api.searchExperimentTypes(sessionToken, searchCriteria, fetchOptions);
+        SearchResult<DataSetType> searchResult = v3api.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
         
-        List<ExperimentType> types = searchResult.getObjects();
+        List<DataSetType> types = searchResult.getObjects();
         List<String> codes = extractCodes(types);
         Collections.sort(codes);
-        assertEquals(codes.toString(), "[DELETION_TEST]");
+        assertEquals(codes.toString(), "[DELETION_TEST, DELETION_TEST_CONTAINER]");
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), false);
         v3api.logout(sessionToken);
     }
@@ -61,17 +61,18 @@ public class SearchExperimentTypeTest extends AbstractTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
         searchCriteria.withCode().thatStartsWith("D");
-        ExperimentTypeFetchOptions fetchOptions = new ExperimentTypeFetchOptions();
+        DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
         fetchOptions.withPropertyAssignments().sortBy().code().desc();
         
-        SearchResult<ExperimentType> searchResult = v3api.searchExperimentTypes(sessionToken, searchCriteria, fetchOptions);
+        SearchResult<DataSetType> searchResult = v3api.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
         
-        List<ExperimentType> types = searchResult.getObjects();
-        Collections.sort(types, new CodeComparator<ExperimentType>());
+        List<DataSetType> types = searchResult.getObjects();
+        Collections.sort(types, new CodeComparator<DataSetType>());
         List<String> codes = extractCodes(types);
-        assertEquals(codes.toString(), "[DELETION_TEST]");
+        assertEquals(codes.toString(), "[DELETION_TEST, DELETION_TEST_CONTAINER]");
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
         List<PropertyAssignment> propertyAssignments = types.get(0).getPropertyAssignments();
+        System.err.println(propertyAssignments.get(0).getPropertyType());
         assertOrder(propertyAssignments, "ORGANISM", "DESCRIPTION", "BACTERIUM");
         v3api.logout(sessionToken);
     }

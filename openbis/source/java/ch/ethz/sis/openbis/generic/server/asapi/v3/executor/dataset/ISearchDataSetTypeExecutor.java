@@ -14,24 +14,18 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
-import org.springframework.stereotype.Component;
-
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSearchEntityTypeExecutor;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.ISearchObjectExecutor;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-@Component
-public class SearchExperimentTypeExecutor extends AbstractSearchEntityTypeExecutor<ExperimentTypePE> implements ISearchExperimentTypeExecutor
+public interface ISearchDataSetTypeExecutor extends ISearchObjectExecutor<EntityTypeSearchCriteria, DataSetTypePE>
 {
-    public SearchExperimentTypeExecutor()
-    {
-        super(EntityKind.EXPERIMENT);
-    }
+
 }

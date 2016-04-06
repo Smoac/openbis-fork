@@ -41,13 +41,19 @@ public abstract class PropertyAssignmentTranslator extends ObjectToManyRelationT
     protected Map<Long, PropertyAssignment> getAssignments(Collection<PropertyAssignmentRecord> assignmentRecords)
     {
         Map<Long, PropertyAssignment> assignments = new HashMap<>();
-        Map<Long, PropertyAssignment> assignmentsByPropertyTypeId = new HashMap<>();
+        Map<Long, List<PropertyAssignment>> assignmentsByPropertyTypeId = new HashMap<>();
         for (PropertyAssignmentRecord assignmentRecord : assignmentRecords)
         {
             PropertyAssignment assignment = new PropertyAssignment();
             assignment.setMandatory(assignmentRecord.is_mandatory);
             assignments.put(assignmentRecord.id, assignment);
-            assignmentsByPropertyTypeId.put(assignmentRecord.prty_id, assignment);
+            List<PropertyAssignment> list = assignmentsByPropertyTypeId.get(assignmentRecord.prty_id);
+            if (list == null)
+            {
+                list = new ArrayList<>();
+                assignmentsByPropertyTypeId.put(assignmentRecord.prty_id, list);
+            }
+            list.add(assignment);
         }
         PropertyTypeQuery query = QueryTool.getManagedQuery(PropertyTypeQuery.class);
         List<PropertyTypeRecord> propertyTypeRecords = query.getPropertyTypes(new LongOpenHashSet(assignmentsByPropertyTypeId.keySet()));
@@ -60,8 +66,10 @@ public abstract class PropertyAssignmentTranslator extends ObjectToManyRelationT
             propertyType.setDescription(propertyTypeRecord.description);
             propertyType.setDataTypeCode(DataTypeCode.valueOf(propertyTypeRecord.dataSetTypeCode));
             propertyType.setInternalNameSpace(propertyTypeRecord.is_internal_namespace);
-            PropertyAssignment assignment = assignmentsByPropertyTypeId.get(propertyTypeId);
-            assignment.setPropertyType(propertyType);
+            for (PropertyAssignment assignment : assignmentsByPropertyTypeId.get(propertyTypeId))
+            {
+                assignment.setPropertyType(propertyType);
+            }
         }
         return assignments;
     }

@@ -16,17 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
-import java.util.List;
-
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractSearchObjectManuallyExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.CodeMatcher;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.Matcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSearchEntityTypeExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -36,25 +28,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * @author Franz-Josef Elmer
  */
 @Component
-public class SearchSampleTypeExecutor extends AbstractSearchObjectManuallyExecutor<EntityTypeSearchCriteria, SampleTypePE> 
-        implements ISearchSampleTypeExecutor
+public class SearchSampleTypeExecutor extends AbstractSearchEntityTypeExecutor<SampleTypePE> implements ISearchSampleTypeExecutor
 {
-
-    @Override
-    protected List<SampleTypePE> listAll()
+    public SearchSampleTypeExecutor()
     {
-        return daoFactory.getEntityTypeDAO(EntityKind.SAMPLE).listEntityTypes();
-    }
-
-    @Override
-    protected Matcher<SampleTypePE> getMatcher(ISearchCriteria criteria)
-    {
-        if (criteria instanceof PermIdSearchCriteria || criteria instanceof CodeSearchCriteria)
-        {
-            return new CodeMatcher<SampleTypePE>();
-        } else
-        {
-            throw new IllegalArgumentException("Unknown search criteria: " + criteria.getClass());
-        }
+        super(EntityKind.SAMPLE);
     }
 }
