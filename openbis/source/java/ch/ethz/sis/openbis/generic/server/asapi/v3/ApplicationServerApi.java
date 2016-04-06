@@ -39,9 +39,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.DeletionSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
@@ -128,6 +130,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchCustom
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchDeletionMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchExperimentMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchExperimentTypeMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchMaterialMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchObjectKindModificationMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchProjectMethodExecutor;
@@ -241,6 +244,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private ISearchExperimentMethodExecutor searchExperimentExecutor;
+    
+    @Autowired
+    private ISearchExperimentTypeMethodExecutor searchExperimentTypeExecutor;
 
     @Autowired
     private ISearchSampleMethodExecutor searchSampleExecutor;
@@ -560,6 +566,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             ExperimentFetchOptions fetchOptions)
     {
         return searchExperimentExecutor.search(sessionToken, searchCriteria, fetchOptions);
+    }
+
+    @Override
+    public SearchResult<ExperimentType> searchExperimentTypes(String sessionToken, EntityTypeSearchCriteria searchCriteria,
+            ExperimentTypeFetchOptions fetchOptions)
+    {
+        return searchExperimentTypeExecutor.search(sessionToken, searchCriteria, fetchOptions);
     }
 
     @Override
