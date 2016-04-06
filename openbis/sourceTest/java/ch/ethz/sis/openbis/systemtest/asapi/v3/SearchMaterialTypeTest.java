@@ -24,9 +24,9 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.CodeComparator;
 
@@ -35,44 +35,44 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.CodeComparator;
  *
  * @author Franz-Josef Elmer
  */
-public class SearchDataSetTypeTest extends AbstractTest
+public class SearchMaterialTypeTest extends AbstractTest
 {
     @Test
-    public void testSearchWithCodeThatStartsWithD()
+    public void testSearchWithCodeThatStartsWithB()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
-        searchCriteria.withCode().thatStartsWith("D");
-        DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
+        searchCriteria.withCode().thatStartsWith("B");
+        MaterialTypeFetchOptions fetchOptions = new MaterialTypeFetchOptions();
         
-        SearchResult<DataSetType> searchResult = v3api.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
+        SearchResult<MaterialType> searchResult = v3api.searchMaterialTypes(sessionToken, searchCriteria, fetchOptions);
         
-        List<DataSetType> types = searchResult.getObjects();
+        List<MaterialType> types = searchResult.getObjects();
         List<String> codes = extractCodes(types);
         Collections.sort(codes);
-        assertEquals(codes.toString(), "[DELETION_TEST, DELETION_TEST_CONTAINER]");
+        assertEquals(codes.toString(), "[BACTERIUM]");
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), false);
         v3api.logout(sessionToken);
     }
 
     @Test
-    public void testSearchWithPropertyAssignmentSortByCodeDesc()
+    public void testSearchWithPropertyAssignmentSortByLabelDesc()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
-        searchCriteria.withCode().thatStartsWith("D");
-        DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
-        fetchOptions.withPropertyAssignments().sortBy().code().desc();
+        searchCriteria.withCode().thatStartsWith("B");
+        MaterialTypeFetchOptions fetchOptions = new MaterialTypeFetchOptions();
+        fetchOptions.withPropertyAssignments().sortBy().label().desc();
         
-        SearchResult<DataSetType> searchResult = v3api.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
+        SearchResult<MaterialType> searchResult = v3api.searchMaterialTypes(sessionToken, searchCriteria, fetchOptions);
         
-        List<DataSetType> types = searchResult.getObjects();
-        Collections.sort(types, new CodeComparator<DataSetType>());
+        List<MaterialType> types = searchResult.getObjects();
+        Collections.sort(types, new CodeComparator<MaterialType>());
         List<String> codes = extractCodes(types);
-        assertEquals(codes.toString(), "[DELETION_TEST, DELETION_TEST_CONTAINER]");
+        assertEquals(codes.toString(), "[BACTERIUM]");
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
         List<PropertyAssignment> propertyAssignments = types.get(0).getPropertyAssignments();
-        assertOrder(propertyAssignments, "ORGANISM", "DESCRIPTION", "BACTERIUM");
+        assertOrder(propertyAssignments, "ORGANISM", "DESCRIPTION");
         v3api.logout(sessionToken);
     }
     
