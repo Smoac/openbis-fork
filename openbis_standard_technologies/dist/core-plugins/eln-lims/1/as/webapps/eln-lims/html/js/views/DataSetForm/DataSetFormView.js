@@ -108,6 +108,11 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				_this.isFormDirty = true;
 			});
 			
+			if(this._dataSetFormModel.isMini) {
+				$dataSetTypeSelector.val("ATTACHMENT");
+			}
+			
+			
 			var $dataSetTypeDropDown = $('<div>', { class : 'form-group'});
 			if(!this._dataSetFormModel.isMini) {
 				$dataSetTypeDropDown.append($('<label>', {class: "control-label " + FormUtil.labelColumnClass}).html('Data Set Type&nbsp;(*):'));

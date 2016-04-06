@@ -536,6 +536,12 @@ def initELNMasterData():
 		["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName, None]
 	]);
 	
+	createDataSetTypeWithProperties("ATTACHMENT", "PHYSICAL", "", [
+		["NAME", "General", "Name", DataType.VARCHAR, None,	"Name", None, None],
+		["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
+		["XMLCOMMENTS",	"Comments","Comments List",	DataType.XML,	None,	"Several comments can be added by different users", commentsDatasetScriptName, None]
+	]);
+	
 	createDataSetTypeWithProperties("DRAWING_BOARD", "PHYSICAL", "", [
 		["NAME", "General", "Name", DataType.VARCHAR, None,	"Name", None, None],
 		["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None, None],
