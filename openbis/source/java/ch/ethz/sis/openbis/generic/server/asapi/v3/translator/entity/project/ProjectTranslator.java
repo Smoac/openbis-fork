@@ -52,8 +52,9 @@ public class ProjectTranslator extends AbstractCachingTranslator<Long, Project, 
     @Autowired
     private IProjectExperimentTranslator experimentTranslator;
 
-    @Autowired
-    private IProjectSampleTranslator sampleTranslator;
+    // TODO : project samples
+    // @Autowired
+    // private IProjectSampleTranslator sampleTranslator;
 
     @Autowired
     private IProjectRegistratorTranslator registratorTranslator;
@@ -102,10 +103,10 @@ public class ProjectTranslator extends AbstractCachingTranslator<Long, Project, 
         }
 
         // TODO: project samples
-//        if (fetchOptions.hasSamples())
-//        {
-//            relations.put(IProjectSampleTranslator.class, sampleTranslator.translate(context, projectIds, fetchOptions.withSamples()));
-//        }
+        // if (fetchOptions.hasSamples())
+        // {
+        // relations.put(IProjectSampleTranslator.class, sampleTranslator.translate(context, projectIds, fetchOptions.withSamples()));
+        // }
 
         if (fetchOptions.hasRegistrator())
         {
@@ -162,11 +163,11 @@ public class ProjectTranslator extends AbstractCachingTranslator<Long, Project, 
         }
 
         // TODO: project samples
-//        if (fetchOptions.hasSamples())
-//        {
-//            result.setSamples((List<Sample>) relations.get(IProjectSampleTranslator.class, projectId));
-//            result.getFetchOptions().withSamplesUsing(fetchOptions.withSamples());
-//        }
+        // if (fetchOptions.hasSamples())
+        // {
+        // result.setSamples((List<Sample>) relations.get(IProjectSampleTranslator.class, projectId));
+        // result.getFetchOptions().withSamplesUsing(fetchOptions.withSamples());
+        // }
 
         if (fetchOptions.hasRegistrator())
         {

@@ -9,7 +9,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EmptyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDataSetsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IExperimentsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IMaterialsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IOwnerHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IParentChildrenHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IProjectHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IProjectsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISamplesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ArchivingStatus;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.Complete;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
@@ -104,7 +111,8 @@ public class Generator extends AbstractGenerator
                 .withInterfaceReflexive(IParentChildrenHolder.class);
         gen.addFetchedField(Sample.class, "container", "Container sample", SampleFetchOptions.class);
         gen.addPluralFetchedField("List<Sample>", List.class.getName(), "components", "Component samples", SampleFetchOptions.class);
-        gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "dataSets", "Data sets", DataSetFetchOptions.class);
+        gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "dataSets", "Data sets", DataSetFetchOptions.class)
+                .withInterface(IDataSetsHolder.class);
         gen.addClassForImport(DataSet.class);
         gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "history", "History", HistoryEntryFetchOptions.class);
         gen.addClassForImport(HistoryEntry.class);
@@ -182,12 +190,14 @@ public class Generator extends AbstractGenerator
         addModificationDate(gen);
 
         gen.addFetchedField(ExperimentType.class, "type", "Experiment type", ExperimentTypeFetchOptions.class);
-        gen.addFetchedField(Project.class, "project", "Project", ProjectFetchOptions.class);
+        gen.addFetchedField(Project.class, "project", "Project", ProjectFetchOptions.class).withInterface(IProjectHolder.class);
 
-        gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "dataSets", "Data sets", DataSetFetchOptions.class);
+        gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "dataSets", "Data sets", DataSetFetchOptions.class)
+                .withInterface(IDataSetsHolder.class);
         gen.addClassForImport(DataSet.class);
 
-        gen.addPluralFetchedField("List<Sample>", List.class.getName(), "samples", "Samples", SampleFetchOptions.class);
+        gen.addPluralFetchedField("List<Sample>", List.class.getName(), "samples", "Samples", SampleFetchOptions.class)
+                .withInterface(ISamplesHolder.class);
         gen.addClassForImport(Sample.class);
 
         gen.addPluralFetchedField("List<HistoryEntry>", List.class.getName(), "history", "History", HistoryEntryFetchOptions.class);
@@ -431,7 +441,8 @@ public class Generator extends AbstractGenerator
         addRegistrationDate(gen);
         addModificationDate(gen);
 
-        gen.addPluralFetchedField("List<Experiment>", List.class.getName(), "experiments", "Experiments", ExperimentFetchOptions.class);
+        gen.addPluralFetchedField("List<Experiment>", List.class.getName(), "experiments", "Experiments", ExperimentFetchOptions.class)
+                .withInterface(IExperimentsHolder.class);
         gen.addClassForImport(Experiment.class);
         // TODO: project samples
         // gen.addPluralFetchedField("List<Sample>", List.class.getName(), "samples", "Samples", SampleFetchOptions.class);
@@ -461,9 +472,11 @@ public class Generator extends AbstractGenerator
         addRegistrationDate(gen);
         addModificationDate(gen);
         addRegistrator(gen);
-        gen.addPluralFetchedField("List<Sample>", List.class.getName(), "samples", "Samples", SampleFetchOptions.class);
+        gen.addPluralFetchedField("List<Sample>", List.class.getName(), "samples", "Samples", SampleFetchOptions.class)
+                .withInterface(ISamplesHolder.class);
         gen.addClassForImport(Sample.class);
-        gen.addPluralFetchedField("List<Project>", List.class.getName(), "projects", "Projects", ProjectFetchOptions.class);
+        gen.addPluralFetchedField("List<Project>", List.class.getName(), "projects", "Projects", ProjectFetchOptions.class)
+                .withInterface(IProjectsHolder.class);
         gen.addClassForImport(Project.class);
 
         gen.setToStringMethod("\"Space \" + permId");
@@ -479,9 +492,25 @@ public class Generator extends AbstractGenerator
         addCode(gen);
         addDescription(gen);
         gen.addSimpleField(Boolean.class, "private", "isPrivate");
-        addRegistrationDate(gen);
 
-        gen.addFetchedField(Person.class, "owner", "Owner", PersonFetchOptions.class);
+        gen.addPluralFetchedField("List<Experiment>", List.class.getName(), "experiments", "Experiments", ExperimentFetchOptions.class)
+                .withInterface(IExperimentsHolder.class);
+        gen.addClassForImport(Experiment.class);
+
+        gen.addPluralFetchedField("List<Sample>", List.class.getName(), "samples", "Samples", SampleFetchOptions.class)
+                .withInterface(ISamplesHolder.class);
+        gen.addClassForImport(Sample.class);
+
+        gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "dataSets", "Data sets", DataSetFetchOptions.class)
+                .withInterface(IDataSetsHolder.class);
+        gen.addClassForImport(DataSet.class);
+
+        gen.addPluralFetchedField("List<Material>", List.class.getName(), "materials", "Materials", MaterialFetchOptions.class)
+                .withInterface(IMaterialsHolder.class);
+        gen.addClassForImport(Material.class);
+
+        addRegistrationDate(gen);
+        gen.addFetchedField(Person.class, "owner", "Owner", PersonFetchOptions.class).withInterface(IOwnerHolder.class);
 
         gen.setToStringMethod("\"Tag \" + code");
 

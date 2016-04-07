@@ -23,7 +23,9 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.tag.TagAuthorization;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 
 /**
@@ -37,27 +39,34 @@ public class CreateTagExecutor implements ICreateTagExecutor
     private IDAOFactory daoFactory;
 
     @Autowired
-    private IGetTagCodeExecutor getTagCodeExecutor;
+    private IGetTagIdentifierExecutor getTagIdentifierExecutor;
 
     @SuppressWarnings("unused")
     private CreateTagExecutor()
     {
     }
 
-    public CreateTagExecutor(IDAOFactory daoFactory, IGetTagCodeExecutor getTagCodeExecutor)
+    public CreateTagExecutor(IDAOFactory daoFactory, IGetTagIdentifierExecutor getTagIdentifierExecutor)
     {
         this.daoFactory = daoFactory;
-        this.getTagCodeExecutor = getTagCodeExecutor;
+        this.getTagIdentifierExecutor = getTagIdentifierExecutor;
     }
 
     @Override
     public MetaprojectPE createTag(IOperationContext context, ITagId tagId)
     {
         MetaprojectPE tag = new MetaprojectPE();
-        tag.setName(getTagCodeExecutor.getTagCode(context, tagId));
+        MetaprojectIdentifier identifier = getTagIdentifierExecutor.getIdentifier(context, tagId);
+
+        tag.setName(identifier.getMetaprojectName());
         tag.setOwner(context.getSession().tryGetPerson());
         tag.setCreationDate(new Date());
+        tag.setPrivate(true);
+
         daoFactory.getMetaprojectDAO().createOrUpdateMetaproject(tag, context.getSession().tryGetPerson());
+
+        new TagAuthorization(context, daoFactory).checkAccess(tag);
+
         return tag;
     }
 

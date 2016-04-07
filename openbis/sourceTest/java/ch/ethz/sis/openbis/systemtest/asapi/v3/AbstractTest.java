@@ -50,10 +50,19 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.create.AttachmentCrea
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IAttachmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDataSetsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IExperimentHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IExperimentsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IMaterialsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModifierHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IOwnerHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IParentChildrenHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IProjectHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IProjectsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISampleHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISamplesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISpaceHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ITagsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
@@ -160,110 +169,122 @@ public class AbstractTest extends SystemTestCase
             });
     }
 
-    protected void assertSpaceNotFetched(final ISpaceHolder entity)
+    protected void assertSpaceNotFetched(final ISpaceHolder holder)
     {
         assertNotFetched(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
-                    entity.getSpace();
+                    holder.getSpace();
                 }
             });
     }
 
-    protected void assertProjectNotFetched(final Experiment experiment)
+    protected void assertProjectNotFetched(final IProjectHolder holder)
     {
         assertNotFetched(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
-                    experiment.getProject();
+                    holder.getProject();
                 }
             });
     }
 
-    protected void assertProjectsNotFetched(final Space space)
+    protected void assertProjectsNotFetched(final IProjectsHolder holder)
     {
         assertNotFetched(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
-                    space.getProjects();
+                    holder.getProjects();
                 }
             });
     }
 
-    protected void assertExperimentsNotFetched(final Project project)
+    protected void assertExperimentsNotFetched(final IExperimentsHolder holder)
     {
         assertNotFetched(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
-                    project.getExperiments();
+                    holder.getExperiments();
                 }
             });
     }
 
-    protected void assertTagsNotFetched(final ITagsHolder entity)
+    protected void assertTagsNotFetched(final ITagsHolder holder)
     {
         assertNotFetched(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
-                    entity.getTags();
+                    holder.getTags();
                 }
             });
     }
 
-    protected void assertExperimentNotFetched(final Sample sample)
+    protected void assertExperimentNotFetched(final IExperimentHolder holder)
     {
         assertNotFetched(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
-                    sample.getExperiment();
+                    holder.getExperiment();
                 }
             });
     }
 
-    protected void assertExperimentNotFetched(final DataSet dataSet)
+    protected void assertSampleNotFetched(final ISampleHolder holder)
     {
         assertNotFetched(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
-                    dataSet.getExperiment();
+                    holder.getSample();
                 }
             });
     }
 
-    protected void assertSampleNotFetched(final DataSet dataSet)
+    protected void assertSamplesNotFetched(final ISamplesHolder holder)
     {
         assertNotFetched(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
-                    dataSet.getSample();
+                    holder.getSamples();
                 }
             });
     }
 
-    protected void assertSamplesNotFetched(final Space space)
+    protected void assertDataSetsNotFetched(final IDataSetsHolder holder)
     {
         assertNotFetched(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
-                    space.getSamples();
+                    holder.getDataSets();
+                }
+            });
+    }
+
+    protected void assertMaterialsNotFetched(final IMaterialsHolder holder)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    holder.getMaterials();
                 }
             });
     }
@@ -360,6 +381,18 @@ public class AbstractTest extends SystemTestCase
                 public void execute()
                 {
                     dataSet.getComponents();
+                }
+            });
+    }
+
+    protected void assertOwnerNotFetched(final IOwnerHolder holder)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    holder.getOwner();
                 }
             });
     }
@@ -694,7 +727,7 @@ public class AbstractTest extends SystemTestCase
         throw new AssertionError("No property '" + code + "' found in " + codes);
     }
 
-    protected void assertOrder(List<PropertyAssignment> propertyAssignments, String...codes)
+    protected void assertOrder(List<PropertyAssignment> propertyAssignments, String... codes)
     {
         Set<String> codesSet = new LinkedHashSet<>(Arrays.asList(codes));
         List<String> propertyCodes = new ArrayList<>();

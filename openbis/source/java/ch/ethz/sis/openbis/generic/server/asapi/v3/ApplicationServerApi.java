@@ -97,6 +97,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.update.SpaceUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyTermCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.delete.VocabularyTermDeletionOptions;
@@ -128,6 +131,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapMaterialM
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapProjectMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapSampleMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapSpaceMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapTagMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapVocabularyTermMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IRevertDeletionMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchCustomASServiceMethodExecutor;
@@ -241,6 +245,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private IMapVocabularyTermMethodExecutor mapVocabularyTermExecutor;
+
+    @Autowired
+    private IMapTagMethodExecutor mapTagExecutor;
 
     @Autowired
     private ISearchSpaceMethodExecutor searchSpaceExecutor;
@@ -553,6 +560,14 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             VocabularyTermFetchOptions fetchOptions)
     {
         return mapVocabularyTermExecutor.map(sessionToken, vocabularyTermIds, fetchOptions);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public Map<ITagId, Tag> mapTags(String sessionToken, List<? extends ITagId> tagIds, TagFetchOptions fetchOptions)
+    {
+        return mapTagExecutor.map(sessionToken, tagIds, fetchOptions);
     }
 
     @Override

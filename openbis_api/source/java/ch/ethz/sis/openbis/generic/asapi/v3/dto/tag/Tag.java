@@ -16,9 +16,18 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.tag;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDataSetsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IExperimentsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IMaterialsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IOwnerHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISamplesHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
@@ -27,12 +36,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /*
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.tag.Tag")
-public class Tag implements Serializable, ICodeHolder, IPermIdHolder, IRegistrationDateHolder
+public class Tag implements Serializable, ICodeHolder, IDataSetsHolder, IExperimentsHolder, IMaterialsHolder, IOwnerHolder, IPermIdHolder, IRegistrationDateHolder, ISamplesHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -50,6 +60,18 @@ public class Tag implements Serializable, ICodeHolder, IPermIdHolder, IRegistrat
 
     @JsonProperty(value="private")
     private Boolean isPrivate;
+
+    @JsonProperty
+    private List<Experiment> experiments;
+
+    @JsonProperty
+    private List<Sample> samples;
+
+    @JsonProperty
+    private List<DataSet> dataSets;
+
+    @JsonProperty
+    private List<Material> materials;
 
     @JsonProperty
     private Date registrationDate;
@@ -127,6 +149,90 @@ public class Tag implements Serializable, ICodeHolder, IPermIdHolder, IRegistrat
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
+    public List<Experiment> getExperiments()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasExperiments())
+        {
+            return experiments;
+        }
+        else
+        {
+            throw new NotFetchedException("Experiments have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setExperiments(List<Experiment> experiments)
+    {
+        this.experiments = experiments;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    @Override
+    public List<Sample> getSamples()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasSamples())
+        {
+            return samples;
+        }
+        else
+        {
+            throw new NotFetchedException("Samples have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setSamples(List<Sample> samples)
+    {
+        this.samples = samples;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    @Override
+    public List<DataSet> getDataSets()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasDataSets())
+        {
+            return dataSets;
+        }
+        else
+        {
+            throw new NotFetchedException("Data sets have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setDataSets(List<DataSet> dataSets)
+    {
+        this.dataSets = dataSets;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    @Override
+    public List<Material> getMaterials()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasMaterials())
+        {
+            return materials;
+        }
+        else
+        {
+            throw new NotFetchedException("Materials have not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setMaterials(List<Material> materials)
+    {
+        this.materials = materials;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    @Override
     public Date getRegistrationDate()
     {
         return registrationDate;
@@ -140,6 +246,7 @@ public class Tag implements Serializable, ICodeHolder, IPermIdHolder, IRegistrat
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    @Override
     public Person getOwner()
     {
         if (getFetchOptions() != null && getFetchOptions().hasOwner())

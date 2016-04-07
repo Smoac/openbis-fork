@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectIdentifier;
@@ -30,33 +29,28 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectIdentifier;
  * @author pkupczyk
  */
 @Component
-public class GetTagCodeExecutor implements IGetTagCodeExecutor
+public class GetTagIdentifierExecutor implements IGetTagIdentifierExecutor
 {
 
-    public GetTagCodeExecutor()
+    public GetTagIdentifierExecutor()
     {
     }
 
     @Override
-    public String getTagCode(IOperationContext context, ITagId tagId)
+    public MetaprojectIdentifier getIdentifier(IOperationContext context, ITagId tagId)
     {
         if (tagId instanceof TagCode)
         {
-            return ((TagCode) tagId).getCode();
+            String code = ((TagCode) tagId).getCode();
+            String owner = context.getSession().tryGetPerson().getUserId();
+            return new MetaprojectIdentifier(owner, code);
         }
         if (tagId instanceof TagPermId)
         {
             TagPermId tagPermId = (TagPermId) tagId;
             MetaprojectIdentifier tagIdentifier =
                     MetaprojectIdentifier.parse(tagPermId.getPermId());
-            String name = tagIdentifier.getMetaprojectName();
-            String ownerId = tagIdentifier.getMetaprojectOwnerId();
-            String userId = context.getSession().tryGetPerson().getUserId();
-            if (ownerId.equals(userId) == false)
-            {
-                throw new UnauthorizedObjectAccessException(tagId);
-            }
-            return name;
+            return tagIdentifier;
         }
         throw new NotImplementedException("Tag id [" + tagId + "] is of unknown type: "
                 + tagId.getClass().getName());

@@ -36,8 +36,8 @@ public class TagPermId extends ObjectPermId implements ITagId
      */
     public TagPermId(String ownerId, String tagCode)
     {
-        // case sensitive
-        this("/" + ownerId + "/" + tagCode);
+        // case sensitive owner id, case insensitive code
+        this("/" + ownerId + "/" + tagCode.toUpperCase());
     }
 
     /**

@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.history.DataSetRelationType;
@@ -33,7 +32,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.history.HistoryPropertyRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.history.HistoryRelationshipRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.history.HistoryTranslator;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationType;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -45,9 +43,6 @@ import net.lemnik.eodsql.QueryTool;
 @Component
 public class DataSetHistoryTranslator extends HistoryTranslator implements IDataSetHistoryTranslator
 {
-
-    @Autowired
-    private IDAOFactory daoFactory;
 
     @Override
     protected List<HistoryPropertyRecord> loadPropertyHistory(Collection<Long> entityIds)

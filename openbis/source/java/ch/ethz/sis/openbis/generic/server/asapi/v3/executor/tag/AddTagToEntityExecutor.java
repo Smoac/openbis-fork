@@ -26,6 +26,8 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.tag.TagAuthorization;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 
@@ -35,6 +37,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 @Component
 public class AddTagToEntityExecutor implements IAddTagToEntityExecutor
 {
+
+    @Autowired
+    private IDAOFactory daoFactory;
 
     @Autowired
     private IMapTagByIdExecutor mapTagByIdExecutor;
@@ -71,6 +76,7 @@ public class AddTagToEntityExecutor implements IAddTagToEntityExecutor
             }
         }
 
+        TagAuthorization authorization = new TagAuthorization(context, daoFactory);
         Map<ITagId, MetaprojectPE> allTagsMap = mapTagByIdExecutor.map(context, allTagIds);
 
         for (Map.Entry<IEntityWithMetaprojects, Collection<? extends ITagId>> entry : entityToTagIdsMap.entrySet())
@@ -89,6 +95,8 @@ public class AddTagToEntityExecutor implements IAddTagToEntityExecutor
                         tag = createTagExecutor.createTag(context, tagId);
                         allTagsMap.put(tagId, tag);
                     }
+
+                    authorization.checkAccess(tag);
 
                     entity.addMetaproject(tag);
                 }

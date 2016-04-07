@@ -30,10 +30,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.AbstractExecutorTest;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IGetTagCodeExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IGetTagIdentifierExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.MapTagByIdExecutor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
@@ -44,12 +46,12 @@ public class MapTagByIdExecutorTest extends AbstractExecutorTest
 
     private IMetaprojectDAO metaprojectDao;
 
-    private IGetTagCodeExecutor getTagCodeExecutor;
+    private IGetTagIdentifierExecutor getTagIdentifierExecutor;
 
     @Override
     protected void init()
     {
-        getTagCodeExecutor = context.mock(IGetTagCodeExecutor.class);
+        getTagIdentifierExecutor = context.mock(IGetTagIdentifierExecutor.class);
         metaprojectDao = context.mock(IMetaprojectDAO.class);
     }
 
@@ -79,9 +81,17 @@ public class MapTagByIdExecutorTest extends AbstractExecutorTest
         final MetaprojectPE tag1 = new MetaprojectPE();
         tag1.setName("TEST_TAG_1");
         tag1.setOwner(session.tryGetPerson());
+
         final MetaprojectPE tag2 = new MetaprojectPE();
         tag2.setName("TEST_TAG_2");
         tag2.setOwner(session.tryGetPerson());
+
+        PersonPE otherUser = new PersonPE();
+        otherUser.setUserId("OTHER_USER");
+
+        final MetaprojectPE tag3 = new MetaprojectPE();
+        tag3.setName("TEST_TAG_3");
+        tag3.setOwner(otherUser);
 
         Collection<ITagId> tagIds = new LinkedList<ITagId>();
         tagIds.add(tagId1);
@@ -97,36 +107,37 @@ public class MapTagByIdExecutorTest extends AbstractExecutorTest
                     allowing(daoFactory).getMetaprojectDAO();
                     will(returnValue(metaprojectDao));
 
-                    one(getTagCodeExecutor).getTagCode(operationContext, tagId1);
-                    will(returnValue("TEST_TAG_1"));
+                    one(getTagIdentifierExecutor).getIdentifier(operationContext, tagId1);
+                    will(returnValue(new MetaprojectIdentifier(session.tryGetPerson().getUserId(), "TEST_TAG_1")));
 
-                    one(getTagCodeExecutor).getTagCode(operationContext, tagId2);
-                    will(returnValue("TEST_TAG_2"));
+                    one(getTagIdentifierExecutor).getIdentifier(operationContext, tagId2);
+                    will(returnValue(new MetaprojectIdentifier(session.tryGetPerson().getUserId(), "TEST_TAG_2")));
 
-                    one(getTagCodeExecutor).getTagCode(operationContext, tagId3);
-                    will(returnValue("TEST_TAG_3"));
+                    one(getTagIdentifierExecutor).getIdentifier(operationContext, tagId3);
+                    will(returnValue(new MetaprojectIdentifier("OTHER_USER", "TEST_TAG_3")));
 
-                    one(metaprojectDao).tryFindByOwnerAndName("TEST_PERSON", "TEST_TAG_1");
+                    one(metaprojectDao).tryFindByOwnerAndName(session.tryGetPerson().getUserId(), "TEST_TAG_1");
                     will(returnValue(tag1));
 
-                    one(metaprojectDao).tryFindByOwnerAndName("TEST_PERSON", "TEST_TAG_2");
+                    one(metaprojectDao).tryFindByOwnerAndName(session.tryGetPerson().getUserId(), "TEST_TAG_2");
                     will(returnValue(tag2));
 
-                    one(metaprojectDao).tryFindByOwnerAndName("TEST_PERSON", "TEST_TAG_3");
-                    will(returnValue(null));
+                    one(metaprojectDao).tryFindByOwnerAndName("OTHER_USER", "TEST_TAG_3");
+                    will(returnValue(tag3));
                 }
             });
 
         Map<ITagId, MetaprojectPE> map = execute(tagIds);
 
-        Assert.assertEquals(2, map.size());
+        Assert.assertEquals(3, map.size());
         Assert.assertEquals(tag1, map.get(tagId1));
         Assert.assertEquals(tag2, map.get(tagId2));
+        Assert.assertEquals(tag3, map.get(tagId3));
     }
 
     private Map<ITagId, MetaprojectPE> execute(Collection<? extends ITagId> tagIds)
     {
-        MapTagByIdExecutor executor = new MapTagByIdExecutor(daoFactory, getTagCodeExecutor);
+        MapTagByIdExecutor executor = new MapTagByIdExecutor(daoFactory, getTagIdentifierExecutor);
         return executor.map(operationContext, tagIds);
     }
 

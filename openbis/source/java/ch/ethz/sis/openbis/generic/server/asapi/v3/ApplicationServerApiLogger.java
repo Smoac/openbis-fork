@@ -93,6 +93,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.update.SpaceUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyTermCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.delete.VocabularyTermDeletionOptions;
@@ -281,6 +284,13 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
             VocabularyTermFetchOptions fetchOptions)
     {
         logAccess(sessionToken, "map-vocabulary-terms", "VOCABULARY_TERM_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(vocabularyTermIds), fetchOptions);
+        return null;
+    }
+
+    @Override
+    public Map<ITagId, Tag> mapTags(String sessionToken, List<? extends ITagId> tagIds, TagFetchOptions fetchOptions)
+    {
+        logAccess(sessionToken, "map-tags", "TAG_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(tagIds), fetchOptions);
         return null;
     }
 

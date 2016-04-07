@@ -16,18 +16,17 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.tag;
 
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import net.lemnik.eodsql.QueryTool;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
@@ -43,27 +42,30 @@ public class TagTranslator extends AbstractCachingTranslator<Long, Tag, TagFetch
 {
 
     @Autowired
+    private ITagAuthorizationValidator authorizationValidator;
+
+    @Autowired
     private ITagBaseTranslator baseTranslator;
 
     @Autowired
     private ITagOwnerTranslator ownerTranslator;
 
+    @Autowired
+    private ITagExperimentTranslator experimentTranslator;
+
+    @Autowired
+    private ITagSampleTranslator sampleTranslator;
+
+    @Autowired
+    private ITagDataSetTranslator dataSetTranslator;
+
+    @Autowired
+    private ITagMaterialTranslator materialTranslator;
+
     @Override
     protected Set<Long> shouldTranslate(TranslationContext context, Collection<Long> tagIds, TagFetchOptions fetchOptions)
     {
-        TagQuery query = QueryTool.getManagedQuery(TagQuery.class);
-        List<TagAuthorizationRecord> records = query.getAuthorizations(new LongOpenHashSet(tagIds));
-        Set<Long> result = new HashSet<Long>();
-
-        for (TagAuthorizationRecord record : records)
-        {
-            if (record.isPublic || record.owner.equals(context.getSession().tryGetPerson().getUserId()))
-            {
-                result.add(record.id);
-            }
-        }
-
-        return result;
+        return authorizationValidator.validate(context.getSession().tryGetPerson(), tagIds);
     }
 
     @Override
@@ -86,6 +88,26 @@ public class TagTranslator extends AbstractCachingTranslator<Long, Tag, TagFetch
             relations.put(ITagOwnerTranslator.class, ownerTranslator.translate(context, tagIds, fetchOptions.withOwner()));
         }
 
+        if (fetchOptions.hasExperiments())
+        {
+            relations.put(ITagExperimentTranslator.class, experimentTranslator.translate(context, tagIds, fetchOptions.withExperiments()));
+        }
+
+        if (fetchOptions.hasSamples())
+        {
+            relations.put(ITagSampleTranslator.class, sampleTranslator.translate(context, tagIds, fetchOptions.withSamples()));
+        }
+
+        if (fetchOptions.hasDataSets())
+        {
+            relations.put(ITagDataSetTranslator.class, dataSetTranslator.translate(context, tagIds, fetchOptions.withDataSets()));
+        }
+
+        if (fetchOptions.hasMaterials())
+        {
+            relations.put(ITagMaterialTranslator.class, materialTranslator.translate(context, tagIds, fetchOptions.withMaterials()));
+        }
+
         return relations;
     }
 
@@ -105,6 +127,30 @@ public class TagTranslator extends AbstractCachingTranslator<Long, Tag, TagFetch
         {
             result.setOwner(relations.get(ITagOwnerTranslator.class, tagId));
             result.getFetchOptions().withOwnerUsing(fetchOptions.withOwner());
+        }
+
+        if (fetchOptions.hasExperiments())
+        {
+            result.setExperiments((List<Experiment>) relations.get(ITagExperimentTranslator.class, tagId));
+            result.getFetchOptions().withExperimentsUsing(fetchOptions.withExperiments());
+        }
+
+        if (fetchOptions.hasSamples())
+        {
+            result.setSamples((List<Sample>) relations.get(ITagSampleTranslator.class, tagId));
+            result.getFetchOptions().withSamplesUsing(fetchOptions.withSamples());
+        }
+
+        if (fetchOptions.hasDataSets())
+        {
+            result.setDataSets((List<DataSet>) relations.get(ITagDataSetTranslator.class, tagId));
+            result.getFetchOptions().withDataSetsUsing(fetchOptions.withDataSets());
+        }
+
+        if (fetchOptions.hasMaterials())
+        {
+            result.setMaterials((List<Material>) relations.get(ITagMaterialTranslator.class, tagId));
+            result.getFetchOptions().withMaterialsUsing(fetchOptions.withMaterials());
         }
     }
 

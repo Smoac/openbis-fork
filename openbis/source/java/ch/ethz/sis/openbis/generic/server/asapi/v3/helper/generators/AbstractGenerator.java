@@ -10,12 +10,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.Attachme
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IAttachmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IExperimentHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModifierHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISampleHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISpaceHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ITagsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
@@ -69,12 +71,12 @@ public class AbstractGenerator
 
     public static void addExperiment(DtoGenerator gen)
     {
-        gen.addFetchedField(Experiment.class, "experiment", "Experiment", ExperimentFetchOptions.class);
+        gen.addFetchedField(Experiment.class, "experiment", "Experiment", ExperimentFetchOptions.class).withInterface(IExperimentHolder.class);
     }
 
     public static void addSample(DtoGenerator gen)
     {
-        gen.addFetchedField(Sample.class, "sample", "Sample", SampleFetchOptions.class);
+        gen.addFetchedField(Sample.class, "sample", "Sample", SampleFetchOptions.class).withInterface(ISampleHolder.class);
     }
 
     public static void addSpace(DtoGenerator gen)

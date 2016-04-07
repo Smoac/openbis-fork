@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, CISD
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import java.util.List;
+
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
-public interface IGetTagCodeExecutor
+@JsonObject("as.dto.common.interfaces.IDataSetsHolder")
+public interface IDataSetsHolder
 {
-
-    public String getTagCode(IOperationContext context, ITagId tagId);
-
+    List<DataSet> getDataSets();
 }

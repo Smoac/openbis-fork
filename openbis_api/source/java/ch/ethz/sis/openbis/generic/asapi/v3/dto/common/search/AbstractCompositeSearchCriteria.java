@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;

@@ -18,8 +18,10 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IProjectsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISamplesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
@@ -37,7 +39,7 @@ import java.util.List;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.space.Space")
-public class Space implements Serializable, ICodeHolder, IModificationDateHolder, IPermIdHolder, IRegistrationDateHolder, IRegistratorHolder
+public class Space implements Serializable, ICodeHolder, IModificationDateHolder, IPermIdHolder, IProjectsHolder, IRegistrationDateHolder, IRegistratorHolder, ISamplesHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -173,6 +175,7 @@ public class Space implements Serializable, ICodeHolder, IModificationDateHolder
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    @Override
     public List<Sample> getSamples()
     {
         if (getFetchOptions() != null && getFetchOptions().hasSamples())
@@ -193,6 +196,7 @@ public class Space implements Serializable, ICodeHolder, IModificationDateHolder
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    @Override
     public List<Project> getProjects()
     {
         if (getFetchOptions() != null && getFetchOptions().hasProjects())

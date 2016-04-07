@@ -26,7 +26,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.ObjectToManyRelationTranslator;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 
 /**
  * @author pkupczyk
@@ -34,9 +33,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 public abstract class ObjectToDataSetsTranslator extends ObjectToManyRelationTranslator<DataSet, DataSetFetchOptions> implements
         IObjectToDataSetsTranslator
 {
-
-    @Autowired
-    private IDAOFactory daoFactory;
 
     @Autowired
     private IDataSetTranslator dataSetTranslator;

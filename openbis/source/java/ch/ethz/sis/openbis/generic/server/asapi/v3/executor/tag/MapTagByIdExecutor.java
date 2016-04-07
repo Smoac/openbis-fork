@@ -17,7 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 
 /**
@@ -39,32 +40,32 @@ public class MapTagByIdExecutor implements IMapTagByIdExecutor
     private IDAOFactory daoFactory;
 
     @Autowired
-    private IGetTagCodeExecutor getTagCodeExecutor;
+    private IGetTagIdentifierExecutor getTagIdentifierExecutor;
 
     @SuppressWarnings("unused")
     private MapTagByIdExecutor()
     {
     }
 
-    public MapTagByIdExecutor(IDAOFactory daoFactory, IGetTagCodeExecutor getTagCodeExecutor)
+    public MapTagByIdExecutor(IDAOFactory daoFactory, IGetTagIdentifierExecutor getTagCodeExecutor)
     {
         this.daoFactory = daoFactory;
-        this.getTagCodeExecutor = getTagCodeExecutor;
+        this.getTagIdentifierExecutor = getTagCodeExecutor;
     }
 
     @Override
     public Map<ITagId, MetaprojectPE> map(IOperationContext context, Collection<? extends ITagId> tagIds)
     {
-        Map<ITagId, MetaprojectPE> map = new HashMap<ITagId, MetaprojectPE>();
+        Map<ITagId, MetaprojectPE> map = new LinkedHashMap<ITagId, MetaprojectPE>();
 
         if (tagIds != null)
         {
             for (ITagId tagId : tagIds)
             {
-                String code = getTagCodeExecutor.getTagCode(context, tagId);
+                MetaprojectIdentifier identifier = getTagIdentifierExecutor.getIdentifier(context, tagId);
                 MetaprojectPE tag =
                         daoFactory.getMetaprojectDAO()
-                                .tryFindByOwnerAndName(context.getSession().tryGetPerson().getUserId(), code);
+                                .tryFindByOwnerAndName(identifier.getMetaprojectOwnerId(), identifier.getMetaprojectName());
                 if (tag != null)
                 {
                     map.put(tagId, tag);

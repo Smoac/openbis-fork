@@ -1098,3 +1098,18 @@ search Sample Types
 search Experiment Types
 search Data Set Types
 search Material Types
+get Materials
+has Materials
+I Data Sets Holder
+I Experiment Holder
+I Experiments Holder
+I Materials Holder
+I Owner Holder
+I Project Holder
+I Projects Holder
+I Sample Holder
+I Samples Holder
+map Tags
+set Materials
+with Materials
+with Materials Using

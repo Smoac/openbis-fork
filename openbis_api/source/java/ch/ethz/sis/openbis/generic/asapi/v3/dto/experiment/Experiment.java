@@ -18,12 +18,15 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IAttachmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDataSetsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModifierHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IProjectHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISamplesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ITagsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
@@ -50,7 +53,7 @@ import java.util.Set;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.experiment.Experiment")
-public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder, IModificationDateHolder, IModifierHolder, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ITagsHolder
+public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder, IDataSetsHolder, IModificationDateHolder, IModifierHolder, IPermIdHolder, IProjectHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ISamplesHolder, ITagsHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -209,6 +212,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    @Override
     public Project getProject()
     {
         if (getFetchOptions() != null && getFetchOptions().hasProject())
@@ -229,6 +233,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    @Override
     public List<DataSet> getDataSets()
     {
         if (getFetchOptions() != null && getFetchOptions().hasDataSets())
@@ -249,6 +254,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    @Override
     public List<Sample> getSamples()
     {
         if (getFetchOptions() != null && getFetchOptions().hasSamples())

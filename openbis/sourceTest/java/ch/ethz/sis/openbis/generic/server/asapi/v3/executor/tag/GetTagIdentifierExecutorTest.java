@@ -16,23 +16,22 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag;
 
-import junit.framework.Assert;
-
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.AbstractExecutorTest;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.GetTagCodeExecutor;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+
+import junit.framework.Assert;
 
 /**
  * @author pkupczyk
  */
-public class GetTagCodeExecutorTest extends AbstractExecutorTest
+public class GetTagIdentifierExecutorTest extends AbstractExecutorTest
 {
 
     @Test
@@ -49,11 +48,12 @@ public class GetTagCodeExecutorTest extends AbstractExecutorTest
                 }
             });
 
-        String code = execute(new TagPermId("/" + session.tryGetPerson().getUserId() + "/TEST_PERM_ID"));
-        Assert.assertEquals("TEST_PERM_ID", code);
+        MetaprojectIdentifier identifier = execute(new TagPermId("/" + session.tryGetPerson().getUserId() + "/TEST_PERM_ID"));
+        Assert.assertEquals("TEST_PERM_ID", identifier.getMetaprojectName());
+        Assert.assertEquals(session.tryGetPerson().getUserId(), identifier.getMetaprojectOwnerId());
     }
 
-    @Test(expectedExceptions = { UnauthorizedObjectAccessException.class }, expectedExceptionsMessageRegExp = ".*/OTHER_USER/TEST_PERM_ID.*")
+    @Test
     public void testWithPermIdForDifferentUser()
     {
         final Session session = createSession();
@@ -67,20 +67,34 @@ public class GetTagCodeExecutorTest extends AbstractExecutorTest
                 }
             });
 
-        execute(new TagPermId("/OTHER_USER/TEST_PERM_ID"));
+        MetaprojectIdentifier identifier = execute(new TagPermId("/OTHER_USER/TEST_PERM_ID"));
+        Assert.assertEquals("TEST_PERM_ID", identifier.getMetaprojectName());
+        Assert.assertEquals("OTHER_USER", identifier.getMetaprojectOwnerId());
     }
 
     @Test
     public void testWithNameId()
     {
-        String code = execute(new TagCode("TEST_NAME_ID"));
-        Assert.assertEquals("TEST_NAME_ID", code);
+        final Session session = createSession();
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(operationContext).getSession();
+                    will(returnValue(session));
+
+                }
+            });
+
+        MetaprojectIdentifier identifier = execute(new TagCode("TEST_NAME_ID"));
+        Assert.assertEquals("TEST_NAME_ID", identifier.getMetaprojectName());
+        Assert.assertEquals(session.tryGetPerson().getUserId(), identifier.getMetaprojectOwnerId());
     }
 
-    private String execute(ITagId tagId)
+    private MetaprojectIdentifier execute(ITagId tagId)
     {
-        GetTagCodeExecutor executor = new GetTagCodeExecutor();
-        return executor.getTagCode(operationContext, tagId);
+        GetTagIdentifierExecutor executor = new GetTagIdentifierExecutor();
+        return executor.getIdentifier(operationContext, tagId);
     }
 
 }

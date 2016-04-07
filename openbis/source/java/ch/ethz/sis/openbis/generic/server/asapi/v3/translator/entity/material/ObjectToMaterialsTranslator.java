@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.experiment;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.material;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,32 +22,32 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.ObjectToManyRelationTranslator;
 
 /**
  * @author pkupczyk
  */
-public abstract class ObjectToExperimentsTranslator extends ObjectToManyRelationTranslator<Experiment, ExperimentFetchOptions> implements
-        IObjectToExperimentsTranslator
+public abstract class ObjectToMaterialsTranslator extends ObjectToManyRelationTranslator<Material, MaterialFetchOptions> implements
+        IObjectToMaterialsTranslator
 {
 
     @Autowired
-    private IExperimentTranslator experimentTranslator;
+    private IMaterialTranslator materialTranslator;
 
     @Override
-    protected Map<Long, Experiment> translateRelated(TranslationContext context, Collection<Long> relatedIds,
-            ExperimentFetchOptions relatedFetchOptions)
+    protected Map<Long, Material> translateRelated(TranslationContext context, Collection<Long> relatedIds,
+            MaterialFetchOptions relatedFetchOptions)
     {
-        return experimentTranslator.translate(context, relatedIds, relatedFetchOptions);
+        return materialTranslator.translate(context, relatedIds, relatedFetchOptions);
     }
 
     @Override
-    protected Collection<Experiment> createCollection()
+    protected Collection<Material> createCollection()
     {
-        return new ArrayList<Experiment>();
+        return new ArrayList<Material>();
     }
 
 }
