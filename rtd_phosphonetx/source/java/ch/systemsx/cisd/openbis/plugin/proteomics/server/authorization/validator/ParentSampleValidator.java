@@ -35,11 +35,16 @@ public class ParentSampleValidator implements IValidator<Sample>
     @Override
     public boolean isValid(PersonPE person, Sample sample)
     {
+        return isValid(person, sample, true);
+    }
+    
+    public boolean isValid(PersonPE person, Sample sample, boolean parentHasToBeValid)
+    {
         Sample parent = sample.getGeneratedFrom();
         if (parent != null)
         {
             Space space = parent.getSpace();
-            if (space == null || validator.isValid(person, space))
+            if (parentHasToBeValid == false || space == null || validator.isValid(person, space))
             {
                 return true;
             }

@@ -46,6 +46,12 @@ public interface IProteomicsDataApiFacade
     public List<MsInjectionDataInfo> listRawDataSamples(String userID);
 
     /**
+     * Returns all samples of type MS_INJECTION in space MS_DATA which have a parent sample.
+     */
+    @Retry
+    public List<MsInjectionDataInfo> listAllRawDataSamples(String userID);
+    
+    /**
      * Lists all processing plugins on DSS.
      */
     @Retry

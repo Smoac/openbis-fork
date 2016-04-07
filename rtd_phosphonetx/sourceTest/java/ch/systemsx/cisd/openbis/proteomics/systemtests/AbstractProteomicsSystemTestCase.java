@@ -18,9 +18,11 @@ package ch.systemsx.cisd.openbis.proteomics.systemtests;
 
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.SystemTestCase;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.api.v1.Constants;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.IProteomicsDataServiceInternal;
@@ -82,6 +84,16 @@ public abstract class AbstractProteomicsSystemTestCase extends SystemTestCase
         return getBean(ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER);
     }
 
+    protected IGenericServer getGenericServer()
+    {
+        return getBean(ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames.GENERIC_PLUGIN_SERVER);
+    }
+    
+    protected IServiceForDataStoreServer getServiceForDSS()
+    {
+        return getBean(ch.systemsx.cisd.openbis.generic.shared.ResourceNames.ETL_SERVICE);
+    }
+    
     protected IProteomicsDataServiceInternal getDataServiceInternal()
     {
         return getBean(Constants.PROTEOMICS_DATA_SERVICE_INTERNAL);

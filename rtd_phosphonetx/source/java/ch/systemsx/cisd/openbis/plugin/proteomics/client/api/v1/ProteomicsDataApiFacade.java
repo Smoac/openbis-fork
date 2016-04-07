@@ -71,6 +71,12 @@ class ProteomicsDataApiFacade implements IProteomicsDataApiFacade
     }
 
     @Override
+    public List<MsInjectionDataInfo> listAllRawDataSamples(String userID)
+    {
+        return service.listAllRawDataSamples(sessionToken, userID);
+    }
+
+    @Override
     @SuppressWarnings("deprecation")
     public void processingRawData(String userID, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType)

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.proteomics.server;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
@@ -80,7 +82,7 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.MsInjectionSample;
 public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDataServiceInternal>
         implements IProteomicsDataServiceInternal
 {
-    private static final IValidator<Sample> PARENT_SAMPLE_VALIDATOR = new ParentSampleValidator();
+    private static final ParentSampleValidator PARENT_SAMPLE_VALIDATOR = new ParentSampleValidator();
 
     private static final IValidator<MsInjectionSample> RAW_DATA_SAMPLE_VALIDATOR =
             new RawDataSampleValidator();
@@ -139,9 +141,16 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     @ReturnValueFilter(validatorClass = RawDataSampleValidator.class)
     public List<MsInjectionSample> listRawDataSamples(String sessionToken)
     {
-        return loadAllRawDataSamples(getSession(sessionToken));
+        return loadAllRawDataSamples(getSession(sessionToken), true);
     }
 
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public List<MsInjectionSample> listAllRawDataSamples(String sessionToken)
+    {
+        return loadAllRawDataSamples(getSession(sessionToken), false);
+    }
+    
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void processRawData(String sessionToken, String dataSetProcessingKey,
@@ -150,7 +159,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
         Session session = getSession(sessionToken);
         PersonPE person = session.tryGetPerson();
 
-        List<MsInjectionSample> samples = loadAllRawDataSamples(session);
+        List<MsInjectionSample> samples = loadAllRawDataSamples(session, true);
         Set<Long> sampleIDs = asSet(rawDataSampleIDs);
         List<String> dataSetCodes = new ArrayList<String>();
         Map<String, String> parameterBindings = new HashMap<String, String>();
@@ -258,13 +267,17 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
         processDataSets(session, dataSetProcessingKey, dataSetCodes, new HashMap<String, String>());
     }
 
-    private List<MsInjectionSample> loadAllRawDataSamples(Session session)
+    private List<MsInjectionSample> loadAllRawDataSamples(Session session, boolean parentHasToBeValid)
     {
-        List<Sample> samples = loadAccessableSamples(session);
+        List<Sample> samples = loadAccessableSamples(session, parentHasToBeValid);
         List<Sample> parentSamples = new ArrayList<Sample>();
         for (Sample sample : samples)
         {
-            parentSamples.add(sample.getGeneratedFrom());
+            Sample parent = sample.getGeneratedFrom();
+            if (parent != null)
+            {
+                parentSamples.add(parent);
+            }
         }
         experimentLoader.enrichWithExperiments(parentSamples);
         Map<Sample, List<AbstractExternalData>> dataSetsBySamples =
@@ -277,7 +290,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
         return result;
     }
 
-    protected List<Sample> loadAccessableSamples(Session session)
+    protected List<Sample> loadAccessableSamples(Session session, boolean parentHasToBeValid)
     {
         ISampleLoader sampleLoader = boFactory.createSampleLoader(session);
         List<Sample> samples =
@@ -288,8 +301,12 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
         List<Sample> validSamples = new ArrayList<Sample>();
         for (Sample sample : samples)
         {
-            if (PARENT_SAMPLE_VALIDATOR.isValid(person, sample))
+            if (PARENT_SAMPLE_VALIDATOR.isValid(person, sample, parentHasToBeValid))
             {
+                if (PARENT_SAMPLE_VALIDATOR.isValid(person, sample) == false)
+                {
+                    sample.setParents(Collections.<Sample>emptySet()); 
+                }
                 validSamples.add(sample);
             }
         }
@@ -299,10 +316,18 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     private void processDataSets(Session session, String dataSetProcessingKey,
             List<String> dataSetCodes, Map<String, String> parameterBindings)
     {
-        String dataStoreServerCode = findDataStoreServer(dataSetProcessingKey);
-        IDataSetTable dataSetTable = commonBoFactory.createDataSetTable(session);
-        dataSetTable.processDatasets(dataSetProcessingKey, dataStoreServerCode, dataSetCodes,
-                parameterBindings);
+        try
+        {
+            String dataStoreServerCode = findDataStoreServer(dataSetProcessingKey);
+            IDataSetTable dataSetTable = commonBoFactory.createDataSetTable(session);
+            dataSetTable.processDatasets(dataSetProcessingKey, dataStoreServerCode, dataSetCodes,
+                    parameterBindings);
+        } catch (EnvironmentFailureException ex)
+        {
+            throw new EnvironmentFailureException("Processing data sets " + 
+                    CollectionUtils.abbreviate(dataSetCodes, 20) + " with processing plugin '" 
+                    + dataSetProcessingKey + "' using bindings " + parameterBindings + " failed.", ex);
+        }
     }
 
     private String findDataStoreServer(String dataSetProcessingKey)
