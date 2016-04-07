@@ -61,7 +61,7 @@
 	<!--
         // Task for continuous integration server.
         -->
-	<target name="ci" depends="build-common.ci, run-tests, dist, check-dependencies" />
+	<target name="ci" depends="build-common.ci, dist, check-dependencies, run-tests" />
 
   <target name="core-plugins-dist" depends="openbis.core-plugins-dist">
     <antcall target="copy-core-plugins">
