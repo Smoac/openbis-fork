@@ -231,7 +231,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				mainController.serverFacade.openbisServer.createSessionWorkspaceUploader($("#APIUploader"), onComplete, {
 					main_title : $('<legend>').text('Files Uploader'),
 					uploads_title : $('<legend>').text('File list'),
-					ondelete:onDelete
+					ondelete:onDelete,
+					hideHint:_this._dataSetFormModel.isMini
 				});
 			}
 		} else {
