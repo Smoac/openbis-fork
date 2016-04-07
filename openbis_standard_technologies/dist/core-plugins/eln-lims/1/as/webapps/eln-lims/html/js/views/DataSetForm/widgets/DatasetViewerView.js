@@ -59,7 +59,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		var treeModel = [];
 		for(var datasetCode in this._dataSetViewerModel.sampleDataSets) {
 			var dataset = this._dataSetViewerModel.sampleDataSets[datasetCode];
-			treeModel.push({ title : "Code: " + datasetCode + " Type: " + dataset.dataSetTypeCode, key : "/", folder : true, lazy : true, datasetCode : datasetCode });
+			treeModel.push({ title : dataset.dataSetTypeCode + " : " + datasetCode, key : "/", folder : true, lazy : true, datasetCode : datasetCode });
 		}
 		
 		var glyph_opts = {

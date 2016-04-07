@@ -196,8 +196,13 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			var $hierarchyTable = FormUtil.getButtonWithIcon("glyphicon-list", function () {
 				mainController.changeView('showSampleHierarchyTablePage', _this._sampleFormModel.sample.permId);
 			});
-			
 			toolbarModel.push({ component : $hierarchyTable, tooltip: "Hierarchy Table" });
+			
+			//Create Dataset
+			var $uploadBtn = FormUtil.getButtonWithIcon("glyphicon-upload", function () {
+				mainController.changeView('showCreateDataSetPageFromPermId',_this._sampleFormModel.sample.permId);
+			});
+			toolbarModel.push({ component : $uploadBtn, tooltip: "Upload Dataset" });
 		}
 		
 		$formColumn.append($formTitle);
@@ -400,7 +405,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			this._reloadPreviewImage();
 			
 			// Dataset Viewer
-			this._sampleFormModel.dataSetViewer = new DataSetViewerController("dataSetViewerContainer", profile, this._sampleFormModel.sample, mainController.serverFacade, profile.getDefaultDataStoreURL(), this._sampleFormModel.datasets, true, true);
+			this._sampleFormModel.dataSetViewer = new DataSetViewerController("dataSetViewerContainer", profile, this._sampleFormModel.sample, mainController.serverFacade, profile.getDefaultDataStoreURL(), this._sampleFormModel.datasets, false, true);
 			this._sampleFormModel.dataSetViewer.init();
 		}
 		
