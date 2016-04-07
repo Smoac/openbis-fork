@@ -389,7 +389,7 @@ var Uploader = new function () {
             
             // pkupczyk: we do not provide listing of uploaded files yet
             //$("h2 > a").attr("href", settings.upload_dir);
-            
+        	
             if (settings.smart_mode) {
                 $("#filedrop-hint").html("Drag and drop the files to upload here or click 'Select files to upload' button.");
                 $(settings.file_input)
@@ -433,7 +433,12 @@ var Uploader = new function () {
             }
             //$(settings.file_list_clear_button).click(clearFileList);
             $("#filedrop-hint").append("<br/>Upload starts immediately after the file selection.");
-
+            
+        	if(settings.hideHint) {
+        		$("#filedrop-hint").hide();
+        		$("#session-workspace-uploader-uploads-title").hide();
+        	}
+        	
             //Setting titles
             $(settings.main_title_container).append(settings.main_title);
             $(settings.uploads_title_container).append(settings.uploads_title);
