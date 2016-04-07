@@ -68,6 +68,7 @@
 	<script type="text/javascript" src="./lib/caja-HTML-sanitizer/js/sanitizer.js"></script>
 	
 	<!-- First party libraries -->
+	<script type="text/javascript" src="../../resources/js/openbis.js"></script>
 	<script type="text/javascript" src="./lib/openbis/js/v3/config.js"></script>
 	<script type="text/javascript" src="./lib/openbis/js/v3/require.js"></script>
 	<script type="text/javascript" src="./lib/grid/js/Grid.js"></script>
@@ -208,31 +209,20 @@
 	<script type="text/javascript" src="./js/views/ExperimentTable/ExperimentTableView.js"></script>
 	
 	<script type="text/javascript">
+	//
+	// Configurations Available (Available under the js/config folder)
+	// Use StandardProfile as a standard default for new installations.
+	// Use ExampleProfile as a start point to develop new profiles.
+	//
+	
+	//<PROFILE_PLACEHOLDER>
+	var profile = new StandardProfile();
+	//</PROFILE_PLACEHOLDER>
 	
 	//
 	// Global variables
 	//
-	var profile = null;
-	var mainController = null;
-	
-	var loadJSResorce = function(pathToResource, onLoad) {
-		//Dinamically load openBIS V1 libraries
-		var fullURL = window.location.href;
-		var indexOfWebapp = fullURL.indexOf('webapp');
-		var openBISURL = fullURL.substring(0,indexOfWebapp);
-		
-		var head= document.getElementsByTagName('head')[0];
-		var script= document.createElement('script');
-		script.type= 'text/javascript';
-		var src = openBISURL + pathToResource;
-		script.src= src;
-		script.onreadystatechange= function () {
-			if (this.readyState == 'complete') onLoad();
-		}
-		script.onload = onLoad;
-		
-		head.appendChild(script);
-	}
+	var mainController = new MainController(profile);
 	
 	//
 	// Global links handler - This function avoid normal link behaviour for javascript enabled links that will use ajax calls for left clicks, allowing to open them on a new tab with right click.
@@ -250,62 +240,53 @@
 	// Application Startup
 	//
 	$(document).ready(function() {
-		//Dinamically load openBIS V1 libraries
-		loadJSResorce("resources/js/openbis.js", function() {
-			//<PROFILE_PLACEHOLDER>
-			profile = new StandardProfile();
-			//</PROFILE_PLACEHOLDER>
-			
-			mainController = new MainController(profile);
-			
-			$(document).ajaxError(function( event, jqxhr, settings, thrownError ) {
-				try {
-					Util.showError("AJAX Error status: " + jqxhr.status + " - Status text: " + jqxhr.statusText + " - Calling: " + settings.url + " - With Data: " + settings.data);
-				} catch(err) {
-					Util.showError("Unknown AJAX Error");
-				}
-			});
-			
-			$('#main').hide();
-			var username = $("#username").value;
-			if(username == null || username.length==0) {
-				$("#username").focus();
-			} else {
-				$("#login-button").focus();
-			}
-		
-			$('#login-form').submit(function() {
-				Util.blockUI();
-				var username = $('#username').val();
-				var password = $('#password').val();
-				
-				mainController.serverFacade.login(
-						$.trim($('#username').val()), 
-						$.trim($('#password').val()), 
-						function(data) { mainController.enterApp(data, username, password) });
-			});
-			
-			mainController.serverFacade.ifRestoredSessionActive(function(data) { mainController.enterApp(data) });
-			
-			// Make the ENTER key the default button
-			$("login-form input").keypress(function (e) {
-				if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
-					$('button[type=submit].default').click();
-					return false;
-				} else {
-					return true;
-				}
-			});
-			
-			//Automatic login if special parameters are given
-			var queryString = Util.queryString();
-			var user = queryString.user;
-			var pass = queryString.pass;
-			if(user && pass) {
-				Util.blockUI();
-				mainController.serverFacade.login(user, pass, function(data) { mainController.enterApp(data) });
+		$(document).ajaxError(function( event, jqxhr, settings, thrownError ) {
+			try {
+				Util.showError("AJAX Error status: " + jqxhr.status + " - Status text: " + jqxhr.statusText + " - Calling: " + settings.url + " - With Data: " + settings.data);
+			} catch(err) {
+				Util.showError("Unknown AJAX Error");
 			}
 		});
+		
+		$('#main').hide();
+		var username = $("#username").value;
+		if(username == null || username.length==0) {
+			$("#username").focus();
+		} else {
+			$("#login-button").focus();
+		}
+	
+		$('#login-form').submit(function() {
+			Util.blockUI();
+			var username = $('#username').val();
+			var password = $('#password').val();
+			
+			mainController.serverFacade.login(
+					$.trim($('#username').val()), 
+					$.trim($('#password').val()), 
+					function(data) { mainController.enterApp(data, username, password) });
+		});
+		
+		mainController.serverFacade.ifRestoredSessionActive(function(data) { mainController.enterApp(data) });
+		
+		// Make the ENTER key the default button
+		$("login-form input").keypress(function (e) {
+			if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+				$('button[type=submit].default').click();
+				return false;
+			} else {
+				return true;
+			}
+		});
+		
+		//Automatic login if special parameters are given
+		var queryString = Util.queryString();
+		var user = queryString.user;
+		var pass = queryString.pass;
+		if(user && pass) {
+			Util.blockUI();
+			mainController.serverFacade.login(user, pass, function(data) { mainController.enterApp(data) });
+		}
 		
 		//Resize the menu on drag
 		var dragContainerFunc = function(e) {
@@ -325,8 +306,9 @@
 			axis: "x",
 		    drag: dragContainerFunc
 		});
-		
+
 		dragContainerFunc({ pageX : (window.outerWidth * 0.20) });
+		
 	});
 	</script>
 </head>
@@ -368,6 +350,3 @@
 	
 </body>
 </html>
-
-
-
