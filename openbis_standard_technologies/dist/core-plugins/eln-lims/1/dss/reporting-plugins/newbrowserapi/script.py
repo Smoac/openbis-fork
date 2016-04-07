@@ -77,18 +77,29 @@ def getConfigParameterAsString(propertyKey):
 
 def getDirectLinkURL():
 	ftpServerEnable = getConfigParameterAsString("ftp.server.enable");
-	ftpServerPort = getConfigParameterAsString("ftp.server.port");
+	
 	ftpServerUseSsl = getConfigParameterAsString("ftp.server.use-ssl");
 	useSsl = getConfigParameterAsString("use-ssl");
-	protocol = None;
-	if ftpServerEnable == "true" and (ftpServerUseSsl == "true" or useSsl == "true"):
-		protocol = "ftps";
-	elif ftpServerEnable == "true":
-		protocol = "ftp";
 	
+	ftpPortLegacy = getConfigParameterAsString("ftp.server.port");
+	ftpPort = getConfigParameterAsString("ftp.server.ftp-port");
+	sftpPort = getConfigParameterAsString("ftp.server.sftp-port");
+	
+	protocol = None;
+	port = None;
+	if (ftpServerEnable == "true") and (ftpServerUseSsl == "true" or useSsl == "true") and (sftpPort is not None):
+		protocol = "ftps";
+		port = sftpPort;
+	elif (ftpServerEnable == "true") and ((ftpPort is not None) or (ftpPortLegacy is not None)):
+		protocol = "ftp";
+		if ftpPort is not None:
+			port = ftpPort;
+		elif ftpPortLegacy is not None:
+			port = ftpPortLegacy;
+		
 	directLinkURL = None;
 	if protocol is not None:
-		directLinkURL = protocol + "://$URL:" + str(ftpServerPort) + "/";
+		directLinkURL = protocol + "://$URL:" + str(port) + "/";
 	
 	return getJsonForData(directLinkURL);
 
