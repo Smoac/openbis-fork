@@ -212,7 +212,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					}
 				}
 				
-				if(_this._dataSetFormModel.isMini){
+				if(_this._dataSetFormModel.isMini && !Uploader.uploadsInProgress()){
 					_this._dataSetFormController.submitDataSet();
 				}
 			}
