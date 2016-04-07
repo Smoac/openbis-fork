@@ -63,6 +63,12 @@ public interface IProteomicsDataService extends IRpcService
      */
     @Transactional
     public List<MsInjectionDataInfo> listRawDataSamples(String sessionToken, String userID);
+    
+    /**
+     * Returns all samples of type MS_INJECTION in space MS_DATA which have a parent sample.
+     */
+    @Transactional
+    public List<MsInjectionDataInfo> listAllRawDataSamples(String sessionToken, String userID);
 
     /**
      * Lists all processing plugins on DSS.

@@ -38,6 +38,12 @@ public interface IProteomicsDataServiceInternal extends IServer
     @Transactional
     public List<MsInjectionSample> listRawDataSamples(String sessionToken);
 
+    /**
+     * Returns all samples of type MS_INJECTION in group MS_DATA which have a parent sample.
+     */
+    @Transactional
+    public List<MsInjectionSample> listAllRawDataSamples(String sessionToken);
+    
     @Deprecated
     @Transactional
     public void processRawData(String sessionToken, String dataSetProcessingKey,

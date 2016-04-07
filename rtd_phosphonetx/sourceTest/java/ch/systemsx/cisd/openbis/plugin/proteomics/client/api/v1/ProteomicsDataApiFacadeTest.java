@@ -125,6 +125,22 @@ public class ProteomicsDataApiFacadeTest extends AssertJUnit
     }
 
     @Test
+    public void testListAllRawDataSamples()
+    {
+        final List<MsInjectionDataInfo> result = new LinkedList<MsInjectionDataInfo>();
+        context.checking(new Expectations()
+        {
+            {
+                one(proteomicsDataService).listAllRawDataSamples(SESSION_TOKEN, "user1");
+                will(returnValue(result));
+            }
+        });
+        
+        assertSame(result, facade.listAllRawDataSamples("user1"));
+        context.assertIsSatisfied();
+    }
+    
+    @Test
     public void testProcessDataSets()
     {
         context.checking(new Expectations()

@@ -107,18 +107,36 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         SessionContextDTO session = login(userID);
         try
         {
-            List<MsInjectionSample> list = service.listRawDataSamples(session.getSessionToken());
-            ArrayList<MsInjectionDataInfo> result = new ArrayList<MsInjectionDataInfo>();
-            for (MsInjectionSample sample : list)
-            {
-                result.add(translate(sample));
-            }
-            return result;
-
+            return translateSamples(service.listRawDataSamples(session.getSessionToken()));
         } finally
         {
             service.logout(session.getSessionToken());
         }
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    public List<MsInjectionDataInfo> listAllRawDataSamples(String sessionToken, String userID)
+    {
+        checkSession(sessionToken);
+        SessionContextDTO session = login(userID);
+        try
+        {
+            return translateSamples(service.listAllRawDataSamples(session.getSessionToken()));
+        } finally
+        {
+            service.logout(session.getSessionToken());
+        }
+    }
+    
+    private List<MsInjectionDataInfo> translateSamples(List<MsInjectionSample> samples)
+    {
+        ArrayList<MsInjectionDataInfo> result = new ArrayList<MsInjectionDataInfo>();
+        for (MsInjectionSample sample : samples)
+        {
+            result.add(translate(sample));
+        }
+        return result;
     }
 
     private MsInjectionDataInfo translate(MsInjectionSample sample)
@@ -130,15 +148,18 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         info.setMsInjectionSampleRegistrationDate(msiSample.getRegistrationDate());
         info.setMsInjectionSampleProperties(translate(msiSample.getProperties()));
         Sample bioSample = msiSample.getGeneratedFrom();
-        info.setBiologicalSampleID(bioSample.getId());
-        info.setBiologicalSampleIdentifier(bioSample.getIdentifier());
-        Experiment experiment = bioSample.getExperiment();
-        if (experiment != null)
+        if (bioSample != null)
         {
-            info.setBiologicalExperimentIdentifier(experiment.getIdentifier());
-            info.setBiologicalExperiment(translate(experiment));
+            info.setBiologicalSampleID(bioSample.getId());
+            info.setBiologicalSampleIdentifier(bioSample.getIdentifier());
+            Experiment experiment = bioSample.getExperiment();
+            if (experiment != null)
+            {
+                info.setBiologicalExperimentIdentifier(experiment.getIdentifier());
+                info.setBiologicalExperiment(translate(experiment));
+            }
+            info.setBiologicalSampleProperties(translate(bioSample.getProperties()));
         }
-        info.setBiologicalSampleProperties(translate(bioSample.getProperties()));
         List<AbstractExternalData> dataSets = sample.getDataSets();
         Set<DataSet> transformedDataSets = new HashSet<DataSet>();
         for (AbstractExternalData dataSet : dataSets)

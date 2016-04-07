@@ -51,6 +51,13 @@ class ProteomicsDataServiceInternalLogger extends AbstractServerLogger implement
     }
     
     @Override
+    public List<MsInjectionSample> listAllRawDataSamples(String sessionToken)
+    {
+        logAccess(sessionToken, "list_all_raw_data_samples");
+        return null;
+    }
+    
+    @Override
     public void processRawData(String sessionToken, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType)
     {
