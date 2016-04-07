@@ -34,7 +34,10 @@
 	<script type="text/javascript" src="./lib/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
 	<script type="text/javascript" src="./lib/jquery-jnotify/js/jNotify.sis.jquery.js"></script>
 	<script type="text/javascript" src="./lib/jquery-blockui/js/jquery.blockUI.js"></script>
-
+	
+	<!-- First party libraries -->
+	<script type="text/javascript" src="../../resources/js/openbis.js"></script>
+	
 	<!-- Plugin Code -->
 	<script type="text/javascript" src="./js/BlockScrollUtil.js"></script>
 	<script type="text/javascript" src="./js/Util.js"></script>
@@ -44,26 +47,7 @@
 	<script type="text/javascript" src="./js/DataSetFormView.js"></script>
 	
 	<script type="text/javascript">
-	var openBIS = null;
-	
-	var loadJSResorce = function(pathToResource, onLoad) {
-		//Dinamically load openBIS V1 libraries
-		var fullURL = window.location.href;
-		var indexOfWebapp = fullURL.indexOf('webapp');
-		var openBISURL = fullURL.substring(0,indexOfWebapp);
-		
-		var head= document.getElementsByTagName('head')[0];
-		var script= document.createElement('script');
-		script.type= 'text/javascript';
-		var src = openBISURL + pathToResource;
-		script.src= src;
-		script.onreadystatechange= function () { //For IE
-			if (this.readyState == 'complete') onLoad();
-		}
-		script.onload = onLoad; //For others
-		
-		head.appendChild(script);
-	}
+	var openBIS = new openbis();
 	
 	//
 	// Application Startup
@@ -77,22 +61,17 @@
 			}
 		});
 		
-		loadJSResorce("resources/js/openbis.js", function() {
-			openBIS = new openbis();
-			
-			// create a context object to access the context information
-	        var context = new openbisWebAppContext();
-	        openBIS.useSession(context.getSessionId());
-	        
-	        var isSharedSample = context.getEntityIdentifier().split("/").length === 2;
-	        if(context.getEntityKind() === "SAMPLE" && isSharedSample) { //Is sample
-	        	$("#dataset-uploader-form").append("This sample does not belong to a space and therefore cannot hold datasets.");
-	        } else { //Is experiment
-	        	var datasetFormController = new DataSetFormController();
-	        	datasetFormController.init($("#dataset-uploader-form"), { identifier : context.getEntityIdentifier() });
-	        }
-		});
-		
+		// create a context object to access the context information
+        var context = new openbisWebAppContext();
+        openBIS.useSession(context.getSessionId());
+        
+        var isSharedSample = context.getEntityIdentifier().split("/").length === 2;
+        if(context.getEntityKind() === "SAMPLE" && isSharedSample) { //Is sample
+        	$("#dataset-uploader-form").append("This sample does not belong to a space and therefore cannot hold datasets.");
+        } else { //Is experiment
+        	var datasetFormController = new DataSetFormController();
+        	datasetFormController.init($("#dataset-uploader-form"), { identifier : context.getEntityIdentifier() });
+        }
 	});
 	</script>
 </head>
