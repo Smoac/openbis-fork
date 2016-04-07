@@ -9,7 +9,6 @@
       <package name="ch.systemsx.cisd.openbis.etlserver.proteomics.*" />
       <package name="ch.systemsx.cisd.openbis.dss.proteomics.*" />
       <package name="ch.systemsx.cisd.openbis.plugin.proteomics.*" />
-      <package name="ch.systemsx.cisd.openbis.proteomics.*" />
    </packages>
  </test>
 </suite>
