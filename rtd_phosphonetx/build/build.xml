@@ -72,7 +72,7 @@
 
   <!-- Tasks for Proteomics API -->
 	
-  <target name="jar" depends="openbis.jar">
+  <target name="proteomics-api-jar" depends="openbis.jar">
     <jar destfile="${api.jar}">
       <zipfileset src="${jar.file}">
         <include name="ch/systemsx/cisd/common/exceptions/**/*.class" />
@@ -130,7 +130,7 @@
     </zip>
   </target>
 	
-  <target name="make-api-dist" depends="jar, make-api-doc" 
+  <target name="make-api-dist" depends="proteomics-api-jar, make-api-doc" 
   	description="Makes a distribution file for Proteomics API.">
     <zip destfile="${dist}/${api.prefix}-${version.number}-r${revision.number}.zip">
       <zipfileset prefix="${api.prefix}" file="${api.jar}"/>
@@ -164,7 +164,7 @@
 	<!--
         // Creates WAR file.
         -->
-	<target name="war" depends="openbis.war, make-api-dist" description="Creates project war file.">
+	<target name="war" depends="make-api-dist, openbis.war" description="Creates project war file.">
 		<war warfile="${webapp.file}" update="true">
 			<classes dir="../rtd_phosphonetx/source/sql">
 				<include name="**/*.sql" />
