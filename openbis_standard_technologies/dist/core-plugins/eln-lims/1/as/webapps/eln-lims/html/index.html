@@ -309,6 +309,9 @@
 
 		dragContainerFunc({ pageX : (window.outerWidth * 0.20) });
 		
+		$( window ).resize(function() {
+			dragContainerFunc({ pageX : parseInt($('#dragContainer').css("left").replace("px","")) });
+		});
 	});
 	</script>
 </head>
