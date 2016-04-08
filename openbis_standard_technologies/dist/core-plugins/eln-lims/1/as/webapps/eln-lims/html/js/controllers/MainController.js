@@ -56,6 +56,23 @@ function MainController(profile) {
 	this.refreshView = function() {
 		this.changeView(this.lastViewChange, this.lastArg);
 	}
+	
+	//Functionality to keep state
+	this.backStack = [];
+	
+	this.pushViewOnBackStack = function() {
+		var toPush = $("#mainContainer").children();
+		toPush.detach();
+		this.backStack.push(toPush);
+	}
+	
+	this.popViewFromBackStack = function() {
+		var main = $("#mainContainer");
+			main.empty();
+		var toPop = this.backStack.pop();
+			main.append(toPop)
+	}
+	
 	//
 	// Validates and enters the app
 	//
@@ -75,14 +92,20 @@ function MainController(profile) {
 		//
 		// Back Button Logic
 		//
+		var _this = this;
 		//BackButton Logic
 		var backButtonLogic = function(e) {
-			var queryString = Util.queryString();
-			var viewName = queryString.viewName;
-			var viewData = queryString.viewData
-			if(viewName && viewData) {
-				localReference._changeView(viewName, viewData, false);
+			if(_this.backStack) {
+				_this.popViewFromBackStack();
+			} else {
+				var queryString = Util.queryString();
+				var viewName = queryString.viewName;
+				var viewData = queryString.viewData
+				if(viewName && viewData) {
+					localReference._changeView(viewName, viewData, false);
+				}
 			}
+			
 		}
 		window.addEventListener("popstate", function(e) {backButtonLogic(e);}); 
 		
