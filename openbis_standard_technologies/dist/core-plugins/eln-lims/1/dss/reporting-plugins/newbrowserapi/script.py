@@ -83,15 +83,15 @@ def getDirectLinkURL():
 	
 	ftpPortLegacy = getConfigParameterAsString("ftp.server.port");
 	ftpPort = getConfigParameterAsString("ftp.server.ftp-port");
-	sftpPort = getConfigParameterAsString("ftp.server.sftp-port");
 	
 	protocol = None;
 	port = None;
-	if (ftpServerEnable == "true") and (ftpServerUseSsl == "true" or useSsl == "true") and (sftpPort is not None):
+	if (ftpServerEnable == "true") and ((ftpPort is not None) or (ftpPortLegacy is not None)) and (ftpServerUseSsl == "true" or useSsl == "true"):
 		protocol = "ftps";
-		port = sftpPort;
 	elif (ftpServerEnable == "true") and ((ftpPort is not None) or (ftpPortLegacy is not None)):
 		protocol = "ftp";
+	
+	if protocol is not None:
 		if ftpPort is not None:
 			port = ftpPort;
 		elif ftpPortLegacy is not None:
