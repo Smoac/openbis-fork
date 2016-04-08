@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.validator.MatchingE
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyMatch;
 
 /**
  * @author pkupczyk
@@ -151,10 +152,15 @@ public class GlobalSearchObjectTranslator extends AbstractCachingTranslator<Matc
         object.setObjectKind(getObjectKind(input));
         object.setObjectPermId(getObjectPermId(input));
         object.setObjectIdentifier(getObjectIdentifier(input));
-        if (input.getMatch() != null)
+        if (input.getMatches() != null)
         {
-            // trim as it can contain \n character at the end sometimes
-            object.setMatch(input.getMatch().trim());
+            String s = "";
+            for (PropertyMatch p : input.getMatches())
+            {
+                s += p.getCode() + ": " + p.getValue() + "\n";
+            }
+
+            object.setMatch(s.trim());
         }
         object.setScore(input.getScore());
         object.setFetchOptions(new GlobalSearchObjectFetchOptions());

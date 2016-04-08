@@ -23,11 +23,16 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEnt
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs.RANK;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs.REGISTRATOR;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyMatch;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Span;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
@@ -37,6 +42,10 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
  */
 public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEntity>
 {
+    public static final String START_HIGHLIGHT = "|||startHighlight|||";
+
+    public static final String END_HIGHLIGHT = "|||endHighlight|||";
+
     private final ICommonServer commonServer;
 
     private final String sessionToken;
@@ -80,11 +89,122 @@ public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEnt
             builder.column(ENTITY_TYPE).addString(matchingEntity.getEntityType().getCode());
             builder.column(IDENTIFIER).addString(matchingEntity.getIdentifier());
             builder.column(REGISTRATOR).addPerson(matchingEntity.getRegistrator());
-            builder.column(MATCH).addMultilineValue(matchingEntity.getMatch());
+            builder.column(MATCH).addMatch(addHighLights(matchingEntity));
             builder.column(RANK).addInteger(rank);
             rank++;
         }
         return builder.getModel();
+    }
+
+    private class Block
+    {
+        private boolean highlighted;
+
+        private int length;
+
+        public Block(boolean highlighted, int length)
+        {
+            this.highlighted = highlighted;
+            this.length = length;
+
+        }
+
+        public boolean isHighlighted()
+        {
+            return highlighted;
+        }
+
+        public int getLength()
+        {
+            return length;
+        }
+    }
+
+    private MatchingEntity addHighLights(MatchingEntity entity)
+    {
+        for (PropertyMatch match : entity.getMatches())
+        {
+            String rawValue = match.getValue();
+            String highlighted = "";
+            for (Block block : getBlocks(match.getSpans()))
+            {
+                if (rawValue.length() == 0)
+                {
+                    break;
+                }
+
+                if (block.isHighlighted())
+                {
+                    highlighted += START_HIGHLIGHT;
+                }
+
+                highlighted += rawValue.substring(0, Math.min(block.getLength(), rawValue.length()));
+
+                if (block.isHighlighted())
+                {
+                    highlighted += END_HIGHLIGHT;
+                }
+
+                rawValue = rawValue.substring(Math.min(block.getLength(), rawValue.length()));
+            }
+            match.setValue(highlighted);
+        }
+        return entity;
+    }
+
+    private List<Block> getBlocks(List<Span> input)
+    {
+        List<Span> spans = new ArrayList<Span>(input);
+        Collections.sort(spans, new Comparator<Span>()
+            {
+                @Override
+                public int compare(Span s1, Span s2)
+                {
+                    return new Integer(s1.getStart()).compareTo(new Integer(s2.getStart()));
+                }
+            });
+
+        List<Span> result = new ArrayList<Span>();
+
+        for (Span span : spans)
+        {
+            if (result.isEmpty())
+            {
+                result.add(span);
+            } else
+            {
+                Span last = result.get(result.size() - 1);
+                if (overlap(last, span))
+                {
+                    if (span.getEnd() > last.getEnd())
+                    {
+                        last.setEnd(span.getEnd());
+                    } // else last shadows span completely
+                } else
+                {
+                    result.add(span);
+                }
+            }
+        }
+
+        List<Block> blocks = new ArrayList<Block>();
+        int lastEnd = 0;
+        for (Span span : result)
+        {
+            if (span.getStart() - lastEnd > 0)
+            {
+                blocks.add(new Block(false, span.getStart() - lastEnd));
+            }
+            blocks.add(new Block(true, span.getEnd() - span.getStart()));
+            lastEnd = span.getEnd();
+        }
+        blocks.add(new Block(false, Integer.MAX_VALUE));
+        return blocks;
+    }
+
+    private boolean overlap(Span s1, Span s2)
+    {
+        return s1.getEnd() >= s2.getStart();
     }
 
 }

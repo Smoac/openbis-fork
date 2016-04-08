@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
+import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IRegistratorHolder;
@@ -47,7 +48,7 @@ public final class MatchingEntity implements Serializable, IEntityInformationHol
 
     private Space spaceOrNull;
 
-    private String match;
+    private List<PropertyMatch> matches;
 
     private double score;
 
@@ -186,14 +187,14 @@ public final class MatchingEntity implements Serializable, IEntityInformationHol
         return getIdentifier();
     }
 
-    public String getMatch()
+    public List<PropertyMatch> getMatches()
     {
-        return match;
+        return matches;
     }
 
-    public void setMatch(String match)
+    public void setMatches(List<PropertyMatch> matches)
     {
-        this.match = match;
+        this.matches = matches;
     }
 
     public double getScore()

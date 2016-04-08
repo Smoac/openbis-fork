@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWit
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -87,7 +88,7 @@ public interface IColumn
     /**
      * Adds a multiline string value to the column.
      */
-    public void addMultilineValue(String valueOrNull);
+    public void addMatch(MatchingEntity valueOrNull);
 
     /**
      * Adds an integer value to the column.

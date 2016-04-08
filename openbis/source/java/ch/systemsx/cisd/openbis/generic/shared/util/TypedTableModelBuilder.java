@@ -45,6 +45,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntityTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -424,11 +426,11 @@ public class TypedTableModelBuilder<T extends Serializable>
         }
 
         @Override
-        public void addMultilineValue(String valueOrNull)
+        public void addMatch(MatchingEntity valueOrNull)
         {
             setDataType(DataTypeCode.MULTILINE_VARCHAR);
-            StringTableCell value =
-                    valueOrNull == null ? EMPTY_CELL : new StringTableCell(valueOrNull);
+            ISerializableComparable value =
+                    valueOrNull == null ? EMPTY_CELL : new MatchingEntityTableCell(valueOrNull);
             addValue(value);
         }
 

@@ -29,13 +29,18 @@ import java.util.List;
 import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
@@ -45,11 +50,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.MatchingEntitiesProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -57,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyMatch;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
@@ -189,7 +197,26 @@ public final class MatchingEntitiesPanel extends TypedTableGrid<MatchingEntity>
                 super.createColumnsDefinition();
         schema.setGridCellRendererFor(REGISTRATOR, PersonRenderer.REGISTRATOR_RENDERER);
         schema.setGridCellRendererFor(IDENTIFIER, createInternalLinkCellRenderer());
-        schema.setGridCellRendererFor(MATCH, createMultilineStringCellRenderer());
+        schema.setGridCellRendererFor(MATCH, new GridCellRenderer<BaseEntityModel<?>>()
+            {
+                @Override
+                public Object render(BaseEntityModel<?> model, String property, ColumnData config, int rowIndex, int colIndex,
+                        ListStore<BaseEntityModel<?>> store, Grid<BaseEntityModel<?>> grid)
+                {
+                    MatchingEntity entity = ((TableModelRowWithObject<MatchingEntity>) model
+                            .getBaseObject()).getObjectOrNull();
+                    String html = "";
+                    for (PropertyMatch match : entity.getMatches())
+                    {
+                        html += match.getCode() + ": "
+                                + match.getValue().replace(MatchingEntitiesProvider.START_HIGHLIGHT, "<span style=\"background-color:#EEEEEE\">")
+                                        .replace(MatchingEntitiesProvider.END_HIGHLIGHT, "</span>")
+                                + "\n";
+                    }
+
+                    return new MultilineHTML(html);
+                }
+            });
         return schema;
     }
 

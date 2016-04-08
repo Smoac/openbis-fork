@@ -91,7 +91,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyMatch;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Span;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -394,18 +396,21 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
                     List<String> query = subqueries(userQuery.toLowerCase());
 
-                    Map<String, String> matchingFields = new HashMap<>();
+                    Map<String, PropertyMatch> matchingFields = new HashMap<>();
                     double score = 0.0;
 
                     for (int i = 0; i < content.length; i++)
                     {
+                        String field = fields[i];
+                        String data = content[i];
+                        List<Span> spans = new ArrayList<Span>();
+
+                        double scoreNow = score;
                         for (String q : query)
                         {
-                            double currentScore = score;
-
                             if (useWildcardSearchMode)
                             {
-                                Pattern pattern = Pattern.compile("(?s)(^|\\s)" + q.replace("*", ".*").replace("?", ".?") + "($|\\s)");
+                                Pattern pattern = Pattern.compile("(?s)(^|\\s)(" + q.replace("*", "[^\\s]*").replace("?", "[^\\s]?") + ")($|\\s)");
 
                                 String cont = stripXml(content[i].toLowerCase());
                                 Matcher matcher = pattern.matcher(cont);
@@ -414,6 +419,16 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                                     int start = matcher.start();
                                     int end = matcher.end();
                                     score += getScore(cont, start, end, fields[i], useWildcardSearchMode);
+                                }
+
+                                cont = content[i].toLowerCase();
+                                matcher = pattern.matcher(cont);
+                                while (matcher.find())
+                                {
+                                    Span span = new Span();
+                                    span.setStart(matcher.start(2));
+                                    span.setEnd(matcher.end(2));
+                                    spans.add(span);
                                 }
                             } else
                             {
@@ -431,12 +446,36 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                                         score += getScore(content[i].toLowerCase(), start, end, fields[i], useWildcardSearchMode);
                                     }
                                 }
-                            }
 
-                            if (score > currentScore)
-                            {
-                                matchingFields.put(fields[i], content[i]);
+                                rest = content[i].toLowerCase();
+                                int idx = 0;
+                                while (rest.length() > 0)
+                                {
+                                    int start = rest.indexOf(q);
+                                    if (start == -1)
+                                    {
+                                        rest = "";
+                                    } else
+                                    {
+                                        int end = start + q.length();
+                                        rest = rest.substring(end);
+                                        Span span = new Span();
+                                        span.setStart(start + idx);
+                                        span.setEnd(end + idx);
+                                        idx = idx + end;
+                                        spans.add(span);
+                                    }
+                                }
                             }
+                        }
+
+                        if (score > scoreNow)
+                        {
+                            PropertyMatch match = new PropertyMatch();
+                            match.setCode(field);
+                            match.setValue(data);
+                            match.setSpans(spans);
+                            matchingFields.put(field, match);
                         }
                     }
 
@@ -490,7 +529,12 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                     {
                         List<String> mps = new ArrayList<>(matchingMetaprojects);
                         Collections.sort(mps);
-                        matchingFields.put("Tags", StringUtils.join(mps, ","));
+
+                        PropertyMatch match = new PropertyMatch();
+                        match.setCode("Tags");
+                        match.setValue(StringUtils.join(mps, ", "));
+                        match.setSpans(new ArrayList<Span>());
+                        matchingFields.put("Tags", match);
                     }
 
                     if (matchingFields.containsKey("Code") ||
@@ -500,16 +544,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                         matchingFields.remove("Identifier");
                     }
 
-                    List<String> keys = new ArrayList<String>(matchingFields.keySet());
-                    Collections.sort(keys);
-
-                    String text = "";
-                    for (String key : keys)
-                    {
-                        text = text + key + ": " + matchingFields.get(key) + "\n";
-                    }
-
-                    return createMatchingEntity((Document) tuple[1], text, score);
+                    return createMatchingEntity((Document) tuple[1], new ArrayList<>(matchingFields.values()), score);
                 }
 
                 private String stripXml(String cont)
@@ -574,12 +609,12 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                     return result;
                 }
 
-                private MatchingEntity createMatchingEntity(final Document doc, final String matchingText, double score)
+                private MatchingEntity createMatchingEntity(final Document doc, final List<PropertyMatch> matches, double score)
                 {
                     final MatchingEntity result = new MatchingEntity();
 
                     // search properties
-                    result.setMatch(matchingText);
+                    result.setMatches(matches);
                     result.setScore(score);
 
                     // IIdentifiable properties

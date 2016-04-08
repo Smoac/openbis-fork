@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyMatch;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
@@ -132,12 +133,15 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         {
             assertEquals(lastName, matchingEntity.getRegistrator().getFirstName());
 
-            String fieldDescription = matchingEntity.getMatch();
-            if (fieldDescription.contains("Name of registrator") == false
-                    && fieldDescription.contains("Name of modifier") == false)
+            for (PropertyMatch match : matchingEntity.getMatches())
             {
-                fail("Field description '" + fieldDescription + "' neither contains 'First name of registrator' " +
-                        "nor 'First name of modifier'.");
+                String fieldDescription = match.getCode();
+                if (fieldDescription.contains("Name of registrator") == false
+                        && fieldDescription.contains("Name of modifier") == false)
+                {
+                    fail("Field description '" + fieldDescription + "' neither contains 'First name of registrator' " +
+                            "nor 'First name of modifier'.");
+                }
             }
         }
     }
@@ -162,7 +166,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         for (MatchingEntity matchingEntity : hits)
         {
             AssertionUtil.assertContainsInsensitive(querySubstring, matchingEntity.getCode());
-            assertEquals("Code", matchingEntity.getMatch().substring(0, matchingEntity.getMatch().indexOf(":")));
+            assertEquals("Code", matchingEntity.getMatches().get(0).getCode());
         }
     }
 
