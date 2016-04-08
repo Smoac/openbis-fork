@@ -493,7 +493,7 @@ var Util = new function() {
 	}
 	
 	this.manageError = function(err) {
-		Util.showError(	"Remember, it happens even on the best families.<br/>Please take a screenshot of the browser with the error report, add a description of the steps that lead to it and send it to your admin. <br/><br/>" +
+		Util.showError(	"Please take a screenshot of the browser with the error report, add a description of the steps that lead to it and send it to your admin. <br/><br/>" +
 						"<div style='color:black; background-color:lightgrey; padding:10px;'>" + 
 						"User Agent: " + navigator.userAgent + "<br/>" +
 						"URL: " + window.location.href + "<br/>" +
