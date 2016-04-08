@@ -40,6 +40,8 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
     private static final String DROPBOX_MONITOR_MODULE = "dropbox-monitor";
 
     private static final String DATASET_UPLOADER_MODULE = "dataset-uploader";
+    
+    private static final String ELN_LIMS_MODULE = "eln-lims";
 
     static final String ENABLED_TECHNOLOGIES_VARNAME = "ENABLED_TECHNOLOGIES";
 
@@ -99,6 +101,9 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
 
         builder.append(DATASET_UPLOADER_MODULE);
         allTechnologies.add(DATASET_UPLOADER_MODULE);
+
+        builder.append(ELN_LIMS_MODULE);
+        allTechnologies.add(ELN_LIMS_MODULE);
 
         for (String technology : GlobalInstallationContext.TECHNOLOGIES)
         {
