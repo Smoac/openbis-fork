@@ -13,6 +13,10 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.code = null;
 		prototype.description = null;
 		prototype.isPrivate = null;
+		prototype.experiments = null;
+		prototype.samples = null;
+		prototype.dataSets = null;
+		prototype.materials = null;
 		prototype.registrationDate = null;
 		prototype.owner = null;
 		prototype.getFetchOptions = function() {
@@ -45,6 +49,46 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setPrivate = function(isPrivate) {
 			this.isPrivate = isPrivate;
 		};
+		prototype.getExperiments = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasExperiments()) {
+				return this.experiments;
+			} else {
+				throw new exceptions.NotFetchedException("Experiments have not been fetched.");
+			}
+		};
+		prototype.setExperiments = function(experiments) {
+			this.experiments = experiments;
+		};
+		prototype.getSamples = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasSamples()) {
+				return this.samples;
+			} else {
+				throw new exceptions.NotFetchedException("Samples have not been fetched.");
+			}
+		};
+		prototype.setSamples = function(samples) {
+			this.samples = samples;
+		};
+		prototype.getDataSets = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasDataSets()) {
+				return this.dataSets;
+			} else {
+				throw new exceptions.NotFetchedException("Data sets have not been fetched.");
+			}
+		};
+		prototype.setDataSets = function(dataSets) {
+			this.dataSets = dataSets;
+		};
+		prototype.getMaterials = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasMaterials()) {
+				return this.materials;
+			} else {
+				throw new exceptions.NotFetchedException("Materials have not been fetched.");
+			}
+		};
+		prototype.setMaterials = function(materials) {
+			this.materials = materials;
+		};
 		prototype.getRegistrationDate = function() {
 			return this.registrationDate;
 		};
@@ -64,6 +108,22 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 	}, {
 		fetchOptions : "TagFetchOptions",
 		permId : "TagPermId",
+		experiments : {
+			name : "List",
+			arguments : [ "Experiment" ]
+		},
+		samples : {
+			name : "List",
+			arguments : [ "Sample" ]
+		},
+		dataSets : {
+			name : "List",
+			arguments : [ "DataSet" ]
+		},
+		materials : {
+			name : "List",
+			arguments : [ "Material" ]
+		},
 		registrationDate : "Date",
 		owner : "Person"
 	});

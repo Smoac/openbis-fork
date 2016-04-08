@@ -416,6 +416,21 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			});
 		}
 
+		this.mapTags = function(ids, fetchOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "mapTags",
+					"params" : [ thisFacade._private.sessionToken, ids, fetchOptions ]
+				},
+				returnType : {
+					name : "Map",
+					arguments : [ "ITagId", "Tag" ]
+				}
+			});
+		}
+
 		this.searchSpaces = function(criteria, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -463,7 +478,7 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				returnType : "SearchResult"
 			})
 		}
-		
+
 		this.searchSamples = function(criteria, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -487,7 +502,7 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				returnType : "SearchResult"
 			});
 		}
-		
+
 		this.searchDataSets = function(criteria, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -511,7 +526,7 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				returnType : "SearchResult"
 			});
 		}
-		
+
 		this.searchMaterials = function(criteria, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
