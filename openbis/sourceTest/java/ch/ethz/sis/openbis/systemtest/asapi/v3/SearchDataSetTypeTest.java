@@ -38,6 +38,41 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.CodeComparator;
 public class SearchDataSetTypeTest extends AbstractTest
 {
     @Test
+    public void testSearchAll()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
+        fetchOptions.withPropertyAssignments();
+        SearchResult<DataSetType> searchResult = v3api.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
+        
+        List<DataSetType> types = searchResult.getObjects();
+        List<String> codes = extractCodes(types);
+        Collections.sort(codes);
+        assertEquals(codes.toString(), "[CONTAINER_TYPE, DELETION_TEST, DELETION_TEST_CONTAINER, HCS_IMAGE, HCS_IMAGE_ANALYSIS_DATA, LINK_TYPE, REQUIRES_EXPERIMENT, UNKNOWN, VALIDATED_CONTAINER_TYPE, VALIDATED_IMPOSSIBLE_TO_UPDATE_TYPE, VALIDATED_NORMAL_TYPE]");
+        assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
+        v3api.logout(sessionToken);
+    }
+    
+    @Test
+    public void testSearchExactCode()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        searchCriteria.withCode().thatEquals("HCS_IMAGE");
+        DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
+        fetchOptions.withPropertyAssignments();
+        SearchResult<DataSetType> searchResult = v3api.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
+        
+        List<DataSetType> types = searchResult.getObjects();
+        List<String> codes = extractCodes(types);
+        Collections.sort(codes);
+        assertEquals(codes.toString(), "[HCS_IMAGE]");
+        assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
+        v3api.logout(sessionToken);
+    }
+    
+    @Test
     public void testSearchWithCodeThatStartsWithD()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);

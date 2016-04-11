@@ -38,6 +38,41 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.CodeComparator;
 public class SearchExperimentTypeTest extends AbstractTest
 {
     @Test
+    public void testSearchAll()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        ExperimentTypeFetchOptions fetchOptions = new ExperimentTypeFetchOptions();
+        fetchOptions.withPropertyAssignments();
+        SearchResult<ExperimentType> searchResult = v3api.searchExperimentTypes(sessionToken, searchCriteria, fetchOptions);
+        
+        List<ExperimentType> types = searchResult.getObjects();
+        List<String> codes = extractCodes(types);
+        Collections.sort(codes);
+        assertEquals(codes.toString(), "[COMPOUND_HCS, DELETION_TEST, SIRNA_HCS]");
+        assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
+        v3api.logout(sessionToken);
+    }
+    
+    @Test
+    public void testSearchExactCode()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        searchCriteria.withCode().thatEquals("SIRNA_HCS");
+        ExperimentTypeFetchOptions fetchOptions = new ExperimentTypeFetchOptions();
+        fetchOptions.withPropertyAssignments();
+        SearchResult<ExperimentType> searchResult = v3api.searchExperimentTypes(sessionToken, searchCriteria, fetchOptions);
+        
+        List<ExperimentType> types = searchResult.getObjects();
+        List<String> codes = extractCodes(types);
+        Collections.sort(codes);
+        assertEquals(codes.toString(), "[SIRNA_HCS]");
+        assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
+        v3api.logout(sessionToken);
+    }
+    
+    @Test
     public void testSearchWithCodeThatStartsWithD()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
