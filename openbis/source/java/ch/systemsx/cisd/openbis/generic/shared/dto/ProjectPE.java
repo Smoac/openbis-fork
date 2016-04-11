@@ -59,7 +59,6 @@ import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collection.UnmodifiableListDecorator;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
@@ -250,7 +249,6 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     }
 
     @Column(name = ColumnNames.DESCRIPTION_COLUMN)
-    @Length(max = GenericConstants.DESCRIPTION_2000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
     public final String getDescription()
     {
         return description;

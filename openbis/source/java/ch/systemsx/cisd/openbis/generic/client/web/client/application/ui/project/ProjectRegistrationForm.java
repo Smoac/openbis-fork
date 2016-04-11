@@ -38,6 +38,7 @@ public class ProjectRegistrationForm extends AbstractProjectEditRegisterForm
     {
         super(viewContext);
         setResetButtonVisible(true);
+        projectDescriptionField.setMaxLength(Integer.MAX_VALUE);
     }
 
     public static DatabaseModificationAwareComponent create(
