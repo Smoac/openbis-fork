@@ -279,13 +279,13 @@ var SampleDataGridUtil = new function() {
 				
 				var $openHierarchy = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Open Hierarchy'}).append("Open Hierarchy"));
 				$openHierarchy.click(function(e) {
-					mainController.changeView('showSampleHierarchyPage', data.permId);
+					mainController.changeView('showSampleHierarchyPage', data.permId, true);
 				});
 				$list.append($openHierarchy);
 				
 				var $openHierarchy = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Open Hierarchy Table'}).append("Open Hierarchy Table"));
 				$openHierarchy.click(function(e) {
-					mainController.changeView('showSampleHierarchyTablePage', data.permId);
+					mainController.changeView('showSampleHierarchyTablePage', data.permId, true);
 				});
 				$list.append($openHierarchy);
 				
