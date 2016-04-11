@@ -100,7 +100,7 @@ function MainController(profile) {
 		var _this = this;
 		//BackButton Logic
 		var backButtonLogic = function(e) {
-			if(_this.backStack) {
+			if(_this.backStack.length > 0) {
 				_this.popViewFromBackStack();
 			} else {
 				var queryString = Util.queryString();
@@ -112,7 +112,9 @@ function MainController(profile) {
 			}
 			
 		}
-		window.addEventListener("popstate", function(e) {backButtonLogic(e);}); 
+		window.addEventListener("popstate", function(e) {
+			backButtonLogic(e);
+		}); 
 		
 		//
 		// Start App if credentials are ok
