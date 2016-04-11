@@ -57,7 +57,7 @@ $.extend(DefaultProfile.prototype, {
 			return ($.inArray(spaceCode, this.inventorySpaces) !== -1);
 		}
 		
-		this.directLinkEnabled = true;
+		this.directLinkEnabled = false;
 		this.directLinkURL = null; //To be set during initialization using info retrieved from the DSS configuration by the reporting plugin
 		
 		this.hideCodes = true;
