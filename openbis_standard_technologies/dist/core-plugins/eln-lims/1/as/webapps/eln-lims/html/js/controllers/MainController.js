@@ -60,24 +60,6 @@ function MainController(profile) {
 	//Functionality to keep state
 	this.backStack = [];
 	
-	this.pushViewOnBackStack = function() {
-		var toPush = $("#mainContainer").children();
-		toPush.detach();
-		this.backStack.push(toPush);
-	}
-	
-	this.popViewFromBackStack = function() {
-		if(	this.currentView && 
-			this.currentView.finalize) {
-			this.currentView.finalize();
-		}
-		
-		var main = $("#mainContainer");
-			main.empty();
-		var toPop = this.backStack.pop();
-			main.append(toPop)
-	}
-	
 	//
 	// Validates and enters the app
 	//
@@ -97,23 +79,32 @@ function MainController(profile) {
 		//
 		// Back Button Logic
 		//
-		var _this = this;
+		
 		//BackButton Logic
-		var backButtonLogic = function(e) {
-			if(_this.backStack.length > 0) {
-				_this.popViewFromBackStack();
+		var _this = this;
+		this.backButtonLogic = function(e) {
+			if(	this.currentView && 
+				this.currentView.finalize) {
+				this.currentView.finalize();
+			}
+			
+			if(this.backStack.length > 0 && this.backStack[this.backStack.length-1].view) {
+				var toPop = this.backStack.pop();
+				var main = $("#mainContainer");
+				main.empty();
+				main.append(toPop.view)
 			} else {
 				var queryString = Util.queryString();
 				var viewName = queryString.viewName;
 				var viewData = queryString.viewData
 				if(viewName && viewData) {
-					localReference._changeView(viewName, viewData, false);
+					localReference._changeView(viewName, viewData, false, false);
 				}
 			}
-			
 		}
+		
 		window.addEventListener("popstate", function(e) {
-			backButtonLogic(e);
+			_this.backButtonLogic(e);
 		}); 
 		
 		//
@@ -185,10 +176,10 @@ function MainController(profile) {
 	//
 	// Main View Changer - Everything on the application rely on this method to alter the views, arg should be a string
 	//
-	this.changeView = function(newViewChange, arg) {
-		this._changeView(newViewChange, arg, true);
+	this.changeView = function(newViewChange, arg, shouldStateBePushToHistory) {
+		this._changeView(newViewChange, arg, true, shouldStateBePushToHistory);
 	}
-	this._changeView = function(newViewChange, arg, shouldBePushToHistory) {
+	this._changeView = function(newViewChange, arg, shouldURLBePushToHistory, shouldStateBePushToHistory) {
 		//
 		// Dirty forms management, to avoid loosing changes.
 		//
@@ -206,6 +197,7 @@ function MainController(profile) {
 		//
 		// Finalize view, used to undo mayor modifications to how layout and events are handled
 		//
+		
 		if(	this.currentView && 
 			this.currentView.finalize) {
 			this.currentView.finalize();
@@ -437,11 +429,23 @@ function MainController(profile) {
 		//
 		// Permanent URLs
 		//
-		if (shouldBePushToHistory) {
+		if (shouldURLBePushToHistory) {
 			var menuUniqueId = this.sideMenu.getCurrentNodeId();
 			var url = Util.getURLFor(menuUniqueId, newViewChange, arg);
 			history.pushState(null, "", url); //History Push State
+			
+			var toPush = null;
+			if(shouldStateBePushToHistory) {
+				toPush = $("#mainContainer").children();
+				toPush.detach();
+			}
+			
+			this.backStack.push({
+				view : toPush,
+				url : url
+			});
 		}
+		
 		//
 		// Refresh Functionality
 		//

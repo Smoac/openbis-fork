@@ -759,8 +759,7 @@ var FormUtil = new function() {
 		
 		var href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), view, permIdOrIdentifier);
 		var click = function() {
-			mainController.pushViewOnBackStack();
-			mainController.changeView(view, permIdOrIdentifier);
+			mainController.changeView(view, permIdOrIdentifier, true);
 		}
 		var link = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).append(displayName);
 		link.click(click);
