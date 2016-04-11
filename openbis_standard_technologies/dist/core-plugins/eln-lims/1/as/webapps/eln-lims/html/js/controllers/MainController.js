@@ -67,6 +67,11 @@ function MainController(profile) {
 	}
 	
 	this.popViewFromBackStack = function() {
+		if(	this.currentView && 
+			this.currentView.finalize) {
+			this.currentView.finalize();
+		}
+		
 		var main = $("#mainContainer");
 			main.empty();
 		var toPop = this.backStack.pop();
