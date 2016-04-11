@@ -88,8 +88,12 @@ function MainController(profile) {
 				this.currentView.finalize();
 			}
 			
-			if(this.backStack.length > 0 && this.backStack[this.backStack.length-1].view) {
-				var toPop = this.backStack.pop();
+			var toPop = null;
+			if(this.backStack.length > 0) {
+				toPop = this.backStack.pop();
+			}
+			
+			if(toPop && toPop.view) {
 				var main = $("#mainContainer");
 				main.empty();
 				main.append(toPop.view)
