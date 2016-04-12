@@ -49,6 +49,7 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPreStagingBehavior;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IMetaproject;
 import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.registrator.v1.AbstractOmniscientTopLevelDataSetRegistrator;
@@ -61,6 +62,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -248,8 +250,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         context.assertIsSatisfied();
     }
 
-    @Test(expectedExceptions =
-    { IllegalArgumentException.class })
+    @Test(expectedExceptions = { IllegalArgumentException.class })
     public void testCommitContainerDataSetWithFiles()
     {
         setUpOpenBisExpectations(true);
@@ -406,6 +407,74 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testGetNonExistingMetaproject()
+    {
+        setUpHomeDataBaseExpectations();
+        createTransaction();
+        context.checking(new Expectations()
+            {
+                {
+                    one(openBisService).tryGetMetaproject("ABC", "test");
+                }
+            });
+
+        IMetaproject metaproject = tr.getMetaproject("ABC", "test");
+
+        assertEquals(null, metaproject);
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testGetExistingMetaproject()
+    {
+        setUpHomeDataBaseExpectations();
+        createTransaction();
+        context.checking(new Expectations()
+            {
+                {
+                    one(openBisService).tryGetMetaproject("ABC", "test");
+                    Metaproject metaproject = new Metaproject();
+                    metaproject.setId(1L);
+                    metaproject.setName("ABC");
+                    metaproject.setOwnerId("test");
+                    will(returnValue(metaproject));
+                }
+            });
+
+        IMetaproject metaproject = tr.getMetaproject("ABC", "test");
+
+        assertEquals("ABC", metaproject.getName());
+        assertEquals("test", metaproject.getOwnerId());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetSameMetaprojectTwice()
+    {
+        setUpHomeDataBaseExpectations();
+        createTransaction();
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(openBisService).tryGetMetaproject("ABC", "test");
+                    Metaproject metaproject = new Metaproject();
+                    metaproject.setId(1L);
+                    metaproject.setName("ABC");
+                    metaproject.setOwnerId("test");
+                    will(returnValue(metaproject));
+                }
+            });
+
+        IMetaproject metaproject1 = tr.getMetaproject("ABC", "test");
+        IMetaproject metaproject2 = tr.getMetaproject("ABC", "test");
+
+        assertEquals("ABC", metaproject1.getName());
+        assertEquals("test", metaproject1.getOwnerId());
+        assertSame(metaproject1, metaproject2);
+        context.assertIsSatisfied();
+    }
+    
     private File[] listRollbackQueueFiles()
     {
         File[] rollbackQueueFiles = workingDirectory.listFiles(new FilenameFilter()

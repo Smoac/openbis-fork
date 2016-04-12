@@ -860,9 +860,12 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         {
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject dto =
                     openBisService.tryGetMetaproject(name, ownerId);
+            if (dto == null)
+            {
+                return null;
+            }
 
             Metaproject metaproject = findExistingMetaprojectLocally(dto);
-
             if (metaproject == null)
             {
                 metaproject = new Metaproject(dto);
@@ -872,7 +875,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             return metaproject;
         }
 
-        public Metaproject findExistingMetaprojectLocally(
+        private Metaproject findExistingMetaprojectLocally(
                 ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject dto)
         {
             for (Metaproject m : metaprojectsToBeUpdated)
