@@ -17,6 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.shared.coreplugin;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
@@ -24,6 +27,7 @@ import java.util.regex.PatternSyntaxException;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 
 /**
  * Helper class for checking enabled module.
@@ -53,6 +57,50 @@ public class ModuleEnabledChecker
                         + ex.getMessage());
             }
         }
+    }
+
+    public static interface IModuleNameExtractor<T>
+    {
+        String getName(T item);
+    }
+
+    public List<CorePlugin> getListOfEnabledPlugins(List<CorePlugin> corePlugins)
+    {
+        ArrayList<CorePlugin> result = new ArrayList<>();
+
+        ArrayList<String> codes = new ArrayList<>();
+        HashMap<String, CorePlugin> codeToPlugin = new HashMap<>();
+        for (CorePlugin plugin : corePlugins)
+        {
+            String name = plugin.getName();
+            codes.add(name);
+            codeToPlugin.put(name, plugin);
+        }
+        for (String enabledPluginCode : getListOfEnabledModules(codes))
+        {
+            result.add(codeToPlugin.get(enabledPluginCode));
+        }
+        return result;
+    }
+
+    public List<String> getListOfEnabledModules(List<String> moduleNames)
+    {
+        List<String> remainingModules = new LinkedList<>(moduleNames);
+        List<String> modulesInTheRightOrder = new ArrayList<>();
+        for (Pattern pattern : enabledModulesPatterns)
+        {
+            Iterator<String> it = remainingModules.iterator();
+            while (it.hasNext())
+            {
+                String module = it.next();
+                if (pattern.matcher(module).matches())
+                {
+                    modulesInTheRightOrder.add(module);
+                    it.remove();
+                }
+            }
+        }
+        return modulesInTheRightOrder;
     }
 
     public boolean isModuleEnabled(String module)

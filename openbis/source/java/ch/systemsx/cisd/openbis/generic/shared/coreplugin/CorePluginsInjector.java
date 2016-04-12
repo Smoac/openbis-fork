@@ -202,14 +202,26 @@ public class CorePluginsInjector
         CorePluginScanner scanner =
                 new CorePluginScanner(corePluginsFolderPath, scannerType, logger);
         List<CorePlugin> plugins = scanner.scanForPlugins();
-        for (CorePlugin corePlugin : plugins)
+
+        // this loop is here just to log unregistered plugins
+        for (CorePlugin plugin : plugins)
         {
-            String module = corePlugin.getName();
+            String module = plugin.getName();
             if (moduleEnabledChecker.isModuleEnabled(module) == false)
             {
                 logger.log(LogLevel.INFO, "Core plugins for module '" + module
                         + "' are not enabled.");
                 continue;
+            }
+        }
+
+        for (CorePlugin corePlugin : moduleEnabledChecker.getListOfEnabledPlugins(plugins))
+        {
+            String module = corePlugin.getName();
+            if (moduleEnabledChecker.isModuleEnabled(module) == false)
+            {
+                throw new IllegalStateException(
+                        "Error in core plugin initialization. Core plugin " + module + " is not enabled, but passed early initialization test.");
             }
 
             // special treatment for initialize master data, as it is not a core plugin atm
@@ -468,8 +480,7 @@ public class CorePluginsInjector
         }
 
         /**
-         * Load plugin properties file where all references to script names are replaced by script
-         * paths.
+         * Load plugin properties file where all references to script names are replaced by script paths.
          */
         private Properties getPluginProperties(File folder)
         {

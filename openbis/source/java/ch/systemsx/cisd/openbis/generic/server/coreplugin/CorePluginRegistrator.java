@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.coreplugin;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
@@ -58,7 +59,8 @@ public class CorePluginRegistrator implements InitializingBean
         }
         CorePluginScanner pluginScanner = new CorePluginScanner(pluginsFolderName, ScannerType.AS);
         String sessionToken = getSessionToken();
-        for (CorePlugin plugin : pluginScanner.scanForPlugins())
+        List<CorePlugin> plugins = pluginScanner.scanForPlugins();
+        for (CorePlugin plugin : moduleEnabledChecker.getListOfEnabledPlugins(plugins))
         {
             if (moduleEnabledChecker.isModuleEnabled(plugin.getName()))
             {
