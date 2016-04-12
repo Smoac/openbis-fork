@@ -47,8 +47,8 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     
     this.hideSideMenu = function() {
         this._sideMenuWidgetModel.$container.hide();
-        $("#mainContainer").removeClass("col-md-10");
-        $("#mainContainer").addClass("col-md-12");
+        
+        Util.dragContainerFunc({ pageX : 0 });
 
         var $toggleButtonShow = $("<a>", {"class": "btn btn-default", "id": "toggleButtonShow", "href": "javascript:mainController.sideMenu.showSideMenu();", "style": "position: fixed; top:0px; left:0px;"})
                 .append($("<span>", {"class": "glyphicon glyphicon-resize-small"}));
@@ -60,8 +60,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     this.showSideMenu = function() {
         this._sideMenuWidgetModel.$container.show();
         $("#toggleButtonShow").remove();
-        $("#mainContainer").removeClass("col-md-12");
-        $("#mainContainer").addClass("col-md-10");
+        Util.dragContainerFunc({ pageX : (window.outerWidth * 0.20) });
         this._sideMenuWidgetModel.isHidden = false;
     };
     
