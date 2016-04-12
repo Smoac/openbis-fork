@@ -62,7 +62,21 @@ def createBacterias(transaction):
         mat.setPropertyValue("DESCRIPTION", term.getDescription())
         mat.setPropertyValue("ORGANISM", term.getCode())
         
+def check_get_by_id_methods(transaction):
+    ss = transaction.getSearchService()
+    if ss.getSample("/CISD/CP-TEST-1") != ss.getSampleByIdentifier("/CISD/CP-TEST-1"):
+        raise Exception("Method - getSample and getSampleByIdentifier returned different sample")
+    
+    if ss.getProject("/CISD/NEMO") != ss.getProjectByIdentifier("/CISD/NEMO"):
+        raise Exception("Method - getProject and getProjectByIdentifier returned different sample")
+        
+    if ss.getExperiment("/CISD/NEMO/EXP1") != ss.getExperimentByIdentifier("/CISD/NEMO/EXP1"):
+        raise Exception("Method - getExperiment and getExperimentByIdentifier returned different sample")
+
 def process(transaction):
+    #reading methods
+    check_get_by_id_methods(transaction)
+    
     # create experiment
     create_space(transaction)
     create_project(transaction)

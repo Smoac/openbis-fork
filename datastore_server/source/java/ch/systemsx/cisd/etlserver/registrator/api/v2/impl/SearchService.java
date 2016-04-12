@@ -84,6 +84,12 @@ public class SearchService implements ISearchService
     @Override
     public IProjectImmutable getProject(String projectIdentifierString)
     {
+        return getProjectByIdentifier(projectIdentifierString);
+    }
+
+    @Override
+    public IProjectImmutable getProjectByIdentifier(String projectIdentifierString)
+    {
         ProjectIdentifier projectIdentifier =
                 new ProjectIdentifierFactory(projectIdentifierString).createIdentifier();
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project projectOrNull =
@@ -437,6 +443,12 @@ public class SearchService implements ISearchService
     @Override
     public IExperimentImmutable getExperiment(String experimentIdentifierString)
     {
+        return getExperimentByIdentifier(experimentIdentifierString);
+    }
+
+    @Override
+    public IExperimentImmutable getExperimentByIdentifier(String experimentIdentifierString)
+    {
         ExperimentIdentifier experimentIdentifier =
                 new ExperimentIdentifierFactory(experimentIdentifierString).createIdentifier();
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experimentOrNull =
@@ -446,6 +458,12 @@ public class SearchService implements ISearchService
 
     @Override
     public ISampleImmutable getSample(String sampleIdentifierString)
+    {
+        return getSampleByIdentifier(sampleIdentifierString);
+    }
+
+    @Override
+    public ISampleImmutable getSampleByIdentifier(String sampleIdentifierString)
     {
         SampleIdentifier sampleIdentifier =
                 new SampleIdentifierFactory(sampleIdentifierString).createIdentifier();

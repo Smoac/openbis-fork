@@ -183,20 +183,46 @@ public interface ISearchService
      * Get a sample from the openBIS AS. Returns null if the sample does not exist.
      * 
      * @return A sample or null
+     * @deprecated Use <code>getSampleByIdentifier</code>
      */
+    @Deprecated
     ISampleImmutable getSample(String sampleIdentifierString);
+
+    /**
+     * Get a sample from the openBIS AS. Returns null if the sample does not exist.
+     * 
+     * @return A sample or null
+     */
+    ISampleImmutable getSampleByIdentifier(String sampleIdentifierString);
+
+    /**
+     * Get an experiment from the openBIS AS.
+     * 
+     * @deprecated Use <code>getExperimentByIdentifier</code>
+     */
+    @Deprecated
+    IExperimentImmutable getExperiment(String experimentIdentifierString);
 
     /**
      * Get an experiment from the openBIS AS.
      */
-    IExperimentImmutable getExperiment(String experimentIdentifierString);
+    IExperimentImmutable getExperimentByIdentifier(String experimentIdentifierString);
+
+    /**
+     * Get a project from the openBIS AS. Returns null if the project does not exist.
+     * 
+     * @return A project or null
+     * @deprecated Use <code>getProjectByIdentifier</code>
+     */
+    @Deprecated
+    IProjectImmutable getProject(String projectIdentifier);
 
     /**
      * Get a project from the openBIS AS. Returns null if the project does not exist.
      * 
      * @return A project or null
      */
-    IProjectImmutable getProject(String projectIdentifier);
+    IProjectImmutable getProjectByIdentifier(String projectIdentifier);
 
     /**
      * Get a space from the openBIS AS. Returns null if the space does not exist.
