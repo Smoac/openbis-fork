@@ -443,9 +443,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			FormUtil.fixStringPropertiesForForm(propertyType, this._sampleFormModel.sample);
 			if(!propertyType.showInEditViews && this._sampleFormModel.mode === FormMode.EDIT) { //Skip
 				continue;
+			} else if(propertyType.dinamic && this._sampleFormModel.mode === FormMode.CREATE) { //Skip
+				continue;
 			}
-			
-			
 			
 			if(propertyType.code === "ANNOTATIONS_STATE" || propertyType.code === "FREEFORM_TABLE_STATE") {
 				continue;

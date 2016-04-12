@@ -254,6 +254,8 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			
 			if(!propertyType.showInEditViews && this._experimentFormController.mode === FormMode.EDIT) { //Skip
 				continue;
+			} else if(propertyType.dinamic && this._experimentFormController.mode === FormMode.CREATE) { //Skip
+				continue;
 			}
 			
 			if(propertyType.code === "XMLCOMMENTS") {

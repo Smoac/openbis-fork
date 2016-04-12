@@ -336,6 +336,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				
 				if(!propertyType.showInEditViews && this._dataSetFormController.mode === FormMode.EDIT) { //Skip
 					continue;
+				} else if(propertyType.dinamic && this._dataSetFormController.mode === FormMode.CREATE) { //Skip
+					continue;
 				}
 				
 				if(propertyType.code === "XMLCOMMENTS") {
