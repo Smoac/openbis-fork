@@ -37,6 +37,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		//
 		var toolbarModel = [];
 		if(this._sampleTableModel.experimentIdentifier) {
+			var experimentSpace = this._sampleTableModel.experimentIdentifier.split("/")[1];
 			var experimentCode = this._sampleTableModel.experimentIdentifier.split("/")[3];
 			var allSampleTypes = profile.getAllSampleTypes();
 			var sampleTypeCodesFound = [];
@@ -48,7 +49,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			}
 			
 			var sampleTypeCode = null;
-			if(sampleTypeCodesFound.length === 1) {
+			if(sampleTypeCodesFound.length === 1 && profile.isInventorySpace(experimentSpace)) {
 				sampleTypeCode = sampleTypeCodesFound[0];
 			}
 			
