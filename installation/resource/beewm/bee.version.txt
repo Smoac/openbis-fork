@@ -1,1 +1,1 @@
-bee-workflowmanager-0.3.2-SNAPSHOT-14-g7d4f2ae.tar.gz
+bee-workflowmanager-0.3.2-SNAPSHOT-86-gcfd7e38.tar
