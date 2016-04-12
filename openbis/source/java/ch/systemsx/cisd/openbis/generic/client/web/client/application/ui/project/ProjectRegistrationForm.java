@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
@@ -38,7 +39,7 @@ public class ProjectRegistrationForm extends AbstractProjectEditRegisterForm
     {
         super(viewContext);
         setResetButtonVisible(true);
-        projectDescriptionField.setMaxLength(Integer.MAX_VALUE);
+        projectDescriptionField.setMaxLength(GenericConstants.DESCRIPTION_500000);
     }
 
     public static DatabaseModificationAwareComponent create(

@@ -94,6 +94,8 @@ public final class GenericConstants
 
     public static final int DESCRIPTION_2000 = 2000;
 
+    public static final int DESCRIPTION_500000 = 500000;
+    
     public static final int MAIN_DS_PATH_LENGTH = 1000;
 
     public static final int MAIN_DS_PATTERN_LENGTH = 300;
