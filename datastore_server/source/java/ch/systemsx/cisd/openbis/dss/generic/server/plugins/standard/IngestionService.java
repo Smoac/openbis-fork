@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.action.AbstractDelegatedActionWithResult;
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
@@ -380,6 +382,7 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
         threadParameterProperties.putAll(properties);
         threadParameterProperties.put(ch.systemsx.cisd.etlserver.ThreadParameters.INCOMING_DIR,
                 getMockIncomingDir().getAbsolutePath());
+        threadParameterProperties.put(ThreadParameters.RECOVERY_DEVELOPMENT_MODE, "true");
         return new ThreadParameters(threadParameterProperties, this.getClass().getSimpleName());
     }
 
@@ -417,7 +420,8 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
         builder.addHeader("Error");
         IRowBuilder row = builder.addRow();
         row.setCell("Parameters", parameters.toString());
-        row.setCell("Error", e.getMessage());
+        String message = e.getMessage();
+        row.setCell("Error", StringUtils.isBlank(message) ? e.toString() : message);
         return builder.getTableModel();
     }
 
