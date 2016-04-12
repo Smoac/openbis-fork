@@ -25,6 +25,7 @@ fi
 
 source $BASE/common-functions.sh
 ROOT=$BASE/../servers
+BEE=$ROOT/beewm
 
 echo "Restoring configuration backup from $CONF to $ROOT ..."
 
@@ -51,3 +52,9 @@ cp $CONF/datastore_server.conf $ROOT/datastore_server/etc/
 # not always present
 copyIfExists $CONF/.keystore $ROOT/datastore_server/etc/openBIS.keystore
 copyIfExists $CONF/ext-lib $ROOT/datastore_server 
+
+# -- BEE
+if [ -d $BEE ]; then
+    cp $CONF/../beewm/* $BEE/bee-workflowmanager/etc/
+fi
+

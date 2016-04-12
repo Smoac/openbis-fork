@@ -51,4 +51,9 @@ fi
 echo "mv $ROOT_DIR/datastore_server $BACKUP_DIR/datastore_server"
 mv $ROOT_DIR/datastore_server $BACKUP_DIR/datastore_server
 
+if [ -d $ROOT_DIR/beewm ]; then
+	echo "mv $ROOT_DIR/beewm/bee-workflowmanager/etc $BACKUP_DIR/beewm"
+	mv $ROOT_DIR/beewm/bee-workflowmanager/etc $BACKUP_DIR/beewm
+fi
+
 echo "DONE"
