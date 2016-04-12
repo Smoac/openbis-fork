@@ -534,6 +534,22 @@ var Util = new function() {
 		var blob = new Blob([tsvWithoutNumbers], {type: 'text'});
 		saveAs(blob, fileName);
 	}
+	
+	//
+	// Components Resize events
+	//
+	this.dragContainerFunc = function(e) {
+	    var menu = $('#sideMenu');
+	    var drag = $('#dragContainer');
+	    var main = $('#mainContainer');
+	    var mouseX = e.pageX;
+	    var windowWidth = window.outerWidth;
+	    var mainWidth = windowWidth - mouseX;
+	    menu.css("width", mouseX + "px");
+	    main.css("width", mainWidth + "px");
+	    main.css("left", mouseX);
+	    drag.css("left", mouseX);
+    };
 }
 
 
