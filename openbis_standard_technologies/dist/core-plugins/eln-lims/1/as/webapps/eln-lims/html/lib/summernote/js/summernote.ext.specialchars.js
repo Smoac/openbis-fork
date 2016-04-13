@@ -33,8 +33,8 @@
       var currentColumn, currentRow, totalColumn, totalRow = 0;
 
       // special characters data set
-      var specialCharDataSet = [
-        '&quot;', '&amp;', '&lt;', '&gt;', '&iexcl;', '&cent;',
+ var specialCharDataSet = [
+        '&iexcl;', '&cent;',
         '&pound;', '&curren;', '&yen;', '&brvbar;', '&sect;',
         '&uml;', '&copy;', '&ordf;', '&laquo;', '&not;',
         '&reg;', '&macr;', '&deg;', '&plusmn;', '&sup2;',
@@ -43,9 +43,9 @@
         '&frac12;', '&frac34;', '&iquest;', '&times;', '&divide;',
         '&fnof;', '&circ;', '&tilde;', '&ndash;', '&mdash;',
         '&lsquo;', '&rsquo;', '&sbquo;', '&ldquo;', '&rdquo;',
-        '&bdquo;', '&dagger;', '&Dagger;', '&bull;', '&hellip;',
+        '&bdquo;', '&dagger;', '&Dagger;', '&bull;', 
         '&permil;', '&prime;', '&Prime;', '&lsaquo;', '&rsaquo;',
-        '&oline;', '&frasl;', '&euro;', '&image;', '&weierp;',
+        '&oline;', '&euro;', '&image;', '&weierp;',
         '&real;', '&trade;', '&alefsym;', '&larr;', '&uarr;',
         '&rarr;', '&darr;', '&harr;', '&crarr;', '&lArr;',
         '&uArr;', '&rArr;', '&dArr;', '&hArr;', '&forall;',
@@ -57,10 +57,12 @@
         '&equiv;', '&le;', '&ge;', '&sub;', '&sup;',
         '&nsub;', '&sube;', '&supe;', '&oplus;', '&otimes;',
         '&perp;', '&sdot;', '&lceil;', '&rceil;', '&lfloor;',
-        '&rfloor;', '&loz;', '&spades;', '&clubs;', '&hearts;',
-        '&diams;', '&#9745', '&#9744'
+        '&rfloor;', '&loz;', '&#9745', '&#9744', '&alpha;', '&beta;', '&gamma;', '&delta;', 
+        '&epsilon;', '&zeta;', '&eta;', '&theta;', '&kappa;', '&lambda;', '&mu;', '&xi;', '&pi;', '&rho;', '&sigma;', 
+        '&upsilon;', '&phi;', '&psi;', '&omega;', '&Delta;', '&Sigma;'
       ];
-
+      
+      
       context.memo('button.specialCharacter', function () {
         return ui.button({
           contents: '<i class="fa fa-font fa-flip-vertical">',
