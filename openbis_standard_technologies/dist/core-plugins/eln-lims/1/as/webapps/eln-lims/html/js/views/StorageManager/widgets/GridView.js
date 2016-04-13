@@ -110,6 +110,7 @@ function GridView(gridModel) {
 				this._addLabels($newColumn, i + 1, j + 1);
 				$newColumn.css('width', Math.floor(80/(this._gridModel.numColumns+1)) +'%');
 				$newColumn.css('padding', '0px');
+				$newColumn.css('overflow', 'hidden');
 				$newRow.append($newColumn);
 			}
 			gridTable.append($newRow);
@@ -125,6 +126,11 @@ function GridView(gridModel) {
 			for(var i = 0; i < labels.length; i++) {
 				if(!usedLabels[labels[i].displayName]) {
 					var labelContainer = $("<div>", { class: "storageBox", id : Util.guid() }).append(labels[i].displayName);
+					if(labels[i].displayName) {
+						labelContainer.tooltipster({
+							content: $("<span>").html(labels[i].displayName)
+						});
+					}
 					var dragCopyFunc = function(object, origX, origY) {
 						return function(event) {
 							event.originalEvent.dataTransfer.setData('origX', origX);
