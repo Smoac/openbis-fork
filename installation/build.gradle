@@ -60,8 +60,6 @@ task copyResources(type: Copy, dependsOn: [compileJava, ':openbis_standard_techn
         into "openBIS-server"
     }
     def beeReleaseTar = fileTree(dir: 'resource/beewm', include: 'bee-workflowmanager.tar.gz').getSingleFile()
-    def beeRelease = new File("resource/beewm/bee.version.txt").text
-    print "bee version: " + beeRelease + "\n"
     from (tarTree(resources.gzip(beeReleaseTar))) {
         into "beewm/"
         exclude '**/etc/*_skeleton'
