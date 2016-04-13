@@ -25,7 +25,6 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.tag.TagAuthorization;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 
@@ -35,9 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 @Component
 public class RemoveTagFromEntityExecutor implements IRemoveTagFromEntityExecutor
 {
-
-    @Autowired
-    private IDAOFactory daoFactory;
 
     @Autowired
     private IMapTagByIdExecutor mapTagByIdExecutor;
@@ -55,7 +51,7 @@ public class RemoveTagFromEntityExecutor implements IRemoveTagFromEntityExecutor
     @Override
     public void removeTag(IOperationContext context, IEntityWithMetaprojects entity, Collection<? extends ITagId> tagIds)
     {
-        TagAuthorization authorization = new TagAuthorization(context, daoFactory);
+        TagAuthorization authorization = new TagAuthorization(context);
         Map<ITagId, MetaprojectPE> tagMap = mapTagByIdExecutor.map(context, tagIds);
 
         for (MetaprojectPE tag : tagMap.values())

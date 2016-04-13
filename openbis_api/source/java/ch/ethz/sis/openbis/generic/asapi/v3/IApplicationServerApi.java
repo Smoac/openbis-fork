@@ -93,8 +93,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.update.SpaceUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.update.TagUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyTermCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.delete.VocabularyTermDeletionOptions;
@@ -144,6 +147,8 @@ public interface IApplicationServerApi extends IRpcService
 
     public List<VocabularyTermPermId> createVocabularyTerms(String sessionToken, List<VocabularyTermCreation> newVocabularyTerms);
 
+    public List<TagPermId> createTags(String sessionToken, List<TagCreation> newTags);
+
     public void updateSpaces(String sessionToken, List<SpaceUpdate> spaceUpdates);
 
     public void updateProjects(String sessionToken, List<ProjectUpdate> projectUpdates);
@@ -157,6 +162,8 @@ public interface IApplicationServerApi extends IRpcService
     public void updateMaterials(String sessionToken, List<MaterialUpdate> materialUpdates);
 
     public void updateVocabularyTerms(String sessionToken, List<VocabularyTermUpdate> vocabularyTermUpdates);
+
+    public void updateTags(String sessionToken, List<TagUpdate> tagUpdates);
 
     public Map<ISpaceId, Space> mapSpaces(String sessionToken, List<? extends ISpaceId> spaceIds,
             SpaceFetchOptions fetchOptions);
@@ -185,20 +192,24 @@ public interface IApplicationServerApi extends IRpcService
     public SearchResult<Experiment> searchExperiments(String sessionToken, ExperimentSearchCriteria searchCriteria,
             ExperimentFetchOptions fetchOptions);
 
-    public SearchResult<ExperimentType> searchExperimentTypes(String sessionToken, EntityTypeSearchCriteria searchCriteria, ExperimentTypeFetchOptions fetchOptions);
-    
+    public SearchResult<ExperimentType> searchExperimentTypes(String sessionToken, EntityTypeSearchCriteria searchCriteria,
+            ExperimentTypeFetchOptions fetchOptions);
+
     public SearchResult<Sample> searchSamples(String sessionToken, SampleSearchCriteria searchCriteria, SampleFetchOptions fetchOptions);
 
-    public SearchResult<SampleType> searchSampleTypes(String sessionToken, EntityTypeSearchCriteria searchCriteria, SampleTypeFetchOptions fetchOptions);
-    
+    public SearchResult<SampleType> searchSampleTypes(String sessionToken, EntityTypeSearchCriteria searchCriteria,
+            SampleTypeFetchOptions fetchOptions);
+
     public SearchResult<DataSet> searchDataSets(String sessionToken, DataSetSearchCriteria searchCriteria, DataSetFetchOptions fetchOptions);
 
-    public SearchResult<DataSetType> searchDataSetTypes(String sessionToken, EntityTypeSearchCriteria searchCriteria, DataSetTypeFetchOptions fetchOptions);
-    
+    public SearchResult<DataSetType> searchDataSetTypes(String sessionToken, EntityTypeSearchCriteria searchCriteria,
+            DataSetTypeFetchOptions fetchOptions);
+
     public SearchResult<Material> searchMaterials(String sessionToken, MaterialSearchCriteria searchCriteria, MaterialFetchOptions fetchOptions);
 
-    public SearchResult<MaterialType> searchMaterialTypes(String sessionToken, EntityTypeSearchCriteria searchCriteria, MaterialTypeFetchOptions fetchOptions);
-    
+    public SearchResult<MaterialType> searchMaterialTypes(String sessionToken, EntityTypeSearchCriteria searchCriteria,
+            MaterialTypeFetchOptions fetchOptions);
+
     public SearchResult<VocabularyTerm> searchVocabularyTerms(String sessionToken, VocabularyTermSearchCriteria searchCriteria,
             VocabularyTermFetchOptions fetchOptions);
 

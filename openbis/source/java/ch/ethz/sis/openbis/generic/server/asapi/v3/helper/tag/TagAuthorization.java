@@ -19,9 +19,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
-import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationServiceUtils;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 
 /**
@@ -30,27 +28,37 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 public class TagAuthorization
 {
 
-    private AuthorizationServiceUtils service;
+    private IOperationContext context;
 
-    public TagAuthorization(IOperationContext context, IDAOFactory daoFactory)
+    public TagAuthorization(IOperationContext context)
     {
-        this.service = new AuthorizationServiceUtils(daoFactory, context.getSession().tryGetPerson());
+        this.context = context;
     }
 
     public void checkAccess(MetaprojectPE tag)
     {
-        try
-        {
-            service.checkAccessMetaproject(tag);
-        } catch (AuthorizationFailureException e)
+        if (false == canAccess(tag.getOwner().getUserId()))
         {
             throw new UnauthorizedObjectAccessException(new TagPermId(tag.getOwner().getUserId(), tag.getName()));
         }
     }
 
+    public void checkAccess(MetaprojectIdentifier tagIdentifier)
+    {
+        if (false == canAccess(tagIdentifier.getMetaprojectOwnerId()))
+        {
+            throw new UnauthorizedObjectAccessException(new TagPermId(tagIdentifier.getMetaprojectOwnerId(), tagIdentifier.getMetaprojectName()));
+        }
+    }
+
     public boolean canAccess(MetaprojectPE tag)
     {
-        return service.canAccessMetaproject(tag);
+        return canAccess(tag.getOwner().getUserId());
+    }
+
+    private boolean canAccess(String owner)
+    {
+        return owner.equals(context.getSession().tryGetPerson().getUserId());
     }
 
 }

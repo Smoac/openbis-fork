@@ -87,8 +87,8 @@ public abstract class AbstractUpdateEntityToManyRelationExecutor<ENTITY_UPDATE, 
                             if (related != null)
                             {
                                 relatedCollection.add(related);
+                                check(context, entity, relatedId, related);
                             }
-                            check(context, entity, relatedId, related);
                         }
                         remove(context, entity, relatedCollection);
                     }

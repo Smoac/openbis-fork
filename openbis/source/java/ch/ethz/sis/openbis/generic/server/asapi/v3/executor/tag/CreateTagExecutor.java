@@ -16,58 +16,112 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag;
 
-import java.util.Date;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractCreateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.tag.TagAuthorization;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class CreateTagExecutor implements ICreateTagExecutor
+public class CreateTagExecutor extends AbstractCreateEntityExecutor<TagCreation, MetaprojectPE, TagPermId> implements ICreateTagExecutor
 {
 
     @Autowired
     private IDAOFactory daoFactory;
 
-    @Autowired
-    private IGetTagIdentifierExecutor getTagIdentifierExecutor;
-
-    @SuppressWarnings("unused")
-    private CreateTagExecutor()
+    @Override
+    protected List<MetaprojectPE> createEntities(IOperationContext context, Collection<TagCreation> creations)
     {
-    }
+        List<MetaprojectPE> tags = new LinkedList<MetaprojectPE>();
 
-    public CreateTagExecutor(IDAOFactory daoFactory, IGetTagIdentifierExecutor getTagIdentifierExecutor)
-    {
-        this.daoFactory = daoFactory;
-        this.getTagIdentifierExecutor = getTagIdentifierExecutor;
+        for (TagCreation creation : creations)
+        {
+            MetaprojectPE tag = new MetaprojectPE();
+            tag.setName(creation.getCode());
+            tag.setDescription(creation.getDescription());
+            tag.setOwner(context.getSession().tryGetPerson());
+            tag.setPrivate(true);
+            tags.add(tag);
+        }
+
+        return tags;
     }
 
     @Override
-    public MetaprojectPE createTag(IOperationContext context, ITagId tagId)
+    protected TagPermId createPermId(IOperationContext context, MetaprojectPE entity)
     {
-        MetaprojectPE tag = new MetaprojectPE();
-        MetaprojectIdentifier identifier = getTagIdentifierExecutor.getIdentifier(context, tagId);
+        return new TagPermId(entity.getOwner().getUserId(), entity.getName());
+    }
 
-        tag.setName(identifier.getMetaprojectName());
-        tag.setOwner(context.getSession().tryGetPerson());
-        tag.setCreationDate(new Date());
-        tag.setPrivate(true);
+    @Override
+    protected void checkData(IOperationContext context, TagCreation creation)
+    {
+        if (StringUtils.isEmpty(creation.getCode()))
+        {
+            throw new UserFailureException("Code cannot be empty.");
+        }
+    }
 
-        daoFactory.getMetaprojectDAO().createOrUpdateMetaproject(tag, context.getSession().tryGetPerson());
+    @Override
+    protected void checkAccess(IOperationContext context, MetaprojectPE entity)
+    {
+        new TagAuthorization(context).checkAccess(entity);
+    }
 
-        new TagAuthorization(context, daoFactory).checkAccess(tag);
+    @Override
+    protected void checkBusinessRules(IOperationContext context, Collection<MetaprojectPE> entities)
+    {
+        // nothing to do
+    }
 
-        return tag;
+    @Override
+    protected void updateBatch(IOperationContext context, Map<TagCreation, MetaprojectPE> entitiesMap)
+    {
+        // nothing to do
+    }
+
+    @Override
+    protected void updateAll(IOperationContext context, Map<TagCreation, MetaprojectPE> entitiesMap)
+    {
+        // nothing to do
+    }
+
+    @Override
+    protected List<MetaprojectPE> list(IOperationContext context, Collection<Long> ids)
+    {
+        return daoFactory.getMetaprojectDAO().listByIDs(ids);
+    }
+
+    @Override
+    protected void save(IOperationContext context, List<MetaprojectPE> entities, boolean clearCache)
+    {
+        for (MetaprojectPE entity : entities)
+        {
+            daoFactory.getMetaprojectDAO().createOrUpdateMetaproject(entity, entity.getOwner());
+        }
+    }
+
+    @Override
+    protected void handleException(DataAccessException e)
+    {
+        DataAccessExceptionTranslator.throwException(e, "tag", null);
     }
 
 }

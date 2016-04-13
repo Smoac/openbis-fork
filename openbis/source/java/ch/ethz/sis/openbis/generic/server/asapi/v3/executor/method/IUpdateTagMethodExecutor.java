@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, CISD
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.ICreateEntityExecutor;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.update.TagUpdate;
 
 /**
  * @author pkupczyk
  */
-public interface ICreateTagExecutor extends ICreateEntityExecutor<TagCreation, TagPermId>
+public interface IUpdateTagMethodExecutor extends IUpdateMethodExecutor<TagUpdate>
 {
 
 }

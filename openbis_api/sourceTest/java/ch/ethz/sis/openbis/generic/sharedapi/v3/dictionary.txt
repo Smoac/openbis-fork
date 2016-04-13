@@ -1113,3 +1113,17 @@ map Tags
 set Materials
 with Materials
 with Materials Using
+get Data Set Ids
+get Experiment Ids
+get Material Ids
+get Sample Ids
+get Tag Id
+set Data Set Actions
+set Experiment Actions
+set Material Actions
+set Sample Actions
+set Tag Id
+Tag Update
+update Tags
+create Tags
+Tag Creation

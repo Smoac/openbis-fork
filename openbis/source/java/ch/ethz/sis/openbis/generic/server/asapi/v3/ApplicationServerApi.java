@@ -98,8 +98,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.update.SpaceUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.update.TagUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyTermCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.delete.VocabularyTermDeletionOptions;
@@ -115,6 +118,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateMateri
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateProjectMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateSampleMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateSpaceMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateTagMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateVocabularyTermMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteExperimentMethodExecutor;
@@ -154,6 +158,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateMateri
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateProjectMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateSampleMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateSpaceMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateTagMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateVocabularyTermMethodExecutor;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
@@ -205,6 +210,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     private ICreateVocabularyTermMethodExecutor createVocabularyTermExecutor;
 
     @Autowired
+    private ICreateTagMethodExecutor createTagExecutor;
+
+    @Autowired
     private IUpdateSpaceMethodExecutor updateSpaceExecutor;
 
     @Autowired
@@ -224,6 +232,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private IUpdateVocabularyTermMethodExecutor updateVocabularyTermExecutor;
+
+    @Autowired
+    private IUpdateTagMethodExecutor updateTagExecutor;
 
     @Autowired
     private IMapSpaceMethodExecutor mapSpaceExecutor;
@@ -257,13 +268,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private ISearchExperimentMethodExecutor searchExperimentExecutor;
-    
+
     @Autowired
     private ISearchExperimentTypeMethodExecutor searchExperimentTypeExecutor;
 
     @Autowired
     private ISearchSampleMethodExecutor searchSampleExecutor;
-    
+
     @Autowired
     private ISearchSampleTypeMethodExecutor searchSampleTypeExecutor;
 
@@ -272,13 +283,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private ISearchDataSetTypeMethodExecutor searchDataSetTypeExecutor;
-    
+
     @Autowired
     private ISearchMaterialMethodExecutor searchMaterialExecutor;
 
     @Autowired
     private ISearchMaterialTypeMethodExecutor searchMaterialTypeExecutor;
-    
+
     @Autowired
     private ISearchVocabularyTermMethodExecutor searchVocabularyTermExecutor;
 
@@ -435,6 +446,15 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("CREATE_TAG")
+    @DatabaseUpdateModification(value = ObjectKind.METAPROJECT)
+    public List<TagPermId> createTags(String sessionToken, List<TagCreation> creations)
+    {
+        return createTagExecutor.create(sessionToken, creations);
+    }
+
+    @Override
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_SPACE")
@@ -501,6 +521,15 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public void updateVocabularyTerms(String sessionToken, List<VocabularyTermUpdate> vocabularyTermUpdates)
     {
         updateVocabularyTermExecutor.update(sessionToken, vocabularyTermUpdates);
+    }
+
+    @Override
+    @Transactional
+    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("UPDATE_TAG")
+    public void updateTags(String sessionToken, List<TagUpdate> tagUpdates)
+    {
+        updateTagExecutor.update(sessionToken, tagUpdates);
     }
 
     @Override

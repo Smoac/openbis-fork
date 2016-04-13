@@ -27,7 +27,6 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.tag.TagAuthorization;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 
@@ -39,23 +38,20 @@ public class AddTagToEntityExecutor implements IAddTagToEntityExecutor
 {
 
     @Autowired
-    private IDAOFactory daoFactory;
-
-    @Autowired
     private IMapTagByIdExecutor mapTagByIdExecutor;
 
     @Autowired
-    private ICreateTagExecutor createTagExecutor;
+    private ICreateMissingTagExecutor createMissingTagExecutor;
 
     @SuppressWarnings("unused")
     private AddTagToEntityExecutor()
     {
     }
 
-    public AddTagToEntityExecutor(IMapTagByIdExecutor mapTagByIdExecutor, ICreateTagExecutor createTagExecutor)
+    public AddTagToEntityExecutor(IMapTagByIdExecutor mapTagByIdExecutor, ICreateMissingTagExecutor createMissingTagExecutor)
     {
         this.mapTagByIdExecutor = mapTagByIdExecutor;
-        this.createTagExecutor = createTagExecutor;
+        this.createMissingTagExecutor = createMissingTagExecutor;
     }
 
     @Override
@@ -76,8 +72,10 @@ public class AddTagToEntityExecutor implements IAddTagToEntityExecutor
             }
         }
 
-        TagAuthorization authorization = new TagAuthorization(context, daoFactory);
+        TagAuthorization authorization = new TagAuthorization(context);
         Map<ITagId, MetaprojectPE> allTagsMap = mapTagByIdExecutor.map(context, allTagIds);
+
+        createMissingTagExecutor.create(context, allTagIds, allTagsMap);
 
         for (Map.Entry<IEntityWithMetaprojects, Collection<? extends ITagId>> entry : entityToTagIdsMap.entrySet())
         {
@@ -89,18 +87,11 @@ public class AddTagToEntityExecutor implements IAddTagToEntityExecutor
                 for (ITagId tagId : tagIds)
                 {
                     MetaprojectPE tag = allTagsMap.get(tagId);
-
-                    if (tag == null)
-                    {
-                        tag = createTagExecutor.createTag(context, tagId);
-                        allTagsMap.put(tagId, tag);
-                    }
-
                     authorization.checkAccess(tag);
-
                     entity.addMetaproject(tag);
                 }
             }
         }
     }
+
 }

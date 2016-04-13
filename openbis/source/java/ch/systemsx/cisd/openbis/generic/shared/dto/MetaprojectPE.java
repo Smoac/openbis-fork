@@ -47,11 +47,11 @@ import org.hibernate.annotations.GenerationTime;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
@@ -62,9 +62,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
  * @author Pawel Glyzewski
  */
 @Entity
-@Table(name = TableNames.METAPROJECTS_TABLE, uniqueConstraints = @UniqueConstraint(columnNames =
-{ ColumnNames.NAME_COLUMN, ColumnNames.OWNER }))
-public class MetaprojectPE implements Serializable, IIdHolder
+@Table(name = TableNames.METAPROJECTS_TABLE, uniqueConstraints = @UniqueConstraint(columnNames = { ColumnNames.NAME_COLUMN, ColumnNames.OWNER }) )
+public class MetaprojectPE implements Serializable, IIdHolder, ICodeHolder
 {
     private static final long serialVersionUID = IServer.VERSION;
 
@@ -107,6 +106,13 @@ public class MetaprojectPE implements Serializable, IIdHolder
     public void setName(String name)
     {
         this.name = name;
+    }
+
+    @Override
+    @Transient
+    public String getCode()
+    {
+        return getName();
     }
 
     @Transient

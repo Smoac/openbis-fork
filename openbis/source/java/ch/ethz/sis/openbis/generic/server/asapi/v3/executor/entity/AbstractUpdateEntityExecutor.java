@@ -33,12 +33,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IIdAndCodeHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
  * @author pkupczyk
  */
-public abstract class AbstractUpdateEntityExecutor<UPDATE, PE, ID> implements IUpdateEntityExecutor<UPDATE>
+public abstract class AbstractUpdateEntityExecutor<UPDATE, PE extends IIdHolder, ID> implements IUpdateEntityExecutor<UPDATE>
 {
 
     @Autowired
@@ -134,8 +134,7 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE, PE, ID> implements IU
 
         for (PE entity : updateToEntityMap.values())
         {
-            IIdAndCodeHolder idAndCodeHolder = (IIdAndCodeHolder) entity;
-            ids.add(idAndCodeHolder.getId());
+            ids.add(entity.getId());
         }
 
         List<PE> entities = list(context, ids);
@@ -144,14 +143,12 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE, PE, ID> implements IU
 
         for (PE entity : entities)
         {
-            IIdAndCodeHolder idAndCodeHolder = (IIdAndCodeHolder) entity;
-            idToEntityMap.put(idAndCodeHolder.getId(), entity);
+            idToEntityMap.put(entity.getId(), entity);
         }
 
         for (Map.Entry<UPDATE, PE> entry : updateToEntityMap.entrySet())
         {
-            IIdAndCodeHolder idAndCodeHolder = (IIdAndCodeHolder) entry.getValue();
-            entry.setValue(idToEntityMap.get(idAndCodeHolder.getId()));
+            entry.setValue(idToEntityMap.get(entry.getValue().getId()));
         }
     }
 

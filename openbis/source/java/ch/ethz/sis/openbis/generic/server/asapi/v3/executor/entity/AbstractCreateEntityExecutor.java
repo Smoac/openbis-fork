@@ -32,12 +32,12 @@ import org.springframework.dao.DataAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IIdAndCodeHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
  * @author pkupczyk
  */
-public abstract class AbstractCreateEntityExecutor<CREATION, PE, PERM_ID> implements
+public abstract class AbstractCreateEntityExecutor<CREATION, PE extends IIdHolder, PERM_ID> implements
         ICreateEntityExecutor<CREATION, PERM_ID>
 {
 
@@ -67,7 +67,7 @@ public abstract class AbstractCreateEntityExecutor<CREATION, PE, PERM_ID> implem
             reloadEntities(context, entitiesAll);
 
             updateAll(context, entitiesAll);
-            
+
             daoFactory.getSessionFactory().getCurrentSession().flush();
             reloadEntities(context, entitiesAll);
 
@@ -129,8 +129,7 @@ public abstract class AbstractCreateEntityExecutor<CREATION, PE, PERM_ID> implem
 
         for (PE entity : creationToEntityMap.values())
         {
-            IIdAndCodeHolder idAndCodeHolder = (IIdAndCodeHolder) entity;
-            ids.add(idAndCodeHolder.getId());
+            ids.add(entity.getId());
         }
 
         List<PE> entities = list(context, ids);
@@ -139,14 +138,12 @@ public abstract class AbstractCreateEntityExecutor<CREATION, PE, PERM_ID> implem
 
         for (PE entity : entities)
         {
-            IIdAndCodeHolder idAndCodeHolder = (IIdAndCodeHolder) entity;
-            idToEntityMap.put(idAndCodeHolder.getId(), entity);
+            idToEntityMap.put(entity.getId(), entity);
         }
 
         for (Map.Entry<CREATION, PE> entry : creationToEntityMap.entrySet())
         {
-            IIdAndCodeHolder idAndCodeHolder = (IIdAndCodeHolder) entry.getValue();
-            entry.setValue(idToEntityMap.get(idAndCodeHolder.getId()));
+            entry.setValue(idToEntityMap.get(entry.getValue().getId()));
         }
     }
 

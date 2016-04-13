@@ -311,6 +311,17 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			});
 		}
 
+		this.updateTags = function(updates) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "updateTags",
+					"params" : [ thisFacade._private.sessionToken, updates ]
+				}
+			});
+		}
+
 		this.mapSpaces = function(ids, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({

@@ -77,4 +77,9 @@ public interface IMetaprojectDAO extends IGenericDAO<MetaprojectPE>
      */
     public int getMetaprojectAssignmentsCount(Long metaprojectId, EntityKind entityKind);
 
+    /**
+     * List metaprojects by ids.
+     */
+    public List<MetaprojectPE> listByIDs(Collection<Long> ids);
+
 }

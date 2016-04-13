@@ -294,6 +294,8 @@ var sources = [
 	'as/dto/tag/id/TagPermId',
 	'as/dto/tag/search/TagSearchCriteria',
 	'as/dto/tag/Tag',
+	'as/dto/tag/update/TagUpdate',
+	'as/dto/tag/create/TagCreation',
 	'as/dto/vocabulary/fetchoptions/VocabularyFetchOptions',
 	'as/dto/vocabulary/fetchoptions/VocabularySortOptions',
 	'as/dto/vocabulary/fetchoptions/VocabularyTermFetchOptions',

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, CISD
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,31 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.ICreateEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.ICreateTagExecutor;
 
 /**
  * @author pkupczyk
  */
-public interface ICreateTagExecutor extends ICreateEntityExecutor<TagCreation, TagPermId>
+@Component
+public class CreateTagMethodExecutor extends AbstractCreateMethodExecutor<TagPermId, TagCreation> implements
+        ICreateTagMethodExecutor
 {
+
+    @Autowired
+    private ICreateTagExecutor createExecutor;
+
+    @Override
+    protected ICreateEntityExecutor<TagCreation, TagPermId> getCreateExecutor()
+    {
+        return createExecutor;
+    }
 
 }

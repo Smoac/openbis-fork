@@ -169,7 +169,8 @@ public class MetaprojectDAO extends AbstractGenericEntityDAO<MetaprojectPE> impl
         {
             operationLog.debug(String.format(
                     "%s(%s, %s): %d metaproject entity ids have been found.", MethodUtils
-                            .getCurrentMethod().getName(), metaprojectId, entityKind, idsAsLongs
+                            .getCurrentMethod().getName(),
+                    metaprojectId, entityKind, idsAsLongs
                             .size()));
         }
 
@@ -243,9 +244,32 @@ public class MetaprojectDAO extends AbstractGenericEntityDAO<MetaprojectPE> impl
         {
             operationLog.debug(String.format(
                     "%s(%s, %s): %d metaproject assignments have been found.", MethodUtils
-                            .getCurrentMethod().getName(), metaprojectId, entityKind, count));
+                            .getCurrentMethod().getName(),
+                    metaprojectId, entityKind, count));
         }
 
         return count.intValue();
     }
+
+    @Override
+    public List<MetaprojectPE> listByIDs(Collection<Long> ids)
+    {
+        return listByIDsOfName("id", ids);
+    }
+
+    private List<MetaprojectPE> listByIDsOfName(String idName, Collection<?> ids)
+    {
+        if (ids == null || ids.isEmpty())
+        {
+            return new ArrayList<MetaprojectPE>();
+        }
+        final List<MetaprojectPE> list =
+                DAOUtils.listByCollection(getHibernateTemplate(), MetaprojectPE.class, idName, ids);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%d metaproject(s) have been found.", list.size()));
+        }
+        return list;
+    }
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, CISD
+ * Copyright 2016 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,17 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.ICreateEntityExecutor;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.update.TagUpdate;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IUpdateEntityRelationsWithCacheExecutor;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 
 /**
  * @author pkupczyk
  */
-public interface ICreateTagExecutor extends ICreateEntityExecutor<TagCreation, TagPermId>
+public interface IUpdateTagDataSetsWithCacheExecutor
+        extends IUpdateEntityRelationsWithCacheExecutor<TagUpdate, MetaprojectPE, IDataSetId, DataPE>
 {
 
 }
