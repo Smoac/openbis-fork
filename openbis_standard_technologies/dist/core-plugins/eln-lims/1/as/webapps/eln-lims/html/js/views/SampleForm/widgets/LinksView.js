@@ -73,6 +73,7 @@ function LinksView(linksController, linksModel) {
 					Util.showError("Sample " + sample.code + " already present, it will not be added again.");
 					return;
 				} else {
+					linksModel.samplesRemoved.push(sample.identifier);
 					break;
 				}
 			}
