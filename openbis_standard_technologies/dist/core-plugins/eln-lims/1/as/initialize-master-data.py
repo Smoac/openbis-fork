@@ -32,17 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataTyp
 vocabulariesCache = {};
 propertiesCache = {};
 samplesCache = {};
-tr = service.transaction()
-
-##
-## Check if script should run. Should not on custom installations
-##
-isCustomInstallation = False;
-presentSampleTypes = tr.listSampleTypes();
-for presentSampleType in presentSampleTypes:
-	if presentSampleType.getCode() != "UNKNOWN":
-		print "Sample type " + presentSampleType.getCode() + " found. Master data script will not execute.";
-		isCustomInstallation = True;
+tr = service.transaction();
 
 ##
 ## API Facade
@@ -880,5 +870,4 @@ def initELNMasterData():
 		["ANNOTATIONS_STATE",		"Comments",			"Annotations State",		DataType.XML,					None,				"Annotations State", annotationsScriptName, None]
 	]);
 	
-if not isCustomInstallation:
-	initELNMasterData();
+initELNMasterData();
