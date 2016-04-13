@@ -33,19 +33,19 @@
       var currentColumn, currentRow, totalColumn, totalRow = 0;
 
       // special characters data set
- var specialCharDataSet = [
-        '&iexcl;', '&cent;',
+       var specialCharDataSet = [
+        '&iexcl;', '&cent;', '&euro;',
         '&pound;', '&curren;', '&yen;', '&brvbar;', '&sect;',
         '&uml;', '&copy;', '&ordf;', '&laquo;', '&not;',
-        '&reg;', '&macr;', '&deg;', '&plusmn;', '&sup2;',
+        '&reg;', '&macr;', '&deg;', '&plusmn;', '&sup1;','&sup2;',
         '&sup3;', '&acute;', '&micro;', '&para;', '&middot;',
-        '&cedil;', '&sup1;', '&ordm;', '&raquo;', '&frac14;',
+        '&ordm;', '&raquo;', '&frac14;',
         '&frac12;', '&frac34;', '&iquest;', '&times;', '&divide;',
         '&fnof;', '&circ;', '&tilde;', '&ndash;', '&mdash;',
         '&lsquo;', '&rsquo;', '&sbquo;', '&ldquo;', '&rdquo;',
         '&bdquo;', '&dagger;', '&Dagger;', '&bull;', 
         '&permil;', '&prime;', '&Prime;', '&lsaquo;', '&rsaquo;',
-        '&oline;', '&euro;', '&image;', '&weierp;',
+        '&oline;', '&image;', '&weierp;',
         '&real;', '&trade;', '&alefsym;', '&larr;', '&uarr;',
         '&rarr;', '&darr;', '&harr;', '&crarr;', '&lArr;',
         '&uArr;', '&rArr;', '&dArr;', '&hArr;', '&forall;',
@@ -53,13 +53,13 @@
         '&notin;', '&ni;', '&prod;', '&sum;', '&minus;',
         '&lowast;', '&radic;', '&prop;', '&infin;', '&ang;',
         '&and;', '&or;', '&cap;', '&cup;', '&int;',
-        '&there4;', '&sim;', '&cong;', '&asymp;', '&ne;',
+        '&sim;', '&cong;', '&asymp;', '&ne;',
         '&equiv;', '&le;', '&ge;', '&sub;', '&sup;',
         '&nsub;', '&sube;', '&supe;', '&oplus;', '&otimes;',
         '&perp;', '&sdot;', '&lceil;', '&rceil;', '&lfloor;',
         '&rfloor;', '&loz;', '&#9745', '&#9744', '&alpha;', '&beta;', '&gamma;', '&delta;', 
         '&epsilon;', '&zeta;', '&eta;', '&theta;', '&kappa;', '&lambda;', '&mu;', '&xi;', '&pi;', '&rho;', '&sigma;', 
-        '&upsilon;', '&phi;', '&psi;', '&omega;', '&Delta;', '&Sigma;'
+        '&upsilon;', '&phi;', '&psi;', '&omega;', '&Delta;', '&Sigma;', '&Phi;', '&Omega;'
       ];
       
       
