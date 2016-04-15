@@ -204,7 +204,6 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				var dataSetTypeCode = profile.getDataSetTypeForFileName(_this._dataSetFormModel.files, data.name);
 				if(dataSetTypeCode != null) {
 					$("#DATASET_TYPE").val(dataSetTypeCode);
-					$("#DATASET_TYPE").prop('disabled', true);
 					if(!_this._dataSetFormModel.isMini){
 						_this._repaintMetadata(
 								_this._dataSetFormController._getDataSetType(dataSetTypeCode)
