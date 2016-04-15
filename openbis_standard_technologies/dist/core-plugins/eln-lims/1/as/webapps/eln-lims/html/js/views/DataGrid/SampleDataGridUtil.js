@@ -1,5 +1,5 @@
 var SampleDataGridUtil = new function() {
-	this.getSampleDataGrid = function(sampleTypeCode, samples, rowClick, customOperations, customColumns, configPostKey, isOperationsDisabled) {
+	this.getSampleDataGrid = function(sampleTypeCode, samples, rowClick, customOperations, customColumns, configPostKey, isOperationsDisabled, isLinksDisabled) {
 		var sampleType = profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 		var propertyCodes = profile.getAllPropertiCodesForTypeCode(sampleTypeCode);
 		var propertyCodesDisplayNames = profile.getPropertiesDisplayNamesForTypeCode(sampleTypeCode, propertyCodes);
@@ -13,7 +13,7 @@ var SampleDataGridUtil = new function() {
 			isExportable: true,
 			sortable : true,
 			render : function(data) {
-				return FormUtil.getFormLink(data.identifier, "Sample", data.permId);
+				return (isLinksDisabled)?data.permId:FormUtil.getFormLink(data.identifier, "Sample", data.permId);
 			},
 			filter : function(data, filter) {
 				return data.identifier.toLowerCase().indexOf(filter) !== -1;
@@ -33,7 +33,7 @@ var SampleDataGridUtil = new function() {
 				isExportable: true,
 				sortable : true,
 				render : function(data) {
-					return FormUtil.getFormLink(data.NAME, "Sample", data.permId);
+					return (isLinksDisabled)?data.NAME:FormUtil.getFormLink(data.NAME, "Sample", data.permId);
 				}
 			});
 		}
