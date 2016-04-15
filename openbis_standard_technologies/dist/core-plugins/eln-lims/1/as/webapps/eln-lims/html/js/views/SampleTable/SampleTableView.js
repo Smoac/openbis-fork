@@ -125,7 +125,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		
 		var $batchUpdateOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Batch Update Samples'}).append("Batch Update Samples"));
 		$batchUpdateOption.click(function() {
-			_this.updateSamples();
+			_this.updateSamples(_this._sampleTableModel.experimentIdentifier);
 		});
 		$list.append($batchUpdateOption);
 			
@@ -248,14 +248,17 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		typeAndFileController.init();
 	}
 	
-	this.updateSamples = function() {
+	this.updateSamples = function(experimentIdentifier) {
 		var typeAndFileController = new TypeAndFileController('Update Samples', "UPDATE", function(type, file) {
 			Util.blockUI();
 			var finalCallback = function(data) {
 				if(data.error) {
 					Util.showError(data.error.message, function() {Util.unblockUI();});
 				} else if(data.result) {
-					Util.showSuccess(data.result, function() {Util.unblockUI();});
+					Util.showSuccess(data.result, function() {
+						Util.unblockUI();
+						mainController.changeView('showSamplesPage', experimentIdentifier);
+					});
 				} else {
 					Util.showError("Unknown response. Probably an error happened.", function() {Util.unblockUI();});
 				}
