@@ -100,7 +100,7 @@ public abstract class SystemTestCase extends AssertJUnit
 
     protected static GenericWebApplicationContext applicationContext;
 
-    protected File workingDirectory;
+    protected static File workingDirectory;
 
     protected File rootDir;
 
@@ -108,15 +108,19 @@ public abstract class SystemTestCase extends AssertJUnit
 
     protected BufferedAppender logAppender;
 
-    protected SystemTestCase()
+    static
     {
         createWorkingDirectory();
+    }
+
+    protected SystemTestCase()
+    {
         rootDir = new File(workingDirectory, "dss-root");
         store = new File(rootDir, "store");
         store.mkdirs();
     }
 
-    protected void createWorkingDirectory()
+    private static void createWorkingDirectory()
     {
         workingDirectory = new File(UNIT_TEST_ROOT_DIRECTORY, "SystemTests");
         if (workingDirectory.exists())
@@ -197,7 +201,7 @@ public abstract class SystemTestCase extends AssertJUnit
                 rootDir.getAbsolutePath());
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
                 + DssPropertyParametersUtil.DSS_REGISTRATION_LOG_DIR_PATH, getRegistrationLogDir()
-                .getAbsolutePath());
+                        .getAbsolutePath());
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "dss-rpc.put-default", "test");
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + SERVER_URL_KEY,
                 TestInstanceHostUtils.getOpenBISUrl());
