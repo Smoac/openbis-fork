@@ -16,14 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 
 /**
  * @author pkupczyk
  */
-public interface IMapSampleMethodExecutor extends IMapMethodExecutor<ISampleId, Sample, SampleFetchOptions>
+public interface IGetExperimentMethodExecutor extends IGetMethodExecutor<IExperimentId, Experiment, ExperimentFetchOptions>
 {
 
 }

@@ -49,18 +49,18 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 /**
  * @author pkupczyk
  */
-public class MapProjectTest extends AbstractTest
+public class GetProjectTest extends AbstractTest
 {
 
     @Test
-    public void testMapByPermId()
+    public void testGetByPermId()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         ProjectPermId permId1 = new ProjectPermId("20120814110011738-103");
         ProjectPermId permId2 = new ProjectPermId("20120814110011738-105");
 
-        Map<IProjectId, Project> map = v3api.mapProjects(sessionToken, Arrays.asList(permId1, permId2), new ProjectFetchOptions());
+        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, Arrays.asList(permId1, permId2), new ProjectFetchOptions());
 
         assertEquals(2, map.size());
 
@@ -75,14 +75,14 @@ public class MapProjectTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdentifier()
+    public void testGetByIdentifier()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         ProjectIdentifier identifier1 = new ProjectIdentifier("/CISD/NEMO");
         ProjectIdentifier identifier2 = new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT");
 
-        Map<IProjectId, Project> map = v3api.mapProjects(sessionToken, Arrays.asList(identifier1, identifier2), new ProjectFetchOptions());
+        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, Arrays.asList(identifier1, identifier2), new ProjectFetchOptions());
 
         assertEquals(2, map.size());
 
@@ -97,13 +97,13 @@ public class MapProjectTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdentifierCaseInsensitive()
+    public void testGetByIdentifierCaseInsensitive()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         ProjectIdentifier identifier1 = new ProjectIdentifier("/cisD/NeMo");
 
-        Map<IProjectId, Project> map = v3api.mapProjects(sessionToken, Arrays.asList(identifier1), new ProjectFetchOptions());
+        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, Arrays.asList(identifier1), new ProjectFetchOptions());
 
         assertEquals(1, map.size());
 
@@ -117,7 +117,7 @@ public class MapProjectTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsNonexistent()
+    public void testGetByIdsNonexistent()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -127,7 +127,7 @@ public class MapProjectTest extends AbstractTest
         ProjectIdentifier identifier2 = new ProjectIdentifier("/IDONT/EXIST");
 
         Map<IProjectId, Project> map =
-                v3api.mapProjects(sessionToken, Arrays.asList(permId1, identifier1, permId2, identifier2), new ProjectFetchOptions());
+                v3api.getProjects(sessionToken, Arrays.asList(permId1, identifier1, permId2, identifier2), new ProjectFetchOptions());
 
         assertEquals(2, map.size());
 
@@ -142,7 +142,7 @@ public class MapProjectTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsDuplicated()
+    public void testGetByIdsDuplicated()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -150,7 +150,7 @@ public class MapProjectTest extends AbstractTest
         ProjectIdentifier identifier = new ProjectIdentifier("/CISD/NEMO");
         ProjectPermId permId2 = new ProjectPermId("20120814110011738-103");
 
-        Map<IProjectId, Project> map = v3api.mapProjects(sessionToken, Arrays.asList(permId1, identifier, permId2), new ProjectFetchOptions());
+        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, Arrays.asList(permId1, identifier, permId2), new ProjectFetchOptions());
 
         assertEquals(2, map.size());
 
@@ -161,7 +161,7 @@ public class MapProjectTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsUnauthorized()
+    public void testGetByIdsUnauthorized()
     {
         ProjectPermId permId = new ProjectPermId("20120814110011738-101");
         ProjectIdentifier identifier1 = new ProjectIdentifier("/CISD/NEMO");
@@ -170,13 +170,13 @@ public class MapProjectTest extends AbstractTest
         List<? extends IProjectId> ids = Arrays.asList(permId, identifier1, identifier2);
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        Map<IProjectId, Project> map = v3api.mapProjects(sessionToken, ids, new ProjectFetchOptions());
+        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, ids, new ProjectFetchOptions());
 
         assertEquals(map.size(), 3);
         v3api.logout(sessionToken);
 
         sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-        map = v3api.mapProjects(sessionToken, ids, new ProjectFetchOptions());
+        map = v3api.getProjects(sessionToken, ids, new ProjectFetchOptions());
 
         assertEquals(map.size(), 1);
 
@@ -186,13 +186,13 @@ public class MapProjectTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsWithFetchOptionsEmpty()
+    public void testGetByIdsWithFetchOptionsEmpty()
     {
         ProjectIdentifier identifier = new ProjectIdentifier("/CISD/NEMO");
         ProjectFetchOptions fetchOptions = new ProjectFetchOptions();
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        Map<IProjectId, Project> map = v3api.mapProjects(sessionToken, Arrays.asList(identifier), fetchOptions);
+        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, Arrays.asList(identifier), fetchOptions);
 
         Project project = map.get(identifier);
 
@@ -212,7 +212,7 @@ public class MapProjectTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsWithExperiments()
+    public void testGetByIdsWithExperiments()
     {
         ProjectIdentifier identifier = new ProjectIdentifier("/CISD/DEFAULT");
 
@@ -220,7 +220,7 @@ public class MapProjectTest extends AbstractTest
         fetchOptions.withExperiments();
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        Map<IProjectId, Project> map = v3api.mapProjects(sessionToken, Arrays.asList(identifier), fetchOptions);
+        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, Arrays.asList(identifier), fetchOptions);
 
         Project project = map.get(identifier);
         List<Experiment> experiments = project.getExperiments();
@@ -235,7 +235,7 @@ public class MapProjectTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsWithSpace()
+    public void testGetByIdsWithSpace()
     {
         ProjectIdentifier identifier = new ProjectIdentifier("/CISD/DEFAULT");
 
@@ -243,7 +243,7 @@ public class MapProjectTest extends AbstractTest
         fetchOptions.withSpace();
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        Map<IProjectId, Project> map = v3api.mapProjects(sessionToken, Arrays.asList(identifier), fetchOptions);
+        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, Arrays.asList(identifier), fetchOptions);
 
         Project project = map.get(identifier);
 
@@ -257,7 +257,7 @@ public class MapProjectTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsWithRegistrator()
+    public void testGetByIdsWithRegistrator()
     {
         String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
@@ -270,7 +270,7 @@ public class MapProjectTest extends AbstractTest
         ProjectFetchOptions fetchOptions = new ProjectFetchOptions();
         fetchOptions.withRegistrator();
 
-        Map<IProjectId, Project> map = v3api.mapProjects(sessionToken, permIds, fetchOptions);
+        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, permIds, fetchOptions);
         Project project = map.values().iterator().next();
 
         Assert.assertEquals(project.getRegistrator().getUserId(), TEST_SPACE_USER);
@@ -283,7 +283,7 @@ public class MapProjectTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsWithModifier()
+    public void testGetByIdsWithModifier()
     {
         String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
@@ -291,7 +291,7 @@ public class MapProjectTest extends AbstractTest
         ProjectFetchOptions fetchOptions = new ProjectFetchOptions();
         fetchOptions.withModifier();
 
-        Map<IProjectId, Project> map = v3api.mapProjects(sessionToken, Arrays.asList(projectId), fetchOptions);
+        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, Arrays.asList(projectId), fetchOptions);
         Project project = map.get(projectId);
 
         Assert.assertEquals(project.getModifier().getUserId(), TEST_USER);
@@ -301,7 +301,7 @@ public class MapProjectTest extends AbstractTest
 
         v3api.updateProjects(sessionToken, Arrays.asList(update));
 
-        map = v3api.mapProjects(sessionToken, Arrays.asList(projectId), fetchOptions);
+        map = v3api.getProjects(sessionToken, Arrays.asList(projectId), fetchOptions);
         project = map.get(projectId);
 
         Assert.assertEquals(project.getModifier().getUserId(), TEST_SPACE_USER);
@@ -314,7 +314,7 @@ public class MapProjectTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsWithLeader()
+    public void testGetByIdsWithLeader()
     {
         String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
@@ -322,7 +322,7 @@ public class MapProjectTest extends AbstractTest
         ProjectFetchOptions fetchOptions = new ProjectFetchOptions();
         fetchOptions.withLeader();
 
-        Map<IProjectId, Project> map = v3api.mapProjects(sessionToken, Arrays.asList(projectId), fetchOptions);
+        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, Arrays.asList(projectId), fetchOptions);
         Project project = map.get(projectId);
 
         assertEquals(project.getLeader().getUserId(), SYSTEM_USER);
@@ -335,7 +335,7 @@ public class MapProjectTest extends AbstractTest
     }
 
     @Test
-    public void testMapWithAttachment()
+    public void testGetWithAttachment()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -369,7 +369,7 @@ public class MapProjectTest extends AbstractTest
         fetchOptions.withAttachments().withRegistrator();
         fetchOptions.withAttachments().withPreviousVersion().withContent();
 
-        Map<IProjectId, Project> map = v3api.mapProjects(sessionToken, projectPermIds, fetchOptions);
+        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, projectPermIds, fetchOptions);
 
         assertEquals(1, map.size());
         Project project = map.get(projectPermIds.get(0));
@@ -411,19 +411,19 @@ public class MapProjectTest extends AbstractTest
     }
 
     @Test
-    public void testMapWithHistoryEmpty()
+    public void testGetWithHistoryEmpty()
     {
         ProjectCreation creation = new ProjectCreation();
         creation.setCode("PROJECT_WITH_EMPTY_HISTORY");
         creation.setSpaceId(new SpacePermId("CISD"));
 
-        List<HistoryEntry> history = testMapWithHistory(creation, null);
+        List<HistoryEntry> history = testGetWithHistory(creation, null);
 
         assertEquals(history, Collections.emptyList());
     }
 
     @Test
-    public void testMapWithHistorySpace()
+    public void testGetWithHistorySpace()
     {
         ProjectCreation creation = new ProjectCreation();
         creation.setCode("PROJECT_WITH_SPACE_HISTORY");
@@ -432,7 +432,7 @@ public class MapProjectTest extends AbstractTest
         ProjectUpdate update = new ProjectUpdate();
         update.setSpaceId(new SpacePermId("TEST-SPACE"));
 
-        List<HistoryEntry> history = testMapWithHistory(creation, update);
+        List<HistoryEntry> history = testGetWithHistory(creation, update);
 
         assertEquals(history.size(), 1);
 
@@ -442,7 +442,7 @@ public class MapProjectTest extends AbstractTest
     }
 
     @Test
-    public void testMapWithHistoryExperiment()
+    public void testGetWithHistoryExperiment()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -469,7 +469,7 @@ public class MapProjectTest extends AbstractTest
         ProjectFetchOptions fetchOptions = new ProjectFetchOptions();
         fetchOptions.withHistory();
 
-        Map<IProjectId, Project> map = v3api.mapProjects(sessionToken, projectPermIds, fetchOptions);
+        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, projectPermIds, fetchOptions);
         assertEquals(map.size(), 1);
 
         Project project = map.get(projectPermIds.get(0));
@@ -482,7 +482,7 @@ public class MapProjectTest extends AbstractTest
         assertEquals(entry.getRelatedObjectId(), experimentPermIds.get(0));
     }
 
-    private List<HistoryEntry> testMapWithHistory(ProjectCreation creation, ProjectUpdate update)
+    private List<HistoryEntry> testGetWithHistory(ProjectCreation creation, ProjectUpdate update)
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -497,7 +497,7 @@ public class MapProjectTest extends AbstractTest
         ProjectFetchOptions fetchOptions = new ProjectFetchOptions();
         fetchOptions.withHistory();
 
-        Map<IProjectId, Project> map = v3api.mapProjects(sessionToken, permIds, fetchOptions);
+        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, permIds, fetchOptions);
 
         assertEquals(map.size(), 1);
         Project project = map.get(permIds.get(0));

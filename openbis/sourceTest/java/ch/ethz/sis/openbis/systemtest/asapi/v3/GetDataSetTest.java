@@ -62,11 +62,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions
 /**
  * @author pkupczyk
  */
-public class MapDataSetTest extends AbstractDataSetTest
+public class GetDataSetTest extends AbstractDataSetTest
 {
 
     @Test
-    public void testMapByPermId()
+    public void testGetByPermId()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -74,7 +74,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         DataSetPermId permId2 = new DataSetPermId("20110509092359990-10");
 
         Map<IDataSetId, DataSet> map =
-                v3api.mapDataSets(sessionToken, Arrays.asList(permId1, permId2),
+                v3api.getDataSets(sessionToken, Arrays.asList(permId1, permId2),
                         new DataSetFetchOptions());
 
         assertEquals(map.size(), 2);
@@ -90,14 +90,14 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapByPermIdCaseInsensitive()
+    public void testGetByPermIdCaseInsensitive()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         DataSetPermId permId1 = new DataSetPermId("root_CONTAINER");
 
         Map<IDataSetId, DataSet> map =
-                v3api.mapDataSets(sessionToken, Arrays.asList(permId1),
+                v3api.getDataSets(sessionToken, Arrays.asList(permId1),
                         new DataSetFetchOptions());
 
         assertEquals(map.size(), 1);
@@ -112,7 +112,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapByIdsNonexistent()
+    public void testGetByIdsNonexistent()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -120,7 +120,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         DataSetPermId permId2 = new DataSetPermId("NONEXISTENT");
         DataSetPermId permId3 = new DataSetPermId("20110509092359990-10");
 
-        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(permId1, permId2, permId3), new DataSetFetchOptions());
+        Map<IDataSetId, DataSet> map = v3api.getDataSets(sessionToken, Arrays.asList(permId1, permId2, permId3), new DataSetFetchOptions());
 
         assertEquals(map.size(), 2);
 
@@ -135,7 +135,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapByIdsDuplicated()
+    public void testGetByIdsDuplicated()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -143,7 +143,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         DataSetPermId permId2 = new DataSetPermId("20081105092159111-1");
         DataSetPermId permId3 = new DataSetPermId("20110509092359990-10");
 
-        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(permId1, permId2, permId3), new DataSetFetchOptions());
+        Map<IDataSetId, DataSet> map = v3api.getDataSets(sessionToken, Arrays.asList(permId1, permId2, permId3), new DataSetFetchOptions());
 
         assertEquals(map.size(), 2);
 
@@ -158,7 +158,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapByIdsUnauthorized()
+    public void testGetByIdsUnauthorized()
     {
         DataSetPermId permId1 = new DataSetPermId("20081105092159111-1");
         DataSetPermId permId2 = new DataSetPermId("20120619092259000-22");
@@ -166,13 +166,13 @@ public class MapDataSetTest extends AbstractDataSetTest
         List<? extends IDataSetId> ids = Arrays.asList(permId1, permId2);
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, ids, new DataSetFetchOptions());
+        Map<IDataSetId, DataSet> map = v3api.getDataSets(sessionToken, ids, new DataSetFetchOptions());
 
         assertEquals(map.size(), 2);
         v3api.logout(sessionToken);
 
         sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-        map = v3api.mapDataSets(sessionToken, ids, new DataSetFetchOptions());
+        map = v3api.getDataSets(sessionToken, ids, new DataSetFetchOptions());
 
         assertEquals(map.size(), 1);
 
@@ -182,13 +182,13 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithFetchOptionsEmpty()
+    public void testGetWithFetchOptionsEmpty()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         DataSetPermId permId = new DataSetPermId("20081105092159111-1");
 
-        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Collections.singletonList(permId), new DataSetFetchOptions());
+        Map<IDataSetId, DataSet> map = v3api.getDataSets(sessionToken, Collections.singletonList(permId), new DataSetFetchOptions());
 
         assertEquals(map.size(), 1);
 
@@ -217,7 +217,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithType()
+    public void testGetWithType()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -228,7 +228,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         fetchOptions.withType();
 
         Map<IDataSetId, DataSet> map =
-                v3api.mapDataSets(sessionToken, Arrays.asList(permId, permId2),
+                v3api.getDataSets(sessionToken, Arrays.asList(permId, permId2),
                         fetchOptions);
 
         assertEquals(map.size(), 2);
@@ -276,17 +276,17 @@ public class MapDataSetTest extends AbstractDataSetTest
 
         v3api.logout(sessionToken);
     }
-    
+
     @Test
-    public void testMapWithTypeWithPropertyAssignments()
+    public void testGetWithTypeWithPropertyAssignments()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         DataSetPermId permId = new DataSetPermId("20081105092159111-1");
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withType().withPropertyAssignments().sortBy().code().desc();
-        
-        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(permId), fetchOptions);
-        
+
+        Map<IDataSetId, DataSet> map = v3api.getDataSets(sessionToken, Arrays.asList(permId), fetchOptions);
+
         assertEquals(map.size(), 1);
         DataSet dataSet = map.get(permId);
         DataSetType type = dataSet.getType();
@@ -304,9 +304,9 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertEquals(propertyAssignments.size(), 4);
         v3api.logout(sessionToken);
     }
-    
+
     @Test
-    public void testMapWithExperiment()
+    public void testGetWithExperiment()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -316,7 +316,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         fetchOptions.withExperiment();
 
         Map<IDataSetId, DataSet> map =
-                v3api.mapDataSets(sessionToken, Arrays.asList(permId),
+                v3api.getDataSets(sessionToken, Arrays.asList(permId),
                         fetchOptions);
 
         assertEquals(map.size(), 1);
@@ -340,7 +340,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithSample()
+    public void testGetWithSample()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -350,7 +350,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         fetchOptions.withSample();
 
         Map<IDataSetId, DataSet> map =
-                v3api.mapDataSets(sessionToken, Arrays.asList(permId),
+                v3api.getDataSets(sessionToken, Arrays.asList(permId),
                         fetchOptions);
 
         assertEquals(map.size(), 1);
@@ -374,7 +374,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithProperties()
+    public void testGetWithProperties()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -384,7 +384,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         fetchOptions.withProperties();
 
         Map<IDataSetId, DataSet> map =
-                v3api.mapDataSets(sessionToken, Arrays.asList(permId),
+                v3api.getDataSets(sessionToken, Arrays.asList(permId),
                         fetchOptions);
 
         assertEquals(map.size(), 1);
@@ -412,7 +412,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithChildren()
+    public void testGetWithChildren()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -422,7 +422,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         fetchOptions.withChildren();
 
         Map<IDataSetId, DataSet> map =
-                v3api.mapDataSets(sessionToken, Arrays.asList(permId),
+                v3api.getDataSets(sessionToken, Arrays.asList(permId),
                         fetchOptions);
 
         assertEquals(map.size(), 1);
@@ -451,7 +451,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithParents()
+    public void testGetWithParents()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -461,7 +461,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         fetchOptions.withParents();
 
         Map<IDataSetId, DataSet> map =
-                v3api.mapDataSets(sessionToken, Arrays.asList(permId),
+                v3api.getDataSets(sessionToken, Arrays.asList(permId),
                         fetchOptions);
 
         assertEquals(map.size(), 1);
@@ -490,7 +490,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithComponents()
+    public void testGetWithComponents()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -500,7 +500,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         fetchOptions.withComponents();
 
         Map<IDataSetId, DataSet> map =
-                v3api.mapDataSets(sessionToken, Arrays.asList(permId),
+                v3api.getDataSets(sessionToken, Arrays.asList(permId),
                         fetchOptions);
 
         assertEquals(map.size(), 1);
@@ -528,7 +528,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithContainers()
+    public void testGetWithContainers()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -538,7 +538,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         fetchOptions.withContainers();
 
         Map<IDataSetId, DataSet> map =
-                v3api.mapDataSets(sessionToken, Arrays.asList(permId),
+                v3api.getDataSets(sessionToken, Arrays.asList(permId),
                         fetchOptions);
 
         assertEquals(map.size(), 1);
@@ -566,7 +566,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithPhysicalDataForPhysicalDataSet()
+    public void testGetWithPhysicalDataForPhysicalDataSet()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -578,7 +578,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         physicalDataFetchOptions.withLocatorType();
         physicalDataFetchOptions.withStorageFormat();
 
-        Map<IDataSetId, DataSet> dataSets = v3api.mapDataSets(sessionToken, Arrays.asList(permId), fetchOptions);
+        Map<IDataSetId, DataSet> dataSets = v3api.getDataSets(sessionToken, Arrays.asList(permId), fetchOptions);
 
         assertEquals(dataSets.size(), 1);
         DataSet dataSet = dataSets.get(permId);
@@ -620,7 +620,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithPhysicalDataForNonPhysicalDataSet()
+    public void testGetWithPhysicalDataForNonPhysicalDataSet()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -628,7 +628,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withPhysicalData();
 
-        Map<IDataSetId, DataSet> dataSets = v3api.mapDataSets(sessionToken, Arrays.asList(permId), fetchOptions);
+        Map<IDataSetId, DataSet> dataSets = v3api.getDataSets(sessionToken, Arrays.asList(permId), fetchOptions);
 
         assertEquals(dataSets.size(), 1);
         DataSet dataSet = dataSets.get(permId);
@@ -638,7 +638,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithLinkedDataForLinkDataSet()
+    public void testGetWithLinkedDataForLinkDataSet()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -648,7 +648,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         LinkedDataFetchOptions linkedDataFetchOptions = fetchOptions.withLinkedData();
         linkedDataFetchOptions.withExternalDms();
 
-        Map<IDataSetId, DataSet> dataSets = v3api.mapDataSets(sessionToken, Arrays.asList(permId), fetchOptions);
+        Map<IDataSetId, DataSet> dataSets = v3api.getDataSets(sessionToken, Arrays.asList(permId), fetchOptions);
 
         assertEquals(dataSets.size(), 1);
         DataSet dataSet = dataSets.get(permId);
@@ -676,7 +676,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithLinkedDataForNonLinkDataSet()
+    public void testGetWithLinkedDataForNonLinkDataSet()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -684,7 +684,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withLinkedData();
 
-        Map<IDataSetId, DataSet> dataSets = v3api.mapDataSets(sessionToken, Arrays.asList(permId), fetchOptions);
+        Map<IDataSetId, DataSet> dataSets = v3api.getDataSets(sessionToken, Arrays.asList(permId), fetchOptions);
 
         assertEquals(dataSets.size(), 1);
         DataSet dataSet = dataSets.get(permId);
@@ -694,7 +694,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithModifier()
+    public void testGetWithModifier()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -704,7 +704,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         fetchOptions.withModifier();
 
         Map<IDataSetId, DataSet> map =
-                v3api.mapDataSets(sessionToken, Arrays.asList(permId),
+                v3api.getDataSets(sessionToken, Arrays.asList(permId),
                         fetchOptions);
 
         assertEquals(1, map.size());
@@ -729,7 +729,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithRegistrator()
+    public void testGetWithRegistrator()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -739,7 +739,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         fetchOptions.withRegistrator();
 
         Map<IDataSetId, DataSet> map =
-                v3api.mapDataSets(sessionToken, Arrays.asList(permId),
+                v3api.getDataSets(sessionToken, Arrays.asList(permId),
                         fetchOptions);
 
         assertEquals(1, map.size());
@@ -763,7 +763,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithTags()
+    public void testGetWithTags()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
@@ -772,7 +772,7 @@ public class MapDataSetTest extends AbstractDataSetTest
 
         DataSetPermId permId = new DataSetPermId("20120619092259000-22");
 
-        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Collections.singletonList(permId), fetchOptions);
+        Map<IDataSetId, DataSet> map = v3api.getDataSets(sessionToken, Collections.singletonList(permId), fetchOptions);
 
         assertEquals(map.size(), 1);
 
@@ -803,7 +803,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithMaterialProperties()
+    public void testGetWithMaterialProperties()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -813,7 +813,7 @@ public class MapDataSetTest extends AbstractDataSetTest
 
         DataSetPermId permId = new DataSetPermId("20081105092159111-1");
 
-        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(permId), fetchOptions);
+        Map<IDataSetId, DataSet> map = v3api.getDataSets(sessionToken, Arrays.asList(permId), fetchOptions);
 
         DataSet data = map.get(permId);
 
@@ -834,7 +834,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithHistoryEmpty()
+    public void testGetWithHistoryEmpty()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -843,7 +843,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withHistory();
 
-        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(id), fetchOptions);
+        Map<IDataSetId, DataSet> map = v3api.getDataSets(sessionToken, Arrays.asList(id), fetchOptions);
 
         assertEquals(map.size(), 1);
         DataSet dataSet = map.get(id);
@@ -856,7 +856,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithHistoryProperty()
+    public void testGetWithHistoryProperty()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -871,7 +871,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withHistory();
 
-        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(id), fetchOptions);
+        Map<IDataSetId, DataSet> map = v3api.getDataSets(sessionToken, Arrays.asList(id), fetchOptions);
 
         assertEquals(map.size(), 1);
         DataSet dataSet = map.get(id);
@@ -887,7 +887,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithHistoryExperiment()
+    public void testGetWithHistoryExperiment()
     {
         IDataSetId id = new DataSetPermId("COMPONENT_1A");
 
@@ -899,7 +899,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         update2.setDataSetId(id);
         update2.setExperimentId(new ExperimentIdentifier("/CISD/DEFAULT/EXP-REUSE"));
 
-        List<HistoryEntry> history = testMapWithHistory(update, update2);
+        List<HistoryEntry> history = testGetWithHistory(update, update2);
         assertEquals(history.size(), 1);
 
         RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
@@ -908,7 +908,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithHistorySample()
+    public void testGetWithHistorySample()
     {
         IDataSetId id = new DataSetPermId("COMPONENT_1A");
 
@@ -920,7 +920,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         update2.setDataSetId(id);
         update2.setSampleId(new SampleIdentifier("/CISD/3VCP6"));
 
-        List<HistoryEntry> history = testMapWithHistory(update, update2);
+        List<HistoryEntry> history = testGetWithHistory(update, update2);
         assertEquals(history.size(), 1);
 
         RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
@@ -929,7 +929,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithHistoryContainer()
+    public void testGetWithHistoryContainer()
     {
         IDataSetId id = new DataSetPermId("COMPONENT_1A");
 
@@ -941,7 +941,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         update2.setDataSetId(id);
         update2.getContainerIds().set(new DataSetPermId("CONTAINER_1"));
 
-        List<HistoryEntry> history = testMapWithHistory(update, update2);
+        List<HistoryEntry> history = testGetWithHistory(update, update2);
         assertEquals(history.size(), 1);
 
         RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
@@ -950,7 +950,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithHistoryComponents()
+    public void testGetWithHistoryComponents()
     {
         IDataSetId id = new DataSetPermId("CONTAINER_1");
 
@@ -962,7 +962,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         update2.setDataSetId(id);
         update2.getComponentIds().set(new DataSetPermId("COMPONENT_1A"));
 
-        List<HistoryEntry> history = testMapWithHistory(update, update2);
+        List<HistoryEntry> history = testGetWithHistory(update, update2);
         assertEquals(history.size(), 1);
 
         RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
@@ -971,7 +971,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithHistoryParent()
+    public void testGetWithHistoryParent()
     {
         IDataSetId id = new DataSetPermId("COMPONENT_1A");
 
@@ -983,7 +983,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         update2.setDataSetId(id);
         update2.getParentIds().set(new DataSetPermId("CONTAINER_1"));
 
-        List<HistoryEntry> history = testMapWithHistory(update, update2);
+        List<HistoryEntry> history = testGetWithHistory(update, update2);
         assertEquals(history.size(), 1);
 
         RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
@@ -992,7 +992,7 @@ public class MapDataSetTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithHistoryChild()
+    public void testGetWithHistoryChild()
     {
         IDataSetId id = new DataSetPermId("CONTAINER_1");
 
@@ -1004,7 +1004,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         update2.setDataSetId(id);
         update2.getChildIds().set(new DataSetPermId("COMPONENT_1A"));
 
-        List<HistoryEntry> history = testMapWithHistory(update, update2);
+        List<HistoryEntry> history = testGetWithHistory(update, update2);
         assertEquals(history.size(), 1);
 
         RelationHistoryEntry entry = (RelationHistoryEntry) history.get(0);
@@ -1012,7 +1012,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         assertEquals(entry.getRelatedObjectId(), new DataSetPermId("COMPONENT_2A"));
     }
 
-    private List<HistoryEntry> testMapWithHistory(DataSetUpdate... updates)
+    private List<HistoryEntry> testGetWithHistory(DataSetUpdate... updates)
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -1026,7 +1026,7 @@ public class MapDataSetTest extends AbstractDataSetTest
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withHistory();
 
-        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(id), fetchOptions);
+        Map<IDataSetId, DataSet> map = v3api.getDataSets(sessionToken, Arrays.asList(id), fetchOptions);
 
         assertEquals(map.size(), 1);
         DataSet dataSet = map.get(id);

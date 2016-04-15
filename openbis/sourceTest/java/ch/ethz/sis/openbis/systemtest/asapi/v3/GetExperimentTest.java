@@ -70,11 +70,11 @@ import ch.systemsx.cisd.common.test.AssertionUtil;
 /**
  * @author pkupczyk
  */
-public class MapExperimentTest extends AbstractExperimentTest
+public class GetExperimentTest extends AbstractExperimentTest
 {
 
     @Test
-    public void testMapByPermId()
+    public void testGetByPermId()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -82,7 +82,7 @@ public class MapExperimentTest extends AbstractExperimentTest
         ExperimentPermId permId2 = new ExperimentPermId("200811050952663-1029");
 
         Map<IExperimentId, Experiment> map =
-                v3api.mapExperiments(sessionToken, Arrays.asList(permId1, permId2),
+                v3api.getExperiments(sessionToken, Arrays.asList(permId1, permId2),
                         new ExperimentFetchOptions());
 
         assertEquals(2, map.size());
@@ -98,7 +98,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapByIdentifier()
+    public void testGetByIdentifier()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -107,7 +107,7 @@ public class MapExperimentTest extends AbstractExperimentTest
         ExperimentIdentifier identifier3 = new ExperimentIdentifier("/CISD/NEMO/EXP10");
 
         Map<IExperimentId, Experiment> map =
-                v3api.mapExperiments(sessionToken,
+                v3api.getExperiments(sessionToken,
                         Arrays.asList(identifier1, identifier2, identifier3),
                         new ExperimentFetchOptions());
 
@@ -126,14 +126,14 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapByIdentifierCaseInsensitive()
+    public void testGetByIdentifierCaseInsensitive()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         ExperimentIdentifier identifier1 = new ExperimentIdentifier("/cisD/Noe/EXP-test-2");
 
         Map<IExperimentId, Experiment> map =
-                v3api.mapExperiments(sessionToken,
+                v3api.getExperiments(sessionToken,
                         Arrays.asList(identifier1),
                         new ExperimentFetchOptions());
 
@@ -149,7 +149,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapByIdsNonexistent()
+    public void testGetByIdsNonexistent()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -166,7 +166,7 @@ public class MapExperimentTest extends AbstractExperimentTest
         ExperimentIdentifier identifier8 = new ExperimentIdentifier("/CISD/NEMO/NONEXISTENT_EXPERIMENT");
 
         Map<IExperimentId, Experiment> map =
-                v3api.mapExperiments(sessionToken,
+                v3api.getExperiments(sessionToken,
                         Arrays.asList(identifier1, identifier2, identifier3, identifier4, identifier5, identifier6, permId1, permId2, identifier7,
                                 permId3, identifier8),
                         new ExperimentFetchOptions());
@@ -192,7 +192,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapByIdsDifferent()
+    public void testGetByIdsDifferent()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -201,7 +201,7 @@ public class MapExperimentTest extends AbstractExperimentTest
         ExperimentIdentifier identifier2 = new ExperimentIdentifier("/CISD/NEMO/EXP11");
 
         Map<IExperimentId, Experiment> map =
-                v3api.mapExperiments(sessionToken, Arrays.asList(identifier1, permId, identifier2), new ExperimentFetchOptions());
+                v3api.getExperiments(sessionToken, Arrays.asList(identifier1, permId, identifier2), new ExperimentFetchOptions());
 
         assertEquals(3, map.size());
 
@@ -218,7 +218,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapByIdsDuplicated()
+    public void testGetByIdsDuplicated()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -229,7 +229,7 @@ public class MapExperimentTest extends AbstractExperimentTest
         ExperimentPermId permId2 = new ExperimentPermId("200811050951882-1028");
 
         Map<IExperimentId, Experiment> map =
-                v3api.mapExperiments(sessionToken, Arrays.asList(identifier1, permId1, identifier2, permId2), new ExperimentFetchOptions());
+                v3api.getExperiments(sessionToken, Arrays.asList(identifier1, permId1, identifier2, permId2), new ExperimentFetchOptions());
 
         assertEquals(3, map.size());
 
@@ -248,7 +248,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapByIdsUnauthorized()
+    public void testGetByIdsUnauthorized()
     {
         ExperimentIdentifier identifier1 = new ExperimentIdentifier("/CISD/NEMO/EXP1");
         ExperimentIdentifier identifier2 = new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
@@ -258,13 +258,13 @@ public class MapExperimentTest extends AbstractExperimentTest
         List<? extends IExperimentId> ids = Arrays.asList(identifier1, identifier2, identifier3, identifier4);
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, ids, new ExperimentFetchOptions());
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, ids, new ExperimentFetchOptions());
 
         assertEquals(map.size(), 4);
         v3api.logout(sessionToken);
 
         sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-        map = v3api.mapExperiments(sessionToken, ids, new ExperimentFetchOptions());
+        map = v3api.getExperiments(sessionToken, ids, new ExperimentFetchOptions());
 
         assertEquals(map.size(), 2);
 
@@ -279,13 +279,13 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapWithFetchOptionsEmpty()
+    public void testGetWithFetchOptionsEmpty()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         ExperimentPermId permId = new ExperimentPermId("200811050951882-1028");
 
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Collections.singletonList(permId), new ExperimentFetchOptions());
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, Collections.singletonList(permId), new ExperimentFetchOptions());
 
         assertEquals(1, map.size());
 
@@ -308,7 +308,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapWithType()
+    public void testGetWithType()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -316,7 +316,7 @@ public class MapExperimentTest extends AbstractExperimentTest
 
         ExperimentPermId permId = new ExperimentPermId("200811050951882-1028");
 
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Collections.singletonList(permId), fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, Collections.singletonList(permId), fetchOptions);
 
         assertEquals(1, map.size());
 
@@ -342,15 +342,15 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapWithTypeAndPropertyAssignments()
+    public void testGetWithTypeAndPropertyAssignments()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         fetchOptions.withType().withPropertyAssignments().sortBy().code().desc();
         ExperimentPermId permId = new ExperimentPermId("200811050951882-1028");
-        
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(permId), fetchOptions);
-        
+
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, Arrays.asList(permId), fetchOptions);
+
         assertEquals(1, map.size());
         Experiment experiment = map.get(permId);
         ExperimentType type = experiment.getType();
@@ -368,9 +368,9 @@ public class MapExperimentTest extends AbstractExperimentTest
         assertEquals(propertyAssignments.size(), 3);
         v3api.logout(sessionToken);
     }
-    
+
     @Test
-    public void testMapWithTypeReused()
+    public void testGetWithTypeReused()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -379,7 +379,7 @@ public class MapExperimentTest extends AbstractExperimentTest
         ExperimentIdentifier identifier1 = new ExperimentIdentifier("/CISD/NEMO/EXP1");
         ExperimentIdentifier identifier2 = new ExperimentIdentifier("/CISD/NEMO/EXP11");
 
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(identifier1, identifier2), fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, Arrays.asList(identifier1, identifier2), fetchOptions);
 
         assertEquals(2, map.size());
         Experiment experiment1 = map.get(identifier1);
@@ -394,7 +394,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapWithAttachment()
+    public void testGetWithAttachment()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -402,7 +402,7 @@ public class MapExperimentTest extends AbstractExperimentTest
 
         ExperimentPermId permId = new ExperimentPermId("200811050951882-1028");
 
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Collections.singletonList(permId), fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, Collections.singletonList(permId), fetchOptions);
 
         assertEquals(1, map.size());
 
@@ -433,7 +433,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test()
-    public void testMapWithProject()
+    public void testGetWithProject()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -441,7 +441,7 @@ public class MapExperimentTest extends AbstractExperimentTest
 
         ExperimentPermId permId = new ExperimentPermId("200811050951882-1028");
 
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Collections.singletonList(permId), fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, Collections.singletonList(permId), fetchOptions);
 
         assertEquals(1, map.size());
 
@@ -465,7 +465,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test()
-    public void testMapWithProjectReused()
+    public void testGetWithProjectReused()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -474,7 +474,7 @@ public class MapExperimentTest extends AbstractExperimentTest
         ExperimentIdentifier identifier1 = new ExperimentIdentifier("/CISD/NEMO/EXP1");
         ExperimentIdentifier identifier2 = new ExperimentIdentifier("/CISD/NEMO/EXP11");
 
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(identifier1, identifier2), fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, Arrays.asList(identifier1, identifier2), fetchOptions);
 
         assertEquals(2, map.size());
         Experiment experiment1 = map.get(identifier1);
@@ -489,7 +489,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapWithProperties()
+    public void testGetWithProperties()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -497,7 +497,7 @@ public class MapExperimentTest extends AbstractExperimentTest
 
         ExperimentPermId permId = new ExperimentPermId("200811050951882-1028");
 
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Collections.singletonList(permId), fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, Collections.singletonList(permId), fetchOptions);
 
         assertEquals(1, map.size());
 
@@ -520,7 +520,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapWithRegistrator()
+    public void testGetWithRegistrator()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -528,7 +528,7 @@ public class MapExperimentTest extends AbstractExperimentTest
 
         ExperimentPermId permId = new ExperimentPermId("200811050951882-1028");
 
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Collections.singletonList(permId), fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, Collections.singletonList(permId), fetchOptions);
 
         assertEquals(1, map.size());
 
@@ -549,7 +549,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test()
-    public void testMapWithRegistratorReused()
+    public void testGetWithRegistratorReused()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -558,7 +558,7 @@ public class MapExperimentTest extends AbstractExperimentTest
         ExperimentIdentifier identifier1 = new ExperimentIdentifier("/CISD/NEMO/EXP1");
         ExperimentIdentifier identifier2 = new ExperimentIdentifier("/CISD/NEMO/EXP11");
 
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(identifier1, identifier2), fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, Arrays.asList(identifier1, identifier2), fetchOptions);
 
         assertEquals(2, map.size());
         Experiment experiment1 = map.get(identifier1);
@@ -573,7 +573,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapWithModifier()
+    public void testGetWithModifier()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -581,7 +581,7 @@ public class MapExperimentTest extends AbstractExperimentTest
 
         ExperimentPermId permId = new ExperimentPermId("200811050951882-1028");
 
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Collections.singletonList(permId), fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, Collections.singletonList(permId), fetchOptions);
 
         assertEquals(1, map.size());
 
@@ -602,7 +602,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test()
-    public void testMapWithModifierReused()
+    public void testGetWithModifierReused()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -611,7 +611,7 @@ public class MapExperimentTest extends AbstractExperimentTest
         ExperimentIdentifier identifier1 = new ExperimentIdentifier("/CISD/NEMO/EXP1");
         ExperimentIdentifier identifier2 = new ExperimentIdentifier("/CISD/NEMO/EXP10");
 
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(identifier1, identifier2), fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, Arrays.asList(identifier1, identifier2), fetchOptions);
 
         assertEquals(2, map.size());
         Experiment experiment1 = map.get(identifier1);
@@ -626,7 +626,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapWithTags()
+    public void testGetWithTags()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -634,7 +634,7 @@ public class MapExperimentTest extends AbstractExperimentTest
 
         ExperimentPermId permId = new ExperimentPermId("200811050952663-1030");
 
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Collections.singletonList(permId), fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, Collections.singletonList(permId), fetchOptions);
 
         assertEquals(1, map.size());
 
@@ -661,7 +661,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapWithTagsReused()
+    public void testGetWithTagsReused()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -670,7 +670,7 @@ public class MapExperimentTest extends AbstractExperimentTest
         ExperimentPermId permId1 = new ExperimentPermId("200811050952663-1030");
         ExperimentPermId permId2 = new ExperimentPermId("201206190940555-1032");
 
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(permId1, permId2), fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, Arrays.asList(permId1, permId2), fetchOptions);
 
         assertEquals(2, map.size());
         Experiment experiment1 = map.get(permId1);
@@ -684,7 +684,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapWithDataSets()
+    public void testGetWithDataSets()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -692,7 +692,7 @@ public class MapExperimentTest extends AbstractExperimentTest
 
         ExperimentPermId permId = new ExperimentPermId("200902091239077-1033");
 
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(permId), fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, Arrays.asList(permId), fetchOptions);
 
         Experiment experiment = map.get(permId);
 
@@ -708,7 +708,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapWithSamples()
+    public void testGetWithSamples()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -716,7 +716,7 @@ public class MapExperimentTest extends AbstractExperimentTest
 
         ExperimentPermId permId = new ExperimentPermId("200902091239077-1033");
 
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(permId), fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, Arrays.asList(permId), fetchOptions);
 
         Experiment experiment = map.get(permId);
         List<Sample> samples = experiment.getSamples();
@@ -732,7 +732,7 @@ public class MapExperimentTest extends AbstractExperimentTest
         v3api.logout(sessionToken);
     }
 
-    public void testMapWithDataSetsAndDataSetFetchOptionsViaSample()
+    public void testGetWithDataSetsAndDataSetFetchOptionsViaSample()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -741,7 +741,7 @@ public class MapExperimentTest extends AbstractExperimentTest
 
         ExperimentPermId permId = new ExperimentPermId("200902091239077-1033");
 
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(permId), fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, Arrays.asList(permId), fetchOptions);
 
         Experiment experiment = map.get(permId);
 
@@ -757,7 +757,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapWithProjectWithSpaceWithSamples()
+    public void testGetWithProjectWithSpaceWithSamples()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -766,7 +766,7 @@ public class MapExperimentTest extends AbstractExperimentTest
 
         ExperimentPermId permId = new ExperimentPermId("200902091255058-1037");
 
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(permId), fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, Arrays.asList(permId), fetchOptions);
 
         assertEquals(1, map.size());
         Experiment experiment = map.get(permId);
@@ -789,7 +789,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapWithMaterialProperties()
+    public void testGetWithMaterialProperties()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -799,7 +799,7 @@ public class MapExperimentTest extends AbstractExperimentTest
 
         ExperimentPermId permId = new ExperimentPermId("201108050937246-1031");
 
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(permId), fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, Arrays.asList(permId), fetchOptions);
 
         Experiment experiment = map.get(permId);
 
@@ -814,7 +814,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapWithHistoryEmpty()
+    public void testGetWithHistoryEmpty()
     {
         ExperimentCreation creation = new ExperimentCreation();
         creation.setCode("EXPERIMENT_WITH_EMPTY_HISTORY");
@@ -822,13 +822,13 @@ public class MapExperimentTest extends AbstractExperimentTest
         creation.setProjectId(new ProjectIdentifier("/CISD/DEFAULT"));
         creation.setProperty("DESCRIPTION", "a description");
 
-        List<HistoryEntry> history = testMapWithHistory(creation, null);
+        List<HistoryEntry> history = testGetWithHistory(creation, null);
 
         assertEquals(history, Collections.emptyList());
     }
 
     @Test
-    public void testMapWithHistoryProperty()
+    public void testGetWithHistoryProperty()
     {
         ExperimentCreation creation = new ExperimentCreation();
         creation.setCode("EXPERIMENT_WITH_EMPTY_HISTORY");
@@ -839,7 +839,7 @@ public class MapExperimentTest extends AbstractExperimentTest
         ExperimentUpdate update = new ExperimentUpdate();
         update.setProperty("DESCRIPTION", "a description 2");
 
-        List<HistoryEntry> history = testMapWithHistory(creation, update);
+        List<HistoryEntry> history = testGetWithHistory(creation, update);
 
         assertEquals(history.size(), 1);
 
@@ -850,7 +850,7 @@ public class MapExperimentTest extends AbstractExperimentTest
 
     @Test(enabled = false)
     // SSDM-2292
-    public void testMapWithHistoryProject()
+    public void testGetWithHistoryProject()
     {
         ExperimentCreation creation = new ExperimentCreation();
         creation.setCode("EXPERIMENT_WITH_PROJECT_HISTORY");
@@ -861,7 +861,7 @@ public class MapExperimentTest extends AbstractExperimentTest
         ExperimentUpdate update = new ExperimentUpdate();
         update.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
 
-        List<HistoryEntry> history = testMapWithHistory(creation, update);
+        List<HistoryEntry> history = testGetWithHistory(creation, update);
 
         assertEquals(history.size(), 1);
 
@@ -871,7 +871,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapWithHistorySample()
+    public void testGetWithHistorySample()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -900,7 +900,7 @@ public class MapExperimentTest extends AbstractExperimentTest
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         fetchOptions.withHistory();
 
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, experimentPermIds, fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, experimentPermIds, fetchOptions);
         assertEquals(map.size(), 1);
 
         Experiment experiment = map.get(experimentPermIds.get(0));
@@ -914,7 +914,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapWithHistoryDataSet()
+    public void testGetWithHistoryDataSet()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -941,7 +941,7 @@ public class MapExperimentTest extends AbstractExperimentTest
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         fetchOptions.withHistory();
 
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, permIds, fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, permIds, fetchOptions);
         assertEquals(map.size(), 1);
 
         Experiment experiment = map.get(permIds.get(0));
@@ -954,7 +954,7 @@ public class MapExperimentTest extends AbstractExperimentTest
         assertEquals(entry.getRelatedObjectId(), new DataSetPermId("COMPONENT_1A"));
     }
 
-    private List<HistoryEntry> testMapWithHistory(ExperimentCreation creation, ExperimentUpdate update)
+    private List<HistoryEntry> testGetWithHistory(ExperimentCreation creation, ExperimentUpdate update)
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -969,7 +969,7 @@ public class MapExperimentTest extends AbstractExperimentTest
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         fetchOptions.withHistory();
 
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, permIds, fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, permIds, fetchOptions);
 
         assertEquals(map.size(), 1);
         Experiment experiment = map.get(permIds.get(0));

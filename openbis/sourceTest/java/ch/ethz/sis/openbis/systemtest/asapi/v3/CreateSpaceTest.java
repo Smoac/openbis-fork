@@ -124,7 +124,7 @@ public class CreateSpaceTest extends AbstractTest
         creation.setDescription("a new description");
 
         List<SpacePermId> permIds = v3api.createSpaces(sessionToken, Arrays.asList(creation));
-        Map<ISpaceId, Space> map = v3api.mapSpaces(sessionToken, permIds, new SpaceFetchOptions());
+        Map<ISpaceId, Space> map = v3api.getSpaces(sessionToken, permIds, new SpaceFetchOptions());
 
         assertEquals(map.size(), 1);
 

@@ -48,7 +48,7 @@ public class DeleteSpaceTest extends AbstractDeletionTest
 
         List<SpacePermId> permIds = v3api.createSpaces(sessionToken, Arrays.asList(creation));
 
-        Map<ISpaceId, Space> map = v3api.mapSpaces(sessionToken, permIds, new SpaceFetchOptions());
+        Map<ISpaceId, Space> map = v3api.getSpaces(sessionToken, permIds, new SpaceFetchOptions());
         assertEquals(map.size(), 1);
 
         SpaceDeletionOptions options = new SpaceDeletionOptions();
@@ -56,7 +56,7 @@ public class DeleteSpaceTest extends AbstractDeletionTest
 
         v3api.deleteSpaces(sessionToken, permIds, options);
 
-        map = v3api.mapSpaces(sessionToken, permIds, new SpaceFetchOptions());
+        map = v3api.getSpaces(sessionToken, permIds, new SpaceFetchOptions());
         assertEquals(map.size(), 0);
     }
 
@@ -88,7 +88,7 @@ public class DeleteSpaceTest extends AbstractDeletionTest
 
         final List<SpacePermId> permIds = v3api.createSpaces(adminSessionToken, Arrays.asList(creation));
 
-        Map<ISpaceId, Space> map = v3api.mapSpaces(adminSessionToken, permIds, new SpaceFetchOptions());
+        Map<ISpaceId, Space> map = v3api.getSpaces(adminSessionToken, permIds, new SpaceFetchOptions());
         assertEquals(map.size(), 1);
 
         final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);

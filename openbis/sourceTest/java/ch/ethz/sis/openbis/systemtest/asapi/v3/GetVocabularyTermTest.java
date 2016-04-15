@@ -33,11 +33,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPerm
  * @author pkupczyk
  */
 @Test(groups = { "before remote api" })
-public class MapVocabularyTermTest extends AbstractVocabularyTermTest
+public class GetVocabularyTermTest extends AbstractVocabularyTermTest
 {
 
     @Test
-    public void testMapByPermId()
+    public void testGetByPermId()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -45,7 +45,7 @@ public class MapVocabularyTermTest extends AbstractVocabularyTermTest
         VocabularyTermPermId permId2 = new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT");
 
         Map<IVocabularyTermId, VocabularyTerm> map =
-                v3api.mapVocabularyTerms(sessionToken, Arrays.asList(permId1, permId2),
+                v3api.getVocabularyTerms(sessionToken, Arrays.asList(permId1, permId2),
                         new VocabularyTermFetchOptions());
 
         assertEquals(2, map.size());
@@ -61,7 +61,7 @@ public class MapVocabularyTermTest extends AbstractVocabularyTermTest
     }
 
     @Test
-    public void testMapByPermIdCaseInsensitive()
+    public void testGetByPermIdCaseInsensitive()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -69,7 +69,7 @@ public class MapVocabularyTermTest extends AbstractVocabularyTermTest
         VocabularyTermPermId permId2 = new VocabularyTermPermId("proPRIETARY", "$storage_FORMAT");
 
         Map<IVocabularyTermId, VocabularyTerm> map =
-                v3api.mapVocabularyTerms(sessionToken, Arrays.asList(permId1, permId2),
+                v3api.getVocabularyTerms(sessionToken, Arrays.asList(permId1, permId2),
                         new VocabularyTermFetchOptions());
 
         assertEquals(2, map.size());
@@ -92,7 +92,7 @@ public class MapVocabularyTermTest extends AbstractVocabularyTermTest
     }
 
     @Test
-    public void testMapByIdsNonexistent()
+    public void testGetByIdsNonexistent()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -101,7 +101,7 @@ public class MapVocabularyTermTest extends AbstractVocabularyTermTest
         VocabularyTermPermId permId3 = new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT");
 
         Map<IVocabularyTermId, VocabularyTerm> map =
-                v3api.mapVocabularyTerms(sessionToken,
+                v3api.getVocabularyTerms(sessionToken,
                         Arrays.asList(permId1, permId2, permId3),
                         new VocabularyTermFetchOptions());
 
@@ -118,7 +118,7 @@ public class MapVocabularyTermTest extends AbstractVocabularyTermTest
     }
 
     @Test
-    public void testMapByIdsDuplicated()
+    public void testGetByIdsDuplicated()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -126,7 +126,7 @@ public class MapVocabularyTermTest extends AbstractVocabularyTermTest
         VocabularyTermPermId permId2 = new VocabularyTermPermId("human", "organism");
 
         Map<IVocabularyTermId, VocabularyTerm> map =
-                v3api.mapVocabularyTerms(sessionToken, Arrays.asList(permId1, permId2), new VocabularyTermFetchOptions());
+                v3api.getVocabularyTerms(sessionToken, Arrays.asList(permId1, permId2), new VocabularyTermFetchOptions());
 
         assertEquals(1, map.size());
 
@@ -137,7 +137,7 @@ public class MapVocabularyTermTest extends AbstractVocabularyTermTest
     }
 
     @Test
-    public void testMapWithEmptyFetchOptions()
+    public void testGetWithEmptyFetchOptions()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -145,7 +145,7 @@ public class MapVocabularyTermTest extends AbstractVocabularyTermTest
         VocabularyTermFetchOptions fetchOptions = new VocabularyTermFetchOptions();
 
         Map<IVocabularyTermId, VocabularyTerm> terms =
-                v3api.mapVocabularyTerms(sessionToken, Arrays.asList(id), fetchOptions);
+                v3api.getVocabularyTerms(sessionToken, Arrays.asList(id), fetchOptions);
 
         VocabularyTerm term = terms.get(id);
         assertEquals(term.getPermId(), new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"));
@@ -161,7 +161,7 @@ public class MapVocabularyTermTest extends AbstractVocabularyTermTest
     }
 
     @Test
-    public void testMapWithVocabularyFetched()
+    public void testGetWithVocabularyFetched()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -170,7 +170,7 @@ public class MapVocabularyTermTest extends AbstractVocabularyTermTest
         fetchOptions.withVocabulary().withRegistrator();
 
         Map<IVocabularyTermId, VocabularyTerm> terms =
-                v3api.mapVocabularyTerms(sessionToken, Arrays.asList(id), fetchOptions);
+                v3api.getVocabularyTerms(sessionToken, Arrays.asList(id), fetchOptions);
 
         VocabularyTerm term = terms.get(id);
         assertEquals(term.getPermId(), new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"));
@@ -191,7 +191,7 @@ public class MapVocabularyTermTest extends AbstractVocabularyTermTest
     }
 
     @Test
-    public void testMapWithRegistratorFetched()
+    public void testGetWithRegistratorFetched()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -200,7 +200,7 @@ public class MapVocabularyTermTest extends AbstractVocabularyTermTest
         fetchOptions.withRegistrator();
 
         Map<IVocabularyTermId, VocabularyTerm> terms =
-                v3api.mapVocabularyTerms(sessionToken, Arrays.asList(id), fetchOptions);
+                v3api.getVocabularyTerms(sessionToken, Arrays.asList(id), fetchOptions);
 
         VocabularyTerm term = terms.get(id);
         assertEquals(term.getPermId(), new VocabularyTermPermId("PROPRIETARY", "$STORAGE_FORMAT"));

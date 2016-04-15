@@ -23,7 +23,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 /**
  * @author pkupczyk
  */
-public interface IMapSpaceMethodExecutor extends IMapMethodExecutor<ISpaceId, Space, SpaceFetchOptions>
+public interface IGetSpaceMethodExecutor extends IGetMethodExecutor<ISpaceId, Space, SpaceFetchOptions>
 {
 
 }

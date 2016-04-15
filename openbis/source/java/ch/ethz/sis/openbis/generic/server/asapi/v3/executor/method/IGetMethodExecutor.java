@@ -16,14 +16,15 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author pkupczyk
  */
-public interface IMapMaterialMethodExecutor extends IMapMethodExecutor<IMaterialId, Material, MaterialFetchOptions>
+public interface IGetMethodExecutor<OBJECT_ID, OBJECT, FETCH_OPTIONS>
 {
+
+    public Map<OBJECT_ID, OBJECT> get(String sessionToken, List<? extends OBJECT_ID> objectIds, FETCH_OPTIONS fetchOptions);
 
 }

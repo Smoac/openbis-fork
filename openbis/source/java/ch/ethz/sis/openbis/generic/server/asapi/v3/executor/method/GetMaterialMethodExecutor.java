@@ -19,36 +19,36 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IMapObjectByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IMapSampleTechIdByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.IMapMaterialTechIdByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.sample.ISampleTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.material.IMaterialTranslator;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class MapSampleSqlMethodExecutor extends AbstractMapMethodExecutor<ISampleId, Long, Sample, SampleFetchOptions> implements
-        IMapSampleMethodExecutor
+public class GetMaterialMethodExecutor extends AbstractGetMethodExecutor<IMaterialId, Long, Material, MaterialFetchOptions> implements
+        IGetMaterialMethodExecutor
 {
 
     @Autowired
-    private IMapSampleTechIdByIdExecutor mapExecutor;
+    private IMapMaterialTechIdByIdExecutor mapExecutor;
 
     @Autowired
-    private ISampleTranslator translator;
+    private IMaterialTranslator translator;
 
     @Override
-    protected IMapObjectByIdExecutor<ISampleId, Long> getMapExecutor()
+    protected IMapObjectByIdExecutor<IMaterialId, Long> getMapExecutor()
     {
         return mapExecutor;
     }
 
     @Override
-    protected ITranslator<Long, Sample, SampleFetchOptions> getTranslator()
+    protected ITranslator<Long, Material, MaterialFetchOptions> getTranslator()
     {
         return translator;
     }

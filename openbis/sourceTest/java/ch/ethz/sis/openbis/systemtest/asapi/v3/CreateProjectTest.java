@@ -233,7 +233,7 @@ public class CreateProjectTest extends AbstractTest
         fetchOptions.withLeader();
         fetchOptions.withAttachments().withContent();
 
-        Map<IProjectId, Project> map = v3api.mapProjects(sessionToken, permIds, fetchOptions);
+        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, permIds, fetchOptions);
 
         Assert.assertEquals(2, map.size());
 

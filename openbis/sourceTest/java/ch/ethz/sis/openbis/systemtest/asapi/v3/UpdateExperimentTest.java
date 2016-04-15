@@ -115,7 +115,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         v3api.updateExperiments(sessionToken, Arrays.asList(update));
 
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, ids, fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, ids, fetchOptions);
         List<Experiment> experiments = new ArrayList<Experiment>(map.values());
 
         AssertionUtil.assertCollectionSize(experiments, 1);
@@ -218,7 +218,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         sampleFetchOptions.withSpace();
         sampleFetchOptions.withExperiment();
 
-        Map<ISampleId, Sample> sampleMap = v3api.mapSamples(sessionToken, sampleIds, sampleFetchOptions);
+        Map<ISampleId, Sample> sampleMap = v3api.getSamples(sessionToken, sampleIds, sampleFetchOptions);
         Sample sample = sampleMap.get(sampleId);
 
         assertEquals(sample.getSpace().getCode(), "TEST-SPACE");
@@ -289,7 +289,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
 
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         fetchOptions.withProperties();
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, ids, fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, ids, fetchOptions);
         List<Experiment> experiments = new ArrayList<Experiment>(map.values());
 
         AssertionUtil.assertCollectionSize(experiments, 1);
@@ -760,7 +760,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         fetchOptions.withTags();
 
-        Map<IExperimentId, Experiment> experiments = v3api.mapExperiments(sessionToken, Arrays.asList(experimentId), fetchOptions);
+        Map<IExperimentId, Experiment> experiments = v3api.getExperiments(sessionToken, Arrays.asList(experimentId), fetchOptions);
         assertEquals(experiments.size(), 1);
 
         assertTags(experiments.get(experimentId).getTags(), expectedTagPermIds);
@@ -773,7 +773,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         fetchOptions.withAttachments().withContent();
 
-        Map<IExperimentId, Experiment> experiments = v3api.mapExperiments(sessionToken, Arrays.asList(experimentId), fetchOptions);
+        Map<IExperimentId, Experiment> experiments = v3api.getExperiments(sessionToken, Arrays.asList(experimentId), fetchOptions);
 
         assertEquals(experiments.size(), 1);
 

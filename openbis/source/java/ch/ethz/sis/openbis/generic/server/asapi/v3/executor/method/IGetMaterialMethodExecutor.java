@@ -16,14 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
 
 /**
  * @author pkupczyk
  */
-public interface IMapProjectMethodExecutor extends IMapMethodExecutor<IProjectId, Project, ProjectFetchOptions>
+public interface IGetMaterialMethodExecutor extends IGetMethodExecutor<IMaterialId, Material, MaterialFetchOptions>
 {
 
 }

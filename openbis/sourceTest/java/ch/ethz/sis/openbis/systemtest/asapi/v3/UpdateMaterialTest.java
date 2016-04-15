@@ -59,7 +59,7 @@ public class UpdateMaterialTest extends AbstractSampleTest
         MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
         fetchOptions.withProperties();
 
-        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(update.getMaterialId()), fetchOptions);
+        Map<IMaterialId, Material> map = v3api.getMaterials(sessionToken, Arrays.asList(update.getMaterialId()), fetchOptions);
 
         Material material = map.get(update.getMaterialId());
         assertEquals(material.getProperties().get("DESCRIPTION"), description);
@@ -76,7 +76,7 @@ public class UpdateMaterialTest extends AbstractSampleTest
         MaterialPermId selfParentId = new MaterialPermId("SRM_1", "SELF_REF");
         MaterialPermId selfChildId = new MaterialPermId("SRM_1A", "SELF_REF");
 
-        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(selfChildId, selfParentId), fetchOptions);
+        Map<IMaterialId, Material> map = v3api.getMaterials(sessionToken, Arrays.asList(selfChildId, selfParentId), fetchOptions);
 
         Material parent = map.get(selfParentId);
         Material child = map.get(selfChildId);
@@ -104,7 +104,7 @@ public class UpdateMaterialTest extends AbstractSampleTest
         fetchOptions.withProperties();
         fetchOptions.withMaterialProperties().withType();
 
-        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(update.getMaterialId()), fetchOptions);
+        Map<IMaterialId, Material> map = v3api.getMaterials(sessionToken, Arrays.asList(update.getMaterialId()), fetchOptions);
 
         Material material = map.get(update.getMaterialId());
         assertEquals(material.getProperties().get("ANY_MATERIAL"), "1 (GENE)");
@@ -132,7 +132,7 @@ public class UpdateMaterialTest extends AbstractSampleTest
         MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
         fetchOptions.withTags();
 
-        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(update.getMaterialId()), fetchOptions);
+        Map<IMaterialId, Material> map = v3api.getMaterials(sessionToken, Arrays.asList(update.getMaterialId()), fetchOptions);
 
         Material material = map.get(update.getMaterialId());
         Set<Tag> tags = material.getTags();

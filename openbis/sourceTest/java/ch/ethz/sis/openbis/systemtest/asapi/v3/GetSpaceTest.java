@@ -37,11 +37,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 /**
  * @author pkupczyk
  */
-public class MapSpaceTest extends AbstractTest
+public class GetSpaceTest extends AbstractTest
 {
 
     @Test
-    public void testMapByPermId()
+    public void testGetByPermId()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -49,7 +49,7 @@ public class MapSpaceTest extends AbstractTest
         SpacePermId permId2 = new SpacePermId("/TEST-SPACE");
 
         Map<ISpaceId, Space> map =
-                v3api.mapSpaces(sessionToken, Arrays.asList(permId1, permId2),
+                v3api.getSpaces(sessionToken, Arrays.asList(permId1, permId2),
                         new SpaceFetchOptions());
 
         assertEquals(2, map.size());
@@ -65,7 +65,7 @@ public class MapSpaceTest extends AbstractTest
     }
 
     @Test
-    public void testMapByPermIdCaseInsensitive()
+    public void testGetByPermIdCaseInsensitive()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -73,7 +73,7 @@ public class MapSpaceTest extends AbstractTest
         SpacePermId permId2 = new SpacePermId("/test-SPACE");
 
         Map<ISpaceId, Space> map =
-                v3api.mapSpaces(sessionToken, Arrays.asList(permId1, permId2),
+                v3api.getSpaces(sessionToken, Arrays.asList(permId1, permId2),
                         new SpaceFetchOptions());
 
         assertEquals(2, map.size());
@@ -92,7 +92,7 @@ public class MapSpaceTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsNonexistent()
+    public void testGetByIdsNonexistent()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -101,7 +101,7 @@ public class MapSpaceTest extends AbstractTest
         SpacePermId permId3 = new SpacePermId("TEST-SPACE");
 
         Map<ISpaceId, Space> map =
-                v3api.mapSpaces(sessionToken,
+                v3api.getSpaces(sessionToken,
                         Arrays.asList(permId1, permId2, permId3),
                         new SpaceFetchOptions());
 
@@ -118,7 +118,7 @@ public class MapSpaceTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsDuplicated()
+    public void testGetByIdsDuplicated()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -126,7 +126,7 @@ public class MapSpaceTest extends AbstractTest
         SpacePermId permId2 = new SpacePermId("/CISD");
 
         Map<ISpaceId, Space> map =
-                v3api.mapSpaces(sessionToken, Arrays.asList(permId1, permId2), new SpaceFetchOptions());
+                v3api.getSpaces(sessionToken, Arrays.asList(permId1, permId2), new SpaceFetchOptions());
 
         assertEquals(1, map.size());
 
@@ -137,7 +137,7 @@ public class MapSpaceTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsUnauthorized()
+    public void testGetByIdsUnauthorized()
     {
         SpacePermId permId1 = new SpacePermId("CISD");
         SpacePermId permId2 = new SpacePermId("TEST-SPACE");
@@ -145,13 +145,13 @@ public class MapSpaceTest extends AbstractTest
         List<? extends ISpaceId> ids = Arrays.asList(permId1, permId2);
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        Map<ISpaceId, Space> map = v3api.mapSpaces(sessionToken, ids, new SpaceFetchOptions());
+        Map<ISpaceId, Space> map = v3api.getSpaces(sessionToken, ids, new SpaceFetchOptions());
 
         assertEquals(map.size(), 2);
         v3api.logout(sessionToken);
 
         sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-        map = v3api.mapSpaces(sessionToken, ids, new SpaceFetchOptions());
+        map = v3api.getSpaces(sessionToken, ids, new SpaceFetchOptions());
 
         assertEquals(map.size(), 1);
 
@@ -161,14 +161,14 @@ public class MapSpaceTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsWithFetchOptionsEmpty()
+    public void testGetByIdsWithFetchOptionsEmpty()
     {
         SpacePermId permId = new SpacePermId("TEST-SPACE");
 
         SpaceFetchOptions fetchOptions = new SpaceFetchOptions();
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        Map<ISpaceId, Space> map = v3api.mapSpaces(sessionToken, Arrays.asList(permId), fetchOptions);
+        Map<ISpaceId, Space> map = v3api.getSpaces(sessionToken, Arrays.asList(permId), fetchOptions);
 
         Space space = map.get(permId);
 
@@ -184,7 +184,7 @@ public class MapSpaceTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsWithProjects()
+    public void testGetByIdsWithProjects()
     {
         SpacePermId permId = new SpacePermId("TEST-SPACE");
 
@@ -192,7 +192,7 @@ public class MapSpaceTest extends AbstractTest
         fetchOptions.withProjects();
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        Map<ISpaceId, Space> map = v3api.mapSpaces(sessionToken, Arrays.asList(permId), fetchOptions);
+        Map<ISpaceId, Space> map = v3api.getSpaces(sessionToken, Arrays.asList(permId), fetchOptions);
 
         Space space = map.get(permId);
         List<Project> projects = space.getProjects();
@@ -204,7 +204,7 @@ public class MapSpaceTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsWithSamples()
+    public void testGetByIdsWithSamples()
     {
         SpacePermId permId = new SpacePermId("TEST-SPACE");
 
@@ -212,7 +212,7 @@ public class MapSpaceTest extends AbstractTest
         fetchOptions.withSamples();
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        Map<ISpaceId, Space> map = v3api.mapSpaces(sessionToken, Arrays.asList(permId), fetchOptions);
+        Map<ISpaceId, Space> map = v3api.getSpaces(sessionToken, Arrays.asList(permId), fetchOptions);
 
         Space space = map.get(permId);
         List<Sample> samples = space.getSamples();
@@ -225,7 +225,7 @@ public class MapSpaceTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsWithRegistrator()
+    public void testGetByIdsWithRegistrator()
     {
         SpacePermId permId = new SpacePermId("TEST-SPACE");
 
@@ -234,7 +234,7 @@ public class MapSpaceTest extends AbstractTest
         fetchOptions.withRegistrator().withRegistrator();
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        Map<ISpaceId, Space> map = v3api.mapSpaces(sessionToken, Arrays.asList(permId), fetchOptions);
+        Map<ISpaceId, Space> map = v3api.getSpaces(sessionToken, Arrays.asList(permId), fetchOptions);
 
         Space space = map.get(permId);
         Person registrator = space.getRegistrator();

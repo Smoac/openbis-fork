@@ -447,12 +447,12 @@ logout
 LongDateFormat
 main
 mangleToplevel
-mapDataSets
-mapExperiments
-mapMaterials
-mapProjects
-mapSamples
-mapSpaces
+getDataSets
+getExperiments
+getMaterials
+getProjects
+getSamples
+getSpaces
 Material
 MaterialCreation
 MaterialDeletionOptions
@@ -1060,7 +1060,7 @@ get Vocabulary Term Id
 set Vocabulary Term Id
 update Vocabulary Terms
 Vocabulary Term Update
-map Vocabulary Terms
+get Vocabulary Terms
 get Replaced Id
 get Replacement Id
 Vocabulary Term Replacement
@@ -1109,7 +1109,7 @@ I Project Holder
 I Projects Holder
 I Sample Holder
 I Samples Holder
-map Tags
+get Tags
 set Materials
 with Materials
 with Materials Using

@@ -217,7 +217,7 @@ public class CreateTagTest extends AbstractTest
         fetchOptions.withDataSets();
         fetchOptions.withMaterials();
 
-        Map<ITagId, Tag> map = v3api.mapTags(sessionToken, ids, fetchOptions);
+        Map<ITagId, Tag> map = v3api.getTags(sessionToken, ids, fetchOptions);
 
         assertEquals(map.size(), 1);
 

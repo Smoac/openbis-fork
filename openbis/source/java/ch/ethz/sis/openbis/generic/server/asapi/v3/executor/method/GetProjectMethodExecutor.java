@@ -19,36 +19,36 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IMapObjectByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IMapDataSetTechIdByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IMapProjectTechIdByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.dataset.IDataSetTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.project.IProjectTranslator;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class MapDataSetSqlMethodExecutor extends AbstractMapMethodExecutor<IDataSetId, Long, DataSet, DataSetFetchOptions> implements
-        IMapDataSetMethodExecutor
+public class GetProjectMethodExecutor extends AbstractGetMethodExecutor<IProjectId, Long, Project, ProjectFetchOptions> implements
+        IGetProjectMethodExecutor
 {
 
     @Autowired
-    private IMapDataSetTechIdByIdExecutor mapExecutor;
+    private IMapProjectTechIdByIdExecutor mapExecutor;
 
     @Autowired
-    private IDataSetTranslator translator;
+    private IProjectTranslator translator;
 
     @Override
-    protected IMapObjectByIdExecutor<IDataSetId, Long> getMapExecutor()
+    protected IMapObjectByIdExecutor<IProjectId, Long> getMapExecutor()
     {
         return mapExecutor;
     }
 
     @Override
-    protected ITranslator<Long, DataSet, DataSetFetchOptions> getTranslator()
+    protected ITranslator<Long, Project, ProjectFetchOptions> getTranslator()
     {
         return translator;
     }

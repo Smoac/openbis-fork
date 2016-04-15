@@ -31,7 +31,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.space.ISpac
  * @author pkupczyk
  */
 @Component
-public class MapSpaceSqlMethodExecutor extends AbstractMapMethodExecutor<ISpaceId, Long, Space, SpaceFetchOptions> implements IMapSpaceMethodExecutor
+public class GetSpaceMethodExecutor extends AbstractGetMethodExecutor<ISpaceId, Long, Space, SpaceFetchOptions> implements IGetSpaceMethodExecutor
 {
 
     @Autowired

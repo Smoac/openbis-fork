@@ -44,18 +44,18 @@ import ch.systemsx.cisd.common.test.AssertionUtil;
 /**
  * @author Jakub Straszewski
  */
-public class MapMaterialTest extends AbstractDataSetTest
+public class GetMaterialTest extends AbstractDataSetTest
 {
 
     @Test
-    public void testMapByPermId()
+    public void testGetByPermId()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         MaterialPermId virusId = new MaterialPermId("VIRUS2", "VIRUS");
         MaterialPermId bacteriaId = new MaterialPermId("BACTERIUM1", "BACTERIUM");
 
-        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(virusId, bacteriaId),
+        Map<IMaterialId, Material> map = v3api.getMaterials(sessionToken, Arrays.asList(virusId, bacteriaId),
                 new MaterialFetchOptions());
 
         assertEquals(map.size(), 2);
@@ -79,13 +79,13 @@ public class MapMaterialTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapByPermIdCaseInsensitive()
+    public void testGetByPermIdCaseInsensitive()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         MaterialPermId virusId = new MaterialPermId("VIRus2", "viRUS");
 
-        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(virusId),
+        Map<IMaterialId, Material> map = v3api.getMaterials(sessionToken, Arrays.asList(virusId),
                 new MaterialFetchOptions());
 
         assertEquals(map.size(), 1);
@@ -103,14 +103,14 @@ public class MapMaterialTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithFetchOptionsEmpty()
+    public void testGetWithFetchOptionsEmpty()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         MaterialPermId virusId = new MaterialPermId("VIRUS2", "VIRUS");
         MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
 
-        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(virusId), fetchOptions);
+        Map<IMaterialId, Material> map = v3api.getMaterials(sessionToken, Arrays.asList(virusId), fetchOptions);
 
         assertEquals(map.size(), 1);
         Material virus = map.get(virusId);
@@ -124,7 +124,7 @@ public class MapMaterialTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithProperties()
+    public void testGetWithProperties()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -136,7 +136,7 @@ public class MapMaterialTest extends AbstractDataSetTest
         fetchOptions.withRegistrator();
         fetchOptions.withTags();
 
-        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(virusId, bacteriaId), fetchOptions);
+        Map<IMaterialId, Material> map = v3api.getMaterials(sessionToken, Arrays.asList(virusId, bacteriaId), fetchOptions);
 
         assertEquals(map.size(), 2);
 
@@ -153,9 +153,9 @@ public class MapMaterialTest extends AbstractDataSetTest
 
         v3api.logout(sessionToken);
     }
-    
+
     @Test
-    public void testMapWithType()
+    public void testGetWithType()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -163,7 +163,7 @@ public class MapMaterialTest extends AbstractDataSetTest
         fetchOptions.withType();
 
         MaterialPermId selfId = new MaterialPermId("SRM_1A", "SELF_REF");
-        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(selfId), fetchOptions);
+        Map<IMaterialId, Material> map = v3api.getMaterials(sessionToken, Arrays.asList(selfId), fetchOptions);
 
         Material item = map.get(selfId);
         MaterialType type = item.getType();
@@ -173,19 +173,19 @@ public class MapMaterialTest extends AbstractDataSetTest
         assertEquals(type.getDescription(), "Self Referencing Material");
         assertEqualsDate(type.getModificationDate(), "2012-03-13 15:34:44");
         assertEquals(type.getFetchOptions().hasPropertyAssignments(), false);
-        
+
         v3api.logout(sessionToken);
     }
 
     @Test
-    public void testMapWithTypeAndPropertyAssignmentsSortByLabelDesc()
+    public void testGetWithTypeAndPropertyAssignmentsSortByLabelDesc()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
         fetchOptions.withType().withPropertyAssignments().sortBy().label().desc();
         List<MaterialPermId> materialIds = Arrays.asList(new MaterialPermId("GFP", "CONTROL"));
-        
-        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, materialIds, fetchOptions);
+
+        Map<IMaterialId, Material> map = v3api.getMaterials(sessionToken, materialIds, fetchOptions);
 
         assertEquals(map.size(), 1);
         Material material = map.values().iterator().next();
@@ -201,20 +201,20 @@ public class MapMaterialTest extends AbstractDataSetTest
         assertEquals(propertyAssignment.getPropertyType().getDataTypeCode(), DataTypeCode.REAL);
         assertEquals(propertyAssignment.isMandatory(), false);
         assertOrder(propertyAssignments, "VOLUME", "IS_VALID", "SIZE", "PURCHASE_DATE", "EYE_COLOR", "DESCRIPTION");
-        
+
         v3api.logout(sessionToken);
     }
-    
+
     @Test
-    public void testMapWithTypeAndPropertyAssignmentsSortByCodeAsc()
+    public void testGetWithTypeAndPropertyAssignmentsSortByCodeAsc()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
         fetchOptions.withType().withPropertyAssignments().sortBy().code().asc();
         List<MaterialPermId> materialIds = Arrays.asList(new MaterialPermId("GFP", "CONTROL"));
-        
-        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, materialIds, fetchOptions);
-        
+
+        Map<IMaterialId, Material> map = v3api.getMaterials(sessionToken, materialIds, fetchOptions);
+
         assertEquals(map.size(), 1);
         Material material = map.values().iterator().next();
         MaterialType type = material.getType();
@@ -222,12 +222,12 @@ public class MapMaterialTest extends AbstractDataSetTest
         assertEquals(type.getFetchOptions().hasPropertyAssignments(), true);
         List<PropertyAssignment> propertyAssignments = type.getPropertyAssignments();
         assertOrder(propertyAssignments, "DESCRIPTION", "EYE_COLOR", "IS_VALID", "PURCHASE_DATE", "SIZE", "VOLUME");
-        
+
         v3api.logout(sessionToken);
     }
-    
+
     @Test
-    public void testMapWithRegistrator()
+    public void testGetWithRegistrator()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -235,14 +235,14 @@ public class MapMaterialTest extends AbstractDataSetTest
         fetchOptions.withRegistrator();
 
         MaterialPermId selfId = new MaterialPermId("SRM_1A", "SELF_REF");
-        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(selfId), fetchOptions);
+        Map<IMaterialId, Material> map = v3api.getMaterials(sessionToken, Arrays.asList(selfId), fetchOptions);
         Material item = map.get(selfId);
 
         assertEquals(item.getRegistrator().getUserId(), TEST_USER);
     }
 
     @Test
-    public void testMapWithHistoryEmpty()
+    public void testGetWithHistoryEmpty()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -251,7 +251,7 @@ public class MapMaterialTest extends AbstractDataSetTest
         MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
         fetchOptions.withHistory();
 
-        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(id), fetchOptions);
+        Map<IMaterialId, Material> map = v3api.getMaterials(sessionToken, Arrays.asList(id), fetchOptions);
 
         assertEquals(map.size(), 1);
         Material material = map.get(id);
@@ -263,7 +263,7 @@ public class MapMaterialTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testMapWithHistoryProperty()
+    public void testGetWithHistoryProperty()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -278,7 +278,7 @@ public class MapMaterialTest extends AbstractDataSetTest
         MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
         fetchOptions.withHistory();
 
-        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(id), fetchOptions);
+        Map<IMaterialId, Material> map = v3api.getMaterials(sessionToken, Arrays.asList(id), fetchOptions);
 
         assertEquals(map.size(), 1);
         Material material = map.get(id);
@@ -294,7 +294,7 @@ public class MapMaterialTest extends AbstractDataSetTest
     }
 
     @Test
-    public void testWithTags()
+    public void testGetWithTags()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -302,7 +302,7 @@ public class MapMaterialTest extends AbstractDataSetTest
         fetchOptions.withTags();
 
         MaterialPermId matId = new MaterialPermId("AD3", "VIRUS");
-        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(matId), fetchOptions);
+        Map<IMaterialId, Material> map = v3api.getMaterials(sessionToken, Arrays.asList(matId), fetchOptions);
         Material item = map.get(matId);
         Set<Tag> tags = item.getTags();
         AssertionUtil.assertSize(tags, 1);

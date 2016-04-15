@@ -144,7 +144,7 @@ public class AbstractVocabularyTermTest extends AbstractTest
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         fetchOptions.withProperties();
 
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(id), fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, Arrays.asList(id), fetchOptions);
         assertEquals(map.size(), 1);
 
         v3api.logout(sessionToken);
@@ -161,7 +161,7 @@ public class AbstractVocabularyTermTest extends AbstractTest
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.withProperties();
 
-        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, Arrays.asList(id), fetchOptions);
+        Map<ISampleId, Sample> map = v3api.getSamples(sessionToken, Arrays.asList(id), fetchOptions);
         assertEquals(map.size(), 1);
 
         v3api.logout(sessionToken);
@@ -178,7 +178,7 @@ public class AbstractVocabularyTermTest extends AbstractTest
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withProperties();
 
-        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(id), fetchOptions);
+        Map<IDataSetId, DataSet> map = v3api.getDataSets(sessionToken, Arrays.asList(id), fetchOptions);
         assertEquals(map.size(), 1);
 
         return map.get(id);
@@ -193,7 +193,7 @@ public class AbstractVocabularyTermTest extends AbstractTest
         MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
         fetchOptions.withProperties();
 
-        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(id), fetchOptions);
+        Map<IMaterialId, Material> map = v3api.getMaterials(sessionToken, Arrays.asList(id), fetchOptions);
         assertEquals(map.size(), 1);
 
         return map.get(id);

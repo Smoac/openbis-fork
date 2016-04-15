@@ -30,10 +30,10 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext
 /**
  * @author pkupczyk
  */
-public abstract class AbstractMapMethodExecutor<OBJECT_ID extends IObjectId, OBJECT_PE, OBJECT, FETCH_OPTIONS> extends AbstractMethodExecutor
+public abstract class AbstractGetMethodExecutor<OBJECT_ID extends IObjectId, OBJECT_PE, OBJECT, FETCH_OPTIONS> extends AbstractMethodExecutor
 {
 
-    public Map<OBJECT_ID, OBJECT> map(final String sessionToken, final List<? extends OBJECT_ID> objectIds, final FETCH_OPTIONS fetchOptions)
+    public Map<OBJECT_ID, OBJECT> get(final String sessionToken, final List<? extends OBJECT_ID> objectIds, final FETCH_OPTIONS fetchOptions)
     {
         return executeInContext(sessionToken, new IMethodAction<Map<OBJECT_ID, OBJECT>>()
             {

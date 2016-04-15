@@ -170,7 +170,7 @@ public class UpdateProjectTest extends AbstractTest
         projectFetchOptions.withSpace();
         projectFetchOptions.withExperiments().withSamples().withSpace();
 
-        Map<IProjectId, Project> projectMap = v3api.mapProjects(sessionToken, Arrays.asList(projectId), projectFetchOptions);
+        Map<IProjectId, Project> projectMap = v3api.getProjects(sessionToken, Arrays.asList(projectId), projectFetchOptions);
 
         for (Project project : projectMap.values())
         {
@@ -192,7 +192,7 @@ public class UpdateProjectTest extends AbstractTest
 
         v3api.updateProjects(sessionToken, Arrays.asList(update));
 
-        projectMap = v3api.mapProjects(sessionToken, Arrays.asList(projectId), projectFetchOptions);
+        projectMap = v3api.getProjects(sessionToken, Arrays.asList(projectId), projectFetchOptions);
 
         for (Project project : projectMap.values())
         {
@@ -222,7 +222,7 @@ public class UpdateProjectTest extends AbstractTest
 
         List<ProjectPermId> projectPermIds = v3api.createProjects(sessionToken, Arrays.asList(projectCreation));
 
-        Map<IProjectId, Project> projectMap = v3api.mapProjects(sessionToken, projectPermIds, projectFetchOptions);
+        Map<IProjectId, Project> projectMap = v3api.getProjects(sessionToken, projectPermIds, projectFetchOptions);
         Project project = projectMap.values().iterator().next();
 
         assertAttachments(project.getAttachments());
@@ -239,7 +239,7 @@ public class UpdateProjectTest extends AbstractTest
 
         v3api.updateProjects(sessionToken, Arrays.asList(projectUpdate));
 
-        projectMap = v3api.mapProjects(sessionToken, projectPermIds, projectFetchOptions);
+        projectMap = v3api.getProjects(sessionToken, projectPermIds, projectFetchOptions);
         project = projectMap.values().iterator().next();
 
         assertAttachments(project.getAttachments(), attachmentCreation);
@@ -252,7 +252,7 @@ public class UpdateProjectTest extends AbstractTest
         final IProjectId projectId1 = new ProjectIdentifier("/CISD/NEMO");
         final IProjectId projectId2 = new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT");
 
-        Map<IProjectId, Project> map = v3api.mapProjects(sessionToken, Arrays.asList(projectId1, projectId2), new ProjectFetchOptions());
+        Map<IProjectId, Project> map = v3api.getProjects(sessionToken, Arrays.asList(projectId1, projectId2), new ProjectFetchOptions());
 
         Project project1 = map.get(projectId1);
         Project project2 = map.get(projectId2);
@@ -272,7 +272,7 @@ public class UpdateProjectTest extends AbstractTest
 
         v3api.updateProjects(sessionToken, Arrays.asList(update1, update2));
 
-        map = v3api.mapProjects(sessionToken, Arrays.asList(projectId1, projectId2), new ProjectFetchOptions());
+        map = v3api.getProjects(sessionToken, Arrays.asList(projectId1, projectId2), new ProjectFetchOptions());
         project1 = map.get(projectId1);
         project2 = map.get(projectId2);
 

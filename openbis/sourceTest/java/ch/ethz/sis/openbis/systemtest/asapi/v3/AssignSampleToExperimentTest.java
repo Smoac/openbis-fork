@@ -58,7 +58,7 @@ public class AssignSampleToExperimentTest extends AbstractAssignmentSampleToExpe
         ExperimentFetchOptions efo = new ExperimentFetchOptions();
         efo.withSamples();
 
-        Map<IExperimentId, Experiment> eMap = v3api.mapExperiments(userSessionToken, Arrays.asList(eId), efo);
+        Map<IExperimentId, Experiment> eMap = v3api.getExperiments(userSessionToken, Arrays.asList(eId), efo);
         Experiment e = eMap.get(eId);
 
         List<SampleUpdate> suList = new LinkedList<SampleUpdate>();

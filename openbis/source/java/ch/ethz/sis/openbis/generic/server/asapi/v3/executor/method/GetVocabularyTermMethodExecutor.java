@@ -23,42 +23,42 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IMapObjectByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IMapTagByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary.IMapVocabularyTermByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.tag.ITagTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.vocabulary.IVocabularyTermTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class MapTagMethodExecutor extends AbstractMapMethodExecutor<ITagId, Long, Tag, TagFetchOptions> implements
-        IMapTagMethodExecutor
+public class GetVocabularyTermMethodExecutor extends AbstractGetMethodExecutor<IVocabularyTermId, Long, VocabularyTerm, VocabularyTermFetchOptions>
+        implements IGetVocabularyTermMethodExecutor
 {
 
     @Autowired
-    private IMapTagByIdExecutor mapExecutor;
+    private IMapVocabularyTermByIdExecutor mapExecutor;
 
     @Autowired
-    private ITagTranslator translator;
+    private IVocabularyTermTranslator translator;
 
     @Override
-    protected IMapObjectByIdExecutor<ITagId, Long> getMapExecutor()
+    protected IMapObjectByIdExecutor<IVocabularyTermId, Long> getMapExecutor()
     {
-        return new IMapObjectByIdExecutor<ITagId, Long>()
+        return new IMapObjectByIdExecutor<IVocabularyTermId, Long>()
             {
                 @Override
-                public Map<ITagId, Long> map(IOperationContext context, Collection<? extends ITagId> ids)
+                public Map<IVocabularyTermId, Long> map(IOperationContext context, Collection<? extends IVocabularyTermId> ids)
                 {
-                    Map<ITagId, Long> idMap = new LinkedHashMap<ITagId, Long>();
-                    Map<ITagId, MetaprojectPE> peMap = mapExecutor.map(context, ids);
+                    Map<IVocabularyTermId, Long> idMap = new LinkedHashMap<IVocabularyTermId, Long>();
+                    Map<IVocabularyTermId, VocabularyTermPE> peMap = mapExecutor.map(context, ids);
 
-                    for (Map.Entry<ITagId, MetaprojectPE> entry : peMap.entrySet())
+                    for (Map.Entry<IVocabularyTermId, VocabularyTermPE> entry : peMap.entrySet())
                     {
                         idMap.put(entry.getKey(), entry.getValue().getId());
                     }
@@ -69,7 +69,7 @@ public class MapTagMethodExecutor extends AbstractMapMethodExecutor<ITagId, Long
     }
 
     @Override
-    protected ITranslator<Long, Tag, TagFetchOptions> getTranslator()
+    protected ITranslator<Long, VocabularyTerm, VocabularyTermFetchOptions> getTranslator()
     {
         return translator;
     }

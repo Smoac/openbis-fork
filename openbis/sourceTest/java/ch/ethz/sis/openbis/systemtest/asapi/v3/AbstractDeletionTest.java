@@ -86,7 +86,7 @@ public class AbstractDeletionTest extends AbstractTest
         creation.setProperty("DESCRIPTION", "a description");
 
         List<ExperimentPermId> permIds = v3api.createExperiments(sessionToken, Collections.singletonList(creation));
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, permIds, new ExperimentFetchOptions());
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, permIds, new ExperimentFetchOptions());
         List<Experiment> experiments = new ArrayList<Experiment>(map.values());
 
         Assert.assertEquals(1, experiments.size());
@@ -106,7 +106,7 @@ public class AbstractDeletionTest extends AbstractTest
         creation.setExperimentId(experimentId);
 
         List<SamplePermId> permIds = v3api.createSamples(sessionToken, Collections.singletonList(creation));
-        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, permIds, new SampleFetchOptions());
+        Map<ISampleId, Sample> map = v3api.getSamples(sessionToken, permIds, new SampleFetchOptions());
         List<Sample> samples = new ArrayList<Sample>(map.values());
 
         Assert.assertEquals(1, samples.size());
@@ -129,7 +129,7 @@ public class AbstractDeletionTest extends AbstractTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         Map<IProjectId, Project> map =
-                v3api.mapProjects(sessionToken, Collections.singletonList(projectId), new ProjectFetchOptions());
+                v3api.getProjects(sessionToken, Collections.singletonList(projectId), new ProjectFetchOptions());
         Assert.assertEquals(exists ? 1 : 0, map.size());
     }
 
@@ -147,7 +147,7 @@ public class AbstractDeletionTest extends AbstractTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         Map<IExperimentId, Experiment> map =
-                v3api.mapExperiments(sessionToken, Collections.singletonList(experimentId), new ExperimentFetchOptions());
+                v3api.getExperiments(sessionToken, Collections.singletonList(experimentId), new ExperimentFetchOptions());
         Assert.assertEquals(exists ? 1 : 0, map.size());
     }
 
@@ -164,7 +164,7 @@ public class AbstractDeletionTest extends AbstractTest
     private void assertSampleExists(ISampleId sampleId, boolean exists)
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, Collections.singletonList(sampleId), new SampleFetchOptions());
+        Map<ISampleId, Sample> map = v3api.getSamples(sessionToken, Collections.singletonList(sampleId), new SampleFetchOptions());
         Assert.assertEquals(exists ? 1 : 0, map.size());
     }
 
@@ -181,7 +181,7 @@ public class AbstractDeletionTest extends AbstractTest
     private void assertMaterialExists(IMaterialId materialId, boolean exists)
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Collections.singletonList(materialId), new MaterialFetchOptions());
+        Map<IMaterialId, Material> map = v3api.getMaterials(sessionToken, Collections.singletonList(materialId), new MaterialFetchOptions());
         Assert.assertEquals(exists ? 1 : 0, map.size());
     }
 

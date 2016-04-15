@@ -1,20 +1,20 @@
 define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, openbis, common) {
 	return function() {
-		QUnit.module("Map tests");
+		QUnit.module("Get tests");
 		
-		var testMap = function(c, fCreate, fMap, fMapEmptyFetchOptions, fechOptionsTestConfig) {
+		var testGet = function(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig) {
 			c.start();
 			c.createFacadeAndLogin().then(function(facade) {
 				return fCreate(facade).then(function(permIds) {
 					c.assertTrue(permIds != null && permIds.length > 0, "Entities were created");
-					return fMap(facade, permIds).then(function(map) {
+					return fGet(facade, permIds).then(function(map) {
 						c.assertEqual(Object.keys(map).length, permIds.length, "Entity map size is correct");
 						permIds.forEach(function(permId) {
 							var entity = map[permId];
 							testFetchOptionsResults(c, fechOptionsTestConfig, true, entity);
 							c.assertEqual(entity.getPermId().toString(), permId.toString(), "Entity perm id matches");
 						});
-						return fMapEmptyFetchOptions(facade, permIds).then(function(map) {
+						return fGetEmptyFetchOptions(facade, permIds).then(function(map) {
 							c.assertEqual(Object.keys(map).length, permIds.length, "Entity map size is correct");
 							permIds.forEach(function(permId) {
 								var entity = map[permId];
@@ -108,7 +108,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			return components;
 		}
 		
-		QUnit.test("mapSpaces()", function(assert) {
+		QUnit.test("getSpaces()", function(assert) {
 			var c = new common(assert);
 			var fo = new c.SpaceFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
@@ -120,19 +120,19 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				});
 			}
 			
-			var fMap = function(facade, permIds) {
+			var fGet = function(facade, permIds) {
 				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
-				return facade.mapSpaces(permIds, fo);
+				return facade.getSpaces(permIds, fo);
 			}
 			
-			var fMapEmptyFetchOptions = function(facade, permIds) {
-				return facade.mapSpaces(permIds, new c.SpaceFetchOptions());
+			var fGetEmptyFetchOptions = function(facade, permIds) {
+				return facade.getSpaces(permIds, new c.SpaceFetchOptions());
 			}
 			
-			testMap(c, fCreate, fMap, fMapEmptyFetchOptions, fechOptionsTestConfig);
+			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 		
-		QUnit.test("mapProjects()", function(assert) {
+		QUnit.test("getProjects()", function(assert) {
 			var c = new common(assert);
 			var fo = new c.ProjectFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
@@ -144,20 +144,20 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				});
 			}
 			
-			var fMap = function(facade, permIds) {
+			var fGet = function(facade, permIds) {
 				
 				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
-				return facade.mapProjects(permIds, fo);
+				return facade.getProjects(permIds, fo);
 			}
 			
-			var fMapEmptyFetchOptions = function(facade, permIds) {
-				return facade.mapProjects(permIds, new c.ProjectFetchOptions());
+			var fGetEmptyFetchOptions = function(facade, permIds) {
+				return facade.getProjects(permIds, new c.ProjectFetchOptions());
 			}
 			
-			testMap(c, fCreate, fMap, fMapEmptyFetchOptions, fechOptionsTestConfig);
+			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 		
-		QUnit.test("mapExperiments()", function(assert) {
+		QUnit.test("getExperiments()", function(assert) {
 			var c = new common(assert);
 			var fo = new c.ExperimentFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
@@ -169,19 +169,19 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				});
 			}
 			
-			var fMap = function(facade, permIds) {
+			var fGet = function(facade, permIds) {
 				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
-				return facade.mapExperiments(permIds, fo);
+				return facade.getExperiments(permIds, fo);
 			}
 			
-			var fMapEmptyFetchOptions = function(facade, permIds) {
-				return facade.mapExperiments(permIds, new c.ExperimentFetchOptions());
+			var fGetEmptyFetchOptions = function(facade, permIds) {
+				return facade.getExperiments(permIds, new c.ExperimentFetchOptions());
 			}
 			
-			testMap(c, fCreate, fMap, fMapEmptyFetchOptions, fechOptionsTestConfig);
+			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 		
-		QUnit.test("mapSamples()", function(assert) {
+		QUnit.test("getSamples()", function(assert) {
 			var c = new common(assert);
 			var fo = new c.SampleFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
@@ -193,19 +193,19 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				});
 			}
 			
-			var fMap = function(facade, permIds) {
+			var fGet = function(facade, permIds) {
 				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
-				return facade.mapSamples(permIds, fo);
+				return facade.getSamples(permIds, fo);
 			}
 			
-			var fMapEmptyFetchOptions = function(facade, permIds) {
-				return facade.mapSamples(permIds, new c.SampleFetchOptions());
+			var fGetEmptyFetchOptions = function(facade, permIds) {
+				return facade.getSamples(permIds, new c.SampleFetchOptions());
 			}
 			
-			testMap(c, fCreate, fMap, fMapEmptyFetchOptions, fechOptionsTestConfig);
+			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 		
-		QUnit.test("mapDataSets()", function(assert) {
+		QUnit.test("getDataSets()", function(assert) {
 			var c = new common(assert);
 			var fo = new c.DataSetFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
@@ -217,9 +217,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				});
 			}
 			
-			var fMap = function(facade, permIds) {
+			var fGet = function(facade, permIds) {
 				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
-				var result = facade.mapDataSets(permIds, fo);
+				var result = facade.getDataSets(permIds, fo);
 				
 				result.then(function(map) {
 					permIds.forEach(function(permId) {
@@ -230,8 +230,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				return result;
 			}
 			
-			var fMapEmptyFetchOptions = function(facade, permIds) {
-				var result = facade.mapDataSets(permIds, new c.DataSetFetchOptions());
+			var fGetEmptyFetchOptions = function(facade, permIds) {
+				var result = facade.getDataSets(permIds, new c.DataSetFetchOptions());
 				
 				result.then(function(map) {
 					permIds.forEach(function(permId) {
@@ -242,10 +242,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				return result;
 			}
 			
-			testMap(c, fCreate, fMap, fMapEmptyFetchOptions, fechOptionsTestConfig);
+			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 		
-		QUnit.test("mapMaterials()", function(assert) {
+		QUnit.test("getMaterials()", function(assert) {
 			var c = new common(assert);
 			var fo = new c.MaterialFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
@@ -257,19 +257,19 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				});
 			}
 			
-			var fMap = function(facade, permIds) {
+			var fGet = function(facade, permIds) {
 				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
-				return facade.mapMaterials(permIds, fo);
+				return facade.getMaterials(permIds, fo);
 			}
 			
-			var fMapEmptyFetchOptions = function(facade, permIds) {
-				return facade.mapMaterials(permIds, new c.MaterialFetchOptions());
+			var fGetEmptyFetchOptions = function(facade, permIds) {
+				return facade.getMaterials(permIds, new c.MaterialFetchOptions());
 			}
 			
-			testMap(c, fCreate, fMap, fMapEmptyFetchOptions, fechOptionsTestConfig);
+			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 		
-		QUnit.test("mapVocabularyTerms()", function(assert) {
+		QUnit.test("getVocabularyTerms()", function(assert) {
 			var c = new common(assert);
 			var fo = new c.VocabularyTermFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
@@ -281,16 +281,16 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				});
 			}
 			
-			var fMap = function(facade, permIds) {
+			var fGet = function(facade, permIds) {
 				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
-				return facade.mapVocabularyTerms(permIds, fo);
+				return facade.getVocabularyTerms(permIds, fo);
 			}
 			
-			var fMapEmptyFetchOptions = function(facade, permIds) {
-				return facade.mapVocabularyTerms(permIds, new c.VocabularyTermFetchOptions());
+			var fGetEmptyFetchOptions = function(facade, permIds) {
+				return facade.getVocabularyTerms(permIds, new c.VocabularyTermFetchOptions());
 			}
 			
-			testMap(c, fCreate, fMap, fMapEmptyFetchOptions, fechOptionsTestConfig);
+			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 		
 	}

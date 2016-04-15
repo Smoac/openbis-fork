@@ -165,25 +165,25 @@ public interface IApplicationServerApi extends IRpcService
 
     public void updateTags(String sessionToken, List<TagUpdate> tagUpdates);
 
-    public Map<ISpaceId, Space> mapSpaces(String sessionToken, List<? extends ISpaceId> spaceIds,
+    public Map<ISpaceId, Space> getSpaces(String sessionToken, List<? extends ISpaceId> spaceIds,
             SpaceFetchOptions fetchOptions);
 
-    public Map<IProjectId, Project> mapProjects(String sessionToken, List<? extends IProjectId> projectIds,
+    public Map<IProjectId, Project> getProjects(String sessionToken, List<? extends IProjectId> projectIds,
             ProjectFetchOptions fetchOptions);
 
-    public Map<IExperimentId, Experiment> mapExperiments(String sessionToken, List<? extends IExperimentId> experimentIds,
+    public Map<IExperimentId, Experiment> getExperiments(String sessionToken, List<? extends IExperimentId> experimentIds,
             ExperimentFetchOptions fetchOptions);
 
-    public Map<ISampleId, Sample> mapSamples(String sessionToken, List<? extends ISampleId> sampleIds, SampleFetchOptions fetchOptions);
+    public Map<ISampleId, Sample> getSamples(String sessionToken, List<? extends ISampleId> sampleIds, SampleFetchOptions fetchOptions);
 
-    public Map<IDataSetId, DataSet> mapDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetFetchOptions fetchOptions);
+    public Map<IDataSetId, DataSet> getDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetFetchOptions fetchOptions);
 
-    public Map<IMaterialId, Material> mapMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialFetchOptions fetchOptions);
+    public Map<IMaterialId, Material> getMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialFetchOptions fetchOptions);
 
-    public Map<IVocabularyTermId, VocabularyTerm> mapVocabularyTerms(String sessionToken, List<? extends IVocabularyTermId> vocabularyTermIds,
+    public Map<IVocabularyTermId, VocabularyTerm> getVocabularyTerms(String sessionToken, List<? extends IVocabularyTermId> vocabularyTermIds,
             VocabularyTermFetchOptions fetchOptions);
 
-    public Map<ITagId, Tag> mapTags(String sessionToken, List<? extends ITagId> tagIds, TagFetchOptions fetchOptions);
+    public Map<ITagId, Tag> getTags(String sessionToken, List<? extends ITagId> tagIds, TagFetchOptions fetchOptions);
 
     public SearchResult<Space> searchSpaces(String sessionToken, SpaceSearchCriteria searchCriteria, SpaceFetchOptions fetchOptions);
 

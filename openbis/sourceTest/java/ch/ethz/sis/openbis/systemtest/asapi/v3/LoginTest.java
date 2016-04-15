@@ -28,13 +28,13 @@ public class LoginTest extends AbstractTest
         Assert.assertNotNull(sessionToken);
 
         Map<IExperimentId, Experiment> experimentFromCisdSpace =
-                v3api.mapExperiments(sessionToken, Collections.singletonList(new ExperimentPermId("200811050951882-1028")),
+                v3api.getExperiments(sessionToken, Collections.singletonList(new ExperimentPermId("200811050951882-1028")),
                         new ExperimentFetchOptions());
 
         Assert.assertEquals(1, experimentFromCisdSpace.size());
 
         Map<IExperimentId, Experiment> experimentFromTestSpace =
-                v3api.mapExperiments(sessionToken, Collections.singletonList(new ExperimentPermId("201206190940555-1032")),
+                v3api.getExperiments(sessionToken, Collections.singletonList(new ExperimentPermId("201206190940555-1032")),
                         new ExperimentFetchOptions());
 
         Assert.assertEquals(1, experimentFromTestSpace.size());
@@ -85,13 +85,13 @@ public class LoginTest extends AbstractTest
         Assert.assertNotNull(sessionToken);
 
         Map<IExperimentId, Experiment> experimentFromCisdSpace =
-                v3api.mapExperiments(sessionToken, Collections.singletonList(new ExperimentPermId("200811050951882-1028")),
+                v3api.getExperiments(sessionToken, Collections.singletonList(new ExperimentPermId("200811050951882-1028")),
                         new ExperimentFetchOptions());
 
         Assert.assertEquals(1, experimentFromCisdSpace.size());
 
         Map<IExperimentId, Experiment> experimentFromTestSpace =
-                v3api.mapExperiments(sessionToken, Collections.singletonList(new ExperimentPermId("201206190940555-1032")),
+                v3api.getExperiments(sessionToken, Collections.singletonList(new ExperimentPermId("201206190940555-1032")),
                         new ExperimentFetchOptions());
 
         Assert.assertEquals(1, experimentFromTestSpace.size());
@@ -105,13 +105,13 @@ public class LoginTest extends AbstractTest
         Assert.assertNotNull(sessionToken);
 
         Map<IExperimentId, Experiment> experimentFromCisdSpace =
-                v3api.mapExperiments(sessionToken, Collections.singletonList(new ExperimentPermId("200811050951882-1028")),
+                v3api.getExperiments(sessionToken, Collections.singletonList(new ExperimentPermId("200811050951882-1028")),
                         new ExperimentFetchOptions());
 
         Assert.assertEquals(0, experimentFromCisdSpace.size());
 
         Map<IExperimentId, Experiment> experimentFromTestSpace =
-                v3api.mapExperiments(sessionToken, Collections.singletonList(new ExperimentPermId("201206190940555-1032")),
+                v3api.getExperiments(sessionToken, Collections.singletonList(new ExperimentPermId("201206190940555-1032")),
                         new ExperimentFetchOptions());
 
         Assert.assertEquals(1, experimentFromTestSpace.size());

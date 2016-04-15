@@ -353,7 +353,7 @@ public class UpdateTagTest extends AbstractTest
         fetchOptions.withOwner();
 
         String sessionToken = v3api.login(user, password);
-        Map<ITagId, Tag> tags = v3api.mapTags(sessionToken, Arrays.asList(tagId), fetchOptions);
+        Map<ITagId, Tag> tags = v3api.getTags(sessionToken, Arrays.asList(tagId), fetchOptions);
         return tags.get(tagId);
     }
 

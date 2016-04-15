@@ -1717,7 +1717,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
     private DataSet createDataSet(String sessionToken, DataSetCreation creation, DataSetFetchOptions fo)
     {
         List<DataSetPermId> permIds = v3api.createDataSets(sessionToken, Arrays.asList(creation));
-        Map<IDataSetId, DataSet> dataSets = v3api.mapDataSets(sessionToken, permIds, fo);
+        Map<IDataSetId, DataSet> dataSets = v3api.getDataSets(sessionToken, permIds, fo);
         return dataSets.values().iterator().next();
     }
 

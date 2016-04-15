@@ -36,11 +36,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 /**
  * @author pkupczyk
  */
-public class MapTagTest extends AbstractTest
+public class GetTagTest extends AbstractTest
 {
 
     @Test
-    public void testMapByPermId()
+    public void testGetByPermId()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -48,7 +48,7 @@ public class MapTagTest extends AbstractTest
         TagPermId permId2 = new TagPermId(TEST_USER, "ANOTHER_TEST_METAPROJECTS");
 
         Map<ITagId, Tag> map =
-                v3api.mapTags(sessionToken, Arrays.asList(permId1, permId2),
+                v3api.getTags(sessionToken, Arrays.asList(permId1, permId2),
                         new TagFetchOptions());
 
         assertEquals(2, map.size());
@@ -64,7 +64,7 @@ public class MapTagTest extends AbstractTest
     }
 
     @Test
-    public void testMapByCode()
+    public void testGetByCode()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -72,7 +72,7 @@ public class MapTagTest extends AbstractTest
         TagCode code2 = new TagCode("ANOTHER_TEST_METAPROJECTS");
 
         Map<ITagId, Tag> map =
-                v3api.mapTags(sessionToken, Arrays.asList(code1, code2),
+                v3api.getTags(sessionToken, Arrays.asList(code1, code2),
                         new TagFetchOptions());
 
         assertEquals(2, map.size());
@@ -88,7 +88,7 @@ public class MapTagTest extends AbstractTest
     }
 
     @Test
-    public void testMapByPermIdCaseSensitivity()
+    public void testGetByPermIdCaseSensitivity()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -98,7 +98,7 @@ public class MapTagTest extends AbstractTest
         TagPermId permId3 = new TagPermId("test", "ANOTHER_test_METAPROJECTS");
 
         Map<ITagId, Tag> map =
-                v3api.mapTags(sessionToken, Arrays.asList(permId1, permId2, permId3),
+                v3api.getTags(sessionToken, Arrays.asList(permId1, permId2, permId3),
                         new TagFetchOptions());
 
         assertEquals(2, map.size());
@@ -114,7 +114,7 @@ public class MapTagTest extends AbstractTest
     }
 
     @Test
-    public void testMapByCodeCaseSensitivity()
+    public void testGetByCodeCaseSensitivity()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -123,7 +123,7 @@ public class MapTagTest extends AbstractTest
         TagCode code2 = new TagCode("ANOTHER_test_METAPROJECTS");
 
         Map<ITagId, Tag> map =
-                v3api.mapTags(sessionToken, Arrays.asList(code1, code2),
+                v3api.getTags(sessionToken, Arrays.asList(code1, code2),
                         new TagFetchOptions());
 
         assertEquals(2, map.size());
@@ -139,7 +139,7 @@ public class MapTagTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsNonexistent()
+    public void testGetByIdsNonexistent()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -148,7 +148,7 @@ public class MapTagTest extends AbstractTest
         TagCode code = new TagCode("IDONTEXIST");
 
         Map<ITagId, Tag> map =
-                v3api.mapTags(sessionToken,
+                v3api.getTags(sessionToken,
                         Arrays.asList(permId1, permId2, code),
                         new TagFetchOptions());
 
@@ -162,7 +162,7 @@ public class MapTagTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsDuplicated()
+    public void testGetByIdsDuplicated()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -170,7 +170,7 @@ public class MapTagTest extends AbstractTest
         TagCode code = new TagCode("TEST_METAPROJECTS");
 
         Map<ITagId, Tag> map =
-                v3api.mapTags(sessionToken, Arrays.asList(permId, code), new TagFetchOptions());
+                v3api.getTags(sessionToken, Arrays.asList(permId, code), new TagFetchOptions());
 
         assertEquals(2, map.size());
 
@@ -181,7 +181,7 @@ public class MapTagTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsUnauthorized()
+    public void testGetByIdsUnauthorized()
     {
         TagPermId permId1 = new TagPermId(TEST_USER, "TEST_METAPROJECTS");
         TagPermId permId2 = new TagPermId(TEST_POWER_USER_CISD, "TEST_METAPROJECTS");
@@ -189,7 +189,7 @@ public class MapTagTest extends AbstractTest
         List<? extends ITagId> ids = Arrays.asList(permId1, permId2);
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        Map<ITagId, Tag> map = v3api.mapTags(sessionToken, ids, new TagFetchOptions());
+        Map<ITagId, Tag> map = v3api.getTags(sessionToken, ids, new TagFetchOptions());
 
         assertEquals(map.size(), 1);
         assertEquals(map.get(permId1).getPermId(), permId1);
@@ -198,7 +198,7 @@ public class MapTagTest extends AbstractTest
         v3api.logout(sessionToken);
 
         sessionToken = v3api.login(TEST_POWER_USER_CISD, PASSWORD);
-        map = v3api.mapTags(sessionToken, ids, new TagFetchOptions());
+        map = v3api.getTags(sessionToken, ids, new TagFetchOptions());
 
         assertEquals(map.size(), 1);
         assertEquals(map.get(permId2).getPermId(), permId2);
@@ -208,14 +208,14 @@ public class MapTagTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsWithFetchOptionsEmpty()
+    public void testGetByIdsWithFetchOptionsEmpty()
     {
         TagPermId permId = new TagPermId(TEST_USER, "TEST_METAPROJECTS");
 
         TagFetchOptions fetchOptions = new TagFetchOptions();
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        Map<ITagId, Tag> map = v3api.mapTags(sessionToken, Arrays.asList(permId), fetchOptions);
+        Map<ITagId, Tag> map = v3api.getTags(sessionToken, Arrays.asList(permId), fetchOptions);
 
         Tag tag = map.get(permId);
 
@@ -232,7 +232,7 @@ public class MapTagTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsWithOwner()
+    public void testGetByIdsWithOwner()
     {
         TagPermId permId = new TagPermId(TEST_USER, "TEST_METAPROJECTS");
 
@@ -240,7 +240,7 @@ public class MapTagTest extends AbstractTest
         fetchOptions.withOwner();
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        Map<ITagId, Tag> map = v3api.mapTags(sessionToken, Arrays.asList(permId), fetchOptions);
+        Map<ITagId, Tag> map = v3api.getTags(sessionToken, Arrays.asList(permId), fetchOptions);
 
         Tag tag = map.get(permId);
 
@@ -257,7 +257,7 @@ public class MapTagTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsWithExperiments()
+    public void testGetByIdsWithExperiments()
     {
         TagPermId permId = new TagPermId(TEST_USER, "TEST_METAPROJECTS");
 
@@ -265,7 +265,7 @@ public class MapTagTest extends AbstractTest
         fetchOptions.withExperiments();
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        Map<ITagId, Tag> map = v3api.mapTags(sessionToken, Arrays.asList(permId), fetchOptions);
+        Map<ITagId, Tag> map = v3api.getTags(sessionToken, Arrays.asList(permId), fetchOptions);
 
         Tag tag = map.get(permId);
 
@@ -282,7 +282,7 @@ public class MapTagTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsWithSamples()
+    public void testGetByIdsWithSamples()
     {
         TagPermId permId = new TagPermId(TEST_SPACE_USER, "TEST_METAPROJECTS");
 
@@ -290,7 +290,7 @@ public class MapTagTest extends AbstractTest
         fetchOptions.withSamples();
 
         String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-        Map<ITagId, Tag> map = v3api.mapTags(sessionToken, Arrays.asList(permId), fetchOptions);
+        Map<ITagId, Tag> map = v3api.getTags(sessionToken, Arrays.asList(permId), fetchOptions);
 
         Tag tag = map.get(permId);
 
@@ -307,7 +307,7 @@ public class MapTagTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsWithDataSets()
+    public void testGetByIdsWithDataSets()
     {
         TagPermId permId = new TagPermId(TEST_SPACE_USER, "TEST_METAPROJECTS");
 
@@ -315,7 +315,7 @@ public class MapTagTest extends AbstractTest
         fetchOptions.withDataSets();
 
         String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-        Map<ITagId, Tag> map = v3api.mapTags(sessionToken, Arrays.asList(permId), fetchOptions);
+        Map<ITagId, Tag> map = v3api.getTags(sessionToken, Arrays.asList(permId), fetchOptions);
 
         Tag tag = map.get(permId);
 
@@ -332,7 +332,7 @@ public class MapTagTest extends AbstractTest
     }
 
     @Test
-    public void testMapByIdsWithMaterials()
+    public void testGetByIdsWithMaterials()
     {
         TagPermId permId = new TagPermId(TEST_USER, "TEST_METAPROJECTS");
 
@@ -340,7 +340,7 @@ public class MapTagTest extends AbstractTest
         fetchOptions.withMaterials();
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        Map<ITagId, Tag> map = v3api.mapTags(sessionToken, Arrays.asList(permId), fetchOptions);
+        Map<ITagId, Tag> map = v3api.getTags(sessionToken, Arrays.asList(permId), fetchOptions);
 
         Tag tag = map.get(permId);
 

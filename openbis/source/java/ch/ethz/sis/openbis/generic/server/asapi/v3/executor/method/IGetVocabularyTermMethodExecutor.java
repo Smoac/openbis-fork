@@ -23,7 +23,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
 /**
  * @author pkupczyk
  */
-public interface IMapVocabularyTermMethodExecutor extends IMapMethodExecutor<IVocabularyTermId, VocabularyTerm, VocabularyTermFetchOptions>
+public interface IGetVocabularyTermMethodExecutor extends IGetMethodExecutor<IVocabularyTermId, VocabularyTerm, VocabularyTermFetchOptions>
 {
 
 }

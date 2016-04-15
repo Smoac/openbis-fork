@@ -322,12 +322,12 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			});
 		}
 
-		this.mapSpaces = function(ids, fetchOptions) {
+		this.getSpaces = function(ids, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
-					"method" : "mapSpaces",
+					"method" : "getSpaces",
 					"params" : [ thisFacade._private.sessionToken, ids, fetchOptions ]
 				},
 				returnType : {
@@ -337,12 +337,12 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			});
 		}
 
-		this.mapProjects = function(ids, fetchOptions) {
+		this.getProjects = function(ids, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
-					"method" : "mapProjects",
+					"method" : "getProjects",
 					"params" : [ thisFacade._private.sessionToken, ids, fetchOptions ]
 				},
 				returnType : {
@@ -352,12 +352,12 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			});
 		}
 
-		this.mapExperiments = function(ids, fetchOptions) {
+		this.getExperiments = function(ids, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
-					"method" : "mapExperiments",
+					"method" : "getExperiments",
 					"params" : [ thisFacade._private.sessionToken, ids, fetchOptions ]
 				},
 				returnType : {
@@ -367,12 +367,12 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			});
 		}
 
-		this.mapSamples = function(ids, fetchOptions) {
+		this.getSamples = function(ids, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
-					"method" : "mapSamples",
+					"method" : "getSamples",
 					"params" : [ thisFacade._private.sessionToken, ids, fetchOptions ]
 				},
 				returnType : {
@@ -382,12 +382,12 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			});
 		}
 
-		this.mapDataSets = function(ids, fetchOptions) {
+		this.getDataSets = function(ids, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
-					"method" : "mapDataSets",
+					"method" : "getDataSets",
 					"params" : [ thisFacade._private.sessionToken, ids, fetchOptions ]
 				},
 				returnType : {
@@ -397,12 +397,12 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			});
 		}
 
-		this.mapMaterials = function(ids, fetchOptions) {
+		this.getMaterials = function(ids, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
-					"method" : "mapMaterials",
+					"method" : "getMaterials",
 					"params" : [ thisFacade._private.sessionToken, ids, fetchOptions ]
 				},
 				returnType : {
@@ -412,12 +412,12 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			});
 		}
 
-		this.mapVocabularyTerms = function(ids, fetchOptions) {
+		this.getVocabularyTerms = function(ids, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
-					"method" : "mapVocabularyTerms",
+					"method" : "getVocabularyTerms",
 					"params" : [ thisFacade._private.sessionToken, ids, fetchOptions ]
 				},
 				returnType : {
@@ -427,12 +427,12 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			});
 		}
 
-		this.mapTags = function(ids, fetchOptions) {
+		this.getTags = function(ids, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
-					"method" : "mapTags",
+					"method" : "getTags",
 					"params" : [ thisFacade._private.sessionToken, ids, fetchOptions ]
 				},
 				returnType : {

@@ -58,7 +58,7 @@ public class CreateMaterialTest extends AbstractSampleTest
         List<MaterialPermId> materialIds = v3api.createMaterials(sessionToken, Arrays.asList(m1, m2));
 
         MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
-        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, materialIds, fetchOptions);
+        Map<IMaterialId, Material> map = v3api.getMaterials(sessionToken, materialIds, fetchOptions);
         AssertionUtil.assertCollectionSize(map.values(), 2);
 
         Material material = map.get(new MaterialPermId("1982", "GENE"));
@@ -89,7 +89,7 @@ public class CreateMaterialTest extends AbstractSampleTest
 
         MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
         fetchOptions.withProperties();
-        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, materialIds, fetchOptions);
+        Map<IMaterialId, Material> map = v3api.getMaterials(sessionToken, materialIds, fetchOptions);
         AssertionUtil.assertCollectionSize(map.values(), 1);
 
         Material material = map.get(new MaterialPermId("1982", "GENE"));
@@ -114,7 +114,7 @@ public class CreateMaterialTest extends AbstractSampleTest
 
         MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
         fetchOptions.withTags();
-        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, materialIds, fetchOptions);
+        Map<IMaterialId, Material> map = v3api.getMaterials(sessionToken, materialIds, fetchOptions);
         AssertionUtil.assertCollectionSize(map.values(), 1);
 
         Material material = map.get(new MaterialPermId("NEW_GENE_WITH_TAGS", "GENE"));
@@ -157,7 +157,7 @@ public class CreateMaterialTest extends AbstractSampleTest
         MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
         fetchOptions.withMaterialPropertiesUsing(fetchOptions);
 
-        Map<IMaterialId, Material> map = v3api.mapMaterials(sessionToken, Arrays.asList(m1id), fetchOptions);
+        Map<IMaterialId, Material> map = v3api.getMaterials(sessionToken, Arrays.asList(m1id), fetchOptions);
 
         AssertionUtil.assertCollectionSize(map.values(), 1);
 

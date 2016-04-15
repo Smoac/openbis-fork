@@ -16,14 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 
 /**
  * @author pkupczyk
  */
-public interface IMapDataSetMethodExecutor extends IMapMethodExecutor<IDataSetId, DataSet, DataSetFetchOptions>
+public interface IGetTagMethodExecutor extends IGetMethodExecutor<ITagId, Tag, TagFetchOptions>
 {
 
 }

@@ -184,49 +184,49 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 
 		this.findSpace = function(facade, id) {
 			var c = this;
-			return facade.mapSpaces([ id ], c.createSpaceFetchOptions()).then(function(spaces) {
+			return facade.getSpaces([ id ], c.createSpaceFetchOptions()).then(function(spaces) {
 				return spaces[id];
 			});
 		}.bind(this);
 
 		this.findProject = function(facade, id) {
 			var c = this;
-			return facade.mapProjects([ id ], c.createProjectFetchOptions()).then(function(projects) {
+			return facade.getProjects([ id ], c.createProjectFetchOptions()).then(function(projects) {
 				return projects[id];
 			});
 		}.bind(this);
 
 		this.findExperiment = function(facade, id) {
 			var c = this;
-			return facade.mapExperiments([ id ], c.createExperimentFetchOptions()).then(function(experiments) {
+			return facade.getExperiments([ id ], c.createExperimentFetchOptions()).then(function(experiments) {
 				return experiments[id];
 			});
 		}.bind(this);
 
 		this.findSample = function(facade, id) {
 			var c = this;
-			return facade.mapSamples([ id ], c.createSampleFetchOptions()).then(function(samples) {
+			return facade.getSamples([ id ], c.createSampleFetchOptions()).then(function(samples) {
 				return samples[id];
 			});
 		}.bind(this);
 
 		this.findDataSet = function(facade, id) {
 			var c = this;
-			return facade.mapDataSets([ id ], c.createDataSetFetchOptions()).then(function(dataSets) {
+			return facade.getDataSets([ id ], c.createDataSetFetchOptions()).then(function(dataSets) {
 				return dataSets[id];
 			});
 		}.bind(this);
 
 		this.findMaterial = function(facade, id) {
 			var c = this;
-			return facade.mapMaterials([ id ], c.createMaterialFetchOptions()).then(function(materials) {
+			return facade.getMaterials([ id ], c.createMaterialFetchOptions()).then(function(materials) {
 				return materials[id];
 			});
 		}.bind(this);
 
 		this.findVocabularyTerm = function(facade, id) {
 			var c = this;
-			return facade.mapVocabularyTerms([ id ], c.createVocabularyTermFetchOptions()).then(function(terms) {
+			return facade.getVocabularyTerms([ id ], c.createVocabularyTermFetchOptions()).then(function(terms) {
 				return terms[id];
 			});
 		}.bind(this);

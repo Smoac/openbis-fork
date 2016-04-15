@@ -37,8 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
  * @author pkupczyk
  */
 @Component
-public class MapExperimentSqlMethodExecutor extends AbstractMapMethodExecutor<IExperimentId, Long, Experiment, ExperimentFetchOptions>
-        implements IMapExperimentMethodExecutor
+public class GetExperimentMethodExecutor extends AbstractGetMethodExecutor<IExperimentId, Long, Experiment, ExperimentFetchOptions>
+        implements IGetExperimentMethodExecutor
 {
 
     @Autowired

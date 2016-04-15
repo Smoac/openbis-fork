@@ -16,15 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method;
 
-import java.util.List;
-import java.util.Map;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 
 /**
  * @author pkupczyk
  */
-public interface IMapMethodExecutor<OBJECT_ID, OBJECT, FETCH_OPTIONS>
+public interface IGetSampleMethodExecutor extends IGetMethodExecutor<ISampleId, Sample, SampleFetchOptions>
 {
-
-    public Map<OBJECT_ID, OBJECT> map(String sessionToken, List<? extends OBJECT_ID> objectIds, FETCH_OPTIONS fetchOptions);
 
 }

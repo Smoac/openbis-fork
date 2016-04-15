@@ -259,61 +259,61 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     }
 
     @Override
-    public Map<ISpaceId, Space> mapSpaces(String sessionToken, List<? extends ISpaceId> spaceIds, SpaceFetchOptions fetchOptions)
+    public Map<ISpaceId, Space> getSpaces(String sessionToken, List<? extends ISpaceId> spaceIds, SpaceFetchOptions fetchOptions)
     {
-        logAccess(sessionToken, "map-spaces", "SPACE_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(spaceIds), fetchOptions);
+        logAccess(sessionToken, "get-spaces", "SPACE_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(spaceIds), fetchOptions);
         return null;
     }
 
     @Override
-    public Map<IProjectId, Project> mapProjects(String sessionToken, List<? extends IProjectId> projectIds, ProjectFetchOptions fetchOptions)
+    public Map<IProjectId, Project> getProjects(String sessionToken, List<? extends IProjectId> projectIds, ProjectFetchOptions fetchOptions)
     {
-        logAccess(sessionToken, "map-projects", "PROJECT_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(projectIds), fetchOptions);
+        logAccess(sessionToken, "get-projects", "PROJECT_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(projectIds), fetchOptions);
         return null;
     }
 
     @Override
-    public Map<IExperimentId, Experiment> mapExperiments(String sessionToken, List<? extends IExperimentId> experimentIds,
+    public Map<IExperimentId, Experiment> getExperiments(String sessionToken, List<? extends IExperimentId> experimentIds,
             ExperimentFetchOptions fetchOptions)
     {
-        logAccess(sessionToken, "map-experiments", "EXPERIMENT_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(experimentIds), fetchOptions);
+        logAccess(sessionToken, "get-experiments", "EXPERIMENT_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(experimentIds), fetchOptions);
         return null;
     }
 
     @Override
-    public Map<ISampleId, Sample> mapSamples(String sessionToken,
+    public Map<ISampleId, Sample> getSamples(String sessionToken,
             List<? extends ISampleId> sampleIds, SampleFetchOptions fetchOptions)
     {
-        logAccess(sessionToken, "map-samples", "SAMPLE_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(sampleIds), fetchOptions);
+        logAccess(sessionToken, "get-samples", "SAMPLE_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(sampleIds), fetchOptions);
         return null;
     }
 
     @Override
-    public Map<IMaterialId, Material> mapMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialFetchOptions fetchOptions)
+    public Map<IMaterialId, Material> getMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialFetchOptions fetchOptions)
     {
-        logAccess(sessionToken, "map-materials", "MATERIAL_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(materialIds), fetchOptions);
+        logAccess(sessionToken, "get-materials", "MATERIAL_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(materialIds), fetchOptions);
         return null;
     }
 
     @Override
-    public Map<IVocabularyTermId, VocabularyTerm> mapVocabularyTerms(String sessionToken, List<? extends IVocabularyTermId> vocabularyTermIds,
+    public Map<IVocabularyTermId, VocabularyTerm> getVocabularyTerms(String sessionToken, List<? extends IVocabularyTermId> vocabularyTermIds,
             VocabularyTermFetchOptions fetchOptions)
     {
-        logAccess(sessionToken, "map-vocabulary-terms", "VOCABULARY_TERM_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(vocabularyTermIds), fetchOptions);
+        logAccess(sessionToken, "get-vocabulary-terms", "VOCABULARY_TERM_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(vocabularyTermIds), fetchOptions);
         return null;
     }
 
     @Override
-    public Map<ITagId, Tag> mapTags(String sessionToken, List<? extends ITagId> tagIds, TagFetchOptions fetchOptions)
+    public Map<ITagId, Tag> getTags(String sessionToken, List<? extends ITagId> tagIds, TagFetchOptions fetchOptions)
     {
-        logAccess(sessionToken, "map-tags", "TAG_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(tagIds), fetchOptions);
+        logAccess(sessionToken, "get-tags", "TAG_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(tagIds), fetchOptions);
         return null;
     }
 
     @Override
-    public Map<IDataSetId, DataSet> mapDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetFetchOptions fetchOptions)
+    public Map<IDataSetId, DataSet> getDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetFetchOptions fetchOptions)
     {
-        logAccess(sessionToken, "map-data-sets", "DATA_SET_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(dataSetIds), fetchOptions);
+        logAccess(sessionToken, "get-data-sets", "DATA_SET_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(dataSetIds), fetchOptions);
         return null;
     }
 

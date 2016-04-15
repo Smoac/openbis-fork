@@ -85,7 +85,7 @@ public class UpdateSpaceTest extends AbstractTest
         final ISpaceId spaceId1 = new SpacePermId(spaceCode1);
         final ISpaceId spaceId2 = new SpacePermId(spaceCode2);
 
-        Map<ISpaceId, Space> map = v3api.mapSpaces(sessionToken, Arrays.asList(spaceId1, spaceId2), new SpaceFetchOptions());
+        Map<ISpaceId, Space> map = v3api.getSpaces(sessionToken, Arrays.asList(spaceId1, spaceId2), new SpaceFetchOptions());
 
         Space space1 = map.get(spaceId1);
         Space space2 = map.get(spaceId2);
@@ -104,7 +104,7 @@ public class UpdateSpaceTest extends AbstractTest
         update2.setDescription("a new description 2");
 
         v3api.updateSpaces(sessionToken, Arrays.asList(update1, update2));
-        map = v3api.mapSpaces(sessionToken, Arrays.asList(spaceId1, spaceId2), new SpaceFetchOptions());
+        map = v3api.getSpaces(sessionToken, Arrays.asList(spaceId1, spaceId2), new SpaceFetchOptions());
 
         space1 = map.get(spaceId1);
         space2 = map.get(spaceId2);

@@ -129,14 +129,14 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteSpaceM
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteVocabularyTermMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IExecuteCustomASServiceMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGlobalSearchMethodExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapDataSetMethodExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapExperimentMethodExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapMaterialMethodExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapProjectMethodExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapSampleMethodExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapSpaceMethodExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapTagMethodExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IMapVocabularyTermMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGetDataSetMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGetExperimentMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGetMaterialMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGetProjectMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGetSampleMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGetSpaceMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGetTagMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGetVocabularyTermMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IRevertDeletionMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchCustomASServiceMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchDataSetMethodExecutor;
@@ -237,28 +237,28 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     private IUpdateTagMethodExecutor updateTagExecutor;
 
     @Autowired
-    private IMapSpaceMethodExecutor mapSpaceExecutor;
+    private IGetSpaceMethodExecutor getSpaceExecutor;
 
     @Autowired
-    private IMapProjectMethodExecutor mapProjectExecutor;
+    private IGetProjectMethodExecutor getProjectExecutor;
 
     @Autowired
-    private IMapExperimentMethodExecutor mapExperimentExecutor;
+    private IGetExperimentMethodExecutor getExperimentExecutor;
 
     @Autowired
-    private IMapSampleMethodExecutor mapSampleExecutor;
+    private IGetSampleMethodExecutor getSampleExecutor;
 
     @Autowired
-    private IMapDataSetMethodExecutor mapDataSetExecutor;
+    private IGetDataSetMethodExecutor getDataSetExecutor;
 
     @Autowired
-    private IMapMaterialMethodExecutor mapMaterialExecutor;
+    private IGetMaterialMethodExecutor getMaterialExecutor;
 
     @Autowired
-    private IMapVocabularyTermMethodExecutor mapVocabularyTermExecutor;
+    private IGetVocabularyTermMethodExecutor getVocabularyTermExecutor;
 
     @Autowired
-    private IMapTagMethodExecutor mapTagExecutor;
+    private IGetTagMethodExecutor getTagExecutor;
 
     @Autowired
     private ISearchSpaceMethodExecutor searchSpaceExecutor;
@@ -535,68 +535,68 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public Map<ISpaceId, Space> mapSpaces(String sessionToken, List<? extends ISpaceId> spaceIds, SpaceFetchOptions fetchOptions)
+    public Map<ISpaceId, Space> getSpaces(String sessionToken, List<? extends ISpaceId> spaceIds, SpaceFetchOptions fetchOptions)
     {
-        return mapSpaceExecutor.map(sessionToken, spaceIds, fetchOptions);
+        return getSpaceExecutor.get(sessionToken, spaceIds, fetchOptions);
     }
 
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public Map<IProjectId, Project> mapProjects(String sessionToken, List<? extends IProjectId> projectIds, ProjectFetchOptions fetchOptions)
+    public Map<IProjectId, Project> getProjects(String sessionToken, List<? extends IProjectId> projectIds, ProjectFetchOptions fetchOptions)
     {
-        return mapProjectExecutor.map(sessionToken, projectIds, fetchOptions);
+        return getProjectExecutor.get(sessionToken, projectIds, fetchOptions);
     }
 
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public Map<IExperimentId, Experiment> mapExperiments(String sessionToken,
+    public Map<IExperimentId, Experiment> getExperiments(String sessionToken,
             List<? extends IExperimentId> experimentIds, ExperimentFetchOptions fetchOptions)
     {
-        return mapExperimentExecutor.map(sessionToken, experimentIds, fetchOptions);
+        return getExperimentExecutor.get(sessionToken, experimentIds, fetchOptions);
     }
 
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public Map<ISampleId, Sample> mapSamples(String sessionToken, List<? extends ISampleId> sampleIds,
+    public Map<ISampleId, Sample> getSamples(String sessionToken, List<? extends ISampleId> sampleIds,
             SampleFetchOptions fetchOptions)
     {
-        return mapSampleExecutor.map(sessionToken, sampleIds, fetchOptions);
+        return getSampleExecutor.get(sessionToken, sampleIds, fetchOptions);
     }
 
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public Map<IDataSetId, DataSet> mapDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetFetchOptions fetchOptions)
+    public Map<IDataSetId, DataSet> getDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetFetchOptions fetchOptions)
     {
-        return mapDataSetExecutor.map(sessionToken, dataSetIds, fetchOptions);
+        return getDataSetExecutor.get(sessionToken, dataSetIds, fetchOptions);
     }
 
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public Map<IMaterialId, Material> mapMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialFetchOptions fetchOptions)
+    public Map<IMaterialId, Material> getMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialFetchOptions fetchOptions)
     {
-        return mapMaterialExecutor.map(sessionToken, materialIds, fetchOptions);
+        return getMaterialExecutor.get(sessionToken, materialIds, fetchOptions);
     }
 
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public Map<IVocabularyTermId, VocabularyTerm> mapVocabularyTerms(String sessionToken, List<? extends IVocabularyTermId> vocabularyTermIds,
+    public Map<IVocabularyTermId, VocabularyTerm> getVocabularyTerms(String sessionToken, List<? extends IVocabularyTermId> vocabularyTermIds,
             VocabularyTermFetchOptions fetchOptions)
     {
-        return mapVocabularyTermExecutor.map(sessionToken, vocabularyTermIds, fetchOptions);
+        return getVocabularyTermExecutor.get(sessionToken, vocabularyTermIds, fetchOptions);
     }
 
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public Map<ITagId, Tag> mapTags(String sessionToken, List<? extends ITagId> tagIds, TagFetchOptions fetchOptions)
+    public Map<ITagId, Tag> getTags(String sessionToken, List<? extends ITagId> tagIds, TagFetchOptions fetchOptions)
     {
-        return mapTagExecutor.map(sessionToken, tagIds, fetchOptions);
+        return getTagExecutor.get(sessionToken, tagIds, fetchOptions);
     }
 
     @Override

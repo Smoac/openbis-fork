@@ -85,7 +85,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
 
         DataSetFetchOptions fe = new DataSetFetchOptions();
         fe.withProperties();
-        DataSet result = v3api.mapDataSets(sessionToken, Collections.singletonList(dataSetId), fe).get(dataSetId);
+        DataSet result = v3api.getDataSets(sessionToken, Collections.singletonList(dataSetId), fe).get(dataSetId);
 
         assertEquals(result.getProperties().get("COMMENT"), "Updated description");
     }
@@ -125,7 +125,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
         DataSetFetchOptions fe = new DataSetFetchOptions();
         fe.withSample();
         fe.withExperiment();
-        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(dataSetId), fe);
+        Map<IDataSetId, DataSet> map = v3api.getDataSets(sessionToken, Arrays.asList(dataSetId), fe);
 
         DataSet result = map.get(dataSetId);
         assertEquals(result.getSample().getPermId(), sampleId);
@@ -147,7 +147,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
 
         DataSetFetchOptions fe = new DataSetFetchOptions();
         fe.withSample();
-        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(dataSetId), fe);
+        Map<IDataSetId, DataSet> map = v3api.getDataSets(sessionToken, Arrays.asList(dataSetId), fe);
 
         DataSet result = map.get(dataSetId);
         assertEquals(result.getSample().getPermId(), sampleId);
@@ -169,7 +169,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
         DataSetFetchOptions fe = new DataSetFetchOptions();
         fe.withSample();
         fe.withExperiment();
-        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(dataSetId), fe);
+        Map<IDataSetId, DataSet> map = v3api.getDataSets(sessionToken, Arrays.asList(dataSetId), fe);
 
         DataSet result = map.get(dataSetId);
         assertEquals(result.getSample().getPermId(), sampleId);
@@ -205,7 +205,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
         fe.withExperiment();
         fe.withSample();
 
-        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(dataSetId), fe);
+        Map<IDataSetId, DataSet> map = v3api.getDataSets(sessionToken, Arrays.asList(dataSetId), fe);
 
         DataSet result = map.get(dataSetId);
         assertEquals(result.getExperiment().getPermId().getPermId(), "200902091239077-1033");
@@ -217,7 +217,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
 
         v3api.updateDataSets(sessionToken, Arrays.asList(update));
 
-        map = v3api.mapDataSets(sessionToken, Arrays.asList(dataSetId), fe);
+        map = v3api.getDataSets(sessionToken, Arrays.asList(dataSetId), fe);
 
         result = map.get(dataSetId);
         assertEquals(result.getExperiment().getPermId().getPermId(), "200902091239077-1033");
@@ -240,7 +240,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
         DataSetFetchOptions fe = new DataSetFetchOptions();
         fe.withProperties();
         fe.withExperiment();
-        DataSet result = v3api.mapDataSets(sessionToken, Collections.singletonList(dataSetId), fe).get(dataSetId);
+        DataSet result = v3api.getDataSets(sessionToken, Collections.singletonList(dataSetId), fe).get(dataSetId);
 
         assertEquals(result.getExperiment().getPermId().getPermId(), "200811050951882-1028");
     }
@@ -298,7 +298,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
         fe.withExperiment();
         fe.withSample();
 
-        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(dataSetId), fe);
+        Map<IDataSetId, DataSet> map = v3api.getDataSets(sessionToken, Arrays.asList(dataSetId), fe);
 
         DataSet result = map.get(dataSetId);
         assertEquals(result.getExperiment().getPermId().getPermId(), "200902091239077-1033");
@@ -311,7 +311,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
 
         v3api.updateDataSets(sessionToken, Arrays.asList(update));
 
-        map = v3api.mapDataSets(sessionToken, Arrays.asList(dataSetId), fe);
+        map = v3api.getDataSets(sessionToken, Arrays.asList(dataSetId), fe);
 
         result = map.get(dataSetId);
         assertEquals(result.getExperiment().getPermId().getPermId(), "200902091258949-1034");
@@ -336,7 +336,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
         DataSetFetchOptions fe = new DataSetFetchOptions();
         fe.withProperties();
         fe.withPhysicalData().withFileFormatType();
-        DataSet result = v3api.mapDataSets(sessionToken, Collections.singletonList(dataSetId), fe).get(dataSetId);
+        DataSet result = v3api.getDataSets(sessionToken, Collections.singletonList(dataSetId), fe).get(dataSetId);
 
         assertEquals(result.getPhysicalData().getFileFormatType().getCode(), "PLKPROPRIETARY");
     }
@@ -403,7 +403,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
         fe.withProperties();
         fe.withExperiment();
         fe.withParents();
-        DataSet result = v3api.mapDataSets(sessionToken, Collections.singletonList(dataSetId), fe).get(dataSetId);
+        DataSet result = v3api.getDataSets(sessionToken, Collections.singletonList(dataSetId), fe).get(dataSetId);
 
         AssertionUtil.assertSize(result.getParents(), 2);
     }
@@ -517,7 +517,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
 
         DataSetFetchOptions fe = new DataSetFetchOptions();
         fe.withComponents();
-        DataSet result = v3api.mapDataSets(sessionToken, Collections.singletonList(dataSetId), fe).get(dataSetId);
+        DataSet result = v3api.getDataSets(sessionToken, Collections.singletonList(dataSetId), fe).get(dataSetId);
 
         AssertionUtil.assertCollectionContainsOnly(dataSetCodes(result.getComponents()), "COMPONENT_1B", "COMPONENT_2A");
     }
@@ -562,7 +562,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
         DataSetFetchOptions fe = new DataSetFetchOptions();
         fe.withContainers();
         fe.withComponents();
-        Map<IDataSetId, DataSet> map = v3api.mapDataSets(sessionToken, Arrays.asList(dataSetId, cont2, cont3a, cont1), fe);
+        Map<IDataSetId, DataSet> map = v3api.getDataSets(sessionToken, Arrays.asList(dataSetId, cont2, cont3a, cont1), fe);
 
         DataSet result = map.get(dataSetId);
 
@@ -636,7 +636,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
 
         v3api.updateDataSets(sessionToken, Arrays.asList(firstUpdate));
 
-        Map<IDataSetId, DataSet> result = v3api.mapDataSets(sessionToken, Arrays.asList(dataSet), fe);
+        Map<IDataSetId, DataSet> result = v3api.getDataSets(sessionToken, Arrays.asList(dataSet), fe);
         AssertionUtil.assertCollectionContainsOnly(tagCodes(result.get(dataSet).getTags()), existingTag.getCode(), newTag1.getCode());
 
         // remove test_metaprojects and add a new tag2
@@ -647,7 +647,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
 
         v3api.updateDataSets(sessionToken, Arrays.asList(secondUpdate));
 
-        result = v3api.mapDataSets(sessionToken, Arrays.asList(dataSet), fe);
+        result = v3api.getDataSets(sessionToken, Arrays.asList(dataSet), fe);
         AssertionUtil.assertCollectionContainsOnly(tagCodes(result.get(dataSet).getTags()), newTag1.getCode(), newTag2.getCode());
     }
 
@@ -679,7 +679,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
         fe.withProperties();
         fe.withParents();
         fe.withChildren();
-        Map<IDataSetId, DataSet> result = v3api.mapDataSets(sessionToken, Arrays.asList(originalChild, originalParent), fe);
+        Map<IDataSetId, DataSet> result = v3api.getDataSets(sessionToken, Arrays.asList(originalChild, originalParent), fe);
 
         AssertionUtil.assertCollectionContains(dataSetCodes(result.get(originalParent).getChildren()), originalChild.getPermId());
         AssertionUtil.assertCollectionContains(dataSetCodes(result.get(originalChild).getParents()), originalParent.getPermId());
@@ -688,7 +688,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
         v3api.updateDataSets(sessionToken, Collections.singletonList(update));
 
         // assert parent removed
-        result = v3api.mapDataSets(sessionToken, Arrays.asList(originalChild, originalParent), fe);
+        result = v3api.getDataSets(sessionToken, Arrays.asList(originalChild, originalParent), fe);
 
         AssertionUtil.assertCollectionDoesntContain(dataSetCodes(result.get(originalParent).getChildren()), originalChild.getPermId());
         AssertionUtil.assertCollectionDoesntContain(dataSetCodes(result.get(originalChild).getParents()), originalParent.getPermId());
