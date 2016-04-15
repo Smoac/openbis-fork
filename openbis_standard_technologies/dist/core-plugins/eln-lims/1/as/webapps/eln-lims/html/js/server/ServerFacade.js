@@ -38,6 +38,9 @@ function ServerFacade(openbisServer) {
 				Util.showError(response.error.message, function() {
 					location.reload(true);
 				}, true);
+			} else if(response.error === "Request failed: ") {
+				Util.showError(response.error + "It could not reach openBIS for some reason.", function() {
+				}, true);
 			}
 		}
 		
