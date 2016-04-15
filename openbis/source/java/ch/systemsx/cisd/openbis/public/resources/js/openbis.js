@@ -85,11 +85,13 @@ _openbisInternal.prototype.ajaxRequestError = function(action){
 	var openbisObj = this;
 	return function(xhr, status, error){
 		openbisObj.log("Request failed: " + error);
-		if(action){
-			action({
-				"error" : "Request failed: " + error
-			});
-		}
+		
+		var response = { "error" : "Request failed: " + error };
+		openbisObj.responseInterceptor(response, function() {
+			if(action){
+				action(response);
+			}
+		});
 	};
 }
 
