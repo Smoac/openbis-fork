@@ -282,7 +282,10 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         		for(var cIdx = 0; cIdx < modelNode.newMenuIfSelected.children.length; cIdx++) {
         			var modelNodeChild = modelNode.newMenuIfSelected.children[cIdx];
         			var $titleWithLink = this._getDisplayNameLinkForNode(modelNodeChild, true);
-        			var treeModelChild = {title : $titleWithLink.outerHTML, key : modelNodeChild.uniqueId, menuData : modelNodeChild};
+        			if($titleWithLink.outerHTML) {
+        				$titleWithLink = $titleWithLink.outerHTML;
+        			}
+        			var treeModelChild = {title : $titleWithLink, key : modelNodeChild.uniqueId, menuData : modelNodeChild};
         			
         			//Add Child
             		treeModelRoot.children.push(treeModelChild);

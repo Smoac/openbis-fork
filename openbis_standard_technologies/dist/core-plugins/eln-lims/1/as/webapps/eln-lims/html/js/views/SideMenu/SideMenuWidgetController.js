@@ -280,29 +280,37 @@ function SideMenuWidgetController(mainController) {
 
                 //Fill Sub Experiments
                 mainController.serverFacade.listSamplesForExperiments(experimentsToAskForSamples, function(subExperiments) {
-                    if (subExperiments.result) {
+                	var childrenLimit = 20;
+                    if (subExperiments.result && subExperiments.result.length <= childrenLimit) {
                         var toSortSubExperiments = {};
 
                         for (var i = 0; i < subExperiments.result.length; i++) {
                             var subExperiment = subExperiments.result[i];
-                            var experimentNode = _this._getUniqueId(subExperiment.experimentIdentifierOrNull);
-                            toSortSubExperiments[experimentNode.uniqueId] = experimentNode;
-                            if (subExperiment.experimentIdentifierOrNull) {
-                                var displayName = null;
-                                if (profile.hideCodes) {
-                                    displayName = subExperiment.properties[profile.propertyReplacingCode];
+                            if(!profile.isSampleTypeHidden(subExperiment.sampleTypeCode)) {
+                            	var experimentNode = _this._getUniqueId(subExperiment.experimentIdentifierOrNull);
+                                toSortSubExperiments[experimentNode.uniqueId] = experimentNode;
+                                if (subExperiment.experimentIdentifierOrNull) {
+                                    var displayName = null;
+                                    if (profile.hideCodes) {
+                                        displayName = subExperiment.properties[profile.propertyReplacingCode];
+                                    }
+                                    if (!displayName) {
+                                        displayName = subExperiment.code;
+                                    }
+                                    var menuItemSubExperiment = new SideMenuWidgetComponent(true, false, displayName, subExperiment.identifier, experimentNode, null, "showViewSamplePageFromPermId", subExperiment.permId, "(Sub Exp.)");
+                                    experimentNode.newMenuIfSelected.children.push(menuItemSubExperiment);
                                 }
-                                if (!displayName) {
-                                    displayName = subExperiment.code;
-                                }
-                                var menuItemSubExperiment = new SideMenuWidgetComponent(true, false, displayName, subExperiment.identifier, experimentNode, null, "showViewSamplePageFromPermId", subExperiment.permId, "(Sub Exp.)");
-                                experimentNode.newMenuIfSelected.children.push(menuItemSubExperiment);
                             }
                         }
 
                         for(uniqueId in toSortSubExperiments) {
                             toSortSubExperiments[uniqueId].newMenuIfSelected.children.sort(naturalSortSideMenuWidgetComponent); //Sort Sub Experiments
                         }
+                    } else if (subExperiments.result && subExperiments.result.length > childrenLimit) {
+                    	var subExperiment = subExperiments.result[0];
+                    	var experimentNode = _this._getUniqueId(subExperiment.experimentIdentifierOrNull);
+                    	var menuItemSubExperiment = new SideMenuWidgetComponent(false, false, "Too many Experiment components for the menu, please check the experiment form.", null, experimentNode, null, null, null, "(Too many Experiment components.)");
+                        experimentNode.newMenuIfSelected.children.push(menuItemSubExperiment);
                     }
 
 
