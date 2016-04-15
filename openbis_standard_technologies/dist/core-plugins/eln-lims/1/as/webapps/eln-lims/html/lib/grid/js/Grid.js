@@ -21,7 +21,7 @@ $.extend(Grid.prototype, {
 			thisGrid.renderColumnDropdown();
 			thisGrid.renderDropDownOptions();
 			
-			if(thisGrid.rowClickListeners.length > 0) {
+			if(thisGrid.rowClickListeners && thisGrid.rowClickListeners.length > 0) {
 				thisGrid.panel.addClass("fuelux-selectable");
 			}
 			
