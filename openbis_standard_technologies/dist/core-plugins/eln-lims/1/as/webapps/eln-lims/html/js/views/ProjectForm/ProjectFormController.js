@@ -55,6 +55,7 @@ function ProjectFormController(mainController, mode, project) {
 	}
 	
 	this.updateProject = function() {
+		Util.blockUI();
 		if(this._mainController.profile.allDataStores.length > 0) {
 			var method = "";
 			if(this._projectFormModel.mode === FormMode.CREATE) {
