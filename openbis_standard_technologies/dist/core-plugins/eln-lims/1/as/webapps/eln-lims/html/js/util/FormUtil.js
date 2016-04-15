@@ -230,9 +230,10 @@ var FormUtil = new function() {
 			if(profile.isSampleTypeHidden(sampleType.code)) {
 				continue;
 			}
-			var label = Util.getEmptyIfNull(sampleType.description);
-			if(label === "") {
-				label = sampleType.code;
+			var label = sampleType.code;
+			var description = Util.getEmptyIfNull(sampleType.description);
+			if(description !== "") {
+				label += " (" + description + ")";
 			}
 			
 			$component.append($("<option>").attr('value',sampleType.code).text(label));
