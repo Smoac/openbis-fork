@@ -46,6 +46,15 @@ public class CreateTagExecutor extends AbstractCreateEntityExecutor<TagCreation,
     @Autowired
     private IDAOFactory daoFactory;
 
+    @Autowired
+    private ISetTagExperimentsExecutor setTagExperimentsExecutor;
+
+    @Autowired
+    private ISetTagSamplesExecutor setTagSamplesExecutor;
+
+    @Autowired
+    private ISetTagDataSetsExecutor setTagDataSetsExecutor;
+
     @Override
     protected List<MetaprojectPE> createEntities(IOperationContext context, Collection<TagCreation> creations)
     {
@@ -100,7 +109,9 @@ public class CreateTagExecutor extends AbstractCreateEntityExecutor<TagCreation,
     @Override
     protected void updateAll(IOperationContext context, Map<TagCreation, MetaprojectPE> entitiesMap)
     {
-        // nothing to do
+        setTagExperimentsExecutor.set(context, entitiesMap);
+        setTagSamplesExecutor.set(context, entitiesMap);
+        setTagDataSetsExecutor.set(context, entitiesMap);
     }
 
     @Override

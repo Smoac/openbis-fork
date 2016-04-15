@@ -29,24 +29,24 @@ import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 /**
  * @author pkupczyk
  */
-public abstract class AbstractSetEntityToManyRelationExecutor<ENTITY_CREATION, ENTITY_PE, ENTITY_ID>
+public abstract class AbstractSetEntityToManyRelationExecutor<ENTITY_CREATION, ENTITY_PE, RELATED_ID, RELATED_PE>
 {
 
     @Resource(name = ComponentNames.RELATIONSHIP_SERVICE)
     protected IRelationshipService relationshipService;
 
-    public void set(IOperationContext context, Map<ENTITY_CREATION, ENTITY_PE> creationsMap, Map<ENTITY_ID, ENTITY_PE> relatedMap)
+    public void set(IOperationContext context, Map<ENTITY_CREATION, ENTITY_PE> creationsMap, Map<RELATED_ID, RELATED_PE> relatedMap)
     {
         for (ENTITY_CREATION creation : creationsMap.keySet())
         {
             ENTITY_PE entity = creationsMap.get(creation);
-            Collection<? extends ENTITY_ID> relatedIds = getRelatedIds(context, creation);
+            Collection<? extends RELATED_ID> relatedIds = getRelatedIds(context, creation);
 
             if (relatedIds != null)
             {
-                Collection<ENTITY_PE> related = new LinkedList<ENTITY_PE>();
+                Collection<RELATED_PE> related = new LinkedList<RELATED_PE>();
 
-                for (ENTITY_ID relatedId : relatedIds)
+                for (RELATED_ID relatedId : relatedIds)
                 {
                     related.add(relatedMap.get(relatedId));
                 }
@@ -59,8 +59,8 @@ public abstract class AbstractSetEntityToManyRelationExecutor<ENTITY_CREATION, E
         }
     }
 
-    protected abstract Collection<? extends ENTITY_ID> getRelatedIds(IOperationContext context, ENTITY_CREATION creation);
+    protected abstract Collection<? extends RELATED_ID> getRelatedIds(IOperationContext context, ENTITY_CREATION creation);
 
-    protected abstract void setRelated(IOperationContext context, ENTITY_PE entity, Collection<ENTITY_PE> related);
+    protected abstract void setRelated(IOperationContext context, ENTITY_PE entity, Collection<RELATED_PE> related);
 
 }

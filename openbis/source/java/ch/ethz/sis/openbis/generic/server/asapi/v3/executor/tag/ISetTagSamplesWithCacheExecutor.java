@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ETH Zuerich, CISD
+ * Copyright 2016 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.ISetEntityRelationsWithCacheExecutor;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author pkupczyk
  */
-public interface ISetDataSetChildrenExecutor extends ISetEntityRelationsWithCacheExecutor<DataSetCreation, DataPE, IDataSetId, DataPE>
+public interface ISetTagSamplesWithCacheExecutor
+        extends ISetEntityRelationsWithCacheExecutor<TagCreation, MetaprojectPE, ISampleId, SamplePE>
 {
 
 }

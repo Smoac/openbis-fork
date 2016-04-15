@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2016 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag;
 
 import java.util.List;
 import java.util.Map;
@@ -23,57 +23,46 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSetEntityMultipleRelationsExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IMapSampleByIdExecutor;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SetSampleRelatedSamplesExecutor extends AbstractSetEntityMultipleRelationsExecutor<SampleCreation, SamplePE, ISampleId, SamplePE>
-        implements
-        ISetSampleRelatedSamplesExecutor
+public class SetTagSamplesExecutor extends AbstractSetEntityMultipleRelationsExecutor<TagCreation, MetaprojectPE, ISampleId, SamplePE>
+        implements ISetTagSamplesExecutor
 {
 
     @Autowired
-    private IMapSampleByIdExecutor mapSampleByIdExecutor;
+    private IMapSampleByIdExecutor mapSampleExecutor;
 
     @Autowired
-    private ISetSampleContainerExecutor setSampleContainerExecutor;
-
-    @Autowired
-    private ISetSampleComponentsExecutor setSampleComponentsExecutor;
-
-    @Autowired
-    private ISetSampleParentsExecutor setSampleParentsExecutor;
-
-    @Autowired
-    private ISetSampleChildrenExecutor setSampleChildrenExecutor;
+    private ISetTagSamplesWithCacheExecutor setTagSamplesWithCacheExecutor;
 
     @Override
-    protected void addRelatedIds(Set<ISampleId> relatedIds, SampleCreation creation, SamplePE entity)
+    protected void addRelatedIds(Set<ISampleId> relatedIds, TagCreation creation, MetaprojectPE entity)
     {
-        addRelatedIds(relatedIds, creation.getContainerId());
-        addRelatedIds(relatedIds, creation.getComponentIds());
-        addRelatedIds(relatedIds, creation.getParentIds());
-        addRelatedIds(relatedIds, creation.getChildIds());
+        addRelatedIds(relatedIds, creation.getSampleIds());
     }
 
     @Override
-    protected void addRelated(Map<ISampleId, SamplePE> relatedMap, SampleCreation creation, SamplePE entity)
+    protected void addRelated(Map<ISampleId, SamplePE> relatedMap, TagCreation creation, MetaprojectPE entity)
     {
-        addRelated(relatedMap, creation.getCreationId(), entity);
+        // nothing to do here
     }
 
     @Override
     protected Map<ISampleId, SamplePE> map(IOperationContext context, List<ISampleId> relatedIds)
     {
-        return mapSampleByIdExecutor.map(context, relatedIds);
+        return mapSampleExecutor.map(context, relatedIds);
     }
 
     @Override
@@ -86,12 +75,9 @@ public class SetSampleRelatedSamplesExecutor extends AbstractSetEntityMultipleRe
     }
 
     @Override
-    protected void set(IOperationContext context, Map<SampleCreation, SamplePE> creationsMap, Map<ISampleId, SamplePE> relatedMap)
+    protected void set(IOperationContext context, Map<TagCreation, MetaprojectPE> creationsMap, Map<ISampleId, SamplePE> relatedMap)
     {
-        setSampleContainerExecutor.set(context, creationsMap, relatedMap);
-        setSampleComponentsExecutor.set(context, creationsMap, relatedMap);
-        setSampleParentsExecutor.set(context, creationsMap, relatedMap);
-        setSampleChildrenExecutor.set(context, creationsMap, relatedMap);
+        setTagSamplesWithCacheExecutor.set(context, creationsMap, relatedMap);
     }
 
 }

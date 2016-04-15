@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  * @author pkupczyk
  */
 @Component
-public class UpdateTagSamplesWithCacheExecutor extends UpdateTagEntitiesExecutor<ISampleId, SamplePE>
+public class UpdateTagSamplesWithCacheExecutor extends UpdateTagEntitiesWithCacheExecutor<ISampleId, SamplePE>
         implements IUpdateTagSamplesWithCacheExecutor
 {
 

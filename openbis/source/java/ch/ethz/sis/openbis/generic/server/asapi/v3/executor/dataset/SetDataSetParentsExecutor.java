@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
  * @author pkupczyk
  */
 @Component
-public class SetDataSetParentsExecutor extends AbstractSetEntityToManyRelationExecutor<DataSetCreation, DataPE, IDataSetId> implements
+public class SetDataSetParentsExecutor extends AbstractSetEntityToManyRelationExecutor<DataSetCreation, DataPE, IDataSetId, DataPE> implements
         ISetDataSetParentsExecutor
 {
 

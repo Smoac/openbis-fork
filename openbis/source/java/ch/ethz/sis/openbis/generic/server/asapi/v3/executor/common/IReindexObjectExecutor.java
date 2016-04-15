@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ETH Zuerich, CISD
+ * Copyright 2016 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.ISetEntityRelationsWithCacheExecutor;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import java.util.Collection;
+
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
  * @author pkupczyk
  */
-public interface ISetDataSetChildrenExecutor extends ISetEntityRelationsWithCacheExecutor<DataSetCreation, DataPE, IDataSetId, DataPE>
+public interface IReindexObjectExecutor
 {
+
+    <T extends IIdHolder> void reindex(IOperationContext context, Class<T> objectClass, Collection<T> objects);
 
 }

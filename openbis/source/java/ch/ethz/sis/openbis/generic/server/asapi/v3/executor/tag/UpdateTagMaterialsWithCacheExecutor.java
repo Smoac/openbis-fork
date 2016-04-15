@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
  * @author pkupczyk
  */
 @Component
-public class UpdateTagMaterialsWithCacheExecutor extends UpdateTagEntitiesExecutor<IMaterialId, MaterialPE>
+public class UpdateTagMaterialsWithCacheExecutor extends UpdateTagEntitiesWithCacheExecutor<IMaterialId, MaterialPE>
         implements IUpdateTagMaterialsWithCacheExecutor
 {
 

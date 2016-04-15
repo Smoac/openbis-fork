@@ -16,19 +16,15 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
-import java.util.Map;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.ISetEntityRelationsWithCacheExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
  * @author pkupczyk
  */
-public interface ISetDataSetParentsExecutor
+public interface ISetDataSetParentsExecutor extends ISetEntityRelationsWithCacheExecutor<DataSetCreation, DataPE, IDataSetId, DataPE>
 {
-
-    void set(IOperationContext context, Map<DataSetCreation, DataPE> creationsMap, Map<IDataSetId, DataPE> relatedMap);
 
 }

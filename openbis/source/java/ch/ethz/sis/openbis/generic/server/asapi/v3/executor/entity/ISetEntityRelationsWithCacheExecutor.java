@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.ISetEntityRelationsWithCacheExecutor;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import java.util.Map;
+
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 
 /**
  * @author pkupczyk
  */
-public interface ISetDataSetChildrenExecutor extends ISetEntityRelationsWithCacheExecutor<DataSetCreation, DataPE, IDataSetId, DataPE>
+public interface ISetEntityRelationsWithCacheExecutor<ENTITY_CREATION, ENTITY_PE, RELATED_ID, RELATED_PE>
 {
+
+    public void set(IOperationContext context, Map<ENTITY_CREATION, ENTITY_PE> entitiesMap, Map<RELATED_ID, RELATED_PE> relatedMap);
 
 }

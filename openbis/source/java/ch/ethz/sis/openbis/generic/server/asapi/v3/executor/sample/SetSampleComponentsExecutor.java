@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  * @author pkupczyk
  */
 @Component
-public class SetSampleComponentsExecutor extends AbstractSetEntityToManyRelationExecutor<SampleCreation, SamplePE, ISampleId> implements
+public class SetSampleComponentsExecutor extends AbstractSetEntityToManyRelationExecutor<SampleCreation, SamplePE, ISampleId, SamplePE> implements
         ISetSampleComponentsExecutor
 {
 

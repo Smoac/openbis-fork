@@ -25,10 +25,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.update.TagUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IReindexObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityToManyRelationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
@@ -36,12 +35,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 /**
  * @author pkupczyk
  */
-public abstract class UpdateTagEntitiesExecutor<RELATED_ID, RELATED_PE extends IEntityWithMetaprojects>
+public abstract class UpdateTagEntitiesWithCacheExecutor<RELATED_ID, RELATED_PE extends IEntityWithMetaprojects>
         extends AbstractUpdateEntityToManyRelationExecutor<TagUpdate, MetaprojectPE, RELATED_ID, RELATED_PE>
 {
 
     @Autowired
     private IDAOFactory daoFactory;
+
+    @Autowired
+    private IReindexObjectExecutor reindexObjectExecutor;
 
     protected abstract Class<RELATED_PE> getRelatedClass();
 
@@ -54,21 +56,7 @@ public abstract class UpdateTagEntitiesExecutor<RELATED_ID, RELATED_PE extends I
 
         daoFactory.getSessionFactory().getCurrentSession().flush();
 
-        IFullTextIndexUpdateScheduler indexUpdater = daoFactory.getPersistencyResources().getIndexUpdateScheduler();
-        List<Long> relatedIds = new ArrayList<Long>();
-
-        for (RELATED_PE related : relatedMap.values())
-        {
-            if (related != null)
-            {
-                relatedIds.add(related.getId());
-            }
-        }
-
-        if (false == relatedIds.isEmpty())
-        {
-            indexUpdater.scheduleUpdate(IndexUpdateOperation.reindex(getRelatedClass(), relatedIds));
-        }
+        reindexObjectExecutor.reindex(context, getRelatedClass(), relatedMap.values());
     }
 
     @Override

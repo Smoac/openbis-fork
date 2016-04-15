@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
  * @author pkupczyk
  */
 @Component
-public class UpdateTagDataSetsWithCacheExecutor extends UpdateTagEntitiesExecutor<IDataSetId, DataPE> implements IUpdateTagDataSetsWithCacheExecutor
+public class UpdateTagDataSetsWithCacheExecutor extends UpdateTagEntitiesWithCacheExecutor<IDataSetId, DataPE> implements IUpdateTagDataSetsWithCacheExecutor
 {
 
     @Override

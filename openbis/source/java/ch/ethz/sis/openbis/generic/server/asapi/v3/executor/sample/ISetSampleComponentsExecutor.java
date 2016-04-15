@@ -16,19 +16,15 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
-import java.util.Map;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.ISetEntityRelationsWithCacheExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author pkupczyk
  */
-public interface ISetSampleComponentsExecutor
+public interface ISetSampleComponentsExecutor extends ISetEntityRelationsWithCacheExecutor<SampleCreation, SamplePE, ISampleId, SamplePE>
 {
-
-    public void set(IOperationContext context, Map<SampleCreation, SamplePE> creationsMap, Map<ISampleId, SamplePE> sampleMap);
 
 }

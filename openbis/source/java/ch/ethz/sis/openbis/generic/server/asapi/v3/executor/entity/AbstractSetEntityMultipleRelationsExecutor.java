@@ -29,7 +29,6 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICreationIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
@@ -38,45 +37,41 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
  * @author pkupczyk
  */
 @Component
-public abstract class AbstractSetEntityMultipleRelationsExecutor<ENTITY_CREATION extends ICreationIdHolder, ENTITY_PE, ENTITY_ID extends IObjectId>
+public abstract class AbstractSetEntityMultipleRelationsExecutor<ENTITY_CREATION, ENTITY_PE, RELATED_ID extends IObjectId, RELATED_PE>
         implements ISetEntityRelationsExecutor<ENTITY_CREATION, ENTITY_PE>
 {
 
-    @SuppressWarnings("unchecked")
     @Override
     public void set(IOperationContext context, Map<ENTITY_CREATION, ENTITY_PE> creationsMap)
     {
-        Map<IObjectId, ENTITY_PE> relatedMap = getRelatedMap(context, creationsMap);
+        Map<RELATED_ID, RELATED_PE> relatedMap = getRelatedMap(context, creationsMap);
 
-        set(context, creationsMap, (Map<ENTITY_ID, ENTITY_PE>) relatedMap);
+        set(context, creationsMap, relatedMap);
     }
 
-    private Map<IObjectId, ENTITY_PE> getRelatedMap(IOperationContext context, Map<ENTITY_CREATION, ENTITY_PE> creationsMap)
+    private Map<RELATED_ID, RELATED_PE> getRelatedMap(IOperationContext context, Map<ENTITY_CREATION, ENTITY_PE> creationsMap)
     {
         context.pushProgress(new Progress("load related entities"));
 
-        Set<ENTITY_ID> relatedIds = new HashSet<ENTITY_ID>();
-        for (ENTITY_CREATION creation : creationsMap.keySet())
+        Set<RELATED_ID> relatedIds = new HashSet<RELATED_ID>();
+        for (Entry<ENTITY_CREATION, ENTITY_PE> entry : creationsMap.entrySet())
         {
-            addRelatedIds(relatedIds, creation);
+            addRelatedIds(relatedIds, entry.getKey(), entry.getValue());
         }
 
-        Map<IObjectId, ENTITY_PE> relatedMap = new HashMap<IObjectId, ENTITY_PE>();
+        Map<RELATED_ID, RELATED_PE> relatedMap = new HashMap<RELATED_ID, RELATED_PE>();
 
         for (Entry<ENTITY_CREATION, ENTITY_PE> entry : creationsMap.entrySet())
         {
             ENTITY_CREATION creation = entry.getKey();
             ENTITY_PE entity = entry.getValue();
 
-            if (creation.getCreationId() != null)
-            {
-                relatedMap.put(creation.getCreationId(), entity);
-            }
+            addRelated(relatedMap, creation, entity);
         }
 
-        List<ENTITY_ID> toLoadIds = new LinkedList<ENTITY_ID>();
+        List<RELATED_ID> toLoadIds = new LinkedList<RELATED_ID>();
 
-        for (ENTITY_ID relatedId : relatedIds)
+        for (RELATED_ID relatedId : relatedIds)
         {
             if (relatedId instanceof CreationId)
             {
@@ -84,19 +79,18 @@ public abstract class AbstractSetEntityMultipleRelationsExecutor<ENTITY_CREATION
                 {
                     throw new ObjectNotFoundException(relatedId);
                 }
-            }
-            else
+            } else
             {
                 toLoadIds.add(relatedId);
             }
         }
 
-        Map<ENTITY_ID, ENTITY_PE> loadedMap = map(context, toLoadIds);
+        Map<RELATED_ID, RELATED_PE> loadedMap = map(context, toLoadIds);
         relatedMap.putAll(loadedMap);
 
-        for (ENTITY_ID relatedId : relatedIds)
+        for (RELATED_ID relatedId : relatedIds)
         {
-            ENTITY_PE related = relatedMap.get(relatedId);
+            RELATED_PE related = relatedMap.get(relatedId);
 
             if (related == null)
             {
@@ -111,7 +105,7 @@ public abstract class AbstractSetEntityMultipleRelationsExecutor<ENTITY_CREATION
         return relatedMap;
     }
 
-    protected void addRelatedIds(Set<ENTITY_ID> relatedIds, Collection<? extends ENTITY_ID> relatedIdsToAdd)
+    protected void addRelatedIds(Set<RELATED_ID> relatedIds, Collection<? extends RELATED_ID> relatedIdsToAdd)
     {
         if (relatedIdsToAdd != null)
         {
@@ -119,7 +113,7 @@ public abstract class AbstractSetEntityMultipleRelationsExecutor<ENTITY_CREATION
         }
     }
 
-    protected void addRelatedIds(Set<ENTITY_ID> relatedIds, ENTITY_ID relatedIdToAdd)
+    protected void addRelatedIds(Set<RELATED_ID> relatedIds, RELATED_ID relatedIdToAdd)
     {
         if (relatedIdToAdd != null)
         {
@@ -127,12 +121,22 @@ public abstract class AbstractSetEntityMultipleRelationsExecutor<ENTITY_CREATION
         }
     }
 
-    protected abstract void addRelatedIds(Set<ENTITY_ID> relatedIds, ENTITY_CREATION creation);
+    protected void addRelated(Map<RELATED_ID, RELATED_PE> relatedMap, RELATED_ID relatedId, RELATED_PE related)
+    {
+        if (relatedId != null && related != null)
+        {
+            relatedMap.put(relatedId, related);
+        }
+    }
 
-    protected abstract Map<ENTITY_ID, ENTITY_PE> map(IOperationContext context, List<ENTITY_ID> relatedIds);
+    protected abstract void addRelatedIds(Set<RELATED_ID> relatedIds, ENTITY_CREATION creation, ENTITY_PE entity);
 
-    protected abstract void check(IOperationContext context, ENTITY_ID relatedId, ENTITY_PE related);
+    protected abstract void addRelated(Map<RELATED_ID, RELATED_PE> relatedMap, ENTITY_CREATION creation, ENTITY_PE entity);
 
-    protected abstract void set(IOperationContext context, Map<ENTITY_CREATION, ENTITY_PE> creationsMap, Map<ENTITY_ID, ENTITY_PE> relatedMap);
+    protected abstract Map<RELATED_ID, RELATED_PE> map(IOperationContext context, List<RELATED_ID> relatedIds);
+
+    protected abstract void check(IOperationContext context, RELATED_ID relatedId, RELATED_PE related);
+
+    protected abstract void set(IOperationContext context, Map<ENTITY_CREATION, ENTITY_PE> creationsMap, Map<RELATED_ID, RELATED_PE> relatedMap);
 
 }

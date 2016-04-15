@@ -17,7 +17,12 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create;
 
 import java.io.Serializable;
+import java.util.List;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -31,6 +36,14 @@ public class TagCreation implements Serializable
     private String code;
 
     private String description;
+
+    private List<? extends IExperimentId> experimentIds;
+
+    private List<? extends ISampleId> sampleIds;
+
+    private List<? extends IDataSetId> dataSetIds;
+
+    private List<? extends IMaterialId> materialIds;
 
     public String getCode()
     {
@@ -50,6 +63,46 @@ public class TagCreation implements Serializable
     public void setDescription(String description)
     {
         this.description = description;
+    }
+
+    public List<? extends IExperimentId> getExperimentIds()
+    {
+        return experimentIds;
+    }
+
+    public void setExperimentIds(List<? extends IExperimentId> experimentIds)
+    {
+        this.experimentIds = experimentIds;
+    }
+
+    public List<? extends ISampleId> getSampleIds()
+    {
+        return sampleIds;
+    }
+
+    public void setSampleIds(List<? extends ISampleId> sampleIds)
+    {
+        this.sampleIds = sampleIds;
+    }
+
+    public List<? extends IDataSetId> getDataSetIds()
+    {
+        return dataSetIds;
+    }
+
+    public void setDataSetIds(List<? extends IDataSetId> dataSetIds)
+    {
+        this.dataSetIds = dataSetIds;
+    }
+
+    public List<? extends IMaterialId> getMaterialIds()
+    {
+        return materialIds;
+    }
+
+    public void setMaterialIds(List<? extends IMaterialId> materialIds)
+    {
+        this.materialIds = materialIds;
     }
 
 }
