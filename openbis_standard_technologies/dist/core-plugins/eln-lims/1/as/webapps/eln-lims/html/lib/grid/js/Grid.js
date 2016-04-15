@@ -20,6 +20,11 @@ $.extend(Grid.prototype, {
 			thisGrid.panel.html(template);
 			thisGrid.renderColumnDropdown();
 			thisGrid.renderDropDownOptions();
+			
+			if(thisGrid.rowClickListeners.length > 0) {
+				thisGrid.panel.addClass("fuelux-selectable");
+			}
+			
 			thisGrid.panel.repeater({
 				defaultView : "list",
 				dataSource : function(options, callback) {
