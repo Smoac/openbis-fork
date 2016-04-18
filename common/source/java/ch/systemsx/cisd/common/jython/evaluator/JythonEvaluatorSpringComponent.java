@@ -38,7 +38,8 @@ public class JythonEvaluatorSpringComponent
             Evaluator.setFactory(new Jython25EvaluatorFactory());
         } else
         {
-            throw new BeanInitializationException("The jython-version property must be specified. Since version 16.04 ");
+            throw new BeanInitializationException(
+                    "The jython-version property must be specified in service.properties - possible values are 2.5 and 2.7. Since openBIS version 16.04 recommended jython version is 2.7.");
         }
     }
 }
