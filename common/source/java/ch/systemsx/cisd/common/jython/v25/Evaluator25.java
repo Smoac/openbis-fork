@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.jython.v27;
+package ch.systemsx.cisd.common.jython.v25;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -25,24 +25,25 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.python27.core.CompileMode;
-import org.python27.core.CompilerFlags;
-import org.python27.core.Py;
-import org.python27.core.PyBoolean;
-import org.python27.core.PyCode;
-import org.python27.core.PyException;
-import org.python27.core.PyFloat;
-import org.python27.core.PyFunction;
-import org.python27.core.PyInteger;
-import org.python27.core.PyList;
-import org.python27.core.PyLong;
-import org.python27.core.PyNone;
-import org.python27.core.PyObject;
-import org.python27.core.PyString;
-import org.python27.core.PyStringMap;
-import org.python27.core.PySystemState;
-import org.python27.core.PyTraceback;
+import org.python.core.CompileMode;
+import org.python.core.CompilerFlags;
+import org.python.core.Py;
+import org.python.core.PyBoolean;
+import org.python.core.PyCode;
+import org.python.core.PyException;
+import org.python.core.PyFloat;
+import org.python.core.PyFunction;
+import org.python.core.PyInteger;
+import org.python.core.PyList;
+import org.python.core.PyLong;
+import org.python.core.PyNone;
+import org.python.core.PyObject;
+import org.python.core.PyString;
+import org.python.core.PyStringMap;
+import org.python.core.PySystemState;
+import org.python.core.PyTraceback;
 
+import ch.systemsx.cisd.common.jython.PythonInterpreter;
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator.ReturnType;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
@@ -50,18 +51,23 @@ import ch.systemsx.cisd.common.jython.evaluator.IJythonEvaluator;
 import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 
 /**
- * A class for evaluating expressions, based on Jython 2.7. This is essentially the same as ch.systemsx.cisd.common.jython.evaluator.Evaluator with
- * the following differences:
+ * A class for evaluating expressions, based on Jython 2.5.
+ * <p>
+ * This class is optimized for evaluating the same expression with a different set of variables repeatedly and efficient. The mode of usage of this
+ * class is:
  * <ol>
- * <li>It uses classes from Jython 27 jar</li>
- * <li>"scriptPath" is passed in to the constructor as an additional argument</li>
+ * <li>Construct an {@link Evaluator25} with an appropriate expression.</li>
+ * <li>Set all variables needed for evaluation via {@link #set(String, Object)}</li>
+ * <li>Call one of {@link #getType()}, {@link #evalAsString}, {@link #evalToBoolean()}, {@link #evalToInt()}, {@link #evalToBigInt()},
+ * {@link #evalToDouble()}.</li>
+ * <li>Repeat from step 2</li>
  * </ol>
  * 
- * @author Ganime Akin
+ * @author Bernd Rinn
  */
-public final class Evaluator27 implements IJythonEvaluator
+public final class Evaluator25 implements IJythonEvaluator
 {
-    private final PythonInterpreter27 interpreter;
+    private final PythonInterpreter interpreter;
 
     private final String expression;
 
@@ -76,17 +82,17 @@ public final class Evaluator27 implements IJythonEvaluator
     }
 
     /**
-     * Creates a new {@link Evaluator27} with file system access blocked.
+     * Creates a new {@link Evaluator25} with file system access blocked.
      * 
      * @param expression The expression to evaluate.
      */
-    public Evaluator27(String expression) throws EvaluatorException
+    public Evaluator25(String expression) throws EvaluatorException
     {
         this(expression, null, null);
     }
 
     /**
-     * Creates a new {@link Evaluator27} with file system access blocked.
+     * Creates a new {@link Evaluator25} with file system access blocked.
      * 
      * @param expression The expression to evaluate.
      * @param supportFunctionsOrNull If not <code>null</code>, all public static methods of the given class will be available to the evaluator as
@@ -94,25 +100,23 @@ public final class Evaluator27 implements IJythonEvaluator
      * @param initialScriptOrNull If not <code>null</code>, this has to be a valid (Python) script which is evaluated initially, e.g. to define some
      *            new functions. Note: this script is trusted, so don't run any unvalidated code here!
      */
-    public Evaluator27(String expression, Class<?> supportFunctionsOrNull, String initialScriptOrNull)
+    public Evaluator25(String expression, Class<?> supportFunctionsOrNull, String initialScriptOrNull)
             throws EvaluatorException
     {
         this(expression, null, null, supportFunctionsOrNull, initialScriptOrNull, true);
     }
 
     /**
-     * Creates a new {@link Evaluator27}.
+     * Creates a new {@link Evaluator25}.
      * 
      * @param expression The expression to evaluate.
-     * @param scriptPath This is passed in so that we can set the __file__ variable to a fixed path to be able to use third party libraries copied to
-     *            the same the folder as the Python script
      * @param supportFunctionsOrNull If not <code>null</code>, all public static methods of the given class will be available to the evaluator as
      *            "supporting functions".
      * @param initialScriptOrNull If not <code>null</code>, this has to be a valid (Python) script which is evaluated initially, e.g. to define some
      *            new functions. Note: this script is trusted, so don't run any unvalidated code here!
      * @param blockFileAccess If <code>true</code> the script will not be able to open files.
      */
-    public Evaluator27(String expression, String[] pythonPath, String scriptPath, Class<?> supportFunctionsOrNull,
+    public Evaluator25(String expression, String[] pythonPath, String scriptPath, Class<?> supportFunctionsOrNull,
             String initialScriptOrNull, boolean blockFileAccess) throws EvaluatorException
     {
         if (Evaluator.isMultiline(expression))
@@ -120,7 +124,7 @@ public final class Evaluator27 implements IJythonEvaluator
             throw new EvaluatorException("Expression '" + expression + "' contains line breaks");
         }
 
-        this.interpreter = PythonInterpreter27.createIsolatedPythonInterpreter();
+        this.interpreter = PythonInterpreter.createIsolatedPythonInterpreter();
         this.interpreter.addToPath(pythonPath);
 
         // Security: do not allow file access.
@@ -160,7 +164,7 @@ public final class Evaluator27 implements IJythonEvaluator
     public boolean hasFunction(String functionName)
     {
         PyObject pyObject = interpreter.get(functionName);
-        return pyObject instanceof org.python27.core.PyFunction;
+        return pyObject instanceof PyFunction;
     }
 
     /**
@@ -179,12 +183,12 @@ public final class Evaluator27 implements IJythonEvaluator
             {
                 throw new PyException(new PyString("Unknown function"), functionName);
             }
-            if (pyObject instanceof org.python27.core.PyFunction == false)
+            if (pyObject instanceof PyFunction == false)
             {
                 throw new PyException(new PyString("Not a function"), "'" + functionName
                         + "' is of type " + pyObject.getType().getName() + ".");
             }
-            PyFunction func = (org.python27.core.PyFunction) pyObject;
+            PyFunction func = (PyFunction) pyObject;
             PyObject[] pyArgs = new PyObject[args.length];
             for (int i = 0; i < args.length; i++)
             {
