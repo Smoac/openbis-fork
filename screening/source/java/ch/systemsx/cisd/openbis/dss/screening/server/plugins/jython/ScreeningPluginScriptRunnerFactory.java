@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.screening.server.plugins.jython;
 
-import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
+import ch.systemsx.cisd.common.jython.evaluator.IJythonEvaluator;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.PluginScriptRunnerFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
@@ -46,9 +46,9 @@ public class ScreeningPluginScriptRunnerFactory extends PluginScriptRunnerFactor
     }
 
     @Override
-    protected Evaluator createEvaluator(String scriptString, String[] jythonPath, DataSetProcessingContext context)
+    protected IJythonEvaluator createEvaluator(String scriptString, String[] jythonPath, DataSetProcessingContext context)
     {
-        Evaluator evaluator = super.createEvaluator(scriptString, jythonPath, context);
+        IJythonEvaluator evaluator = super.createEvaluator(scriptString, jythonPath, context);
         evaluator.set(SCREENING_FACADE_VARIABLE_NAME, createScreeningFacade(context));
         return evaluator;
     }
