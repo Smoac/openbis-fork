@@ -208,38 +208,22 @@
 	<script type="text/javascript" src="./js/views/ExperimentTable/ExperimentTableModel.js"></script>
 	<script type="text/javascript" src="./js/views/ExperimentTable/ExperimentTableView.js"></script>
 	
+	<script type="text/javascript" src="./config.js"></script>
 	<script type="text/javascript">
-	//
-	// Configurations Available (Available under the js/config folder)
-	// Use StandardProfile as a standard default for new installations.
-	// Use ExampleProfile as a start point to develop new profiles.
-	//
-	
-	//<PROFILE_PLACEHOLDER>
-	var profile = new StandardProfile();
-	//</PROFILE_PLACEHOLDER>
-	
-	//
-	// Global variables
-	//
-	var mainController = new MainController(profile);
-	
-	//
-	// Global links handler - This function avoid normal link behaviour for javascript enabled links that will use ajax calls for left clicks, allowing to open them on a new tab with right click.
-	//
-	$(document).click(function(e) {
-		var elementClasses = $(e.target).attr('class');
-		var isLeftClick = e.which === 1;
-		if(isLeftClick && elementClasses && elementClasses.indexOf("browser-compatible-javascript-link") !== -1) {
-			e.preventDefault();
-			e.stopPropagation();
-		}
-	});
-	
 	//
 	// Application Startup
 	//
 	$(document).ready(function() {
+		// Global links handler - This function avoid normal link behaviour for javascript enabled links that will use ajax calls for left clicks, allowing to open them on a new tab with right click.
+		$(document).click(function(e) {
+			var elementClasses = $(e.target).attr('class');
+			var isLeftClick = e.which === 1;
+			if(isLeftClick && elementClasses && elementClasses.indexOf("browser-compatible-javascript-link") !== -1) {
+				e.preventDefault();
+				e.stopPropagation();
+			}
+		});
+		
 		$(document).ajaxError(function( event, jqxhr, settings, thrownError ) {
 			try {
 				Util.showError("AJAX Error status: " + jqxhr.status + " - Status text: " + jqxhr.statusText + " - Calling: " + settings.url + " - With Data: " + settings.data);
