@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calc
 
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
+import ch.systemsx.cisd.common.jython.evaluator.IJythonEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.shared.IJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.shared.calculator.AbstractCalculator;
@@ -77,7 +78,7 @@ public class JythonDynamicPropertyCalculator implements IDynamicPropertyCalculat
         return runner.evaluate(new IAtomicEvaluation<String>()
             {
                 @Override
-                public String evaluate(Evaluator evaluator)
+                public String evaluate(IJythonEvaluator evaluator)
                 {
                     evaluator.set(ENTITY_VARIABLE_NAME, entity);
                     return evaluator.evalAsStringLegacy2_2();
@@ -90,7 +91,7 @@ public class JythonDynamicPropertyCalculator implements IDynamicPropertyCalculat
         runner.evaluate(new IAtomicEvaluation<Void>()
             {
                 @Override
-                public Void evaluate(Evaluator evaluator)
+                public Void evaluate(IJythonEvaluator evaluator)
                 {
                     return null;
                 }

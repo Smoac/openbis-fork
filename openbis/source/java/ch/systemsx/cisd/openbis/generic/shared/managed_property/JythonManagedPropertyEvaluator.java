@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
+import ch.systemsx.cisd.common.jython.evaluator.IJythonEvaluator;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedUiActionDescriptionFactory;
@@ -121,10 +122,11 @@ public class JythonManagedPropertyEvaluator implements IManagedPropertyEvaluator
     {
         this(new IEvaluationRunner()
             {
-                private Evaluator evaluator;
+                private IJythonEvaluator evaluator;
+
                 {
                     this.evaluator =
-                            new Evaluator("", ManagedPropertyFunctions.class, scriptExpression);
+                            Evaluator.getFactory().create("", ManagedPropertyFunctions.class, scriptExpression);
                 }
 
                 @Override
@@ -142,7 +144,7 @@ public class JythonManagedPropertyEvaluator implements IManagedPropertyEvaluator
         updateFromBatchFunctionDefined = runner.evaluate(new IAtomicEvaluation<Boolean>()
             {
                 @Override
-                public Boolean evaluate(Evaluator evaluator)
+                public Boolean evaluate(IJythonEvaluator evaluator)
                 {
                     return evaluator.hasFunction(UPDATE_FROM_BATCH_INPUT_FUNCTION);
                 }
@@ -152,7 +154,7 @@ public class JythonManagedPropertyEvaluator implements IManagedPropertyEvaluator
                 runner.evaluate(new IAtomicEvaluation<Boolean>()
                     {
                         @Override
-                        public Boolean evaluate(Evaluator evaluator)
+                        public Boolean evaluate(IJythonEvaluator evaluator)
                         {
                             return evaluator.hasFunction(UPDATE_FROM_REGISTRATION_FORM_FUNCTION);
                         }
@@ -161,7 +163,7 @@ public class JythonManagedPropertyEvaluator implements IManagedPropertyEvaluator
         boolean batchColumnNamesFunctionDefined = runner.evaluate(new IAtomicEvaluation<Boolean>()
             {
                 @Override
-                public Boolean evaluate(Evaluator evaluator)
+                public Boolean evaluate(IJythonEvaluator evaluator)
                 {
                     return evaluator.hasFunction(BATCH_COLUMN_NAMES_FUNCTION);
                 }
@@ -170,7 +172,7 @@ public class JythonManagedPropertyEvaluator implements IManagedPropertyEvaluator
         boolean inputWidgetsFunctionDefined = runner.evaluate(new IAtomicEvaluation<Boolean>()
             {
                 @Override
-                public Boolean evaluate(Evaluator evaluator)
+                public Boolean evaluate(IJythonEvaluator evaluator)
                 {
                     return evaluator.hasFunction(INPUT_WIDGETS_FUNCTION);
                 }
@@ -263,7 +265,7 @@ public class JythonManagedPropertyEvaluator implements IManagedPropertyEvaluator
         Object result = runner.evaluate(new IAtomicEvaluation<Object>()
             {
                 @Override
-                public Object evaluate(Evaluator evaluator)
+                public Object evaluate(IJythonEvaluator evaluator)
                 {
                     return evaluator.evalFunction(functionName);
                 }
@@ -291,7 +293,7 @@ public class JythonManagedPropertyEvaluator implements IManagedPropertyEvaluator
         runner.evaluate(new IAtomicEvaluation<Void>()
             {
                 @Override
-                public Void evaluate(Evaluator evaluator)
+                public Void evaluate(IJythonEvaluator evaluator)
                 {
                     evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
                     evaluator.set(PROPERTY_PE_VARIABLE_NAME, entityProperty);
@@ -314,7 +316,7 @@ public class JythonManagedPropertyEvaluator implements IManagedPropertyEvaluator
         runner.evaluate(new IAtomicEvaluation<Void>()
             {
                 @Override
-                public Void evaluate(Evaluator evaluator)
+                public Void evaluate(IJythonEvaluator evaluator)
                 {
                     evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
                     evaluator.set(PERSON_VARIABLE_NAME, person);
@@ -351,7 +353,7 @@ public class JythonManagedPropertyEvaluator implements IManagedPropertyEvaluator
             runner.evaluate(new IAtomicEvaluation<Void>()
                 {
                     @Override
-                    public Void evaluate(Evaluator evaluator)
+                    public Void evaluate(IJythonEvaluator evaluator)
                     {
                         evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
                         evaluator.set(PERSON_VARIABLE_NAME, person);
@@ -371,7 +373,7 @@ public class JythonManagedPropertyEvaluator implements IManagedPropertyEvaluator
             runner.evaluate(new IAtomicEvaluation<Void>()
                 {
                     @Override
-                    public Void evaluate(Evaluator evaluator)
+                    public Void evaluate(IJythonEvaluator evaluator)
                     {
                         evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
                         evaluator.set(PERSON_VARIABLE_NAME, person);

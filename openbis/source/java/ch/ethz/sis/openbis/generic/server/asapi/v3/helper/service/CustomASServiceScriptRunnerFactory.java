@@ -24,22 +24,22 @@ import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.context.ServiceContex
 import ch.systemsx.cisd.common.jython.JythonUtils;
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
+import ch.systemsx.cisd.common.jython.evaluator.IJythonEvaluator;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class CustomASServiceScriptRunnerFactory implements IScriptRunnerFactory
 {
     private final String scriptPath;
+
     private final IApplicationServerApi applicationService;
 
     public CustomASServiceScriptRunnerFactory(String scriptPath, IApplicationServerApi applicationService)
     {
         this.scriptPath = scriptPath;
         this.applicationService = applicationService;
-        Evaluator.initialize();
+        Evaluator.getFactory().initialize();
     }
 
     @Override
@@ -56,7 +56,7 @@ class CustomASServiceScriptRunnerFactory implements IScriptRunnerFactory
 
         try
         {
-            Evaluator evaluator = new Evaluator("", pythonPath, null, scriptString, false);
+            IJythonEvaluator evaluator = Evaluator.getFactory().create("", pythonPath, scriptPath, null, scriptString, false);
             String sessionToken = context.getSessionToken();
             ExecutionContext executionContext = new ExecutionContext(sessionToken, applicationService);
             return new ServiceScriptRunner(evaluator, executionContext);
@@ -65,16 +65,16 @@ class CustomASServiceScriptRunnerFactory implements IScriptRunnerFactory
             throw new EvaluatorException(ex.getMessage() + " [" + scriptPath + "]");
         }
     }
-    
+
     private static final class ServiceScriptRunner implements IServiceScriptRunner
     {
         private static final String PROCESS_FUNCTION_NAME = "process";
-        
-        private Evaluator evaluator;
+
+        private IJythonEvaluator evaluator;
 
         private ExecutionContext context;
 
-        ServiceScriptRunner(Evaluator evaluator, ExecutionContext context)
+        ServiceScriptRunner(IJythonEvaluator evaluator, ExecutionContext context)
         {
             this.evaluator = evaluator;
             this.context = context;
@@ -83,7 +83,7 @@ class CustomASServiceScriptRunnerFactory implements IScriptRunnerFactory
                 throw new EvaluatorException("Function '" + PROCESS_FUNCTION_NAME
                         + "' was not defined in the processing plugin script");
             }
-            
+
         }
 
         @Override
@@ -94,7 +94,7 @@ class CustomASServiceScriptRunnerFactory implements IScriptRunnerFactory
             {
                 return (Serializable) result;
             }
-            throw new EvaluatorException("Function '" + PROCESS_FUNCTION_NAME 
+            throw new EvaluatorException("Function '" + PROCESS_FUNCTION_NAME
                     + "' dosn't return a serializable object. Object type: " + result.getClass());
         }
     }
@@ -102,6 +102,7 @@ class CustomASServiceScriptRunnerFactory implements IScriptRunnerFactory
     public static final class ExecutionContext
     {
         private final String sessionToken;
+
         private final IApplicationServerApi applicationService;
 
         ExecutionContext(String sessionToken, IApplicationServerApi applicationService)

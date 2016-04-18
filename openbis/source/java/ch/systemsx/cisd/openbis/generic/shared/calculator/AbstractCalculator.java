@@ -20,6 +20,7 @@ import java.math.BigInteger;
 
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
+import ch.systemsx.cisd.common.jython.evaluator.IJythonEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 
 /**
@@ -40,9 +41,9 @@ public class AbstractCalculator
                 + "def float(x):return toFloat(x)" + NEWLINE;
     }
 
-    protected final Evaluator evaluator;
+    protected final IJythonEvaluator evaluator;
 
-    public AbstractCalculator(Evaluator evaluator)
+    public AbstractCalculator(IJythonEvaluator evaluator)
     {
         this.evaluator = evaluator;
     }

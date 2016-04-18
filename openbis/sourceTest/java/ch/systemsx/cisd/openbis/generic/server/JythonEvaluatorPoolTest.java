@@ -49,7 +49,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
+import ch.systemsx.cisd.common.jython.evaluator.IJythonEvaluator;
 import ch.systemsx.cisd.common.utilities.TestResources;
 import ch.systemsx.cisd.openbis.generic.server.JythonEvaluatorPool.EvaluatorState;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -76,8 +76,8 @@ public class JythonEvaluatorPoolTest
         long start = System.currentTimeMillis();
         while (secondsSpentSince(start) < 2)
         {
-            List<Evaluator> resultList = executeParallel(getEvaluatorInUse());
-            assertThat(resultList, isFilledWithSameInstanceOf(Evaluator.class));
+            List<IJythonEvaluator> resultList = executeParallel(getEvaluatorInUse());
+            assertThat(resultList, isFilledWithSameInstanceOf(IJythonEvaluator.class));
         }
     }
 
@@ -95,7 +95,7 @@ public class JythonEvaluatorPoolTest
                 int counter = 5;
 
                 @Override
-                public String evaluate(Evaluator evaluator)
+                public String evaluate(IJythonEvaluator evaluator)
                 {
                     evaluator.set("action", this);
                     evaluator.set("runner", runner);
@@ -202,24 +202,24 @@ public class JythonEvaluatorPoolTest
         return results;
     }
 
-    private Callable<Evaluator> getEvaluatorInUse()
+    private Callable<IJythonEvaluator> getEvaluatorInUse()
     {
         final String script = "def something():\n\treturn '" + UUID.randomUUID().toString() + "'";
 
-        return new Callable<Evaluator>()
+        return new Callable<IJythonEvaluator>()
             {
                 @Override
-                public Evaluator call() throws Exception
+                public IJythonEvaluator call() throws Exception
                 {
                     return pool.getManagedPropertiesRunner(script).evaluate(
-                            new IAtomicEvaluation<Evaluator>()
-                                {
-                                    @Override
-                                    public Evaluator evaluate(Evaluator evaluator)
-                                    {
-                                        return evaluator;
-                                    }
-                                });
+                            new IAtomicEvaluation<IJythonEvaluator>()
+                        {
+                            @Override
+                            public IJythonEvaluator evaluate(IJythonEvaluator evaluator)
+                            {
+                                return evaluator;
+                            }
+                        });
                 }
             };
     }
@@ -235,17 +235,17 @@ public class JythonEvaluatorPoolTest
                 {
                     return pool.getManagedPropertiesRunner(script).evaluate(
                             new IAtomicEvaluation<Integer>()
-                                {
-                                    @Override
-                                    public Integer evaluate(Evaluator evaluator)
-                                    {
-                                        Integer x =
-                                                (Integer) evaluator
-                                                        .evalFunction("return_x_if_defined_else_0");
-                                        evaluator.evalFunction("set_x", 3);
-                                        return x;
-                                    }
-                                });
+                        {
+                            @Override
+                            public Integer evaluate(IJythonEvaluator evaluator)
+                            {
+                                Integer x =
+                                        (Integer) evaluator
+                                                .evalFunction("return_x_if_defined_else_0");
+                                evaluator.evalFunction("set_x", 3);
+                                return x;
+                            }
+                        });
                 }
             };
     }
@@ -255,7 +255,7 @@ public class JythonEvaluatorPoolTest
         return new IAtomicEvaluation<Void>()
             {
                 @Override
-                public Void evaluate(Evaluator evaluator)
+                public Void evaluate(IJythonEvaluator evaluator)
                 {
                     return null;
                 }

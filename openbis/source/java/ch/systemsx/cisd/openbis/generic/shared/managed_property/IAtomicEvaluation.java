@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.managed_property;
 
-import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
+import ch.systemsx.cisd.common.jython.evaluator.IJythonEvaluator;
 
 /**
  * Evaluation of python code loaded in the interpreter of an Evaluator.
@@ -25,5 +25,5 @@ import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
  */
 public interface IAtomicEvaluation<T>
 {
-    public T evaluate(Evaluator evaluator);
+    public T evaluate(IJythonEvaluator evaluator);
 }

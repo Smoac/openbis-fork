@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
+import ch.systemsx.cisd.common.jython.evaluator.IJythonEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.IJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IAtomicEvaluation;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IEvaluationRunner;
@@ -32,14 +33,15 @@ public class TestJythonEvaluatorPool implements IJythonEvaluatorPool
     {
         return new IEvaluationRunner()
             {
-                private Evaluator evaluator;
+                private IJythonEvaluator evaluator;
+
                 {
                     Class<?> importClass = clazz;
                     if (importClass == null)
                     {
                         importClass = Math.class;
                     }
-                    this.evaluator = new Evaluator(expression, importClass, script);
+                    this.evaluator = Evaluator.getFactory().create(expression, importClass, script);
                 }
 
                 @Override

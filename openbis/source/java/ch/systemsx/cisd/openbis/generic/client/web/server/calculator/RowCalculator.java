@@ -40,7 +40,7 @@ public class RowCalculator extends AbstractCalculator
     public RowCalculator(ITableDataProvider provider, String expression,
             Set<ParameterWithValue> parameters)
     {
-        super(new Evaluator(substitudeParameters(expression, parameters), Math.class,
+        super(Evaluator.getFactory().create(substitudeParameters(expression, parameters), Math.class,
                 getBasicInitialScript()));
         row = new Row(provider);
         evaluator.set("row", row);

@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
+import ch.systemsx.cisd.common.jython.evaluator.IJythonEvaluator;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -164,9 +165,9 @@ public class JythonEvaluatorPool implements IJythonEvaluatorPool
     /**
      * Create the evaluator that has the body, and the default expression to be evaluated.
      */
-    private Evaluator createEvaluatorFor(String expression, Class<?> clazz, String script)
+    private IJythonEvaluator createEvaluatorFor(String expression, Class<?> clazz, String script)
     {
-        return new Evaluator(expression, clazz, script);
+        return Evaluator.getFactory().create(expression, clazz, script);
     }
 
     /**
@@ -174,7 +175,7 @@ public class JythonEvaluatorPool implements IJythonEvaluatorPool
      */
     public static class EvaluatorState
     {
-        private final Evaluator evaluator;
+        private final IJythonEvaluator evaluator;
 
         private final Map<String, Object> initialGlobals;
 
@@ -182,7 +183,7 @@ public class JythonEvaluatorPool implements IJythonEvaluatorPool
 
         private final Lock lock;
 
-        public EvaluatorState(Evaluator evaluator)
+        public EvaluatorState(IJythonEvaluator evaluator)
         {
             this.evaluator = evaluator;
             this.lock = new ReentrantLock();
@@ -237,7 +238,7 @@ public class JythonEvaluatorPool implements IJythonEvaluatorPool
 
         }
 
-        public Evaluator getEvaluator()
+        public IJythonEvaluator getEvaluator()
         {
             return evaluator;
         }
