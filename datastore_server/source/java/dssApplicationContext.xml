@@ -41,7 +41,7 @@
 
     <bean id="data-set-path-infos-provider" class="ch.systemsx.cisd.openbis.dss.generic.server.DatabaseBasedDataSetPathInfoProvider"/>
 
-	  <bean id="plugin-tasks" class="ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskInfoProvider"
+	  <bean id="plugin-tasks" class="ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskInfoProvider" depends-on="jython-evaluator"
         factory-method="create" />
 
 	  <bean id="etl-lims-service" class="ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService"
@@ -278,5 +278,8 @@
         <constructor-arg ref="general-information-service"/>
         <constructor-arg ref="adapted-ftp-user-manager"/>
     </bean>
-    
+        
+    <bean id="jython-evaluator" class="ch.systemsx.cisd.common.jython.evaluator.JythonEvaluatorSpringComponent" >
+      <constructor-arg ref="propertyConfigurer" /> 
+    </bean>
 </beans>

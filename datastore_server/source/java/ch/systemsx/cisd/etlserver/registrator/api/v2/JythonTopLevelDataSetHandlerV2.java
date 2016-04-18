@@ -48,7 +48,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 {
     protected final IJythonInterpreterFactory jythonInterpreterFactory;
 
-    // version of jython. 2.7 for jython 2.7. Default is jython 2.5
+    // version of jython. Available options are "2.7" and "2.5". Default is jython 2.7
     public static final String JYTHON_VERSION = "jython-version";
 
     /**
@@ -73,13 +73,12 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         String jythonVersion = PropertyUtils.getProperty(globalState.getThreadParameters()
                 .getThreadProperties(), JYTHON_VERSION);
 
-        if ("2.7".equals(jythonVersion))
-        {
-            jythonInterpreterFactory = new Jython27InterpreterFactory();
-        }
-        else
+        if ("2.5".equals(jythonVersion))
         {
             jythonInterpreterFactory = new Jython25InterpreterFactory();
+        } else
+        {
+            jythonInterpreterFactory = new Jython27InterpreterFactory();
         }
 
         DssRegistrationHealthMonitor.getInstance(globalState.getOpenBisService(),

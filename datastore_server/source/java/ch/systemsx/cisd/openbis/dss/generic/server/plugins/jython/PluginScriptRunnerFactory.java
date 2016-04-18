@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.jython.JythonUtils;
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
+import ch.systemsx.cisd.common.jython.evaluator.IJythonEvaluator;
 import ch.systemsx.cisd.common.jython.v27.Evaluator27;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -89,7 +90,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     public PluginScriptRunnerFactory(String scriptPath)
     {
         this.scriptPath = scriptPath;
-        Evaluator.initialize();
+        Evaluator.getFactory().initialize();
     }
 
     /**
@@ -104,7 +105,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
 
         try
         {
-            Evaluator evaluator =
+            IJythonEvaluator evaluator =
                     createEvaluatorWithContentProviders(context, scriptString, pythonPath);
 
             return new AggregationServiceReportingPluginScriptRunner(evaluator);
@@ -123,7 +124,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
 
         try
         {
-            Evaluator evaluator =
+            IJythonEvaluator evaluator =
                     createEvaluatorWithContentProviders(context, scriptString, pythonPath);
 
             return new DbModifyingAggregationServiceReportingPluginScriptRunner(evaluator);
@@ -217,9 +218,9 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         return evaluator;
     }
 
-    protected Evaluator createEvaluator(String scriptString, String[] pythonPath, DataSetProcessingContext context)
+    protected IJythonEvaluator createEvaluator(String scriptString, String[] pythonPath, DataSetProcessingContext context)
     {
-        final Evaluator evaluator = new Evaluator("", pythonPath, null, scriptString, false);
+        final IJythonEvaluator evaluator = Evaluator.getFactory().create("", pythonPath, null, null, scriptString, false);
 
         evaluator.set(SEARCH_SERVICE_VARIABLE_NAME, createUserSearchService(context));
         evaluator.set(SEARCH_SERVICE_UNFILTERED_VARIABLE_NAME, createUnfilteredSearchService());
@@ -238,10 +239,10 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         return evaluator;
     }
 
-    private Evaluator createEvaluatorWithContentProviders(
+    private IJythonEvaluator createEvaluatorWithContentProviders(
             DataSetProcessingContext context, String scriptString, String[] pythonPath)
     {
-        Evaluator evaluator = createEvaluator(scriptString, pythonPath, context);
+        IJythonEvaluator evaluator = createEvaluator(scriptString, pythonPath, context);
 
         DataSetContentProvider contentProvider =
                 new DataSetContentProvider(context.getHierarchicalContentProvider());
@@ -320,11 +321,11 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     private abstract static class AbstractAggregationServiceReportingPluginScriptRunner
     {
 
-        final Evaluator evaluator;
+        final IJythonEvaluator evaluator;
 
         protected abstract String getFunctionName();
 
-        public AbstractAggregationServiceReportingPluginScriptRunner(Evaluator evaluator)
+        public AbstractAggregationServiceReportingPluginScriptRunner(IJythonEvaluator evaluator)
         {
             this.evaluator = evaluator;
 
@@ -354,7 +355,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         }
 
         AggregationServiceReportingPluginScriptRunner(
-                Evaluator evaluator)
+                IJythonEvaluator evaluator)
         {
             super(evaluator);
         }
@@ -375,7 +376,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         private final static String FUNCTION_NAME = "process";
 
         DbModifyingAggregationServiceReportingPluginScriptRunner(
-                Evaluator evaluator)
+                IJythonEvaluator evaluator)
         {
             super(evaluator);
         }
@@ -389,7 +390,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         @Override
         public void process(IDataSetRegistrationTransactionV2 transaction,
                 Map<String, Object> parameters, ISimpleTableModelBuilderAdaptor tableBuilder)
-                throws EvaluatorException
+                        throws EvaluatorException
         {
             evaluator.evalFunction(FUNCTION_NAME, transaction, parameters, tableBuilder);
         }
@@ -400,9 +401,9 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     {
         private final static String DESCRIBE_FUNCTION_NAME = "describe";
 
-        private final Evaluator evaluator;
+        private final IJythonEvaluator evaluator;
 
-        ReportingPluginScriptRunner(Evaluator evaluator)
+        ReportingPluginScriptRunner(IJythonEvaluator evaluator)
         {
             this.evaluator = evaluator;
             if (false == evaluator.hasFunction(DESCRIBE_FUNCTION_NAME))
@@ -429,9 +430,9 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     {
         private final static String PROCESS_FUNCTION_NAME = "process";
 
-        private final Evaluator evaluator;
+        private final IJythonEvaluator evaluator;
 
-        ProcessingPluginScriptRunner(Evaluator evaluator)
+        ProcessingPluginScriptRunner(IJythonEvaluator evaluator)
         {
             this.evaluator = evaluator;
             if (false == evaluator.hasFunction(PROCESS_FUNCTION_NAME))
@@ -467,9 +468,9 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     {
         private final static String FUNCTION_NAME = "handle";
 
-        private final Evaluator27 evaluator;
+        private final IJythonEvaluator evaluator;
 
-        RequestHandlerPluginScriptRunner(Evaluator27 evaluator)
+        RequestHandlerPluginScriptRunner(IJythonEvaluator evaluator)
         {
             this.evaluator = evaluator;
             if (false == evaluator.hasFunction(FUNCTION_NAME))
