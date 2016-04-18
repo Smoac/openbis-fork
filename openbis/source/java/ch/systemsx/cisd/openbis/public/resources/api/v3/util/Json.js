@@ -1,12 +1,12 @@
 /**
  * Library
  */
-define([ "underscore" ], function(_) {
+define([ 'jquery', 'underscore' ], function(jquery, _) {
 	var Json = function() {
 	}
 
 	Json.prototype.fromJson = function(jsonType, jsonObject) {
-		var dfd = $.Deferred();
+		var dfd = jquery.Deferred();
 
 		var types = {}
 		collectTypes(jsonObject, types);

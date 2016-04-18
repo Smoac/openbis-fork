@@ -1,5 +1,6 @@
-define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
-
+define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
+	jquery.noConflict();
+	
 	var __private = function() {
 
 		this.ajaxRequest = function(settings) {
@@ -37,7 +38,7 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 			var originalError = settings.error || function() {
 			};
 
-			var dfd = $.Deferred();
+			var dfd = jquery.Deferred();
 			function success(response) {
 				if (response.error) {
 					thisPrivate.log("Request failed - data: " + JSON.stringify(settings.data) + ", error: " + JSON.stringify(response.error));
@@ -61,14 +62,14 @@ define([ 'jquery', 'util/Json' ], function($, stjsUtil) {
 				dfd.reject(error);
 			}
 
-			$.ajax(settings).done(success).fail(error);
+			jquery.ajax(settings).done(success).fail(error);
 
 			return dfd.promise();
 		};
 
 		this.loginCommon = function(user, isAnonymousUser, response) {
 			var thisPrivate = this;
-			var dfd = $.Deferred();
+			var dfd = jquery.Deferred();
 
 			response.done(function(sessionToken) {
 				if (sessionToken && (isAnonymousUser || sessionToken.indexOf(user) > -1)) {
