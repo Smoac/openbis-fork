@@ -24,6 +24,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 		this.MaterialCreation = dtos.MaterialCreation;
 		this.AttachmentCreation = dtos.AttachmentCreation;
 		this.VocabularyTermCreation = dtos.VocabularyTermCreation;
+		this.TagCreation = dtos.TagCreation;
 		this.SpaceUpdate = dtos.SpaceUpdate;
 		this.ProjectUpdate = dtos.ProjectUpdate;
 		this.ExperimentUpdate = dtos.ExperimentUpdate;
@@ -32,6 +33,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 		this.PhysicalDataUpdate = dtos.PhysicalDataUpdate;
 		this.MaterialUpdate = dtos.MaterialUpdate;
 		this.VocabularyTermUpdate = dtos.VocabularyTermUpdate;
+		this.TagUpdate = dtos.TagUpdate;
 		this.SpaceDeletionOptions = dtos.SpaceDeletionOptions;
 		this.ProjectDeletionOptions = dtos.ProjectDeletionOptions;
 		this.ExperimentDeletionOptions = dtos.ExperimentDeletionOptions;
@@ -52,6 +54,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 		this.MaterialPermId = dtos.MaterialPermId;
 		this.VocabularyPermId = dtos.VocabularyPermId;
 		this.VocabularyTermPermId = dtos.VocabularyTermPermId;
+		this.TagPermId = dtos.TagPermId;
 		this.TagCode = dtos.TagCode;
 		this.SpaceSearchCriteria = dtos.SpaceSearchCriteria;
 		this.ProjectSearchCriteria = dtos.ProjectSearchCriteria;
@@ -60,6 +63,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 		this.DataSetSearchCriteria = dtos.DataSetSearchCriteria;
 		this.MaterialSearchCriteria = dtos.MaterialSearchCriteria;
 		this.VocabularyTermSearchCriteria = dtos.VocabularyTermSearchCriteria;
+		this.TagSearchCriteria = dtos.TagSearchCriteria;
 		this.SpaceFetchOptions = dtos.SpaceFetchOptions;
 		this.ProjectFetchOptions = dtos.ProjectFetchOptions;
 		this.ExperimentFetchOptions = dtos.ExperimentFetchOptions;
@@ -71,6 +75,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 		this.MaterialFetchOptions = dtos.MaterialFetchOptions;
 		this.MaterialTypeFetchOptions = dtos.MaterialTypeFetchOptions;
 		this.VocabularyTermFetchOptions = dtos.VocabularyTermFetchOptions;
+		this.TagFetchOptions = dtos.TagFetchOptions;
 		this.DeletionFetchOptions = dtos.DeletionFetchOptions;
 		this.DeletionSearchCriteria = dtos.DeletionSearchCriteria;
 		this.CustomASServiceSearchCriteria = dtos.CustomASServiceSearchCriteria;
@@ -182,6 +187,15 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 			});
 		}.bind(this);
 
+		this.createTag = function(facade) {
+			var c = this;
+			var creation = new dtos.TagCreation();
+			creation.setCode(c.generateId("TAG"));
+			return facade.createTags([ creation ]).then(function(permIds) {
+				return permIds[0];
+			});
+		}.bind(this);
+
 		this.findSpace = function(facade, id) {
 			var c = this;
 			return facade.getSpaces([ id ], c.createSpaceFetchOptions()).then(function(spaces) {
@@ -228,6 +242,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 			var c = this;
 			return facade.getVocabularyTerms([ id ], c.createVocabularyTermFetchOptions()).then(function(terms) {
 				return terms[id];
+			});
+		}.bind(this);
+
+		this.findTag = function(facade, id) {
+			var c = this;
+			return facade.getTags([ id ], c.createTagFetchOptions()).then(function(tags) {
+				return tags[id];
 			});
 		}.bind(this);
 
@@ -422,6 +443,15 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 
 		this.createObjectKindModificationFetchOptions = function() {
 			var fo = new dtos.ObjectKindModificationFetchOptions();
+			return fo;
+		};
+
+		this.createTagFetchOptions = function() {
+			var fo = new dtos.TagFetchOptions();
+			fo.withExperiments();
+			fo.withSamples();
+			fo.withDataSets();
+			fo.withMaterials();
 			return fo;
 		};
 

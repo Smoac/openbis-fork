@@ -144,6 +144,8 @@ public class UpdateTagTest extends AbstractTest
     @Test
     public void testUpdateWithExperimentsUnauthorized()
     {
+        final ExperimentIdentifier experimentId = new ExperimentIdentifier("/CISD/NEMO/EXP10");
+
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
             {
                 @Override
@@ -154,11 +156,32 @@ public class UpdateTagTest extends AbstractTest
 
                     TagUpdate update = new TagUpdate();
                     update.setTagId(before.getPermId());
-                    update.getExperimentIds().add(new ExperimentIdentifier("/CISD/NEMO/EXP10"));
+                    update.getExperimentIds().add(experimentId);
 
                     updateTag(TEST_SPACE_USER, PASSWORD, update);
                 }
-            }, new ExperimentIdentifier("/CISD/NEMO/EXP10"));
+            }, experimentId);
+    }
+
+    @Test
+    public void testUpdateWithExperimentsNonexistent()
+    {
+        final ExperimentIdentifier experimentId = new ExperimentIdentifier("/CISD/NEMO/IDONTEXIST");
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
+
+                    TagUpdate update = new TagUpdate();
+                    update.setTagId(before.getPermId());
+                    update.getExperimentIds().add(experimentId);
+
+                    updateTag(TEST_USER, PASSWORD, update);
+                }
+            }, experimentId);
     }
 
     @Test
@@ -227,6 +250,27 @@ public class UpdateTagTest extends AbstractTest
     }
 
     @Test
+    public void testUpdateWithSamplesNonexistent()
+    {
+        final SampleIdentifier sampleId = new SampleIdentifier("/CISD/IDONTEXIST");
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
+
+                    TagUpdate update = new TagUpdate();
+                    update.setTagId(before.getPermId());
+                    update.getSampleIds().add(sampleId);
+
+                    updateTag(TEST_USER, PASSWORD, update);
+                }
+            }, sampleId);
+    }
+
+    @Test
     public void testUpdateWithDataSetsAdd()
     {
         Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
@@ -274,6 +318,8 @@ public class UpdateTagTest extends AbstractTest
     @Test
     public void testUpdateWithDataSetsUnauthorized()
     {
+        final DataSetPermId dataSetId = new DataSetPermId("20081105092159111-1");
+
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
             {
                 @Override
@@ -285,15 +331,36 @@ public class UpdateTagTest extends AbstractTest
                     TagUpdate update = new TagUpdate();
                     update.setTagId(before.getPermId());
                     // data set connected to experiment /CISD/NEMO/EXP-TEST-1
-                    update.getDataSetIds().add(new DataSetPermId("20081105092159111-1"));
+                    update.getDataSetIds().add(dataSetId);
 
                     updateTag(TEST_SPACE_USER, PASSWORD, update);
                 }
-            }, new DataSetPermId("20081105092159111-1"));
+            }, dataSetId);
     }
 
     @Test
-    public void testUpdateWithMaterialAdd()
+    public void testUpdateWithDataSetsNonexistent()
+    {
+        final DataSetPermId dataSetId = new DataSetPermId("IDONTEXIST");
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
+
+                    TagUpdate update = new TagUpdate();
+                    update.setTagId(before.getPermId());
+                    update.getDataSetIds().add(dataSetId);
+
+                    updateTag(TEST_USER, PASSWORD, update);
+                }
+            }, dataSetId);
+    }
+
+    @Test
+    public void testUpdateWithMaterialsAdd()
     {
         Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
         assertMaterialPermIds(before.getMaterials(), new MaterialPermId("AD3", "VIRUS"));
@@ -308,7 +375,7 @@ public class UpdateTagTest extends AbstractTest
     }
 
     @Test
-    public void testUpdateWithMaterialRemove()
+    public void testUpdateWithMaterialsRemove()
     {
         Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
         assertMaterialPermIds(before.getMaterials(), new MaterialPermId("AD3", "VIRUS"));
@@ -323,7 +390,7 @@ public class UpdateTagTest extends AbstractTest
     }
 
     @Test
-    public void testUpdateWithMaterialSet()
+    public void testUpdateWithMaterialsSet()
     {
         Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
         assertMaterialPermIds(before.getMaterials(), new MaterialPermId("AD3", "VIRUS"));
@@ -338,9 +405,30 @@ public class UpdateTagTest extends AbstractTest
     }
 
     @Test
-    public void testUpdateWithMaterialUnauthorized()
+    public void testUpdateWithMaterialsUnauthorized()
     {
         // nothing to test as the materials can be accessed by every user
+    }
+
+    @Test
+    public void testUpdateWithMaterialsNonexistent()
+    {
+        final MaterialPermId materialId = new MaterialPermId("IDONTEXIST", "MENEITHER");
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
+
+                    TagUpdate update = new TagUpdate();
+                    update.setTagId(before.getPermId());
+                    update.getMaterialIds().add(materialId);
+
+                    updateTag(TEST_USER, PASSWORD, update);
+                }
+            }, materialId);
     }
 
     private Tag getTag(String user, String password, ITagId tagId)

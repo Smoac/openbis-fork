@@ -187,5 +187,25 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			testCreate(c, fCreate, c.findVocabularyTerm, fCheck);
 		});
 
+		QUnit.test("createTags()", function(assert) {
+			var c = new common(assert);
+			var code = c.generateId("TAG");
+			var description = "Description of " + code;
+
+			var fCreate = function(facade) {
+				var tagCreation = new c.TagCreation();
+				tagCreation.setCode(code);
+				tagCreation.setDescription(description);
+				return facade.createTags([ tagCreation ]);
+			}
+
+			var fCheck = function(tag) {
+				c.assertEqual(tag.getCode(), code, "Tag code");
+				c.assertEqual(tag.getDescription(), description, "Tag description");
+			}
+
+			testCreate(c, fCreate, c.findTag, fCheck);
+		});
+
 	}
 });

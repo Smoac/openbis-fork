@@ -55,6 +55,9 @@ public class CreateTagExecutor extends AbstractCreateEntityExecutor<TagCreation,
     @Autowired
     private ISetTagDataSetsExecutor setTagDataSetsExecutor;
 
+    @Autowired
+    private ISetTagMaterialsExecutor setTagMaterialsExecutor;
+
     @Override
     protected List<MetaprojectPE> createEntities(IOperationContext context, Collection<TagCreation> creations)
     {
@@ -112,6 +115,7 @@ public class CreateTagExecutor extends AbstractCreateEntityExecutor<TagCreation,
         setTagExperimentsExecutor.set(context, entitiesMap);
         setTagSamplesExecutor.set(context, entitiesMap);
         setTagDataSetsExecutor.set(context, entitiesMap);
+        setTagMaterialsExecutor.set(context, entitiesMap);
     }
 
     @Override

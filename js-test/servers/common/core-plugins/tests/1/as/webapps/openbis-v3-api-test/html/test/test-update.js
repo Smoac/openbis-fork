@@ -389,5 +389,31 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			testUpdate(c, fCreate, fUpdate, c.findVocabularyTerm, fCheck);
 		});
 
+		QUnit.test("updateTags()", function(assert) {
+			var c = new common(assert);
+			var code = c.generateId("TAG");
+			var description = "Description of " + code;
+
+			var fCreate = function(facade) {
+				var tagCreation = new c.TagCreation();
+				tagCreation.setCode(code);
+				return facade.createTags([ tagCreation ]);
+			}
+
+			var fUpdate = function(facade, permId) {
+				var tagUpdate = new c.TagUpdate();
+				tagUpdate.setTagId(permId);
+				tagUpdate.setDescription(description);
+				return facade.updateTags([ tagUpdate ]);
+			}
+
+			var fCheck = function(tag) {
+				c.assertEqual(tag.getCode(), code, "Tag code");
+				c.assertEqual(tag.getDescription(), description, "Tag description");
+			}
+
+			testUpdate(c, fCreate, fUpdate, c.findTag, fCheck);
+		});
+
 	}
 });

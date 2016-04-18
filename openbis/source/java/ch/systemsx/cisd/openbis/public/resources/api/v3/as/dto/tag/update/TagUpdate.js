@@ -25,6 +25,12 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		prototype.setTagId = function(tagId) {
 			this.tagId = tagId;
 		};
+		prototype.getDescription = function() {
+			return this.description;
+		};
+		prototype.setDescription = function(description) {
+			this.description.setValue(description);
+		};
 		prototype.getExperimentIds = function() {
 			return this.experimentIds;
 		};

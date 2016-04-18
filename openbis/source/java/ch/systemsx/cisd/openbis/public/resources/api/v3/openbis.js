@@ -235,6 +235,21 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 			});
 		}
 
+		this.createTags = function(creations) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "createTags",
+					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "TagPermId" ]
+				}
+			});
+		}
+
 		this.updateSpaces = function(updates) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
