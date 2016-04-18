@@ -58,3 +58,7 @@ if [ -d $BEE ]; then
     cp $CONF/../beewm/* $BEE/bee-workflowmanager/etc/
 fi
 
+# -- ELN-LIMS
+if [ -d $ROOT/core-plugins/eln-lims/1/as/webapps/eln-lims/html/etc ]; then
+    cp $CONF/../eln-lims/* $ROOT/core-plugins/eln-lims/1/as/webapps/eln-lims/html/etc/
+fi
