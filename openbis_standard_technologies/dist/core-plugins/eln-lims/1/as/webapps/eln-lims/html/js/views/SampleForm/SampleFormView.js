@@ -623,6 +623,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					component += "<span class='checkbox'><label><input type='checkbox' id='linkParentsOnCopy'> Link Parents </label></span>";
 					component += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 					component += "<span class='checkbox'><label><input type='checkbox' id='copyChildrenOnCopy'> Copy Children </label></span>";
+					component += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+					component += "<span class='checkbox'><label><input type='checkbox' id='copyCommentsLogOnCopy'> Copy Comments Log </label></span>";
 					component += "</div>";
 					component += "</div>";
 					component += "</div>";
@@ -658,10 +660,11 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					var newSampleCodeForCopy = $("#newSampleCodeForCopy");
 					var linkParentsOnCopy = $("#linkParentsOnCopy")[0].checked;
 					var copyChildrenOnCopy = $("#copyChildrenOnCopy")[0].checked;
+					var copyCommentsLogOnCopy = $("#copyCommentsLogOnCopy")[0].checked;
 					var isValid = newSampleCodeForCopy[0].checkValidity();
 					if(isValid) {
 						var newSampleCodeForCopyValue = newSampleCodeForCopy.val();
-						_this._sampleFormController.createUpdateCopySample(newSampleCodeForCopyValue, linkParentsOnCopy, copyChildrenOnCopy);
+						_this._sampleFormController.createUpdateCopySample(newSampleCodeForCopyValue, linkParentsOnCopy, copyChildrenOnCopy, copyCommentsLogOnCopy);
 					} else {
 						Util.showError("Invalid code.", function() {}, true);
 					}

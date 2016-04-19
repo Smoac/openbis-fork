@@ -104,7 +104,7 @@ function SampleFormController(mainController, mode, sample) {
 		});
 	}
 	
-	this.createUpdateCopySample = function(isCopyWithNewCode, linkParentsOnCopy, copyChildrenOnCopy) {
+	this.createUpdateCopySample = function(isCopyWithNewCode, linkParentsOnCopy, copyChildrenOnCopy, copyCommentsLogOnCopy) {
 		Util.blockUI();
 		var _this = this;
 		
@@ -232,6 +232,11 @@ function SampleFormController(mainController, mode, sample) {
 			parameters["sampleCode"] = isCopyWithNewCode;
 			parameters["notCopyProperties"] = [];
 			parameters["defaultBenchPropertyList"] = [];
+			
+			if(!copyCommentsLogOnCopy && parameters["sampleProperties"]["XMLCOMMENTS"]) {
+				delete parameters["sampleProperties"]["XMLCOMMENTS"];
+			}
+			
 			if(!linkParentsOnCopy) {
 				parameters["sampleParents"] = [];
 			}
