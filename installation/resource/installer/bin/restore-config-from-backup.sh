@@ -35,7 +35,13 @@ if [ -d $ROOT/openBIS-server ]; then
     cp $CONF/log.xml $ROOT/openBIS-server/jetty/etc/ 
     cp $CONF/openbis.conf $ROOT/openBIS-server/jetty/etc/
     cp $CONF/jetty.properties $ROOT/openBIS-server/jetty/etc/
-    cp $CONF/welcomePageSimpleGeneric.html $ROOT/openBIS-server/jetty/webapps/openbis/custom
+
+    # for 13.04.10 and older
+    copyIfExists $CONF/../openBIS-server/jetty/webapps/openbis/welcomePageSimple.html $ROOT/openBIS-server/jetty/webapps/openbis/custom/welcomePageSimpleGeneric.html
+    
+    # for 13.04.11 and later
+    copyIfExists $CONF/../openBIS-server/jetty/webapps/openbis/custom/welcomePageSimpleGeneric.html $ROOT/openBIS-server/jetty/webapps/openbis/custom
+
     # not always present
     copyIfExists $CONF/.keystore $ROOT/openBIS-server/jetty/etc/openBIS.keystore
     copyIfExists $CONF/passwd $ROOT/openBIS-server/jetty/etc/
