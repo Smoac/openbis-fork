@@ -48,16 +48,36 @@ def get_flowcell_id(json_string):
 def register_in_openbis(transaction, json_string):
     lane_count = get_lane_count(json_string)
     flowcell_id = get_flowcell_id(json_string)
+
     found_flow_cell = search_unique_sample(transaction, flowcell_id)
     search_service = transaction.getSearchService()
-    get_flowcell_with_contained_samples = search_service.getSample(found_flow_cell[0].getSampleIdentifier())
+    
+    flowcell = found_flow_cell[0]
+
+    get_flowcell_with_contained_samples = search_service.getSample(flowcell.getSampleIdentifier())
     flowlanes = get_flowcell_with_contained_samples.getContainedSamples()
     for lane in flowlanes:
         mutable_lane = transaction.getSampleForUpdate(lane.getSampleIdentifier())
         lane_number = lane.getCode().split(":")[-1]
-        aligned_mean = json_string['cluster_lane_dict'][str(lane_number)]['aligned'][0]['mean']
-        cluster_density_mean = json_string['cluster_lane_dict'][str(lane_number)]['clusterDensity'][0]['mean']
-        error_rate_mean = json_string['error_metrics'][str(lane_number)]['mean']
+        
+        try:
+            aligned_mean = json_string['cluster_lane_dict'][str(lane_number)]['aligned'][0]['mean']
+        except KeyError:
+            print ("Problem occurred with aligned value for PhiX")
+            aligned_mean = -1
+        
+        try:
+            cluster_density_mean = json_string['cluster_lane_dict'][str(lane_number)]['clusterDensity'][0]['mean']
+        except KeyError:
+            print ("Problem occurred with cluster density")
+            cluster_density_mean = -1
+            
+        try:
+            error_rate_mean = json_string['error_metrics'][str(lane_number)]['mean']
+        except KeyError:
+            print ("Problem occurred with error rate")
+            error_rate_mean = -1
+        
         mutable_lane.setPropertyValue("PERC_PHIX_ALIGNED", str(aligned_mean))
         mutable_lane.setPropertyValue("CLUSTER_DENSITY", str(cluster_density_mean))
         mutable_lane.setPropertyValue("ERROR_RATE", str(error_rate_mean))
