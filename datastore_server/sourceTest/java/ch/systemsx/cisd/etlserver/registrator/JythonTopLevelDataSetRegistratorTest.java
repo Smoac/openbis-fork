@@ -33,7 +33,6 @@ import org.jmock.Expectations;
 import org.jmock.api.Invocation;
 import org.jmock.internal.ExpectationBuilder;
 import org.jmock.lib.action.CustomAction;
-import org.python.core.PyException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -314,18 +313,21 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 @Override
                 public boolean execute(Exception arg)
                 {
-                    if (arg instanceof IOExceptionUnchecked)
+                    Throwable exc = arg;
+                    if (arg instanceof org.python27.core.PyException)
                     {
-                        IOExceptionUnchecked tunnel = (IOExceptionUnchecked) arg;
-                        FileNotFoundException ex = (FileNotFoundException) tunnel.getCause();
-                        return ex.getMessage().startsWith("Neither '/non/existent/path' nor '");
-                    } else
+                        exc = ((org.python27.core.PyException) arg).getCause();
+                    } else if (arg instanceof org.python.core.PyException)
                     {
-                        PyException pyException = (PyException) arg;
-                        IOExceptionUnchecked tunnel = (IOExceptionUnchecked) pyException.getCause();
+                        exc = ((org.python.core.PyException) arg).getCause();
+                    }
+                    if (exc instanceof IOExceptionUnchecked)
+                    {
+                        IOExceptionUnchecked tunnel = (IOExceptionUnchecked) exc;
                         FileNotFoundException ex = (FileNotFoundException) tunnel.getCause();
                         return ex.getMessage().startsWith("Neither '/non/existent/path' nor '");
                     }
+                    return false;
                 }
             };
         testCases.addAll(multipleVersionsOfTestCase(testCase));
