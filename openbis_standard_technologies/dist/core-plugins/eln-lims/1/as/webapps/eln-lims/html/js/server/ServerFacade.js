@@ -39,7 +39,7 @@ function ServerFacade(openbisServer) {
 					location.reload(true);
 				}, true);
 			} else if(response.error === "Request failed: ") {
-				Util.showError(response.error + "It could not reach openBIS or DSS for some reason.", null, true);
+				Util.showError(response.error + "openBIS or DSS cannot be reached. Please try again or contact your admin.", null, true);
 			}
 		}
 		
