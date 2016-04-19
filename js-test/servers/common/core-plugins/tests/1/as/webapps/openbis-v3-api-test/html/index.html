@@ -27,7 +27,7 @@
 <script src="/openbis/resources/api/v3/require.js"></script>
 
 <script>
-	require([ 'test/qunit', 'test/qunit-report', 'test/main' ], function(qunit, report, main) {
+	require([ 'jquery', 'test/qunit', 'test/qunit-report', 'test/main' ], function($, qunit, report, main) {
 		qunit.config.autostart = false;
 		qunit.config.testTimeout = 10000;
 		qunit.jUnitReport = function(report) {
