@@ -60,5 +60,7 @@ fi
 
 # -- ELN-LIMS
 if [ -d $ROOT/core-plugins/eln-lims/1/as/webapps/eln-lims/html/etc ]; then
-    cp $CONF/../eln-lims/* $ROOT/core-plugins/eln-lims/1/as/webapps/eln-lims/html/etc/
+	if [ -d $CONF/../eln-lims ]; then
+		cp $CONF/../eln-lims/* $ROOT/core-plugins/eln-lims/1/as/webapps/eln-lims/html/etc/
+	fi
 fi
