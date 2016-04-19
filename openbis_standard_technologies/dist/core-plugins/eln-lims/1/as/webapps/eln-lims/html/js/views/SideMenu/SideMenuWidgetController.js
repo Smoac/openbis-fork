@@ -280,8 +280,7 @@ function SideMenuWidgetController(mainController) {
 
                 //Fill Sub Experiments
                 mainController.serverFacade.listSamplesForExperiments(experimentsToAskForSamples, function(subExperiments) {
-                	var childrenLimit = 20;
-                    if (subExperiments.result && subExperiments.result.length <= childrenLimit) {
+                    if (subExperiments.result) {
                         var toSortSubExperiments = {};
 
                         for (var i = 0; i < subExperiments.result.length; i++) {
@@ -303,14 +302,18 @@ function SideMenuWidgetController(mainController) {
                             }
                         }
 
+                        var childrenLimit = 20;
                         for(uniqueId in toSortSubExperiments) {
-                            toSortSubExperiments[uniqueId].newMenuIfSelected.children.sort(naturalSortSideMenuWidgetComponent); //Sort Sub Experiments
+                        	var experimentNode = toSortSubExperiments[uniqueId];
+                        	if(experimentNode.newMenuIfSelected.children.length > childrenLimit) {
+                        		experimentNode.newMenuIfSelected.children = [];
+                        		var menuItemSubExperiment = new SideMenuWidgetComponent(false, false, "Too many Experiment components for the menu, please check the experiment form.", null, experimentNode, null, null, null, "(Too many Experiment components.)");
+                        		experimentNode.newMenuIfSelected.children.push(menuItemSubExperiment);
+                        	} else {
+                        		experimentNode.newMenuIfSelected.children.sort(naturalSortSideMenuWidgetComponent); //Sort Sub Experiments
+                        	}
                         }
-                    } else if (subExperiments.result && subExperiments.result.length > childrenLimit) {
-                    	var subExperiment = subExperiments.result[0];
-                    	var experimentNode = _this._getUniqueId(subExperiment.experimentIdentifierOrNull);
-                    	var menuItemSubExperiment = new SideMenuWidgetComponent(false, false, "Too many Experiment components for the menu, please check the experiment form.", null, experimentNode, null, null, null, "(Too many Experiment components.)");
-                        experimentNode.newMenuIfSelected.children.push(menuItemSubExperiment);
+                        
                     }
 
 
