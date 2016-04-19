@@ -1,5 +1,5 @@
 from ch.systemsx.cisd.common.mail import EMailAddress
-
+from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 SPACE_CODE = "RICH_SPACE"
 PROJECT_ID = "/RICH_SPACE/RICH_PROJECT"
 EXPERIMENT_ID = "/RICH_SPACE/RICH_PROJECT/RICH_EXPERIMENT"
@@ -73,9 +73,23 @@ def check_get_by_id_methods(transaction):
     if ss.getExperiment("/CISD/NEMO/EXP1") != ss.getExperimentByIdentifier("/CISD/NEMO/EXP1"):
         raise Exception("Method - getExperiment and getExperimentByIdentifier returned different sample")
 
+def search_unique_sample(transaction, sample_code): 
+    search_service = transaction.getSearchService()
+    sc = SearchCriteria()
+    sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, sample_code));
+    found_sample = search_service.searchForSamples(sc)
+    if found_sample.size() != 1:
+      raise Exception("Unique sample %s not found with search criteria" % sample_code)
+    print "unique sample found"
+    print found_sample
+    print "----------------------------------------"
+
 def process(transaction):
     #reading methods
     check_get_by_id_methods(transaction)
+    
+    #search for unique sample using search criteria
+    search_unique_sample(transaction, "CP-TEST-3")
     
     # create experiment
     create_space(transaction)
