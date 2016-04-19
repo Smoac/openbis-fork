@@ -308,7 +308,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             SamplePE candidate = candidates.pop();
             if (candidate == childPE)
             {
-                throw UserFailureException.fromTemplate("'%s' cannot be it's own parent.",
+                throw UserFailureException.fromTemplate("'%s' cannot be its own parent.",
                         childPE.getIdentifier());
             }
             for (SamplePE parent : candidate.getParents())
