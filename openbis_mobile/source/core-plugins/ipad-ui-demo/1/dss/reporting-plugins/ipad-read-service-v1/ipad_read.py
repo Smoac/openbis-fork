@@ -254,9 +254,9 @@ class ExampleRootRequestHandler(RootRequestHandler):
 
 		# Get the data and add a row for each data item
 		self.samples = self.searchService.searchForSamples("DESC", "*", "5HT_PROBE")
-		if self.parameters['lastupdate'] != None:
+		if self.parameters.get('lastupdate') != None:
 			updated_samples = [];
-			last_update = long(self.parameters['lastupdate'].split(".")[0])
+			last_update = long(self.parameters.get('lastupdate').split(".")[0])
 			updated_samples = [s for s in self.samples if s.sample.modificationDate.getTime()/1000 > last_update]
 			self.updated_samples = updated_samples
 			
