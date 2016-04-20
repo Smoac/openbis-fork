@@ -13,7 +13,7 @@ var SampleDataGridUtil = new function() {
 			isExportable: true,
 			sortable : true,
 			render : function(data) {
-				return (isLinksDisabled)?data.permId:FormUtil.getFormLink(data.identifier, "Sample", data.permId);
+				return (isLinksDisabled)?data.identifier:FormUtil.getFormLink(data.identifier, "Sample", data.permId);
 			},
 			filter : function(data, filter) {
 				return data.identifier.toLowerCase().indexOf(filter) !== -1;
