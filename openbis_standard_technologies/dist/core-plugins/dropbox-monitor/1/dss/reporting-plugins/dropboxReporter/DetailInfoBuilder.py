@@ -1,5 +1,7 @@
-from com.xhaus.jyson import JysonCodec as json
-
+try:
+    import json
+except:
+    from com.xhaus.jyson import JysonCodec as json
 
 class DetailInfoBuilder:
 

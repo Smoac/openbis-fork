@@ -1,4 +1,7 @@
-from com.xhaus.jyson import JysonCodec as json
+try:
+    import json
+except:
+    from com.xhaus.jyson import JysonCodec as json
 from datetime import datetime
 
 
