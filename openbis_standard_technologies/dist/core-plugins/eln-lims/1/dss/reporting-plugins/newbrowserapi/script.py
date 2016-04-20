@@ -93,8 +93,6 @@ def getDirectLinkURL():
 		protocol = "sftp";
 	elif (ftpServerEnable == "true") and ((ftpPort is not None) or (ftpPortLegacy is not None)) and (ftpServerUseSsl == "true" or useSsl == "true"):
 		protocol = "ftps";
-	elif (ftpServerEnable == "true") and ((ftpPort is not None) or (ftpPortLegacy is not None)):
-		protocol = "ftp";
 	
 	if protocol is not None:
 		if sftpPort is not None:
