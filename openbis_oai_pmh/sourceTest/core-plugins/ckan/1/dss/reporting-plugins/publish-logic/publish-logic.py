@@ -82,7 +82,7 @@ def getSpaces(tr, parameters, tableBuilder):
 
 def getTags(tr, parameters, tableBuilder):
 
-	paramExperiment = parameters["experiment"]
+	paramExperiment = parameters.get("experiment")
 	validateNotEmpty(paramExperiment, "experiment")
 
 	experiment = tr.getSearchService().getExperiment(paramExperiment)
@@ -99,8 +99,8 @@ def getTags(tr, parameters, tableBuilder):
 	return json.dumps(tagsList)
 
 def getMeshTermChildren(tr, parameters, tableBuilder):
-	parentIdentifier = parameters["parent"]
-	filter = parameters["filter"]
+	parentIdentifier = parameters.get("parent")
+	filter = parameters.get("filter")
 	
 	if(not parentIdentifier):
 		parentIdentifier = ""
@@ -274,16 +274,16 @@ def validateSize(array, name, minSize, maxSize):
 		raise "Field '%s' must contain from %s up to %s items." % (name, minSize, maxSize)
 
 def publish(tr, parameters, tableBuilder):
-	paramExperiment = parameters["experiment"]
-	paramSpace = parameters["space"]
-	paramPublicationId = parameters["publicationId"]
-	paramTitle = parameters["title"]
-	paramAuthor = parameters["author"]
-	paramAuthorEmail = parameters["authorEmail"]
-	paramLicense = parameters["license"]
-	paramNotes = parameters["notes"]
-	paramMeshTerms = parameters["meshTerms"]
-	paramTag = parameters["tag"]
+	paramExperiment = parameters.get("experiment")
+	paramSpace = parameters.get("space")
+	paramPublicationId = parameters.get("publicationId")
+	paramTitle = parameters.get("title")
+	paramAuthor = parameters.get("author")
+	paramAuthorEmail = parameters.get("authorEmail")
+	paramLicense = parameters.get("license")
+	paramNotes = parameters.get("notes")
+	paramMeshTerms = parameters.get("meshTerms")
+	paramTag = parameters.get("tag")
 
 	meshTermMap = loadMeshTerms()
 	meshTermVersion = loadMeshTermsVersion()
