@@ -238,7 +238,13 @@ public abstract class OAIPMHSystemTest extends GenericSystemTest
                     dssServiceRpcGeneric.createReportFromAggregationService(sessionToken, "publish-logic", parameters);
 
             List<QueryTableColumn> columns = result.getColumns();
-            Assert.assertEquals(columns.size(), 1);
+            String columnNames = "";
+            for (QueryTableColumn queryTableColumn : columns)
+            {
+                columnNames += queryTableColumn.getTitle() + ",";
+            }
+
+            Assert.assertEquals(columns.size(), 1, columnNames);
             Assert.assertEquals(columns.get(0).getTitle(), "RESULT");
 
             List<Serializable[]> rows = result.getRows();
