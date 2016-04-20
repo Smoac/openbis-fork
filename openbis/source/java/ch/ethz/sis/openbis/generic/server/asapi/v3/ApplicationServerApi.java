@@ -99,9 +99,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.update.SpaceUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.deletion.TagDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.search.TagSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.update.TagUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyTermCreation;
@@ -126,9 +128,9 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteMateri
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteProjectMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteSampleMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteSpaceMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteTagMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IDeleteVocabularyTermMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IExecuteCustomASServiceMethodExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGlobalSearchMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGetDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGetExperimentMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGetMaterialMethodExecutor;
@@ -137,6 +139,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGetSampleMet
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGetSpaceMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGetTagMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGetVocabularyTermMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGlobalSearchMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IRevertDeletionMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchCustomASServiceMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchDataSetMethodExecutor;
@@ -151,6 +154,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchProjec
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchSampleMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchSampleTypeMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchSpaceMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchTagMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchVocabularyTermMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateExperimentMethodExecutor;
@@ -294,6 +298,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     private ISearchVocabularyTermMethodExecutor searchVocabularyTermExecutor;
 
     @Autowired
+    private ISearchTagMethodExecutor searchTagExecutor;
+
+    @Autowired
     private ISearchCustomASServiceMethodExecutor searchCustomASServiceExecutor;
 
     @Autowired
@@ -319,6 +326,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private IDeleteVocabularyTermMethodExecutor deleteVocabularyTermExecutor;
+
+    @Autowired
+    private IDeleteTagMethodExecutor deleteTagExecutor;
 
     @Autowired
     private ISearchDeletionMethodExecutor searchDeletionExecutor;
@@ -696,6 +706,14 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public SearchResult<Tag> searchTags(String sessionToken, TagSearchCriteria searchCriteria, TagFetchOptions fetchOptions)
+    {
+        return searchTagExecutor.search(sessionToken, searchCriteria, fetchOptions);
+    }
+
+    @Override
     @Transactional
     @DatabaseCreateOrDeleteModification(value = { ObjectKind.SPACE, ObjectKind.DELETION })
     @RolesAllowed({ RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
@@ -763,6 +781,16 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public void deleteVocabularyTerms(String sessionToken, List<? extends IVocabularyTermId> termIds, VocabularyTermDeletionOptions deletionOptions)
     {
         deleteVocabularyTermExecutor.delete(sessionToken, termIds, deletionOptions);
+    }
+
+    @Override
+    @Transactional
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.METAPROJECT, ObjectKind.DELETION })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("DELETE_TAG")
+    public void deleteTags(String sessionToken, List<? extends ITagId> tagIds, TagDeletionOptions deletionOptions)
+    {
+        deleteTagExecutor.delete(sessionToken, tagIds, deletionOptions);
     }
 
     @Override

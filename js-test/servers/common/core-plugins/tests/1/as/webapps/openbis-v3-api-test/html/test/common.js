@@ -41,6 +41,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 		this.DataSetDeletionOptions = dtos.DataSetDeletionOptions;
 		this.MaterialDeletionOptions = dtos.MaterialDeletionOptions;
 		this.VocabularyTermDeletionOptions = dtos.VocabularyTermDeletionOptions;
+		this.TagDeletionOptions = dtos.TagDeletionOptions;
 		this.EntityTypePermId = dtos.EntityTypePermId;
 		this.EntityTypeSearchCriteria = dtos.EntityTypeSearchCriteria;
 		this.SpacePermId = dtos.SpacePermId;
@@ -307,6 +308,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 			options.setReason("test reason");
 			options.replace(id, new c.VocabularyTermPermId("TEST-TERM-1", "TEST-VOCABULARY"));
 			return facade.deleteVocabularyTerms([ id ], options);
+		}.bind(this);
+
+		this.deleteTag = function(facade, id) {
+			var c = this;
+			var options = new dtos.TagDeletionOptions();
+			options.setReason("test reason");
+			return facade.deleteTags([ id ], options);
 		}.bind(this);
 
 		this.getObjectProperty = function(object, propertyName) {

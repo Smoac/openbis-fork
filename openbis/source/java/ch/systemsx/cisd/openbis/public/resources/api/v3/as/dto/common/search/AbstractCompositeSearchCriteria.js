@@ -25,9 +25,11 @@ define([ "stjs", "as/dto/common/search/AbstractSearchCriteria", "as/dto/common/s
 		}
 		prototype.withOrOperator = function() {
 			this.operator = SearchOperator.OR;
+			return this;
 		}
 		prototype.withAndOperator = function() {
 			this.operator = SearchOperator.AND;
+			return this;
 		}
 	}, {
 		criteria : {

@@ -1131,3 +1131,6 @@ set DataSet Ids
 set Experiment Ids
 set Material Ids
 set Sample Ids
+delete Tags
+search Tags
+Tag Deletion Options

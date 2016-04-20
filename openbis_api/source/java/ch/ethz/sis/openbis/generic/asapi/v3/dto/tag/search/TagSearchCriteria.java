@@ -20,6 +20,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractObjectSear
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -44,6 +45,16 @@ public class TagSearchCriteria extends AbstractObjectSearchCriteria<ITagId>
     public PermIdSearchCriteria withPermId()
     {
         return with(new PermIdSearchCriteria());
+    }
+
+    public TagSearchCriteria withOrOperator()
+    {
+        return (TagSearchCriteria) withOperator(SearchOperator.OR);
+    }
+
+    public TagSearchCriteria withAndOperator()
+    {
+        return (TagSearchCriteria) withOperator(SearchOperator.AND);
     }
 
     @Override

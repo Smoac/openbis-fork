@@ -62,13 +62,16 @@ public class MapTagByIdExecutor implements IMapTagByIdExecutor
         {
             for (ITagId tagId : tagIds)
             {
-                MetaprojectIdentifier identifier = getTagIdentifierExecutor.getIdentifier(context, tagId);
-                MetaprojectPE tag =
-                        daoFactory.getMetaprojectDAO()
-                                .tryFindByOwnerAndName(identifier.getMetaprojectOwnerId(), identifier.getMetaprojectName());
-                if (tag != null)
+                if (tagId != null)
                 {
-                    map.put(tagId, tag);
+                    MetaprojectIdentifier identifier = getTagIdentifierExecutor.getIdentifier(context, tagId);
+                    MetaprojectPE tag =
+                            daoFactory.getMetaprojectDAO()
+                                    .tryFindByOwnerAndName(identifier.getMetaprojectOwnerId(), identifier.getMetaprojectName());
+                    if (tag != null)
+                    {
+                        map.put(tagId, tag);
+                    }
                 }
             }
         }

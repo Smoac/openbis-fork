@@ -296,6 +296,7 @@ var sources = [
 	'as/dto/tag/Tag',
 	'as/dto/tag/update/TagUpdate',
 	'as/dto/tag/create/TagCreation',
+   	'as/dto/tag/delete/TagDeletionOptions',
 	'as/dto/vocabulary/fetchoptions/VocabularyFetchOptions',
 	'as/dto/vocabulary/fetchoptions/VocabularySortOptions',
 	'as/dto/vocabulary/fetchoptions/VocabularyTermFetchOptions',

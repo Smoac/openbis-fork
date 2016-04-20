@@ -389,7 +389,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 
 			testSearch(c, fSearch, fCheck);
 		});
-		
+
 		QUnit.test("searchDataSets()", function(assert) {
 			var c = new common(assert);
 
@@ -808,6 +808,25 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 				c.assertEqual(term.getVocabulary().getCode(), "$STORAGE_FORMAT", "Vocabulary code");
 				c.assertEqual(term.getOrdinal(), 2, "Ordinal");
 				c.assertEqual(term.isOfficial(), true, "Official");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchTags()", function(assert) {
+			var c = new common(assert);
+
+			var fSearch = function(facade) {
+				var criteria = new c.TagSearchCriteria();
+				criteria.withCode().thatEquals("JS_TEST_METAPROJECT");
+				return facade.searchTags(criteria, c.createTagFetchOptions());
+			}
+
+			var fCheck = function(facade, tags) {
+				c.assertEqual(tags.length, 1);
+				var tag = tags[0];
+				c.assertEqual(tag.getCode(), "JS_TEST_METAPROJECT", "Code");
+				c.assertEqual(tag.getPermId().getPermId(), "/openbis_test_js/JS_TEST_METAPROJECT", "PermId");
 			}
 
 			testSearch(c, fSearch, fCheck);

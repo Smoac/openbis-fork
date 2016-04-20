@@ -72,38 +72,53 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 		var testDeleteWithTrashAndConfirm = function(c, fCreate, fFind, fDelete) {
 			c.start();
 
-			c.createFacadeAndLogin().then(function(facade) {
-				return fCreate(facade).then(function(permId) {
-					c.assertNotNull(permId, "Entity was created");
-					return fFind(facade, permId).then(function(entity) {
-						c.assertNotNull(entity, "Entity can be found");
-						return facade.searchDeletions(new c.DeletionSearchCriteria(), new c.DeletionFetchOptions()).then(function(deletionsBeforeDeletion) {
-							c.ok("Got before deletions");
-							return fDelete(facade, permId).then(function(deletionId) {
-								c.ok("Entity was deleted");
-								return facade.searchDeletions(new c.DeletionSearchCriteria(), new c.DeletionFetchOptions()).then(function(deletionsAfterDeletion) {
-									c.ok("Got after deletions");
-									c.assertEqual(deletionsAfterDeletion.getObjects().length, deletionsBeforeDeletion.getObjects().length + 1, "One new deletion");
-									c.assertEqual(deletionsAfterDeletion.getObjects()[deletionsAfterDeletion.getObjects().length - 1].getId().getTechId(), deletionId.getTechId(), "Deletion ids match");
-									return fFind(facade, permId).then(function(entityAfterDeletion) {
-										c.assertNull(entityAfterDeletion, "Entity was deleted");
-										return facade.confirmDeletions([ deletionId ]).then(function() {
-											c.ok("Confirmed deletion");
-											return fFind(facade, permId).then(function(entityAfterConfirm) {
-												c.assertNull(entityAfterConfirm, "Entity is still gone");
-												return facade.searchDeletions(new c.DeletionSearchCriteria(), new c.DeletionFetchOptions()).then(function(deletionsAfterConfirm) {
-													c.assertEqual(deletionsAfterConfirm.getObjects().length, deletionsBeforeDeletion.getObjects().length, "New deletion is also gone");
-													c.finish();
-												});
+			c.createFacadeAndLogin().then(
+					function(facade) {
+						return fCreate(facade).then(
+								function(permId) {
+									c.assertNotNull(permId, "Entity was created");
+									return fFind(facade, permId).then(
+											function(entity) {
+												c.assertNotNull(entity, "Entity can be found");
+												return facade.searchDeletions(new c.DeletionSearchCriteria(), new c.DeletionFetchOptions()).then(
+														function(deletionsBeforeDeletion) {
+															c.ok("Got before deletions");
+															return fDelete(facade, permId).then(
+																	function(deletionId) {
+																		c.ok("Entity was deleted");
+																		return facade.searchDeletions(new c.DeletionSearchCriteria(), new c.DeletionFetchOptions()).then(
+																				function(deletionsAfterDeletion) {
+																					c.ok("Got after deletions");
+																					c.assertEqual(deletionsAfterDeletion.getObjects().length, deletionsBeforeDeletion.getObjects().length + 1,
+																							"One new deletion");
+																					c.assertEqual(deletionsAfterDeletion.getObjects()[deletionsAfterDeletion.getObjects().length - 1].getId()
+																							.getTechId(), deletionId.getTechId(), "Deletion ids match");
+																					return fFind(facade, permId).then(
+																							function(entityAfterDeletion) {
+																								c.assertNull(entityAfterDeletion, "Entity was deleted");
+																								return facade.confirmDeletions([ deletionId ]).then(
+																										function() {
+																											c.ok("Confirmed deletion");
+																											return fFind(facade, permId).then(
+																													function(entityAfterConfirm) {
+																														c.assertNull(entityAfterConfirm, "Entity is still gone");
+																														return facade.searchDeletions(new c.DeletionSearchCriteria(),
+																																new c.DeletionFetchOptions()).then(
+																																function(deletionsAfterConfirm) {
+																																	c.assertEqual(deletionsAfterConfirm.getObjects().length,
+																																			deletionsBeforeDeletion.getObjects().length,
+																																			"New deletion is also gone");
+																																	c.finish();
+																																});
+																													});
+																										});
+																							});
+																				});
+																	});
+														});
 											});
-										});
-									});
 								});
-							});
-						});
-					});
-				});
-			}).fail(function(error) {
+					}).fail(function(error) {
 				c.fail(error.message);
 				c.finish();
 			});
@@ -153,15 +168,20 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			var c = new common(assert);
 			testDeleteWithoutTrash(c, c.createMaterial, c.findMaterial, c.deleteMaterial);
 		});
-		
-		QUnit.test("deleteVocabularyTerm()", function(assert) {
+
+		QUnit.test("deleteVocabularyTerms()", function(assert) {
 			var c = new common(assert);
 			testDeleteWithoutTrash(c, c.createVocabularyTerm, c.findVocabularyTerm, c.deleteVocabularyTerm);
-		});	
-		
-		QUnit.test("replaceVocabularyTerm()", function(assert) {
+		});
+
+		QUnit.test("replaceVocabularyTerms()", function(assert) {
 			var c = new common(assert);
 			testDeleteWithoutTrash(c, c.createVocabularyTerm, c.findVocabularyTerm, c.replaceVocabularyTerm);
+		});
+
+		QUnit.test("deleteTags()", function(assert) {
+			var c = new common(assert);
+			testDeleteWithoutTrash(c, c.createTag, c.findTag, c.deleteTag);
 		});
 
 	}

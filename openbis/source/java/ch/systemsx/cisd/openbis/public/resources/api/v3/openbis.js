@@ -1,6 +1,6 @@
 define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 	jquery.noConflict();
-	
+
 	var __private = function() {
 
 		this.ajaxRequest = function(settings) {
@@ -590,6 +590,18 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 			});
 		}
 
+		this.searchTags = function(criteria, fetchOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "searchTags",
+					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
+				},
+				returnType : "SearchResult"
+			});
+		}
+
 		this.searchCustomASServices = function(criteria, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -701,6 +713,17 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 				url : openbisUrl,
 				data : {
 					"method" : "deleteVocabularyTerms",
+					"params" : [ thisFacade._private.sessionToken, ids, deletionOptions ]
+				}
+			});
+		}
+
+		this.deleteTags = function(ids, deletionOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "deleteTags",
 					"params" : [ thisFacade._private.sessionToken, ids, deletionOptions ]
 				}
 			});
