@@ -19,7 +19,11 @@ import datetime
 import traceback
 
 from java.lang import Thread
-from com.xhaus.jyson import JysonCodec as json
+# python 2.6+ already has json library. On 2.5 we use JysonCodec.
+try:
+	import json
+except:
+	from com.xhaus.jyson import JysonCodec as json
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause
