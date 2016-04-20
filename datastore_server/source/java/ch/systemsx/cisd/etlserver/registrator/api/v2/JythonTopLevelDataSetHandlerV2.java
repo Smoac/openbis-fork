@@ -49,7 +49,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     protected final IJythonInterpreterFactory jythonInterpreterFactory;
 
     // version of jython. Available options are "2.7" and "2.5". Default is jython 2.7
-    public static final String JYTHON_VERSION = "jython-version";
+    public static final String JYTHON_VERSION = "plugin-jython-version";
 
     /**
      * Constructor.

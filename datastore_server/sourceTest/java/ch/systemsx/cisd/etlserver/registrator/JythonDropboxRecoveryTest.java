@@ -80,8 +80,8 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         LinkedList<RecoveryTestCase> testCasesWithJython27 = recoveryTestCases();
         for (RecoveryTestCase recoveryTestCase : testCasesWithJython27)
         {
-            recoveryTestCase.overrideProperties.put("jython-version", "2.7");
-            recoveryTestCase.title += " @ jython 2.7";
+            recoveryTestCase.overrideProperties.put("plugin-jython-version", "2.5");
+            recoveryTestCase.title += " @ jython 2.5";
         }
         testCases.addAll(testCasesWithJython27);
 
