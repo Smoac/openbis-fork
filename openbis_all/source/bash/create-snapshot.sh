@@ -101,6 +101,11 @@ for db in $DATABASES; do
     fi
     echo "Database '$db' has been successfully dumped."
 done
+############## packaging ##############
+if ! tar -zcf "$SNAPSHOT.tgz" -C "$REPOSITORY" "$SNAPSHOT_FOLDER_NAME"; then
+    echo "Error packaging snapshot $SNAPSHOT."
+    exit 1
+fi
 rm -rf "$SNAPSHOT"
 
 echo "==== $SNAPSHOT.tgz successfully created."
