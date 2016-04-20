@@ -744,6 +744,22 @@ var FormUtil = new function() {
 		return $toolbarContainer;
 	}
 	
+	this.getOperationsMenu = function(items) {
+		var $dropDownMenu = $("<span>", { class : 'dropdown' });
+		var $caret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default'}).append("Operations ").append($("<b>", { class : 'caret' }));
+		var $list = $("<ul>", { class : 'dropdown-menu', 'role' : 'menu', 'aria-labelledby' :'sampleTableDropdown' });
+		$dropDownMenu.append($caret);
+		$dropDownMenu.append($list);
+		
+		for(var iIdx = 0; iIdx < items.length; iIdx++) {
+			var item = items[iIdx];
+			var $item = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : item.label}).append(item.label));
+			$item.click(item.event);
+			$list.append($item);
+		}
+		return $dropDownMenu;
+	}
+	
 	this.getFormLink = function(displayName, entityKind, permIdOrIdentifier) {
 		var view = null;
 		switch(entityKind) {
