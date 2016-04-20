@@ -44,10 +44,13 @@ function LinksView(linksController, linksModel) {
 			var $sampleTableContainer = $("<div>");
 			var $samplePickerContainer = $("<div>");
 			
-			$sampleTableContainer.append($("<div>").append(sampleTypeCode + ":")
-													.append("&nbsp;")
-													.append(linksView.getAddBtn($samplePickerContainer, sampleTypeCode))
-													.css("margin","5px"));
+			if(sampleTypeCode) {
+				$sampleTableContainer.append($("<div>").append(sampleTypeCode + ":")
+						.append("&nbsp;")
+						.append(linksView.getAddBtn($samplePickerContainer, sampleTypeCode))
+						.css("margin","5px"));
+			}
+			
 			$sampleTableContainer.append($samplePickerContainer);
 			$dataGridContainer = $("<div>");
 			$sampleTableContainer.append($dataGridContainer);
@@ -60,9 +63,16 @@ function LinksView(linksController, linksModel) {
 	
 	this.updateSample = function(sample, isAdd) {
 		var sampleTypeCode = sample.sampleTypeCode;
-		linksView.initContainerForType(sampleTypeCode);
-		var $dataGridContainer = sampleGridContainerByType[sampleTypeCode];
-		var samplesOnGrid = linksModel.samplesByType[sampleTypeCode];
+		
+		var containerCode = null;
+		if(!linksModel.isDisabled) {
+			containerCode = sampleTypeCode;
+		}
+		
+		linksView.initContainerForType(containerCode);
+		var $dataGridContainer = sampleGridContainerByType[containerCode];
+		
+		var samplesOnGrid = linksModel.samplesByType[containerCode];
 		
 		//Check if the sample is already added
 		var foundAtIndex = -1;
@@ -88,7 +98,33 @@ function LinksView(linksController, linksModel) {
 			samplesOnGrid.splice(foundAtIndex, 1);
 		}
 		
-		var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, samplesOnGrid, null, linksView.getCustomOperationsForGrid(), linksView.getCustomAnnotationColumns(sampleTypeCode), "ANNOTATIONS", linksModel.isDisabled, false);
+		var customAnnotationColumnsByType = {};
+		for(var sIdx = 0; sIdx < samplesOnGrid.length; sIdx++) {
+			var sample = samplesOnGrid[sIdx];
+			if(!customAnnotationColumnsByType[sample.sampleTypeCode]) {
+				var customACols = linksView.getCustomAnnotationColumns(sample.sampleTypeCode);
+				customAnnotationColumnsByType[sample.sampleTypeCode] = customACols;
+			}
+		}
+		
+		var allCustomAnnotations = [];
+		for(type in customAnnotationColumnsByType) {
+			var customACols = customAnnotationColumnsByType[type];
+			for(var cIdx = 0; cIdx < customACols.length; cIdx++) {
+				var customACol = customACols[cIdx];
+				var isFound = false;
+				for(aIdx = 0; aIdx < allCustomAnnotations.length; aIdx++) {
+					if(allCustomAnnotations[aIdx].property == customACol.property) {
+						isFound = true;
+					}
+				}
+				if(!isFound) {
+					allCustomAnnotations.push(customACol);
+				}
+			}
+		}
+		
+		var dataGrid = SampleDataGridUtil.getSampleDataGrid(containerCode, samplesOnGrid, null, linksView.getCustomOperationsForGrid(), allCustomAnnotations, "ANNOTATIONS", linksModel.isDisabled, false);
 		dataGrid.init($dataGridContainer);
 	}
 	

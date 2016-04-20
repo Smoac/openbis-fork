@@ -1,8 +1,15 @@
 var SampleDataGridUtil = new function() {
 	this.getSampleDataGrid = function(sampleTypeCode, samples, rowClick, customOperations, customColumns, configPostKey, isOperationsDisabled, isLinksDisabled) {
-		var sampleType = profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
-		var propertyCodes = profile.getAllPropertiCodesForTypeCode(sampleTypeCode);
-		var propertyCodesDisplayNames = profile.getPropertiesDisplayNamesForTypeCode(sampleTypeCode, propertyCodes);
+		
+		var foundPropertyCodes = {};
+		for(var sIdx = 0; sIdx < samples.length; sIdx++) {
+			var sample = samples[sIdx];
+			for(var propertyCode in sample.properties) {
+				if(sample.properties[propertyCode]) {
+					foundPropertyCodes[propertyCode] = true;
+				}
+			}
+		}
 		
 		//Fill Columns model
 		var columns = [];
@@ -26,7 +33,7 @@ var SampleDataGridUtil = new function() {
 			}
 		});
 		
-		if($.inArray("NAME", propertyCodes) !== -1) {
+		if(foundPropertyCodes["NAME"]) {
 			columns.push({
 				label : 'Name',
 				property : 'NAME',
@@ -100,9 +107,8 @@ var SampleDataGridUtil = new function() {
 		});
 		
 		var propertyColumnsToSort = [];
-		for (var idx = 0; idx < propertyCodes.length; idx++) {
+		for (propertyCode in foundPropertyCodes) {
 			var propertiesToSkip = ["NAME", "XMLCOMMENTS", "ANNOTATIONS_STATE"];
-			var propertyCode = propertyCodes[idx];
 			if($.inArray(propertyCode, propertiesToSkip) !== -1) {
 				continue;
 			}
@@ -111,8 +117,8 @@ var SampleDataGridUtil = new function() {
 				var getVocabularyColumn = function(propertyType) {
 					return function() {
 						return {
-							label : propertyCodesDisplayNames[idx],
-							property : propertyCodes[idx],
+							label : propertyType.label,
+							property : propertyType.code,
 							isExportable: true,
 							sortable : true,
 							render : function(data) {
@@ -142,8 +148,8 @@ var SampleDataGridUtil = new function() {
 				propertyColumnsToSort.push(newVocabularyColumnFunc());
 			} else {			
 				propertyColumnsToSort.push({
-					label : propertyCodesDisplayNames[idx],
-					property : propertyCodes[idx],
+					label : propertyType.label,
+					property : propertyType.code,
 					isExportable: true,
 					sortable : true
 				});
@@ -188,10 +194,10 @@ var SampleDataGridUtil = new function() {
 		}
 		
 		//Fill data model
-		var getDataList = SampleDataGridUtil.getDataList(sampleTypeCode, samples);
+		var getDataList = SampleDataGridUtil.getDataList(samples);
 			
 		//Create and return a data grid controller
-		var configKey = "SAMPLE_TABLE_" + sampleType.code;
+		var configKey = "SAMPLE_TABLE_" + sampleTypeCode;
 		if(configPostKey) {
 			configKey += "_" + configPostKey;
 		}
@@ -199,12 +205,8 @@ var SampleDataGridUtil = new function() {
 		return dataGridController;
 	}
 	
-	this.getDataList = function(sampleTypeCode, samples) {
+	this.getDataList = function(samples) {
 		return function(callback) {
-			var sampleType = profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
-			var propertyCodes = profile.getAllPropertiCodesForTypeCode(sampleTypeCode);
-			var propertyCodesDisplayNames = profile.getPropertiesDisplayNamesForTypeCode(sampleTypeCode, propertyCodes);
-			
 			var dataList = [];
 			for(var sIdx = 0; sIdx < samples.length; sIdx++) {
 				var sample = samples[sIdx];
@@ -229,8 +231,7 @@ var SampleDataGridUtil = new function() {
 								};
 				
 				if(sample.properties) {
-					for (var pIdx = 0; pIdx < propertyCodes.length; pIdx++) {
-						var propertyCode = propertyCodes[pIdx];
+					for(var propertyCode in sample.properties) {
 						sampleModel[propertyCode] = sample.properties[propertyCode];
 					}
 				}
