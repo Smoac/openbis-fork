@@ -243,16 +243,15 @@ public class PathInfoProviderBasedHierarchicalContent implements IHierarchicalCo
         @Override
         protected List<IHierarchicalContentNode> doGetChildNodes()
         {
+            List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
             List<DataSetPathInfo> pathInfos =
                     dataSetPathInfoProvider.listChildrenPathInfos(pathInfo);
-            if (pathInfos == null)
+            if (pathInfos != null)
             {
-                throw new IllegalArgumentException("No children path infos for " + pathInfo.getRelativePath());
-            }
-            List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
-            for (DataSetPathInfo child : pathInfos)
-            {
-                result.add(asNode(child));
+                for (DataSetPathInfo child : pathInfos)
+                {
+                    result.add(asNode(child));
+                }
             }
             return result;
         }
