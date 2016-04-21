@@ -266,7 +266,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
                     describeDynamic(assignmentUpdates.isDynamic())));
         }
         boolean scriptChanged = false;
-        if (assignment.isDynamic()
+        if ((assignment.isDynamic() || assignment.isManaged())
                 && assignment.getScript().getName().equals(assignmentUpdates.getScriptName()) == false)
         {
             scriptChanged = true;
