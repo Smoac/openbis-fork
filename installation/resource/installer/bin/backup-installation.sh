@@ -56,9 +56,9 @@ if [ -d $ROOT_DIR/beewm ]; then
 	mv $ROOT_DIR/beewm/bee-workflowmanager/etc $BACKUP_DIR/beewm
 fi
 
-if [ -d $ROOT_DIR/core-plugins/eln-lims/1/as/webapps/eln-lims/html/etc ]; then
-	echo "mv $ROOT_DIR/core-plugins/eln-lims/1/as/webapps/eln-lims/html/etc $BACKUP_DIR/eln-lims"
-	mv $ROOT_DIR/core-plugins/eln-lims/1/as/webapps/eln-lims/html/etc $BACKUP_DIR/eln-lims
+if [ -d $ROOT_DIR/core-plugins/eln-lims ]; then
+	echo "mv $ROOT_DIR/core-plugins/eln-lims $BACKUP_DIR/eln-lims"
+	mv $ROOT_DIR/core-plugins/eln-lims $BACKUP_DIR/eln-lims
 fi
 
 echo "DONE"
