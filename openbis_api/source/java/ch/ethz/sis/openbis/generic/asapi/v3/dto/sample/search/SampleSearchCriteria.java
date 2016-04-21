@@ -82,6 +82,10 @@ public class SampleSearchCriteria extends AbstractEntitySearchCriteria<ISampleId
         with(new NoSampleContainerSearchCriteria());
         return this;
     }
+    
+    public OnlyListableSeachCriteria withListableOnly() {
+        return with(new OnlyListableSeachCriteria());
+    }
 
     public SampleSearchCriteria withOrOperator()
     {
