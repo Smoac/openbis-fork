@@ -1,12 +1,15 @@
 var SampleDataGridUtil = new function() {
-	this.getSampleDataGrid = function(sampleTypeCode, samples, rowClick, customOperations, customColumns, configPostKey, isOperationsDisabled, isLinksDisabled) {
+	this.getSampleDataGrid = function(mandatoryConfigPostKey, samples, rowClick, customOperations, customColumns, optionalConfigPostKey, isOperationsDisabled, isLinksDisabled) {
 		
 		var foundPropertyCodes = {};
+		var foundSampleTypes = {};
 		for(var sIdx = 0; sIdx < samples.length; sIdx++) {
 			var sample = samples[sIdx];
-			for(var propertyCode in sample.properties) {
-				if(sample.properties[propertyCode]) {
-					foundPropertyCodes[propertyCode] = true;
+			if(!foundSampleTypes[sample.sampleTypeCode]) {
+				foundSampleTypes[sample.sampleTypeCode] = true;
+				var propertyCodes = profile.getAllPropertiCodesForTypeCode(sample.sampleTypeCode);
+				for(var pIdx = 0; pIdx < propertyCodes.length; pIdx++) {
+					foundPropertyCodes[propertyCodes[pIdx]] = true;
 				}
 			}
 		}
@@ -197,9 +200,9 @@ var SampleDataGridUtil = new function() {
 		var getDataList = SampleDataGridUtil.getDataList(samples);
 			
 		//Create and return a data grid controller
-		var configKey = "SAMPLE_TABLE_" + sampleTypeCode;
-		if(configPostKey) {
-			configKey += "_" + configPostKey;
+		var configKey = "SAMPLE_TABLE_" + mandatoryConfigPostKey;
+		if(optionalConfigPostKey) {
+			configKey += "_" + optionalConfigPostKey;
 		}
 		var dataGridController = new DataGridController(null, columns, getDataList, rowClick, false, configKey);
 		return dataGridController;
