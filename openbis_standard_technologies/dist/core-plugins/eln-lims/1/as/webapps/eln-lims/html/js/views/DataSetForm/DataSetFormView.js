@@ -199,6 +199,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					$autoUploadCheck.change(function(){
 						var isChecked = $($(this).children()[0]).children()[0].checked;
 						_this._dataSetFormModel.isAutoUpload = isChecked;
+						mainController.serverFacade.setSetting("DataSetFormModel.isAutoUpload", isChecked);
 					});
 					
 				var $autoUploadGroup = $('<fieldset>')

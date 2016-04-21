@@ -24,7 +24,10 @@ function DataSetFormController(parentController, mode, sample, dataSet, isMini) 
 		mainController.serverFacade.listDataSetTypes(
 				function(data) {
 					_this._dataSetFormModel.dataSetTypes = data.result;
-					_this._dataSetFormView.repaint($container);
+					mainController.serverFacade.getSetting("DataSetFormModel.isAutoUpload", function(value) {
+						_this._dataSetFormModel.isAutoUpload = (value === "true");
+						_this._dataSetFormView.repaint($container);
+					});
 				}
 		);
 	}

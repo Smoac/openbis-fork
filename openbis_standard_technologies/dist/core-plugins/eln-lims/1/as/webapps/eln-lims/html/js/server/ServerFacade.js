@@ -51,6 +51,43 @@ function ServerFacade(openbisServer) {
 	this.openbisServer.setResponseInterceptor(responseInterceptor);
 	
 	//
+	// Display Settings
+	//
+	this.getSetting = function(keyOrNull, callback) {
+		mainController.serverFacade.openbisServer.getWebAppSettings("ELN-LIMS", function(response) {
+			var settings = response.result.settings;
+			if(!settings) {
+				settings = {};
+			}
+			if(keyOrNull) {
+				callback(settings[keyOrNull]);
+			} else {
+				callback(settings);
+			}
+		});
+	}
+	
+	this.setSetting = function(key, value) {
+		var _this = this;
+		var webAppId = "ELN-LIMS";
+		this.openbisServer.getWebAppSettings(webAppId, function(response) {
+			var settings = response.result.settings;
+			if(!settings) {
+				settings = {};
+			}
+			settings[key] = value;
+			
+			var webAppSettings = {
+					"@type" : "WebAppSettings",
+					"webAppId" : webAppId,
+					"settings" : settings
+			}
+			
+			_this.openbisServer.setWebAppSettings(webAppSettings, function(result) {});
+		});
+	}
+	
+	//
 	// Login Related Functions
 	//
 	this.getUserId = function() {
