@@ -5,7 +5,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToSt
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @JsonObject("as.dto.sample.search.OnlyListableSeachCriteria")
-public class OnlyListableSeachCriteria extends AbstractCompositeSearchCriteria
+public class OnlyListableSearchCriteria extends AbstractCompositeSearchCriteria
 {
 
     private static final long serialVersionUID = 1L;

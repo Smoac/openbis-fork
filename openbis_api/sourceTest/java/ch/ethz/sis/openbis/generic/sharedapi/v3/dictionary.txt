@@ -1134,3 +1134,5 @@ set Sample Ids
 delete Tags
 search Tags
 Tag Deletion Options
+Only Listable Search Criteria
+with Listable Only
