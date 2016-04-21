@@ -21,7 +21,7 @@ import java.util.Collections;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.NoSampleContainerSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.NoSampleSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.OnlyListableSeachCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.OnlyListableSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleChildrenSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleContainerSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleParentsSearchCriteria;
@@ -52,7 +52,7 @@ public class SampleSearchCriteriaTranslator extends AbstractCompositeSearchCrite
     {
         return criteria instanceof SampleSearchCriteria
                 || criteria instanceof NoSampleSearchCriteria
-                || criteria instanceof OnlyListableSeachCriteria;
+                || criteria instanceof OnlyListableSearchCriteria;
     }
 
     @Override
@@ -71,7 +71,7 @@ public class SampleSearchCriteriaTranslator extends AbstractCompositeSearchCrite
             }
 
             return new SearchCriteriaTranslationResult(new DetailedSearchSubCriteria(entityKind, null));
-        } else if (criteria instanceof OnlyListableSeachCriteria)
+        } else if (criteria instanceof OnlyListableSearchCriteria)
         {
             SimpleAttributeSearchFieldKind attributeFieldKind = new SimpleAttributeSearchFieldKind(SearchFieldConstants.PREFIX_ENTITY_TYPE + SearchFieldConstants.IS_LISTABLE, "listable");
             DetailedSearchField createAttributeField = DetailedSearchField.createAttributeField(attributeFieldKind);
