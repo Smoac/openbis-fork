@@ -187,9 +187,28 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			.append($('<div>', { class : "form-group"}))
 			.append($('<div>', {class: FormUtil.controlColumnClass})
 						.append($('<input>', { class : 'btn btn-primary', 'type' : 'submit', 'value' : btnText})));
-			if(!_this._dataSetFormModel.isMini){
-				$wrapper.append($submitButton);
+			
+			
+			$wrapper.append($submitButton);
+			if(_this._dataSetFormModel.isMini){
+				var $autoUploadCheck = FormUtil._getBooleanField(null, 'Auto upload on drop');
+					$($autoUploadCheck.children()[0]).children()[0].checked = _this._dataSetFormModel.isAutoUpload;
+				
+					$autoUploadCheck.css("display","inline");
+					$autoUploadCheck.css("padding-top", "2px");
+					$autoUploadCheck.change(function(){
+						var isChecked = $($(this).children()[0]).children()[0].checked;
+						_this._dataSetFormModel.isAutoUpload = isChecked;
+					});
+					
+				var $autoUploadGroup = $('<fieldset>')
+						.append($('<div>', { class : "form-group"}))
+						.append($('<div>', {class: FormUtil.controlColumnClass})
+						.append($autoUploadCheck).append(" Auto upload on drop"));
+				
+				$wrapper.append($('<fieldset>').append($autoUploadGroup));
 			}
+			
 			
 		}
 		
@@ -211,8 +230,13 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					}
 				}
 				
-				if(_this._dataSetFormModel.isMini && !Uploader.uploadsInProgress()){
-					_this._dataSetFormController.submitDataSet();
+				if(_this._dataSetFormModel.isMini && !Uploader.uploadsInProgress() && _this._dataSetFormModel.isAutoUpload) {
+					if($("#DATASET_TYPE").val()) {
+						_this._dataSetFormController.submitDataSet();
+					} else {
+						Util.showError("Please select a dataset type and then press the 'Create Dataset' button manualy.");
+					}
+					
 				}
 			}
 			

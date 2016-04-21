@@ -17,6 +17,7 @@
 function DataSetFormModel(mode, sample, dataSet, isMini) {
 	this.mode = mode;
 	this.isMini = isMini;
+	this.isAutoUpload = true;
 	this.isFormDirty = false;
 	
 	this.sample = sample;
