@@ -30,9 +30,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmuta
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -141,7 +141,7 @@ public class DataSetImmutable extends AbstractDataSetImmutable
     @Override
     public String getFileFormatType()
     {
-        if (isContainerDataSet())
+        if (isContainerDataSet() || isLinkDataSet())
         {
             return null;
         } else
@@ -159,7 +159,7 @@ public class DataSetImmutable extends AbstractDataSetImmutable
     @Override
     public int getSpeedHint()
     {
-        if (isContainerDataSet())
+        if (isContainerDataSet() || isLinkDataSet())
         {
             return Integer.MIN_VALUE;
         } else
