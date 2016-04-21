@@ -35,9 +35,14 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.constraints.Length;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -50,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 @Table(name = TableNames.SAMPLE_TYPES_TABLE, uniqueConstraints =
 { @UniqueConstraint(columnNames =
 { ColumnNames.CODE_COLUMN }) })
+@Indexed(index = "SampleTypePE")
 public final class SampleTypePE extends EntityTypePE
 {
     private static final long serialVersionUID = IServer.VERSION;
@@ -117,6 +123,7 @@ public final class SampleTypePE extends EntityTypePE
     }
 
     @Column(name = ColumnNames.IS_LISTABLE)
+    @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.IS_LISTABLE)
     public Boolean isListable()
     {
         return listable;

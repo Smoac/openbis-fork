@@ -102,4 +102,6 @@ public final class SearchFieldConstants
     public static final String MODIFICATION_DATE = "modification_date";
 
     public static final String ACCESS_DATE = "access_date";
+
+    public static final String IS_LISTABLE = "is_listable";
 }

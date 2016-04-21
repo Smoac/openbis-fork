@@ -3,7 +3,7 @@
  */
 define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria", "as/dto/common/search/SearchOperator", "as/dto/sample/search/SampleSearchRelation", "as/dto/space/search/SpaceSearchCriteria",
 		"as/dto/experiment/search/ExperimentSearchCriteria", "as/dto/experiment/search/NoExperimentSearchCriteria",
-		"as/dto/sample/search/NoSampleContainerSearchCriteria" ], function(require, stjs, AbstractEntitySearchCriteria, SearchOperator, SampleSearchRelation) {
+		"as/dto/sample/search/NoSampleContainerSearchCriteria", "as/dto/sample/search/OnlyListableSeachCriteria" ], function(require, stjs, AbstractEntitySearchCriteria, SearchOperator, SampleSearchRelation) {
 
 	var SampleSearchCriteria = function(relation) {
 		AbstractEntitySearchCriteria.call(this);
@@ -37,6 +37,10 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 		prototype.withoutContainer = function() {
 			var NoSampleContainerSearchCriteria = require("as/dto/sample/search/NoSampleContainerSearchCriteria");
 			return this.addCriteria(new NoSampleContainerSearchCriteria());
+		};
+		prototype.withListableOnly = function() {
+			var OnlyListableSeachCriteria = require("as/dto/sample/search/OnlyListableSeachCriteria");
+			return this.addCriteria(new OnlyListableSeachCriteria());
 		};
 		prototype.withOrOperator = function() {
 			return this.withOperator(SearchOperator.OR);

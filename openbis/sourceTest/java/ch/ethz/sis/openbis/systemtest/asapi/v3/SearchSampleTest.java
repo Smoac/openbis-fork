@@ -967,6 +967,56 @@ public class SearchSampleTest extends AbstractSampleTest
         v3api.logout(sessionToken);
     }
 
+    final String LISTED_ID = "/CISD/C1";
+    final String UNLISTED_ID = "/CISD/CL1:A01";
+
+    @Test
+    public void testSearchListableOnlyShouldNotFindUnlisted()
+    {
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        SampleFetchOptions fo = new SampleFetchOptions();
+
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withId().thatEquals(new SampleIdentifier(UNLISTED_ID));
+        
+        
+        List<Sample> samples = search(sessionToken, criteria, fo);
+        
+        assertEquals(samples.size(), 1);
+        
+        assertSampleIdentifiersInOrder(samples, UNLISTED_ID);
+
+        criteria.withListableOnly();
+        samples = search(sessionToken, criteria, fo);
+        assertEquals(samples.size(), 0);
+    }
+
+    @Test
+    public void testSearchListableOnlyShouldFindListed()
+    {
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        SampleFetchOptions fo = new SampleFetchOptions();
+        fo.withType();
+        fo.withProperties();
+
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withId().thatEquals(new SampleIdentifier(LISTED_ID));
+
+        List<Sample> samples = search(sessionToken, criteria, fo);
+        
+        assertEquals(samples.size(), 1);
+        
+        assertEquals(samples.get(0).getIdentifier().getIdentifier(), LISTED_ID);
+
+        criteria.withListableOnly();
+        samples = search(sessionToken, criteria, fo);
+        assertEquals(samples.size(), 1);
+
+        assertEquals(samples.get(0).getIdentifier().getIdentifier(), LISTED_ID);
+    }
+
     private void testSearch(String user, SampleSearchCriteria criteria, String... expectedIdentifiers)
     {
         String sessionToken = v3api.login(user, PASSWORD);
