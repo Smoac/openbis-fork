@@ -271,6 +271,7 @@ var sources = [
 	'as/dto/sample/SampleType',
 	'as/dto/sample/search/NoSampleContainerSearchCriteria',
 	'as/dto/sample/search/NoSampleSearchCriteria',
+	'as/dto/sample/search/OnlyListableSeachCriteria',
 	'as/dto/sample/search/SampleSearchCriteria',
 	'as/dto/sample/update/SampleUpdate',
 	'as/dto/sample/update/UpdateSamplesOperation',
