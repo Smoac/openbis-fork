@@ -4,7 +4,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractCompositeS
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.sample.search.OnlyListableSeachCriteria")
+@JsonObject("as.dto.sample.search.OnlyListableSearchCriteria")
 public class OnlyListableSearchCriteria extends AbstractCompositeSearchCriteria
 {
 
