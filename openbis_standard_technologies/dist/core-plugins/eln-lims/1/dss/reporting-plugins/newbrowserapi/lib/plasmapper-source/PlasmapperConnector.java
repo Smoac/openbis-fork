@@ -67,6 +67,10 @@ public class PlasmapperConnector
                 svgFileURLPath = svgFileURLPath.substring(0, svgFileURLPath.lastIndexOf("\n"));
             }
 //            System.out.println("Downloading SVG file: " + serverURL + "/" + svgFileURLPath + " to " + svgOutputFile);
+            
+            if(svgFileURLPath.startsWith("/")) {
+                svgFileURLPath = svgFileURLPath.substring(1);
+            }
             URL svgFileURL = new URL(serverURL + "/" + svgFileURLPath);
             
             File svgOutputFile = new File(svgOutputFilePath);
