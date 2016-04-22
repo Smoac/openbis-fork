@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
 /**
  * Test cases for the {@link PackageBasedIndexedEntityFinder}.
@@ -68,8 +69,9 @@ public final class PackageBasedIndexedEntityFinderTest
         final PackageBasedIndexedEntityFinder entityFinder =
                 new PackageBasedIndexedEntityFinder("ch.systemsx.cisd.openbis.generic.shared.dto");
         final Set<Class<?>> entities = entityFinder.getIndexedEntities();
-        assertEquals(4, entities.size());
+        assertEquals(5, entities.size());
         assertTrue(entities.contains(SamplePE.class));
+        assertTrue(entities.contains(SampleTypePE.class));
         assertTrue(entities.contains(ExperimentPE.class));
         assertTrue(entities.contains(MaterialPE.class));
         assertTrue(entities.contains(DataPE.class));
