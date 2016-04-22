@@ -108,11 +108,6 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				_this.isFormDirty = true;
 			});
 			
-			if(this._dataSetFormModel.isMini) {
-				$dataSetTypeSelector.val("ATTACHMENT");
-			}
-			
-			
 			var $dataSetTypeDropDown = $('<div>', { class : 'form-group'});
 			if(!this._dataSetFormModel.isMini) {
 				$dataSetTypeDropDown.append($('<label>', {class: "control-label " + FormUtil.labelColumnClass}).html('Data Set Type&nbsp;(*):'));
@@ -235,7 +230,22 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					if($("#DATASET_TYPE").val()) {
 						_this._dataSetFormController.submitDataSet();
 					} else {
-						Util.showError("Please select a dataset type and then press the 'Create Dataset' button manualy.");
+						var showSelectDatasetType = function() {
+							var $dropdown = FormUtil.getDataSetsDropDown("datasetTypeForDataset", _this._dataSetFormModel.dataSetTypes);
+							Util.blockUI("Select the type for the Dataset: <br><br>" + $dropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='datasetTypeForDatasetCancel'>Cancel</a>");
+							
+							$("#datasetTypeForDataset").on("change", function(event) {
+								var datasetTypeCode = $("#datasetTypeForDataset")[0].value;
+								$("#DATASET_TYPE").val(datasetTypeCode);
+								_this._dataSetFormController._getDataSetType(datasetTypeCode);
+								_this._dataSetFormController.submitDataSet();
+							});
+							
+							$("#datasetTypeForDatasetCancel").on("click", function(event) { 
+								Util.unblockUI();
+							});
+						}
+						showSelectDatasetType();
 					}
 					
 				}
