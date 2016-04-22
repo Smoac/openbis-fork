@@ -22,7 +22,8 @@ dependencies {
 			'rinn:restrictions:+',
 			'apache:commons-compress:+',
             'apache:httpclient:+',
-            'eclipse:jetty-client:+'
+            'eclipse:jetty-client:+',
+            'apache:commons-csv:+'
 					
 	testCompile 'fjelmer:classycle:+',
 				'hamcrest:hamcrest-integration:+',

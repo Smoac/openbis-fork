@@ -39,7 +39,6 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
-import ch.systemsx.cisd.common.parser.DefaultLineTokenizer.PropertyKey;
 import ch.systemsx.cisd.common.parser.filter.AlwaysAcceptLineFilter;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 import ch.systemsx.cisd.common.string.UnicodeUtils;
@@ -336,7 +335,13 @@ public class TabFileLoader<T>
         Iterator<ILine<String>> contentLineIterator =
                 createContentIterator(firstContentLine, lineIterator, lastEmptyHeadersToSkip);
         final ILineFilter filter = AlwaysAcceptLineFilter.INSTANCE;
-        return parser.parse(contentLineIterator, filter, headerLength);
+        try
+        {
+            return parser.parse(MultilineSupport.addTo(contentLineIterator), filter, headerLength);
+        } catch (IOException e)
+        {
+            throw new ParsingException(new RuntimeException(e), new String[0], -1);
+        }
     }
 
     private Iterator<T> iterate(final Iterator<ILine<String>> lineIterator,
@@ -590,9 +595,7 @@ public class TabFileLoader<T>
 
     private final <E> IParser<E, String> createParser()
     {
-        DefaultLineTokenizer tokenizer = new DefaultLineTokenizer();
-        // recognize default Excel text qualifiers
-        tokenizer.setProperty(PropertyKey.QUOTE_CHARS, "'\"");
+        ApacheLineTokenizer tokenizer = new ApacheLineTokenizer();
         return new DefaultParser<E, String>(tokenizer);
     }
 
