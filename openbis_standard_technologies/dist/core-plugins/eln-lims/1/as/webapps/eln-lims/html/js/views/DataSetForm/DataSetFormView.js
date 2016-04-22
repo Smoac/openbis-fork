@@ -215,7 +215,9 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			//Initialize file chooser
 			var onComplete = function(data) {
 				_this._dataSetFormModel.files.push(data.name);
-				_this._updateFileOptions();
+				if(!_this._dataSetFormModel.isMini){
+					_this._updateFileOptions();
+				}
 				var dataSetTypeCode = profile.getDataSetTypeForFileName(_this._dataSetFormModel.files, data.name);
 				if(dataSetTypeCode != null) {
 					$("#DATASET_TYPE").val(dataSetTypeCode);
@@ -258,7 +260,9 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 						break;
 					}
 				}
-				_this._updateFileOptions();
+				if(!_this._dataSetFormModel.isMini){
+					_this._updateFileOptions();
+				}
 			}
 			
 			if(this._dataSetFormModel.mode === FormMode.CREATE) {
