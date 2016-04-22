@@ -23,7 +23,8 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 		};
 		prototype.withoutExperiment = function() {
 			var NoExperimentSearchCriteria = require("as/dto/experiment/search/NoExperimentSearchCriteria");
-			return this.addCriteria(new NoExperimentSearchCriteria());
+			this.addCriteria(new NoExperimentSearchCriteria());
+			return this;
 		};
 		prototype.withParents = function() {
 			return this.addCriteria(new SampleParentsSearchCriteria());
@@ -36,7 +37,8 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 		};
 		prototype.withoutContainer = function() {
 			var NoSampleContainerSearchCriteria = require("as/dto/sample/search/NoSampleContainerSearchCriteria");
-			return this.addCriteria(new NoSampleContainerSearchCriteria());
+			this.addCriteria(new NoSampleContainerSearchCriteria());
+			return this;
 		};
 		prototype.withListableOnly = function() {
 			var OnlyListableSearchCriteria = require("as/dto/sample/search/OnlyListableSearchCriteria");
