@@ -15,7 +15,7 @@
 	require.paths["test/qunit-report"] = testPath + "/lib/qunit/js/qunit-reporter-junit";
 	require.paths["test/naturalsort"] = testPath + "/lib/naturalsort/js/naturalSort";
 
-//	require.urlArgs = 'now=' + Date.now();
+	require.urlArgs = 'now=' + Date.now();
 
 	require.shim["test/qunit-report"] = {
 		deps : [ 'test/qunit' ]
@@ -29,7 +29,7 @@
 <script>
 	require([ 'jquery', 'test/qunit', 'test/qunit-report', 'test/main' ], function($, qunit, report, main) {
 		qunit.config.autostart = false;
-		qunit.config.testTimeout = 10000;
+		qunit.config.testTimeout = 20000;
 		qunit.jUnitReport = function(report) {
 			$("#qunit-junit-report").text(report.xml);
 			console.log(report.xml);
