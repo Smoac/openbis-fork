@@ -29,7 +29,6 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Label;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
@@ -297,14 +296,13 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
 
                                         final AsyncCallback<Integer> callback = new UnassignmentPreparationCallback(viewContext, etpt, invoker,
                                                 new UnassigmentExecution()
-                                                    {
-                                                        @Override
-                                                        public void executeUnassignment()
-                                                        {
-                                                            (new InMemoryGridRemoveCallback()).callback(etpt);
-                                                        }
-                                                    }
-                                                );
+                                            {
+                                                @Override
+                                                public void executeUnassignment()
+                                                {
+                                                    (new InMemoryGridRemoveCallback()).callback(etpt);
+                                                }
+                                            });
                                         viewContext.getService().countPropertyTypedEntities(entityKind, propertyTypeCode, entityTypeCode, callback);
 
                                     }
@@ -493,21 +491,21 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
 
                     viewContext.getCommonService().listPropertyTypeAssignments(etpt.getEntityType(),
                             new AbstractAsyncCallback<List<EntityTypePropertyType<?>>>(viewContext)
+                        {
+                            @Override
+                            protected void process(List<EntityTypePropertyType<?>> etpts)
+                            {
+                                form.remove(loading);
+                                if (assignmentsHolder.getAssignments() == null)
                                 {
-                                    @Override
-                                    protected void process(List<EntityTypePropertyType<?>> etpts)
-                                    {
-                                        form.remove(loading);
-                                        if (assignmentsHolder.getAssignments() == null)
-                                        {
-                                            initFields(etpts);
-                                        } else
-                                        {
-                                            initFields(assignmentsHolder.getAssignments().getEntity().getAssignedPropertyTypes());
-                                        }
-                                        isLoaded = true;
-                                    }
-                                });
+                                    initFields(etpts);
+                                } else
+                                {
+                                    initFields(assignmentsHolder.getAssignments().getEntity().getAssignedPropertyTypes());
+                                }
+                                isLoaded = true;
+                            }
+                        });
                 }
 
                 private void initFields(List<? extends EntityTypePropertyType<?>> etpts)
@@ -534,25 +532,26 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                     // Script Field
                     scriptChooser = createScriptChooserField(viewContext, script != null ? script.getName()
                             : null, script != null, script != null ? script.getScriptType()
-                            : null, entityKind);
+                                    : null,
+                            entityKind);
                     addField(scriptChooser);
 
                     // Show in edit views Field
                     shownInEditViewCheckBox = new CheckBoxField(viewContext.getMessage(Dict.SHOWN_IN_EDIT_VIEW), false);
                     shownInEditViewCheckBox.setValue(etpt.isShownInEditView());
-                    shownInEditViewCheckBox.setVisible(!etpt.isDynamic());  // This option is shown for all non system generated properties
+                    shownInEditViewCheckBox.setVisible(!etpt.isDynamic()); // This option is shown for all non system generated properties
                     shownInEditViewCheckBox.addListener(Events.Change, new Listener<FieldEvent>()
-                    {
-                        @Override
-                        public void handleEvent(FieldEvent be)
                         {
-                            if(!shownInEditViewCheckBox.getValue())
+                            @Override
+                            public void handleEvent(FieldEvent be)
                             {
-                                mandatoryCheckbox.setValue(Boolean.FALSE);
+                                if (!shownInEditViewCheckBox.getValue())
+                                {
+                                    mandatoryCheckbox.setValue(Boolean.FALSE);
+                                }
                             }
-                        }
-                    });
-                    
+                        });
+
                     addField(shownInEditViewCheckBox);
 
                     // Show raw values Field
@@ -566,7 +565,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                     addField(showRawValuesCheckBox);
 
                     // default value needs to be specified only if currently property is optional
-                    if (originalIsMandatory)
+                    if (originalIsMandatory == false)
                     {
                         String originalRawValue = null;
                         if (newETNewPTAssigments != null)
@@ -695,7 +694,8 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                     if (etpt.isDynamic())
                     {
                         return false;
-                    } else {
+                    } else
+                    {
                         return shownInEditViewCheckBox.getValue();
                     }
                 }
@@ -770,8 +770,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
         final String propertyTypeCode = etpt.getPropertyType().getCode();
         final IBrowserGridActionInvoker invoker = asActionInvoker();
         final AsyncCallback<Integer> callback = new UnassignmentPreparationCallback(viewContext, etpt, invoker,
-                new ServerUnassingmentExecutor(etpt, invoker)
-                );
+                new ServerUnassingmentExecutor(etpt, invoker));
         viewContext.getService().countPropertyTypedEntities(entityKind, propertyTypeCode, entityTypeCode, callback);
     }
 
