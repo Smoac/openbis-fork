@@ -7,6 +7,7 @@ import os
 import os.path
 import sys
 import time
+import traceback
 
 import settings
 from systemtest.util import printAndFlush, renderDuration
@@ -14,14 +15,12 @@ from systemtest.util import printAndFlush, renderDuration
 startTime = time.time()
 testCases = [] 
 failedTestCases = {}
-numberOfTestCases = 0
-numberOfFailedTestCases = 0
 for f in sorted(os.listdir(os.path.dirname(os.path.abspath(__file__)))):
     splittedFileName = f.rsplit('.', 1)
     if len(splittedFileName) > 1:
         moduleName = splittedFileName[0]
         fileType = splittedFileName[1]
-        if moduleName.startswith('test_') and fileType == 'py':
+        if moduleName.startswith('test') and fileType == 'py':
             testCases.append(moduleName)
             try:
                 __import__(moduleName)
@@ -39,8 +38,11 @@ with open('targets/test-results/TEST-integration.xml', 'w') as out:
     for testCase in testCases:
         if testCase in failedTestCases:
             out.write("  <testcase name='%s'>\n" % testCase)
+            exceptionInfo = failedTestCases[testCase]
             out.write("    <failure>\n")
-            out.write("      %s\n" % failedTestCases[testCase][1])
+            msgs = traceback.format_exception(exceptionInfo[0], exceptionInfo[1], exceptionInfo[2])
+            for msg in msgs:
+                out.write("      %s\n" % msg)
             out.write("    </failure>\n")
             out.write("  </testcase>\n")
         else:
@@ -48,6 +50,7 @@ with open('targets/test-results/TEST-integration.xml', 'w') as out:
     out.write("</testsuite>\n") 
 printAndFlush('=====================================')
 printAndFlush("%d test cases executed in %s" % (len(testCases), renderedDuration))
+numberOfFailedTestCases = len(failedTestCases)
 if numberOfFailedTestCases == 0:
     printAndFlush("no test case failed")
     exit(0)
