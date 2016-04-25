@@ -461,6 +461,12 @@ class OpenbisController(_Controller):
         """ Sets the username of the Data Store Server. """
         self.dssProperties['username'] = username
         
+    def setAsMaxHeapSize(self, maxHeapSize):
+        self._setMaxHeapSize("openBIS-server/jetty/etc/openbis.conf", maxHeapSize)
+        
+    def setDssMaxHeapSize(self, maxHeapSize):
+        self._setMaxHeapSize("datastore_server/etc/datastore_server.conf", maxHeapSize)
+        
     def assertFileExist(self, pathRelativeToInstallPath):
         """
         Asserts that the specified path (relative to the installation path) exists.
@@ -671,3 +677,15 @@ class OpenbisController(_Controller):
             util.writeProperties(self.dssServicePropertiesFile, self.dssProperties)
             self.dssPropertiesModified = False
     
+    def _setMaxHeapSize(self, configFile, maxHeapSize):
+        path = "%s/servers/%s" % (self.installPath, configFile)
+        lines = []
+        for line in util.getContent(path):
+            if line.strip().startswith('JAVA_MEM_OPTS'):
+                line = re.sub(r'(.*)-Xmx[^ ]+(.*)', r"\1-Xmx%s\2" % maxHeapSize, line)
+            lines.append(line)
+        with open(path, "w") as f:
+            for line in lines:
+                f.write("%s\n" % line)
+
+        
