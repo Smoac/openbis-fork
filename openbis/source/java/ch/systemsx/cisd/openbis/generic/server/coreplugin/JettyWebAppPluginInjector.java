@@ -136,12 +136,24 @@ public class JettyWebAppPluginInjector
                 File webappFolder = new File(target, WEBAPP_FOLDER);
                 webappFolder.mkdirs();
                 File link = new File(webappFolder, webapp);
+                if (link.exists())
+                {
+                    try
+                    {
+                        if (!folder.getCanonicalPath().equals(link.getCanonicalPath())) //Verifies they are pointing to the same version
+                        {
+                            link.delete();
+                        }
+                    } catch (Exception e)
+                    {
+                        operationLog.error("WebApp '" + webapp + "': Problem managing Symbolic link ", e);
+                    }
+                }
                 if (link.exists() == false)
                 {
                     String linkPath = link.getAbsolutePath();
                     Unix.createSymbolicLink(path, linkPath);
-                    operationLog.info("WebApp '" + webapp + "': Symbolic link " + linkPath + " -> "
-                            + path);
+                    operationLog.info("WebApp '" + webapp + "': Symbolic link " + linkPath + " -> " + path);
                 }
             }
         }
