@@ -1,11 +1,13 @@
 import filecmp
 import inspect
+import os
 import os.path
 import re
 import sys
 import time
 import shutil
 import subprocess
+import zipfile
 
 USER=os.environ['USER']
 DEFAULT_WHO_AM_I_TEMPLATE="""
@@ -142,6 +144,25 @@ def unzip(zipFile, destination):
     Unzips specified ZIP file at specified destination.
     """
     executeCommand(['unzip', '-q', '-o', zipFile, '-d', destination], "Couldn't unzip %s at %s" % (zipFile, destination))
+    
+def unzipSubfolder(zipFile, subfolder, destination):
+    """
+    Unzips the specified subtree from the specified ZIP file into the specified destination
+    """
+    zf = zipfile.ZipFile(zipFile)
+    parent, name = os.path.split(subfolder)
+    if name == '': 
+        parent = os.path.dirname(parent)
+    for entry in zf.namelist():
+        if entry.startswith(subfolder):
+            newPath = entry.replace(parent, destination)
+            newPathParent = os.path.dirname(newPath)
+            if not os.path.exists(newPathParent):
+                os.makedirs(newPathParent)
+            if not newPath.endswith('/'):
+                data = zf.read(entry)
+                with open(newPath, 'wb') as out:
+                    out.write(data)
     
 def deleteFolder(folderPath):
     """

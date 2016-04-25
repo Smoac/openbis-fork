@@ -5,30 +5,32 @@ import os.path
 import settings
 import systemtest.testcase
 import systemtest.util as util
+from systemtest.artifactrepository import GitHubArtifactReporistory
 
 class TestCase(systemtest.testcase.TestCase):
 
     def execute(self):
         openbisController = self.setUpAndStartOpenbis()
         testDataFolder = self.getTestDataFolder(openbisController)
-#        for exampleName in sorted(os.listdir(testDataFolder)):
-#            if os.path.isdir("%s/%s" % (testDataFolder, exampleName)):
-#                self.dropTestExample(openbisController, testDataFolder, exampleName)
+        for exampleName in sorted(os.listdir(testDataFolder)):
+            if os.path.isdir("%s/%s" % (testDataFolder, exampleName)):
+                self.dropTestExample(openbisController, testDataFolder, exampleName)
 
     def executeInDevMode(self):
-#        openbisController = self.setUpAndStartOpenbis()
-        openbisController = self.createOpenbisController(dropDatabases=False)
+        openbisController = self.setUpAndStartOpenbis()
+#        openbisController = self.createOpenbisController(dropDatabases=False)
         testDataFolder = self.getTestDataFolder(openbisController)
-        self.dropTestExample(openbisController, testDataFolder, "ivmtcbeb087rjsmilcus17nu18")
+#        self.dropTestExample(openbisController, testDataFolder, "ivmtcbeb087rjsmilcus17nu18")
         self.dropTestExample(openbisController, testDataFolder, "m9du561cidup7n0gdp97k8gh6u")
         for exampleName in sorted(os.listdir(testDataFolder)):
             if os.path.isdir("%s/%s" % (testDataFolder, exampleName)):
                 break
-        
+            
     def setUpAndStartOpenbis(self):
         util.printWhoAmI()
         self.installOpenbis(technologies = ['screening'])
         openbisController = self.createOpenbisController(databasesToDrop=['openbis', 'pathinfo'])
+        self.installMicroscopyPlugin(openbisController)
         corePluginsPropertiesFile = "%s/servers/core-plugins/core-plugins.properties" % openbisController.installPath
         corePluginsProperties = util.readProperties(corePluginsPropertiesFile)
         corePluginsProperties['disabled-core-plugins'] = 'screening:dropboxes, screening:initialize-master-data, ' \
@@ -40,6 +42,13 @@ class TestCase(systemtest.testcase.TestCase):
         openbisController.allUp()
         return openbisController
     
+    def installMicroscopyPlugin(self, openbisController):
+        repository = GitHubArtifactReporistory(self.artifactRepository.localRepositoryFolder)
+        path = repository.getPathToArtifact('aarpon/obit_microscopy_core_technology', 'master.zip')
+        util.printAndFlush("path to core plugin in the repository: %s" % path)
+        destination = "%s/servers/core-plugins/openbis/" % openbisController.installPath
+        util.unzipSubfolder(path, 'obit_microscopy_core_technology-master/core-plugins/microscopy/1/', destination)
+        
     def getTestDataFolder(self, openbisController):
         testDataFolder = "%s/../../test-data/integration_%s" % (self.playgroundFolder, self.name)
         if os.path.exists(testDataFolder):

@@ -102,3 +102,16 @@ class JenkinsArtifactRepository(ArtifactRepository):
         printAndFlush("Download %s to %s." % (url, self.localRepositoryFolder))
         self._download(urllib.urlopen(url), fileName)
         return fileName
+    
+class GitHubArtifactReporistory(ArtifactRepository):
+    """
+    Artifact repository for a GitHub project.
+    """
+    def __init__(self, localRepositoryFolder):
+        ArtifactRepository.__init__(self, localRepositoryFolder)
+
+    def downloadArtifact(self, project, pattern):
+        url = "https://github.com/%s/archive/%s" % (project, pattern)
+        printAndFlush("Download %s to %s." % (url, self.localRepositoryFolder))
+        self._download(urllib.urlopen(url), pattern)
+        return pattern
