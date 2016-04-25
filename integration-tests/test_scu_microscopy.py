@@ -21,7 +21,8 @@ class TestCase(systemtest.testcase.TestCase):
 #        openbisController = self.createOpenbisController(dropDatabases=False)
         testDataFolder = self.getTestDataFolder(openbisController)
 #        self.dropTestExample(openbisController, testDataFolder, "ivmtcbeb087rjsmilcus17nu18")
-        self.dropTestExample(openbisController, testDataFolder, "m9du561cidup7n0gdp97k8gh6u")
+#        self.dropTestExample(openbisController, testDataFolder, "m9du561cidup7n0gdp97k8gh6u")
+        self.dropTestExample(openbisController, testDataFolder, "okn3scc5tmhk199m6qk80d20op")
         for exampleName in sorted(os.listdir(testDataFolder)):
             if os.path.isdir("%s/%s" % (testDataFolder, exampleName)):
                 break
@@ -66,7 +67,11 @@ class TestCase(systemtest.testcase.TestCase):
         util.copyFromTo(testDataFolder, destination, exampleName)
         markerFile = "%s/.MARKER_is_finished_%s" % (destination, exampleName)
         open(markerFile, 'a').close()
-        openbisController.waitUntilDataSetRegistrationFinished(expectations.numberOfPhysicalDataSets, timeOutInMinutes = 10)
+        openbisController.waitUntilDataSetRegistrationFinished(expectations.numberOfPhysicalDataSets, timeOutInMinutes = 20)
+        
+    def checkExpectations(self, openbisController, exampleName):
+        logFolder = "%/openbis/servers/datastore_server/log-registrations/succeeded" % openbisController.installPath
+        
 
 class Expectations(object):
     def __init__(self, openbisController, exampleName):
