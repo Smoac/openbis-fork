@@ -48,6 +48,9 @@ public abstract class AbstractUpdateEntityToManyRelationExecutor<ENTITY_UPDATE, 
     @Override
     public void update(IOperationContext context, Map<ENTITY_UPDATE, ENTITY_PE> entitiesMap, Map<RELATED_ID, RELATED_PE> relatedMap)
     {
+        Collection<RELATED_PE> allAdded = new HashSet<RELATED_PE>();
+        Collection<RELATED_PE> allRemoved = new HashSet<RELATED_PE>();
+
         for (ENTITY_UPDATE update : entitiesMap.keySet())
         {
             IdListUpdateValue<? extends RELATED_ID> listUpdate = getRelatedUpdate(context, update);
@@ -74,10 +77,10 @@ public abstract class AbstractUpdateEntityToManyRelationExecutor<ENTITY_UPDATE, 
                         }
                         if (action instanceof ListUpdateActionSet<?>)
                         {
-                            set(context, entity, relatedCollection);
+                            set(context, entity, relatedCollection, allAdded, allRemoved);
                         } else
                         {
-                            add(context, entity, relatedCollection);
+                            add(context, entity, relatedCollection, allAdded);
                         }
                     } else if (action instanceof ListUpdateActionRemove<?>)
                     {
@@ -90,15 +93,23 @@ public abstract class AbstractUpdateEntityToManyRelationExecutor<ENTITY_UPDATE, 
                                 check(context, entity, relatedId, related);
                             }
                         }
-                        remove(context, entity, relatedCollection);
+                        remove(context, entity, relatedCollection, allRemoved);
                     }
                 }
             }
-
         }
+
+        postUpdate(context, allAdded, allRemoved);
+
     }
 
-    protected void set(IOperationContext context, ENTITY_PE entity, Collection<RELATED_PE> related)
+    protected void postUpdate(IOperationContext context, Collection<RELATED_PE> allAdded, Collection<RELATED_PE> allRemoved)
+    {
+        // by default do nothing
+    }
+
+    protected void set(IOperationContext context, ENTITY_PE entity, Collection<RELATED_PE> related, Collection<RELATED_PE> allAdded,
+            Collection<RELATED_PE> allRemoved)
     {
         Set<RELATED_PE> existingRelated = new HashSet<RELATED_PE>(getCurrentlyRelated(entity));
         Set<RELATED_PE> newRelated = new HashSet<RELATED_PE>(related);
@@ -108,6 +119,7 @@ public abstract class AbstractUpdateEntityToManyRelationExecutor<ENTITY_UPDATE, 
             if (false == newRelated.contains(anExistingRelated))
             {
                 remove(context, entity, anExistingRelated);
+                allRemoved.add(anExistingRelated);
             }
         }
 
@@ -116,11 +128,12 @@ public abstract class AbstractUpdateEntityToManyRelationExecutor<ENTITY_UPDATE, 
             if (false == existingRelated.contains(aNewRelated))
             {
                 add(context, entity, aNewRelated);
+                allAdded.add(aNewRelated);
             }
         }
     }
 
-    protected void add(IOperationContext context, ENTITY_PE entity, Collection<RELATED_PE> related)
+    protected void add(IOperationContext context, ENTITY_PE entity, Collection<RELATED_PE> related, Collection<RELATED_PE> allAdded)
     {
         Set<RELATED_PE> existingRelated = new HashSet<RELATED_PE>(getCurrentlyRelated(entity));
 
@@ -129,11 +142,12 @@ public abstract class AbstractUpdateEntityToManyRelationExecutor<ENTITY_UPDATE, 
             if (false == existingRelated.contains(aRelated))
             {
                 add(context, entity, aRelated);
+                allAdded.add(aRelated);
             }
         }
     }
 
-    protected void remove(IOperationContext context, ENTITY_PE entity, Collection<RELATED_PE> related)
+    protected void remove(IOperationContext context, ENTITY_PE entity, Collection<RELATED_PE> related, Collection<RELATED_PE> allRemoved)
     {
         Set<RELATED_PE> existingRelated = new HashSet<RELATED_PE>(getCurrentlyRelated(entity));
 
@@ -142,6 +156,7 @@ public abstract class AbstractUpdateEntityToManyRelationExecutor<ENTITY_UPDATE, 
             if (existingRelated.contains(aRelated))
             {
                 remove(context, entity, aRelated);
+                allRemoved.add(aRelated);
             }
         }
     }

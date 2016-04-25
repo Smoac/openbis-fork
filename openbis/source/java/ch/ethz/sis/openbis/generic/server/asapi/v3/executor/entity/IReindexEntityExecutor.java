@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity;
 
 import java.util.Collection;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 
 /**
  * @author pkupczyk
  */
-public interface IReindexObjectExecutor
+public interface IReindexEntityExecutor
 {
 
-    <T extends IIdHolder> void reindex(IOperationContext context, Class<T> objectClass, Collection<T> objects);
+    <T extends IEntityInformationWithPropertiesHolder> void reindex(IOperationContext context, Class<T> objectClass, Collection<T> objects);
 
 }

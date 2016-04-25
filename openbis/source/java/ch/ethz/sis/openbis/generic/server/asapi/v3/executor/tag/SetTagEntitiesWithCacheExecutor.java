@@ -17,7 +17,6 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag;
 
 import java.util.Collection;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,9 +24,9 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IReindexObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSetEntityToManyRelationExecutor;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IReindexEntityExecutor;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 
@@ -35,26 +34,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
  * @author pkupczyk
  */
 @Component
-public abstract class SetTagEntitiesWithCacheExecutor<RELATED_ID extends IObjectId, RELATED_PE extends IEntityWithMetaprojects>
+public abstract class SetTagEntitiesWithCacheExecutor<RELATED_ID extends IObjectId, RELATED_PE extends IEntityWithMetaprojects & IEntityInformationWithPropertiesHolder>
         extends AbstractSetEntityToManyRelationExecutor<TagCreation, MetaprojectPE, RELATED_ID, RELATED_PE>
 {
 
     @Autowired
-    private IDAOFactory daoFactory;
-
-    @Autowired
-    private IReindexObjectExecutor reindexObjectExecutor;
+    private IReindexEntityExecutor reindexObjectExecutor;
 
     protected abstract Class<RELATED_PE> getRelatedClass();
 
     @Override
-    public void set(IOperationContext context, Map<TagCreation, MetaprojectPE> creationsMap, Map<RELATED_ID, RELATED_PE> relatedMap)
+    protected void postSet(IOperationContext context, Collection<RELATED_PE> allSet)
     {
-        super.set(context, creationsMap, relatedMap);
-
-        daoFactory.getSessionFactory().getCurrentSession().flush();
-
-        reindexObjectExecutor.reindex(context, getRelatedClass(), relatedMap.values());
+        reindexObjectExecutor.reindex(context, getRelatedClass(), allSet);
     }
 
     @Override

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,25 +24,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class ReindexObjectExecutor implements IReindexObjectExecutor
+public class ReindexEntityExecutor implements IReindexEntityExecutor
 {
 
     @Autowired
     private IDAOFactory daoFactory;
 
     @Override
-    public <T extends IIdHolder> void reindex(IOperationContext context, Class<T> objectClass, Collection<T> objects)
+    public <T extends IEntityInformationWithPropertiesHolder> void reindex(IOperationContext context, Class<T> objectClass, Collection<T> objects)
     {
-        IFullTextIndexUpdateScheduler indexUpdater = daoFactory.getPersistencyResources().getIndexUpdateScheduler();
+        IDynamicPropertyEvaluationScheduler indexUpdater = daoFactory.getPersistencyResources().getDynamicPropertyEvaluationScheduler();
         List<Long> objectIds = new ArrayList<Long>();
 
         for (IIdHolder object : objects)
@@ -55,7 +56,7 @@ public class ReindexObjectExecutor implements IReindexObjectExecutor
 
         if (false == objectIds.isEmpty())
         {
-            indexUpdater.scheduleUpdate(IndexUpdateOperation.reindex(objectClass, objectIds));
+            indexUpdater.scheduleUpdate(DynamicPropertyEvaluationOperation.evaluate(objectClass, objectIds));
         }
     }
 

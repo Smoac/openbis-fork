@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -37,6 +38,8 @@ public abstract class AbstractSetEntityToManyRelationExecutor<ENTITY_CREATION, E
 
     public void set(IOperationContext context, Map<ENTITY_CREATION, ENTITY_PE> creationsMap, Map<RELATED_ID, RELATED_PE> relatedMap)
     {
+        Collection<RELATED_PE> allSet = new HashSet<RELATED_PE>();
+
         for (ENTITY_CREATION creation : creationsMap.keySet())
         {
             ENTITY_PE entity = creationsMap.get(creation);
@@ -54,9 +57,17 @@ public abstract class AbstractSetEntityToManyRelationExecutor<ENTITY_CREATION, E
                 if (false == related.isEmpty())
                 {
                     setRelated(context, entity, related);
+                    allSet.addAll(related);
                 }
             }
         }
+
+        postSet(context, allSet);
+    }
+
+    protected void postSet(IOperationContext context, Collection<RELATED_PE> allSet)
+    {
+        // by default do nothing
     }
 
     protected abstract Collection<? extends RELATED_ID> getRelatedIds(IOperationContext context, ENTITY_CREATION creation);

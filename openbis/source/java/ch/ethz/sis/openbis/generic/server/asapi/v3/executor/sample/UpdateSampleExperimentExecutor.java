@@ -32,7 +32,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdat
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IMapExperimentByIdExecutor;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.NewDataSetToSampleExperimentAssignmentManager;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -51,9 +50,6 @@ public class UpdateSampleExperimentExecutor extends
 
     @Autowired
     private IVerifySampleDataSetsExecutor verifySampleDataSetsExecutor;
-
-    @Autowired
-    private IDAOFactory daoFactory;
 
     @Override
     protected IExperimentId getRelatedId(ExperimentPE related)

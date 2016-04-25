@@ -18,16 +18,16 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.update.TagUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IReindexObjectExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityToManyRelationExecutor;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IReindexEntityExecutor;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
@@ -35,28 +35,25 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 /**
  * @author pkupczyk
  */
-public abstract class UpdateTagEntitiesWithCacheExecutor<RELATED_ID, RELATED_PE extends IEntityWithMetaprojects>
+public abstract class UpdateTagEntitiesWithCacheExecutor<RELATED_ID, RELATED_PE extends IEntityWithMetaprojects & IEntityInformationWithPropertiesHolder>
         extends AbstractUpdateEntityToManyRelationExecutor<TagUpdate, MetaprojectPE, RELATED_ID, RELATED_PE>
 {
 
     @Autowired
-    private IDAOFactory daoFactory;
-
-    @Autowired
-    private IReindexObjectExecutor reindexObjectExecutor;
+    private IReindexEntityExecutor reindexObjectExecutor;
 
     protected abstract Class<RELATED_PE> getRelatedClass();
 
     protected abstract RELATED_PE getCurrentlyRelated(MetaprojectAssignmentPE entity);
 
     @Override
-    public void update(IOperationContext context, Map<TagUpdate, MetaprojectPE> entitiesMap, Map<RELATED_ID, RELATED_PE> relatedMap)
+    protected void postUpdate(IOperationContext context, Collection<RELATED_PE> allAdded, Collection<RELATED_PE> allRemoved)
     {
-        super.update(context, entitiesMap, relatedMap);
+        Collection<RELATED_PE> entitiesToReindex = new HashSet<RELATED_PE>();
+        entitiesToReindex.addAll(allAdded);
+        entitiesToReindex.addAll(allRemoved);
 
-        daoFactory.getSessionFactory().getCurrentSession().flush();
-
-        reindexObjectExecutor.reindex(context, getRelatedClass(), relatedMap.values());
+        reindexObjectExecutor.reindex(context, getRelatedClass(), entitiesToReindex);
     }
 
     @Override
