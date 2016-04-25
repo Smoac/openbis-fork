@@ -33,8 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsInjector;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsUtils;
 
 /**
- * Given a list of properties files generates a list of well-known databases to be backed up as part
- * of the openBIS upgrade process.
+ * Given a list of properties files generates a list of well-known databases to be backed up as part of the openBIS upgrade process.
  * 
  * @author Kaloyan Enimanev
  */
@@ -95,10 +94,15 @@ public class BackupDatabaseDescriptionGenerator
         Properties properties = PropertyIOUtils.loadProperties(propertiesFile);
         if (isDSSPropertiesFile(propertiesFile))
         {
-            String corePluginsFolderRelativePath =
+            String corePluginsFolderLocation =
                     CorePluginsUtils.getCorePluginsFolder(properties, ScannerType.DSS);
             File workingDirectory = propertiesFile.getParentFile().getParentFile();
-            File corePluginsFolder = new File(workingDirectory, corePluginsFolderRelativePath);
+
+            File corePluginsFolder = new File(corePluginsFolderLocation);
+            if (corePluginsFolder.isAbsolute() == false)
+            {
+                corePluginsFolder = new File(workingDirectory, corePluginsFolderLocation);
+            }
             File file = new File(corePluginsFolder, CorePluginsUtils.CORE_PLUGINS_PROPERTIES_FILE);
             PropertyIOUtils.loadAndAppendProperties(properties, file);
             CorePluginsInjector injector =
