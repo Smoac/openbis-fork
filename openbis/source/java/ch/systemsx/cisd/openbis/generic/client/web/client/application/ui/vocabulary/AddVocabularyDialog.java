@@ -56,7 +56,7 @@ public class AddVocabularyDialog extends AbstractRegistrationDialog
     {
         super(viewContext, viewContext.getMessage(Dict.VOCABULARY_REGISTRATION), null);
         this.postRegistrationCallback = postRegistrationCallback;
-        vocabularyRegistrationForm = new VocabularyRegistrationForm(viewContext, true, new VocabularyPopUpCallbackListener());
+        vocabularyRegistrationForm = new VocabularyRegistrationForm(viewContext, true, new VocabularyPopUpCallbackListener(), saveButton);
         addField(new Label(viewContext.getMessage(Dict.VOCABULARY_REGISTRATION_POPUP_WARNING)));
         addField(vocabularyRegistrationForm);
     }

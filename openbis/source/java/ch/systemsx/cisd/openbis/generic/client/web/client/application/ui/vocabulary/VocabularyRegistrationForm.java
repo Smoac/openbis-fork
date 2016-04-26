@@ -22,6 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.button.Button;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
@@ -55,16 +56,19 @@ public final class VocabularyRegistrationForm extends AbstractRegistrationForm
 
     private final VocabularyPopUpCallbackListener dialogCallback;
 
+    private Button popupSaveButton;
+
     public VocabularyRegistrationForm(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        this(viewContext, false, null);
+        this(viewContext, false, null, null);
     }
 
     public VocabularyRegistrationForm(final IViewContext<ICommonClientServiceAsync> viewContext, final boolean isPopUp,
-            VocabularyPopUpCallbackListener dialogCallback)
+            VocabularyPopUpCallbackListener dialogCallback, Button popupSaveButton)
     {
         super(viewContext, ID, isPopUp);
         this.dialogCallback = dialogCallback;
+        this.popupSaveButton = popupSaveButton;
         setResetButtonVisible(true);
         this.viewContext = viewContext;
         termsSessionKey = ID + "_terms";
@@ -143,9 +147,16 @@ public final class VocabularyRegistrationForm extends AbstractRegistrationForm
 
     private void redefineSaveListeners()
     {
-        saveButton.removeAllListeners();
-        addSaveButtonConfirmationListener();
-        saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+        Button b = isPopUp ? popupSaveButton : saveButton;
+
+        b.removeAllListeners();
+
+        if (isPopUp == false)
+        {
+            addSaveButtonConfirmationListener();
+        }
+
+        b.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override
                 public final void componentSelected(final ButtonEvent ce)
