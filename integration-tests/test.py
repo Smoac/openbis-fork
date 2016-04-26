@@ -39,17 +39,18 @@ with open('targets/test-results/TEST-integration.xml', 'w') as out:
     out.write("<testsuite name='integration' tests='%s' failures='%s' errors='0' timestamp='%s' time='%s'>\n"
               % (len(testCases), len(failedTestCases), renderedStartTime, int(1000*duration)))
     for testCase in testCases:
+        testCaseDuration = int(1000*testCaseDurations[testCase])
         if testCase in failedTestCases:
-            out.write("  <testcase name='%s' time='%s'>\n" % (testCase, int(1000*testCaseDurations[testCase])))
+            out.write("  <testcase name='%s' time='%s'>\n" % (testCase, testCaseDuration))
             exceptionInfo = failedTestCases[testCase]
             out.write("    <failure>\n")
             msgs = traceback.format_exception(exceptionInfo[0], exceptionInfo[1], exceptionInfo[2])
             for msg in msgs:
-                out.write("      %s\n" % msg)
+                out.write("      <![CDATA[\n      %s\n      ]]>\n" % msg)
             out.write("    </failure>\n")
             out.write("  </testcase>\n")
         else:
-            out.write("  <testcase name='%s'/>\n" % testCase)
+            out.write("  <testcase name='%s' time='%s'/>\n" % (testCase, testCaseDuration))
     out.write("</testsuite>\n") 
 printAndFlush('=====================================')
 printAndFlush("%d test cases executed in %s" % (len(testCases), renderDuration(duration)))
