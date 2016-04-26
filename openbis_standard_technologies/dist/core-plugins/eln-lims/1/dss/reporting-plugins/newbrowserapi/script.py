@@ -911,7 +911,7 @@ def searchSamplesNexus(tr, parameters, tableBuilder, v3, criterion, fetchOptions
  		
 		#2. Search for the visible right givers
  		
-		visibleRightGivers = v3.mapSamples(parameters.get("sessionToken"), getSamplePermIdsObjFromPermIdStrings(allRightsGivers), SampleFetchOptions());
+		visibleRightGivers = v3.getSamples(parameters.get("sessionToken"), getSamplePermIdsObjFromPermIdStrings(allRightsGivers), SampleFetchOptions());
 		visibleRightGiversPermIds = getDescendantsTreePermIdsStringSet(visibleRightGivers.values());
 		#3. Intersect what the user wants and is available to see and keep matches
 		for requestedResultPermIdString in requestedToRigthsGivers:
@@ -921,7 +921,7 @@ def searchSamplesNexus(tr, parameters, tableBuilder, v3, criterion, fetchOptions
 				toReturnPermIds.append(SamplePermId(requestedResultPermIdString));
  	
 	#Now we complete those permIds with all information available for them using a search by the ETL server
-	systemResultAsMap = v3.mapSamples(tr.getOpenBisServiceSessionToken(), toReturnPermIds, fetchOptions);
+	systemResultAsMap = v3.getSamples(tr.getOpenBisServiceSessionToken(), toReturnPermIds, fetchOptions);
 	systemResult = ArrayList(systemResultAsMap.values());
 	systemSearchResult = SearchResult(systemResult, systemResult.size());
  	
