@@ -122,7 +122,19 @@ class TestCase(object):
     def assertPatternInLog(self, log, pattern):
         if not re.search(pattern, log):
             self.fail("Pattern doesn't match: %s" % pattern)
-    
+
+    def assertSmaller(self, itemName, expectedUpperLimit, actualValue, verbose=True):
+        """
+        Asserts that actualValue <= expectedUpperLimit. If not the test will be continued but counted as failed.
+        Returns False if assertion fails otherwise True.
+        """
+        if actualValue > expectedUpperLimit:
+            self.fail("%s\n  actual value <%s> exceeds the expected upper limit <%s>" % (itemName, actualValue, expectedUpperLimit))
+            return False
+        elif verbose:
+            util.printAndFlush("%s actual value <%s> is below the expected upper limit <%s>" % (itemName, actualValue, expectedUpperLimit))
+        return True
+
     def assertEquals(self, itemName, expected, actual, verbose=True):
         """
         Asserts that expected == actual. If not the test will be continued but counted as failed.

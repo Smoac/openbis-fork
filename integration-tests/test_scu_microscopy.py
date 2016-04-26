@@ -77,6 +77,8 @@ class TestCase(systemtest.testcase.TestCase):
         self.assertEquals("Number of experiments created", expectations.numberOfExperiments, logInfo.numberOfExperiments)
         self.assertEquals("Number of samples created", expectations.numberOfSamples, logInfo.numberOfSamples)
         self.assertEquals("Number of data sets created", expectations.numberOfDataSets, logInfo.numberOfDataSets)
+        self.assertSmaller("Thumbnail generation time", expectations.thumbnailGenerationTime, logInfo.thumbnailTime)
+        self.assertSmaller("Registration time", expectations.registrationTime, logInfo.jobTime)
             
     def getLogInfo(self, openbisController, exampleName):
         logFolder = "%s/servers/datastore_server/log-registrations/succeeded" % openbisController.installPath
@@ -84,8 +86,8 @@ class TestCase(systemtest.testcase.TestCase):
         logInfo = LogInfo(exampleName)
         with open(logFile) as fid:
             content = fid.readlines()
-            initial_time = datetime.fromtimestamp(mktime(time.strptime(content[0][0:19], '%Y-%m-%d %H:%M:%S')))
-            last_time = datetime.fromtimestamp(mktime(time.strptime(content[-1][0:19], '%Y-%m-%d %H:%M:%S')))
+            initial_time = mktime(time.strptime(content[0][0:19], '%Y-%m-%d %H:%M:%S'))
+            last_time = mktime(time.strptime(content[-1][0:19], '%Y-%m-%d %H:%M:%S'))
             logInfo.jobTime = last_time - initial_time
             for line in content:
                 if "Experiments created:" in line:
@@ -95,14 +97,14 @@ class TestCase(systemtest.testcase.TestCase):
                 if "Data sets created:" in line:
                     logInfo.numberOfDataSets = self.getNumFromString(line)
                 if "Start registration" in line:
-                    initial_thumb_time = datetime.fromtimestamp(mktime(time.strptime(line[0:19], '%Y-%m-%d %H:%M:%S')))
+                    initial_thumb_time = mktime(time.strptime(line[0:19], '%Y-%m-%d %H:%M:%S'))
                 if "Prepared registration" in line:
-                    last_thumb_time = datetime.fromtimestamp(mktime(time.strptime(line[0:19], '%Y-%m-%d %H:%M:%S')))
+                    last_thumb_time = mktime(time.strptime(line[0:19], '%Y-%m-%d %H:%M:%S'))
             
             logInfo.thumbnailTime = last_thumb_time - initial_thumb_time
         util.printAndFlush(("Registration took %s seconds (%s seconds for thumbnail creation) " 
                            + "to create %s experiments, %s samples, %s data sets") 
-                           % (logInfo.jobTime.seconds, logInfo.thumbnailTime.seconds, logInfo.numberOfExperiments, 
+                           % (logInfo.jobTime, logInfo.thumbnailTime, logInfo.numberOfExperiments, 
                               logInfo.numberOfSamples, logInfo.numberOfDataSets))
         return logInfo
 
@@ -133,6 +135,8 @@ class Expectations(object):
         self.numberOfExperiments = int(properties['number-of-experiments'])
         self.numberOfSamples = int(properties['number-of-samples'])
         self.registrationTimeout = int(properties['registration-timeout-in-minutes']);
+        self.thumbnailGenerationTime = int(properties['thumbnail-generation-time-in-seconds'])
+        self.registrationTime = int(properties['registration-time-in-seconds'])
 
 class LogInfo(object):
     def __init__(self, exampleName):
