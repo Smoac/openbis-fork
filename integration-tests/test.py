@@ -20,7 +20,7 @@ for f in sorted(os.listdir(os.path.dirname(os.path.abspath(__file__)))):
     if len(splittedFileName) > 1:
         moduleName = splittedFileName[0]
         fileType = splittedFileName[1]
-        if moduleName.startswith('test') and fileType == 'py':
+        if moduleName.startswith('test-') and fileType == 'py':
             testCases.append(moduleName)
             try:
                 __import__(moduleName)
