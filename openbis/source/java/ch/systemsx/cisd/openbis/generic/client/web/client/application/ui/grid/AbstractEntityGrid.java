@@ -108,22 +108,47 @@ public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithP
     }
 
     @Override
-    protected void applyModifications(BaseEntityModel<TableModelRowWithObject<E>> model,
-            String resultSetKeyOrNull, List<IModification> modifications,
-            AsyncCallback<IUpdateResult> callBack)
+    protected void applyModifications(List<TypedTableGrid<E>.ModelModificationsCallBack> modificationsListWithCallbacks, String resultSetKey)
     {
-        final EntityKind entityKind = getEntityKindOrNull();
-        final TechId entityId = new TechId(model.getBaseObject().getId());
-        final EntityPropertyUpdates updates =
-                new EntityPropertyUpdates(resultSetKeyOrNull, entityKind, entityId);
-        for (IModification modification : modifications)
+        List<EntityPropertyUpdates> allUpdates = new ArrayList<EntityPropertyUpdates>();
+        final List<AsyncCallback<IUpdateResult>> callBacks = new ArrayList<AsyncCallback<IUpdateResult>>();
+        for (ModelModificationsCallBack item : modificationsListWithCallbacks)
         {
-            String propertyCode =
-                    modification.getColumnID().substring(
-                            SampleGridColumnIDs.PROPERTIES_PREFIX.length());
-            updates.addModifiedProperty(propertyCode, modification.tryGetNewValue());
+            final EntityKind entityKind = getEntityKindOrNull();
+            final TechId entityId = new TechId(item.getModel().getBaseObject().getId());
+            final EntityPropertyUpdates updates =
+                    new EntityPropertyUpdates(resultSetKey, entityKind, entityId);
+            for (IModification modification : item.getModifications())
+            {
+                String propertyCode =
+                        modification.getColumnID().substring(
+                                SampleGridColumnIDs.PROPERTIES_PREFIX.length());
+                updates.addModifiedProperty(propertyCode, modification.tryGetNewValue());
+            }
+            allUpdates.add(updates);
+            callBacks.add(item.getCallBack());
         }
-        viewContext.getService().updateProperties(updates, callBack);
+        AsyncCallback<IUpdateResult> callBack = new AsyncCallback<IUpdateResult>()
+            {
+                @Override
+                public void onFailure(Throwable caught)
+                {
+                    for (AsyncCallback<IUpdateResult> asyncCallback : callBacks)
+                    {
+                        asyncCallback.onFailure(caught);
+                    }
+                }
+
+                @Override
+                public void onSuccess(IUpdateResult result)
+                {
+                    for (AsyncCallback<IUpdateResult> asyncCallback : callBacks)
+                    {
+                        asyncCallback.onSuccess(result);
+                    }
+                }
+            };
+        viewContext.getService().updateProperties(allUpdates, callBack);
     }
 
     @Override

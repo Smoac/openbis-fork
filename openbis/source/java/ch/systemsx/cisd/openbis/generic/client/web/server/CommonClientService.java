@@ -2631,6 +2631,21 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
+    public EntityPropertyUpdatesResult updateProperties(List<EntityPropertyUpdates> updates)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        for (EntityPropertyUpdates entityPropertyUpdates : updates)
+        {
+            EntityPropertyUpdatesResult result = updateProperties(entityPropertyUpdates);
+            if (result.tryGetErrorMessage() != null)
+            {
+                return result;
+            }
+        }
+        return new EntityPropertyUpdatesResult();
+    }
+
+    @Override
     public EntityPropertyUpdatesResult updateProperties(EntityPropertyUpdates updates)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {

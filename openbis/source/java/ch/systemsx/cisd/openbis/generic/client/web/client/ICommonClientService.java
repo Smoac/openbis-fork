@@ -1259,6 +1259,12 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
+     * Updates specified properties of list of entities.
+     */
+    public IUpdateResult updateProperties(List<EntityPropertyUpdates> updates)
+            throws UserFailureException;
+
+    /**
      * Returns a list of all deletions.
      */
     public TypedTableResultSet<Deletion> listDeletions(

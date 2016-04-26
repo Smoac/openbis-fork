@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -41,8 +40,7 @@ public class ModificationsData<T extends Serializable>
      */
     public static interface IModificationsHandler<T extends Serializable>
     {
-        public void applyModifications(BaseEntityModel<TableModelRowWithObject<T>> model,
-                List<IModification> modifications);
+        public void applyModifications(Map<BaseEntityModel<TableModelRowWithObject<T>>, List<IModification>> modificationsByModel);
     }
 
     private final Map<BaseEntityModel<TableModelRowWithObject<T>>, List<IModification>> modificationsByModel =
@@ -72,13 +70,7 @@ public class ModificationsData<T extends Serializable>
     {
         saving = true;
         finishedModifications = 0;
-        for (Entry<BaseEntityModel<TableModelRowWithObject<T>>, List<IModification>> entry : modificationsByModel
-                .entrySet())
-        {
-            BaseEntityModel<TableModelRowWithObject<T>> model = entry.getKey();
-            List<IModification> modifications = entry.getValue();
-            handler.applyModifications(model, modifications);
-        }
+        handler.applyModifications(modificationsByModel);
     }
 
     public void addModification(BaseEntityModel<TableModelRowWithObject<T>> model, String columnID,

@@ -1147,6 +1147,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void updateProperties(EntityPropertyUpdates entityPropertyUpdates,
             AsyncCallback<IUpdateResult> callback);
 
+    /**
+     * @see ICommonClientService#updateProperties(List)
+     */
+    public void updateProperties(List<EntityPropertyUpdates> entityPropertyUpdates,
+            AsyncCallback<IUpdateResult> callback);
+
     /** @see ICommonClientService#listDeletions(DefaultResultSetConfig) */
     public void listDeletions(
             DefaultResultSetConfig<String, TableModelRowWithObject<Deletion>> criteria,

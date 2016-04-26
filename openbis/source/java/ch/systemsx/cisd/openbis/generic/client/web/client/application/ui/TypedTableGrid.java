@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.GXT;
@@ -2370,12 +2371,64 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     // Table Modifications
     //
 
+    public class ModelModificationsCallBack
+    {
+        BaseEntityModel<TableModelRowWithObject<T>> model;
+
+        List<IModification> modifications;
+
+        AsyncCallback<IUpdateResult> callBack;
+
+        public ModelModificationsCallBack(BaseEntityModel<TableModelRowWithObject<T>> model, List<IModification> modifications,
+                AsyncCallback<IUpdateResult> callBack)
+        {
+            this.model = model;
+            this.modifications = modifications;
+            this.callBack = callBack;
+        }
+
+        public BaseEntityModel<TableModelRowWithObject<T>> getModel()
+        {
+            return model;
+        }
+
+        public void setModel(BaseEntityModel<TableModelRowWithObject<T>> model)
+        {
+            this.model = model;
+        }
+
+        public List<IModification> getModifications()
+        {
+            return modifications;
+        }
+
+        public void setModifications(List<IModification> modifications)
+        {
+            this.modifications = modifications;
+        }
+
+        public AsyncCallback<IUpdateResult> getCallBack()
+        {
+            return callBack;
+        }
+
+        public void setCallBack(AsyncCallback<IUpdateResult> callBack)
+        {
+            this.callBack = callBack;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "ModelModificationsCallBack [model=" + model + ", modifications=" + modifications + ", callBack=" + callBack + "]";
+        }
+    }
+
     /**
      * Apply specified modifications to the model. Should be overriden by subclasses. Default implementation does nothing.
      */
-    protected void applyModifications(BaseEntityModel<TableModelRowWithObject<T>> model,
-            String resultSetKey, List<IModification> modifications,
-            AsyncCallback<IUpdateResult> callBack)
+    protected void applyModifications(List<ModelModificationsCallBack> modificationsListWithCallbacks,
+            String resultSetKey)
     {
     }
 
@@ -2399,14 +2452,20 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
             modificationsData.handleModifications(new ModificationsData.IModificationsHandler<T>()
                 {
                     @Override
-                    public void applyModifications(
-                            BaseEntityModel<TableModelRowWithObject<T>> model,
-                            List<IModification> modifications)
+                    public void applyModifications(Map<BaseEntityModel<TableModelRowWithObject<T>>, List<IModification>> modificationsByModel)
                     {
-                        AsyncCallback<IUpdateResult> callBack =
-                                createApplyModificationsCallback(model, modifications);
-                        TypedTableGrid.this.applyModifications(model, resultSetKeyOrNull,
-                                modifications, callBack);
+                        ArrayList<TypedTableGrid<T>.ModelModificationsCallBack> result = new ArrayList<ModelModificationsCallBack>();
+                        for (Entry<BaseEntityModel<TableModelRowWithObject<T>>, List<IModification>> entry : modificationsByModel
+                                .entrySet())
+                        {
+                            BaseEntityModel<TableModelRowWithObject<T>> model = entry.getKey();
+                            List<IModification> modifications = entry.getValue();
+
+                            AsyncCallback<IUpdateResult> callBack =
+                                    createApplyModificationsCallback(model, modifications);
+                            result.add(new ModelModificationsCallBack(model, modifications, callBack));
+                        }
+                        TypedTableGrid.this.applyModifications(result, resultSetKeyOrNull);
                     }
                 });
         }
