@@ -183,6 +183,9 @@ var sources = [
 	'as/dto/deletion/search/DeletionSearchCriteria',
 	'as/dto/entitytype/id/EntityTypePermId',
 	'as/dto/entitytype/search/EntityTypeSearchCriteria',
+	'as/dto/entitytype/search/SampleTypeSearchCriteria',
+	'as/dto/entitytype/search/ListableSampleTypeSearchCriteria',
+	
 	'as/dto/experiment/create/CreateExperimentsOperation',
 	// 'as/dto/experiment/create/CreateExperimentsOperationResult',
 	'as/dto/experiment/create/ExperimentCreation',
@@ -271,7 +274,6 @@ var sources = [
 	'as/dto/sample/SampleType',
 	'as/dto/sample/search/NoSampleContainerSearchCriteria',
 	'as/dto/sample/search/NoSampleSearchCriteria',
-	'as/dto/sample/search/OnlyListableSearchCriteria',
 	'as/dto/sample/search/SampleSearchCriteria',
 	'as/dto/sample/update/SampleUpdate',
 	'as/dto/sample/update/UpdateSamplesOperation',
