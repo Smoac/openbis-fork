@@ -34,7 +34,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractDeleteEntityExecutor;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -50,8 +49,6 @@ import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 public class DeleteSampleExecutor extends AbstractDeleteEntityExecutor<IDeletionId, ISampleId, SamplePE, SampleDeletionOptions> implements
         IDeleteSampleExecutor
 {
-    @Autowired
-    private IDAOFactory daoFactory;
 
     @Autowired
     IMapSampleByIdExecutor mapSampleByIdExecutor;

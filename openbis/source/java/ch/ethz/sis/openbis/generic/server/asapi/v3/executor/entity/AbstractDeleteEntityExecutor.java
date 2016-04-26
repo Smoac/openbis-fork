@@ -23,10 +23,13 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.AbstractObjectDeletionOptions;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -37,6 +40,9 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public abstract class AbstractDeleteEntityExecutor<DELETION_ID, ENTITY_ID, ENTITY_PE, DELETION_OPTIONS extends AbstractObjectDeletionOptions>
         implements IDeleteEntityExecutor<DELETION_ID, ENTITY_ID, DELETION_OPTIONS>
 {
+
+    @Autowired
+    protected IDAOFactory daoFactory;
 
     @Resource(name = ComponentNames.COMMON_BUSINESS_OBJECT_FACTORY)
     protected ICommonBusinessObjectFactory businessObjectFactory;
@@ -84,7 +90,7 @@ public abstract class AbstractDeleteEntityExecutor<DELETION_ID, ENTITY_ID, ENTIT
         }
         return techIds;
     }
-    
+
     protected abstract Map<ENTITY_ID, ENTITY_PE> map(IOperationContext context, List<? extends ENTITY_ID> entityIds);
 
     protected abstract void checkAccess(IOperationContext context, ENTITY_ID entityId, ENTITY_PE entity);

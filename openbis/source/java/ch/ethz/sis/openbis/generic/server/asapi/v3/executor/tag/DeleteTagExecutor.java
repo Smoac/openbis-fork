@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -31,9 +32,10 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractDeleteEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IReindexEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.tag.TagAuthorization;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IMetaprojectBO;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.metaproject.MetaprojectTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
@@ -104,8 +106,17 @@ public class DeleteTagExecutor extends AbstractDeleteEntityExecutor<Void, ITagId
                 }
             }
 
-            IMetaprojectBO metaprojectBO = businessObjectFactory.createMetaprojectBO(context.getSession());
-            metaprojectBO.deleteByMetaprojectId(new MetaprojectTechIdId(tag.getId()), deletionOptions.getReason());
+            daoFactory.getMetaprojectDAO().delete(tag);
+
+            EventPE event = new EventPE();
+            event.setEventType(EventType.DELETION);
+            event.setEntityType(EntityType.METAPROJECT);
+            event.setIdentifiers(Collections.singletonList(tag.getName()));
+            event.setDescription(tag.getName());
+            event.setRegistrator(context.getSession().tryGetPerson());
+            event.setReason(deletionOptions.getReason());
+
+            daoFactory.getEventDAO().persist(event);
         }
 
         reindexObjectExecutor.reindex(context, ExperimentPE.class, experiments);
