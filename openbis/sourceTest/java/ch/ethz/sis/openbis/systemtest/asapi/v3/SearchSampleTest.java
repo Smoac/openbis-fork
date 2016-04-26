@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.CacheMode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
@@ -987,7 +988,8 @@ public class SearchSampleTest extends AbstractSampleTest
         
         assertSampleIdentifiersInOrder(samples, UNLISTED_ID);
 
-        criteria.withListableOnly();
+        final SampleTypeSearchCriteria withType = criteria.withType();
+        withType.withListable().thatEquals(true);
         samples = search(sessionToken, criteria, fo);
         assertEquals(samples.size(), 0);
     }
@@ -1003,6 +1005,7 @@ public class SearchSampleTest extends AbstractSampleTest
 
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withId().thatEquals(new SampleIdentifier(LISTED_ID));
+        final SampleTypeSearchCriteria withType = criteria.withType();
 
         List<Sample> samples = search(sessionToken, criteria, fo);
         
@@ -1010,7 +1013,7 @@ public class SearchSampleTest extends AbstractSampleTest
         
         assertEquals(samples.get(0).getIdentifier().getIdentifier(), LISTED_ID);
 
-        criteria.withListableOnly();
+        withType.withListable().thatEquals(true);
         samples = search(sessionToken, criteria, fo);
         assertEquals(samples.size(), 1);
 

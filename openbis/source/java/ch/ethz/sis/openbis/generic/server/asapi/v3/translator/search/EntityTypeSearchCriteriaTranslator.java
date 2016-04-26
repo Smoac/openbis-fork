@@ -18,13 +18,13 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.SampleTypeSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearchFieldKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
 
 /**
  * @author pkupczyk
@@ -40,7 +40,8 @@ public class EntityTypeSearchCriteriaTranslator extends AbstractFieldFromComposi
     @Override
     protected boolean doAccepts(ISearchCriteria criteria)
     {
-        return criteria instanceof EntityTypeSearchCriteria;
+        return criteria instanceof EntityTypeSearchCriteria 
+                && false == (criteria instanceof SampleTypeSearchCriteria);
     }
 
     @Override
@@ -52,9 +53,6 @@ public class EntityTypeSearchCriteriaTranslator extends AbstractFieldFromComposi
         {
             return DetailedSearchField.createAttributeField(ExperimentAttributeSearchFieldKind.EXPERIMENT_TYPE);
 
-        } else if (EntityKind.SAMPLE.equals(entityKind))
-        {
-            return DetailedSearchField.createAttributeField(SampleAttributeSearchFieldKind.SAMPLE_TYPE);
         } else if (EntityKind.DATA_SET.equals(entityKind))
         {
             return DetailedSearchField.createAttributeField(DataSetAttributeSearchFieldKind.DATA_SET_TYPE);

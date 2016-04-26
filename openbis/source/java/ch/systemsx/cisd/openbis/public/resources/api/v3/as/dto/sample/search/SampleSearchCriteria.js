@@ -3,7 +3,8 @@
  */
 define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria", "as/dto/common/search/SearchOperator", "as/dto/sample/search/SampleSearchRelation", "as/dto/space/search/SpaceSearchCriteria",
 		"as/dto/experiment/search/ExperimentSearchCriteria", "as/dto/experiment/search/NoExperimentSearchCriteria",
-		"as/dto/sample/search/NoSampleContainerSearchCriteria", "as/dto/sample/search/OnlyListableSearchCriteria" ], function(require, stjs, AbstractEntitySearchCriteria, SearchOperator, SampleSearchRelation) {
+		"as/dto/sample/search/NoSampleContainerSearchCriteria", "as/dto/entitytype/search/SampleTypeSearchCriteria" ], 
+		function(require, stjs, AbstractEntitySearchCriteria, SearchOperator, SampleSearchRelation) {
 
 	var SampleSearchCriteria = function(relation) {
 		AbstractEntitySearchCriteria.call(this);
@@ -40,9 +41,9 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 			this.addCriteria(new NoSampleContainerSearchCriteria());
 			return this;
 		};
-		prototype.withListableOnly = function() {
-			var OnlyListableSearchCriteria = require("as/dto/sample/search/OnlyListableSearchCriteria");
-			return this.addCriteria(new OnlyListableSearchCriteria());
+		prototype.withType = function() {
+			var SampleTypeSearchCriteria = require("as/dto/entitytype/search/SampleTypeSearchCriteria");
+			return this.addCriteria(new SampleTypeSearchCriteria());
 		};
 		prototype.withOrOperator = function() {
 			return this.withOperator(SearchOperator.OR);

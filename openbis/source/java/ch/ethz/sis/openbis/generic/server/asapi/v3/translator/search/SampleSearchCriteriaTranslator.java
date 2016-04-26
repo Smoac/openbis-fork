@@ -16,25 +16,17 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search;
 
-import java.util.Collections;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.NoSampleContainerSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.NoSampleSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.OnlyListableSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleChildrenSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleContainerSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleParentsSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SimpleAttributeSearchFieldKind;
-import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
  * @author pkupczyk
@@ -51,8 +43,7 @@ public class SampleSearchCriteriaTranslator extends AbstractCompositeSearchCrite
     protected boolean doAccepts(ISearchCriteria criteria)
     {
         return criteria instanceof SampleSearchCriteria
-                || criteria instanceof NoSampleSearchCriteria
-                || criteria instanceof OnlyListableSearchCriteria;
+                || criteria instanceof NoSampleSearchCriteria;
     }
 
     @Override
@@ -71,13 +62,6 @@ public class SampleSearchCriteriaTranslator extends AbstractCompositeSearchCrite
             }
 
             return new SearchCriteriaTranslationResult(new DetailedSearchSubCriteria(entityKind, null));
-        } else if (criteria instanceof OnlyListableSearchCriteria)
-        {
-            SimpleAttributeSearchFieldKind attributeFieldKind = new SimpleAttributeSearchFieldKind(SearchFieldConstants.PREFIX_ENTITY_TYPE + SearchFieldConstants.IS_LISTABLE, "listable");
-            DetailedSearchField createAttributeField = DetailedSearchField.createAttributeField(attributeFieldKind);
-            DetailedSearchCriterion criterion = new DetailedSearchCriterion(createAttributeField, "true");
-            
-            return new SearchCriteriaTranslationResult(criterion);
         } else
         {
             context.pushEntityKind(EntityKind.SAMPLE);
@@ -102,7 +86,8 @@ public class SampleSearchCriteriaTranslator extends AbstractCompositeSearchCrite
             } else if (criteria instanceof SampleSearchCriteria)
             {
                 entityKind = AssociatedEntityKind.SAMPLE;
-            } else {
+            } else
+            {
                 throw new IllegalArgumentException("Unknown criteria: " + criteria);
             }
             DetailedSearchSubCriteria subCriteria = new DetailedSearchSubCriteria(entityKind, translationResult.getCriteria());

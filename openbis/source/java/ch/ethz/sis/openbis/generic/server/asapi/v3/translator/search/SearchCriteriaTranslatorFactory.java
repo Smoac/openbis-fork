@@ -45,6 +45,7 @@ public class SearchCriteriaTranslatorFactory extends AbstractSearchCriteriaTrans
         translators.add(new DateFieldSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new NumberFieldSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new EntityTypeSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
+        translators.add(new SampleTypeSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new TagSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new SpaceSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new ProjectSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
