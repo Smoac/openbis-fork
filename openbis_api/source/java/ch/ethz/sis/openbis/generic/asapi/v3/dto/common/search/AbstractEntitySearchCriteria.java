@@ -25,7 +25,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.common.search.AbstractEntitySearchCriteria")
-public class AbstractEntitySearchCriteria<ID extends IObjectId> extends AbstractObjectSearchCriteria<ID>
+public abstract class AbstractEntitySearchCriteria<ID extends IObjectId, TypeSearchCriteria extends EntityTypeSearchCriteria> extends AbstractObjectSearchCriteria<ID>
 {
 
     private static final long serialVersionUID = 1L;
@@ -35,9 +35,9 @@ public class AbstractEntitySearchCriteria<ID extends IObjectId> extends Abstract
         return with(new CodeSearchCriteria());
     }
 
-    public EntityTypeSearchCriteria withType()
+    public TypeSearchCriteria withType()
     {
-        return with(new EntityTypeSearchCriteria());
+        return (TypeSearchCriteria) with(new EntityTypeSearchCriteria());
     }
 
     public PermIdSearchCriteria withPermId()

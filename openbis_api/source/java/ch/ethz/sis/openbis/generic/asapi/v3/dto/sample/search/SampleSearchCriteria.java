@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractEntitySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.NoExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
@@ -29,7 +30,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.sample.search.SampleSearchCriteria")
-public class SampleSearchCriteria extends AbstractEntitySearchCriteria<ISampleId>
+public class SampleSearchCriteria extends AbstractEntitySearchCriteria<ISampleId, SampleTypeSearchCriteria>
 {
 
     private static final long serialVersionUID = 1L;
@@ -83,10 +84,12 @@ public class SampleSearchCriteria extends AbstractEntitySearchCriteria<ISampleId
         return this;
     }
     
-    public OnlyListableSearchCriteria withListableOnly() {
-        return with(new OnlyListableSearchCriteria());
+    @Override
+    public SampleTypeSearchCriteria withType()
+    {
+        return with(new SampleTypeSearchCriteria());
     }
-
+    
     public SampleSearchCriteria withOrOperator()
     {
         return (SampleSearchCriteria) withOperator(SearchOperator.OR);
