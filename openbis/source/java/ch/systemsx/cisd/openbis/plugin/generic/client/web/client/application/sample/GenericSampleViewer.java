@@ -110,7 +110,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
     private PropertyGrid propertyGrid;
 
     private SectionsPanel rightPanel;
-    
+
     private StringBuffer additionalMessage;
 
     public static DatabaseModificationAwareComponent create(
@@ -170,36 +170,35 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
             return;
         }
         addToolBarButton(createDeleteButton(new IDelegatedAction()
-        {
-            @Override
-            @SuppressWarnings(
-                    { "unchecked", "rawtypes" })
-            public void execute()
             {
-                final AsyncCallback<Void> callback =
-                        isTrashEnabled() ? createDeletionCallback()
-                                : createPermanentDeletionCallback();
-                        additionalMessage = new StringBuffer();
+                @Override
+                @SuppressWarnings({ "unchecked", "rawtypes" })
+                public void execute()
+                {
+                    final AsyncCallback<Void> callback =
+                            isTrashEnabled() ? createDeletionCallback()
+                                    : createPermanentDeletionCallback();
+                    additionalMessage = new StringBuffer();
 
-                        //we need info for just 1 sample/                   
-                        List<TechId> sampleIds = new ArrayList<TechId>(Arrays.asList(TechId.create(getOriginalData())));
-                        viewContext.getCommonService().getSampleChildrenInfo(sampleIds, true, 
-                                new AbstractAsyncCallback<List<SampleChildrenInfo>>(viewContext)
-                                {
+                    // we need info for just 1 sample/
+                    List<TechId> sampleIds = new ArrayList<TechId>(Arrays.asList(TechId.create(getOriginalData())));
+                    viewContext.getCommonService().getSampleChildrenInfo(sampleIds, true,
+                            new AbstractAsyncCallback<List<SampleChildrenInfo>>(viewContext)
+                        {
                             @Override
                             protected void process(List<SampleChildrenInfo> info)
                             {
                                 SampleChildrenInfo sampleInfo = info.get(0);
-                                
+
                                 additionalMessage.append(EntityDeletionConfirmationUtils.getMessageForSingleSample(sampleInfo));
 
                                 new SampleListDeletionConfirmationDialog(getViewContext()
                                         .getCommonViewContext(), getOriginalDataAsSingleton(), callback,
-                                        getOriginalData(), additionalMessage.toString()).show();     
+                                        getOriginalData(), additionalMessage.toString()).show();
                             }
-                    });
-            }
-        }));
+                        });
+                }
+            }));
         addToolBarButton(createRevertDeletionButton(new IDelegatedAction()
             {
                 @Override
@@ -513,8 +512,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         @Override
         public DatabaseModificationKind[] getRelevantModifications()
         {
-            return new DatabaseModificationKind[]
-            {
+            return new DatabaseModificationKind[] {
                     DatabaseModificationKind.createOrDelete(ObjectKind.SAMPLE),
                     DatabaseModificationKind.createOrDelete(ObjectKind.SAMPLE_TYPE),
                     DatabaseModificationKind.edit(ObjectKind.SAMPLE),
@@ -524,6 +522,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
                     DatabaseModificationKind
                             .createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                     DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM),
                     DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM),
                     DatabaseModificationKind.createOrDelete(ObjectKind.METAPROJECT),
                     DatabaseModificationKind.edit(ObjectKind.METAPROJECT) };
