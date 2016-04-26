@@ -15,6 +15,7 @@ from systemtest.util import printAndFlush, renderDuration
 startTime = time.time()
 testCases = [] 
 failedTestCases = {}
+testCaseDurations = {}
 for f in sorted(os.listdir(os.path.dirname(os.path.abspath(__file__)))):
     splittedFileName = f.rsplit('.', 1)
     if len(splittedFileName) > 1:
@@ -22,22 +23,24 @@ for f in sorted(os.listdir(os.path.dirname(os.path.abspath(__file__)))):
         fileType = splittedFileName[1]
         if moduleName.startswith('test_') and fileType == 'py':
             testCases.append(moduleName)
+            moduleStartTime = time.time()
             try:
                 __import__(moduleName)
             except:
                 failedTestCases[moduleName] = sys.exc_info()
+            testCaseDurations[moduleName] = time.time() - moduleStartTime
 renderedStartTime = time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(startTime))
-renderedDuration = renderDuration(time.time() - startTime)
+duration = time.time() - startTime
 testResultsFolder = 'targets/test-results'
 if not os.path.exists(testResultsFolder):
     os.mkdir(testResultsFolder)
 with open('targets/test-results/TEST-integration.xml', 'w') as out:
     out.write('<?xml version="1.1" encoding="UTF-8"?>\n') 
     out.write("<testsuite name='integration' tests='%s' failures='%s' errors='0' timestamp='%s' time='%s'>\n"
-              % (len(testCases), len(failedTestCases), renderedStartTime, renderedDuration))
+              % (len(testCases), len(failedTestCases), renderedStartTime, int(1000*duration)))
     for testCase in testCases:
         if testCase in failedTestCases:
-            out.write("  <testcase name='%s'>\n" % testCase)
+            out.write("  <testcase name='%s' time='%s'>\n" % (testCase, int(1000*testCaseDurations[testCase])))
             exceptionInfo = failedTestCases[testCase]
             out.write("    <failure>\n")
             msgs = traceback.format_exception(exceptionInfo[0], exceptionInfo[1], exceptionInfo[2])
@@ -49,7 +52,7 @@ with open('targets/test-results/TEST-integration.xml', 'w') as out:
             out.write("  <testcase name='%s'/>\n" % testCase)
     out.write("</testsuite>\n") 
 printAndFlush('=====================================')
-printAndFlush("%d test cases executed in %s" % (len(testCases), renderedDuration))
+printAndFlush("%d test cases executed in %s" % (len(testCases), renderDuration(duration)))
 numberOfFailedTestCases = len(failedTestCases)
 if numberOfFailedTestCases == 0:
     printAndFlush("no test case failed")
