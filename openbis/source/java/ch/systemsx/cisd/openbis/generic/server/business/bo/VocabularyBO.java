@@ -37,6 +37,7 @@ import ch.systemsx.cisd.common.collection.TableMap;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.KeyExtractorFactory;
@@ -48,12 +49,18 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
@@ -81,6 +88,9 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
     private VocabularyPE vocabularyPE;
 
     private boolean allowChangingInternallyManaged = false;
+
+    private Map<Class<? extends IEntityInformationWithPropertiesHolder>, List<Long>> changedEntitiesMap =
+            new HashMap<Class<? extends IEntityInformationWithPropertiesHolder>, List<Long>>();
 
     public VocabularyBO(final IDAOFactory daoFactory, final Session session,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
@@ -265,6 +275,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
                 List<EntityPropertyPE> properties = dao.listPropertiesByVocabularyTerm(code);
                 for (EntityPropertyPE entityProperty : properties)
                 {
+                    addToChangedEntities(entityProperty.getEntity());
                     entityProperty.setVocabularyTerm(term);
                 }
                 try
@@ -328,6 +339,9 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
                 throw new UserFailureException("Invalid terms:" + builder);
             }
             getVocabularyDAO().createOrUpdateVocabulary(vocabularyPE);
+
+            reindexChangedEntities();
+
         } catch (final DataAccessException e)
         {
             throwException(e, String.format("Vocabulary '%s'.", vocabularyPE.getCode()));
@@ -573,4 +587,53 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
     {
         this.allowChangingInternallyManaged = allowChangingInternallyManaged;
     }
+
+    private void addToChangedEntities(IEntityPropertiesHolder entity)
+    {
+        Class<? extends IEntityInformationWithPropertiesHolder> entityClass;
+
+        // We do the instanceof check to keep all the subclasses under the same key,
+        // e.g. DataPE, ExternalDataPE and LinkDataPE all under DataPE.class key.
+        // Even though the other classes do not have subclasses yet we still do the same check
+        // to make it work even in the future when such subclasses might be created.
+
+        if (entity instanceof ExperimentPE)
+        {
+            entityClass = ExperimentPE.class;
+        } else if (entity instanceof SamplePE)
+        {
+            entityClass = SamplePE.class;
+        } else if (entity instanceof DataPE)
+        {
+            entityClass = DataPE.class;
+        } else if (entity instanceof MaterialPE)
+        {
+            entityClass = MaterialPE.class;
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported entity class: " + entity.getClass());
+        }
+
+        List<Long> ids = changedEntitiesMap.get(entityClass);
+        if (ids == null)
+        {
+            ids = new ArrayList<Long>();
+            changedEntitiesMap.put(entityClass, ids);
+        }
+
+        ids.add(entity.getId());
+    }
+
+    private void reindexChangedEntities()
+    {
+        if (false == changedEntitiesMap.isEmpty())
+        {
+            for (Map.Entry<Class<? extends IEntityInformationWithPropertiesHolder>, List<Long>> entry : changedEntitiesMap.entrySet())
+            {
+                getPersistencyResources().getDynamicPropertyEvaluationScheduler()
+                        .scheduleUpdate(DynamicPropertyEvaluationOperation.evaluate(entry.getKey(), entry.getValue()));
+            }
+        }
+    }
+
 }
