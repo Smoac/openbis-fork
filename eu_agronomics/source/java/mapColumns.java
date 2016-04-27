@@ -26,14 +26,14 @@ import ch.systemsx.cisd.args4j.CmdLineException;
 public class mapColumns
 {
 
-    @Option(name = "-f", longName = "tsvFile", metaVar = "TSV File ", 
+    @Option(name = "-f", longName = "tsvFile", metaVar = "TSV File ",
             usage = "The Tab Separated Value file to manipulate", required = true)
     private static String file = null;
 
     @Option(name = "-i", longName = "headingsIndex", metaVar = "Row number",
             usage = "Row number of the column headings. 1 is the first.", required = true)
     private static Integer i = -1;
-    
+
     @Option(name = "-uc", longName = "upperCase", metaVar = "Upper case the headings",
             usage = "By default headings are upper-cased", required = false)
     private static Boolean uc = true;
@@ -41,36 +41,34 @@ public class mapColumns
     @Option(name = "-q", longName = "quickMapper", metaVar = "Replace characters",
             usage = "Quick mappers specify what to replace as key value pairs", required = false)
     private static String q = "";
-    
+
     @Option(name = "-c", longName = "commonUnits", metaVar = "Include some common units for editing",
             usage = "", required = true)
-    private static Boolean c ;
-        
+    private static Boolean c;
+
     @Option(name = "-u", longName = "userUnits", metaVar = "User supplied units",
             usage = "User supplied units are added verbatamin", required = false)
-    private static String u ;
-    
-    
+    private static String u;
+
     public void doArgs(String[] args)
     {
         CmdLineParser parser = new CmdLineParser(this);
         parser.setUsageWidth(150);
         try
         {
-                 
+
             parser.parseArgument(args);
             // some checking
             if (i < 0)
             {
                 throw new CmdLineException("Problem with headings index which was set to " + i);
             }
-            
 
         } catch (CmdLineException e)
         {
 
             System.err.println(e.getMessage());
-            System.err.println("Options were \"" + StringUtils.join(args," ") + "\"\n");          
+            System.err.println("Options were \"" + StringUtils.join(args, " ") + "\"\n");
             System.out.println("Usage is :\n\njava mapColumns [ options...]" + "\n");
             parser.printUsage(System.out);
             System.out.println();
@@ -78,14 +76,13 @@ public class mapColumns
             return;
         }
     }
-    
-    
-       public static void main(String[] args)
+
+    public static void main(String[] args)
     {
         new mapColumns().doArgs(args);
-          
+
         new columnMapper(i, file, q, c, u, uc);
-             
+
     }
 
 }

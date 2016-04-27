@@ -221,7 +221,7 @@ class TsvUploader
         //
         // and a structure to specify which columns of the data are sample
         // meta-data
-        // 
+        //
         // e.g. sample_meta=[user.ecotype@1,user.color@4]
         //
         // for now I avoid this

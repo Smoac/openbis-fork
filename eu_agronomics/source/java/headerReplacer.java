@@ -133,32 +133,32 @@ public class headerReplacer
             Integer lineNum = 0;
             File f = new File("./" + outFile);
             System.out.println("Attempting to write the file " + f.toString());
-            //f.mkdirs();
-            if (f.exists()){
+            // f.mkdirs();
+            if (f.exists())
+            {
                 System.out.println("File exists " + f.toString());
                 input.close();
                 throw new Exception("Output file already exists on the file system. Delete the existing file and re-run. File is :\n" + f.toString());
             }
             f.createNewFile();
-                
+
             try
             {
                 fOut = new BufferedWriter(new FileWriter(f));
-           
-                    
+
                 while ((line = input.readLine()) != null)
                 {
                     lineNum++;
                     if (lineNum == headerIndex)
                     {
                         Scanner tokenize = new Scanner(line).useDelimiter("\t");
-    
+
                         ArrayList<String> headings = new ArrayList<String>();
                         while (tokenize.hasNext())
                         {
-    
+
                             String toke = tokenize.next();
-    
+
                             if (hm.containsKey(toke))
                             {
                                 headings.add(hm.get(toke));
@@ -167,13 +167,11 @@ public class headerReplacer
                                 throw new Exception("The column heading \"" + toke + "\" in " + inFile
                                         + " does not exist in mapFile " + mapFile);
                             }
-    
-                            
-    
+
                         }
                         String headrow = StringUtils.join(headings.toArray(), "\t") + "\n";
                         fOut.write(headrow);
-                 
+
                     } else
                     {
                         fOut.write(line + "\n");
@@ -190,7 +188,7 @@ public class headerReplacer
                 }
             }
             System.out.println("Done writing.");
-            
+
         } catch (IOException ex)
         {
             ex.printStackTrace();

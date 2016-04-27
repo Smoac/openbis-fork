@@ -21,13 +21,11 @@ import ch.systemsx.cisd.args4j.Option;
  */
 
 /**
- * 
- *
  * @author walshs
  */
 public class replaceHeader
 {
-    @Option(name = "-f", longName = "tsvFile", metaVar = "TSV File ", 
+    @Option(name = "-f", longName = "tsvFile", metaVar = "TSV File ",
             usage = "The Tab Separated Value file to manipulate", required = true)
     private static String file = null;
 
@@ -38,32 +36,30 @@ public class replaceHeader
     @Option(name = "-m", longName = "mappingsFile", metaVar = "The mappings file",
             usage = "The TSV file of mappings from the current header names to the new ones", required = true)
     private static String m = "";
-    
+
     @Option(name = "-o", longName = "outputFile", metaVar = "The output file",
             usage = "The name and path of the output file", required = true)
-    private static String o ;
-        
-    
+    private static String o;
+
     public void doArgs(String[] args)
     {
         CmdLineParser parser = new CmdLineParser(this);
         parser.setUsageWidth(150);
         try
         {
-                 
+
             parser.parseArgument(args);
             // some checking
             if (i < 0)
             {
                 throw new CmdLineException("Problem with headings index which was set to " + i);
             }
-            
 
         } catch (CmdLineException e)
         {
 
             System.err.println(e.getMessage());
-            System.err.println("Options were \"" + StringUtils.join(args," ") + "\"\n");          
+            System.err.println("Options were \"" + StringUtils.join(args, " ") + "\"\n");
             System.out.println("Usage is :\n\njava replaceHeader [ options...]" + "\n");
             parser.printUsage(System.out);
             System.out.println();
@@ -71,12 +67,11 @@ public class replaceHeader
             return;
         }
     }
-    
-    
+
     public static void main(String[] args)
     {
         new replaceHeader().doArgs(args);
-        
+
         new headerReplacer(file, i, m, o);
     }
 

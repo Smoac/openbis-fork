@@ -3,11 +3,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * 
- *
  * @author walshs
  */
-
 
 // to add
 // 1. ignore blank lines - unresolved problem
@@ -16,24 +13,23 @@ import java.util.ArrayList;
 // use log4j
 // use args4j
 
-
 class Tsv2upload
 {
 
     public static void main(String args[])
     {
 
-        
         File d = new File(".");
-        try {
+        try
+        {
             String pwd = d.getCanonicalPath();
             System.out.println("Working dir : " + pwd);
-        } catch (IOException ioe) {
-            
-           System.err.println(ioe.getMessage());
+        } catch (IOException ioe)
+        {
+
+            System.err.println(ioe.getMessage());
         }
-            
-            
+
         TsvUploader up = null;
 
         try

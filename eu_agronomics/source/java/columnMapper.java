@@ -48,7 +48,7 @@ public class columnMapper
 
     // User supplied units
     String userUnits;
-    
+
     // Upper case the heading
     Boolean upperCase;
 
@@ -121,12 +121,13 @@ public class columnMapper
                     {
 
                         String toke = tokenize.next();
-                        
+
                         String toke2 = new String(toke);
-                        if (upperCase){
+                        if (upperCase)
+                        {
                             toke2 = StringUtils.upperCase(toke2);
-                        } 
-              
+                        }
+
                         toke2 = toke2.replace(" ", "_");
                         for (String s : hm.keySet())
                         {

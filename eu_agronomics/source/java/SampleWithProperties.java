@@ -19,37 +19,39 @@ import java.util.TreeMap;
  */
 
 /**
- * 
- *
  * @author walshs
  */
-public class SampleWithProperties {
+public class SampleWithProperties
+{
 
     String sname = new String(); // sample name
-    TreeMap<String,String> pvs = new TreeMap<String,String>();
-    
-    public SampleWithProperties (String s)
+
+    TreeMap<String, String> pvs = new TreeMap<String, String>();
+
+    public SampleWithProperties(String s)
     {
-            sname = s;
+        sname = s;
     }
-    
-    public void addProperty(String k, String v){
+
+    public void addProperty(String k, String v)
+    {
         pvs.put(k, v);
     }
-    
-    public String getName(){
+
+    public String getName()
+    {
         return sname;
     }
-    
-    public Set<String> getPropertyTypes(){
-         return pvs.keySet();
-        
+
+    public Set<String> getPropertyTypes()
+    {
+        return pvs.keySet();
+
     }
-    
-    public Collection<String> getPropertyValues(){
-        return pvs.values();  
-   }
-   
-    
-    
+
+    public Collection<String> getPropertyValues()
+    {
+        return pvs.values();
+    }
+
 }

@@ -39,7 +39,7 @@ class Tsv2openBIS
 
             mangler = getTsvMangler(args);
             mangler.writeDataForDssUploadOneDirPerRowStyle();
-          
+
             mangler.writeSamplesFile();
             mangler.writeServiceDotProperties();
             mangler.writeDssMkdir();
@@ -106,7 +106,7 @@ class Tsv2openBIS
             } else if (s.matches("project=.*"))
             {
                 project = stripValue(s);
-            }  
+            }
             else if (s.matches("dataSetName=.*"))
             {
                 dsn = stripValue(s);
