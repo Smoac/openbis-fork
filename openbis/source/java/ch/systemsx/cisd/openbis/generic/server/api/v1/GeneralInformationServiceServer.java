@@ -30,8 +30,6 @@ import ch.systemsx.cisd.openbis.common.api.server.AbstractApiServiceExporter;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Controller
@@ -47,14 +45,15 @@ public class GeneralInformationServiceServer extends AbstractApiServiceExporter
                 IGeneralInformationService.SERVICE_NAME, IGeneralInformationService.SERVICE_URL);
         super.afterPropertiesSet();
     }
-    
 
     @RequestMapping(
-            { IGeneralInformationService.SERVICE_URL, "/openbis" + IGeneralInformationService.SERVICE_URL, "/openbis/openbis" + IGeneralInformationService.SERVICE_URL })    
+    { IGeneralInformationService.SERVICE_URL, "/openbis" + IGeneralInformationService.SERVICE_URL,
+            "/openbis/openbis" + IGeneralInformationService.SERVICE_URL })
     @Override
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException
+    {
         super.handleRequest(request, response);
     }
-    
+
 }

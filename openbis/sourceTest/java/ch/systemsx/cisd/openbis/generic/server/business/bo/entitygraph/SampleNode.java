@@ -22,21 +22,28 @@ import java.util.List;
 public final class SampleNode extends EntityNode
 {
     private final List<SampleNode> components = new ArrayList<SampleNode>();
+
     private final List<SampleNode> parents = new ArrayList<SampleNode>();
+
     private final List<SampleNode> children = new ArrayList<SampleNode>();
+
     private final List<DataSetNode> dataSets = new ArrayList<DataSetNode>();
 
     private boolean shared;
+
     private String space;
+
     private String project;
+
     private ExperimentNode experiment;
+
     private SampleNode container;
 
     SampleNode(long id)
     {
         super("S", id);
     }
-    
+
     public boolean isShared()
     {
         return shared;
@@ -76,7 +83,7 @@ public final class SampleNode extends EntityNode
     {
         this.experiment = experiment;
     }
-    
+
     public SampleNode getContainer()
     {
         return container;
@@ -86,7 +93,7 @@ public final class SampleNode extends EntityNode
     {
         this.container = container;
     }
-    
+
     public List<SampleNode> getComponents()
     {
         return components;
@@ -96,17 +103,17 @@ public final class SampleNode extends EntityNode
     {
         return parents;
     }
-    
+
     public List<SampleNode> getChildren()
     {
         return children;
     }
-    
+
     public List<DataSetNode> getDataSets()
     {
         return dataSets;
     }
-    
+
     void hasComponents(SampleNode... someComponentSamples)
     {
         for (SampleNode componentSample : someComponentSamples)
@@ -115,7 +122,7 @@ public final class SampleNode extends EntityNode
             componentSample.container = this;
         }
     }
-    
+
     void hasChildren(SampleNode... someChildSamples)
     {
         for (SampleNode childSample : someChildSamples)
@@ -124,7 +131,7 @@ public final class SampleNode extends EntityNode
             childSample.parents.add(this);
         }
     }
-    
+
     void has(DataSetNode... someDataSets)
     {
         for (DataSetNode dataSet : someDataSets)
@@ -137,7 +144,7 @@ public final class SampleNode extends EntityNode
             dataSets.add(dataSet);
         }
     }
-    
+
     @Override
     public String getIdentifier()
     {

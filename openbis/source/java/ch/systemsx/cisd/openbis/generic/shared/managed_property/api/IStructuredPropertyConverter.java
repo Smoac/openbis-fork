@@ -44,8 +44,7 @@ public interface IStructuredPropertyConverter
     List<IElement> convertStringToElements(String propertyValue);
 
     /**
-     * @return a {@link String} representation of the specified elements that can be persisted in
-     *         the database.
+     * @return a {@link String} representation of the specified elements that can be persisted in the database.
      */
     String convertToString(List<IElement> elements);
 

@@ -58,14 +58,14 @@ public class ExpressionUtilTest extends AssertJUnit
         String expression = "${abc} ${def} ${abc} ${ghi}.";
         assertEquals("[abc, def, abc, ghi]", extractParameters(expression).toString());
     }
-    
+
     @Test
     public void testCreateDistinctParametersList()
     {
         assertEquals("[a, b, c]", createDistinctList("a", "b", "a", "c", "b").toString());
     }
-    
-    private Collection<String> createDistinctList(String...strings)
+
+    private Collection<String> createDistinctList(String... strings)
     {
         return ExpressionUtil.createDistinctParametersList(Arrays.asList(strings));
     }

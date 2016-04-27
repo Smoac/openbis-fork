@@ -78,7 +78,7 @@ public class UnassignSampleFromSpaceTest extends BaseTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void sampleWithDataSetCannotBeUnassignedFromSpace() throws Exception
     {
         Sample sample = create(aSample().inExperiment(experiment));
@@ -88,7 +88,7 @@ public class UnassignSampleFromSpaceTest extends BaseTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void childSampleCantBeUnassignedFromSpace() throws Exception
     {
         Sample parent = create(aSample().inExperiment(experiment));
@@ -122,7 +122,7 @@ public class UnassignSampleFromSpaceTest extends BaseTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void componentOfSpaceLevelSampleCantBeUnassignedFromSpace() throws Exception
     {
         Sample container = create(aSample().inExperiment(experiment));
@@ -174,7 +174,7 @@ public class UnassignSampleFromSpaceTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToUnassignSampleFromSpace", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void unassigningIsNotAllowedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {

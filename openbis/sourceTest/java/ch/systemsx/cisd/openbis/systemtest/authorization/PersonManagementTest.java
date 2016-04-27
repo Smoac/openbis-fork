@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 public class PersonManagementTest extends BaseTest
 {
     private BufferedAppender logRecorder;
+
     private int initialNumberOfActivePersons;
 
     @BeforeMethod

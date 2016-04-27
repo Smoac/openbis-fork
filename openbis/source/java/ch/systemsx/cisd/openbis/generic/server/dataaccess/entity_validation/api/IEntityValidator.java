@@ -30,8 +30,7 @@ public interface IEntityValidator
     /**
      * Before the validation is triggered, the validator is initialized by calling this method.
      * 
-     * @param validationRequestedDelegate object responsible for handling requests for entity
-     *            validation
+     * @param validationRequestedDelegate object responsible for handling requests for entity validation
      */
     public void init(
             IValidationRequestDelegate<INonAbstractEntityAdapter> validationRequestedDelegate);
@@ -40,8 +39,7 @@ public interface IEntityValidator
      * Main method, that performs actual validation
      * 
      * @param entity entity that needs to be validated
-     * @param isNew <code>true</code> if the entity is freshly created, <code>false</code> if the
-     *            entity was only updated.
+     * @param isNew <code>true</code> if the entity is freshly created, <code>false</code> if the entity was only updated.
      */
     public String validate(IEntityAdaptor entity, boolean isNew);
 }

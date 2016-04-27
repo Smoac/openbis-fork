@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
-
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
@@ -44,7 +43,7 @@ public final class GroupValidatorTest extends AuthorizationTestCase
         {
             assertEquals("Unspecified person", e.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
 
@@ -55,7 +54,7 @@ public final class GroupValidatorTest extends AuthorizationTestCase
         final PersonPE personPE = createPerson();
         final SpacePE groupPE = createSpace();
         final Space space = SpaceTranslator.translate(groupPE);
-        
+
         assertFalse(groupValidator.isValid(personPE, space));
 
         context.assertIsSatisfied();
@@ -71,7 +70,7 @@ public final class GroupValidatorTest extends AuthorizationTestCase
         assertTrue(groupValidator.isValid(personPE, space));
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public final void testIsValidWithMatchingRoleAssignmentOnDatabaseinstanceLevel()
     {
@@ -82,5 +81,5 @@ public final class GroupValidatorTest extends AuthorizationTestCase
         assertTrue(groupValidator.isValid(personPE, space));
         context.assertIsSatisfied();
     }
-    
+
 }

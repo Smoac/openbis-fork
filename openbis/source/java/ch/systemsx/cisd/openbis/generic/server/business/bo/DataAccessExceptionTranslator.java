@@ -26,16 +26,14 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
- * This class converts the low-level {@link DataAccessException} into a high-level exception
- * {@link UserFailureException}.
+ * This class converts the low-level {@link DataAccessException} into a high-level exception {@link UserFailureException}.
  * <p>
- * This class can only be used on the business layer side as, only there, we dispose of enough
- * information to decide whether or not a <code>DataAccessException</code> should be translated into
- * an high-level exception.
+ * This class can only be used on the business layer side as, only there, we dispose of enough information to decide whether or not a
+ * <code>DataAccessException</code> should be translated into an high-level exception.
  * </p>
  * <p>
- * Do not try to put this logic on the <i>DAO</i> level or do not try to automate this conversion as
- * we want full control on this translation and we prefer to call it manually.
+ * Do not try to put this logic on the <i>DAO</i> level or do not try to automate this conversion as we want full control on this translation and we
+ * prefer to call it manually.
  * </p>
  * 
  * @author Tomasz Pylak
@@ -61,17 +59,14 @@ public final class DataAccessExceptionTranslator
     }
 
     /**
-     * Analyzes given <code>DataAccessException</code> and converts it into a
-     * <code>UserFailureException</code>.
+     * Analyzes given <code>DataAccessException</code> and converts it into a <code>UserFailureException</code>.
      * <p>
-     * This method is typically used by <i>creator</i> methods (methods which inserts a new object
-     * into the database) and <i>deletion</i> methods.
+     * This method is typically used by <i>creator</i> methods (methods which inserts a new object into the database) and <i>deletion</i> methods.
      * </p>
      * 
-     * @param subject short description of the object that got blessed by the unique/foreign key
-     *            violation constraint.
-     * @param entityKindOrNull entity kind of the subject object (if specified can make the error
-     *            message more detailed especially for foreign key violation upon deletion)
+     * @param subject short description of the object that got blessed by the unique/foreign key violation constraint.
+     * @param entityKindOrNull entity kind of the subject object (if specified can make the error message more detailed especially for foreign key
+     *            violation upon deletion)
      */
     public final static void throwException(final DataAccessException exception,
             final String subject, final EntityKind entityKindOrNull) throws UserFailureException

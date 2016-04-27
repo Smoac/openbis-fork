@@ -21,7 +21,7 @@ import java.util.Date;
 /**
  * Super class of DTOs which hold registration data.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public abstract class AbstractRegistrationHolder extends Id
 {
@@ -63,8 +63,7 @@ public abstract class AbstractRegistrationHolder extends Id
     /**
      * Sets the person who has registered the experiment.
      * 
-     * @throws AssertionError if <code>registratorID</code> is defined but unequal
-     *             <code>registrator.getId()</code>.
+     * @throws AssertionError if <code>registratorID</code> is defined but unequal <code>registrator.getId()</code>.
      */
     public final void setRegistrator(final PersonPE registrator)
     {

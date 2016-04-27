@@ -115,7 +115,7 @@ public class DataSetUpdateBuilder extends UpdateBuilder<DataSetUpdatesDTO>
         this.sampleIdentifier = null;
         return this;
     }
-    
+
     public DataSetUpdateBuilder withContainer(AbstractExternalData dataSet)
     {
         this.containerCode = dataSet.getCode();

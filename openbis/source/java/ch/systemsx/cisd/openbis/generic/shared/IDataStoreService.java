@@ -174,8 +174,8 @@ public interface IDataStoreService
     public void cleanupSession(String userSessionToken);
 
     /**
-     * Searches for the specified sequence snippet. If no preferred search domain is specified the first available one will be used. If the
-     * preferred search domain doesn't exist or isn't available also the first one will be used.
+     * Searches for the specified sequence snippet. If no preferred search domain is specified the first available one will be used. If the preferred
+     * search domain doesn't exist or isn't available also the first one will be used.
      * 
      * @param preferredSearchDomainOrNull The key of the preferred search domain or <code>null</code>.
      * @param sequenceSnippet Snippet of nucleotid or aminoacid sequence.

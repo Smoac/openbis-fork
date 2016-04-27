@@ -19,11 +19,10 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public final class DataSetNode extends EntityNode
 {
     private boolean deletable = true;
-    
+
     ExperimentNode experiment;
 
     SampleNode sample;
@@ -40,7 +39,7 @@ public final class DataSetNode extends EntityNode
     {
         super("DS", id);
     }
-    
+
     public boolean isDeletable()
     {
         return deletable;
@@ -50,12 +49,12 @@ public final class DataSetNode extends EntityNode
     {
         return experiment;
     }
-    
+
     public SampleNode getSample()
     {
         return sample;
     }
-    
+
     public List<DataSetNode> getChildren()
     {
         return children;
@@ -65,23 +64,23 @@ public final class DataSetNode extends EntityNode
     {
         return parents;
     }
-    
+
     public List<DataSetNode> getComponents()
     {
         return components;
     }
-    
+
     public List<DataSetNode> getContainers()
     {
         return containers;
     }
-    
+
     public DataSetNode nonDeletable()
     {
         deletable = false;
         return this;
     }
-    
+
     void hasComponents(DataSetNode... someComponentDataSets)
     {
         for (DataSetNode componentDataSet : someComponentDataSets)
@@ -99,8 +98,8 @@ public final class DataSetNode extends EntityNode
             childDataSet.parents.add(this);
         }
     }
-    
-    void hasParents(DataSetNode...someParentDataSets)
+
+    void hasParents(DataSetNode... someParentDataSets)
     {
         for (DataSetNode parentDataSet : someParentDataSets)
         {
@@ -108,7 +107,7 @@ public final class DataSetNode extends EntityNode
             parentDataSet.children.add(this);
         }
     }
-    
+
     @Override
     public String toString()
     {

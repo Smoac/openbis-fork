@@ -33,8 +33,7 @@ import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 /**
  * A bean class that contains properties related to <i>Hibernate Search</i>.
  * <p>
- * This bean must be initialized before <code>hibernate-session-factory</code> bean as it will
- * remove the <code>indexBase</code> directory.
+ * This bean must be initialized before <code>hibernate-session-factory</code> bean as it will remove the <code>indexBase</code> directory.
  * </p>
  * 
  * @author Christian Ribeaud

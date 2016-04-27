@@ -21,10 +21,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.WaitForAllActiveCallbacksFinish;
 
 /**
- * A shorter version of {@link AuthenticationTest} that just logins to the application. It is
- * supposed to be run at the beginning of each suite (except the first one that should start with
- * full {@link AuthenticationTest}) to do all the GWT initialization and make the next test work
- * faster.
+ * A shorter version of {@link AuthenticationTest} that just logins to the application. It is supposed to be run at the beginning of each suite
+ * (except the first one that should start with full {@link AuthenticationTest}) to do all the GWT initialization and make the next test work faster.
  * 
  * @author Piotr Buczek
  */

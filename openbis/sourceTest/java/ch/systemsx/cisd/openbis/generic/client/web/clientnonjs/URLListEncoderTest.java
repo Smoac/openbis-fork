@@ -31,15 +31,15 @@ public class URLListEncoderTest extends AssertJUnit
     protected Object[][] getLists()
     {
         return new Object[][]
-            {
+        {
                 { new String[]
-                    { "a +:\"\\b", "bobo" } },
+                { "a +:\"\\b", "bobo" } },
                 { new String[]
-                    { "a ,,", ",, b" } },
+                { "a ,,", ",, b" } },
                 { new String[]
-                    { "a,,b ", " ", " c,d,e" } },
+                { "a,,b ", " ", " c,d,e" } },
 
-            };
+        };
     }
 
     @Test(dataProvider = "lists")

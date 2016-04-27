@@ -29,7 +29,7 @@ public class BasicURLEncoderTest extends AssertJUnit
     protected Object[][] getChars()
     {
         return new Object[][]
-            {
+        {
                 /* original char, encoded */
                 { ' ', "+" },
                 /* Reserved characters: */
@@ -59,7 +59,7 @@ public class BasicURLEncoderTest extends AssertJUnit
                 { ']', "%5D" },
                 { '`', "%60" },
 
-            };
+        };
     }
 
     @Test(dataProvider = "chars")

@@ -33,8 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 /**
  * Super class of <i>Persistent Entities</i> which hold registration data.
  * <p>
- * <b>Note:</b> there is no <i>NOT-NULL</i> constraint applied to registrator (by comparison with
- * the database where there almost one).
+ * <b>Note:</b> there is no <i>NOT-NULL</i> constraint applied to registrator (by comparison with the database where there almost one).
  * </p>
  * 
  * @author Christian Ribeaud
@@ -61,8 +60,7 @@ public abstract class HibernateAbstractRegistrationHolder implements Serializabl
     private Date registrationDate;
 
     /**
-     * Ensures that given <var>date</var> is a real one (<code>java.util.Date</code>) and not a
-     * <i>SQL</i> one.
+     * Ensures that given <var>date</var> is a real one (<code>java.util.Date</code>) and not a <i>SQL</i> one.
      */
     public final static Date getDate(final Date date)
     {

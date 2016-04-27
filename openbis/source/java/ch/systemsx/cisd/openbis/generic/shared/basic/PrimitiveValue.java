@@ -23,11 +23,9 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 
 /**
- * Stores one primitive value: Double, Long or String (null is represented as "" -
- * {@link PrimitiveValue#NULL}).
+ * Stores one primitive value: Double, Long or String (null is represented as "" - {@link PrimitiveValue#NULL}).
  * <p>
- * Such a type is needed because GWT does not support serialization fields of Object or Serializable
- * type.
+ * Such a type is needed because GWT does not support serialization fields of Object or Serializable type.
  * </p>
  * 
  * @author Tomasz Pylak
@@ -89,7 +87,7 @@ public class PrimitiveValue implements IsSerializable, Serializable, Comparable<
 
     @Override
     @SuppressWarnings(
-        { "unchecked", "rawtypes" })
+    { "unchecked", "rawtypes" })
     public int compareTo(PrimitiveValue o)
     {
         Integer thisTypeOrdinal = getComparableDataTypeOrdinal();

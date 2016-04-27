@@ -83,8 +83,8 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
 
     public MetaprojectBO(final IDAOFactory daoFactory, IExperimentBO experimentBO,
             ISampleBO sampleBO, IDataBO dataBO, IMaterialBO materialBO, final Session session,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IRelationshipService relationshipService)
     {
         super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);

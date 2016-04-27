@@ -40,8 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 /**
  * A migration step from database version <code>v25</code> to version <code>v26</code>.
  * <p>
- * Adapts the data set locations in database after OBSERVABLE_TYPE has been renamed to
- * DATA_SET_TYPE.
+ * Adapts the data set locations in database after OBSERVABLE_TYPE has been renamed to DATA_SET_TYPE.
  * </p>
  * 
  * @author Izabela Adamczyk

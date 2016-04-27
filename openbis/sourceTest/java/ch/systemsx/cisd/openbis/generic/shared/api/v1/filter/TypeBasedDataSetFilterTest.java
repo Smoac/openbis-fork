@@ -22,8 +22,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetBuilder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TypeBasedDataSetFilterTest extends AssertJUnit

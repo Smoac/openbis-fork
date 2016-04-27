@@ -521,7 +521,7 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
      */
     @Transactional(readOnly = true)
     public boolean isDataSetOnTrashCanOrDeleted(String sessionToken, String dataSetCode);
-    
+
     /**
      * Updates share id and size of specified data set.
      */

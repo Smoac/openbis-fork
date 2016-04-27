@@ -54,7 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
  */
 @Entity
 @Table(name = TableNames.EXTERNAL_DATA_TABLE, uniqueConstraints = @UniqueConstraint(columnNames = { ColumnNames.LOCATION_COLUMN,
-        ColumnNames.LOCATOR_TYPE_COLUMN }) )
+        ColumnNames.LOCATOR_TYPE_COLUMN }))
 @PrimaryKeyJoinColumn(name = ColumnNames.DATA_ID_COLUMN)
 @Indexed(index = "DataPE")
 @ClassBridge(impl = ExternalDataGlobalSearchBridge.class)

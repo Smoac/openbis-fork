@@ -21,16 +21,14 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
- * An extension of the @{link IServerPlugin} that supports using regular expression wildcards in the
- * codes.
+ * An extension of the @{link IServerPlugin} that supports using regular expression wildcards in the codes.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 public interface IServerPluginWithWildcards extends IServerPlugin
 {
     /**
-     * Returns all the entity type codes for given <var>entityKind</var> supported by this
-     * implementation.
+     * Returns all the entity type codes for given <var>entityKind</var> supported by this implementation.
      */
     public List<String> getOrderedEntityTypeCodes(final EntityKind entityKind);
 }

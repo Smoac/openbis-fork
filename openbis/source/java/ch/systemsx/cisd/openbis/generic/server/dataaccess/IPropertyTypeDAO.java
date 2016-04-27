@@ -58,8 +58,7 @@ public interface IPropertyTypeDAO extends IGenericDAO<PropertyTypePE>
     public List<DataTypePE> listDataTypes() throws DataAccessException;
 
     /**
-     * Returns the {@link DataTypePE} for specified <var>code</var> or <code>null</code> if none
-     * could be found.
+     * Returns the {@link DataTypePE} for specified <var>code</var> or <code>null</code> if none could be found.
      */
     public DataTypePE getDataTypeByCode(final DataTypeCode code) throws DataAccessException;
 

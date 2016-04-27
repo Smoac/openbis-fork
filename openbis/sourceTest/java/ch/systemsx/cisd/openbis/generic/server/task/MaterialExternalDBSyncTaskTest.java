@@ -67,7 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses =
-    { MaterialExternalDBSyncTask.class, MappingInfo.class })
+{ MaterialExternalDBSyncTask.class, MappingInfo.class })
 public class MaterialExternalDBSyncTaskTest extends AbstractFileSystemTestCase
 {
     private static final String SESSION_TOKEN = "session-token";

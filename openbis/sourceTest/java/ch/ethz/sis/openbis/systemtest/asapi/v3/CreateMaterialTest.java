@@ -74,7 +74,7 @@ public class CreateMaterialTest extends AbstractSampleTest
     public void testMaterialCreationWithSystemProperty()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        
+
         NewETPTAssignment assignment = new NewETPTAssignment();
         assignment.setPropertyTypeCode("$PLATE_GEOMETRY");
         assignment.setEntityTypeCode("GENE");
@@ -95,7 +95,7 @@ public class CreateMaterialTest extends AbstractSampleTest
         Material material = map.get(new MaterialPermId("1982", "GENE"));
         assertEquals(material.getCode(), "1982");
         assertEquals(material.getPermId().getTypeCode(), "GENE");
-        
+
         assertEquals(material.getProperty("$PLATE_GEOMETRY"), "384_WELLS_16X24");
     }
 
@@ -109,7 +109,7 @@ public class CreateMaterialTest extends AbstractSampleTest
         TagCode test123 = new TagCode("TEST_123");
         TagCode testMetaprojects = new TagCode("TEST_METAPROJECTS");
         m1.setTagIds(Arrays.asList(test123, testMetaprojects));
-        
+
         List<MaterialPermId> materialIds = v3api.createMaterials(sessionToken, Arrays.asList(m1));
 
         MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
@@ -236,6 +236,7 @@ public class CreateMaterialTest extends AbstractSampleTest
                 }
             }, "Property type with code 'CODE_THAT_DOESNT_EXIST' does not exist");
     }
+
     private MaterialCreation materialCreation(MaterialPermId permId)
     {
         String code = permId.getCode();

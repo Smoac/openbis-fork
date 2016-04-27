@@ -29,8 +29,7 @@ public interface IDataSetLister
 {
 
     /**
-     * Returns the data set meta data for the given <var>dataSetCodes</var> with the given
-     * <var>dataSetFetchOptions</var>.
+     * Returns the data set meta data for the given <var>dataSetCodes</var> with the given <var>dataSetFetchOptions</var>.
      * 
      * @return One data set meta data object for each entry in <var>dataSetCodes</var>.
      */
@@ -40,16 +39,14 @@ public interface IDataSetLister
     /**
      * Returns the download URLs for a set of <var>dataSetCodes</var>.
      * 
-     * @return The list of data store download URLs, each with the list of data set codes it has
-     *         stored.
+     * @return The list of data store download URLs, each with the list of data set codes it has stored.
      */
     public List<DataStoreURLForDataSets> getDataStoreDownloadURLs(List<String> dataSetCodes);
 
     /**
      * Returns the remote URLs for a set of <var>dataSetCodes</var>.
      * 
-     * @return The list of data store remote URLs, each with the list of data set codes it has
-     *         stored.
+     * @return The list of data store remote URLs, each with the list of data set codes it has stored.
      */
     public List<DataStoreURLForDataSets> getDataStoreRemoteURLs(List<String> dataSetCodes);
 }

@@ -59,8 +59,8 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
     }
 
     /**
-     * Delays test termination until the specified timeout (in milliseconds). Wrapper of
-     * {@link #delayTestFinish(int)}. Will be used in {@link RemoteConsole}.
+     * Delays test termination until the specified timeout (in milliseconds). Wrapper of {@link #delayTestFinish(int)}. Will be used in
+     * {@link RemoteConsole}.
      */
     void delayTestTermination(final int timeoutMillis)
     {
@@ -111,8 +111,7 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
     }
 
     /**
-     * Starts the tests. Sets the timeout after which the test is terminated to
-     * {@value #DEFAULT_TIMEOUT}.
+     * Starts the tests. Sets the timeout after which the test is terminated to {@value #DEFAULT_TIMEOUT}.
      */
     protected void launchTest()
     {
@@ -189,8 +188,7 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
     }
 
     /**
-     * Returns a command that executes specified <var>preprocessingAction</var> before preparing the
-     * specified <var>command</var>.
+     * Returns a command that executes specified <var>preprocessingAction</var> before preparing the specified <var>command</var>.
      */
     protected ITestCommand createCommandWrapper(final ITestCommand command,
             final IDelegatedAction preprocessingAction)

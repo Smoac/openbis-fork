@@ -89,20 +89,20 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
 
     public ExperimentBO(final IDAOFactory daoFactory, final Session session,
             IRelationshipService relationshipService,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
             DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, EntityKind.EXPERIMENT, managedPropertyEvaluatorFactory, 
+        super(daoFactory, session, EntityKind.EXPERIMENT, managedPropertyEvaluatorFactory,
                 dataSetTypeChecker, relationshipService);
     }
 
     ExperimentBO(final IDAOFactory daoFactory, final Session session,
             final IEntityPropertiesConverter entityPropertiesConverter,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IRelationshipService relationshipService)
     {
-        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory, 
+        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory,
                 dataSetTypeChecker, relationshipService);
     }
 

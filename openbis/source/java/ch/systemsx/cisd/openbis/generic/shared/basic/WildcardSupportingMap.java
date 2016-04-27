@@ -21,8 +21,7 @@ import java.util.ArrayList;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKindAndTypeCode;
 
 /**
- * Utility class that manages mappings from entity types/codes (possibly including wildcards) to
- * IServerPlugin objects.
+ * Utility class that manages mappings from entity types/codes (possibly including wildcards) to IServerPlugin objects.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -30,8 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKindAndTypeCode;
 public class WildcardSupportingMap<T>
 {
     /**
-     * Internal class for keeping mappings from entityKind/codes (which may include wildcards) to
-     * factories.
+     * Internal class for keeping mappings from entityKind/codes (which may include wildcards) to factories.
      * 
      * @author Chandrasekhar Ramakrishnan
      */

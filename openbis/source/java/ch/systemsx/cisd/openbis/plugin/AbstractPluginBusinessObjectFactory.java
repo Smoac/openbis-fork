@@ -23,8 +23,8 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.AbstractBusinessObjec
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 
 /**
- * An <i>abstract</i> {@link AbstractBusinessObjectFactory} extension which is able to delegate
- * calls to the encapsulated {@link ICommonBusinessObjectFactory}.
+ * An <i>abstract</i> {@link AbstractBusinessObjectFactory} extension which is able to delegate calls to the encapsulated
+ * {@link ICommonBusinessObjectFactory}.
  * 
  * @author Christian Ribeaud
  */

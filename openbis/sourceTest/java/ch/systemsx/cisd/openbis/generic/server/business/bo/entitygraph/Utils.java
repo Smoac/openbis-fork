@@ -32,8 +32,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class Utils
@@ -52,7 +50,7 @@ public class Utils
         sample.setContainer(createSample(sampleNode.getContainer()));
         return sample;
     }
-    
+
     public static ExternalDataPE createData(DataSetNode dataSetNode)
     {
         ExternalDataPE data = new ExternalDataPE();
@@ -135,7 +133,7 @@ public class Utils
         experiment.setIdentifier(experimentNode.getCode());
         return experiment;
     }
-    
+
     public static ExperimentPE createExperimentPE(ExperimentNode experimentNode)
     {
         if (experimentNode == null)
@@ -159,7 +157,7 @@ public class Utils
         experiment.setProject(project);
         return experiment;
     }
-    
+
     static final void appendTo(StringBuilder builder, String label, List<? extends EntityNode> entityNodes)
     {
         if (entityNodes.isEmpty())

@@ -67,10 +67,9 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             AttachmentDAO.class);
 
-
     private final IEventDAO eventDAO;
 
-    AttachmentDAO(final PersistencyResources persistencyResources, 
+    AttachmentDAO(final PersistencyResources persistencyResources,
             IEventDAO eventDAO, EntityHistoryCreator historyCreator)
     {
         super(persistencyResources.getSessionFactory(), ATTACHMENT_CLASS, historyCreator);
@@ -101,7 +100,7 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
     //
 
     @Override
-    public Map<String, AttachmentEntry> deleteAttachments(final AttachmentHolderPE holder, final String reason, 
+    public Map<String, AttachmentEntry> deleteAttachments(final AttachmentHolderPE holder, final String reason,
             final List<String> fileNames, PersonPE registrator)
     {
         Map<String, AttachmentEntry> attachmentEntries = new TreeMap<>();
@@ -121,7 +120,7 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
         return attachmentEntries;
     }
 
-    private Map<String, AttachmentEntry> createDeletionEvents(List<AttachmentPE> attachmentsToBeDeleted, 
+    private Map<String, AttachmentEntry> createDeletionEvents(List<AttachmentPE> attachmentsToBeDeleted,
             PersonPE registrator, String reason)
     {
         Map<String, AttachmentEntry> attachmentEntries = new TreeMap<>();
@@ -141,8 +140,7 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
             event.setReason(reason);
             event.setRegistrator(registrator);
             event.setAttachmentContent(attachmentToBeDeleted.getAttachmentContent());
-            Map<String, List<? extends EntityModification>> modifications 
-                    = new HashMap<String, List<? extends EntityModification>>();
+            Map<String, List<? extends EntityModification>> modifications = new HashMap<String, List<? extends EntityModification>>();
             AttachmentEntry attachmentEntry = new AttachmentEntry();
             attachmentEntry.fileName = fileName;
             attachmentEntry.version = version;
@@ -167,7 +165,7 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
     {
         AttachmentHolderPE result = internalCreateAttachment(attachment, ownerParam);
         getHibernateTemplate().flush();
-        
+
         scheduleDynamicPropertiesEvaluation(ownerParam);
 
         return result;

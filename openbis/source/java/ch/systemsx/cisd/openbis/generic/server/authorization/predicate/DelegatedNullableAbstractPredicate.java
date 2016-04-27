@@ -24,8 +24,8 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
- * An <code>AbstractPredicate</code> extension which delegates its method calls to the encapsulated
- * {@link AbstractPredicate} allowing the value to be null.
+ * An <code>AbstractPredicate</code> extension which delegates its method calls to the encapsulated {@link AbstractPredicate} allowing the value to be
+ * null.
  * 
  * @author Piotr Buczek
  */

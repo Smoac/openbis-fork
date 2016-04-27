@@ -102,7 +102,7 @@ public class DataTypeUtils
                 {
                     String pattern = SupportedDatePattern.CANONICAL_DATE_PATTERN.getPattern();
                     return DateUtils.parseDate(value, new String[]
-                        { pattern });
+                    { pattern });
                 } catch (ParseException ex)
                 {
                     throw new IllegalArgumentException("Is not a date in canonical format: "

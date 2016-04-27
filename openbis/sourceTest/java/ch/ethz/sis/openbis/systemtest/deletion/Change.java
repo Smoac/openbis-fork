@@ -7,7 +7,7 @@ class Change implements Comparable<Change>
     public final Date time;
 
     public final String userId;
-    
+
     public final String value;
 
     public final boolean isRemoval;
@@ -25,7 +25,7 @@ class Change implements Comparable<Change>
         this.attachmentContent = attachmentContent;
         this.isRemoval = isRemoval;
     }
-    
+
     @Override
     public int compareTo(Change other)
     {

@@ -22,8 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTab
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension to check whether a list of persons has been
- * loaded.
+ * A {@link AbstractDefaultTestCommand} extension to check whether a list of persons has been loaded.
  * 
  * @author Piotr Buczek
  */

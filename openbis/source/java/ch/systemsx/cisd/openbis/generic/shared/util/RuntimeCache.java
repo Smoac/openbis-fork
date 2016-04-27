@@ -36,8 +36,6 @@ import ch.systemsx.cisd.common.parser.MemorySizeFormatter;
 import ch.systemsx.cisd.common.parser.PercentFormatter;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class RuntimeCache<K, V>
@@ -56,14 +54,14 @@ public class RuntimeCache<K, V>
         this.name = name;
         this.cacheSizePropertyName = cacheSizePropertyName;
     }
-    
+
     @SuppressWarnings("unchecked")
     public V get(K key)
     {
         Element element = getCache().get(key);
         return element == null ? null : ((ValueWrapper<V>) element.getObjectValue()).getValue();
     }
-    
+
     public void put(K key, V value)
     {
         Element element = getCache().get(key);
@@ -82,12 +80,12 @@ public class RuntimeCache<K, V>
             getCache().recalculateSize(key);
         }
     }
-    
+
     public boolean remove(K key)
     {
         return getCache().remove(key);
     }
-    
+
     public void initCache()
     {
         Cache cache = cacheManager.getCache(name);
@@ -115,7 +113,7 @@ public class RuntimeCache<K, V>
             operationLog.info("The cache " + name + " already exists. It must have been configured in ehcache.xml file.");
         }
     }
-    
+
     protected long getCacheSize()
     {
         String propertyValue = getSystemProperty(cacheSizePropertyName);
@@ -159,7 +157,7 @@ public class RuntimeCache<K, V>
     {
         return System.getProperty(propertyName);
     }
-    
+
     private Cache getCache()
     {
         return cacheManager.getCache(name);
@@ -175,7 +173,7 @@ public class RuntimeCache<K, V>
                 + cacheSizePropertyName + "' system property in openbis.conf file.");
         return cacheSize;
     }
-    
+
     private static final class ValueWrapper<V>
     {
         private V value;
@@ -200,5 +198,6 @@ public class RuntimeCache<K, V>
         {
             return String.valueOf(value);
         }
-        
-    }}
+
+    }
+}

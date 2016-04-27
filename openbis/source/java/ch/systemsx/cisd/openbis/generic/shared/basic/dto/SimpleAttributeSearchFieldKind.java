@@ -24,6 +24,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 public class SimpleAttributeSearchFieldKind implements IAttributeSearchFieldKind
 {
     private String code;
+
     private String description;
 
     public SimpleAttributeSearchFieldKind(String code, String description)
@@ -31,7 +32,7 @@ public class SimpleAttributeSearchFieldKind implements IAttributeSearchFieldKind
         this.code = code;
         this.description = description;
     }
-    
+
     @Override
     public ISearchFieldAvailability getAvailability()
     {

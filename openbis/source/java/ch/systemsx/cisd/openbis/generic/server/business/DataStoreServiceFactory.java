@@ -56,10 +56,11 @@ public class DataStoreServiceFactory implements IDataStoreServiceFactory
             "Monitoring Proxy").corePoolSize(NUMBER_OF_CORE_THREADS).daemonize();
 
     @Override
-    public IDataStoreService create(String serverURL) {
+    public IDataStoreService create(String serverURL)
+    {
         return create(serverURL, 5 * DateUtils.MILLIS_PER_MINUTE);
     }
-    
+
     @Override
     public IDataStoreService create(String serverURL, long timeout)
     {
@@ -89,7 +90,7 @@ public class DataStoreServiceFactory implements IDataStoreServiceFactory
                     .executorService(executorService)
                     .callAsynchronously(
                             IDataStoreService.class.getMethod("cleanupSession", new Class<?>[]
-                                { String.class })).get();
+                            { String.class })).get();
         } catch (SecurityException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);

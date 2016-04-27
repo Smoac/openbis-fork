@@ -27,8 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 public interface IPropertyValueValidator
 {
     /**
-     * Validates given <var>value</var> against given {@link PropertyTypePE} and returns the
-     * validated value as <code>String</code>.
+     * Validates given <var>value</var> against given {@link PropertyTypePE} and returns the validated value as <code>String</code>.
      * 
      * @return the validated value. It does not implicitly equal given <var>value</var>
      */

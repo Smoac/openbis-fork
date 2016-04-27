@@ -20,11 +20,9 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search;
  * The mode in which the indexing is working:
  * <ul>
  * <li><b>NO_INDEX</b>: no manual index will be performed.</li>
- * <li><b>SKIP_IF_MARKER_FOUND</b>: skips the indexing if
- * {@link FullTextIndexerRunnable#FULL_TEXT_INDEX_MARKER_FILENAME} marker file is found (meaning
- * that a manual index has already been performed).</li>
- * <li><b>INDEX_FROM_SCRATCH</b>: performs a manual index from the scratch, deleting the whole
- * <code>index-base</code> directory.</li>
+ * <li><b>SKIP_IF_MARKER_FOUND</b>: skips the indexing if {@link FullTextIndexerRunnable#FULL_TEXT_INDEX_MARKER_FILENAME} marker file is found
+ * (meaning that a manual index has already been performed).</li>
+ * <li><b>INDEX_FROM_SCRATCH</b>: performs a manual index from the scratch, deleting the whole <code>index-base</code> directory.</li>
  * </ul>
  * 
  * @author Christian Ribeaud

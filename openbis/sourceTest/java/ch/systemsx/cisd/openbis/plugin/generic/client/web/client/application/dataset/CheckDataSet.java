@@ -25,8 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 
 /**
- * * {@link AbstractDefaultTestCommand} extension checking e.g. properties displayed in data set
- * detail view.
+ * * {@link AbstractDefaultTestCommand} extension checking e.g. properties displayed in data set detail view.
  * 
  * @author Piotr Buczek
  */

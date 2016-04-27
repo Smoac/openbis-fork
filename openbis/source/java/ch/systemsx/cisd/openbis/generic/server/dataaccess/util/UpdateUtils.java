@@ -32,8 +32,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluat
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.FullTextIndexUpdater;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class UpdateUtils
@@ -45,14 +43,14 @@ public class UpdateUtils
         FullTextIndexUpdater indexUpdater = (FullTextIndexUpdater) applicationContext.getBean("full-text-index-updater");
         DynamicPropertyEvaluationScheduler dynamicPropertyScheduler =
                 (DynamicPropertyEvaluationScheduler) applicationContext.getBean("dynamic-property-scheduler");
-    
+
         if (indexUpdater != null)
         {
             while (true)
             {
                 IExtendedBlockingQueue<DynamicPropertyEvaluationOperation> dynamicPropertiesQueue = dynamicPropertyScheduler.getEvaluatorQueue();
                 int indexingQueueSize = indexUpdater.getQueueSize();
-    
+
                 try
                 {
                     if (dynamicPropertiesQueue != null && dynamicPropertiesQueue.size() > 0)
@@ -76,7 +74,7 @@ public class UpdateUtils
             }
         }
     }
-    
+
     public static Date getTransactionTimeStamp(SessionFactory sessionFactory)
     {
         Session currentSession = sessionFactory.getCurrentSession();

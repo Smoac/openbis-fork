@@ -21,8 +21,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension to check whether a list of persons has been
- * loaded.
+ * A {@link AbstractDefaultTestCommand} extension to check whether a list of persons has been loaded.
  * 
  * @author Piotr Buczek
  */

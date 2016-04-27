@@ -20,8 +20,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataP
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
 
 /**
- * An <code>IPredicate</code> implementation that has the tools for authenticating projects based on
- * any kind of identifier.
+ * An <code>IPredicate</code> implementation that has the tools for authenticating projects based on any kind of identifier.
  * 
  * @author Bernd Rinn
  */

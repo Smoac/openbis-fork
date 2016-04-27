@@ -49,8 +49,7 @@ public class GridTestUtils
     }
 
     /**
-     * Fires a double click event on a first row which contains given value in a column with a
-     * specified id.
+     * Fires a double click event on a first row which contains given value in a column with a specified id.
      */
     public static <T extends ModelData> void fireDoubleClick(final Grid<T> table, String columnId,
             String columnValue)
@@ -60,8 +59,7 @@ public class GridTestUtils
     }
 
     /**
-     * Fires a single click event on a first row which contains given value in a column with a
-     * specified id.
+     * Fires a single click event on a first row which contains given value in a column with a specified id.
      */
     public static <T extends ModelData> void fireSingleClick(final Grid<T> table, String columnId,
             String columnValue)
@@ -71,8 +69,7 @@ public class GridTestUtils
     }
 
     /**
-     * Fires a selection of a first row in given table which contains given value in a column with a
-     * specified id.
+     * Fires a selection of a first row in given table which contains given value in a column with a specified id.
      */
     public static <T extends ModelData> void fireSelectRow(final Grid<T> table, String columnId,
             String columnValue)

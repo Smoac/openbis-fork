@@ -123,7 +123,7 @@ public class OpenbisClientTest
         final String propertyTypeCode = "IS_VALID";
         final String propertyValue = "true";
         final Collection<Long> alreadyTracked = Arrays.asList(new Long[]
-            { 986L, 987L });
+        { 986L, 987L });
 
         final TrackingSampleCriteria newSampleCriteria =
                 new TrackingSampleCriteria(sampleTypeCode, propertyTypeCode, propertyValue,
@@ -135,8 +135,7 @@ public class OpenbisClientTest
     }
 
     /**
-     * Helper class encapsulating methods used for producing readable information about entities
-     * returned by {@link ITrackingServer} methods.
+     * Helper class encapsulating methods used for producing readable information about entities returned by {@link ITrackingServer} methods.
      * 
      * @author Piotr Buczek
      */

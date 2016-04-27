@@ -11,14 +11,12 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
-import ch.systemsx.cisd.openbis.generic.server.ServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
- * Persistent entity representing an invocation of the
- * {@link ServiceForDataStoreServer#performEntityOperations(String, AtomicEntityOperationDetails)} method. This
- * table is used to check if the results of an invocation of this method made it into the database.
+ * Persistent entity representing an invocation of the {@link ServiceForDataStoreServer#performEntityOperations(String, AtomicEntityOperationDetails)}
+ * method. This table is used to check if the results of an invocation of this method made it into the database.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

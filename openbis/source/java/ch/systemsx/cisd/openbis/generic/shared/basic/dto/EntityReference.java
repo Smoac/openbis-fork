@@ -21,8 +21,7 @@ import java.io.Serializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 
 /**
- * Reference to an entity with minimal information to uniquely identify it in the database and to
- * choose the right plugin to handle it.
+ * Reference to an entity with minimal information to uniquely identify it in the database and to choose the right plugin to handle it.
  * 
  * @author Tomasz Pylak
  */

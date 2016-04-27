@@ -72,8 +72,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
     /**
      * This logger does not output any SQL statement. If you want to do so, you had better set an appropriate debugging level for class
-     * {@link JdbcAccessor}.
-     * </p>
+     * {@link JdbcAccessor}. </p>
      */
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             SampleDAO.class);
@@ -353,7 +352,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     @Override
     public final void createOrUpdateSamples(final List<SamplePE> samples, final PersonPE modifier,
             boolean clearCache)
-                    throws DataAccessException
+            throws DataAccessException
     {
         assert samples != null && samples.size() > 0 : "Unspecified or empty samples.";
 
@@ -457,7 +456,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         final String sqlSelectAttributes = createQueryAttributesSQL();
 
         executePermanentDeleteAction(EntityType.SAMPLE, sampleIds, registrator, reason,
-                sqlSelectPermIds, sqlDeleteProperties, 
+                sqlSelectPermIds, sqlDeleteProperties,
                 sqlDeleteAttachments, sqlDeleteSamples, sqlInsertEvent, sqlSelectPropertyHistory,
                 sqlSelectRelationshipHistory, sqlSelectAttributes, null, AttachmentHolderKind.SAMPLE);
     }
@@ -491,7 +490,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                 + ") "
                 + " ORDER BY 1, valid_from_timestamp";
     }
-    
+
     private static String createQueryRelationshipHistorySQL()
     {
         return "SELECT s.perm_id, h.relation_type, h.entity_perm_id, " + ENTITY_TYPE + ", "
@@ -570,7 +569,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
                     String permIds = permIdList.substring(2);
                     String content = historyCreator.apply(session, entityIdsToDelete, createQueryPropertyHistorySQL(),
-                            createQueryRelationshipHistorySQL(), createQueryAttributesSQL(), null, 
+                            createQueryRelationshipHistorySQL(), createQueryAttributesSQL(), null,
                             AttachmentHolderKind.SAMPLE, registrator);
 
                     SQLQuery deleteProperties = session.createSQLQuery(properties);
@@ -586,14 +585,14 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                     deleteAttachments.setParameter("id", deletion.getId());
                     deleteAttachments.executeUpdate();
 
-//                    if (attachmentContentIdList.size() > 0)
-//                    {
-//                        SQLQuery deleteAttachmentContents =
-//                                session.createSQLQuery(attachmentContents);
-//                        deleteAttachmentContents.setParameterList("ids", attachmentContentIdList);
-//                        deleteAttachmentContents.executeUpdate();
-//                    }
-//
+                    // if (attachmentContentIdList.size() > 0)
+                    // {
+                    // SQLQuery deleteAttachmentContents =
+                    // session.createSQLQuery(attachmentContents);
+                    // deleteAttachmentContents.setParameterList("ids", attachmentContentIdList);
+                    // deleteAttachmentContents.executeUpdate();
+                    // }
+                    //
                     SQLQuery deleteSamples = session.createSQLQuery(samples);
                     deleteSamples.setParameter("id", deletion.getId());
                     deleteSamples.executeUpdate();

@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
  * @author Piotr Buczek
  */
 @Friend(toClasses =
-    { HelpPageIdentifier.class })
+{ HelpPageIdentifier.class })
 public class HelpPageIdentifierTest extends AssertJUnit
 {
 
@@ -43,7 +43,7 @@ public class HelpPageIdentifierTest extends AssertJUnit
         final HelpPageDomain baseDomain = HelpPageDomain.CHANGE_USER_SETTINGS;
         assertNull(baseDomain.getSuperDomainOrNull());
         assertDomainPathsEquals(new HelpPageDomain[]
-            { HelpPageDomain.CHANGE_USER_SETTINGS }, baseDomain.getDomainPath());
+        { HelpPageDomain.CHANGE_USER_SETTINGS }, baseDomain.getDomainPath());
     }
 
     @Test
@@ -52,7 +52,7 @@ public class HelpPageIdentifierTest extends AssertJUnit
         final HelpPageDomain subDomain = HelpPageDomain.USERS;
         assertNotNull(subDomain.getSuperDomainOrNull());
         assertDomainPathsEquals(new HelpPageDomain[]
-            { HelpPageDomain.ADMINISTRATION, HelpPageDomain.AUTHORIZATION, HelpPageDomain.USERS },
+        { HelpPageDomain.ADMINISTRATION, HelpPageDomain.AUTHORIZATION, HelpPageDomain.USERS },
                 subDomain.getDomainPath());
     }
 
@@ -73,13 +73,13 @@ public class HelpPageIdentifierTest extends AssertJUnit
     protected Object[][] getPageTitlesToTest()
     {
         return new Object[][]
-            {
-                        { HelpPageDomain.CHANGE_USER_SETTINGS, HelpPageAction.ACTION,
-                                "HELP__CHANGE_USER_SETTINGS__ACTION" },
-                        { HelpPageDomain.USERS, HelpPageAction.BROWSE,
-                                "HELP__ADMINISTRATION__AUTHORIZATION__USERS__BROWSE" },
+        {
+                { HelpPageDomain.CHANGE_USER_SETTINGS, HelpPageAction.ACTION,
+                        "HELP__CHANGE_USER_SETTINGS__ACTION" },
+                { HelpPageDomain.USERS, HelpPageAction.BROWSE,
+                        "HELP__ADMINISTRATION__AUTHORIZATION__USERS__BROWSE" },
 
-            };
+        };
     }
 
     @SuppressWarnings("deprecation")

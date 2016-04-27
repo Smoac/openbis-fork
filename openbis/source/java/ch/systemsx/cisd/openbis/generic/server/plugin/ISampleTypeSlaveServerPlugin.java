@@ -30,8 +30,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 /**
  * The slave server plug-in for a <i>Sample Type</i>.
  * <p>
- * The implementation will give access to {@link DAOFactory} and appropriate business object
- * factory. Each method specified here must start with {@link Session} parameter.
+ * The implementation will give access to {@link DAOFactory} and appropriate business object factory. Each method specified here must start with
+ * {@link Session} parameter.
  * </p>
  * 
  * @author Christian Ribeaud

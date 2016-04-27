@@ -37,9 +37,8 @@ import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 
 /**
- * Test cases which have access to the public API services of a running, fully-fledged openBIS
- * server. The tests do not see the server internals and thus they must employ black-box testing
- * strategies.
+ * Test cases which have access to the public API services of a running, fully-fledged openBIS server. The tests do not see the server internals and
+ * thus they must employ black-box testing strategies.
  * 
  * @author Kaloyan Enimanev
  */

@@ -32,8 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 public interface IMetaprojectDAO extends IGenericDAO<MetaprojectPE>
 {
     /**
-     * Finds a metaproject by the specified owner id and metaproject name. Returns null if no
-     * metaproject is found.
+     * Finds a metaproject by the specified owner id and metaproject name. Returns null if no metaproject is found.
      */
     public MetaprojectPE tryFindByOwnerAndName(String ownerId, String metaprojectName);
 
@@ -72,8 +71,7 @@ public interface IMetaprojectDAO extends IGenericDAO<MetaprojectPE>
             EntityKind entityKind);
 
     /**
-     * Returns a map with counts of assignments for different entity kinds for the given
-     * metaproject.
+     * Returns a map with counts of assignments for different entity kinds for the given metaproject.
      */
     public int getMetaprojectAssignmentsCount(Long metaprojectId, EntityKind entityKind);
 

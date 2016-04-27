@@ -79,7 +79,7 @@ public class EntityPropertiesEnricherTest extends AssertJUnit
                     propertyType.setId(PROPERTY_TYPE_ID);
                     propertyType.setDataType(new DataType(DataTypeCode.CONTROLLEDVOCABULARY));
                     will(returnValue(new PropertyType[]
-                        { propertyType }));
+                    { propertyType }));
 
                     allowing(resolver).get(ENTITY_ID);
                     will(returnValue(holder));
@@ -114,7 +114,7 @@ public class EntityPropertiesEnricherTest extends AssertJUnit
                     codeRecord.id = VOCABULARY_ID;
                     codeRecord.code = "http://my.url.org/?q=${term}";
                     will(returnValue(new CodeRecord[]
-                        { codeRecord }));
+                    { codeRecord }));
 
                     one(setQuery).getEntityPropertyVocabularyTermValues(entityIDs);
                     VocabularyTermRecord termRecord = new VocabularyTermRecord();
@@ -152,7 +152,7 @@ public class EntityPropertiesEnricherTest extends AssertJUnit
                     codeRecord.id = VOCABULARY_ID;
                     codeRecord.code = "http://my.url.org/?q=$term$";
                     will(returnValue(new CodeRecord[]
-                        { codeRecord }));
+                    { codeRecord }));
 
                     one(setQuery).getEntityPropertyVocabularyTermValues(entityIDs);
                     VocabularyTermRecord termRecord = new VocabularyTermRecord();

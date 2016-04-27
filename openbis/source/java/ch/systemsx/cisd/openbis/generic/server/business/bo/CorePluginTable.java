@@ -52,8 +52,8 @@ public final class CorePluginTable extends AbstractBusinessObject implements ICo
 
     public CorePluginTable(IDAOFactory daoFactory, Session session,
             IMasterDataScriptRegistrationRunner masterDataScriptRunner,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IRelationshipService relationshipService)
     {
         super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);

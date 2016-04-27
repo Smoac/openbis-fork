@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
  * @author Kaloyan Enimanev
  */
 @Test(groups =
-    { "db" })
+{ "db" })
 public final class AttachmentDAOTest extends AbstractDAOTest
 {
 

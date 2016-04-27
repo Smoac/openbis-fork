@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.io.Serializable;
 
 /**
- * Interface for objects which are comparable, java.io.Serializable and GWT serializable.
- * Implementations should override {@link Object#equals(Object)} and {@link Object#hashCode()}.
+ * Interface for objects which are comparable, java.io.Serializable and GWT serializable. Implementations should override
+ * {@link Object#equals(Object)} and {@link Object#hashCode()}.
  * 
  * @author Franz-Josef Elmer
  */

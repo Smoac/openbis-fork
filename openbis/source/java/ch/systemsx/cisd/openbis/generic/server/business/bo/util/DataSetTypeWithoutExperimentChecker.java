@@ -34,9 +34,9 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 public class DataSetTypeWithoutExperimentChecker
 {
     public static final String PROPERTY_KEY = "data-set-types-with-no-experiment-needed";
-    
+
     private final String regularExpressions;
-    
+
     private List<Pattern> patternsForDataSetTypesWithoutExperiment = new ArrayList<Pattern>();
 
     public DataSetTypeWithoutExperimentChecker(Properties properties)
@@ -63,7 +63,7 @@ public class DataSetTypeWithoutExperimentChecker
             }
         }
     }
-    
+
     public String getRegularExpressions()
     {
         return regularExpressions;
@@ -80,6 +80,5 @@ public class DataSetTypeWithoutExperimentChecker
         }
         return false;
     }
-
 
 }

@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
  * @author Izabela Adamczyk
  */
 @Test(groups =
-    { "db", "authorization_group" })
+{ "db", "authorization_group" })
 public class AuthorizationGroupDAOTest extends AbstractDAOTest
 {
 

@@ -157,16 +157,16 @@ public class ExperimentPropertiesPanel extends ContentPanel
         public DatabaseModificationKind[] getRelevantModifications()
         {
             return new DatabaseModificationKind[]
-                {
-                        DatabaseModificationKind.edit(ObjectKind.EXPERIMENT),
-                        DatabaseModificationKind.createOrDelete(ObjectKind.EXPERIMENT),
-                        DatabaseModificationKind
-                                .createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                        DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                        DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM),
-                        DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM),
-                        DatabaseModificationKind.createOrDelete(ObjectKind.METAPROJECT),
-                        DatabaseModificationKind.edit(ObjectKind.METAPROJECT) };
+            {
+                    DatabaseModificationKind.edit(ObjectKind.EXPERIMENT),
+                    DatabaseModificationKind.createOrDelete(ObjectKind.EXPERIMENT),
+                    DatabaseModificationKind
+                            .createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM),
+                    DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM),
+                    DatabaseModificationKind.createOrDelete(ObjectKind.METAPROJECT),
+                    DatabaseModificationKind.edit(ObjectKind.METAPROJECT) };
         }
 
         @Override

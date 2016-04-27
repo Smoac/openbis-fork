@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 @Table(name = TableNames.DATA_SET_RELATIONSHIPS_VIEW, uniqueConstraints = @UniqueConstraint(columnNames =
 { ColumnNames.DATA_PARENT_COLUMN, ColumnNames.DATA_CHILD_COLUMN, ColumnNames.RELATIONSHIP_COLUMN }))
 @IdClass(DataSetRelationshipId.class)
-@TypeDefs({@TypeDef(name="transactiontimestamp", typeClass=DbTimestampType.class)})
+@TypeDefs({ @TypeDef(name = "transactiontimestamp", typeClass = DbTimestampType.class) })
 public class DataSetRelationshipPE implements Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;

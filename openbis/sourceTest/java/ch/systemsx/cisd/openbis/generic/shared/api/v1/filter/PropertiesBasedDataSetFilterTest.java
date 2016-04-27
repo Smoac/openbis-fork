@@ -24,8 +24,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetBuilder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class PropertiesBasedDataSetFilterTest extends AssertJUnit
@@ -34,19 +32,19 @@ public class PropertiesBasedDataSetFilterTest extends AssertJUnit
     public void testNoProperties()
     {
         IDataSetFilter filter = new PropertiesBasedDataSetFilter(new HashMap<String, String>());
-        
+
         DataSetBuilder builder = new DataSetBuilder().code("A").type("A").experiment("E");
         assertEquals(true, filter.pass(builder.getDataSet()));
         assertEquals(true, filter.pass(builder.property("a", "alpha").getDataSet()));
     }
-    
+
     @Test
     public void testWithProperties()
     {
         HashMap<String, String> properties = new HashMap<String, String>();
         properties.put("a", "alpha");
         PropertiesBasedDataSetFilter filter = new PropertiesBasedDataSetFilter(properties);
-        
+
         DataSetBuilder builder = new DataSetBuilder().code("A").type("A").experiment("E");
         assertEquals(false, filter.pass(builder.getDataSet()));
         assertEquals(true, filter.pass(builder.property("a", "alpha").getDataSet()));

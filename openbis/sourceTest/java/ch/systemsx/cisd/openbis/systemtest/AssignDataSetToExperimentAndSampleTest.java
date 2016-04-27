@@ -38,7 +38,7 @@ public class AssignDataSetToExperimentAndSampleTest extends AbstractDataSetAssig
         AbstractExternalData dataSet = etlService.tryGetDataSet(systemSessionToken, dataSetCode);
         if (experimentIdentifierOrNull != null)
         {
-            Experiment experiment = etlService.tryGetExperiment(systemSessionToken, 
+            Experiment experiment = etlService.tryGetExperiment(systemSessionToken,
                     ExperimentIdentifierFactory.parse(experimentIdentifierOrNull));
             perform(anUpdateOf(dataSet).toExperiment(experiment).as(userSessionToken));
         } else

@@ -46,9 +46,8 @@ public class TestUtil
     }
 
     /**
-     * Returns the specified object as a normalised string. Normalization includes trimming,
-     * conversion to lower case, stripping off <code>&lt;div&gt;</code> and <code>&lt;a&gt;</code>
-     * wrappers.
+     * Returns the specified object as a normalised string. Normalization includes trimming, conversion to lower case, stripping off
+     * <code>&lt;div&gt;</code> and <code>&lt;a&gt;</code> wrappers.
      * 
      * @return {@link #NULL} if <code>objectOrNull == null</code>
      */

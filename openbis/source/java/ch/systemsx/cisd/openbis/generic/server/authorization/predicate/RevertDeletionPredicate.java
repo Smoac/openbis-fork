@@ -46,8 +46,7 @@ public class RevertDeletionPredicate extends AbstractPredicate<List<TechId>>
     }
 
     @Override
-    public void init(@SuppressWarnings("hiding")
-    IAuthorizationDataProvider provider)
+    public void init(@SuppressWarnings("hiding") IAuthorizationDataProvider provider)
     {
         this.provider = provider;
         deletionTechIdCollectionPredicate.init(provider);

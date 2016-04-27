@@ -26,22 +26,23 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 public class SerializableComparableIDDecorator implements ISerializableComparable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
+
     private ISerializableComparable serializableComparable;
+
     private Long id;
-    
+
     public SerializableComparableIDDecorator(ISerializableComparable serializableComparable, Long idOrNull)
     {
         assert serializableComparable != null : "Unspecified ISerializableComparable";
         this.serializableComparable = serializableComparable;
         this.id = idOrNull;
     }
-    
+
     public Long getID()
     {
         return id;
     }
-    
+
     @Override
     public int compareTo(ISerializableComparable o)
     {
@@ -66,20 +67,20 @@ public class SerializableComparableIDDecorator implements ISerializableComparabl
         }
         SerializableComparableIDDecorator decorator = (SerializableComparableIDDecorator) obj;
         return serializableComparable.equals(decorator.serializableComparable);
-   }
-    
+    }
+
     @Override
     public int hashCode()
     {
         return serializableComparable.hashCode();
     }
-    
+
     @Override
     public String toString()
     {
         return serializableComparable.toString();
     }
-    
+
     // ---------------------------
 
     // GWT only

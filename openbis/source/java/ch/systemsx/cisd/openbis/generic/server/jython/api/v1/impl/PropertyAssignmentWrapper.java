@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyAssignment;
 
 /**
- * Wrapper of {@link PropertyAssignmentImmutable} as {@link IPropertyAssignment} where setters do
- * nothing.
+ * Wrapper of {@link PropertyAssignmentImmutable} as {@link IPropertyAssignment} where setters do nothing.
  * 
  * @author Franz-Josef Elmer
  */

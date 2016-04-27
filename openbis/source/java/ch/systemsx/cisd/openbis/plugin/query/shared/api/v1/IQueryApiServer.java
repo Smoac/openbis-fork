@@ -48,8 +48,7 @@ public interface IQueryApiServer extends IRpcService
     public static final String JSON_SERVICE_URL = QUERY_PLUGIN_SERVER_URL + ".json";
 
     /**
-     * Tries to authenticate specified user with specified password. Returns session token if
-     * succeeded otherwise <code>null</code> is returned.
+     * Tries to authenticate specified user with specified password. Returns session token if succeeded otherwise <code>null</code> is returned.
      */
     @Transactional
     // this is not a readOnly transaction - it can create new users
@@ -83,8 +82,7 @@ public interface IQueryApiServer extends IRpcService
     public List<ReportDescription> listTableReportDescriptions(String sessionToken);
 
     /**
-     * Creates for the specified data sets a report. Available reports can be obtained by
-     * {@link #listTableReportDescriptions(String)}.
+     * Creates for the specified data sets a report. Available reports can be obtained by {@link #listTableReportDescriptions(String)}.
      * 
      * @param dataStoreCode Code of the data store.
      * @param serviceKey Key of the data store service.
@@ -95,10 +93,9 @@ public interface IQueryApiServer extends IRpcService
             String serviceKey, List<String> dataSetCodes);
 
     /**
-     * Creates for the specified data sets a report. It groups the data sets by a data store and
-     * creates a report for each group of objects on appropriate data store server. Results from the
-     * data stores are combined and returned as a result of this method. Available report keys can
-     * be obtained by {@link #listTableReportDescriptions(String)}.
+     * Creates for the specified data sets a report. It groups the data sets by a data store and creates a report for each group of objects on
+     * appropriate data store server. Results from the data stores are combined and returned as a result of this method. Available report keys can be
+     * obtained by {@link #listTableReportDescriptions(String)}.
      * 
      * @param serviceKey Key of the data store service.
      * @since 1.6
@@ -116,10 +113,8 @@ public interface IQueryApiServer extends IRpcService
     public List<AggregationServiceDescription> listAggregationServices(String sessionToken);
 
     /**
-     * Executes the specified aggregation or ingestion service for the specified parameters and
-     * creates a report. Available service descriptions can be obtained by
-     * {@link #listAggregationServices(String)}. The service resolved to by the serviceKey must be a
-     * service of type REPORT.
+     * Executes the specified aggregation or ingestion service for the specified parameters and creates a report. Available service descriptions can
+     * be obtained by {@link #listAggregationServices(String)}. The service resolved to by the serviceKey must be a service of type REPORT.
      * 
      * @param sessionToken A valid session token.
      * @param dataStoreCode Code of the data store.

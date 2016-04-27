@@ -29,7 +29,7 @@ public class SqlMigrationTest extends SqlMigrationTestAbstract
 {
 
     @Test(groups =
-        { "slow" })
+    { "slow" })
     public void test_migration() throws Exception
     {
         testMigration(DatabaseVersionHolder.getDatabaseVersion());

@@ -22,19 +22,16 @@ import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServi
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class QuerySystemTestCase extends SystemTestCase
 {
     protected IQueryClientService queryClientService;
-    
+
     @Autowired
     public final void setQueryClientService(IQueryClientService queryClientService)
     {
         this.queryClientService = queryClientService;
     }
-    
 
 }

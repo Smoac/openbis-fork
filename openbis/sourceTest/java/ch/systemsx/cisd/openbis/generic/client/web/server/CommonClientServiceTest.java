@@ -520,7 +520,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                 {
                     prepareGetSessionToken(this);
                     allowing(httpSession).getAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
-                    will(returnValue(new CachedResultSetManager<String>(tableDataCache, 
+                    will(returnValue(new CachedResultSetManager<String>(tableDataCache,
                             new TokenBasedResultSetKeyGenerator(), new ICustomColumnsProvider()
                                 {
                                     @Override
@@ -534,7 +534,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
 
                     one(commonServer).listExperimentExternalData(SESSION_TOKEN, experimentId, true);
                     will(returnValue(Collections.singletonList(ds)));
-                    
+
                     one(commonServer).listDataSetTypes(SESSION_TOKEN);
                     will(returnValue(Arrays.asList(ds.getDataSetType())));
                 }

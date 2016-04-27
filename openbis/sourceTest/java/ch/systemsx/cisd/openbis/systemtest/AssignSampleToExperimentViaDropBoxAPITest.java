@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 public class AssignSampleToExperimentViaDropBoxAPITest extends AbstractAssignmentSampleToExperimentTestCase
 {
     @Override
-    protected void updateExperimentChangeSamples(String experimentIdentifier, List<String> samplePermIds, 
+    protected void updateExperimentChangeSamples(String experimentIdentifier, List<String> samplePermIds,
             String userSessionToken)
     {
         ExperimentIdentifier identifier = ExperimentIdentifierFactory.parse(experimentIdentifier);
@@ -51,16 +51,16 @@ public class AssignSampleToExperimentViaDropBoxAPITest extends AbstractAssignmen
         experimentUpdate.setExperimentId(new TechId(experiment));
         experimentUpdate.setProjectIdentifier(identifier);
         experimentUpdate.setVersion(experiment.getVersion());
-        experimentUpdate.setProperties(Collections.<IEntityProperty>emptyList());
-        experimentUpdate.setAttachments(Collections.<NewAttachment>emptyList());
+        experimentUpdate.setProperties(Collections.<IEntityProperty> emptyList());
+        experimentUpdate.setAttachments(Collections.<NewAttachment> emptyList());
         Sample[] samples = loadSamples(samplePermIds);
         experimentUpdate.setSampleCodes(Code.extractCodesToArray(Arrays.asList(samples)));
         AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
         etlService.performEntityOperations(userSessionToken, builder.experimentUpdate(experimentUpdate).getDetails());
     }
-    
+
     @Override
-    protected void updateSampleChangeExperiment(String samplePermId, String experimentIdentifierOrNull, 
+    protected void updateSampleChangeExperiment(String samplePermId, String experimentIdentifierOrNull,
             String userSessionToken)
     {
         SampleIdentifier sampleIdentifier = etlService.tryGetSampleIdentifier(systemSessionToken, samplePermId);
@@ -82,5 +82,5 @@ public class AssignSampleToExperimentViaDropBoxAPITest extends AbstractAssignmen
                 sampleIdentifier, containerIdentifier, null));
         etlService.performEntityOperations(userSessionToken, builder.getDetails());
     }
-    
+
 }

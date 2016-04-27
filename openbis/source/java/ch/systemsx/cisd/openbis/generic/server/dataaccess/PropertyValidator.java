@@ -144,8 +144,7 @@ public final class PropertyValidator implements IPropertyValueValidator
         }
 
         /**
-         * @return Details about vocabulary dependent on {@link VocabularyPE#isChosenFromList()}
-         *         value:
+         * @return Details about vocabulary dependent on {@link VocabularyPE#isChosenFromList()} value:
          *         <ul>
          *         <li>for <var>true</var> - returns a list of first few vocabulary terms from it.
          *         <li>for <var>false</var> - returns a vocabulary description

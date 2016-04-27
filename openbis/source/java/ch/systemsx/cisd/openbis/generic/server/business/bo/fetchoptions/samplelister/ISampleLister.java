@@ -33,8 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 public interface ISampleLister
 {
     /**
-     * Returns all samples of specified technical ids. Properties and related samples are added in
-     * accordance to the fetch options.
+     * Returns all samples of specified technical ids. Properties and related samples are added in accordance to the fetch options.
      * 
      * @param filter A filter which returns only samples and related samples which pass the filter.
      */

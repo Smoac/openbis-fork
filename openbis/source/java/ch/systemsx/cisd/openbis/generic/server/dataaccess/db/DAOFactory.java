@@ -355,8 +355,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public void afterPropertiesSet() throws Exception
     {
         // TODO: project samples
-//        Properties serviceProperties = configurer.getResolvedProps();
-//        boolean projectSamplesEnabled = PropertyUtils.getBoolean(serviceProperties, Constants.PROJECT_SAMPLES_ENABLED_KEY, false);
+        // Properties serviceProperties = configurer.getResolvedProps();
+        // boolean projectSamplesEnabled = PropertyUtils.getBoolean(serviceProperties, Constants.PROJECT_SAMPLES_ENABLED_KEY, false);
         boolean projectSamplesEnabled = false;
         Connection connection = null;
         try

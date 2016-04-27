@@ -6,8 +6,7 @@ import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 
 /**
- * Small class encapsulating a method argument which could have been annotated with
- * {@link AuthorizationGuard}.
+ * Small class encapsulating a method argument which could have been annotated with {@link AuthorizationGuard}.
  * 
  * @author Christian Ribeaud
  */

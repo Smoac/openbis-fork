@@ -21,8 +21,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class AttachmentEntry extends EntityModification
@@ -30,22 +28,22 @@ public class AttachmentEntry extends EntityModification
     public static final String ATTACHMENT = "ATTACHMENT";
 
     public final String type = ATTACHMENT;
-    
+
     @JsonProperty("key")
     public String relationType;
-    
+
     @JsonProperty("value")
     public String relatedEntity;
 
     public String entityType;
-    
+
     public String fileName;
-    
+
     public int version;
-    
+
     @JsonInclude(Include.NON_EMPTY)
     public String description;
-    
+
     @JsonInclude(Include.NON_EMPTY)
     public String title;
 

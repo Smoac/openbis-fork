@@ -149,11 +149,11 @@ public class DatasetListingQueryTest extends AbstractDAOTest
     {
         ExperimentPE experiment1 =
                 getExperiment(dbInstance.getCode(), "CISD", "NEMO", "EXP-TEST-1", daoFactory);
-        
+
         Long relationshipTypeId = RelationshipUtils.getParentChildRelationshipType(daoFactory.getRelationshipTypeDAO()).getId();
 
         List<DatasetRecord> datasets = asList(query.getDataSetsForExperimentAndDescendents(experiment1.getId(), relationshipTypeId));
-        
+
         for (DatasetRecord record : datasets)
         {
             assertTrue(record.is_post_registered != null);
@@ -171,7 +171,7 @@ public class DatasetListingQueryTest extends AbstractDAOTest
         {
             assertTrue(record.is_post_registered != null);
         }
-   }
+    }
 
     @Test
     public void testQueryUsingSelectAllExternalDatasReturnsNotNullPostRegistered()
@@ -181,7 +181,7 @@ public class DatasetListingQueryTest extends AbstractDAOTest
         {
             assertTrue(record.is_post_registered != null);
         }
-    }    
+    }
 
     @Test
     public void testQueryUsingSelectAllExternalDatasReturnsCorrectPostRegistered()
@@ -189,14 +189,16 @@ public class DatasetListingQueryTest extends AbstractDAOTest
         List<DatasetRecord> datasets = asList(query.getDatasetsByDataStoreId(1));
         for (DatasetRecord record : datasets)
         {
-            if(record.code.equals("COMPONENT_1A")) {
+            if (record.code.equals("COMPONENT_1A"))
+            {
                 assertTrue(record.is_post_registered == false);
             }
-            else {
+            else
+            {
                 assertTrue(record.is_post_registered == true);
             }
         }
-    }    
+    }
 
     @Test
     public void testDatasetsForSample()

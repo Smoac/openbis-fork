@@ -26,8 +26,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 
 /**
- * Annotation used to mark methods which create or delete specified database objects. It can be used
- * by a (GUI) client to trigger view updates. For more details see {@link LastModificationState}.
+ * Annotation used to mark methods which create or delete specified database objects. It can be used by a (GUI) client to trigger view updates. For
+ * more details see {@link LastModificationState}.
  * 
  * @author Tomasz Pylak
  */

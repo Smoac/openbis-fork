@@ -37,7 +37,7 @@ public class ServerInterfaceRegressionTest extends AnnotationAppliedTestCase
     {
         List<String> exemptMethods = new ArrayList<String>();
         exemptMethods.add("getDisabledText");
-        
+
         assertMandatoryMethodAnnotations(ICommonServer.class, CommonServer.class,
                 "getLastModificationState: Transactional\n", exemptMethods);
     }

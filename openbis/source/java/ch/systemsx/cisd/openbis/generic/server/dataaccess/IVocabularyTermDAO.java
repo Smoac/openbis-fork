@@ -31,12 +31,10 @@ public interface IVocabularyTermDAO extends IGenericDAO<VocabularyTermPE>
     void validate(final VocabularyTermPE term);
 
     /**
-     * All terms in specified vocabulary starting from specified ordinal will have the ordinal
-     * increased by specified increment.
+     * All terms in specified vocabulary starting from specified ordinal will have the ordinal increased by specified increment.
      * <p>
-     * After this change a collection of terms with size equal to <var>increment</var> can be put
-     * consecutively starting from <var>fromOrdinal</var> and ordinals in the vocabulary will stay
-     * unique.
+     * After this change a collection of terms with size equal to <var>increment</var> can be put consecutively starting from <var>fromOrdinal</var>
+     * and ordinals in the vocabulary will stay unique.
      */
     void increaseVocabularyTermOrdinals(final VocabularyPE vocabulary, final Long fromOrdinal,
             final int increment);

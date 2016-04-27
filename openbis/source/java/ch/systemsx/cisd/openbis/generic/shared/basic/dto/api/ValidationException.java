@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
-
 /**
  * Exception thrown by jython scripts in case of invalid input.
  *

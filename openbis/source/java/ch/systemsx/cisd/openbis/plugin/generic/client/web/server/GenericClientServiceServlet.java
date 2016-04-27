@@ -29,16 +29,15 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 /**
  * The {@link GWTRPCServiceExporter} for the <i>generic</i> service.
  * <p>
- * <i>URL</i> mappings are: <code>/generic</code> and <code>/openbis/generic</code>. The
- * encapsulated {@link ICommonClientService} service implementation is expected to be defined as
- * bean with name <code>generic-service</code>.
+ * <i>URL</i> mappings are: <code>/generic</code> and <code>/openbis/generic</code>. The encapsulated {@link ICommonClientService} service
+ * implementation is expected to be defined as bean with name <code>generic-service</code>.
  * </p>
  * 
  * @author Christian Ribeaud
  */
 @Controller
 @RequestMapping(
-    { "/generic", "/openbis/generic" })
+{ "/generic", "/openbis/generic" })
 public final class GenericClientServiceServlet extends GWTRPCServiceExporter
 {
     private static final long serialVersionUID = 1L;

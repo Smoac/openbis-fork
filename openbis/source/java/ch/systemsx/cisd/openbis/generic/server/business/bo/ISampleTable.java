@@ -36,8 +36,7 @@ public interface ISampleTable
 {
 
     /**
-     * Lists samples filtered by specified criteria, see {@link ListSamplesByPropertyCriteria} to
-     * see the details.
+     * Lists samples filtered by specified criteria, see {@link ListSamplesByPropertyCriteria} to see the details.
      */
     void loadSamplesByCriteria(final ListSamplesByPropertyCriteria criteria);
 
@@ -53,9 +52,8 @@ public interface ISampleTable
             throws UserFailureException;
 
     /**
-     * This method should be invoked before a series of prepareForUpdateXXX() method calls. It
-     * checks the data before the update can be started. For instance, it verifies versions of
-     * objects for Optimistic Locking.
+     * This method should be invoked before a series of prepareForUpdateXXX() method calls. It checks the data before the update can be started. For
+     * instance, it verifies versions of objects for Optimistic Locking.
      */
     public void checkBeforeUpdate(List<SampleUpdatesDTO> updates) throws UserFailureException;
 
@@ -67,10 +65,9 @@ public interface ISampleTable
     public void prepareForUpdate(List<SampleBatchUpdatesDTO> updates) throws UserFailureException;
 
     /**
-     * Comparable to {@link #prepareForUpdate(List)} but takes a {@link SampleUpdatesDTO} object
-     * instead of a {@link SampleBatchUpdatesDTO} object. Whereas prepareForUpdate only changes the
-     * fields requested in the updates' details object, this method changes the samples to match the
-     * updates object.
+     * Comparable to {@link #prepareForUpdate(List)} but takes a {@link SampleUpdatesDTO} object instead of a {@link SampleBatchUpdatesDTO} object.
+     * Whereas prepareForUpdate only changes the fields requested in the updates' details object, this method changes the samples to match the updates
+     * object.
      */
     void prepareForUpdateWithSampleUpdates(List<SampleUpdatesDTO> updates)
             throws UserFailureException;

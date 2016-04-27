@@ -23,8 +23,7 @@ import java.util.Map;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * Stores the original object which will be a basis to calculate a grid row together with calculated
- * all custom columns values.
+ * Stores the original object which will be a basis to calculate a grid row together with calculated all custom columns values.
  * 
  * @author Tomasz Pylak
  */

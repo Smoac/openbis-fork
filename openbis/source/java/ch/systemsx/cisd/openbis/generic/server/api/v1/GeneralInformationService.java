@@ -407,8 +407,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = SampleByIdentiferValidator.class)
     public List<Sample> listSamplesForExperiment(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentAugmentedCodePredicate.class)
-            String experimentIdentifierString)
+            @AuthorizationGuard(guardClass = ExperimentAugmentedCodePredicate.class) String experimentIdentifierString)
     {
         checkSession(sessionToken);
         ExperimentIdentifier experimentId =
@@ -429,8 +428,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     @Capability("SEARCH_ON_BEHALF_OF_USER")
     public List<Sample> listSamplesForExperimentOnBehalfOfUser(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentAugmentedCodePredicate.class)
-            String experimentIdentifierString, String userId)
+            @AuthorizationGuard(guardClass = ExperimentAugmentedCodePredicate.class) String experimentIdentifierString, String userId)
     {
         checkSession(sessionToken);
         ExperimentIdentifier experimentId =
@@ -464,8 +462,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentOrSampleIdentifierValidator.class)
     public List<DataSet> listDataSets(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleListPredicate.class)
-            List<Sample> samples)
+            @AuthorizationGuard(guardClass = SampleListPredicate.class) List<Sample> samples)
     {
         return listDataSets(sessionToken, samples, EnumSet.noneOf(Connections.class));
     }
@@ -475,8 +472,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ExperimentByIdentiferValidator.class)
     public List<Experiment> listExperiments(String sessionToken,
-            @AuthorizationGuard(guardClass = ProjectPredicate.class)
-            List<Project> projects, String experimentTypeString)
+            @AuthorizationGuard(guardClass = ProjectPredicate.class) List<Project> projects, String experimentTypeString)
     {
         return listExperiments(sessionToken, projects, experimentTypeString, false, false);
     }
@@ -486,8 +482,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ExperimentByIdentiferValidator.class)
     public List<Experiment> listExperimentsHavingDataSets(String sessionToken,
-            @AuthorizationGuard(guardClass = ProjectPredicate.class)
-            List<Project> projects, String experimentTypeString)
+            @AuthorizationGuard(guardClass = ProjectPredicate.class) List<Project> projects, String experimentTypeString)
     {
         return listExperiments(sessionToken, projects, experimentTypeString, false, true);
     }
@@ -497,8 +492,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ExperimentByIdentiferValidator.class)
     public List<Experiment> listExperimentsHavingSamples(String sessionToken,
-            @AuthorizationGuard(guardClass = ProjectPredicate.class)
-            List<Project> projects, String experimentTypeString)
+            @AuthorizationGuard(guardClass = ProjectPredicate.class) List<Project> projects, String experimentTypeString)
     {
         return listExperiments(sessionToken, projects, experimentTypeString, true, false);
     }
@@ -602,8 +596,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentOrSampleIdentifierValidator.class)
     public List<DataSet> listDataSetsForSample(String sessionToken,
-            @AuthorizationGuard(guardClass = SamplePredicate.class)
-            Sample sample, boolean areOnlyDirectlyConnectedIncluded)
+            @AuthorizationGuard(guardClass = SamplePredicate.class) Sample sample, boolean areOnlyDirectlyConnectedIncluded)
     {
         checkSession(sessionToken);
         List<AbstractExternalData> externalData =
@@ -751,8 +744,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentOrSampleIdentifierValidator.class)
     public List<DataSet> listDataSets(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleListPredicate.class)
-            List<Sample> samples, EnumSet<Connections> connections)
+            @AuthorizationGuard(guardClass = SampleListPredicate.class) List<Sample> samples, EnumSet<Connections> connections)
     {
         checkSession(sessionToken);
         EnumSet<Connections> connectionsToGet =
@@ -810,8 +802,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentOrSampleIdentifierValidator.class)
     public List<DataSet> listDataSetsForExperiments(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentListPredicate.class)
-            List<Experiment> experiments, EnumSet<Connections> connections)
+            @AuthorizationGuard(guardClass = ExperimentListPredicate.class) List<Experiment> experiments, EnumSet<Connections> connections)
     {
         checkSession(sessionToken);
         EnumSet<Connections> connectionsToGet =
@@ -1049,8 +1040,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ExperimentByIdentiferValidator.class)
     public List<Experiment> listExperiments(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentAugmentedCodePredicate.class)
-            List<String> experimentIdentifiers)
+            @AuthorizationGuard(guardClass = ExperimentAugmentedCodePredicate.class) List<String> experimentIdentifiers)
     {
         checkSession(sessionToken);
 
@@ -1213,8 +1203,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Attachment> listAttachmentsForProject(String sessionToken,
-            @AuthorizationGuard(guardClass = ProjectIdPredicate.class)
-            IProjectId projectId, boolean allVersions)
+            @AuthorizationGuard(guardClass = ProjectIdPredicate.class) IProjectId projectId, boolean allVersions)
     {
         Session session = getSession(sessionToken);
 
@@ -1231,8 +1220,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Attachment> listAttachmentsForExperiment(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentIdPredicate.class)
-            IExperimentId experimentId, boolean allVersions)
+            @AuthorizationGuard(guardClass = ExperimentIdPredicate.class) IExperimentId experimentId, boolean allVersions)
     {
         Session session = getSession(sessionToken);
 
@@ -1249,8 +1237,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Attachment> listAttachmentsForSample(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleIdPredicate.class)
-            ISampleId sampleId, boolean allVersions)
+            @AuthorizationGuard(guardClass = SampleIdPredicate.class) ISampleId sampleId, boolean allVersions)
     {
         Session session = getSession(sessionToken);
 
@@ -1358,7 +1345,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     {
         return commonServer.listPersons(sessionToken);
     }
-    
+
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
@@ -1368,11 +1355,11 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         SQLQuery querySampleTypeId = currentSession.createSQLQuery("SELECT id from sample_types WHERE code = :sampleTypeCode");
         querySampleTypeId.setParameter("sampleTypeCode", sampleTypeCode);
         int sampleTypeId = ((Number) querySampleTypeId.uniqueResult()).intValue();
-        
+
         SQLQuery querySampleCount = currentSession.createSQLQuery("SELECT COUNT(*) FROM samples_all WHERE saty_id = :sampleTypeId");
         querySampleCount.setParameter("sampleTypeId", sampleTypeId);
         long sampleCount = ((Number) querySampleCount.uniqueResult()).longValue();
-        
+
         return sampleCount;
     }
 }

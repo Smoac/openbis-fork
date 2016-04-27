@@ -24,8 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.IEntityAdap
 import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.IEntityPropertyAdaptor;
 
 /**
- * {@link IEntityPropertyAdaptor} for dynamic property with lazy evaluation and cyclic dependencies
- * detection.
+ * {@link IEntityPropertyAdaptor} for dynamic property with lazy evaluation and cyclic dependencies detection.
  * 
  * @author Piotr Buczek
  */

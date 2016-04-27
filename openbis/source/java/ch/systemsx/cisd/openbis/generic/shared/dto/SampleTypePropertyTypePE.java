@@ -43,8 +43,8 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  */
 @Entity
 @Table(name = TableNames.SAMPLE_TYPE_PROPERTY_TYPE_TABLE, uniqueConstraints =
-    { @UniqueConstraint(columnNames =
-        { ColumnNames.SAMPLE_TYPE_COLUMN, ColumnNames.PROPERTY_TYPE_COLUMN }) })
+{ @UniqueConstraint(columnNames =
+{ ColumnNames.SAMPLE_TYPE_COLUMN, ColumnNames.PROPERTY_TYPE_COLUMN }) })
 public class SampleTypePropertyTypePE extends EntityTypePropertyTypePE
 {
     private static final long serialVersionUID = IServer.VERSION;

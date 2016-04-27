@@ -113,8 +113,7 @@ abstract class AbstractPluginRegistry<P extends IServerPlugin> implements BeanFa
     /**
      * Returns the appropriate plug-in for the specified entity kind and entity type.
      * 
-     * @return never <code>null</code> but could return the <i>generic</i> implementation if none
-     *         has been found.
+     * @return never <code>null</code> but could return the <i>generic</i> implementation if none has been found.
      */
     public final synchronized P getPlugin(EntityKind entityKind, EntityTypePE entityType)
     {

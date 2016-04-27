@@ -293,8 +293,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public AbstractExternalData getDataSetInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class)
-            TechId datasetId)
+            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId)
     {
         return commonServer.getDataSetInfo(sessionToken, datasetId);
     }
@@ -302,8 +301,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public AttachmentWithContent getExperimentFileAttachment(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            TechId experimentId, String filename, Integer versionOrNull)
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId, String filename, Integer versionOrNull)
             throws UserFailureException
     {
         final Session session = getSession(sessionToken);
@@ -734,8 +732,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public AttachmentWithContent getProjectFileAttachment(String sessionToken,
-            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class)
-            TechId projectId, String fileName, Integer versionOrNull)
+            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId, String fileName, Integer versionOrNull)
     {
         final Session session = getSession(sessionToken);
         final IProjectBO bo = businessObjectFactory.createProjectBO(session);
@@ -747,8 +744,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public AttachmentWithContent getSampleFileAttachment(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
-            TechId sampleId, String fileName, Integer versionOrNull)
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleId, String fileName, Integer versionOrNull)
     {
         final Session session = getSession(sessionToken);
         final ISampleBO bo = businessObjectFactory.createSampleBO(session);
@@ -779,8 +775,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @Capability("WRITE_EXPERIMENT_SAMPLE")
     public ExperimentUpdateResult updateExperiment(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class)
-            ExperimentUpdatesDTO updates)
+            @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class) ExperimentUpdatesDTO updates)
     {
         final Session session = getSession(sessionToken);
         if (updates.isRegisterSamples())
@@ -810,8 +805,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public SampleUpdateResult updateSample(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class)
-            SampleUpdatesDTO updates)
+            @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class) SampleUpdatesDTO updates)
     {
         return commonServer.updateSample(sessionToken, updates);
     }
@@ -820,8 +814,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("WRITE_DATASET")
     public DataSetUpdateResult updateDataSet(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetUpdatesPredicate.class)
-            DataSetUpdatesDTO updates)
+            @AuthorizationGuard(guardClass = DataSetUpdatesPredicate.class) DataSetUpdatesDTO updates)
     {
         return commonServer.updateDataSet(sessionToken, updates);
     }
@@ -1020,14 +1013,17 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
         Map<String, SpacePE> spaceCache = new HashMap<String, SpacePE>();
         Map<String, List<String>> spaceToOldSampleCodes = new HashMap<String, List<String>>();
         Map<String, String> identifiersToNewSampleCodes = new HashMap<String, String>();
-        
+
         // Generate Updates for each space and build helper maps
-        for(String sampleTypeCode : sampleTypeCodeToTemporaryIdentifiers.keySet()) {
+        for (String sampleTypeCode : sampleTypeCodeToTemporaryIdentifiers.keySet())
+        {
             String codePrefix = getGeneratedCodePrefix(sessionToken, sampleTypeCode);
             List<String> temporaryIdentifiers = sampleTypeCodeToTemporaryIdentifiers.get(sampleTypeCode);
             int numberOfCodesToGenerate = temporaryIdentifiers.size();
-            List<String> newCodes = new SampleCodeGeneratorByType(getDAOFactory()).generateCodes(codePrefix, ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind.SAMPLE, numberOfCodesToGenerate);
-            for(int tIdx = 0; tIdx < numberOfCodesToGenerate; tIdx++)
+            List<String> newCodes =
+                    new SampleCodeGeneratorByType(getDAOFactory()).generateCodes(codePrefix,
+                            ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind.SAMPLE, numberOfCodesToGenerate);
+            for (int tIdx = 0; tIdx < numberOfCodesToGenerate; tIdx++)
             {
                 String tempIdentifier = temporaryIdentifiers.get(tIdx);
                 String spaceCode = tempIdentifier.split("/")[1];
@@ -1048,7 +1044,7 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
                 identifiersToNewSampleCodes.put(tempIdentifier, newCodes.get(tIdx));
             }
         }
-        
+
         // Retrieve all sample PE objects
         List<SamplePE> allSamplesPE = new ArrayList<SamplePE>();
         for (String spaceCode : spaceToOldSampleCodes.keySet())

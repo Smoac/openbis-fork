@@ -24,8 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
- * Operations on {@link EntityTypePE} extensions. Note that you can use only one <em>define</em>
- * method at a time.
+ * Operations on {@link EntityTypePE} extensions. Note that you can use only one <em>define</em> method at a time.
  * 
  * @author Tomasz Pylak
  */

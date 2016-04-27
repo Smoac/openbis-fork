@@ -17,8 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 /**
- * Creates a criterion for a date field. Supports registration and modification dates with equals,
- * from and until versions.
+ * Creates a criterion for a date field. Supports registration and modification dates with equals, from and until versions.
  * 
  * @author pkupczyk
  */

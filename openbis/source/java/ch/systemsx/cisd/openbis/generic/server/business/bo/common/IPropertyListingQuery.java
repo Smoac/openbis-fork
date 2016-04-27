@@ -28,9 +28,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 public interface IPropertyListingQuery
 {
     /**
-     * Returns all property types. Fills only <code>id</code>, <code>code</code>,
-     * <code>label</var> and <code>DataType</code>. Note that code and label are already HTML
-     * escaped.
+     * Returns all property types. Fills only <code>id</code>, <code>code</code>, <code>label</var> and <code>DataType</code>. Note that code and
+     * label are already HTML escaped.
      */
     @Select(sql = "select pt.id as pt_id, pt.code as pt_code, dt.code as dt_code,"
             + "      pt.label as pt_label, pt.is_internal_namespace, pt.schema, pt.transformation"

@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.query.server.api.v1;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ResourceNames

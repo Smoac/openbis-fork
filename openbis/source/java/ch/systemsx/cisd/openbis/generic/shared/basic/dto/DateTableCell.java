@@ -26,19 +26,19 @@ import java.util.Date;
 public class DateTableCell implements ISerializableComparable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
+
     private long dateTime;
-    
+
     public DateTableCell(long dateTime)
     {
         this.dateTime = dateTime;
     }
-    
+
     public DateTableCell(Date date)
     {
         dateTime = date.getTime();
     }
-    
+
     public Date getDateTime()
     {
         return new Date(dateTime);
@@ -73,6 +73,7 @@ public class DateTableCell implements ISerializableComparable
     {
         return new Date(dateTime).toString();
     }
+
     // ---------------------------
 
     // GWT only

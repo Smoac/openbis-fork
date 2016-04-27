@@ -27,20 +27,17 @@ import java.util.List;
 public interface IEntityInformationProvider
 {
     /**
-     * @return identifier of entity specified by given link, <code>null</code> if such an entity
-     *         doesn't exist
+     * @return identifier of entity specified by given link, <code>null</code> if such an entity doesn't exist
      */
     String getIdentifier(IEntityLinkElement entityLink);
 
     /**
-     * @return permId of sample specified by given space and code, <code>null</code> if such a
-     *         sample doesn't exist
+     * @return permId of sample specified by given space and code, <code>null</code> if such a sample doesn't exist
      */
     String getSamplePermId(String spaceCode, String sampleCode);
 
     /**
-     * @return permId of sample specified by given identifier, <code>null</code> if such a sample
-     *         doesn't exist
+     * @return permId of sample specified by given identifier, <code>null</code> if such a sample doesn't exist
      */
     String getSamplePermId(String sampleIdentifier);
 
@@ -55,8 +52,7 @@ public interface IEntityInformationProvider
     List<String> getSampleParentPermIds(String permId);
 
     /**
-     * @return value of a property with given code of a sample with given permIds, empty string if
-     *         the property doesn't exist
+     * @return value of a property with given code of a sample with given permIds, empty string if the property doesn't exist
      */
     String getSamplePropertyValue(String permId, String propertyCode);
 }

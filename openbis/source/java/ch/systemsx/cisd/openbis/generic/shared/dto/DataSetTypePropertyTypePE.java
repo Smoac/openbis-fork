@@ -42,8 +42,8 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  */
 @Entity
 @Table(name = TableNames.DATA_SET_TYPE_PROPERTY_TYPE_TABLE, uniqueConstraints =
-    { @UniqueConstraint(columnNames =
-        { ColumnNames.DATA_SET_TYPE_COLUMN, ColumnNames.PROPERTY_TYPE_COLUMN }) })
+{ @UniqueConstraint(columnNames =
+{ ColumnNames.DATA_SET_TYPE_COLUMN, ColumnNames.PROPERTY_TYPE_COLUMN }) })
 public class DataSetTypePropertyTypePE extends EntityTypePropertyTypePE
 {
 

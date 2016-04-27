@@ -33,8 +33,7 @@ public interface IQueryDatabaseDefinitionProvider
     void initDatabaseDefinitions();
 
     /**
-     * Returns {@link DatabaseDefinition} configured for given <var>dbKey</var> or null if such a
-     * definition doesn't exist.
+     * Returns {@link DatabaseDefinition} configured for given <var>dbKey</var> or null if such a definition doesn't exist.
      * 
      * @throws UserFailureException if this provider wasn't initialized before
      */

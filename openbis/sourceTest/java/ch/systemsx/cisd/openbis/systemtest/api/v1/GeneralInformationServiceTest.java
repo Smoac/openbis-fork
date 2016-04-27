@@ -2077,7 +2077,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                         new MetaprojectTechIdId(metaProjects.get(1).getId()), "test");
         assertEquals("[MaterialIdentifier [materialCode=AD3, "
                 + "materialTypeIdentifier=MaterialTypeIdentifier [materialTypeCode=VIRUS]]]", mas
-                        .getMaterials().toString());
+                .getMaterials().toString());
         assertEntities("[/CISD/NEMO/EXP11, /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST]",
                 mas.getExperiments());
         assertEquals("[Sample[/TEST-SPACE/EV-TEST,VALIDATE_CHILDREN,{},parents=?,children=?]]", mas

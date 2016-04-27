@@ -23,8 +23,8 @@ import ch.systemsx.cisd.common.reflection.AbstractHashable;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
- * Used when assigning mandatory property to an entity, which has some instances or when mandatory
- * flag is change from optional and properties for some entities are unset.
+ * Used when assigning mandatory property to an entity, which has some instances or when mandatory flag is change from optional and properties for
+ * some entities are unset.
  * 
  * @author Tomasz Pylak
  */

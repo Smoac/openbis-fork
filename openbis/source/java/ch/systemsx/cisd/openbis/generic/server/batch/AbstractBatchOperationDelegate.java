@@ -17,8 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.batch;
 
 /**
- * A shell superclass for batch operation delegates. Subclasses only need to override those methods
- * they actually use.
+ * A shell superclass for batch operation delegates. Subclasses only need to override those methods they actually use.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

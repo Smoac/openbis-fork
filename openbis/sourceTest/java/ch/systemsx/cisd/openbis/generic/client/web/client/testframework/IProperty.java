@@ -16,11 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
-
 /**
- * Interface of an assertion preparation for a property checked by a
- * {@link IPropertyChecker} of type <code>C</code>.
- * It uses a fluent API approach for its methods to prepare expectations.
+ * Interface of an assertion preparation for a property checked by a {@link IPropertyChecker} of type <code>C</code>. It uses a fluent API approach
+ * for its methods to prepare expectations.
  *
  * @author Franz-Josef Elmer
  */

@@ -17,8 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 /**
- * {@link IDynamicPropertyEvaluationScheduler} extension with methods for dealing with persistent
- * blocking queue.
+ * {@link IDynamicPropertyEvaluationScheduler} extension with methods for dealing with persistent blocking queue.
  * 
  * @author Piotr Buczek
  */
@@ -26,8 +25,7 @@ public interface IDynamicPropertyEvaluationSchedulerWithQueue extends
         IDynamicPropertyEvaluationScheduler
 {
     /**
-     * Retrieves, but does not remove, an operation from the head of this queue, waiting if no
-     * elements are present on this queue.
+     * Retrieves, but does not remove, an operation from the head of this queue, waiting if no elements are present on this queue.
      * 
      * @return an operation from the head of this queue
      * @throws InterruptedException if interrupted while waiting.
@@ -35,8 +33,7 @@ public interface IDynamicPropertyEvaluationSchedulerWithQueue extends
     DynamicPropertyEvaluationOperation peekWait() throws InterruptedException;
 
     /**
-     * Retrieves and removes an operation from the head of this queue, waiting if no elements are
-     * present on this queue.
+     * Retrieves and removes an operation from the head of this queue, waiting if no elements are present on this queue.
      * 
      * @return an operation from the head of this queue
      * @throws InterruptedException if interrupted while waiting.
@@ -44,15 +41,13 @@ public interface IDynamicPropertyEvaluationSchedulerWithQueue extends
     DynamicPropertyEvaluationOperation take() throws InterruptedException;
 
     /**
-     * Synchronizes all operations scheduled in a transaction handled by current thread with this
-     * queue. Should be called after transaction is successfuly commited (otherwise evaluator can
-     * work on stale data).
+     * Synchronizes all operations scheduled in a transaction handled by current thread with this queue. Should be called after transaction is
+     * successfuly commited (otherwise evaluator can work on stale data).
      */
     void synchronizeThreadQueue();
 
     /**
-     * Remove all operations scheduled in a transaction handled by current thread with this queue.
-     * Should be called after transaction is rolled back.
+     * Remove all operations scheduled in a transaction handled by current thread with this queue. Should be called after transaction is rolled back.
      */
     void clearThreadQueue();
 }

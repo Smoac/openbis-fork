@@ -117,7 +117,7 @@ public class ToolBox
     private final IServiceForDataStoreServer etlService;
 
     private final IDAOFactory daoFactory;
-    
+
     private final String systemSessionToken;
 
     public Space space1;
@@ -129,7 +129,7 @@ public class ToolBox
     public Project project2;
 
     public ToolBox(ICommonServer commonServer, IGenericServer genericServer,
-            IServiceForDataStoreServer etlService, String systemSessionToken, 
+            IServiceForDataStoreServer etlService, String systemSessionToken,
             ApplicationContext applicationContext)
     {
         this.commonServer = commonServer;
@@ -138,7 +138,7 @@ public class ToolBox
         this.systemSessionToken = systemSessionToken;
         daoFactory = applicationContext.getBean(IDAOFactory.class);
     }
-    
+
     TimeIntervalChecker createTimeIntervalChecker()
     {
         return new TimeIntervalChecker(daoFactory.getTransactionTimestamp());
@@ -226,14 +226,14 @@ public class ToolBox
         List<String> dataSetCodes = new ArrayList<String>(codes);
         commonServer.deleteDataSets(systemSessionToken, dataSetCodes, "cleanup", DeletionType.TRASH, true);
     }
-    
+
     private List<TechId> listExperimentIds(Space space)
     {
         ExperimentType experimentType = new ExperimentTypeBuilder().code(EXPERIMENT_TYPE_CODE).getExperimentType();
         SpaceIdentifier spaceIdentifier = new SpaceIdentifierFactory(space.getIdentifier()).createIdentifier();
         return TechId.createList(commonServer.listExperiments(systemSessionToken, experimentType, spaceIdentifier));
     }
-    
+
     private List<TechId> listSampleIds(Space space)
     {
         ListSampleCriteria criteria = new ListSampleCriteria();

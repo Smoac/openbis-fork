@@ -42,6 +42,6 @@ public abstract class Builder<T>
         this.sessionToken = token;
         return this;
     }
-    
+
     public abstract T create();
 }

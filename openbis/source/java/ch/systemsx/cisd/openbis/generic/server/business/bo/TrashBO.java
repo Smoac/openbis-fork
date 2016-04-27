@@ -79,8 +79,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
  */
 public class TrashBO extends AbstractBusinessObject implements ITrashBO
 {
-    static final EnumSet<DataSetFetchOption> DATA_SET_FETCH_OPTIONS 
-            = EnumSet.of(DataSetFetchOption.EXPERIMENT, DataSetFetchOption.SAMPLE);
+    static final EnumSet<DataSetFetchOption> DATA_SET_FETCH_OPTIONS = EnumSet.of(DataSetFetchOption.EXPERIMENT, DataSetFetchOption.SAMPLE);
 
     private enum CascadeSampleDependentComponents
     {
@@ -92,8 +91,8 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
     private DeletionPE deletion;
 
     public TrashBO(IDAOFactory daoFactory, ICommonBusinessObjectFactory boFactory, Session session,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IRelationshipService relationshipService)
     {
         super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);
@@ -125,7 +124,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
     public void trashDataSets(List<TechId> dataSetIds)
     {
         assert deletion != null;
-        
+
         IDatasetLister datasetLister = boFactory.createDatasetLister(session);
         final Set<TechId> experimentIds = new HashSet<TechId>();
         final Set<TechId> sampleIds = new HashSet<TechId>();
@@ -135,7 +134,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
             if (sample != null)
             {
                 sampleIds.add(new TechId(sample));
-            }  
+            }
             if (dataSet.getExperiment() != null)
             {
                 experimentIds.add(new TechId(dataSet.getExperiment()));
@@ -160,7 +159,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
                     }
                     return filtered;
                 }
-                
+
                 private boolean contains(Set<TechId> ids, IIdAndCodeHolder entity)
                 {
                     return entity != null && ids.contains(new TechId(HibernateUtils.getId(entity)));
@@ -187,8 +186,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         assert deletion != null;
 
         TrashOperationsManager trashManager = new TrashOperationsManager(session, deletion, this, getTransactionTimeStamp());
-        Set<TechId> allSampleIds 
-                = trashSamples(trashManager, sampleIds, CascadeSampleDependentComponents.TRUE, true);
+        Set<TechId> allSampleIds = trashSamples(trashManager, sampleIds, CascadeSampleDependentComponents.TRUE, true);
         Set<TechId> experimentsOfSamples = getExperimentsOfSamples(sampleIds);
         trashSampleDependentDataSets(trashManager, experimentsOfSamples, allSampleIds);
         trashManager.trash();
@@ -209,8 +207,8 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         }
         return experimentIds;
     }
-    
-    private Set<TechId> trashSamples(TrashOperationsManager trashManager, 
+
+    private Set<TechId> trashSamples(TrashOperationsManager trashManager,
             final List<TechId> sampleIds, final CascadeSampleDependentComponents cascadeType, boolean isOriginalDeletion)
     {
         assert deletion != null;
@@ -229,22 +227,25 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
     {
         public List<TechId> filter(List<AbstractExternalData> dataSets);
     }
-    
+
     private static interface IIdHolderProvider
     {
         public IIdHolder getIdHolder(AbstractExternalData dataSet);
     }
-    
+
     private static final class DataSetFilter implements IDataSetFilter
     {
         private Set<Long> ids;
+
         private IIdHolderProvider idHolderProvider;
+
         DataSetFilter(Collection<TechId> ids, IIdHolderProvider idHolderProvider)
         {
             this.ids = new LinkedHashSet<Long>(TechId.asLongs(ids));
             this.idHolderProvider = idHolderProvider;
-            
+
         }
+
         @Override
         public List<TechId> filter(List<AbstractExternalData> dataSets)
         {
@@ -261,7 +262,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         }
     }
 
-    private void trashDataSets(TrashOperationsManager trashManager, final List<TechId> dataSetIds, 
+    private void trashDataSets(TrashOperationsManager trashManager, final List<TechId> dataSetIds,
             boolean isOriginalDeletion, IDataSetFilter filterOrNull)
     {
         assert deletion != null;
@@ -328,7 +329,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         }
     }
 
-    private Set<TechId> trashSampleDependentComponents(TrashOperationsManager trashManager, 
+    private Set<TechId> trashSampleDependentComponents(TrashOperationsManager trashManager,
             List<TechId> sampleIds)
     {
         final ISampleDAO sampleDAO = getSampleDAO();
@@ -349,7 +350,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         return trashSamples(trashManager, batchOperation.getResults(), CascadeSampleDependentComponents.FALSE, false);
     }
 
-    private void trashSampleDependentDataSets(TrashOperationsManager trashManager, 
+    private void trashSampleDependentDataSets(TrashOperationsManager trashManager,
             Set<TechId> experimentsOfSamples, Set<TechId> sampleIds)
     {
         AbstractQueryBatchOperation batchOperation =
@@ -367,14 +368,14 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         List<TechId> dataSetIds = batchOperation.getResults();
         assertDataSetDeletionBusinessRules(experimentsOfSamples, sampleIds, dataSetIds);
         trashDataSets(trashManager, dataSetIds, false, new DataSetFilter(sampleIds,
-                            new IIdHolderProvider()
-                                {
-                                    @Override
-                                    public IIdHolder getIdHolder(AbstractExternalData dataSet)
-                                    {
-                                        return dataSet.getSample();
-                                    }
-                                }));
+                new IIdHolderProvider()
+                    {
+                        @Override
+                        public IIdHolder getIdHolder(AbstractExternalData dataSet)
+                        {
+                            return dataSet.getSample();
+                        }
+                    }));
     }
 
     private Set<TechId> trashExperimentDependentSamples(TrashOperationsManager trashManager, Set<TechId> experimentIds)
@@ -394,7 +395,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         return trashSamples(trashManager, sampleIds, CascadeSampleDependentComponents.TRUE, false);
     }
 
-    private void trashExperimentDependentDataSets(TrashOperationsManager trashManager, Set<TechId> experimentIds, 
+    private void trashExperimentDependentDataSets(TrashOperationsManager trashManager, Set<TechId> experimentIds,
             Set<TechId> dependentSampleIds)
     {
         AbstractQueryBatchOperation batchOperation =
@@ -411,17 +412,17 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         List<TechId> dataSetIds = batchOperation.getResults();
         assertDataSetDeletionBusinessRules(experimentIds, dependentSampleIds, dataSetIds);
         trashDataSets(trashManager, dataSetIds, false, new DataSetFilter(experimentIds,
-                            new IIdHolderProvider()
-                                {
-                                    @Override
-                                    public IIdHolder getIdHolder(AbstractExternalData dataSet)
-                                    {
-                                        return dataSet.getExperiment();
-                                    }
-                                }));
+                new IIdHolderProvider()
+                    {
+                        @Override
+                        public IIdHolder getIdHolder(AbstractExternalData dataSet)
+                        {
+                            return dataSet.getExperiment();
+                        }
+                    }));
     }
-    
-    private void assertDataSetDeletionBusinessRules(Set<TechId> experimentIds, Set<TechId> sampleIdes, 
+
+    private void assertDataSetDeletionBusinessRules(Set<TechId> experimentIds, Set<TechId> sampleIdes,
             List<TechId> dataSetIds)
     {
         IDatasetLister datasetLister = boFactory.createDatasetLister(session);
@@ -469,15 +470,15 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
             throw new UserFailureException(builder.toString().trim());
         }
     }
-    
-    private void addTo(StringBuilder builder, String entityDescription, AbstractExternalData dataSet, 
+
+    private void addTo(StringBuilder builder, String entityDescription, AbstractExternalData dataSet,
             Map<Long, Set<Long>> containerIds)
     {
         String findOriginalDataSet = findOriginalDataSet(containerIds, dataSet);
-        builder.append("The data set " + findOriginalDataSet + " is a component of the data set " 
+        builder.append("The data set " + findOriginalDataSet + " is a component of the data set "
                 + dataSet.getCode() + " which belongs to the " + entityDescription + " which is outside the deletion set.\n");
     }
-    
+
     private String findOriginalDataSet(Map<Long, Set<Long>> relations, AbstractExternalData dataSet)
     {
         Set<Entry<Long, Set<Long>>> entrySet = relations.entrySet();
@@ -503,7 +504,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
     {
         return datasetLister.listByDatasetIds(TechId.asLongs(dataSetIds), DATA_SET_FETCH_OPTIONS);
     }
-    
+
     @Override
     public void revertDeletion(TechId deletionId)
     {
@@ -516,22 +517,31 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
             throwException(ex, "Deletion");
         }
     }
-    
+
     private static final class TrashOperationsManager
     {
         private final Session session;
+
         private final DeletionPE deletion;
+
         private final IDAOFactory daoFactory;
-        
+
         private final Map<EntityKind, Set<TechId>> entityIdsByKind = new HashMap<EntityKind, Set<TechId>>();
+
         private final List<TrashBatchOperation> operations = new ArrayList<TrashBatchOperation>();
+
         private final PersonPE person;
+
         private final List<RoleWithIdentifier> allowedRoles;
+
         private final ExperimentPEPredicate experimentPredicate;
+
         private final SamplePEPredicate samplesPredicate;
+
         private final DataPEPredicate dataSetPredicate;
+
         private final Date modificationTimestamp;
-        
+
         TrashOperationsManager(Session session, DeletionPE deletion, IDAOFactory daoFactory, Date modificationTimestamp)
         {
             this.session = session;
@@ -549,7 +559,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
             samplesPredicate = new SamplePEPredicate();
             dataSetPredicate = new DataPEPredicate();
         }
-        
+
         void addTrashOperation(EntityKind entityKind, List<TechId> entityIds, boolean isOriginalDeletion)
         {
             if (entityIds.isEmpty() == false)
@@ -575,7 +585,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         }
 
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        private void assertAuthorization(PersistentEntityPredicate entityPredicate, 
+        private void assertAuthorization(PersistentEntityPredicate entityPredicate,
                 List<? extends IIdentifierHolder> entities, String entityKindName)
         {
             List<String> identifiers = new ArrayList<String>();
@@ -591,12 +601,12 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
             }
             if (identifiers.isEmpty() == false)
             {
-                throw new AuthorizationFailureException("Can not delete " + entityKindName + " " 
-                        + CollectionUtils.abbreviate(identifiers, 10) + " because user " 
+                throw new AuthorizationFailureException("Can not delete " + entityKindName + " "
+                        + CollectionUtils.abbreviate(identifiers, 10) + " because user "
                         + errorMessage);
             }
         }
-        
+
         void trash()
         {
             updateModificationDateAndModifierOfRelatedProjectsOfExperiments();
@@ -607,7 +617,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
                 BatchOperationExecutor.executeInBatches(operation);
             }
         }
-        
+
         private void updateModificationDateAndModifierOfRelatedProjectsOfExperiments()
         {
             List<Long> ids = TechId.asLongs(entityIdsByKind.get(EntityKind.EXPERIMENT));
@@ -618,7 +628,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
                         experiments, session, modificationTimestamp);
             }
         }
-        
+
         private void updateModificationDateAndModifierOfRelatedEntitiesOfSamples()
         {
             List<Long> ids = TechId.asLongs(entityIdsByKind.get(EntityKind.SAMPLE));
@@ -629,7 +639,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
                         samples, session, modificationTimestamp);
             }
         }
-        
+
         private void updateModificationDateAndModifierOfRelatedEntitiesOfDataSets()
         {
             List<Long> ids = TechId.asLongs(entityIdsByKind.get(EntityKind.DATA_SET));
@@ -640,7 +650,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
                         dataSets, session, modificationTimestamp);
             }
         }
-        
+
     }
 
     private static class TrashBatchOperation implements IBatchOperation<TechId>
@@ -692,10 +702,10 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         @Override
         public String toString()
         {
-            return getOperationName() + (isOriginalDeletion ? " original " : " dependent ") + entityKind 
+            return getOperationName() + (isOriginalDeletion ? " original " : " dependent ") + entityKind
                     + " " + getEntityName() + " " + entityIds;
         }
-        
+
     }
 
     private abstract static class AbstractQueryBatchOperation implements IBatchOperation<TechId>

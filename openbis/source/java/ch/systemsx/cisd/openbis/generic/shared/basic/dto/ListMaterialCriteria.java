@@ -86,13 +86,14 @@ public final class ListMaterialCriteria implements Serializable
     {
         return materialIdentifiersOrNull;
     }
-    
+
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "ListMaterialCriteria [materialTypeOrNull=" + materialTypeOrNull
                 + ", materialIdsOrNull=" + materialIdsOrNull
                 + ", materialIdentifiersOrNull=" + materialIdentifiersOrNull
                 + "]";
-    }    
+    }
 
 }

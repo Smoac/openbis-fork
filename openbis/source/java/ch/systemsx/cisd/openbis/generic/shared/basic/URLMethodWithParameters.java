@@ -21,9 +21,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 
 /**
- * Helper class to create URL's with parameters. Characters in path, parameter names and values are
- * URL encoded except '0'-'9', 'a'-'z', 'A'-'Z', ':', '/', '.', '*', '-', and '_'. Space character
- * is replaced by '+'.
+ * Helper class to create URL's with parameters. Characters in path, parameter names and values are URL encoded except '0'-'9', 'a'-'z', 'A'-'Z', ':',
+ * '/', '.', '*', '-', and '_'. Space character is replaced by '+'.
  * 
  * @author Franz-Josef Elmer
  */

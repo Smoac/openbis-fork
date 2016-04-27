@@ -21,8 +21,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 
 /**
- * A command which will be executed after a successful invocation of
- * {@link AsyncCallback#onSuccess(Object)}.
+ * A command which will be executed after a successful invocation of {@link AsyncCallback#onSuccess(Object)}.
  * 
  * @author Franz-Josef Elmer
  * @author Piotr Buczek
@@ -35,16 +34,14 @@ public interface ITestCommand
     public void execute();
 
     /**
-     * @return <tt>true</tt> if the specified result should trigger this command in case of an
-     *         invocation of {@link AsyncCallback#onSuccess(Object)}, otherwise <tt>false</tt>
+     * @return <tt>true</tt> if the specified result should trigger this command in case of an invocation of {@link AsyncCallback#onSuccess(Object)},
+     *         otherwise <tt>false</tt>
      */
     public boolean isValidOnSucess(Object result);
 
     /**
-     * @return <tt>true</tt> if the specified <var>failureMessage</var> and <var>throwable</var>
-     *         should trigger this command in case of an invocation of
-     *         {@link AsyncCallback#onFailure(Throwable)} of specified <var>callback</var>,
-     *         otherwise <tt>false</tt>
+     * @return <tt>true</tt> if the specified <var>failureMessage</var> and <var>throwable</var> should trigger this command in case of an invocation
+     *         of {@link AsyncCallback#onFailure(Throwable)} of specified <var>callback</var>, otherwise <tt>false</tt>
      */
     public boolean isValidOnFailure(AbstractAsyncCallback<?> callback, String failureMessage,
             Throwable throwable);

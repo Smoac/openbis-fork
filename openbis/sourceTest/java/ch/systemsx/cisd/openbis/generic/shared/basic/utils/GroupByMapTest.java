@@ -45,7 +45,7 @@ public class GroupByMapTest extends AssertJUnit
     public void test()
     {
         List<Integer> list = Arrays.asList(new Integer[]
-            { 1, 100, 1, 5, 100, 100 });
+        { 1, 100, 1, 5, 100, 100 });
         GroupByMap<Integer, Integer> map = GroupByMap.create(list, createKeyExtractor());
         assertNull(map.tryGet(9));
 

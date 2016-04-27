@@ -27,8 +27,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSourceWithDefinition;
 public interface IDataSourceFactory
 {
     /**
-     * Creates a data source optional definition from specified properties. Note, that if the
-     * definition is provided its code attribute might be undefined.
+     * Creates a data source optional definition from specified properties. Note, that if the definition is provided its code attribute might be
+     * undefined.
      */
     public DataSourceWithDefinition create(Properties dbProps);
 }

@@ -26,12 +26,20 @@ import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.modul
 public class QueryBrowserGridColumnIDs
 {
     public static final String NAME = "NAME";
+
     public static final String DESCRIPTION = "DESCRIPTION";
+
     public static final String SQL_QUERY = "SQL_QUERY";
+
     public static final String IS_PUBLIC = "IS_PUBLIC";
+
     public static final String QUERY_TYPE = "QUERY_TYPE";
+
     public static final String ENTITY_TYPE = "ENTITY_TYPE";
+
     public static final String QUERY_DATABASE = "QUERY_DATABASE";
+
     public static final String REGISTRATOR = "REGISTRATOR";
+
     public static final String REGISTRATION_DATE = "REGISTRATION_DATE";
 }

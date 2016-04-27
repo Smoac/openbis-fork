@@ -22,8 +22,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
 public interface IManagedPropertyGridInformationProvider
 {
     /**
-     * the key of a grid that can be used when creating ids (unique in the context of an entity,
-     * doesn't contain spaces)
+     * the key of a grid that can be used when creating ids (unique in the context of an entity, doesn't contain spaces)
      */
     public String getKey();
 

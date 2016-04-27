@@ -30,9 +30,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 public interface ISampleTypeDAO extends IGenericDAO<SampleTypePE>
 {
     /**
-     * Returns a list of {@link SampleTypePE} which have their property types and corresponding
-     * vocabulary terms eagerly fetched (overriding default behavior which lazily loads the property
-     * types).
+     * Returns a list of {@link SampleTypePE} which have their property types and corresponding vocabulary terms eagerly fetched (overriding default
+     * behavior which lazily loads the property types).
      * 
      * @return The list of {@link SampleTypePE}s registered in the database.
      */

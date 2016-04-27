@@ -42,8 +42,8 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  */
 @Entity
 @Table(name = TableNames.EXPERIMENT_TYPE_PROPERTY_TYPE_TABLE, uniqueConstraints =
-    { @UniqueConstraint(columnNames =
-        { ColumnNames.EXPERIMENT_TYPE_COLUMN, ColumnNames.PROPERTY_TYPE_COLUMN }) })
+{ @UniqueConstraint(columnNames =
+{ ColumnNames.EXPERIMENT_TYPE_COLUMN, ColumnNames.PROPERTY_TYPE_COLUMN }) })
 public class ExperimentTypePropertyTypePE extends EntityTypePropertyTypePE
 {
 

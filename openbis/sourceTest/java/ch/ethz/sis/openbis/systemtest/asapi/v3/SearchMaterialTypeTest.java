@@ -31,8 +31,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.CodeComparator;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class SearchMaterialTypeTest extends AbstractTest
@@ -45,7 +43,7 @@ public class SearchMaterialTypeTest extends AbstractTest
         MaterialTypeFetchOptions fetchOptions = new MaterialTypeFetchOptions();
         fetchOptions.withPropertyAssignments();
         SearchResult<MaterialType> searchResult = v3api.searchMaterialTypes(sessionToken, searchCriteria, fetchOptions);
-        
+
         List<MaterialType> types = searchResult.getObjects();
         List<String> codes = extractCodes(types);
         Collections.sort(codes);
@@ -53,7 +51,7 @@ public class SearchMaterialTypeTest extends AbstractTest
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
         v3api.logout(sessionToken);
     }
-    
+
     @Test
     public void testSearchExactCode()
     {
@@ -63,7 +61,7 @@ public class SearchMaterialTypeTest extends AbstractTest
         MaterialTypeFetchOptions fetchOptions = new MaterialTypeFetchOptions();
         fetchOptions.withPropertyAssignments();
         SearchResult<MaterialType> searchResult = v3api.searchMaterialTypes(sessionToken, searchCriteria, fetchOptions);
-        
+
         List<MaterialType> types = searchResult.getObjects();
         List<String> codes = extractCodes(types);
         Collections.sort(codes);
@@ -71,7 +69,7 @@ public class SearchMaterialTypeTest extends AbstractTest
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
         v3api.logout(sessionToken);
     }
-    
+
     @Test
     public void testSearchWithCodeThatStartsWithB()
     {
@@ -79,9 +77,9 @@ public class SearchMaterialTypeTest extends AbstractTest
         EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
         searchCriteria.withCode().thatStartsWith("B");
         MaterialTypeFetchOptions fetchOptions = new MaterialTypeFetchOptions();
-        
+
         SearchResult<MaterialType> searchResult = v3api.searchMaterialTypes(sessionToken, searchCriteria, fetchOptions);
-        
+
         List<MaterialType> types = searchResult.getObjects();
         List<String> codes = extractCodes(types);
         Collections.sort(codes);
@@ -98,9 +96,9 @@ public class SearchMaterialTypeTest extends AbstractTest
         searchCriteria.withCode().thatStartsWith("B");
         MaterialTypeFetchOptions fetchOptions = new MaterialTypeFetchOptions();
         fetchOptions.withPropertyAssignments().sortBy().label().desc();
-        
+
         SearchResult<MaterialType> searchResult = v3api.searchMaterialTypes(sessionToken, searchCriteria, fetchOptions);
-        
+
         List<MaterialType> types = searchResult.getObjects();
         Collections.sort(types, new CodeComparator<MaterialType>());
         List<String> codes = extractCodes(types);
@@ -110,5 +108,5 @@ public class SearchMaterialTypeTest extends AbstractTest
         assertOrder(propertyAssignments, "ORGANISM", "DESCRIPTION");
         v3api.logout(sessionToken);
     }
-    
+
 }

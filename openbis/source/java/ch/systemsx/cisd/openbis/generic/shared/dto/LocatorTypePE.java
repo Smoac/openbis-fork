@@ -34,8 +34,8 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  */
 @Entity
 @Table(name = TableNames.LOCATOR_TYPES_TABLE, uniqueConstraints =
-    { @UniqueConstraint(columnNames =
-        { ColumnNames.CODE_COLUMN }) })
+{ @UniqueConstraint(columnNames =
+{ ColumnNames.CODE_COLUMN }) })
 public final class LocatorTypePE extends AbstractTypePE
 {
     private static final long serialVersionUID = IServer.VERSION;

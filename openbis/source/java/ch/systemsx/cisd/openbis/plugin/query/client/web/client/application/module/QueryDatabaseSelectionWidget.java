@@ -85,7 +85,7 @@ public final class QueryDatabaseSelectionWidget extends
         return DatabaseModificationKind.any(ObjectKind.QUERY);
     }
 
-    // 
+    //
     // initial value support
     //
 

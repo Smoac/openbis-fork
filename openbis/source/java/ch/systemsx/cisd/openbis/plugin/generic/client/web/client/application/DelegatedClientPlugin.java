@@ -33,8 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 
 /**
- * delegates all operations to generic plugin, should be subclasssed and the needed functionality
- * can override the default behaviour
+ * delegates all operations to generic plugin, should be subclasssed and the needed functionality can override the default behaviour
  */
 public class DelegatedClientPlugin<T extends BasicEntityType> implements
         IClientPlugin<T, IIdAndCodeHolder>

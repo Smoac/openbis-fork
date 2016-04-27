@@ -195,7 +195,7 @@ public class MetaprojectDAOTest extends AbstractDAOTest
         Collection<MetaprojectAssignmentPE> assignments =
                 daoFactory.getMetaprojectDAO().listMetaprojectAssignmentsForEntities(
                         getTestPerson(), Arrays.asList(new IEntityInformationWithPropertiesHolder[]
-                            { experiment1, experiment2 }), EntityKind.EXPERIMENT);
+                        { experiment1, experiment2 }), EntityKind.EXPERIMENT);
 
         assertEquals(3, assignments.size());
         for (MetaprojectAssignmentPE assignment : assignments)

@@ -26,8 +26,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 /**
  * Some utility methods based on {@link UUID}.
  * <p>
- * In its canonical form, a <i>UUID</i> consists of 32 hexadecimal digits, displayed in 5 groups
- * separated by hyphens, in the form 8-4-4-4-12 for a total of 36 characters.<br>
+ * In its canonical form, a <i>UUID</i> consists of 32 hexadecimal digits, displayed in 5 groups separated by hyphens, in the form 8-4-4-4-12 for a
+ * total of 36 characters.<br>
  * For example:
  * 
  * <pre>

@@ -26,11 +26,9 @@ class ExperimentToDataSetRelatedEntitiesTranslator
     private final ArrayList<BasicEntityInformationHolder> entityInformationHolders;
 
     /**
-     * Creates a translator from public {@Experiment} objects to the internal
-     * {@link DataSetRelatedEntities} objects.
+     * Creates a translator from public {@Experiment} objects to the internal {@link DataSetRelatedEntities} objects.
      * <p>
-     * A list of experiment types known to the DB must be provided because Experiment knows only the
-     * code of the ExperimentType.
+     * A list of experiment types known to the DB must be provided because Experiment knows only the code of the ExperimentType.
      * 
      * @param experimentTypes A list of ExperimentTypes known to the DB.
      * @param experiments The experiments to convert.

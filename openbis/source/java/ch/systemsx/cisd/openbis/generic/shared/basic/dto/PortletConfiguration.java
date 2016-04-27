@@ -21,8 +21,8 @@ import java.io.Serializable;
 /**
  * Configuration parameters of a portlet.
  * <p>
- * Instances of this class are serialized in the personal {@link DisplaySettings} of a user. Thus,
- * CHANGES IN THIS CLASS MIGHT LEAD TO A LOST OF PERSONAL SETTINGS
+ * Instances of this class are serialized in the personal {@link DisplaySettings} of a user. Thus, CHANGES IN THIS CLASS MIGHT LEAD TO A LOST OF
+ * PERSONAL SETTINGS
  * 
  * @author Franz-Josef Elmer
  */

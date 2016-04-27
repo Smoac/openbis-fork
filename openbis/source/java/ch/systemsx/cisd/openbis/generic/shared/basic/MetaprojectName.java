@@ -21,8 +21,7 @@ import java.util.regex.Pattern;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * Metaproject name representation. The name cannot be null, empty or contain white spaces, commas,
- * slashes or backslashes.
+ * Metaproject name representation. The name cannot be null, empty or contain white spaces, commas, slashes or backslashes.
  * 
  * @author pkupczyk
  */

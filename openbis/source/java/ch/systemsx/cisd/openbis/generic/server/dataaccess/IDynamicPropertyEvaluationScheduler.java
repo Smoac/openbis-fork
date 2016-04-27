@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
-
 /**
  * @author Piotr Buczek
  */

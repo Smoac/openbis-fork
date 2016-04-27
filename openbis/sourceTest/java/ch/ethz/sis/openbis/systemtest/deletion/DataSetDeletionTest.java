@@ -103,8 +103,8 @@ public class DataSetDeletionTest extends DeletionTest
         delete(project);
         delete(space);
 
-        assertHistory(dataset.getPermId(), "OWNED", experimentSet(experiment.getPermId()), 
-                sampleSet(spaceSample.getPermId()), 
+        assertHistory(dataset.getPermId(), "OWNED", experimentSet(experiment.getPermId()),
+                sampleSet(spaceSample.getPermId()),
                 sampleSet(experimentSample.getPermId()),
                 experimentSet(experiment.getPermId()));
     }

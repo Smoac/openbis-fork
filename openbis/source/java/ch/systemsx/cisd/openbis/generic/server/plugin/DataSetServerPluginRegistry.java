@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
-
 /**
  * A registry for data set server plug-ins.
  */

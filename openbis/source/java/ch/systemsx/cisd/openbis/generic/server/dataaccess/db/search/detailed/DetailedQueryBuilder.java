@@ -88,7 +88,7 @@ public class DetailedQueryBuilder
     {
         this.entityKind = entityKind;
     }
-    
+
     private Query createQuery(String userId, DetailedSearchCriteria searchCriteria,
             List<IAssociationCriteria> associations, Map<String, DocValuesType> fieldTypes)
     {
@@ -121,11 +121,12 @@ public class DetailedQueryBuilder
                         fieldPattern = LuceneQueryBuilder.adaptQuery(fieldUserQuery,
                                 useWildcardSearchMode, false);
                         fieldAnalyzer = new IgnoreCaseAnalyzer();
-                    } else if(isNumeric && criterion.getType() != null)
+                    } else if (isNumeric && criterion.getType() != null)
                     {
                         fieldPattern = getRangeNumberQuery(criterion, fieldPattern);
                         fieldAnalyzer = PassThroughAnalyzer.INSTANCE;
-                    } else {
+                    } else
+                    {
                         fieldPattern = LuceneQueryBuilder.adaptQuery(value, useWildcardSearchMode);
                         fieldAnalyzer = searchAnalyzer;
                     }
@@ -135,7 +136,7 @@ public class DetailedQueryBuilder
                     fieldOccur.add(criterion.isNegated() ? Occur.MUST_NOT : Occur.SHOULD);
                 }
 
-                Query luceneQuery = LuceneQueryBuilder.parseQuery(criterion.getType(), fieldNames, 
+                Query luceneQuery = LuceneQueryBuilder.parseQuery(criterion.getType(), fieldNames,
                         fieldPatterns, fieldAnalyzers, fieldOccur);
                 resultQuery.add(luceneQuery, occureCondition);
             } else
@@ -164,7 +165,8 @@ public class DetailedQueryBuilder
     private String getRangeNumberQuery(DetailedSearchCriterion criterion, String fieldPattern)
     {
         String parsedNumberValue = SortableNumberBridgeUtils.getNumberForLucene(criterion.getValue());
-        switch(criterion.getType()) {
+        switch (criterion.getType())
+        {
             case LESS_THAN:
                 return "{* TO " + parsedNumberValue + "}";
             case LESS_THAN_OR_EQUAL:
@@ -178,7 +180,7 @@ public class DetailedQueryBuilder
         }
         return fieldPattern;
     }
-    
+
     private Occur createOccureCondition(SearchCriteriaConnection connection)
     {
         switch (connection)
@@ -191,8 +193,9 @@ public class DetailedQueryBuilder
                 throw InternalErr.error("unknown enum " + connection);
         }
     }
-    
-    public static List<String> getIndexFieldNames(List<DetailedSearchCriterion> criteria, EntityKind entityKind) {
+
+    public static List<String> getIndexFieldNames(List<DetailedSearchCriterion> criteria, EntityKind entityKind)
+    {
         List<String> fieldNames = new ArrayList<String>();
         for (DetailedSearchCriterion criterion : criteria)
         {
@@ -200,7 +203,7 @@ public class DetailedQueryBuilder
         }
         return fieldNames;
     }
-    
+
     private static List<String> getIndexFieldNames(DetailedSearchField searchField, EntityKind entityKind)
     {
         DetailedSearchFieldKind fieldKind = searchField.getKind();

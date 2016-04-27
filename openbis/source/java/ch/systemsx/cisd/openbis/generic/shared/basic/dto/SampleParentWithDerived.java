@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.io.Serializable;
 
 /**
- * A <code>SampleParentWithDerived</code> encapsulates a <code>Sample</code> (the parent) and its
- * derived <code>Sample</code>s.
+ * A <code>SampleParentWithDerived</code> encapsulates a <code>Sample</code> (the parent) and its derived <code>Sample</code>s.
  * 
  * @author Christian Ribeaud
  */

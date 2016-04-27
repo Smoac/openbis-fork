@@ -46,7 +46,7 @@ public class ExperimentType extends EntityType
     {
         return kind == null || kind == EntityKind.EXPERIMENT;
     }
-    
+
     @Override
     public EntityKind getEntityKind()
     {

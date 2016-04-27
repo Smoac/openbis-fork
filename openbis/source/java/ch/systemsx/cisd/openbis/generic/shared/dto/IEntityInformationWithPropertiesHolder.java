@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-
 /**
  * @author Piotr Buczek
  */

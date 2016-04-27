@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto.types;
 /**
  * The current <code>DataSetType</code> codes.
  * <p>
- * This enumeration should reflect the values in the database and is <i>Unit</i> tested to ensure
- * this point.
+ * This enumeration should reflect the values in the database and is <i>Unit</i> tested to ensure this point.
  * </p>
  * 
  * @author Christian Ribeaud

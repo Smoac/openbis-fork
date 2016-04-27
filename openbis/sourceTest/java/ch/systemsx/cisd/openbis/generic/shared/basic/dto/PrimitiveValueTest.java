@@ -20,7 +20,7 @@ public class PrimitiveValueTest extends AssertJUnit
     protected Object[][] getValues()
     {
         return new Object[][]
-            {
+        {
                 /* NULL == NULL == "" */
                 { PrimitiveValue.NULL, PrimitiveValue.NULL, ExpectedResult.EQUAL },
                 { PrimitiveValue.NULL, new PrimitiveValue(""), ExpectedResult.EQUAL },
@@ -74,7 +74,7 @@ public class PrimitiveValueTest extends AssertJUnit
                 { new PrimitiveValue(-10L), new PrimitiveValue(-5.0), ExpectedResult.LOWER },
                 { new PrimitiveValue(9.9), new PrimitiveValue(10L), ExpectedResult.LOWER },
 
-            };
+        };
     }
 
     @Test(dataProvider = "values")

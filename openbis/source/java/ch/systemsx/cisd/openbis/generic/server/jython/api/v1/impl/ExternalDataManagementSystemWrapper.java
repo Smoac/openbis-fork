@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IExternalDataManagementSystem;
 
 /**
- * Wrapper of {@link ExternalDataManagementSystemImmutable} as {@link IExternalDataManagementSystem}
- * where setters do nothing.
+ * Wrapper of {@link ExternalDataManagementSystemImmutable} as {@link IExternalDataManagementSystem} where setters do nothing.
  * 
  * @author Pawel Glyzewski
  */

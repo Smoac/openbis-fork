@@ -204,7 +204,7 @@ public class AssignSampleToSpaceTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAssignSampleToSpace", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void assigningSampleToAnotherSpaceIsNotAllowedFor(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
@@ -235,7 +235,7 @@ public class AssignSampleToSpaceTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAssignSharedSampleToSpace", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void assigningSharedSampleToSpaceIsNotAllowedFor(RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {

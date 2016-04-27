@@ -5,7 +5,7 @@ import java.util.Comparator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityVisit;
 
 /**
- * Comparator between {@link EntityVisit} instances. Newer visit comes before older visit. 
+ * Comparator between {@link EntityVisit} instances. Newer visit comes before older visit.
  *
  * @author Franz-Josef Elmer
  */

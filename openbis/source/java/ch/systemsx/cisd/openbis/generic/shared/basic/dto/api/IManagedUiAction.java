@@ -41,20 +41,17 @@ public interface IManagedUiAction extends Serializable
     public IManagedUiAction setDescription(String description);
 
     /**
-     * Adds specified input widget descriptions that will be used in user interface for modifcation
-     * of a managed property.
+     * Adds specified input widget descriptions that will be used in user interface for modifcation of a managed property.
      */
     public void addInputWidgets(IManagedInputWidgetDescription... widgets);
 
     /**
-     * Returns list of objects describing input widgets that will be used in user interface for
-     * modification of the managed property.
+     * Returns list of objects describing input widgets that will be used in user interface for modification of the managed property.
      */
     public List<IManagedInputWidgetDescription> getInputWidgetDescriptions();
 
     /**
-     * Convenience method returning value of input widget with given label or null if such widget
-     * doesn't exist.
+     * Convenience method returning value of input widget with given label or null if such widget doesn't exist.
      */
     public String getInputValue(String inputLabel);
 

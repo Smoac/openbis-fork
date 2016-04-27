@@ -55,17 +55,17 @@ public interface ISampleListingQuery extends BaseQuery
             + "left join spaces as ps on p.space_id = ps.id "
             + "left join persons as mod on s.pers_id_modifier = mod.id "
             + "join persons as pe on s.pers_id_registerer = pe.id where s.id = any(?{1}) ", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<SampleRecord> listSamplesByIds(LongSet sampleIDs);
 
     @Select(sql = "Select * from sample_relationships "
             + "where relationship_id = ?{1} and sample_id_parent = any(?{2})", parameterBindings =
-        { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<SampleRelationshipRecord> getChildren(Long relationshipID, LongSet sampleIDs);
 
     @Select(sql = "Select * from sample_relationships "
             + "where relationship_id = ?{1} and sample_id_child = any(?{2})", parameterBindings =
-        { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<SampleRelationshipRecord> getParents(Long relationshipID, LongSet sampleIDs);
 
     @Select(sql = "with recursive connected_relationships as (select * from sample_relationships "
@@ -73,7 +73,7 @@ public interface ISampleListingQuery extends BaseQuery
             + "union select sr.* from connected_relationships as cr "
             + "join sample_relationships as sr on cr.sample_id_child = sr.sample_id_parent) "
             + "select * from connected_relationships", parameterBindings =
-        { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<SampleRelationshipRecord> getDescendants(Long relationshipID, LongSet sampleIDs);
 
     @Select(sql = "with recursive connected_relationships as (select * from sample_relationships "
@@ -81,7 +81,7 @@ public interface ISampleListingQuery extends BaseQuery
             + "union select sr.* from connected_relationships as cr "
             + "join sample_relationships as sr on cr.sample_id_parent = sr.sample_id_child) "
             + "select * from connected_relationships", parameterBindings =
-        { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<SampleRelationshipRecord> getAncestors(Long relationshipID, LongSet sampleIDs);
 
     @Select(sql = "select p.samp_id as entity_id, pt.code as code, dt.code as data_type, p.value, "
@@ -94,20 +94,20 @@ public interface ISampleListingQuery extends BaseQuery
             + "left join material_types as mt on m.maty_id = mt.id "
             + "left join controlled_vocabulary_terms as vt on p.cvte_id = vt.id "
             + "where p.samp_id = any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<PropertyRecord> getProperties(LongSet entityIDs);
 
     @Select(sql = "select ma.mepr_id as metaproject_id, ma.samp_id as entity_id "
             + " from metaproject_assignments as ma "
             + " join metaprojects as m on ma.mepr_id = m.id "
             + "where ma.samp_id = any(?{1}) and m.owner = ?{2}", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<EntityMetaprojectRelationRecord> getMetaprojectAssignments(LongSet sampleIDs,
             Long ownerId);
 
     @Select(sql = "select id as id, name as name, description as description, "
             + " private as is_private, creation_date as creation_date " + " from metaprojects"
             + " where id = any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<MetaprojectRecord> getMetaprojects(LongSet metaprojectIDs);
 }

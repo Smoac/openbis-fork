@@ -102,8 +102,8 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
     public static class AttachmentSearchBridge implements FieldBridge
     {
         @Override
-        public void set(String name, Object/* AttachmentPE */ value,
-                Document/* Lucene document */ document, LuceneOptions luceneOptions)
+        public void set(String name, Object/* AttachmentPE */value,
+                Document/* Lucene document */document, LuceneOptions luceneOptions)
         {
             AttachmentPE attachment = (AttachmentPE) value;
             String attachmentName = attachment.getFileName();

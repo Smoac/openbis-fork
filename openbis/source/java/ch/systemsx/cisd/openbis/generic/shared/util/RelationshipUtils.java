@@ -49,7 +49,7 @@ public class RelationshipUtils
         }
     }
 
-    public static void updateModificationDateAndModifierOfRelatedEntitiesOfSamples(List<SamplePE> samples, 
+    public static void updateModificationDateAndModifierOfRelatedEntitiesOfSamples(List<SamplePE> samples,
             IAuthSession session, Date modificationTimestamp)
     {
         for (SamplePE sample : samples)
@@ -84,7 +84,7 @@ public class RelationshipUtils
         }
     }
 
-    public static void updateModificationDateAndModifierOfRelatedEntitiesOfDataSets(List<DataPE> dataSets, 
+    public static void updateModificationDateAndModifierOfRelatedEntitiesOfDataSets(List<DataPE> dataSets,
             IAuthSession session, Date modificationTimestamp)
     {
         for (DataPE dataSet : dataSets)
@@ -106,7 +106,7 @@ public class RelationshipUtils
         }
     }
 
-    private static void updateModificationDateAndModifierOfDataSets(List<DataPE> dataSets, 
+    private static void updateModificationDateAndModifierOfDataSets(List<DataPE> dataSets,
             IAuthSession session, Date modificationTimestamp)
     {
         if (dataSets != null)

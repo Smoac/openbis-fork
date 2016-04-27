@@ -55,11 +55,12 @@ public class WebInformationServiceJsonServer extends AbstractApiJsonServiceExpor
     }
 
     @RequestMapping(
-            { IWebInformationService.JSON_SERVICE_URL, "/openbis" + IWebInformationService.JSON_SERVICE_URL })    
+    { IWebInformationService.JSON_SERVICE_URL, "/openbis" + IWebInformationService.JSON_SERVICE_URL })
     @Override
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException,
-            IOException {
+            IOException
+    {
         super.handleRequest(request, response);
-    }           
+    }
 }

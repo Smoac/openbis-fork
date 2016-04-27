@@ -17,8 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
 /**
- * Interface for preparing expectation on a property checking class.
- * It uses a fluent API approach for its methods to prepare expectations.
+ * Interface for preparing expectation on a property checking class. It uses a fluent API approach for its methods to prepare expectations.
  *
  * @author Franz-Josef Elmer
  */
@@ -28,10 +27,9 @@ public interface IPropertyChecker<C extends IPropertyChecker<?>>
      * Creates an expectation for the property of specified name.
      */
     public IProperty<C> property(String name);
-    
+
     /**
-     * Adds an expectation of a property with specified name and specified
-     * assertion object which checks the property value.
+     * Adds an expectation of a property with specified name and specified assertion object which checks the property value.
      * 
      * @return this checker.
      */

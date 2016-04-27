@@ -234,7 +234,7 @@ public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
                 widgetFactory.createMultilineTextInputField("multi").setValue("multi\nline\ninput");
         IManagedInputWidgetDescription action1w4 =
                 widgetFactory.createComboBoxInputField("combo", new String[]
-                    { "cv1", "cv2", "cv3" }).setValue("cv1");
+                { "cv1", "cv2", "cv3" }).setValue("cv1");
         action1.addInputWidgets(action1w1, action1w2, action1w3, action1w4);
         assertEquals(null, action1.getInputValue("t1"));
         assertEquals("v2", action1.getInputValue("t2"));

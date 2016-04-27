@@ -75,7 +75,7 @@ public class UpdateSampleContainmentTest extends BaseTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void componentCantBeSharedSample() throws Exception
     {
         Sample container = create(aSample().inSpace(space));
@@ -109,7 +109,7 @@ public class UpdateSampleContainmentTest extends BaseTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void sampleCannotBeUpdatedToBeComponentOfComponentSample() throws Exception
     {
         Sample container = create(aSample().inSpace(space));
@@ -120,7 +120,7 @@ public class UpdateSampleContainmentTest extends BaseTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void sampleCanContainItself() throws Exception
     {
         Sample sample = create(aSample().inSpace(space));
@@ -155,7 +155,7 @@ public class UpdateSampleContainmentTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToSetContainerToSample", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void settingContainerToSampleIsNotAllowedFor(RoleWithHierarchy containerSpaceRole,
             RoleWithHierarchy componentSpaceRole, RoleWithHierarchy instanceRole) throws Exception
     {
@@ -188,7 +188,7 @@ public class UpdateSampleContainmentTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToRemoveContainerFromSample", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void removingContainerFromSampleIsNotAllowedFor(RoleWithHierarchy containerSpaceRole,
             RoleWithHierarchy componentSpaceRole, RoleWithHierarchy instanceRole) throws Exception
     {
@@ -237,7 +237,7 @@ public class UpdateSampleContainmentTest extends BaseTest
                         rule(containerDomain, RoleWithHierarchy.SPACE_ETL_SERVER)),
                         rule(componentDomain, RoleWithHierarchy.SPACE_POWER_USER)
 
-                ),
+                        ),
                         and(rule(componentDomain, RoleWithHierarchy.SPACE_USER),
                                 rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)));
 

@@ -308,7 +308,7 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
                             String materialTypeCode = (String) codeAndType[1];
                             String permId = MaterialPE.createPermId(materialCode, materialTypeCode);
 
-                            String content = historyCreator.apply(session, Collections.singletonList(techId.getId()), 
+                            String content = historyCreator.apply(session, Collections.singletonList(techId.getId()),
                                     sqlPropertyHistory, null, sqlAttributesHistory, null, null, registrator);
 
                             try

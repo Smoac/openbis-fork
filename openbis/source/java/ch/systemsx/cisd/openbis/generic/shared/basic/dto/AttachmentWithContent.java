@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 /**
- * An {@link Attachment} which has the actual content. 
+ * An {@link Attachment} which has the actual content.
  *
  * @author Bernd Rinn
  */
@@ -25,9 +25,9 @@ public class AttachmentWithContent extends Attachment
 {
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
+
     private byte[] content;
-    
+
     public AttachmentWithContent()
     {
     }
@@ -41,7 +41,5 @@ public class AttachmentWithContent extends Attachment
     {
         this.content = content;
     }
-
-    
 
 }

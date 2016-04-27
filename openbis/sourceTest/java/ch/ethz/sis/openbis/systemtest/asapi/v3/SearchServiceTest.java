@@ -38,37 +38,37 @@ public class SearchServiceTest extends AbstractTest
         CustomASServiceSearchCriteria searchCriteria = new CustomASServiceSearchCriteria();
         searchCriteria.withCode().thatEquals("simple-service");
 
-        SearchResult<CustomASService> result = v3api.searchCustomASServices(sessionToken, searchCriteria, 
+        SearchResult<CustomASService> result = v3api.searchCustomASServices(sessionToken, searchCriteria,
                 new CustomASServiceFetchOptions());
 
         assertEquals(result.getTotalCount(), 1);
     }
-    
+
     @Test
     public void testSearchAllServicesSortedPage2()
     {
         CustomASServiceFetchOptions fetchOptions = new CustomASServiceFetchOptions();
         fetchOptions.from(2).count(1).sortBy();
-        SearchResult<CustomASService> result = v3api.searchCustomASServices(systemSessionToken, 
-                new CustomASServiceSearchCriteria(), 
+        SearchResult<CustomASService> result = v3api.searchCustomASServices(systemSessionToken,
+                new CustomASServiceSearchCriteria(),
                 fetchOptions);
-        
+
         assertEquals(result.getObjects().toString(), "[CustomASService code: service3]");
         assertEquals(result.getTotalCount(), 4);
     }
-    
+
     @Test
     public void testSearchServiceByCode()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         CustomASServiceSearchCriteria searchCriteria = new CustomASServiceSearchCriteria();
         searchCriteria.withCode().thatStartsWith("simple");
-        
-        SearchResult<CustomASService> result = v3api.searchCustomASServices(sessionToken, searchCriteria, new 
+
+        SearchResult<CustomASService> result = v3api.searchCustomASServices(sessionToken, searchCriteria, new
                 CustomASServiceFetchOptions());
-        
+
         assertEquals(result.getObjects().toString(), "[CustomASService code: simple-service]");
         assertEquals(result.getTotalCount(), 1);
     }
-    
+
 }

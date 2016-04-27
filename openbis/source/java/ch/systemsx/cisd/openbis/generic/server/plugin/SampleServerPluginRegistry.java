@@ -20,14 +20,13 @@ import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
-
 /**
  * A registry for sample server plug-ins.
  */
 @Component(ResourceNames.SAMPLE_PLUGIN_REGISTRY)
 public final class SampleServerPluginRegistry extends AbstractPluginRegistry<ISampleServerPlugin>
 {
-    
+
     @Override
     protected String getBeanNameOfGenericPlugin()
     {

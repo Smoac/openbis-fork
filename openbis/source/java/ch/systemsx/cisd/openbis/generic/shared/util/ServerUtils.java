@@ -64,8 +64,7 @@ public class ServerUtils
     /**
      * Extracts from the comma-separated list of strings all distinct strings.
      * 
-     * @return an empty list if the argument is <code>null</code>, an empty string or starts with
-     *         '$'.
+     * @return an empty list if the argument is <code>null</code>, an empty string or starts with '$'.
      */
     public static Set<String> extractSet(String commaSeparatedList)
     {

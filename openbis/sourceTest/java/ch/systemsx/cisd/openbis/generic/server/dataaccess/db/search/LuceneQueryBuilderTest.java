@@ -32,7 +32,7 @@ public class LuceneQueryBuilderTest extends AssertJUnit
     protected Object[][] getQueriesToTestInBasicMode()
     {
         return new Object[][]
-            {
+        {
                 { "abc", "(*abc*)" },
                 { "code:CP registrator:Joe", "(*code\\:CP*) (*registrator\\:Joe*)" },
                 { "ab#c OR d", "(*ab* AND *c*) OR (*d*)" } };
@@ -42,7 +42,7 @@ public class LuceneQueryBuilderTest extends AssertJUnit
     protected Object[][] getQueriesToTestInWildcardMode()
     {
         return new Object[][]
-            {
+        {
                 { "abc", "abc" },
                 { "code:CP registrator:Joe", "code\\:CP registrator\\:Joe" },
                 { "*ab#c OR d", "*ab#c OR d" } };

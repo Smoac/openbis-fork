@@ -112,7 +112,7 @@ public class SampleListerTest extends AssertJUnit
                     SampleRecord r101 = record(101);
                     SampleRecord r102 = record(102);
                     LongOpenHashSet sampleIdSet = new LongOpenHashSet(new long[]
-                        { r101.s_id, r102.s_id });
+                    { r101.s_id, r102.s_id });
                     one(query).listSamplesByIds(sampleIdSet);
                     will(returnValue(Arrays.asList(r101, r102)));
 
@@ -123,7 +123,7 @@ public class SampleListerTest extends AssertJUnit
                     will(returnValue(Arrays.asList(sampleMetaproject(102, 42))));
 
                     one(query).getMetaprojects(new LongOpenHashSet(new long[]
-                        { 42 }));
+                    { 42 }));
                     will(returnValue(Arrays.asList(metaproject(42, "answer"))));
 
                     atLeast(1).of(filter).isValid(user, sample(r101));
@@ -162,7 +162,7 @@ public class SampleListerTest extends AssertJUnit
                     SampleRecord r101 = record(101);
                     SampleRecord r102 = record(102);
                     one(query).listSamplesByIds(new LongOpenHashSet(new long[]
-                        { r1.s_id, r2.s_id, r3.s_id, r101.s_id, r102.s_id }));
+                    { r1.s_id, r2.s_id, r3.s_id, r101.s_id, r102.s_id }));
                     will(returnValue(Arrays.asList(r1, r2, r3, r101, r102)));
 
                     atLeast(1).of(filter).isValid(user, sample(r1));
@@ -220,8 +220,8 @@ public class SampleListerTest extends AssertJUnit
                     SampleRecord r401 = record(401);
                     one(query).listSamplesByIds(
                             new LongOpenHashSet(new long[]
-                                { r1.s_id, r2.s_id, r3.s_id, r101.s_id, r102.s_id, r201.s_id,
-                                        r202.s_id, r301.s_id, r302.s_id, r401.s_id }));
+                            { r1.s_id, r2.s_id, r3.s_id, r101.s_id, r102.s_id, r201.s_id,
+                                    r202.s_id, r301.s_id, r302.s_id, r401.s_id }));
                     will(returnValue(Arrays.asList(r1, r2, r3, r101, r102, r201, r202, r301, r302,
                             r401)));
 

@@ -36,11 +36,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 public interface IExternalDataTable
 {
     /**
-     * Loads data sets specified by their codes. Data set codes will be ignored if no
-     * {@link ExternalDataPE} could be found. Properties will be loaded too depending on
-     * <var>withProperties</var> value. Optionally if <var>lockForUpdate</var> is <var>true</var>
-     * all updates to loaded data sets from other transactions will be blocked until current
-     * transaction is finished.
+     * Loads data sets specified by their codes. Data set codes will be ignored if no {@link ExternalDataPE} could be found. Properties will be loaded
+     * too depending on <var>withProperties</var> value. Optionally if <var>lockForUpdate</var> is <var>true</var> all updates to loaded data sets
+     * from other transactions will be blocked until current transaction is finished.
      */
     void loadByDataSetCodes(List<String> dataSetCodes, boolean withProperties, boolean lockForUpdate);
 
@@ -77,11 +75,10 @@ public interface IExternalDataTable
     String uploadLoadedDataSetsToCIFEX(DataSetUploadContext uploadContext);
 
     /**
-     * Schedules archiving of loaded data sets. Only available data sets that are not locked will be
-     * archived.
+     * Schedules archiving of loaded data sets. Only available data sets that are not locked will be archived.
      * 
-     * @param removeFromDataStore when set to <code>true</code> the data sets will be removed from
-     *            the data store after a successful archiving operation.
+     * @param removeFromDataStore when set to <code>true</code> the data sets will be removed from the data store after a successful archiving
+     *            operation.
      * @return number of data sets scheduled for archiving.
      */
     int archiveDatasets(boolean removeFromDataStore);
@@ -112,8 +109,7 @@ public interface IExternalDataTable
             List<String> datasetCodes);
 
     /**
-     * Schedules processing of specified datasets with specified parameter bindings using the
-     * specified datastore service.
+     * Schedules processing of specified datasets with specified parameter bindings using the specified datastore service.
      * 
      * @param parameterBindings Should be a map where additional entries can be added.
      */

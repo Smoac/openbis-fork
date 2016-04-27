@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * @author Izabela Adamczyk
  */
 @Test(groups =
-    { "db", "filter" })
+{ "db", "filter" })
 public final class GridCustomFilterDAOTest extends AbstractDAOTest
 {
     private static final boolean PUBLIC = true;

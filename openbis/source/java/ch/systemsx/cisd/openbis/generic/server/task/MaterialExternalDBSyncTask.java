@@ -672,8 +672,8 @@ public class MaterialExternalDBSyncTask implements IMaintenanceTask
     {
         String sql = tryToReadTimestamp() == null ? insertTimestampSql : updateTimestampSql;
         jdbcTemplate.update(sql, new Object[]
-            { newTimestamp }, new int[]
-            { Types.TIMESTAMP });
+        { newTimestamp }, new int[]
+        { Types.TIMESTAMP });
     }
 
     @Private

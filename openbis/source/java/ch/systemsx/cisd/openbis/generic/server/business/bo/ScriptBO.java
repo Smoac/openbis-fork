@@ -55,8 +55,8 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
     private final IJythonEvaluatorPool jythonEvaluatorPool;
 
     public ScriptBO(final IDAOFactory daoFactory, final Session session,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IRelationshipService relationshipService,
             IJythonEvaluatorPool jythonEvaluationPool)
     {
@@ -67,8 +67,8 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
     @Private
     // for testing
     ScriptBO(final IDAOFactory daoFactory, final Session session, IScriptFactory scriptFactory,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IRelationshipService relationshipService,
             IJythonEvaluatorPool jythonEvaluationPool)
     {

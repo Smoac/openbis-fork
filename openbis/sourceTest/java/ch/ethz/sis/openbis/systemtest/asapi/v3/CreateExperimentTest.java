@@ -258,7 +258,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
     public void testCreateWithSystemProperty()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        
+
         NewETPTAssignment assignment = new NewETPTAssignment();
         assignment.setPropertyTypeCode("$PLATE_GEOMETRY");
         assignment.setEntityTypeCode("SIRNA_HCS");

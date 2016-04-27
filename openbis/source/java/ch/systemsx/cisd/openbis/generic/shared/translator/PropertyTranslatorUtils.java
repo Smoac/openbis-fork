@@ -59,8 +59,7 @@ final class PropertyTranslatorUtils
     }
 
     /**
-     * Creates an appropriate {@link IEntityProperty} for the given <var>propertyPE</var> based on
-     * its type.
+     * Creates an appropriate {@link IEntityProperty} for the given <var>propertyPE</var> based on its type.
      */
     static IEntityProperty createEntityProperty(EntityPropertyPE propertyPE)
     {

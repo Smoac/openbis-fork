@@ -28,8 +28,7 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.openbis.generic.shared.cli.OpenBisConsoleClientArguments;
 
 /**
- * A standalone command line tool allowing the execution of Jython scripts to initialize the master
- * data on an openBIS AS.
+ * A standalone command line tool allowing the execution of Jython scripts to initialize the master data on an openBIS AS.
  * 
  * @author Kaloyan Enimanev
  */

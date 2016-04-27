@@ -67,14 +67,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 public class TranslatorTest extends AssertJUnit
 {
     private static final IKeyExtractor<String, DataSet> KEY_EXTRACTOR = new IKeyExtractor<String, DataSet>()
+        {
+            @Override
+            public String getKey(DataSet e)
             {
-                @Override
-                public String getKey(DataSet e)
-                {
-                    return e.getCode();
-                }
-            };
-            
+                return e.getCode();
+            }
+        };
+
     private DataSetBuilder ds1;
 
     private DataSetBuilder ds2;
@@ -133,13 +133,13 @@ public class TranslatorTest extends AssertJUnit
                 new LinkDataSetBuilder(4).code("lds").type("L1").experiment(experiment)
                         .sample(sample).registrationDate(new Date(123456789L))
                         .modificationDate(new Date(123459999L)).externalCode("EX_CODE").edms(edms);
-        
+
         dsp1 = new DataSetBuilder(10).code("ds-p1").type("T2").experiment(experiment).getDataSet();
         dsp2 = new DataSetBuilder(11).code("ds-p2").type("T2").experiment(experiment).getDataSet();
         dsc1 = new ContainerDataSetBuilder(12).code("ds-c1").type("T3")
-                        .experiment(experiment).component(dsp1).component(dsp2).getContainerDataSet();
+                .experiment(experiment).component(dsp1).component(dsp2).getContainerDataSet();
         dsc2 = new ContainerDataSetBuilder(13).code("ds-c2").type("T3")
-                        .experiment(experiment).component(dsp1).component(dsp2).getContainerDataSet();
+                .experiment(experiment).component(dsp1).component(dsp2).getContainerDataSet();
         dsp1.addContainer(dsc1, 0);
         dsp1.addContainer(dsc2, 1);
         dsp2.addContainer(dsc1, 0);
@@ -406,12 +406,12 @@ public class TranslatorTest extends AssertJUnit
         assertEquals("[ds2]", translated.getChildrenCodes().toString());
         assertEquals("[ds1]", translated.getParentCodes().toString());
     }
-    
+
     @Test
     public void testTranslateCyclicGraphOfDataSets()
     {
-        List<DataSet> translatedDatasets = Translator.translate(Arrays.<AbstractExternalData>asList(dsc1, dsc2), EnumSet.noneOf(Connections.class));
-        
+        List<DataSet> translatedDatasets = Translator.translate(Arrays.<AbstractExternalData> asList(dsc1, dsc2), EnumSet.noneOf(Connections.class));
+
         DataSet dsc1t = translatedDatasets.get(0);
         TableMap<String, DataSet> dsc1tc = new TableMap<String, DataSet>(dsc1t.getContainedDataSets(), KEY_EXTRACTOR);
         assertEquals(2, dsc1tc.keySet().size());
@@ -431,7 +431,7 @@ public class TranslatorTest extends AssertJUnit
         TableMap<String, DataSet> dsp2tc = new TableMap<String, DataSet>(dsp2t.getContainerDataSets(), KEY_EXTRACTOR);
         assertSame(dsc1t2, dsp2tc.getOrDie("ds-c1"));
         assertSame(dsc2t2, dsp2tc.getOrDie("ds-c2"));
-        
+
         assertEquals(2, translatedDatasets.size());
     }
 

@@ -29,11 +29,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ICallbackL
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * A class which allows to execute a sequence of {@link ITestCommand} instances. The commands are
- * executed in the order they have been added by {@link #prepare(ITestCommand)}. In order to be
- * executed a command has to be valid for the kind of {@link AsyncCallback} invocation. With the
- * method {@link #finish(int)} a timeout will be specified after which the test will be terminated
- * independent whether all commands have been executed or not. In the later case the test fails.
+ * A class which allows to execute a sequence of {@link ITestCommand} instances. The commands are executed in the order they have been added by
+ * {@link #prepare(ITestCommand)}. In order to be executed a command has to be valid for the kind of {@link AsyncCallback} invocation. With the method
+ * {@link #finish(int)} a timeout will be specified after which the test will be terminated independent whether all commands have been executed or
+ * not. In the later case the test fails.
  * 
  * @author Franz-Josef Elmer
  * @author Piotr Buczek
@@ -69,8 +68,7 @@ public class RemoteConsole
     }
 
     /**
-     * Prepares the console with the specified command which will be executed if the specified
-     * condition is fulfilled.
+     * Prepares the console with the specified command which will be executed if the specified condition is fulfilled.
      */
     public RemoteConsole prepare(final ITestCommand command)
     {
@@ -154,10 +152,8 @@ public class RemoteConsole
     /**
      * Does necessary cleanup after the test has completed.
      * 
-     * @param delayInMillisecondsOrZero The max duration the test was allowed to run. This is only
-     *            used to construct an error message if the duration ran out before the test
-     *            completed. In cases where it is known that the test completed properly, this can
-     *            be set to 0.
+     * @param delayInMillisecondsOrZero The max duration the test was allowed to run. This is only used to construct an error message if the duration
+     *            ran out before the test completed. In cases where it is known that the test completed properly, this can be set to 0.
      */
     private void cleanupAfterTests(final int delayInMillisecondsOrZero)
     {

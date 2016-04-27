@@ -33,14 +33,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.Location;
 
 /**
- * {@link ExternalDataPE} counterpart for deleted data sets mapping only those attributes that are
- * needed for permanent deletion of data sets.
+ * {@link ExternalDataPE} counterpart for deleted data sets mapping only those attributes that are needed for permanent deletion of data sets.
  * 
  * @author Piotr Buczek
  */
 @Entity
 @Table(name = TableNames.EXTERNAL_DATA_TABLE, uniqueConstraints = @UniqueConstraint(columnNames =
-    { ColumnNames.LOCATION_COLUMN, ColumnNames.LOCATOR_TYPE_COLUMN }))
+{ ColumnNames.LOCATION_COLUMN, ColumnNames.LOCATOR_TYPE_COLUMN }))
 @PrimaryKeyJoinColumn(name = ColumnNames.DATA_ID_COLUMN)
 public final class DeletedExternalDataPE extends DeletedDataPE
 {

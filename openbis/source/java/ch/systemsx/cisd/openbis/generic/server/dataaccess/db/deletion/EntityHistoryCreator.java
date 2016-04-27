@@ -57,7 +57,7 @@ public class EntityHistoryCreator
     }
 
     public String apply(SharedSessionContract session, List<Long> entityIdsToDelete,
-            String propertyHistoryQuery, String relationshipHistoryQuery, String attributesQuery, 
+            String propertyHistoryQuery, String relationshipHistoryQuery, String attributesQuery,
             List<? extends AttachmentHolderPE> attachmentHolders, AttachmentHolderKind attachmentHolderKind,
             PersonPE registrator)
     {
@@ -73,7 +73,7 @@ public class EntityHistoryCreator
                     selectAttributeEntries(session.createSQLQuery(attributesQuery), entityIdsToDelete);
             addToHistories(histories, attributeEntries);
         }
-        
+
         List<PropertyHistoryEntry> propertyHistory =
                 selectHistoryPropertyEntries(session.createSQLQuery(propertyHistoryQuery), entityIdsToDelete);
         addToHistories(histories, propertyHistory);
@@ -85,17 +85,15 @@ public class EntityHistoryCreator
                             entityIdsToDelete);
             addToHistories(histories, relationshipHistory);
         }
-        
+
         if (attachmentHolders != null)
         {
-            List<RelationshipHistoryEntry> deletedAttachments 
-                = deleteAttachments(session, registrator, attachmentHolders);
+            List<RelationshipHistoryEntry> deletedAttachments = deleteAttachments(session, registrator, attachmentHolders);
             addToHistories(histories, deletedAttachments);
         }
         if (attachmentHolderKind != null)
         {
-            List<RelationshipHistoryEntry> deletedAttachments 
-                = deleteAttachments(session, registrator, attachmentHolderKind, entityIdsToDelete);
+            List<RelationshipHistoryEntry> deletedAttachments = deleteAttachments(session, registrator, attachmentHolderKind, entityIdsToDelete);
             addToHistories(histories, deletedAttachments);
         }
 
@@ -116,7 +114,7 @@ public class EntityHistoryCreator
         }
         return content;
     }
-    
+
     private List<RelationshipHistoryEntry> deleteAttachments(SharedSessionContract session,
             PersonPE registrator, AttachmentHolderKind attachmentHolderKind, List<Long> holderIds)
     {
@@ -150,8 +148,7 @@ public class EntityHistoryCreator
             insertQuery.setParameter("registerer", registrator.getId());
             insertQuery.setParameter("identifiers", identifier);
             insertQuery.setParameter("attachment", ((Number) row.get("EXAC_ID")).longValue());
-            Map<String, List<? extends EntityModification>> modifications 
-                    = new HashMap<String, List<? extends EntityModification>>();
+            Map<String, List<? extends EntityModification>> modifications = new HashMap<String, List<? extends EntityModification>>();
             AttachmentEntry attachmentEntry = new AttachmentEntry();
             attachmentEntry.fileName = fileName;
             attachmentEntry.version = version;
@@ -183,35 +180,47 @@ public class EntityHistoryCreator
         }
         return result;
     }
-    
+
     private String createSelectHolderStatement(AttachmentHolderKind holderKind)
     {
         String tableName = "";
         switch (holderKind)
         {
-            case PROJECT: tableName = "projects"; break;
-            case EXPERIMENT: tableName = "experiments_all"; break;
-            case SAMPLE: tableName = "samples_all"; break;
+            case PROJECT:
+                tableName = "projects";
+                break;
+            case EXPERIMENT:
+                tableName = "experiments_all";
+                break;
+            case SAMPLE:
+                tableName = "samples_all";
+                break;
         }
         return "SELECT id, perm_id from " + tableName + " WHERE id in (:" + ENTITY_IDS + ")";
     }
-    
+
     private String createSelectAttachmentsStatement(AttachmentHolderKind attachmentHolderKind)
     {
         String holderColumn = "";
         switch (attachmentHolderKind)
         {
-            case PROJECT: holderColumn = "proj_id"; break;
-            case EXPERIMENT: holderColumn = "expe_id"; break;
-            case SAMPLE: holderColumn = "samp_id"; break;
+            case PROJECT:
+                holderColumn = "proj_id";
+                break;
+            case EXPERIMENT:
+                holderColumn = "expe_id";
+                break;
+            case SAMPLE:
+                holderColumn = "samp_id";
+                break;
         }
         return "SELECT " + holderColumn + " as holder_id, file_name, "
                 + "version, title, description, a.registration_timestamp, r.user_id, exac_id "
                 + "FROM attachments a join persons r on a.pers_id_registerer = r.id "
                 + "WHERE " + holderColumn + " in (:" + ENTITY_IDS + ")";
     }
-    
-    private List<RelationshipHistoryEntry> deleteAttachments(SharedSessionContract session, 
+
+    private List<RelationshipHistoryEntry> deleteAttachments(SharedSessionContract session,
             PersonPE registrator, List<? extends AttachmentHolderPE> attachmentHolders)
     {
         List<RelationshipHistoryEntry> relationshipHistoryEntries = new ArrayList<>();
@@ -224,15 +233,14 @@ public class EntityHistoryCreator
             {
                 fileNames.add(attachment.getFileName());
             }
-            Map<String, AttachmentEntry> deletedAttachments 
-                    = attachmentDAO.deleteAttachments(holder, "", fileNames, registrator);
+            Map<String, AttachmentEntry> deletedAttachments = attachmentDAO.deleteAttachments(holder, "", fileNames, registrator);
             Set<Entry<String, AttachmentEntry>> entrySet = deletedAttachments.entrySet();
             for (Entry<String, AttachmentEntry> entry : entrySet)
             {
                 RelationshipHistoryEntry relationshipHistoryEntry = new RelationshipHistoryEntry();
                 relationshipHistoryEntry.userId = entry.getValue().userId;
                 relationshipHistoryEntry.entityType = "ATTACHMENT";
-                relationshipHistoryEntry.permId = holder.getPermId()    ;
+                relationshipHistoryEntry.permId = holder.getPermId();
                 relationshipHistoryEntry.relatedEntity = entry.getKey();
                 relationshipHistoryEntry.relationType = "OWNER";
                 relationshipHistoryEntry.validFrom = entry.getValue().validFrom;
@@ -241,7 +249,7 @@ public class EntityHistoryCreator
         }
         return relationshipHistoryEntries;
     }
-    
+
     private List<AttributeEntry> selectAttributeEntries(SQLQuery sqlQuery, List<Long> entityIdsToDelete)
     {
         List<Map<String, Object>> rows = getRows(sqlQuery, entityIdsToDelete);
@@ -446,11 +454,12 @@ public class EntityHistoryCreator
         }
 
     }
-    
+
     private static class AttachmentHolder
     {
         long id;
+
         String permId;
     }
-    
+
 }

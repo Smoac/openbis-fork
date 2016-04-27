@@ -31,8 +31,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFe
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.CodeComparator;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class SearchSampleTypeTest extends AbstractTest
@@ -45,15 +43,17 @@ public class SearchSampleTypeTest extends AbstractTest
         SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
         fetchOptions.withPropertyAssignments();
         SearchResult<SampleType> searchResult = v3api.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
-        
+
         List<SampleType> types = searchResult.getObjects();
         List<String> codes = extractCodes(types);
         Collections.sort(codes);
-        assertEquals(codes.toString(), "[CELL_PLATE, CONTROL_LAYOUT, DELETION_TEST, DILUTION_PLATE, DYNAMIC_PLATE, IMPOSSIBLE, IMPOSSIBLE_TO_UPDATE, MASTER_PLATE, NORMAL, REINFECT_PLATE, VALIDATE_CHILDREN, WELL]");
+        assertEquals(
+                codes.toString(),
+                "[CELL_PLATE, CONTROL_LAYOUT, DELETION_TEST, DILUTION_PLATE, DYNAMIC_PLATE, IMPOSSIBLE, IMPOSSIBLE_TO_UPDATE, MASTER_PLATE, NORMAL, REINFECT_PLATE, VALIDATE_CHILDREN, WELL]");
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
         v3api.logout(sessionToken);
     }
-    
+
     @Test
     public void testSearchExactCode()
     {
@@ -63,7 +63,7 @@ public class SearchSampleTypeTest extends AbstractTest
         SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
         fetchOptions.withPropertyAssignments();
         SearchResult<SampleType> searchResult = v3api.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
-        
+
         List<SampleType> types = searchResult.getObjects();
         List<String> codes = extractCodes(types);
         Collections.sort(codes);
@@ -71,7 +71,7 @@ public class SearchSampleTypeTest extends AbstractTest
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
         v3api.logout(sessionToken);
     }
-    
+
     @Test
     public void testSearchWithCodeThatStartsWithD()
     {
@@ -79,9 +79,9 @@ public class SearchSampleTypeTest extends AbstractTest
         EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
         searchCriteria.withCode().thatStartsWith("D");
         SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
-        
+
         SearchResult<SampleType> searchResult = v3api.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
-        
+
         List<SampleType> types = searchResult.getObjects();
         List<String> codes = extractCodes(types);
         Collections.sort(codes);
@@ -98,9 +98,9 @@ public class SearchSampleTypeTest extends AbstractTest
         searchCriteria.withCode().thatStartsWith("D");
         SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
         fetchOptions.withPropertyAssignments().sortBy().label().desc();
-        
+
         SearchResult<SampleType> searchResult = v3api.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
-        
+
         List<SampleType> types = searchResult.getObjects();
         Collections.sort(types, new CodeComparator<SampleType>());
         List<String> codes = extractCodes(types);
@@ -110,5 +110,5 @@ public class SearchSampleTypeTest extends AbstractTest
         assertOrder(propertyAssignments, "BACTERIUM", "ORGANISM", "DESCRIPTION");
         v3api.logout(sessionToken);
     }
-    
+
 }

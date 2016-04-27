@@ -63,7 +63,7 @@ public class DataSetTypeTest extends AssertJUnit
     }
 
     @Test(expectedExceptions =
-        { IllegalArgumentException.class })
+    { IllegalArgumentException.class })
     public void testInitialization()
     {
         DataSetTypeInitializer initializer = new DataSetTypeInitializer();

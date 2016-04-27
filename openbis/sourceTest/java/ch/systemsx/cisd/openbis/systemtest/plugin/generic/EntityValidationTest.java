@@ -77,7 +77,7 @@ public class EntityValidationTest extends GenericSystemTestCase
     private static final String IMPOSSIBLE_TO_UPDATE_TYPE = "IMPOSSIBLE_TO_UPDATE";
 
     private static final int TEST_SCRIPT_ID = 8;
-    
+
     @Autowired
     private IDAOFactory daoFactory;
 
@@ -340,7 +340,7 @@ public class EntityValidationTest extends GenericSystemTestCase
 
             AbstractExternalData dataset =
                     commonServer.getDataSetInfo(systemSessionToken, new TechId(26l));
-            
+
             DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
             updates.setDatasetId(new TechId(26));
             updates.setVersion(dataset.getVersion());

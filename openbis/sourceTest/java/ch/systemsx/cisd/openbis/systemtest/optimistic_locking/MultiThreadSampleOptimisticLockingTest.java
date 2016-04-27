@@ -164,12 +164,8 @@ public class MultiThreadSampleOptimisticLockingTest extends MultiThreadOptimisti
     }
 
     /**
-     * This test is flaky. 
-     * 
-     * If the transaction of performEntityOperations() call in the new thread ends before 
-     * the transaction of performEntityOperations() call in the main thread, the modifier of
-     * the sample will be "optimist" and the test fails.
-     *
+     * This test is flaky. If the transaction of performEntityOperations() call in the new thread ends before the transaction of
+     * performEntityOperations() call in the main thread, the modifier of the sample will be "optimist" and the test fails.
      */
     @Test
     public void testRegisterDataSetsForSameSampleInTwoThreads()

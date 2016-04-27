@@ -60,8 +60,7 @@ public interface ISimpleTableModelBuilderAdaptor
     void addHeader(String title, String code);
 
     /**
-     * A convenience method for adding complete header with columns with specified titles and
-     * default column width 150.
+     * A convenience method for adding complete header with columns with specified titles and default column width 150.
      * 
      * @throws UserFailureException if header titles are not unique.
      */

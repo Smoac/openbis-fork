@@ -29,10 +29,9 @@ public class BatchOperationExecutor
      * Executes an operation in batches using the default batch size.
      * 
      * @param strategy The operation to execute
-     * @param progressListenerOrNull The progress listener to notify of progress. If this is
-     *            non-null, the progressPhaseOrNull must be non-null as well.
-     * @param progressPhaseOrNull The phase used in updating the progressListenerOrNull. Must be
-     *            non-null if the progressListenerOrNull is
+     * @param progressListenerOrNull The progress listener to notify of progress. If this is non-null, the progressPhaseOrNull must be non-null as
+     *            well.
+     * @param progressPhaseOrNull The phase used in updating the progressListenerOrNull. Must be non-null if the progressListenerOrNull is
      */
     public static <S> void executeInBatches(IBatchOperation<S> strategy,
             IServiceConversationProgressListener progressListenerOrNull, String progressPhaseOrNull)
@@ -50,10 +49,9 @@ public class BatchOperationExecutor
      * 
      * @param strategy The operation to execute
      * @param batchSize The size of the batches
-     * @param progressListenerOrNull The progress listener to notify of progress. If this is
-     *            non-null, the progressPhaseOrNull must be non-null as well.
-     * @param progressPhaseOrNull The phase used in updating the progressListenerOrNull. Must be
-     *            non-null if the progressListenerOrNull is
+     * @param progressListenerOrNull The progress listener to notify of progress. If this is non-null, the progressPhaseOrNull must be non-null as
+     *            well.
+     * @param progressPhaseOrNull The phase used in updating the progressListenerOrNull. Must be non-null if the progressListenerOrNull is
      */
     public static <S> void executeInBatches(IBatchOperation<S> strategy, int batchSize,
             IServiceConversationProgressListener progressListenerOrNull, String progressPhaseOrNull)

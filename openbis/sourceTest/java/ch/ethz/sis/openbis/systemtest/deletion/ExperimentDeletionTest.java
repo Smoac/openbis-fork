@@ -25,7 +25,7 @@ public class ExperimentDeletionTest extends DeletionTest
         SpacePermId space = createSpace("SPACE");
         ProjectPermId project = createProject(space, "PROJECT1");
         ExperimentPermId exp = createExperiment(project, "EXPERIMENT");
-        
+
         AttachmentCreation attachment1 = new AttachmentCreation();
         attachment1.setTitle("A1");
         attachment1.setDescription("hello A");
@@ -35,21 +35,21 @@ public class ExperimentDeletionTest extends DeletionTest
         attachment2.setFileName("hi.txt");
         attachment2.setContent("hi world!".getBytes());
         addAttachment(exp, attachment1, attachment2);
-        
+
         newTx();
-        
+
         delete(exp);
         delete(project);
         delete(space);
 
-        assertAttachment("experiment/" + exp.getPermId() + "/hello.txt(1)", 
+        assertAttachment("experiment/" + exp.getPermId() + "/hello.txt(1)",
                 set("OWNED = ATTACHMENT:" + exp + "[EXPERIMENT](user:test) <hello world!>"));
-        assertAttachment("experiment/" + exp.getPermId() + "/hi.txt(1)", 
+        assertAttachment("experiment/" + exp.getPermId() + "/hi.txt(1)",
                 set("OWNED = ATTACHMENT:" + exp + "[EXPERIMENT](user:test) <hi world!>"));
         assertHistory(exp.getPermId(), "OWNER", attachmentSet("experiment/" + exp.getPermId() + "/hello.txt(1)",
                 "experiment/" + exp.getPermId() + "/hi.txt(1)"));
     }
-    
+
     @Test
     @Rollback(false)
     public void testAttributes() throws Exception
@@ -87,7 +87,7 @@ public class ExperimentDeletionTest extends DeletionTest
         ProjectPermId project2 = createProject(space2, "PROJECT2");
 
         ExperimentPermId experiment = createExperiment(project1, "EXPERIMENT");
-        
+
         newTx();
 
         ExperimentUpdate update = new ExperimentUpdate();
@@ -101,7 +101,7 @@ public class ExperimentDeletionTest extends DeletionTest
         delete(space1);
         delete(space2);
 
-        assertHistory(experiment.getPermId(), "OWNED", projectSet(project1.getPermId()), 
+        assertHistory(experiment.getPermId(), "OWNED", projectSet(project1.getPermId()),
                 projectSet(project2.getPermId()));
     }
 
@@ -151,7 +151,7 @@ public class ExperimentDeletionTest extends DeletionTest
         delete(project);
         delete(space);
 
-        assertHistory(experiment.getPermId(), "OWNER",  
+        assertHistory(experiment.getPermId(), "OWNER",
                 unknownSet(dataset1.getPermId(), dataset2.getPermId()),
                 unknownSet(dataset2.getPermId()),
                 set());

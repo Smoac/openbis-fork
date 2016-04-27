@@ -34,9 +34,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
- * Predicate for lists of {@link DataSetUpdatesDTO} instances. Checks that the user has update
- * rights for all data sets. In addition for all data sets with changed samples or experiments it is
- * check that the user has access rights for those samples and experiments.
+ * Predicate for lists of {@link DataSetUpdatesDTO} instances. Checks that the user has update rights for all data sets. In addition for all data sets
+ * with changed samples or experiments it is check that the user has access rights for those samples and experiments.
  * 
  * @author Franz-Josef Elmer
  */

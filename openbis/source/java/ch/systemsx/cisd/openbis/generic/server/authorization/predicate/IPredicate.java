@@ -28,8 +28,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 /**
  * Performs some predicate which returns a {@link Status} based on the input objects.
  * <p>
- * Each implementation is expected to have an empty <code>public</code> constructor and might be
- * statefull. So do not try to reuse it. Use a {@link IPredicateFactory} to get an implementation.
+ * Each implementation is expected to have an empty <code>public</code> constructor and might be statefull. So do not try to reuse it. Use a
+ * {@link IPredicateFactory} to get an implementation.
  * </p>
  * 
  * @author Christian Ribeaud

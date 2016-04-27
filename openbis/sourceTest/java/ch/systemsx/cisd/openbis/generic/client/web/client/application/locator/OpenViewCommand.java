@@ -20,8 +20,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Client;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 
 /**
- * {@link AbstractDefaultTestCommand} extension that does nothing. It should be used if we want to
- * make sure that all callbacks will finish without failure.
+ * {@link AbstractDefaultTestCommand} extension that does nothing. It should be used if we want to make sure that all callbacks will finish without
+ * failure.
  * 
  * @author Piotr Buczek
  */

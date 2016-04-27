@@ -33,15 +33,12 @@ public interface IAccessController
     /**
      * Whether given <code>Session</code> has enough rights to access the calling <var>method</var>.
      * 
-     * @param arguments the method arguments (minus the first one which is expected to be a
-     *            {@link IAuthSession} object).
+     * @param arguments the method arguments (minus the first one which is expected to be a {@link IAuthSession} object).
      * @throws UserFailureException if the authorization could not be checked for some reason.
-     * @return a {@link Status} with {@link StatusFlag#OK} if given <var>session</var> is
-     *         authorized to access the given <code>Method</code>. In case of
-     *         {@link StatusFlag#ERROR} you might find more information by calling
-     *         {@link Status#tryGetErrorMessage()}.
+     * @return a {@link Status} with {@link StatusFlag#OK} if given <var>session</var> is authorized to access the given <code>Method</code>. In case
+     *         of {@link StatusFlag#ERROR} you might find more information by calling {@link Status#tryGetErrorMessage()}.
      */
     public Status isAuthorized(final IAuthSession session, final Method method,
             final Argument<?>[] arguments) throws UserFailureException;
-    
+
 }

@@ -31,8 +31,7 @@ public enum StorageFormat
     /** The proprietary data format as acquired from the measurement device. */
     PROPRIETARY("PROPRIETARY"),
     /**
-     * The standardized data according to the Biological Data Standard format, using a directory
-     * container.
+     * The standardized data according to the Biological Data Standard format, using a directory container.
      */
     BDS_DIRECTORY("BDS_DIRECTORY");
 
@@ -67,8 +66,7 @@ public enum StorageFormat
     }
 
     /**
-     * Returns the appropriate format for the given <var>code</var>, or <code>null</code>, if there
-     * is no format for this <var>code</var>.
+     * Returns the appropriate format for the given <var>code</var>, or <code>null</code>, if there is no format for this <var>code</var>.
      */
     public final static StorageFormat tryGetFromCode(final String code)
     {

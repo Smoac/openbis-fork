@@ -46,9 +46,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
  * @author Bernd Rinn
  */
 @Friend(toClasses =
-    { SampleRecord.class, ISampleListingQuery.class })
+{ SampleRecord.class, ISampleListingQuery.class })
 @Test(groups =
-    { "db", "sample" })
+{ "db", "sample" })
 public class SampleSetListingQueryTest extends AbstractDAOTest
 {
 

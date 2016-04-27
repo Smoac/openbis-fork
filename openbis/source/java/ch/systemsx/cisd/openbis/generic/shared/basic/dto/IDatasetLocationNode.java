@@ -37,8 +37,7 @@ public interface IDatasetLocationNode
     boolean isContainer();
 
     /**
-     * Returns a collection of component locations. For a data set that is not a container always
-     * returns an empty collection. Never returns null.
+     * Returns a collection of component locations. For a data set that is not a container always returns an empty collection. Never returns null.
      */
     Collection<IDatasetLocationNode> getComponents();
 

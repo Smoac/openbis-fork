@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
 import java.util.List;
 
 /**
- * API for master data registration. Offers methods for creation and retrieval of openBIS types,
- * property assignments, vocabularies etc.
+ * API for master data registration. Offers methods for creation and retrieval of openBIS types, property assignments, vocabularies etc.
  * 
  * @author Kaloyan Enimanev
  */
@@ -35,8 +34,7 @@ public interface IMasterDataRegistrationTransaction
     IExperimentType createNewExperimentType(String code);
 
     /**
-     * Get an experiment type from the openBIS AS. Returns null if the experiment type does not
-     * exist.
+     * Get an experiment type from the openBIS AS. Returns null if the experiment type does not exist.
      * 
      * @return An experiment type or null
      */
@@ -45,8 +43,8 @@ public interface IMasterDataRegistrationTransaction
     /**
      * Gets or creates experiment type from the openBIS AS.
      * 
-     * @return the already existing type or a freshly created one if it doesn't exist. Setter
-     *         methods on the returned type are ignored if the type already exists.
+     * @return the already existing type or a freshly created one if it doesn't exist. Setter methods on the returned type are ignored if the type
+     *         already exists.
      */
     IExperimentType getOrCreateNewExperimentType(String code);
 
@@ -72,8 +70,8 @@ public interface IMasterDataRegistrationTransaction
     /**
      * Gets or creates sample type from the openBIS AS.
      * 
-     * @return the already existing type or a freshly created one if it doesn't exist. Setter
-     *         methods on the returned type are ignored if the type already exists.
+     * @return the already existing type or a freshly created one if it doesn't exist. Setter methods on the returned type are ignored if the type
+     *         already exists.
      */
     ISampleType getOrCreateNewSampleType(String code);
 
@@ -99,8 +97,8 @@ public interface IMasterDataRegistrationTransaction
     /**
      * Gets or creates data set type from the openBIS AS.
      * 
-     * @return the already existing type or a freshly created one if it doesn't exist. Setter
-     *         methods on the returned type are ignored if the type already exists.
+     * @return the already existing type or a freshly created one if it doesn't exist. Setter methods on the returned type are ignored if the type
+     *         already exists.
      */
     IDataSetType getOrCreateNewDataSetType(String code);
 
@@ -119,8 +117,8 @@ public interface IMasterDataRegistrationTransaction
     /**
      * Gets or creates a script from the openBIS AS.
      * 
-     * @return the already existing script or a freshly created one if it doesn't exist. Setter
-     *         methods on the returned script are ignored if the script already exists.
+     * @return the already existing script or a freshly created one if it doesn't exist. Setter methods on the returned script are ignored if the
+     *         script already exists.
      */
     IScript getOrCreateNewScript(String code);
 
@@ -146,8 +144,8 @@ public interface IMasterDataRegistrationTransaction
     /**
      * Gets or creates material type from the openBIS AS.
      * 
-     * @return the already existing type or a freshly created one if it doesn't exist. Setter
-     *         methods on the returned type are ignored if the type already exists.
+     * @return the already existing type or a freshly created one if it doesn't exist. Setter methods on the returned type are ignored if the type
+     *         already exists.
      */
     IMaterialType getOrCreateNewMaterialType(String code);
 
@@ -175,8 +173,8 @@ public interface IMasterDataRegistrationTransaction
      * Gets or creates property type from the openBIS AS.
      * 
      * @param dataType the data type of the property in case it has to be created.
-     * @return the already existing type or a freshly created one if it doesn't exist. Setter
-     *         methods on the returned type are ignored if the type already exists.
+     * @return the already existing type or a freshly created one if it doesn't exist. Setter methods on the returned type are ignored if the type
+     *         already exists.
      */
     IPropertyType getOrCreateNewPropertyType(String code, DataType dataType);
 
@@ -186,11 +184,10 @@ public interface IMasterDataRegistrationTransaction
     List<IPropertyTypeImmutable> listPropertyTypes();
 
     /**
-     * Assigns a property type to an entity type. If the assignment is already established an object
-     * is returned where all setter method invocations are silently be ignored.
+     * Assigns a property type to an entity type. If the assignment is already established an object is returned where all setter method invocations
+     * are silently be ignored.
      * 
-     * @param entityType One of IExperimentTypeImmutable, ISampleTypeImmutable,
-     *            IDataSetTypeImmutable, or IMaterialTypeImmutable.
+     * @param entityType One of IExperimentTypeImmutable, ISampleTypeImmutable, IDataSetTypeImmutable, or IMaterialTypeImmutable.
      * @param propertyType The property type to assign to the entity type.
      * @return An object representing the assignment.
      */
@@ -210,8 +207,7 @@ public interface IMasterDataRegistrationTransaction
     IFileFormatType createNewFileFormatType(String code);
 
     /**
-     * Get a file format type from the openBIS AS. Returns null if the file format type does not
-     * exist.
+     * Get a file format type from the openBIS AS. Returns null if the file format type does not exist.
      * 
      * @return A file format type or null
      */
@@ -220,8 +216,8 @@ public interface IMasterDataRegistrationTransaction
     /**
      * Gets or creates file format type from the openBIS AS.
      * 
-     * @return the already existing type or a freshly created one if it doesn't exist. Setter
-     *         methods on the returned type are ignored if the type already exists.
+     * @return the already existing type or a freshly created one if it doesn't exist. Setter methods on the returned type are ignored if the type
+     *         already exists.
      */
     IFileFormatType getOrCreateNewFileFormatType(String code);
 
@@ -247,8 +243,8 @@ public interface IMasterDataRegistrationTransaction
     /**
      * Gets or creates vocabulary type from the openBIS AS.
      * 
-     * @return the already existing type or a freshly created one if it doesn't exist. Setter
-     *         methods on the returned type are ignored if the type already exists.
+     * @return the already existing type or a freshly created one if it doesn't exist. Setter methods on the returned type are ignored if the type
+     *         already exists.
      */
     IVocabulary getOrCreateNewVocabulary(String code);
 
@@ -258,8 +254,7 @@ public interface IMasterDataRegistrationTransaction
     List<IVocabularyImmutable> listVocabularies();
 
     /**
-     * Create a new vocabulary term. The resulting object can be added to a vocabulary via the
-     * {@link IVocabulary#addTerm(IVocabularyTerm)} method.
+     * Create a new vocabulary term. The resulting object can be added to a vocabulary via the {@link IVocabulary#addTerm(IVocabularyTerm)} method.
      * 
      * @param code the vocabulary term's code
      */
@@ -285,8 +280,7 @@ public interface IMasterDataRegistrationTransaction
     IExternalDataManagementSystem createNewExternalDataManagementSystem(String code);
 
     /**
-     * Get an external data management system from the openBIS AS. Returns null if the external data
-     * management system does not exist.
+     * Get an external data management system from the openBIS AS. Returns null if the external data management system does not exist.
      * 
      * @return An external data management system or null
      */
@@ -295,8 +289,8 @@ public interface IMasterDataRegistrationTransaction
     /**
      * Gets or creates external data management system from the openBIS AS.
      * 
-     * @return the already existing system or a freshly created one if it doesn't exist. Setter
-     *         methods on the returned type are ignored if the type already exists.
+     * @return the already existing system or a freshly created one if it doesn't exist. Setter methods on the returned type are ignored if the type
+     *         already exists.
      */
     IExternalDataManagementSystem getOrCreateNewExternalDataManagementSystem(String code);
 

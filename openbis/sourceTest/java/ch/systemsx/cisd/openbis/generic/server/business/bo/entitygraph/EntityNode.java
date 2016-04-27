@@ -23,7 +23,7 @@ public class EntityNode implements IIdHolder, Comparable<EntityNode>
     private final long id;
 
     private final String code;
-    
+
     private String type;
 
     EntityNode(String codePrefix, long id)
@@ -42,7 +42,7 @@ public class EntityNode implements IIdHolder, Comparable<EntityNode>
     {
         return code;
     }
-    
+
     public String getIdentifier()
     {
         return getCode();
@@ -52,7 +52,7 @@ public class EntityNode implements IIdHolder, Comparable<EntityNode>
     {
         return type;
     }
-    
+
     public String getIdentifierAndType()
     {
         return getCodeAndType();
@@ -78,11 +78,11 @@ public class EntityNode implements IIdHolder, Comparable<EntityNode>
     {
         return this.getCode().compareTo(that.getCode());
     }
-    
+
     @Override
     public String toString()
     {
         return getIdentifierAndType();
     }
-    
+
 }

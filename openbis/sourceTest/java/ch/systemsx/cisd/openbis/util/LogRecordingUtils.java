@@ -21,8 +21,7 @@ import org.apache.log4j.Level;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 
 /**
- * Helper methods to create a log recorder which suppresses log entries from MonitoringPoolingDataSource
- * and full text indexer.
+ * Helper methods to create a log recorder which suppresses log entries from MonitoringPoolingDataSource and full text indexer.
  *
  * @author Franz-Josef Elmer
  */
@@ -32,22 +31,22 @@ public class LogRecordingUtils
     {
         return suppress(new BufferedAppender());
     }
-    
+
     public static BufferedAppender createRecorder(Level logLevel)
     {
         return suppress(new BufferedAppender(logLevel));
     }
-    
+
     public static BufferedAppender createRecorder(String pattern, Level logLevel)
     {
         return suppress(new BufferedAppender(pattern, logLevel));
     }
-    
+
     public static BufferedAppender createRecorder(String pattern, Level logLevel, String loggerNameRegex)
     {
         return suppress(new BufferedAppender(pattern, logLevel, loggerNameRegex));
     }
-    
+
     private static BufferedAppender suppress(BufferedAppender logRecorder)
     {
         logRecorder.addRegexForLoggingEventsToBeDropped("OPERATION.*FullTextIndex.*");

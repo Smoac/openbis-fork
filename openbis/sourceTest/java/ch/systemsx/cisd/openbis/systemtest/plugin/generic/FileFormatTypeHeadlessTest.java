@@ -73,7 +73,6 @@ public class FileFormatTypeHeadlessTest extends SystemTestCase
         TypedTableResultSet<FileFormatType> tableResultSet =
                 commonClientService.listFileTypes(criteria);
 
-
         Row expectedRow =
                 new Row().withCell("CODE", fft.getCode()).withCell("DESCRIPTION",
                         fft.getDescription());

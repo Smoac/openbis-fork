@@ -49,14 +49,12 @@ public interface IRowBuilderAdaptor
     public void setCell(String headerTitle, Date value);
 
     /**
-     * Sets the value of the column specified by the header title to the specified entity link
-     * rendered using identifier.
+     * Sets the value of the column specified by the header title to the specified entity link rendered using identifier.
      */
     public void setCell(String headerTitle, IEntityLinkElement value);
 
     /**
-     * Sets the value of the column specified by the header title to the specified entity link
-     * rendered using given text.
+     * Sets the value of the column specified by the header title to the specified entity link rendered using given text.
      */
     public void setCell(String headerTitle, IEntityLinkElement value, String linkText);
 

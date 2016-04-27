@@ -48,10 +48,11 @@ public class GenericServiceServer extends WhiteAndBlackListHttpInvokerServiceExp
     }
 
     @RequestMapping(
-            { "/rmi-plugin-generic", "/openbis/rmi-plugin-generic" })
+    { "/rmi-plugin-generic", "/openbis/rmi-plugin-generic" })
     @Override
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException
+    {
         super.handleRequest(request, response);
     }
 }

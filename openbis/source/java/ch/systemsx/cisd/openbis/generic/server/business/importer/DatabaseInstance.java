@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.importer;
 
-
 /**
  * The database instance for the importer.
  * 

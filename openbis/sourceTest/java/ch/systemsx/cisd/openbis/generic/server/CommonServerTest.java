@@ -1729,7 +1729,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                 {
                     one(commonBusinessObjectFactory).createDataSetTable(session);
                     will(returnValue(dataSetTable));
-                    
+
                     one(daoFactory).getTransactionTimestamp();
                     will(returnValue(new Date()));
 

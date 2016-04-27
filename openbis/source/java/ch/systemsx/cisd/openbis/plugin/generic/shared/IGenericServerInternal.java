@@ -25,8 +25,6 @@ import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IGenericServerInternal extends IGenericServer

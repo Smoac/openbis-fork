@@ -27,8 +27,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
  * <li>detailed sample search
  * <li>tracking new samples of particular type
  * </ul>
- * Additionally one can decide if dependent samples that are loaded (parents and containers) should
- * be enriched with properties. By default only 'primary' samples are enriched.<br>
+ * Additionally one can decide if dependent samples that are loaded (parents and containers) should be enriched with properties. By default only
+ * 'primary' samples are enriched.<br>
  * <br>
  * NOTE: This bean is not serializable.
  * 

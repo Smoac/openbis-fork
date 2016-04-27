@@ -87,7 +87,7 @@ public interface IAttachmentDAO extends IGenericDAO<AttachmentPE>
      */
     public int deleteByOwnerAndFileName(final AttachmentHolderPE owner, final String fileName)
             throws DataAccessException;
-    
+
     public Map<String, AttachmentEntry> deleteAttachments(final AttachmentHolderPE holder, final String reason,
             final List<String> fileNames, PersonPE registrator);
 

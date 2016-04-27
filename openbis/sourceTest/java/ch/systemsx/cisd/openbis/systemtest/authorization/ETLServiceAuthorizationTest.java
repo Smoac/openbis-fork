@@ -96,7 +96,7 @@ public class ETLServiceAuthorizationTest extends BaseTest
     }
 
     @Test(expectedExceptions =
-        { AuthorizationFailureException.class })
+    { AuthorizationFailureException.class })
     public void testListSamplesForObserverForAnotherSpace()
     {
         String sessionToken =
@@ -129,7 +129,7 @@ public class ETLServiceAuthorizationTest extends BaseTest
     }
 
     @Test(expectedExceptions =
-        { AuthorizationFailureException.class })
+    { AuthorizationFailureException.class })
     public void testRegistrationOfSamplesForUnauthorizedUser()
     {
         String sessionToken = create(aSession().withInstanceRole(RoleWithHierarchy.INSTANCE_ADMIN));

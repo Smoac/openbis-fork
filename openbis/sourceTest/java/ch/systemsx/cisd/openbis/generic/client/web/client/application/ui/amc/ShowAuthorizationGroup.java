@@ -28,8 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestU
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension for showing an authorization group with given
- * code.
+ * A {@link AbstractDefaultTestCommand} extension for showing an authorization group with given code.
  * 
  * @author Izabela Adamczyk
  */

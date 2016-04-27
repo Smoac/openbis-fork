@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
-
 /**
  * A {@link SpaceIdentifierPredicate} which evaluates to OK if the space does not exist.
  * 

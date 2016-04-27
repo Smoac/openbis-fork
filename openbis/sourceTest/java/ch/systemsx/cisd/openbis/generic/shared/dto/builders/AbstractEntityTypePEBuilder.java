@@ -32,6 +32,6 @@ abstract class AbstractEntityTypePEBuilder
         propertyType.setCode(propertyTypeCode);
         return assign(propertyType);
     }
-    
+
     public abstract EntityTypePropertyTypePEBuilder assign(PropertyTypePE propertyType);
 }

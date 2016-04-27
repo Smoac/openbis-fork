@@ -60,7 +60,7 @@ public final class UpdatedSampleParserObjectFactoryTest
     private final static IPropertyMapper createPropertyMapper()
     {
         final String[] properties = new String[]
-            { Identifier.IDENTIFIER_COLUMN, NewSample.CONTAINER, PROPERTY_1, PROPERTY_2 };
+        { Identifier.IDENTIFIER_COLUMN, NewSample.CONTAINER, PROPERTY_1, PROPERTY_2 };
         final DefaultPropertyMapper propertyMapper = new DefaultPropertyMapper(properties, null);
         return propertyMapper;
     }
@@ -69,19 +69,19 @@ public final class UpdatedSampleParserObjectFactoryTest
     private final static Object[][] getLineTokens()
     {
         return new Object[][]
-            {
-                    { new String[]
-                        { "", "", "", "" }, 0, 0 },
-                    { new String[]
-                        { "id1", "cont1", "1", "hello" }, 2, 2 },
-                    { new String[]
-                        { "id1", "", "1", "" }, 1, 1 },
-                    { new String[]
-                        { "", "cont1", "", "hello" }, 1, 1 },
-                    { new String[]
-                        { "id1", "cont1", "--DELETE--", "__DELETE__" }, 0, 2 },
-                    { new String[]
-                        { "__DELETE__", "--DELETE--", "--DELETE--", "hello" }, 1, 2 } };
+        {
+                { new String[]
+                { "", "", "", "" }, 0, 0 },
+                { new String[]
+                { "id1", "cont1", "1", "hello" }, 2, 2 },
+                { new String[]
+                { "id1", "", "1", "" }, 1, 1 },
+                { new String[]
+                { "", "cont1", "", "hello" }, 1, 1 },
+                { new String[]
+                { "id1", "cont1", "--DELETE--", "__DELETE__" }, 0, 2 },
+                { new String[]
+                { "__DELETE__", "--DELETE--", "--DELETE--", "hello" }, 1, 2 } };
     }
 
     @Test(dataProvider = "getLineTokens")

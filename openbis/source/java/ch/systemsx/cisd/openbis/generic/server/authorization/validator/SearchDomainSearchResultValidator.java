@@ -31,7 +31,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 public class SearchDomainSearchResultValidator extends AbstractValidator<SearchDomainSearchResultWithFullEntity>
 {
     private final ExternalDataValidator dataSetValidator = new ExternalDataValidator();
+
     private final SampleValidator sampleValidator = new SampleValidator();
+
     private final ExperimentValidator experimentValidator = new ExperimentValidator();
 
     @Override

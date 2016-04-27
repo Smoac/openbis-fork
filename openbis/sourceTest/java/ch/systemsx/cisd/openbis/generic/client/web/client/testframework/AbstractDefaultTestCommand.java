@@ -21,8 +21,8 @@ import junit.framework.Assert;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 
 /**
- * Abstract super class of all test commands which are executed if there are no active callbacks
- * (all callbacks were detected by {@link RemoteConsole}).
+ * Abstract super class of all test commands which are executed if there are no active callbacks (all callbacks were detected by {@link RemoteConsole}
+ * ).
  * 
  * @author Franz-Josef Elmer
  * @author Piotr Buczek

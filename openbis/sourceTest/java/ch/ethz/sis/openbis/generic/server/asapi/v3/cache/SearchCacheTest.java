@@ -208,7 +208,7 @@ public class SearchCacheTest
         final CacheManager manager = new CacheManager(new ByteArrayInputStream(managerConfig.getBytes()));
 
         SearchCache cache = new SearchCache(
-                new RuntimeCache<Serializable, Serializable>(manager, SearchCache.CACHE_NAME, 
+                new RuntimeCache<Serializable, Serializable>(manager, SearchCache.CACHE_NAME,
                         SearchCache.CACHE_SIZE_PROPERTY_NAME)
                     {
                         @Override

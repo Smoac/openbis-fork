@@ -59,8 +59,7 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     private SampleType sampleType;
 
     /**
-     * Set of parent sample codes or identifiers. It will be assumed that all the samples belong to
-     * the same group as the child sample.
+     * Set of parent sample codes or identifiers. It will be assumed that all the samples belong to the same group as the child sample.
      */
     private String[] parentsOrNull;
 
@@ -70,8 +69,8 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     private String containerIdentifier;
 
     /**
-     * The current container identifier. Used only if the sample identifier does not have the
-     * container specified. In such a case it will be assumed that the sample is in that container.
+     * The current container identifier. Used only if the sample identifier does not have the container specified. In such a case it will be assumed
+     * that the sample is in that container.
      */
     private String currentContainerIdentifier;
 
@@ -194,8 +193,7 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     }
 
     /**
-     * @deprecated kept for backward compatibility and used as a convenience method for tests - use
-     *             {@link #setParents(String)} instead
+     * @deprecated kept for backward compatibility and used as a convenience method for tests - use {@link #setParents(String)} instead
      */
     @Deprecated
     @BeanProperty(label = PARENT, optional = true)

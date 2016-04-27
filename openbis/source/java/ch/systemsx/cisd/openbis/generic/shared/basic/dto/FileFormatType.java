@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-
 /**
  * The <i>GWT</i> equivalent to FileFormatTypePE.
  * 

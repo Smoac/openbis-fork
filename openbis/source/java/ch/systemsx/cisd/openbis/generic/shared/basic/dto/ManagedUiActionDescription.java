@@ -25,8 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IPerson;
 
 /**
- * Object that declaratively describes a UI for an action (e.g. describing UI of a dialog that
- * should be shown after clicking on a button).
+ * Object that declaratively describes a UI for an action (e.g. describing UI of a dialog that should be shown after clicking on a button).
  * 
  * @author Piotr Buczek
  */

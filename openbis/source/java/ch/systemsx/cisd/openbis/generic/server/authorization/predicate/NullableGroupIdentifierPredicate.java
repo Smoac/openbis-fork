@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * An <code>IPredicate</code> implementation based on {@link SpaceIdentifierPredicate} which allows
- * the identifier to be null.
+ * An <code>IPredicate</code> implementation based on {@link SpaceIdentifierPredicate} which allows the identifier to be null.
  * 
  * @author Tomasz Pylak
  */

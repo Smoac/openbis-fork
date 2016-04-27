@@ -32,8 +32,7 @@ public class GlobalProperties
     }
 
     /**
-     * Adds property with given key and value.Throws {@link IllegalArgumentException} if property
-     * already defined.
+     * Adds property with given key and value.Throws {@link IllegalArgumentException} if property already defined.
      */
     public void add(String key, String value)
     {
@@ -45,8 +44,7 @@ public class GlobalProperties
     }
 
     /**
-     * Returns value of given property. Throws {@link IllegalArgumentException} if property not
-     * defined.
+     * Returns value of given property. Throws {@link IllegalArgumentException} if property not defined.
      */
     public String get(String key)
     {

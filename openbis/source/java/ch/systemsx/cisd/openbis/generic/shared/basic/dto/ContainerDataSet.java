@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A virtual data set "containing" other data sets. Container data sets have no physical
- * representation. Their sole purpose is to provide a merged view of their contents.
+ * A virtual data set "containing" other data sets. Container data sets have no physical representation. Their sole purpose is to provide a merged
+ * view of their contents.
  * 
  * @author Kaloyan Enimanev
  */

@@ -303,14 +303,14 @@ public final class DataDAOTest extends AbstractDAOTest
         data.setStorageFormatVocabularyTerm(pickAStorageFormatVocabularyTerm());
         data.setStatus(DataSetArchivingStatus.AVAILABLE);
         dataDAO.createDataSet(data, getSystemPerson());
-        
+
         ExternalDataPE externalData = dataDAO.tryToFindDataSetByCode(dataSetCode).tryAsExternalData();
         int version = externalData.getVersion();
         externalData.setShareId("share-43");
         externalData.setSize(size);
-        
+
         dataDAO.updateDataSet(externalData, getTestPerson());
-        
+
         ExternalDataPE dataSet = dataDAO.tryToFindDataSetByCode(dataSetCode).tryAsExternalData();
         assertEquals(externalData.getCode(), dataSet.getCode());
         assertEquals(externalData.getDataSetType(), dataSet.getDataSetType());

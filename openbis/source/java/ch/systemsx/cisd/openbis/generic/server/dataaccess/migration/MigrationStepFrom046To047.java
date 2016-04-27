@@ -41,8 +41,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.DisplaySettingsSerialization
 /**
  * A migration step from database version <code>v46</code> to version <code>v47</code>.
  * <p>
- * Sets wildcard search mode for old users apart from system user. After this migration all users
- * will have a serialized display settings object in the DB (before it could be null).
+ * Sets wildcard search mode for old users apart from system user. After this migration all users will have a serialized display settings object in
+ * the DB (before it could be null).
  * </p>
  * 
  * @author Piotr Buczek

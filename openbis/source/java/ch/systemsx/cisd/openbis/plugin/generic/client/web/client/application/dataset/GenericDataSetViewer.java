@@ -133,7 +133,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
     {
         Widget spaceBreadcrumb = createSpaceLink(originalData.getSpace());
         widgets.add(spaceBreadcrumb);
-        
+
         Experiment experiment = originalData.getExperiment();
         if (experiment != null)
         {

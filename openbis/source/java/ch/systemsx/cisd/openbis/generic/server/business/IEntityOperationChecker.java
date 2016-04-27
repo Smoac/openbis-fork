@@ -34,15 +34,13 @@ public interface IEntityOperationChecker
 {
 
     @RolesAllowed(
-        { RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    { RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     public void assertInstanceSampleCreationAllowed(IAuthSession session,
-            @AuthorizationGuard(guardClass = NewSamplePredicate.class)
-            List<? extends NewSample> instanceSamples);
+            @AuthorizationGuard(guardClass = NewSamplePredicate.class) List<? extends NewSample> instanceSamples);
 
     @RolesAllowed(
-        { RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    { RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     public void assertInstanceSampleUpdateAllowed(IAuthSession session,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            List<? extends SampleOwnerIdentifier> instanceSamples);
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) List<? extends SampleOwnerIdentifier> instanceSamples);
 
 }

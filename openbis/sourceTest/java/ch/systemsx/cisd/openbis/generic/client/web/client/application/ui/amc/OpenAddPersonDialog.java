@@ -24,8 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestU
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension opening a dialog allowing to add a person to the
- * authorization group.
+ * A {@link AbstractDefaultTestCommand} extension opening a dialog allowing to add a person to the authorization group.
  * 
  * @author Izabela Adamczyk
  */

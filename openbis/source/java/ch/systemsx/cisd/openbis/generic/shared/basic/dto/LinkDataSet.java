@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 /**
- * A virtual data set storing the reference to the data set in external data management system. Link
- * data sets have no physical representation in local dss.
+ * A virtual data set storing the reference to the data set in external data management system. Link data sets have no physical representation in
+ * local dss.
  * 
  * @author Pawel Glyzewski
  */

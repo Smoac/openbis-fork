@@ -28,9 +28,8 @@ import org.apache.commons.lang.StringUtils;
 /**
  * Loads global properties.
  * <p>
- * Global properties are defined as comments and start with a line
- * <code>#! GLOBAL_PROPERTIES:</code> (followed by a new line character.) Each property is defined
- * in a separate line and has the following format:
+ * Global properties are defined as comments and start with a line <code>#! GLOBAL_PROPERTIES:</code> (followed by a new line character.) Each
+ * property is defined in a separate line and has the following format:
  * <p>
  * #! key = value
  * </p>

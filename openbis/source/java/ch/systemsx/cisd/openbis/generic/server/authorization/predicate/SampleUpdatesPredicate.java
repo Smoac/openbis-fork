@@ -24,9 +24,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 
 /**
- * An <code>IPredicate</code> implementation based on {@link SampleUpdatesDTO}. Checks that: 1) the
- * user has rights to update the sample 2) if sample is moved to a different group the user has
- * access to this group 3) if sample is attached to experiment, user has access to this experiment.
+ * An <code>IPredicate</code> implementation based on {@link SampleUpdatesDTO}. Checks that: 1) the user has rights to update the sample 2) if sample
+ * is moved to a different group the user has access to this group 3) if sample is attached to experiment, user has access to this experiment.
  * 
  * @author Izabela Adamczyk
  */

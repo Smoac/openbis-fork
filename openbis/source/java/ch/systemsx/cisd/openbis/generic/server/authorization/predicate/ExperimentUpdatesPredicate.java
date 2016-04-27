@@ -24,9 +24,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
- * An <code>IPredicate</code> implementation based on {@link ExperimentUpdatesDTO}. Checks that: 1)
- * the user has rights to update the experiment 2) if experiment is moved to a different projects
- * the user has access to this project.
+ * An <code>IPredicate</code> implementation based on {@link ExperimentUpdatesDTO}. Checks that: 1) the user has rights to update the experiment 2) if
+ * experiment is moved to a different projects the user has access to this project.
  * 
  * @author Tomasz Pylak
  */

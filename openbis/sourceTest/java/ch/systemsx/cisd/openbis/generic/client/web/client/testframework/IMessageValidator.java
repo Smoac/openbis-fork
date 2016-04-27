@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IMessageValidator

@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.authorization;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
- * Enumeration of the various ways to get the space of an entity knowing its
- * {@link TechId}.
+ * Enumeration of the various ways to get the space of an entity knowing its {@link TechId}.
  * 
  * @author Piotr Buczek
  * @author Franz-Josef Elmer

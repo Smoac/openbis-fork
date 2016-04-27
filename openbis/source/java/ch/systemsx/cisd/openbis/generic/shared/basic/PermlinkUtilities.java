@@ -34,7 +34,7 @@ public class PermlinkUtilities
     /** The HTTP URL parameter used to specify the entity kind. */
     public static final String ENTITY_KIND_PARAMETER_KEY = "entity";
 
-    /** The optional HTTP URL parameter used to specify the subtab that should be opened. */    
+    /** The optional HTTP URL parameter used to specify the subtab that should be opened. */
     public static final String SUBTAB_PARAMETER_KEY = "ui-subtab";
 
     public final static String createPermlinkURL(final String baseIndexURL,

@@ -27,8 +27,9 @@ import java.util.List;
 public class ExpressionUtil
 {
     public static final String START = "${";
+
     public static final String END = "}";
-    
+
     private static final int START_LENGTH = START.length();
 
     /**
@@ -72,7 +73,7 @@ public class ExpressionUtil
         }
         return result;
     }
-    
+
     private ExpressionUtil()
     {
     }

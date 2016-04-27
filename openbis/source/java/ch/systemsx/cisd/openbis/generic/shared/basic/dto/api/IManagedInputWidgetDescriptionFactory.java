@@ -38,8 +38,7 @@ public interface IManagedInputWidgetDescriptionFactory extends Serializable
     IManagedInputWidgetDescription createMultilineTextInputField(String label);
 
     /**
-     * @return a combo box input field with given <var>label</var> and specified list of selectable
-     *         <var>values</var>.
+     * @return a combo box input field with given <var>label</var> and specified list of selectable <var>values</var>.
      */
     IManagedInputWidgetDescription createComboBoxInputField(String labels, String[] values);
 

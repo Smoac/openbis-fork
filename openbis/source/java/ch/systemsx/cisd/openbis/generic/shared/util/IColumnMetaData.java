@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.util;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 
 /**
- * Interface for setting meta data of columns defined by
- * {@link TypedTableModelBuilder#addColumn(String)}.
+ * Interface for setting meta data of columns defined by {@link TypedTableModelBuilder#addColumn(String)}.
  * 
  * @author Franz-Josef Elmer
  */

@@ -63,11 +63,11 @@ public class WebAppsPropertiesTest
         Assert.assertEquals("Web app 1", webApp.getLabel());
         Assert.assertEquals(Integer.valueOf(100), webApp.getSorting());
         Assert.assertTrue(Arrays.equals(new String[]
-            { "queries-menu", "experiment-details-view" }, webApp.getContexts()));
+        { "queries-menu", "experiment-details-view" }, webApp.getContexts()));
         Assert.assertTrue(Arrays.equals(new String[]
-            { "EXP1", "EXP2" }, webApp.getEntityTypes().get(EntityKind.EXPERIMENT)));
+        { "EXP1", "EXP2" }, webApp.getEntityTypes().get(EntityKind.EXPERIMENT)));
         Assert.assertTrue(Arrays.equals(new String[]
-            { "SAM1" }, webApp.getEntityTypes().get(EntityKind.SAMPLE)));
+        { "SAM1" }, webApp.getEntityTypes().get(EntityKind.SAMPLE)));
         Assert.assertTrue(Arrays.equals(new String[] {},
                 webApp.getEntityTypes().get(EntityKind.DATA_SET)));
         Assert.assertTrue(Arrays.equals(new String[] {},

@@ -62,7 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
  * @author Pawel Glyzewski
  */
 @Entity
-@Table(name = TableNames.METAPROJECTS_TABLE, uniqueConstraints = @UniqueConstraint(columnNames = { ColumnNames.NAME_COLUMN, ColumnNames.OWNER }) )
+@Table(name = TableNames.METAPROJECTS_TABLE, uniqueConstraints = @UniqueConstraint(columnNames = { ColumnNames.NAME_COLUMN, ColumnNames.OWNER }))
 public class MetaprojectPE implements Serializable, IIdHolder, ICodeHolder
 {
     private static final long serialVersionUID = IServer.VERSION;

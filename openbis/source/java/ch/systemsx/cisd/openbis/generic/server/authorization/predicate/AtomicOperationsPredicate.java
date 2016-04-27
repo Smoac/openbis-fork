@@ -35,8 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * The predicate for the {@link AtomicEntityOperationDetails}. This check is always being performed
- * as the user
+ * The predicate for the {@link AtomicEntityOperationDetails}. This check is always being performed as the user
  * 
  * @author Chandrasekhar Ramakrishnan
  */

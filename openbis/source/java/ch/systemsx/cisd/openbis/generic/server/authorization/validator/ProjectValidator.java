@@ -44,5 +44,5 @@ public final class ProjectValidator extends AbstractValidator<Project>
         final Space space = value.getSpace();
         return groupValidator.isValid(person, space);
     }
-    
+
 }

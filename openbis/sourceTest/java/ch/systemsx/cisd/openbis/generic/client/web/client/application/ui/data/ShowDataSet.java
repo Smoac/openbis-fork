@@ -27,9 +27,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestU
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension for showing detail view of a data set with given
- * code. View is displayed because of simulation of a click on show details button in a toolbar of a
- * data set search results browser.
+ * A {@link AbstractDefaultTestCommand} extension for showing detail view of a data set with given code. View is displayed because of simulation of a
+ * click on show details button in a toolbar of a data set search results browser.
  * 
  * @author Piotr Buczek
  */

@@ -46,15 +46,13 @@ public interface IElementFactory
     IEntityLinkElement createDataSetLink(String permId);
 
     /**
-     * @return creates an link element pointing towards a material with given code and typeCode
-     *         parameters.
+     * @return creates an link element pointing towards a material with given code and typeCode parameters.
      */
     IEntityLinkElement createMaterialLink(String code, String typeCode);
 
     /**
-     * @return <code>true</code> if the specified element is a link element, <code>false</code>
-     *         otherwise. This method might come handy in Jython scripts, where it is undesirable to
-     *         hard-code class names or invoke "instanceof".
+     * @return <code>true</code> if the specified element is a link element, <code>false</code> otherwise. This method might come handy in Jython
+     *         scripts, where it is undesirable to hard-code class names or invoke "instanceof".
      */
     boolean isEntityLink(IElement element);
 

@@ -31,8 +31,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
 /**
- * A generic translator for deleted entities. In the future, if we need to access specific fields of
- * a deleted entity in the UI we'll have to create a DTO layer of deleted object.
+ * A generic translator for deleted entities. In the future, if we need to access specific fields of a deleted entity in the UI we'll have to create a
+ * DTO layer of deleted object.
  * <p>
  * For now, a single DeletedEntity covers all required uses cases of the trash can.
  * 

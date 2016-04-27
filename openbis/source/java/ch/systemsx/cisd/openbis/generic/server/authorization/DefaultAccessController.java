@@ -76,7 +76,7 @@ public final class DefaultAccessController implements IAccessController
             new HashMap<Method, Set<RoleWithHierarchy>>();
 
     private final Map<Method, Map<String, Set<RoleWithHierarchy>>> argumentRolesCache = new HashMap<>();
-    
+
     private final CapabilityMap capabilities = new CapabilityMap(new File("etc/capabilities"));
 
     private PredicateExecutor predicateExecutor;
@@ -203,7 +203,7 @@ public final class DefaultAccessController implements IAccessController
         return rootRoles;
     }
 
-    private Set<RoleWithHierarchy> getArgumentRoles(Method method, Argument<?> argument, 
+    private Set<RoleWithHierarchy> getArgumentRoles(Method method, Argument<?> argument,
             Set<RoleWithHierarchy> defaultRoles)
     {
         synchronized (argumentRolesCache)
@@ -233,8 +233,8 @@ public final class DefaultAccessController implements IAccessController
             return roles;
         }
     }
-    
-    private Collection<RoleWithHierarchy> getRootRoles(Method method, AuthorizationGuard predicateCandidate, 
+
+    private Collection<RoleWithHierarchy> getRootRoles(Method method, AuthorizationGuard predicateCandidate,
             Set<RoleWithHierarchy> defaultRoles)
     {
         Collection<RoleWithHierarchy> roles = capabilities.tryGetRoles(method, predicateCandidate.name());
@@ -252,8 +252,7 @@ public final class DefaultAccessController implements IAccessController
         return roles;
     }
 
-    
-    private Status checkNotEmpty(List<RoleWithIdentifier> relevantRoles, Set<RoleWithHierarchy> argumentRoles, 
+    private Status checkNotEmpty(List<RoleWithIdentifier> relevantRoles, Set<RoleWithHierarchy> argumentRoles,
             IAuthSession session)
     {
         if (relevantRoles.isEmpty() == false)
@@ -263,7 +262,7 @@ public final class DefaultAccessController implements IAccessController
         final String msg = String.format(MATCHING_ROLE_NOT_FOUND_TEMPLATE, argumentRoles, session.getUserName());
         return Status.createError(msg);
     }
-    
+
     private List<RoleWithIdentifier> getRelevantRoles(
             final List<RoleWithIdentifier> userRoles, final Set<RoleWithHierarchy> methodOrParameterRoles)
     {
@@ -279,8 +278,7 @@ public final class DefaultAccessController implements IAccessController
     }
 
     /**
-     * Retains {@link RoleWithIdentifier}s with {@link RoleWithIdentifier#getRole()} included in the
-     * set of {@link RoleWithHierarchy}s.
+     * Retains {@link RoleWithIdentifier}s with {@link RoleWithIdentifier#getRole()} included in the set of {@link RoleWithHierarchy}s.
      * 
      * @return retained user roles
      */

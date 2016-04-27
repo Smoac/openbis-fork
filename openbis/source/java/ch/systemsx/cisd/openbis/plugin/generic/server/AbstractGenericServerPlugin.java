@@ -22,9 +22,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
- * 
- *
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 abstract class AbstractGenericServerPlugin implements IServerPlugin
 {

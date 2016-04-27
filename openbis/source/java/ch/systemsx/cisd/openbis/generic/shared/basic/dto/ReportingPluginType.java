@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.io.Serializable;
 
 /**
- * Different kinds of reporting plug-ins that are supported. Also keeps track of which
- * IReportingPluginTask methods can be invoked on the different types of plugin types.
+ * Different kinds of reporting plug-ins that are supported. Also keeps track of which IReportingPluginTask methods can be invoked on the different
+ * types of plugin types.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -30,13 +30,12 @@ public enum ReportingPluginType implements Serializable
     TABLE_MODEL(ImplementedPluginMethods.CREATE_REPORT),
 
     DSS_LINK(new ImplementedPluginMethods[]
-        { ImplementedPluginMethods.CREATE_REPORT, ImplementedPluginMethods.CREATE_LINK }),
+    { ImplementedPluginMethods.CREATE_REPORT, ImplementedPluginMethods.CREATE_LINK }),
 
     AGGREGATION_TABLE_MODEL(ImplementedPluginMethods.CREATE_AGGREGATION_REPORT);
 
     /**
-     * An enum representing the methods implemented by the
-     * ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask interface.
+     * An enum representing the methods implemented by the ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask interface.
      * 
      * @author Chandrasekhar Ramakrishnan
      */
@@ -50,7 +49,7 @@ public enum ReportingPluginType implements Serializable
     private ReportingPluginType(ImplementedPluginMethods implementedMethods)
     {
         this(new ImplementedPluginMethods[]
-            { implementedMethods });
+        { implementedMethods });
     }
 
     private ReportingPluginType(ImplementedPluginMethods[] implementedMethods)

@@ -27,8 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestU
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension for showing details view of an experiment with
- * given code.
+ * A {@link AbstractDefaultTestCommand} extension for showing details view of an experiment with given code.
  * 
  * @author Franz-Josef Elmer
  */

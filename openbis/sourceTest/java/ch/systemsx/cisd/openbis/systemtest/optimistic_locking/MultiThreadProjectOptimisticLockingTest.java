@@ -49,11 +49,9 @@ public class MultiThreadProjectOptimisticLockingTest extends MultiThreadOptimist
     private static final String CREATE_EXPERIMENTS_PHASE = "createExperiments";
 
     /*
-     * This test registers three experiments for the same project. Two of them are registered by the
-     * main thread using performEntityOperations(). A second thread registers an experiment between
-     * the registration of the two other experiments. This is done by using a
-     * IServiceConversationProgressListener together with two message channels to coordinate the
-     * order of actions in both threads.
+     * This test registers three experiments for the same project. Two of them are registered by the main thread using performEntityOperations(). A
+     * second thread registers an experiment between the registration of the two other experiments. This is done by using a
+     * IServiceConversationProgressListener together with two message channels to coordinate the order of actions in both threads.
      */
     @Test
     public void testRegisterExperimentsInTwoThreads()

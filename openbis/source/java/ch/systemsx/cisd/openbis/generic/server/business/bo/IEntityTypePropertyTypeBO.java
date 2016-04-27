@@ -38,8 +38,7 @@ public interface IEntityTypePropertyTypeBO
     void loadAssignment(String propertyTypeCode, String entityTypeCode);
 
     /**
-     * Returns number of property values used by entities for assignment between specified property
-     * type and entity type.
+     * Returns number of property values used by entities for assignment between specified property type and entity type.
      */
     int countAssignmentValues(String propertyTypeCode, String entityTypeCode);
 

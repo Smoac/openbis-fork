@@ -21,8 +21,7 @@ import java.io.Serializable;
 import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 
 /**
- * A class that holds information about the openBIS session. It has the information necessary to
- * connect to any of the openBIS APIs.
+ * A class that holds information about the openBIS session. It has the information necessary to connect to any of the openBIS APIs.
  * 
  * @author Kaloyan Enimanev
  */

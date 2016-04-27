@@ -24,8 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 /**
  * A <i>Java Bean</i> that filters a list of results.
  * <p>
- * Typically this filter is applied to results returned by the database before sending them to the
- * client.
+ * Typically this filter is applied to results returned by the database before sending them to the client.
  * </p>
  * 
  * @author Christian Ribeaud

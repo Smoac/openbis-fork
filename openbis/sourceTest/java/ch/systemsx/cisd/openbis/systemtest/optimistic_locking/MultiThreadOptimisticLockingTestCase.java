@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.systemtest.PersistentSystemTestCase;
 public class MultiThreadOptimisticLockingTestCase extends PersistentSystemTestCase
 {
     static final String CREATING_ENTITIES = "creating entities";
+
     protected ToolBox toolBox;
 
     @BeforeMethod
@@ -53,5 +54,5 @@ public class MultiThreadOptimisticLockingTestCase extends PersistentSystemTestCa
             throw new Error(m.getName() + "() : ", t);
         }
     }
-    
+
 }

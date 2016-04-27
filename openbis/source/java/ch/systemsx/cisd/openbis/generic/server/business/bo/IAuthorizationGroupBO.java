@@ -32,17 +32,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 public interface IAuthorizationGroupBO extends IBusinessObject
 {
     /**
-     * Defines a authorization group. After invocation of this method
-     * {@link IAuthorizationGroupBO#save()} should be invoked to store the new authorization group
-     * in the Data Access Layer.
+     * Defines a authorization group. After invocation of this method {@link IAuthorizationGroupBO#save()} should be invoked to store the new
+     * authorization group in the Data Access Layer.
      */
     void define(final NewAuthorizationGroup newAuthorizationGroup) throws UserFailureException;
 
     /**
      * Deletes the authorization group.
      * 
-     * @throws UserFailureException if authorization group with given technical identifier is not
-     *             found.
+     * @throws UserFailureException if authorization group with given technical identifier is not found.
      */
     public void deleteByTechId(TechId authGroupId, String reason);
 
@@ -57,14 +55,12 @@ public interface IAuthorizationGroupBO extends IBusinessObject
     public AuthorizationGroupPE getAuthorizationGroup();
 
     /**
-     * Loads authorization group with given technical id or throws exception if no such group
-     * exists.
+     * Loads authorization group with given technical id or throws exception if no such group exists.
      */
     public void loadByTechId(TechId authorizatonGroupId);
 
     /**
-     * Adds persons with given codes to the loaded authorization group. Returns a list of users
-     * codes not registered in the system.
+     * Adds persons with given codes to the loaded authorization group. Returns a list of users codes not registered in the system.
      */
     public List<String> addPersons(List<String> personsCodes);
 

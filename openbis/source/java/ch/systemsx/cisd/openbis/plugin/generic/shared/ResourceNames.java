@@ -19,9 +19,8 @@ package ch.systemsx.cisd.openbis.plugin.generic.shared;
 /**
  * Resource name used in <i>generic</i> plug-in.
  * <p>
- * Be aware about the uniqueness of the bean names loaded by <i>Spring</i>. Names defined here
- * should not conflict with already existing bean names. Look for other <code>ResourceNames</code>
- * classes.
+ * Be aware about the uniqueness of the bean names loaded by <i>Spring</i>. Names defined here should not conflict with already existing bean names.
+ * Look for other <code>ResourceNames</code> classes.
  * </p>
  * 
  * @author Christian Ribeaud

@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class AttributeEntry extends EntityModification
@@ -33,7 +31,7 @@ public class AttributeEntry extends EntityModification
     public String attributeName;
 
     public String value;
-    
+
     @Override
     public String toString()
     {

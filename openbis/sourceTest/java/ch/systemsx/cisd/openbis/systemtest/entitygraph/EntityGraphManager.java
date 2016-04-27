@@ -75,50 +75,54 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * Helper class which creates a graph of entities of kind experiment, sample, and data set based on a
- * textual description. A simple language defines the entities (experiments, samples, and data sets) and its relations. 
- * From the textual definition of the graph real entities are created in the database. The actual graph of
- * entities as stored in the data base can be rendered in the same language used for parsing. This allows to
- * checked expected changes after some (re-)assignment between the entities has been performed. It is also
- * possible to checked whether the entities have been modified (i.e. modifier and modification date have been changed)
- * or not. Here is an example:
+ * Helper class which creates a graph of entities of kind experiment, sample, and data set based on a textual description. A simple language defines
+ * the entities (experiments, samples, and data sets) and its relations. From the textual definition of the graph real entities are created in the
+ * database. The actual graph of entities as stored in the data base can be rendered in the same language used for parsing. This allows to checked
+ * expected changes after some (re-)assignment between the entities has been performed. It is also possible to checked whether the entities have been
+ * modified (i.e. modifier and modification date have been changed) or not. Here is an example:
+ * 
  * <pre>
- * EntityGraphGenerator g = entityGraphManager.parseAndCreateGraph("E1, data sets: DS4\n"
-                + "S1, data sets: DS1[NECT] DS2[NECT]\n"
-                + "S2\n"
-                + "S3, data sets: DS3[NET]\n"
-                + "DS1[NECT], components: DS2[NECT] DS3[NET]\n"
-                + "DS2[NECT], components: DS4");
-        
-        reassignToSample(g.ds(1), g.s(2));
-        
-        assertEquals("E1, data sets: DS4\n"
-                + "S2, data sets: DS1[NECT] DS2[NECT]\n"
-                + "S3, data sets: DS3[NET]\n"
-                + "DS1[NECT], components: DS2[NECT] DS3[NET]\n"
-                + "DS2[NECT], components: DS4\n", entityGraphManager.renderGraph(g));
-        entityGraphManager.assertModified(g.s(1), g.s(2));
-        entityGraphManager.assertModified(g.ds(1), g.ds(2));
-        entityGraphManager.assertUnmodified(g);
+ * EntityGraphGenerator g = entityGraphManager.parseAndCreateGraph(&quot;E1, data sets: DS4\n&quot;
+ *         + &quot;S1, data sets: DS1[NECT] DS2[NECT]\n&quot;
+ *         + &quot;S2\n&quot;
+ *         + &quot;S3, data sets: DS3[NET]\n&quot;
+ *         + &quot;DS1[NECT], components: DS2[NECT] DS3[NET]\n&quot;
+ *         + &quot;DS2[NECT], components: DS4&quot;);
+ * 
+ * reassignToSample(g.ds(1), g.s(2));
+ * 
+ * assertEquals(&quot;E1, data sets: DS4\n&quot;
+ *         + &quot;S2, data sets: DS1[NECT] DS2[NECT]\n&quot;
+ *         + &quot;S3, data sets: DS3[NET]\n&quot;
+ *         + &quot;DS1[NECT], components: DS2[NECT] DS3[NET]\n&quot;
+ *         + &quot;DS2[NECT], components: DS4\n&quot;, entityGraphManager.renderGraph(g));
+ * entityGraphManager.assertModified(g.s(1), g.s(2));
+ * entityGraphManager.assertModified(g.ds(1), g.ds(2));
+ * entityGraphManager.assertUnmodified(g);
  * </pre>
  * 
- *
  * @author Franz-Josef Elmer
  */
 public class EntityGraphManager
 {
     private final IServiceForDataStoreServer service;
+
     private final ICommonServerForInternalUse commonService;
+
     private final SessionFactory sessionFactory;
+
     private final String sessionToken;
-    
+
     private Space defaultSpace;
+
     private Project defaultProject;
+
     private ExperimentType defaultExperimentType;
+
     private SampleType defaultSampleType;
-    
+
     private EntityRepository repository;
-    
+
     public EntityGraphManager(IServiceForDataStoreServer service, ICommonServerForInternalUse commonService,
             SessionFactory sessionFactory, String sessionToken)
     {
@@ -127,7 +131,7 @@ public class EntityGraphManager
         this.sessionFactory = sessionFactory;
         this.sessionToken = sessionToken;
     }
-    
+
     public EntityGraphGenerator parseAndCreateGraph(String graphDefinition)
     {
         EntityGraphGenerator g = new EntityGraphGenerator();
@@ -137,7 +141,7 @@ public class EntityGraphManager
         repository.gatherModifictaionInfos();
         return g;
     }
-    
+
     public void addToRepository(ExperimentNode experimentNode, Experiment experiment)
     {
         repository.put(experimentNode, experiment);
@@ -152,7 +156,7 @@ public class EntityGraphManager
     {
         repository.assertDeleted(experimentNodes);
     }
-    
+
     public void assertModified(SampleNode[] sampleNodes)
     {
         repository.assertModified(sampleNodes);
@@ -162,7 +166,7 @@ public class EntityGraphManager
     {
         repository.assertDeleted(sampleNodes);
     }
-    
+
     public void assertModified(DataSetNode[] dataSetNodes)
     {
         repository.assertModified(dataSetNodes);
@@ -172,7 +176,7 @@ public class EntityGraphManager
     {
         repository.assertDeleted(dataSetNodes);
     }
-    
+
     public void assertUnmodified(EntityGraphGenerator g)
     {
         repository.assertUnmodified(g);
@@ -182,7 +186,7 @@ public class EntityGraphManager
     {
         repository.assertUndeleted(g);
     }
-    
+
     public String getIdentifierOfDefaultProject()
     {
         return defaultProject.getIdentifier();
@@ -192,12 +196,12 @@ public class EntityGraphManager
     {
         return repository.getExperimentIdentifierOrNull(experimentNodeOrNull);
     }
-    
+
     public Sample getSample(SampleNode sampleNode)
     {
         return repository.getSample(sampleNode);
     }
-    
+
     public Sample tryGetSample(SampleNode sampleNode)
     {
         return repository.tryGetSample(sampleNode);
@@ -207,12 +211,12 @@ public class EntityGraphManager
     {
         return repository.getSamplePermIdOrNull(sampleNodeOrNull);
     }
-    
+
     public AbstractExternalData getDataSet(DataSetNode dataSetNode)
     {
         return repository.getDataSet(dataSetNode);
     }
-    
+
     public AbstractExternalData tryGetDataSet(DataSetNode dataSetNode)
     {
         return repository.tryGetDataSet(dataSetNode);
@@ -222,12 +226,12 @@ public class EntityGraphManager
     {
         return repository.getDataSetCodeOrNull(dataSetNodeOrNull);
     }
-    
+
     public String renderGraph(EntityGraphGenerator g)
     {
         return renderGraph(g, false);
     }
-    
+
     public String renderGraph(EntityGraphGenerator g, boolean showWhereIAm)
     {
         repository.refreshGraph(showWhereIAm);
@@ -293,7 +297,7 @@ public class EntityGraphManager
         }
         return sampleNode.getIdentifierAndType();
     }
-    
+
     private String removeSolitaryNodes(String graphDefinition)
     {
         StringBuilder builder = new StringBuilder();
@@ -307,7 +311,7 @@ public class EntityGraphManager
         }
         return builder.toString();
     }
-    
+
     private void appendNodeTo(StringBuilder builder, String identifierAndType, StringBuilder builder2)
     {
         if (builder2.length() > 0)
@@ -316,12 +320,12 @@ public class EntityGraphManager
             builder.append(builder2).append("\n");
         }
     }
-    
+
     private void render(StringBuilder builder, String name, Collection<? extends EntityNode> nodes)
     {
         render(builder, name, getIdentifiers(nodes));
     }
-    
+
     private List<String> getIdentifiers(Collection<? extends EntityNode> nodes)
     {
         List<String> identifiers = new ArrayList<String>();
@@ -336,7 +340,7 @@ public class EntityGraphManager
         }
         return identifiers;
     }
-    
+
     private void render(StringBuilder builder, String name, List<String> identifiers)
     {
         if (identifiers.isEmpty())
@@ -349,7 +353,7 @@ public class EntityGraphManager
             builder.append(' ').append(identifier);
         }
     }
-    
+
     private Space createSpace(String spaceCode)
     {
         SpaceIdentifier spaceIdentifier = new SpaceIdentifier(spaceCode);
@@ -361,7 +365,7 @@ public class EntityGraphManager
         commonService.registerSpace(sessionToken, spaceCode, null);
         return service.tryGetSpace(sessionToken, spaceIdentifier);
     }
-    
+
     private Project createProject(Space space, String projectCode)
     {
         ProjectIdentifier projectIdentifier = new ProjectIdentifier(space.getCode(), projectCode);
@@ -370,11 +374,11 @@ public class EntityGraphManager
         {
             return project;
         }
-        commonService.registerProject(sessionToken, projectIdentifier, null, null, 
-                Collections.<NewAttachment>emptyList());
+        commonService.registerProject(sessionToken, projectIdentifier, null, null,
+                Collections.<NewAttachment> emptyList());
         return commonService.getProjectInfo(sessionToken, projectIdentifier);
     }
-    
+
     private ExperimentType createExperimentType(String typeCode)
     {
         for (ExperimentType experimentType : commonService.listExperimentTypes(sessionToken))
@@ -389,7 +393,7 @@ public class EntityGraphManager
         commonService.registerExperimentType(sessionToken, experimentType);
         return service.getExperimentType(sessionToken, typeCode);
     }
-    
+
     private SampleType createSampleType(String typeCode)
     {
         for (SampleType sampleType : commonService.listSampleTypes(sessionToken))
@@ -405,7 +409,7 @@ public class EntityGraphManager
         commonService.registerSampleType(sessionToken, sampleType);
         return service.getSampleType(sessionToken, typeCode);
     }
-    
+
     private DataSetType createDataSetType(String typeCode, DataSetKind dataSetKind)
     {
         for (DataSetType dataSetType : commonService.listDataSetTypes(sessionToken))
@@ -422,7 +426,7 @@ public class EntityGraphManager
         dataSetType = service.getDataSetType(sessionToken, typeCode).getDataSetType();
         return dataSetType;
     }
-    
+
     private Experiment createExperiment(ExperimentNode experimentNode, Project project)
     {
         try
@@ -438,7 +442,7 @@ public class EntityGraphManager
             return service.tryGetExperiment(sessionToken, ExperimentIdentifierFactory.parse(identifier));
         } catch (Exception ex)
         {
-            throw new RuntimeException("Error while creating experiment for node " + experimentNode.getCode() 
+            throw new RuntimeException("Error while creating experiment for node " + experimentNode.getCode()
                     + ": " + ex.getMessage(), ex);
         }
     }
@@ -463,19 +467,19 @@ public class EntityGraphManager
                 Sample containerSample = repository.tryGetSample(container);
                 if (containerSample == null)
                 {
-                    throw new IllegalStateException("Sample " + container.getCode() 
-                            + " is specified as container of " + sampleNode.getCode() 
+                    throw new IllegalStateException("Sample " + container.getCode()
+                            + " is specified as container of " + sampleNode.getCode()
                             + " but hasn't yet created.");
                 }
                 sample.setContainerIdentifier(containerSample.getIdentifier());
             }
             sample.setProperties(new IEntityProperty[0]);
-            sample.setAttachments(Collections.<NewAttachment>emptyList());
+            sample.setAttachments(Collections.<NewAttachment> emptyList());
             service.registerSample(sessionToken, sample, null);
             return service.tryGetSampleWithExperiment(sessionToken, SampleIdentifierFactory.parse(sample));
         } catch (Exception ex)
         {
-            throw new RuntimeException("Error while creating sample for node " + sampleNode.getCode() 
+            throw new RuntimeException("Error while creating sample for node " + sampleNode.getCode()
                     + ": " + ex.getMessage(), ex);
         }
     }
@@ -488,8 +492,8 @@ public class EntityGraphManager
             Sample parentSample = repository.tryGetSample(parent);
             if (parentSample == null)
             {
-                throw new IllegalStateException("Sample " + parent.getCode() 
-                        + " is specified as parent of " + sampleNode.getCode() 
+                throw new IllegalStateException("Sample " + parent.getCode()
+                        + " is specified as parent of " + sampleNode.getCode()
                         + " but hasn't yet created.");
             }
             parentIdentifiers.add(parentSample.getIdentifier());
@@ -509,7 +513,7 @@ public class EntityGraphManager
         }
         return prefix + sampleNode.getCode() + generateUniqueId();
     }
-    
+
     private AbstractExternalData createDataSet(DataSetNode dataSetNode)
     {
         try
@@ -548,7 +552,7 @@ public class EntityGraphManager
             return service.tryGetDataSet(sessionToken, dataSet.getCode());
         } catch (Exception ex)
         {
-            throw new RuntimeException("Error while creating data set for node " + dataSetNode.getIdentifierAndType() 
+            throw new RuntimeException("Error while creating data set for node " + dataSetNode.getIdentifierAndType()
                     + ": " + ex.getMessage(), ex);
         }
     }
@@ -574,8 +578,8 @@ public class EntityGraphManager
             AbstractExternalData parentDataSet = repository.tryGetDataSet(parent);
             if (parentDataSet == null)
             {
-                throw new IllegalStateException("Data set " + parent.getCode() 
-                        + " is specified as " + relationType + " of " + dataSetNode.getCode() 
+                throw new IllegalStateException("Data set " + parent.getCode()
+                        + " is specified as " + relationType + " of " + dataSetNode.getCode()
                         + " but hasn't yet created.");
             }
             parentCodes.add(parentDataSet.getCode());
@@ -592,7 +596,7 @@ public class EntityGraphManager
     {
         return "-" + service.createPermId(sessionToken);
     }
-    
+
     private void createGraph(EntityGraphGenerator g)
     {
         repository = new EntityRepository();
@@ -621,13 +625,13 @@ public class EntityGraphManager
     private void createSamples(Space space, EntityGraphGenerator g)
     {
         ArrayList<SampleNode> sampleNodes = new ArrayList<SampleNode>(g.getSamples().values());
-//        Collections.reverse(sampleNodes);
+        // Collections.reverse(sampleNodes);
         for (SampleNode sampleNode : sampleNodes)
         {
             repository.put(sampleNode, createSample(sampleNode, space));
         }
     }
-    
+
     private void createExperiments(Project project, EntityGraphGenerator g)
     {
         for (ExperimentNode experimentNode : g.getExperiments().values())
@@ -635,34 +639,51 @@ public class EntityGraphManager
             repository.put(experimentNode, createExperiment(experimentNode, project));
         }
     }
-    
+
     private final class EntityRepository
     {
         private Map<Long, Experiment> experimentsNodeToDtoMap = new TreeMap<Long, Experiment>();
+
         private Map<Long, ModificationInfo> experimentModificationInfoByNodeId = new HashMap<Long, ModificationInfo>();
+
         private Set<ExperimentNode> modifiedExperimentNodes = new HashSet<ExperimentNode>();
+
         private Set<ExperimentNode> deletedExperimentNodes = new HashSet<ExperimentNode>();
-        
+
         private Map<Long, Sample> samplesNodeToDtoMap = new TreeMap<Long, Sample>();
+
         private Map<Long, SampleNode> samplesDtoToNodeMap = new TreeMap<Long, SampleNode>();
+
         private Map<Long, ModificationInfo> sampleModificationInfoByNodeId = new HashMap<Long, ModificationInfo>();
+
         private Set<SampleNode> modifiedSampleNodes = new HashSet<SampleNode>();
+
         private Set<SampleNode> deletedSampleNodes = new HashSet<SampleNode>();
 
         private Map<Long, AbstractExternalData> dataSetsNodeToDtoMap = new TreeMap<Long, AbstractExternalData>();
+
         private Map<Long, DataSetNode> dataSetsDtoToNodeMap = new TreeMap<Long, DataSetNode>();
+
         private Map<Long, ModificationInfo> dataSetModificationInfoByNodeId = new HashMap<Long, ModificationInfo>();
+
         private Set<DataSetNode> modifiedDataSetNodes = new HashSet<DataSetNode>();
+
         private Set<DataSetNode> deletedDataSetNodes = new HashSet<DataSetNode>();
 
         private Map<Long, Set<Long>> experimentSamplesMap = new HashMap<Long, Set<Long>>();
+
         private Map<Long, Set<Long>> childrenSamplesMap = new HashMap<Long, Set<Long>>();
+
         private Map<Long, Set<Long>> componentSamplesMap = new HashMap<Long, Set<Long>>();
+
         private Map<Long, Set<Long>> experimentDataSetsMap = new HashMap<Long, Set<Long>>();
+
         private Map<Long, Set<Long>> sampleDataSetsMap = new HashMap<Long, Set<Long>>();
+
         private Map<Long, Set<Long>> componentDataSetsMap = new HashMap<Long, Set<Long>>();
+
         private Map<Long, Set<Long>> parentDataSetsMap = new HashMap<Long, Set<Long>>();
-        
+
         public String renderNodeToDtoMapping()
         {
             StringBuilder builder = new StringBuilder();
@@ -680,8 +701,8 @@ public class EntityGraphManager
             }
             return builder.toString();
         }
-        
-        private void render(StringBuilder builder, String prefix, Long id, 
+
+        private void render(StringBuilder builder, String prefix, Long id,
                 CodeWithRegistrationAndModificationDate<?> entity)
         {
             builder.append(prefix).append(id).append(" -> ").append(entity.getCode()).append(" (");
@@ -693,12 +714,12 @@ public class EntityGraphManager
             builder.append(entity.getModifier().getUserId()).append(", ");
             builder.append(entity.getModificationDate()).append(")\n");
         }
-        
+
         public String getExperimentIdentifierOrNull(ExperimentNode experimentNodeOrNull)
         {
             return experimentNodeOrNull == null ? null : getExperiment(experimentNodeOrNull).getIdentifier();
         }
-        
+
         public Experiment getExperiment(ExperimentNode experimentNode)
         {
             Experiment experiment = tryGetExperiment(experimentNode);
@@ -708,17 +729,17 @@ public class EntityGraphManager
             }
             return experiment;
         }
-        
+
         public Experiment tryGetExperiment(ExperimentNode experimentNode)
         {
             return experimentsNodeToDtoMap.get(experimentNode.getId());
         }
-        
+
         public String getSamplePermIdOrNull(SampleNode sampleNodeOrNull)
         {
             return sampleNodeOrNull == null ? null : getSample(sampleNodeOrNull).getPermId();
         }
-        
+
         public Sample getSample(SampleNode sampleNode)
         {
             Sample sample = tryGetSample(sampleNode);
@@ -728,17 +749,17 @@ public class EntityGraphManager
             }
             return sample;
         }
-        
+
         public Sample tryGetSample(SampleNode sampleNode)
         {
             return samplesNodeToDtoMap.get(sampleNode.getId());
         }
-        
+
         public String getDataSetCodeOrNull(DataSetNode dataSetNodeOrNull)
         {
             return dataSetNodeOrNull == null ? null : getDataSet(dataSetNodeOrNull).getCode();
         }
-        
+
         public AbstractExternalData getDataSet(DataSetNode dataSetNode)
         {
             AbstractExternalData dataSet = tryGetDataSet(dataSetNode);
@@ -748,12 +769,12 @@ public class EntityGraphManager
             }
             return dataSet;
         }
-        
+
         public AbstractExternalData tryGetDataSet(DataSetNode dataSetNode)
         {
             return dataSetsNodeToDtoMap.get(dataSetNode.getId());
         }
-        
+
         void refreshGraph(boolean showWhereIAm)
         {
             refreshExperimentDtos();
@@ -770,8 +791,8 @@ public class EntityGraphManager
 
         private void refreshDataSetDtos()
         {
-            List<Entry<Long, AbstractExternalData>> nodeToDtoMapping 
-                    = new ArrayList<Entry<Long, AbstractExternalData>>(dataSetsNodeToDtoMap.entrySet());
+            List<Entry<Long, AbstractExternalData>> nodeToDtoMapping =
+                    new ArrayList<Entry<Long, AbstractExternalData>>(dataSetsNodeToDtoMap.entrySet());
             dataSetsNodeToDtoMap.clear();
             for (Entry<Long, AbstractExternalData> entry : nodeToDtoMapping)
             {
@@ -904,7 +925,7 @@ public class EntityGraphManager
             }
             System.out.println("...");
         }
-        
+
         private void addToEntitiesMap(Map<Long, Set<Long>> entityToEntitiesMap, IIdHolder keyEntity, IIdHolder valueEntity)
         {
             if (keyEntity != null)
@@ -919,7 +940,7 @@ public class EntityGraphManager
                 entityIds.add(valueEntity.getId());
             }
         }
-        
+
         void gatherModifictaionInfos()
         {
             for (Entry<Long, Experiment> entry : experimentsNodeToDtoMap.entrySet())
@@ -935,63 +956,63 @@ public class EntityGraphManager
                 dataSetModificationInfoByNodeId.put(entry.getKey(), new ModificationInfo(entry.getValue()));
             }
         }
-        
+
         void put(ExperimentNode experimentNode, Experiment experiment)
         {
             experimentsNodeToDtoMap.put(experimentNode.getId(), experiment);
         }
-        
-        public void assertModified(ExperimentNode...experimentNodes)
+
+        public void assertModified(ExperimentNode... experimentNodes)
         {
-            assertModificationInfo(true, experimentModificationInfoByNodeId, experimentsNodeToDtoMap, 
-                    Arrays.<EntityNode>asList(experimentNodes));
+            assertModificationInfo(true, experimentModificationInfoByNodeId, experimentsNodeToDtoMap,
+                    Arrays.<EntityNode> asList(experimentNodes));
             modifiedExperimentNodes.addAll(Arrays.asList(experimentNodes));
         }
-        
-        public void assertDeleted(ExperimentNode...experimentNodes)
+
+        public void assertDeleted(ExperimentNode... experimentNodes)
         {
-            assertDeleted(experimentsNodeToDtoMap,  Arrays.<EntityNode>asList(experimentNodes));
+            assertDeleted(experimentsNodeToDtoMap, Arrays.<EntityNode> asList(experimentNodes));
             deletedExperimentNodes.addAll(Arrays.asList(experimentNodes));
         }
-        
+
         void put(SampleNode sampleNode, Sample sample)
         {
             samplesNodeToDtoMap.put(sampleNode.getId(), sample);
             samplesDtoToNodeMap.put(sample.getId(), sampleNode);
         }
 
-        public void assertModified(SampleNode...sampleNodes)
+        public void assertModified(SampleNode... sampleNodes)
         {
-            assertModificationInfo(true, sampleModificationInfoByNodeId, samplesNodeToDtoMap, 
-                    Arrays.<EntityNode>asList(sampleNodes));
+            assertModificationInfo(true, sampleModificationInfoByNodeId, samplesNodeToDtoMap,
+                    Arrays.<EntityNode> asList(sampleNodes));
             modifiedSampleNodes.addAll(Arrays.asList(sampleNodes));
         }
-        
-        public void assertDeleted(SampleNode...sampleNodes)
+
+        public void assertDeleted(SampleNode... sampleNodes)
         {
-            assertDeleted(samplesNodeToDtoMap, Arrays.<EntityNode>asList(sampleNodes));
+            assertDeleted(samplesNodeToDtoMap, Arrays.<EntityNode> asList(sampleNodes));
             deletedSampleNodes.addAll(Arrays.asList(sampleNodes));
         }
-        
+
         void put(DataSetNode dataSetNode, AbstractExternalData dataSet)
         {
             dataSetsNodeToDtoMap.put(dataSetNode.getId(), dataSet);
             dataSetsDtoToNodeMap.put(dataSet.getId(), dataSetNode);
         }
-        
-        public void assertModified(DataSetNode...dataSetNodes)
+
+        public void assertModified(DataSetNode... dataSetNodes)
         {
-            assertModificationInfo(true, dataSetModificationInfoByNodeId, dataSetsNodeToDtoMap, 
-                    Arrays.<EntityNode>asList(dataSetNodes));
+            assertModificationInfo(true, dataSetModificationInfoByNodeId, dataSetsNodeToDtoMap,
+                    Arrays.<EntityNode> asList(dataSetNodes));
             modifiedDataSetNodes.addAll(Arrays.asList(dataSetNodes));
         }
-        
-        public void assertDeleted(DataSetNode...dataSetNodes)
+
+        public void assertDeleted(DataSetNode... dataSetNodes)
         {
-            assertDeleted(dataSetsNodeToDtoMap, Arrays.<EntityNode>asList(dataSetNodes));
+            assertDeleted(dataSetsNodeToDtoMap, Arrays.<EntityNode> asList(dataSetNodes));
             deletedDataSetNodes.addAll(Arrays.asList(dataSetNodes));
         }
-        
+
         public void assertUnmodified(EntityGraphGenerator g)
         {
             Set<EntityNode> unmodifiedExperimentNodes = new HashSet<EntityNode>(g.getExperiments().values());
@@ -1004,7 +1025,7 @@ public class EntityGraphManager
             unmodifiedDataSetNodes.removeAll(modifiedDataSetNodes);
             assertModificationInfo(false, dataSetModificationInfoByNodeId, dataSetsNodeToDtoMap, unmodifiedDataSetNodes);
         }
-        
+
         private void assertModificationInfo(boolean modified, Map<Long, ModificationInfo> previousInfos,
                 Map<Long, ? extends CodeWithRegistrationAndModificationDate<?>> nodeToDtoMap,
                 Collection<EntityNode> entityNodes)
@@ -1029,22 +1050,22 @@ public class EntityGraphManager
                     ModificationInfo current = new ModificationInfo(entity);
                     if (modified)
                     {
-                        assertEquals(node.getCode() + " has unexpectedly still the old modifier: " + current.modifier, 
+                        assertEquals(node.getCode() + " has unexpectedly still the old modifier: " + current.modifier,
                                 false, current.modifier.equals(previous.modifier));
-                        assertEquals(node.getCode() + " has unexpectedly still the old modification date: " 
-                                + current.modificationDate + " > " + previous.modificationDate, 
+                        assertEquals(node.getCode() + " has unexpectedly still the old modification date: "
+                                + current.modificationDate + " > " + previous.modificationDate,
                                 true, current.modificationDate.getTime() > previous.modificationDate.getTime());
                     } else
                     {
                         assertEquals(node.getCode() + " has unexpectedly a new modifier: ",
                                 previous.modifier, current.modifier);
-                        assertEquals(node.getCode() + " has unexpectedly a new modification date:", 
+                        assertEquals(node.getCode() + " has unexpectedly a new modification date:",
                                 previous.modificationDate, current.modificationDate);
                     }
                 }
             }
         }
-        
+
         private void assertDeleted(Map<Long, ? extends CodeWithRegistrationAndModificationDate<?>> nodeToDtoMap,
                 Collection<EntityNode> entityNodes)
         {
@@ -1056,7 +1077,7 @@ public class EntityGraphManager
                 }
             }
         }
-         
+
         public void assertUndeleted(EntityGraphGenerator g)
         {
             Set<EntityNode> undeletedExperimentNodes = new HashSet<EntityNode>(g.getExperiments().values());
@@ -1069,7 +1090,7 @@ public class EntityGraphManager
             undeletedDataSetNodes.removeAll(deletedDataSetNodes);
             assertUndeleted(dataSetsNodeToDtoMap, undeletedDataSetNodes);
         }
-        
+
         private void assertUndeleted(Map<Long, ? extends CodeWithRegistrationAndModificationDate<?>> nodeToDtoMap,
                 Collection<EntityNode> entityNodes)
         {
@@ -1087,26 +1108,25 @@ public class EntityGraphManager
                 fail("The following nodes have been deleted: " + deletedNodes);
             }
         }
-         
 
         Set<SampleNode> getSampleNodes(ExperimentNode experimentNode)
         {
-            return getEntityNodes(experimentSamplesMap, experimentsNodeToDtoMap.get(experimentNode.getId()), 
+            return getEntityNodes(experimentSamplesMap, experimentsNodeToDtoMap.get(experimentNode.getId()),
                     samplesDtoToNodeMap);
         }
-        
+
         Set<SampleNode> getChildrenSampleNodes(SampleNode sampleNode)
         {
-            return getEntityNodes(childrenSamplesMap, samplesNodeToDtoMap.get(sampleNode.getId()), 
+            return getEntityNodes(childrenSamplesMap, samplesNodeToDtoMap.get(sampleNode.getId()),
                     samplesDtoToNodeMap);
         }
-        
+
         Set<SampleNode> getComponentSampleNodes(SampleNode sampleNode)
         {
-            return getEntityNodes(componentSamplesMap, samplesNodeToDtoMap.get(sampleNode.getId()), 
+            return getEntityNodes(componentSamplesMap, samplesNodeToDtoMap.get(sampleNode.getId()),
                     samplesDtoToNodeMap);
         }
-        
+
         Set<DataSetNode> getDataSetNodes(ExperimentNode experimentNode)
         {
             return getDataSetNodes(experimentDataSetsMap, experimentsNodeToDtoMap.get(experimentNode.getId()));
@@ -1116,23 +1136,23 @@ public class EntityGraphManager
         {
             return getDataSetNodes(sampleDataSetsMap, samplesNodeToDtoMap.get(sampleNode.getId()));
         }
-        
+
         Set<DataSetNode> getComponentDataSetNodes(DataSetNode containerDataSetNode)
         {
             return getDataSetNodes(componentDataSetsMap, dataSetsNodeToDtoMap.get(containerDataSetNode.getId()));
         }
-        
+
         Set<DataSetNode> getParentDataSetNodes(DataSetNode childDataSetNode)
         {
             return getDataSetNodes(parentDataSetsMap, dataSetsNodeToDtoMap.get(childDataSetNode.getId()));
         }
-        
+
         private Set<DataSetNode> getDataSetNodes(Map<Long, Set<Long>> idHolderDataSetsMap, IIdHolder idHolder)
         {
             return getEntityNodes(idHolderDataSetsMap, idHolder, dataSetsDtoToNodeMap);
         }
 
-        private <T extends EntityNode> Set<T> getEntityNodes(Map<Long, Set<Long>> idHolderEntitiesMap, IIdHolder idHolder, 
+        private <T extends EntityNode> Set<T> getEntityNodes(Map<Long, Set<Long>> idHolderEntitiesMap, IIdHolder idHolder,
                 Map<Long, T> dtoToNodeMap)
         {
             Set<T> result = new TreeSet<T>();
@@ -1150,10 +1170,11 @@ public class EntityGraphManager
             return result;
         }
     }
-    
+
     private static final class ModificationInfo
     {
         private final String modifier;
+
         private final Date modificationDate;
 
         ModificationInfo(CodeWithRegistrationAndModificationDate<?> entity)

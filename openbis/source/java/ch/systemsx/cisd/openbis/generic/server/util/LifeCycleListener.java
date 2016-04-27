@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.util;
 import org.eclipse.jetty.util.component.LifeCycle;
 
 /**
- * Stops a component (e.g. Web Server) if it goes into state "Failure". Prints messages
- * on console in case of success and failure.
+ * Stops a component (e.g. Web Server) if it goes into state "Failure". Prints messages on console in case of success and failure.
  *
  * @author Franz-Josef Elmer
  */

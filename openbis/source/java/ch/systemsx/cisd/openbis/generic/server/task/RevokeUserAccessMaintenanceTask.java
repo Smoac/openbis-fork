@@ -46,123 +46,130 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
  * 
  * @author Juan Fuentes
  */
-public class RevokeUserAccessMaintenanceTask implements IMaintenanceTask {
-	private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, RevokeUserAccessMaintenanceTask.class);
-	private static final String AUTH_SERVICE_BEAN = "authentication-service";
-	private static final IAuthenticationService authService;
-	
-	static {
-		IAuthenticationService authServiceAux = (IAuthenticationService) CommonServiceProvider.tryToGetBean(AUTH_SERVICE_BEAN);
-	
-		if (authServiceAux instanceof StackedAuthenticationService && ((StackedAuthenticationService) authServiceAux).allServicesSupportListingByUserId())
-		{
-			authService = authServiceAux;
-		} else if(authServiceAux.supportsListingByUserId())
-		{
-			authService = authServiceAux;
-		} 
-		else
-		{
-			authService = null;
-		}
-	}
-	
-	@Override
-	public void setUp(String pluginName, Properties properties) {
-		operationLog.info("Task " + pluginName + " initialized.");
-	}
+public class RevokeUserAccessMaintenanceTask implements IMaintenanceTask
+{
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, RevokeUserAccessMaintenanceTask.class);
 
-	@Override
-	public void execute() 
-	{
-		operationLog.info("execution started");
-		//0. Initial Check
-		if(authService == null) 
-		{
-			operationLog.info("This plugin doesn't work with authentication services that don't support listing by user idt.");
-			return;
-		}
-		// 1. Grab all users, user roles and user authorization groups
-		IPersonDAO personDAO = CommonServiceProvider.getDAOFactory().getPersonDAO();
-		IRoleAssignmentDAO rolesDAO = CommonServiceProvider.getDAOFactory().getRoleAssignmentDAO();
-		
-		// Used to manage the authorization groups since the IPersonDAO throw a session exception when accessing this information.
-		ICommonServerForInternalUse server = CommonServiceProvider.getCommonServer();
-		SessionContextDTO contextOrNull = server.tryToAuthenticateAsSystem();
+    private static final String AUTH_SERVICE_BEAN = "authentication-service";
 
-		List<PersonPE> people = personDAO.listActivePersons();
+    private static final IAuthenticationService authService;
 
-		// 2. Users to Revoke
-		List<PersonPE> peopleToRevoke = new ArrayList<PersonPE>();
+    static
+    {
+        IAuthenticationService authServiceAux = (IAuthenticationService) CommonServiceProvider.tryToGetBean(AUTH_SERVICE_BEAN);
 
-		// 3. Check if the users exists on LDAP currently
-		personCheck:
-		for (PersonPE person : people) 
-		{
-			if (false == person.isSystemUser() && person.isActive() && false == isUserValid(person.getUserId())) 
-			{
-				List<RoleAssignmentPE> roles = rolesDAO.listRoleAssignmentsByPerson(person);
-				for (RoleAssignmentPE role : roles) 
-				{
-					if (role.getRole().name().equals("ETL_SERVER")) 
-					{
-						continue personCheck;
-					}
-				}
-				peopleToRevoke.add(person);
-			}
-		}
+        if (authServiceAux instanceof StackedAuthenticationService
+                && ((StackedAuthenticationService) authServiceAux).allServicesSupportListingByUserId())
+        {
+            authService = authServiceAux;
+        } else if (authServiceAux.supportsListingByUserId())
+        {
+            authService = authServiceAux;
+        }
+        else
+        {
+            authService = null;
+        }
+    }
 
-		// 4. If is not found on the authentication service, revoke access
-		for (PersonPE person : peopleToRevoke) 
-		{
-			String userIdToRevoke = person.getUserId();
-			operationLog.info("person " + userIdToRevoke + " is going to be revoked.");
+    @Override
+    public void setUp(String pluginName, Properties properties)
+    {
+        operationLog.info("Task " + pluginName + " initialized.");
+    }
 
-			// Delete person roles
-			for (RoleAssignmentPE role : rolesDAO.listRoleAssignmentsByPerson(person)) 
-			{
-				rolesDAO.delete(role);
-			}
+    @Override
+    public void execute()
+    {
+        operationLog.info("execution started");
+        // 0. Initial Check
+        if (authService == null)
+        {
+            operationLog.info("This plugin doesn't work with authentication services that don't support listing by user idt.");
+            return;
+        }
+        // 1. Grab all users, user roles and user authorization groups
+        IPersonDAO personDAO = CommonServiceProvider.getDAOFactory().getPersonDAO();
+        IRoleAssignmentDAO rolesDAO = CommonServiceProvider.getDAOFactory().getRoleAssignmentDAO();
 
-			// Delete person from groups
-			List<AuthorizationGroup> groups = server.listAuthorizationGroups(contextOrNull.getSessionToken());
+        // Used to manage the authorization groups since the IPersonDAO throw a session exception when accessing this information.
+        ICommonServerForInternalUse server = CommonServiceProvider.getCommonServer();
+        SessionContextDTO contextOrNull = server.tryToAuthenticateAsSystem();
 
-			for (AuthorizationGroup group : groups) 
-			{
-				List<Person> peopleInGroup = server.listPersonInAuthorizationGroup(contextOrNull.getSessionToken(), new TechId(group.getId()));
-				for (Person personInGroup : peopleInGroup) 
-				{
-					if (personInGroup.getUserId().equals(userIdToRevoke)) 
-					{
-						List<String> toRemoveFromGroup = new ArrayList<String>();
-						toRemoveFromGroup.add(person.getUserId());
-						server.removePersonsFromAuthorizationGroup(contextOrNull.getSessionToken(), new TechId(group.getId()), toRemoveFromGroup);
-					}
-				}
-			}
+        List<PersonPE> people = personDAO.listActivePersons();
 
-			// Change userId and disable
-			person.setUserId(person.getUserId() + "-" + getTimeStamp());
-			person.setActive(false);
-			personDAO.updatePerson(person);
+        // 2. Users to Revoke
+        List<PersonPE> peopleToRevoke = new ArrayList<PersonPE>();
 
-			operationLog.info("person " + userIdToRevoke + " has been revoked.");
-		}
+        // 3. Check if the users exists on LDAP currently
+        personCheck: for (PersonPE person : people)
+        {
+            if (false == person.isSystemUser() && person.isActive() && false == isUserValid(person.getUserId()))
+            {
+                List<RoleAssignmentPE> roles = rolesDAO.listRoleAssignmentsByPerson(person);
+                for (RoleAssignmentPE role : roles)
+                {
+                    if (role.getRole().name().equals("ETL_SERVER"))
+                    {
+                        continue personCheck;
+                    }
+                }
+                peopleToRevoke.add(person);
+            }
+        }
 
-		operationLog.info("task executed");
-	}
+        // 4. If is not found on the authentication service, revoke access
+        for (PersonPE person : peopleToRevoke)
+        {
+            String userIdToRevoke = person.getUserId();
+            operationLog.info("person " + userIdToRevoke + " is going to be revoked.");
 
-	/*
-	 * We can only delete the users if, the Principals are listable and they are not available.
-	 */
-	private boolean isUserValid(String userId) {
-		return authService.supportsListingByUserId() && false == authService.listPrincipalsByUserId(userId).isEmpty();
-	}
+            // Delete person roles
+            for (RoleAssignmentPE role : rolesDAO.listRoleAssignmentsByPerson(person))
+            {
+                rolesDAO.delete(role);
+            }
 
-	private String getTimeStamp() {
-		DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd");
-		return dateFormat.format(new Date());
-	}
+            // Delete person from groups
+            List<AuthorizationGroup> groups = server.listAuthorizationGroups(contextOrNull.getSessionToken());
+
+            for (AuthorizationGroup group : groups)
+            {
+                List<Person> peopleInGroup = server.listPersonInAuthorizationGroup(contextOrNull.getSessionToken(), new TechId(group.getId()));
+                for (Person personInGroup : peopleInGroup)
+                {
+                    if (personInGroup.getUserId().equals(userIdToRevoke))
+                    {
+                        List<String> toRemoveFromGroup = new ArrayList<String>();
+                        toRemoveFromGroup.add(person.getUserId());
+                        server.removePersonsFromAuthorizationGroup(contextOrNull.getSessionToken(), new TechId(group.getId()), toRemoveFromGroup);
+                    }
+                }
+            }
+
+            // Change userId and disable
+            person.setUserId(person.getUserId() + "-" + getTimeStamp());
+            person.setActive(false);
+            personDAO.updatePerson(person);
+
+            operationLog.info("person " + userIdToRevoke + " has been revoked.");
+        }
+
+        operationLog.info("task executed");
+    }
+
+    /*
+     * We can only delete the users if, the Principals are listable and they are not available.
+     */
+    private boolean isUserValid(String userId)
+    {
+        return authService.supportsListingByUserId() && false == authService.listPrincipalsByUserId(userId).isEmpty();
+    }
+
+    private String getTimeStamp()
+    {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd");
+        return dateFormat.format(new Date());
+    }
 
 }

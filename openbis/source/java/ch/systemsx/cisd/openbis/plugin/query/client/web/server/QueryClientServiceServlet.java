@@ -29,16 +29,15 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.ResourceNames;
 /**
  * The {@link GWTRPCServiceExporter} for the <i>query</i> service.
  * <p>
- * <i>URL</i> mappings are: <code>/query</code> and <code>/openbis/query</code>. The encapsulated
- * {@link ICommonClientService} service implementation is expected to be defined as bean with name
- * <code>query-plugin-service</code>.
+ * <i>URL</i> mappings are: <code>/query</code> and <code>/openbis/query</code>. The encapsulated {@link ICommonClientService} service implementation
+ * is expected to be defined as bean with name <code>query-plugin-service</code>.
  * </p>
  * 
  * @author Christian Ribeaud
  */
 @Controller
 @RequestMapping(
-    { "/query", "/openbis/query" })
+{ "/query", "/openbis/query" })
 public final class QueryClientServiceServlet extends GWTRPCServiceExporter
 {
     private static final long serialVersionUID = 1L;

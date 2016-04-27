@@ -27,8 +27,8 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleDateRenderer;
 
 /**
- * Tests of {@link SimpleDateRenderer}. The test is in the different package than the tested class
- * to have access to TimeZone class (GWT does not support it).
+ * Tests of {@link SimpleDateRenderer}. The test is in the different package than the tested class to have access to TimeZone class (GWT does not
+ * support it).
  * 
  * @author Tomasz Pylak
  */
@@ -38,10 +38,10 @@ public class SimpleDateRendererTest extends AssertJUnit
     private Object[][] getDates()
     {
         return new Object[][]
-            {
-                    { toDate(1991, 12, 3, 3, 13, 59, "CET"), "1991-12-03 03:13:59 GMT+01:00" },
-                    { toDate(2008, 12, 6, 15, 35, 17, "CET"), "2008-12-06 15:35:17 GMT+01:00" },
-                    { toDate(2008, 7, 31, 1, 2, 3, "CET"), "2008-07-31 01:02:03 GMT+02:00" } };
+        {
+                { toDate(1991, 12, 3, 3, 13, 59, "CET"), "1991-12-03 03:13:59 GMT+01:00" },
+                { toDate(2008, 12, 6, 15, 35, 17, "CET"), "2008-12-06 15:35:17 GMT+01:00" },
+                { toDate(2008, 7, 31, 1, 2, 3, "CET"), "2008-07-31 01:02:03 GMT+02:00" } };
     }
 
     @Test(dataProvider = "dates")

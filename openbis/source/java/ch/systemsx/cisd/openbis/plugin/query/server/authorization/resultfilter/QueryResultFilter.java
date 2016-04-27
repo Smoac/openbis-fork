@@ -37,8 +37,8 @@ import ch.systemsx.cisd.openbis.plugin.query.server.authorization.AuthorizationC
 import ch.systemsx.cisd.openbis.plugin.query.server.authorization.IAuthorizationChecker;
 
 /**
- * Filters the rows of {@link TableModel} on magic columns (experiment, sample or data set
- * referenced by 'experiment_key', 'sample_key', 'data_set_key').
+ * Filters the rows of {@link TableModel} on magic columns (experiment, sample or data set referenced by 'experiment_key', 'sample_key',
+ * 'data_set_key').
  * 
  * @author Izabela Adamczyk
  */
@@ -49,7 +49,7 @@ public class QueryResultFilter
     private final IAuthorizationChecker authorizationChecker;
 
     private static final EntityKind[] FILTRABLE_ENTITY_KINDS =
-        { EntityKind.EXPERIMENT, EntityKind.SAMPLE, EntityKind.DATA_SET };
+    { EntityKind.EXPERIMENT, EntityKind.SAMPLE, EntityKind.DATA_SET };
 
     public QueryResultFilter(IDAOFactory daoFactory)
     {

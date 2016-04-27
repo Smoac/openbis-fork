@@ -40,8 +40,7 @@ public interface IVocabulary extends IVocabularyImmutable
     void setChosenFromList(boolean isChosenFromList);
 
     /**
-     * Sets a URL template (e.g a search query) that can display additional information for the
-     * concrete vocabulary terms.
+     * Sets a URL template (e.g a search query) that can display additional information for the concrete vocabulary terms.
      */
     void setUrlTemplate(String urlTemplate);
 

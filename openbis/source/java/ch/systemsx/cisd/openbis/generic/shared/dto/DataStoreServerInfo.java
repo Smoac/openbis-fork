@@ -28,11 +28,9 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  * <p>
  * It contains
  * <ul>
- * <li>the port on which the DSS is reachable. Note, that the host can be inferred by the asking
- * {@link HttpServletRequest}.
+ * <li>the port on which the DSS is reachable. Note, that the host can be inferred by the asking {@link HttpServletRequest}.
  * <li>the DSS session token which has to used when invoking methods on the DSS.
- * <li>the download URL which is the URL at which the DSS Web server can be accessed from a Web
- * browser.
+ * <li>the download URL which is the URL at which the DSS Web server can be accessed from a Web browser.
  * <li>the unique code of the DSS,
  * <li>information about available services.
  * </ul>

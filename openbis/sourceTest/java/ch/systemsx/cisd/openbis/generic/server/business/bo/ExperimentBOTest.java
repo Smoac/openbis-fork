@@ -229,8 +229,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         final ProjectPE project = createProject(groupCode, projectCode);
         final ExperimentTypePE type = createExperimentType(expTypeCode);
         final ExperimentPE experiment = createExperiment(project, expCode, type);
-        TimeIntervalChecker timeIntervalChecker 
-                = new TimeIntervalChecker(daoFactory.getTransactionTimestamp());
+        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker(daoFactory.getTransactionTimestamp());
 
         prepareAnyDaoCreation();
         context.checking(new Expectations()

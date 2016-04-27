@@ -23,7 +23,7 @@ public class ProjectDeletionTest extends DeletionTest
     {
         SpacePermId space = createSpace("SPACE");
         ProjectPermId project = createProject(space, "PROJECT3");
-        
+
         AttachmentCreation attachment1 = new AttachmentCreation();
         attachment1.setTitle("A1");
         attachment1.setDescription("hello A");
@@ -41,15 +41,15 @@ public class ProjectDeletionTest extends DeletionTest
         projectUpdate.getAttachments().remove(new AttachmentFileName("hello.txt"));
         v3api.updateProjects(sessionToken, Arrays.asList(projectUpdate));
 
-        assertAttachment("project/" + project.getPermId() + "/hello.txt(1)", 
+        assertAttachment("project/" + project.getPermId() + "/hello.txt(1)",
                 set("OWNED = ATTACHMENT:" + project + "[PROJECT](user:test) <hello world!>"));
-        
+
         newTx();
-        
+
         delete(project);
         delete(space);
     }
-    
+
     @Test
     @Rollback(false)
     public void deleteProjectWithAttachments() throws Exception
@@ -66,20 +66,20 @@ public class ProjectDeletionTest extends DeletionTest
         attachment2.setFileName("hi.txt");
         attachment2.setContent("hi world!".getBytes());
         addAttachment(project, attachment1, attachment2);
-        
+
         newTx();
-        
+
         delete(project);
         delete(space);
 
-        assertAttachment("project/" + project.getPermId() + "/hello.txt(1)", 
+        assertAttachment("project/" + project.getPermId() + "/hello.txt(1)",
                 set("OWNED = ATTACHMENT:" + project + "[PROJECT](user:test) <hello world!>"));
-        assertAttachment("project/" + project.getPermId() + "/hi.txt(1)", 
+        assertAttachment("project/" + project.getPermId() + "/hi.txt(1)",
                 set("OWNED = ATTACHMENT:" + project + "[PROJECT](user:test) <hi world!>"));
         assertHistory(project.getPermId(), "OWNER", attachmentSet("project/" + project.getPermId() + "/hello.txt(1)",
                 "project/" + project.getPermId() + "/hi.txt(1)"));
     }
-    
+
     @Test
     @Rollback(false)
     public void testAttributes() throws Exception
@@ -152,7 +152,7 @@ public class ProjectDeletionTest extends DeletionTest
         delete(project2);
         delete(space);
 
-        assertHistory(project1.getPermId(), "OWNER",  
+        assertHistory(project1.getPermId(), "OWNER",
                 experimentSet(experiment1.getPermId(), experiment2.getPermId()), set());
     }
 }

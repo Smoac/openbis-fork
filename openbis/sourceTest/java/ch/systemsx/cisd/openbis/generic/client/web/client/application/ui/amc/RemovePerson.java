@@ -29,8 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension for deleting an authorization group with given
- * code.
+ * A {@link AbstractDefaultTestCommand} extension for deleting an authorization group with given code.
  * 
  * @author Izabela Adamczyk
  */

@@ -24,13 +24,13 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 public class SampleSkeleton
 {
     private long id;
-    
+
     private Long databaseInstanceID;
-    
+
     private Long spaceID;
-    
+
     private long typeID;
-    
+
     private Long experimentID;
 
     public final long getId()
@@ -82,5 +82,5 @@ public class SampleSkeleton
     {
         this.experimentID = experimentID;
     }
-    
+
 }

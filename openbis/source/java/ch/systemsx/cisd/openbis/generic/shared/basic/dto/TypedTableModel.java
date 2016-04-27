@@ -22,9 +22,8 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 
 /**
- * Table model for {@link TypedTableGrid} classes. It contains column meta-data as a list of
- * {@link TableModelColumnHeader} instances and the row data as a list of
- * {@link TableModelRowWithObject} instances for row objects of type <code>T</code>.
+ * Table model for {@link TypedTableGrid} classes. It contains column meta-data as a list of {@link TableModelColumnHeader} instances and the row data
+ * as a list of {@link TableModelRowWithObject} instances for row objects of type <code>T</code>.
  * 
  * @author Franz-Josef Elmer
  */

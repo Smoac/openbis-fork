@@ -101,7 +101,6 @@ public class DataSetUploadInfo
     {
         this.parents = parents;
     }
-    
 
     @Override
     public String toString()
@@ -123,7 +122,6 @@ public class DataSetUploadInfo
         builder.append("file type:").append(fileType);
         return builder.toString();
     }
-
 
     public static class DataSetUploadInfoHelper
     {

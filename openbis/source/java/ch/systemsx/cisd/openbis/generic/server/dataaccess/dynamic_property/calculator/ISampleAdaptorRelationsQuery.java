@@ -43,7 +43,7 @@ public interface ISampleAdaptorRelationsQuery extends BaseQuery
             + " sr.relationship_id = rt.id AND sr.sample_id_parent = s.id AND "
             + " s.saty_id = st.id AND sr.sample_id_child = ?{1} AND " + " rt.code = '"
             + BasicConstant.PARENT_CHILD_DB_RELATIONSHIP + "' AND st.id = any(?{2})", parameterBindings =
-        { TypeMapper.class, LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { TypeMapper.class, LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<Long> getParentIdsOfTypes(Long childId, LongSet parentTypeIds);
 
     @Select(sql = "SELECT sr.sample_id_child FROM sample_relationships sr, "
@@ -51,7 +51,7 @@ public interface ISampleAdaptorRelationsQuery extends BaseQuery
             + " sr.relationship_id = rt.id AND sr.sample_id_child = s.id AND "
             + " s.saty_id = st.id AND sr.sample_id_parent = ?{1} AND " + " rt.code = '"
             + BasicConstant.PARENT_CHILD_DB_RELATIONSHIP + "' AND st.id = any(?{2})", parameterBindings =
-        { TypeMapper.class, LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { TypeMapper.class, LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<Long> getChildIdsOfTypes(Long parentId, LongSet childTypeIds);
 
 }

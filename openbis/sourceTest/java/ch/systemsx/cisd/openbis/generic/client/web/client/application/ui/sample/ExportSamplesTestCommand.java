@@ -31,10 +31,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
  * System tests for the server side of sample export.<BR>
- * We wait for the listing operation to complete and then initiate 2 subsequent server calls to get
- * the exported table (when preparation is finished it triggers getting the content).<BR>
- * It's hard to have complete tests of the client side due to the fact, that the final response is
- * received from the servlet and is opened in a new browser window which is hard to access.
+ * We wait for the listing operation to complete and then initiate 2 subsequent server calls to get the exported table (when preparation is finished
+ * it triggers getting the content).<BR>
+ * It's hard to have complete tests of the client side due to the fact, that the final response is received from the servlet and is opened in a new
+ * browser window which is hard to access.
  * 
  * @author Tomasz Pylak
  */
@@ -105,8 +105,8 @@ public class ExportSamplesTestCommand extends AbstractDefaultTestCommand
     }
 
     /**
-     * A command is executed when export preparation operation and saving the result operation have
-     * successfully completed. The result is compared with the specified expected content.
+     * A command is executed when export preparation operation and saving the result operation have successfully completed. The result is compared
+     * with the specified expected content.
      */
     public ITestCommand createCheckExportCommand(String expectedHeader,
             String expectedFirstLineOrNull, int expectedTotalLines)

@@ -26,9 +26,9 @@ import java.io.Serializable;
 public final class Key implements Serializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     private final Object[] objects;
-    
+
     public Key(Object... objects)
     {
         this.objects = objects;
@@ -61,7 +61,7 @@ public final class Key implements Serializable
         }
         return true;
     }
-    
+
     @Override
     public int hashCode()
     {

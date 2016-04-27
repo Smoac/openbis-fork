@@ -32,24 +32,24 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 public class AssignSampleToExperimentTest extends AbstractAssignmentSampleToExperimentTestCase
 {
     @Override
-    protected void updateExperimentChangeSamples(String experimentIdentifier, List<String> samplePermIds, 
+    protected void updateExperimentChangeSamples(String experimentIdentifier, List<String> samplePermIds,
             String userSessionToken)
     {
-        Experiment experiment = etlService.tryGetExperiment(systemSessionToken, 
+        Experiment experiment = etlService.tryGetExperiment(systemSessionToken,
                 ExperimentIdentifierFactory.parse(experimentIdentifier));
         perform(anUpdateOf(experiment).withSamples(loadSamples(samplePermIds)).as(userSessionToken));
-        
+
     }
-    
+
     @Override
-    protected void updateSampleChangeExperiment(String samplePermId, String experimentIdentifierOrNull, 
+    protected void updateSampleChangeExperiment(String samplePermId, String experimentIdentifierOrNull,
             String userSessionToken)
     {
         SampleIdentifier sampleIdentifier = etlService.tryGetSampleIdentifier(systemSessionToken, samplePermId);
         Sample sample = etlService.tryGetSampleWithExperiment(systemSessionToken, sampleIdentifier);
         if (experimentIdentifierOrNull != null)
         {
-            Experiment experiment = etlService.tryGetExperiment(systemSessionToken, 
+            Experiment experiment = etlService.tryGetExperiment(systemSessionToken,
                     ExperimentIdentifierFactory.parse(experimentIdentifierOrNull));
             perform(anUpdateOf(sample).toExperiment(experiment).as(userSessionToken));
         } else

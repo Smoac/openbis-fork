@@ -32,8 +32,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IDeletablePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DeletedEntityTranslator;
 
 /**
- * Helper class for finding the root entities of entities belonging to the same deletion event. It
- * is assumed that experiments are added before samples which are added before data sets.
+ * Helper class for finding the root entities of entities belonging to the same deletion event. It is assumed that experiments are added before
+ * samples which are added before data sets.
  * 
  * @author Franz-Josef Elmer
  * @author Kaloyan Enimanev

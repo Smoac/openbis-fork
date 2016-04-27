@@ -85,7 +85,7 @@ public class ServletParamsParsingTestUtils extends AssertJUnit
         for (int i = 0; i < keyValuePairs.length / 2; i++)
         {
             paramsMap.put(keyValuePairs[i * 2], new String[]
-                { keyValuePairs[i * 2 + 1] });
+            { keyValuePairs[i * 2 + 1] });
         }
     }
 }

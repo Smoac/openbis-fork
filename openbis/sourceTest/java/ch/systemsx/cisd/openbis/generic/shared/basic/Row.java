@@ -23,8 +23,8 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 
 /**
- * Class which contains all expected cell values to be checked by {@link CheckTableCommand}. It uses
- * a fluent API approach for its methods to prepare expectations.
+ * Class which contains all expected cell values to be checked by {@link CheckTableCommand}. It uses a fluent API approach for its methods to prepare
+ * expectations.
  * 
  * @author Franz-Josef Elmer
  */

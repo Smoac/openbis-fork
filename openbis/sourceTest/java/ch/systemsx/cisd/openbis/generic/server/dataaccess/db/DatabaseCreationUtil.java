@@ -55,15 +55,15 @@ public final class DatabaseCreationUtil
         {
             final AbstractApplicationContext applicationContext =
                     new ClassPathXmlApplicationContext(new String[]
-                        { "dbConfigurationContext.xml" }, true);
+                    { "dbConfigurationContext.xml" }, true);
             DatabaseCreationUtil.beanFactory = applicationContext;
         }
         return beanFactory;
     }
 
     /**
-     * Creates all files in <code>sourceTest/sql/postgresql</code> necessary to set up a database of
-     * the current version by dumping a database migrated from the specified version.
+     * Creates all files in <code>sourceTest/sql/postgresql</code> necessary to set up a database of the current version by dumping a database
+     * migrated from the specified version.
      */
     private final static void createFilesFromADumpOfAMigratedDatabase(final String databaseVersion)
             throws Exception
@@ -85,8 +85,7 @@ public final class DatabaseCreationUtil
     }
 
     /**
-     * Creates all files in <var>destinationDir</var> necessary to set up the database
-     * <var>databaseKind</var> in its current state.
+     * Creates all files in <var>destinationDir</var> necessary to set up the database <var>databaseKind</var> in its current state.
      */
     private static final void createDumpForJava(final String databaseKind, final File destinationDir)
             throws IOException

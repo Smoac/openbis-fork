@@ -106,12 +106,10 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Se
     }
 
     /**
-     * Some properties, managed properties in particular, may or may not need to be available in
-     * edit and update views.
+     * Some properties, managed properties in particular, may or may not need to be available in edit and update views.
      * <p>
-     * The current behavior is to always return true for non-script-based properties and always
-     * return false for dynamically computed properties. Only dynamically managed properties take
-     * this value into account.
+     * The current behavior is to always return true for non-script-based properties and always return false for dynamically computed properties. Only
+     * dynamically managed properties take this value into account.
      * 
      * @return True if the property should be shown in edit and update views.
      */
@@ -120,18 +118,17 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Se
         if (isDynamic())
         {
             return false;
-        } else {
+        } else
+        {
             return showInEditView;
         }
     }
 
     /**
-     * Some properties, managed properties in particular, may or may not need to be available in
-     * edit and update views.
+     * Some properties, managed properties in particular, may or may not need to be available in edit and update views.
      * <p>
-     * The current behavior is to always use the value true for non-script-based properties and
-     * always use false for dynamically computed properties. Only dynamically managed properties
-     * take this value into account.
+     * The current behavior is to always use the value true for non-script-based properties and always use false for dynamically computed properties.
+     * Only dynamically managed properties take this value into account.
      * 
      * @param showInEditView Pass in true if this property should be shown in edit and update views.
      */

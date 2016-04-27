@@ -33,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.EntityNod
 import ch.systemsx.cisd.openbis.generic.server.business.bo.entitygraph.SampleNode;
 import ch.systemsx.cisd.openbis.systemtest.AbstractEntityDeletionTestCase;
 
-
 /**
  * Implementation of {@link AbstractEntityDeletionTestCase} based on V3 API.
  *
@@ -44,7 +43,7 @@ public class EntityDeletionTest extends AbstractEntityDeletionTestCase
 {
 
     private static final String CONTEXT_DESCRIPTION = " (Context: [])";
-    
+
     @Autowired
     protected IApplicationServerApi v3api;
 

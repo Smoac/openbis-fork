@@ -37,22 +37,19 @@ public interface IColumnGroup
     public IColumn column(String id);
 
     /**
-     * Intends uneditable property columns for all property columns added by one of the add methods
-     * after this method has been invoked.
+     * Intends uneditable property columns for all property columns added by one of the add methods after this method has been invoked.
      */
     public IColumnGroup uneditablePropertyColumns();
 
     /**
-     * Adds for all assigned property types of the specified entity type a column. The group name is
-     * used as a prefix which combined with the property type code to determine the column id. The
-     * property type label is used as column title.
+     * Adds for all assigned property types of the specified entity type a column. The group name is used as a prefix which combined with the property
+     * type code to determine the column id. The property type label is used as column title.
      */
     public void addColumnsForAssignedProperties(EntityType entityType);
 
     /**
-     * Adds for all assigned property types of the specified entity type a column. The specified
-     * identifier prefix is used as a prefix which combined with the property type code to determine
-     * the column id. The property type label is used as column title.
+     * Adds for all assigned property types of the specified entity type a column. The specified identifier prefix is used as a prefix which combined
+     * with the property type code to determine the column id. The property type label is used as column title.
      */
     public void addColumnsForAssignedProperties(String idPrefix, EntityType entityType);
 
@@ -67,30 +64,27 @@ public interface IColumnGroup
     public void addColumnsForPropertyTypesForUpdate(List<PropertyType> propertyTypes);
 
     /**
-     * Adds a column for all given property types. The specified identifier prefix is used as a
-     * prefix which combined with the property type code to determine the column id. The property
-     * type label is used as column title.
+     * Adds a column for all given property types. The specified identifier prefix is used as a prefix which combined with the property type code to
+     * determine the column id. The property type label is used as column title.
      */
     public void addColumnsForPropertyTypes(String idPrefix, List<PropertyType> propertyTypes,
             boolean forUpdate);
 
     /**
-     * Adds all specified properties. The group name is used as a prefix which is combined with the
-     * property type code to determine the column id. The property type label is used as column
-     * title.
+     * Adds all specified properties. The group name is used as a prefix which is combined with the property type code to determine the column id. The
+     * property type label is used as column title.
      */
     public void addProperties(Collection<IEntityProperty> properties);
 
     /**
-     * Adds all specified properties. The specified identifier prefix is combined with the property
-     * type code to determine the column id. The property type label is used as column title.
+     * Adds all specified properties. The specified identifier prefix is combined with the property type code to determine the column id. The property
+     * type label is used as column title.
      */
     public void addProperties(String idPrefix, Collection<IEntityProperty> properties);
 
     /**
-     * Adds all specified properties such that the table can be used for batch update. The original
-     * property type code determines the column id. For vocabulary terms only the code is added as
-     * value.
+     * Adds all specified properties such that the table can be used for batch update. The original property type code determines the column id. For
+     * vocabulary terms only the code is added as value.
      */
     public void addPropertiesForUpdate(Collection<IEntityProperty> properties);
 

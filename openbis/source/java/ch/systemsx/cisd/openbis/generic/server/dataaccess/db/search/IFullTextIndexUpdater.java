@@ -17,9 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search;
 
 /**
- * Each implementation is able to perform a <i>full-text</i> index update. Updates are expected to
- * be executed asynchronously in the order they had been scheduled. The thread executing updates
- * will run with low priority.
+ * Each implementation is able to perform a <i>full-text</i> index update. Updates are expected to be executed asynchronously in the order they had
+ * been scheduled. The thread executing updates will run with low priority.
  * 
  * @author Piotr Buczek
  */

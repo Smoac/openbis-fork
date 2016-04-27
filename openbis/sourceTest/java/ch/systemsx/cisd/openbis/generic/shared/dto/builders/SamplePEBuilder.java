@@ -33,51 +33,51 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 public class SamplePEBuilder
 {
     private final SamplePE sample = new SamplePE();
-    
+
     public SamplePEBuilder()
     {
     }
-    
+
     public SamplePEBuilder(long id)
     {
         sample.setId(id);
     }
-    
+
     public SamplePE getSample()
     {
         return sample;
     }
-    
+
     public SamplePEBuilder id(long id)
     {
         sample.setId(id);
         return this;
     }
-    
+
     public SamplePEBuilder code(String code)
     {
         sample.setCode(code);
         return this;
     }
-    
+
     public SamplePEBuilder space(SpacePE space)
     {
         sample.setSpace(space);
         return this;
     }
-    
+
     public SamplePEBuilder permID(String permID)
     {
         sample.setPermId(permID);
         return this;
     }
-    
+
     public SamplePEBuilder type(SampleTypePE type)
     {
         sample.setSampleType(type);
         return this;
     }
-    
+
     public SamplePEBuilder property(String code, DataTypeCode dataType, String value)
     {
         SampleTypePEBuilder sampleTypeBuilder = new SampleTypePEBuilder().code("my-type");
@@ -87,7 +87,7 @@ public class SamplePEBuilder
                 sampleTypeBuilder.assign(propertyType).getEntityTypePropertyType();
         return property(etpt, value);
     }
-    
+
     public SamplePEBuilder property(EntityTypePropertyTypePE etpt, String value)
     {
         SamplePropertyPE property = new SamplePropertyPE();
@@ -95,14 +95,11 @@ public class SamplePEBuilder
         property.setValue(value);
         return property(property);
     }
-    
+
     public SamplePEBuilder property(SamplePropertyPE property)
     {
         sample.addProperty(property);
         return this;
     }
-    
-    
-    
-    
+
 }

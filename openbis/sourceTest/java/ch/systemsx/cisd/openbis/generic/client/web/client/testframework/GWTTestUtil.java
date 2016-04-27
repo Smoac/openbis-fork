@@ -116,8 +116,7 @@ public final class GWTTestUtil
     }
 
     /**
-     * Simulates click on the {@link CheckBox} with specified id (modifies check box value and fires
-     * {@link Events#Change} event).
+     * Simulates click on the {@link CheckBox} with specified id (modifies check box value and fires {@link Events#Change} event).
      * 
      * @throws AssertionError if not found, isn't a CheckBox or is not enabled.
      */
@@ -148,8 +147,7 @@ public final class GWTTestUtil
     }
 
     /**
-     * sets value of a property field with id specified by given {@link PropertyField} (handles both
-     * simple and comboBox fields)
+     * sets value of a property field with id specified by given {@link PropertyField} (handles both simple and comboBox fields)
      */
     public final static void setPropertyFieldValue(PropertyField property)
     {
@@ -157,8 +155,8 @@ public final class GWTTestUtil
     }
 
     /**
-     * sets value of a property field with id specified by given {@link PropertyField} and
-     * <var>formIdPrefix</var> (handles both simple and comboBox fields)
+     * sets value of a property field with id specified by given {@link PropertyField} and <var>formIdPrefix</var> (handles both simple and comboBox
+     * fields)
      */
     public final static void setPropertyFieldValue(String formIdPrefix, PropertyField property)
     {
@@ -383,8 +381,7 @@ public final class GWTTestUtil
     /**
      * Tries to find the widget with id that matches given <var>id</var>.
      * 
-     * @param id a regular expression of an id (usually exactly an id string but it may contain some
-     *            regular expression wildcards inside)
+     * @param id a regular expression of an id (usually exactly an id string but it may contain some regular expression wildcards inside)
      * @return <code>null</code> if not found.
      */
     public static Widget tryToFindByID(final String id)
@@ -395,8 +392,8 @@ public final class GWTTestUtil
     }
 
     /**
-     * Traverses root panel tree with the specified widget handler. Traversal is stopped when
-     * {@link IWidgetHandler#handle(Widget)} returns <code>true</code>.
+     * Traverses root panel tree with the specified widget handler. Traversal is stopped when {@link IWidgetHandler#handle(Widget)} returns
+     * <code>true</code>.
      */
     public static void traverseRootPanel(final IWidgetHandler<Widget> handler)
     {

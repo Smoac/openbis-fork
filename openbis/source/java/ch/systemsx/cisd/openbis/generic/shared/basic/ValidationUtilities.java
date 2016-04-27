@@ -36,7 +36,7 @@ public class ValidationUtilities
         private static final String HYPERLINK_REGEXP = "[^<>()\\[\\]]*";
 
         private static final String[] HYPERLINK_VALID_PROTOCOLS =
-            { "http://", "https://", "ftp://" };
+        { "http://", "https://", "ftp://" };
 
         /** @return does given <var>string</var> start with a valid external hyperlink protocol */
         public static final boolean isProtocolValid(String string)

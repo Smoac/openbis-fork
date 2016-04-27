@@ -22,8 +22,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
 /**
- * An interface that contains all data access operations on {@link VocabularyTermPE} and
- * {@link VocabularyPE}.
+ * An interface that contains all data access operations on {@link VocabularyTermPE} and {@link VocabularyPE}.
  * 
  * @author Christian Ribeaud
  */
@@ -36,11 +35,9 @@ public interface IVocabularyDAO extends IGenericDAO<VocabularyPE>
     void createOrUpdateVocabulary(final VocabularyPE vocabularyPE);
 
     /**
-     * Returns the {@link VocabularyPE} object for the given <var>vocabularyCode</var>, or
-     * <code>null</code>, if it doesn't exist.<br>
+     * Returns the {@link VocabularyPE} object for the given <var>vocabularyCode</var>, or <code>null</code>, if it doesn't exist.<br>
      * <br>
-     * NOTE: Only internally managed vocabularies have codes that can be used as business
-     * identifiers (cannot be edited).
+     * NOTE: Only internally managed vocabularies have codes that can be used as business identifiers (cannot be edited).
      */
     VocabularyPE tryFindVocabularyByCode(final String vocabularyCode);
 
@@ -50,8 +47,7 @@ public interface IVocabularyDAO extends IGenericDAO<VocabularyPE>
     List<VocabularyPE> listVocabularies(boolean excludeInternal);
 
     /**
-     * @return {@link VocabularyTermPE} with given <var>code</var> for given {@link VocabularyPE} or
-     *         null if it does not exist.
+     * @return {@link VocabularyTermPE} with given <var>code</var> for given {@link VocabularyPE} or null if it does not exist.
      */
     VocabularyTermPE tryFindVocabularyTermByCode(VocabularyPE vocabulary, String code);
 

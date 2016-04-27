@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-
 /**
  * Interface implemented by beans with properties attribute.
  *
@@ -25,6 +24,6 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 public interface IPropertiesBean
 {
     public IEntityProperty[] getProperties();
-    
+
     public void setProperties(IEntityProperty[] properties);
 }

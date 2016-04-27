@@ -35,8 +35,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 public @interface RolesAllowed
 {
     /**
-     * The set of roles that are allowed to execute a method. The method will be accessible by all
-     * users with a role defined in any of {@link RoleWithHierarchy#getRoles()}.
+     * The set of roles that are allowed to execute a method. The method will be accessible by all users with a role defined in any of
+     * {@link RoleWithHierarchy#getRoles()}.
      */
     RoleWithHierarchy[] value() default {};
 

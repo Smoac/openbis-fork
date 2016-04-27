@@ -89,7 +89,7 @@ class CapabilityMap
             }
             String[] terms = StringUtils.split(trimmed, ';');
             String firstTerm = terms[0].trim();
-            
+
             final String[] firstTermSplitted = StringUtils.split(firstTerm, " \t:", 2);
             if (firstTermSplitted.length != 2)
             {
@@ -111,7 +111,7 @@ class CapabilityMap
             }
         }
     }
-    
+
     private void addRolesForParameter(String capabilityName, String parameterTerm, String line, String filePath)
     {
         int indexOfEqual = parameterTerm.indexOf('=');
@@ -129,7 +129,7 @@ class CapabilityMap
         String roleNames = parameterTerm.substring(indexOfEqual + 1).trim();
         addRoles(capabilityName + ":" + parameterName, roleNames, line, filePath);
     }
-    
+
     private void addRoles(String capabilityName, String roleNames, String line, String filePath)
     {
         Collection<RoleWithHierarchy> roles = capMap.get(capabilityName);
@@ -157,7 +157,7 @@ class CapabilityMap
             }
         }
     }
-    
+
     private void logWarning(String line, String filePath, String messageOrNull)
     {
         String msg = String.format(

@@ -31,7 +31,7 @@ public class CharacterHelper
     private static final char ESCAPE_CHARACTER = '\\';
 
     public final static Set<Character> SPECIAL_CHARACTERS = new HashSet<Character>(Arrays.asList(
-    // Special code characters
+            // Special code characters
             '.', ':', '-', '_',
 
             // Special word characters

@@ -147,8 +147,7 @@ abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSp
     }
 
     /**
-     * To be subclassed. Creates additional panels of the viewer in the right side section besides
-     * components, datasets and attachments
+     * To be subclassed. Creates additional panels of the viewer in the right side section besides components, datasets and attachments
      */
     protected List<TabContent> createAdditionalSectionPanels(Material material)
     {
@@ -262,15 +261,15 @@ abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSp
         public DatabaseModificationKind[] getRelevantModifications()
         {
             return new DatabaseModificationKind[]
-                {
-                        DatabaseModificationKind.edit(ObjectKind.MATERIAL),
-                        DatabaseModificationKind
-                                .createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                        DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                        DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM),
-                        DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM),
-                        DatabaseModificationKind.createOrDelete(ObjectKind.METAPROJECT),
-                        DatabaseModificationKind.edit(ObjectKind.METAPROJECT) };
+            {
+                    DatabaseModificationKind.edit(ObjectKind.MATERIAL),
+                    DatabaseModificationKind
+                            .createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM),
+                    DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM),
+                    DatabaseModificationKind.createOrDelete(ObjectKind.METAPROJECT),
+                    DatabaseModificationKind.edit(ObjectKind.METAPROJECT) };
         }
 
         @Override

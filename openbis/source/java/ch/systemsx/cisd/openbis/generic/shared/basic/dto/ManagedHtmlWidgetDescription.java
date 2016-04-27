@@ -20,9 +20,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedOutputWidge
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ManagedOutputWidgetType;
 
 /**
- * {@link IManagedOutputWidgetDescription} implementation for multi-line text fields. This class
- * functions as a simple marker that the UI should use an HTML widget to display the result, and
- * offers no configuration options or behavior.
+ * {@link IManagedOutputWidgetDescription} implementation for multi-line text fields. This class functions as a simple marker that the UI should use
+ * an HTML widget to display the result, and offers no configuration options or behavior.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

@@ -22,14 +22,12 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
 public interface IPropertyType extends IPropertyTypeImmutable
 {
     /**
-     * Set the description for this property type. This is a mandatory parameter and must not be
-     * left emtpy when creating new {@link IPropertyType}-s.
+     * Set the description for this property type. This is a mandatory parameter and must not be left emtpy when creating new {@link IPropertyType}-s.
      */
     void setDescription(String description);
 
     /**
-     * Set the label for this property type. This is a mandatory parameter and must not be left
-     * emtpy when creating new {@link IPropertyType}-s.
+     * Set the label for this property type. This is a mandatory parameter and must not be left emtpy when creating new {@link IPropertyType}-s.
      */
     void setLabel(String label);
 
@@ -49,16 +47,14 @@ public interface IPropertyType extends IPropertyTypeImmutable
     void setXmlSchema(String schema);
 
     /**
-     * Set an XSLT transformation to be applied to properties of XML {@link DataType} before
-     * rendering in the UI.
+     * Set an XSLT transformation to be applied to properties of XML {@link DataType} before rendering in the UI.
      */
     void setTransformation(String xsltTransformation);
 
     void setManagedInternally(boolean isManagedInternally);
 
     /**
-     * Property of internal names receive a special prefix to avoid naming conflicts with
-     * user-defined property types.
+     * Property of internal names receive a special prefix to avoid naming conflicts with user-defined property types.
      */
     void setInternalNamespace(boolean isInternalNamespace);
 }

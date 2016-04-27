@@ -125,7 +125,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
             final List<TechId> entityTechIds, final PersonPE registrator, final String reason,
             final String sqlSelectPermIds, final String sqlDeleteProperties,
             final String sqlDeleteAttachments, final String sqlDeleteEntities,
-            final String sqlInsertEvent, final String sqlSelectPropertyHistory, 
+            final String sqlInsertEvent, final String sqlSelectPropertyHistory,
             final String sqlSelectRelationshipHistory, final String sqlSelectAttributes,
             List<? extends AttachmentHolderPE> attachmentHolders,
             AttachmentHolderKind attachmentHolderKind)
@@ -133,7 +133,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
         List<Long> entityIds = TechId.asLongs(entityTechIds);
         DeletePermanentlyBatchOperation deleteOperation =
                 new DeletePermanentlyBatchOperation(entityType, entityIds, registrator, reason,
-                        sqlSelectPermIds, sqlDeleteProperties, 
+                        sqlSelectPermIds, sqlDeleteProperties,
                         sqlDeleteAttachments, sqlDeleteEntities,
                         sqlInsertEvent, sqlSelectPropertyHistory, sqlSelectRelationshipHistory,
                         sqlSelectAttributes, attachmentHolders, attachmentHolderKind);
@@ -179,7 +179,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
         DeletePermanentlyBatchOperation(EntityType entityType, List<Long> allEntityIds,
                 PersonPE registrator, String reason, String sqlSelectPermIds,
                 String sqlDeleteProperties, String sqlDeleteAttachments,
-                String sqlDeleteEntities, String sqlInsertEvent, String selectPropertyHistory, 
+                String sqlDeleteEntities, String sqlInsertEvent, String selectPropertyHistory,
                 String selectRelationshipHistory, String sqlSelectAttributes,
                 List<? extends AttachmentHolderPE> attachmentHolders,
                 AttachmentHolderKind attachmentHolderKind)
@@ -257,8 +257,8 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                     return null;
                 }
 
-                String content = historyCreator.apply(session, entityIdsToDelete, sqlSelectPropertyHistory, 
-                        sqlSelectRelationshipHistory, sqlSelectAttributes, attachmentHolders, 
+                String content = historyCreator.apply(session, entityIdsToDelete, sqlSelectPropertyHistory,
+                        sqlSelectRelationshipHistory, sqlSelectAttributes, attachmentHolders,
                         attachmentHolderKind, registrator);
 
                 deleteProperties(sqlQueryDeleteProperties, entityIdsToDelete);

@@ -17,8 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization;
 
 /**
- * A {@link IAuthorizationComponentFactory} implementation which provides components in case we do
- * not want any authorization.
+ * A {@link IAuthorizationComponentFactory} implementation which provides components in case we do not want any authorization.
  * 
  * @author Christian Ribeaud
  */

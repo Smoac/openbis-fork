@@ -73,7 +73,7 @@ public final class IndexCreationUtil
         if (applicationContext == null)
         {
             final AbstractApplicationContext appC = new ClassPathXmlApplicationContext(new String[]
-                { "applicationContext.xml" }, true);
+            { "applicationContext.xml" }, true);
             IndexCreationUtil.applicationContext = appC;
         }
         return applicationContext;
@@ -119,8 +119,7 @@ public final class IndexCreationUtil
     }
 
     /**
-     * Creates a freshly new {@link HibernateSearchContext} overriding the one loaded by
-     * <i>Spring</i>.
+     * Creates a freshly new {@link HibernateSearchContext} overriding the one loaded by <i>Spring</i>.
      */
     private final static HibernateSearchContext createHibernateSearchContext(String indexFolder)
     {

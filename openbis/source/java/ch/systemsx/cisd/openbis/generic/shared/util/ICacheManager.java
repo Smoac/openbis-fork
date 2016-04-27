@@ -19,20 +19,19 @@ package ch.systemsx.cisd.openbis.generic.shared.util;
 /**
  * Interface of a manager of objects which are stored in a cache using a unique {@link Key}.
  * 
- *
  * @author Franz-Josef Elmer
  */
 public interface ICacheManager
 {
     /**
-     * Tries to retrieve object for specified key. 
+     * Tries to retrieve object for specified key.
      * 
      * @return <code>null</code> if not found in cache.
      */
     public Object tryToGetData(Key key);
 
     /**
-     * Stores specified object for specified key. 
+     * Stores specified object for specified key.
      */
     public void storeData(Key key, Object object);
 

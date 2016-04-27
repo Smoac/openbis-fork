@@ -969,6 +969,7 @@ public class SearchSampleTest extends AbstractSampleTest
     }
 
     final String LISTED_ID = "/CISD/C1";
+
     final String UNLISTED_ID = "/CISD/CL1:A01";
 
     @Test
@@ -980,12 +981,11 @@ public class SearchSampleTest extends AbstractSampleTest
 
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withId().thatEquals(new SampleIdentifier(UNLISTED_ID));
-        
-        
+
         List<Sample> samples = search(sessionToken, criteria, fo);
-        
+
         assertEquals(samples.size(), 1);
-        
+
         assertSampleIdentifiersInOrder(samples, UNLISTED_ID);
 
         final SampleTypeSearchCriteria withType = criteria.withType();
@@ -1008,9 +1008,9 @@ public class SearchSampleTest extends AbstractSampleTest
         final SampleTypeSearchCriteria withType = criteria.withType();
 
         List<Sample> samples = search(sessionToken, criteria, fo);
-        
+
         assertEquals(samples.size(), 1);
-        
+
         assertEquals(samples.get(0).getIdentifier().getIdentifier(), LISTED_ID);
 
         withType.withListable().thatEquals(true);

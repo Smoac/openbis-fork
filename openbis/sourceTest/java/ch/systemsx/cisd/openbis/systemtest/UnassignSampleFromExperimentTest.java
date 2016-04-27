@@ -67,7 +67,7 @@ public class UnassignSampleFromExperimentTest extends BaseTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void unassigningFailsIfTheSampleHasDataSets() throws Exception
     {
         Sample sample = create(aSample().inExperiment(experiment));
@@ -199,7 +199,7 @@ public class UnassignSampleFromExperimentTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToUnassignSampleFromExperiment", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void unassigningIsNotAllowedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {

@@ -38,8 +38,7 @@ public interface IEntityPropertyTypeDAO
 {
 
     /**
-     * Returns a list of all entity type - property type assignments connected to given
-     * {@link EntityTypePE}.
+     * Returns a list of all entity type - property type assignments connected to given {@link EntityTypePE}.
      */
     public List<EntityTypePropertyTypePE> listEntityPropertyTypes(final EntityTypePE entityType)
             throws DataAccessException;
@@ -50,8 +49,8 @@ public interface IEntityPropertyTypeDAO
     public List<String> listPropertyTypeCodes() throws DataAccessException;
 
     /**
-     * Returns {@link EntityTypePropertyTypePE} assignment connecting given {@link EntityTypePE} and
-     * {@link PropertyTypePE} if it exists and null otherwise.
+     * Returns {@link EntityTypePropertyTypePE} assignment connecting given {@link EntityTypePE} and {@link PropertyTypePE} if it exists and null
+     * otherwise.
      */
     public EntityTypePropertyTypePE tryFindAssignment(EntityTypePE entityType,
             PropertyTypePE propertyType);
@@ -71,8 +70,8 @@ public interface IEntityPropertyTypeDAO
     public List<Long> listEntityIds(final EntityTypePE entityType) throws DataAccessException;
 
     /**
-     * Returns a list of ids of all entities of type from specified assignment with that don't have
-     * any value for property assigned with the assignment.
+     * Returns a list of ids of all entities of type from specified assignment with that don't have any value for property assigned with the
+     * assignment.
      */
     public List<Long> listIdsOfEntitiesWithoutPropertyValue(
             final EntityTypePropertyTypePE assignment) throws DataAccessException;
@@ -102,8 +101,7 @@ public interface IEntityPropertyTypeDAO
     /**
      * Updates given persistent (already saved) <var>entity</var> after successful validation.<br>
      * <br>
-     * Useful especially instead of a save() method (used for making entity persistent) after BO
-     * update that does not flush.
+     * Useful especially instead of a save() method (used for making entity persistent) after BO update that does not flush.
      * 
      * @param entity the entity to be validated and updated
      */

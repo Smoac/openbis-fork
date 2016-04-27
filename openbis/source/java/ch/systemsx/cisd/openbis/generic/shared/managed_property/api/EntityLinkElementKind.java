@@ -60,8 +60,7 @@ public enum EntityLinkElementKind
     }
 
     /**
-     * @return the {@link EntityLinkElementKind} for a given element name or <code>null</code> if no
-     *         matching kind exists.
+     * @return the {@link EntityLinkElementKind} for a given element name or <code>null</code> if no matching kind exists.
      */
     public static EntityLinkElementKind tryGetForElementName(String elementName)
     {

@@ -198,7 +198,7 @@ public abstract class AbstractServerLogger implements IServer
                 if (parameter instanceof Collection)
                 {
                     unquotedParameter = CollectionUtils.abbreviate((Collection<?>) unquotedParameter, 20);
-                } 
+                }
                 parameters[i] = "'" + unquotedParameter + "'";
             }
         }

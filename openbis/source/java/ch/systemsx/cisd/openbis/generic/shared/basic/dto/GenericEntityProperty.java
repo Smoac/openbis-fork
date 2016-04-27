@@ -17,8 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 /**
- * A {@link IEntityProperty} class that only stores the generic value, but not a vocabulary term
- * value or a material value.
+ * A {@link IEntityProperty} class that only stores the generic value, but not a vocabulary term value or a material value.
  * 
  * @author Bernd Rinn
  */
@@ -28,6 +27,7 @@ public class GenericEntityProperty extends AbstractEntityProperty
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private String originalValue;
+
     private String value;
 
     @Override

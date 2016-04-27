@@ -30,11 +30,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 public interface IAttachmentBO
 {
     /**
-     * Deletes specified {@link AttachmentHolderPE} attachments (all versions with given file names)
-     * for specified reason.
+     * Deletes specified {@link AttachmentHolderPE} attachments (all versions with given file names) for specified reason.
      * 
-     * @param fileNames list of file names of attachments to be deleted (there will be no error if
-     *            there are no attachments with these file names attached to specified holder)
+     * @param fileNames list of file names of attachments to be deleted (there will be no error if there are no attachments with these file names
+     *            attached to specified holder)
      * @throws UserFailureException if holder with given technical identifier is not found.
      */
     void deleteHolderAttachments(final AttachmentHolderPE holder, final List<String> fileNames,

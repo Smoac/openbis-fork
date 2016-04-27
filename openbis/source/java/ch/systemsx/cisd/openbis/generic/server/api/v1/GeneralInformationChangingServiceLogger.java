@@ -248,5 +248,5 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
     {
         logAccess(sessionToken, "registerPersonSpaceRole", "spaceCode(%s), userID(%s), roleCode(%s)", spaceCode, userID, roleCode);
     }
-    
+
 }

@@ -77,7 +77,7 @@ public class NewExternalData implements Serializable
     private ExperimentIdentifier experimentIdentifierOrNull;
 
     private SampleIdentifier sampleIdentifierOrNull;
-    
+
     private String samplePermIdOrNull;
 
     public ExperimentIdentifier getExperimentIdentifierOrNull()
@@ -237,10 +237,9 @@ public class NewExternalData implements Serializable
     }
 
     /**
-     * Returns {@link BooleanOrUnknown#T}, if the data set is complete in the data store and
-     * {@link BooleanOrUnknown#F}, if some parts of the data are missing. If the completeness is not
-     * known (e.g. because the data set is stored in a format that does not allow to assess the
-     * completeness, {@link BooleanOrUnknown#U} is returned.
+     * Returns {@link BooleanOrUnknown#T}, if the data set is complete in the data store and {@link BooleanOrUnknown#F}, if some parts of the data are
+     * missing. If the completeness is not known (e.g. because the data set is stored in a format that does not allow to assess the completeness,
+     * {@link BooleanOrUnknown#U} is returned.
      */
     public final BooleanOrUnknown getComplete()
     {
@@ -248,9 +247,8 @@ public class NewExternalData implements Serializable
     }
 
     /**
-     * Sets whether this data set is complete in the data store or not. The default is
-     * {@link BooleanOrUnknown#U}, which corresponds to the case where the data are stored in a
-     * format that does not allow to assess completeness.
+     * Sets whether this data set is complete in the data store or not. The default is {@link BooleanOrUnknown#U}, which corresponds to the case where
+     * the data are stored in a format that does not allow to assess completeness.
      */
     public final void setComplete(final BooleanOrUnknown complete)
     {

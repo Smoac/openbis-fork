@@ -219,7 +219,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         final String differentExperimentIdentifier = "/CISD/DEFAULT/EXP-REUSE";
         assert differentExperimentIdentifier.equals(CELL_PLATE_EXAMPLE_EXPERIMENT_ID) == false;
         final String[] indirectlyConnectedDataSetLocations =
-            { "xml/result-9", "xml/result-10", "xml/result-11", "xml/result-12" };
+        { "xml/result-9", "xml/result-10", "xml/result-11", "xml/result-12" };
         for (String location : indirectlyConnectedDataSetLocations)
         {
             checkIndirectlyConnectedDataTable.expectedRow(new DataSetRow().valid().withSample("")

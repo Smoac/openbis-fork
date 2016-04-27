@@ -35,40 +35,40 @@ public class DataSetBuilder
                 new EntityRegistrationDetails(new EntityRegistrationDetailsInitializer());
         initializer.setRegistrationDetails(registrationDetails);
     }
-    
+
     public DataSet getDataSet()
     {
         return new DataSet(initializer);
     }
-    
+
     public DataSetBuilder code(String code)
     {
         initializer.setCode(code);
         return this;
     }
-    
+
     public DataSetBuilder type(String type)
     {
         initializer.setDataSetTypeCode(type);
         return this;
     }
-    
+
     public DataSetBuilder experiment(String experimentIdentifier)
     {
         initializer.setExperimentIdentifier(experimentIdentifier);
         return this;
     }
-    
+
     public DataSetBuilder sample(String sampleIdentifier)
     {
         initializer.setSampleIdentifierOrNull(sampleIdentifier);
         return this;
     }
-    
+
     public DataSetBuilder property(String key, String value)
     {
         initializer.getProperties().put(key, value);
         return this;
     }
-    
+
 }

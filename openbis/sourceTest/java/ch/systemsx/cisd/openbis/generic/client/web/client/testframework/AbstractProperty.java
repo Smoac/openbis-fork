@@ -25,8 +25,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 
 /**
- * Abstract superclass of a generic {@link IProperty} which implements convenient property value
- * expectations. It uses a fluent API approach for its methods to prepare expectations.
+ * Abstract superclass of a generic {@link IProperty} which implements convenient property value expectations. It uses a fluent API approach for its
+ * methods to prepare expectations.
  * 
  * @author Franz-Josef Elmer
  */
@@ -106,8 +106,7 @@ public abstract class AbstractProperty<C extends IPropertyChecker<?>> implements
     }
 
     /**
-     * Sets assertion that the property value is of type {@link ICodeHolder} with a code equals the
-     * specified code.
+     * Sets assertion that the property value is of type {@link ICodeHolder} with a code equals the specified code.
      */
     public C asCode(final String expectedCode)
     {
@@ -122,8 +121,7 @@ public abstract class AbstractProperty<C extends IPropertyChecker<?>> implements
     }
 
     /**
-     * Sets assertion that the property value is of type {@link IDeletionProvider} with no
-     * {@link Deletion} object.
+     * Sets assertion that the property value is of type {@link IDeletionProvider} with no {@link Deletion} object.
      */
     public C asValidEntity()
     {
@@ -139,8 +137,7 @@ public abstract class AbstractProperty<C extends IPropertyChecker<?>> implements
     }
 
     /**
-     * Sets assertion that the property value is of type {@link IDeletionProvider} with an
-     * {@link Deletion} object.
+     * Sets assertion that the property value is of type {@link IDeletionProvider} with an {@link Deletion} object.
      */
     public C asDeletedEntity()
     {
@@ -156,8 +153,7 @@ public abstract class AbstractProperty<C extends IPropertyChecker<?>> implements
     }
 
     /**
-     * Sets assertion that the property value is of type {@link EntityProperty} with a value equals
-     * the specified string.
+     * Sets assertion that the property value is of type {@link EntityProperty} with a value equals the specified string.
      */
     public C asProperty(final String expectedValue)
     {

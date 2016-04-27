@@ -22,9 +22,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTab
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
 /**
- * After the data from table with given id are loaded, the settings dialog is opened and filters tab
- * selected. The command activates loading data with callback id:
- * <code> FilterGrid.createGridId(gridDisplayId)</code>.
+ * After the data from table with given id are loaded, the settings dialog is opened and filters tab selected. The command activates loading data with
+ * callback id: <code> FilterGrid.createGridId(gridDisplayId)</code>.
  * 
  * @author Izabela Adamczyk
  */

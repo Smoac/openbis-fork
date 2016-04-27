@@ -36,7 +36,7 @@ public class DetailedSearchCriterion implements Serializable
     private String value;
 
     private String timezone;
-    
+
     private boolean negated;
 
     public DetailedSearchCriterion()
@@ -55,14 +55,14 @@ public class DetailedSearchCriterion implements Serializable
     {
         this(field, type, date, SERVER_TIMEZONE);
     }
-    
+
     public DetailedSearchCriterion(DetailedSearchField field, CompareType type, Number value)
     {
         this.field = field;
         this.value = value.toString();
         this.type = type;
     }
-    
+
     public DetailedSearchCriterion(DetailedSearchField field, CompareType type, String value, String timezoneOrNull)
     {
         this.field = field;

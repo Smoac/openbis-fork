@@ -20,8 +20,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
- * A utility class that can be used to simplify assertions in {@link TypedTableGrid}-related
- * headless system tests.
+ * A utility class that can be used to simplify assertions in {@link TypedTableGrid}-related headless system tests.
  * 
  * @author Kaloyan Enimanev
  */
@@ -29,8 +28,7 @@ public class TypedTableAssertions<T extends Serializable> extends AssertJUnit
 {
 
     /**
-     * a convenience method, that can be used as a static import to achieve a fluent-API like
-     * programming style.
+     * a convenience method, that can be used as a static import to achieve a fluent-API like programming style.
      */
     public static <S extends Serializable> TypedTableAssertions<S> assertTable(
             TypedTableResultSet<S> tableResultSet)
@@ -39,8 +37,7 @@ public class TypedTableAssertions<T extends Serializable> extends AssertJUnit
     }
 
     /**
-     * a convenience method, that can be used as a static import to achieve a fluent-API like
-     * programming style.
+     * a convenience method, that can be used as a static import to achieve a fluent-API like programming style.
      */
     public static <S extends Serializable> TypedTableAssertions<S>.ColumnAssertions assertColumn(
             TypedTableResultSet<S> tableResultSet, String columnName)
@@ -53,8 +50,7 @@ public class TypedTableAssertions<T extends Serializable> extends AssertJUnit
     private Map<String, TableModelColumnHeader> headers;
 
     /**
-     * the constructor is tentatively marked as "private" for now. We could make it public in the
-     * future if we decide it will suite our tests better.
+     * the constructor is tentatively marked as "private" for now. We could make it public in the future if we decide it will suite our tests better.
      * 
      * @param tableResultSet the typed-table result set
      */
@@ -208,8 +204,7 @@ public class TypedTableAssertions<T extends Serializable> extends AssertJUnit
         }
 
         /**
-         * just a convenience method redirecting to the {@link #containsValue(String)} with a single
-         * parameter.
+         * just a convenience method redirecting to the {@link #containsValue(String)} with a single parameter.
          */
         public void containsValues(String... values)
         {

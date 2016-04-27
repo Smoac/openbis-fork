@@ -28,13 +28,12 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 
 /**
- * <code>boolean</code> value has to be <code>false</code> for entities that must not be in the
- * internal namespace.
+ * <code>boolean</code> value has to be <code>false</code> for entities that must not be in the internal namespace.
  * 
  * @author Christian Ribeaud
  */
 @Target(
-    { METHOD, FIELD })
+{ METHOD, FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Constraint(validatedBy = InternalNamespaceValidator.class)

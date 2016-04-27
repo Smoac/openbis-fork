@@ -21,8 +21,7 @@ import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.IEntityProp
 import ch.systemsx.cisd.openbis.generic.shared.util.XmlUtils;
 
 /**
- * {@link IEntityPropertyAdaptor} implementation for xml property with lazy evaluation of rendered
- * value using XSLT script.
+ * {@link IEntityPropertyAdaptor} implementation for xml property with lazy evaluation of rendered value using XSLT script.
  * 
  * @author Piotr Buczek
  */

@@ -19,11 +19,11 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.io.Serializable;
 
 /**
- * Criteria for tracking <i>data sets</i> with technical id bigger than the specified one. Optional,
- * the search is restricted to data sets connected to samples of a certain type.
+ * Criteria for tracking <i>data sets</i> with technical id bigger than the specified one. Optional, the search is restricted to data sets connected
+ * to samples of a certain type.
  * <p>
- * Connected samples should be loaded as well as their parent and container samples according to
- * {@link SampleType} hierarchy depths. All referenced samples should have all properties loaded.
+ * Connected samples should be loaded as well as their parent and container samples according to {@link SampleType} hierarchy depths. All referenced
+ * samples should have all properties loaded.
  * 
  * @author Piotr Buczek
  */

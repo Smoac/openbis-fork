@@ -55,8 +55,7 @@ public class DataSourceDefinition implements Serializable, Cloneable
     }
 
     /**
-     * Creates a list of definitions from specified string which could be the output of
-     * {@link #toString(List)}.
+     * Creates a list of definitions from specified string which could be the output of {@link #toString(List)}.
      */
     public static List<DataSourceDefinition> listFromString(String serializedDefinitions)
     {
@@ -73,8 +72,7 @@ public class DataSourceDefinition implements Serializable, Cloneable
     }
 
     /**
-     * Creates a string representation of specified definition. It can be used as an input of
-     * {@link #listFromString(String)}.
+     * Creates a string representation of specified definition. It can be used as an input of {@link #listFromString(String)}.
      */
     public static String toString(List<DataSourceDefinition> definitions)
     {
@@ -87,8 +85,7 @@ public class DataSourceDefinition implements Serializable, Cloneable
     }
 
     /**
-     * Creates an instance from the specified string. The input could be the output of
-     * {@link #toString()}.
+     * Creates an instance from the specified string. The input could be the output of {@link #toString()}.
      */
     public static DataSourceDefinition fromString(String serializedDefinition)
     {
@@ -241,8 +238,7 @@ public class DataSourceDefinition implements Serializable, Cloneable
     }
 
     /**
-     * Returns this instance as a string which allows reconstruction by applying
-     * {@link #fromString(String)}.
+     * Returns this instance as a string which allows reconstruction by applying {@link #fromString(String)}.
      */
     @Override
     public String toString()

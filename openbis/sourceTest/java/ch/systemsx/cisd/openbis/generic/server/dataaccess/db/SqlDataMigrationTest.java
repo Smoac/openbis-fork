@@ -59,7 +59,7 @@ public final class SqlDataMigrationTest
     }
 
     @Test(groups =
-        { "slow" })
+    { "slow" })
     /* runs unit tests written in SQL. The tests should check if the migration went fine. */
     public final void testMigration() throws Exception
     {

@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
  * @author Izabela Adamczyk
  */
 @Test(groups =
-    { "db" })
+{ "db" })
 public final class PermIdDAOTest extends AbstractDAOTest
 {
 

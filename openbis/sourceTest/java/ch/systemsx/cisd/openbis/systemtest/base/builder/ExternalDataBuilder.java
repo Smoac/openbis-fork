@@ -63,11 +63,11 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
     private List<String> parentCodes;
 
     private List<String> componentCodes;
-    
+
     private Map<String, String> properties;
 
     private String code;
-    
+
     private String dataSetTypeCode;
 
     private boolean container;
@@ -99,7 +99,7 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
         }
         return this;
     }
-    
+
     public ExternalDataBuilder inExperiment(Experiment experiment)
     {
         this.experimentIdentifier = new ExperimentIdentifier(experiment);
@@ -131,7 +131,7 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
         componentCodes.addAll(Arrays.asList(dataSetCodes));
         return this;
     }
-    
+
     public ExternalDataBuilder withComponent(AbstractExternalData data)
     {
         return this.withComponents(data.getCode());
@@ -142,7 +142,7 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
         properties.put(propertyTypeCode, value);
         return this;
     }
-    
+
     @Override
     public AbstractExternalData create()
     {
@@ -216,7 +216,7 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
             {
                 if (properties.isEmpty() == false)
                 {
-                    Set<String> knownPropertyTypes = new HashSet<String>(); 
+                    Set<String> knownPropertyTypes = new HashSet<String>();
                     List<DataSetTypePropertyType> assignedPropertyTypes = type.getAssignedPropertyTypes();
                     for (DataSetTypePropertyType dtpt : assignedPropertyTypes)
                     {

@@ -28,8 +28,8 @@ public interface IEntityProperty extends Serializable, Comparable<IEntityPropert
     public static final IEntityProperty[] EMPTY_ARRAY = new IEntityProperty[0];
 
     /**
-     * Returns a string representation of whatever value this property represents. Vocabulary terms
-     * will be represented as their CODE, material values will be represented as "CODE (TYPE_CODE)".
+     * Returns a string representation of whatever value this property represents. Vocabulary terms will be represented as their CODE, material values
+     * will be represented as "CODE (TYPE_CODE)".
      */
     public String tryGetAsString();
 

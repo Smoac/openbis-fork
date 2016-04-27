@@ -23,8 +23,8 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElementFact
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityLinkElement;
 
 /**
- * For now we only expose methods for creation of Sample and Material links, but it is quite easy to
- * add support for experiment and datasets links in the future.
+ * For now we only expose methods for creation of Sample and Material links, but it is quite easy to add support for experiment and datasets links in
+ * the future.
  * 
  * @author Kaloyan Enimanev
  */

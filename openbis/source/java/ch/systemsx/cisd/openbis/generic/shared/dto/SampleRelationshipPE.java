@@ -53,7 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 @Table(name = TableNames.SAMPLE_RELATIONSHIPS_VIEW, uniqueConstraints = @UniqueConstraint(columnNames =
 { ColumnNames.PARENT_SAMPLE_COLUMN, ColumnNames.CHILD_SAMPLE_COLUMN,
         ColumnNames.RELATIONSHIP_COLUMN }))
-@TypeDefs({@TypeDef(name="transactiontimestamp", typeClass=DbTimestampType.class)})
+@TypeDefs({ @TypeDef(name = "transactiontimestamp", typeClass = DbTimestampType.class) })
 public class SampleRelationshipPE implements Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;

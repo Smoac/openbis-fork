@@ -39,12 +39,12 @@ public @interface AuthorizationGuard
      * Class responsible for evaluating the method parameter.
      */
     Class<? extends IPredicate<?>> guardClass();
-    
+
     /**
      * List of roles replacing corresponding list of @RolesAllowed annotation.
      */
     RoleWithHierarchy[] rolesAllowed() default {};
-    
+
     /**
      * Name of the guard. Needed for the capabilities file to override allowed roles list.
      */

@@ -1065,23 +1065,23 @@ public class GetSampleTest extends AbstractSampleTest
         assertSpaceNotFetched(sample);
         v3api.logout(sessionToken);
     }
-    
+
     @Test
     public void testGetWithTypeAndPropertyAssignments()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.withType().withPropertyAssignments().sortBy().label().desc();
-        
+
         List<SamplePermId> sampleIds = Collections.singletonList(new SamplePermId("200811050917877-331"));
         Map<ISampleId, Sample> map = v3api.getSamples(sessionToken, sampleIds, fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());
-        
+
         assertEquals(samples.size(), 1);
-        
+
         Sample sample = samples.get(0);
         assertEquals(sample.getIdentifier().toString(), "/CISD/MP002-1");
-        
+
         SampleType type = sample.getType();
         assertEquals(type.getCode(), "MASTER_PLATE");
         assertEquals(type.getFetchOptions().hasPropertyAssignments(), true);

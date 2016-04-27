@@ -23,8 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * The <i>GWT</i> counterpart to
- * ch.systemsx.cisd.openbis.generic.shared.api.v1.SearchableEntityKind.
+ * The <i>GWT</i> counterpart to ch.systemsx.cisd.openbis.generic.shared.api.v1.SearchableEntityKind.
  * 
  * @author Piotr Buczek
  */
@@ -34,7 +33,7 @@ public enum AssociatedEntityKind implements Serializable
 
     EXPERIMENT("Experiment", EntityKind.EXPERIMENT, EnumSet.of(EntityKind.SAMPLE,
             EntityKind.DATA_SET)),
-            
+
     DATA_SET("Data Set", EntityKind.DATA_SET, EnumSet.noneOf(EntityKind.class)),
 
     DATA_SET_PARENT("Parent", EntityKind.DATA_SET, EnumSet.of(EntityKind.DATA_SET)),

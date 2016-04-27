@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  */
 @Entity
 @Table(name = TableNames.MATERIAL_PROPERTIES_TABLE, uniqueConstraints = @UniqueConstraint(columnNames =
-    { ColumnNames.MATERIAL_COLUMN, ColumnNames.MATERIAL_TYPE_PROPERTY_TYPE_COLUMN }))
+{ ColumnNames.MATERIAL_COLUMN, ColumnNames.MATERIAL_TYPE_PROPERTY_TYPE_COLUMN }))
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class MaterialPropertyPE extends EntityPropertyPE
 {

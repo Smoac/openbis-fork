@@ -38,6 +38,7 @@ public class FilterUtilsTest extends AssertJUnit
     private static final class MockDataProvider implements ITableDataProvider
     {
         private final String expectedColumnID;
+
         private final List<List<? extends Comparable<?>>> rows;
 
         MockDataProvider(String expectedColumnID, List<? extends Comparable<?>>... rows)
@@ -71,14 +72,14 @@ public class FilterUtilsTest extends AssertJUnit
         {
             return null;
         }
-        
+
         @Override
         public String tryToGetProperty(String columnID, String key)
         {
             return null;
         }
     }
-    
+
     private ITableDataProvider dataProvider;
 
     @SuppressWarnings("unchecked")

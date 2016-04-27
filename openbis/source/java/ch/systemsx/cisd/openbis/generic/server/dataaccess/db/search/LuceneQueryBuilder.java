@@ -207,7 +207,7 @@ public class LuceneQueryBuilder
             String fieldName = fieldNames.get(i);
             String searchPattern = searchPatterns.get(i);
             Analyzer analyzer = analyzers.get(i);
-            
+
             Query query = parseQuery(fieldName, searchPattern, analyzer);
             Occur occur = occurs.get(i);
             if (Occur.MUST_NOT.equals(occur))
@@ -244,7 +244,7 @@ public class LuceneQueryBuilder
     {
         parser.setAllowLeadingWildcard(true);
         BooleanQuery.setMaxClauseCount(Integer.MAX_VALUE);
-        
+
         try
         {
             return parser.parse(wholeQuery);

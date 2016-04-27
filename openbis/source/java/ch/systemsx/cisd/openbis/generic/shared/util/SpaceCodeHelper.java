@@ -40,8 +40,7 @@ public class SpaceCodeHelper
     /**
      * Tries to find out the space.
      * <p>
-     * If not specified in given {@link SpaceIdentifier} the real space must be specified as home
-     * space in given {@link PersonPE}.
+     * If not specified in given {@link SpaceIdentifier} the real space must be specified as home space in given {@link PersonPE}.
      * </p>
      * 
      * @throws UndefinedSpaceException if no space could be found.
@@ -55,8 +54,7 @@ public class SpaceCodeHelper
     /**
      * Tries to find out the space.
      * <p>
-     * If not specified in given {@link SpacePE} the real space must be specified as home space in
-     * given {@link PersonPE}.
+     * If not specified in given {@link SpacePE} the real space must be specified as home space in given {@link PersonPE}.
      * </p>
      * 
      * @throws UndefinedSpaceException if no space could be found.
@@ -70,9 +68,8 @@ public class SpaceCodeHelper
     /**
      * Tries to find out the space.
      * <p>
-     * If given <var>spaceCode</var> specifies the home space, the home space of the
-     * {@link PersonPE} is returned. May return <code>null</code>, if no home space is defined for
-     * the user.
+     * If given <var>spaceCode</var> specifies the home space, the home space of the {@link PersonPE} is returned. May return <code>null</code>, if no
+     * home space is defined for the user.
      * </p>
      */
     public final static String tryGetSpaceCode(final PersonPE person, final String spaceCode)
@@ -95,8 +92,7 @@ public class SpaceCodeHelper
     /**
      * Tries to find out the space.
      * <p>
-     * If given <var>spaceCode</var> is a home space, the real space must be specified as home space
-     * in given {@link PersonPE}.
+     * If given <var>spaceCode</var> is a home space, the real space must be specified as home space in given {@link PersonPE}.
      * </p>
      * 
      * @throws UndefinedSpaceException if no space could be found.
@@ -115,8 +111,7 @@ public class SpaceCodeHelper
     /**
      * Tries to find out the space.
      * <p>
-     * If given <var>spaceCode</var> is a home space, the real space must be specified as
-     * <var>homeSpaceCode</var>.
+     * If given <var>spaceCode</var> is a home space, the real space must be specified as <var>homeSpaceCode</var>.
      * </p>
      * 
      * @throws UndefinedSpaceException if no space could be found.

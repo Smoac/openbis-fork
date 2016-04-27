@@ -35,9 +35,8 @@ public final class CodeConverter
     /**
      * Converts a code from database form to business layer form.
      * <p>
-     * If <var>internalNamespace</var> is <code>true</code>, the prefix '$' will be used, because
-     * internal properties will be represented as 'NAME' in the database and as $NAME in the
-     * business layer.
+     * If <var>internalNamespace</var> is <code>true</code>, the prefix '$' will be used, because internal properties will be represented as 'NAME' in
+     * the database and as $NAME in the business layer.
      * 
      * @return The code appropriate for the business layer.
      */
@@ -56,8 +55,8 @@ public final class CodeConverter
     /**
      * Converts a property type code from business layer form to database form.
      * <p>
-     * The code will be translated to upper case. Internal properties will be represented as 'NAME'
-     * in the database and as $NAME in the business layer.
+     * The code will be translated to upper case. Internal properties will be represented as 'NAME' in the database and as $NAME in the business
+     * layer.
      * 
      * @return The code appropriate for the database.
      */
@@ -78,8 +77,7 @@ public final class CodeConverter
     }
 
     /**
-     * Returns <code>true</code>, if the <var>codeFromBusinessLayerOrNull</var> represents a
-     * internal property code.
+     * Returns <code>true</code>, if the <var>codeFromBusinessLayerOrNull</var> represents a internal property code.
      */
     public static boolean isInternalNamespace(final String codeFromBusinessLayerOrNull)
     {

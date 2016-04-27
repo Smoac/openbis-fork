@@ -156,7 +156,7 @@ public class SampleToSampleRelationshipsHistoryTest extends AbstractRelationship
         updates.setExperimentIdentifierOrNull(child.getExperiment() == null ? null
                 : ExperimentIdentifier.createIdentifier(child.getExperiment()));
         updates.setModifiedParentCodesOrNull(new String[]
-            { parent.getIdentifier() });
+        { parent.getIdentifier() });
 
         genericClientService.updateSample(updates);
 

@@ -36,37 +36,15 @@ public class JsonApiClient
     public JsonNode sendRequest(String json, Object... params) throws Exception
     {
         /*
-        String jsonWithParams = String.format(json, params);
-
-        HttpClient client = new DefaultHttpClient();
-        HttpPost post = new HttpPost(apiUrl);
-
-        // add header
-        post.setHeader("User-Agent", USER_AGENT);
-
-        post.setEntity(new StringEntity(jsonWithParams));
-
-        HttpResponse response = client.execute(post);
-        System.out.println(">>>>>");
-        System.out.println("Sending 'POST' request to URL : " + apiUrl);
-        System.out.println("Post parameters : " + jsonWithParams.trim());
-        System.out.println("Response Code : " +
-                response.getStatusLine().getStatusCode());
-
-        BufferedReader rd = new BufferedReader(
-                new InputStreamReader(response.getEntity().getContent()));
-
-        StringBuffer result = new StringBuffer();
-        String line = "";
-        while ((line = rd.readLine()) != null)
-        {
-            result.append(line);
-        }
-
-        System.out.println("Response : " + result.toString());
-        System.out.println("<<<<<");
-        return new ObjectMapper().readTree(result.toString());
-        */
+         * String jsonWithParams = String.format(json, params); HttpClient client = new DefaultHttpClient(); HttpPost post = new HttpPost(apiUrl); //
+         * add header post.setHeader("User-Agent", USER_AGENT); post.setEntity(new StringEntity(jsonWithParams)); HttpResponse response =
+         * client.execute(post); System.out.println(">>>>>"); System.out.println("Sending 'POST' request to URL : " + apiUrl);
+         * System.out.println("Post parameters : " + jsonWithParams.trim()); System.out.println("Response Code : " +
+         * response.getStatusLine().getStatusCode()); BufferedReader rd = new BufferedReader( new
+         * InputStreamReader(response.getEntity().getContent())); StringBuffer result = new StringBuffer(); String line = ""; while ((line =
+         * rd.readLine()) != null) { result.append(line); } System.out.println("Response : " + result.toString()); System.out.println("<<<<<"); return
+         * new ObjectMapper().readTree(result.toString());
+         */
         return null;
     }
 

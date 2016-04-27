@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * @author Tomasz Pylak
  */
 @Test(groups =
-    { "db", "column" })
+{ "db", "column" })
 public final class GridCustomColumnDAOTest extends AbstractDAOTest
 {
     public void testCreateAndListColumn() throws Exception

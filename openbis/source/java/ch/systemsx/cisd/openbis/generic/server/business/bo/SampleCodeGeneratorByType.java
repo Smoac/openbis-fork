@@ -42,7 +42,7 @@ public class SampleCodeGeneratorByType extends EntityCodeGenerator
         super(daoFactory);
         this.maxQuery = QueryTool.getManagedQuery(MaxQuery.class);
     }
-    
+
     @Override
     public List<String> generateCodes(String codePrefix, EntityKind entityKind, int numberOfCodes)
     {

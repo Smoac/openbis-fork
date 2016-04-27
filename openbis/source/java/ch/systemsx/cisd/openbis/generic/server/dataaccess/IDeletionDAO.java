@@ -37,19 +37,16 @@ public interface IDeletionDAO extends IGenericDAO<DeletionPE>
     void create(final DeletionPE deletion) throws DataAccessException;
 
     /**
-     * Moves entities with given ids to trash using specified deletion. Ignores ids of entities that
-     * don't exist or are already in the trash.
+     * Moves entities with given ids to trash using specified deletion. Ignores ids of entities that don't exist or are already in the trash.
      * 
-     * @param isOriginalDeletion if true than the specified entities are considered originally
-     *            deleted entities
+     * @param isOriginalDeletion if true than the specified entities are considered originally deleted entities
      * @return number of trashed entities
      */
     int trash(EntityKind entityKind, List<TechId> entityIds, DeletionPE deletion,
             boolean isOriginalDeletion) throws DataAccessException;
 
     /**
-     * Moves entities with given ids to trash using specified deletion. Ignores ids of entities that
-     * don't exist or are already in the trash.
+     * Moves entities with given ids to trash using specified deletion. Ignores ids of entities that don't exist or are already in the trash.
      * <p>
      * The entites are considered to be originally deleted
      * 
@@ -70,14 +67,12 @@ public interface IDeletionDAO extends IGenericDAO<DeletionPE>
     List<TechId> findTrashedSampleIds(List<TechId> deletionIds);
 
     /**
-     * Returns list of ids of non-comonent samples (having no container) moved to trash in specified
-     * deletions.
+     * Returns list of ids of non-comonent samples (having no container) moved to trash in specified deletions.
      */
     List<TechId> findTrashedNonComponentSampleIds(List<TechId> deletionIds);
 
     /**
-     * Returns list of ids of component samples (samples with container) moved to trash in specified
-     * deletions.
+     * Returns list of ids of component samples (samples with container) moved to trash in specified deletions.
      */
     List<TechId> findTrashedComponentSampleIds(List<TechId> deletionIds);
 

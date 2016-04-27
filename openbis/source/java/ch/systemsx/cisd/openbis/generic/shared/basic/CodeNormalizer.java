@@ -29,8 +29,8 @@ public class CodeNormalizer
     }
 
     /**
-     * Normalizes the specified code. That is lower-case characters are turned to upper case and any
-     * symbol which isn't from A-Z, 0-9 or '-' is replaced by an underscore character.
+     * Normalizes the specified code. That is lower-case characters are turned to upper case and any symbol which isn't from A-Z, 0-9 or '-' is
+     * replaced by an underscore character.
      */
     public static String normalize(String code)
     {

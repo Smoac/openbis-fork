@@ -663,7 +663,7 @@ public interface ICommonServer extends IServer
      * Searches on a search domain. The result is sorted by score in descending order.
      */
     @Transactional(readOnly = true)
-    public List<SearchDomainSearchResultWithFullEntity> searchOnSearchDomain(String sessionToken, 
+    public List<SearchDomainSearchResultWithFullEntity> searchOnSearchDomain(String sessionToken,
             String preferredSearchDomainOrNull, String searchString, Map<String, String> optionalParametersOrNull);
 
     /**
@@ -1600,7 +1600,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     public List<String> listPredeployedPlugins(String sessionToken, ScriptType scriptType);
-    
+
     /**
      * Gets text for front page if the AS is disabled, null otherwise.
      */

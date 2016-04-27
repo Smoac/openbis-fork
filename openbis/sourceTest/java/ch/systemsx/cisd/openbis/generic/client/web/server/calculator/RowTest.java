@@ -31,18 +31,17 @@ import org.testng.annotations.Test;
  */
 public class RowTest extends AssertJUnit
 {
-    private static final List<Comparable<?>> EXAMPLE_ROW = Arrays.<Comparable<?>>asList("hello", new Double(42.5));
+    private static final List<Comparable<?>> EXAMPLE_ROW = Arrays.<Comparable<?>> asList("hello", new Double(42.5));
 
     private static final String COL1 = "col1";
 
     private static final String COL2 = "col2";
-    
+
     private static final String PROPERTY_KEY = "key";
 
     private static final String PROPERTY_VALUE = "value";
 
     private static final String PROPERTY_VALUE2 = "value2";
-
 
     private Mockery context;
 
@@ -56,15 +55,15 @@ public class RowTest extends AssertJUnit
         context = new Mockery();
         dataProvider = context.mock(ITableDataProvider.class);
         context.checking(new Expectations()
-        {
             {
-                allowing(dataProvider).getValue(COL1, EXAMPLE_ROW);
-                will(returnValue(EXAMPLE_ROW.get(0)));
+                {
+                    allowing(dataProvider).getValue(COL1, EXAMPLE_ROW);
+                    will(returnValue(EXAMPLE_ROW.get(0)));
 
-                allowing(dataProvider).getValue(COL2, EXAMPLE_ROW);
-                will(returnValue(EXAMPLE_ROW.get(1)));
-            }
-        });
+                    allowing(dataProvider).getValue(COL2, EXAMPLE_ROW);
+                    will(returnValue(EXAMPLE_ROW.get(1)));
+                }
+            });
 
         row = new Row(dataProvider);
         row.setRowData(EXAMPLE_ROW);
@@ -117,7 +116,7 @@ public class RowTest extends AssertJUnit
     public void testColDefsWithNullArgument()
     {
         prepareColDefs(PROPERTY_VALUE, PROPERTY_VALUE2, 0);
-        
+
         List<ColumnDefinition> defs = row.colDefs(null);
 
         assertEquals(2, defs.size());
@@ -198,7 +197,7 @@ public class RowTest extends AssertJUnit
     public void testColsGroupedByWithOneGroup()
     {
         prepareColDefs(PROPERTY_VALUE, PROPERTY_VALUE, 2);
-        
+
         List<ColumnGroup> groups = row.colsGroupedBy(PROPERTY_KEY);
 
         assertEquals(1, groups.size());
@@ -235,7 +234,7 @@ public class RowTest extends AssertJUnit
     {
         prepareColDefs(propertyValueOfFirstDefinition, propertyValueOfSecondDefinition, 1);
     }
-    
+
     private void prepareColDefs(final String propertyValueOfFirstDefinition,
             final String propertyValueOfSecondDefinition, final int numberOfTryToGetPropertyInvocations)
     {
@@ -244,10 +243,10 @@ public class RowTest extends AssertJUnit
                 {
                     one(dataProvider).getAllColumnIDs();
                     will(returnValue(Arrays.asList(COL1, COL2)));
-                    
+
                     exactly(numberOfTryToGetPropertyInvocations).of(dataProvider).tryToGetProperty(COL1, PROPERTY_KEY);
                     will(returnValue(propertyValueOfFirstDefinition));
-                    
+
                     exactly(numberOfTryToGetPropertyInvocations).of(dataProvider).tryToGetProperty(COL2, PROPERTY_KEY);
                     will(returnValue(propertyValueOfSecondDefinition));
                 }

@@ -49,8 +49,7 @@ public class NewDataSetsWithTypePredicate extends AbstractPredicate<NewDataSetsW
     }
 
     @Override
-    protected
-    Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles,
+    protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles,
             NewDataSetsWithTypes dataSets)
     {
         List<String> codes = new ArrayList<String>();

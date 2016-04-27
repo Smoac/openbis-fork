@@ -22,7 +22,7 @@ public class SampleDeletionTest extends DeletionTest
     {
         SpacePermId space = createSpace("SPACE");
         SamplePermId sample = createSample(null, space, "SAMPLE");
-        
+
         AttachmentCreation attachment1 = new AttachmentCreation();
         attachment1.setTitle("A1");
         attachment1.setDescription("hello A");
@@ -32,15 +32,15 @@ public class SampleDeletionTest extends DeletionTest
         attachment2.setFileName("hi.txt");
         attachment2.setContent("hi world!".getBytes());
         addAttachment(sample, attachment1, attachment2);
-        
+
         newTx();
-        
+
         delete(sample);
         delete(space);
 
-        assertAttachment("sample/" + sample.getPermId() + "/hello.txt(1)", 
+        assertAttachment("sample/" + sample.getPermId() + "/hello.txt(1)",
                 set("OWNED = ATTACHMENT:" + sample + "[SAMPLE](user:test) <hello world!>"));
-        assertAttachment("sample/" + sample.getPermId() + "/hi.txt(1)", 
+        assertAttachment("sample/" + sample.getPermId() + "/hi.txt(1)",
                 set("OWNED = ATTACHMENT:" + sample + "[SAMPLE](user:test) <hi world!>"));
         assertHistory(sample.getPermId(), "OWNER", attachmentSet("sample/" + sample.getPermId() + "/hello.txt(1)",
                 "sample/" + sample.getPermId() + "/hi.txt(1)"));
@@ -51,7 +51,7 @@ public class SampleDeletionTest extends DeletionTest
     public void deleteSharedSampleWithAttachments() throws Exception
     {
         SamplePermId sample = createSample(null, null, "SAMPLE");
-        
+
         AttachmentCreation attachment1 = new AttachmentCreation();
         attachment1.setTitle("A1");
         attachment1.setDescription("hello A");
@@ -61,19 +61,19 @@ public class SampleDeletionTest extends DeletionTest
         attachment2.setFileName("hi.txt");
         attachment2.setContent("hi world!".getBytes());
         addAttachment(sample, attachment1, attachment2);
-        
+
         newTx();
-        
+
         delete(sample);
-        
-        assertAttachment("sample/" + sample.getPermId() + "/hello.txt(1)", 
+
+        assertAttachment("sample/" + sample.getPermId() + "/hello.txt(1)",
                 set("OWNED = ATTACHMENT:" + sample + "[SAMPLE](user:test) <hello world!>"));
-        assertAttachment("sample/" + sample.getPermId() + "/hi.txt(1)", 
+        assertAttachment("sample/" + sample.getPermId() + "/hi.txt(1)",
                 set("OWNED = ATTACHMENT:" + sample + "[SAMPLE](user:test) <hi world!>"));
         assertHistory(sample.getPermId(), "OWNER", attachmentSet("sample/" + sample.getPermId() + "/hello.txt(1)",
                 "sample/" + sample.getPermId() + "/hi.txt(1)"));
     }
-    
+
     @Test
     @Rollback(false)
     public void testAttributes() throws Exception
@@ -84,10 +84,10 @@ public class SampleDeletionTest extends DeletionTest
 
         newTx();
         Date before = new Date();
-        
+
         delete(sample);
         delete(space);
-        
+
         HashMap<String, String> expectations = new HashMap<String, String>();
         expectations.put("CODE", "SPACE_SAMPLE");
         expectations.put("ENTITY_TYPE", "DELETION_TEST");
@@ -95,7 +95,6 @@ public class SampleDeletionTest extends DeletionTest
         assertAttributes(sample.getPermId(), expectations);
         assertRegistrationTimestampAttribute(sample.getPermId(), after, before);
     }
-
 
     @Test
     @Rollback(false)
@@ -118,7 +117,7 @@ public class SampleDeletionTest extends DeletionTest
         delete(sample);
         delete(space1, space2);
 
-        assertHistory(sample.getPermId(), "OWNED", spaceSet(space1.getPermId()), 
+        assertHistory(sample.getPermId(), "OWNED", spaceSet(space1.getPermId()),
                 spaceSetFor(SYSTEM_USER, space2.getPermId()));
     }
 
@@ -150,7 +149,7 @@ public class SampleDeletionTest extends DeletionTest
         delete(project1, project2);
         delete(space1, space2);
 
-        assertHistory(sample.getPermId(), "OWNED", experimentSet(experiment1.getPermId()), 
+        assertHistory(sample.getPermId(), "OWNED", experimentSet(experiment1.getPermId()),
                 experimentSet(experiment2.getPermId()));
     }
 

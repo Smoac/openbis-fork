@@ -43,23 +43,27 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=CacheManager.class)
+@Friend(toClasses = CacheManager.class)
 public class CacheManagerTest extends AbstractFileSystemTestCase
 {
     private static final String TECHNOLOGY = "test-technology";
+
     private static final String CACHE_VERSION = "42";
+
     private static final long DAY = 24 * 60 * 60 * 1000;
-    
+
     private Mockery context;
+
     private IFreeSpaceProvider freeSpaceProvider;
+
     private WebClientConfiguration webClientConfiguration;
+
     private File cacheFolder;
+
     private ITimeProvider timeProvider;
-    
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -83,29 +87,29 @@ public class CacheManagerTest extends AbstractFileSystemTestCase
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testEmptyCache()
     {
         CacheManager cacheManager = createCacheManager();
-        
+
         Object data = cacheManager.tryToGetData(new Key("a"));
-        
+
         assertEquals(null, data);
         checkCacheFolder(CACHE_VERSION);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testStoreDataButNotEnoughMemory()
     {
         prepareTimeProvider(1L, 2L, 3L);
         prepareFreeSpaceProvider(0L);
         CacheManager cacheManager = createCacheManager();
-        
+
         String data = "hello";
         cacheManager.storeData(new Key("a"), data);
-        
+
         assertEquals(null, cacheManager.tryToGetData(new Key("a")));
         checkCacheFolder(CACHE_VERSION);
         context.assertIsSatisfied();
@@ -117,10 +121,10 @@ public class CacheManagerTest extends AbstractFileSystemTestCase
         prepareTimeProvider(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L);
         prepareFreeSpaceProvider(2048L, 2048L);
         CacheManager cacheManager = createCacheManager();
-        
+
         String data = "hello";
         cacheManager.storeData(new Key("a"), data);
-        
+
         assertEquals(data, cacheManager.tryToGetData(new Key("a")));
         checkCacheFolder(CACHE_VERSION, "19700101010000007-1");
         assertEquals(data, cacheManager.tryToGetData(new Key("a")));
@@ -128,76 +132,76 @@ public class CacheManagerTest extends AbstractFileSystemTestCase
         checkCacheFolder(CACHE_VERSION, "19700101010000010-2");
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testStoreShutdownAndRetrieveFromCache()
     {
         prepareTimeProvider(1L, 2L, 3L, 4L, 5L, 6L, 7L);
         prepareFreeSpaceProvider(2048L, 2048L);
         CacheManager cacheManager = createCacheManager();
-        
+
         String data = "hello";
         cacheManager.storeData(new Key("a"), data);
-        
+
         cacheManager = createCacheManager();
         assertEquals(data, cacheManager.tryToGetData(new Key("a")));
         assertEquals(null, cacheManager.tryToGetData(new Key("b")));
         checkCacheFolder(CACHE_VERSION, "19700101010000007-0");
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testStoreShutdownAndTryToRetrieveFromCacheWithChangedCacheVersion()
     {
         prepareTimeProvider(1L, 2L, 3L, 4L);
         prepareFreeSpaceProvider(2048L, 2048L);
         CacheManager cacheManager = createCacheManager("1");
-        
+
         String data = "hello";
         cacheManager.storeData(new Key("a"), data);
-        
+
         cacheManager = createCacheManager("2");
         assertEquals(null, cacheManager.tryToGetData(new Key("a")));
         checkCacheFolder("2");
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCleanUpForLargeFiles()
     {
         prepareTimeProvider(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L);
         prepareFreeSpaceProvider(2048L, 2048L, 0L, 2048L, 2048L);
         CacheManager cacheManager = createCacheManager();
-        
+
         String data1 = "hello";
         cacheManager.storeData(new Key("a"), data1);
         String data2 = "hi";
         cacheManager.storeData(new Key("b"), data2);
-        
+
         assertEquals(null, cacheManager.tryToGetData(new Key("a")));
         assertEquals(data2, cacheManager.tryToGetData(new Key("b")));
         checkCacheFolder(CACHE_VERSION, "19700101010000011-1");
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCleanUpForOldFiles()
     {
         prepareTimeProvider(1L, 2L, 3L, 4L, DAY + 5L, DAY + 6L, DAY + 7L, DAY + 8L, DAY + 9L, DAY + 10L, DAY + 11L);
         prepareFreeSpaceProvider(2048L, 2048L, 2048L, 2048L);
         CacheManager cacheManager = createCacheManager();
-        
+
         String data1 = "hello";
         cacheManager.storeData(new Key("a"), data1);
         String data2 = "hi";
         cacheManager.storeData(new Key("b"), data2);
-        
+
         assertEquals(null, cacheManager.tryToGetData(new Key("a")));
         assertEquals(data2, cacheManager.tryToGetData(new Key("b")));
         checkCacheFolder(CACHE_VERSION, "19700102010000011-1");
         context.assertIsSatisfied();
     }
-    
+
     private void checkCacheFolder(String cacheVersion, String... fileNames)
     {
         File versionFile = new File(cacheFolder, CacheManager.CACHE_VERSION_FILE_NAME);
@@ -259,7 +263,7 @@ public class CacheManagerTest extends AbstractFileSystemTestCase
                 }
             });
     }
-    
+
     private CacheManager createCacheManager()
     {
         return createCacheManager(CACHE_VERSION);

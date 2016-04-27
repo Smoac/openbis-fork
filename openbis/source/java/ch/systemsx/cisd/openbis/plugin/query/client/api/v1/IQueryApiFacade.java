@@ -58,18 +58,17 @@ public interface IQueryApiFacade
     public List<ReportDescription> listTableReportDescriptions();
 
     /**
-     * Creates for the specified data sets and specified report description a report. Available
-     * report descriptions can be obtained by {@link #listTableReportDescriptions()}.
+     * Creates for the specified data sets and specified report description a report. Available report descriptions can be obtained by
+     * {@link #listTableReportDescriptions()}.
      */
     @Retry
     public QueryTableModel createReportFromDataSets(ReportDescription reportDescription,
             List<String> dataSetCodes);
 
     /**
-     * Creates for the specified data sets and specified report key a report. It groups the data
-     * sets by a data store and creates a report for each group of objects on appropriate data store
-     * server. Results from the data stores are combined and returned as a result of this method.
-     * Available report keys can be obtained by {@link #listTableReportDescriptions()}.
+     * Creates for the specified data sets and specified report key a report. It groups the data sets by a data store and creates a report for each
+     * group of objects on appropriate data store server. Results from the data stores are combined and returned as a result of this method. Available
+     * report keys can be obtained by {@link #listTableReportDescriptions()}.
      */
     @Retry
     public QueryTableModel createReportFromDataSets(String reportKey, List<String> dataSetCodes);
@@ -87,9 +86,8 @@ public interface IQueryApiFacade
     public List<AggregationServiceDescription> listAggregationServices();
 
     /**
-     * Executes the specified aggregation or ingestion service for the specified parameters and
-     * creates a report. Available service descriptions can be obtained by
-     * {@link #listAggregationServices()}.
+     * Executes the specified aggregation or ingestion service for the specified parameters and creates a report. Available service descriptions can
+     * be obtained by {@link #listAggregationServices()}.
      */
     @Retry
     public QueryTableModel createReportFromAggregationService(

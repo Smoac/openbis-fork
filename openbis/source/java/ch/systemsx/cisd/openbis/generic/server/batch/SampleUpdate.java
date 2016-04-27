@@ -22,12 +22,11 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 
 /**
- * {@link IBatchOperation} updating samples. It is like {@link SampleBatchUpdate}, but uses
- * {@link SampleUpdatesDTO} to specify the updates instead of {@link SampleBatchUpdate} and thus has
- * slightly different semantics.
+ * {@link IBatchOperation} updating samples. It is like {@link SampleBatchUpdate}, but uses {@link SampleUpdatesDTO} to specify the updates instead of
+ * {@link SampleBatchUpdate} and thus has slightly different semantics.
  * <p>
- * Whereas SampleBatchUpdate only makes changes to the sample that are explicitly specified in it
- * the details object of its DTO, SampleUpdate changes the sample to match the DTO.
+ * Whereas SampleBatchUpdate only makes changes to the sample that are explicitly specified in it the details object of its DTO, SampleUpdate changes
+ * the sample to match the DTO.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

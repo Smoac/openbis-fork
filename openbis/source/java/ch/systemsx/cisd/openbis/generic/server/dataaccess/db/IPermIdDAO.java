@@ -39,8 +39,7 @@ public interface IPermIdDAO
     public List<String> createPermIds(int n);
 
     /**
-     * Returns {@link IEntityInformationHolderDTO} for given permId and entityKind or null if
-     * nothing found;
+     * Returns {@link IEntityInformationHolderDTO} for given permId and entityKind or null if nothing found;
      */
     public IEntityInformationHolderDTO tryToFindByPermId(String permId, EntityKind entityKind);
 }

@@ -36,14 +36,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Test(groups = "system test")
 public class AttachmentUploadTest extends SystemTestCase
 {
     private static final String FILE_CONTENT = "hello world";
+
     private static final String FILE_NAME = "hello.txt";
 
     @Test
@@ -70,33 +69,33 @@ public class AttachmentUploadTest extends SystemTestCase
     {
         SessionContext sessionContext = logIntoCommonClientService();
         TechId experimentID = new TechId(2);
-        
+
         uploadFile(FILE_NAME, FILE_CONTENT);
         commonClientService.addAttachment(experimentID, SESSION_KEY, AttachmentHolderKind.EXPERIMENT,
                 new NewAttachment(FILE_NAME, "my file", "example file"));
-        
+
         AttachmentWithContent attachmentWithContent =
-            genericServer.getExperimentFileAttachment(sessionContext.getSessionID(), experimentID,
-                    FILE_NAME, 1);
+                genericServer.getExperimentFileAttachment(sessionContext.getSessionID(), experimentID,
+                        FILE_NAME, 1);
         checkUploadedAttachment(experimentID, AttachmentHolderKind.EXPERIMENT, attachmentWithContent);
     }
-    
+
     @Test
     public void testUploadSampleAttachment()
     {
         SessionContext sessionContext = logIntoCommonClientService();
         TechId sampleID = new TechId(1);
-        
+
         uploadFile(FILE_NAME, FILE_CONTENT);
         commonClientService.addAttachment(sampleID, SESSION_KEY, AttachmentHolderKind.SAMPLE,
                 new NewAttachment(FILE_NAME, "my file", "example file"));
-        
+
         AttachmentWithContent attachmentWithContent =
-            genericServer.getSampleFileAttachment(sessionContext.getSessionID(), sampleID,
-                    FILE_NAME, 1);
+                genericServer.getSampleFileAttachment(sessionContext.getSessionID(), sampleID,
+                        FILE_NAME, 1);
         checkUploadedAttachment(sampleID, AttachmentHolderKind.SAMPLE, attachmentWithContent);
     }
-    
+
     private void checkUploadedAttachment(TechId holderID, AttachmentHolderKind holderKind,
             AttachmentWithContent attachmentWithContent)
     {
@@ -108,17 +107,19 @@ public class AttachmentUploadTest extends SystemTestCase
                                 new DefaultResultSetConfig<String, TableModelRowWithObject<AttachmentVersions>>());
 
         GridRowModels<TableModelRowWithObject<AttachmentVersions>> list = attachmentVersions.getResultSet().getList();
-        for (GridRowModel<TableModelRowWithObject<AttachmentVersions>> tmrl : list) {
-        	Attachment attachment = tmrl.getOriginalObject().getObjectOrNull().getVersions().get(0);
-        	if (attachment.getFileName().equals(FILE_NAME)) {
+        for (GridRowModel<TableModelRowWithObject<AttachmentVersions>> tmrl : list)
+        {
+            Attachment attachment = tmrl.getOriginalObject().getObjectOrNull().getVersions().get(0);
+            if (attachment.getFileName().equals(FILE_NAME))
+            {
                 assertEquals("my file", attachment.getTitle());
                 assertEquals("example file", attachment.getDescription());
                 assertEquals(1, attachment.getVersion());
                 assertEquals(FILE_CONTENT, new String(attachmentWithContent.getContent()));
-        		return;
-        	}
+                return;
+            }
         }
-        
-        fail("Attachment with file name "+FILE_NAME+" was not found");
+
+        fail("Attachment with file name " + FILE_NAME + " was not found");
     }
 }

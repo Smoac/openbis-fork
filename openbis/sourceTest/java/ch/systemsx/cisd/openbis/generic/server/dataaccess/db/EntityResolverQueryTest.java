@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
  * @author Bernd Rinn
  */
 @Test(groups =
-    { "db" })
+{ "db" })
 public class EntityResolverQueryTest extends AbstractDAOTest
 {
     private IEntityResolverQuery query;

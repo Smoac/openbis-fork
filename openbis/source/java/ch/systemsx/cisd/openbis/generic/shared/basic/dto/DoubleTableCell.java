@@ -24,19 +24,19 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 public class DoubleTableCell implements ISerializableComparable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
+
     private double number;
-    
+
     public DoubleTableCell(double doubleValue)
     {
         this.number = doubleValue;
     }
-    
+
     public double getNumber()
     {
         return number;
     }
-    
+
     @Override
     public int compareTo(ISerializableComparable o)
     {
@@ -68,7 +68,7 @@ public class DoubleTableCell implements ISerializableComparable
     {
         return Double.toString(number);
     }
-    
+
     // ---------------------------
 
     // GWT only

@@ -35,9 +35,8 @@ public class TableCellUtil
     public static final String INTERN_PREFIX = "INTERN-";
 
     /**
-     * Returns an appropriate table cell for the specified string token. If it can be parsed as an
-     * integer number a {@link IntegerTableCell} is returned. If it can be parsed as a floating
-     * point number a {@link DoubleTableCell} is returned. Otherwise a {@link StringTableCell} is
+     * Returns an appropriate table cell for the specified string token. If it can be parsed as an integer number a {@link IntegerTableCell} is
+     * returned. If it can be parsed as a floating point number a {@link DoubleTableCell} is returned. Otherwise a {@link StringTableCell} is
      * returned.
      */
     public static ISerializableComparable createTableCell(String token)
@@ -63,8 +62,8 @@ public class TableCellUtil
     }
 
     /**
-     * Returns the code of specified property type with prefix <code>INTERN-</code> or
-     * <code>USER-</code> depending on whether it is internal name space or not.
+     * Returns the code of specified property type with prefix <code>INTERN-</code> or <code>USER-</code> depending on whether it is internal name
+     * space or not.
      */
     public static String getPropertyTypeCode(PropertyType propertyType)
     {

@@ -268,7 +268,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         logTracking(sessionToken, "update_experiments", "TYPE(%s) EXPERIMENTS(%s)", experiments
                 .getExperimentType().getCode(), experiments.getUpdatedExperiments().size());
     }
-    
+
     @Override
     public void registerOrUpdateSamplesAndMaterials(final String sessionToken,
             final List<NewSamplesWithTypes> newSamplesWithType,

@@ -108,10 +108,10 @@ public class DataStoreServiceRegistratorTest extends AssertJUnit
         dataStore.setCode(DATASTORE_CODE);
         DatastoreServiceDescription r1 =
                 DatastoreServiceDescription.reporting("R1", "r1", new String[]
-                    { "A.*", "B" }, DATASTORE_CODE, ReportingPluginType.TABLE_MODEL);
+                { "A.*", "B" }, DATASTORE_CODE, ReportingPluginType.TABLE_MODEL);
         DatastoreServiceDescription p1 =
                 DatastoreServiceDescription.processing("P1", "p1", new String[]
-                    { "A.*", "C.*", "D" }, DATASTORE_CODE);
+                { "A.*", "C.*", "D" }, DATASTORE_CODE);
         context.checking(new Expectations()
             {
                 {
@@ -154,10 +154,10 @@ public class DataStoreServiceRegistratorTest extends AssertJUnit
         dataStore.setCode(DATASTORE_CODE);
         DatastoreServiceDescription r1 =
                 DatastoreServiceDescription.reporting("R1", "r1", new String[]
-                    { "A.*", "B" }, DATASTORE_CODE, ReportingPluginType.TABLE_MODEL);
+                { "A.*", "B" }, DATASTORE_CODE, ReportingPluginType.TABLE_MODEL);
         DatastoreServiceDescription p1 =
                 DatastoreServiceDescription.processing("P1", "p1", new String[]
-                    { "A.*", "C.*", "D" }, DATASTORE_CODE);
+                { "A.*", "C.*", "D" }, DATASTORE_CODE);
         context.checking(new Expectations()
             {
                 {

@@ -21,9 +21,8 @@ import java.io.Serializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
 
 /**
- * Class storing personalised display settings for a table column. This class implements
- * {@link Serializable} not only for transferring it's content remotely but also to store it in the
- * database. Thus, CHANGES IN THIS CLASS MIGHT LEAD TO A LOST OF PERSONAL SETTINGS.
+ * Class storing personalised display settings for a table column. This class implements {@link Serializable} not only for transferring it's content
+ * remotely but also to store it in the database. Thus, CHANGES IN THIS CLASS MIGHT LEAD TO A LOST OF PERSONAL SETTINGS.
  * 
  * @author Franz-Josef Elmer
  */

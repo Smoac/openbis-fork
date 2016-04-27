@@ -90,7 +90,7 @@ public class AssignProjectToSpaceTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAssignProjectToSpace", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void assigningProjectToSpaceIsNotAllowedFor(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception

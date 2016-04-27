@@ -22,11 +22,9 @@ import java.util.Date;
 import org.testng.AssertJUnit;
 
 /**
- * Helper class to check that a time stamp is between now and a time in the past when an instance of
- * this class has been created.
+ * Helper class to check that a time stamp is between now and a time in the past when an instance of this class has been created.
  * <p>
- * This class is useful in tests where some productive code creates a time stamp which should be
- * checked.
+ * This class is useful in tests where some productive code creates a time stamp which should be checked.
  * 
  * @author Franz-Josef Elmer
  */
@@ -49,7 +47,7 @@ public class TimeIntervalChecker extends AssertJUnit
     {
         this(new Timestamp(System.currentTimeMillis() - shiftInMillisecond));
     }
-    
+
     /**
      * Creates an instance for the specified date object.
      */
@@ -59,8 +57,7 @@ public class TimeIntervalChecker extends AssertJUnit
     }
 
     /**
-     * Asserts that the specified date is after the time stamp of creation of this instance and
-     * before now.
+     * Asserts that the specified date is after the time stamp of creation of this instance and before now.
      */
     public void assertDateInInterval(Date date)
     {
@@ -71,7 +68,7 @@ public class TimeIntervalChecker extends AssertJUnit
         assertFalse("Actual date [" + date + "] is after now [" + now + "].",
                 now.before(timestamp));
     }
-    
+
     private Timestamp asTimestamp(Date date)
     {
         return date instanceof Timestamp ? (Timestamp) date : new Timestamp(date.getTime());

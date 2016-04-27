@@ -28,8 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 public final class DynamicPropertyFunctions
 {
     /**
-     * @return String representation of material identifier for given material code and material
-     *         type code.
+     * @return String representation of material identifier for given material code and material type code.
      */
     public static String material(String code, String typeCode)
     {
@@ -37,8 +36,7 @@ public final class DynamicPropertyFunctions
     }
 
     /**
-     * @return code of material with given identifier or null if the identifier is not a valid
-     *         material identifier
+     * @return code of material with given identifier or null if the identifier is not a valid material identifier
      */
     public static String materialCode(String materialIdentifier)
     {
@@ -48,8 +46,7 @@ public final class DynamicPropertyFunctions
     }
 
     /**
-     * @return type of material with given identifier or null if the identifier is not a valid
-     *         material identifier
+     * @return type of material with given identifier or null if the identifier is not a valid material identifier
      */
     public static String materialTypeCode(String materialIdentifier)
     {

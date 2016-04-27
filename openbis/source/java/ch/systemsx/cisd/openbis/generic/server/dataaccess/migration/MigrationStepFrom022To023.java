@@ -27,11 +27,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
 
 /**
- * Finishes migration of the database version 22 to version 23 by setting the <i>UUID</i> code of
- * the database instance.
+ * Finishes migration of the database version 22 to version 23 by setting the <i>UUID</i> code of the database instance.
  * <p>
- * Note that, at that time, the <i>UUID</i> column label was <code>GLOBAL_CODE</code> and not
- * <code>UUID</code>.
+ * Note that, at that time, the <i>UUID</i> column label was <code>GLOBAL_CODE</code> and not <code>UUID</code>.
  * </p>
  * 
  * @author Tomasz Pylak

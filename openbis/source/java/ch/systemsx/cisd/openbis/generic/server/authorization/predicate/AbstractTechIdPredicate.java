@@ -26,8 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
- * An <code>IPredicate</code> abstract implementation based on {@link TechId} and
- * {@link SpaceOwnerKind}
+ * An <code>IPredicate</code> abstract implementation based on {@link TechId} and {@link SpaceOwnerKind}
  * 
  * @author Piotr Buczek
  */

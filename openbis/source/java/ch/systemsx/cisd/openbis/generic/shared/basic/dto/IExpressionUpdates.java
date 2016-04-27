@@ -22,8 +22,7 @@ import java.util.Date;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
- * Description of the updates which should be performed on a stored expression (e.g. grid custom
- * filter or column expression).
+ * Description of the updates which should be performed on a stored expression (e.g. grid custom filter or column expression).
  * 
  * @author Piotr Buczek
  */

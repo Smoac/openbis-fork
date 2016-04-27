@@ -70,7 +70,7 @@ public class GenericDataSetViewerTest extends AbstractGWTTestCase
     {
         final String parentCodes[] = {};
         final String childCodes[] =
-            { "20081105092259000-9" };
+        { "20081105092259000-9" };
 
         prepareShowDataSet(PARENT_DATASET_CODE_WITH_SAMPLE);
 
@@ -103,10 +103,10 @@ public class GenericDataSetViewerTest extends AbstractGWTTestCase
     public final void testShowExperimentDataSetWithParents()
     {
         final String parentCodes[] =
-                    { "20081105092158673-1", "20081105092159111-1", "20081105092159222-2",
-                            "20081105092159333-3" };
+        { "20081105092158673-1", "20081105092159111-1", "20081105092159222-2",
+                "20081105092159333-3" };
         final String childCodes[] =
-            { "20081105092259900-0", "20081105092259900-1" };
+        { "20081105092259900-0", "20081105092259900-1" };
 
         prepareShowDataSet(CHILD_DATASET_CODE);
 

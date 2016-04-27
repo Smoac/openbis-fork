@@ -59,8 +59,8 @@ public final class MaterialTable extends AbstractMaterialBusinessObject implemen
     private boolean dataChanged;
 
     public MaterialTable(final IDAOFactory daoFactory, final Session session,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IRelationshipService relationshipService)
     {
         super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);
@@ -70,11 +70,11 @@ public final class MaterialTable extends AbstractMaterialBusinessObject implemen
     // for tests only
     MaterialTable(final IDAOFactory daoFactory, final Session session,
             final IEntityPropertiesConverter entityPropertiesConverter, List<MaterialPE> materials,
-            boolean dataChanged, IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            boolean dataChanged, IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IRelationshipService relationshipService)
     {
-        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory, 
+        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory,
                 dataSetTypeChecker, relationshipService);
         this.materials = materials;
         this.dataChanged = dataChanged;

@@ -47,8 +47,8 @@ public interface IDemoServer extends IServer
      * For given {@link TechId} returns the {@link Sample} and its derived (child) samples.
      * 
      * @return never <code>null</code>.
-     * @throws UserFailureException if given <var>sessionToken</var> is invalid or whether sample
-     *             uniquely identified by given <var>sampleId</var> does not exist.
+     * @throws UserFailureException if given <var>sessionToken</var> is invalid or whether sample uniquely identified by given <var>sampleId</var>
+     *             does not exist.
      */
     @Transactional(readOnly = true)
     public SampleParentWithDerived getSampleInfo(final String sessionToken, final TechId sampleId)

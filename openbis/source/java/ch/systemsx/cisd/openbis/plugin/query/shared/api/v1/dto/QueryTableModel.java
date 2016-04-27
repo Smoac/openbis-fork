@@ -60,8 +60,7 @@ public class QueryTableModel implements Serializable
     /**
      * Adds a row of values.
      * 
-     * @throws IllegalArgumentException if the number of values is not the same as the number of
-     *             columns.
+     * @throws IllegalArgumentException if the number of values is not the same as the number of columns.
      */
     public void addRow(Serializable[] values)
     {
@@ -99,8 +98,7 @@ public class QueryTableModel implements Serializable
     }
 
     /**
-     * Jackson cannot deserialize things typed as Serializable because it has no idea what the
-     * correct type might be.
+     * Jackson cannot deserialize things typed as Serializable because it has no idea what the correct type might be.
      * <p>
      * Thus we convert the values to strings and add type information.
      */

@@ -24,16 +24,16 @@ public final class ExperimentNode extends EntityNode
     private final List<SampleNode> samples = new ArrayList<SampleNode>();
 
     private final List<DataSetNode> dataSets = new ArrayList<DataSetNode>();
-    
+
     private String space;
-    
+
     private String project;
 
     ExperimentNode(long id)
     {
         super("E", id);
     }
-    
+
     public String getSpace()
     {
         return space;
@@ -58,12 +58,12 @@ public final class ExperimentNode extends EntityNode
     {
         return samples;
     }
-    
+
     public List<DataSetNode> getDataSets()
     {
         return dataSets;
     }
-    
+
     void has(SampleNode... someSamples)
     {
         for (SampleNode sample : someSamples)
@@ -81,7 +81,7 @@ public final class ExperimentNode extends EntityNode
             dataSets.add(dataSet);
         }
     }
-    
+
     @Override
     public String getIdentifier()
     {

@@ -44,8 +44,7 @@ public final class MaterialIdentifier implements Serializable
     private String code;
 
     /**
-     * The code of material type of this material: together with code uniquely identifies the
-     * material.
+     * The code of material type of this material: together with code uniquely identifies the material.
      * <p>
      * Could not be <code>null</code>.
      * </p>
@@ -89,12 +88,10 @@ public final class MaterialIdentifier implements Serializable
 
     // -----------
     /**
-     * Creates material identifier from specified identifier or code and material type code if no
-     * full identifier is specified.
+     * Creates material identifier from specified identifier or code and material type code if no full identifier is specified.
      * 
      * @return <code>null</code> if no full identifier specified and material type is unknown.
-     * @throw {@link IllegalArgumentException} if material type of full identifier doesn't match
-     *        specified material type.
+     * @throw {@link IllegalArgumentException} if material type of full identifier doesn't match specified material type.
      */
     public static MaterialIdentifier tryCreate(String codeOrIdentifierOrNull,
             ICodeHolder materialTypeCodeHolderOrNull)
@@ -125,8 +122,7 @@ public final class MaterialIdentifier implements Serializable
     }
 
     /**
-     * Parses the material code and type. Assumes the syntax: "code (type)". Returns the chosen
-     * material if parsing went ok, null otherwise.
+     * Parses the material code and type. Assumes the syntax: "code (type)". Returns the chosen material if parsing went ok, null otherwise.
      */
     public static MaterialIdentifier tryParseIdentifier(String value)
     {

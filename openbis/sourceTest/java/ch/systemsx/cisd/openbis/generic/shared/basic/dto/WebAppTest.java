@@ -55,7 +55,7 @@ public class WebAppTest
     public void testMatchesContextWithExactMatchInContextsList()
     {
         WebApp webApp = new WebApp("webapp", null, null, new String[]
-            { "experiment-details-view" }, null);
+        { "experiment-details-view" }, null);
 
         for (WebAppContext context : WebAppContext.values())
         {
@@ -73,7 +73,7 @@ public class WebAppTest
     public void testMatchesContextWithRegexpMatchInContextsList()
     {
         WebApp webApp = new WebApp("webapp", null, null, new String[]
-            { ".*-details-view" }, null);
+        { ".*-details-view" }, null);
 
         for (WebAppContext context : WebAppContext.values())
         {
@@ -118,7 +118,7 @@ public class WebAppTest
     {
         Map<EntityKind, String[]> entityTypes = new HashMap<EntityKind, String[]>();
         entityTypes.put(EntityKind.EXPERIMENT, new String[]
-            { "EXP0", "EXP1" });
+        { "EXP0", "EXP1" });
         WebApp webApp = new WebApp("webapp", null, null, null, entityTypes);
 
         for (EntityKind kind : EntityKind.values())
@@ -143,7 +143,7 @@ public class WebAppTest
     {
         Map<EntityKind, String[]> entityTypes = new HashMap<EntityKind, String[]>();
         entityTypes.put(EntityKind.EXPERIMENT, new String[]
-            { "EXP0", "EXP.*" });
+        { "EXP0", "EXP.*" });
         WebApp webApp = new WebApp("webapp", null, null, null, entityTypes);
 
         for (EntityKind kind : EntityKind.values())

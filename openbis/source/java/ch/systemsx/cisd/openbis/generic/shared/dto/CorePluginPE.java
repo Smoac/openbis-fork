@@ -38,8 +38,8 @@ import org.hibernate.annotations.GenerationTime;
  */
 @Entity
 @Table(name = TableNames.CORE_PLUGINS_TABLE, uniqueConstraints =
-    { @UniqueConstraint(columnNames =
-        { ColumnNames.NAME_COLUMN, ColumnNames.VERSION_COLUMN }) })
+{ @UniqueConstraint(columnNames =
+{ ColumnNames.NAME_COLUMN, ColumnNames.VERSION_COLUMN }) })
 public final class CorePluginPE implements Comparable<CorePluginPE>
 {
     transient private Long id;

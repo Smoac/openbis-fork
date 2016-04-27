@@ -29,8 +29,8 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import ch.systemsx.cisd.openbis.generic.shared.basic.Row;
 
 /**
- * Command for checking the content (i.e. <code>ListStore</code>) of a table (i.e. <code>Grid</code>
- * ). It uses a fluent API approach for its methods to prepare expectations.
+ * Command for checking the content (i.e. <code>ListStore</code>) of a table (i.e. <code>Grid</code> ). It uses a fluent API approach for its methods
+ * to prepare expectations.
  * 
  * @author Franz-Josef Elmer
  */
@@ -140,8 +140,7 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
     }
 
     /**
-     * Prepares this with the expectation upon the number of table columns, including hidden
-     * columns.
+     * Prepares this with the expectation upon the number of table columns, including hidden columns.
      */
     public CheckTableCommand expectedColumnsNumber(final int expectedNumberOfColumns)
     {

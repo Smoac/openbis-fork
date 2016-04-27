@@ -23,8 +23,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvalua
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * Synchronizes all dynamic property evaluations scheduled in a transaction with persistent queue
- * after transaction is successfully committed.
+ * Synchronizes all dynamic property evaluations scheduled in a transaction with persistent queue after transaction is successfully committed.
  * 
  * @author Piotr Buczek
  */

@@ -50,7 +50,7 @@ public class EntityDeletionTest extends AbstractEntityDeletionTestCase
         List<TechId> experimentIds = TechId.createList(commonServer.listExperiments(userSessionToken, identifiers));
         commonServer.deleteExperiments(userSessionToken, experimentIds, "test", DeletionType.TRASH);
     }
-    
+
     /**
      * Trashes specified samples for specified user session token.
      */
@@ -69,5 +69,5 @@ public class EntityDeletionTest extends AbstractEntityDeletionTestCase
     {
         commonServer.deleteDataSets(userSessionToken, dataSetCodes, "test", DeletionType.TRASH, true);
     }
-    
+
 }

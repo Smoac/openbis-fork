@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 
 /**
- * Contains the information stored in both {@link IEntityInformationHolderWithIdentifier} and
- * {@link IEntityPropertiesHolder}.
+ * Contains the information stored in both {@link IEntityInformationHolderWithIdentifier} and {@link IEntityPropertiesHolder}.
  * 
  * @author Piotr Buczek
  */

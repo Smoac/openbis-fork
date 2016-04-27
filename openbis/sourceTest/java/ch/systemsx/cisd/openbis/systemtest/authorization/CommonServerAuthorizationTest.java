@@ -59,8 +59,8 @@ public class CommonServerAuthorizationTest extends BaseTest
         assertEquals("S2", space.getCode());
         TechId ds3Id = new TechId(ds3.getId());
         String user = create(aSession().withSpaceRole(RoleCode.ADMIN, space));
-  
-        List<AbstractExternalData> children = commonServer.listDataSetRelationships(user, ds3Id,DataSetRelationshipRole.PARENT);
+
+        List<AbstractExternalData> children = commonServer.listDataSetRelationships(user, ds3Id, DataSetRelationshipRole.PARENT);
         assertEquals("[" + ds2.getCode() + "]", Code.extractCodes(children).toString());
         List<AbstractExternalData> parents = commonServer.listDataSetRelationships(user, ds3Id, DataSetRelationshipRole.CHILD);
         assertEquals("[" + ds5.getCode() + "]", Code.extractCodes(parents).toString());

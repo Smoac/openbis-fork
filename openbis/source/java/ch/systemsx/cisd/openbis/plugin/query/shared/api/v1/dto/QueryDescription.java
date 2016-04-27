@@ -26,8 +26,8 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.util.JsonPropertyUtil;
 
 /**
- * Description of a query. Contains everything needed on client side to show to the user what
- * queries are available, to specify parameter bindings, and to identify a query uniquely.
+ * Description of a query. Contains everything needed on client side to show to the user what queries are available, to specify parameter bindings,
+ * and to identify a query uniquely.
  * 
  * @author Franz-Josef Elmer
  */
@@ -102,8 +102,7 @@ public class QueryDescription implements Serializable
     }
 
     /**
-     * Returns <code>true</code> if and only if the specified object is of type
-     * {@link QueryDescription} and has the same ID as this.
+     * Returns <code>true</code> if and only if the specified object is of type {@link QueryDescription} and has the same ID as this.
      */
     @Override
     public boolean equals(Object obj)

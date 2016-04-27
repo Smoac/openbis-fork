@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-
 /**
  * The {@link EntityTypePropertyType} extension for <i>Sample Type</i>.
  * 

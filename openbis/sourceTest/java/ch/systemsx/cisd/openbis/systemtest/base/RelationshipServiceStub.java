@@ -130,13 +130,13 @@ public class RelationshipServiceStub implements IRelationshipService
     public void assignSampleToProject(IAuthSession session, SamplePE sample, ProjectPE project)
     {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void unassignSampleFromProject(IAuthSession session, SamplePE sample)
     {
         // TODO Auto-generated method stub
-        
+
     }
 }

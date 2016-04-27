@@ -39,6 +39,5 @@ public interface ISearchDomainSearcher
      */
     List<SearchDomainSearchResultWithFullEntity> searchForEntitiesWithSequences(String preferredSearchDomainOrNull,
             String sequenceSnippet, Map<String, String> optionalParametersOrNull);
-    
 
 }

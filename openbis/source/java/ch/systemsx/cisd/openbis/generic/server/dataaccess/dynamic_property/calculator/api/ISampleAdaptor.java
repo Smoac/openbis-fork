@@ -34,8 +34,7 @@ public interface ISampleAdaptor extends IEntityAdaptor
     public Iterable<ISampleAdaptor> parents();
 
     /**
-     * Returns parent samples of this sample. Types of the returned parent samples must match the
-     * specified regular expression.
+     * Returns parent samples of this sample. Types of the returned parent samples must match the specified regular expression.
      */
     public Iterable<ISampleAdaptor> parentsOfType(String typeCodeRegexp);
 
@@ -45,8 +44,7 @@ public interface ISampleAdaptor extends IEntityAdaptor
     public Iterable<ISampleAdaptor> children();
 
     /**
-     * Returns child samples of this sample. Types of the returned child samples must match the
-     * specified regular expression.
+     * Returns child samples of this sample. Types of the returned child samples must match the specified regular expression.
      */
     public Iterable<ISampleAdaptor> childrenOfType(String typeCodeRegexp);
 
@@ -61,8 +59,7 @@ public interface ISampleAdaptor extends IEntityAdaptor
     public Iterable<ISampleAdaptor> contained();
 
     /**
-     * Returns contained samples of this sample. Types of the returned contained samples must match
-     * the specified regular expression.
+     * Returns contained samples of this sample. Types of the returned contained samples must match the specified regular expression.
      */
     public Iterable<ISampleAdaptor> containedOfType(String typeCodeRegexp);
 
@@ -72,8 +69,7 @@ public interface ISampleAdaptor extends IEntityAdaptor
     public Iterable<IDataAdaptor> dataSets();
 
     /**
-     * Returns data sets of this sample. Types of the returned data sets must match the specified
-     * regular expression.
+     * Returns data sets of this sample. Types of the returned data sets must match the specified regular expression.
      */
     public Iterable<IDataAdaptor> dataSetsOfType(String typeCodeRegexp);
 

@@ -26,9 +26,8 @@ public enum ViewMode implements IsSerializable
     SIMPLE,
 
     /**
-     * Embedded mode inherits most of the SIMPLE mode behaviors. But it has less widgets (e.g. top
-     * toolbar and footer are invisible, grids have only "Export" button) to allow embedding the
-     * application on other web sites.
+     * Embedded mode inherits most of the SIMPLE mode behaviors. But it has less widgets (e.g. top toolbar and footer are invisible, grids have only
+     * "Export" button) to allow embedding the application on other web sites.
      */
     EMBEDDED,
 

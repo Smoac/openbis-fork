@@ -28,8 +28,7 @@ public abstract class AbstractEntityValidator implements IEntityValidator
     protected IValidationRequestDelegate<INonAbstractEntityAdapter> validationRequestedDelegate;
 
     @Override
-    public final void init(@SuppressWarnings("hiding")
-    IValidationRequestDelegate<INonAbstractEntityAdapter> validationRequestedDelegate)
+    public final void init(@SuppressWarnings("hiding") IValidationRequestDelegate<INonAbstractEntityAdapter> validationRequestedDelegate)
     {
         this.validationRequestedDelegate = validationRequestedDelegate;
     }

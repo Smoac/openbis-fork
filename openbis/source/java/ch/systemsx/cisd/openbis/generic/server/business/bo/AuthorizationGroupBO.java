@@ -57,8 +57,8 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
     @Private
     AuthorizationGroupBO(IDAOFactory daoFactory, Session session,
             IAuthorizationGroupFactory factory,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IRelationshipService relationshipService)
     {
         super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);
@@ -66,11 +66,11 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
     }
 
     public AuthorizationGroupBO(IDAOFactory daoFactory, Session session,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IRelationshipService relationshipService)
     {
-        this(daoFactory, session, new AuthorizationGroupFactory(), managedPropertyEvaluatorFactory, 
+        this(daoFactory, session, new AuthorizationGroupFactory(), managedPropertyEvaluatorFactory,
                 dataSetTypeChecker, relationshipService);
     }
 

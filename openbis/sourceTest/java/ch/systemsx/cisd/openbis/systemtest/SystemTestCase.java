@@ -82,7 +82,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringContextTests
 {
     private static final String SOURCE_TEST_CORE_PLUGINS = "sourceTest/core-plugins";
-    
+
     protected static final String SESSION_KEY = "session-key";
 
     protected ICommonServerForInternalUse commonServer;

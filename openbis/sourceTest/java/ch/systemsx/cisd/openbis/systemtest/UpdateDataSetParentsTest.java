@@ -111,7 +111,7 @@ public class UpdateDataSetParentsTest extends BaseTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void dataSetCannotBeItsOwnParent() throws Exception
     {
         AbstractExternalData data = create(aDataSet().inSample(sample));
@@ -120,7 +120,7 @@ public class UpdateDataSetParentsTest extends BaseTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void dataSetCannotBeItsOwnGrandParent() throws Exception
     {
         AbstractExternalData parent = create(aDataSet().inSample(sample));
@@ -170,7 +170,7 @@ public class UpdateDataSetParentsTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAddParentToDataSet", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void addingParentToDataSetNotIsAllowedFor(RoleWithHierarchy childSpaceRole,
             RoleWithHierarchy parentSpaceRole, RoleWithHierarchy instanceRole) throws Exception
     {
@@ -203,7 +203,7 @@ public class UpdateDataSetParentsTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToRemoveParentFromDataSet", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void removingParentFromDataSetNotIsAllowedFor(RoleWithHierarchy childSpaceRole,
             RoleWithHierarchy parentSpaceRole, RoleWithHierarchy instanceRole) throws Exception
     {

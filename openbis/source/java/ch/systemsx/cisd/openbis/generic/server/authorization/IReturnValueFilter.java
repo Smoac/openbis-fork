@@ -23,8 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 /**
  * A return value filter.
  * <p>
- * A <code>IReturnValueFilter</code> should never throw an exception but should only take care of
- * filtering.
+ * A <code>IReturnValueFilter</code> should never throw an exception but should only take care of filtering.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -35,8 +34,8 @@ public interface IReturnValueFilter
     /**
      * Applies filtering on given <var>returnValue</var>.
      * 
-     * @param returnValueOrNull the return value that should be filtered. If the method has a return
-     *            value of type <code>void</code>, this would be <code>null</code>.
+     * @param returnValueOrNull the return value that should be filtered. If the method has a return value of type <code>void</code>, this would be
+     *            <code>null</code>.
      */
     public Object applyFilter(final IAuthSession session, final Method method,
             final Object returnValueOrNull);

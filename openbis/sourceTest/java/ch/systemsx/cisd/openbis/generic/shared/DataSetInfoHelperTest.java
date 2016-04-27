@@ -51,7 +51,7 @@ public class DataSetInfoHelperTest extends AssertJUnit
         String dataSetType = "dataSetTypeC";
         String fileType = "fileTypeD";
         String[] parents =
-            { "p1", "p2", "p3" };
+        { "p1", "p2", "p3" };
         DataSetUploadInfo info =
                 new DataSetUploadInfo(sample, experiment, parents, dataSetType, fileType);
         checkInfo(info, sample, experiment, parents, dataSetType, fileType);
@@ -110,7 +110,7 @@ public class DataSetInfoHelperTest extends AssertJUnit
         String sample = null;
         String experiment = "eB";
         String[] parents =
-            { "p1", "p2", "p3" };
+        { "p1", "p2", "p3" };
         String dataSetType = "dsC";
         String fileType = "ftD";
         DataSetUploadInfo info =

@@ -24,8 +24,8 @@ import org.springframework.dao.DataAccessException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 
 /**
- * Each implementation is able to evaluate dynamic properties of specified entities in batches.
- * After evaluation of properties the entities will be reindexed.
+ * Each implementation is able to evaluate dynamic properties of specified entities in batches. After evaluation of properties the entities will be
+ * reindexed.
  * 
  * @author Piotr Buczek
  */
@@ -33,8 +33,7 @@ public interface IBatchDynamicPropertyEvaluator
 {
 
     /**
-     * Evaluates dynamic properties of all entities of given <var>clazz</var> using given
-     * <i>Hibernate</i> session.
+     * Evaluates dynamic properties of all entities of given <var>clazz</var> using given <i>Hibernate</i> session.
      * 
      * @return list of ids of entities with dynamic properties that have been evaluated
      */
@@ -42,8 +41,7 @@ public interface IBatchDynamicPropertyEvaluator
             final Session hibernateSession, final Class<T> clazz) throws DataAccessException;
 
     /**
-     * Evaluates dynamic properties of entities of given <var>clazz</var> with given <var>ids</var>
-     * using given <i>Hibernate</i> session.
+     * Evaluates dynamic properties of entities of given <var>clazz</var> with given <var>ids</var> using given <i>Hibernate</i> session.
      * 
      * @return list of ids of entities with dynamic properties that have been evaluated
      */

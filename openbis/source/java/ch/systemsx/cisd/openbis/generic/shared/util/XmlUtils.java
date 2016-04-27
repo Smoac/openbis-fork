@@ -62,7 +62,7 @@ public class XmlUtils
 
     /** indentation to be used when serializing to xml. */
     public static final Integer INDENTATION = 2;
-    
+
     /**
      * Parse given string as XML {@link Document}.
      * 

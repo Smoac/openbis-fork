@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-
 /**
  * A entity that matches the <i>Hibernate Search</i> request.
  * 

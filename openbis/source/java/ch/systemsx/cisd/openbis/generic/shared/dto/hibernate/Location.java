@@ -33,7 +33,7 @@ import javax.validation.Payload;
  * @author Christian Ribeaud
  */
 @Target(
-    { METHOD, FIELD })
+{ METHOD, FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Constraint(validatedBy = LocationValidator.class)

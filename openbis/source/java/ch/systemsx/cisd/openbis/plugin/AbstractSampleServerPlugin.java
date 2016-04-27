@@ -27,12 +27,10 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.SampleServerPluginRegistry
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
 /**
- * An abstract {@link ISampleServerPlugin} which registers itself to
- * {@link SampleServerPluginRegistry}.
+ * An abstract {@link ISampleServerPlugin} which registers itself to {@link SampleServerPluginRegistry}.
  * <p>
- * Each subclass should be annotated with {@link Component} so that it automatically gets registered
- * to {@link SampleServerPluginRegistry} by <i>Spring</i>. It is a good idea as well to make the
- * empty constructor <i>private</i>.
+ * Each subclass should be annotated with {@link Component} so that it automatically gets registered to {@link SampleServerPluginRegistry} by
+ * <i>Spring</i>. It is a good idea as well to make the empty constructor <i>private</i>.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -41,7 +39,7 @@ public abstract class AbstractSampleServerPlugin implements ISampleServerPlugin,
 {
     @Resource(name = ResourceNames.SAMPLE_PLUGIN_REGISTRY)
     private SampleServerPluginRegistry sampleServerPluginRegistry;
-    
+
     @Resource(name = ResourceNames.GENERIC_SAMPLE_TYPE_SLAVE_SERVER_PLUGIN)
     private ISampleTypeSlaveServerPlugin genericSampleTypeSlaveServerPlugin;
 

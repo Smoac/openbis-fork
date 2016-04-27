@@ -52,13 +52,11 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class SearchDomainSearcher extends AbstractBusinessObject implements ISearchDomainSearcher
 {
-    private static final Map<Long, Set<Metaproject>> EMPTY_METAPROJECTS = Collections.<Long, Set<Metaproject>>emptyMap();
+    private static final Map<Long, Set<Metaproject>> EMPTY_METAPROJECTS = Collections.<Long, Set<Metaproject>> emptyMap();
 
     private static final IKeyExtractor<String, IEntityInformationHolderWithPermId> PERM_ID_EXTRACTOR =
             new IKeyExtractor<String, IEntityInformationHolderWithPermId>()
@@ -72,9 +70,9 @@ public class SearchDomainSearcher extends AbstractBusinessObject implements ISea
 
     private final IDataStoreServiceFactory dssFactory;
 
-    public SearchDomainSearcher(IDAOFactory daoFactory, Session session, 
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, IRelationshipService relationshipService, 
+    public SearchDomainSearcher(IDAOFactory daoFactory, Session session,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, IRelationshipService relationshipService,
             IDataStoreServiceFactory dssFactory)
     {
         super(daoFactory, session, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);
@@ -98,11 +96,10 @@ public class SearchDomainSearcher extends AbstractBusinessObject implements ISea
     }
 
     @Override
-    public List<SearchDomainSearchResultWithFullEntity> searchForEntitiesWithSequences(String preferredSearchDomainOrNull, 
+    public List<SearchDomainSearchResultWithFullEntity> searchForEntitiesWithSequences(String preferredSearchDomainOrNull,
             String sequenceSnippet, Map<String, String> optionalParametersOrNull)
     {
-        List<SearchDomainSearchResult> searchResults 
-                = askAllDataStoreServers(preferredSearchDomainOrNull, sequenceSnippet, optionalParametersOrNull);
+        List<SearchDomainSearchResult> searchResults = askAllDataStoreServers(preferredSearchDomainOrNull, sequenceSnippet, optionalParametersOrNull);
         return enrichWithEntities(searchResults);
     }
 
@@ -179,8 +176,7 @@ public class SearchDomainSearcher extends AbstractBusinessObject implements ISea
         {
             EntityLoader loader = entry.getKey();
             List<String> permIds = entry.getValue();
-            List<IEntityInformationHolderWithPermId> entities 
-                    = loader.loadEntities(this, managedPropertyEvaluatorFactory, permIds);
+            List<IEntityInformationHolderWithPermId> entities = loader.loadEntities(this, managedPropertyEvaluatorFactory, permIds);
             result.put(loader, new TableMap<String, IEntityInformationHolderWithPermId>(entities, PERM_ID_EXTRACTOR));
         }
         return result;
@@ -273,7 +269,7 @@ public class SearchDomainSearcher extends AbstractBusinessObject implements ISea
         {
             return permId;
         }
-        
+
     }
-    
+
 }

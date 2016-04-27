@@ -57,7 +57,7 @@ public class EntityHelper
     /**
      * Returns <code>true</code> if both entities are <code>null</code> or have the same id (which could be <code>null</code>).
      */
-    public static <T extends IIdHolder >boolean equalEntities(T entity1OrNull, T entity2OrNull)
+    public static <T extends IIdHolder> boolean equalEntities(T entity1OrNull, T entity2OrNull)
     {
         if (entity1OrNull == null || entity2OrNull == null)
         {
@@ -100,8 +100,7 @@ public class EntityHelper
     }
 
     /**
-     * @return finds and returns an {@link IEntityProperty} for a specified code. Returns
-     *         <code>null</code> if no matching property is found.
+     * @return finds and returns an {@link IEntityProperty} for a specified code. Returns <code>null</code> if no matching property is found.
      */
     public static IEntityProperty tryFindProperty(Iterable<IEntityProperty> properties,
             final String propertyCode)
@@ -237,8 +236,7 @@ public class EntityHelper
     }
 
     /**
-     * Creates a property with specified code and value. An already existing property with same code
-     * will be removed.
+     * Creates a property with specified code and value. An already existing property with same code will be removed.
      */
     public static void createOrUpdateProperty(IEntityPropertiesHolder holder, String propertyCode,
             String propertyValue)

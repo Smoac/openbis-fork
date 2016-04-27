@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * @author Izabela Adamczyk
  */
 @Test(groups =
-    { "db", "event" })
+{ "db", "event" })
 public class EventDAOTest extends AbstractDAOTest
 {
 

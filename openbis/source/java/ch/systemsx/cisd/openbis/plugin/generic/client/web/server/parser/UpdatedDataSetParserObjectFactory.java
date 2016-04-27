@@ -89,8 +89,8 @@ public final class UpdatedDataSetParserObjectFactory extends
     }
 
     /**
-     * Prepares details about which values should be updated in general taking into account only the
-     * information about availability of columns in the file.
+     * Prepares details about which values should be updated in general taking into account only the information about availability of columns in the
+     * file.
      */
     private DataSetBatchUpdateDetails createBasicBatchUpdateDetails()
     {
@@ -104,8 +104,8 @@ public final class UpdatedDataSetParserObjectFactory extends
     }
 
     /**
-     * Returns details about which values should be updated for the specified data set. If a cell
-     * was left empty in the file the corresponding value will not be modified.
+     * Returns details about which values should be updated for the specified data set. If a cell was left empty in the file the corresponding value
+     * will not be modified.
      */
     private DataSetBatchUpdateDetails createBatchUpdateDetails(NewDataSet dataSet)
     {

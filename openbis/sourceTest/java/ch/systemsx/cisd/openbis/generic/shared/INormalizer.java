@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface INormalizer

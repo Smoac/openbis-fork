@@ -31,19 +31,31 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 public final class EntityGraphGenerator
 {
-    private static enum Kind { E, S, DS}
-    
+    private static enum Kind
+    {
+        E, S, DS
+    }
+
     private static final class EntityDescription
     {
         private static final Pattern EXPERIMENT_PATTERN = Pattern.compile("(/S\\d+/P\\d+/)?E\\d+");
+
         private static final Pattern SAMPLE_PATTERN = Pattern.compile("(/(S\\d+/(P\\d+/)?)?)?S\\d+");
+
         private static final Pattern DATA_SET_PATTERN = Pattern.compile("DS\\d+");
+
         Kind kind;
+
         boolean shared;
+
         String space;
+
         String project;
+
         int id;
+
         String type;
+
         EntityDescription(String description)
         {
             int indexOfBracket = description.indexOf('[');
@@ -58,7 +70,7 @@ public final class EntityGraphGenerator
                     throw new IllegalArgumentException("Missing ']' at the end of " + description);
                 }
                 identifier = description.substring(0, indexOfBracket);
-                type = description.substring(indexOfBracket + 1,  description.length() - 1);
+                type = description.substring(indexOfBracket + 1, description.length() - 1);
             }
             String[] elements = identifier.split("/");
             if (EXPERIMENT_PATTERN.matcher(identifier).matches())
@@ -91,12 +103,12 @@ public final class EntityGraphGenerator
             id = Integer.parseInt(elements[elements.length - 1].substring(kind.name().length()));
         }
     }
-    
+
     private static interface IEntitiesProvider<T extends EntityNode>
     {
         public Collection<? extends EntityNode> getEntities(T entityNode);
     }
-    
+
     private class Parser
     {
         private void parse(List<String> parts)
@@ -116,7 +128,7 @@ public final class EntityGraphGenerator
                 handle(ds, rest);
             }
         }
-        
+
         private void handle(ExperimentNode experiment, List<String> parts)
         {
             experiment.has(getSamples("samples", parts));
@@ -136,7 +148,7 @@ public final class EntityGraphGenerator
             dataSet.hasParents(getDataSets("parents", parts));
             dataSet.hasComponents(getDataSets("components", parts));
         }
-        
+
         private SampleNode[] getSamples(String name, List<String> parts)
         {
             List<SampleNode> sampleNodes = new ArrayList<SampleNode>();
@@ -147,7 +159,7 @@ public final class EntityGraphGenerator
             }
             return sampleNodes.toArray(new SampleNode[descriptions.size()]);
         }
-        
+
         private DataSetNode[] getDataSets(String name, List<String> parts)
         {
             List<DataSetNode> dataSetNodes = new ArrayList<DataSetNode>();
@@ -160,7 +172,7 @@ public final class EntityGraphGenerator
             }
             return dataSetNodes.toArray(new DataSetNode[descriptions.size()]);
         }
-        
+
         private List<EntityDescription> getDescriptions(String name, Kind kind, List<String> parts)
         {
             String descriptionsConcatenated = getValue(name, parts);
@@ -181,7 +193,7 @@ public final class EntityGraphGenerator
             }
             return result;
         }
-        
+
         private String getValue(String name, List<String> parts)
         {
             for (String part : parts)
@@ -195,13 +207,13 @@ public final class EntityGraphGenerator
             return null;
         }
     }
-    
+
     private final Map<Long, ExperimentNode> experiments = new TreeMap<Long, ExperimentNode>();
 
     private final Map<Long, SampleNode> samples = new TreeMap<Long, SampleNode>();
 
     private final Map<Long, DataSetNode> dataSets = new TreeMap<Long, DataSetNode>();
-    
+
     public void parse(String definition)
     {
         Parser parser = new Parser();
@@ -239,12 +251,12 @@ public final class EntityGraphGenerator
             SampleNode sample = dataSetNode.getSample();
             if (experiment == null && sample == null)
             {
-                throw new IllegalStateException("Data set " + dataSetNode.getCode() 
+                throw new IllegalStateException("Data set " + dataSetNode.getCode()
                         + " should belong to an experiment or a sample.");
             }
             if (sample != null && sample.getExperiment() != experiment)
             {
-                throw new IllegalStateException("Data set " + dataSetNode.getCode() 
+                throw new IllegalStateException("Data set " + dataSetNode.getCode()
                         + " should belong to the same experiment as the sample.");
             }
         }
@@ -260,7 +272,7 @@ public final class EntityGraphGenerator
         }
         return experimentNode;
     }
-    
+
     private ExperimentNode createExperiment(EntityDescription entityDescription)
     {
         ExperimentNode experimentNode = e(entityDescription.id);
@@ -279,7 +291,7 @@ public final class EntityGraphGenerator
         }
         return sampleNode;
     }
-    
+
     private SampleNode createSample(EntityDescription entityDescription)
     {
         SampleNode sampleNode = s(entityDescription.id);
@@ -314,7 +326,7 @@ public final class EntityGraphGenerator
     {
         return dataSets;
     }
-    
+
     public List<TechId> getSampleIdsByExperimentIds(Collection<TechId> experimentIds)
     {
         return getRelatedIds(experimentIds, experiments, new EntityGraphGenerator.IEntitiesProvider<ExperimentNode>()
@@ -342,13 +354,13 @@ public final class EntityGraphGenerator
     public List<TechId> getDataSetIdsByExperimentIds(Collection<TechId> experimentIds)
     {
         return getRelatedIds(experimentIds, experiments, new EntityGraphGenerator.IEntitiesProvider<ExperimentNode>()
+            {
+                @Override
+                public Collection<? extends EntityNode> getEntities(ExperimentNode experiment)
                 {
-                    @Override
-                    public Collection<? extends EntityNode> getEntities(ExperimentNode experiment)
-                    {
-                        return experiment.getDataSets();
-                    }
-                });
+                    return experiment.getDataSets();
+                }
+            });
     }
 
     public List<TechId> getDataSetIdsBySampleIds(Collection<TechId> experimentIds)
@@ -386,7 +398,7 @@ public final class EntityGraphGenerator
                 }
             });
     }
-    
+
     public Map<Long, Set<Long>> getContainerDataSetIdsMap(Collection<TechId> dataSetIds)
     {
         return getRelatedIdsMap(dataSetIds, dataSets, new EntityGraphGenerator.IEntitiesProvider<DataSetNode>()
@@ -402,15 +414,15 @@ public final class EntityGraphGenerator
     public Map<Long, Set<Long>> getComponentDataSetIdsMap(Collection<TechId> dataSetIds)
     {
         return getRelatedIdsMap(dataSetIds, dataSets, new EntityGraphGenerator.IEntitiesProvider<DataSetNode>()
-                {
-            @Override
-            public Collection<? extends EntityNode> getEntities(DataSetNode dataSet)
             {
-                return dataSet.getComponents();
-            }
-                });
+                @Override
+                public Collection<? extends EntityNode> getEntities(DataSetNode dataSet)
+                {
+                    return dataSet.getComponents();
+                }
+            });
     }
-    
+
     public Map<Long, Set<Long>> getParentsDataSetIdsMap(Collection<TechId> dataSetIds)
     {
         return getRelatedIdsMap(dataSetIds, dataSets, new EntityGraphGenerator.IEntitiesProvider<DataSetNode>()
@@ -432,7 +444,7 @@ public final class EntityGraphGenerator
         appendTo(builder, "#Data Sets", dataSets);
         return builder.toString();
     }
-    
+
     private void appendTo(StringBuilder builder, String name, Map<Long, ? extends EntityNode> nodes)
     {
         if (nodes.isEmpty())
@@ -446,7 +458,7 @@ public final class EntityGraphGenerator
         }
     }
 
-    private <T extends EntityNode> List<TechId> getRelatedIds(Collection<TechId> entityIds, Map<Long, T> entities, 
+    private <T extends EntityNode> List<TechId> getRelatedIds(Collection<TechId> entityIds, Map<Long, T> entities,
             EntityGraphGenerator.IEntitiesProvider<T> provider)
     {
         List<TechId> ids = new ArrayList<TechId>();
@@ -460,8 +472,8 @@ public final class EntityGraphGenerator
         }
         return ids;
     }
-    
-    private <T extends EntityNode> Map<Long, Set<Long>> getRelatedIdsMap(Collection<TechId> entityIds, Map<Long, T> entities, 
+
+    private <T extends EntityNode> Map<Long, Set<Long>> getRelatedIdsMap(Collection<TechId> entityIds, Map<Long, T> entities,
             EntityGraphGenerator.IEntitiesProvider<T> provider)
     {
         Map<Long, Set<Long>> idsMap = new LinkedHashMap<Long, Set<Long>>();

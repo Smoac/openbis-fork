@@ -21,8 +21,7 @@ import java.sql.SQLException;
 import org.springframework.jdbc.support.SQLStateSQLExceptionTranslator;
 
 /**
- * A translator that takes into includes the message from the next exception in the chain as this
- * often has the real cause.
+ * A translator that takes into includes the message from the next exception in the chain as this often has the real cause.
  * 
  * @author Bernd Rinn
  */

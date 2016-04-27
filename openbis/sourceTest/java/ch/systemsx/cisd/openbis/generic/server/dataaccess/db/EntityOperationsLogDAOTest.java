@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityOperationsLogEntryPE;
  * @author Chandrasekhar Ramakrishnan
  */
 @Test(groups =
-    { "db" })
+{ "db" })
 public final class EntityOperationsLogDAOTest extends AbstractDAOTest
 {
 

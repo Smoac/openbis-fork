@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-
 /**
  * A custom grid filter or column to register.
  * 
@@ -25,7 +24,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 public class NewColumnOrFilter extends NewExpression
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
+
     private String gridId;
 
     public String getGridId()

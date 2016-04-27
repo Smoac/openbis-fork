@@ -21,15 +21,12 @@ import java.util.Set;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
- * 
- *
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public interface IServerPlugin
 {
     /**
-     * Returns all the entity type codes for specified entity kind which are supported by this
-     * server plugin.
+     * Returns all the entity type codes for specified entity kind which are supported by this server plugin.
      */
     public Set<String> getEntityTypeCodes(final EntityKind entityKind);
 

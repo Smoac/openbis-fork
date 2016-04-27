@@ -31,9 +31,8 @@ public interface IGridCustomFilterOrColumnBO extends IEntityBusinessObject
 {
 
     /**
-     * Defines a new grid custom filter or column. After invocation of this method
-     * {@link IBusinessObject#save()} should be invoked to store the new group in the <i>Data Access
-     * Layer</i>.
+     * Defines a new grid custom filter or column. After invocation of this method {@link IBusinessObject#save()} should be invoked to store the new
+     * group in the <i>Data Access Layer</i>.
      */
     public void define(NewColumnOrFilter filterOrColumn) throws UserFailureException;
 

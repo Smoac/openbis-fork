@@ -54,8 +54,7 @@ public interface IQueryClientServiceAsync extends IClientServiceAsync
             AsyncCallback<TableModelReference> callback);
 
     /**
-     * @see IQueryClientService#createQueryResultsReport(QueryDatabase, String,
-     *      QueryParameterBindings)
+     * @see IQueryClientService#createQueryResultsReport(QueryDatabase, String, QueryParameterBindings)
      */
     public void createQueryResultsReport(QueryDatabase queryDatabase, String sqlQuery,
             QueryParameterBindings bindingsOrNull, AsyncCallback<TableModelReference> callback);

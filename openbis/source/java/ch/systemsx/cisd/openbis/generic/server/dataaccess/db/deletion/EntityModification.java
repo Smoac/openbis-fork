@@ -10,7 +10,7 @@ public class EntityModification
 {
     @JsonInclude(Include.NON_EMPTY)
     public String userId;
-    
+
     @JsonIgnore
     public String permId;
 

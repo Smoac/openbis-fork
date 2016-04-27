@@ -472,12 +472,12 @@ public class DataBOTest extends AbstractBOTest
         {
             assertEquals("Unknown data set code '" + COMPONENT_CODE + "'", e.getMessage());
         }
-         DataPE data = dataBO.getData();
-        
-         assertSame(experiment, data.getExperiment());
-         assertEquals(null, data.tryGetSample());
-         assertSame(true, data.isMeasured());
-         assertSame(dataStore, data.getDataStore());
+        DataPE data = dataBO.getData();
+
+        assertSame(experiment, data.getExperiment());
+        assertEquals(null, data.tryGetSample());
+        assertSame(true, data.isMeasured());
+        assertSame(dataStore, data.getDataStore());
         context.assertIsSatisfied();
     }
 

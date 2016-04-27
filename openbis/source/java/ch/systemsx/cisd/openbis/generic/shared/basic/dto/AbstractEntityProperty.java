@@ -17,11 +17,10 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 /**
- * The abstract base implementation of {@link IEntityProperty}, only featuring a
- * {@link PropertyType}.
+ * The abstract base implementation of {@link IEntityProperty}, only featuring a {@link PropertyType}.
  * <p>
- * All getters (except {@link #getPropertyType()} will return <code>null</code>, all setters (except
- * {@link #setPropertyType(PropertyType)} will throw an {@link UnsupportedOperationException}.
+ * All getters (except {@link #getPropertyType()} will return <code>null</code>, all setters (except {@link #setPropertyType(PropertyType)} will throw
+ * an {@link UnsupportedOperationException}.
  * 
  * @author Bernd Rinn
  */

@@ -27,11 +27,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
 /**
- * Generates unique codes for openBIS entities. It uses database sequences as a base for the code
- * generation. Moreover it verifies that the generated codes are in fact unique (i.e. entities with
- * such codes do not exist yet). If it finds that the new generated code is already used by an
- * existing entity (e.g. the entity code was manually entered by a user) then it regenerates the
- * code until it is unique.
+ * Generates unique codes for openBIS entities. It uses database sequences as a base for the code generation. Moreover it verifies that the generated
+ * codes are in fact unique (i.e. entities with such codes do not exist yet). If it finds that the new generated code is already used by an existing
+ * entity (e.g. the entity code was manually entered by a user) then it regenerates the code until it is unique.
  * 
  * @author pkupczyk
  */
@@ -74,10 +72,8 @@ public class EntityCodeGenerator
     /**
      * Generate unique codes for openBIS entities.
      * 
-     * @param codePrefix Prefix for the generated codes (e.g. when "ABC-" then codes will be
-     *            "ABC-1", "ABC-2", ...)
-     * @param entityKind Kind of an entity the codes should be generated for (different kinds of
-     *            entities use different database sequences).
+     * @param codePrefix Prefix for the generated codes (e.g. when "ABC-" then codes will be "ABC-1", "ABC-2", ...)
+     * @param entityKind Kind of an entity the codes should be generated for (different kinds of entities use different database sequences).
      * @param numberOfCodes Number of codes to be generated.
      */
     public List<String> generateCodes(String codePrefix, EntityKind entityKind, int numberOfCodes)

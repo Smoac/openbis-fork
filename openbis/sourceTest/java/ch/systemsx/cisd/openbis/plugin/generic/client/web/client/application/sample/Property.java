@@ -24,18 +24,17 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
- * Extends {@link AbstractProperty} with methods for {@link Person} and arrays of generated
- * {@link Sample}.
+ * Extends {@link AbstractProperty} with methods for {@link Person} and arrays of generated {@link Sample}.
  * 
  * @author Franz-Josef Elmer
  */
-public class Property extends AbstractProperty<CheckSample> 
+public class Property extends AbstractProperty<CheckSample>
 {
     public Property(String key, CheckSample checker)
     {
         super(key, checker);
     }
-    
+
     public CheckSample asPerson(final String personAsString)
     {
         return by(new IValueAssertion<Person>()
@@ -48,7 +47,7 @@ public class Property extends AbstractProperty<CheckSample>
                 }
             });
     }
-    
+
     public CheckSample asGeneratedSamples(final String... samples)
     {
         return by(new IValueAssertion<Sample[]>()
@@ -67,5 +66,5 @@ public class Property extends AbstractProperty<CheckSample>
                 }
             });
     }
-    
+
 }

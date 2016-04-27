@@ -432,7 +432,6 @@ public final class SampleBOTest extends AbstractBOTest
                     allowing(dataDAO).hasDataSet(with(sample));
                     will(returnValue(false));
 
-
                     one(relationshipService).shareSample(with(any(IAuthSession.class)),
                             with(any(SamplePE.class)));
                 }

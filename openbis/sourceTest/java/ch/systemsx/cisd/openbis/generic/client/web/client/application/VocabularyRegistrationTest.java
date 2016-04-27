@@ -36,7 +36,7 @@ public class VocabularyRegistrationTest extends AbstractGWTTestCase
     private static final String DESCRIPTION = "Color";
 
     private static final String[] TERMS =
-        { "RED:01", "BLACK", "Y.E.L.L.O.W" };
+    { "RED:01", "BLACK", "Y.E.L.L.O.W" };
 
     public final void testRegisterVocabulary()
     {

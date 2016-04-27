@@ -28,8 +28,8 @@ public interface IPropertyAssignment extends IPropertyAssignmentImmutable
     void setMandatory(boolean mandatory);
 
     /**
-     * Set the name of the form section. It will appear when editing objects of the specified entity
-     * in openBIS. Specifying a section name is optional.
+     * Set the name of the form section. It will appear when editing objects of the specified entity in openBIS. Specifying a section name is
+     * optional.
      */
     void setSection(String section);
 
@@ -39,8 +39,7 @@ public interface IPropertyAssignment extends IPropertyAssignmentImmutable
     void setDefaultValue(String defaultValue);
 
     /**
-     * Sets the position where the property will appear in forms. If not specified the property will
-     * be displayed at the bottom of the form.
+     * Sets the position where the property will appear in forms. If not specified the property will be displayed at the bottom of the form.
      */
     void setPositionInForms(Long position);
 

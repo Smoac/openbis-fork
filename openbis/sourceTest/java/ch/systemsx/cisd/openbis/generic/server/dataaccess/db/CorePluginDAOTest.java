@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.CorePluginPE;
  * @author Kaloyan Enimanev
  */
 @Test(groups =
-    { "db", "slow" })
+{ "db", "slow" })
 public final class CorePluginDAOTest extends AbstractDAOTest
 {
     @Test

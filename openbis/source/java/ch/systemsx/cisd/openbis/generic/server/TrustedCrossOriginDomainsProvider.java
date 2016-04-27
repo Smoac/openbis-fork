@@ -43,8 +43,8 @@ public class TrustedCrossOriginDomainsProvider
     }
 
     /**
-     * Returns a list of configured trusted domains which can host external shared web resources.
-     * Typically these are lightweight webapps that integrate with openBIS via JSON-RPC services.
+     * Returns a list of configured trusted domains which can host external shared web resources. Typically these are lightweight webapps that
+     * integrate with openBIS via JSON-RPC services.
      * <p>
      * Can return empty list.
      */

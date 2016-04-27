@@ -22,9 +22,8 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 
 /**
- * Predicate based on {@link ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample}. This
- * predicate authorizes for read-only access, i.e. it will allow access to shared samples for all
- * users.
+ * Predicate based on {@link ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample}. This predicate authorizes for read-only access, i.e. it will
+ * allow access to shared samples for all users.
  * 
  * @author Bernd Rinn
  */

@@ -58,8 +58,7 @@ public class PropertyBuilder
     private final ExtendedEntityProperty property = new ExtendedEntityProperty();
 
     /**
-     * Creates an instance for specified property type code which also the simple code. Data type is
-     * {@link DataTypeCode#VARCHAR}.
+     * Creates an instance for specified property type code which also the simple code. Data type is {@link DataTypeCode#VARCHAR}.
      */
     public PropertyBuilder(String key)
     {

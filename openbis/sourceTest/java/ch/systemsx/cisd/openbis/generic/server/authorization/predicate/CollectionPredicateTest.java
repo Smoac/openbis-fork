@@ -32,8 +32,6 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.IPredicat
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class CollectionPredicateTest extends AuthorizationTestCase
@@ -60,14 +58,14 @@ public class CollectionPredicateTest extends AuthorizationTestCase
     {
         CollectionPredicate<String> arrayPredicate = new CollectionPredicate<String>(predicate);
         arrayPredicate.init(provider);
-        
+
         List<String> emptyList = Collections.<String> emptyList();
         Status status = arrayPredicate.evaluate(createPerson(), createRoles(true), emptyList);
-        
+
         assertEquals(false, status.isError());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testWithTwoElements()
     {
@@ -85,13 +83,13 @@ public class CollectionPredicateTest extends AuthorizationTestCase
                     will(returnValue(Status.OK));
                 }
             });
-        
+
         Status status = arrayPredicate.evaluate(person, roles, Arrays.asList("a", "b"));
-        
+
         assertEquals(false, status.isError());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testWithTwoElementsOneFailing()
     {
@@ -109,9 +107,9 @@ public class CollectionPredicateTest extends AuthorizationTestCase
                     will(returnValue(Status.createError()));
                 }
             });
-        
+
         Status status = arrayPredicate.evaluate(person, roles, Arrays.asList("a", "b"));
-        
+
         assertEquals(true, status.isError());
         context.assertIsSatisfied();
     }

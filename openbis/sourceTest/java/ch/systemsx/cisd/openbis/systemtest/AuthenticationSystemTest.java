@@ -28,8 +28,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Test(groups = "system test")
@@ -47,7 +45,7 @@ public class AuthenticationSystemTest extends SystemTestCase
             assertEquals("No 'password' specified.", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testTryToAuthenticateAsSystem()
     {

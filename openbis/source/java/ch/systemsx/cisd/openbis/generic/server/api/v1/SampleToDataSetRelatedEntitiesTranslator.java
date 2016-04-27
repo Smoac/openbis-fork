@@ -42,11 +42,9 @@ class SampleToDataSetRelatedEntitiesTranslator
     private final ArrayList<BasicEntityInformationHolder> entityInformationHolders;
 
     /**
-     * Creates a translator from public {@Sample} objects to the internal
-     * {@link DataSetRelatedEntities} objects.
+     * Creates a translator from public {@Sample} objects to the internal {@link DataSetRelatedEntities} objects.
      * <p>
-     * A list of sample types known to the DB must be provided because Sample knows only the code of
-     * the SampleType.
+     * A list of sample types known to the DB must be provided because Sample knows only the code of the SampleType.
      * 
      * @param sampleTypes A list of SampleTypes known to the DB.
      * @param samples The samples to convert.

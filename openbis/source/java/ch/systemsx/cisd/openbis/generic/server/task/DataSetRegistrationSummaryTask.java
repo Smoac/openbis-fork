@@ -57,13 +57,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 /**
  * Maintenance task send e-mails with reports on recently registered data sets.
  * <p>
- * The maintenance task may be run in one of two modes, the normal mode is to report on data sets
- * registered in the period specified by the days-of-month or days-of-week. The period goes from the
- * current day to the last day the maintenance task was run.
+ * The maintenance task may be run in one of two modes, the normal mode is to report on data sets registered in the period specified by the
+ * days-of-month or days-of-week. The period goes from the current day to the last day the maintenance task was run.
  * <p>
- * Sometimes, however, for the first run, the user may want to explicitly specify the date range for
- * the maintenance task. This can be done, but the maintenance task should then only be run once,
- * because it will always report on the specified date range.
+ * Sometimes, however, for the first run, the user may want to explicitly specify the date range for the maintenance task. This can be done, but the
+ * maintenance task should then only be run once, because it will always report on the specified date range.
  * 
  * @author Franz-Josef Elmer
  */
@@ -297,8 +295,7 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
     }
 
     /**
-     * @return True if the data set type should <b>not</b> be included in the report; return false
-     *         if it should be included in the report.
+     * @return True if the data set type should <b>not</b> be included in the report; return false if it should be included in the report.
      */
     private boolean excludeDataSetType(DataSetType dataSetType)
     {

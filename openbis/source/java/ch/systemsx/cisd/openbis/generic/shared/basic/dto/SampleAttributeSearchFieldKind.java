@@ -38,7 +38,7 @@ public enum SampleAttributeSearchFieldKind implements Serializable, IAttributeSe
     PROJECT_PERM_ID("Project Perm Id"),
 
     PROJECT_SPACE("Project Space"),
-    
+
     METAPROJECT("Metaproject"),
 
     REGISTRATION_DATE(CommonAttributeSearchFieldKindDecsriptions.REGISTRATION_DATE_DESCRIPTION,

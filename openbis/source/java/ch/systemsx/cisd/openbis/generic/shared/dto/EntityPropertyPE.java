@@ -71,7 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator.Supp
  */
 @MappedSuperclass
 @ClassBridge(index = Index.YES, store = Store.YES, impl = EntityPropertyPE.EntityPropertySearchBridge.class)
-@TypeDefs({@TypeDef(name="transactiontimestamp", typeClass=DbTimestampType.class)})
+@TypeDefs({ @TypeDef(name = "transactiontimestamp", typeClass = DbTimestampType.class) })
 public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHolder implements
         IUntypedValueSetter, IEntityPropertyHolder
 {
@@ -114,7 +114,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     private PersonPE author;
 
     private Date modificationDate;
-    
+
     /**
      * This bridge allows to save in the search index not only the value of property, but also the corresponding property code.
      */
@@ -130,9 +130,9 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
 
         @Override
         public void set(
-                String name, 
+                String name,
                 Object/* EntityPropertyPE */value,
-                Document/* Lucene document */document, 
+                Document/* Lucene document */document,
                 LuceneOptions luceneOptions)
         {
             EntityPropertyPE entityProperty = (EntityPropertyPE) value;
@@ -154,29 +154,48 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
                 {
                     // leave the original value
                 }
-               field = new Field(fieldFullName, fieldValue, luceneOptions.getStore(), indexingStrategy);
+                field = new Field(fieldFullName, fieldValue, luceneOptions.getStore(), indexingStrategy);
             }
-            else if(DataTypeCode.INTEGER.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode())) {
+            else if (DataTypeCode.INTEGER.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode()))
+            {
                 try
                 {
                     String numericTextValue = SortableNumberBridgeUtils.getNumberForLucene(fieldValue);
                     field = new Field(fieldFullName, numericTextValue, luceneOptions.getStore(), Field.Index.NOT_ANALYZED_NO_NORMS);
-                    fieldIsdocTypeSortedNumeric = new SortedNumericDocValuesField(fieldFullName, Long.parseLong(fieldValue)); //Needed to identify the field as number, if not type is not stored
+                    fieldIsdocTypeSortedNumeric = new SortedNumericDocValuesField(fieldFullName, Long.parseLong(fieldValue)); // Needed to identify
+                                                                                                                              // the field as number,
+                                                                                                                              // if not type is not
+                                                                                                                              // stored
                 } catch (Exception e)
                 {
                     // leave the original value
                 }
-            } else if(DataTypeCode.REAL.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode())) {
+            } else if (DataTypeCode.REAL.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode()))
+            {
                 try
                 {
                     String numericTextValue = SortableNumberBridgeUtils.getNumberForLucene(fieldValue);
                     field = new Field(fieldFullName, numericTextValue, luceneOptions.getStore(), Field.Index.NOT_ANALYZED_NO_NORMS);
-                    fieldIsdocTypeSortedNumeric = new SortedNumericDocValuesField(fieldFullName, NumericUtils.doubleToSortableLong(Double.parseDouble(fieldValue))); //Needed to identify the field as number, if not type is not stored
+                    fieldIsdocTypeSortedNumeric =
+                            new SortedNumericDocValuesField(fieldFullName, NumericUtils.doubleToSortableLong(Double.parseDouble(fieldValue))); // Needed
+                                                                                                                                               // to
+                                                                                                                                               // identify
+                                                                                                                                               // the
+                                                                                                                                               // field
+                                                                                                                                               // as
+                                                                                                                                               // number,
+                                                                                                                                               // if
+                                                                                                                                               // not
+                                                                                                                                               // type
+                                                                                                                                               // is
+                                                                                                                                               // not
+                                                                                                                                               // stored
                 } catch (Exception e)
                 {
                     // leave the original value
                 }
-            } else if(DataTypeCode.MULTILINE_VARCHAR.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode())) {
+            } else if (DataTypeCode.MULTILINE_VARCHAR.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode()))
+            {
                 try
                 {
                     XMLInputFactory xif = XMLInputFactory.newFactory();
@@ -197,16 +216,19 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
                     fieldValue = valueBuff.toString();
                 } catch (Exception e)
                 {
-                    //Do Nothing
+                    // Do Nothing
                 }
-                field = new Field(fieldFullName, fieldValue, luceneOptions.getStore(), indexingStrategy); //Strips out XML tags from text that can be rich text using HTML format
-            } else {
+                field = new Field(fieldFullName, fieldValue, luceneOptions.getStore(), indexingStrategy); // Strips out XML tags from text that can be
+                                                                                                          // rich text using HTML format
+            } else
+            {
                 field = new Field(fieldFullName, fieldValue, luceneOptions.getStore(), indexingStrategy);
             }
-            
+
             field.setBoost(luceneOptions.getBoost());
             document.add(field);
-            if(fieldIsdocTypeSortedNumeric != null) {
+            if (fieldIsdocTypeSortedNumeric != null)
+            {
                 document.add(fieldIsdocTypeSortedNumeric);
             }
         }

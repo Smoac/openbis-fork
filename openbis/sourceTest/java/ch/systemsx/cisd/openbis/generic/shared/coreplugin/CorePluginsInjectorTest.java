@@ -104,7 +104,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
             };
         PluginType typeWebapps = new PluginType("webapps", "webapps");
         injector = new CorePluginsInjector(ScannerType.DSS, new IPluginType[]
-            { type1, type2, type3, type4, type5, type6, typeWebapps }, logger);
+        { type1, type2, type3, type4, type5, type6, typeWebapps }, logger);
         corePluginsFolder = new File(workingDirectory, "core-plugins");
         corePluginsFolder.mkdirs();
         corePluginsFolderProperty =

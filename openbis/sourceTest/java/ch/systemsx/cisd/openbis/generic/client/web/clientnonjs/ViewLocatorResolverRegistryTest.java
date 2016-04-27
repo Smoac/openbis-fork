@@ -42,10 +42,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 
 /**
- * A test of the ViewLocatorHandlerRegistry functionality from the Java side. The JavaScript side is
- * tested by
- * {@link ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistryTest}
- * .
+ * A test of the ViewLocatorHandlerRegistry functionality from the Java side. The JavaScript side is tested by
+ * {@link ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistryTest} .
  * 
  * @author Chandrasekhar Ramakrishnan
  */

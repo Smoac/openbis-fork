@@ -44,14 +44,12 @@ import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 import ch.systemsx.cisd.openbis.systemtest.base.builder.ExternalDataBuilder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class RegisterDataSetTest extends BaseTest
 {
     private Sample sampleWithExperiment;
-    
+
     private Sample spaceSampleWithoutExperiment;
 
     private Sample sharedSample;
@@ -74,10 +72,10 @@ public class RegisterDataSetTest extends BaseTest
     public void testRegisterDataSetForAnExperiment() throws Exception
     {
         AbstractExternalData dataSet = create(aDataSet().inExperiment(experiment));
-        
+
         assertThat(dataSet, is(inExperiment(experiment)));
     }
-    
+
     @Test
     public void testRegisterContainerWithNonExistingDataSetForAnExperimentFails() throws Exception
     {
@@ -100,10 +98,10 @@ public class RegisterDataSetTest extends BaseTest
         List<String> componentDSCodes = new ArrayList<String>();
         componentDSCodes.add(component1.getCode());
         componentDSCodes.add(component2.getCode());
-        
+
         AbstractExternalData dataSet = create(aDataSet().asContainer().withComponents(component1.getCode(), component2.getCode())
                 .inExperiment(experiment));
-        
+
         assertThat(dataSet, is(inExperiment(experiment)));
         List<AbstractExternalData> components = dataSet.tryGetAsContainerDataSet().getContainedDataSets();
         List<String> codes = Code.extractCodes(components);
@@ -114,16 +112,16 @@ public class RegisterDataSetTest extends BaseTest
         assertThat(components.get(1), is(inExperiment(experiment)));
         assertThat(components.size(), equalTo(2));
     }
-    
+
     @Test
     public void testRegisterDataSetForADeletedExperiment() throws Exception
     {
-        commonServer.deleteExperiments(systemSessionToken, Arrays.asList(new TechId(experiment)), 
+        commonServer.deleteExperiments(systemSessionToken, Arrays.asList(new TechId(experiment)),
                 "t", DeletionType.TRASH);
         createWithExpectedError(aDataSet().inExperiment(experiment),
                 "Unknown experiment '" + experiment.getIdentifier() + "'.");
     }
-    
+
     @Test
     public void testRegisterDataSetAsContainerForADeletedDataSetFails() throws Exception
     {
@@ -133,7 +131,8 @@ public class RegisterDataSetTest extends BaseTest
         commonServer.deleteDataSets(systemSessionToken, Arrays.asList(componentDataSet.getCode()),
                 "t", DeletionType.TRASH, true);
 
-        try { 
+        try
+        {
             create(aDataSet().asContainer().withComponents(componentDataSet.getCode()).inExperiment(experiment));
             fail("UserFailureExcpetion expected");
         } catch (UserFailureException ex)
@@ -146,11 +145,11 @@ public class RegisterDataSetTest extends BaseTest
     public void testRegisterDataSetForASampleWithExperiment() throws Exception
     {
         AbstractExternalData dataSet = create(aDataSet().inSample(sampleWithExperiment));
-        
+
         assertThat(dataSet, is(inSample(sampleWithExperiment)));
         assertThat(dataSet, is(inExperiment(experiment)));
     }
-    
+
     @Test
     public void testRegisterContainerDataSetForASampleWithExperiment() throws Exception
     {
@@ -162,7 +161,7 @@ public class RegisterDataSetTest extends BaseTest
 
         AbstractExternalData dataSet = create(aDataSet().asContainer().withComponents(component1.getCode(), component2.getCode())
                 .inSample(sampleWithExperiment));
-        
+
         assertThat(dataSet, is(inSample(sampleWithExperiment)));
         assertThat(dataSet, is(inExperiment(experiment)));
         List<AbstractExternalData> components = dataSet.tryGetAsContainerDataSet().getContainedDataSets();
@@ -175,33 +174,33 @@ public class RegisterDataSetTest extends BaseTest
         assertThat(components.get(1), is(inExperiment(experiment)));
         assertThat(components.size(), equalTo(2));
     }
-    
+
     @Test
     public void testRegisterDataSetForADeletedSampleWithExperiment() throws Exception
     {
-        commonServer.deleteSamples(systemSessionToken, Arrays.asList(new TechId(sampleWithExperiment)), 
+        commonServer.deleteSamples(systemSessionToken, Arrays.asList(new TechId(sampleWithExperiment)),
                 "t", DeletionType.TRASH);
-        createWithExpectedError(aDataSet().inSample(sampleWithExperiment), 
+        createWithExpectedError(aDataSet().inSample(sampleWithExperiment),
                 "No sample could be found with given identifier '" + sampleWithExperiment.getIdentifier() + "'.");
     }
 
     @Test
     public void testRegisterDataSetForASampleWithDeletedExperiment() throws Exception
     {
-        commonServer.deleteExperiments(systemSessionToken, Arrays.asList(new TechId(experiment)), 
+        commonServer.deleteExperiments(systemSessionToken, Arrays.asList(new TechId(experiment)),
                 "t", DeletionType.TRASH);
-        createWithExpectedError(aDataSet().inSample(sampleWithExperiment), 
+        createWithExpectedError(aDataSet().inSample(sampleWithExperiment),
                 "No sample could be found with given identifier '" + sampleWithExperiment.getIdentifier() + "'.");
     }
-    
+
     @Test
     public void testRegisterDataSetForASampleWithoutExperiment() throws Exception
     {
         AbstractExternalData dataSet = create(aDataSet().withType("NO-EXP-TYPE").inSample(spaceSampleWithoutExperiment));
-        
+
         assertThat(dataSet, is(inSample(spaceSampleWithoutExperiment)));
     }
-    
+
     @Test
     public void testRegisterContainerDataSetAndItsComponentsForASampleWithoutExperiment() throws Exception
     {
@@ -230,7 +229,7 @@ public class RegisterDataSetTest extends BaseTest
         AbstractExternalData componentDataSet = create(aDataSet().inSample(sampleWithExperiment));
         AbstractExternalData dataSet = create(aDataSet().withType("NEXP-CONTAINER-TYPE")
                 .asContainer().withComponent(componentDataSet).inSample(spaceSampleWithoutExperiment));
-        
+
         assertThat(dataSet, is(inSample(spaceSampleWithoutExperiment)));
         List<AbstractExternalData> components = dataSet.tryGetAsContainerDataSet().getContainedDataSets();
         List<String> codes = Code.extractCodes(components);
@@ -240,37 +239,37 @@ public class RegisterDataSetTest extends BaseTest
         assertThat(components.get(0), is(inExperiment(experiment)));
         assertThat(components.size(), equalTo(1));
     }
-    
+
     @Test
     public void testRegisterDataSetForASampleWithoutExperimentButWrongDataSetType() throws Exception
     {
-        createWithExpectedError(aDataSet().inSample(spaceSampleWithoutExperiment), 
-                "Data set can not be registered because no experiment found for sample '" 
-                    + spaceSampleWithoutExperiment.getIdentifier() + "'.");
+        createWithExpectedError(aDataSet().inSample(spaceSampleWithoutExperiment),
+                "Data set can not be registered because no experiment found for sample '"
+                        + spaceSampleWithoutExperiment.getIdentifier() + "'.");
     }
 
     @Test
     public void testRegisterDataSetForASharedSample() throws Exception
     {
-        createWithExpectedError(aDataSet().withType("NEXP-TYPE").inSample(sharedSample), 
-                "Data set can not be registered because sample '" + sharedSample.getIdentifier() 
-                + "' is a shared sample.");
+        createWithExpectedError(aDataSet().withType("NEXP-TYPE").inSample(sharedSample),
+                "Data set can not be registered because sample '" + sharedSample.getIdentifier()
+                        + "' is a shared sample.");
     }
-    
+
     @Test
     public void testRegisterDataSetForSampleWithoutExperimentViaPerformEntityOperation() throws Exception
     {
         NewExternalData newDataSet = aDataSet().withType("NO-EXP-TYPE2")
                 .inSample(spaceSampleWithoutExperiment).get();
         AtomicEntityOperationDetails operationDetails = new EntityOperationBuilder().dataSet(newDataSet).create();
-        
+
         AtomicEntityOperationResult operationResult = etlService.performEntityOperations(systemSessionToken, operationDetails);
-        
+
         assertThat((int) operationResult.getDataSetsCreatedCount(), equalTo(1));
         AbstractExternalData dataSet = etlService.tryGetDataSet(systemSessionToken, newDataSet.getCode());
         assertThat(dataSet, is(inSample(spaceSampleWithoutExperiment)));
     }
-    
+
     private void createWithExpectedError(ExternalDataBuilder dataSetBuilder, String expectedErrorMessage)
     {
         try
@@ -282,6 +281,5 @@ public class RegisterDataSetTest extends BaseTest
             assertEquals(expectedErrorMessage, ex.getMessage());
         }
     }
-    
 
 }

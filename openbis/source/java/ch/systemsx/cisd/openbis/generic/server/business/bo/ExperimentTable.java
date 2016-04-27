@@ -70,8 +70,8 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
 
     ExperimentTable(final IDAOFactory daoFactory, final Session session,
             IEntityPropertiesConverter converter,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IRelationshipService relationshipService)
     {
         super(daoFactory, session, converter, managedPropertyEvaluatorFactory, dataSetTypeChecker,
@@ -80,10 +80,10 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
 
     public ExperimentTable(final IDAOFactory daoFactory, final Session session,
             IRelationshipService relationshipService,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
             DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
-        super(daoFactory, session, EntityKind.EXPERIMENT, managedPropertyEvaluatorFactory, 
+        super(daoFactory, session, EntityKind.EXPERIMENT, managedPropertyEvaluatorFactory,
                 dataSetTypeChecker, relationshipService);
     }
 

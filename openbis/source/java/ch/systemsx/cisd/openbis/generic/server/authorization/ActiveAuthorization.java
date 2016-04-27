@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.authorization;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 
 /**
- * A {@link IAuthorizationComponentFactory} implementation which provides components for an active
- * authorization.
+ * A {@link IAuthorizationComponentFactory} implementation which provides components for an active authorization.
  * 
  * @author Christian Ribeaud
  */

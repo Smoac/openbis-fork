@@ -22,8 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension for invoking an action attached to
- * {@link ActionMenu} (e.g. opening a tab).
+ * A {@link AbstractDefaultTestCommand} extension for invoking an action attached to {@link ActionMenu} (e.g. opening a tab).
  * 
  * @author Izabela Adamczyk
  * @author Piotr Buczek

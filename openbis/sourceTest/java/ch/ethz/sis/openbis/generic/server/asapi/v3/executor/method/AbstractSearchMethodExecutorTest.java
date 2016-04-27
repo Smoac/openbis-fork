@@ -58,7 +58,7 @@ public class AbstractSearchMethodExecutorTest
     private static final String SESSION_TOKEN2 = "sessionToken2";
 
     private MessageChannel channel;
-    
+
     private MessageChannel channel2;
 
     private TestSearchMethodExecutor executor;
@@ -240,7 +240,7 @@ public class AbstractSearchMethodExecutorTest
         private Map<Thread, SearchCacheEntry<Object>> entries = new HashMap<>();
 
         private IDelegatedAction getAction;
-        
+
         private IDelegatedAction putAction;
 
         private SearchCacheEntry<Object> defaultEntry;
@@ -280,7 +280,7 @@ public class AbstractSearchMethodExecutorTest
         }
 
         @Override
-        protected Collection doSearchAndTranslate(IOperationContext context, AbstractSearchCriteria criteria, 
+        protected Collection doSearchAndTranslate(IOperationContext context, AbstractSearchCriteria criteria,
                 FetchOptions fetchOptions)
         {
             return Collections.emptySet();
@@ -300,7 +300,7 @@ public class AbstractSearchMethodExecutorTest
         {
             this.getAction = getAction;
         }
-        
+
         void setPutAction(IDelegatedAction putAction)
         {
             this.putAction = putAction;

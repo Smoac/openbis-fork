@@ -535,7 +535,8 @@ public class Translator
         }
         initializer.setStorageConfirmed(externalDatum.isStorageConfirmation());
         initializer.setStub(externalDatum.isStub());
-        if(externalDatum.isContainer() == false) {
+        if (externalDatum.isContainer() == false)
+        {
             initializer.setPostRegistered(externalDatum.isPostRegistered());
         }
 

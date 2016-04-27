@@ -42,7 +42,7 @@ public class EntityHelperTest extends AssertJUnit
         assertEquals(1, properties.size());
         assertEquals("A", properties.get(0).getPropertyCode());
     }
-    
+
     @Test
     public void testEqualEntities()
     {

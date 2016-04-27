@@ -78,8 +78,7 @@ public class MaterialConfigurationProvider
     }
 
     /**
-     * Return <code>true</code> if the material codes can contain only alphanumeric characters and
-     * underscores.
+     * Return <code>true</code> if the material codes can contain only alphanumeric characters and underscores.
      */
     public boolean isStrictCodeConstraints()
     {

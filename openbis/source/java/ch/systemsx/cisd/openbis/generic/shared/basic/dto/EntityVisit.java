@@ -22,8 +22,7 @@ import java.util.Date;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 
 /**
- * Visit of an entity. Objects of this class are created when the detail view of an entity is opened
- * in the GUI.
+ * Visit of an entity. Objects of this class are created when the detail view of an entity is opened in the GUI.
  * 
  * @author Franz-Josef Elmer
  */

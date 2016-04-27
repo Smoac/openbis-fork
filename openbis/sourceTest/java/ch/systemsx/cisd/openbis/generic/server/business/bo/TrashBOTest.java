@@ -74,6 +74,7 @@ public final class TrashBOTest extends AbstractBOTest
     private static String EXAMPLE_REASON = "example reason";
 
     private static Long COMPONENT_CONTAINER_RELATIONSHIP_ID = 1001L;
+
     private static Long CHILDREN_PARENT_RELATIONSHIP_ID = 1002L;
 
     private static TechId EXAMPLE_ID = new TechId(1L);
@@ -117,10 +118,10 @@ public final class TrashBOTest extends AbstractBOTest
                     type = new RelationshipTypePE();
                     type.setId(CHILDREN_PARENT_RELATIONSHIP_ID);
                     will(returnValue(type));
-                    
+
                     allowing(boFactory).createSampleLister(session);
                     will(returnValue(sampleLister));
-                    
+
                     allowing(boFactory).createDatasetLister(session);
                     will(returnValue(datasetLister));
                 }
@@ -238,7 +239,7 @@ public final class TrashBOTest extends AbstractBOTest
 
         context.assertIsSatisfied();
     }
-    
+
     private void prepareEntityGraph(EntityGraphGenerator g)
     {
         g.assertConsistency();
@@ -297,7 +298,7 @@ public final class TrashBOTest extends AbstractBOTest
                 }
             });
     }
-    
+
     private void prepareListDataSetIdsByExperimentIds(final EntityGraphGenerator g)
     {
         final AbstractMockHandler<List<TechId>> handler = new AbstractMockHandler<List<TechId>>()
@@ -318,7 +319,7 @@ public final class TrashBOTest extends AbstractBOTest
                 }
             });
     }
-    
+
     private void prepareListDataSetIdsBySampleIds(final EntityGraphGenerator g)
     {
         final AbstractMockHandler<Collection<TechId>> handler = new AbstractMockHandler<Collection<TechId>>()
@@ -339,29 +340,29 @@ public final class TrashBOTest extends AbstractBOTest
                 }
             });
     }
-    
+
     private void prepareGetByTechId(final EntityGraphGenerator g)
     {
         final AbstractMockHandler<TechId> handler = new AbstractMockHandler<TechId>()
-                {
-            @Override
-            public Object invoke(Invocation invocation) throws Throwable
             {
-                DataSetNode dataSetNode = g.getDataSets().get(argument.getId());
-                ExternalDataPE dataSet = Utils.createData(dataSetNode);
-                print("getByTechId(" + argument + ") = " + dataSet);
-                return dataSet;
-            }
-                };
-                context.checking(new Expectations()
+                @Override
+                public Object invoke(Invocation invocation) throws Throwable
                 {
-                    {
-                        allowing(dataDAO).getByTechId(with(handler));
-                        will(handler);
-                    }
-                });
+                    DataSetNode dataSetNode = g.getDataSets().get(argument.getId());
+                    ExternalDataPE dataSet = Utils.createData(dataSetNode);
+                    print("getByTechId(" + argument + ") = " + dataSet);
+                    return dataSet;
+                }
+            };
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(dataDAO).getByTechId(with(handler));
+                    will(handler);
+                }
+            });
     }
-    
+
     private void prepareFindChildrenOrComponentIds(final EntityGraphGenerator g)
     {
         class FindChildrenIdsMockHandler
@@ -478,84 +479,84 @@ public final class TrashBOTest extends AbstractBOTest
                 }
             });
     }
-    
+
     private void prepareListExperimentsByIds(final EntityGraphGenerator g)
     {
         final AbstractMockHandler<Collection<Long>> handler = new AbstractMockHandler<Collection<Long>>()
-                {
-            @Override
-            public Object invoke(Invocation invocation) throws Throwable
             {
-                List<ExperimentPE> experiments = new ArrayList<ExperimentPE>();
-                Map<Long, ExperimentNode> experimentNodes = g.getExperiments();
-                for (Long id : argument)
+                @Override
+                public Object invoke(Invocation invocation) throws Throwable
                 {
-                    ExperimentNode experimentNode = experimentNodes.get(id);
-                    experiments.add(Utils.createExperimentPE(experimentNode));
-                }
-                print("listByExperimentIds(" + argument + ") = " + experiments);
-                return experiments;
-            }
-                };
-                context.checking(new Expectations()
-                {
+                    List<ExperimentPE> experiments = new ArrayList<ExperimentPE>();
+                    Map<Long, ExperimentNode> experimentNodes = g.getExperiments();
+                    for (Long id : argument)
                     {
-                        allowing(experimentDAO).listByIDs(with(handler));
-                        will(handler);
+                        ExperimentNode experimentNode = experimentNodes.get(id);
+                        experiments.add(Utils.createExperimentPE(experimentNode));
                     }
-                });
+                    print("listByExperimentIds(" + argument + ") = " + experiments);
+                    return experiments;
+                }
+            };
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(experimentDAO).listByIDs(with(handler));
+                    will(handler);
+                }
+            });
 
     }
-    
+
     private void prepareListByDataSetIds(final EntityGraphGenerator g)
     {
         final AbstractMockHandler<Collection<Long>> handler = new AbstractMockHandler<Collection<Long>>()
-                {
-            @Override
-            public Object invoke(Invocation invocation) throws Throwable
             {
-                List<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>();
-                Map<Long, DataSetNode> dataSetNodes = g.getDataSets();
-                for (Long id : argument)
+                @Override
+                public Object invoke(Invocation invocation) throws Throwable
                 {
-                    DataSetNode dataSetNode = dataSetNodes.get(id);
-                    dataSets.add(Utils.createExternalData(dataSetNode));
-                }
-                print("listByDataSetIds(" + argument + ") = " + dataSets);
-                return dataSets;
-            }
-                };
-                context.checking(new Expectations()
-                {
+                    List<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>();
+                    Map<Long, DataSetNode> dataSetNodes = g.getDataSets();
+                    for (Long id : argument)
                     {
-                        allowing(datasetLister).listByDatasetIds(with(handler), with(TrashBO.DATA_SET_FETCH_OPTIONS));
-                        will(handler);
+                        DataSetNode dataSetNode = dataSetNodes.get(id);
+                        dataSets.add(Utils.createExternalData(dataSetNode));
                     }
-                });
+                    print("listByDataSetIds(" + argument + ") = " + dataSets);
+                    return dataSets;
+                }
+            };
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(datasetLister).listByDatasetIds(with(handler), with(TrashBO.DATA_SET_FETCH_OPTIONS));
+                    will(handler);
+                }
+            });
     }
 
     private void prepareListDataSetContainerIds(final EntityGraphGenerator g)
     {
         final AbstractMockHandler<Collection<Long>> handler = new AbstractMockHandler<Collection<Long>>()
-                {
-            @Override
-            public Object invoke(Invocation invocation) throws Throwable
             {
-                Map<Long, Set<Long>> idsMap = g.getContainerDataSetIdsMap(
-                        TechId.createList(new ArrayList<Long>(argument)));
-                print("listContainerIds(" + argument + ") = " + idsMap);
-                return idsMap;
-            }
-                };
-                context.checking(new Expectations()
+                @Override
+                public Object invoke(Invocation invocation) throws Throwable
                 {
-                    {
-                        allowing(datasetLister).listContainerIds(with(handler));
-                        will(handler);
-                    }
-                });
+                    Map<Long, Set<Long>> idsMap = g.getContainerDataSetIdsMap(
+                            TechId.createList(new ArrayList<Long>(argument)));
+                    print("listContainerIds(" + argument + ") = " + idsMap);
+                    return idsMap;
+                }
+            };
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(datasetLister).listContainerIds(with(handler));
+                    will(handler);
+                }
+            });
     }
-    
+
     private void prepareListDataSetComponentIds(final EntityGraphGenerator g)
     {
         final AbstractMockHandler<Collection<Long>> handler = new AbstractMockHandler<Collection<Long>>()
@@ -577,12 +578,13 @@ public final class TrashBOTest extends AbstractBOTest
                 }
             });
     }
-    
+
     private void prepareGetDataSetsAndNonDeletableDataSets(final EntityGraphGenerator g)
     {
         class DataSetTableMockHandler extends BaseMatcher<List<TechId>>
         {
             private List<DataPE> dataSets = new ArrayList<DataPE>();
+
             private List<ExternalDataPE> nonDeletableDataSets = new ArrayList<ExternalDataPE>();
 
             @Override
@@ -614,7 +616,7 @@ public final class TrashBOTest extends AbstractBOTest
                 }
                 return true;
             }
-            
+
         }
 
         final DataSetTableMockHandler handler = new DataSetTableMockHandler();
@@ -635,7 +637,7 @@ public final class TrashBOTest extends AbstractBOTest
                 }
             });
     }
-    
+
     private static abstract class AbstractMockHandler<T> extends BaseMatcher<T> implements Action
     {
         protected T argument;
@@ -654,12 +656,12 @@ public final class TrashBOTest extends AbstractBOTest
             return true;
         }
     }
-    
-    private List<TechId> asIds(IIdHolder...entities)
+
+    private List<TechId> asIds(IIdHolder... entities)
     {
         return TechId.createList(Arrays.asList(entities));
     }
-    
+
     private static final void print(Object message)
     {
         String methodName = null;
@@ -673,5 +675,5 @@ public final class TrashBOTest extends AbstractBOTest
         }
         System.out.println(methodName + ": " + message);
     }
-    
+
 }

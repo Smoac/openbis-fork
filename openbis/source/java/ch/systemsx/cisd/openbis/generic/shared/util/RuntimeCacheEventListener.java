@@ -86,7 +86,7 @@ public class RuntimeCacheEventListener implements CacheEventListener
             {
                 StringBuilder sb = new StringBuilder();
                 sb.append("Cache entry " + entry.hashCode() + " that contains search result with " + entry + " " + operation + ".");
-                
+
                 int cacheSize = cache.getSize();
 
                 if (cacheSize == 1)

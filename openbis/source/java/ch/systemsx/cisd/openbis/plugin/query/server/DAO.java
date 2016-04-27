@@ -264,9 +264,8 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
     /**
      * A class for figuring out the parameter type.
      * <p>
-     * Note that some JDBC drivers (like the one from Oracle) have
-     * {@link ParameterMetaData#getParameterType(int)} not implemented and thus requires setting it
-     * explicitly in the variable metadata.
+     * Note that some JDBC drivers (like the one from Oracle) have {@link ParameterMetaData#getParameterType(int)} not implemented and thus requires
+     * setting it explicitly in the variable metadata.
      */
     private static class ParameterTypeProvider
     {

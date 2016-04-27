@@ -143,8 +143,8 @@ public class FilterSystemTest extends SystemTestCase
                 new HashSet<IColumnDefinition<TableModelRowWithObject<GridCustomFilter>>>();
 
         String[] headerIds =
-                    { "NAME", "DESCRIPTION", "EXPRESSION", "IS_PUBLIC", "REGISTRATOR",
-                            "REGISTRATION_DATE", "MODIFICATION_DATE" };
+        { "NAME", "DESCRIPTION", "EXPRESSION", "IS_PUBLIC", "REGISTRATOR",
+                "REGISTRATION_DATE", "MODIFICATION_DATE" };
 
         for (int i = 0; i < headerIds.length; i++)
         {

@@ -143,27 +143,27 @@ public class SearchDomainSearcherTest extends AbstractBOTest
         assertEquals("E1", results.get(0).getEntity().getPermId());
         assertEquals("Search Domain: test-db, Score: [Score: 11.5, bit score: 5.75, evalue: 12.5], Result location: "
                 + "[Experiment type: UNKNOWN-E, perm id: E1, code: CODE-E1, property type: S, alignment in sequence: [42-45], "
-                + "alignment in query: [7-10], number of mismatches: 0, total number of gaps: 0]", 
+                + "alignment in query: [7-10], number of mismatches: 0, total number of gaps: 0]",
                 results.get(0).getSearchResult().toString());
         assertEquals("S2", results.get(1).getEntity().getPermId());
         assertEquals("Search Domain: test-db, Score: [Score: 10.5, bit score: 5.25, evalue: 11.5], Result location: "
                 + "[Sample type: TYPE, perm id: S2, code: CODE-S2, property type: OLIGO, alignment in sequence: [42-45], "
-                + "alignment in query: [7-10], number of mismatches: 0, total number of gaps: 0]", 
+                + "alignment in query: [7-10], number of mismatches: 0, total number of gaps: 0]",
                 results.get(1).getSearchResult().toString());
         assertEquals("S1", results.get(2).getEntity().getPermId());
         assertEquals("Search Domain: test-db, Score: [Score: 9.5, bit score: 4.75, evalue: 10.5], Result location: "
                 + "[Sample type: TYPE, perm id: S1, code: CODE-S1, property type: OLIGO, alignment in sequence: [42-45], "
-                + "alignment in query: [7-10], number of mismatches: 0, total number of gaps: 0]", 
+                + "alignment in query: [7-10], number of mismatches: 0, total number of gaps: 0]",
                 results.get(2).getSearchResult().toString());
         assertEquals("DS1", results.get(3).getEntity().getPermId());
         assertEquals("Search Domain: test-db, Score: [Score: 0.5, bit score: 0.25, evalue: 1.5], Result location: "
                 + "[Data set type: UNKNOWN, perm id: DS1, code: DS1, property type: SEQ, alignment in sequence: [42-45], "
-                + "alignment in query: [7-10], number of mismatches: 0, total number of gaps: 0]", 
+                + "alignment in query: [7-10], number of mismatches: 0, total number of gaps: 0]",
                 results.get(3).getSearchResult().toString());
         assertEquals(4, results.size());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testSearchForDataSetsWithSequences()
     {
@@ -259,7 +259,7 @@ public class SearchDomainSearcherTest extends AbstractBOTest
                 }
             });
     }
-    
+
     private void prepareSearchForEntityPropertiesWithSequences(final DataStorePE dataStore,
             final IDataStoreService service, final double initialScore, final String... foundLocations)
     {
@@ -355,7 +355,7 @@ public class SearchDomainSearcherTest extends AbstractBOTest
         data.setFileFormatType(fileFormatType);
         return data;
     }
-    
+
     private SamplePE createSample(String permID)
     {
         SamplePE sample = new SamplePE();
@@ -372,7 +372,7 @@ public class SearchDomainSearcherTest extends AbstractBOTest
         sample.setSampleType(sampleType);
         return sample;
     }
-    
+
     private ExperimentPE createExperiment(String permID)
     {
         ExperimentPE experiment = new ExperimentPE();
@@ -402,7 +402,7 @@ public class SearchDomainSearcherTest extends AbstractBOTest
         }
         return permIds;
     }
-    
+
     private ISearchDomainResultScore createScore(double score)
     {
         BlastScore blastScore = new BlastScore();

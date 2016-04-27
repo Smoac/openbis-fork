@@ -54,16 +54,16 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
 
     public final static String SELECT_ALL =
             "select data.*, external_data.*, link_data.*, "
-            + "prdq.id IS NULL as is_post_registered "
-            + "from data left outer join external_data on data.id = external_data.data_id "
-            + "left outer join link_data on data.id = link_data.data_id "
-            + "left outer join post_registration_dataset_queue prdq on data.id = prdq.ds_id ";
+                    + "prdq.id IS NULL as is_post_registered "
+                    + "from data left outer join external_data on data.id = external_data.data_id "
+                    + "left outer join link_data on data.id = link_data.data_id "
+                    + "left outer join post_registration_dataset_queue prdq on data.id = prdq.ds_id ";
 
     public final static String SELECT_ALL_EXTERNAL_DATAS =
             "select data.*, external_data.*, prdq.id IS NULL as is_post_registered "
-            + "from data "
-            + "join external_data on data.id = external_data.data_id "
-            + "left outer join post_registration_dataset_queue prdq on data.id = prdq.ds_id ";
+                    + "from data "
+                    + "join external_data on data.id = external_data.data_id "
+                    + "left outer join post_registration_dataset_queue prdq on data.id = prdq.ds_id ";
 
     /**
      * Returns the datasets for the given experiment id.
@@ -91,7 +91,7 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
             + "left outer join external_data as ed on d.id = ed.data_id "
             + "left outer join link_data as ld on d.id = ld.data_id "
             + "left outer join post_registration_dataset_queue prdq on d.id = prdq.ds_id "
-     + "where expe_id = ?{1} "
+            + "where expe_id = ?{1} "
             + "   or samp_id in (with recursive connected_samples as "
             + "                    (select id from samples where expe_id = ?{1} "
             + "                     union select s.id from connected_samples as cs "

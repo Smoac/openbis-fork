@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.systemtest.plugin.generic.ExperimentRegistration
 /**
  * A {@link AbstractGWTTestCase} extension to test {@link GenericExperimentRegistrationForm}.
  * 
- * 
  * @author Izabela Adamczyk
  * @see ExperimentRegistrationTest
  */

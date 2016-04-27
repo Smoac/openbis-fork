@@ -35,8 +35,8 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedProperty
 public class AbstractMaterialBusinessObject extends AbstractBusinessObject
 {
     protected AbstractMaterialBusinessObject(final IDAOFactory daoFactory, final Session session,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IRelationshipService relationshipService)
     {
         super(daoFactory, session, EntityKind.MATERIAL, managedPropertyEvaluatorFactory, dataSetTypeChecker,
@@ -45,11 +45,11 @@ public class AbstractMaterialBusinessObject extends AbstractBusinessObject
 
     protected AbstractMaterialBusinessObject(final IDAOFactory daoFactory, final Session session,
             final IEntityPropertiesConverter entityPropertiesConverter,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IRelationshipService relationshipService)
     {
-        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory, 
+        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory,
                 dataSetTypeChecker, relationshipService);
     }
 
@@ -59,7 +59,7 @@ public class AbstractMaterialBusinessObject extends AbstractBusinessObject
     {
         assert materialId != null : "Material technical id unspecified.";
         String[] connections =
-            { PROPERTY_TYPES };
+        { PROPERTY_TYPES };
         final MaterialPE result = getMaterialDAO().tryGetByTechId(materialId, connections);
         if (result == null)
         {

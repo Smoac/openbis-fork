@@ -75,7 +75,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 @Entity
 @Table(name = TableNames.MATERIALS_TABLE, uniqueConstraints = @UniqueConstraint(columnNames = { ColumnNames.CODE_COLUMN,
-        ColumnNames.MATERIAL_TYPE_COLUMN }) )
+        ColumnNames.MATERIAL_TYPE_COLUMN }))
 @Indexed(index = "MaterialPE")
 @ClassBridge(impl = MaterialGlobalSearchBridge.class)
 public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,

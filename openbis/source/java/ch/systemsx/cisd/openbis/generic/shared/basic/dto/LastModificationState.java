@@ -28,31 +28,24 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
 
 /**
- * Stores information about the time and {@link DatabaseModificationKind} of the last modification,
- * separately for each kind of database object.
+ * Stores information about the time and {@link DatabaseModificationKind} of the last modification, separately for each kind of database object.
  * <p>
  * A {@link DatabaseModificationKind} has two bits of information:
  * <ul>
- * <li>The kind of database object (e.g. Sample, Experiment etc. see
- * {@link DatabaseModificationKind.ObjectKind}).
- * <li>The kind of operation either update or creation/deletion (see
- * {@link DatabaseModificationKind.OperationKind}).
+ * <li>The kind of database object (e.g. Sample, Experiment etc. see {@link DatabaseModificationKind.ObjectKind}).
+ * <li>The kind of operation either update or creation/deletion (see {@link DatabaseModificationKind.OperationKind}).
  * </ul>
- * Instances of {@link LastModificationState} store for each combination of object kind and
- * operation kind the time stamp of last invocation of a service method annotated with either
- * {@link DatabaseCreateOrDeleteModification} or {@link DatabaseUpdateModification}.
+ * Instances of {@link LastModificationState} store for each combination of object kind and operation kind the time stamp of last invocation of a
+ * service method annotated with either {@link DatabaseCreateOrDeleteModification} or {@link DatabaseUpdateModification}.
  * <p>
- * The method {@link #getLastModificationTime(DatabaseModificationKind)} allows to retrieve this
- * time stamp.
+ * The method {@link #getLastModificationTime(DatabaseModificationKind)} allows to retrieve this time stamp.
  * <p>
- * The service method {@link ICommonServer#getLastModificationState(String)} provides an instance of
- * this class with the latest time stamps. It can be used by a client to update views (see for
- * example ch.systemsx
+ * The service method {@link ICommonServer#getLastModificationState(String)} provides an instance of this class with the latest time stamps. It can be
+ * used by a client to update views (see for example ch.systemsx
  * .cisd.openbis.generic.client.web.client.application.framework.LastModificationStateUpdater).
  * <p>
- * Note, that only the kind of object not the actual type or even instance is stored. That means for
- * example that the creation of a new sample will lead to an update of any sample detailed view in
- * the Web GUI.
+ * Note, that only the kind of object not the actual type or even instance is stored. That means for example that the creation of a new sample will
+ * lead to an update of any sample detailed view in the Web GUI.
  * 
  * @author Tomasz Pylak
  */
@@ -84,10 +77,9 @@ public class LastModificationState implements Serializable
     }
 
     /**
-     * To avoid expensive computation of the last modification time at the beginning (which would
-     * require browsing the whole database) at the beginning we assume that it's equal to the
-     * initialization time of the whole state. We can do this since all the future modifications
-     * will happen after this moment.
+     * To avoid expensive computation of the last modification time at the beginning (which would require browsing the whole database) at the
+     * beginning we assume that it's equal to the initialization time of the whole state. We can do this since all the future modifications will
+     * happen after this moment.
      * 
      * @return The last registered time of the specified kind of database modification.
      */

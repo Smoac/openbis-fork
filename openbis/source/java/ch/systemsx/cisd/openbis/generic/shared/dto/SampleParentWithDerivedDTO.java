@@ -22,8 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
- * A <code>SampleParentWithDerivedDTO</code> encapsulates a <code>SamplePE</code> (the parent) and
- * its derived <code>SamplePE</code>s.
+ * A <code>SampleParentWithDerivedDTO</code> encapsulates a <code>SamplePE</code> (the parent) and its derived <code>SamplePE</code>s.
  * 
  * @author Christian Ribeaud
  */

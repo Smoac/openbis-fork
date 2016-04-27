@@ -26,8 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension which triggers a search just after a login has
- * been performed with specified parameters.
+ * A {@link AbstractDefaultTestCommand} extension which triggers a search just after a login has been performed with specified parameters.
  * 
  * @author Christian Ribeaud
  */

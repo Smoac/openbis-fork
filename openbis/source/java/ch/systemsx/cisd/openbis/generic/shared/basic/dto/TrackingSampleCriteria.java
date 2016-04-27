@@ -20,11 +20,10 @@ import java.io.Serializable;
 import java.util.Collection;
 
 /**
- * Criteria for tracking <i>samples</i> of particular type with certain property set to specified
- * value.
+ * Criteria for tracking <i>samples</i> of particular type with certain property set to specified value.
  * <p>
- * Parent and Container samples should be loaded according to {@link SampleType} hierarchy depths.
- * All referenced samples should have all properties loaded.
+ * Parent and Container samples should be loaded according to {@link SampleType} hierarchy depths. All referenced samples should have all properties
+ * loaded.
  * 
  * @author Piotr Buczek
  */

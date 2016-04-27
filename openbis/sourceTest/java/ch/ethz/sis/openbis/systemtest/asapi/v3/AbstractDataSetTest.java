@@ -12,14 +12,13 @@ import ch.systemsx.cisd.common.collection.SimpleComparator;
 public class AbstractDataSetTest extends AbstractTest
 {
     protected static final SimpleComparator<DataSet, String> DATA_SET_COMPARATOR = new SimpleComparator<DataSet, String>()
+        {
+            @Override
+            public String evaluate(DataSet item)
             {
-                @Override
-                public String evaluate(DataSet item)
-                {
-                    return item.getCode();
-                }
-            };
- 
+                return item.getCode();
+            }
+        };
 
     protected static void assertIdentifiers(Collection<DataSet> dataSets, String... expectedCodesIdentifiers)
     {

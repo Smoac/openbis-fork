@@ -28,7 +28,7 @@ public enum MaterialAttributeSearchFieldKind implements Serializable, IAttribute
     ID("Id"),
 
     CODE("Code"),
-    
+
     PERM_ID("Perm Id"),
 
     MATERIAL_TYPE("Material Type"),

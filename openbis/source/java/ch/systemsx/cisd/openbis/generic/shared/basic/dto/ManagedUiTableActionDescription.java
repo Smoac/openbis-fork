@@ -26,8 +26,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiTableActi
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ManagedTableActionRowSelectionType;
 
 /**
- * Object that declaratively describes a UI for an action related to a table (e.g. describing UI of
- * a dialog that should be shown after clicking on a button when some table rows are selected).
+ * Object that declaratively describes a UI for an action related to a table (e.g. describing UI of a dialog that should be shown after clicking on a
+ * button when some table rows are selected).
  * 
  * @author Piotr Buczek
  */

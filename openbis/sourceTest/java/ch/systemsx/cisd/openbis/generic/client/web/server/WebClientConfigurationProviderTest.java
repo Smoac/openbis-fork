@@ -25,8 +25,6 @@ import ch.systemsx.cisd.openbis.generic.shared.WebClientConfigurationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class WebClientConfigurationProviderTest extends AssertJUnit
@@ -37,21 +35,20 @@ public class WebClientConfigurationProviderTest extends AssertJUnit
         WebClientConfigurationProvider provider = new WebClientConfigurationProvider(new Properties());
         assertEquals(null, provider.getWebClientConfiguration().getPropertyOrNull("hello", "world"));
     }
-    
+
     @Test
     public void testTechnologyProperties()
     {
         Properties properties = new Properties();
         properties.setProperty(WebClientConfigurationProvider.TECHNOLOGIES, "t1, t2");
-        properties.setProperty("t1.a" , "alpha1");
-        properties.setProperty("t2.b" , "beta1");
-        
+        properties.setProperty("t1.a", "alpha1");
+        properties.setProperty("t2.b", "beta1");
+
         WebClientConfigurationProvider provider = new WebClientConfigurationProvider(properties);
         WebClientConfiguration webClientConfiguration = provider.getWebClientConfiguration();
-        
+
         assertEquals("alpha1", webClientConfiguration.getPropertyOrNull("t1", "a"));
         assertEquals(null, provider.getWebClientConfiguration().getPropertyOrNull("t2", "a"));
     }
-    
-    
+
 }

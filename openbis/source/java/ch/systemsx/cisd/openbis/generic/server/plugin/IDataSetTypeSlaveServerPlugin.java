@@ -26,8 +26,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 /**
  * The slave server plug-in for a Data set type
  * <p>
- * The implementation will give access to {@link DAOFactory} and appropriate business object
- * factory. Each method specified here must start with {@link Session} parameter.
+ * The implementation will give access to {@link DAOFactory} and appropriate business object factory. Each method specified here must start with
+ * {@link Session} parameter.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -38,8 +38,7 @@ public interface IDataSetTypeSlaveServerPlugin
     /**
      * Permanently deletes the specified data sets for the specified reason.
      * 
-     * @deprecated this is legacy code and should be removed when we remove the option of disabled
-     *             trash
+     * @deprecated this is legacy code and should be removed when we remove the option of disabled trash
      */
     @Deprecated
     public void permanentlyDeleteDataSets(Session session, List<DataPE> dataSets, String reason,

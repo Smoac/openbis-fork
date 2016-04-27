@@ -332,18 +332,19 @@ public class GeneralInformationChangingService extends
     {
         server.deletePermanentlyForced(sessionToken, TechId.createList(deletionIds));
     }
-    
+
     @Override
     public void registerPerson(String sessionToken, String userID)
     {
         server.registerPerson(sessionToken, userID);
     }
-    
+
     @Override
-    public void registerSpace(String sessionToken, String spaceCode, String spaceDescription) {
-        server.registerSpace(sessionToken,spaceCode, spaceDescription);
+    public void registerSpace(String sessionToken, String spaceCode, String spaceDescription)
+    {
+        server.registerSpace(sessionToken, spaceCode, spaceDescription);
     }
-    
+
     @Override
     public void registerPersonSpaceRole(String sessionToken, String spaceCode, String userID, String roleCode)
     {
@@ -351,5 +352,5 @@ public class GeneralInformationChangingService extends
         SpaceIdentifier spaceIdentifier = new SpaceIdentifier(spaceCode);
         server.registerSpaceRole(sessionToken, RoleCode.valueOf(roleCode), spaceIdentifier, grantee);
     }
-    
+
 }

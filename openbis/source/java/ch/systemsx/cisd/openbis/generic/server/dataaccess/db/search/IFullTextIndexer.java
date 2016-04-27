@@ -31,22 +31,19 @@ public interface IFullTextIndexer
 {
 
     /**
-     * Performs a <i>full-text</i> index on entities of given <var>clazz</var> using given
-     * <i>Hibernate</i> session.
+     * Performs a <i>full-text</i> index on entities of given <var>clazz</var> using given <i>Hibernate</i> session.
      */
     public <T> void doFullTextIndex(final Session hibernateSession, final Class<T> clazz)
             throws DataAccessException;
 
     /**
-     * Performs a <i>full-text</i> index update on entities of given <var>clazz</var> with given
-     * <var>ids</var> using given <i>Hibernate</i> session.
+     * Performs a <i>full-text</i> index update on entities of given <var>clazz</var> with given <var>ids</var> using given <i>Hibernate</i> session.
      */
     public <T> void doFullTextIndexUpdate(final Session hibernateSession, final Class<T> clazz,
             final List<Long> ids) throws DataAccessException;
 
     /**
-     * Removes entities of given <var>clazz</var> with given <var>ids</var> from the
-     * <i>full-text</i> index using given <i>Hibernate</i> session.
+     * Removes entities of given <var>clazz</var> with given <var>ids</var> from the <i>full-text</i> index using given <i>Hibernate</i> session.
      */
     public <T> void removeFromIndex(final Session hibernateSession, final Class<T> clazz,
             final List<Long> ids) throws DataAccessException;

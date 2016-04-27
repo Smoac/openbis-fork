@@ -85,7 +85,7 @@ public class ScriptProviderTest extends AbstractProviderTest
         script.setName("my-" + kind + "-script");
         script.setDescription("A script for " + kind);
         script.setEntityKind(kind == null ? null : new EntityKind[]
-            { kind });
+        { kind });
         script.setScript("do something with " + kind);
         script.setScriptType(ScriptType.DYNAMIC_PROPERTY);
         script.setPluginType(PluginType.JYTHON);

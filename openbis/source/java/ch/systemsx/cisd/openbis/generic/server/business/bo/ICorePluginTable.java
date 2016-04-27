@@ -32,8 +32,7 @@ public interface ICorePluginTable
     List<CorePlugin> listCorePluginsByName(String name);
 
     /**
-     * Registers a core plugin. The operation has no effect if the plugin has already been deployed
-     * on the openBIS AS.
+     * Registers a core plugin. The operation has no effect if the plugin has already been deployed on the openBIS AS.
      */
     public void registerPlugin(CorePlugin plugin, ICorePluginResourceLoader resourceLoader);
 

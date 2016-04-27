@@ -25,9 +25,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
- * An <code>IPredicate</code> implementation based on {@link ListSamplesByPropertyCriteria}. Checks
- * that the user has the right to access the group from which samples are referenced. Note that we
- * can ignore the experiment, since it belongs to the same group.
+ * An <code>IPredicate</code> implementation based on {@link ListSamplesByPropertyCriteria}. Checks that the user has the right to access the group
+ * from which samples are referenced. Note that we can ignore the experiment, since it belongs to the same group.
  * 
  * @author Tomasz Pylak
  */
@@ -54,8 +53,7 @@ public class ListSamplesByPropertyPredicate extends
     }
 
     @Override
-    protected
-    Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
+    protected Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final ListSamplesByPropertyCriteria criteria)
     {
         assert spacePredicate.initialized : "Predicate has not been initialized";

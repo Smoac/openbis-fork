@@ -33,8 +33,7 @@ public interface IEventDAO extends IGenericDAO<EventPE>
 {
 
     /**
-     * Tries to find <var>eventType</var> event concerning an object of given <var>entityType</var>
-     * and <code>identifier</code>.
+     * Tries to find <var>eventType</var> event concerning an object of given <var>entityType</var> and <code>identifier</code>.
      */
     public EventPE tryFind(final String identifier, final EntityType entityType,
             final EventType eventType);

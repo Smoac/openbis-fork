@@ -660,7 +660,7 @@ public class EntityOperationTest extends SystemTestCase
         assertEquals("[COMMENT: my data]", dataSet.getProperties().toString());
         assertEquals("/CISD/PLATE_WELLSEARCH:WELL-A01", dataSet.getSampleIdentifier());
     }
-    
+
     @Test
     public void testCreateDataSetForUnknownSample()
     {
@@ -669,11 +669,11 @@ public class EntityOperationTest extends SystemTestCase
         AtomicEntityOperationDetails eo =
                 new EntityOperationBuilder().dataSet(
                         new DataSetBuilder().code(dataSetCode).type("HCS_IMAGE")
-                        .store(new DataStoreBuilder("STANDARD").getStore())
-                        .fileFormat("XML").location("a/b/c").property("COMMENT", "my data")
-                        .sample(new SampleBuilder().identifier("/CISD/A01").getSample())
-                        .getDataSet()).create();
-        
+                                .store(new DataStoreBuilder("STANDARD").getStore())
+                                .fileFormat("XML").location("a/b/c").property("COMMENT", "my data")
+                                .sample(new SampleBuilder().identifier("/CISD/A01").getSample())
+                                .getDataSet()).create();
+
         try
         {
             etlService.performEntityOperations(sessionToken, eo);

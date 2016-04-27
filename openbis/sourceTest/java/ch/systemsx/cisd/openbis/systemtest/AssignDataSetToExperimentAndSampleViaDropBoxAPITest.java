@@ -36,8 +36,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
- * Data set assignment tests for Drop Box API V1/V2 (that is, via {@link IServiceForDataStoreServer#performEntityOperations(String, 
- * ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails)}).
+ * Data set assignment tests for Drop Box API V1/V2 (that is, via
+ * {@link IServiceForDataStoreServer#performEntityOperations(String, ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails)}).
  * 
  * @author Franz-Josef Elmer
  */
@@ -73,7 +73,7 @@ public class AssignDataSetToExperimentAndSampleViaDropBoxAPITest extends Abstrac
         AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
         etlService.performEntityOperations(userSessionToken, builder.dataSetUpdate(dataSetUpdate).getDetails());
     }
-    
+
     private DataSetBatchUpdatesDTO createUpdatesObject(String dataSetCode)
     {
         AbstractExternalData dataSet = etlService.tryGetDataSet(systemSessionToken, dataSetCode);
@@ -93,7 +93,7 @@ public class AssignDataSetToExperimentAndSampleViaDropBoxAPITest extends Abstrac
         {
             dataSetUpdate.setSampleIdentifierOrNull(SampleIdentifierFactory.parse(sample));
         }
-        dataSetUpdate.setProperties(Collections.<IEntityProperty>emptyList());
+        dataSetUpdate.setProperties(Collections.<IEntityProperty> emptyList());
         updateDetails.setPropertiesToUpdate(new HashSet<String>());
         return dataSetUpdate;
     }

@@ -38,8 +38,7 @@ public interface IEntityPropertiesConverter
 {
 
     /**
-     * Converts the set of {@link IEntityProperty} objects obtained from the specified entity to an
-     * array of {@link EntityPropertyPE} objects.
+     * Converts the set of {@link IEntityProperty} objects obtained from the specified entity to an array of {@link EntityPropertyPE} objects.
      * 
      * @param registrator Will appear in the objects of the output.
      */
@@ -48,8 +47,7 @@ public interface IEntityPropertiesConverter
             final PersonPE registrator);
 
     /**
-     * Returns given value validated and converted for given property type and entity type. Result
-     * may be null if given value is null.
+     * Returns given value validated and converted for given property type and entity type. Result may be null if given value is null.
      */
     public String tryCreateValidatedPropertyValue(PropertyTypePE propertyType,
             EntityTypePropertyTypePE entityTypPropertyType, String value);
@@ -72,8 +70,7 @@ public interface IEntityPropertiesConverter
             EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE author);
 
     /**
-     * Updates Set<T> of properties but preserve those old properties which codes are not among
-     * <var>propertiesToUpdate</var>.
+     * Updates Set<T> of properties but preserve those old properties which codes are not among <var>propertiesToUpdate</var>.
      */
     public <T extends EntityPropertyPE> Set<T> updateProperties(Collection<T> oldProperties,
             EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE author,
@@ -86,15 +83,14 @@ public interface IEntityPropertiesConverter
             EntityTypePE entityTypePE);
 
     /**
-     * Checks whether all mandatory properties are provided. It uses (and fills) the
-     * <var>cache</var> in order to avoid looking up the assigned properties time and again.
+     * Checks whether all mandatory properties are provided. It uses (and fills) the <var>cache</var> in order to avoid looking up the assigned
+     * properties time and again.
      */
     public <T extends EntityPropertyPE> void checkMandatoryProperties(Collection<T> properties,
             EntityTypePE entityTypePE, Map<EntityTypePE, List<EntityTypePropertyTypePE>> cache);
 
     /**
-     * Update the value of a managed property, assuming the managedProperty already has the updated
-     * value.
+     * Update the value of a managed property, assuming the managedProperty already has the updated value.
      */
     public <T extends EntityPropertyPE> Set<T> updateManagedProperty(Collection<T> oldProperties,
             EntityTypePE entityType, IManagedProperty managedProperty, PersonPE author);

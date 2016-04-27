@@ -20,8 +20,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * Full specification of the field connected with an entity which can be used in detailed text
- * queries.
+ * Full specification of the field connected with an entity which can be used in detailed text queries.
  * 
  * @author Tomasz Pylak
  * @author Piotr Buczek

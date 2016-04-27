@@ -117,7 +117,7 @@ public abstract class AbstractExternalData extends
     private boolean storageConfirmation;
 
     private boolean isStub;
-    
+
     private boolean isPostRegistered;
 
     private Collection<Metaproject> metaprojects;
@@ -475,7 +475,7 @@ public abstract class AbstractExternalData extends
     {
         return this.isStub;
     }
-    
+
     public boolean isPostRegistered()
     {
         return isPostRegistered;
@@ -495,7 +495,7 @@ public abstract class AbstractExternalData extends
     {
         this.accessTimestamp = accessTimestamp;
     }
-    
+
     public Space getSpace()
     {
         if (experiment != null)

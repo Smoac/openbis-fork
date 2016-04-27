@@ -26,5 +26,5 @@ public interface IRemoteHostValidator
     /**
      * Returns <code>true</code> if the specified remote host is allowed.
      */
-    public boolean isValidRemoteHost(String remoteHost); 
+    public boolean isValidRemoteHost(String remoteHost);
 }

@@ -22,11 +22,11 @@ import java.util.Map;
 /**
  * Extension of {@link IManagedUiAction} for actions assigned with a table output.
  * <p>
- * Every table action can specify table selection mode required for the action to be enabled. If an
- * action requires table rows to be selected than it will contain list of indices of selected rows.
+ * Every table action can specify table selection mode required for the action to be enabled. If an action requires table rows to be selected than it
+ * will contain list of indices of selected rows.
  * <p>
- * For actions that require single row to be selected it is possible to bind values of selected
- * row's columns with input fields (e.g. useful in edit actions).
+ * For actions that require single row to be selected it is possible to bind values of selected row's columns with input fields (e.g. useful in edit
+ * actions).
  * 
  * @see ManagedTableActionRowSelectionType
  * @author Piotr Buczek

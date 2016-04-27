@@ -38,11 +38,9 @@ public class CorePluginsUtils
     public static final String CORE_PLUGINS_PROPERTIES_FILE = "core-plugins.properties";
 
     /**
-     * Adds the content of <code>core-plugins.properties</code> file to the specified properties.
-     * The folder with the core plugins properties file is specified by the property
-     * <code>core-plugins-folder</code> of the specified properties. If undefined a default value is
-     * used. Note, that the core plugin properties might overwrite value in the specified properties
-     * object.
+     * Adds the content of <code>core-plugins.properties</code> file to the specified properties. The folder with the core plugins properties file is
+     * specified by the property <code>core-plugins-folder</code> of the specified properties. If undefined a default value is used. Note, that the
+     * core plugin properties might overwrite value in the specified properties object.
      */
     public static void addCorePluginsProperties(Properties properties, ScannerType scannerType)
     {

@@ -39,7 +39,7 @@ public class ExternalDataValidatorTest extends AuthorizationTestCase
                 "http://someURL", null, new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool())));
         return data;
     }
-    
+
     private PhysicalDataSet createDataForSample(SpacePE space)
     {
         PhysicalDataSet data = new PhysicalDataSet();
@@ -63,7 +63,7 @@ public class ExternalDataValidatorTest extends AuthorizationTestCase
         PersonPE person = createPersonWithRoleAssignments();
         assertEquals(true, validator.isValid(person, createDataForSample(createAnotherSpace())));
     }
-    
+
     @Test
     public void testIsValidWithDataInTheRightDatabaseInstance()
     {

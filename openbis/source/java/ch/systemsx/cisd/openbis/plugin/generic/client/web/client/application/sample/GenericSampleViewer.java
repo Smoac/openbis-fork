@@ -184,19 +184,19 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
                     List<TechId> sampleIds = new ArrayList<TechId>(Arrays.asList(TechId.create(getOriginalData())));
                     viewContext.getCommonService().getSampleChildrenInfo(sampleIds, true,
                             new AbstractAsyncCallback<List<SampleChildrenInfo>>(viewContext)
-                        {
-                            @Override
-                            protected void process(List<SampleChildrenInfo> info)
-                            {
-                                SampleChildrenInfo sampleInfo = info.get(0);
+                                {
+                                    @Override
+                                    protected void process(List<SampleChildrenInfo> info)
+                                    {
+                                        SampleChildrenInfo sampleInfo = info.get(0);
 
-                                additionalMessage.append(EntityDeletionConfirmationUtils.getMessageForSingleSample(sampleInfo));
+                                        additionalMessage.append(EntityDeletionConfirmationUtils.getMessageForSingleSample(sampleInfo));
 
-                                new SampleListDeletionConfirmationDialog(getViewContext()
-                                        .getCommonViewContext(), getOriginalDataAsSingleton(), callback,
-                                        getOriginalData(), additionalMessage.toString()).show();
-                            }
-                        });
+                                        new SampleListDeletionConfirmationDialog(getViewContext()
+                                                .getCommonViewContext(), getOriginalDataAsSingleton(), callback,
+                                                getOriginalData(), additionalMessage.toString()).show();
+                                    }
+                                });
                 }
             }));
         addToolBarButton(createRevertDeletionButton(new IDelegatedAction()

@@ -48,7 +48,7 @@ public class XMLPropertyTransformerTest extends AssertJUnit
         sample.setProperties(Arrays.<IEntityProperty> asList(p1, p2, p3));
 
         new XMLPropertyTransformer().transformXMLProperties(Arrays.asList(sample));
-        
+
         IEntityProperty transformed1 = sample.getProperties().get(0);
         assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><b>hello world</b>",
                 transformed1.tryGetAsString());

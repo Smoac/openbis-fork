@@ -49,7 +49,7 @@ class IndexFieldNameHelper
                     return SearchFieldConstants.EXPERIMENT_ID;
                 }
                 throw createAssociationNotHandledException(entityKind, associationKind);
-                
+
             case SAMPLE:
                 if (entityKind == EntityKind.DATA_SET)
                 {

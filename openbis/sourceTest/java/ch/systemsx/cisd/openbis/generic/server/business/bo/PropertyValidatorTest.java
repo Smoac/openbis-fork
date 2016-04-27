@@ -108,35 +108,35 @@ public final class PropertyValidatorTest extends AbstractBOTest
     private final static Object[][] getNonWorkingValues()
     {
         return new Object[][]
-            {
-                    { createTimestampPropertyType(), DateFormatUtils.format(new Date(), "yyyy") },
-                    { createIntegerPropertyType(), "a" },
-                    { createIntegerPropertyType(), "1.1" },
-                    { createRealPropertyType(), "b" },
-                    { createBooleanPropertyType(), "BOB" }, };
+        {
+                { createTimestampPropertyType(), DateFormatUtils.format(new Date(), "yyyy") },
+                { createIntegerPropertyType(), "a" },
+                { createIntegerPropertyType(), "1.1" },
+                { createRealPropertyType(), "b" },
+                { createBooleanPropertyType(), "BOB" }, };
     }
 
     @DataProvider
     private final static Object[][] getWorkingValues()
     {
         return new Object[][]
-            {
-                    { createVarcharPropertyType(), "" },
-                    { createVarcharPropertyType(), "varchar" },
-                    {
-                            createTimestampPropertyType(),
-                            DateFormatUtils.format(new Date(),
-                                    SupportedDatePattern.CANONICAL_DATE_PATTERN.getPattern()) },
-                    {
-                            createTimestampPropertyType(),
-                            DateFormatUtils.format(new Date(),
-                                    SupportedDatePattern.US_DATE_TIME_24_PATTERN.getPattern()) },
-                    { createIntegerPropertyType(), "1" },
-                    { createRealPropertyType(), "1" },
-                    { createRealPropertyType(), "1.1" },
-                    { createBooleanPropertyType(), "yes" },
-                    { createBooleanPropertyType(), "1" },
-                    { createBooleanPropertyType(), "true" } };
+        {
+                { createVarcharPropertyType(), "" },
+                { createVarcharPropertyType(), "varchar" },
+                {
+                        createTimestampPropertyType(),
+                        DateFormatUtils.format(new Date(),
+                                SupportedDatePattern.CANONICAL_DATE_PATTERN.getPattern()) },
+                {
+                        createTimestampPropertyType(),
+                        DateFormatUtils.format(new Date(),
+                                SupportedDatePattern.US_DATE_TIME_24_PATTERN.getPattern()) },
+                { createIntegerPropertyType(), "1" },
+                { createRealPropertyType(), "1" },
+                { createRealPropertyType(), "1.1" },
+                { createBooleanPropertyType(), "yes" },
+                { createBooleanPropertyType(), "1" },
+                { createBooleanPropertyType(), "true" } };
     }
 
     @Test

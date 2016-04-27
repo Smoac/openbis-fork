@@ -35,6 +35,6 @@ public abstract class UpdateBuilder<T> extends Builder<T>
         this.sessionToken = token;
         return this;
     }
-    
+
     public abstract void perform();
 }

@@ -20,8 +20,6 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class LexerTest extends AssertJUnit
@@ -41,7 +39,7 @@ public class LexerTest extends AssertJUnit
         check("[a, b, hello 'world']", "a  b \"hello 'world'\"");
         check("[a=hello world]", "a=\"hello world\"");
     }
-    
+
     private void check(String expectedTokens, String input)
     {
         assertEquals(expectedTokens, Lexer.extractTokens(input).toString());

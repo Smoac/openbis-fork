@@ -63,7 +63,7 @@ public class Script extends ScriptImmutable implements IScript
         } else
         {
             script.setEntityKind(new EntityKind[]
-                { EntityKind.valueOf(entityKind) });
+            { EntityKind.valueOf(entityKind) });
         }
     }
 }

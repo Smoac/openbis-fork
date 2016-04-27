@@ -56,11 +56,12 @@ public class GeneralInformationServiceJsonServer extends AbstractApiJsonServiceE
     }
 
     @RequestMapping(
-            { IGeneralInformationService.JSON_SERVICE_URL,
-                    "/openbis" + IGeneralInformationService.JSON_SERVICE_URL })
+    { IGeneralInformationService.JSON_SERVICE_URL,
+            "/openbis" + IGeneralInformationService.JSON_SERVICE_URL })
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException,
-            IOException {
+            IOException
+    {
         super.handleRequest(request, response);
     }
 }

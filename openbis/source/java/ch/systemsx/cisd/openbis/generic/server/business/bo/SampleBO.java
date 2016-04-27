@@ -69,7 +69,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     public SampleBO(final IDAOFactory daoFactory, final Session session,
             final IRelationshipService relationshipService,
             final IEntityOperationChecker entityOperationChecker,
-            final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
             DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
         super(daoFactory, session, relationshipService, entityOperationChecker,
@@ -80,7 +80,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             final IEntityPropertiesConverter entityPropertiesConverter,
             IRelationshipService relationshipService,
             final IEntityOperationChecker entityOperationChecker,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
             DataSetTypeWithoutExperimentChecker dataSetTypeChecker)
     {
         super(daoFactory, session, entityPropertiesConverter, relationshipService,

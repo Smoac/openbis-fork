@@ -23,12 +23,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * An annotation for marking an object that should not be escaped when returned to the client from
- * server. There may be two reasons for this:
+ * An annotation for marking an object that should not be escaped when returned to the client from server. There may be two reasons for this:
  * <p>
  * <ol>
- * <li>object contains important information used internally by application that are not shown to
- * the user and shouldn't be escaped (like session id)
+ * <li>object contains important information used internally by application that are not shown to the user and shouldn't be escaped (like session id)
  * <li>object is escaped in a different place (e.g. in ResultSetTranslator)
  * </ol>
  * 

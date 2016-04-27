@@ -227,8 +227,7 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
     }
 
     /**
-     * Returns a list of fields appropriate for entity type - property type assignments specific to
-     * given {@link PropertiesEditor}.
+     * Returns a list of fields appropriate for entity type - property type assignments specific to given {@link PropertiesEditor}.
      */
     public final List<DatabaseModificationAwareField<?>> getPropertyFields()
     {

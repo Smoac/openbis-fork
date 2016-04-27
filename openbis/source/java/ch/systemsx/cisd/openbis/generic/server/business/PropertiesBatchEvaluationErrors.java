@@ -35,8 +35,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 class PropertiesBatchEvaluationErrors
 {
     /**
-     * limitation on the number of ErrorDetails objects kept in memory. This guards us from scripts
-     * generating unique error messages for excessively large batches.
+     * limitation on the number of ErrorDetails objects kept in memory. This guards us from scripts generating unique error messages for excessively
+     * large batches.
      */
     static final int MAX_ERROR_DETAILS_KEPT = 10;
 

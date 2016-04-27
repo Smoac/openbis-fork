@@ -27,8 +27,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dat
  */
 
 /**
- * A {@link AbstractDefaultTestCommand} extension for showing edit view of a data set that assuming
- * that opening its detail view was triggered before.
+ * A {@link AbstractDefaultTestCommand} extension for showing edit view of a data set that assuming that opening its detail view was triggered before.
  * 
  * @author Piotr Buczek
  */

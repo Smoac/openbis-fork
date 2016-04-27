@@ -294,7 +294,7 @@ public class GenericClientService extends AbstractClientService implements IGene
 
     private void updateTemporaryCodes(final String sessionToken, BatchSamplesOperation info)
     {
-        // TODO FJE: Do the update in single queue which is also fed by the 
+        // TODO FJE: Do the update in single queue which is also fed by the
         // BatchSampleRegistrationTempCodeUpdaterTask
         // 1. Fill Structure
         Map<String, List<String>> sampleTypeCodeToTemporaryIdentifiers = new HashMap<String, List<String>>();
@@ -546,7 +546,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         {
             files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
         }
-        
+
         BatchSamplesOperation batchSamplesOperation =
                 SampleUploadSectionsParser.prepareSamples(sampleType, files,
                         defaultGroupIdentifier, sampleCodeGeneratorOrNull, allowExperiments,

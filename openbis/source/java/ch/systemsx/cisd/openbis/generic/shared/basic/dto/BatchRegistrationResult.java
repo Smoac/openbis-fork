@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.io.Serializable;
 
 /**
- * Batch registration is based on file input. This class returns to the client a small message after
- * each file has been uploaded and handled on the server side.
+ * Batch registration is based on file input. This class returns to the client a small message after each file has been uploaded and handled on the
+ * server side.
  * 
  * @author Christian Ribeaud
  */

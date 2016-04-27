@@ -43,8 +43,8 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  */
 @Entity
 @Table(name = TableNames.MATERIAL_TYPE_PROPERTY_TYPE_TABLE, uniqueConstraints =
-    { @UniqueConstraint(columnNames =
-        { ColumnNames.MATERIAL_TYPE_COLUMN, ColumnNames.PROPERTY_TYPE_COLUMN }) })
+{ @UniqueConstraint(columnNames =
+{ ColumnNames.MATERIAL_TYPE_COLUMN, ColumnNames.PROPERTY_TYPE_COLUMN }) })
 public class MaterialTypePropertyTypePE extends EntityTypePropertyTypePE
 {
     private static final long serialVersionUID = IServer.VERSION;

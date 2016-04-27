@@ -64,7 +64,7 @@ public class SampleTest extends AssertJUnit
     }
 
     @Test(expectedExceptions =
-        { IllegalArgumentException.class })
+    { IllegalArgumentException.class })
     public void testInitialization()
     {
         SampleInitializer initializer = new SampleInitializer();

@@ -347,7 +347,7 @@ public class DataSetRegistrationSummaryTaskTest extends AssertJUnit
                         one(mailClient).sendEmailMessage(with(checker.getSubjectMatcher()),
                                 with(checker.getReportMatcher()), with((EMailAddress) null),
                                 with((EMailAddress) null), with(new EMailAddress[]
-                                    { new EMailAddress(address) }));
+                                { new EMailAddress(address) }));
                     }
                 }
             });

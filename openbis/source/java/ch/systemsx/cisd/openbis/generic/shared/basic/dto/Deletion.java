@@ -77,8 +77,7 @@ public final class Deletion extends AbstractRegistrationHolder implements IIdHol
     }
 
     /*
-     * The deletion counts are supposed to be used in situations when not all deleted entities are
-     * fetched into the <code>deletedEntities<?code>
+     * The deletion counts are supposed to be used in situations when not all deleted entities are fetched into the <code>deletedEntities<?code>
      */
     public int getTotalSamplesCount()
     {

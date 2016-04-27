@@ -26,8 +26,8 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 public interface IEntityPropertiesEnricher
 {
     /**
-     * Enriches the entities specified by its IDs its properties. The entities will be retrieved
-     * by the {@link IEntityPropertiesHolderResolver} and will be enriched "in place".
+     * Enriches the entities specified by its IDs its properties. The entities will be retrieved by the {@link IEntityPropertiesHolderResolver} and
+     * will be enriched "in place".
      */
     public void enrich(final LongSet entityIDs, final IEntityPropertiesHolderResolver entities);
 }

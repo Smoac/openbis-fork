@@ -24,8 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
- * The <i>generic</i> specific <i>Business Object</i> factory. Each method creates one kind of a
- * business object.
+ * The <i>generic</i> specific <i>Business Object</i> factory. Each method creates one kind of a business object.
  * 
  * @author Tomasz Pylak
  */
@@ -46,7 +45,7 @@ public interface ICommonBusinessObjectFactory extends IAbstractBussinessObjectFa
     public IDataBO createDataBO(Session session);
 
     public IDataSetTable createDataSetTable(final Session session);
-    
+
     public ISearchDomainSearcher createSearchDomainSearcher(Session session);
 
     public IDeletedDataSetTable createDeletedDataSetTable(final Session session);

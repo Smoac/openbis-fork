@@ -21,8 +21,7 @@ import java.io.Serializable;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
- * Identifies the experiment. This identifier points to an experiment if a group and database
- * instance is provided in addition.
+ * Identifies the experiment. This identifier points to an experiment if a group and database instance is provided in addition.
  * 
  * @author Tomasz Pylak
  */

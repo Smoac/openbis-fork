@@ -31,9 +31,8 @@ public interface ISpaceBO extends IEntityBusinessObject
 {
 
     /**
-     * Defines a new space of specified code for the home database instance. After invocation of
-     * this method {@link IBusinessObject#save()} should be invoked to store the new group in the
-     * <i>Data Access Layer</i>.
+     * Defines a new space of specified code for the home database instance. After invocation of this method {@link IBusinessObject#save()} should be
+     * invoked to store the new group in the <i>Data Access Layer</i>.
      * 
      * @throws UserFailureException if <code>group</code> does already exist.
      */
@@ -42,8 +41,7 @@ public interface ISpaceBO extends IEntityBusinessObject
     /**
      * Loads a space described by identifier from Database Layer.
      * 
-     * @throws UserFailureException if <code>groupIdentifier</code> does not describe existing
-     *             group.
+     * @throws UserFailureException if <code>groupIdentifier</code> does not describe existing group.
      */
     public void load(SpaceIdentifier spaceIdentifier) throws UserFailureException;
 

@@ -94,7 +94,7 @@ public class AssignExperimentToProjectTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAssignExperimentToProject", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void assigningExperimentToProjectIsNotAllowedFor(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception

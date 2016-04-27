@@ -28,16 +28,14 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 
 /**
- * Helper application which replaces a database and its Lucene index by another existing database and
- * its index.
+ * Helper application which replaces a database and its Lucene index by another existing database and its index.
  *
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class DatabaseAndIndexReplacer
 {
     private static final Logger operationLog =
-        LogFactory.getLogger(LogCategory.OPERATION, DatabaseAndIndexReplacer.class);
-    
+            LogFactory.getLogger(LogCategory.OPERATION, DatabaseAndIndexReplacer.class);
 
     public static void main(String[] args)
     {
@@ -53,7 +51,7 @@ public class DatabaseAndIndexReplacer
         File destinationFolder = new File(args[1]);
         String sourceDatabase = IndexCreationUtil.DATABASE_NAME_PREFIX + args[2];
         File sourceFolder = new File(args[3]);
-        
+
         boolean ok = IndexCreationUtil.duplicateDatabase(destinationDatabase, sourceDatabase);
         if (ok == false)
         {

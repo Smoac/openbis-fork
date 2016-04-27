@@ -937,12 +937,12 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
     private static String createQueryRelationshipHistorySQL()
     {
-        return " SELECT d.code, relation_type,entity_perm_id, " + ENTITY_TYPE + ", " 
+        return " SELECT d.code, relation_type,entity_perm_id, " + ENTITY_TYPE + ", "
                 + "p.user_id, valid_from_timestamp, valid_until_timestamp "
                 + "FROM " + TableNames.DATA_ALL_TABLE + " d, " + TableNames.DATA_SET_RELATIONSHIPS_HISTORY_TABLE + " h, "
                 + TableNames.PERSONS_TABLE + " p "
-                + "WHERE d.id = main_data_id and  main_data_id " + SQLBuilder.inEntityIds() 
-                + " and h.pers_id_author = p.id" 
+                + "WHERE d.id = main_data_id and  main_data_id " + SQLBuilder.inEntityIds()
+                + " and h.pers_id_author = p.id"
                 + " order by 1, valid_from_timestamp";
     }
 
@@ -1058,7 +1058,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                 final List<DeletedDataSetLocation> locations =
                         selectLocations(selectLocations, entityIdsToDelete);
 
-                String content = historyCreator.apply(session, entityIdsToDelete, sqls.selectPropertyHistory, 
+                String content = historyCreator.apply(session, entityIdsToDelete, sqls.selectPropertyHistory,
                         sqls.selectRelationshipHistory, sqls.selectAttributes, null, null, registrator);
 
                 executeUpdate(deleteProperties, entityIdsToDelete);

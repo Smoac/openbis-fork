@@ -20,8 +20,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.WildcardSupportingMap;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKindAndTypeCode;
 
 /**
- * Utility class that manages mappings from entity types/codes (possibly including wildcards) to
- * IServerPlugin objects.
+ * Utility class that manages mappings from entity types/codes (possibly including wildcards) to IServerPlugin objects.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

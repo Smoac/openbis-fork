@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsUtils;
 public class JettyWebAppPluginInjector
 {
     private static final String WEBAPP_FOLDER = "webapp";
-    
+
     private static final String START_PAGE = "start-page";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
@@ -112,7 +112,7 @@ public class JettyWebAppPluginInjector
             }
         }
     }
-    
+
     public void injectWebApps()
     {
         List<String> remainingWebapps = replaceDefaultStartPageByWebApp();
@@ -140,7 +140,7 @@ public class JettyWebAppPluginInjector
                 {
                     try
                     {
-                        if (!folder.getCanonicalPath().equals(link.getCanonicalPath())) //Verifies they are pointing to the same version
+                        if (!folder.getCanonicalPath().equals(link.getCanonicalPath())) // Verifies they are pointing to the same version
                         {
                             link.delete();
                         }
@@ -159,7 +159,7 @@ public class JettyWebAppPluginInjector
         }
         return;
     }
-    
+
     private List<String> replaceDefaultStartPageByWebApp()
     {
         List<String> remainingWebApps = new ArrayList<String>(webapps);

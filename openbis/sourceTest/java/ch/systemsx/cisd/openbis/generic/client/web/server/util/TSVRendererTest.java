@@ -69,13 +69,13 @@ public class TSVRendererTest extends AssertJUnit
                     will(returnValue(entities));
                 }
             });
-        
+
         String content = TSVRenderer.createTable(dataProvider, "#");
-        
+
         assertEquals("h0\th1#x\ty#a\tb#", content);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRendererNoRows()
     {
@@ -88,9 +88,9 @@ public class TSVRendererTest extends AssertJUnit
                     will(returnValue(entities));
                 }
             });
-        
+
         String content = TSVRenderer.createTable(dataProvider, "\n");
-        
+
         assertEquals("h0\th1\n", content);
         context.assertIsSatisfied();
     }
@@ -98,13 +98,13 @@ public class TSVRendererTest extends AssertJUnit
     private void prepareGetAllColumnTitles(final String... titles)
     {
         context.checking(new Expectations()
-        {
             {
-                one(dataProvider).getAllColumnTitles();
-                will(returnValue(Arrays.asList(titles)));
-            }
-        });
-        
+                {
+                    one(dataProvider).getAllColumnTitles();
+                    will(returnValue(Arrays.asList(titles)));
+                }
+            });
+
     }
 
 }

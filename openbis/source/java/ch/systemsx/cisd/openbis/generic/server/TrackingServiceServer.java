@@ -48,10 +48,11 @@ public class TrackingServiceServer extends WhiteAndBlackListHttpInvokerServiceEx
     }
 
     @RequestMapping(
-            { "/rmi-tracking", "/openbis/rmi-tracking" })
+    { "/rmi-tracking", "/openbis/rmi-tracking" })
     @Override
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException
+    {
         super.handleRequest(request, response);
     }
 }

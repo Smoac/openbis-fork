@@ -90,8 +90,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
     }
 
     /**
-     * Tests that authorization annotations of {@link IGenericClientService#registerSample} are
-     * obeyed.
+     * Tests that authorization annotations of {@link IGenericClientService#registerSample} are obeyed.
      */
     public final void testRegisterSampleByAnUnauthorizedUser()
     {

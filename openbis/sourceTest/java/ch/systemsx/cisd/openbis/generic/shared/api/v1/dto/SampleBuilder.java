@@ -20,14 +20,12 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDeta
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class SampleBuilder
 {
     private SampleInitializer initializer = new SampleInitializer();
-    
+
     public SampleBuilder(long id)
     {
         initializer.setId(id);
@@ -35,46 +33,46 @@ public class SampleBuilder
                 new EntityRegistrationDetailsInitializer();
         initializer.setRegistrationDetails(new EntityRegistrationDetails(entityRegInitializer));
     }
-    
+
     public Sample getSample()
     {
         return new Sample(initializer);
     }
-    
+
     public SampleBuilder code(String code)
     {
         initializer.setCode(code);
         return this;
     }
-    
+
     public SampleBuilder type(String type)
     {
         initializer.setSampleTypeCode(type);
         return this;
     }
-    
+
     public SampleBuilder typeID(long typeId)
     {
         initializer.setSampleTypeId(typeId);
         return this;
     }
-    
+
     public SampleBuilder identifier(String identifier)
     {
         initializer.setIdentifier(identifier);
         return this;
     }
-    
+
     public SampleBuilder permID(String permId)
     {
         initializer.setPermId(permId);
         return this;
     }
-    
+
     public SampleBuilder experiment(String experimentIdentifier)
     {
         initializer.setExperimentIdentifierOrNull(experimentIdentifier);
         return this;
     }
-    
+
 }

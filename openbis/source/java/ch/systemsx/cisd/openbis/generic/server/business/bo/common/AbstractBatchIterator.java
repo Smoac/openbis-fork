@@ -24,18 +24,16 @@ import java.util.Iterator;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 
 /**
- * Allows to convert an memory-inefficient iterator into a one which has lower memory consumption.
- * Divides the items used to produce iterated elements into batches and calls the original iterator
- * on each batch. The outside interface make the division into batches invisible, but the
- * inefficient iterator is never used with a big number of items.
+ * Allows to convert an memory-inefficient iterator into a one which has lower memory consumption. Divides the items used to produce iterated elements
+ * into batches and calls the original iterator on each batch. The outside interface make the division into batches invisible, but the inefficient
+ * iterator is never used with a big number of items.
  * 
  * @author Tomasz Pylak
  */
 abstract public class AbstractBatchIterator<T> implements Iterable<T>
 {
     /**
-     * Creates an iterator which is not very memory efficient and should not be called with too many
-     * items at the same time.
+     * Creates an iterator which is not very memory efficient and should not be called with too many items at the same time.
      */
     abstract protected Iterable<T> createUnefficientIterator(LongSet itemsBatch);
 

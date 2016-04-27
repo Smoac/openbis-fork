@@ -20,8 +20,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
- * Read-only interface for beans with a (unique) business code as a string and a unique technical
- * ID.
+ * Read-only interface for beans with a (unique) business code as a string and a unique technical ID.
  * 
  * @author Franz-Josef Elmer
  */

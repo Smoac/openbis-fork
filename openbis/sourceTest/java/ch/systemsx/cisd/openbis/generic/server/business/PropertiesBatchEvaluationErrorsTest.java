@@ -45,7 +45,6 @@ public class PropertiesBatchEvaluationErrorsTest extends AssertJUnit
 
     private ScriptPE script;
 
-
     @BeforeMethod
     public void setUp()
     {

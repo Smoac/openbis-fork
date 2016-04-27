@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import javax.sql.DataSource;
 
-
 /**
  * Bean for a {@link DataSource} together with its {@link DataSourceDefinition}.
  *
@@ -27,6 +26,7 @@ import javax.sql.DataSource;
 public class DataSourceWithDefinition
 {
     private final DataSource dataSource;
+
     private final DataSourceDefinition definition;
 
     public DataSourceWithDefinition(DataSource dataSource, DataSourceDefinition definitionOrNull)

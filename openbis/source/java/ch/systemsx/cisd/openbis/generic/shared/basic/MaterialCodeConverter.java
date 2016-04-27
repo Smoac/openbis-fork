@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
 import ch.systemsx.cisd.openbis.generic.shared.util.MaterialConfigurationProvider;
 
 /**
- * Methods to convert material codes from business layer to database and from database to business
- * layer.
+ * Methods to convert material codes from business layer to database and from database to business layer.
  * 
  * @author Kaloyan Enimanev
  */

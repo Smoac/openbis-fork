@@ -23,25 +23,23 @@ import java.util.Set;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * Hierarchical role. Combines {@link RoleCode} with {@link RoleLevel} and a set of
- * {@link RoleWithHierarchy}s that are stronger.
+ * Hierarchical role. Combines {@link RoleCode} with {@link RoleLevel} and a set of {@link RoleWithHierarchy}s that are stronger.
  * <p>
  * Available roles can:
  * <ol>
  * <li>be presented to the user
  * <li>be easily mapped to database structure
  * <li>be used to restrict access to server methods
- * <li>define the role hierarchy by specifying which roles are stronger (users that have only the
- * "stronger" role will also be able to access given server method)
+ * <li>define the role hierarchy by specifying which roles are stronger (users that have only the "stronger" role will also be able to access given
+ * server method)
  * </ol>
  * </p>
  * <h4>Example:</h4>To annotate an interface method with a new role e.g. <code>SECRET_AGENT</code>:
  * <ol>
  * <li>Add <code>SECRET_AGENT</code> to {@link RoleCode} enumerator.
- * <li>Add <code>SECRET_AGENT</code> to <code>authorization_role</code> domain in the database (and
- * prepare migration).
- * <li>Add <code>INSTANCE_SECRET_AGENT</code> (or <code>SPACE_SECRET_AGENT</code>) to
- * {@link RoleWithHierarchy} enumerator and define the "stronger" roles.
+ * <li>Add <code>SECRET_AGENT</code> to <code>authorization_role</code> domain in the database (and prepare migration).
+ * <li>Add <code>INSTANCE_SECRET_AGENT</code> (or <code>SPACE_SECRET_AGENT</code>) to {@link RoleWithHierarchy} enumerator and define the "stronger"
+ * roles.
  * <li>Use the new {@link RoleWithHierarchy} to annotate the interface method.
  * </ol>
  * 

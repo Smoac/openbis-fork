@@ -131,6 +131,7 @@ public abstract class AbstractDataSetAssignmentTestCase extends BaseTest
         return RolePermutator.getAcceptedPermutations(assignDataSetToExperimentRule, source,
                 destination, instance);
     }
+
     @DataProvider
     public Object[][] rolesNotAllowedToAssignDataSetToExperiment()
     {

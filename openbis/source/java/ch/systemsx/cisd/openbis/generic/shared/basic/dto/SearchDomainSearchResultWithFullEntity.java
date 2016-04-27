@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWit
 public class SearchDomainSearchResultWithFullEntity implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
+
     private IEntityInformationHolderWithPermId entity;
 
     private SearchDomainSearchResult searchResult;

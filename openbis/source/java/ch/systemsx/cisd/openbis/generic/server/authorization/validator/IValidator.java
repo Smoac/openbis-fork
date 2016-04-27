@@ -21,11 +21,10 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.ValidatorStore;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
- * Performs some validation which returns <code>true</code> or <code>false</code> based on the input
- * objects.
+ * Performs some validation which returns <code>true</code> or <code>false</code> based on the input objects.
  * <p>
- * Each implementation is expected to have an empty <code>public</code> constructor and is expected
- * to be stateless. Use {@link ValidatorStore} to get an implementation.
+ * Each implementation is expected to have an empty <code>public</code> constructor and is expected to be stateless. Use {@link ValidatorStore} to get
+ * an implementation.
  * </p>
  * 
  * @author Christian Ribeaud

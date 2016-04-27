@@ -125,9 +125,8 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
 
     /**
      * Tests that authorization annotations of
-     * {@link ICommonServer#getExperimentInfo(String, ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier)}
-     * are obeyed. This is done by a direct invocation of
-     * {@link ICommonClientServiceAsync#getExperimentInfo(String,com.google.gwt.user.client.rpc.AsyncCallback)}
+     * {@link ICommonServer#getExperimentInfo(String, ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier)} are obeyed. This
+     * is done by a direct invocation of {@link ICommonClientServiceAsync#getExperimentInfo(String,com.google.gwt.user.client.rpc.AsyncCallback)}
      * because the normal GUI only list experiments which are accessible by the user.
      */
     public final void testDirectInvocationOfGetExperimentInfoByAnUnauthorizedUser()

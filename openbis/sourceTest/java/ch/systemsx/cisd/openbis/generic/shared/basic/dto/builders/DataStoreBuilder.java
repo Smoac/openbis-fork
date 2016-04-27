@@ -26,12 +26,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 public class DataStoreBuilder
 {
     private DataStore store = new DataStore();
-    
+
     public DataStoreBuilder(String dataStoreCode)
     {
         store.setCode(dataStoreCode);
     }
-    
+
     public DataStoreBuilder hostUrl(String hostUrl)
     {
         store.setHostUrl(hostUrl);
@@ -43,10 +43,10 @@ public class DataStoreBuilder
         store.setDownloadUrl(downloadUrl);
         return this;
     }
-    
+
     public DataStore getStore()
     {
         return store;
     }
-    
+
 }

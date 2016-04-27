@@ -285,7 +285,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         for (AbstractExternalData dataSetWithNewValue : dataSetsWithNewValue)
         {
             Date modificationDate = dataSetWithNewValue.getModificationDate();
-            assertTrue("The modification date (" + modificationDate + ") should be current (" + now + ")", 
+            assertTrue("The modification date (" + modificationDate + ") should be current (" + now + ")",
                     modificationDate.compareTo(now) >= 0);
 
             String savedComment = EntityHelper.tryFindPropertyValue(dataSetWithNewValue, "COMMENT");

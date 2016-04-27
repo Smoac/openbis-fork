@@ -44,14 +44,14 @@ public interface IPropertyTypeImmutable extends IAbstractType
     IVocabularyImmutable getVocabulary();
 
     /**
-     * Return an XSD used to verify the validity of properties with XML {@link DataType}. Return
-     * <code>null</code> if the DataType is not XML or there is no schema set.
+     * Return an XSD used to verify the validity of properties with XML {@link DataType}. Return <code>null</code> if the DataType is not XML or there
+     * is no schema set.
      */
     String getXmlSchema();
 
     /**
-     * Return an XSLT transformation applied to properties with XML {@link DataType}. Return
-     * <code>null</code> if the DataType is not XML or there is no transformation set.
+     * Return an XSLT transformation applied to properties with XML {@link DataType}. Return <code>null</code> if the DataType is not XML or there is
+     * no transformation set.
      */
     String getTransformation();
 

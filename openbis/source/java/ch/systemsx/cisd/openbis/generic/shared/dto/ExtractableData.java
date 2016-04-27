@@ -45,8 +45,7 @@ public class ExtractableData extends Code<ExtractableData>
     private List<NewProperty> dataSetProperties = new ArrayList<NewProperty>();
 
     /**
-     * Returns the date when the measurement / calculation that produced this external data set has
-     * been performed.
+     * Returns the date when the measurement / calculation that produced this external data set has been performed.
      * <p>
      * This may not be known in which case this method will return <code>null</code>.
      */
@@ -56,8 +55,7 @@ public class ExtractableData extends Code<ExtractableData>
     }
 
     /**
-     * Sets the date when the measurement / calculation that produced this external data set has
-     * been performed.
+     * Sets the date when the measurement / calculation that produced this external data set has been performed.
      */
     public void setProductionDate(final Date productionDate)
     {
@@ -65,8 +63,7 @@ public class ExtractableData extends Code<ExtractableData>
     }
 
     /**
-     * Returns the code identifying the data source (i.e. measurement device or software pipeline)
-     * that produced this external data set.
+     * Returns the code identifying the data source (i.e. measurement device or software pipeline) that produced this external data set.
      * <p>
      * This may not be known in which case this method will return <code>null</code>.
      */
@@ -76,8 +73,7 @@ public class ExtractableData extends Code<ExtractableData>
     }
 
     /**
-     * Sets the code identifying the data source (i.e. measurement device or software pipeline) that
-     * produced this external data set.
+     * Sets the code identifying the data source (i.e. measurement device or software pipeline) that produced this external data set.
      */
     public void setDataProducerCode(final String dataProducerCode)
     {

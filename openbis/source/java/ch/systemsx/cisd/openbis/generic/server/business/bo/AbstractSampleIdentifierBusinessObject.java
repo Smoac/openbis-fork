@@ -48,8 +48,8 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
     private final SampleOwnerFinder sampleOwnerFinder;
 
     AbstractSampleIdentifierBusinessObject(final IDAOFactory daoFactory, final Session session,
-            EntityKind entityKind, IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            EntityKind entityKind, IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IRelationshipService relationshipService)
     {
         super(daoFactory, session, entityKind, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);
@@ -58,8 +58,8 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
 
     public AbstractSampleIdentifierBusinessObject(IDAOFactory daoFactory, Session session,
             IEntityPropertiesConverter converter,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, 
-            DataSetTypeWithoutExperimentChecker dataSetTypeChecker, 
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DataSetTypeWithoutExperimentChecker dataSetTypeChecker,
             IRelationshipService relationshipService)
     {
         super(daoFactory, session, converter, managedPropertyEvaluatorFactory, dataSetTypeChecker, relationshipService);

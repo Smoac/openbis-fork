@@ -33,8 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
- * Predicate for a list of {@link SampleUpdatesDTO} instances. The logical is similar to
- * {@link SampleUpdatesPredicate}.
+ * Predicate for a list of {@link SampleUpdatesDTO} instances. The logical is similar to {@link SampleUpdatesPredicate}.
  * 
  * @author Franz-Josef Elmer
  */

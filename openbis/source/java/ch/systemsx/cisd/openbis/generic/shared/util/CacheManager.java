@@ -111,9 +111,9 @@ public class CacheManager implements ICacheManager
         {
             timeStamp = new Date(timeProvider.getTimeInMilliseconds());
             fileName = new MessageFormat(FILE_NAME_FORMAT).format(new Object[]
-                { timeStamp, counter++ });
+            { timeStamp, counter++ });
         }
-        
+
         @Override
         public String toString()
         {
@@ -122,28 +122,46 @@ public class CacheManager implements ICacheManager
     }
 
     private static final int DAY = 24 * 60 * 60 * 1000;
-    @Private public static final String CACHE_FOLDER_KEY = "cache-folder";
+
+    @Private
+    public static final String CACHE_FOLDER_KEY = "cache-folder";
+
     private static final String CACHE_FOLDER_DEFAULT_VALUE = "cache";
-    @Private static final String MINIMUM_FREE_DISK_SPACE_KEY = "minimum-free-disk-space-in-MB";
+
+    @Private
+    static final String MINIMUM_FREE_DISK_SPACE_KEY = "minimum-free-disk-space-in-MB";
+
     private static final int MINIMUM_FREE_DISK_SPACE_DEFAULT_VALUE = 1024;
-    @Private static final String MAXIMUM_RETENTION_TIME_KEY = "maximum-retention-time-in-days";
+
+    @Private
+    static final String MAXIMUM_RETENTION_TIME_KEY = "maximum-retention-time-in-days";
+
     private static final int MAXIMUM_RETENTION_TIME_DEFAULT_VALUE = 7;
-    
-    @Private static final String CACHE_VERSION_FILE_NAME = ".cache-version";
-    @Private static final String KEY_FILE_TYPE = ".key";
-    @Private static final String DATA_FILE_TYPE = ".data";
-    
+
+    @Private
+    static final String CACHE_VERSION_FILE_NAME = ".cache-version";
+
+    @Private
+    static final String KEY_FILE_TYPE = ".key";
+
+    @Private
+    static final String DATA_FILE_TYPE = ".data";
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             CacheManager.class);
-    
+
     private final ITimeProvider timeProvider;
+
     private final Map<Key, FileName> keyToFileNameMap;
+
     private final IFreeSpaceProvider freeSpaceProvider;
+
     private final File cacheFolder;
+
     private final long minimumFreeDiskSpaceInKB;
+
     private final long maximumRetentionTimeInMillis;
-    
-    
+
     public CacheManager(WebClientConfiguration configuration, String technologyName,
             ITimeProvider timeProvider, IFreeSpaceProvider freeSpaceProvider, String cacheVersion)
     {
@@ -208,7 +226,7 @@ public class CacheManager implements ICacheManager
         }
         return key;
     }
-    
+
     private int getIntegerProperty(WebClientConfiguration configuration, String technologyName, String key, int defaultValue)
     {
         String value = configuration.getPropertyOrNull(technologyName, key);
@@ -232,7 +250,7 @@ public class CacheManager implements ICacheManager
         String value = configuration.getPropertyOrNull(technologyName, key);
         return value == null ? defaultValue : value;
     }
-    
+
     @Override
     public Object tryToGetData(Key key)
     {
@@ -299,7 +317,7 @@ public class CacheManager implements ICacheManager
             }
         }
     }
-    
+
     private void cleanUp()
     {
         long currentTime = timeProvider.getTimeInMilliseconds();
@@ -335,7 +353,7 @@ public class CacheManager implements ICacheManager
             operationLog.warn("Can not obtain available free disk space.", ex);
         }
     }
-    
+
     private void removeFromCache(Key key)
     {
         FileName fileName = keyToFileNameMap.remove(key);
@@ -361,7 +379,7 @@ public class CacheManager implements ICacheManager
             operationLog.warn("For key " + key + " removing from cache caused some unknown error: " + file);
         }
     }
-    
+
     private void assertFreeSpaceAvailableFor(int numberOfBytes) throws IOException
     {
         long freeSpace = 1024 * freeSpaceProvider.freeSpaceKb(new HostAwareFile(cacheFolder));

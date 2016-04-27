@@ -21,8 +21,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 
 /**
- * Describes table column's metadata. Has the ability to render cell values for the column given the
- * row model.
+ * Describes table column's metadata. Has the ability to render cell values for the column given the row model.
  * 
  * @author Tomasz Pylak
  */

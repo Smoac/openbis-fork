@@ -32,10 +32,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.Def
 /**
  * Class which updates <code>OpenBIS.gwt.xml</code> and {@link DefaultClientPluginFactoryProvider}.
  * <p>
- * Usage:
- * <tt>java {@link WebClientFilesUpdater} [<working directory> [<technology 1> <technology 2> ...]]</tt>
- * Without technology arguments all technologies found in the code base are available. If at least
- * one technology is specified only the specified technologies will be available.
+ * Usage: <tt>java {@link WebClientFilesUpdater} [<working directory> [<technology 1> <technology 2> ...]]</tt> Without technology arguments all
+ * technologies found in the code base are available. If at least one technology is specified only the specified technologies will be available.
  * 
  * @author Christian Ribeaud
  */

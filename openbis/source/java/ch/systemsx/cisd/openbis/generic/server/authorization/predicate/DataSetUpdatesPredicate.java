@@ -27,9 +27,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * An <code>IPredicate</code> implementation based on {@link DataSetUpdatesDTO}. Checks that: 1) the
- * user has rights to update the data set 2) if data set is moved to a different sample the user has
- * access to this sample.
+ * An <code>IPredicate</code> implementation based on {@link DataSetUpdatesDTO}. Checks that: 1) the user has rights to update the data set 2) if data
+ * set is moved to a different sample the user has access to this sample.
  * 
  * @author Piotr Buczek
  */
@@ -59,8 +58,7 @@ public class DataSetUpdatesPredicate extends AbstractPredicate<DataSetUpdatesDTO
     }
 
     @Override
-    protected
-    Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
+    protected Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final DataSetUpdatesDTO updates)
     {
         assert dataSetTechIdPredicate.initialized : "Predicate has not been initialized";

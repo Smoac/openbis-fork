@@ -31,8 +31,7 @@ public interface IManagedProperty extends Serializable
     String getPropertyTypeCode();
 
     /**
-     * Returns <var>true</var> if the detailed view of the entity owning the property will show the
-     * managed property in an extra tab.
+     * Returns <var>true</var> if the detailed view of the entity owning the property will show the managed property in an extra tab.
      */
     boolean isOwnTab();
 
@@ -40,8 +39,7 @@ public interface IManagedProperty extends Serializable
     void setOwnTab(boolean ownTab);
 
     /**
-     * Returns <code>true</code> if the value is special, that is either a place-holder value or an
-     * error message.
+     * Returns <code>true</code> if the value is special, that is either a place-holder value or an error message.
      */
     boolean isSpecialValue();
 
@@ -52,8 +50,7 @@ public interface IManagedProperty extends Serializable
     void setValue(String value);
 
     /**
-     * Return an object which allows to manage data for the user interface (input as well as
-     * output).
+     * Return an object which allows to manage data for the user interface (input as well as output).
      */
     IManagedUiDescription getUiDescription();
 }

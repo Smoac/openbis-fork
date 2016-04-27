@@ -56,11 +56,12 @@ public class QueryServiceJsonServer extends AbstractApiJsonServiceExporter
     }
 
     @RequestMapping(
-            { IQueryApiServer.JSON_SERVICE_URL, "/openbis" + IQueryApiServer.JSON_SERVICE_URL })    
+    { IQueryApiServer.JSON_SERVICE_URL, "/openbis" + IQueryApiServer.JSON_SERVICE_URL })
     @Override
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException,
-            IOException {
+            IOException
+    {
         super.handleRequest(request, response);
-    }    
+    }
 }

@@ -24,16 +24,16 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 
 /**
- * Collections of {@link NewExternalData}, {@link NewExperiment}. 
+ * Collections of {@link NewExternalData}, {@link NewExperiment}.
  *
  * @author Franz-Josef Elmer
  */
 public class EntityCollectionForCreationOrUpdate implements Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
-    
+
     private final List<NewExperiment> newExperiments = new ArrayList<NewExperiment>();
-    
+
     private final List<NewExternalData> newDataSets = new ArrayList<NewExternalData>();
 
     public List<NewExperiment> getNewExperiments()

@@ -50,8 +50,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
  */
 @Entity
 @Table(name = TableNames.DATA_TYPES_TABLE, uniqueConstraints =
-    { @UniqueConstraint(columnNames =
-        { ColumnNames.CODE_COLUMN }) })
+{ @UniqueConstraint(columnNames =
+{ ColumnNames.CODE_COLUMN }) })
 public final class DataTypePE implements IIdHolder, Serializable, Comparable<DataTypePE>
 {
     private static final long serialVersionUID = IServer.VERSION;

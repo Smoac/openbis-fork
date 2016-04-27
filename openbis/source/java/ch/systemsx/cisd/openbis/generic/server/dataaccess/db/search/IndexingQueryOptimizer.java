@@ -44,10 +44,9 @@ public class IndexingQueryOptimizer
     }
 
     /**
-     * Modifies a Criteria instance to optimize database queries that are used to do full text
-     * indexing. Sets fetch mode to FetchMode.JOIN for all properties of an entity class that are
-     * either annotated with IndexedEmbedded or they are eagerly fetched associations annotated with
-     * OneToOne, ManyToOne, OneToMany or ManyToMany.
+     * Modifies a Criteria instance to optimize database queries that are used to do full text indexing. Sets fetch mode to FetchMode.JOIN for all
+     * properties of an entity class that are either annotated with IndexedEmbedded or they are eagerly fetched associations annotated with OneToOne,
+     * ManyToOne, OneToMany or ManyToMany.
      * 
      * @param clazz Entity class whose instances are to be queried
      * @param criteria Criteria query to be optimized

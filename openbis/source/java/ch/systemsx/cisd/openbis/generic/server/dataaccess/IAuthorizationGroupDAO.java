@@ -38,8 +38,7 @@ public interface IAuthorizationGroupDAO extends IGenericDAO<AuthorizationGroupPE
     public void create(AuthorizationGroupPE authorizationGroup);
 
     /**
-     * Returns the authorization group with given code located in home database or null if no such
-     * group exists.
+     * Returns the authorization group with given code located in home database or null if no such group exists.
      */
     public AuthorizationGroupPE tryFindByCode(String code);
 }

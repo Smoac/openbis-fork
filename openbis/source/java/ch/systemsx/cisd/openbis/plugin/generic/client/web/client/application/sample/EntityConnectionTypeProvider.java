@@ -25,8 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDirectlyConnectedController;
 
 /**
- * Class capsulating a {@link CheckBox} and delegating check box changes to an associated
- * {@link IDelegatedAction}.
+ * Class capsulating a {@link CheckBox} and delegating check box changes to an associated {@link IDelegatedAction}.
  * 
  * @author Franz-Josef Elmer
  */

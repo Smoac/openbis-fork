@@ -28,8 +28,8 @@ import java.util.List;
 public interface IManagedUiDescription extends Serializable
 {
     /**
-     * Sets the given table model to define an output that will be shown in detail view of the
-     * entity owning the property. The table will be shown in an extra tab.
+     * Sets the given table model to define an output that will be shown in detail view of the entity owning the property. The table will be shown in
+     * an extra tab.
      */
     void useTableOutput(ITableModel tableModel);
 
@@ -39,14 +39,12 @@ public interface IManagedUiDescription extends Serializable
     void useHtmlOutput(String htmlString);
 
     /**
-     * Adds a table action with given name to actions that can be performed in the user interface
-     * for modification of the managed property.
+     * Adds a table action with given name to actions that can be performed in the user interface for modification of the managed property.
      */
     IManagedUiTableAction addTableAction(String name);
 
     /**
-     * Adds an action with given <var>name</var> to actions that can be performed in the user
-     * interface for modification of the managed property.
+     * Adds an action with given <var>name</var> to actions that can be performed in the user interface for modification of the managed property.
      * <p>
      * NOTE: currently there is only support for table actions
      */
@@ -58,8 +56,7 @@ public interface IManagedUiDescription extends Serializable
     List<IManagedUiAction> getActions();
 
     /**
-     * Returns description of the widget that will be shown in detail view of the entity owning the
-     * property.
+     * Returns description of the widget that will be shown in detail view of the entity owning the property.
      */
     IManagedOutputWidgetDescription getOutputWidgetDescription();
 

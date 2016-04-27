@@ -22,7 +22,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 public class ImageTableCell implements ISerializableComparable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
+
     private static final String SLASH = "/";
 
     private static String getPath(String dataSetCode, String dataSetLocation, String originalPath)
@@ -36,7 +36,7 @@ public class ImageTableCell implements ISerializableComparable
         String relativePath = originalPath.substring(indexOfLocation + dataSetLocation.length());
         return getPath(dataSetCode, relativePath);
     }
-    
+
     private static String getPath(String dataSetCode, String relativePath)
     {
         String delimiter = "";
@@ -52,16 +52,15 @@ public class ImageTableCell implements ISerializableComparable
     private int maxThumbnailWidth;
 
     private int maxThumbnailHeight;
-    
+
     public ImageTableCell(String dataSetCode, String dataSetLocation, String originalPath,
             int maxThumbnailWidth, int maxThumbnailHeight)
     {
         this(getPath(dataSetCode, dataSetLocation, originalPath), maxThumbnailWidth, maxThumbnailHeight);
     }
-    
+
     /**
-     * @param relativePathFromDataSetRoot the relative path to this image file starting from the
-     *            data set root.
+     * @param relativePathFromDataSetRoot the relative path to this image file starting from the data set root.
      */
     public ImageTableCell(String dataSetCode, String relativePathFromDataSetRoot,
             int maxThumbnailWidth,
@@ -77,17 +76,17 @@ public class ImageTableCell implements ISerializableComparable
         this.maxThumbnailWidth = maxThumbnailWidth;
         this.maxThumbnailHeight = maxThumbnailHeight;
     }
-    
+
     public String getPath()
     {
         return path;
     }
-    
+
     public int getMaxThumbnailWidth()
     {
         return maxThumbnailWidth;
     }
-    
+
     public int getMaxThumbnailHeight()
     {
         return maxThumbnailHeight;
@@ -104,19 +103,19 @@ public class ImageTableCell implements ISerializableComparable
     {
         return this == obj || (obj instanceof ImageTableCell && ((ImageTableCell) obj).path.equals(path));
     }
-    
+
     @Override
     public int hashCode()
     {
         return path.hashCode();
     }
-    
+
     @Override
     public String toString()
     {
         return path;
     }
-    
+
     // ---------------------------
 
     // GWT only
@@ -125,4 +124,3 @@ public class ImageTableCell implements ISerializableComparable
     {
     }
 }
-

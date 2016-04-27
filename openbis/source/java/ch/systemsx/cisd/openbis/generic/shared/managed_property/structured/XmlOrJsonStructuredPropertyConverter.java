@@ -24,8 +24,8 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElement;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IStructuredPropertyConverter;
 
 /**
- * An implementation of {@link IStructuredPropertyConverter}, that translates elements either to XML
- * or to JSON and that can translate back both formats.
+ * An implementation of {@link IStructuredPropertyConverter}, that translates elements either to XML or to JSON and that can translate back both
+ * formats.
  * 
  * @author Bernd Rinn
  */

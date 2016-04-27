@@ -20,8 +20,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataP
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
- * An <i>abstract</i> <code>IValidator</code> implementation which mainly checks method parameters
- * before doing the real work.
+ * An <i>abstract</i> <code>IValidator</code> implementation which mainly checks method parameters before doing the real work.
  * 
  * @author Christian Ribeaud
  */

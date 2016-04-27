@@ -19,14 +19,14 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 /**
  * Names of standard portlets.
  * <p>
- * Portlet names are part of a {@link PortletConfiguration} instance. Because a portlet
- * configuration is stored in the personal {@link DisplaySettings} of a user a CHANGE OF PORTLET
- * NAMES MIGHT LEAD TO A LOST OF PERSONAL SETTINGS
+ * Portlet names are part of a {@link PortletConfiguration} instance. Because a portlet configuration is stored in the personal
+ * {@link DisplaySettings} of a user a CHANGE OF PORTLET NAMES MIGHT LEAD TO A LOST OF PERSONAL SETTINGS
  * 
  * @author Franz-Josef Elmer
  */
 public class StandardPortletNames
 {
     public static final String WELCOME = "Welcome";
+
     public static final String HISTORY = "History";
 }

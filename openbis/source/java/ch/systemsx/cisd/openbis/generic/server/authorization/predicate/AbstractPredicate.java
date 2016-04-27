@@ -28,8 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleL
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
- * An <i>abstract</i> <code>IPredicate</code> implementation which mainly checks method parameters
- * before doing the real work.
+ * An <i>abstract</i> <code>IPredicate</code> implementation which mainly checks method parameters before doing the real work.
  * 
  * @author Christian Ribeaud
  */
@@ -50,8 +49,7 @@ public abstract class AbstractPredicate<T> implements IPredicate<T>
             final List<RoleWithIdentifier> allowedRoles, final T value);
 
     /**
-     * Is the checked value allowed to be <code>null</code>, <code>false</code> by default.
-     * Can be overridden in sub-classes.
+     * Is the checked value allowed to be <code>null</code>, <code>false</code> by default. Can be overridden in sub-classes.
      */
     protected boolean isNullValueAllowed()
     {
@@ -59,8 +57,7 @@ public abstract class AbstractPredicate<T> implements IPredicate<T>
     }
 
     /**
-     * Returns <code>true</code> if <var>allowedRoles</var> contains a role that allows writing to
-     * all entities.
+     * Returns <code>true</code> if <var>allowedRoles</var> contains a role that allows writing to all entities.
      */
     public static Status hasInstanceWritePermissions(PersonPE aPerson,
             List<RoleWithIdentifier> allowedRoles)
@@ -82,8 +79,7 @@ public abstract class AbstractPredicate<T> implements IPredicate<T>
     }
 
     /**
-     * Returns <code>true</code> if <var>allowedRoles</var> contains a role that allows reading all
-     * entities.
+     * Returns <code>true</code> if <var>allowedRoles</var> contains a role that allows reading all entities.
      */
     public static Status hasInstanceReadPermissions(PersonPE aPerson,
             List<RoleWithIdentifier> allowedRoles)

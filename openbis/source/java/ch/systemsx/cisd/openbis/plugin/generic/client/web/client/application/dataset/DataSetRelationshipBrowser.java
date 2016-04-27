@@ -32,8 +32,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
- * {@link AbstractExternalDataGrid} containing data sets directly connected with a specified data
- * set being in a specified relationship role (parent/child).
+ * {@link AbstractExternalDataGrid} containing data sets directly connected with a specified data set being in a specified relationship role
+ * (parent/child).
  * 
  * @author Piotr Buczek
  */

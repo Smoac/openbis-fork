@@ -23,8 +23,8 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * A model for reporting plug-ins of type DSS_LINK. It keeps the different parts of the URL separate
- * so that users can easily use only the parts they need.
+ * A model for reporting plug-ins of type DSS_LINK. It keeps the different parts of the URL separate so that users can easily use only the parts they
+ * need.
  * <p>
  * The url is broken into schemAndDomain, path, and query parameters. An example: <br>
  * https://openbis.ethz.ch/datastore_server/2010093083732894?param1=482745&param2=something
@@ -34,8 +34,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * <li>param1=482745&param2=something <b>[parameters]</b></li>
  * </ul>
  * <p>
- * LinkModels returned by the server do not (necessarily) contain a sessionID. The client should
- * provide the session Id to the LinkModel before using it.
+ * LinkModels returned by the server do not (necessarily) contain a sessionID. The client should provide the session Id to the LinkModel before using
+ * it.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -167,8 +167,8 @@ public class LinkModel implements Serializable
     }
 
     /**
-     * The session token is a special parameter. It is returned as one of the parameters by
-     * {@link #getParameters()}, but it can be retrieved directly this way.
+     * The session token is a special parameter. It is returned as one of the parameters by {@link #getParameters()}, but it can be retrieved directly
+     * this way.
      */
     public String trySessionId()
     {

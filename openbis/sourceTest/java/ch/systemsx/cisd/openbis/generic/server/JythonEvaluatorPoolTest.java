@@ -213,13 +213,13 @@ public class JythonEvaluatorPoolTest
                 {
                     return pool.getManagedPropertiesRunner(script).evaluate(
                             new IAtomicEvaluation<IJythonEvaluator>()
-                        {
-                            @Override
-                            public IJythonEvaluator evaluate(IJythonEvaluator evaluator)
-                            {
-                                return evaluator;
-                            }
-                        });
+                                {
+                                    @Override
+                                    public IJythonEvaluator evaluate(IJythonEvaluator evaluator)
+                                    {
+                                        return evaluator;
+                                    }
+                                });
                 }
             };
     }
@@ -235,17 +235,17 @@ public class JythonEvaluatorPoolTest
                 {
                     return pool.getManagedPropertiesRunner(script).evaluate(
                             new IAtomicEvaluation<Integer>()
-                        {
-                            @Override
-                            public Integer evaluate(IJythonEvaluator evaluator)
-                            {
-                                Integer x =
-                                        (Integer) evaluator
-                                                .evalFunction("return_x_if_defined_else_0");
-                                evaluator.evalFunction("set_x", 3);
-                                return x;
-                            }
-                        });
+                                {
+                                    @Override
+                                    public Integer evaluate(IJythonEvaluator evaluator)
+                                    {
+                                        Integer x =
+                                                (Integer) evaluator
+                                                        .evalFunction("return_x_if_defined_else_0");
+                                        evaluator.evalFunction("set_x", 3);
+                                        return x;
+                                    }
+                                });
                 }
             };
     }

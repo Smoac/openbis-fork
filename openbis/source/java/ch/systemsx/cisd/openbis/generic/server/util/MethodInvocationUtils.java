@@ -43,12 +43,10 @@ public class MethodInvocationUtils
     }
 
     /**
-     * Returns either the method of the specified {@link MethodInvocation} object or the method of
-     * the target object. The later is returned if <code>methodInvocation.getMethod()</code> has
-     * none the specified annotations and the target object class isn't a synthetic proxy class.
+     * Returns either the method of the specified {@link MethodInvocation} object or the method of the target object. The later is returned if
+     * <code>methodInvocation.getMethod()</code> has none the specified annotations and the target object class isn't a synthetic proxy class.
      * <p>
-     * This function should be used if it isn't known whether the interface of a proxy or the real
-     * target has the annotation.
+     * This function should be used if it isn't known whether the interface of a proxy or the real target has the annotation.
      */
     public static Method getMethod(final MethodInvocation methodInvocation,
             List<Class<? extends Annotation>> annotationClasses) throws NoSuchMethodException

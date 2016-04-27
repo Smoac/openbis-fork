@@ -102,7 +102,7 @@ public class UpdateSampleParentsTest extends BaseTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void sampleCantBeItsOwnParent() throws Exception
     {
         Sample sample = create(aSample().inSpace(space));
@@ -111,7 +111,7 @@ public class UpdateSampleParentsTest extends BaseTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void sampleCantBeItsOwnGrandParent() throws Exception
     {
         Sample parent = create(aSample().inSpace(space));
@@ -133,7 +133,7 @@ public class UpdateSampleParentsTest extends BaseTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void childCannotBeShared() throws Exception
     {
         Sample parent = create(aSample().inSpace(space));
@@ -163,7 +163,7 @@ public class UpdateSampleParentsTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAddParentToSample", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void addingParentToSampleIsNotAllowedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
@@ -193,7 +193,7 @@ public class UpdateSampleParentsTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAddParentToSample", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void addingParentToSampleInDifferentSpaceIsNotAllowedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
@@ -224,7 +224,7 @@ public class UpdateSampleParentsTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAddParentToSample", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void removingParentToSampleIsNotAllowedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {

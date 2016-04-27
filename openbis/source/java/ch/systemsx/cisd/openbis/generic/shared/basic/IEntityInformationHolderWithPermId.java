@@ -17,8 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
 /**
- * Contains the information stored in both {@link IPermIdHolder} and
- * {@link IEntityInformationHolder}.
+ * Contains the information stored in both {@link IPermIdHolder} and {@link IEntityInformationHolder}.
  * 
  * @author Tomasz Pylak
  */

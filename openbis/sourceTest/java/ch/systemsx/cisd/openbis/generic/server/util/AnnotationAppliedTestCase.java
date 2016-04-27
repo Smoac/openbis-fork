@@ -30,16 +30,14 @@ import org.testng.AssertJUnit;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 
 /**
- * Test case for test classes testing whether an interface and/or its implementation have all
- * mandatory annotations.
+ * Test case for test classes testing whether an interface and/or its implementation have all mandatory annotations.
  * 
  * @author Franz-Josef Elmer
  */
 public class AnnotationAppliedTestCase extends AssertJUnit
 {
     /**
-     * Asserts that the specified class is an interface and all its methods have the annotations
-     * {@link RolesAllowed} and {@link Transactional}.
+     * Asserts that the specified class is an interface and all its methods have the annotations {@link RolesAllowed} and {@link Transactional}.
      */
     protected void assertMandatoryMethodAnnotations(Class<?> interfaceClass, List<String> exemptMethods)
     {
@@ -47,9 +45,8 @@ public class AnnotationAppliedTestCase extends AssertJUnit
     }
 
     /**
-     * Asserts that the specified interface class is an interface, the implementing class really
-     * implements that interface, and all interface methods or their implementations have the
-     * annotations {@link RolesAllowed} and {@link Transactional}.
+     * Asserts that the specified interface class is an interface, the implementing class really implements that interface, and all interface methods
+     * or their implementations have the annotations {@link RolesAllowed} and {@link Transactional}.
      */
     protected void assertMandatoryMethodAnnotations(Class<?> interfaceClass,
             Class<?> implementingClass, List<String> exemptMethods)
@@ -58,10 +55,8 @@ public class AnnotationAppliedTestCase extends AssertJUnit
     }
 
     /**
-     * Asserts that the specified interface class is an interface, the implementing class really
-     * implements that interface, and all interface methods or their implementations have the
-     * annotations {@link RolesAllowed} and {@link Transactional}. The specified exceptions are
-     * allowed.
+     * Asserts that the specified interface class is an interface, the implementing class really implements that interface, and all interface methods
+     * or their implementations have the annotations {@link RolesAllowed} and {@link Transactional}. The specified exceptions are allowed.
      */
     protected void assertMandatoryMethodAnnotations(Class<?> interfaceClass,
             Class<?> implementingClass, String exceptions, List<String> exemptMethods)
@@ -76,9 +71,8 @@ public class AnnotationAppliedTestCase extends AssertJUnit
     }
 
     /**
-     * Asserts that the specified interface class is an interface, the implementing class really
-     * implements that interface, and all interface methods or their implementations have the
-     * specified annotations. The specified exceptions are allowed.
+     * Asserts that the specified interface class is an interface, the implementing class really implements that interface, and all interface methods
+     * or their implementations have the specified annotations. The specified exceptions are allowed.
      */
     protected void assertMandatoryMethodAnnotations(
             List<Class<? extends Annotation>> mandatoryAnnotations, Class<?> interfaceClass,
@@ -103,10 +97,11 @@ public class AnnotationAppliedTestCase extends AssertJUnit
             });
         for (Method interfaceMethod : declaredMethods)
         {
-            if(exemptMethods != null && exemptMethods.contains(interfaceMethod.getName())) {
+            if (exemptMethods != null && exemptMethods.contains(interfaceMethod.getName()))
+            {
                 continue;
             }
-             
+
             List<String> missingAnnotations = new ArrayList<String>();
             for (Class<? extends Annotation> annotationClass : mandatoryAnnotations)
             {

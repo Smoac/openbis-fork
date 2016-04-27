@@ -20,12 +20,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * An {@link IElement} is an object that can be transparently converted to {@link String} (see
- * {@link IStructuredPropertyConverter}) e.g. when we want to save the value of a structured
- * (managed) property.
+ * An {@link IElement} is an object that can be transparently converted to {@link String} (see {@link IStructuredPropertyConverter}) e.g. when we want
+ * to save the value of a structured (managed) property.
  * <p>
- * {@link IElement}-s are meant to be used as a convenient, hierarchical property-value persistence
- * technique for managed properties.
+ * {@link IElement}-s are meant to be used as a convenient, hierarchical property-value persistence technique for managed properties.
  * 
  * @author Piotr Buczek
  * @author Kaloyan Enimanev
@@ -46,14 +44,12 @@ public interface IElement
     String getAttribute(String key);
 
     /**
-     * @return the value of an attribute or <code>defaultValue</code> if the attribute is not
-     *         defined for this {@link IElement}
+     * @return the value of an attribute or <code>defaultValue</code> if the attribute is not defined for this {@link IElement}
      */
     String getAttribute(String key, String defaultValue);
 
     /**
-     * The "Data" field is intended for a chunk raw data that can be attached to an element
-     * instance. This might be useful in scenarios where
+     * The "Data" field is intended for a chunk raw data that can be attached to an element instance. This might be useful in scenarios where
      */
     String getData();
 

@@ -65,8 +65,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 
 /**
- * A {@link AbstractGenericEntityRegistrationForm} extension for registering and editing
- * experiments.
+ * A {@link AbstractGenericEntityRegistrationForm} extension for registering and editing experiments.
  * 
  * @author Izabela Adamczyk
  */

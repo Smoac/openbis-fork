@@ -29,11 +29,10 @@ import ch.systemsx.cisd.openbis.generic.shared.util.IRowBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 
 /**
- * An {@link ISimpleTableModelBuilderAdaptor} implementation adapting
- * {@link SimpleTableModelBuilder}.
+ * An {@link ISimpleTableModelBuilderAdaptor} implementation adapting {@link SimpleTableModelBuilder}.
  * <p>
- * The intent of the interface and adaptor is not to expose {@link SimpleTableModelBuilder}
- * interface in Managed Property API and optionally add convenience methods for scripts.
+ * The intent of the interface and adaptor is not to expose {@link SimpleTableModelBuilder} interface in Managed Property API and optionally add
+ * convenience methods for scripts.
  * 
  * @author Piotr Buczek
  */

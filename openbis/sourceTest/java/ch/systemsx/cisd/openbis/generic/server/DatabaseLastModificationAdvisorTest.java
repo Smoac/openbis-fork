@@ -107,13 +107,13 @@ public class DatabaseLastModificationAdvisorTest extends AssertJUnit
     private Method getCreateMethod() throws Exception
     {
         return ICommonServer.class.getMethod("registerDataSetType", new Class[]
-            { String.class, DataSetType.class });
+        { String.class, DataSetType.class });
     }
 
     private Method getUpdateMethod() throws Exception
     {
         return ICommonServer.class.getMethod("updateDataSet", new Class[]
-            { String.class, DataSetUpdatesDTO.class });
+        { String.class, DataSetUpdatesDTO.class });
     }
 
     private void waitForClockChange()

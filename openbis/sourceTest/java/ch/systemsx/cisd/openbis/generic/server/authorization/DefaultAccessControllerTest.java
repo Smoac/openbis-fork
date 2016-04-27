@@ -90,7 +90,7 @@ public final class DefaultAccessControllerTest
         try
         {
             FileUtils.writeLines(capFile,
-                    Arrays.asList("# Test overriding annotation", 
+                    Arrays.asList("# Test overriding annotation",
                             "MY_CAP: SPACE_OBSERVER; ARG1 = SPACE_USER",
                             "my_cap2: arg1 = space_user"));
         } catch (IOException ex)
@@ -114,7 +114,7 @@ public final class DefaultAccessControllerTest
                 {
                     allowing(daoFactory).getProjectDAO();
                     will(returnValue(projectDAO));
-                    
+
                     allowing(projectDAO).tryGetByPermID("42");
                     will(returnValue(project));
                 }
@@ -272,7 +272,7 @@ public final class DefaultAccessControllerTest
     {
         final IAuthSession session = AuthorizationTestUtil.createSession();
         session.tryGetPerson().setRoleAssignments(createRoleAssignments());
-        final Method method = MyInterface.class.getMethod("myMethodWithGardedArgument", 
+        final Method method = MyInterface.class.getMethod("myMethodWithGardedArgument",
                 String.class, String.class, String.class);
         assertNotNull(method);
         Argument<?>[] arguments = createArguments(method);
@@ -290,19 +290,19 @@ public final class DefaultAccessControllerTest
     {
         final IAuthSession session = AuthorizationTestUtil.createSession();
         session.tryGetPerson().setRoleAssignments(createRoleAssignments());
-        final Method method = MyInterface.class.getMethod("myMethodWithGardedArgument", 
+        final Method method = MyInterface.class.getMethod("myMethodWithGardedArgument",
                 String.class, String.class, String.class);
         assertNotNull(method);
         Argument<?>[] arguments = createArguments(method);
         project.setId(1L);
-        
+
         final Status authorized = accessController.isAuthorized(session, method, arguments);
-        
+
         assertEquals("ERROR", authorized.toString());
         assertEquals("person: john_doe, roles: [INSTANCE_OBSERVER, SPACE_USER], value: arg0", project.getDescription());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testIsNotAuthorizedWithGardedArgumentWithDifferentRoles() throws Exception
     {
@@ -320,7 +320,7 @@ public final class DefaultAccessControllerTest
         assertEquals(null, project.getDescription());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testIsAuthorizedWithGardedArgumentWithRolesOverridden() throws Exception
     {
@@ -330,9 +330,9 @@ public final class DefaultAccessControllerTest
                 String.class, String.class);
         assertNotNull(method);
         Argument<?>[] arguments = createArguments(method);
-        
+
         final Status authorized = accessController.isAuthorized(session, method, arguments);
-        
+
         assertEquals("OK", authorized.toString());
         assertEquals("person: john_doe, roles: [SPACE_USER], value: arg0", project.getDescription());
         context.assertIsSatisfied();
@@ -347,14 +347,14 @@ public final class DefaultAccessControllerTest
                 String.class, String.class);
         assertNotNull(method);
         Argument<?>[] arguments = createArguments(method);
-        
+
         final Status authorized = accessController.isAuthorized(session, method, arguments);
-        
+
         assertEquals("OK", authorized.toString());
         assertEquals("person: john_doe, roles: [SPACE_USER], value: arg0", project.getDescription());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testIsAuthorizedWithGardedArgumentWithRolesOverridden3() throws Exception
     {
@@ -364,15 +364,15 @@ public final class DefaultAccessControllerTest
                 String.class, String.class, String.class);
         assertNotNull(method);
         Argument<?>[] arguments = createArguments(method);
-        
+
         final Status authorized = accessController.isAuthorized(session, method, arguments);
-        
+
         assertEquals("ERROR: \"None of method roles '[SPACE_POWER_USER, SPACE_ADMIN, INSTANCE_ADMIN]' "
                 + "could be found in roles of user 'John Doe'.\"", authorized.toString());
         assertEquals(null, project.getDescription());
         context.assertIsSatisfied();
     }
-    
+
     private Argument<?>[] createArguments(final Method method)
     {
         List<Argument<?>> arguments = new ArrayList<>();
@@ -414,38 +414,33 @@ public final class DefaultAccessControllerTest
         public void myMethodWithUngardedArgument(String sessionToken, String argument1);
 
         @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-        public void myMethodWithGardedArgument(String sessionToken,  
+        public void myMethodWithGardedArgument(String sessionToken,
                 @AuthorizationGuard(guardClass = MockPredicate.class) String argument1,
                 @AuthorizationGuard(guardClass = MockPredicate.class) String argument2);
 
         @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
         public void myMethodWithGardedArgumentWithDifferentRoles(String sessionToken,
                 @AuthorizationGuard(guardClass = MockPredicate.class,
-                        rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER })
-                String argument1);
-        
+                        rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER }) String argument1);
+
         @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
         @Capability("MY_CAP")
         public void myMethodWithGardedArgumentWithRolesOverridden(String sessionToken,
                 @AuthorizationGuard(name = "ARG1", guardClass = MockPredicate.class,
-                        rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER })
-                String argument1);
+                        rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER }) String argument1);
 
         @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
         @Capability("MY_CAP2")
         public void myMethodWithGardedArgumentWithRolesOverridden2(String sessionToken,
                 @AuthorizationGuard(name = "ARG1", guardClass = MockPredicate.class,
-                        rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER })
-                String argument1);
+                        rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER }) String argument1);
 
         @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
         public void myMethodWithGardedArgumentWithRolesOverridden3(String sessionToken,
                 @AuthorizationGuard(name = "ARG1", guardClass = MockPredicate.class,
-                        rolesAllowed = { RoleWithHierarchy.SPACE_POWER_USER })
-                String argument1,
+                        rolesAllowed = { RoleWithHierarchy.SPACE_POWER_USER }) String argument1,
                 @AuthorizationGuard(name = "ARG2", guardClass = MockPredicate.class,
-                rolesAllowed = { RoleWithHierarchy.SPACE_USER })
-                String argument2);
+                        rolesAllowed = { RoleWithHierarchy.SPACE_USER }) String argument2);
     }
 
     /**
@@ -464,7 +459,7 @@ public final class DefaultAccessControllerTest
                 roles.add(roleWithIdentifier.getRole());
             }
             Collections.sort(roles);
-            
+
             String description = "person: " + person.getUserId() + ", roles: " + roles + ", value: " + valueOrNull;
             if (project.getDescription() != null)
             {

@@ -33,8 +33,8 @@ public interface IPropertyTypeBO extends IBusinessObject
     /**
      * Defines a new property type.
      * <p>
-     * After invocation of this method {@link IBusinessObject#save()} should be invoked to store the
-     * new property type in the <i>Data Access Layer</i>.
+     * After invocation of this method {@link IBusinessObject#save()} should be invoked to store the new property type in the <i>Data Access
+     * Layer</i>.
      * </p>
      * 
      * @throws UserFailureException if <var>propertyType</var> does already exist.

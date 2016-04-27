@@ -47,8 +47,8 @@ final class UpdatedSampleParserObjectFactory extends NewSampleParserObjectFactor
     }
 
     /**
-     * Prepares details about which values should be updated in general taking into account only the
-     * information about availability of columns in the file.
+     * Prepares details about which values should be updated in general taking into account only the information about availability of columns in the
+     * file.
      */
     private SampleBatchUpdateDetails createBasicBatchUpdateDetails()
     {
@@ -85,8 +85,8 @@ final class UpdatedSampleParserObjectFactory extends NewSampleParserObjectFactor
     //
 
     /**
-     * Returns details about which values should be updated for the specified sample. If a cell was
-     * left empty in the file the corresponding value will not be modified.
+     * Returns details about which values should be updated for the specified sample. If a cell was left empty in the file the corresponding value
+     * will not be modified.
      */
     private SampleBatchUpdateDetails createBatchUpdateDetails(NewSample newSample)
     {

@@ -37,7 +37,7 @@ public final class GenericSharedConstants
     /** Part of the URL of the DSS service. */
     public static final String DATA_STORE_SERVER_SERVICE_NAME =
             DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/dss";
-    
+
     public static final String SESSION_ID_PARAMETER = "sessionID";
 
 }

@@ -36,9 +36,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 final class TrackingServerLogger extends AbstractServerLogger implements ITrackingServer
 {
     /**
-     * Creates an instance for the specified session manager, invocation status and elapsed time.
-     * The session manager is used to retrieve user information which will be a part of the log
-     * message.
+     * Creates an instance for the specified session manager, invocation status and elapsed time. The session manager is used to retrieve user
+     * information which will be a part of the log message.
      */
     TrackingServerLogger(final ISessionManager<Session> sessionManager,
             IInvocationLoggerContext context)

@@ -21,8 +21,7 @@ import javax.sql.DataSource;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * Interface for providing a {@link DataSource} for a technology specific database based on data set
- * code or data store server code
+ * Interface for providing a {@link DataSource} for a technology specific database based on data set code or data store server code
  * 
  * @author Franz-Josef Elmer
  */
@@ -31,8 +30,7 @@ public interface IDataSourceProvider
     /**
      * Returns an appropriated data source for specified data store server code and technology.
      * 
-     * @throws IllegalArgumentException if getting data source by data store server code isn't
-     *             supported for the specified technology.
+     * @throws IllegalArgumentException if getting data source by data store server code isn't supported for the specified technology.
      * @throws UserFailureException if the specified data store server doesn't exist.
      */
     public DataSource getDataSourceByDataStoreServerCode(String dssCode, String technology);

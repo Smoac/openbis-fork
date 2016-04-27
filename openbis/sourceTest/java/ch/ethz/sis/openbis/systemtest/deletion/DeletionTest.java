@@ -100,86 +100,86 @@ public abstract class DeletionTest extends AbstractTest
 
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
-    public Set<String> attachmentSet(String...values)
+    public Set<String> attachmentSet(String... values)
     {
         return attachmentSetFor(TEST_USER, values);
     }
-    
-    public Set<String> attachmentSetFor(String userId, String...values)
+
+    public Set<String> attachmentSetFor(String userId, String... values)
     {
         return entitySet("ATTACHMENT", userId, values);
     }
-    
-    public Set<String> unknownSet(String...values)
+
+    public Set<String> unknownSet(String... values)
     {
         return unknownSetFor(TEST_USER, values);
     }
-    
-    public Set<String> unknownSetFor(String userId, String...values)
+
+    public Set<String> unknownSetFor(String userId, String... values)
     {
         return entitySet("UNKNOWN", userId, values);
     }
-    
-    public Set<String> spaceSet(String...values)
+
+    public Set<String> spaceSet(String... values)
     {
         return spaceSetFor(TEST_USER, values);
     }
-    
-    public Set<String> spaceSetFor(String userId, String...values)
+
+    public Set<String> spaceSetFor(String userId, String... values)
     {
         return entitySet("SPACE", userId, values);
     }
-    
-    public Set<String> projectSet(String...values)
+
+    public Set<String> projectSet(String... values)
     {
         return projectSetFor(TEST_USER, values);
     }
-    
-    public Set<String> projectSetFor(String userId, String...values)
+
+    public Set<String> projectSetFor(String userId, String... values)
     {
         return entitySet("PROJECT", userId, values);
     }
-    
-    public Set<String> experimentSet(String...values)
+
+    public Set<String> experimentSet(String... values)
     {
         return experimentSetFor(TEST_USER, values);
     }
-    
-    public Set<String> experimentSetFor(String userId, String...values)
+
+    public Set<String> experimentSetFor(String userId, String... values)
     {
         return entitySet("EXPERIMENT", userId, values);
     }
 
-    public Set<String> sampleSet(String...values)
+    public Set<String> sampleSet(String... values)
     {
         return sampleSetFor(TEST_USER, values);
     }
-    
-    public Set<String> sampleSetFor(String userId, String...values)
+
+    public Set<String> sampleSetFor(String userId, String... values)
     {
         return entitySet("SAMPLE", userId, values);
     }
-    
-    public Set<String> dataSetSet(String...values)
+
+    public Set<String> dataSetSet(String... values)
     {
         return dataSetSetFor(TEST_USER, values);
     }
-    
-    public Set<String> dataSetSetFor(String userId, String...values)
+
+    public Set<String> dataSetSetFor(String userId, String... values)
     {
         return entitySet("DATA_SET", userId, values);
     }
-    
-    public Set<String> propertiesSet(String...values)
+
+    public Set<String> propertiesSet(String... values)
     {
         return set("PROPERTY", null, TEST_USER, values);
     }
-    
+
     private Set<String> entitySet(String entityType, String userId, String... values)
     {
         return set("RELATIONSHIP", entityType, userId, values);
     }
-    
+
     private Set<String> set(String type, String entityTypeOrNull, String userId, String... values)
     {
         Set<String> result = new HashSet<>();
@@ -189,7 +189,7 @@ public abstract class DeletionTest extends AbstractTest
         }
         return result;
     }
-    
+
     public Set<String> set(String... values)
     {
         return new HashSet<String>(Arrays.asList(values));
@@ -320,7 +320,7 @@ public abstract class DeletionTest extends AbstractTest
             return false;
         }
     }
-    
+
     public void assertAttachment(String permId, Set<String> attachments) throws Exception
     {
         IModificationFilter filter = new IModificationFilter()
@@ -355,7 +355,7 @@ public abstract class DeletionTest extends AbstractTest
                 @Override
                 public boolean accept(Modification modification)
                 {
-                    return modification.type.equals(AttributeEntry.ATTRIBUTE) 
+                    return modification.type.equals(AttributeEntry.ATTRIBUTE)
                             && modification.key.equals("REGISTRATION_TIMESTAMP") == false;
                 }
 
@@ -451,14 +451,14 @@ public abstract class DeletionTest extends AbstractTest
 
         if (expectedList.equals(actualValues) == false)
         {
-            
+
             Assert.assertEquals(render(actualValues), render(expectedList),
-                    filter.getDescription() + " of entity " + permId + " has wrong value history. Expected <" 
-                            + render(expectedList) + ">, actual <" + render(actualValues) + ">. Raw changes: " 
+                    filter.getDescription() + " of entity " + permId + " has wrong value history. Expected <"
+                            + render(expectedList) + ">, actual <" + render(actualValues) + ">. Raw changes: "
                             + builder);
         }
     }
-    
+
     private String render(List<Set<String>> values)
     {
         StringBuilder builder = new StringBuilder();
@@ -483,14 +483,15 @@ public abstract class DeletionTest extends AbstractTest
     {
         return currentTime == null ? change.time == null : currentTime.equals(change.time);
     }
-    
+
     private static interface IModificationFilter
     {
         public String getDescription();
+
         public boolean accept(Modification modification);
-        
+
     }
-    
+
     private static interface IChangeRenderer
     {
         public String render(Change change);
@@ -502,12 +503,12 @@ public abstract class DeletionTest extends AbstractTest
         Query query = session.createQuery("SELECT e FROM EventPE e WHERE :permId IN e.identifiersInternal").setParameter("permId", permId);
         EventPE event = (EventPE) query.uniqueResult();
         String attachmentContent = getAttachmentContent(event);
-        
+
         JsonNode tree = new ObjectMapper().reader().readTree(event.getContent());
-        
+
         List<Modification> allMods =
                 IteratorUtils.toList(IteratorUtils.transformedIterator(tree.get(permId).elements(), new JsonNodeToModificationTransformer()));
-        
+
         List<Modification> mods = new ArrayList<>();
         for (Modification mod : allMods)
         {
@@ -516,7 +517,7 @@ public abstract class DeletionTest extends AbstractTest
                 mods.add(mod);
             }
         }
-        
+
         List<Change> changes = new ArrayList<>();
         for (Modification mod : mods)
         {
@@ -527,7 +528,7 @@ public abstract class DeletionTest extends AbstractTest
                 changes.add(new Change(mod.validUntil, mod.key, mod.userId, value, attachmentContent, true));
             }
         }
-        
+
         Collections.sort(changes);
 
         return changes;
@@ -573,7 +574,7 @@ public abstract class DeletionTest extends AbstractTest
             m.validUntil = asDate(node.get("validUntil"));
             return m;
         }
-        
+
         private Date asDate(JsonNode node)
         {
             String textValue = asString(node);
@@ -585,7 +586,7 @@ public abstract class DeletionTest extends AbstractTest
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
         }
-        
+
         private String asString(JsonNode node)
         {
             if (node == null)
@@ -599,13 +600,13 @@ public abstract class DeletionTest extends AbstractTest
     private static class Modification
     {
         public String userId;
-        
+
         public String type;
-        
+
         public String key;
 
         public String value;
-        
+
         public String entityType;
 
         public Date validFrom;

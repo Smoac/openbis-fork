@@ -28,8 +28,8 @@ import ch.systemsx.cisd.openbis.generic.shared.IRemoteHostValidator;
  */
 public class WhiteListBasedRemoteHostValidator implements IRemoteHostValidator
 {
-    
-    private final  Set<String> allowedRemoteHosts;
+
+    private final Set<String> allowedRemoteHosts;
 
     public WhiteListBasedRemoteHostValidator(String commaSeparatedListOfAllowedRemoteHosts)
     {
@@ -43,12 +43,12 @@ public class WhiteListBasedRemoteHostValidator implements IRemoteHostValidator
             }
         }
     }
-    
+
     public void removeRemoteHost(String remoteHost)
     {
         allowedRemoteHosts.remove(remoteHost);
     }
-    
+
     public void addRemoteHost(String remoteHost)
     {
         allowedRemoteHosts.add(remoteHost);
