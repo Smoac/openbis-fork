@@ -33,18 +33,20 @@ public final class DataSetType extends EntityType
     private static final long serialVersionUID = 1L;
 
     /**
-     * Class used to initialize a new {@link DataSetType} instance. Necessary since all the fields
-     * of a {@link DataSetType} are final.
+     * Class used to initialize a new {@link DataSetType} instance. Necessary since all the fields of a {@link DataSetType} are final.
      * 
      * @author Chandrasekhar Ramakrishnan
      */
     public static final class DataSetTypeInitializer extends EntityTypeInitializer
     {
         private boolean deletionDisallowed;
+
         private DataSetKind dataSetKind;
+
         private String mainDataSetPattern;
+
         private String mainDataSetPath;
-        
+
         public DataSetTypeInitializer()
         {
             super();
@@ -89,12 +91,15 @@ public final class DataSetType extends EntityType
         {
             this.mainDataSetPath = mainDataSetPath;
         }
-        
+
     }
-    
+
     private boolean deletionDisallowed;
+
     private DataSetKind dataSetKind;
+
     private String mainDataSetPattern;
+
     private String mainDataSetPath;
 
     /**
@@ -110,7 +115,7 @@ public final class DataSetType extends EntityType
         mainDataSetPattern = initializer.getMainDataSetPattern();
         mainDataSetPath = initializer.getMainDataSetPath();
     }
-    
+
     /**
      * Returns <code>true</code> if deletion for data sets of this type are disallowed.
      */

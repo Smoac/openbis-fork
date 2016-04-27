@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.filter;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 
-
 /**
  * Interface filters of {@link DataSet} instances.
  *

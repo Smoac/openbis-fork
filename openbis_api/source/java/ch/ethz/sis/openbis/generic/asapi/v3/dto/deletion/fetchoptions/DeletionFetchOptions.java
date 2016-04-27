@@ -76,6 +76,7 @@ public class DeletionFetchOptions extends FetchOptions<Deletion> implements Seri
     {
         return sort;
     }
+
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

@@ -58,8 +58,7 @@ public final class DataSet implements Serializable, IIdHolder
     }
 
     /**
-     * Class used to initialize a new data set instance. Necessary since all the fields of a DataSet
-     * are final.
+     * Class used to initialize a new data set instance. Necessary since all the fields of a DataSet are final.
      * 
      * @author Chandrasekhar Ramakrishnan
      */
@@ -94,7 +93,7 @@ public final class DataSet implements Serializable, IIdHolder
         private List<DataSet> containedDataSets = Collections.emptyList();
 
         private List<DataSet> containerDataSets = Collections.emptyList();
-        
+
         private HashMap<String, String> properties = new LinkedHashMap<String, String>();
 
         private List<Metaproject> metaprojects = new ArrayList<Metaproject>();
@@ -316,7 +315,7 @@ public final class DataSet implements Serializable, IIdHolder
         {
             this.isPostRegistered = isPostRegistered;
         }
-        
+
     }
 
     private Long id;
@@ -363,7 +362,7 @@ public final class DataSet implements Serializable, IIdHolder
     private boolean isStub;
 
     private boolean isPostRegistered;
-    
+
     /**
      * Creates a new instance with the provided initializer
      * 
@@ -433,11 +432,9 @@ public final class DataSet implements Serializable, IIdHolder
     /**
      * Returns the identifier of the Experiment to which this data set belongs.
      * 
-     * @return <code>null</code> if this data set belongs to a sample without experiment.
-     *         If both {@link #getExperimentIdentifier()} and {@link #getSampleIdentifierOrNull()}
-     *         return <code>null</code> indicate that this data set is not completely filled with all information
-     *         available. That is, {@link #getProperties()},
-     *         {@link #getChildrenCodes()}, {@link #getParentCodes()}, and
+     * @return <code>null</code> if this data set belongs to a sample without experiment. If both {@link #getExperimentIdentifier()} and
+     *         {@link #getSampleIdentifierOrNull()} return <code>null</code> indicate that this data set is not completely filled with all information
+     *         available. That is, {@link #getProperties()}, {@link #getChildrenCodes()}, {@link #getParentCodes()}, and
      *         {@link #getContainedDataSets()} do not return correct results.
      */
     public String getExperimentIdentifier()
@@ -481,12 +478,10 @@ public final class DataSet implements Serializable, IIdHolder
     }
 
     /**
-     * Return the parent codes. This throws an IllegalArgumentException if the parent codes were not
-     * retrieved.
+     * Return the parent codes. This throws an IllegalArgumentException if the parent codes were not retrieved.
      * 
      * @return A list of parent data set codes or an empty list if there are no parents.
-     * @throws IllegalArgumentException Thrown if the parent codes were not retrieved from the
-     *             server.
+     * @throws IllegalArgumentException Thrown if the parent codes were not retrieved from the server.
      */
     @JsonIgnore
     public List<String> getParentCodes() throws IllegalArgumentException
@@ -502,12 +497,10 @@ public final class DataSet implements Serializable, IIdHolder
     }
 
     /**
-     * Return the children codes. This throws an IllegalArgumentException if the children codes were
-     * not retrieved.
+     * Return the children codes. This throws an IllegalArgumentException if the children codes were not retrieved.
      * 
      * @return A list of chidlren data set codes or an empty list if there are no children.
-     * @throws IllegalArgumentException Thrown if the children codes were not retrieved from the
-     *             server.
+     * @throws IllegalArgumentException Thrown if the children codes were not retrieved from the server.
      */
     @JsonIgnore
     public List<String> getChildrenCodes() throws IllegalArgumentException
@@ -546,7 +539,7 @@ public final class DataSet implements Serializable, IIdHolder
     {
         return containerDataSets.isEmpty() ? null : containerDataSets.get(0);
     }
-    
+
     /**
      * @since 1.27
      */
@@ -720,7 +713,7 @@ public final class DataSet implements Serializable, IIdHolder
     {
         // Does nothing. It is needed by Jackson.
         // With the corresponding getContainerOrNull() method Jackson creates a JSON object
-        // with attribute containerOrNull and containerDataSets. 
+        // with attribute containerOrNull and containerDataSets.
         // Currently we do not need to care about the creation of an instance of this Java class from a
         // JSON object which has both attributes set because the JSON APIs have currently no
         // method with an argument containing a DataSet object. The only exception is

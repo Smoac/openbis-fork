@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 import java.util.ArrayList;
 
 /**
- * Generic part of all entity type initializers. Such classes are used to create immutable entity
- * type classes.
+ * Generic part of all entity type initializers. Such classes are used to create immutable entity type classes.
  * 
  * @author Chandrasekhar Ramakrishnan
  * @author Franz-Josef Elmer
@@ -28,14 +27,14 @@ import java.util.ArrayList;
 public class EntityTypeInitializer
 {
     private String code;
-    
+
     private String description;
-    
+
     private ValidationPluginInfo validationPluginInfo;
 
     private ArrayList<PropertyTypeGroup> propertyTypeGroups =
             new ArrayList<PropertyTypeGroup>();
-    
+
     EntityTypeInitializer()
     {
     }

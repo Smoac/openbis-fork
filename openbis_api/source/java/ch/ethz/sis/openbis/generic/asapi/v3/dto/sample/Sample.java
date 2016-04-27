@@ -55,7 +55,9 @@ import java.util.Set;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.sample.Sample")
-public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IDataSetsHolder, IExperimentHolder, IModificationDateHolder, IModifierHolder, IParentChildrenHolder<Sample>, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder, ITagsHolder
+public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IDataSetsHolder, IExperimentHolder, IModificationDateHolder,
+        IModifierHolder, IParentChildrenHolder<Sample>, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder,
+        ITagsHolder
 {
     private static final long serialVersionUID = 1L;
 

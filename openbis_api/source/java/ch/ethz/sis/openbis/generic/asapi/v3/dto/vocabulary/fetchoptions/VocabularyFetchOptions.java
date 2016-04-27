@@ -76,6 +76,7 @@ public class VocabularyFetchOptions extends FetchOptions<Vocabulary> implements 
     {
         return sort;
     }
+
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

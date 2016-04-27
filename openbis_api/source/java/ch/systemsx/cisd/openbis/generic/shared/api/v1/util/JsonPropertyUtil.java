@@ -23,15 +23,12 @@ public class JsonPropertyUtil
 {
 
     /*
-     * Unfortunately some of our API DTOs are not in the API packages or refer to classes that are
-     * not in the API packages (for instance classes in
-     * ch.systemsx.cisd.openbis.generic.shared.basic.dto package). To make things even worse these
-     * classes are reused in both the API and in GWT. Creating a utility class that is reused by all
-     * these DTOs is therefore impossible. If that utility class is located in the API package then
-     * it won't be available in GWT. On the other hand if it is located in a GWT module then is
-     * breaks the API code independence. Until we don't fix the DTOs the best we can do is to have
-     * two JsonPropertyUtil classes. Once we have all API DTOs is the API packages the other
-     * JsonPropertyUtil class can be removed.
+     * Unfortunately some of our API DTOs are not in the API packages or refer to classes that are not in the API packages (for instance classes in
+     * ch.systemsx.cisd.openbis.generic.shared.basic.dto package). To make things even worse these classes are reused in both the API and in GWT.
+     * Creating a utility class that is reused by all these DTOs is therefore impossible. If that utility class is located in the API package then it
+     * won't be available in GWT. On the other hand if it is located in a GWT module then is breaks the API code independence. Until we don't fix the
+     * DTOs the best we can do is to have two JsonPropertyUtil classes. Once we have all API DTOs is the API packages the other JsonPropertyUtil class
+     * can be removed.
      */
 
     public static final String toStringOrNull(final Long longOrNull)

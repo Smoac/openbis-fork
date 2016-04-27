@@ -33,6 +33,6 @@ public interface IVocabularyUpdates extends IIdHolder, ICodeHolder
     String getURLTemplate();
 
     boolean isChosenFromList();
-    
+
     Date getModificationDate();
 }

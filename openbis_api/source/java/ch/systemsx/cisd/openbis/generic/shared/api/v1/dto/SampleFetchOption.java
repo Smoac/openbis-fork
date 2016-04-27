@@ -21,10 +21,9 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FetchOption;
 
 /**
- * Fetch options for
- * {@link IGeneralInformationService#searchForSamples(String, SearchCriteria, java.util.EnumSet)}.
- * The {@link Sample} objects return by the search method also contain a fetch option (
- * {@link Sample#getRetrievedFetchOptions()}) which tells which attributes are filled and which not.
+ * Fetch options for {@link IGeneralInformationService#searchForSamples(String, SearchCriteria, java.util.EnumSet)}. The {@link Sample} objects return
+ * by the search method also contain a fetch option ( {@link Sample#getRetrievedFetchOptions()}) which tells which attributes are filled and which
+ * not.
  * 
  * @author Franz-Josef Elmer
  */
@@ -32,8 +31,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FetchOption;
 public enum SampleFetchOption implements FetchOption
 {
     /**
-     * Samples will have only basic attributes (id, code, type, space code, experiment identifier,
-     * registrator, registration date, modification date) but no properties.
+     * Samples will have only basic attributes (id, code, type, space code, experiment identifier, registrator, registration date, modification date)
+     * but no properties.
      */
     BASIC,
     /**

@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.io.Serializable;
 
 /**
- * The <i>GWT</i> counterpart to
- * {@link ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind}.
+ * The <i>GWT</i> counterpart to {@link ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind}.
  * 
  * @author Christian Ribeaud
  */

@@ -49,11 +49,10 @@ public final class Experiment implements Serializable, IIdentifierHolder, IIdHol
     private static final long serialVersionUID = 1L;
 
     /**
-     * Class used to initialize a new experiment instance. Necessary since all the fields of a
-     * sample are final.
+     * Class used to initialize a new experiment instance. Necessary since all the fields of a sample are final.
      * <p>
-     * All of the properties must be filled (non-null) before being used to initialize an
-     * Experiment, otherwise the Experiment constructor will throw an exception.
+     * All of the properties must be filled (non-null) before being used to initialize an Experiment, otherwise the Experiment constructor will throw
+     * an exception.
      * 
      * @author Chandrasekhar Ramakrishnan
      */
@@ -343,7 +342,7 @@ public final class Experiment implements Serializable, IIdentifierHolder, IIdHol
     {
         this.id = id;
     }
-    
+
     @JsonProperty("id")
     private String getIdAsString()
     {

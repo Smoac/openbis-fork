@@ -206,6 +206,7 @@ public class MaterialFetchOptions extends FetchOptions<Material> implements Seri
     {
         return sort;
     }
+
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

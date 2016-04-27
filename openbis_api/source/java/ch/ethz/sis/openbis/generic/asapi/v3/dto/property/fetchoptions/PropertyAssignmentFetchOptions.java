@@ -24,8 +24,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @JsonObject("as.dto.property.fetchoptions.PropertyAssignmentFetchOptions")
@@ -33,7 +31,7 @@ public class PropertyAssignmentFetchOptions extends FetchOptions<PropertyAssignm
 {
 
     private static final long serialVersionUID = 1L;
-    
+
     @JsonProperty
     private PropertyAssignmentSortOptions sort;
 
@@ -52,7 +50,7 @@ public class PropertyAssignmentFetchOptions extends FetchOptions<PropertyAssignm
     {
         return sort;
     }
-    
+
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

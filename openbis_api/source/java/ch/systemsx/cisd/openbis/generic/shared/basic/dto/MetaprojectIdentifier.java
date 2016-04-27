@@ -21,8 +21,7 @@ import java.io.Serializable;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * Metaproject identifier representation. The identifier consists of metaproject owner id and
- * metaproject name, e.g. "/MY_USER/MY_METAPROJECT".
+ * Metaproject identifier representation. The identifier consists of metaproject owner id and metaproject name, e.g. "/MY_USER/MY_METAPROJECT".
  * 
  * @author pkupczyk
  */

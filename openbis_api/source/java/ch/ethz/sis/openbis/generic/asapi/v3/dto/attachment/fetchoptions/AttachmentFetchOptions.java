@@ -128,6 +128,7 @@ public class AttachmentFetchOptions extends FetchOptions<Attachment> implements 
     {
         return sort;
     }
+
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

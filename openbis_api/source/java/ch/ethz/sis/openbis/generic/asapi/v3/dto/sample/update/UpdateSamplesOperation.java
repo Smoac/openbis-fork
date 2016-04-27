@@ -28,11 +28,11 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public class UpdateSamplesOperation implements IOperation
 {
     private List<SampleUpdate> updates;
-    
+
     @SuppressWarnings("unused")
-    private UpdateSamplesOperation() 
+    private UpdateSamplesOperation()
     {
-    
+
     }
 
     public UpdateSamplesOperation(List<SampleUpdate> updates)

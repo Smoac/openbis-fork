@@ -27,11 +27,11 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public class BlastScore implements ISearchDomainResultScore
 {
     private static final long serialVersionUID = 1L;
-    
+
     private double score;
-    
+
     private double bitScore;
-    
+
     private double evalue;
 
     @Override
@@ -44,7 +44,7 @@ public class BlastScore implements ISearchDomainResultScore
     {
         this.score = score;
     }
-    
+
     public double getBitScore()
     {
         return bitScore;

@@ -188,7 +188,7 @@ public class Material extends MaterialIdentifier implements IIdHolder
     {
         super(null, null);
     }
-    
+
     @JsonProperty("id")
     private String getIdAsString()
     {

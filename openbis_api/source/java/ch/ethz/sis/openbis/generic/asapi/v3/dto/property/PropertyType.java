@@ -24,8 +24,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @JsonObject("as.dto.property.PropertyType")
@@ -35,16 +33,16 @@ public class PropertyType implements ICodeHolder, Serializable
 
     @JsonProperty
     private String code;
-    
+
     @JsonProperty
     private String label;
-    
+
     @JsonProperty
     private String description;
-    
+
     @JsonProperty
     private DataTypeCode dataTypeCode;
-    
+
     @JsonProperty
     private boolean internalNameSpace;
 

@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis;
 import org.testng.annotations.Test;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Test

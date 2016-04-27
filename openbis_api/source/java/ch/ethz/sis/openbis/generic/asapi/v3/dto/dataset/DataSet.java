@@ -52,7 +52,8 @@ import java.util.Set;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.dataset.DataSet")
-public class DataSet implements Serializable, ICodeHolder, IExperimentHolder, IModificationDateHolder, IModifierHolder, IParentChildrenHolder<DataSet>, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ISampleHolder, ITagsHolder
+public class DataSet implements Serializable, ICodeHolder, IExperimentHolder, IModificationDateHolder, IModifierHolder,
+        IParentChildrenHolder<DataSet>, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ISampleHolder, ITagsHolder
 {
     private static final long serialVersionUID = 1L;
 

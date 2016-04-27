@@ -24,21 +24,19 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @JsonObject("as.dto.property.fetchoptions.PropertyAssignmentSortOptions")
 public class PropertyAssignmentSortOptions extends SortOptions<PropertyAssignment>
 {
     private static final long serialVersionUID = 1L;
-    
+
     @JsonIgnore
     public static final String CODE = "CODE";
 
     @JsonIgnore
     public static final String LABEL = "LABEL";
-    
+
     public SortOrder code()
     {
         return getOrCreateSorting(CODE);
@@ -48,12 +46,12 @@ public class PropertyAssignmentSortOptions extends SortOptions<PropertyAssignmen
     {
         return getSorting(CODE);
     }
-    
+
     public SortOrder label()
     {
         return getOrCreateSorting(LABEL);
     }
-    
+
     public SortOrder getLabel()
     {
         return getSorting(LABEL);

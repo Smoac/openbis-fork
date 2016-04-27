@@ -50,6 +50,7 @@ public class DataStoreFetchOptions extends FetchOptions<DataStore> implements Se
     {
         return sort;
     }
+
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

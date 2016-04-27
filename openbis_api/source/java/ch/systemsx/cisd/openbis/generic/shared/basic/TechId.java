@@ -64,8 +64,7 @@ public class TechId implements IIdHolder, Serializable
     }
 
     /**
-     * @return Technical id with id from given <var>idHolder</var> or null if the holder does not
-     *         provide any id.
+     * @return Technical id with id from given <var>idHolder</var> or null if the holder does not provide any id.
      */
     public static TechId create(IIdHolder idHolder)
     {
@@ -105,8 +104,7 @@ public class TechId implements IIdHolder, Serializable
     }
 
     /**
-     * Convenience method for getting a list of technical ids from given list of objects with
-     * identifiers.
+     * Convenience method for getting a list of technical ids from given list of objects with identifiers.
      * 
      * @see #create(IIdHolder)
      */
@@ -203,7 +201,7 @@ public class TechId implements IIdHolder, Serializable
     //
     // JSON=RPC
     //
-    
+
     @JsonProperty("id")
     private String getIdAsString()
     {

@@ -76,6 +76,7 @@ public class ExperimentTypeFetchOptions extends FetchOptions<ExperimentType> imp
     {
         return sort;
     }
+
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

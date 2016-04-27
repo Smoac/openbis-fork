@@ -21,8 +21,8 @@ import java.io.Serializable;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * Immutable value object representing an authorization role. A role has a code and a flag which
- * tells whether this role is for a certain space or for all spaces.
+ * Immutable value object representing an authorization role. A role has a code and a flag which tells whether this role is for a certain space or for
+ * all spaces.
  * 
  * @author Franz-Josef Elmer
  */

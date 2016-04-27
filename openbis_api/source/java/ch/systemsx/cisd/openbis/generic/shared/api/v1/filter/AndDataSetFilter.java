@@ -59,7 +59,5 @@ public class AndDataSetFilter implements IDataSetFilter
         }
         return builder.toString();
     }
-    
-    
 
 }

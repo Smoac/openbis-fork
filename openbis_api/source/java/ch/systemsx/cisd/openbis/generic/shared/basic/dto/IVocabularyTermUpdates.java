@@ -33,6 +33,6 @@ public interface IVocabularyTermUpdates extends IIdHolder, ICodeHolder
     String getLabel();
 
     Long getOrdinal();
-    
+
     Date getModificationDate();
 }

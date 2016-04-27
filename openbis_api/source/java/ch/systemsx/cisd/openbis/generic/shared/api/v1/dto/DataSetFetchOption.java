@@ -32,7 +32,7 @@ public enum DataSetFetchOption implements FetchOption
     /** The sample that the dataset is connected to. */
     SAMPLE,
     /** The properties of a dataset. */
-    PROPERTIES, 
+    PROPERTIES,
     /** The properties of a all material properties of a dataset. */
     PROPERTIES_OF_PROPERTIES,
     /** The properties of a all parent datasets of a dataset. */
@@ -40,11 +40,11 @@ public enum DataSetFetchOption implements FetchOption
     /** The properties of a all child datasets of a dataset. */
     PROPERTIES_OF_CHILDREN,
     /** The parents of a dataset. */
-    PARENTS, 
+    PARENTS,
     /** The children of a dataset. */
-    CHILDREN, 
+    CHILDREN,
     /** The containers of a dataset, if it is a contained dataset. */
-    CONTAINER, 
+    CONTAINER,
     /** The contained datasets of a dataset, if it is a container. */
     CONTAINED,
     /** The metaproject information of a dataset for the current user. */

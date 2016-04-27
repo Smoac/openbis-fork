@@ -32,8 +32,7 @@ public class SampleIdentifierId extends ObjectIdentifierId implements ISampleId
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     /**
-     * @param identifier Sample identifier, e.g. "/MY_SPACE/MY_SAMPLE" (space sample) or
-     *            "/MY_SAMPLE" (shared sample)
+     * @param identifier Sample identifier, e.g. "/MY_SPACE/MY_SAMPLE" (space sample) or "/MY_SAMPLE" (shared sample)
      */
     public SampleIdentifierId(String identifier)
     {

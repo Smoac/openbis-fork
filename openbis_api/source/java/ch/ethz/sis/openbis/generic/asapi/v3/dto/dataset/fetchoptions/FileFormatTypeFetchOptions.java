@@ -50,6 +50,7 @@ public class FileFormatTypeFetchOptions extends FetchOptions<FileFormatType> imp
     {
         return sort;
     }
+
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

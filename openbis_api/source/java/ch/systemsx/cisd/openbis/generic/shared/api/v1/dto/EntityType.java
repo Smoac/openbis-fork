@@ -33,13 +33,13 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 public class EntityType implements Serializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     private String code;
-    
+
     private String description;
-    
+
     private ValidationPluginInfo validationPluginInfo;
-    
+
     private List<PropertyTypeGroup> propertyTypeGroups;
 
     EntityType(EntityTypeInitializer initializer)
@@ -73,14 +73,13 @@ public class EntityType implements Serializable
     }
 
     /**
-     * Return the grouped property types for this entity type. (Groups are referred to as sections
-     * elsewhere).
+     * Return the grouped property types for this entity type. (Groups are referred to as sections elsewhere).
      */
     public List<PropertyTypeGroup> getPropertyTypeGroups()
     {
         return propertyTypeGroups;
     }
-    
+
     @Override
     public boolean equals(Object obj)
     {
@@ -110,7 +109,7 @@ public class EntityType implements Serializable
     //
     // JSON-RPC
     //
-    
+
     EntityType()
     {
     }

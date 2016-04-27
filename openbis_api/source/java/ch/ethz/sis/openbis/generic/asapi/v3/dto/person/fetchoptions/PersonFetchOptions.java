@@ -102,6 +102,7 @@ public class PersonFetchOptions extends FetchOptions<Person> implements Serializ
     {
         return sort;
     }
+
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

@@ -24,10 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitial
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TypeBasedDataSetFilterTest extends AssertJUnit
@@ -37,7 +34,7 @@ public class TypeBasedDataSetFilterTest extends AssertJUnit
     public void test()
     {
         TypeBasedDataSetFilter filter = new TypeBasedDataSetFilter("AB.*");
-        
+
         assertPassResult(true, filter, "ABC");
         assertPassResult(false, filter, "aBC");
     }

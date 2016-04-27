@@ -76,6 +76,7 @@ public class DataSetTypeFetchOptions extends FetchOptions<DataSetType> implement
     {
         return sort;
     }
+
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

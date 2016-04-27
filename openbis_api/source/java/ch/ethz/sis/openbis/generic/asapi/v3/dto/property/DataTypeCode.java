@@ -19,8 +19,6 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.property;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @JsonObject("as.dto.property.DataTypeCode")
@@ -28,5 +26,5 @@ public enum DataTypeCode
 {
     // Do not refactor names - they are stored in database.
     INTEGER, VARCHAR, MULTILINE_VARCHAR, REAL, TIMESTAMP, BOOLEAN, CONTROLLEDVOCABULARY, MATERIAL,
-        HYPERLINK, XML;
+    HYPERLINK, XML;
 }

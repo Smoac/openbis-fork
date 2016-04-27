@@ -195,8 +195,7 @@ public class Vocabulary implements Serializable
     }
 
     /**
-     * Returns a URL template (e.g a search query) that can display additional information for
-     * concrete vocabulary terms.
+     * Returns a URL template (e.g a search query) that can display additional information for concrete vocabulary terms.
      */
     public String getUrlTemplate()
     {

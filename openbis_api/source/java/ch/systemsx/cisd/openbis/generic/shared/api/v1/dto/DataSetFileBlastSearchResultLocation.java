@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * Extension of {@link DataSetFileBlastSearchResultLocation} for BLAST search. Matching sequence/query start
- * and end are available.
+ * Extension of {@link DataSetFileBlastSearchResultLocation} for BLAST search. Matching sequence/query start and end are available.
  *
  * @author Franz-Josef Elmer
  */
@@ -28,9 +27,9 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public class DataSetFileBlastSearchResultLocation extends DataSetFileSearchResultLocation
 {
     private static final long serialVersionUID = 1L;
-    
+
     private AlignmentMatch alignmentMatch;
-    
+
     public AlignmentMatch getAlignmentMatch()
     {
         return alignmentMatch;
@@ -42,7 +41,6 @@ public class DataSetFileBlastSearchResultLocation extends DataSetFileSearchResul
         setPosition(alignmentMatch.getSequenceStart());
     }
 
-    
     @Override
     protected String appendToString()
     {

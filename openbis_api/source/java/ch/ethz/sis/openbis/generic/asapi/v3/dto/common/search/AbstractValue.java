@@ -49,7 +49,7 @@ abstract class AbstractValue<T> implements Serializable
     @Override
     public String toString()
     {
-        return String.valueOf(getValue()); 
+        return String.valueOf(getValue());
     }
 
 }

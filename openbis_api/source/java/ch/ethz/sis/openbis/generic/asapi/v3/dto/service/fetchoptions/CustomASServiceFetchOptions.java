@@ -50,6 +50,7 @@ public class CustomASServiceFetchOptions extends FetchOptions<CustomASService> i
     {
         return sort;
     }
+
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

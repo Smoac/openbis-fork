@@ -29,7 +29,7 @@ public class ListableSampleTypeSearchCriteria extends AbstractSearchCriteria
     {
         return listable;
     }
-    
+
     @Override
     public String toString()
     {

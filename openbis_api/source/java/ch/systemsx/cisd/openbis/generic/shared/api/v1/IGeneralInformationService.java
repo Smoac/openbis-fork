@@ -583,7 +583,7 @@ public interface IGeneralInformationService extends IRpcService
      * @return a list of maps with the user information.
      * @since 1.31
      */
-     public List<Person> listPersons(String sessionToken);
+    public List<Person> listPersons(String sessionToken);
 
     /**
      * Returns number of samples for a sample type code.

@@ -49,5 +49,4 @@ public class ProjectTechIdId extends ObjectTechIdId implements IProjectId
         super();
     }
 
-
 }

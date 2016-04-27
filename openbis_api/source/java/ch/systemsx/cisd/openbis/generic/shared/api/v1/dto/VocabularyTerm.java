@@ -45,7 +45,7 @@ public class VocabularyTerm implements Serializable
     private String label;
 
     private String description;
-    
+
     private Long ordinal;
 
     private Boolean isOfficial;
@@ -73,10 +73,11 @@ public class VocabularyTerm implements Serializable
         return label;
     }
 
-    public String getDescription() {
+    public String getDescription()
+    {
         return description;
     }
-    
+
     @JsonIgnore
     public Long getOrdinal()
     {
@@ -160,7 +161,7 @@ public class VocabularyTerm implements Serializable
     {
         this.ordinal = ordinal;
     }
-    
+
     @JsonProperty("ordinal")
     private String getOrdinalAsString()
     {

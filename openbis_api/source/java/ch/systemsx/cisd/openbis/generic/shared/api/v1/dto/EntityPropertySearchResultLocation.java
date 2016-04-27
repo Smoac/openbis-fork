@@ -43,7 +43,7 @@ public class EntityPropertySearchResultLocation extends AbstractEntitySearchResu
     @Override
     public String toString()
     {
-        return renderEntityKind() + " type: " + getEntityType() + ", perm id: " + getPermId() 
+        return renderEntityKind() + " type: " + getEntityType() + ", perm id: " + getPermId()
                 + ", code: " + getCode() + ", property type: " + propertyType + ", " + appendToString();
     }
 }

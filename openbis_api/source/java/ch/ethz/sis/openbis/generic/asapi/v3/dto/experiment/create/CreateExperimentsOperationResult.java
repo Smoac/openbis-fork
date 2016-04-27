@@ -31,11 +31,11 @@ public class CreateExperimentsOperationResult implements IOperationResult
     private List<ExperimentPermId> permIds;
 
     @SuppressWarnings("unused")
-    private CreateExperimentsOperationResult() 
+    private CreateExperimentsOperationResult()
     {
-        
+
     }
-    
+
     public CreateExperimentsOperationResult(List<ExperimentPermId> permIds)
     {
         this.permIds = permIds;

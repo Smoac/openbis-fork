@@ -23,8 +23,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @JsonObject("as.dto.property.PropertyAssignment")
@@ -34,10 +32,10 @@ public class PropertyAssignment implements Serializable
 
     @JsonProperty
     private boolean mandatory;
-    
+
     @JsonProperty
     private PropertyType propertyType;
-    
+
     public boolean isMandatory()
     {
         return mandatory;
@@ -58,5 +56,4 @@ public class PropertyAssignment implements Serializable
         this.propertyType = propertyType;
     }
 
-    
 }

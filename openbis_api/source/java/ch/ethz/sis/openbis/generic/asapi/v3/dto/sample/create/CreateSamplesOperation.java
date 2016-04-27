@@ -28,11 +28,11 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public class CreateSamplesOperation implements IOperation
 {
     private List<SampleCreation> creations;
-    
+
     @SuppressWarnings("unused")
-    private CreateSamplesOperation() 
+    private CreateSamplesOperation()
     {
-        
+
     }
 
     public CreateSamplesOperation(List<SampleCreation> creations)

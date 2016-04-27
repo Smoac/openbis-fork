@@ -180,6 +180,7 @@ public class TagFetchOptions extends FetchOptions<Tag> implements Serializable
     {
         return sort;
     }
+
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

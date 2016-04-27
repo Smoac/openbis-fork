@@ -35,11 +35,11 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public class ValidationPluginInfo implements Serializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     private String name;
 
     private String description;
-    
+
     public ValidationPluginInfo(String name, String descriptionOrNull)
     {
         this.name = name;
@@ -55,7 +55,6 @@ public class ValidationPluginInfo implements Serializable
     {
         return description;
     }
-    
 
     @Override
     public boolean equals(Object obj)
@@ -74,7 +73,7 @@ public class ValidationPluginInfo implements Serializable
         builder.append(this.description, that.description);
         return builder.isEquals();
     }
-    
+
     @Override
     public int hashCode()
     {
@@ -83,7 +82,7 @@ public class ValidationPluginInfo implements Serializable
         builder.append(description);
         return builder.toHashCode();
     }
-    
+
     @Override
     public String toString()
     {
@@ -92,11 +91,11 @@ public class ValidationPluginInfo implements Serializable
         builder.append(description);
         return builder.toString();
     }
-    
+
     //
     // JSON-RPC
     //
-    
+
     private ValidationPluginInfo()
     {
     }
@@ -110,5 +109,5 @@ public class ValidationPluginInfo implements Serializable
     {
         this.description = description;
     }
-    
+
 }

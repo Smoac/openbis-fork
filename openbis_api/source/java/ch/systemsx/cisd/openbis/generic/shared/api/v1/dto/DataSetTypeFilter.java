@@ -23,16 +23,15 @@ import java.util.regex.Pattern;
 /**
  * A class that filters out data set types based on a whitelist or blacklist.
  * <p>
- * Only one list can be applied. If both the whitelist and blacklist are specified, then the
- * whitelist is used. If neither are specified, then no filtering is done.
+ * Only one list can be applied. If both the whitelist and blacklist are specified, then the whitelist is used. If neither are specified, then no
+ * filtering is done.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 public class DataSetTypeFilter
 {
     /**
-     * Takes a List of patterns and serializes them to a single string that this class can later
-     * reread.
+     * Takes a List of patterns and serializes them to a single string that this class can later reread.
      */
     public static String convertPatternListToString(List<String> dataSetTypePatterns)
     {

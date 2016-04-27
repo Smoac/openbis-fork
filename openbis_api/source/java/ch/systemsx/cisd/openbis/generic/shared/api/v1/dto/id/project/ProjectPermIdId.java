@@ -49,5 +49,4 @@ public class ProjectPermIdId extends ObjectPermIdId implements IProjectId
         super();
     }
 
-
 }

@@ -29,9 +29,9 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public class SearchDomain implements Serializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     private String name;
-    
+
     private String label;
 
     public String getName()
@@ -53,11 +53,11 @@ public class SearchDomain implements Serializable
     {
         this.label = label;
     }
-    
+
     @Override
     public String toString()
     {
         return label == null ? name : label + " [" + name + "]";
     }
-    
+
 }

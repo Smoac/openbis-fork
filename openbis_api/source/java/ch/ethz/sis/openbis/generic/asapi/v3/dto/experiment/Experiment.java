@@ -53,7 +53,8 @@ import java.util.Set;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.experiment.Experiment")
-public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder, IDataSetsHolder, IModificationDateHolder, IModifierHolder, IPermIdHolder, IProjectHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ISamplesHolder, ITagsHolder
+public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder, IDataSetsHolder, IModificationDateHolder, IModifierHolder,
+        IPermIdHolder, IProjectHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ISamplesHolder, ITagsHolder
 {
     private static final long serialVersionUID = 1L;
 

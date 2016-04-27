@@ -83,13 +83,13 @@ public class SampleSearchCriteria extends AbstractEntitySearchCriteria<ISampleId
         with(new NoSampleContainerSearchCriteria());
         return this;
     }
-    
+
     @Override
     public SampleTypeSearchCriteria withType()
     {
         return with(new SampleTypeSearchCriteria());
     }
-    
+
     public SampleSearchCriteria withOrOperator()
     {
         return (SampleSearchCriteria) withOperator(SearchOperator.OR);

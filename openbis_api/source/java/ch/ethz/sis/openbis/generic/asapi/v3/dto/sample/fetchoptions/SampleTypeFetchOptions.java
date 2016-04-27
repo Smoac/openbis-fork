@@ -76,6 +76,7 @@ public class SampleTypeFetchOptions extends FetchOptions<SampleType> implements 
     {
         return sort;
     }
+
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

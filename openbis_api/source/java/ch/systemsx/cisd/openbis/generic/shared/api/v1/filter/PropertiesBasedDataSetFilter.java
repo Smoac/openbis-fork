@@ -27,7 +27,6 @@ import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 
-
 /**
  * Filter based on data set properties.
  *
@@ -75,5 +74,4 @@ public class PropertiesBasedDataSetFilter implements IDataSetFilter
         return "Properties:" + sortedEntries;
     }
 
-    
 }

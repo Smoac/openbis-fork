@@ -55,7 +55,7 @@ public class FetchOptions<T extends FetchOption> implements Serializable
         }
         optionsSet.add(option);
     }
-    
+
     public boolean isSetOf(T... options)
     {
         if (options == null)

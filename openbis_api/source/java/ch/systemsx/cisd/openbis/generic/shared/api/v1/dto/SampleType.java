@@ -33,19 +33,24 @@ public class SampleType extends EntityType
     private static final long serialVersionUID = 1L;
 
     /**
-     * Class used to initialize a new {@link SampleType} instance. Necessary since all the fields of
-     * a {@link SampleType} are final.
+     * Class used to initialize a new {@link SampleType} instance. Necessary since all the fields of a {@link SampleType} are final.
      * 
      * @author Franz-Josef Elmer
      */
     public static final class SampleTypeInitializer extends EntityTypeInitializer
     {
         private boolean listable;
+
         private boolean showContainer;
+
         private boolean showParents;
+
         private boolean uniqueSubcodes;
+
         private boolean automaticCodeGeneration;
+
         private boolean showParentMetaData;
+
         private String codePrefix;
 
         public SampleTypeInitializer()
@@ -123,15 +128,21 @@ public class SampleType extends EntityType
             this.codePrefix = codePrefix;
         }
     }
-    
+
     private boolean listable;
+
     private boolean showContainer;
+
     private boolean showParents;
+
     private boolean uniqueSubcodes;
+
     private boolean automaticCodeGeneration;
+
     private boolean showParentMetaData;
+
     private String codePrefix;
-    
+
     /**
      * Creates a new instance with the provided initializer
      * 
@@ -149,7 +160,6 @@ public class SampleType extends EntityType
         codePrefix = initializer.getCodePrefix();
     }
 
-
     /**
      * Returns <code>true</code> if this is a sample type of listable samples.
      */
@@ -157,10 +167,9 @@ public class SampleType extends EntityType
     {
         return listable;
     }
-    
+
     /**
-     * Returns <code>true</code> if for samples of this type the container field is shown in
-     * edit/registration form.
+     * Returns <code>true</code> if for samples of this type the container field is shown in edit/registration form.
      */
     public boolean isShowContainer()
     {
@@ -168,8 +177,7 @@ public class SampleType extends EntityType
     }
 
     /**
-     * Returns <code>true</code> if for sample of this type the parents field is shown in
-     * edit/registration form.
+     * Returns <code>true</code> if for sample of this type the parents field is shown in edit/registration form.
      */
     public boolean isShowParents()
     {
@@ -207,7 +215,6 @@ public class SampleType extends EntityType
     {
         return codePrefix;
     }
-
 
     @Override
     public String toString()
@@ -269,5 +276,5 @@ public class SampleType extends EntityType
     {
         this.codePrefix = codePrefix;
     }
-    
+
 }

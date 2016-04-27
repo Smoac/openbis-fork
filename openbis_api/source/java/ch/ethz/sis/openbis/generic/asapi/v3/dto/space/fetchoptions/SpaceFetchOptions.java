@@ -128,6 +128,7 @@ public class SpaceFetchOptions extends FetchOptions<Space> implements Serializab
     {
         return sort;
     }
+
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

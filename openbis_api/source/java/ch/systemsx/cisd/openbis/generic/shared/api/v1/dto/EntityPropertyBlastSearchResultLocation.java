@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * Extension of {@link EntityPropertySearchResultLocation} for BLAST search. Matching sequence/query start
- * and end are available. 
+ * Extension of {@link EntityPropertySearchResultLocation} for BLAST search. Matching sequence/query start and end are available.
  * 
  * @author Franz-Josef Elmer
  */
@@ -28,10 +27,9 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public class EntityPropertyBlastSearchResultLocation extends EntityPropertySearchResultLocation
 {
     private static final long serialVersionUID = 1L;
-    
-    
+
     private AlignmentMatch alignmentMatch;
-    
+
     public AlignmentMatch getAlignmentMatch()
     {
         return alignmentMatch;

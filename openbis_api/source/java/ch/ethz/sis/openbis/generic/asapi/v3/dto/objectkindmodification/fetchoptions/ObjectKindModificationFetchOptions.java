@@ -50,6 +50,7 @@ public class ObjectKindModificationFetchOptions extends FetchOptions<ObjectKindM
     {
         return sort;
     }
+
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

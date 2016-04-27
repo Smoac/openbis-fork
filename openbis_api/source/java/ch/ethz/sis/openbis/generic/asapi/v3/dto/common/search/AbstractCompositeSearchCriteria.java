@@ -42,9 +42,11 @@ public abstract class AbstractCompositeSearchCriteria extends AbstractSearchCrit
 
     public void setCriteria(Collection<ISearchCriteria> criteria)
     {
-        if (criteria == null) {
+        if (criteria == null)
+        {
             this.criteria.clear();
-        } else {
+        } else
+        {
             this.criteria = criteria;
         }
     }

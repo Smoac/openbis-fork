@@ -68,11 +68,10 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
     }
 
     /**
-     * Class used to initialize a new sample instance. Necessary since all the fields of a sample
-     * are final.
+     * Class used to initialize a new sample instance. Necessary since all the fields of a sample are final.
      * <p>
-     * All of the properties must be filled (non-null) before being used to initialize a Sample,
-     * otherwise the Sample constructor will throw an exception.
+     * All of the properties must be filled (non-null) before being used to initialize a Sample, otherwise the Sample constructor will throw an
+     * exception.
      * 
      * @author Chandrasekhar Ramakrishnan
      */
@@ -685,7 +684,7 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
     {
         this.sampleTypeId = JsonPropertyUtil.toLongOrNull(sampleTypeId);
     }
-    
+
     private void setSampleTypeCode(String sampleTypeCode)
     {
         this.sampleTypeCode = sampleTypeCode;

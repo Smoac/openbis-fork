@@ -43,7 +43,8 @@ import java.util.Set;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.material.Material")
-public class Material implements Serializable, ICodeHolder, IModificationDateHolder, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ITagsHolder
+public class Material implements Serializable, ICodeHolder, IModificationDateHolder, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder,
+        IRegistratorHolder, ITagsHolder
 {
     private static final long serialVersionUID = 1L;
 

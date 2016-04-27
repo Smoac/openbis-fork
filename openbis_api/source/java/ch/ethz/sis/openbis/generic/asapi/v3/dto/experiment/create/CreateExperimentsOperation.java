@@ -30,11 +30,11 @@ public class CreateExperimentsOperation implements IOperation
     private List<ExperimentCreation> creations;
 
     @SuppressWarnings("unused")
-    private CreateExperimentsOperation() 
+    private CreateExperimentsOperation()
     {
-        
+
     }
-    
+
     public CreateExperimentsOperation(List<ExperimentCreation> creations)
     {
         this.creations = creations;

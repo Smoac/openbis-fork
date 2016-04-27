@@ -29,11 +29,11 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public class CreateSamplesOperationResult implements IOperationResult
 {
     private List<SamplePermId> permIds;
-    
+
     @SuppressWarnings("unused")
-    private CreateSamplesOperationResult() 
+    private CreateSamplesOperationResult()
     {
-        
+
     }
 
     public CreateSamplesOperationResult(List<SamplePermId> permIds)

@@ -66,8 +66,7 @@ public class SearchSubCriteria implements Serializable
     }
 
     /**
-     * Protected constructor. Use one of the factory methods to instantiate a
-     * {@link SearchSubCriteria}.
+     * Protected constructor. Use one of the factory methods to instantiate a {@link SearchSubCriteria}.
      * 
      * @param targetEntityKind
      * @param criteria

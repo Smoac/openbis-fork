@@ -18,10 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.filter;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 
-
 /**
- * Filter which will be passed only by data sets with a data set type code matching a certain
- * regular expression.
+ * Filter which will be passed only by data sets with a data set type code matching a certain regular expression.
  * 
  * @author Franz-Josef Elmer
  */
@@ -38,8 +36,7 @@ public class TypeBasedDataSetFilter implements IDataSetFilter
     }
 
     /**
-     * Return <code>true</code> if the data set type code of the specified data set matches the
-     * regular expression provided as constructor argument.
+     * Return <code>true</code> if the data set type code of the specified data set matches the regular expression provided as constructor argument.
      */
     @Override
     public boolean pass(DataSet dataSet)
@@ -53,4 +50,3 @@ public class TypeBasedDataSetFilter implements IDataSetFilter
         return "Type:" + datasetTypeCodePattern;
     }
 }
-

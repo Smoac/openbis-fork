@@ -29,9 +29,9 @@ public class AbstractEntitySearchResultLocation implements ISearchDomainResultLo
     private static final long serialVersionUID = 1L;
 
     private EntityKind entityKind;
-    
+
     private String entityType;
-    
+
     private String code;
 
     private String permId;
@@ -62,7 +62,7 @@ public class AbstractEntitySearchResultLocation implements ISearchDomainResultLo
     {
         return permId;
     }
-    
+
     public void setPermId(String permId)
     {
         this.permId = permId;
@@ -87,13 +87,12 @@ public class AbstractEntitySearchResultLocation implements ISearchDomainResultLo
     {
         this.position = position;
     }
-    
-    
+
     protected String appendToString()
     {
         return "position: " + position;
     }
-    
+
     protected String renderEntityKind()
     {
         String str = getEntityKind().toString().toLowerCase().replace('_', ' ');

@@ -76,6 +76,7 @@ public class HistoryEntryFetchOptions extends FetchOptions<HistoryEntry> impleme
     {
         return sort;
     }
+
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

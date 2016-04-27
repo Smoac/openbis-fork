@@ -154,6 +154,7 @@ public class GlobalSearchObjectFetchOptions extends FetchOptions<GlobalSearchObj
     {
         return sort;
     }
+
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

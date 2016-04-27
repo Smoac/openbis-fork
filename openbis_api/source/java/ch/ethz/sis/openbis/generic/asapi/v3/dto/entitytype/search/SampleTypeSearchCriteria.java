@@ -9,10 +9,11 @@ public class SampleTypeSearchCriteria extends EntityTypeSearchCriteria
 
     private static final long serialVersionUID = 1L;
 
-    public ListableSampleTypeSearchCriteria withListable() {
+    public ListableSampleTypeSearchCriteria withListable()
+    {
         return with(new ListableSampleTypeSearchCriteria());
     }
-    
+
     @Override
     protected SearchCriteriaToStringBuilder createBuilder()
     {

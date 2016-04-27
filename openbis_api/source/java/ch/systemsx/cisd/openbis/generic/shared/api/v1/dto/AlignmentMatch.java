@@ -29,54 +29,54 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public class AlignmentMatch implements Serializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     private int sequenceStart;
-    
+
     private int sequenceEnd;
-    
+
     private int queryStart;
-    
+
     private int queryEnd;
-    
+
     private int numberOfMismatches;
-    
+
     private int totalNumberOfGaps;
-    
+
     public int getSequenceStart()
     {
         return sequenceStart;
     }
-    
+
     public void setSequenceStart(int sequenceStart)
     {
         this.sequenceStart = sequenceStart;
     }
-    
+
     public int getSequenceEnd()
     {
         return sequenceEnd;
     }
-    
+
     public void setSequenceEnd(int sequenceEnd)
     {
         this.sequenceEnd = sequenceEnd;
     }
-    
+
     public int getQueryStart()
     {
         return queryStart;
     }
-    
+
     public void setQueryStart(int queryStart)
     {
         this.queryStart = queryStart;
     }
-    
+
     public int getQueryEnd()
     {
         return queryEnd;
     }
-    
+
     public void setQueryEnd(int queryEnd)
     {
         this.queryEnd = queryEnd;

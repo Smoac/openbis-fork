@@ -50,6 +50,7 @@ public class LocatorTypeFetchOptions extends FetchOptions<LocatorType> implement
     {
         return sort;
     }
+
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

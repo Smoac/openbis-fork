@@ -33,8 +33,7 @@ public class ExperimentType extends EntityType
     private static final long serialVersionUID = 1L;
 
     /**
-     * Class used to initialize a new {@link ExperimentType} instance. Necessary since all the
-     * fields of a {@link ExperimentType} are final.
+     * Class used to initialize a new {@link ExperimentType} instance. Necessary since all the fields of a {@link ExperimentType} are final.
      * 
      * @author Franz-Josef Elmer
      */

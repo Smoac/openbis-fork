@@ -27,11 +27,11 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public class DataSetFileSearchResultLocation extends AbstractEntitySearchResultLocation
 {
     private static final long serialVersionUID = 1L;
-    
+
     private String pathInDataSet;
-    
+
     private String identifier;
-    
+
     public String getPathInDataSet()
     {
         return pathInDataSet;
@@ -55,7 +55,7 @@ public class DataSetFileSearchResultLocation extends AbstractEntitySearchResultL
     @Override
     public String toString()
     {
-        return "Data set type: " + getEntityType() + ", code: " + getCode() + ", path: " + pathInDataSet 
+        return "Data set type: " + getEntityType() + ", code: " + getCode() + ", path: " + pathInDataSet
                 + ", identifier: [" + identifier + "], " + appendToString();
     }
 

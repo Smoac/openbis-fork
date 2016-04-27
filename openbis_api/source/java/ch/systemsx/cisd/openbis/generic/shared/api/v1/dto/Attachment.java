@@ -35,7 +35,7 @@ public class Attachment implements Serializable, Comparable<Attachment>
     private static final long serialVersionUID = 1L;
 
     private IObjectId attachmentHolderId;
-    
+
     private String fileName;
 
     private int version;
@@ -45,13 +45,13 @@ public class Attachment implements Serializable, Comparable<Attachment>
     private String description;
 
     private EntityRegistrationDetails registrationDetails;
-    
+
     private String downloadLink;
 
     public static class AttachmentInitializer
     {
         private IObjectId attachmentHolderId;
-        
+
         private String fileName;
 
         private int version;
@@ -61,7 +61,7 @@ public class Attachment implements Serializable, Comparable<Attachment>
         private String description;
 
         private EntityRegistrationDetails registrationDetails;
-        
+
         private String downloadLink;
 
         public IObjectId getAttachmentHolderId()
@@ -152,8 +152,7 @@ public class Attachment implements Serializable, Comparable<Attachment>
     }
 
     /**
-     * Returns the id of the entity holding this attachment. This will be the id which has been
-     * used to retrieve this attachment.
+     * Returns the id of the entity holding this attachment. This will be the id which has been used to retrieve this attachment.
      */
     public IObjectId getAttachmentHolderId()
     {
@@ -169,8 +168,7 @@ public class Attachment implements Serializable, Comparable<Attachment>
     }
 
     /**
-     * Returns the version of this attachment. Starts with 1 and is increased by 1 whenever a user
-     * uploads a new version of the same file.
+     * Returns the version of this attachment. Starts with 1 and is increased by 1 whenever a user uploads a new version of the same file.
      */
     public int getVersion()
     {
@@ -202,13 +200,14 @@ public class Attachment implements Serializable, Comparable<Attachment>
     }
 
     /**
-     * Returns the download link. In combination with the basic URL (containing host name and port)
-     * it can be used to create a URL for downloading the attachment file.
+     * Returns the download link. In combination with the basic URL (containing host name and port) it can be used to create a URL for downloading the
+     * attachment file.
      */
     public String getDownloadLink()
     {
         return downloadLink;
     }
+
     //
     // JSON-RPC
     //

@@ -43,7 +43,7 @@ public class SampleIdentifier extends ObjectIdentifier implements ISampleId
         this(createIdentifier(spaceCodeOrNull, containerCodeOrNull, sampleCode));
     }
 
-    private static String createIdentifier(String spaceCodeOrNull, 
+    private static String createIdentifier(String spaceCodeOrNull,
             String containerCodeOrNull, String sampleCode)
     {
         StringBuilder builder = new StringBuilder("/");

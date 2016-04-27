@@ -39,8 +39,7 @@ public final class PropertyTypeGroup implements Serializable
     private static final long serialVersionUID = 1L;
 
     /**
-     * Class used to initialize a new data set instance. Necessary since all the fields of a DataSet
-     * are final.
+     * Class used to initialize a new data set instance. Necessary since all the fields of a DataSet are final.
      * 
      * @author Chandrasekhar Ramakrishnan
      */

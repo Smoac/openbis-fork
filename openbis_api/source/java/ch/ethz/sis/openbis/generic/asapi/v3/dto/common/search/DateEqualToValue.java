@@ -29,9 +29,9 @@ public class DateEqualToValue extends AbstractDateValue
 
     DateEqualToValue()
     {
-    	super(null);
+        super(null);
     }
-    
+
     DateEqualToValue(String value)
     {
         super(value);
