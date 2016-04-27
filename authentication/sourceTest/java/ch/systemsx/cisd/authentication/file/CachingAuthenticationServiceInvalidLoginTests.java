@@ -77,7 +77,7 @@ public class CachingAuthenticationServiceInvalidLoginTests
     private static final long time2 = 550L;
 
     private static final long time2Cache = 600L;
-    
+
     private static final long time3 = 650L;
 
     private static final long time4 = 700L;
@@ -223,31 +223,31 @@ public class CachingAuthenticationServiceInvalidLoginTests
         checkPrincipalUser(user, firstName, lastName, email, false, p);
         checkCache(user, firstName, lastName, email, time2Cache, true);
         assertFalse(service.getValidationQueue().isEmpty());
-        
+
         // Run validator with request, but the password is invalid so the result will not be cached.
         context.checking(new Expectations()
-        {
             {
-                one(delegateService).tryGetAndAuthenticateUser(user, invalidPassword);
-                will(returnValue(new Principal(user, firstName, lastName, email, false)));
-            }
-        });
+                {
+                    one(delegateService).tryGetAndAuthenticateUser(user, invalidPassword);
+                    will(returnValue(new Principal(user, firstName, lastName, email, false)));
+                }
+            });
         revalidator.runOnce();
         checkCache(user, firstName, lastName, email, time2Cache, true);
-        
+
         // A valid call is still served from the cache.
         context.checking(new Expectations()
-        {
             {
-                one(timeProvider).getTimeInMilliseconds();
-                will(returnValue(time5));
-            }
-        });
+                {
+                    one(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(time5));
+                }
+            });
         final Principal p2 = service.tryGetAndAuthenticateUser(user, validPassword);
         assertNotNull(p2);
         checkPrincipalUser(user, firstName, lastName, email, true, p2);
         checkCache(user, firstName, lastName, email, time2Cache, true);
-        
+
         context.assertIsSatisfied();
     }
 

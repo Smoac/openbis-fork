@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.authentication;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IPrincipalProvider

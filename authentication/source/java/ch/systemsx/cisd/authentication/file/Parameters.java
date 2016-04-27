@@ -58,7 +58,7 @@ final class Parameters
     private final IExitHandler exitHandler;
 
     private final Command command;
-    
+
     private final boolean cache;
 
     private String userId;
@@ -258,8 +258,8 @@ final class Parameters
     }
 
     /**
-     * Returns <code>null</code>, if no password has been provided, an empty string, if the
-     * password should be read from the console and the new password, otherwise.
+     * Returns <code>null</code>, if no password has been provided, an empty string, if the password should be read from the console and the new
+     * password, otherwise.
      */
     final String tryGetPassword()
     {

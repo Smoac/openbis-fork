@@ -25,8 +25,8 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
- * An authentication service that uses a list of delegate authentication services to authenticate a
- * user. The first authentication service that can authenticate a user wins.
+ * An authentication service that uses a list of delegate authentication services to authenticate a user. The first authentication service that can
+ * authenticate a user wins.
  * 
  * @author Bernd Rinn
  */
@@ -235,14 +235,15 @@ public class StackedAuthenticationService implements IAuthenticationService
         }
         return principals;
     }
-    
-    public boolean allServicesSupportListingByUserId() {
-    	boolean result = true;
-    	for (IAuthenticationService service : delegates)
+
+    public boolean allServicesSupportListingByUserId()
+    {
+        boolean result = true;
+        for (IAuthenticationService service : delegates)
         {
-    		result = result && service.supportsListingByUserId();
+            result = result && service.supportsListingByUserId();
         }
-    	return result;
+        return result;
     }
 
     @Override

@@ -36,27 +36,22 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 
 /**
- * An {@link IAuthenticationService} that delegates to another {@link IAuthenticationService} and
- * keeps the returned value for user authentication in a local cache which is written out to a
- * password cache file which will be used to populate the cache on restart, so the password cache
- * survives restarts. Changing the password cache file will change the cache without restart, e.g.
- * deleting a line from it will remove the cache entry with immediate effect.
+ * An {@link IAuthenticationService} that delegates to another {@link IAuthenticationService} and keeps the returned value for user authentication in
+ * a local cache which is written out to a password cache file which will be used to populate the cache on restart, so the password cache survives
+ * restarts. Changing the password cache file will change the cache without restart, e.g. deleting a line from it will remove the cache entry with
+ * immediate effect.
  * <p>
- * In order to make caching as smooth as possible for regular users of the system, a authentication
- * request which is served from the cache under some conditions triggers a re-validation request
- * with the delegate authentication service. As re-validation is done asynchronously, it does not
- * block the user from working.
+ * In order to make caching as smooth as possible for regular users of the system, a authentication request which is served from the cache under some
+ * conditions triggers a re-validation request with the delegate authentication service. As re-validation is done asynchronously, it does not block
+ * the user from working.
  * <p>
  * Two configurable time periods (in milli-seconds) are relevant:
  * <ul>
- * <li><code>cacheTimeMillis</code> is the time period after caching that a cache entry is kept.
- * Older cache entries are treated as invalid and ignored. The default is 28 hours, which means that
- * any user who logs into the system once a day will never have to wait for the delegate
- * authentication system to respond as all cache updates are performed in asynchronous
- * re-validations.</li>
- * <li><code>cacheTimeNoRevalidationMillis</code> is the time period after caching in which
- * successful authentication requests do not trigger a re-validation request. The default is 1 hour.
- * This feature is meant to reduce the load on the delegate authentication system. Set it to
+ * <li><code>cacheTimeMillis</code> is the time period after caching that a cache entry is kept. Older cache entries are treated as invalid and
+ * ignored. The default is 28 hours, which means that any user who logs into the system once a day will never have to wait for the delegate
+ * authentication system to respond as all cache updates are performed in asynchronous re-validations.</li>
+ * <li><code>cacheTimeNoRevalidationMillis</code> is the time period after caching in which successful authentication requests do not trigger a
+ * re-validation request. The default is 1 hour. This feature is meant to reduce the load on the delegate authentication system. Set it to
  * <code>cacheTimeMillis</code> to never re-validate or set to 0 to always re-validate.</li>
  * </ul>
  * 
@@ -114,9 +109,7 @@ public class CachingAuthenticationService implements IAuthenticationService
         }
 
         /**
-         * Returns the password the user supplied, or <code>null</code>, if this is a
-         * non-authenticating
-         * validation request.
+         * Returns the password the user supplied, or <code>null</code>, if this is a non-authenticating validation request.
          */
         String tryGetPassword()
         {
@@ -132,8 +125,7 @@ public class CachingAuthenticationService implements IAuthenticationService
         }
 
         /**
-         * Returns <code>true</code>, if the user has been successfully authenticated from the
-         * cached entry with the given password.
+         * Returns <code>true</code>, if the user has been successfully authenticated from the cached entry with the given password.
          */
         boolean isAuthenticated()
         {
@@ -141,8 +133,7 @@ public class CachingAuthenticationService implements IAuthenticationService
         }
 
         /**
-         * Returns <code>true</code> if this is a valid request at the time when this method is
-         * called.
+         * Returns <code>true</code> if this is a valid request at the time when this method is called.
          */
         boolean isValid()
         {

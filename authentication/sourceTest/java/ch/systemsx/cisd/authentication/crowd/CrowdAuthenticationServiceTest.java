@@ -95,7 +95,7 @@ public class CrowdAuthenticationServiceTest
             {
                 {
                     Object[] parameters = new Object[]
-                        { APPLICATION_ESCAPED, APPLICATION_PASSWORD_ESCAPED };
+                    { APPLICATION_ESCAPED, APPLICATION_PASSWORD_ESCAPED };
                     String message =
                             CrowdAuthenticationService.AUTHENTICATE_APPL.format(parameters);
                     one(executor).execute(URL, message);
@@ -104,8 +104,8 @@ public class CrowdAuthenticationServiceTest
 
                     parameters =
                             new Object[]
-                                { APPLICATION_ESCAPED, APPLICATION_TOKEN_ESACPED, USER_ESCAPED,
-                                        USER_PASSWORD_ESCAPED };
+                            { APPLICATION_ESCAPED, APPLICATION_TOKEN_ESACPED, USER_ESCAPED,
+                                    USER_PASSWORD_ESCAPED };
                     message = CrowdAuthenticationService.AUTHENTICATE_USER.format(parameters);
                     one(executor).execute(URL, message);
                     will(returnValue(createXMLElement("n:" + CrowdSoapElements.OUT,
@@ -130,7 +130,7 @@ public class CrowdAuthenticationServiceTest
             {
                 {
                     Object[] parameters = new Object[]
-                        { APPLICATION_ESCAPED, APPLICATION_PASSWORD_ESCAPED };
+                    { APPLICATION_ESCAPED, APPLICATION_PASSWORD_ESCAPED };
                     String message =
                             CrowdAuthenticationService.AUTHENTICATE_APPL.format(parameters);
                     one(executor).execute(URL, message);
@@ -139,8 +139,8 @@ public class CrowdAuthenticationServiceTest
 
                     parameters =
                             new Object[]
-                                { APPLICATION_ESCAPED, APPLICATION_TOKEN_ESACPED, USER_ESCAPED,
-                                        USER_PASSWORD_ESCAPED };
+                            { APPLICATION_ESCAPED, APPLICATION_TOKEN_ESACPED, USER_ESCAPED,
+                                    USER_PASSWORD_ESCAPED };
                     message = CrowdAuthenticationService.AUTHENTICATE_USER.format(parameters);
                     one(executor).execute(URL, message);
                     will(returnValue("error"));
@@ -167,7 +167,7 @@ public class CrowdAuthenticationServiceTest
             {
                 {
                     Object[] parameters = new Object[]
-                        { APPLICATION_ESCAPED, APPLICATION_PASSWORD_ESCAPED };
+                    { APPLICATION_ESCAPED, APPLICATION_PASSWORD_ESCAPED };
                     String message =
                             CrowdAuthenticationService.AUTHENTICATE_APPL.format(parameters);
                     one(executor).execute(URL, message);
@@ -175,7 +175,7 @@ public class CrowdAuthenticationServiceTest
                             APPLICATION_TOKEN_ESACPED)));
 
                     parameters = new Object[]
-                        { APPLICATION_ESCAPED, APPLICATION_TOKEN_ESACPED, USER_ESCAPED };
+                    { APPLICATION_ESCAPED, APPLICATION_TOKEN_ESACPED, USER_ESCAPED };
                     message = CrowdAuthenticationService.FIND_PRINCIPAL_BY_NAME.format(parameters);
                     one(executor).execute(URL, message);
                     String element = createSOAPAttribute("sn", "Stepka");
@@ -214,7 +214,7 @@ public class CrowdAuthenticationServiceTest
             {
                 {
                     Object[] parameters = new Object[]
-                        { APPLICATION_ESCAPED, APPLICATION_PASSWORD_ESCAPED };
+                    { APPLICATION_ESCAPED, APPLICATION_PASSWORD_ESCAPED };
                     String message =
                             CrowdAuthenticationService.AUTHENTICATE_APPL.format(parameters);
                     one(executor).execute(URL, message);
@@ -222,7 +222,7 @@ public class CrowdAuthenticationServiceTest
                             APPLICATION_TOKEN_ESACPED)));
 
                     parameters = new Object[]
-                        { APPLICATION_ESCAPED, APPLICATION_TOKEN_ESACPED, USER_ESCAPED };
+                    { APPLICATION_ESCAPED, APPLICATION_TOKEN_ESACPED, USER_ESCAPED };
                     message = CrowdAuthenticationService.FIND_PRINCIPAL_BY_NAME.format(parameters);
                     one(executor).execute(URL, message);
                     will(returnValue("<a></a>"));

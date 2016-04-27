@@ -43,7 +43,7 @@ public class FileBasedLineStoreTest
     private final static String fileName = "store";
 
     private final static String fileDescription = "Some sort of file";
-    
+
     private static final File unitTestRootDirectory =
             new File("targets" + File.separator + "unit-test-wd");
 
@@ -51,7 +51,7 @@ public class FileBasedLineStoreTest
             new File(unitTestRootDirectory, "FileBasedLineStoreTest");
 
     private final static File file = new File(workingDirectory, fileName);
-    
+
     private final static FileBasedLineStore store = new FileBasedLineStore(file, fileDescription);
 
     @AfterClass
@@ -59,7 +59,7 @@ public class FileBasedLineStoreTest
     {
         FileUtilities.deleteRecursively(workingDirectory);
     }
-    
+
     @Test
     public void testCheck()
     {
@@ -68,7 +68,7 @@ public class FileBasedLineStoreTest
         store.check();
         assertTrue(file.exists());
     }
-    
+
     @Test
     public void testGetId()
     {
@@ -94,7 +94,7 @@ public class FileBasedLineStoreTest
         assertFalse(file.exists());
 
         assertFalse(store.hasChanged());
-        final List<String> lines1 = Arrays.asList("1", "2", "3"); 
+        final List<String> lines1 = Arrays.asList("1", "2", "3");
         store.writeLines(lines1);
         assertTrue(file.exists());
         assertFalse(store.hasChanged());
@@ -116,5 +116,5 @@ public class FileBasedLineStoreTest
         final List<String> linesRead2 = store.readLines();
         assertEquals(lines2, linesRead2);
     }
-    
+
 }

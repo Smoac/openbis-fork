@@ -40,7 +40,7 @@ public class LDAPAuthenticationService implements IAuthenticationService
             LogFactory.getLogger(LogCategory.OPERATION, LDAPAuthenticationService.class);
 
     private final LDAPPrincipalQuery query;
-    
+
     private final boolean configured;
 
     public LDAPAuthenticationService(LDAPDirectoryConfiguration config)

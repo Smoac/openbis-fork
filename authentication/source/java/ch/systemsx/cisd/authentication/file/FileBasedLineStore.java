@@ -50,7 +50,7 @@ final class FileBasedLineStore implements ILineStore
     private final File newFile;
 
     private final String fileDescription;
-    
+
     private long lastReadTimestamp;
 
     FileBasedLineStore(File file, String fileDescription)

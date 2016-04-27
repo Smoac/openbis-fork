@@ -64,18 +64,18 @@ public class StackedAuthenticationServiceTest
     private void addAlways()
     {
         context.checking(new Expectations()
-        {
             {
-                allowing(authService1).isConfigured();
-                will(returnValue(true));
-                allowing(authService2).isConfigured();
-                will(returnValue(true));
-                allowing(authService3).isConfigured();
-                will(returnValue(false));
-            }
-        });
+                {
+                    allowing(authService1).isConfigured();
+                    will(returnValue(true));
+                    allowing(authService2).isConfigured();
+                    will(returnValue(true));
+                    allowing(authService3).isConfigured();
+                    will(returnValue(false));
+                }
+            });
     }
-    
+
     private void addStandardExpectations()
     {
         context.checking(new Expectations()

@@ -39,7 +39,7 @@ import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
 /**
- * Test cases for the {@link CachingAuthenticationService} with changing data 
+ * Test cases for the {@link CachingAuthenticationService} with changing data
  * 
  * @author Bernd Rinn
  */
@@ -65,7 +65,7 @@ public class CachingAuthenticationServicePasswordChangingTests
     private static final String email = "e@mail";
 
     private static final String password = "passw0rd";
-    
+
     private static final String password2 = "newPass";
 
     private static final String password3 = "s@cret4u";
@@ -79,15 +79,15 @@ public class CachingAuthenticationServicePasswordChangingTests
     private static final long time2Cache = 700L;
 
     private static final long time3 = 900L;
-    
+
     private static final long time4 = 1800L;
-    
+
     private static final long time5 = 2000L;
-    
+
     private static final long time3Cache = 2100L;
 
     private static final long time6 = 3500L;
-    
+
     private Mockery context;
 
     private IAuthenticationService delegateService;
@@ -178,7 +178,7 @@ public class CachingAuthenticationServicePasswordChangingTests
         revalidator.runOnce();
         assertTrue(service.getValidationQueue().isEmpty());
         checkCache(user, firstName, lastName, email, time2Cache, true);
-        
+
         context.assertIsSatisfied();
     }
 
@@ -198,7 +198,7 @@ public class CachingAuthenticationServicePasswordChangingTests
         checkPrincipalUser(user, firstName, lastName, email, true, p);
         checkCache(user, firstName, lastName, email, time2Cache, true);
         assertTrue(service.getValidationQueue().isEmpty());
-        
+
         context.assertIsSatisfied();
     }
 
@@ -218,7 +218,7 @@ public class CachingAuthenticationServicePasswordChangingTests
         checkPrincipalUser(user, firstName, lastName, email, true, p);
         checkCache(user, firstName, lastName, email, time2Cache, true);
         assertFalse(service.getValidationQueue().isEmpty());
-        
+
         // Perform revalidation
         context.checking(new Expectations()
             {
@@ -240,7 +240,7 @@ public class CachingAuthenticationServicePasswordChangingTests
         assertTrue(service.getValidationQueue().isEmpty());
         checkCacheEmpty();
         appender.verifyLogHasHappened();
-        
+
         context.assertIsSatisfied();
     }
 
@@ -281,7 +281,7 @@ public class CachingAuthenticationServicePasswordChangingTests
         checkPrincipalUser(user, firstName, lastName, email, true, p);
         checkCache(user, firstName, lastName, email, time3Cache, true);
         assertFalse(service.getValidationQueue().isEmpty());
-        
+
         // Perform revalidation
         context.checking(new Expectations()
             {
@@ -303,7 +303,7 @@ public class CachingAuthenticationServicePasswordChangingTests
         assertTrue(service.getValidationQueue().isEmpty());
         checkCacheEmpty();
         appender.verifyLogHasHappened();
-        
+
         context.assertIsSatisfied();
     }
 

@@ -84,8 +84,7 @@ public class CrowdConfiguration
     }
 
     /**
-     * Sets the port (as String) that the Crowd service is running on. Only set if a positive
-     * integer.
+     * Sets the port (as String) that the Crowd service is running on. Only set if a positive integer.
      */
     public void setPortStr(String portStr)
     {
@@ -170,8 +169,8 @@ public class CrowdConfiguration
     }
 
     /**
-     * Sets the timeout, i.e. how long to wait for a result from Crowd as a String in a format
-     * understood by {@link DateTimeUtils#parseDurationToMillis(String)}.
+     * Sets the timeout, i.e. how long to wait for a result from Crowd as a String in a format understood by
+     * {@link DateTimeUtils#parseDurationToMillis(String)}.
      */
     public void setTimeoutStr(String timeoutStr)
     {

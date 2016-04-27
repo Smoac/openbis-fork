@@ -94,8 +94,7 @@ public class CachingAuthenticationConfiguration
     }
 
     /**
-     * Sets the cache time as String in a format understood by
-     * {@link DateTimeUtils#parseDurationToMillis(String)}.
+     * Sets the cache time as String in a format understood by {@link DateTimeUtils#parseDurationToMillis(String)}.
      */
     public void setCacheTimeStr(String cacheTimeStr)
     {
@@ -130,8 +129,8 @@ public class CachingAuthenticationConfiguration
     }
 
     /**
-     * Sets the time to return cache value without triggering revalidation as String in a format
-     * understood by {@link DateTimeUtils#parseDurationToMillis(String)}..
+     * Sets the time to return cache value without triggering revalidation as String in a format understood by
+     * {@link DateTimeUtils#parseDurationToMillis(String)}..
      */
     public void setCacheTimeNoRevalidationStr(String cacheTimeNoRevalidationStr)
     {

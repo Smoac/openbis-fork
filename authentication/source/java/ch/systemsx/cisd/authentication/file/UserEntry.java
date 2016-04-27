@@ -79,13 +79,13 @@ class UserEntry extends AbstractHashable
 
         this.passwordFileEntry =
                 new String[]
-                    {
-                            userId,
-                            email,
-                            firstName,
-                            lastName,
-                            StringUtils.isEmpty(password) ? ""
-                                    : PasswordHasher.computeSaltedHash(password) };
+                {
+                        userId,
+                        email,
+                        firstName,
+                        lastName,
+                        StringUtils.isEmpty(password) ? ""
+                                : PasswordHasher.computeSaltedHash(password) };
     }
 
     /**
@@ -129,8 +129,7 @@ class UserEntry extends AbstractHashable
     }
 
     /**
-     * Sets the email address of the user. <var>email</var> can be blank, but must not be
-     * <code>null</code>.
+     * Sets the email address of the user. <var>email</var> can be blank, but must not be <code>null</code>.
      */
     synchronized void setEmail(String email)
     {
@@ -148,8 +147,7 @@ class UserEntry extends AbstractHashable
     }
 
     /**
-     * Sets the first name of the user. <var>firstName</var> can be blank, but must not be
-     * <code>null</code>.
+     * Sets the first name of the user. <var>firstName</var> can be blank, but must not be <code>null</code>.
      */
     synchronized void setFirstName(String firstName)
     {
@@ -167,8 +165,7 @@ class UserEntry extends AbstractHashable
     }
 
     /**
-     * Sets the last name of the user. <var>lastName</var> can be blank, but must not be
-     * <code>null</code>.
+     * Sets the last name of the user. <var>lastName</var> can be blank, but must not be <code>null</code>.
      */
     synchronized void setLastName(String lastName)
     {
@@ -186,11 +183,11 @@ class UserEntry extends AbstractHashable
     }
 
     /**
-     * Sets the password of the user. If <var>plainPassword</var> is blank, then an empty password
-     * hash will be saved and all password checks will fail for this user entry.
+     * Sets the password of the user. If <var>plainPassword</var> is blank, then an empty password hash will be saved and all password checks will
+     * fail for this user entry.
      * <p>
-     * The password is actually salted, an SHA1 hash of the salted password is computed and the
-     * Base64 encoded version of the salt concatenated with the SHA1 hash is stored.
+     * The password is actually salted, an SHA1 hash of the salted password is computed and the Base64 encoded version of the salt concatenated with
+     * the SHA1 hash is stored.
      */
     synchronized void setPassword(String plainPassword)
     {
@@ -212,8 +209,8 @@ class UserEntry extends AbstractHashable
     }
 
     /**
-     * Returns <code>true</code>, if the <var>passwordOrNull</var> is matching the password of this
-     * user entry (<code>null</code> means: <code>false</code>).
+     * Returns <code>true</code>, if the <var>passwordOrNull</var> is matching the password of this user entry (<code>null</code> means:
+     * <code>false</code>).
      */
     synchronized boolean isPasswordCorrect(String passwordOrNull)
     {

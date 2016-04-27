@@ -174,9 +174,7 @@ public final class LDAPDirectoryConfiguration
     }
 
     /**
-     * If the query for emails should use the email aliases instead of the canonical email
-     * addresses.
-     * Default: <code>false</code>.
+     * If the query for emails should use the email aliases instead of the canonical email addresses. Default: <code>false</code>.
      */
     public void setQueryEmailForAliases(String queryEmailForAliases)
     {
@@ -307,8 +305,7 @@ public final class LDAPDirectoryConfiguration
     }
 
     /**
-     * Default value:
-     * <code>(&(objectClass=organizationalPerson)(objectCategory=person)(objectClass=user)(%s))</code>
+     * Default value: <code>(&(objectClass=organizationalPerson)(objectCategory=person)(objectClass=user)(%s))</code>
      */
     public String getQueryTemplate()
     {
@@ -316,8 +313,7 @@ public final class LDAPDirectoryConfiguration
     }
 
     /**
-     * Needs to contain exactly one '<code>%s</code>' which will be replaced with the filter
-     * condition, e.g. '<code>uid=mueller</code>'.
+     * Needs to contain exactly one '<code>%s</code>' which will be replaced with the filter condition, e.g. '<code>uid=mueller</code>'.
      */
     public void setQueryTemplate(String queryTemplate)
     {
@@ -328,14 +324,13 @@ public final class LDAPDirectoryConfiguration
     }
 
     /**
-     * The read timeout (in s).
-     * Default value: <code>10s</code>
+     * The read timeout (in s). Default value: <code>10s</code>
      */
     public String getTimeoutStr()
     {
         return Long.toString(timeout / 1000);
     }
-    
+
     /**
      * Returns the timeout (in ms)
      */
@@ -345,8 +340,7 @@ public final class LDAPDirectoryConfiguration
     }
 
     /**
-     * Set the read timeout as String in a format understood by
-     * {@link DateTimeUtils#parseDurationToMillis(String)}.
+     * Set the read timeout as String in a format understood by {@link DateTimeUtils#parseDurationToMillis(String)}.
      */
     public void setTimeoutStr(String timeoutStr)
     {
@@ -357,8 +351,7 @@ public final class LDAPDirectoryConfiguration
     }
 
     /**
-     * The time to wait after failure before retrying (in ms).
-     * Default value: <code>10000</code> (10s)
+     * The time to wait after failure before retrying (in ms). Default value: <code>10000</code> (10s)
      */
     public long getTimeToWaitAfterFailure()
     {
@@ -366,8 +359,7 @@ public final class LDAPDirectoryConfiguration
     }
 
     /**
-     * The time to wait after failure before retrying (in s).
-     * Default value: <code>10</code>
+     * The time to wait after failure before retrying (in s). Default value: <code>10</code>
      */
     public String getTimeToWaitAfterFailureStr()
     {
@@ -375,8 +367,7 @@ public final class LDAPDirectoryConfiguration
     }
 
     /**
-     * Set the time to wait after failure before retrying as a String in a format understood by
-     * {@link DateTimeUtils#parseDurationToMillis(String)}.
+     * Set the time to wait after failure before retrying as a String in a format understood by {@link DateTimeUtils#parseDurationToMillis(String)}.
      */
     public void setTimeToWaitAfterFailureStr(String timeToWaitOnFailureStr)
     {
@@ -388,8 +379,7 @@ public final class LDAPDirectoryConfiguration
     }
 
     /**
-     * The maximum number of times a failed query is retried.
-     * Default value: <code>9</code>
+     * The maximum number of times a failed query is retried. Default value: <code>9</code>
      */
     public int getMaxRetries()
     {
@@ -397,8 +387,7 @@ public final class LDAPDirectoryConfiguration
     }
 
     /**
-     * The maximum number of times a failed query is retried.
-     * Default value: <code>9</code>
+     * The maximum number of times a failed query is retried. Default value: <code>9</code>
      */
     public String getMaxRetriesStr()
     {

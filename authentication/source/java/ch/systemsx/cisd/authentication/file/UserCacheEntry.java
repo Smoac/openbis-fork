@@ -58,17 +58,17 @@ public class UserCacheEntry extends UserEntry
         assert p != null;
 
         return new String[]
-            {
-                    p.getUserId(),
-                    p.getEmail(),
-                    p.getFirstName(),
-                    p.getLastName(),
-                    (p.isAuthenticated() && StringUtils.isNotEmpty(passwordOrNull)) ? PasswordHasher
-                            .computeSaltedHash(passwordOrNull)
-                            : "",
-                    Long.toString(cachedAt),
+        {
+                p.getUserId(),
+                p.getEmail(),
+                p.getFirstName(),
+                p.getLastName(),
+                (p.isAuthenticated() && StringUtils.isNotEmpty(passwordOrNull)) ? PasswordHasher
+                        .computeSaltedHash(passwordOrNull)
+                        : "",
+                Long.toString(cachedAt),
         };
-}
+    }
 
     /**
      * Returns the time stamp when this cache entry was put into the cache.

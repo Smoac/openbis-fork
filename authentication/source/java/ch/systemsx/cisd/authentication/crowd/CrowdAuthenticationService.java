@@ -50,11 +50,9 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * This <code>IAuthenticationService</code> implementation first registers the application on the
- * <i>Crowd</i> server, then authenticates the user.
+ * This <code>IAuthenticationService</code> implementation first registers the application on the <i>Crowd</i> server, then authenticates the user.
  * <p>
- * The modus operandi is based on information found at <a
- * href="http://confluence.atlassian.com/display/CROWD/SOAP+API"
+ * The modus operandi is based on information found at <a href="http://confluence.atlassian.com/display/CROWD/SOAP+API"
  * >http://confluence.atlassian.com/display/CROWD/SOAP+API</a>
  * </p>
  * 
@@ -174,7 +172,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
     private final boolean configured;
 
     private final IRequestExecutor requestExecutor;
-    
+
     private final AtomicReference<String> applicationTokenHolder = new AtomicReference<String>();
 
     public CrowdAuthenticationService(CrowdConfiguration configuration)
@@ -190,7 +188,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
                     "A new CrowdAuthenticationService instance has been created for [" + "url="
                             + url + ", application=" + application + "], timeout: "
                             + ((configuration.getTimeout() == 0) ? "-." : (configuration.getTimeout()
-                            / 1000 + " s."));
+                                    / 1000 + " s."));
             operationLog.debug(msg);
         }
     }
@@ -480,8 +478,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
     }
 
     /**
-     * Parses given <i>Crowd</i> XML response and returns a map of found <code>SOAPAttribute</code>
-     * s.
+     * Parses given <i>Crowd</i> XML response and returns a map of found <code>SOAPAttribute</code> s.
      * <p>
      * Never returns <code>null</code> but could returns an empty <code>Map</code>.
      * </p>
@@ -526,8 +523,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
     /**
      * Tries to find given <code>element</code> in <code>xmlString</code>.
      * <p>
-     * Note that this is a special-purpose method not suitable for putting it into general utility
-     * classes. For example it does not find empty elements.
+     * Note that this is a special-purpose method not suitable for putting it into general utility classes. For example it does not find empty
+     * elements.
      * 
      * @return The requested element, or <code>null</code> if it could not be found.
      */

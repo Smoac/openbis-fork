@@ -27,11 +27,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import ch.systemsx.cisd.common.reflection.AbstractHashable;
 
 /**
- * This class defines in its constructor minimum information that we must know about a
- * <code>Principal</code>.
+ * This class defines in its constructor minimum information that we must know about a <code>Principal</code>.
  * <p>
- * It is also possible to put additional <code>Object</code> properties related to this
- * <code>Principal</code>.
+ * It is also possible to put additional <code>Object</code> properties related to this <code>Principal</code>.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -55,8 +53,7 @@ public final class Principal extends AbstractHashable implements Serializable
     private Map<String, String> properties;
 
     /**
-     * Returns <code>true</code>, if <var>principalOrNull</var> is not <code>null</code> and has
-     * been successfully authenticated.
+     * Returns <code>true</code>, if <var>principalOrNull</var> is not <code>null</code> and has been successfully authenticated.
      */
     public static boolean isAuthenticated(Principal principalOrNull)
     {
@@ -91,8 +88,7 @@ public final class Principal extends AbstractHashable implements Serializable
      * @param firstName can not be <code>null</code>.
      * @param lastName can not be <code>null</code>.
      * @param email can not be <code>null</code>.
-     * @param authenticated <code>true</code> if this principal has been authenticated in the
-     *            operation.
+     * @param authenticated <code>true</code> if this principal has been authenticated in the operation.
      */
     public Principal(final String userId, final String firstName, final String lastName,
             final String email, boolean authenticated)
@@ -107,8 +103,7 @@ public final class Principal extends AbstractHashable implements Serializable
      * @param firstName can not be <code>null</code>.
      * @param lastName can not be <code>null</code>.
      * @param email can not be <code>null</code>.
-     * @param authenticated <code>true</code> if this principal has been authenticated in the
-     *            operation.
+     * @param authenticated <code>true</code> if this principal has been authenticated in the operation.
      * @param properties can not be <code>null</code>.
      */
     public Principal(final String userId, final String firstName, final String lastName,
@@ -161,8 +156,7 @@ public final class Principal extends AbstractHashable implements Serializable
     }
 
     /**
-     * Returns the property for given <var>key</var>, or <code>null</code>, if no property exists
-     * for this <var>key</var>.
+     * Returns the property for given <var>key</var>, or <code>null</code>, if no property exists for this <var>key</var>.
      */
     public final String getProperty(final String key)
     {

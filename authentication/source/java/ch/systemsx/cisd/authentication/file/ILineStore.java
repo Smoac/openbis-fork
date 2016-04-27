@@ -44,8 +44,7 @@ interface ILineStore
     void check() throws ConfigurationFailureException;
 
     /**
-     * Returns the lines currently in this store. If the store does not yet exist, return an empty
-     * list.
+     * Returns the lines currently in this store. If the store does not yet exist, return an empty list.
      */
     List<String> readLines() throws EnvironmentFailureException;
 
@@ -55,8 +54,7 @@ interface ILineStore
     void writeLines(List<String> lines) throws EnvironmentFailureException;
 
     /**
-     * Returns <code>true</code> if the lines store has changed on disk since the last time it was
-     * read or written.
+     * Returns <code>true</code> if the lines store has changed on disk since the last time it was read or written.
      */
     boolean hasChanged();
 }

@@ -55,7 +55,7 @@ import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 public class DefaultSessionManager<T extends BasicSession> implements ISessionManager<T>
 {
     public static final File NO_LOGIN_FILE = new File("./etc/nologin.html");
-    
+
     private static final String LOGOUT_PREFIX = "LOGOUT: ";
 
     private static final String LOGIN_PREFIX_TEMPLATE = "(%dms) LOGIN: ";
@@ -140,7 +140,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     private final int sessionExpirationPeriodMillis;
 
     private final int sessionExpirationPeriodMillisNoLogin;
-    
+
     private final boolean tryEmailAsUserName;
 
     public DefaultSessionManager(final ISessionFactory<T> sessionFactory,
@@ -155,7 +155,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     public DefaultSessionManager(final ISessionFactory<T> sessionFactory,
             final ILogMessagePrefixGenerator<T> prefixGenerator,
             final IAuthenticationService authenticationService,
-            final IRemoteHostProvider remoteHostProvider, final int sessionExpirationPeriodMinutes, 
+            final IRemoteHostProvider remoteHostProvider, final int sessionExpirationPeriodMinutes,
             final int sessionExpirationPeriodMinutesNoLogin,
             final boolean tryEmailAsUserName)
     {
@@ -173,10 +173,9 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         this.remoteHostProvider = remoteHostProvider;
         this.sessionExpirationPeriodMillis =
                 (int) (sessionExpirationPeriodMinutes * DateUtils.MILLIS_PER_MINUTE);
-        if (sessionExpirationPeriodMinutesNoLogin > 0) 
+        if (sessionExpirationPeriodMinutesNoLogin > 0)
         {
-            this.sessionExpirationPeriodMillisNoLogin 
-                = (int) (sessionExpirationPeriodMinutesNoLogin * DateUtils.MILLIS_PER_MINUTE);
+            this.sessionExpirationPeriodMillisNoLogin = (int) (sessionExpirationPeriodMinutesNoLogin * DateUtils.MILLIS_PER_MINUTE);
         } else
         {
             this.sessionExpirationPeriodMillisNoLogin = sessionExpirationPeriodMillis;

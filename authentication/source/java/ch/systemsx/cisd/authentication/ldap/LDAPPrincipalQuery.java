@@ -265,16 +265,14 @@ public final class LDAPPrincipalQuery implements ISelfTestable
     }
 
     /**
-     * Returns a list of principals matching a search query given as <var>key</var> and
-     * <var>value</var> where value may contain <code>*</code> as a wildcard character.
+     * Returns a list of principals matching a search query given as <var>key</var> and <var>value</var> where value may contain <code>*</code> as a
+     * wildcard character.
      * 
      * @param key The key to search for, e.g. <code>uid</code>
      * @param value The value to query for, e.g. <code>may*</code>
-     * @param additionalAttributesOrNull If not <code>null</code>, include the attributes with the
-     *            given attribute names. If <var>additionalAttributesOrNull</var> is an empty
-     *            collection, include all properties that the principal has in LDAP
-     * @param limit The limit of users to return at most. Note that limiting the search to 1 gives
-     *            usually a big performance boost.
+     * @param additionalAttributesOrNull If not <code>null</code>, include the attributes with the given attribute names. If
+     *            <var>additionalAttributesOrNull</var> is an empty collection, include all properties that the principal has in LDAP
+     * @param limit The limit of users to return at most. Note that limiting the search to 1 gives usually a big performance boost.
      * @return The list of principals matching the query
      */
     @SuppressWarnings("null")
@@ -391,8 +389,9 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         {
             return threadContext;
         }
-        if(password != null && password.isEmpty()) {
-            throw new RuntimeException("Try to login user '" + dn +"' with empty password.");
+        if (password != null && password.isEmpty())
+        {
+            throw new RuntimeException("Try to login user '" + dn + "' with empty password.");
         }
         final Hashtable<String, String> env = new Hashtable<String, String>();
         env.put(Context.INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY_CLASSNAME);

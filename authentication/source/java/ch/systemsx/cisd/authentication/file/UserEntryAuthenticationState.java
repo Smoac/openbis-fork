@@ -24,7 +24,7 @@ package ch.systemsx.cisd.authentication.file;
 final class UserEntryAuthenticationState<T extends UserEntry>
 {
     private final T userEntry;
-    
+
     private final boolean authenticated;
 
     UserEntryAuthenticationState(T userEntry, boolean authenticated)

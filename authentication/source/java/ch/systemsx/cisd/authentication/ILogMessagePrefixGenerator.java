@@ -17,9 +17,8 @@
 package ch.systemsx.cisd.authentication;
 
 /**
- * Generator of a prefix for authentication log messages. The prefix contains user information.
- * Minimum information is user name or ID and remote host (i.e. IP address of the user client
- * computer).
+ * Generator of a prefix for authentication log messages. The prefix contains user information. Minimum information is user name or ID and remote host
+ * (i.e. IP address of the user client computer).
  * 
  * @author Franz-Josef Elmer
  */
@@ -29,7 +28,7 @@ public interface ILogMessagePrefixGenerator<T extends BasicSession>
      * Creates a prefix based on the specified session.
      */
     public String createPrefix(T session);
-    
+
     /**
      * Creates a prefix for specified user and remote host.
      */

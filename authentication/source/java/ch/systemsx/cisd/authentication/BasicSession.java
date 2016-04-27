@@ -49,8 +49,8 @@ public class BasicSession implements Serializable
     }
 
     /**
-     * Creates an instance from the specified session token, user name, principal, remoteHost, and
-     * session start (in milliseconds since start of the epoch).
+     * Creates an instance from the specified session token, user name, principal, remoteHost, and session start (in milliseconds since start of the
+     * epoch).
      */
     public BasicSession(String sessionToken, String userName, Principal principal,
             String remoteHost, long sessionStart, int sessionExpirationTime)
@@ -111,8 +111,7 @@ public class BasicSession implements Serializable
     }
 
     /**
-     * Returns the time when the session has been started (in milliseconds since start of the
-     * epoch).
+     * Returns the time when the session has been started (in milliseconds since start of the epoch).
      */
     public final long getSessionStart()
     {
@@ -133,7 +132,7 @@ public class BasicSession implements Serializable
     public void cleanup()
     {
     }
-    
+
     @Deprecated
     public void setSessionToken(String sessionToken)
     {

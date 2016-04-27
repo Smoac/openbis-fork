@@ -22,8 +22,8 @@ import ch.systemsx.cisd.common.server.IRemoteHostProvider;
 /**
  * Implementation of this interface takes care of creating, managing and removing sessions.
  * <p>
- * It is a good idea to think about session synchronization when implementing this interface: you
- * should synchronize access to <code>Session</code> objects.
+ * It is a good idea to think about session synchronization when implementing this interface: you should synchronize access to <code>Session</code>
+ * objects.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -34,8 +34,8 @@ public interface ISessionManager<T extends BasicSession> extends IRemoteHostProv
     /**
      * Opens a new session with given <code>user</code> and given <code>password</code>.
      * 
-     * @return A session token that is used afterwards to get the <code>Session</code> object, or
-     *         <code>null</code>, if the user could not be authenticated.
+     * @return A session token that is used afterwards to get the <code>Session</code> object, or <code>null</code>, if the user could not be
+     *         authenticated.
      */
     public String tryToOpenSession(final String user, final String password);
 
@@ -68,9 +68,8 @@ public interface ISessionManager<T extends BasicSession> extends IRemoteHostProv
     public T getSession(final String sessionToken) throws InvalidSessionException;
 
     /**
-     * For given <var>sessionToken</var> return the <code>Session</code> object, or
-     * <code>null</code>, if no session exist or the session is not valid. This method will never
-     * touch or expire a session.
+     * For given <var>sessionToken</var> return the <code>Session</code> object, or <code>null</code>, if no session exist or the session is not
+     * valid. This method will never touch or expire a session.
      * <p>
      * You should already be authenticated before calling this method.
      * </p>

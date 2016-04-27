@@ -31,7 +31,7 @@ public interface IAuthenticationService extends ISelfTestable
      * Returns <code>true</code> if this authentication service is configured.
      */
     public boolean isConfigured();
-    
+
     /**
      * Attempts authentication for the given user credentials.
      * 
@@ -40,22 +40,19 @@ public interface IAuthenticationService extends ISelfTestable
     public boolean authenticateUser(String user, String password);
 
     /**
-     * Returns the user details for the given <var>userId</var>, optionally trying to authenticating
-     * the user with the given <var>passwordOrNull</var>.
+     * Returns the user details for the given <var>userId</var>, optionally trying to authenticating the user with the given
+     * <var>passwordOrNull</var>.
      * 
      * @param user The user id to get the details for.
-     * @param passwordOrNull The password to use for the authentication request. If
-     *            <code>null</code>, the user will not be authenticated.
-     * @return The Principal object, if a user with this <var>userId</var> exist, <code>null</code>
-     *         otherwise. You can check with {@link Principal#isAuthenticated()} or
-     *         {@link Principal#isAuthenticated(Principal)} whether the authentication request has
-     *         been successful.
+     * @param passwordOrNull The password to use for the authentication request. If <code>null</code>, the user will not be authenticated.
+     * @return The Principal object, if a user with this <var>userId</var> exist, <code>null</code> otherwise. You can check with
+     *         {@link Principal#isAuthenticated()} or {@link Principal#isAuthenticated(Principal)} whether the authentication request has been
+     *         successful.
      */
     public Principal tryGetAndAuthenticateUser(String user, String passwordOrNull);
 
     /**
-     * For a given user name returns additional details encapsulated in returned
-     * <code>Principal</code>.
+     * For a given user name returns additional details encapsulated in returned <code>Principal</code>.
      * 
      * @return The <code>Principal</code> object for the given <var>user</var>.
      * @throws IllegalArgumentException If the <var>user</var> cannot be found.
@@ -63,86 +60,71 @@ public interface IAuthenticationService extends ISelfTestable
     public Principal getPrincipal(String user) throws IllegalArgumentException;
 
     /**
-     * Returns <code>true</code> if this authentication service supports authenticating users by
-     * their email address.
+     * Returns <code>true</code> if this authentication service supports authenticating users by their email address.
      */
     public boolean supportsAuthenticatingByEmail();
 
     /**
-     * Returns <code>true</code> if this authentication service supports listing of principals by
-     * user id.
+     * Returns <code>true</code> if this authentication service supports listing of principals by user id.
      * <p>
-     * Note that this does not refer to the methods that return only one principal like
-     * {@link #getPrincipal(String)} or {@link #tryGetAndAuthenticateUser(String, String)}.
+     * Note that this does not refer to the methods that return only one principal like {@link #getPrincipal(String)} or
+     * {@link #tryGetAndAuthenticateUser(String, String)}.
      */
     public boolean supportsListingByUserId();
 
     /**
      * Returns a list of all users that match the <var>userIdQuery</var>.
      * 
-     * @param userIdQuery The query for user ids to list. As user ids are unique, it can only ever
-     *            return more than one user if it contains one or more wildcard characters (
-     *            <code>*</code>).
-     * @throws UnsupportedOperationException if this authentication service does not support this
-     *             operation.
+     * @param userIdQuery The query for user ids to list. As user ids are unique, it can only ever return more than one user if it contains one or
+     *            more wildcard characters ( <code>*</code>).
+     * @throws UnsupportedOperationException if this authentication service does not support this operation.
      */
     public List<Principal> listPrincipalsByUserId(String userIdQuery)
             throws IllegalArgumentException;
 
     /**
-     * Returns <code>true</code> if this authentication service supports listing of principals by
-     * email address.
+     * Returns <code>true</code> if this authentication service supports listing of principals by email address.
      * <p>
-     * Note that this also refers to the method
-     * {@link #tryGetAndAuthenticateUserByEmail(String, String)}.
+     * Note that this also refers to the method {@link #tryGetAndAuthenticateUserByEmail(String, String)}.
      */
     public boolean supportsListingByEmail();
 
     /**
-     * Returns the user details for the given <var>email</var>, optionally trying to authenticating
-     * the user with the given <var>passwordOrNull</var>.
+     * Returns the user details for the given <var>email</var>, optionally trying to authenticating the user with the given <var>passwordOrNull</var>.
      * <p>
-     * <b>Note: if multiple users with this email address exist in the authentication repository,
-     * the first one regarding an arbitrary (repository determined) order will be returned.</b>
+     * <b>Note: if multiple users with this email address exist in the authentication repository, the first one regarding an arbitrary (repository
+     * determined) order will be returned.</b>
      * <p>
-     * <i>Only available, if {@link #supportsListingByEmail()} returns <code>true</code>, otherwise
-     * will throw an {@link UnsupportedOperationException}.</i>
+     * <i>Only available, if {@link #supportsListingByEmail()} returns <code>true</code>, otherwise will throw an
+     * {@link UnsupportedOperationException}.</i>
      * 
      * @param email The email of the user to get the details for.
-     * @param passwordOrNull The password to use for the authentication request. If
-     *            <code>null</code>, the user will not be authenticated.
-     * @return The Principal object, if a user with this <var>email</var> exist, <code>null</code>
-     *         otherwise. You can check with {@link Principal#isAuthenticated()} or
-     *         {@link Principal#isAuthenticated(Principal)} whether the authentication request has
-     *         been successful.
-     * @throws UnsupportedOperationException if this authentication service does not support this
-     *             operation.
+     * @param passwordOrNull The password to use for the authentication request. If <code>null</code>, the user will not be authenticated.
+     * @return The Principal object, if a user with this <var>email</var> exist, <code>null</code> otherwise. You can check with
+     *         {@link Principal#isAuthenticated()} or {@link Principal#isAuthenticated(Principal)} whether the authentication request has been
+     *         successful.
+     * @throws UnsupportedOperationException if this authentication service does not support this operation.
      */
     public Principal tryGetAndAuthenticateUserByEmail(String email, String passwordOrNull);
 
     /**
      * Returns a list of all users that match the <var>emailQuery</var>.
      * 
-     * @param emailQuery The query for email addresses to list. May contain one or more wildcard
-     *            characters (<code>*</code>).
-     * @throws UnsupportedOperationException if this authentication service does not support this
-     *             operation.
+     * @param emailQuery The query for email addresses to list. May contain one or more wildcard characters (<code>*</code>).
+     * @throws UnsupportedOperationException if this authentication service does not support this operation.
      */
     public List<Principal> listPrincipalsByEmail(String emailQuery) throws IllegalArgumentException;
 
     /**
-     * Returns <code>true</code> if this authentication service supports listing of principals by
-     * last name.
+     * Returns <code>true</code> if this authentication service supports listing of principals by last name.
      */
     public boolean supportsListingByLastName();
 
     /**
      * Returns a list of all users that match the <var>lastNameQuery</var>.
      * 
-     * @param lastNameQuery The query for last names to list. May contain one or more wildcard
-     *            characters (<code>*</code>).
-     * @throws UnsupportedOperationException if this authentication service does not support this
-     *             operation.
+     * @param lastNameQuery The query for last names to list. May contain one or more wildcard characters (<code>*</code>).
+     * @throws UnsupportedOperationException if this authentication service does not support this operation.
      */
     public List<Principal> listPrincipalsByLastName(String lastNameQuery)
             throws IllegalArgumentException;
@@ -169,25 +151,22 @@ public interface IAuthenticationService extends ISelfTestable
     public boolean authenticateUser(String dummyToken, String user, String password);
 
     /**
-     * Returns the user details for the given <var>userId</var>, optionally trying to authenticating
-     * the user with the given <var>passwordOrNull</var>.
+     * Returns the user details for the given <var>userId</var>, optionally trying to authenticating the user with the given
+     * <var>passwordOrNull</var>.
      * 
      * @param dummyToken Some string that is ignored. Can be <code>null</code>.
      * @param user The user id to get the details for.
-     * @param passwordOrNull The password to use for the authentication request. If
-     *            <code>null</code>, the user will not be authenticated.
-     * @return The Principal object, if a user with this <var>userId</var> exist, <code>null</code>
-     *         otherwise. You can check with {@link Principal#isAuthenticated()} or
-     *         {@link Principal#isAuthenticated(Principal)} whether the authentication request has
-     *         been successful.
+     * @param passwordOrNull The password to use for the authentication request. If <code>null</code>, the user will not be authenticated.
+     * @return The Principal object, if a user with this <var>userId</var> exist, <code>null</code> otherwise. You can check with
+     *         {@link Principal#isAuthenticated()} or {@link Principal#isAuthenticated(Principal)} whether the authentication request has been
+     *         successful.
      * @deprecated Use {@link #tryGetAndAuthenticateUser(String, String)}
      */
     @Deprecated
     public Principal tryGetAndAuthenticateUser(String dummyToken, String user, String passwordOrNull);
 
     /**
-     * For a given user name returns additional details encapsulated in returned
-     * <code>Principal</code>.
+     * For a given user name returns additional details encapsulated in returned <code>Principal</code>.
      * 
      * @return The <code>Principal</code> object for the given <var>user</var>.
      * @throws IllegalArgumentException If the <var>user</var> cannot be found.
@@ -200,11 +179,9 @@ public interface IAuthenticationService extends ISelfTestable
      * Returns a list of all users that match the <var>userIdQuery</var>.
      * 
      * @param dummyToken Some string that is ignored. Can be <code>null</code>.
-     * @param userIdQuery The query for user ids to list. As user ids are unique, it can only ever
-     *            return more than one user if it contains one or more wildcard characters (
-     *            <code>*</code>).
-     * @throws UnsupportedOperationException if this authentication service does not support this
-     *             operation.
+     * @param userIdQuery The query for user ids to list. As user ids are unique, it can only ever return more than one user if it contains one or
+     *            more wildcard characters ( <code>*</code>).
+     * @throws UnsupportedOperationException if this authentication service does not support this operation.
      * @deprecated Use {@link #listPrincipalsByUserId(String)}
      */
     @Deprecated
@@ -212,22 +189,18 @@ public interface IAuthenticationService extends ISelfTestable
             throws IllegalArgumentException;
 
     /**
-     * Returns the user details for the given <var>email</var>, optionally trying to authenticating
-     * the user with the given <var>passwordOrNull</var>.
+     * Returns the user details for the given <var>email</var>, optionally trying to authenticating the user with the given <var>passwordOrNull</var>.
      * <p>
-     * <b>Note: if multiple users with this email address exist in the authentication repository,
-     * the first one regarding an arbitrary (repository determined) order will be returned.</b>
+     * <b>Note: if multiple users with this email address exist in the authentication repository, the first one regarding an arbitrary (repository
+     * determined) order will be returned.</b>
      * 
      * @param dummyToken Some string that is ignored. Can be <code>null</code>.
      * @param email The email of the user to get the details for.
-     * @param passwordOrNull The password to use for the authentication request. If
-     *            <code>null</code>, the user will not be authenticated.
-     * @return The Principal object, if a user with this <var>email</var> exist, <code>null</code>
-     *         otherwise. You can check with {@link Principal#isAuthenticated()} or
-     *         {@link Principal#isAuthenticated(Principal)} whether the authentication request has
-     *         been successful.
-     * @throws UnsupportedOperationException if this authentication service does not support this
-     *             operation.
+     * @param passwordOrNull The password to use for the authentication request. If <code>null</code>, the user will not be authenticated.
+     * @return The Principal object, if a user with this <var>email</var> exist, <code>null</code> otherwise. You can check with
+     *         {@link Principal#isAuthenticated()} or {@link Principal#isAuthenticated(Principal)} whether the authentication request has been
+     *         successful.
+     * @throws UnsupportedOperationException if this authentication service does not support this operation.
      * @throws IllegalArgumentException If the <var>applicationToken</var> is invalid.
      * @deprecated Use {@link #tryGetAndAuthenticateUserByEmail(String, String)}
      */
@@ -239,10 +212,8 @@ public interface IAuthenticationService extends ISelfTestable
      * Returns a list of all users that match the <var>emailQuery</var>.
      * 
      * @param dummyToken Some string that is ignored. Can be <code>null</code>.
-     * @param emailQuery The query for email addresses to list. May contain one or more wildcard
-     *            characters (<code>*</code>).
-     * @throws UnsupportedOperationException if this authentication service does not support this
-     *             operation.
+     * @param emailQuery The query for email addresses to list. May contain one or more wildcard characters (<code>*</code>).
+     * @throws UnsupportedOperationException if this authentication service does not support this operation.
      * @throws IllegalArgumentException If the <var>applicationToken</var> is invalid.
      * @deprecated Use {@link #listPrincipalsByEmail(String)}
      */
@@ -254,10 +225,8 @@ public interface IAuthenticationService extends ISelfTestable
      * Returns a list of all users that match the <var>lastNameQuery</var>.
      * 
      * @param dummyToken Some string that is ignored. Can be <code>null</code>.
-     * @param lastNameQuery The query for last names to list. May contain one or more wildcard
-     *            characters (<code>*</code>).
-     * @throws UnsupportedOperationException if this authentication service does not support this
-     *             operation.
+     * @param lastNameQuery The query for last names to list. May contain one or more wildcard characters (<code>*</code>).
+     * @throws UnsupportedOperationException if this authentication service does not support this operation.
      * @throws IllegalArgumentException If the <var>applicationToken</var> is invalid.
      * @deprecated {@link #listPrincipalsByLastName(String)}
      */

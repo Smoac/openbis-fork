@@ -31,8 +31,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 
 /**
- * An implementation of {@link IAuthenticationService} that gets the authentication information from
- * a password store (which is usually backed by a file).
+ * An implementation of {@link IAuthenticationService} that gets the authentication information from a password store (which is usually backed by a
+ * file).
  * <p>
  * The file contains:
  * <ul>

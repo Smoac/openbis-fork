@@ -34,34 +34,31 @@ interface IUserStore<T extends UserEntry> extends ISelfTestable
     String getId();
 
     /**
-     * Returns the {@link UserEntry} for <var>userId</var>, or <code>null</code>, if this user does
-     * not exist.
+     * Returns the {@link UserEntry} for <var>userId</var>, or <code>null</code>, if this user does not exist.
      */
     T tryGetUserById(String userId) throws EnvironmentFailureException;
 
     /**
-     * Returns the {@link UserEntry} for <var>userId</var> and whether it correctly authenticated
-     * with <var>password</var>, or <code>null</code>, if this user does not exist.
+     * Returns the {@link UserEntry} for <var>userId</var> and whether it correctly authenticated with <var>password</var>, or <code>null</code>, if
+     * this user does not exist.
      */
     UserEntryAuthenticationState<T> tryGetAndAuthenticateUserById(String userId, String password)
             throws EnvironmentFailureException;
 
     /**
-     * Returns the {@link UserEntry} for <var>email</var>, or <code>null</code>, if this user does
-     * not exist.
+     * Returns the {@link UserEntry} for <var>email</var>, or <code>null</code>, if this user does not exist.
      */
     T tryGetUserByEmail(String email) throws EnvironmentFailureException;
 
     /**
-     * Returns the {@link UserEntry} for <var>email</var> and whether it correctly authenticated
-     * with <var>password</var>, or <code>null</code>, if this user does not exist.
+     * Returns the {@link UserEntry} for <var>email</var> and whether it correctly authenticated with <var>password</var>, or <code>null</code>, if
+     * this user does not exist.
      */
     UserEntryAuthenticationState<T> tryGetAndAuthenticateUserByEmail(String email, String password)
             throws EnvironmentFailureException;
 
     /**
-     * Adds the <var>user</var> if it exists, otherwise updates (replaces) the entry with the given
-     * entry.
+     * Adds the <var>user</var> if it exists, otherwise updates (replaces) the entry with the given entry.
      */
     void addOrUpdateUser(T user) throws EnvironmentFailureException;
 
