@@ -28,8 +28,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * Implementation of the {@link IRpcServiceNameServer} interface which registry for accessing the
- * RPC services supported by a server.
+ * Implementation of the {@link IRpcServiceNameServer} interface which registry for accessing the RPC services supported by a server.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -72,8 +71,7 @@ public class RpcServiceNameServer implements IRpcServiceNameServer
     }
 
     /**
-     * Add an interface version to the registry. This will automatically create an supported
-     * interface if necessary.
+     * Add an interface version to the registry. This will automatically create an supported interface if necessary.
      */
     public void addSupportedInterfaceVersion(RpcServiceInterfaceVersionDTO ifaceVersion)
     {

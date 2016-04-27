@@ -272,7 +272,7 @@ public class VirtualNodeTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLastModified()
     {
@@ -284,9 +284,9 @@ public class VirtualNodeTest extends AbstractFileSystemTestCase
                     will(returnValue(42L));
                 }
             });
-        
+
         assertEquals(42, virtualNode.getLastModified());
-        
+
         context.assertIsSatisfied();
     }
 

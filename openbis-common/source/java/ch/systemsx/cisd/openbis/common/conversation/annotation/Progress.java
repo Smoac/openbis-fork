@@ -27,20 +27,17 @@ public enum Progress
     /**
      * Progress has to be reported by calling
      * {@link ch.systemsx.cisd.openbis.common.conversation.progress.IServiceConversationProgressListener#update
-     * IServiceConversationProgressListener.update} method. This option should be used when we know
-     * how much progress has been made, e.g. we processed 12 out of 100 data sets. If the method
-     * execution hangs the progress won't be reported and the conversation will time out.
+     * IServiceConversationProgressListener.update} method. This option should be used when we know how much progress has been made, e.g. we processed
+     * 12 out of 100 data sets. If the method execution hangs the progress won't be reported and the conversation will time out.
      */
     MANUAL,
 
     /**
      * A separate thread regularly sends progress information without a need of calling
      * {@link ch.systemsx.cisd.openbis.common.conversation.progress.IServiceConversationProgressListener#update
-     * IServiceConversationProgressListener.update} method. This option is useful for methods where
-     * we don't have any information about the current progress (e.g. user defined Python script
-     * execution) but we still want to notify the client that the processing is in progress and the
-     * conversation should not time out. Be aware that the progress will be sent forever if the
-     * method execution hangs.
+     * IServiceConversationProgressListener.update} method. This option is useful for methods where we don't have any information about the current
+     * progress (e.g. user defined Python script execution) but we still want to notify the client that the processing is in progress and the
+     * conversation should not time out. Be aware that the progress will be sent forever if the method execution hangs.
      */
     AUTOMATIC
 

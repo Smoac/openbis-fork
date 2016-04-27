@@ -25,8 +25,7 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
 /**
- * The default implementation of {@link IHierarchicalContentFactory} using file system as source of
- * information.
+ * The default implementation of {@link IHierarchicalContentFactory} using file system as source of information.
  * 
  * @author Piotr Buczek
  */

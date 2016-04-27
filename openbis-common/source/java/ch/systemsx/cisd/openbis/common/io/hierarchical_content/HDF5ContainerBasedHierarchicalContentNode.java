@@ -101,8 +101,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
     }
 
     /**
-     * @return child node with given path relative to this container, or null, if the path does not
-     *         exist.
+     * @return child node with given path relative to this container, or null, if the path does not exist.
      */
     public IHierarchicalContentNode tryGetChildNode(String childPath)
     {
@@ -392,7 +391,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
 
     }
 
-    private static HDF5DataSetBasedContent extractFileContent(File hdf5File, String  path)
+    private static HDF5DataSetBasedContent extractFileContent(File hdf5File, String path)
     {
         return new HDF5DataSetBasedContent(hdf5File, path);
     }

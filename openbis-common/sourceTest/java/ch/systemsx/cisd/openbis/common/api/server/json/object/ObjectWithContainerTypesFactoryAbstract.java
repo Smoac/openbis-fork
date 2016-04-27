@@ -61,7 +61,7 @@ public abstract class ObjectWithContainerTypesFactoryAbstract<T> extends ObjectF
             "itemWithKnownButNotUniqueClass";
 
     @SuppressWarnings(
-        { "rawtypes", "unchecked" })
+    { "rawtypes", "unchecked" })
     protected <C extends Collection> C addObjectsToSerialize(C collection, boolean specific)
     {
         collection.add(new ObjectWithKnownTypeFactory().createObjectToSerialize());
@@ -84,7 +84,7 @@ public abstract class ObjectWithContainerTypesFactoryAbstract<T> extends ObjectF
     }
 
     @SuppressWarnings(
-        { "rawtypes", "unchecked" })
+    { "rawtypes", "unchecked" })
     protected <M extends Map> M putObjectsToSerialize(M map, boolean specific)
     {
         map.put(ITEM_WITH_KNOWN_TYPE, new ObjectWithKnownTypeFactory().createObjectToSerialize());
@@ -117,7 +117,7 @@ public abstract class ObjectWithContainerTypesFactoryAbstract<T> extends ObjectF
     }
 
     @SuppressWarnings(
-        { "rawtypes", "unchecked" })
+    { "rawtypes", "unchecked" })
     protected <C extends Collection> C addExpectedMapsAfterSerialization(C collection,
             ObjectCounter objectCounter, boolean specific)
     {
@@ -152,7 +152,7 @@ public abstract class ObjectWithContainerTypesFactoryAbstract<T> extends ObjectF
     }
 
     @SuppressWarnings(
-        { "rawtypes", "unchecked" })
+    { "rawtypes", "unchecked" })
     protected <M extends Map> M putExpectedMapsAfterSerialization(M map,
             ObjectCounter objectCounter, boolean specific)
     {
@@ -188,7 +188,7 @@ public abstract class ObjectWithContainerTypesFactoryAbstract<T> extends ObjectF
     }
 
     @SuppressWarnings(
-        { "rawtypes", "unchecked" })
+    { "rawtypes", "unchecked" })
     protected <C extends Collection> C addMapsToDeserialize(C collection,
             ObjectCounter objectCounter, ObjectType objectType, boolean specific)
     {
@@ -223,7 +223,7 @@ public abstract class ObjectWithContainerTypesFactoryAbstract<T> extends ObjectF
     }
 
     @SuppressWarnings(
-        { "rawtypes", "unchecked" })
+    { "rawtypes", "unchecked" })
     protected <M extends Map> M putMapsToDeserialize(M map, ObjectCounter objectCounter,
             ObjectType objectType, boolean specific)
     {
@@ -259,7 +259,7 @@ public abstract class ObjectWithContainerTypesFactoryAbstract<T> extends ObjectF
     }
 
     @SuppressWarnings(
-        { "rawtypes", "unchecked" })
+    { "rawtypes", "unchecked" })
     protected <C extends Collection> C addExpectedObjectsAfterDeserialization(C collection,
             boolean specific)
     {
@@ -293,7 +293,7 @@ public abstract class ObjectWithContainerTypesFactoryAbstract<T> extends ObjectF
     }
 
     @SuppressWarnings(
-        { "rawtypes", "unchecked" })
+    { "rawtypes", "unchecked" })
     protected <M extends Map> M putExpectedObjectsAfterDeserialization(M map, boolean specific)
     {
         map.put(ITEM_WITH_KNOWN_TYPE, new ObjectWithKnownTypeFactory().createObjectToSerialize());

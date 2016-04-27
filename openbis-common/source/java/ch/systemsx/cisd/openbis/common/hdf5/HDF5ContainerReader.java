@@ -126,8 +126,7 @@ final class HDF5ContainerReader implements IHDF5ContainerReader
     private static boolean noCaching = false;
 
     /**
-     * Disable caching for unit testing where the same file name is reused but the file content
-     * changes between tests.
+     * Disable caching for unit testing where the same file name is reused but the file content changes between tests.
      */
     static void disableCaching()
     {

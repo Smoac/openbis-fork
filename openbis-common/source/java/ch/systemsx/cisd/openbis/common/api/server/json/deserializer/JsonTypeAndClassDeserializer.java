@@ -43,13 +43,11 @@ import ch.systemsx.cisd.openbis.common.api.server.json.mapping.IJsonClassValueTo
 import ch.systemsx.cisd.openbis.common.api.server.json.mapping.JsonStaticClassValueToClassObjectsMapping;
 
 /**
- * Custom JSON deserializer that recognizes objects with both @type and @class fields. Deserializing
- * objects with @class field requires and appropriate entry in classValueToClassObjectsMapping. If @class
- * value is not found in the mapping then a JSON object is not deserialized and an exception is
- * thrown. If the mapping is found then a class that is assignable to the deserialization base type
- * is picked. If there is no such class or there is more than one then an exception is thrown.
- * Please remember that @class field is now deprecated and the support for that field is maintained
- * only for backwards compatibility.
+ * Custom JSON deserializer that recognizes objects with both @type and @class fields. Deserializing objects with @class field requires and
+ * appropriate entry in classValueToClassObjectsMapping. If @class value is not found in the mapping then a JSON object is not deserialized and an
+ * exception is thrown. If the mapping is found then a class that is assignable to the deserialization base type is picked. If there is no such class
+ * or there is more than one then an exception is thrown. Please remember that @class field is now deprecated and the support for that field is
+ * maintained only for backwards compatibility.
  * 
  * @author pkupczyk
  */
@@ -107,11 +105,9 @@ public class JsonTypeAndClassDeserializer extends AsPropertyTypeDeserializer
         } else if (t == JsonToken.START_ARRAY)
         {
             /*
-             * This is most likely due to the fact that not all Java types are serialized as JSON
-             * Objects; so if "as-property" inclusion is requested, serialization of things like
-             * Lists must be instead handled as if "as-wrapper-array" was requested. But this can
-             * also be due to some custom handling: so, if "defaultImpl" is defined, it will be
-             * asked to handle this case.
+             * This is most likely due to the fact that not all Java types are serialized as JSON Objects; so if "as-property" inclusion is requested,
+             * serialization of things like Lists must be instead handled as if "as-wrapper-array" was requested. But this can also be due to some
+             * custom handling: so, if "defaultImpl" is defined, it will be asked to handle this case.
              */
             return _deserializeTypedUsingDefaultImpl(jp, ctxt, null);
         } else if (t != JsonToken.FIELD_NAME)
@@ -153,7 +149,8 @@ public class JsonTypeAndClassDeserializer extends AsPropertyTypeDeserializer
         }
     }
 
-    @SuppressWarnings("resource") // TokenBuffer.close() just marks the buffer as closed.
+    @SuppressWarnings("resource")
+    // TokenBuffer.close() just marks the buffer as closed.
     private Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TokenBuffer tb,
             String type) throws IOException, JsonProcessingException
     {

@@ -25,10 +25,8 @@ import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.common.conversation.manager.IServiceConversationServerManagerRemote;
 
 /**
- * Service conversation client that keeps track of the started conversations and provides
- * {@link #onConversationStart(IServiceConversation)} and
- * {@link #onConversationClose(IServiceConversation)} methods that can be overwritten to perform
- * some additional actions on these events.
+ * Service conversation client that keeps track of the started conversations and provides {@link #onConversationStart(IServiceConversation)} and
+ * {@link #onConversationClose(IServiceConversation)} methods that can be overwritten to perform some additional actions on these events.
  * 
  * @author pkupczyk
  */

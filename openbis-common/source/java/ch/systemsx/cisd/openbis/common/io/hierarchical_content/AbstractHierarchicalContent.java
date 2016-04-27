@@ -24,8 +24,8 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
 /**
- * Abstract super class of {@link IHierarchicalContent} classes which implements {@link #listMatchingNodes(String)} 
- * and {@link #listMatchingNodes(String, String)}.
+ * Abstract super class of {@link IHierarchicalContent} classes which implements {@link #listMatchingNodes(String)} and
+ * {@link #listMatchingNodes(String, String)}.
  *
  * @author Piotr Buczek
  * @author Franz-Josef Elmer
@@ -46,7 +46,7 @@ public abstract class AbstractHierarchicalContent implements IHierarchicalConten
                             return compiledPattern.matcher(node.getRelativePath()).matches();
                         }
                     };
-    
+
         List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
         findMatchingNodes(startingNode, relativePathFilter, result);
         return result;
@@ -65,15 +65,14 @@ public abstract class AbstractHierarchicalContent implements IHierarchicalConten
                     return compiledPattern.matcher(node.getName()).matches();
                 }
             };
-    
+
         List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
         findMatchingNodes(startingNode, fileNameFilter, result);
         return result;
     }
 
     /**
-     * Recursively browses hierarchical content looking for nodes accepted by given
-     * <code>filter</code> and adding them to <code>result</code> list.
+     * Recursively browses hierarchical content looking for nodes accepted by given <code>filter</code> and adding them to <code>result</code> list.
      */
     private void findMatchingNodes(IHierarchicalContentNode dirNode,
             IHierarchicalContentNodeFilter filter, List<IHierarchicalContentNode> result)

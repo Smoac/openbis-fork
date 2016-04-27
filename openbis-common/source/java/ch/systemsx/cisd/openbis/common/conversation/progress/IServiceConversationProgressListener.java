@@ -17,8 +17,7 @@
 package ch.systemsx.cisd.openbis.common.conversation.progress;
 
 /**
- * A role that can receive progress updates from method executions initiated through the service
- * conversation framework by remote clients.
+ * A role that can receive progress updates from method executions initiated through the service conversation framework by remote clients.
  * 
  * @author anttil
  */

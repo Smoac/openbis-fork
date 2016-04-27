@@ -152,7 +152,7 @@ public class FileBasedContentNode implements IHierarchicalContentNode
     {
         return false;
     }
-    
+
     @Override
     public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
             IOExceptionUnchecked

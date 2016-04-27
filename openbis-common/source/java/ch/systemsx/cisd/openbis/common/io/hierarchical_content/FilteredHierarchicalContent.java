@@ -27,15 +27,14 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class FilteredHierarchicalContent implements IHierarchicalContent
 {
     private final IHierarchicalContent content;
+
     private final IHierarchicalContentNodeFilter filter;
-    
+
     public FilteredHierarchicalContent(IHierarchicalContent content, IHierarchicalContentNodeFilter filter)
     {
         this.content = content;
@@ -77,7 +76,7 @@ public class FilteredHierarchicalContent implements IHierarchicalContent
     {
         content.close();
     }
-    
+
     private List<IHierarchicalContentNode> wrap(List<IHierarchicalContentNode> nodes)
     {
         List<IHierarchicalContentNode> wrappedNodes = new ArrayList<IHierarchicalContentNode>(nodes.size());
@@ -90,12 +89,12 @@ public class FilteredHierarchicalContent implements IHierarchicalContent
         }
         return wrappedNodes;
     }
-    
+
     private IHierarchicalContentNode wrap(IHierarchicalContentNode node)
     {
         return node == null ? null : new FilteredHierarchicalContentNode(node);
     }
-    
+
     private final class FilteredHierarchicalContentNode implements IHierarchicalContentNode
     {
         private final IHierarchicalContentNode node;

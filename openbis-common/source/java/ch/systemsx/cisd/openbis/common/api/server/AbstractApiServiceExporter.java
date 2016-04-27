@@ -37,9 +37,8 @@ public abstract class AbstractApiServiceExporter extends WhiteAndBlackListHttpIn
     private RpcServiceNameServer nameServer;
 
     /**
-     * Establishes the specified service which implements the specified interface. The service will
-     * register at the name server under the specified name. It will accessible via HTTP by the
-     * specified service URL.
+     * Establishes the specified service which implements the specified interface. The service will register at the name server under the specified
+     * name. It will accessible via HTTP by the specified service URL.
      */
     protected void establishService(Class<? extends IRpcService> serviceInterface,
             IRpcService service, String serviceName, String serviceURL)
@@ -47,7 +46,7 @@ public abstract class AbstractApiServiceExporter extends WhiteAndBlackListHttpIn
         setServiceInterface(serviceInterface);
         setService(service);
         setInterceptors(new Object[]
-            { new ServiceExceptionTranslator() });
+        { new ServiceExceptionTranslator() });
         int majorVersion = service.getMajorVersion();
         int minorVersion = service.getMinorVersion();
         RpcServiceInterfaceVersionDTO ifaceVersion =

@@ -65,14 +65,12 @@ public class HierarchicalStructureDuplicatorFileToHDF5
     }
 
     /**
-     * Makes a duplicate; does not close the writer when finished it is expected that users of this
-     * method close the writer.
+     * Makes a duplicate; does not close the writer when finished it is expected that users of this method close the writer.
      * 
      * @param file The file to duplicate.
      * @param rootPath The root path in the container. Should end with "/"
      * @param writer The writer on the container that should house the duplicate.
-     * @throws IllegalArgumentException Thrown if one of the files to duplicate is a symbolic link
-     *             or the file does not exist
+     * @throws IllegalArgumentException Thrown if one of the files to duplicate is a symbolic link or the file does not exist
      * @throws CheckedExceptionTunnel Thrown if an underlying error occurs
      * @throws IOExceptionUnchecked Thrown if an underlying error occurs
      */

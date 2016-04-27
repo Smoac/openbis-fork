@@ -34,44 +34,38 @@ public interface IHierarchicalContent
      * Returns node with specified <var>relativePath</var> starting from root node. If the path is
      * <code>null<code> or an empty string then the root node is returned.
      * 
-     * @throws IllegalArgumentException if resource with given <var>relativePath</var> doesn't exist
-     *             under the root of this content.
+     * @throws IllegalArgumentException if resource with given <var>relativePath</var> doesn't exist under the root of this content.
      */
     IHierarchicalContentNode getNode(String relativePath) throws IllegalArgumentException;
 
     /**
-     * Returns node with specified <var>relativePath</var> starting from root node, or
-     * <code>null</code>, if this path does not exist. If the path is
+     * Returns node with specified <var>relativePath</var> starting from root node, or <code>null</code>, if this path does not exist. If the path is
      * <code>null<code> or an empty string then the root node is returned.
      */
     IHierarchicalContentNode tryGetNode(String relativePath);
 
     /**
-     * Returns list of all file nodes in this hierarchy with relative paths matching given
-     * <var>relativePathPattern</var>.
+     * Returns list of all file nodes in this hierarchy with relative paths matching given <var>relativePathPattern</var>.
      * <p>
-     * NOTE: this operation may be expensive for huge hierarchies. If prefix of relative path is
-     * constant use {@link #listMatchingNodes(String, String)} instead with pattern for filename.
+     * NOTE: this operation may be expensive for huge hierarchies. If prefix of relative path is constant use
+     * {@link #listMatchingNodes(String, String)} instead with pattern for filename.
      */
     List<IHierarchicalContentNode> listMatchingNodes(String relativePathPattern);
 
     /**
-     * Returns list of all file nodes in this hierarchy starting from <var>startingPath</var> with
-     * file names matching given <var>fileNamePattern</var>.
+     * Returns list of all file nodes in this hierarchy starting from <var>startingPath</var> with file names matching given
+     * <var>fileNamePattern</var>.
      * 
-     * @param startingPath Relative path from which the search should start. Use empty string to
-     *            start in root.
+     * @param startingPath Relative path from which the search should start. Use empty string to start in root.
      */
     List<IHierarchicalContentNode> listMatchingNodes(String startingPath, String fileNamePattern);
 
     /**
      * Cleans resources (e.g. releases locks) acquired to access this hierarchical content.
      * <p>
-     * For now accessing {@link IHierarchicalContentNode} from a closed content doesn't fail
-     * immediately but it is unpredictable (e.g. files may no longer be accessible). One shouldn't
-     * call any methods of {@link IHierarchicalContentNode}-s that were acquired from a content
-     * which is closed at the time of invocation of the methods. In future version such operations
-     * will fail immediately.
+     * For now accessing {@link IHierarchicalContentNode} from a closed content doesn't fail immediately but it is unpredictable (e.g. files may no
+     * longer be accessible). One shouldn't call any methods of {@link IHierarchicalContentNode}-s that were acquired from a content which is closed
+     * at the time of invocation of the methods. In future version such operations will fail immediately.
      */
     void close();
 }

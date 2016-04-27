@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.common.api.server.json.common.ObjectType;
  * @author pkupczyk
  */
 @SuppressWarnings(
-    { "rawtypes", "unchecked" })
+{ "rawtypes", "unchecked" })
 public class ObjectWithNestedMapsInCollectionFactory extends ObjectFactory<Collection>
 {
 

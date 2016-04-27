@@ -24,8 +24,7 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 
 /**
- * Read only abstraction over a node in {@link IHierarchicalContent} that provides access to a file
- * and its content.
+ * Read only abstraction over a node in {@link IHierarchicalContent} that provides access to a file and its content.
  * 
  * @author Chandrasekhar Ramakrishnan
  * @author Piotr Buczek
@@ -48,16 +47,14 @@ public interface IHierarchicalContentNode
     boolean exists();
 
     /**
-     * Returns <code>true</code> if this node is an abstraction of a directory, <code>false</code>
-     * otherwise.
+     * Returns <code>true</code> if this node is an abstraction of a directory, <code>false</code> otherwise.
      */
     boolean isDirectory();
 
     /**
      * Returns the time this node or the persistent object containing this node has been modified.
      * 
-     * @return A long value representing the time of last modification, measured in milliseconds
-     *         since the epoch (00:00:00 GMT, January 1, 1970).
+     * @return A long value representing the time of last modification, measured in milliseconds since the epoch (00:00:00 GMT, January 1, 1970).
      */
     long getLastModified();
 
@@ -78,8 +75,7 @@ public interface IHierarchicalContentNode
     File getFile() throws UnsupportedOperationException;
 
     /**
-     * Returns a file abstracted by this node, or <code>null</code>, if there is no file that
-     * represents this node.
+     * Returns a file abstracted by this node, or <code>null</code>, if there is no file that represents this node.
      */
     File tryGetFile();
 
@@ -102,9 +98,8 @@ public interface IHierarchicalContentNode
     int getChecksumCRC32() throws UnsupportedOperationException;
 
     /**
-     * Returns <code>true</code>, if the CRC32 checksum is pre-calculated for this node and
-     * <code>false</code>, if it is calculated on demand when calling {@link #getChecksumCRC32()} or
-     * if this node does not have a CRC32 checksum (like e.g. a directory).
+     * Returns <code>true</code>, if the CRC32 checksum is pre-calculated for this node and <code>false</code>, if it is calculated on demand when
+     * calling {@link #getChecksumCRC32()} or if this node does not have a CRC32 checksum (like e.g. a directory).
      */
     boolean isChecksumCRC32Precalculated();
 

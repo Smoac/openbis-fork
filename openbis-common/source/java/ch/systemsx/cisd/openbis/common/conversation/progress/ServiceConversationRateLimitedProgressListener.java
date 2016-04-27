@@ -25,9 +25,8 @@ import ch.systemsx.cisd.common.serviceconversation.server.ProgressInfo;
 import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationServer;
 
 /**
- * Sends incoming progress updates to the remote client through the ServiceConversationServer. The
- * maximum reporting rate is limited by the value given as an argument. If a progress update is
- * received while the previous update is still waiting to be sent (because of the maximum reporting
+ * Sends incoming progress updates to the remote client through the ServiceConversationServer. The maximum reporting rate is limited by the value
+ * given as an argument. If a progress update is received while the previous update is still waiting to be sent (because of the maximum reporting
  * rate), the previous update will be discarded.
  * 
  * @author anttil

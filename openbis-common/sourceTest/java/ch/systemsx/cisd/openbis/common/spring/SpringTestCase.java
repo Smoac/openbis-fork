@@ -28,15 +28,14 @@ import org.testng.AssertJUnit;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class SpringTestCase extends AssertJUnit
 {
     protected static final int DEFAULT_TIMEOUT = 10000;
+
     protected static final Action WAIT_ACTION = new WaitAction(Integer.MAX_VALUE);
-    
+
     protected void assertLogContent(BufferedAppender logRecorder, String... expectedLinesOfContent)
     {
         BufferedReader reader = new BufferedReader(new StringReader(logRecorder.getLogContent()));
@@ -65,7 +64,7 @@ public class SpringTestCase extends AssertJUnit
     }
 
     /**
-     * Returns an action which invokes the wrapped action after specified delay (in milliseconds). 
+     * Returns an action which invokes the wrapped action after specified delay (in milliseconds).
      */
     protected Action delay(final Action action, final long delay)
     {
@@ -77,7 +76,7 @@ public class SpringTestCase extends AssertJUnit
                     Thread.sleep(delay);
                     return action.invoke(invocation);
                 }
-        
+
                 @Override
                 public void describeTo(Description description)
                 {

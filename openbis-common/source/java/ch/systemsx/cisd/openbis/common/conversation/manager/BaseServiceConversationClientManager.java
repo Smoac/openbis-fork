@@ -28,13 +28,10 @@ import ch.systemsx.cisd.common.serviceconversation.client.IServiceConversation;
 import ch.systemsx.cisd.openbis.common.conversation.client.ServiceConversationClientWithConversationTracking;
 
 /**
- * Service conversation client manager that dispatches calls to remote service conversation servers
- * managers. One instance of client manager can handle communication with multiple server managers
- * located on different machines. To make a conversational call to a remote service you must first
- * obtain a reference to a service that supports service conversation communication using
- * {@link #getService(String, Class, String, Object, int)} method. All the method calls on that
- * service will be automatically translated into appropriate service conversation messages behind
- * the scenes.
+ * Service conversation client manager that dispatches calls to remote service conversation servers managers. One instance of client manager can
+ * handle communication with multiple server managers located on different machines. To make a conversational call to a remote service you must first
+ * obtain a reference to a service that supports service conversation communication using {@link #getService(String, Class, String, Object, int)}
+ * method. All the method calls on that service will be automatically translated into appropriate service conversation messages behind the scenes.
  * 
  * @author pkupczyk
  */
@@ -74,17 +71,13 @@ public class BaseServiceConversationClientManager implements
     }
 
     /**
-     * Method that returns a reference to a service that supports service conversation
-     * communication.
+     * Method that returns a reference to a service that supports service conversation communication.
      * 
-     * @param serverUrl The URL of the service conversation server manager where the given service
-     *            has been registered.
+     * @param serverUrl The URL of the service conversation server manager where the given service has been registered.
      * @param serviceInterface The interface of the service to be returned.
-     * @param sessionToken The session token that will be used to uniquely identify the
-     *            conversations.
-     * @param clientId The id of the client manager that has to be recognized by the server. Basing
-     *            on this id the server will decide where to send the responses to and what timeout
-     *            to use.
+     * @param sessionToken The session token that will be used to uniquely identify the conversations.
+     * @param clientId The id of the client manager that has to be recognized by the server. Basing on this id the server will decide where to send
+     *            the responses to and what timeout to use.
      * @param clientTimeout The timeout of the client manager.
      */
     public <T> T getService(String serverUrl, Class<T> serviceInterface, String sessionToken,

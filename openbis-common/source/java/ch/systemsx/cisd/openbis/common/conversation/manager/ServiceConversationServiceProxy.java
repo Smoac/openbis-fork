@@ -26,8 +26,7 @@ import ch.systemsx.cisd.openbis.common.conversation.client.ServiceConversationCl
 import ch.systemsx.cisd.openbis.common.conversation.message.ServiceConversationMethodInvocation;
 
 /**
- * Dynamic proxy that converts a given service method calls into appropriate service conversation
- * messages.
+ * Dynamic proxy that converts a given service method calls into appropriate service conversation messages.
  * 
  * @author anttil
  */
@@ -73,7 +72,7 @@ class ServiceConversationServiceProxy implements InvocationHandler
             Class<T> serviceInterface, String sessionToken)
     {
         return (T) Proxy.newProxyInstance(serviceInterface.getClassLoader(), new Class<?>[]
-            { serviceInterface }, new ServiceConversationServiceProxy(client, serviceInterface,
+        { serviceInterface }, new ServiceConversationServiceProxy(client, serviceInterface,
                 sessionToken));
     }
 

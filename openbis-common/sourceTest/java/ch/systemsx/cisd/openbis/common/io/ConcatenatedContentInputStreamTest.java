@@ -44,7 +44,7 @@ public class ConcatenatedContentInputStreamTest extends AbstractFileSystemTestCa
     {
         HDF5Container.disableCaching();
     }
-    
+
     @Test
     public void testNoFiles() throws IOException
     {
@@ -136,7 +136,7 @@ public class ConcatenatedContentInputStreamTest extends AbstractFileSystemTestCa
     {
         ConcatenatedContentInputStream stream =
                 new ConcatenatedContentInputStream(false, new IHierarchicalContentNode[]
-                    { null });
+                { null });
         try
         {
             readStrings(stream);

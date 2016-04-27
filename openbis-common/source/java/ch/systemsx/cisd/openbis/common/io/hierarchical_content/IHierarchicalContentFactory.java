@@ -42,8 +42,7 @@ public interface IHierarchicalContentFactory
     public IHierarchicalContent asHierarchicalContent(File file, IDelegatedAction onCloseAction);
 
     /**
-     * Returns content node for given file. Different implementations may be returned depending on
-     * e.g. file extension.
+     * Returns content node for given file. Different implementations may be returned depending on e.g. file extension.
      */
     public IHierarchicalContentNode asHierarchicalContentNode(IHierarchicalContent rootContent,
             File file);

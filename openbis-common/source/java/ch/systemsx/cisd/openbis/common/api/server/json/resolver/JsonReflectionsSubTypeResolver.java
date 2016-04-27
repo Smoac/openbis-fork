@@ -28,8 +28,8 @@ import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import ch.systemsx.cisd.openbis.common.api.server.json.mapping.IJsonBaseTypeToSubTypesMapping;
 
 /**
- * A custom resolver that detects sub types automatically using Reflections library instead of
- * reading @JsonSubTypes annotations that had to be maintained manually.
+ * A custom resolver that detects sub types automatically using Reflections library instead of reading @JsonSubTypes annotations that had to be
+ * maintained manually.
  * 
  * @author pkupczyk
  */

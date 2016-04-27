@@ -20,8 +20,8 @@ import ch.systemsx.cisd.openbis.common.conversation.progress.IServiceConversatio
 import ch.systemsx.cisd.openbis.common.conversation.progress.ServiceConversationNullProgressListener;
 
 /**
- * This class provides methods for accessing information about the current service conversation. All
- * the information is stored in thread local variables.
+ * This class provides methods for accessing information about the current service conversation. All the information is stored in thread local
+ * variables.
  * 
  * @author Jakub Straszewski
  */
@@ -51,9 +51,8 @@ public class ServiceConversationsThreadContext
     }
 
     /**
-     * Get the current service conversation progress listener. If there is no service conversation
-     * available then a dummy progress listener is returned. The dummy listener is returned just for
-     * a convenience to eliminate all the not null checks. Calling methods on the dummy listener
+     * Get the current service conversation progress listener. If there is no service conversation available then a dummy progress listener is
+     * returned. The dummy listener is returned just for a convenience to eliminate all the not null checks. Calling methods on the dummy listener
      * doesn't have any effect.
      */
     public static IServiceConversationProgressListener getProgressListener()

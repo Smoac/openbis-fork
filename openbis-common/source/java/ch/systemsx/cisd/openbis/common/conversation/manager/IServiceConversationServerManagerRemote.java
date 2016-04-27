@@ -31,7 +31,7 @@ public interface IServiceConversationServerManagerRemote extends IServiceMessage
 
     public ServiceConversationDTO startConversation(String sessionToken, String serviceName,
             Object clientId);
-    
+
     public void ping();
 
 }

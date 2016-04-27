@@ -97,7 +97,7 @@ public class HierarchicalContentNodeBasedHierarchicalContentNode implements
             {
                 throw new UnsupportedOperationException();
             }
-            
+
             @Override
             public File tryGetFile()
             {

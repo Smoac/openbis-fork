@@ -32,8 +32,7 @@ public interface IHDF5ContainerWriter
      * Write the given <code>istream</code> to a new data set named <code>objectPath</code>.
      * 
      * @param objectPath The path of the data set to write the {@link InputStream} to.
-     * @param istream The stream to get the data from. This method will <i>not</i> close the
-     *            <code>istream</code>!</i>
+     * @param istream The stream to get the data from. This method will <i>not</i> close the <code>istream</code>!</i>
      * @param size The size of the file represented by the <var>istream</var>.
      */
     public void writeToHDF5Container(final String objectPath, final InputStream istream, final long size)
@@ -48,8 +47,7 @@ public interface IHDF5ContainerWriter
     public void archiveToHDF5Container(String rootPath, File file);
 
     /**
-     * Closes this object and the file referenced by this object. This object must not be used after
-     * being closed.
+     * Closes this object and the file referenced by this object. This object must not be used after being closed.
      */
     public void close();
 

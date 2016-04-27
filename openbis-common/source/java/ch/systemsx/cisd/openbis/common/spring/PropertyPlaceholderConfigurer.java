@@ -25,8 +25,8 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.util.StringUtils;
 
 /**
- * A <code>PropertyPlaceholderConfigurer</code> extension which allows us to set the placeholder
- * resolver mode via the <code>service.properties</code> file.
+ * A <code>PropertyPlaceholderConfigurer</code> extension which allows us to set the placeholder resolver mode via the <code>service.properties</code>
+ * file.
  * <p>
  * If not specified, the default mode is
  * {@link org.springframework.beans.factory.config.PropertyPlaceholderConfigurer#SYSTEM_PROPERTIES_MODE_FALLBACK}.
@@ -39,8 +39,7 @@ public class PropertyPlaceholderConfigurer extends
 {
 
     /**
-     * Default value which is taken when {@link #setSystemPropertiesModeName(String)} method is not
-     * called.
+     * Default value which is taken when {@link #setSystemPropertiesModeName(String)} method is not called.
      */
     private final static String DEFAULT_PLACEHOLDER_RESOLVER_MODE =
             "SYSTEM_PROPERTIES_MODE_FALLBACK";

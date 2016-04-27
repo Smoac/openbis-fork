@@ -38,8 +38,7 @@ public class SpringEoDSQLExceptionTranslator implements ExceptionTranslator
 {
 
     /**
-     * Enables the translation of SQL Exceptions to their (unchecked) Spring pendants rather than
-     * the generic {@link EoDException}.
+     * Enables the translation of SQL Exceptions to their (unchecked) Spring pendants rather than the generic {@link EoDException}.
      */
     public static void activate()
     {

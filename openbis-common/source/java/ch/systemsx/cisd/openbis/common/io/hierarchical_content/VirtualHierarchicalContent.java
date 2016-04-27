@@ -31,8 +31,7 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
 /**
- * Simple {@link IHierarchicalContent} implementation for virtual data sets with dynamic behavior
- * (almost no caching).
+ * Simple {@link IHierarchicalContent} implementation for virtual data sets with dynamic behavior (almost no caching).
  * 
  * @author Piotr Buczek
  */
@@ -99,7 +98,7 @@ class VirtualHierarchicalContent implements IHierarchicalContent
             throws IllegalArgumentException
     {
         final IHierarchicalContentNode nodeOrNull = tryGetNode(relativePath);
-        
+
         if (nodeOrNull == null)
         {
             throw new IllegalArgumentException("Resource '" + relativePath + "' doesn't exist.");
@@ -111,13 +110,13 @@ class VirtualHierarchicalContent implements IHierarchicalContent
     public IHierarchicalContentNode tryGetNode(final String relativePath)
     {
         return tryMergeNodes(new INodeProvider()
-        {
-            @Override
-            public IHierarchicalContentNode tryGetNode(IHierarchicalContent content)
             {
-                return content.tryGetNode(relativePath);
-            }
-        });
+                @Override
+                public IHierarchicalContentNode tryGetNode(IHierarchicalContent content)
+                {
+                    return content.tryGetNode(relativePath);
+                }
+            });
     }
 
     @Override

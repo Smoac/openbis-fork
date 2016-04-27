@@ -38,7 +38,7 @@ class HDF5ContainerWriter implements IHDF5ContainerWriter
     private final IHDF5Archiver archiver;
 
     private final boolean compress;
-    
+
     private final ArchivingStrategy strategy;
 
     HDF5ContainerWriter(HDF5Container parent, File containerFile, boolean compress)

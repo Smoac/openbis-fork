@@ -40,7 +40,7 @@ public class HierarchicalStructureDuplicatorFileToHDF5Test extends AbstractFileS
     {
         HDF5Container.disableCaching();
     }
-    
+
     @BeforeMethod
     @Override
     public void setUp() throws IOException
@@ -52,8 +52,7 @@ public class HierarchicalStructureDuplicatorFileToHDF5Test extends AbstractFileS
     }
 
     /**
-     * Create a basic file structure and see that the duplicator correctly translated it into the
-     * HDF5 container.
+     * Create a basic file structure and see that the duplicator correctly translated it into the HDF5 container.
      */
     @Test
     public void testBasicDuplicationNoCompression()
@@ -65,8 +64,7 @@ public class HierarchicalStructureDuplicatorFileToHDF5Test extends AbstractFileS
     }
 
     /**
-     * Create a basic file structure and see that the duplicator correctly translated it into the
-     * HDF5 container.
+     * Create a basic file structure and see that the duplicator correctly translated it into the HDF5 container.
      */
     @Test
     public void testBasicDuplicationCompression()
@@ -112,18 +110,18 @@ public class HierarchicalStructureDuplicatorFileToHDF5Test extends AbstractFileS
         File sourceFolder = getTestData("file-structure-with-links");
         container.runWriterClient(false,
                 new HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient(sourceFolder));
-        
+
         verifyDuplicate(sourceFolder);
     }
 
     @Test(expectedExceptions =
-        { IllegalArgumentException.class })
+    { IllegalArgumentException.class })
     public void testNonexistentFile()
     {
         File sourceFolder = getTestData("does-not-exist");
         container.runWriterClient(false,
                 new HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient(sourceFolder));
-        
+
         verifyDuplicate(sourceFolder);
     }
 

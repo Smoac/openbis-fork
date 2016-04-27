@@ -27,27 +27,25 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.api.IRpcService;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=ServiceFinder.class)
+@Friend(toClasses = ServiceFinder.class)
 public class ServiceFinderTest extends AssertJUnit
 {
     private static interface ITestService
     {
         public void ping();
     }
-    
+
     private static interface ITestRpcService extends IRpcService
     {
     }
-    
+
     private static interface IStubFactory
     {
         <S> S createStub(Class<S> serviceClass, String serverUrl);
     }
-    
+
     private static final class MockServiceFinder extends ServiceFinder
     {
         private final IStubFactory stubFactory;
@@ -57,7 +55,7 @@ public class ServiceFinderTest extends AssertJUnit
             super(applicationName, urlServiceSuffix);
             this.stubFactory = stubFactory;
         }
-        
+
         @Override
         <S> S createServiceStub(Class<S> serviceClass, String serverUrl, long timeout)
         {
@@ -103,43 +101,43 @@ public class ServiceFinderTest extends AssertJUnit
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testBasicUse()
     {
         context.checking(new Expectations()
             {
                 {
-                    one(stubFactory).createStub(ITestService.class, 
+                    one(stubFactory).createStub(ITestService.class,
                             "http://localhost/name/name/service");
                     will(returnValue(service));
-                    
+
                     one(service).ping();
                 }
             });
-        
+
         finder.createService(ITestService.class, "http://localhost", pinger);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testBasicUseForRpcService()
     {
         context.checking(new Expectations()
-        {
             {
-                one(stubFactory).createStub(ITestRpcService.class, 
-                        "http://localhost/name/name/service");
-                will(returnValue(rpcService));
-                
-                one(rpcService).getMajorVersion();
-                will(returnValue(1));
-            }
-        });
-        
+                {
+                    one(stubFactory).createStub(ITestRpcService.class,
+                            "http://localhost/name/name/service");
+                    will(returnValue(rpcService));
+
+                    one(rpcService).getMajorVersion();
+                    will(returnValue(1));
+                }
+            });
+
         finder.createService(ITestRpcService.class, "http://localhost/");
-        
+
         context.assertIsSatisfied();
     }
 
@@ -152,14 +150,14 @@ public class ServiceFinderTest extends AssertJUnit
                     one(stubFactory).createStub(ITestService.class,
                             "http://localhost/name/name/service");
                     will(returnValue(service));
-                    
+
                     one(service).ping();
                     will(throwException(new RuntimeException()));
 
                     one(stubFactory)
                             .createStub(ITestService.class, "http://localhost/name/service");
                     will(returnValue(service));
-                    
+
                     one(service).ping();
                 }
             });
@@ -173,19 +171,19 @@ public class ServiceFinderTest extends AssertJUnit
     public void testLocationAlreadySpecified()
     {
         context.checking(new Expectations()
-        {
             {
-                one(stubFactory).createStub(ITestService.class, 
-                        "http://localhost/name/name/service");
-                will(returnValue(service));
-                
-                one(service).ping();
-            }
-        });
-    
-    finder.createService(ITestService.class, "http://localhost/name/name", pinger);
-    
-    context.assertIsSatisfied();
+                {
+                    one(stubFactory).createStub(ITestService.class,
+                            "http://localhost/name/name/service");
+                    will(returnValue(service));
+
+                    one(service).ping();
+                }
+            });
+
+        finder.createService(ITestService.class, "http://localhost/name/name", pinger);
+
+        context.assertIsSatisfied();
     }
 
 }

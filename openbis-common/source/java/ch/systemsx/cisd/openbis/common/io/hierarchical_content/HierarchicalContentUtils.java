@@ -63,8 +63,8 @@ public class HierarchicalContentUtils
     }
 
     /**
-     * An {@link InputStream} implementation which closes an associated {@link IHierarchicalContent}
-     * together with an underlying target {@link InputStream}.
+     * An {@link InputStream} implementation which closes an associated {@link IHierarchicalContent} together with an underlying target
+     * {@link InputStream}.
      * 
      * @author Kaloyan Enimanev
      */
@@ -92,8 +92,8 @@ public class HierarchicalContentUtils
     }
 
     /**
-     * Returns an {@link InputStream} implementation for given node which closes an associated
-     * {@link IHierarchicalContent} together when closing the {@link InputStream} itself.
+     * Returns an {@link InputStream} implementation for given node which closes an associated {@link IHierarchicalContent} together when closing the
+     * {@link InputStream} itself.
      */
     public static InputStream getInputStreamAutoClosingContent(IHierarchicalContentNode node,
             IHierarchicalContent content) throws IOExceptionUnchecked

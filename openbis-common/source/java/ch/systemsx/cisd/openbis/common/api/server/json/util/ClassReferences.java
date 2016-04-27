@@ -31,8 +31,7 @@ import org.reflections.Reflections;
 import com.google.common.base.Predicate;
 
 /**
- * A utility class that searches for classes and interfaces that are potentially converted in JSON
- * form.
+ * A utility class that searches for classes and interfaces that are potentially converted in JSON form.
  * 
  * @author anttil
  */
@@ -42,14 +41,12 @@ public class ClassReferences
     public static Reflections ref = new Reflections("ch");
 
     /**
-     * Returns all the classes and interfaces that are referenced by the public methods declared by
-     * the given class. A class considered to be referenced by a method if either of the following
-     * holds 1) The class or its superclass or an interface it implements is mentioned in the
-     * signature of the method as an argument or as a return type either directly or as a type of an
-     * array or a collection. 2) The class or its superclass or an interface it implements is used
-     * as a return type of a getter method in a class referenced (note recursion here) by a method.
-     * However, the following kind of classes never considered to be referenced: 1) Anonymous
-     * classes 2) Classes that are not defined within package "ch."
+     * Returns all the classes and interfaces that are referenced by the public methods declared by the given class. A class considered to be
+     * referenced by a method if either of the following holds 1) The class or its superclass or an interface it implements is mentioned in the
+     * signature of the method as an argument or as a return type either directly or as a type of an array or a collection. 2) The class or its
+     * superclass or an interface it implements is used as a return type of a getter method in a class referenced (note recursion here) by a method.
+     * However, the following kind of classes never considered to be referenced: 1) Anonymous classes 2) Classes that are not defined within package
+     * "ch."
      * 
      * @param clazz class whose references should be searched.
      * @returns referenced classes

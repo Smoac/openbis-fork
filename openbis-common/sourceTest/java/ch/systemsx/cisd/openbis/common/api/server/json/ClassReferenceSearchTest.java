@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.common.api.server.json;
 
-import static org.hamcrest.MatcherAssert.assertThat; 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
 
@@ -70,7 +70,7 @@ public class ClassReferenceSearchTest
     public void findsDirectSimpleReferences()
     {
         Class<?>[] expected =
-            { SimpleClass.class, AnotherSimpleClass.class };
+        { SimpleClass.class, AnotherSimpleClass.class };
         Collection<Class<?>> result = ClassReferences.search(SimpleInterface.class, noFilter);
         assertThat(result, hasItems(expected));
         assertThat(result.size(), is(expected.length));
@@ -85,7 +85,7 @@ public class ClassReferenceSearchTest
     public void findsReferencesInCollections()
     {
         Class<?>[] expected =
-            { SimpleClass.class, AnotherSimpleClass.class };
+        { SimpleClass.class, AnotherSimpleClass.class };
         Collection<Class<?>> result = ClassReferences.search(CollectionInterface.class, noFilter);
         assertThat(result, hasItems(expected));
         assertThat(result.size(), is(expected.length));
@@ -100,7 +100,7 @@ public class ClassReferenceSearchTest
     public void findsReferencesInArrays()
     {
         Class<?>[] expected =
-            { SimpleClass.class, AnotherSimpleClass.class };
+        { SimpleClass.class, AnotherSimpleClass.class };
         Collection<Class<?>> result = ClassReferences.search(ArrayInterface.class, noFilter);
         assertThat(result, hasItems(expected));
         assertThat(result.size(), is(expected.length));
@@ -115,10 +115,10 @@ public class ClassReferenceSearchTest
     public void findsSubTypesOfReferencedClassesAndInterfaces()
     {
         Class<?>[] expected =
-            { SimpleClass.class,
-                    AnotherSimpleClass.class,
-                    BaseClass.class,
-                    BaseInterface.class };
+        { SimpleClass.class,
+                AnotherSimpleClass.class,
+                BaseClass.class,
+                BaseInterface.class };
         Collection<Class<?>> result = ClassReferences.search(SubTypeInterface.class, noFilter);
         assertThat(result, hasItems(expected));
         assertThat(result.size(), is(expected.length));
@@ -142,8 +142,8 @@ public class ClassReferenceSearchTest
     public void searchesOnlyGettersOfReferencedClasses()
     {
         Class<?>[] expected =
-            { InterfaceWithOneGetter.class,
-                    NotExtendedSimpleClass.class };
+        { InterfaceWithOneGetter.class,
+                NotExtendedSimpleClass.class };
         Collection<Class<?>> result = ClassReferences.search(GetterInterface.class, noFilter);
         assertThat(result, hasItems(expected));
         assertThat(result.size(), is(expected.length));

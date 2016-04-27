@@ -25,8 +25,7 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
 /**
- * Abstract {@link IHierarchicalContent} implementation with checks before calling methods specific
- * to directories or non-directories.
+ * Abstract {@link IHierarchicalContent} implementation with checks before calling methods specific to directories or non-directories.
  * 
  * @author Piotr Buczek
  */
@@ -49,7 +48,7 @@ public abstract class AbstractHierarchicalContentNode implements IHierarchicalCo
 
     /** Returns checksum of a node known NOT to be a directory. */
     abstract protected int doGetChecksumCRC32();
-    
+
     /** Returns {@link IRandomAccessFile} of a node known NOT to be a directory. */
     abstract protected IRandomAccessFile doGetFileContent();
 
@@ -109,7 +108,7 @@ public abstract class AbstractHierarchicalContentNode implements IHierarchicalCo
         requirePhysicalFile();
         return doGetChecksumCRC32();
     }
-    
+
     @Override
     public final IRandomAccessFile getFileContent()
     {

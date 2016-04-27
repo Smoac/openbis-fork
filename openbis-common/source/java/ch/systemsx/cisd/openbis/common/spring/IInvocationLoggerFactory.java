@@ -17,16 +17,15 @@
 package ch.systemsx.cisd.openbis.common.spring;
 
 /**
- * Interface of factories creating a logger which implements the same methods of a class or
- * interface <code>T</code> which should be logged. Such loggers are used by {@link LogInterceptor}.
+ * Interface of factories creating a logger which implements the same methods of a class or interface <code>T</code> which should be logged. Such
+ * loggers are used by {@link LogInterceptor}.
  * 
  * @author Franz-Josef Elmer
  */
 public interface IInvocationLoggerFactory<T>
 {
     /**
-     * Creates an instance of the logger with specified flag which tells whether invocation was
-     * successful or not and specified elapsed time.
+     * Creates an instance of the logger with specified flag which tells whether invocation was successful or not and specified elapsed time.
      */
     public T createLogger(IInvocationLoggerContext context);
 }

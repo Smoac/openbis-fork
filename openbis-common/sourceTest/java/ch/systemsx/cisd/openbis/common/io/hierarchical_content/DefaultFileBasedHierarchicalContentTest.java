@@ -82,7 +82,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
     {
         HDF5Container.disableCaching();
     }
-    
+
     @BeforeMethod
     public void beforeMethod() throws Exception
     {
@@ -378,7 +378,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
         File otherDir = new File(workingDirectory, "otherDir");
         otherDir.mkdir();
         String[] incorrectPaths =
-            { "../", "../../", "../fakeDir", "../otherDir", "subDir/../../otherDir" };
+        { "../", "../../", "../fakeDir", "../otherDir", "subDir/../../otherDir" };
         for (String incorrectPath : incorrectPaths)
         {
             try

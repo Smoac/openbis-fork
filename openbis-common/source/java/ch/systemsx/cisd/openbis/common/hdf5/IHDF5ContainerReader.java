@@ -30,8 +30,7 @@ public interface IHDF5ContainerReader
 {
 
     /**
-     * Closes this object and the file referenced by this object. This object must not be used after
-     * being closed.
+     * Closes this object and the file referenced by this object. This object must not be used after being closed.
      */
     public void close();
 
@@ -44,8 +43,7 @@ public interface IHDF5ContainerReader
     public List<ArchiveEntry> getGroupMembers(final String groupPath);
 
     /**
-     * Returns the entry for <var>path</var>, or <code>null</code>, if such a path does not exist in
-     * the container.
+     * Returns the entry for <var>path</var>, or <code>null</code>, if such a path does not exist in the container.
      */
     public ArchiveEntry tryGetEntry(final String path);
 

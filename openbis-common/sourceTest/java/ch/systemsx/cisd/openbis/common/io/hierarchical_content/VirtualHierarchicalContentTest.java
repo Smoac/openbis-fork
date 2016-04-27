@@ -350,12 +350,12 @@ public class VirtualHierarchicalContentTest extends AssertJUnit
         List<IHierarchicalContentNode> childNodes = rootNode.getChildNodes();
         IHierarchicalContentNode childNode = childNodes.get(0);
         assertEquals(22L, childNode.getFileLength());
-        
+
         assertEquals(1, childNodes.size());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testNestedVirtualNodeShadowing()
     {
@@ -364,9 +364,9 @@ public class VirtualHierarchicalContentTest extends AssertJUnit
         VirtualHierarchicalContent virtualContent1 = new VirtualHierarchicalContent(Arrays.asList(component1, component2));
         prepareComponent(component3, rootNode3, node3, childNode3, 33);
         VirtualHierarchicalContent virtualContent = new VirtualHierarchicalContent(Arrays.asList(component3, virtualContent1));
-        
+
         IHierarchicalContentNode rootNode = virtualContent.getRootNode();
-        
+
         List<IHierarchicalContentNode> nodes = rootNode.getChildNodes();
         IHierarchicalContentNode node = nodes.get(0);
         assertEquals(1, nodes.size());
@@ -374,52 +374,52 @@ public class VirtualHierarchicalContentTest extends AssertJUnit
         IHierarchicalContentNode childNode = childNodes.get(0);
         assertEquals(1, childNodes.size());
         assertEquals(22L, childNode.getFileLength());
-        
+
         context.assertIsSatisfied();
-        
+
     }
-    
-    private void prepareComponent(final IHierarchicalContent content, final IHierarchicalContentNode rootNode, 
+
+    private void prepareComponent(final IHierarchicalContent content, final IHierarchicalContentNode rootNode,
             final IHierarchicalContentNode node, final IHierarchicalContentNode childNode, final long length)
     {
         context.checking(new Expectations()
-        {
             {
-                allowing(content).getRootNode();
-                will(returnValue(rootNode));
-                
-                allowing(rootNode).getChildNodes();
-                will(returnValue(Arrays.asList(node)));
-                
-                allowing(node).getChildNodes();
-                will(returnValue(Arrays.asList(childNode)));
-                
-                allowing(node).getRelativePath();
-                will(returnValue("hi.txt"));
-                
-                allowing(node).isDirectory();
-                will(returnValue(false));
-                
-                allowing(node).exists();
-                will(returnValue(true));
-                
-                allowing(node).getFileLength();
-                will(returnValue(length));
-                
-                allowing(childNode).getRelativePath();
-                will(returnValue("hi.txt"));
-                
-                allowing(childNode).isDirectory();
-                will(returnValue(false));
-                
-                allowing(childNode).exists();
-                will(returnValue(true));
-                
-                allowing(childNode).getFileLength();
-                will(returnValue(length));
-                
-            }
-        });
-        
+                {
+                    allowing(content).getRootNode();
+                    will(returnValue(rootNode));
+
+                    allowing(rootNode).getChildNodes();
+                    will(returnValue(Arrays.asList(node)));
+
+                    allowing(node).getChildNodes();
+                    will(returnValue(Arrays.asList(childNode)));
+
+                    allowing(node).getRelativePath();
+                    will(returnValue("hi.txt"));
+
+                    allowing(node).isDirectory();
+                    will(returnValue(false));
+
+                    allowing(node).exists();
+                    will(returnValue(true));
+
+                    allowing(node).getFileLength();
+                    will(returnValue(length));
+
+                    allowing(childNode).getRelativePath();
+                    will(returnValue("hi.txt"));
+
+                    allowing(childNode).isDirectory();
+                    will(returnValue(false));
+
+                    allowing(childNode).exists();
+                    will(returnValue(true));
+
+                    allowing(childNode).getFileLength();
+                    will(returnValue(length));
+
+                }
+            });
+
     }
 }

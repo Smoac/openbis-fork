@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.common.api.server.json.object;
 
-
 import ch.systemsx.cisd.openbis.common.api.server.json.common.ObjectCounter;
 import ch.systemsx.cisd.openbis.common.api.server.json.common.ObjectFactory;
 import ch.systemsx.cisd.openbis.common.api.server.json.common.ObjectMap;

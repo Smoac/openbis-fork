@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.hcs;
 
-
 /**
  * An <code>AbstractGeometry</code> implementation suitable for <i>Well</i>.
  * 

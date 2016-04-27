@@ -41,7 +41,7 @@ public class ByteArrayBasedContentNode implements IHierarchicalContentNode
     private final String nameOrNull;
 
     private long lastModified;
-    
+
     private Integer checksum;
 
     /**
@@ -115,7 +115,7 @@ public class ByteArrayBasedContentNode implements IHierarchicalContentNode
     {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public File tryGetFile()
     {

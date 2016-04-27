@@ -32,9 +32,8 @@ import ch.systemsx.cisd.openbis.common.conversation.progress.ServiceConversation
 import ch.systemsx.cisd.openbis.common.conversation.progress.ServiceConversationRateLimitedProgressListener;
 
 /**
- * MethodInvocation represents a remote method invocation. It contains the name, the parameter types
- * and the arguments of a method to be executed on a remote server. It is Serializable to be
- * transferable through the service conversation framework.
+ * MethodInvocation represents a remote method invocation. It contains the name, the parameter types and the arguments of a method to be executed on a
+ * remote server. It is Serializable to be transferable through the service conversation framework.
  * 
  * @author anttil
  */
@@ -51,17 +50,14 @@ public class ServiceConversationMethodInvocation implements Serializable
     }
 
     /**
-     * Executes the method on given target object. Basing on the progress type of the target method
-     * (see {@link Conversational#progress()}) it creates and attaches to a current thread an
-     * instance of {@link IServiceConversationProgressListener}. The progress listener can be
-     * accessed within the target method via
-     * {@link ServiceConversationsThreadContext#getProgressListener()}.
+     * Executes the method on given target object. Basing on the progress type of the target method (see {@link Conversational#progress()}) it creates
+     * and attaches to a current thread an instance of {@link IServiceConversationProgressListener}. The progress listener can be accessed within the
+     * target method via {@link ServiceConversationsThreadContext#getProgressListener()}.
      * 
      * @param target The target object on which the method call will be executed
      * @param server ServiceConversationServer that will receive the progress reports
      * @param conversationId Id of the conversation
-     * @param progressInterval Interval that should be used for reporting a progress of the method
-     *            execution (represented in milliseconds)
+     * @param progressInterval Interval that should be used for reporting a progress of the method execution (represented in milliseconds)
      * @returns The return value of the method call
      */
     public Serializable executeOn(Object target, ServiceConversationServer server,

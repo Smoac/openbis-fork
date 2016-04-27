@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.common.api.server.json.common.ObjectType;
  * @author pkupczyk
  */
 @SuppressWarnings(
-    { "unchecked", "rawtypes" })
+{ "unchecked", "rawtypes" })
 public class ObjectWithContainerTypesFactory extends
         ObjectWithContainerTypesFactoryAbstract<ObjectWithContainerTypes>
 {

@@ -28,8 +28,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * An application listener, whose sole purpose is to log a marker message immediately after the
- * successful start/stop of the openBIS application server.
+ * An application listener, whose sole purpose is to log a marker message immediately after the successful start/stop of the openBIS application
+ * server.
  * 
  * @author Kaloyan Enimanev
  */
@@ -71,7 +71,7 @@ public class MarkerLogApplicationListener implements ApplicationListener
     {
         return (event instanceof ContextStartedEvent) || (event instanceof ContextRefreshedEvent);
     }
-    
+
     private boolean isStoppingEvent(ApplicationEvent event)
     {
         return event instanceof ContextClosedEvent;

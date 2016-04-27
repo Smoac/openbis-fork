@@ -32,13 +32,12 @@ import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class AbstractActionLogTest
 {
     private static final String HOST = "test-host";
+
     private static final String USER = "Albert Einstein";
 
     private static final class MockActionLog extends AbstractActionLog
@@ -58,13 +57,17 @@ public class AbstractActionLogTest
             return USER;
         }
     }
-    
+
     private Mockery context;
+
     private IRequestContextProvider requestContextProvider;
+
     private HttpServletRequest request;
+
     private HttpSession session;
+
     private MockActionLog actionLog;
-    
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -72,20 +75,20 @@ public class AbstractActionLogTest
         requestContextProvider = context.mock(IRequestContextProvider.class);
         request = context.mock(HttpServletRequest.class);
         session = context.mock(HttpSession.class);
-        
+
         context.checking(new Expectations()
             {
                 {
                     allowing(requestContextProvider).getHttpServletRequest();
                     will(returnValue(request));
-                    
+
                     allowing(request).getRemoteHost();
                     will(returnValue(HOST));
                 }
             });
         actionLog = new MockActionLog(requestContextProvider, session);
     }
-    
+
     @AfterMethod
     public final void afterMethod()
     {
@@ -93,7 +96,7 @@ public class AbstractActionLogTest
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLogFailedLoginAttempt()
     {
@@ -101,13 +104,13 @@ public class AbstractActionLogTest
         LogMonitoringAppender appender =
                 LogMonitoringAppender.addAppender(LogCategory.AUTH, "{USER: " + unknownUser
                         + ", HOST: " + HOST + "} login: FAILED");
-        
+
         actionLog.logFailedLoginAttempt(unknownUser);
-        
+
         appender.verifyLogHasHappened();
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLoginSuccessfully()
     {
@@ -117,21 +120,21 @@ public class AbstractActionLogTest
                 {
                     one(request).getSession();
                     will(returnValue(session));
-                    
+
                     one(session).getId();
                     will(returnValue(sessionID));
                 }
             });
         LogMonitoringAppender appender =
-            LogMonitoringAppender.addAppender(LogCategory.AUTH, "{USER: " + USER
-                    + ", HOST: " + HOST + ", WEBSESSION: " + sessionID + "} login: OK");
-        
+                LogMonitoringAppender.addAppender(LogCategory.AUTH, "{USER: " + USER
+                        + ", HOST: " + HOST + ", WEBSESSION: " + sessionID + "} login: OK");
+
         actionLog.logSuccessfulLogin();
-        
+
         appender.verifyLogHasHappened();
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLoginSuccessfullyForUnknownSession()
     {
@@ -143,15 +146,15 @@ public class AbstractActionLogTest
                 }
             });
         LogMonitoringAppender appender =
-            LogMonitoringAppender.addAppender(LogCategory.AUTH, "{USER: UNKNOWN"
-                    + ", HOST: " + HOST + ", WEBSESSION: UNKNOWN} login: OK");
-        
+                LogMonitoringAppender.addAppender(LogCategory.AUTH, "{USER: UNKNOWN"
+                        + ", HOST: " + HOST + ", WEBSESSION: UNKNOWN} login: OK");
+
         actionLog.logSuccessfulLogin();
-        
+
         appender.verifyLogHasHappened();
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLogLogout()
     {
@@ -162,10 +165,10 @@ public class AbstractActionLogTest
                 {
                     one(session2).getId();
                     will(returnValue(session2ID));
-                    
+
                     one(session2).getLastAccessedTime();
                     will(returnValue(42L));
-                    
+
                     one(session2).getMaxInactiveInterval();
                     will(returnValue(0));
                 }
@@ -173,10 +176,10 @@ public class AbstractActionLogTest
         LogMonitoringAppender appender =
                 LogMonitoringAppender.addAppender(LogCategory.AUTH, "{USER: " + USER
                         + ", WEBSESSION: " + session2ID + "} logout (session timed out)");
-        
+
         MockActionLog log = new MockActionLog(requestContextProvider, session2);
         log.logLogout(session2);
-        
+
         appender.verifyLogHasHappened();
         context.assertIsSatisfied();
     }

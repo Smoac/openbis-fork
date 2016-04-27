@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.hcs;
 
-
 /**
  * A <code>Geometry</code> is composed of 2 dimensions:
  * <ul>
@@ -24,8 +23,7 @@ package ch.systemsx.cisd.hcs;
  * <li>columns</li>
  * </ul>
  * <p>
- * This class is not <code>abstract</code> but {@link #getGeometryDirectoryName()} must be
- * overridden by subclasses in order to work properly.
+ * This class is not <code>abstract</code> but {@link #getGeometryDirectoryName()} must be overridden by subclasses in order to work properly.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -33,8 +31,7 @@ package ch.systemsx.cisd.hcs;
 public class Geometry
 {
     /**
-     * The <code>rows</code>-<code>columns</code> separator in the string representation of
-     * this object.
+     * The <code>rows</code>-<code>columns</code> separator in the string representation of this object.
      */
     private static final String X = "x";
 
@@ -94,8 +91,7 @@ public class Geometry
     }
 
     /**
-     * Whether this <code>Geometry</code> contains given <var>location</var>, meaning that it is
-     * a valid <code>Location</code>.
+     * Whether this <code>Geometry</code> contains given <var>location</var>, meaning that it is a valid <code>Location</code>.
      */
     public final boolean contains(final Location location)
     {

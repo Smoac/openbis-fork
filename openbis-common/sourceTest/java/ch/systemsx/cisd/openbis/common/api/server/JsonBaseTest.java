@@ -81,7 +81,7 @@ public class JsonBaseTest
     }
 
     @RequestMapping(
-        { "/service.json" })
+    { "/service.json" })
     public static class MappedJsonServiceExporter extends JsonServiceExporter
     {
     }

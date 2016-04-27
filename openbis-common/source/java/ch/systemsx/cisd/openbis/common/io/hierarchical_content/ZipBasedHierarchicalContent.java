@@ -49,24 +49,27 @@ import de.schlichtherle.util.zip.ZipEntry;
 public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
 {
     static final String TEMP_FILE_PREFIX = "dss-unzipped-";
+
     static final File TEMP_FOLDER = new File(System.getProperty("java.io.tmpdir"));
-    
+
     private static final String extractName(String relativePath)
     {
         int indexOfLastDelimiter = relativePath.lastIndexOf('/');
         if (indexOfLastDelimiter < 0)
         {
             return relativePath;
-        } 
+        }
         return relativePath.substring(indexOfLastDelimiter + 1);
     }
 
     private static final class ZipContainerNode extends AbstractHierarchicalDirectoryContentNode
     {
         private final String relativePathFromZipEntry;
+
         private final String name;
+
         private final List<IHierarchicalContentNode> children = new ArrayList<IHierarchicalContentNode>();
-        
+
         ZipContainerNode(String relativePath)
         {
             this.relativePathFromZipEntry = relativePath;
@@ -127,12 +130,15 @@ public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
             return new ArrayList<IHierarchicalContentNode>(children);
         }
     }
-    
+
     private static final class ZipContentNode extends AbstractHierarchicalFileContentNode
     {
         private final BasicZipFile zipFile;
+
         private final ZipEntry zipEntry;
+
         private final String relativePathFromZipEntry;
+
         private final String name;
 
         ZipContentNode(BasicZipFile zipFile, ZipEntry zipEntry)
@@ -196,7 +202,7 @@ public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
         {
             return true;
         }
-        
+
         @Override
         protected int doGetChecksumCRC32()
         {
@@ -221,7 +227,7 @@ public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
             }
         }
     }
-    
+
     private static final class HDF5ContainerNode extends HDF5ContainerBasedHierarchicalContentNode
     {
         private final BasicZipFile zipFile;
@@ -270,6 +276,7 @@ public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
                 IOUtils.closeQuietly(bufferedOut);
             }
         }
+
         @Override
         public String doGetRelativePath()
         {
@@ -345,12 +352,15 @@ public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
     private static final class NodeManager
     {
         private final Map<String, ZipContainerNode> containerNodes = new HashMap<String, ZipContainerNode>();
+
         private final Map<String, IHierarchicalContentNode> allNodes = new HashMap<String, IHierarchicalContentNode>();
+
         private final List<File> unzippedFiles = new ArrayList<File>();
-        
+
         private ZipContainerNode rootNode;
+
         private final IHierarchicalContent hierarchicalContent;
-        
+
         public NodeManager(IHierarchicalContent hierarchicalContent)
         {
             this.hierarchicalContent = hierarchicalContent;
@@ -413,8 +423,11 @@ public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
     }
 
     private final BasicZipFile zipFile;
+
     private final IHierarchicalContentNode rootNode;
+
     private final Map<String, IHierarchicalContentNode> allNodes;
+
     private final List<File> unzippedFiles;
 
     public ZipBasedHierarchicalContent(File file)
@@ -478,5 +491,4 @@ public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
         }
     }
 
-    
 }
