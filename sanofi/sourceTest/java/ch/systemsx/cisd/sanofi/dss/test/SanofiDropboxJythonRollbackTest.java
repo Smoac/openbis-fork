@@ -91,13 +91,13 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
     private static final String EXPERIMENT_RECIPIENTS_PROPNAME = "OBSERVER_EMAILS";
 
     private static final String[] USER_EMAILS = new String[]
-        { "donald@duck.com", "mickey@mouse.org" };
+    { "donald@duck.com", "mickey@mouse.org" };
 
     final String[] ADMIN_EMAILS = new String[]
-        { "admin@sanofi.com", "admin@openbis.org" };
+    { "admin@sanofi.com", "admin@openbis.org" };
 
     final String[] ALL_EMAILS = new String[]
-        { "admin@sanofi.com", "admin@openbis.org", "donald@duck.com", "mickey@mouse.org" };
+    { "admin@sanofi.com", "admin@openbis.org", "donald@duck.com", "mickey@mouse.org" };
 
     private static final String IMAGE_DATA_SET_DIR_NAME = "batchNr_plateCode.variant_2011.07.05";
 
@@ -317,9 +317,9 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
                                     ANALYSIS_DATA_SET_FILE_NAME));
 
                     one(dataSetValidator).assertValidDataSet(
-                                    new DataSetType(
-                                            ScreeningConstants.DEFAULT_ANALYSIS_WELL_CONTAINER_DATASET_TYPE),
-                                    null);
+                            new DataSetType(
+                                    ScreeningConstants.DEFAULT_ANALYSIS_WELL_CONTAINER_DATASET_TYPE),
+                            null);
 
                 }
             });
