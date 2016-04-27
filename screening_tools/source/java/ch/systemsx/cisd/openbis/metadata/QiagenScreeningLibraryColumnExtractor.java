@@ -48,7 +48,7 @@ public class QiagenScreeningLibraryColumnExtractor extends AbstractColumnExtract
     private final static String OLIGO_ID = "productId";
 
     private final static String[] EXPECTED_COLUMNS = new String[]
-        { PLATE_NAME, WELL_ROW, WELL_COL, RNA_SEQUENCE, GENE_ID, GENE_SYMBOL, GENE_DESC, OLIGO_ID };
+    { PLATE_NAME, WELL_ROW, WELL_COL, RNA_SEQUENCE, GENE_ID, GENE_SYMBOL, GENE_DESC, OLIGO_ID };
 
     // -------------
 

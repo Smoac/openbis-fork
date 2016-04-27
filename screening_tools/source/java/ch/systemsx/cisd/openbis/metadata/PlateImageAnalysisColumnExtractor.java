@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.metadata;
 
-
 /**
  * Provides structured information from one row of the plate images analysis results.
  * 
@@ -33,7 +32,7 @@ public class PlateImageAnalysisColumnExtractor extends AbstractColumnExtractor
     private final static String WELL_COL = "col";
 
     private final static String[] EXPECTED_COLUMNS = new String[]
-        { PLATE_NAME, WELL_ROW, WELL_COL };
+    { PLATE_NAME, WELL_ROW, WELL_COL };
 
     // -------------
 
