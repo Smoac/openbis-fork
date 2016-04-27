@@ -16,7 +16,6 @@
 
 package ch.ethz.bsse.cisd.dynamix.categoryoracle;
 
-
 /**
  * @author Izabela Adamczyk
  */
