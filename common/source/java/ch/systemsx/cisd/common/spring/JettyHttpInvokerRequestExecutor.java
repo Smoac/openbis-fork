@@ -27,6 +27,8 @@ import org.springframework.remoting.support.RemoteInvocationResult;
 import com.marathon.util.spring.StreamSupportingRemoteInvocation;
 import com.marathon.util.spring.StreamSupportingRemoteInvocationResult;
 
+import ch.systemsx.cisd.common.http.JettyHttpClientFactory;
+
 public class JettyHttpInvokerRequestExecutor extends AbstractHttpInvokerRequestExecutor
 {
     private static final long RESPONSE_BUFFER_SIZE = 100 * FileUtils.ONE_MB;
@@ -42,7 +44,8 @@ public class JettyHttpInvokerRequestExecutor extends AbstractHttpInvokerRequestE
     {
         this.client = client;
         this.serverTimeoutInMillis 
-                = serverTimeoutInMillis <= 0 ? serverTimeoutInMillis : Math.max(1000, serverTimeoutInMillis);
+                = serverTimeoutInMillis <= 0 ? serverTimeoutInMillis 
+                        : Math.max(JettyHttpClientFactory.MINIMUM_REQUEST_IDLE_TIMEOUT, serverTimeoutInMillis);
     }
 
     protected RemoteInvocationResult doExecuteBasicRequest(HttpInvokerClientConfiguration config, 

@@ -33,6 +33,8 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
  */
 public class JettyHttpClientFactory
 {
+    public static final int MINIMUM_REQUEST_IDLE_TIMEOUT = 1000;
+    
     private static HttpClient httpClient;
 
     public static HttpClient getHttpClient()
@@ -89,6 +91,10 @@ public class JettyHttpClientFactory
                     super.doStart();
                 }
             };
+        // The idle timeout of the HttpClient should be less than or equal of the idle timeout set for the request
+        // in JettyHttpInvokerRequestExecutor. This is guaranteed by the constructor of JettyHttpInvokerRequestExecutor.
+        // For some explanation see https://jira-bsse.ethz.ch/browse/SSDM-3507
+        client.setIdleTimeout(MINIMUM_REQUEST_IDLE_TIMEOUT);
         return client;
     }
 
