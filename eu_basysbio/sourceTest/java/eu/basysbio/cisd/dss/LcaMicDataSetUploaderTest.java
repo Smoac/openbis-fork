@@ -42,8 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class LcaMicDataSetUploaderTest extends UploaderTestCase
@@ -51,7 +49,7 @@ public class LcaMicDataSetUploaderTest extends UploaderTestCase
     private final class ReaderMatcher extends BaseMatcher<Reader>
     {
         private final String content;
-        
+
         private ReaderMatcher(String content)
         {
             this.content = content;
@@ -79,10 +77,15 @@ public class LcaMicDataSetUploaderTest extends UploaderTestCase
     }
 
     private Mockery context;
+
     private ITimeSeriesDAO dao;
+
     private IEncapsulatedOpenBISService service;
+
     private IDatabaseFeeder databaseFeeder;
+
     private IDataSetValidator validator;
+
     private LcaMicDataSetUploader uploader;
 
     @BeforeMethod
@@ -99,7 +102,7 @@ public class LcaMicDataSetUploaderTest extends UploaderTestCase
                 new LcaMicDataSetUploader(dao, databaseFeeder, service, validator,
                         new TimeSeriesDataSetUploaderParameters(properties));
     }
-    
+
     @AfterMethod
     public void tearDown()
     {
@@ -107,7 +110,7 @@ public class LcaMicDataSetUploaderTest extends UploaderTestCase
         // Otherwise one does not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testNonUniqueBbaIDs()
     {
@@ -131,7 +134,7 @@ public class LcaMicDataSetUploaderTest extends UploaderTestCase
                 "BBA ID\tMa::MS::B1::12::EX::T1::NC::LcaMicCfd::Value[um]::LIN::NB::NC\t"
                         + "Ma::MS::B1::42::EX::T1::NC::LcaMicCfd::Value[um]::LIN::NB::NC\n"
                         + "BBA9001#A_S20090325-2\t2.5\t42.5\n", 1, "BBA9001#A_S20090325-2");
-        
+
         try
         {
             uploader.handleTSVFile(tsvFile, dataSetInformation);
@@ -145,12 +148,12 @@ public class LcaMicDataSetUploaderTest extends UploaderTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testHappyCase()
     {
         File tsvFile = new File(workingDirectory, "data.tsv");
-        FileUtilities.writeToFile(tsvFile, LcaMicDataSetPropertiesExtractorTest.EXAMPLE 
+        FileUtilities.writeToFile(tsvFile, LcaMicDataSetPropertiesExtractorTest.EXAMPLE
                 + "12\t2.5\t5.5\tN/A\n42\t42.5\t45.5\t3.25\n");
         DataSetInformation dataSetInformation = new DataSetInformation();
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier("p1", "MA_MS_B1"));
@@ -163,18 +166,18 @@ public class LcaMicDataSetUploaderTest extends UploaderTestCase
                         + "BBA9001#A_S20090325-2\t2.5\t42.5\n", 1, "BBA9001#A_S20090325-2");
         prepareValidatorAndFeeder(dataSetInformation,
                 "BBA ID\tMa::MS::B1::12::EX::T1::NC::LcaMicAbsFl::Mean[Au]::LIN::NB::NC\t"
-                + "Ma::MS::B1::42::EX::T1::NC::LcaMicAbsFl::Mean[Au]::LIN::NB::NC\n"
-                + "BBA9001#A_S20090325-2\t5.5\t45.5\n", 2, "BBA9001#A_S20090325-2");
+                        + "Ma::MS::B1::42::EX::T1::NC::LcaMicAbsFl::Mean[Au]::LIN::NB::NC\n"
+                        + "BBA9001#A_S20090325-2\t5.5\t45.5\n", 2, "BBA9001#A_S20090325-2");
         prepareValidatorAndFeeder(dataSetInformation,
                 "BBA ID\tMa::MS::B1::12::EX::T1::NC::LcaMicAbsFl::Std[Au]::LIN::NB::NC\t"
-                + "Ma::MS::B1::42::EX::T1::NC::LcaMicAbsFl::Std[Au]::LIN::NB::NC\n"
-                + "BBA9001#A_S20090325-2\tN/A\t3.25\n", 3, "BBA9001#A_S20090325-2");
-        
+                        + "Ma::MS::B1::42::EX::T1::NC::LcaMicAbsFl::Std[Au]::LIN::NB::NC\n"
+                        + "BBA9001#A_S20090325-2\tN/A\t3.25\n", 3, "BBA9001#A_S20090325-2");
+
         uploader.handleTSVFile(tsvFile, dataSetInformation);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     private void prepareResetDatabaseFeeder()
     {
         context.checking(new Expectations()
@@ -184,21 +187,21 @@ public class LcaMicDataSetUploaderTest extends UploaderTestCase
                 }
             });
     }
-    
+
     private void prepareValidatorAndFeeder(final DataSetInformation dataSetInformation,
             final String content, final int numberOfDataSet, final String biIdOrNull)
     {
         context.checking(new Expectations()
-        {
             {
-                ReaderMatcher matcher = new ReaderMatcher(content);
-                String sourceName = LCA_MIC_TIME_SERIES + numberOfDataSet;
-                one(validator).assertValidDataSet(with(new DataSetType(LCA_MIC_TIME_SERIES)),
-                        with(matcher), with(sourceName));
-                one(databaseFeeder).feedDatabase(with(dataSetInformation), with(matcher),
-                        with(sourceName), with(biIdOrNull));
-            }
-        });
+                {
+                    ReaderMatcher matcher = new ReaderMatcher(content);
+                    String sourceName = LCA_MIC_TIME_SERIES + numberOfDataSet;
+                    one(validator).assertValidDataSet(with(new DataSetType(LCA_MIC_TIME_SERIES)),
+                            with(matcher), with(sourceName));
+                    one(databaseFeeder).feedDatabase(with(dataSetInformation), with(matcher),
+                            with(sourceName), with(biIdOrNull));
+                }
+            });
     }
-    
+
 }

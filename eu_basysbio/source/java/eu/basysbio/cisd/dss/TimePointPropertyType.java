@@ -104,7 +104,7 @@ enum TimePointPropertyType
     {
         return vocabulary;
     }
-    
+
     String getElement(DataColumnHeader header)
     {
         String element = getElementPlain(header);

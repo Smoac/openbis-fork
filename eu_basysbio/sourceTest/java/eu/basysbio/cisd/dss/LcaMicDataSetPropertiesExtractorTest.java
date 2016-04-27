@@ -30,8 +30,6 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class LcaMicDataSetPropertiesExtractorTest extends AbstractFileSystemTestCase
@@ -73,5 +71,5 @@ public class LcaMicDataSetPropertiesExtractorTest extends AbstractFileSystemTest
         assertEquals("Mean[Au], Std[Au], Value[um]", map.get(TimeSeriesPropertyType.VALUE_TYPE_LIST.toString()));
         assertEquals("0.68", map.get(LcaMicDataSetPropertiesExtractor.GROWTH_RATE));
     }
-    
+
 }

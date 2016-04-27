@@ -316,9 +316,9 @@ class DatabaseFeeder implements IDatabaseFeeder
     {
         return parameters.getExperimentCodeFormat().format(
                 new Object[]
-                    { dataColumnHeader.getExperimentCode(),
-                            dataColumnHeader.getCultivationMethod(),
-                            dataColumnHeader.getBiologicalReplicateCode() });
+                { dataColumnHeader.getExperimentCode(),
+                        dataColumnHeader.getCultivationMethod(),
+                        dataColumnHeader.getBiologicalReplicateCode() });
     }
 
     private Experiment tryToGetExperiment(ExperimentIdentifier experimentIdentifier)

@@ -143,7 +143,7 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
             }
         }
     }
-    
+
     private void printMemoryUsage()
     {
         long mb = 1024 * 1024;

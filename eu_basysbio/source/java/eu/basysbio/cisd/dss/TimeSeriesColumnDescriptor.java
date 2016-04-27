@@ -20,7 +20,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 
-
 /**
  * Descriptor of a column in a time series data set file.
  * 

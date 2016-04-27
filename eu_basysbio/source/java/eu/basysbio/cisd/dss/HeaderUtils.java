@@ -62,19 +62,19 @@ class HeaderUtils
     private static final String LIST_SEPARATOR = ", ";
 
     private static final String[] TSV_EXTENSIONS =
-        { "tsv", "TSV", "txt", "TXT" };
+    { "tsv", "TSV", "txt", "TXT" };
 
     public static final TimeSeriesPropertyType[] TIME_SERIES_HEADER_PROPERTIES =
-                { TimeSeriesPropertyType.TECHNICAL_REPLICATE_CODE_LIST,
-                        TimeSeriesPropertyType.BIOLOGICAL_REPLICATE_CODE,
-                        TimeSeriesPropertyType.TIME_SERIES_DATA_SET_TYPE,
-                        TimeSeriesPropertyType.CEL_LOC, TimeSeriesPropertyType.CG_LIST,
-                        TimeSeriesPropertyType.CULTIVATION_METHOD_EXPERIMENT_CODE,
-                        TimeSeriesPropertyType.EXPERIMENT_CODE, TimeSeriesPropertyType.GENOTYPE,
-                        TimeSeriesPropertyType.GROWTH_PHASE, TimeSeriesPropertyType.SCALE_LIST,
-                        TimeSeriesPropertyType.TIME_POINT_LIST,
-                        TimeSeriesPropertyType.TIME_POINT_TYPE, TimeSeriesPropertyType.BI_ID,
-                        TimeSeriesPropertyType.VALUE_TYPE_LIST };
+    { TimeSeriesPropertyType.TECHNICAL_REPLICATE_CODE_LIST,
+            TimeSeriesPropertyType.BIOLOGICAL_REPLICATE_CODE,
+            TimeSeriesPropertyType.TIME_SERIES_DATA_SET_TYPE,
+            TimeSeriesPropertyType.CEL_LOC, TimeSeriesPropertyType.CG_LIST,
+            TimeSeriesPropertyType.CULTIVATION_METHOD_EXPERIMENT_CODE,
+            TimeSeriesPropertyType.EXPERIMENT_CODE, TimeSeriesPropertyType.GENOTYPE,
+            TimeSeriesPropertyType.GROWTH_PHASE, TimeSeriesPropertyType.SCALE_LIST,
+            TimeSeriesPropertyType.TIME_POINT_LIST,
+            TimeSeriesPropertyType.TIME_POINT_TYPE, TimeSeriesPropertyType.BI_ID,
+            TimeSeriesPropertyType.VALUE_TYPE_LIST };
 
     /**
      * Extracts data column headers, skips other columns.
@@ -137,7 +137,7 @@ class HeaderUtils
         }
         return headers;
     }
-    
+
     static File getTabSeparatedValueFile(File dir)
     {
         List<File> files = listFiles(dir);
@@ -267,8 +267,9 @@ class HeaderUtils
     {
         return join(list, HeaderUtils.LIST_SEPARATOR, 200);
     }
-    
-    @Private static String join(List<String> list, String separator, int maxSize)
+
+    @Private
+    static String join(List<String> list, String separator, int maxSize)
     {
         String lastElement = list.get(list.size() - 1);
         int maxSizeWithoutLastElement = maxSize - separator.length() - lastElement.length();
@@ -323,8 +324,7 @@ class HeaderUtils
     }
 
     /**
-     * Extracts a list of "time series" data sets properties defined in the tsv files located in
-     * chosen directory.
+     * Extracts a list of "time series" data sets properties defined in the tsv files located in chosen directory.
      */
     public static List<NewProperty> extractHeaderProperties(File dir, boolean ignoreEmptyLines)
     {
@@ -332,8 +332,7 @@ class HeaderUtils
     }
 
     /**
-     * Extracts a list of "time series" data sets properties defined in the tsv files located in
-     * chosen directory.
+     * Extracts a list of "time series" data sets properties defined in the tsv files located in chosen directory.
      * 
      * @param multipleValuesAllowed If <code>true</code> multiple values for same header element allowed.
      */
@@ -385,8 +384,7 @@ class HeaderUtils
     /**
      * Chosen data columns should have the same metadata.
      * 
-     * @throws UserFailureException when chosen {@link DataHeaderProperty}s are not the same in the
-     *             headers
+     * @throws UserFailureException when chosen {@link DataHeaderProperty}s are not the same in the headers
      */
     public static void assertMetadataConsistent(Collection<DataColumnHeader> headers,
             Collection<DataHeaderProperty> consistentProperties)

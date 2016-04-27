@@ -33,16 +33,19 @@ import ch.systemsx.cisd.etlserver.IDataSetUploader;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
-
 /**
  * @author Franz-Josef Elmer
  */
 class DataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedUndo implements IDataSetUploader, IFileManager
 {
     static final String TIME_SERIES = "TIME_SERIES";
+
     static final String LCA_MTP_TIME_SERIES = "LCA_MTP_TIME_SERIES";
+
     static final String LCA_MTP_PCAV_TIME_SERIES = "LCA_MTP_PCAV_TIME_SERIES";
+
     static final String LCA_MIC_TIME_SERIES = "LCA_MIC_TIME_SERIES";
+
     static final String LCA_MIC = "LCA_MIC";
 
     private final IEncapsulatedOpenBISService service;
@@ -50,16 +53,16 @@ class DataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedU
     private final DataSource dataSource;
 
     private final TimeSeriesDataSetUploaderParameters parameters;
-    
+
     final DataSetUploaderFactory factory;
-    
+
     private eu.basysbio.cisd.dss.IDataSetUploader uploader;
 
     DataSetHandler(Properties properties, IEncapsulatedOpenBISService service)
     {
         this(properties, DBUtils.getOrCreateDBContext(properties).getDataSource(), service);
     }
-    
+
     DataSetHandler(Properties properties, DataSource dataSource,
             IEncapsulatedOpenBISService service)
     {
@@ -71,13 +74,13 @@ class DataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         factory = new DataSetUploaderFactory(TimeSeriesDataSetUploader.FACTORY, patternForDefaultHandling);
         factory.register(LCA_MIC, LcaMicDataSetUploader.FACTORY);
     }
-    
+
     @Override
     public IFileOperations getFileOperations()
     {
         return super.getFileOperations();
     }
-    
+
     @Override
     public void addFileForUndo(File file)
     {
@@ -117,10 +120,11 @@ class DataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         return Status.OK;
     }
 
-    @Private eu.basysbio.cisd.dss.IDataSetUploader createUploader(
+    @Private
+    eu.basysbio.cisd.dss.IDataSetUploader createUploader(
             DataSetInformation dataSetInformation)
     {
         return factory.create(dataSetInformation, dataSource, service, parameters);
     }
-    
+
 }

@@ -16,7 +16,6 @@
 
 package eu.basysbio.cisd.dss;
 
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +31,7 @@ public final class DataColumnHeader
     private static final class PropertyManager
     {
         private final Map<String, String> propertiesMap;
+
         private final String dataSetCode;
 
         PropertyManager(AbstractExternalData dataSet)
@@ -44,7 +44,7 @@ public final class DataColumnHeader
                 propertiesMap.put(property.getPropertyType().getCode(), property.tryGetAsString());
             }
         }
-        
+
         String getProperty(TimePointPropertyType timePointPropertyType)
         {
             String value = propertiesMap.get(timePointPropertyType.toString());
@@ -56,40 +56,57 @@ public final class DataColumnHeader
             return value;
         }
     }
-    
+
     static final String SEPARATOR = "::";
 
     static final TimePointPropertyType[] HEADER_ELEMENTS =
             new TimePointPropertyType[]
-                { TimePointPropertyType.TECHNICAL_REPLICATE_CODE, TimePointPropertyType.CEL_LOC,
-                        TimePointPropertyType.TIME_SERIES_DATA_SET_TYPE,
-                        TimePointPropertyType.VALUE_TYPE, TimePointPropertyType.SCALE,
-                        TimePointPropertyType.BI_ID, TimePointPropertyType.CG };
-    
+            { TimePointPropertyType.TECHNICAL_REPLICATE_CODE, TimePointPropertyType.CEL_LOC,
+                    TimePointPropertyType.TIME_SERIES_DATA_SET_TYPE,
+                    TimePointPropertyType.VALUE_TYPE, TimePointPropertyType.SCALE,
+                    TimePointPropertyType.BI_ID, TimePointPropertyType.CG };
+
     private static final int HEADER_PARTS = 12;
-    
+
     private static final int TIME_POINT_INDEX = 3;
+
     private static final int TIME_POINT_TYPE_INDEX = 4;
+
     private final Pattern VALUE_TYPE_PATTERN =
             Pattern.compile("([a-zA-Z0-9]+)\\[([a-zA-Z0-9%]*)\\]");
-    
+
     private final String experimentCode;
+
     private final String cultivationMethod;
+
     private final String biologicalReplicateCode;
+
     private final int timePoint;
+
     private final String timePointType;
+
     private final String technicalReplicateCode;
+
     private final String celLoc;
+
     private final String timeSeriesDataSetType;
+
     private final String valueTypeAndUnit;
+
     private final String scale;
+
     private final String biID;
+
     private final String controlledGene;
+
     private final String growthPhase;
+
     private final String genotype;
+
     private final String normalizedHeader;
+
     private final String header;
-    
+
     DataColumnHeader(DataColumnHeader header, AbstractExternalData dataSet)
     {
         PropertyManager propertyManager = new PropertyManager(dataSet);
@@ -137,7 +154,7 @@ public final class DataColumnHeader
         genotype = parts.length > 13 ? parts[13] : null;
         normalizedHeader = createNormalizedHeader();
     }
-    
+
     private String createNormalizedHeader()
     {
         StringBuilder builder = new StringBuilder();
@@ -167,22 +184,22 @@ public final class DataColumnHeader
             return 0;
         }
     }
-    
+
     public String getExperimentCode()
     {
         return experimentCode;
     }
-    
+
     public String getCultivationMethod()
     {
         return cultivationMethod;
     }
-    
+
     public String getBiologicalReplicateCode()
     {
         return biologicalReplicateCode;
     }
-    
+
     public int getTimePoint()
     {
         return timePoint;
@@ -212,7 +229,7 @@ public final class DataColumnHeader
     {
         return valueTypeAndUnit;
     }
-    
+
     public String getValueType()
     {
         Matcher matcher = VALUE_TYPE_PATTERN.matcher(valueTypeAndUnit);
@@ -224,7 +241,7 @@ public final class DataColumnHeader
         Matcher matcher = VALUE_TYPE_PATTERN.matcher(valueTypeAndUnit);
         return matcher.matches() ? matcher.group(2) : "?";
     }
-    
+
     public String getScale()
     {
         return scale;
@@ -239,7 +256,7 @@ public final class DataColumnHeader
     {
         return controlledGene;
     }
-    
+
     public String getGrowthPhase()
     {
         return growthPhase;
@@ -249,7 +266,6 @@ public final class DataColumnHeader
     {
         return genotype;
     }
-
 
     @Override
     public boolean equals(Object obj)
@@ -270,5 +286,5 @@ public final class DataColumnHeader
     {
         return header;
     }
-    
+
 }

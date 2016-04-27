@@ -27,8 +27,6 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class LcaMicDataSetPropertiesExtractor extends DataSetPropertiesExtractor

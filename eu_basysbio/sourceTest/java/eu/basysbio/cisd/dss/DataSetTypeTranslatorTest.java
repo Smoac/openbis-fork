@@ -25,8 +25,6 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataSetTypeTranslatorTest extends AssertJUnit
@@ -44,7 +42,7 @@ public class DataSetTypeTranslatorTest extends AssertJUnit
                     + "' not found in properties '[]'", ex.getMessage());
         }
     }
-    
+
     @Test
     public void test()
     {
@@ -52,7 +50,7 @@ public class DataSetTypeTranslatorTest extends AssertJUnit
         properties.setProperty(DataSetTypeTranslator.DATA_SET_TYPES_KEY, "a, b");
         properties.setProperty("a", "alpha");
         DataSetTypeTranslator translator = new DataSetTypeTranslator(properties);
-        
+
         assertEquals("alpha", translator.translate("a"));
         assertEquals("B", translator.translate("b"));
         try

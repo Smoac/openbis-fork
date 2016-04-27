@@ -24,8 +24,7 @@ import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.etlserver.utils.Column;
 
 /**
- * Helper class to write a table (i.e. a list of {@link Column} objects) onto an
- * {@link IOutputStream} in TAB-separated format.
+ * Helper class to write a table (i.e. a list of {@link Column} objects) onto an {@link IOutputStream} in TAB-separated format.
  * 
  * @author Franz-Josef Elmer
  */
@@ -39,12 +38,12 @@ class TSVOutputWriter
         {
             this.outputStream = outputStream;
         }
-        
+
         public void println(Object object)
         {
             print(object + OSUtilities.LINE_SEPARATOR);
         }
-        
+
         public void print(Object object)
         {
             outputStream.write(String.valueOf(object).getBytes());
@@ -56,8 +55,8 @@ class TSVOutputWriter
     TSVOutputWriter(IOutputStream outputStream)
     {
         this.outputStream = outputStream;
-    } 
-    
+    }
+
     /**
      * Writes specified columns.
      */
@@ -88,7 +87,7 @@ class TSVOutputWriter
         }
         outputStream.flush();
     }
-    
+
     /**
      * Closes wrapped output stream.
      */

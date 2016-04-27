@@ -75,8 +75,7 @@ class SimpleSQLStringArray extends AbstractSQLArray
 
     @Override
     /*
-     * * For the PostgreSQL JDBC driver to work with this class, this method needs to return
-     * '{x,y,z,...}'.
+     * * For the PostgreSQL JDBC driver to work with this class, this method needs to return '{x,y,z,...}'.
      */
     public String toString()
     {

@@ -123,14 +123,14 @@ public enum DataHeaderProperty
             return header.getGenotype();
         }
     };
-    
+
     private final boolean optional;
 
     private DataHeaderProperty()
     {
         this(false);
     }
-    
+
     private DataHeaderProperty(boolean optional)
     {
         this.optional = optional;

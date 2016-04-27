@@ -51,7 +51,7 @@ class TimeSeriesDataSetUploaderParameters
                 new MessageFormat(properties.getProperty(EXPERIMENT_CODE_TEMPLATE_KEY,
                         DEFAULT_EXPERIMENT_CODE_TEMPLATE));
     }
-    
+
     MessageFormat getExperimentCodeFormat()
     {
         return experimentCodeFormat;

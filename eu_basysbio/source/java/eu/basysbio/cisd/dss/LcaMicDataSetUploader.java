@@ -39,8 +39,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class LcaMicDataSetUploader extends AbstractDataSetUploader
@@ -48,25 +46,25 @@ class LcaMicDataSetUploader extends AbstractDataSetUploader
     static final String LCA_MIC_TIME_SERIES = "LCA_MIC_TIME_SERIES";
 
     static final IDataSetUploaderFactory FACTORY = new IDataSetUploaderFactory()
-    {
-        
-        @Override
-        public IDataSetUploader create(DataSetInformation dataSetInformation,
-                DataSource dataSource, IEncapsulatedOpenBISService service,
-                TimeSeriesDataSetUploaderParameters parameters)
         {
-            return new LcaMicDataSetUploader(dataSource, service, parameters);
-        }
 
-        @Override
-        public IDataSetUploader create(DataSetInformation dataSetInformation,
-                ITimeSeriesDAO dao, IEncapsulatedOpenBISService service,
-                TimeSeriesDataSetUploaderParameters parameters)
-        {
-            return new LcaMicDataSetUploader(dao, service, parameters);
-        }
-    };
-    
+            @Override
+            public IDataSetUploader create(DataSetInformation dataSetInformation,
+                    DataSource dataSource, IEncapsulatedOpenBISService service,
+                    TimeSeriesDataSetUploaderParameters parameters)
+            {
+                return new LcaMicDataSetUploader(dataSource, service, parameters);
+            }
+
+            @Override
+            public IDataSetUploader create(DataSetInformation dataSetInformation,
+                    ITimeSeriesDAO dao, IEncapsulatedOpenBISService service,
+                    TimeSeriesDataSetUploaderParameters parameters)
+            {
+                return new LcaMicDataSetUploader(dao, service, parameters);
+            }
+        };
+
     private final IDataSetValidator dataSetValidator;
 
     LcaMicDataSetUploader(DataSource dataSource, IEncapsulatedOpenBISService service,

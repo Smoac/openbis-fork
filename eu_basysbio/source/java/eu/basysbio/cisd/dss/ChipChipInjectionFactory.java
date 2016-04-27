@@ -128,13 +128,13 @@ enum ChipChipInjectionFactory implements IInjectionFactory<ChipChipData>
         public IColumnInjection<ChipChipData> create(final Column column)
         {
             return new AbstractColumnInjection<ChipChipData>(column)
-            {
-                @Override
-                void inject(ChipChipData dataValue, String value)
                 {
-                    dataValue.setNearbyGeneNames(value);
-                }
-            };
+                    @Override
+                    void inject(ChipChipData dataValue, String value)
+                    {
+                        dataValue.setNearbyGeneNames(value);
+                    }
+                };
         }
     },
     NEARBY_GENE_IDS(11)
@@ -143,13 +143,13 @@ enum ChipChipInjectionFactory implements IInjectionFactory<ChipChipData>
         public IColumnInjection<ChipChipData> create(final Column column)
         {
             return new AbstractColumnInjection<ChipChipData>(column)
-            {
-                @Override
-                void inject(ChipChipData dataValue, String value)
                 {
-                    dataValue.setNearbyGeneIDs(value);
-                }
-            };
+                    @Override
+                    void inject(ChipChipData dataValue, String value)
+                    {
+                        dataValue.setNearbyGeneIDs(value);
+                    }
+                };
         }
     },
     DISTANCE_FROM_START(12)
@@ -158,16 +158,16 @@ enum ChipChipInjectionFactory implements IInjectionFactory<ChipChipData>
         public IColumnInjection<ChipChipData> create(final Column column)
         {
             return new AbstractColumnInjection<ChipChipData>(column)
-            {
-                @Override
-                void inject(ChipChipData dataValue, String value)
                 {
-                    dataValue.setDistancesFromStart(value);
-                }
-            };
+                    @Override
+                    void inject(ChipChipData dataValue, String value)
+                    {
+                        dataValue.setDistancesFromStart(value);
+                    }
+                };
         }
     };
-    
+
     private final int columnNumber;
 
     private ChipChipInjectionFactory(int columnNumber)
@@ -186,7 +186,7 @@ enum ChipChipInjectionFactory implements IInjectionFactory<ChipChipData>
         Column column = columns.get(colIndex);
         return create(column);
     }
-    
+
     public abstract IColumnInjection<ChipChipData> create(final Column column);
-    
+
 }

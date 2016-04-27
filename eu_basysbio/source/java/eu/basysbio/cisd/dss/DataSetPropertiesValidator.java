@@ -30,8 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabula
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyTypeWithVocabulary;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class DataSetPropertiesValidator
@@ -60,7 +58,7 @@ class DataSetPropertiesValidator
             throw new ConfigurationFailureException(builder.toString());
         }
     }
-    
+
     void assertValidFor(String dataSetType, TimePointPropertyType key, String value)
     {
         Map<String, PropertyTypeWithVocabulary> map = dataSetType2PropertyTypeMap.get(dataSetType);
@@ -141,7 +139,7 @@ class DataSetPropertiesValidator
         }
         return errorMessage;
     }
-    
+
     private void gotoNewLine(StringBuilder builder)
     {
         if (builder.length() != 0)

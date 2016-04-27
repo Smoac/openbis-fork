@@ -32,10 +32,10 @@ interface IDatabaseFeeder
 
     public void feedDatabase(DataSetInformation dataSetInformation, Reader reader,
             String nameOfReaderSource);
-    
+
     /**
-     * For LCA Microscopy data types who need to allow uploading of many data sets with the same header
-     * information but different biIds. <code>biId==null</code> stands for a "regular" time seris data set.  
+     * For LCA Microscopy data types who need to allow uploading of many data sets with the same header information but different biIds.
+     * <code>biId==null</code> stands for a "regular" time seris data set.
      */
     public void feedDatabase(DataSetInformation dataSetInformation, Reader reader,
             String nameOfReaderSource, String biIdOrNull);

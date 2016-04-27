@@ -21,11 +21,12 @@ import ch.systemsx.cisd.etlserver.utils.Column;
 abstract class AbstractColumnInjection<T extends AbstractDataValue> implements IColumnInjection<T>
 {
     protected final Column column;
+
     AbstractColumnInjection(Column column)
     {
         this.column = column;
     }
-    
+
     @Override
     public void inject(T dataValue, int rowIndex)
     {
@@ -39,6 +40,6 @@ abstract class AbstractColumnInjection<T extends AbstractDataValue> implements I
                     + "' has an invalid value in row " + (rowIndex + 2) + ": " + value, ex);
         }
     }
-    
+
     abstract void inject(T dataValue, String value);
 }

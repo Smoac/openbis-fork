@@ -22,16 +22,17 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public abstract class UploaderTestCase extends AbstractFileSystemTestCase
 {
 
     protected static final String PROJECT_CODE = "P1";
+
     static final String GROUP_CODE = "/G1";
+
     protected static final long EXP_ID = 42L;
+
     protected static final String EXP_PERM_ID = "perm-" + EXP_ID;
 
     /**
@@ -44,8 +45,6 @@ public abstract class UploaderTestCase extends AbstractFileSystemTestCase
     }
 
     /**
-     *
-     *
      * @param cleanAfterMethod
      */
     public UploaderTestCase(boolean cleanAfterMethod)

@@ -24,11 +24,9 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=HeaderUtils.class)
+@Friend(toClasses = HeaderUtils.class)
 public class HeaderUtilsTest extends AssertJUnit
 {
     @Test
@@ -37,16 +35,16 @@ public class HeaderUtilsTest extends AssertJUnit
         assertEquals("a, b, c", HeaderUtils.join(Arrays.asList("a", "b", "c"), ", ", 8));
         assertEquals("a, b, c", HeaderUtils.join(Arrays.asList("a", "b", "c"), ", ", 7));
         assertEquals("..., c", HeaderUtils.join(Arrays.asList("a", "b", "c"), ", ", 6));
-        
+
         assertEquals("123, 345, 789", HeaderUtils.join(Arrays.asList("123", "345", "789"), ", ", 14));
         assertEquals("123, 345, 789", HeaderUtils.join(Arrays.asList("123", "345", "789"), ", ", 13));
         assertEquals("..., 789", HeaderUtils.join(Arrays.asList("123", "345", "789"), ", ", 12));
-        
+
         assertEquals("100, 1000, 10000", HeaderUtils.join(Arrays.asList("100", "1000", "10000"), ", ", 17));
         assertEquals("100, 1000, 10000", HeaderUtils.join(Arrays.asList("100", "1000", "10000"), ", ", 16));
         assertEquals("100, ..., 10000", HeaderUtils.join(Arrays.asList("100", "1000", "10000"), ", ", 15));
         assertEquals("..., 10000", HeaderUtils.join(Arrays.asList("100", "1000", "10000"), ", ", 14));
-        
+
         assertEquals("1, 10, 100, 1000, 10000", HeaderUtils.join(Arrays.asList("1", "10", "100",
                 "1000", "10000"), ", ", 24));
         assertEquals("1, 10, 100, 1000, 10000", HeaderUtils.join(Arrays.asList("1", "10", "100",

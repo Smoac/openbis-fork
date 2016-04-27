@@ -22,7 +22,6 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.etlserver.utils.Column;
 
-
 /**
  * @author Franz-Josef Elmer
  */
@@ -32,13 +31,13 @@ class Util
     {
         return Integer.parseInt(number.startsWith("+") ? number.substring(1) : number);
     }
-    
+
     static Double parseDouble(String number)
     {
         double value = Double.parseDouble(number);
         return Double.isNaN(value) ? null : value;
     }
-    
+
     static Integer parseInteger(Column column, int rowIndex)
     {
         String value = getValueAt(column, rowIndex);
@@ -64,7 +63,7 @@ class Util
                     + column.getHeader() + "' is not a floating-point number: " + value);
         }
     }
-    
+
     private static String getValueAt(Column column, int rowIndex)
     {
         List<String> values = column.getValues();

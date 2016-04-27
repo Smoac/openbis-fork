@@ -56,7 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 public class DataSetHandlerTest extends AbstractFileSystemTestCase
 {
     private static final String E_MAIL_ADDRESS = "e-mail";
-    
+
     private static final String DATA_SET_CODE = "DS1";
 
     private static final long DATA_SET_SPECIAL_ID = 4711;
@@ -68,10 +68,10 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
     private static final String EXP_PERM_ID = "perm-" + EXP_ID;
 
     private static final long VALUE_GROUP_ID1 = 42;
+
     private static final long VALUE_GROUP_ID2 = 43;
 
     private static final String PROJECT_CODE = "P1";
-
 
     private Mockery context;
 
@@ -206,18 +206,18 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
                                     + "MetaboliteLCMS::Value[mM]::Log10::NB::NC"));
                     MockDataSet<String> dataSets = new MockDataSet<String>();
                     will(returnValue(dataSets));
-                    
+
                     one(dao).listDataSetsByTimeSeriesDataColumnHeader(
                             new DataColumnHeader("GM::BR::B1::+7200::EX::T2::CE::"
                                     + "b::Value[mM]::LIN::NB::NC"));
                     will(returnValue(dataSets));
-                    
+
                     one(dao).getNextValueGroupId();
                     will(returnValue(VALUE_GROUP_ID1));
-                    
+
                     one(dao).getNextValueGroupId();
                     will(returnValue(VALUE_GROUP_ID2));
-                    
+
                     one(dao).insertTimeSeriesValues(with(DATA_SET_SPECIAL_ID), with("ID"),
                             with(Expectations.<List<TimeSeriesValue>> anything()));
                 }
@@ -232,7 +232,6 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
-    
     @Test
     public void testGeneric()
     {
@@ -251,32 +250,32 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
                                     + "MetaboliteLCMS::Value[mM]::Log10::NB::NC"));
                     MockDataSet<String> dataSets = new MockDataSet<String>();
                     will(returnValue(dataSets));
-                    
+
                     one(dao).listDataSetsByTimeSeriesDataColumnHeader(
                             new DataColumnHeader("GM::BR::B1::+7200::EX::T2::CE::"
                                     + "b::Value[mM]::LIN::NB::NC"));
                     will(returnValue(dataSets));
-                    
+
                     one(dao).getNextValueGroupId();
                     will(returnValue(VALUE_GROUP_ID1));
-                    
+
                     one(dao).getNextValueGroupId();
                     will(returnValue(VALUE_GROUP_ID2));
-                    
+
                     one(dao).insertTimeSeriesValues(with(DATA_SET_SPECIAL_ID), with("ID"),
                             with(Expectations.<List<TimeSeriesValue>> anything()));
                 }
             });
-        
+
         DataSetInformation dataSetInformation =
-            createDataSetInformation("GENERIC");
+                createDataSetInformation("GENERIC");
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE,
                 "GM_BR_B1"));
         handler.handle(file, dataSetInformation, null);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     private void prepareGetOrCreateDataSet(final Experiment experiment, final boolean get)
     {
         context.checking(new Expectations()
@@ -289,14 +288,14 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
                     } else
                     {
                         will(returnValue(null));
-    
+
                         one(dao).createDataSet(DATA_SET_CODE, E_MAIL_ADDRESS, experiment);
                         will(returnValue(DATA_SET_SPECIAL_ID));
                     }
                 }
             });
     }
-    
+
     private DataSetHandler createHandler()
     {
         final Properties properties = new Properties();

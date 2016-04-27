@@ -33,7 +33,9 @@ class DataSetUploaderFactory implements IDataSetUploaderFactory
 {
     private final Map<String, IDataSetUploaderFactory> factories =
             new LinkedHashMap<String, IDataSetUploaderFactory>();
+
     private final IDataSetUploaderFactory defaultFactory;
+
     private final Pattern pattern;
 
     DataSetUploaderFactory(IDataSetUploaderFactory defaultFactory, Pattern pattern)
@@ -62,7 +64,7 @@ class DataSetUploaderFactory implements IDataSetUploaderFactory
         IDataSetUploaderFactory factory = getFactory(dataSetInformation);
         return factory.create(dataSetInformation, dao, service, parameters);
     }
-    
+
     private IDataSetUploaderFactory getFactory(DataSetInformation dataSetInformation)
     {
         String dataSetType = dataSetInformation.getDataSetType().getCode();

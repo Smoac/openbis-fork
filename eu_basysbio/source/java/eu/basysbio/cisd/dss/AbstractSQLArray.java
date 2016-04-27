@@ -22,8 +22,7 @@ import java.sql.SQLException;
 import java.util.Map;
 
 /**
- * An abstract super class that implements {@link Array}. All methods throw an
- * {@link UnsupportedOperationException}.
+ * An abstract super class that implements {@link Array}. All methods throw an {@link UnsupportedOperationException}.
  * 
  * @author Bernd Rinn
  */

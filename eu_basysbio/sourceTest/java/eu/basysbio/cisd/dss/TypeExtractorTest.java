@@ -27,13 +27,12 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TypeExtractorTest extends AbstractFileSystemTestCase
 {
     private TypeExtractor extractor;
+
     private File dataSet;
 
     @BeforeMethod
@@ -42,7 +41,7 @@ public class TypeExtractorTest extends AbstractFileSystemTestCase
         extractor = new TypeExtractor(new Properties());
         dataSet = new File(workingDirectory, "data-set");
     }
-    
+
     @Test
     public void testNonExistentDataSet()
     {
@@ -56,7 +55,7 @@ public class TypeExtractorTest extends AbstractFileSystemTestCase
                     .getMessage());
         }
     }
-    
+
     @Test
     public void testMissingDataFile()
     {
@@ -71,8 +70,7 @@ public class TypeExtractorTest extends AbstractFileSystemTestCase
                     .getMessage());
         }
     }
-    
-    
+
     @Test
     public void testMoreThanOneDataFile() throws IOException
     {
@@ -89,7 +87,7 @@ public class TypeExtractorTest extends AbstractFileSystemTestCase
                     .getMessage());
         }
     }
-    
+
     @Test
     public void testExtractDataSetType() throws IOException
     {
@@ -97,5 +95,5 @@ public class TypeExtractorTest extends AbstractFileSystemTestCase
         new File(dataSet, "MY_TYPE" + TypeExtractor.DATA_TYPE).createNewFile();
         assertEquals("MY_TYPE", extractor.getDataSetType(dataSet).getCode());
     }
-    
+
 }

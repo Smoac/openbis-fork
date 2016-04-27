@@ -22,15 +22,13 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 interface IDataSetUploaderFactory
 {
     public IDataSetUploader create(DataSetInformation dataSetInformation, DataSource dataSource,
             IEncapsulatedOpenBISService service, TimeSeriesDataSetUploaderParameters parameters);
-    
+
     public IDataSetUploader create(DataSetInformation dataSetInformation, ITimeSeriesDAO dao,
             IEncapsulatedOpenBISService service, TimeSeriesDataSetUploaderParameters parameters);
 }

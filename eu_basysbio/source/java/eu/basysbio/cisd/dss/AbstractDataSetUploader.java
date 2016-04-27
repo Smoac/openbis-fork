@@ -32,8 +32,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 abstract class AbstractDataSetUploader implements IDataSetUploader
@@ -79,7 +77,7 @@ abstract class AbstractDataSetUploader implements IDataSetUploader
         this.parameters = parameters;
         this.databaseFeeder = databaseFeeder;
     }
-    
+
     /** the uploader should not be used after calling this method */
     @Override
     public void commit()

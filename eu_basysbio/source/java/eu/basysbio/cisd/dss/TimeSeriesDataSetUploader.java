@@ -51,7 +51,7 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
                 return new TimeSeriesDataSetUploader(dao, service, parameters);
             }
         };
-        
+
     TimeSeriesDataSetUploader(DataSource dataSource, IEncapsulatedOpenBISService service,
             TimeSeriesDataSetUploaderParameters parameters)
     {

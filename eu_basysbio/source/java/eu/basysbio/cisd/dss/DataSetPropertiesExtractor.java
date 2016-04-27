@@ -24,15 +24,14 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class DataSetPropertiesExtractor implements IDataSetPropertiesExtractor
 {
     protected final boolean ignoreEmptyLines;
+
     private final boolean allowMultipleValues;
-    
+
     DataSetPropertiesExtractor(Properties properties, boolean allowMultipleValues)
     {
         this.allowMultipleValues = allowMultipleValues;

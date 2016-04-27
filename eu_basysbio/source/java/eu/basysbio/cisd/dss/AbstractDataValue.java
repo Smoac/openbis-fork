@@ -16,7 +16,6 @@
 
 package eu.basysbio.cisd.dss;
 
-
 /**
  * @author Franz-Josef Elmer
  */

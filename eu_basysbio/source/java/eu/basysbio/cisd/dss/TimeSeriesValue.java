@@ -38,7 +38,7 @@ public class TimeSeriesValue extends AbstractDataValue
     private String controlledGene;
 
     private Integer numberOfReplicates;
-    
+
     private Double value;
 
     public final String getIdentifier()
@@ -110,7 +110,7 @@ public class TimeSeriesValue extends AbstractDataValue
     {
         this.value = value;
     }
-    
+
     TimeSeriesValue createFor(int rowIndex, Double cellValue, List<IColumnInjection<TimeSeriesValue>> injections)
     {
         TimeSeriesValue v = new TimeSeriesValue();
@@ -132,5 +132,5 @@ public class TimeSeriesValue extends AbstractDataValue
         return ToStringBuilder.reflectionToString(this,
                 ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
     }
-     
+
 }

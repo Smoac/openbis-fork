@@ -22,8 +22,6 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 interface IDataSetPropertiesExtractor

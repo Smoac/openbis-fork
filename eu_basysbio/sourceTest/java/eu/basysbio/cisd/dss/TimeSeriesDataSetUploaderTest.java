@@ -46,11 +46,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=TimeSeriesDataSetUploader.class)
+@Friend(toClasses = TimeSeriesDataSetUploader.class)
 public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
 {
     private static final String E_MAIL_ADDRESS = "e-mail";
@@ -58,15 +56,19 @@ public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
     private static final String DATA_SET_CODE = "DS1";
 
     private static final long DATA_SET_SPECIAL_ID = 4711;
-    
+
     private static final long VALUE_GROUP_ID1 = 42;
+
     private static final long VALUE_GROUP_ID2 = 43;
 
-
     private Mockery context;
+
     private ITimeSeriesDAO dao;
+
     private IEncapsulatedOpenBISService service;
+
     private IDataSetUploader uploader;
+
     private File dropBox;
 
     @BeforeMethod
@@ -83,7 +85,7 @@ public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
                 new TimeSeriesDataSetUploader(dao, service,
                         new TimeSeriesDataSetUploaderParameters(properties));
     }
-    
+
     @AfterMethod
     public void tearDown()
     {
@@ -91,7 +93,7 @@ public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
         // Otherwise one does not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testUploadNotForExperiment()
     {
@@ -108,7 +110,6 @@ public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
 
         context.assertIsSatisfied();
     }
-    
 
     @Test
     public void testWrongExperiment() throws IOException
@@ -130,7 +131,7 @@ public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDataSetAlreadyExists()
     {
@@ -171,7 +172,6 @@ public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
 
         context.assertIsSatisfied();
     }
-
 
     @Test
     public void test()
@@ -231,15 +231,15 @@ public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
                                     + "MetaboliteLCMS::Value[mM]::Log10::NB::NC"));
                     MockDataSet<String> dataSets = new MockDataSet<String>();
                     will(returnValue(dataSets));
-                    
+
                     one(dao).listDataSetsByTimeSeriesDataColumnHeader(
                             new DataColumnHeader("GM::BR::B1::+7200::EX::T2::CE::"
                                     + "b::Value[mM]::LIN::NB::NC"));
                     will(returnValue(dataSets));
-                    
+
                     one(dao).getNextValueGroupId();
                     will(returnValue(VALUE_GROUP_ID1));
-                    
+
                     one(dao).getNextValueGroupId();
                     will(returnValue(VALUE_GROUP_ID2));
 
@@ -273,7 +273,7 @@ public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE,
                 "GM_BR_B1"));
         uploader.upload(file, dataSetInformation);
-        
+
         context.assertIsSatisfied();
     }
 
@@ -289,14 +289,14 @@ public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
                     } else
                     {
                         will(returnValue(null));
-    
+
                         one(dao).createDataSet(DATA_SET_CODE, E_MAIL_ADDRESS, experiment);
                         will(returnValue(DATA_SET_SPECIAL_ID));
                     }
                 }
             });
     }
-    
+
     private DataSetInformation createDataSetInformation(String dataSetTypeCode)
     {
         DataSetInformation dataSetInformation = new DataSetInformation();
@@ -308,7 +308,6 @@ public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
                 DatabaseFeeder.UPLOADER_EMAIL_KEY, E_MAIL_ADDRESS)));
         return dataSetInformation;
     }
-
 
     private File createDataExample()
     {

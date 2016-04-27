@@ -21,13 +21,12 @@ import java.io.File;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 interface IFileManager
 {
     public IFileOperations getFileOperations();
+
     public void addFileForUndo(File file);
 
 }

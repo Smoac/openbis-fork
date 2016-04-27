@@ -22,26 +22,27 @@ import java.util.Map;
 class ValueGroupIdGenerator
 {
     private final Map<ValueGroupDescriptor, Long> valueGroupIDs = new HashMap<ValueGroupDescriptor, Long>();
+
     private final ITimeSeriesDAO dao;
 
     ValueGroupIdGenerator(ITimeSeriesDAO dao)
     {
         this.dao = dao;
     }
-    
+
     void clear()
     {
         valueGroupIDs.clear();
     }
-    
+
     long getValueGroupIdFor(ValueGroupDescriptor descriptor)
     {
-       Long id = valueGroupIDs.get(descriptor);
-       if (id == null)
-       {
-           id = dao.getNextValueGroupId();
-           valueGroupIDs.put(descriptor, id);
-       }
-       return id; 
+        Long id = valueGroupIDs.get(descriptor);
+        if (id == null)
+        {
+            id = dao.getNextValueGroupId();
+            valueGroupIDs.put(descriptor, id);
+        }
+        return id;
     }
 }

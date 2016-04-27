@@ -202,7 +202,7 @@ public class ChipChipData extends AbstractDataValue
     {
         this.distancesFromStart = distancesFromStart;
     }
-    
+
     ChipChipData createFor(int rowIndex, Integer position, Double height, Double score, List<IColumnInjection<ChipChipData>> injections)
     {
         ChipChipData data = new ChipChipData();

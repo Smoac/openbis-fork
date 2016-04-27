@@ -123,8 +123,9 @@ enum TimeSeriesInjectionFactory implements IInjectionFactory<TimeSeriesValue>
                 };
         }
     };
-    
+
     private final int columnNumber;
+
     private final Pattern pattern;
 
     private TimeSeriesInjectionFactory(int columnNumber, String columnHeaderPattern)
@@ -144,7 +145,7 @@ enum TimeSeriesInjectionFactory implements IInjectionFactory<TimeSeriesValue>
         Column column = columns.get(colIndex);
         return pattern.matcher(column.getHeader()).matches() ? create(column) : null;
     }
-    
+
     public abstract IColumnInjection<TimeSeriesValue> create(final Column column);
-    
+
 }

@@ -27,9 +27,9 @@ interface IDataSetUploader
 {
 
     public void upload(File originalData, DataSetInformation dataSetInformation);
-    
+
     public void commit();
-    
+
     public void rollback();
 
 }

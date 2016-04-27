@@ -28,15 +28,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 
 /**
- * Type extractor based on {@link SimpleTypeExtractor}. Data set type code is extracted from
- * the name of the one and only one file of type {@link #DATA_TYPE}.
+ * Type extractor based on {@link SimpleTypeExtractor}. Data set type code is extracted from the name of the one and only one file of type
+ * {@link #DATA_TYPE}.
  *
  * @author Franz-Josef Elmer
  */
 public class TypeExtractor implements ITypeExtractor
 {
     static final String DATA_TYPE = ".data.txt";
-    
+
     private final SimpleTypeExtractor extractor;
 
     public TypeExtractor(Properties properties)
@@ -94,5 +94,4 @@ public class TypeExtractor implements ITypeExtractor
         return extractor.isMeasuredData(incomingDataSetPath);
     }
 
-    
 }

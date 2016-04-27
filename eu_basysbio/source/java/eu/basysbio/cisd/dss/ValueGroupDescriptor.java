@@ -46,11 +46,11 @@ public class ValueGroupDescriptor
     private final String biId;
 
     private final String controlledGene;
-    
+
     private final String growthPhase;
-    
+
     private final String genotype;
-    
+
     public ValueGroupDescriptor(DataColumnHeader dataColumnHeader)
     {
         experimentType = dataColumnHeader.getExperimentCode();
@@ -150,7 +150,7 @@ public class ValueGroupDescriptor
         result = prime * result + ((timePointType == null) ? 0 : timePointType.hashCode());
         return result;
     }
-    
+
     @Override
     public boolean equals(Object obj)
     {
@@ -182,7 +182,6 @@ public class ValueGroupDescriptor
     {
         return obj1 == null ? obj1 == obj2 : obj1.equals(obj2);
     }
-    
 
     @Override
     public String toString()
