@@ -37,15 +37,14 @@ import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 
 /**
- * Stores files containing plasmid data in the DSS store. Additionally for files holding a DNA
- * sequence it uses PlasMapper (see http://wishart.biology.ualberta.ca/PlasMapper/) to generate:
+ * Stores files containing plasmid data in the DSS store. Additionally for files holding a DNA sequence it uses PlasMapper (see
+ * http://wishart.biology.ualberta.ca/PlasMapper/) to generate:
  * <ul>
  * <li>a GB file with the same sequence but in a standard Genbank format
  * <li>a PNG file with a graphical representation of the plasmid sequence (Graphic Map)
  * </ul>
- * The generated files will be stored in a separate directory ('generated') of the created Dataset.
- * They will have the same base name as the original file holding the DNA sequence which will be
- * kept in 'original' directory.
+ * The generated files will be stored in a separate directory ('generated') of the created Dataset. They will have the same base name as the original
+ * file holding the DNA sequence which will be kept in 'original' directory.
  * 
  * @author Piotr Buczek
  */

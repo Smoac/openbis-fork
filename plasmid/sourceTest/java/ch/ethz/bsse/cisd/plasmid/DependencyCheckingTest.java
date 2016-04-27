@@ -17,8 +17,6 @@
 package ch.ethz.bsse.cisd.plasmid;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DependencyCheckingTest extends ch.systemsx.cisd.common.test.DependencyCheckingTest

@@ -37,9 +37,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 /**
  * Data set handler for plasmid data sets.
  * <p>
- * All visible files (with names not starting with '.') in the handled directory are delegated to
- * the handler provided in the constructor. As the result a new data set will be created for each
- * file in the directory.
+ * All visible files (with names not starting with '.') in the handled directory are delegated to the handler provided in the constructor. As the
+ * result a new data set will be created for each file in the directory.
  * 
  * @author Piotr Buczek
  */

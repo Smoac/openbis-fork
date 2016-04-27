@@ -164,8 +164,7 @@ public class PlasMapperUploader
      * 
      * @param seqFile file to be uploaded
      * @param service service to be used for upload
-     * @return the server's response to the request depending on the service (path to output image
-     *         or sequence in genebank format)
+     * @return the server's response to the request depending on the service (path to output image or sequence in genebank format)
      */
     // Synchronization is needed because PlasMapper servlet is not thread safe (see LMS-2086)
     public synchronized String upload(File seqFile, PlasMapperService service)
@@ -186,7 +185,7 @@ public class PlasMapperUploader
             }
             String fileContent = FileUtilities.loadToString(seqFile);
             ContentProvider content = new StringContentProvider("--" + BOUNDARY + CRLF
-                    + "Content-Disposition: form-data; name=\"" + FILE_PART_NAME + "\"; filename=\"" 
+                    + "Content-Disposition: form-data; name=\"" + FILE_PART_NAME + "\"; filename=\""
                     + seqFile.getName() + "\"" + CRLF
                     + "Content-Type: application/octet-stream" + CRLF + CRLF
                     + fileContent + CRLF + "--" + BOUNDARY + "--" + CRLF);

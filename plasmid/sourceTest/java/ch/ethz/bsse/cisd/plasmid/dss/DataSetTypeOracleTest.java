@@ -36,7 +36,7 @@ public class DataSetTypeOracleTest extends AbstractFileSystemTestCase
     protected Object[][] files()
     {
         return new Object[][]
-            {
+        {
                 { "PRS316.gb", DataSetTypeInfo.SEQ_FILE },
                 { "PRS316.fasta", DataSetTypeInfo.SEQ_FILE },
                 { "PRS316.xdna", DataSetTypeInfo.SEQ_FILE },
@@ -46,7 +46,7 @@ public class DataSetTypeOracleTest extends AbstractFileSystemTestCase
                 { "PRS316.png", DataSetTypeInfo.VERIFICATION },
                 { "PRS316.tiff", DataSetTypeInfo.VERIFICATION }
 
-            };
+        };
     }
 
     private static Properties prepareProperties(String typeMapping)
