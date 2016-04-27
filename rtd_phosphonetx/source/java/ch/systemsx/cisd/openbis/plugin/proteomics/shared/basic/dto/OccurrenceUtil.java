@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-
 /**
  * Helper class for calculating peptide on protein coverage.
  *
@@ -30,8 +29,7 @@ import java.util.List;
 public class OccurrenceUtil
 {
     /**
-     * Returns a list of non-overlapping sequences built by the specified peptides covering the
-     * specified protein.
+     * Returns a list of non-overlapping sequences built by the specified peptides covering the specified protein.
      */
     public static List<Occurrence> getCoverage(String protein, Collection<String> peptides)
     {
@@ -71,7 +69,7 @@ public class OccurrenceUtil
         Collections.sort(result);
         return result;
     }
-    
+
     public static List<Occurrence> findAllOccurrences(String protein, String peptide)
     {
         List<Occurrence> result = new ArrayList<Occurrence>();

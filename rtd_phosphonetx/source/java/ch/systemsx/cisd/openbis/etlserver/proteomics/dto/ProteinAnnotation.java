@@ -20,20 +20,25 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @XmlType
 public class ProteinAnnotation
 {
     private String description;
+
     private String ipiName;
+
     private String refseqName;
+
     private String swissprotName;
+
     private String ensemblName;
+
     private String tremblName;
+
     private String locusLinkName;
+
     private String flybase;
 
     @XmlAttribute(name = "protein_description", required = true)
@@ -123,7 +128,7 @@ public class ProteinAnnotation
     {
         this.flybase = flybase;
     }
-    
+
     @Override
     public String toString()
     {

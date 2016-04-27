@@ -31,8 +31,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TypeExtractorForMSInjectionTest extends AbstractFileSystemTestCase
@@ -50,7 +48,7 @@ public class TypeExtractorForMSInjectionTest extends AbstractFileSystemTestCase
             assertEquals("Missing properties file '" + DATA_SET_PROPERTIES_FILE + "'.", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testGetDataSetType()
     {
@@ -59,7 +57,7 @@ public class TypeExtractorForMSInjectionTest extends AbstractFileSystemTestCase
         DataSetType dataSetType = extractor.getDataSetType(workingDirectory);
         assertEquals("RAW", dataSetType.getCode());
     }
-    
+
     @Test
     public void testGetProcessorType()
     {
@@ -67,7 +65,7 @@ public class TypeExtractorForMSInjectionTest extends AbstractFileSystemTestCase
         TypeExtractorForMSInjection extractor = new TypeExtractorForMSInjection(new Properties());
         assertEquals(null, extractor.getProcessorType(workingDirectory));
     }
-    
+
     @Test
     public void testGetFileFormatType()
     {
@@ -75,7 +73,7 @@ public class TypeExtractorForMSInjectionTest extends AbstractFileSystemTestCase
         TypeExtractorForMSInjection extractor = new TypeExtractorForMSInjection(new Properties());
         assertEquals("XML", extractor.getFileFormatType(workingDirectory).getCode());
     }
-    
+
     @Test
     public void testGetLocatorType()
     {

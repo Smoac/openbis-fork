@@ -22,8 +22,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.AbundanceColumnDefinition;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IAbundanceColumnDefinitionTable

@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.ProteinReferenceWit
 class ProteinSummaryTable extends AbstractBusinessObject implements IProteinSummaryTable
 {
     static final double[] FDR_LEVELS = new double[]
-        { 0, 0.01, 0.025, 0.05, 0.1 };
+    { 0, 0.01, 0.025, 0.05, 0.1 };
 
     private static final class Counter
     {
@@ -52,7 +52,7 @@ class ProteinSummaryTable extends AbstractBusinessObject implements IProteinSumm
         private final Set<String> peptides;
 
         private final Set<String> decoyPeptides;
-        
+
         Counter(double fdrLevel)
         {
             this.fdrLevel = fdrLevel;

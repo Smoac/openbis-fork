@@ -35,8 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.CommonConstants;
 
 /**
- * Provider of biological samples registered by the user. A biological sample is a sample with
- * sample type code starting with BIO.
+ * Provider of biological samples registered by the user. A biological sample is a sample with sample type code starting with BIO.
  * 
  * @author Franz-Josef Elmer
  */

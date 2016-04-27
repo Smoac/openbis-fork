@@ -114,7 +114,7 @@ public class ProteinSummaryTableTest extends AbstractServerTestCase
         assertEquals(FDR_LEVELS.length, summaries.size());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLoadDataWithNoFDRMapping()
     {
@@ -136,7 +136,7 @@ public class ProteinSummaryTableTest extends AbstractServerTestCase
                 }
             });
         table.load(EXPERIMENT_ID);
-        
+
         List<ProteinSummary> summaries = table.getProteinSummaries();
         assertSummary(0, 2, 4, 1, 1, summaries);
         assertSummary(1, 2, 4, 1, 1, summaries);
@@ -174,7 +174,7 @@ public class ProteinSummaryTableTest extends AbstractServerTestCase
                 {
                     allowing(specificDAOFactory).getProteinQueryDAO(EXPERIMENT_ID);
                     will(returnValue(proteinDAO));
-                    
+
                     one(experimentDAO).getByTechId(EXPERIMENT_ID);
                     ExperimentPE experimentPE = new ExperimentPE();
                     experimentPE.setPermId(EXPERIMENT_PERM_ID);

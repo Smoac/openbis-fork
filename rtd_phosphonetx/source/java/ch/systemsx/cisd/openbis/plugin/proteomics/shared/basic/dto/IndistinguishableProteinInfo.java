@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class IndistinguishableProteinInfo extends AccessionNumberProvider
@@ -28,7 +26,7 @@ public class IndistinguishableProteinInfo extends AccessionNumberProvider
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private String sequence;
-    
+
     private String description;
 
     private double coverage;
@@ -52,7 +50,7 @@ public class IndistinguishableProteinInfo extends AccessionNumberProvider
     {
         this.description = description;
     }
-    
+
     public void setCoverage(double coverage)
     {
         this.coverage = coverage;

@@ -32,8 +32,6 @@ import ch.systemsx.cisd.openbis.etlserver.proteomics.dto.ProteinSummaryHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ProtXMLUploaderTest extends ProtXMLTestCase
@@ -41,9 +39,11 @@ public class ProtXMLUploaderTest extends ProtXMLTestCase
     private static final class MockUploader extends ProtXMLUploader
     {
         private final IEncapsulatedOpenBISService openbisService;
+
         private DataSetInformation dataSetInformation;
+
         private ProteinSummary proteinSummary;
-        
+
         public MockUploader(Properties properties, IEncapsulatedOpenBISService openbisService)
         {
             super(properties, openbisService);
@@ -68,7 +68,7 @@ public class ProtXMLUploaderTest extends ProtXMLTestCase
         {
             return openbisService;
         }
-        
+
         public DataSetInformation getDataSetInformation()
         {
             return dataSetInformation;
@@ -79,9 +79,11 @@ public class ProtXMLUploaderTest extends ProtXMLTestCase
             return proteinSummary;
         }
     }
-    
+
     private Mockery context;
+
     private IEncapsulatedOpenBISService service;
+
     private MockUploader uploader;
 
     @BeforeMethod
@@ -93,6 +95,7 @@ public class ProtXMLUploaderTest extends ProtXMLTestCase
         properties.setProperty("database.kind", "test");
         uploader = new MockUploader(properties, service);
     }
+
     @AfterMethod
     public void afterMethod()
     {
@@ -107,16 +110,16 @@ public class ProtXMLUploaderTest extends ProtXMLTestCase
         File file = new File(workingDirectory, "test.xml");
         FileUtilities.writeToFile(file, EXAMPLE);
         DataSetInformation dataSetInformation = new DataSetInformation();
-        
+
         uploader.upload(file, dataSetInformation);
-        
+
         assertSame(service, uploader.getService());
         assertSame(dataSetInformation, uploader.getDataSetInformation());
         ProteinSummaryHeader header = uploader.getProteinSummary().getSummaryHeader();
         assertEquals("some/path/uniprot.HUMAN.v125.fasta", header.getReferenceDatabase());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDataSetIsFolderWithProtXMLFile()
     {
@@ -124,16 +127,16 @@ public class ProtXMLUploaderTest extends ProtXMLTestCase
         dataSet.mkdir();
         FileUtilities.writeToFile(new File(dataSet, "test-prot.xml"), EXAMPLE);
         DataSetInformation dataSetInformation = new DataSetInformation();
-        
+
         uploader.upload(dataSet, dataSetInformation);
-        
+
         assertSame(service, uploader.getService());
         assertSame(dataSetInformation, uploader.getDataSetInformation());
         ProteinSummaryHeader header = uploader.getProteinSummary().getSummaryHeader();
         assertEquals("some/path/uniprot.HUMAN.v125.fasta", header.getReferenceDatabase());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDataSetIsFolderWithProtXMLFileToBeTooLarge()
     {
@@ -143,9 +146,9 @@ public class ProtXMLUploaderTest extends ProtXMLTestCase
         DataSetInformation dataSetInformation = new DataSetInformation();
         dataSetInformation.setExperiment(new ExperimentBuilder().property(
                 DataSetInfoExtractorForProteinResults.NOT_PROCESSED_PROPERTY, "too large").getExperiment());
-        
+
         uploader.upload(dataSet, dataSetInformation);
-        
+
         assertEquals(null, uploader.getDataSetInformation());
         context.assertIsSatisfied();
     }

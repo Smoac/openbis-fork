@@ -41,8 +41,7 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.Peptide;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.PeptideModification;
 
 /**
- * Utility method for creating {@link IPropertyValueRenderer} instances or directly rendering
- * stuff in {@link ProteinViewer}.
+ * Utility method for creating {@link IPropertyValueRenderer} instances or directly rendering stuff in {@link ProteinViewer}.
  * 
  * @author Tomasz Pylak
  * @author Franz-Josef Elmer
@@ -52,16 +51,16 @@ public final class ProteinRenderers
     private static final class Symbol
     {
         private final char character;
-        
+
         private boolean inPeptide;
-        
+
         private Double mass;
 
         Symbol(char character)
         {
             this.character = character;
         }
-        
+
         public char getCharacter()
         {
             return character;
@@ -87,7 +86,6 @@ public final class ProteinRenderers
             this.mass = mass;
         }
     }
-    
 
     private ProteinRenderers()
     {
@@ -95,8 +93,7 @@ public final class ProteinRenderers
     }
 
     /**
-     * Allows to render a property identifier which is a link to an external page with a
-     * description.
+     * Allows to render a property identifier which is a link to an external page with a description.
      */
     public final static IPropertyValueRenderer<AccessionNumberProvider> createProteinIdentLinkRenderer(
             final IViewContext<?> viewContext)
@@ -128,7 +125,7 @@ public final class ProteinRenderers
     {
         return "<font style='font-family:monospace'>" + text + "</font>";
     }
-    
+
     /** Produces an HTML code with all occurrences properly marked */
     public static String markOccurrencesWithHtml(String proteinSequence, List<Peptide> peptides,
             int blockLength)
@@ -161,7 +158,7 @@ public final class ProteinRenderers
             {
                 builder.append(renderAminoAcidSymbol(character, i + 1, mass));
             }
-            
+
         }
         return builder.toString();
     }
@@ -182,7 +179,7 @@ public final class ProteinRenderers
         {
             symbols.add(new Symbol(proteinSequence.charAt(i)));
         }
-        
+
         for (Peptide peptide : peptides)
         {
             List<Occurrence> occurances =
@@ -263,7 +260,6 @@ public final class ProteinRenderers
             panel.add(new InlineHTML(getFixedWidthHTMLString(builder.toString())));
             return panel;
         }
-
 
     }
 }

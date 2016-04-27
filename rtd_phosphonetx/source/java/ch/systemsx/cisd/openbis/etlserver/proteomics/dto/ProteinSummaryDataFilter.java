@@ -20,7 +20,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * Protein Phrophet section with the mapping between probability and FDR (False Discovery Rate). 
+ * Protein Phrophet section with the mapping between probability and FDR (False Discovery Rate).
  *
  * @author Franz-Josef Elmer
  */
@@ -28,9 +28,9 @@ import javax.xml.bind.annotation.XmlType;
 public class ProteinSummaryDataFilter
 {
     private double minProbability;
-    
+
     private double sensitivity;
-    
+
     private double falsePositiveErrorRate;
 
     @XmlAttribute(name = "min_probability", required = true)

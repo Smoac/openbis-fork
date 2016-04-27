@@ -31,4 +31,3 @@ public class DatabaseVersionHolder implements IDatabaseVersionHolder
         return "005"; // changed in S124
     }
 }
-

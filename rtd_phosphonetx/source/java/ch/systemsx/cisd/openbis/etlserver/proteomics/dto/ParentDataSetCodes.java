@@ -19,15 +19,14 @@ package ch.systemsx.cisd.openbis.etlserver.proteomics.dto;
 import java.util.List;
 
 /**
- * Data transfer object which contains a list of data set codes and an optional
- * error message.
+ * Data transfer object which contains a list of data set codes and an optional error message.
  *
  * @author Franz-Josef Elmer
  */
 public class ParentDataSetCodes
 {
     private final List<String> dataSetCodes;
-    
+
     private final String errorMessage;
 
     public ParentDataSetCodes(List<String> dataSetCodes, String errorMessage)
@@ -46,6 +45,5 @@ public class ParentDataSetCodes
     {
         return errorMessage;
     }
-    
-    
+
 }

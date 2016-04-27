@@ -45,7 +45,7 @@ class ModificationFractionHandler extends AbstractSampleHandler
     {
         // Do nothing
     }
-    
+
     public void addModificationFractions(String peptideSequence, long modID,
             List<ModificationFraction> modificationFractions)
     {

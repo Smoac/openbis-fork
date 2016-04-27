@@ -20,16 +20,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class AccessionNumberURLCreator
 {
     private static final String UNIPROT_URL_TEMPLATE = "http://www.uniprot.org/uniprot/$id";
+
     private static final String UNIPROT_QUERY_URL_TEMPLATE = "http://www.uniprot.org/uniprot/?query=$id";
+
     private static final Map<String, String> URL_TEMPLATES = createURLTemplates();
-    
+
     private static final Map<String, String> createURLTemplates()
     {
         HashMap<String, String> map = new HashMap<String, String>();
@@ -54,7 +54,7 @@ class AccessionNumberURLCreator
         String template = URL_TEMPLATES.get(typeOrNull);
         return template == null ? null : eval(template, accessionNumber);
     }
-    
+
     private static String eval(String template, String value)
     {
         return template.replaceAll("\\$id", value);

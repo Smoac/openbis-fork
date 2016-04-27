@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto;
 import net.lemnik.eodsql.ResultColumn;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class IndistinguishableProtein extends ProteinReference
@@ -32,7 +30,7 @@ public class IndistinguishableProtein extends ProteinReference
 
     @ResultColumn("coverage")
     private double coverage;
-    
+
     public void setSequence(String sequence)
     {
         this.sequence = sequence;
@@ -52,5 +50,5 @@ public class IndistinguishableProtein extends ProteinReference
     {
         return coverage;
     }
-    
+
 }

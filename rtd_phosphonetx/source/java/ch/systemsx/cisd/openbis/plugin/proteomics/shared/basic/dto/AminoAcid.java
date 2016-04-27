@@ -43,8 +43,9 @@ public enum AminoAcid
     W("Tryptophan", "Trp"),
     Y("Tyrosine", "Tyr"),
     V("Valine", "Val");
-    
+
     private final String name;
+
     private final String longSymbol;
 
     private AminoAcid(String name, String longSymbol)
@@ -62,5 +63,5 @@ public enum AminoAcid
     {
         return longSymbol;
     }
-    
+
 }

@@ -24,14 +24,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.DataSetProtein;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ListProteinByExperimentAndReferenceCriteria extends
         DefaultResultSetConfig<String, TableModelRowWithObject<DataSetProtein>> implements IsSerializable
 {
     private TechId experimentID;
+
     private TechId proteinReferenceID;
 
     public final TechId getExperimentID()

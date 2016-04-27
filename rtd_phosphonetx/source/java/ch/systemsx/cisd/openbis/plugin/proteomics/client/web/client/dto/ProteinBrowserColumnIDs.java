@@ -17,13 +17,13 @@
 package ch.systemsx.cisd.openbis.plugin.proteomics.client.web.client.dto;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ProteinBrowserColumnIDs
 {
     public static final String ACCESSION_NUMBER = "ACCESSION_NUMBER";
+
     public static final String PROTEIN_DESCRIPTION = "PROTEIN_DESCRIPTION";
+
     public static final String COVERAGE = "COVERAGE";
 }

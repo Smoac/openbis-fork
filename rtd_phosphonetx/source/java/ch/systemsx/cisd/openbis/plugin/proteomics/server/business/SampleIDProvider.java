@@ -32,13 +32,14 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public class SampleIDProvider implements ISampleIDProvider
 {
     private final ISampleDAO sampleDAO;
+
     private final Map<String, SamplePE> samples = new LinkedHashMap<String, SamplePE>();
 
     public SampleIDProvider(ISampleDAO sampleDAO)
     {
         this.sampleDAO = sampleDAO;
     }
-    
+
     @Override
     public long getSampleIDOrParentSampleID(String samplePermID)
     {

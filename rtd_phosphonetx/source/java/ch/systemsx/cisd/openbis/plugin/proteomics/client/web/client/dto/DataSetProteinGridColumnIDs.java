@@ -24,7 +24,10 @@ package ch.systemsx.cisd.openbis.plugin.proteomics.client.web.client.dto;
 public class DataSetProteinGridColumnIDs
 {
     public static final String DATA_SET_PERM_ID = "DATA_SET_PERM_ID";
+
     public static final String SEQUENCE_NAME = "SEQUENCE_NAME";
+
     public static final String PEPTIDE_COUNT = "PEPTIDE_COUNT";
+
     public static final String FDR = "FDR";
 }

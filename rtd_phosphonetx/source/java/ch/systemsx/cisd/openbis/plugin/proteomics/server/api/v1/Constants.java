@@ -17,14 +17,13 @@
 package ch.systemsx.cisd.openbis.plugin.proteomics.server.api.v1;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class Constants
 {
     // Spring bean IDs
     public final static String PROTEOMICS_DATA_SERVICE = "proteomics-data-service";
+
     public final static String PROTEOMICS_DATA_SERVICE_INTERNAL = "proteomics-data-service-internal";
 
 }

@@ -113,8 +113,9 @@ public class PhosphoNetXClientService extends AbstractClientService implements
 
     @Resource(name = ResourceNames.PROTEOMICS_RAW_DATA_SERVICE_WEB)
     private IProteomicsDataServiceInternal proteomicsDataService;
-    
-    @Private ITimeProvider timeProvider = SYSTEM_TIME_PROVIDER;
+
+    @Private
+    ITimeProvider timeProvider = SYSTEM_TIME_PROVIDER;
 
     public PhosphoNetXClientService()
     {
@@ -218,7 +219,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     private void linkSamples(String sessionToken, String identifier, List<Sample> childSamples)
     {
         String[] parents = new String[]
-            { identifier };
+        { identifier };
         for (Sample childSample : childSamples)
         {
             SampleIdentifier childSampleIdentifier =

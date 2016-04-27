@@ -33,6 +33,7 @@ public class ListProteinSequenceCriteria extends
         IsSerializable
 {
     private TechId proteinReferenceID;
+
     private TechId experimentID;
 
     public final TechId getProteinReferenceID()
@@ -54,5 +55,5 @@ public class ListProteinSequenceCriteria extends
     {
         return experimentID;
     }
-    
+
 }

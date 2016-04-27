@@ -24,8 +24,6 @@ import ch.systemsx.cisd.openbis.etlserver.proteomics.ProteinDescription;
 import ch.systemsx.cisd.openbis.etlserver.proteomics.dto.ProteinAnnotation;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ProteinDescriptionTest extends AssertJUnit
@@ -43,7 +41,7 @@ public class ProteinDescriptionTest extends AssertJUnit
             assertEquals("Can not find a amino-acid sequence in following protein description: Q92902", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testWithAccessionNumberAndSequence()
     {
@@ -57,30 +55,30 @@ public class ProteinDescriptionTest extends AssertJUnit
         assertEquals("Hermansky-Pudlak syndrome 1 protein", description.getDescription());
         assertEquals("MKCVLVATEGAEVLFYWTDQEFEESLRLKFGQSENEEEELPA", description.getSequence());
     }
-    
+
     @Test
     public void testWithSwissProtNameAsAccessionNumber()
     {
         ProteinAnnotation annotation = createAnnotation("my protein");
         ProteinDescription description = new ProteinDescription(annotation, 4711, false);
-        
+
         assertEquals("my protein", description.getDescription());
         assertEquals("", description.getSequence());
         assertEquals("sp|swissprot-42", description.getAccessionNumber());
     }
-    
+
     @Test
     public void testWithTremblNameAsAccessionNumber()
     {
         ProteinAnnotation annotation = createAnnotation("my protein");
         annotation.setSwissprotName(null);
         ProteinDescription description = new ProteinDescription(annotation, 4711, false);
-        
+
         assertEquals("my protein", description.getDescription());
         assertEquals("", description.getSequence());
         assertEquals("tr|trembl-42", description.getAccessionNumber());
     }
-    
+
     @Test
     public void testWithIpiNameAsAccessionNumber()
     {
@@ -88,12 +86,12 @@ public class ProteinDescriptionTest extends AssertJUnit
         annotation.setSwissprotName(null);
         annotation.setTremblName(null);
         ProteinDescription description = new ProteinDescription(annotation, 4711, false);
-        
+
         assertEquals("my protein", description.getDescription());
         assertEquals("", description.getSequence());
         assertEquals("ipi|ipi-42", description.getAccessionNumber());
     }
-    
+
     @Test
     public void testWithEnsemblNameAsAccessionNumber()
     {
@@ -102,12 +100,12 @@ public class ProteinDescriptionTest extends AssertJUnit
         annotation.setTremblName(null);
         annotation.setIpiName(null);
         ProteinDescription description = new ProteinDescription(annotation, 4711, false);
-        
+
         assertEquals("my protein", description.getDescription());
         assertEquals("", description.getSequence());
         assertEquals("ens|ensembl-42", description.getAccessionNumber());
     }
-    
+
     @Test
     public void testWithRefSeqNameAsAccessionNumber()
     {
@@ -117,12 +115,12 @@ public class ProteinDescriptionTest extends AssertJUnit
         annotation.setIpiName(null);
         annotation.setEnsemblName(null);
         ProteinDescription description = new ProteinDescription(annotation, 4711, false);
-        
+
         assertEquals("my protein", description.getDescription());
         assertEquals("", description.getSequence());
         assertEquals("rs|refseq-42", description.getAccessionNumber());
     }
-    
+
     @Test
     public void testWithLocusLinkNameAsAccessionNumber()
     {
@@ -133,12 +131,12 @@ public class ProteinDescriptionTest extends AssertJUnit
         annotation.setEnsemblName(null);
         annotation.setRefseqName(null);
         ProteinDescription description = new ProteinDescription(annotation, 4711, false);
-        
+
         assertEquals("my protein", description.getDescription());
         assertEquals("", description.getSequence());
         assertEquals("ll|locus-link-42", description.getAccessionNumber());
     }
-    
+
     @Test
     public void testWithFlybaseNameAsAccessionNumber()
     {
@@ -150,24 +148,24 @@ public class ProteinDescriptionTest extends AssertJUnit
         annotation.setRefseqName(null);
         annotation.setLocusLinkName(null);
         ProteinDescription description = new ProteinDescription(annotation, 4711, false);
-        
+
         assertEquals("my protein", description.getDescription());
         assertEquals("", description.getSequence());
         assertEquals("fb|flybase-42", description.getAccessionNumber());
     }
-    
+
     @Test
     public void testWithNoAccessionNumber()
     {
         ProteinAnnotation annotation = new ProteinAnnotation();
         annotation.setDescription("");
         ProteinDescription description = new ProteinDescription(annotation, 4711, false);
-        
+
         assertEquals("", description.getDescription());
         assertEquals("", description.getSequence());
         assertEquals("unknown|4711", description.getAccessionNumber());
     }
-    
+
     private ProteinAnnotation createAnnotation(String description)
     {
         ProteinAnnotation proteinAnnotation = new ProteinAnnotation();

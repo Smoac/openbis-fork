@@ -19,15 +19,13 @@ package ch.systemsx.cisd.openbis.etlserver.proteomics.dto;
 import net.lemnik.eodsql.ResultColumn;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ProteinReference extends AbstractDTOWithID
 {
     @ResultColumn("accession_number")
     private String accessionNumber;
-    
+
     @ResultColumn("description")
     private String description;
 

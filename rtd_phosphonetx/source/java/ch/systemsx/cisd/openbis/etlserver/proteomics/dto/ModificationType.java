@@ -19,19 +19,17 @@ package ch.systemsx.cisd.openbis.etlserver.proteomics.dto;
 import net.lemnik.eodsql.ResultColumn;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ModificationType extends AbstractDTOWithID
 {
     private String code;
-    
+
     @ResultColumn("amino_acid")
     private String aminoAcid;
-    
+
     private double mass;
-    
+
     @ResultColumn("mass_tolerance")
     private double massTolerance;
 
@@ -74,7 +72,7 @@ public class ModificationType extends AbstractDTOWithID
     {
         this.massTolerance = deltaMass;
     }
-    
+
     public boolean matches(char aminoAcidSymbol, double m)
     {
         if (m < mass - massTolerance)
@@ -85,7 +83,7 @@ public class ModificationType extends AbstractDTOWithID
         {
             return false;
         }
-        return aminoAcid == null || (aminoAcid.length() == 1 && aminoAcid.charAt(0) == aminoAcidSymbol); 
+        return aminoAcid == null || (aminoAcid.length() == 1 && aminoAcid.charAt(0) == aminoAcidSymbol);
     }
 
     @Override
@@ -93,7 +91,5 @@ public class ModificationType extends AbstractDTOWithID
     {
         return code + "=(" + aminoAcid + ":" + mass + "\u00b1" + massTolerance + ")";
     }
-    
-    
-    
+
 }

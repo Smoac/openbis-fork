@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.client.web.client.IPhosphoNetX
 public class BiologicalSampleChoosingPage extends WizardPage<MsInjectionSampleAnnotationModel>
 {
     private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
-    
+
     private BiologicalSampleGrid sampleGrid;
 
     public BiologicalSampleChoosingPage(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
@@ -90,7 +90,5 @@ public class BiologicalSampleChoosingPage extends WizardPage<MsInjectionSampleAn
     {
         sampleGrid.dispose();
     }
-    
-    
 
 }

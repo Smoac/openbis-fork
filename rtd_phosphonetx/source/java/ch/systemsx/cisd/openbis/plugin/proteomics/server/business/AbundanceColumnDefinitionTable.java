@@ -33,13 +33,12 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.AbundanceColu
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.Treatment;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class AbundanceColumnDefinitionTable extends AbstractBusinessObject implements IAbundanceColumnDefinitionTable
 {
     private final TreatmentFinder treatmentFinder;
+
     private final Map<Long, AbundanceColumnDefinition> columnDefinitions;
 
     AbundanceColumnDefinitionTable(IDAOFactory daoFactory,

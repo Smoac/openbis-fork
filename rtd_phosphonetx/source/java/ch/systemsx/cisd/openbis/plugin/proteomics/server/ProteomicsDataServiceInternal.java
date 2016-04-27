@@ -150,7 +150,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     {
         return loadAllRawDataSamples(getSession(sessionToken), false);
     }
-    
+
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void processRawData(String sessionToken, String dataSetProcessingKey,
@@ -185,8 +185,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void processDataSets(String sessionToken, String dataSetProcessingKey,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
-            List<String> dataSetCodes)
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> dataSetCodes)
     {
         Session session = getSession(sessionToken);
         processDataSets(session, dataSetProcessingKey, dataSetCodes, new HashMap<String, String>());
@@ -217,8 +216,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public List<AbstractExternalData> listDataSetsByExperiment(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            TechId experimentID)
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentID)
     {
         final Session session = getSession(sessionToken);
 
@@ -305,7 +303,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
             {
                 if (PARENT_SAMPLE_VALIDATOR.isValid(person, sample) == false)
                 {
-                    sample.setParents(Collections.<Sample>emptySet()); 
+                    sample.setParents(Collections.<Sample> emptySet());
                 }
                 validSamples.add(sample);
             }
@@ -324,8 +322,8 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
                     parameterBindings);
         } catch (EnvironmentFailureException ex)
         {
-            throw new EnvironmentFailureException("Processing data sets " + 
-                    CollectionUtils.abbreviate(dataSetCodes, 20) + " with processing plugin '" 
+            throw new EnvironmentFailureException("Processing data sets " +
+                    CollectionUtils.abbreviate(dataSetCodes, 20) + " with processing plugin '"
                     + dataSetProcessingKey + "' using bindings " + parameterBindings + " failed.", ex);
         }
     }

@@ -18,25 +18,22 @@ package ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto;
 
 import net.lemnik.eodsql.ResultColumn;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class PeptideWithModification extends AbstractDTOWithID
 {
     private static final long serialVersionUID = 1L;
-    
+
     @ResultColumn("sequence")
     private String sequence;
-    
+
     @ResultColumn("pos")
-    private Integer position; 
-    
+    private Integer position;
+
     @ResultColumn("mass")
     private Double mass;
-    
+
     public final String getSequence()
     {
         return sequence;

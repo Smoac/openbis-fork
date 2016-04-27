@@ -51,7 +51,7 @@ class ProteomicsDataServiceLogger extends AbstractServerLogger implements IProte
         logAccess(sessionToken, "list_raw_data_samples", "USER_ID(%s)", userID);
         return null;
     }
-    
+
     @Override
     public List<MsInjectionDataInfo> listAllRawDataSamples(String sessionToken, String userID)
     {

@@ -38,8 +38,6 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.server.business.TreatmentFinde
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.Treatment;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TreatmentFinderTest extends AssertJUnit
@@ -52,9 +50,9 @@ public class TreatmentFinderTest extends AssertJUnit
         addTreatment(sample, "", "pH", "7");
         addTreatment(sample, "1", "PLASMA", "20");
         addTreatment(sample, "2", "VIRUS", "HIV", DataTypeCode.MATERIAL);
-        
+
         List<Treatment> treatments = new TreatmentFinder().findTreatmentsOf(sample);
-        
+
         assertEquals(3, treatments.size());
         assertTreatment("7", "pH", treatments.get(0));
         assertTreatment("20", "PLASMA", treatments.get(1));
@@ -73,14 +71,14 @@ public class TreatmentFinderTest extends AssertJUnit
         parentSample.getProperties().add(create("BLABLA", "blub", DataTypeCode.MULTILINE_VARCHAR));
         addTreatment(parentSample, "", "pH", "7");
         addTreatment(sample, "", "PLASMA", "20");
-        
+
         List<Treatment> treatments = new TreatmentFinder().findTreatmentsOf(sample);
-        
+
         assertEquals(2, treatments.size());
         assertTreatment("7", "pH", treatments.get(0));
         assertTreatment("20", "PLASMA", treatments.get(1));
     }
-    
+
     @Test
     public void testFindingTreatmentsWhereTreatmentTypeIsNotAVocabulary()
     {
@@ -97,31 +95,31 @@ public class TreatmentFinderTest extends AssertJUnit
                     + "' must be a vocabulary.", e.getMessage());
         }
     }
-    
+
     @Test
     public void testFindingTreatmentsWhereOnlyTreatmentTypeIsDefined()
     {
         Sample sample = createSample();
         sample.getProperties().add(create(TREATMENT_TYPE_CODE, "pH", DataTypeCode.CONTROLLEDVOCABULARY));
-        
+
         List<Treatment> treatments = new TreatmentFinder().findTreatmentsOf(sample);
-        
+
         assertEquals(1, treatments.size());
         assertTreatment("", "pH", treatments.get(0));
     }
-    
+
     @Test
     public void testFindingTreatmentsWhereOnlyTreatmentValueIsDefined()
     {
         Sample sample = createSample();
         sample.getProperties().add(create(TREATMENT_VALUE_CODE, "HIV", DataTypeCode.MATERIAL));
-        
+
         List<Treatment> treatments = new TreatmentFinder().findTreatmentsOf(sample);
-        
+
         assertEquals(1, treatments.size());
         assertTreatment("HIV", "", DataTypeCode.MATERIAL, treatments.get(0));
     }
-    
+
     private void assertTreatment(String expectedValue, String expectedType, Treatment treatment)
     {
         assertTreatment(expectedValue, expectedType, DataTypeCode.VARCHAR, treatment);
@@ -137,7 +135,7 @@ public class TreatmentFinderTest extends AssertJUnit
         assertEquals("Actual treatment: " + treatment, expectedValue + " " + expectedType,
                 treatment.getLabel());
     }
-    
+
     private void addTreatment(Sample sample, String treatmentCodePostfix, String treatmentType,
             String treatmentValue)
     {
@@ -188,7 +186,7 @@ public class TreatmentFinderTest extends AssertJUnit
         }
         return sampleProperty;
     }
-    
+
     private Sample createSample()
     {
         Sample sample = new Sample();

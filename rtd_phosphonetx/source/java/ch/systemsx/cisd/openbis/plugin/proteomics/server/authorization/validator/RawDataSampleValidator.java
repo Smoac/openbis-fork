@@ -7,8 +7,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.MsInjectionSample;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public final class RawDataSampleValidator implements IValidator<MsInjectionSample>

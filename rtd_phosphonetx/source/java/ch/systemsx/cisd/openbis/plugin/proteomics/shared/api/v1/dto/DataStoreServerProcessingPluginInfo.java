@@ -30,8 +30,11 @@ public class DataStoreServerProcessingPluginInfo implements Serializable
 {
 
     private static final long serialVersionUID = 1L;
+
     private final String key;
+
     private final String label;
+
     private final List<String> datasetTypeCodes;
 
     /**
@@ -45,7 +48,7 @@ public class DataStoreServerProcessingPluginInfo implements Serializable
     }
 
     /**
-     * Returns a unique key of the plugin. 
+     * Returns a unique key of the plugin.
      */
     public String getKey()
     {

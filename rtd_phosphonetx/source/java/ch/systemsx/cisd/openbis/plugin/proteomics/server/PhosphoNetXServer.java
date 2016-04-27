@@ -118,8 +118,8 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(
-            String sessionToken, @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            TechId experimentID, String treatmentTypeOrNull) throws UserFailureException
+            String sessionToken, @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentID, String treatmentTypeOrNull)
+            throws UserFailureException
     {
         Session session = getSession(sessionToken);
         ISampleProvider sampleProvider = specificBOFactory.createSampleProvider(session);
@@ -153,8 +153,8 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<ProteinInfo> listProteinsByExperiment(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            TechId experimentId, double falseDiscoveryRate, AggregateFunction function,
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId, double falseDiscoveryRate,
+            AggregateFunction function,
             String treatmentTypeCode, boolean aggregateOnOriginal) throws UserFailureException
     {
         final Session session = getSession(sessionToken);
@@ -171,8 +171,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<ProteinSummary> listProteinSummariesByExperiment(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            TechId experimentId) throws UserFailureException
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId) throws UserFailureException
     {
         final Session session = getSession(sessionToken);
         IProteinSummaryTable summaryTable = specificBOFactory.createProteinSummaryTable(session);
@@ -183,8 +182,8 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public ProteinByExperiment getProteinByExperiment(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            TechId experimentID, TechId proteinReferenceID) throws UserFailureException
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentID, TechId proteinReferenceID)
+            throws UserFailureException
     {
         Session session = getSession(sessionToken);
         IProteinQueryDAO proteinQueryDAO = specificDAOFactory.getProteinQueryDAO(experimentID);
@@ -222,8 +221,8 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<DataSetProtein> listProteinsByExperimentAndReference(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            TechId experimentId, TechId proteinReferenceID) throws UserFailureException
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId, TechId proteinReferenceID)
+            throws UserFailureException
     {
         final Session session = getSession(sessionToken);
         IProteinSequenceTable sequenceTable = specificBOFactory.createProteinSequenceTable(session);

@@ -24,18 +24,18 @@ import javax.xml.bind.annotation.XmlType;
 
 import ch.systemsx.cisd.openbis.etlserver.proteomics.Constants;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @XmlType
 public class ProteinGroup
 {
     private String groupNumber;
+
     private String pseudoName;
+
     private double probability;
+
     private List<Protein> proteins;
 
     @XmlAttribute(name = "group_number", required = true)
@@ -70,7 +70,7 @@ public class ProteinGroup
     {
         this.probability = probability;
     }
-    
+
     @XmlElement(name = "protein", namespace = Constants.NAMESPACE)
     public final List<Protein> getProteins()
     {
@@ -101,5 +101,5 @@ public class ProteinGroup
         }
         return builder.toString();
     }
-    
+
 }

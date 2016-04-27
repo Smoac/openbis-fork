@@ -331,7 +331,7 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
                     experimentID, treatmentTypeCode, callback);
         }
     }
-    
+
     ListProteinByExperimentCriteria getCriteria()
     {
         ListProteinByExperimentCriteria criteria = new ListProteinByExperimentCriteria();

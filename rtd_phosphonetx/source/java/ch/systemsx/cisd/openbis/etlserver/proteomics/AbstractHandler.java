@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.etlserver.proteomics;
 
-
 /**
  * Abstract super class of classes using {@link IProtDAO}.
  *

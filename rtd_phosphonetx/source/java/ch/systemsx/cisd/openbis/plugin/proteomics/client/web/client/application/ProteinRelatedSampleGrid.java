@@ -42,8 +42,7 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.ProteinRelate
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.SampleWithPropertiesAndAbundance;
 
 /**
- * A {@link LayoutContainer} which contains the grid where {@link SampleWithPropertiesAndAbundance}s
- * of specified Protein are displayed.
+ * A {@link LayoutContainer} which contains the grid where {@link SampleWithPropertiesAndAbundance}s of specified Protein are displayed.
  * 
  * @author Piotr Buczek
  */
@@ -115,8 +114,6 @@ public class ProteinRelatedSampleGrid extends TypedTableGrid<ProteinRelatedSampl
         criteria.copyPagingConfig(resultSetConfig);
         phosphoViewContext.getService().listProteinRelatedSamplesByProtein(criteria, callback);
     }
-    
-    
 
     @Override
     protected List<String> getColumnIdsOfFilters()

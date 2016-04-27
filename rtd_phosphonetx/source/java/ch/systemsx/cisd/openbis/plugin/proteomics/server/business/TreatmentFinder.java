@@ -36,16 +36,17 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.Treatment;
 
 /**
- * Helper class which gathers properties in a sample and its ancestor samples defining 
- * sample treatments. Treatments of the same type will be overridden by descendants.
+ * Helper class which gathers properties in a sample and its ancestor samples defining sample treatments. Treatments of the same type will be
+ * overridden by descendants.
  *
  * @author Franz-Josef Elmer
  */
 public class TreatmentFinder
 {
     public static final String TREATMENT_TYPE_CODE = "TREATMENT_TYPE";
+
     public static final String TREATMENT_VALUE_CODE = "TREATMENT_VALUE";
-    
+
     /**
      * Returns all treatments found for specified sample and its ancestors.
      */
@@ -57,7 +58,7 @@ public class TreatmentFinder
         Collections.sort(treatmentList);
         return treatmentList;
     }
-    
+
     private void findAndAddTreatments(Map<String, Treatment> treatments, Sample sampleOrNull)
     {
         if (sampleOrNull == null)

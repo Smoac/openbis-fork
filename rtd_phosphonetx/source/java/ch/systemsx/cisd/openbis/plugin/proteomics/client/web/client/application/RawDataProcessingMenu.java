@@ -43,8 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 import ch.systemsx.cisd.openbis.plugin.proteomics.client.web.client.IPhosphoNetXClientServiceAsync;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class RawDataProcessingMenu extends TextToolItem
@@ -114,8 +112,9 @@ public class RawDataProcessingMenu extends TextToolItem
     }
 
     private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
+
     private final IDelegatedActionWithResult<List<TableModelRowWithObject<Sample>>> selectedDataProvider;
-    
+
     public RawDataProcessingMenu(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
             IDelegatedActionWithResult<List<TableModelRowWithObject<Sample>>> selectedDataProvider)
     {
@@ -134,7 +133,7 @@ public class RawDataProcessingMenu extends TextToolItem
                         }
                     });
     }
-    
+
     private void createMenu(List<DatastoreServiceDescription> plugins)
     {
         Menu subMenu = new Menu();

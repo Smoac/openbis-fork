@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.etlserver.proteomics.dto;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class Experiment extends AbstractDTOWithIDAndPermID

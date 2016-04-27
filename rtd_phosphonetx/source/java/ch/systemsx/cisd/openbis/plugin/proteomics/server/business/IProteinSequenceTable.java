@@ -22,15 +22,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.ProteinSequence;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IProteinSequenceTable
 {
 
     public void loadByReference(TechId experimentID, TechId proteinReferenceID);
-    
+
     public List<ProteinSequence> getSequences();
 
     public String getShortName(long databaseID);

@@ -32,6 +32,7 @@ public interface ISampleIDProvider
      * @throws UserFailureException if no sample could be found.
      */
     public long getSampleIDOrParentSampleID(String samplePermID);
+
     public SamplePE getSampleOrParentSample(String samplePermID);
 
 }

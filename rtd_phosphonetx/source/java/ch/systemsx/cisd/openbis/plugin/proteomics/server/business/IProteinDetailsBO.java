@@ -20,8 +20,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.ProteinDetails;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IProteinDetailsBO

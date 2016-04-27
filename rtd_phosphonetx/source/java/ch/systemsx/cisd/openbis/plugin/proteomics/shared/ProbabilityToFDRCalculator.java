@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
 public final class ProbabilityToFDRCalculator
 {
     private static final class MappingEntry implements Comparable<ProbabilityToFDRCalculator.MappingEntry>

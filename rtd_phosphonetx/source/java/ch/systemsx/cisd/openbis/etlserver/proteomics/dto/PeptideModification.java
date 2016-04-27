@@ -24,18 +24,18 @@ import javax.xml.bind.annotation.XmlType;
 
 import ch.systemsx.cisd.openbis.etlserver.proteomics.Constants;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @XmlType
 public class PeptideModification
 {
     private String modifiedPeptide;
+
     private double nTermMass;
+
     private double cTermMass;
+
     private List<AminoAcidMass> aminoAcidMasses;
 
     @XmlAttribute(name = "modified_peptide")
@@ -105,5 +105,5 @@ public class PeptideModification
         }
         return builder.toString();
     }
-    
+
 }

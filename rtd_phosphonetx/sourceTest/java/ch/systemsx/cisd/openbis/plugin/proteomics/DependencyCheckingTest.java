@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.proteomics;
 import ch.systemsx.cisd.common.test.AbstractDependencyCheckingTestCase;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DependencyCheckingTest extends AbstractDependencyCheckingTestCase

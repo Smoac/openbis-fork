@@ -83,7 +83,7 @@ public class MigrationStepFrom002To003 extends MigrationStepAdapter
                                 List<String> peptideSequences = peptides.get(proteinID);
                                 double coverage = calculateCoverage(sequence, peptideSequences);
                                 values.add(new Object[]
-                                    { coverage, id });
+                                { coverage, id });
                             }
                             return null;
                         }

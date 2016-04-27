@@ -36,8 +36,6 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.client.web.client.dto.ProteinS
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.ProteinSummary;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class ProteinSummaryGrid extends TypedTableGrid<ProteinSummary>
@@ -65,21 +63,21 @@ class ProteinSummaryGrid extends TypedTableGrid<ProteinSummary>
                 PhosphoNetXDisplayTypeIDGenerator.PROTEIN_SUMMARY_BROWSER_GRID);
         specificViewContext = viewContext;
     }
-    
+
     void update(TechId experimentID)
     {
         criteria = new ListProteinSummaryByExperimentCriteria();
         criteria.setExperimentID(experimentID);
         refresh(true);
     }
-    
+
     @Override
     protected String translateColumnIdToDictionaryKey(String columnID)
     {
         return ProteinSummaryGridColumnIDs.FDR.equals(columnID) ? "false_discovery_rate_column"
                 : columnID.toLowerCase();
     }
-    
+
     @Override
     protected List<String> getColumnIdsOfFilters()
     {

@@ -30,8 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class Util
@@ -39,7 +37,7 @@ class Util
     private Util()
     {
     }
-    
+
     /**
      * Tries to return the prot.xml file in the specified data set.
      * 
@@ -63,8 +61,8 @@ class Util
     }
 
     /**
-     * Returns an array of all entity properties defined by the specified entity type for which
-     * values are found in the specified {@link Properties} object.
+     * Returns an array of all entity properties defined by the specified entity type for which values are found in the specified {@link Properties}
+     * object.
      * 
      * @throws UserFailureException if at least one mandatory property were missed.
      */
@@ -72,7 +70,7 @@ class Util
     {
         List<String> missingMandatoryProperties = new ArrayList<String>();
         List<IEntityProperty> sampleProperties =
-            getProperties(properties, entityType, missingMandatoryProperties);
+                getProperties(properties, entityType, missingMandatoryProperties);
         if (missingMandatoryProperties.isEmpty() == false)
         {
             throw new UserFailureException("The following mandatory properties are missed: "
@@ -80,11 +78,10 @@ class Util
         }
         return sampleProperties.toArray(new IEntityProperty[sampleProperties.size()]);
     }
-    
+
     /**
-     * Turns specified properties into a list of {@link IEntityProperty} instances in accordance to
-     * the property types assigned to the specified entity type. Keys of missing mandatory
-     * properties are added to the specified list.
+     * Turns specified properties into a list of {@link IEntityProperty} instances in accordance to the property types assigned to the specified
+     * entity type. Keys of missing mandatory properties are added to the specified list.
      */
     static List<IEntityProperty> getProperties(Properties properties,
             EntityType entityType, List<String> missingMandatoryProperties)

@@ -20,34 +20,32 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleL
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IBusinessObjectFactory
 {
     public ISampleLister createSampleLister(Session session);
-    
+
     public IAbundanceColumnDefinitionTable createAbundanceColumnDefinitionTable(Session session);
-    
+
     public IProteinInfoTable createProteinInfoTable(Session session,
             ISampleProvider sampleProvider);
-    
+
     public IProteinSummaryTable createProteinSummaryTable(Session session);
-    
+
     public IProteinSequenceTable createProteinSequenceTable(Session session);
-    
+
     public IDataSetProteinTable createDataSetProteinTable(Session session);
-    
+
     public IProteinDetailsBO createProteinDetailsBO(Session session);
-    
+
     public IProteinRelatedSampleTable createProteinRelatedSampleTable(Session session);
-    
+
     public ISampleTable createSampleTable(Session session);
-    
+
     public ISampleIDProvider createSampleIDProvider(Session session);
-    
+
     public ISampleProvider createSampleProvider(Session session);
-    
+
     public ISampleLoader createSampleLoader(Session session);
 }

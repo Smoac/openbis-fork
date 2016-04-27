@@ -17,17 +17,21 @@
 package ch.systemsx.cisd.openbis.plugin.proteomics.client.web.client.dto;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ProteinRelatedSampleGridColumnIDs
 {
     public static final String SAMPLE_IDENTIFIER = "SAMPLE_IDENTIFIER";
+
     public static final String SAMPLE_TYPE = "SAMPLE_TYPE";
+
     public static final String ABUNDANCE = "ABUNDANCE";
+
     public static final String MODIFIED_AMINO_ACID = "MODIFIED_AMINO_ACID";
+
     public static final String MODIFICATION_POSITION = "MODIFICATION_POSITION";
+
     public static final String MODIFICATION_MASS = "MODIFICATION_MASS";
+
     public static final String MODIFICATION_FRACTION = "MODIFICATION_FRACTION";
 }

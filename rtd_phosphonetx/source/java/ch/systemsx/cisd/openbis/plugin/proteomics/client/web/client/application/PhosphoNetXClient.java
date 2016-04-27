@@ -24,8 +24,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.Def
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class PhosphoNetXClient extends Client
@@ -54,6 +52,5 @@ public class PhosphoNetXClient extends Client
     {
         return new ViewContext(context).getService();
     }
-
 
 }

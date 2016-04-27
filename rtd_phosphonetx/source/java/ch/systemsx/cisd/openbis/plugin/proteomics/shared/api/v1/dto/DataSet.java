@@ -30,19 +30,19 @@ import java.util.Set;
 public class DataSet implements Serializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     private long id;
-    
+
     private String code;
-    
+
     private String type;
-    
+
     private Date registrationDate;
-    
+
     private Map<PropertyKey, Serializable> properties;
-    
+
     private Set<DataSet> parents = new HashSet<DataSet>();
-    
+
     private Set<DataSet> children = new HashSet<DataSet>();
 
     public final long getId()

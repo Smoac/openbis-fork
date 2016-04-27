@@ -34,6 +34,7 @@ class ErrorModel
 {
     private final Map<Long, ProbabilityToFDRCalculator> calculators =
             new HashMap<Long, ProbabilityToFDRCalculator>();
+
     private final IProteinQueryDAO dao;
 
     ErrorModel(IProteinQueryDAO dao)

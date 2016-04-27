@@ -25,9 +25,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 public class ProteinByExperiment extends AccessionNumberProvider implements IBasicProteinInfo
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
+
     private TechId id;
-    
+
     private String description;
 
     private ProteinDetails details;
@@ -63,6 +63,5 @@ public class ProteinByExperiment extends AccessionNumberProvider implements IBas
     {
         this.id = id;
     }
-
 
 }

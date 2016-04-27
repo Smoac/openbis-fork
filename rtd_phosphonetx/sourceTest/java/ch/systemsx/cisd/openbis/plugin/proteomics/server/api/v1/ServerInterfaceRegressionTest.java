@@ -22,8 +22,6 @@ import ch.systemsx.cisd.openbis.generic.server.util.AnnotationAppliedTestCase;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.api.v1.IProteomicsDataService;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ServerInterfaceRegressionTest extends AnnotationAppliedTestCase

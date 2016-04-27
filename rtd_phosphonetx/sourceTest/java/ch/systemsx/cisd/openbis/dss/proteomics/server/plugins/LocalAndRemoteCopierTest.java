@@ -144,7 +144,7 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLocalWithUnknownSample()
     {
@@ -265,7 +265,7 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
             // ignored
         }
     }
-    
+
     private void prepareCopier(Properties properties)
     {
         properties.setProperty(DataSetCopier.RSYNC_EXEC + "-executable", rsyncExec.getPath());
@@ -277,7 +277,7 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
                 }
             });
     }
-    
+
     private final class MockCopier implements IPathCopier
     {
 
@@ -305,14 +305,14 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
         }
 
         @Override
-        public Status copy(File sourcePath, File destinationDirectory, 
+        public Status copy(File sourcePath, File destinationDirectory,
                 ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
         {
             return null;
         }
 
         @Override
-        public Status copyContent(File sourcePath, File destinationDirectory, 
+        public Status copyContent(File sourcePath, File destinationDirectory,
                 ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
         {
             return null;
@@ -321,7 +321,7 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
         @Override
         public Status copyToRemote(File sourcePath, String destinationDirectory,
                 String destinationHostOrNull, String rsyncModuleNameOrNull,
-                String rsyncPasswordFileOrNull, 
+                String rsyncPasswordFileOrNull,
                 ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
         {
             try
@@ -339,7 +339,7 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
         @Override
         public Status copyContentToRemote(File sourcePath, String destinationDirectory,
                 String destinationHostOrNull, String rsyncModuleNameOrNull,
-                String rsyncPasswordFileOrNull, 
+                String rsyncPasswordFileOrNull,
                 ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
         {
             return null;
@@ -348,7 +348,7 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
         @Override
         public Status copyFromRemote(String sourcePath, String sourceHost,
                 File destinationDirectory, String rsyncModuleNameOrNull,
-                String rsyncPasswordFileOrNull, 
+                String rsyncPasswordFileOrNull,
                 ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
         {
             return null;
@@ -357,7 +357,7 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
         @Override
         public Status copyContentFromRemote(String sourcePath, String sourceHost,
                 File destinationDirectory, String rsyncModuleNameOrNull,
-                String rsyncPasswordFileOrNull, 
+                String rsyncPasswordFileOrNull,
                 ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
         {
             return null;
@@ -376,7 +376,7 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
         {
             return false;
         }
-        
+
     }
 
 }

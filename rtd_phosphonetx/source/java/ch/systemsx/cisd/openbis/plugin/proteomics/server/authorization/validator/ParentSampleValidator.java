@@ -24,8 +24,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ParentSampleValidator implements IValidator<Sample>
@@ -37,7 +35,7 @@ public class ParentSampleValidator implements IValidator<Sample>
     {
         return isValid(person, sample, true);
     }
-    
+
     public boolean isValid(PersonPE person, Sample sample, boolean parentHasToBeValid)
     {
         Sample parent = sample.getGeneratedFrom();

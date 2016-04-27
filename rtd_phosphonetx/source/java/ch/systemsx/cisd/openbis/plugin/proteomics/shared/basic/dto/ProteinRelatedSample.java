@@ -33,27 +33,27 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 public class ProteinRelatedSample implements Serializable, IEntityInformationHolderWithProperties
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
+
     private Long id;
-    
+
     private String permId;
-    
+
     private String code;
-    
+
     private String identifier;
-    
+
     private BasicEntityType entityType;
-    
+
     private List<IEntityProperty> properties;
-    
+
     private Double abundance;
-    
+
     private char modifiedAminoAcid;
-    
+
     private Long modificationPosition;
-    
+
     private Double modificationMass;
-    
+
     private Double modificationFraction;
 
     @Override

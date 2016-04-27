@@ -39,8 +39,7 @@ public interface IProteomicsDataApiFacade
     public String getSessionToken();
 
     /**
-     * Returns all samples of type MS_INJECTION in space MS_DATA which have a parent sample which
-     * the specified user is allow to read.
+     * Returns all samples of type MS_INJECTION in space MS_DATA which have a parent sample which the specified user is allow to read.
      */
     @Retry
     public List<MsInjectionDataInfo> listRawDataSamples(String userID);
@@ -50,7 +49,7 @@ public interface IProteomicsDataApiFacade
      */
     @Retry
     public List<MsInjectionDataInfo> listAllRawDataSamples(String userID);
-    
+
     /**
      * Lists all processing plugins on DSS.
      */
@@ -58,17 +57,16 @@ public interface IProteomicsDataApiFacade
     public List<DataStoreServerProcessingPluginInfo> listDataStoreServerProcessingPluginInfos();
 
     /**
-     * Processes the data sets of specified samples by the DSS processing plug-in of specified key
-     * for the specified user. Only the most recent data sets of specified type are processed.
+     * Processes the data sets of specified samples by the DSS processing plug-in of specified key for the specified user. Only the most recent data
+     * sets of specified type are processed.
      */
     @Deprecated
     public void processingRawData(String userID, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType);
-    
+
     /**
-     * Processes the specified data sets by the DSS processing plug-in of specified key for the
-     * specified user. Implementations should check that the specified user is allowed to read
-     * specified data sets.
+     * Processes the specified data sets by the DSS processing plug-in of specified key for the specified user. Implementations should check that the
+     * specified user is allowed to read specified data sets.
      */
     public void processDataSets(String userID, String dataSetProcessingKey, List<String> dataSetCodes);
 
@@ -79,8 +77,7 @@ public interface IProteomicsDataApiFacade
     public List<Project> listProjects(String userID);
 
     /**
-     * Returns all experiments of type <tt>MS_SEARCH</tt> which the specified user is allowed to
-     * read.
+     * Returns all experiments of type <tt>MS_SEARCH</tt> which the specified user is allowed to read.
      */
     @Retry
     public List<Experiment> listSearchExperiments(String userID);
@@ -90,30 +87,28 @@ public interface IProteomicsDataApiFacade
      */
     @Retry
     public List<Experiment> listExperiments(String sessionToken, String userID, String experimentTypeCode);
-    
+
     /**
      * Returns all data sets of specified experiment which the specified user is allowed to read.
      */
     @Retry
     public List<DataSet> listDataSetsByExperiment(String userID, long experimentID);
-    
+
     /**
-     * Processes the data sets of specified experiments of type <tt>MS_SEARCH</tt> by the DSS
-     * processing plug-in of specified key for the specified user. It will be checked if the
-     * experiments are of search experiments and if the user has USER access rights.
+     * Processes the data sets of specified experiments of type <tt>MS_SEARCH</tt> by the DSS processing plug-in of specified key for the specified
+     * user. It will be checked if the experiments are of search experiments and if the user has USER access rights.
      */
     @Deprecated
     public void processSearchData(String userID, String dataSetProcessingKey,
             long[] searchExperimentIDs);
-    
+
     /**
-     * Processes the data sets of specified experiments by the DSS
-     * processing plug-in of specified key for the specified user. It will be checked if the
-     * experiments are of specified type and if the user has USER access rights.
+     * Processes the data sets of specified experiments by the DSS processing plug-in of specified key for the specified user. It will be checked if
+     * the experiments are of specified type and if the user has USER access rights.
      */
     public void processProteinResultDataSets(String sessionToken, String userID,
             String dataSetProcessingKey, String experimentTypeCode, long[] experimentIDs);
-    
+
     /**
      * Logs current user out.
      */

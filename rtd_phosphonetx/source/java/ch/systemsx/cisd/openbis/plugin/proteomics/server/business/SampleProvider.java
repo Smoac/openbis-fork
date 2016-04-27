@@ -31,22 +31,22 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
- *
  * @author Franz-Josef Elmer
  */
 class SampleProvider implements ISampleProvider
 {
     private final Session session;
+
     private final IBusinessObjectFactory boFactory;
-    
+
     private Map<String, Sample> samplesByPermIDs;
-    
+
     SampleProvider(Session session, IBusinessObjectFactory boFactory)
     {
         this.session = session;
         this.boFactory = boFactory;
     }
-    
+
     @Override
     public void loadByExperimentID(TechId experimentID)
     {
@@ -73,7 +73,7 @@ class SampleProvider implements ISampleProvider
             return;
         }
         ListSampleCriteria criteria2 =
-            ListSampleCriteria.createForChildren(sampleIDs);
+                ListSampleCriteria.createForChildren(sampleIDs);
         ListOrSearchSampleCriteria criteria3 = new ListOrSearchSampleCriteria(criteria2);
         criteria3.setEnrichDependentSamplesWithProperties(true);
         gatherSamplesAndAncestorsRecursively(lister, criteria3);

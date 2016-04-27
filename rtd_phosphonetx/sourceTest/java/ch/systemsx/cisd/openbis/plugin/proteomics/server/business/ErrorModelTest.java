@@ -28,23 +28,25 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.server.dataaccess.IProteinQuer
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.IdentifiedProtein;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.ProbabilityFDRMapping;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ErrorModelTest extends AssertJUnit
 {
     private static final double TOL = 1e-6;
+
     private static final long DATA_SET1_ID = 42;
+
     private static final long DATA_SET2_ID = 43;
+
     private static final long DATA_SET3_ID = 44;
-    
+
     private Mockery context;
+
     private IProteinQueryDAO proteinQueryDAO;
+
     private ErrorModel errorModel;
-    
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -54,13 +56,13 @@ public class ErrorModelTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    
+
                     atMost(1).of(proteinQueryDAO).getProbabilityFDRMapping(DATA_SET1_ID);
                     MockDataSet<ProbabilityFDRMapping> dataSet1 = new MockDataSet<ProbabilityFDRMapping>();
                     createEntry(dataSet1, 0.4, 0.9);
                     createEntry(dataSet1, 0.5, 0.95);
                     will(returnValue(dataSet1));
-                    
+
                     atMost(1).of(proteinQueryDAO).getProbabilityFDRMapping(DATA_SET2_ID);
                     MockDataSet<ProbabilityFDRMapping> dataSet2 = new MockDataSet<ProbabilityFDRMapping>();
                     createEntry(dataSet2, 1, 1);
@@ -68,14 +70,14 @@ public class ErrorModelTest extends AssertJUnit
                     createEntry(dataSet2, 0.1, 0.7);
                     createEntry(dataSet2, 0.0, 0.6);
                     will(returnValue(dataSet2));
-                    
+
                     atMost(1).of(proteinQueryDAO).getProbabilityFDRMapping(DATA_SET3_ID);
                     MockDataSet<ProbabilityFDRMapping> dataSet3 = new MockDataSet<ProbabilityFDRMapping>();
                     will(returnValue(dataSet3));
                 }
             });
     }
-    
+
     @AfterMethod
     public void afterMethod()
     {
@@ -83,61 +85,61 @@ public class ErrorModelTest extends AssertJUnit
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testExact()
     {
         IdentifiedProtein protein = create(DATA_SET1_ID, 0.4);
         errorModel.setFalseDiscoveryRateFor(protein);
-        
+
         assertEquals(0.9, protein.getFalseDiscoveryRate(), TOL);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testInterpolation()
     {
         IdentifiedProtein protein = create(DATA_SET1_ID, 0.42);
         errorModel.setFalseDiscoveryRateFor(protein);
-        
+
         assertEquals(0.91, protein.getFalseDiscoveryRate(), TOL);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCachedMapping()
     {
         IdentifiedProtein protein = create(DATA_SET1_ID, 0.42);
         errorModel.setFalseDiscoveryRateFor(protein);
-        
+
         assertEquals(0.91, protein.getFalseDiscoveryRate(), TOL);
-        
+
         protein = create(DATA_SET2_ID, 0.25);
         errorModel.setFalseDiscoveryRateFor(protein);
-        
+
         assertEquals(0.8, protein.getFalseDiscoveryRate(), TOL);
-        
+
         protein = create(DATA_SET1_ID, 0.5);
         errorModel.setFalseDiscoveryRateFor(protein);
-        
+
         assertEquals(0.95, protein.getFalseDiscoveryRate(), TOL);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testNoMappings()
     {
         IdentifiedProtein protein = create(DATA_SET3_ID, 0.2);
-        
+
         errorModel.setFalseDiscoveryRateFor(protein);
-        
+
         double falseDiscoveryRate = protein.getFalseDiscoveryRate();
         assertTrue("unexpected FDR: " + falseDiscoveryRate, Double.isNaN(falseDiscoveryRate));
     }
-    
+
     private IdentifiedProtein create(long dataSetID, double probability)
     {
         IdentifiedProtein protein = new IdentifiedProtein();
@@ -145,7 +147,7 @@ public class ErrorModelTest extends AssertJUnit
         protein.setProbability(probability);
         return protein;
     }
-    
+
     private void createEntry(MockDataSet<ProbabilityFDRMapping> dataSet, double propability,
             double falseDiscoveryRate)
     {

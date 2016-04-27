@@ -39,7 +39,9 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.ProteinSummar
 public class ProteinSummaryProvider extends AbstractTableModelProvider<ProteinSummary>
 {
     private final IPhosphoNetXServer server;
+
     private final String sessionToken;
+
     private final TechId experimentID;
 
     public ProteinSummaryProvider(IPhosphoNetXServer server, String sessionToken,

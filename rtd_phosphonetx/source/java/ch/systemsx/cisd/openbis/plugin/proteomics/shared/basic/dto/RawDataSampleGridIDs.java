@@ -16,22 +16,17 @@
 
 package ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto;
 
-
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class RawDataSampleGridIDs
 {
     public static final String EXPERIMENT = "EXPERIMENT";
-    
+
     public static final String PARENT = "PARENT";
 
     public static final String REGISTRATION_DATE = "REGISTRATION_DATE";
 
     public static final String CODE = "CODE";
-
 
 }

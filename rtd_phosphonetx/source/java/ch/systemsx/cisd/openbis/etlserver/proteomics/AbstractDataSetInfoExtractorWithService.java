@@ -20,8 +20,6 @@ import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 abstract class AbstractDataSetInfoExtractorWithService implements IDataSetInfoExtractor

@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto;
 import net.lemnik.eodsql.ResultColumn;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class IdentifiedProtein extends AbstractDTOWithID
@@ -29,31 +27,31 @@ public class IdentifiedProtein extends AbstractDTOWithID
 
     @ResultColumn("data_set_id")
     private long dataSetID;
-    
+
     @ResultColumn("data_set_perm_id")
     private String dataSetPermID;
-    
+
     @ResultColumn("protein_id")
     private long proteinID;
-    
+
     @ResultColumn("peptide_count")
     private int peptideCount;
-    
+
     @ResultColumn("amino_acid_sequence")
     private String sequence;
-    
+
     @ResultColumn("db_id")
     private long databaseID;
-    
+
     @ResultColumn("name_and_version")
     private String databaseNameAndVersion;
-    
+
     @ResultColumn("probability")
     private double probability;
-    
+
     @ResultColumn("coverage")
     private double coverage;
-    
+
     private double falseDiscoveryRate;
 
     public final String getDataSetPermID()

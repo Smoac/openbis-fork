@@ -59,18 +59,20 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.api.v1.dto.PropertyKey;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.MsInjectionSample;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ProteomicsDataServiceTest extends AbstractServerTestCase
 {
     private static final String MS_SEARCH = "MS_SEARCH";
+
     private static final String RAW_DATA = "RAW_DATA";
+
     private static final String MZXML_DATA = "MZXML_DATA";
-    
+
     private IProteomicsDataServiceInternal internalService;
+
     private IProteomicsDataService service;
+
     private SessionContextDTO session2;
 
     @Override
@@ -85,7 +87,7 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
         session2 = new SessionContextDTO();
         session2.setSessionToken(SESSION_TOKEN + "2");
     }
-    
+
     @Test
     public void testListDataStoreServerProcessingPluginInfos()
     {
@@ -111,20 +113,20 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
 
         List<DataStoreServerProcessingPluginInfo> infos =
                 service.listDataStoreServerProcessingPluginInfos(SESSION_TOKEN);
-        
+
         assertEquals(s2.getKey(), infos.get(0).getKey());
         assertEquals(s2.getLabel(), infos.get(0).getLabel());
         assertEquals(Arrays.asList(dataSetType.getCode()), infos.get(0).getDatasetTypeCodes());
         assertEquals(1, infos.size());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testListRawDataSamplesForUnknownUser()
     {
         prepareGetSession();
         prepareLoginLogout(null);
-        
+
         try
         {
             service.listRawDataSamples(SESSION_TOKEN, "abc");
@@ -133,10 +135,10 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
         {
             assertEquals("Unknown user ID: abc", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testListRawDataSamples()
     {
@@ -167,9 +169,9 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
         experiment.setProject(project);
         experiment.setRegistrationDate(new Date(1234567));
         IEntityProperty p6 = property("ex", DataTypeCode.VARCHAR, "exp");
-        experiment.setProperties(Arrays.<IEntityProperty>asList(p6));
+        experiment.setProperties(Arrays.<IEntityProperty> asList(p6));
         parent.setExperiment(experiment);
-        sample .setGeneratedFrom(parent);
+        sample.setGeneratedFrom(parent);
         final AbstractExternalData ds1 = createDataSet(RAW_DATA, 10);
         final AbstractExternalData ds2 = createDataSet(MZXML_DATA, 20);
         AbstractExternalData ds3 = createDataSet(MZXML_DATA, 15);
@@ -223,7 +225,7 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
         assertEquals(1, infos.size());
         context.assertIsSatisfied();
     }
-    
+
     private String renderExperiment(ch.systemsx.cisd.openbis.plugin.proteomics.shared.api.v1.dto.Experiment experiment)
     {
         StringBuilder builder = new StringBuilder();
@@ -234,12 +236,12 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
         builder.append(' ').append(experiment.getProperties());
         return builder.toString();
     }
-    
+
     private String renderDataSet(DataSet dataSet)
     {
         StringBuilder builder = new StringBuilder();
         builder.append(dataSet.getId()).append(":").append(dataSet.getCode());
-        builder.append(" [").append( dataSet.getType()).append(" date:");
+        builder.append(" [").append(dataSet.getType()).append(" date:");
         builder.append(dataSet.getRegistrationDate().getTime()).append("] ");
         builder.append(dataSet.getProperties());
         Set<DataSet> parents = dataSet.getParents();
@@ -297,7 +299,7 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testListExperiments()
     {
@@ -320,7 +322,7 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
         propertyType.setDataType(new DataType(DataTypeCode.INTEGER));
         p1.setPropertyType(propertyType);
         p1.setValue("42");
-        e.setProperties(Arrays.<IEntityProperty>asList(p1));
+        e.setProperties(Arrays.<IEntityProperty> asList(p1));
         context.checking(new Expectations()
             {
                 {
@@ -328,10 +330,10 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
                     will(returnValue(Arrays.asList(e)));
                 }
             });
-        
+
         List<ch.systemsx.cisd.openbis.plugin.proteomics.shared.api.v1.dto.Experiment> experiments =
                 service.listExperiments(SESSION_TOKEN, "abc", MS_SEARCH);
-        
+
         assertEquals(e.getId().longValue(), experiments.get(0).getId());
         assertEquals(e.getCode(), experiments.get(0).getCode());
         assertEquals(e.getProject().getCode(), experiments.get(0).getProjectCode());
@@ -349,7 +351,7 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
         assertEquals(1, experiments.size());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testProcessSearchData()
     {
@@ -368,7 +370,7 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     private void prepareLoginLogout(final SessionContextDTO mySession)
     {
         context.checking(new Expectations()
@@ -376,7 +378,7 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
                 {
                     one(internalService).tryAuthenticate("abc", "dummy-password");
                     will(returnValue(mySession));
-                    
+
                     if (mySession != null)
                     {
                         one(internalService).logout(mySession.getSessionToken());
@@ -384,7 +386,7 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
                 }
             });
     }
-    
+
     private void checkProperties(Map<PropertyKey, Serializable> properties, IEntityProperty... expectedProperties)
     {
         for (IEntityProperty expectedProperty : expectedProperties)
@@ -420,5 +422,5 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
         dataSet.setDataSetProperties(Arrays.asList(property("n", DataTypeCode.REAL, "2.5")));
         return dataSet;
     }
-    
+
 }

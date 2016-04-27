@@ -64,7 +64,7 @@ class ResultDataSetUploader extends AbstractHandler
     private static final double MAX_FALSE_DISCOVERY_RATE = 0.1;
 
     static final String PARAMETER_TYPE_ABUNDANCE = "abundance";
-    
+
     static final String PARAMETER_TYPE_MODIFICATION = "modification";
 
     private final Connection connection;
@@ -343,7 +343,7 @@ class ResultDataSetUploader extends AbstractHandler
         }
         return result;
     }
-    
+
     private List<ModificationFraction> extractModificationFractions(Peptide peptide)
     {
         List<ModificationFraction> result = new ArrayList<ModificationFraction>();
@@ -374,7 +374,7 @@ class ResultDataSetUploader extends AbstractHandler
         return dao.createModification(modPeptideID, aminoAcidMass.getPosition(),
                 aminoAcidMass.getMass());
     }
-    
+
     private void createIdentifiedProtein(long proteinID, Set<String> peptideSequences,
             Long databaseID, ProteinAnnotation annotation, boolean primary)
     {
@@ -402,8 +402,8 @@ class ResultDataSetUploader extends AbstractHandler
         }
         double coverage = calculateCoverage(sequence.getSequence(), peptideSequences);
         dao.createIdentifiedProtein(proteinID, sequence.getId(), coverage, primary);
-   }
-    
+    }
+
     private double calculateCoverage(String aminoAcidSequence, Set<String> peptideSequences)
     {
         List<Occurrence> list = OccurrenceUtil.getCoverage(aminoAcidSequence, peptideSequences);

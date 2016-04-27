@@ -21,8 +21,6 @@ import java.io.Serializable;
 import net.lemnik.eodsql.ResultColumn;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ProteinReferenceWithProbability extends ProteinReference implements Serializable
@@ -31,16 +29,16 @@ public class ProteinReferenceWithProbability extends ProteinReference implements
 
     @ResultColumn("data_set_id")
     private long dataSetID;
-    
+
     @ResultColumn("probability")
     private double probability;
-    
+
     @ResultColumn("coverage")
     private double coverage;
-    
+
     @ResultColumn("abundance")
     private Double abundance;
-    
+
     @ResultColumn("sample_perm_id")
     private String samplePermID;
 

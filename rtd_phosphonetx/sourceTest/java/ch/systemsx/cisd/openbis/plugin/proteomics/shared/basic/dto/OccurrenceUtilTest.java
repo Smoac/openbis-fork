@@ -24,8 +24,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.OccurrenceUtil;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class OccurrenceUtilTest extends AssertJUnit
@@ -38,13 +36,13 @@ public class OccurrenceUtilTest extends AssertJUnit
         check("[]", "xx");
         check("[]", "abc");
     }
-    
+
     @Test
     public void testFullCoverage()
     {
         check("[[abc@0]]", "abc", "abc");
     }
-    
+
     @Test
     public void testPartialAndOverlappingCoverage()
     {
@@ -55,7 +53,7 @@ public class OccurrenceUtilTest extends AssertJUnit
         check("[[abcde@0]]", "abcdef", "abcd", "b", "de");
         check("[[haha@10]]", "abc abcde hahab", "haha", "h");
     }
-    
+
     private void check(String expectedList, String sequence, String... words)
     {
         assertEquals(expectedList, OccurrenceUtil.getCoverage(sequence, Arrays.asList(words)).toString());

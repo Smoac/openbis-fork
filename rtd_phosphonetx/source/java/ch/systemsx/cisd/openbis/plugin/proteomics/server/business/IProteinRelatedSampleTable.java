@@ -29,6 +29,6 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.ProteinRelate
 public interface IProteinRelatedSampleTable
 {
     public void load(TechId experimentID, TechId proteinReferenceID, String sequenceOrNull);
-    
+
     public List<ProteinRelatedSample> getSamples();
 }

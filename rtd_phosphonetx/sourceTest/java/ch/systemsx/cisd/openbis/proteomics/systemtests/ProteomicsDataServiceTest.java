@@ -48,15 +48,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.api.v1.dto.MsInjectionDataInfo;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Test(groups = { "slow", "systemtest" })
 public class ProteomicsDataServiceTest extends AbstractProteomicsSystemTestCase
 {
     private static final String EXPERIMENT_IDENTIFIER = "/MS_DATA/A/E";
-    
+
     private String sessionToken;
 
     private Long experimentId;
@@ -68,12 +66,12 @@ public class ProteomicsDataServiceTest extends AbstractProteomicsSystemTestCase
     {
         sessionToken = authenticateAs("test");
         getCommonServer().registerSpace(sessionToken, "MS_DATA", null);
-        getCommonServer().registerProject(sessionToken, ProjectIdentifierFactory.parse("/MS_DATA/A"), 
-                null, null, Arrays.<NewAttachment>asList());
+        getCommonServer().registerProject(sessionToken, ProjectIdentifierFactory.parse("/MS_DATA/A"),
+                null, null, Arrays.<NewAttachment> asList());
         NewExperiment experiment = new NewExperiment();
         experiment.setExperimentTypeCode("MS_SEARCH");
         experiment.setIdentifier(EXPERIMENT_IDENTIFIER);
-        experimentId = getGenericServer().registerExperiment(sessionToken, experiment, Arrays.<NewAttachment>asList()).getId();
+        experimentId = getGenericServer().registerExperiment(sessionToken, experiment, Arrays.<NewAttachment> asList()).getId();
         NewSamplesWithTypes samples = new NewSamplesWithTypes();
         SampleType sampleType = new SampleTypeBuilder().code("MS_INJECTION").getSampleType();
         samples.setEntityType(sampleType);
@@ -92,7 +90,7 @@ public class ProteomicsDataServiceTest extends AbstractProteomicsSystemTestCase
             dataSet.setLocation("a/b/c/" + dataSet.getCode());
             dataSet.setLocatorType(new LocatorType("RELATIVE_LOCATION"));
             dataSet.setStorageFormat(StorageFormat.PROPRIETARY);
-            serviceForDSS.registerDataSet(sessionToken, SampleIdentifierFactory.parse(sample), 
+            serviceForDSS.registerDataSet(sessionToken, SampleIdentifierFactory.parse(sample),
                     dataSet);
         }
         ListSampleCriteria criteria = ListSampleCriteria.createForExperiment(new TechId(experimentId));
@@ -104,42 +102,42 @@ public class ProteomicsDataServiceTest extends AbstractProteomicsSystemTestCase
         }
         Arrays.sort(sampleIds);
     }
-    
+
     @Test
     public void testListRawDataSamplesForAdminUser()
     {
         List<MsInjectionDataInfo> samples = getDataService().listRawDataSamples(sessionToken, "test");
-        
+
         assertEquals("MSI-0:/TEST-SPACE/CP-TEST-4:/TEST-SPACE/NOE/EXP-TEST-2, "
                 + "MSI-2:/CISD/3VCP5:/CISD/NEMO/EXP10", renderMsInjectionDataInfos(samples));
     }
-    
+
     @Test
     public void testListRawDataSamplesForSpaceUser()
     {
         List<MsInjectionDataInfo> samples = getDataService().listRawDataSamples(sessionToken, "test_role");
-        
+
         assertEquals("MSI-2:/CISD/3VCP5:/CISD/NEMO/EXP10", renderMsInjectionDataInfos(samples));
     }
-    
+
     @Test
     public void testListAllRawDataSamplesForAdminUser()
     {
         List<MsInjectionDataInfo> samples = getDataService().listAllRawDataSamples(sessionToken, "test");
-        
+
         assertEquals("MSI-0:/TEST-SPACE/CP-TEST-4:/TEST-SPACE/NOE/EXP-TEST-2, "
                 + "MSI-2:/CISD/3VCP5:/CISD/NEMO/EXP10", renderMsInjectionDataInfos(samples));
     }
-    
+
     @Test
     public void testListAllRawDataSamplesForSpaceUser()
     {
         List<MsInjectionDataInfo> samples = getDataService().listAllRawDataSamples(sessionToken, "test_role");
-        
+
         assertEquals("MSI-0:null:null, "
                 + "MSI-2:/CISD/3VCP5:/CISD/NEMO/EXP10", renderMsInjectionDataInfos(samples));
     }
-    
+
     @Test
     public void testProcessingRawDataForAdminUser()
     {
@@ -151,7 +149,7 @@ public class ProteomicsDataServiceTest extends AbstractProteomicsSystemTestCase
             AssertionUtil.assertContains("[DS-0, DS-2]", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testProcessingRawDataForSpaceUser()
     {
@@ -163,7 +161,7 @@ public class ProteomicsDataServiceTest extends AbstractProteomicsSystemTestCase
             AssertionUtil.assertContains("[DS-2]", ex.getMessage());
         }
     }
-    
+
     private String renderMsInjectionDataInfos(List<MsInjectionDataInfo> infos)
     {
         Collections.sort(infos, new SimpleComparator<MsInjectionDataInfo, String>()
@@ -177,12 +175,12 @@ public class ProteomicsDataServiceTest extends AbstractProteomicsSystemTestCase
         CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
         for (MsInjectionDataInfo info : infos)
         {
-            builder.append(info.getMsInjectionSampleCode() + ":" + info.getBiologicalSampleIdentifier() + ":" 
+            builder.append(info.getMsInjectionSampleCode() + ":" + info.getBiologicalSampleIdentifier() + ":"
                     + info.getBiologicalExperimentIdentifier());
         }
         return builder.toString();
     }
-    
+
     private List<NewSample> createMsInjectionSamples(String... parentIdentifiers)
     {
         List<NewSample> samples = new ArrayList<NewSample>();

@@ -47,7 +47,7 @@ public class PhosphoNetXDAOFactory implements IPhosphoNetXDAOFactory
 {
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, PhosphoNetXDAOFactory.class);
-    
+
     private final Map<DataSource, IProteinQueryDAO> daos = new HashMap<DataSource, IProteinQueryDAO>();
 
     private final IDAOFactory daoFactory;
@@ -63,7 +63,7 @@ public class PhosphoNetXDAOFactory implements IPhosphoNetXDAOFactory
             operationLog.info("DAO factory for proteomics created.");
         }
     }
-    
+
     @Override
     public IProteinQueryDAO getProteinQueryDAO(String experimentPermID)
     {
@@ -99,11 +99,11 @@ public class PhosphoNetXDAOFactory implements IPhosphoNetXDAOFactory
         }
         return dao;
     }
-    
+
     private DataSource getDataSource(ExperimentPE experiment)
     {
         IDataDAO dataDAO = daoFactory.getDataDAO();
-        
+
         List<DataPE> dataSets = dataDAO.listDataSets(experiment);
         Set<String> dataStores = new HashSet<String>();
         for (DataPE data : dataSets)

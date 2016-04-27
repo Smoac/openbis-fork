@@ -41,8 +41,6 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.server.business.ISampleProvide
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.business.SampleProvider;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class SampleProviderTest extends AssertJUnit
@@ -78,16 +76,22 @@ public class SampleProviderTest extends AssertJUnit
 
     private static final Principal PRINCIPAL =
             new Principal(CommonTestUtils.USER_ID, "john", "doe", "j@d");
+
     private static final String SESSION_TOKEN = "session-token";
+
     private static final Session SESSION =
             new Session(CommonTestUtils.USER_ID, SESSION_TOKEN, PRINCIPAL, "remote-host", 1);
+
     private static final TechId EXPERIMENT_ID = new TechId(4711);
 
     private Mockery context;
+
     private IBusinessObjectFactory boFactory;
+
     private ISampleProvider sampleProvider;
+
     private ISampleLister sampleLister;
-    
+
     @BeforeMethod
     public void setUp()
     {
@@ -96,7 +100,7 @@ public class SampleProviderTest extends AssertJUnit
         sampleLister = context.mock(ISampleLister.class);
         sampleProvider = new SampleProvider(SESSION, boFactory);
     }
-    
+
     @AfterMethod
     public void tearDown()
     {
@@ -116,7 +120,7 @@ public class SampleProviderTest extends AssertJUnit
                 {
                     one(boFactory).createSampleLister(SESSION);
                     will(returnValue(sampleLister));
-                    
+
                     one(sampleLister).list(with(new BaseMatcher<ListOrSearchSampleCriteria>()
                         {
                             @Override
@@ -138,18 +142,18 @@ public class SampleProviderTest extends AssertJUnit
                             }
                         }));
                     will(returnValue(Arrays.asList(s1, s2)));
-                    
+
                     one(sampleLister).list(
                             with(new MatcherOfSampleCriteriaByChildrenIDs(Arrays.asList(s1.getId(),
                                     s2.getId()))));
                     will(returnValue(Arrays.asList(s3)));
-                    
+
                     one(sampleLister).list(
                             with(new MatcherOfSampleCriteriaByChildrenIDs(Arrays.asList(s3.getId()))));
                     will(returnValue(Arrays.asList()));
                 }
             });
-        
+
         sampleProvider.loadByExperimentID(EXPERIMENT_ID);
         assertSame(s1, sampleProvider.getSample(s1.getPermId()));
         assertSame(s2, sampleProvider.getSample(s2.getPermId()));
@@ -162,11 +166,12 @@ public class SampleProviderTest extends AssertJUnit
         {
             assertEquals("No sample with following perm ID registered in openBIS: 42", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
-    private Sample createSample(String samplePermID){
+
+    private Sample createSample(String samplePermID)
+    {
         Sample sample = new Sample();
         sample.setId((long) samplePermID.hashCode());
         sample.setPermId(samplePermID);

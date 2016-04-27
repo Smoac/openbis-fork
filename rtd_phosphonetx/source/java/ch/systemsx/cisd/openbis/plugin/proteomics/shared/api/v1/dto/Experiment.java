@@ -28,17 +28,17 @@ import java.util.Map;
 public class Experiment implements Serializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     private long id;
-    
+
     private String spaceCode;
-    
+
     private String projectCode;
-    
+
     private String code;
-    
+
     private Date registrationDate;
-    
+
     private Map<PropertyKey, Serializable> properties;
 
     public final long getId()
@@ -100,6 +100,5 @@ public class Experiment implements Serializable
     {
         this.properties = properties;
     }
-
 
 }

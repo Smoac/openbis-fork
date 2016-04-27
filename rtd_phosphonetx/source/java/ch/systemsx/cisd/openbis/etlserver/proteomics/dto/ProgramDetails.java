@@ -23,19 +23,17 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @XmlType
 public class ProgramDetails
 {
     private String analysis;
-    
+
     private Date timestamp;
-    
+
     private String version;
-    
+
     private Object[] summary;
 
     @XmlAttribute(name = "analysis", required = true)
@@ -49,7 +47,7 @@ public class ProgramDetails
         this.analysis = analysis;
     }
 
-//    @XmlAttribute(name = "time", required = true)
+    // @XmlAttribute(name = "time", required = true)
     public final Date getTimestamp()
     {
         return timestamp;
@@ -81,5 +79,5 @@ public class ProgramDetails
     {
         this.summary = summary;
     }
-    
+
 }

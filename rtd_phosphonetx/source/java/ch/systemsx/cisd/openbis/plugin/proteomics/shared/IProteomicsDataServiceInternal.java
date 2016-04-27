@@ -32,8 +32,7 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.MsInjectionSample;
 public interface IProteomicsDataServiceInternal extends IServer
 {
     /**
-     * Returns all samples of type MS_INJECTION in group MS_DATA which have a parent sample which
-     * the specified user is allow to read.
+     * Returns all samples of type MS_INJECTION in group MS_DATA which have a parent sample which the specified user is allow to read.
      */
     @Transactional
     public List<MsInjectionSample> listRawDataSamples(String sessionToken);
@@ -43,7 +42,7 @@ public interface IProteomicsDataServiceInternal extends IServer
      */
     @Transactional
     public List<MsInjectionSample> listAllRawDataSamples(String sessionToken);
-    
+
     @Deprecated
     @Transactional
     public void processRawData(String sessionToken, String dataSetProcessingKey,

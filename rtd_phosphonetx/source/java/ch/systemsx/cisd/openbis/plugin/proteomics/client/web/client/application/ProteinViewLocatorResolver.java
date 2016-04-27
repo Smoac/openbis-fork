@@ -38,9 +38,11 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.ProteinInfo;
 public class ProteinViewLocatorResolver extends AbstractViewLocatorResolver
 {
     private static final String ACTION = "PROTEIN";
+
     private static final String EXPERIMENT_PERM_ID = "experimentPermId";
+
     private static final String PROTEIN_ID = "id";
-    
+
     private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
 
     public ProteinViewLocatorResolver(IViewContext<IPhosphoNetXClientServiceAsync> viewContext)

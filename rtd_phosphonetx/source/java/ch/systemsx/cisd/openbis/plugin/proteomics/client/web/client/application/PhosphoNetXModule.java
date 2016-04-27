@@ -88,33 +88,33 @@ public class PhosphoNetXModule implements IModule
                     });
         ActionMenu msInjectionSampleBrowserMenuItem = TabActionMenuItemFactory.createActionMenu(viewContext, ID,
                 new ITabActionMenuItemDefinition<IPhosphoNetXClientServiceAsync>()
-                {
-            
-            @Override
-            public String getName()
-            {
-                return "ALL_RAW_DATA_SAMPLES";
-            }
-            
-            @Override
-            public String getHelpPageTitle()
-            {
-                return "MS INJECTION Data Overview";
-            }
-            
-            @Override
-            public DatabaseModificationAwareComponent createComponent(
-                    IViewContext<IPhosphoNetXClientServiceAsync> context)
-            {
-                return RawDataSampleGrid.create(context);
-            }
-            
-            @Override
-            public String tryGetLink()
-            {
-                return null;
-            }
-                });
+                    {
+
+                        @Override
+                        public String getName()
+                        {
+                            return "ALL_RAW_DATA_SAMPLES";
+                        }
+
+                        @Override
+                        public String getHelpPageTitle()
+                        {
+                            return "MS INJECTION Data Overview";
+                        }
+
+                        @Override
+                        public DatabaseModificationAwareComponent createComponent(
+                                IViewContext<IPhosphoNetXClientServiceAsync> context)
+                        {
+                            return RawDataSampleGrid.create(context);
+                        }
+
+                        @Override
+                        public String tryGetLink()
+                        {
+                            return null;
+                        }
+                    });
         return Arrays.asList(msInjectionSampleAnnotatingMenuItem, msInjectionSampleBrowserMenuItem);
     }
 

@@ -49,11 +49,12 @@ public class ProteomicsDataServiceServer extends AbstractApiServiceExporter
     }
 
     @RequestMapping(
-            { IProteomicsDataService.SERVER_URL, "/openbis" + IProteomicsDataService.SERVER_URL })
+    { IProteomicsDataService.SERVER_URL, "/openbis" + IProteomicsDataService.SERVER_URL })
     @Override
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException
+    {
         super.handleRequest(request, response);
-    }    
-    
+    }
+
 }

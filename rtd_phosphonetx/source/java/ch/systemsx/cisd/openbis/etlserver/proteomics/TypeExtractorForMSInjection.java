@@ -30,14 +30,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TypeExtractorForMSInjection implements ITypeExtractor
 {
     private static final LocatorType LOCATOR_TYPE = new LocatorType(LocatorType.DEFAULT_LOCATOR_TYPE_CODE);
-    
+
     public TypeExtractorForMSInjection(Properties properties)
     {
     }
@@ -78,5 +76,5 @@ public class TypeExtractorForMSInjection implements ITypeExtractor
     {
         return Util.loadPropertiesFile(incomingDataSetPath, DATA_SET_PROPERTIES_FILE);
     }
-    
+
 }

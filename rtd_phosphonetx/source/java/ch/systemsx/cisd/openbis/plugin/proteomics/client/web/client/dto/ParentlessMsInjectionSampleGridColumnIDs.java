@@ -26,5 +26,6 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.client.web.client.application.
 public class ParentlessMsInjectionSampleGridColumnIDs
 {
     public static final String IDENTIFIER = "IDENTIFIER";
+
     public static final String REGISTRATION_DATE = "REGISTRATION_DATE";
 }

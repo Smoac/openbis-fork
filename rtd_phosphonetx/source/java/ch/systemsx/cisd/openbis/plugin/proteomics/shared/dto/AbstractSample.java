@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto;
 
 import net.lemnik.eodsql.ResultColumn;
 
-
 /**
  * Abstract super class of sample.
  *
@@ -27,7 +26,7 @@ import net.lemnik.eodsql.ResultColumn;
 public abstract class AbstractSample extends AbstractDTOWithID
 {
     private static final long serialVersionUID = 1L;
-    
+
     @ResultColumn("perm_id")
     private String samplePermID;
 
@@ -35,11 +34,10 @@ public abstract class AbstractSample extends AbstractDTOWithID
     {
         return samplePermID;
     }
-    
+
     public final void setSamplePermID(String samplePermID)
     {
         this.samplePermID = samplePermID;
     }
-    
 
 }

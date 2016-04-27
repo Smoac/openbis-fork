@@ -22,14 +22,13 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Informations about an MS_INJECTION sample and its related biological sample. There are attributes
- * for 
- * <ul><li>MS_INJECTION sample: ID, properties, code and registration date
+ * Informations about an MS_INJECTION sample and its related biological sample. There are attributes for
+ * <ul>
+ * <li>MS_INJECTION sample: ID, properties, code and registration date
  * <li>Biological sample: identifier and properties
  * <li>Biological experiment (i.e. experiment of biological sample) if present: identifier and properties
- * <li>Registration dates of the most recently registered data sets for each data set type 
- * <li>All data sets including the derived ones of the MS_INJECTION sample with their type, 
- * registration date, and properties.
+ * <li>Registration dates of the most recently registered data sets for each data set type
+ * <li>All data sets including the derived ones of the MS_INJECTION sample with their type, registration date, and properties.
  * </ul>
  *
  * @author Franz-Josef Elmer
@@ -39,25 +38,25 @@ public class MsInjectionDataInfo implements Serializable
     private static final long serialVersionUID = 1L;
 
     private long msInjectionSampleID;
-    
+
     private String msInjectionSampleCode;
-    
+
     private Date msInjectionSampleRegistrationDate;
-    
+
     private Map<PropertyKey, Serializable> msInjectionSampleProperties;
-    
+
     private long biologicalSampleID;
-    
+
     private String biologicalSampleIdentifier;
-    
+
     private String biologicalExperimentIdentifier;
-    
+
     private Experiment biologicalExperiment;
-    
+
     private Map<PropertyKey, Serializable> biologicalSampleProperties;
-    
+
     private Set<DataSet> dataSets;
-    
+
     private Map<String, Date> latestDataSetRegistrationDates;
 
     public long getMsInjectionSampleID()

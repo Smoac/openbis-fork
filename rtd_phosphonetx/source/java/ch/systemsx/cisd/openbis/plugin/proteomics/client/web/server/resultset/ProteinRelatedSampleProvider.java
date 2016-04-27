@@ -44,13 +44,13 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.ProteinRelate
 public class ProteinRelatedSampleProvider extends AbstractTableModelProvider<ProteinRelatedSample>
 {
     private static final String PROPERTIES_GROUP = "property-";
-    
+
     private final IPhosphoNetXServer server;
 
     private final String sessionToken;
 
     private final TechId experimentID;
-    
+
     private final TechId proteinReferenceID;
 
     public ProteinRelatedSampleProvider(IPhosphoNetXServer server, String sessionToken,
@@ -107,7 +107,6 @@ public class ProteinRelatedSampleProvider extends AbstractTableModelProvider<Pro
         {
             return "?";
         }
-    }    
-    
+    }
 
 }

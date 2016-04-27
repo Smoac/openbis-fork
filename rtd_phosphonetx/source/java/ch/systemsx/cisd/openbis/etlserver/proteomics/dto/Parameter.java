@@ -20,15 +20,15 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @XmlType
 public class Parameter
 {
     private String name;
+
     private String value;
+
     private String type;
 
     @XmlAttribute(name = "name", required = true)
@@ -63,5 +63,5 @@ public class Parameter
     {
         this.type = type;
     }
-    
+
 }

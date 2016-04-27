@@ -21,15 +21,16 @@ import ch.systemsx.cisd.openbis.etlserver.proteomics.dto.AminoAcidMass;
 /**
  * Data class keeping data extracted from a peptide <parameter> element of type 'modification'.
  * 
- *
  * @author Franz-Josef Elmer
  */
 final class ModificationFraction
 {
     private final String sample;
+
     private final double fraction;
+
     private final AminoAcidMass aminoAcidMass;
-    
+
     ModificationFraction(String sample, String value)
     {
         this.sample = sample;
@@ -61,23 +62,23 @@ final class ModificationFraction
             throw exception(value, "Fraction part isn't a floating-point number: " + parts[2]);
         }
     }
-    
+
     private IllegalArgumentException exception(String value, String message)
     {
         return new IllegalArgumentException("Peptide parameter value [" + value
                 + "] for sample '" + sample + "' is invalid: " + message);
     }
-    
+
     public String getSample()
     {
         return sample;
     }
-    
+
     public AminoAcidMass getAminoAcidMass()
     {
         return aminoAcidMass;
     }
-    
+
     public double getFraction()
     {
         return fraction;

@@ -23,8 +23,6 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ProteinWithAbundances extends ProteinReference
@@ -32,21 +30,21 @@ public class ProteinWithAbundances extends ProteinReference
     private static final long serialVersionUID = 1L;
 
     private static final double[] EMPTY_ARRAY = new double[0];
-    
+
     private double coverage;
-    
+
     private final Map<Long, DoubleArrayList> abundances = new LinkedHashMap<Long, DoubleArrayList>();
-    
+
     public double getCoverage()
     {
         return coverage;
     }
-    
+
     public void setCoverage(double coverage)
     {
         this.coverage = coverage;
     }
-    
+
     public void addAbundanceFor(long sampleID, double abundance)
     {
         DoubleArrayList list = abundances.get(sampleID);
@@ -57,12 +55,12 @@ public class ProteinWithAbundances extends ProteinReference
         }
         list.add(abundance);
     }
-    
+
     public Set<Long> getSampleIDs()
     {
         return abundances.keySet();
     }
-    
+
     public double[] getAbundancesForSample(long sampleID)
     {
         DoubleArrayList list = abundances.get(sampleID);

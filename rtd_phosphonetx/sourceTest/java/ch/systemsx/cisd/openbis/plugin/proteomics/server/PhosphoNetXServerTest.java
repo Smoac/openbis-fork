@@ -43,28 +43,37 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.ProteinDetail
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.ProteinRelatedSample;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses = PhosphoNetXServer.class)
 public class PhosphoNetXServerTest extends AbstractServerTestCase
 {
     private static final TechId EXPERIMENT_ID = new TechId(42L);
+
     private static final String EXPERIMENT_PERM_ID = "e123-45";
+
     private static final String SAMPLE_PERM_ID = "s34-56";
-    
+
     private IPhosphoNetXDAOFactory phosphoNetXDAOFactory;
+
     private IBusinessObjectFactory boFactory;
+
     private ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin;
+
     private IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin;
+
     private IProteinQueryDAO proteinDAO;
+
     private PhosphoNetXServer server;
+
     private IAbundanceColumnDefinitionTable abundanceColumnDefinitionTable;
+
     private ISampleProvider sampleProvider;
+
     private IProteinDetailsBO proteinDetailsBO;
+
     private IProteinRelatedSampleTable proteinRelatedSampleTable;
-    
+
     @Override
     @BeforeMethod
     public void setUp()
@@ -88,7 +97,7 @@ public class PhosphoNetXServerTest extends AbstractServerTestCase
                 {
                     allowing(boFactory).createProteinDetailsBO(session);
                     will(returnValue(proteinDetailsBO));
-                    
+
                     allowing(boFactory).createProteinRelatedSampleTable(session);
                     will(returnValue(proteinRelatedSampleTable));
                 }
@@ -109,41 +118,41 @@ public class PhosphoNetXServerTest extends AbstractServerTestCase
                     ExperimentPE experimentPE = new ExperimentPE();
                     experimentPE.setPermId(EXPERIMENT_PERM_ID);
                     will(returnValue(experimentPE));
-                    
+
                     allowing(phosphoNetXDAOFactory).getProteinQueryDAO(EXPERIMENT_ID);
                     will(returnValue(proteinDAO));
-                    
+
                     one(proteinDAO).listAbundanceRelatedSamplePermIDsByExperiment(EXPERIMENT_PERM_ID);
                     will(returnValue(mockDataSet));
-                    
+
                     one(boFactory).createAbundanceColumnDefinitionTable(session);
                     will(returnValue(abundanceColumnDefinitionTable));
-                    
+
                     one(boFactory).createSampleProvider(session);
                     will(returnValue(sampleProvider));
-                    
+
                     one(sampleProvider).loadByExperimentID(EXPERIMENT_ID);
-                    
+
                     one(sampleProvider).getSample(SAMPLE_PERM_ID);
                     Sample sample = new Sample();
                     sample.setPermId(SAMPLE_PERM_ID);
                     will(returnValue(sample));
-                    
+
                     one(abundanceColumnDefinitionTable).add(sample);
-                    
+
                     one(abundanceColumnDefinitionTable).getSortedAndAggregatedDefinitions("PH");
                     will(returnValue(result));
                 }
             });
-        
+
         List<AbundanceColumnDefinition> definitions =
-            server.getAbundanceColumnDefinitionsForProteinByExperiment(SESSION_TOKEN,
-                    EXPERIMENT_ID, "PH");
+                server.getAbundanceColumnDefinitionsForProteinByExperiment(SESSION_TOKEN,
+                        EXPERIMENT_ID, "PH");
         assertSame(result, definitions);
         assertEquals(true, mockDataSet.hasCloseBeenInvoked());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testListProteinRelatedSamplesByProtein()
     {
@@ -171,9 +180,9 @@ public class PhosphoNetXServerTest extends AbstractServerTestCase
         List<ProteinRelatedSample> list =
                 server.listProteinRelatedSamplesByProtein(SESSION_TOKEN, experimentID,
                         proteinReferenceID);
-        
+
         assertSame(result, list);
         context.assertIsSatisfied();
     }
-    
+
 }

@@ -29,7 +29,6 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.xml.XMLInfraStructure;
 import ch.systemsx.cisd.openbis.etlserver.proteomics.dto.ProteinProphetDetails;
@@ -43,8 +42,9 @@ import ch.systemsx.cisd.openbis.etlserver.proteomics.dto.ProteinSummary;
 class ProtXMLLoader
 {
     private final Unmarshaller unmarshaller;
+
     private final XMLInfraStructure xmlInfraStructure;
-    
+
     ProtXMLLoader(boolean validating)
     {
         try
@@ -65,13 +65,13 @@ class ProtXMLLoader
                         return inputStream == null ? null : new InputSource(inputStream);
                     }
                 });
-                
+
         } catch (Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
-    
+
     ProteinSummary readProtXML(File dataSet)
     {
         try

@@ -32,7 +32,7 @@ public class Peptide implements Serializable
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private String sequence;
-    
+
     private List<PeptideModification> modifications = new ArrayList<PeptideModification>();
 
     public String getSequence()

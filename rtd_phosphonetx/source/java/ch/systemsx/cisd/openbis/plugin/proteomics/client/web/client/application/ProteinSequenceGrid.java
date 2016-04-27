@@ -76,13 +76,13 @@ public class ProteinSequenceGrid extends TypedTableGrid<ProteinSequence>
     {
         return columnID.toLowerCase();
     }
-    
+
     @Override
     protected List<String> getColumnIdsOfFilters()
     {
         return Arrays.asList();
     }
-    
+
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<ProteinSequence>> resultSetConfig,

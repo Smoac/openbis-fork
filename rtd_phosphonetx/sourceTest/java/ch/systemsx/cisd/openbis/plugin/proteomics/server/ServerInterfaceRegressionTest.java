@@ -23,8 +23,6 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.IProteomicsDataServiceInternal;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ServerInterfaceRegressionTest extends AnnotationAppliedTestCase
@@ -41,5 +39,5 @@ public class ServerInterfaceRegressionTest extends AnnotationAppliedTestCase
         assertMandatoryMethodAnnotations(IProteomicsDataServiceInternal.class,
                 ProteomicsDataServiceInternal.class, null);
     }
-    
+
 }

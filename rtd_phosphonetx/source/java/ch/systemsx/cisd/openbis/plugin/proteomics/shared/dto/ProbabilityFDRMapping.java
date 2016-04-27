@@ -19,15 +19,13 @@ package ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto;
 import net.lemnik.eodsql.ResultColumn;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ProbabilityFDRMapping
 {
     @ResultColumn("probability")
     private double probability;
-    
+
     @ResultColumn("false_discovery_rate")
     private double falseDiscoveryRate;
 

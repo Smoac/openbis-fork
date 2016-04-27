@@ -48,16 +48,15 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.IProteomicsDataServiceI
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.MsInjectionSample;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=RawDataSampleProvider.class)
+@Friend(toClasses = RawDataSampleProvider.class)
 public class RawDataSampleProviderTest extends AbstractServerTestCase
 {
     private IProteomicsDataServiceInternal service;
+
     private RawDataSampleProvider provider;
-    
+
     @Override
     @BeforeMethod
     public final void setUp()
@@ -66,14 +65,14 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         service = context.mock(IProteomicsDataServiceInternal.class);
         provider = new RawDataSampleProvider(service, SESSION_TOKEN);
     }
-    
+
     @Test
     public void testGetHeadersForNoData()
     {
         prepareListRawDataSamples();
-        
+
         List<TableModelColumnHeader> headers = provider.getTableModel(Integer.MAX_VALUE).getHeader();
-        
+
         assertFixedColumns(headers);
         assertEquals(4, headers.size());
         context.assertIsSatisfied();
@@ -86,9 +85,9 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         Sample ms2 = sample("MS2", sample("DE", "gamma", "beta"), "one");
         Sample ms3 = sample("MS3", sample("DE", "gamma", "alpha"), "two");
         prepareListRawDataSamples(ms1, ms2, ms3);
-        
+
         List<TableModelColumnHeader> headers = provider.getTableModel(Integer.MAX_VALUE).getHeader();
-        
+
         assertFixedColumns(headers);
         assertPropertyHeader("one", "USER-ONE", 4, headers);
         assertPropertyHeader("two", "USER-TWO", 5, headers);
@@ -98,18 +97,18 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         assertEquals(9, headers.size());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetOriginalDataForNoData()
     {
         prepareListRawDataSamples();
-        
+
         List<TableModelRowWithObject<Sample>> data = provider.getTableModel(Integer.MAX_VALUE).getRows();
-        
+
         assertEquals(0, data.size());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetOriginalData()
     {
@@ -121,10 +120,10 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         parent.setExperiment(experiment);
         Sample ms3 = sample("MS3", parent, "2");
         prepareListRawDataSamples(ms1, ms2, ms3);
-        
+
         TypedTableModel<Sample> tableModel = provider.getTableModel(Integer.MAX_VALUE);
         List<TableModelRowWithObject<Sample>> data = tableModel.getRows();
-        
+
         assertEquals(3, data.size());
         assertEquals("[null, null, null, null, 2, one, alpha, beta, gamma]", tableModel.getHeader().toString());
         assertRow("MS1, Mon Mar 30 17:18:20 CET 1970, /G/ABC, , , 3, 6, 4, ", data.get(0));
@@ -132,7 +131,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         assertRow("MS3, Mon Mar 30 17:21:40 CET 1970, /G/FG, /G/P/E1, 1, , 5, , 6", data.get(2));
         context.assertIsSatisfied();
     }
-    
+
     private void assertRow(String expectedRow, TableModelRow row)
     {
         StringBuilder builder = new StringBuilder();
@@ -147,14 +146,14 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         }
         assertEquals(expectedRow, builder.toString());
     }
-    
+
     private void assertFixedColumns(List<TableModelColumnHeader> headers)
     {
         assertUntitledHeader(CODE, 0, DataTypeCode.VARCHAR, headers.get(0));
         assertUntitledHeader(REGISTRATION_DATE, 1, DataTypeCode.TIMESTAMP, headers.get(1));
         assertUntitledHeader(PARENT, 2, DataTypeCode.VARCHAR, headers.get(2));
     }
-    
+
     private void assertUntitledHeader(String expectedCode, int expectedIndex,
             DataTypeCode expectedType, TableModelColumnHeader header)
     {
@@ -166,7 +165,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         TableModelColumnHeader header = headers.get(index);
         assertHeader(expectedLabel, expectedCode, index, DataTypeCode.INTEGER, header);
     }
-    
+
     private void assertHeader(String expectedTitle, String expectedCode, int expectedIndex,
             DataTypeCode expectedType, TableModelColumnHeader header)
     {
@@ -175,14 +174,14 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         assertEquals(expectedIndex, header.getIndex());
         assertEquals(expectedType, header.getDataType());
     }
-    
-    private Sample sample(String code, Sample parent, String...properties)
+
+    private Sample sample(String code, Sample parent, String... properties)
     {
         Sample sample = sample(code, properties);
         sample.setGeneratedFrom(parent);
         return sample;
     }
-    
+
     private Sample sample(String code, String... properties)
     {
         Sample sample = new Sample();
@@ -213,7 +212,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         }
         return properties;
     }
-    
+
     private void prepareListRawDataSamples(final Sample... samples)
     {
         context.checking(new Expectations()
@@ -223,7 +222,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
                     List<MsInjectionSample> list = new ArrayList<MsInjectionSample>();
                     for (Sample sample : samples)
                     {
-                        list.add(new MsInjectionSample(sample, Arrays.<AbstractExternalData>asList()));
+                        list.add(new MsInjectionSample(sample, Arrays.<AbstractExternalData> asList()));
                     }
                     will(returnValue(list));
                 }

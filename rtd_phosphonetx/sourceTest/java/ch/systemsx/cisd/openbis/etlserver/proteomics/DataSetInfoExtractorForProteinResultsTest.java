@@ -125,7 +125,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
         assertEquals("[1, 2, 3, 4]", info.getParentDataSetCodes().toString());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testWithProvidedExperimentCode()
     {
@@ -144,11 +144,11 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
                     one(service).registerExperiment(with(any(NewExperiment.class)));
                 }
             });
-        
+
         IDataSetInfoExtractor extractor = createExtractor(properties);
-        
+
         DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
-        
+
         assertEquals("/SPACE1/PROJECT1/MY_EXP1", info.getExperimentIdentifier().toString());
         context.assertIsSatisfied();
     }
@@ -222,13 +222,13 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRegistrationWithMissingMandatoryProperty()
     {
         FileUtilities.writeToFile(protXmlFile, "");
         prepare(DEFAULT_EXPERIMENT_TYPE_CODE);
-        
+
         IDataSetInfoExtractor extractor = createExtractor(new Properties());
         try
         {
@@ -238,10 +238,10 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
         {
             assertEquals("The following mandatory properties are missed: [answer]", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testWithParentDataSetsDefinedByBaseExperimentAndProtXmlFileTooLarge()
     {
@@ -417,7 +417,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
     {
         prepare(experimentType, true);
     }
-    
+
     private void prepare(final String experimentType, final boolean experimentCodeGenerated)
     {
         context.checking(new Expectations()
@@ -461,7 +461,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
                 }
             });
     }
-    
+
     private Map<String, IEntityProperty> asMap(IEntityProperty[] properties)
     {
         Map<String, IEntityProperty> result = new HashMap<String, IEntityProperty>();

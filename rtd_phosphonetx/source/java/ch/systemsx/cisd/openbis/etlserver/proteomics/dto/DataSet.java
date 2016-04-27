@@ -19,18 +19,16 @@ package ch.systemsx.cisd.openbis.etlserver.proteomics.dto;
 import net.lemnik.eodsql.ResultColumn;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataSet extends AbstractDTOWithIDAndPermID
 {
     @ResultColumn("samp_id")
     private Long sampleID;
-    
+
     @ResultColumn("expe_id")
     private Long experimentID;
-    
+
     @ResultColumn("db_id")
     private Long databaseID;
 

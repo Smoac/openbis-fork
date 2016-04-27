@@ -70,7 +70,7 @@ abstract class AbstractSampleHandler extends AbstractHandler
         this.delimiter = delimiter;
         this.restrictedSampleResolving = restrictedSampleResolving;
     }
-    
+
     protected SampleOrError getOrCreateSampleOrError(String sampleNameAndMore)
     {
         int indexOfDelimiter = sampleNameAndMore.indexOf(delimiter);
@@ -140,7 +140,7 @@ abstract class AbstractSampleHandler extends AbstractHandler
         }
         return sample;
     }
-    
+
     protected abstract void handleSample(String parameterName,
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample);
 }

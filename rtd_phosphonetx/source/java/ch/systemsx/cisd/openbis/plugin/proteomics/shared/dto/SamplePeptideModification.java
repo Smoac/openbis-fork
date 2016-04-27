@@ -18,10 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto;
 
 import net.lemnik.eodsql.ResultColumn;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class SamplePeptideModification extends AbstractSample
@@ -30,13 +27,13 @@ public class SamplePeptideModification extends AbstractSample
 
     @ResultColumn("fraction")
     private double fraction;
-    
+
     @ResultColumn("pos")
     private int position;
-    
+
     @ResultColumn("mass")
     private double mass;
-    
+
     @ResultColumn("sequence")
     private String sequence;
 

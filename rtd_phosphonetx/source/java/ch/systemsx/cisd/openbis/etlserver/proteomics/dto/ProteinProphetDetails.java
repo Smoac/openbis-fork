@@ -25,10 +25,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import ch.systemsx.cisd.openbis.etlserver.proteomics.Constants;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @XmlRootElement(name = "proteinprophet_details", namespace = Constants.NAMESPACE)
@@ -36,6 +33,7 @@ import ch.systemsx.cisd.openbis.etlserver.proteomics.Constants;
 public class ProteinProphetDetails
 {
     private String occamFlag;
+
     private List<ProteinSummaryDataFilter> dataFilters;
 
     @XmlAttribute(name = "occam_flag", required = true)

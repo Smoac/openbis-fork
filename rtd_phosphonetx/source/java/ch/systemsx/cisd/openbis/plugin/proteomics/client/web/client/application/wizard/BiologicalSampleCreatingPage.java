@@ -58,12 +58,19 @@ public class BiologicalSampleCreatingPage extends WizardPage<MsInjectionSampleAn
 {
 
     private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
+
     private ClickableFormPanel formPanel;
+
     private SampleTypeSelectionWidget sampleTypeSelectionWidget;
+
     private SampleType sampleType;
+
     private CodeFieldWithGenerator codeField;
+
     private SpaceSelectionWidget spaceSelectionWidget;
+
     private SamplePropertyEditor samplePropertyEditor;
+
     private ExperimentChooserFieldAdaptor experimentField;
 
     private Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions = Collections
@@ -99,19 +106,19 @@ public class BiologicalSampleCreatingPage extends WizardPage<MsInjectionSampleAn
                     }
                 }
             };
-            sampleTypeSelectionWidget.addSelectionChangedListener(new SelectionChangedListener<SampleTypeModel>()
+        sampleTypeSelectionWidget.addSelectionChangedListener(new SelectionChangedListener<SampleTypeModel>()
+            {
+
+                @Override
+                public void selectionChanged(SelectionChangedEvent<SampleTypeModel> se)
                 {
-                    
-                    @Override
-                    public void selectionChanged(SelectionChangedEvent<SampleTypeModel> se)
+                    SampleType sampleTypeOrNull = sampleTypeSelectionWidget.tryGetSelectedSampleType();
+                    if (sampleTypeOrNull != null)
                     {
-                        SampleType sampleTypeOrNull = sampleTypeSelectionWidget.tryGetSelectedSampleType();
-                        if (sampleTypeOrNull != null)
-                        {
-                            onSampleTypeChanged(sampleTypeOrNull);
-                        }
+                        onSampleTypeChanged(sampleTypeOrNull);
                     }
-                });
+                }
+            });
         formPanel.add(sampleTypeSelectionWidget);
         addToRightContent(formPanel, new RowData(1, 600, new Margins(10)));
     }

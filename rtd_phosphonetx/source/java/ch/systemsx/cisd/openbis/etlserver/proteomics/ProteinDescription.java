@@ -62,7 +62,7 @@ final class ProteinDescription
             description = proteinDescription;
         }
     }
-    
+
     private String getAccessionNumber(ProteinAnnotation annotation, long proteinID)
     {
         if (annotation.getSwissprotName() != null)

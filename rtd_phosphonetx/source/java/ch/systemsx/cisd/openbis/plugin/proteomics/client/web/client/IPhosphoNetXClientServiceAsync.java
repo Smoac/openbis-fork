@@ -52,25 +52,24 @@ public interface IPhosphoNetXClientServiceAsync extends IClientServiceAsync
     public void listParentlessMsInjectionSamples(
             DefaultResultSetConfig<String, TableModelRowWithObject<Sample>> criteria,
             AsyncCallback<TypedTableResultSet<Sample>> callback);
-    
+
     /** @see IPhosphoNetXClientService#listBiologicalSamples(DefaultResultSetConfig) */
     public void listBiologicalSamples(
             DefaultResultSetConfig<String, TableModelRowWithObject<Sample>> criteria,
             AsyncCallback<TypedTableResultSet<Sample>> callback);
-    
+
     /** @see IPhosphoNetXClientService#linkSamples(Sample, List) */
     public void linkSamples(Sample parentSample, List<Sample> childSamples, AsyncCallback<Void> callback);
-    
+
     /** @see IPhosphoNetXClientService#createAndLinkSamples(NewSample, List) */
     public void createAndLinkSamples(NewSample newBiologicalSample,
             List<Sample> msInjectionSamples, AsyncCallback<Void> callback);
-    
+
     /** @see IPhosphoNetXClientService#getTreatmentTypeVocabulary() */
     public void getTreatmentTypeVocabulary(AsyncCallback<Vocabulary> callback);
-    
+
     /**
-     * @see IPhosphoNetXClientService#getAbundanceColumnDefinitionsForProteinByExperiment(TechId,
-     *      String)
+     * @see IPhosphoNetXClientService#getAbundanceColumnDefinitionsForProteinByExperiment(TechId, String)
      */
     public void getAbundanceColumnDefinitionsForProteinByExperiment(TechId experimentID,
             String treatmentTypeOrNull,
@@ -93,7 +92,7 @@ public interface IPhosphoNetXClientServiceAsync extends IClientServiceAsync
     public void prepareExportProteinSummary(
             TableExportCriteria<TableModelRowWithObject<ProteinSummary>> exportCriteria,
             AsyncCallback<String> callback);
-    
+
     /** @see IPhosphoNetXClientService#getProteinByExperiment(TechId, TechId) */
     public void getProteinByExperiment(TechId experimentID, TechId proteinReferenceID,
             AsyncCallback<ProteinByExperiment> callback);
@@ -128,11 +127,11 @@ public interface IPhosphoNetXClientServiceAsync extends IClientServiceAsync
     /** @see IPhosphoNetXClientService#listRawDataSamples(IResultSetConfig) */
     public void listRawDataSamples(IResultSetConfig<String, TableModelRowWithObject<Sample>> criteria,
             AsyncCallback<TypedTableResultSet<Sample>> callback);
-    
+
     /** @see IPhosphoNetXClientService#prepareExportRawDataSamples(TableExportCriteria) */
     public void prepareExportRawDataSamples(TableExportCriteria<TableModelRowWithObject<Sample>> exportCriteria,
             AsyncCallback<String> callback);
-    
+
     /** @see IPhosphoNetXClientService#processRawData(String, long[], String) */
     public void processRawData(String dataSetProcessingKey, long[] rawDataSampleIDs, String dataSetType, AsyncCallback<Void> callback);
 }

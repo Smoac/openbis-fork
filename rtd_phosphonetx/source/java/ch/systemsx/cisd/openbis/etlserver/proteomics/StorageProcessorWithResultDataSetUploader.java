@@ -23,8 +23,6 @@ import ch.systemsx.cisd.etlserver.AbstractStrorageProcessorWithUploader;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class StorageProcessorWithResultDataSetUploader extends AbstractStrorageProcessorWithUploader

@@ -24,8 +24,12 @@ package ch.systemsx.cisd.openbis.plugin.proteomics.client.web.client.dto;
 public class ProteinSummaryGridColumnIDs
 {
     public static final String FDR = "FDR";
+
     public static final String PROTEIN_COUNT = "PROTEIN_COUNT";
+
     public static final String PEPTIDE_COUNT = "PEPTIDE_COUNT";
+
     public static final String DECOY_PROTEIN_COUNT = "DECOY_PROTEIN_COUNT";
+
     public static final String DECOY_PEPTIDE_COUNT = "DECOY_PEPTIDE_COUNT";
 }

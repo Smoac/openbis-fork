@@ -32,13 +32,12 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.ProteinSequen
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.Sequence;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class ProteinSequenceTable extends AbstractBusinessObject implements IProteinSequenceTable
 {
     private List<ProteinSequence> proteinSequences;
+
     private Map<Long, String> databaseIDToShortNameMap;
 
     ProteinSequenceTable(IDAOFactory daoFactory, IPhosphoNetXDAOFactory specificDAOFactory,
@@ -56,7 +55,7 @@ class ProteinSequenceTable extends AbstractBusinessObject implements IProteinSeq
         }
         return proteinSequences;
     }
-    
+
     @Override
     public String getShortName(long databaseID)
     {

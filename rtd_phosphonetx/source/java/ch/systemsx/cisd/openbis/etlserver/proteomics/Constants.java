@@ -17,13 +17,11 @@
 package ch.systemsx.cisd.openbis.etlserver.proteomics;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class Constants
 {
     public static final String NAMESPACE = "http://regis-web.systemsbiology.net/protXML";
-    
+
     public static final String SEARCH_SAMPLE_TYPE = "SEARCH";
 }

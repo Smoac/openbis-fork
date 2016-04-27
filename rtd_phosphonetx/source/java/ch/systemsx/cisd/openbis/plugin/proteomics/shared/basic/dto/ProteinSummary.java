@@ -30,13 +30,13 @@ public class ProteinSummary implements Serializable
     private double fdr;
 
     private int proteinCount;
-    
+
     private int decoyProteinCount;
 
     private int peptideCount;
 
     private int decoyPeptideCount;
-    
+
     public double getFDR()
     {
         return fdr;

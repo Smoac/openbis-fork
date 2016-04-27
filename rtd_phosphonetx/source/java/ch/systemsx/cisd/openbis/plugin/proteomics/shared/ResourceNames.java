@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.proteomics.shared;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ResourceNames
@@ -30,11 +28,11 @@ public class ResourceNames
     public final static String PROTEOMICS_PLUGIN_SERVICE = "proteomics-plugin-service";
 
     public final static String PROTEOMICS_PLUGIN_SERVER = "proteomics-plugin-server";
-    
+
     public final static String PROTEOMICS_RAW_DATA_SERVICE_WEB = "proteomics-data-service-web";
-    
+
     public final static String PROTEOMICS_DAO_FACTORY = "proteomics-dao-factory";
-    
+
     public final static String PROTEOMICS_BO_FACTORY = "proteomics-bo-factory";
 
 }

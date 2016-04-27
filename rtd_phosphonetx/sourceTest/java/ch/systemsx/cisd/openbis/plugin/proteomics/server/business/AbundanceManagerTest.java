@@ -34,18 +34,20 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.ProteinReferenceWit
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.ProteinWithAbundances;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class AbundanceManagerTest extends AbstractServerTestCase
 {
     private static final String PERM_ID1 = "s101";
+
     private static final String PERM_ID2 = "s102";
+
     private static final long SAMPLE_ID_A = 42;
+
     private static final long SAMPLE_ID_B = 4711;
-    
+
     private AbundanceManager abundanceManager;
+
     private ISampleProvider sampleProvider;
 
     @Override
@@ -53,7 +55,7 @@ public class AbundanceManagerTest extends AbstractServerTestCase
     public void setUp()
     {
         super.setUp();
-        
+
         sampleProvider = context.mock(ISampleProvider.class);
         abundanceManager = new AbundanceManager(sampleProvider);
     }
@@ -64,7 +66,7 @@ public class AbundanceManagerTest extends AbstractServerTestCase
         assertEquals(0, abundanceManager.getSampleIDs().size());
         assertEquals(0, abundanceManager.getProteinsWithAbundances().size());
     }
-    
+
     @Test
     public void testHandleTwoProteinReferencesButOnlyOneHasAnAbundance()
     {
@@ -82,7 +84,7 @@ public class AbundanceManagerTest extends AbstractServerTestCase
         protein2.setAccessionNumber("abc2");
         protein2.setDescription("abc two");
         abundanceManager.handle(protein2, null);
-        
+
         assertEquals(1, abundanceManager.getSampleIDs().size());
         Collection<ProteinWithAbundances> proteinsWithAbundances = abundanceManager.getProteinsWithAbundances();
         assertEquals(2, proteinsWithAbundances.size());
@@ -101,10 +103,10 @@ public class AbundanceManagerTest extends AbstractServerTestCase
         assertEquals("abc two", p2.getDescription());
         assertEquals("abc2", p2.getAccessionNumber());
         assertEquals(0, p2.getSampleIDs().size());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testHandleProteinReferencesWithManyAbundancesForTwoSamples()
     {
@@ -116,7 +118,7 @@ public class AbundanceManagerTest extends AbstractServerTestCase
 
         abundanceManager.handle(protein1, Arrays.asList(a(PERM_ID1, 1.5), a(PERM_ID1, 2.25), a(
                 PERM_ID2, 42), a(PERM_ID2, 4.75), a(PERM_ID2, 7.5)));
-        
+
         assertEquals(2, abundanceManager.getSampleIDs().size());
         Collection<ProteinWithAbundances> proteinsWithAbundances = abundanceManager.getProteinsWithAbundances();
         assertEquals(1, proteinsWithAbundances.size());
@@ -135,7 +137,7 @@ public class AbundanceManagerTest extends AbstractServerTestCase
         assertEquals(42.0, protein.getAbundancesForSample(SAMPLE_ID_B)[0]);
         assertEquals(4.75, protein.getAbundancesForSample(SAMPLE_ID_B)[1]);
         assertEquals(7.5, protein.getAbundancesForSample(SAMPLE_ID_B)[2]);
-        
+
         context.assertIsSatisfied();
     }
 

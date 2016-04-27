@@ -196,7 +196,7 @@ class ProteinByExperimentBrowserGrid extends TypedTableGrid<ProteinInfo>
     {
         return columnID.toLowerCase();
     }
-    
+
     @Override
     protected List<String> getColumnIdsOfFilters()
     {
@@ -233,8 +233,8 @@ class ProteinByExperimentBrowserGrid extends TypedTableGrid<ProteinInfo>
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { DatabaseModificationKind.createOrDelete(ObjectKind.DATA_SET),
-                    DatabaseModificationKind.edit(ObjectKind.SAMPLE) };
+        { DatabaseModificationKind.createOrDelete(ObjectKind.DATA_SET),
+                DatabaseModificationKind.edit(ObjectKind.SAMPLE) };
     }
 
 }

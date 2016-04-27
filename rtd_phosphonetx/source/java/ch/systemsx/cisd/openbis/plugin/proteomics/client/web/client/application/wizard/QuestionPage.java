@@ -27,14 +27,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.wizard.
 import ch.systemsx.cisd.openbis.plugin.proteomics.client.web.client.IPhosphoNetXClientServiceAsync;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class QuestionPage extends WizardPage<MsInjectionSampleAnnotationModel>
 {
 
     private Radio chooseSampleRadioButton;
+
     private RadioGroup radioGroup;
 
     public QuestionPage(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
@@ -62,6 +61,5 @@ public class QuestionPage extends WizardPage<MsInjectionSampleAnnotationModel>
     {
         model.setChooseBiologicalSampleFlag(radioGroup.getValue().equals(chooseSampleRadioButton));
     }
-    
 
 }

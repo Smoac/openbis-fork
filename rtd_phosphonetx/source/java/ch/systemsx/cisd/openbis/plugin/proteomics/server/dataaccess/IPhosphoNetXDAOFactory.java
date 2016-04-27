@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.proteomics.server.dataaccess;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
-
 /**
  * A factory for PhosphoNetX specific DAOs.
  * 
@@ -27,6 +26,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 public interface IPhosphoNetXDAOFactory
 {
     public IProteinQueryDAO getProteinQueryDAO(TechId experimentID);
-    
+
     public IProteinQueryDAO getProteinQueryDAO(String experimentPermID);
 }

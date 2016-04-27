@@ -31,20 +31,19 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataSetCopier extends AbstractDropboxProcessingPlugin
 {
     private static final long serialVersionUID = 1L;
-    
+
     public DataSetCopier(Properties properties, File storeRoot)
     {
         this(properties, storeRoot, new RsyncCopierFactory(), new SshCommandExecutorFactory());
     }
 
-    @Private DataSetCopier(Properties properties, File storeRoot, IPathCopierFactory pathCopierFactory,
+    @Private
+    DataSetCopier(Properties properties, File storeRoot, IPathCopierFactory pathCopierFactory,
             ISshCommandExecutorFactory sshCommandExecutorFactory)
     {
         super(properties, storeRoot, new LocalAndRemoteCopier(properties, pathCopierFactory,
@@ -57,5 +56,5 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
     {
         return "Copy to " + properties.getProperty(DESTINATION_KEY);
     }
-    
+
 }

@@ -26,14 +26,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class MsInjectionSample
 {
     private final Sample sample;
+
     private final Map<String, AbstractExternalData> latestDataSets = new LinkedHashMap<String, AbstractExternalData>();
+
     private final List<AbstractExternalData> dataSets;
 
     public MsInjectionSample(Sample sample, List<AbstractExternalData> dataSets)
@@ -85,9 +85,7 @@ public class MsInjectionSample
     @Override
     public String toString()
     {
-        return sample.getIdentifier()+":"+latestDataSets;
+        return sample.getIdentifier() + ":" + latestDataSets;
     }
-    
-    
-        
+
 }

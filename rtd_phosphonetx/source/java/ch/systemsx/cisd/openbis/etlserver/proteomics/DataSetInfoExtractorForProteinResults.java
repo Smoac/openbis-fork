@@ -56,17 +56,17 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
 
     static final String NOT_PROCESSED_PROPERTY = "NOT_PROCESSED";
 
-    @Private 
+    @Private
     static final String PROT_XML_SIZE_THRESHOLD = "prot-xml-size-threshold-in-MB";
-    
+
     private static final int DEFAULT_PROT_XML_SIZE_THRESHOLD = 256;
-    
+
     @Private
     static final String EXPERIMENT_TYPE_CODE_KEY = "experiment-type-code";
-    
+
     @Private
     static final String EXPERIMENT_CODE_KEY = "experiment-code";
-    
+
     @Private
     static final String EXPERIMENT_PROPERTIES_FILE_NAME_KEY = "experiment-properties-file-name";
 
@@ -93,7 +93,7 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
     private final String experimentTypeCode;
 
     private final long protXmlSizeThreshold;
-    
+
     public DataSetInfoExtractorForProteinResults(Properties properties)
     {
         this(properties, ServiceProvider.getOpenBISService());
@@ -108,7 +108,7 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
                         DEFAULT_EXPERIMENT_PROPERTIES_FILE_NAME);
         experimentTypeCode =
                 properties.getProperty(EXPERIMENT_TYPE_CODE_KEY, DEFAULT_EXPERIMENT_TYPE_CODE);
-        protXmlSizeThreshold = PropertyUtils.getInt(properties, PROT_XML_SIZE_THRESHOLD, 
+        protXmlSizeThreshold = PropertyUtils.getInt(properties, PROT_XML_SIZE_THRESHOLD,
                 DEFAULT_PROT_XML_SIZE_THRESHOLD) * FileUtils.ONE_MB;
     }
 
@@ -147,7 +147,7 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
         if (fileSize > protXmlSizeThreshold)
         {
             String reason = "Size of prot.xml file " + protXMLFile.getName() + " is with "
-                    + FileUtilities.byteCountToDisplaySize(fileSize) + " too large. Maximum size is " 
+                    + FileUtilities.byteCountToDisplaySize(fileSize) + " too large. Maximum size is "
                     + FileUtilities.byteCountToDisplaySize(protXmlSizeThreshold);
             operationLog.warn(reason);
             properties.setProperty(NOT_PROCESSED_PROPERTY, reason);
@@ -172,8 +172,7 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
     }
 
     /**
-     * Returns data set codes either from the first argument or if <code>null</code> from the data
-     * sets of the specified experiment.
+     * Returns data set codes either from the first argument or if <code>null</code> from the data sets of the specified experiment.
      */
     static ParentDataSetCodes getParentDataSetCodes(String parentDataSetCodesOrNull,
             String baseExperimentIdentifier, IEncapsulatedOpenBISService service)

@@ -25,28 +25,34 @@ import javax.xml.bind.annotation.XmlType;
 
 import ch.systemsx.cisd.openbis.etlserver.proteomics.Constants;
 
-
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @XmlType
 public class Protein extends AnnotatedProtein
 {
     private double probability;
+
     private double coverage;
+
     private int numberOfIndistinguishableProteins;
+
     private String uniqueStrippedPeptides;
+
     private String groupSiblingID;
+
     private int totalNumberOfPeptides;
+
     private String subsumingProtein;
+
     private String fractionOfCorrectPeptideIdentifications;
+
     private List<Parameter> parameters = new ArrayList<Parameter>();
+
     private List<AnnotatedProtein> indistinguishableProteins = new ArrayList<AnnotatedProtein>();
+
     private List<Peptide> peptides;
-    
+
     @XmlAttribute(name = "probability", required = true)
     public final double getProbability()
     {
@@ -201,7 +207,7 @@ public class Protein extends AnnotatedProtein
         {
             builder.append("\n  indistinguishable proteins:");
             for (AnnotatedProtein protein : indistinguishableProteins)
-            {   
+            {
                 builder.append("\n    ").append(protein);
             }
         }

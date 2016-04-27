@@ -45,9 +45,8 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.ProteinSummar
 /**
  * * Service interface for the PhosphoNetX GWT client.
  * <p>
- * Each method should declare throwing {@link UserFailureException}. The authorization framework can
- * throw it when the user has insufficient privileges. If it is not marked, the GWT client will
- * report unexpected exception.
+ * Each method should declare throwing {@link UserFailureException}. The authorization framework can throw it when the user has insufficient
+ * privileges. If it is not marked, the GWT client will report unexpected exception.
  * </p>
  * 
  * @author Franz-Josef Elmer
@@ -57,16 +56,16 @@ public interface IPhosphoNetXClientService extends IClientService
     public TypedTableResultSet<Sample> listParentlessMsInjectionSamples(
             DefaultResultSetConfig<String, TableModelRowWithObject<Sample>> criteria)
             throws UserFailureException;
-    
+
     public TypedTableResultSet<Sample> listBiologicalSamples(
             DefaultResultSetConfig<String, TableModelRowWithObject<Sample>> criteria)
             throws UserFailureException;
-    
+
     public void linkSamples(Sample parentSample, List<Sample> childSamples) throws UserFailureException;
-    
+
     public void createAndLinkSamples(NewSample newBiologicalSample,
             List<Sample> msInjectionSamples) throws UserFailureException;
-    
+
     public Vocabulary getTreatmentTypeVocabulary() throws UserFailureException;
 
     public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(

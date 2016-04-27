@@ -18,10 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto;
 
 import net.lemnik.eodsql.ResultColumn;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class SampleAbundance extends AbstractSample
@@ -30,7 +27,7 @@ public class SampleAbundance extends AbstractSample
 
     @ResultColumn("value")
     private double abundance;
-    
+
     public final double getAbundance()
     {
         return abundance;

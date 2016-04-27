@@ -22,8 +22,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.business.AccessionNumberBuilder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class AccessionNumberBuilderTest extends AssertJUnit
@@ -49,7 +47,7 @@ public class AccessionNumberBuilderTest extends AssertJUnit
         check("", "", "||");
         check("", "", "|");
     }
-    
+
     private void check(String expectedType, String expectedAccessionNumber, String fullAccessionNumber)
     {
         AccessionNumberBuilder builder = new AccessionNumberBuilder(fullAccessionNumber);

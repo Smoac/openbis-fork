@@ -18,10 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto;
 
 import net.lemnik.eodsql.ResultColumn;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class Sequence extends AbstractDTOWithID
@@ -30,10 +27,10 @@ public class Sequence extends AbstractDTOWithID
 
     @ResultColumn("amino_acid_sequence")
     private String sequence;
-    
+
     @ResultColumn("db_id")
     private long databaseID;
-    
+
     @ResultColumn("name_and_version")
     private String databaseNameAndVersion;
 
@@ -66,6 +63,5 @@ public class Sequence extends AbstractDTOWithID
     {
         this.databaseNameAndVersion = databaseNameAndVersion;
     }
-
 
 }

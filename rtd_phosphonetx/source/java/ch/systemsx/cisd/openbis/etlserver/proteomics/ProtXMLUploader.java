@@ -44,11 +44,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 public class ProtXMLUploader implements IDataSetUploader
 {
     private static final String VALIDATING_XML = "validating-xml";
-    
+
     private static final String ASSUMING_EXTENDED_PROT_XML = "assuming-extended-prot-xml";
-    
+
     private static final String MS_INJECTION_SAMPLE_DELIMITER = "delimiter_for_sample_resolving";
-    
+
     private static final String RESTRICTED_SAMPLE_RESOLVING = "restricted_sample_resolving";
 
     private static final String DATABASE_ENGINE = "database.engine";
@@ -85,11 +85,11 @@ public class ProtXMLUploader implements IDataSetUploader
     private final DataSource dataSource;
 
     private final boolean assumingExtendedProtXML;
-    
+
     private final String msInjectionSampleDelimiter;
-    
+
     private final boolean restrictedSampleResolving;
-    
+
     private ResultDataSetUploader currentResultDataSetUploader;
 
     public ProtXMLUploader(Properties properties, IEncapsulatedOpenBISService openbisService)

@@ -21,8 +21,6 @@ import java.io.Serializable;
 import net.lemnik.eodsql.ResultColumn;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ProteinAbundance extends AbstractDTOWithID implements Serializable
@@ -31,7 +29,7 @@ public class ProteinAbundance extends AbstractDTOWithID implements Serializable
 
     @ResultColumn("value")
     private double abundance;
-    
+
     @ResultColumn("perm_id")
     private String samplePermID;
 

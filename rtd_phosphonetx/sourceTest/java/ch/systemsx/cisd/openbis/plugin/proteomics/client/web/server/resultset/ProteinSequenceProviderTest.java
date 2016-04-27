@@ -29,8 +29,6 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.ProteinSequence;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ProteinSequenceProviderTest extends AbstractProviderTest

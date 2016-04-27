@@ -25,10 +25,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import ch.systemsx.cisd.openbis.etlserver.proteomics.Constants;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @XmlRootElement(name = "protein_summary", namespace = Constants.NAMESPACE)
@@ -36,7 +33,9 @@ import ch.systemsx.cisd.openbis.etlserver.proteomics.Constants;
 public class ProteinSummary
 {
     private String summaryXML;
+
     private ProteinSummaryHeader summaryHeader;
+
     private List<ProteinGroup> proteinGroups;
 
     @XmlAttribute(name = "summary_xml")
@@ -71,6 +70,5 @@ public class ProteinSummary
     {
         this.proteinGroups = proteinGroups;
     }
-    
-    
+
 }

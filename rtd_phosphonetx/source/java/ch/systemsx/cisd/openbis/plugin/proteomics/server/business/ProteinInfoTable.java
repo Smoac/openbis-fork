@@ -53,9 +53,10 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.ProteinWithAbundanc
 class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTable
 {
     protected static final Logger operationLog =
-        LogFactory.getLogger(LogCategory.OPERATION, ProteinInfoTable.class);
-    
+            LogFactory.getLogger(LogCategory.OPERATION, ProteinInfoTable.class);
+
     private List<ProteinInfo> infos;
+
     private final ISampleProvider sampleProvider;
 
     ProteinInfoTable(IDAOFactory daoFactory, IPhosphoNetXDAOFactory specificDAOFactory,
@@ -103,7 +104,7 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
                     double[] values = protein.getAbundancesForSample(sampleID);
                     if (values != null && values.length > 0 && aggregateOnOriginal == false)
                     {
-                        values = new double[] {function.aggregate(values)};
+                        values = new double[] { function.aggregate(values) };
                     }
                     abundanceValues = concatenate(abundanceValues, values);
                 }

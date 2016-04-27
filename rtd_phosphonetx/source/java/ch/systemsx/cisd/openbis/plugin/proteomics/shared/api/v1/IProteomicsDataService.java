@@ -45,8 +45,7 @@ public interface IProteomicsDataService extends IRpcService
     public static final String SERVER_URL = "/rmi-" + SERVICE_NAME + "-v1";
 
     /**
-     * Tries to authenticate specified user with specified password. Returns session token if
-     * succeeded otherwise <code>null</code> is returned.
+     * Tries to authenticate specified user with specified password. Returns session token if succeeded otherwise <code>null</code> is returned.
      */
     @Transactional
     public String tryToAuthenticateAtRawDataServer(String userID, String userPassword);
@@ -58,12 +57,11 @@ public interface IProteomicsDataService extends IRpcService
     public void logout(String sessionToken);
 
     /**
-     * Returns all samples of type MS_INJECTION in space MS_DATA which have a parent sample which
-     * the specified user is allowed to read.
+     * Returns all samples of type MS_INJECTION in space MS_DATA which have a parent sample which the specified user is allowed to read.
      */
     @Transactional
     public List<MsInjectionDataInfo> listRawDataSamples(String sessionToken, String userID);
-    
+
     /**
      * Returns all samples of type MS_INJECTION in space MS_DATA which have a parent sample.
      */
@@ -78,9 +76,8 @@ public interface IProteomicsDataService extends IRpcService
             String sessionToken);
 
     /**
-     * Processes the data sets of specified samples by the DSS processing plug-in of specified key
-     * for the specified user. Implementations should check that the specified user is allowed to
-     * read specified samples.
+     * Processes the data sets of specified samples by the DSS processing plug-in of specified key for the specified user. Implementations should
+     * check that the specified user is allowed to read specified samples.
      */
     @Deprecated
     @Transactional
@@ -88,17 +85,15 @@ public interface IProteomicsDataService extends IRpcService
             long[] rawDataSampleIDs, String dataSetType);
 
     /**
-     * Processes the specified data sets by the DSS processing plug-in of specified key for the
-     * specified user. Implementations should check that the specified user is allowed to read
-     * specified data sets.
+     * Processes the specified data sets by the DSS processing plug-in of specified key for the specified user. Implementations should check that the
+     * specified user is allowed to read specified data sets.
      */
     @Transactional
     public void processDataSets(String sessionToken, String userID, String dataSetProcessingKey,
             List<String> dataSetCodes);
 
     /**
-     * Returns all experiments of type <tt>MS_SEARCH</tt> which the specified user is allowed to
-     * read.
+     * Returns all experiments of type <tt>MS_SEARCH</tt> which the specified user is allowed to read.
      */
     @Deprecated
     @Transactional
@@ -119,9 +114,8 @@ public interface IProteomicsDataService extends IRpcService
             long experimentID);
 
     /**
-     * Processes the data sets of specified experiments of type <tt>MS_SEARCH</tt> by the DSS
-     * processing plug-in of specified key for the specified user. It will be checked if the
-     * experiments are of search experiments and if the user is allowed to read them.
+     * Processes the data sets of specified experiments of type <tt>MS_SEARCH</tt> by the DSS processing plug-in of specified key for the specified
+     * user. It will be checked if the experiments are of search experiments and if the user is allowed to read them.
      */
     @Deprecated
     @Transactional
@@ -129,9 +123,8 @@ public interface IProteomicsDataService extends IRpcService
             long[] searchExperimentIDs);
 
     /**
-     * Processes the data sets of specified experiments by the DSS processing plug-in of specified
-     * key for the specified user. It will be checked if the experiments are of specified type and
-     * if the user is allowed to read them.
+     * Processes the data sets of specified experiments by the DSS processing plug-in of specified key for the specified user. It will be checked if
+     * the experiments are of specified type and if the user is allowed to read them.
      */
     @Transactional
     public void processProteinResultDataSets(String sessionToken, String userID,

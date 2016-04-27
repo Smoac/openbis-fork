@@ -43,7 +43,6 @@ public class ViewContext extends AbstractPluginViewContext<IPhosphoNetXClientSer
     {
         return Constants.TECHNOLOGY_NAME;
     }
-    
 
     @Override
     protected IPhosphoNetXClientServiceAsync createClientServiceAsync()

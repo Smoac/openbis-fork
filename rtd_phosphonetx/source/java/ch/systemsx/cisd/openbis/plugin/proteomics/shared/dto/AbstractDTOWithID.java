@@ -21,17 +21,15 @@ import java.io.Serializable;
 import net.lemnik.eodsql.ResultColumn;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 abstract class AbstractDTOWithID implements Serializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     @ResultColumn("id")
     private long id;
-    
+
     public final long getId()
     {
         return id;
@@ -41,6 +39,5 @@ abstract class AbstractDTOWithID implements Serializable
     {
         this.id = id;
     }
-
 
 }

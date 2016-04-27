@@ -26,6 +26,8 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.client.web.client.application.
 public class ProteinSequenceGridColumnIDs
 {
     public static final String SEQUENCE_SHORT_NAME = "SEQUENCE_SHORT_NAME";
+
     public static final String DATABASE_NAME_AND_VERSION = "DATABASE_NAME_AND_VERSION";
+
     public static final String SEQUENCE = "SEQUENCE";
 }

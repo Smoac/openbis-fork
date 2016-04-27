@@ -39,15 +39,14 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.server.dataaccess.IPhosphoNetX
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.AbundanceColumnDefinition;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class AbundanceColumnDefinitionTableTest extends AbstractServerTestCase
 {
     private IPhosphoNetXDAOFactory phosphoNetXDAOFactory;
+
     private AbundanceColumnDefinitionTable table;
-    
+
     @Override
     @BeforeMethod
     public void setUp()
@@ -56,42 +55,42 @@ public class AbundanceColumnDefinitionTableTest extends AbstractServerTestCase
         phosphoNetXDAOFactory = context.mock(IPhosphoNetXDAOFactory.class);
         table = new AbundanceColumnDefinitionTable(daoFactory, phosphoNetXDAOFactory, session);
     }
-    
+
     @Test
     public void testNoAbundanceColumns()
     {
         List<AbundanceColumnDefinition> definitions = table.getSortedAndAggregatedDefinitions(null);
-        
+
         assertEquals(0, definitions.size());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testOneAbundanceColumnWithoutTreatment()
     {
         Sample s1 = createSample(42);
-        
+
         table.add(s1);
         List<AbundanceColumnDefinition> definitions = table.getSortedAndAggregatedDefinitions(null);
-        
+
         assertEquals(1, definitions.size());
         assertEquals(42l, definitions.get(0).getID());
         assertEquals("code-42", definitions.get(0).getSampleCode());
         assertEquals(0, definitions.get(0).getTreatments().size());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testOneAbundanceColumnWithOneTreatment()
     {
         Sample s1 = createSample(42);
         addTreatment(s1, "", "abc");
-        
+
         table.add(s1);
         List<AbundanceColumnDefinition> definitions = table.getSortedAndAggregatedDefinitions(null);
-        
+
         assertEquals(1, definitions.size());
         assertEquals(42l, definitions.get(0).getID());
         assertEquals("code-42", definitions.get(0).getSampleCode());
@@ -99,10 +98,10 @@ public class AbundanceColumnDefinitionTableTest extends AbstractServerTestCase
         assertEquals("pH", definitions.get(0).getTreatments().get(0).getType());
         assertEquals("PH", definitions.get(0).getTreatments().get(0).getTypeCode());
         assertEquals("abc", definitions.get(0).getTreatments().get(0).getValue());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testAbundanceColumnsForTwoSamplesWithSameParent()
     {
@@ -112,11 +111,11 @@ public class AbundanceColumnDefinitionTableTest extends AbstractServerTestCase
         s1.setGeneratedFrom(parent);
         s2.setGeneratedFrom(parent);
         addTreatment(parent, "", "abc");
-        
+
         table.add(s1);
         table.add(s2);
         List<AbundanceColumnDefinition> definitions = table.getSortedAndAggregatedDefinitions(null);
-        
+
         assertEquals(1, definitions.size());
         assertEquals(4711l, definitions.get(0).getID());
         assertEquals("code-4711", definitions.get(0).getSampleCode());
@@ -124,20 +123,20 @@ public class AbundanceColumnDefinitionTableTest extends AbstractServerTestCase
         assertEquals("pH", definitions.get(0).getTreatments().get(0).getType());
         assertEquals("PH", definitions.get(0).getTreatments().get(0).getTypeCode());
         assertEquals("abc", definitions.get(0).getTreatments().get(0).getValue());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     private Sample createSample(long sampleID)
     {
         Sample sample = new Sample();
         sample.setId(sampleID);
         sample.setCode("code-" + sampleID);
         sample.setPermId("abc-" + sampleID);
-        sample.setProperties(Collections.<IEntityProperty>emptyList());
+        sample.setProperties(Collections.<IEntityProperty> emptyList());
         return sample;
     }
-    
+
     private void addTreatment(Sample sample, String type, String value)
     {
         List<IEntityProperty> properties = new ArrayList<IEntityProperty>();
@@ -153,7 +152,7 @@ public class AbundanceColumnDefinitionTableTest extends AbstractServerTestCase
         sampleProperty.setPropertyType(createPropertyType(TREATMENT_VALUE_CODE + type));
         sampleProperty.setValue(value);
         properties.add(sampleProperty);
-        
+
         sample.setProperties(properties);
     }
 
@@ -166,5 +165,5 @@ public class AbundanceColumnDefinitionTableTest extends AbstractServerTestCase
         propertyType.setDataType(dataType);
         return propertyType;
     }
-   
+
 }

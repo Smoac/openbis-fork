@@ -25,20 +25,22 @@ import javax.xml.bind.annotation.XmlType;
 
 import ch.systemsx.cisd.openbis.etlserver.proteomics.Constants;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @XmlType
 public class Peptide
 {
     private String sequence;
+
     private int charge;
+
     private double initialProbability;
+
     private double weight;
+
     private List<Parameter> parameters = new ArrayList<Parameter>();
+
     private List<PeptideModification> modifications = new ArrayList<PeptideModification>();
 
     @XmlAttribute(name = "peptide_sequence", required = true)
@@ -126,6 +128,5 @@ public class Peptide
         builder.append("]");
         return builder.toString();
     }
-    
-    
+
 }

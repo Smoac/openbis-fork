@@ -88,12 +88,12 @@ public abstract class AbstractProteomicsSystemTestCase extends SystemTestCase
     {
         return getBean(ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames.GENERIC_PLUGIN_SERVER);
     }
-    
+
     protected IServiceForDataStoreServer getServiceForDSS()
     {
         return getBean(ch.systemsx.cisd.openbis.generic.shared.ResourceNames.ETL_SERVICE);
     }
-    
+
     protected IProteomicsDataServiceInternal getDataServiceInternal()
     {
         return getBean(Constants.PROTEOMICS_DATA_SERVICE_INTERNAL);

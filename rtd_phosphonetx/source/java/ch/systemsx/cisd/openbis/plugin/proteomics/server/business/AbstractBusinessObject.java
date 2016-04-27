@@ -22,14 +22,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.dataaccess.IPhosphoNetXDAOFactory;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 abstract class AbstractBusinessObject
 {
     private final IDAOFactory daoFactory;
+
     private final IPhosphoNetXDAOFactory specificDAOFactory;
+
     private final Session session;
 
     AbstractBusinessObject(IDAOFactory daoFactory, IPhosphoNetXDAOFactory specificDAOFactory, Session session)
@@ -38,7 +38,7 @@ abstract class AbstractBusinessObject
         this.specificDAOFactory = specificDAOFactory;
         this.session = session;
     }
-    
+
     protected final PersonPE getRegistrator()
     {
         PersonPE registrator = session.tryGetPerson();

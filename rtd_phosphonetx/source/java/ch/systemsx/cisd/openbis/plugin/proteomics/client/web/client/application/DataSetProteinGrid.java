@@ -85,13 +85,13 @@ class DataSetProteinGrid extends TypedTableGrid<DataSetProtein>
         return DataSetProteinGridColumnIDs.FDR.equals(columnID) ? "false_discovery_rate_column"
                 : columnID.toLowerCase();
     }
-    
+
     @Override
     protected List<String> getColumnIdsOfFilters()
     {
         return Arrays.asList();
     }
-    
+
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<DataSetProtein>> resultSetConfig,

@@ -22,8 +22,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.AggregateFunction;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class AggregateFunctionTest extends AssertJUnit
@@ -31,46 +29,46 @@ public class AggregateFunctionTest extends AssertJUnit
     @Test
     public void testMean()
     {
-        assertEquals(42.0, AggregateFunction.MEAN.aggregate(new double[] {42}));
-        assertEquals(42.5, AggregateFunction.MEAN.aggregate(new double[] {42, 43}));
-        assertEquals(44.0, AggregateFunction.MEAN.aggregate(new double[] {42, 42, 48}));
+        assertEquals(42.0, AggregateFunction.MEAN.aggregate(new double[] { 42 }));
+        assertEquals(42.5, AggregateFunction.MEAN.aggregate(new double[] { 42, 43 }));
+        assertEquals(44.0, AggregateFunction.MEAN.aggregate(new double[] { 42, 42, 48 }));
     }
-    
+
     @Test
     public void testMedian()
     {
-        assertEquals(42.0, AggregateFunction.MEDIAN.aggregate(new double[] {42}));
-        assertEquals(42.5, AggregateFunction.MEDIAN.aggregate(new double[] {42, 43}));
-        assertEquals(43.0, AggregateFunction.MEDIAN.aggregate(new double[] {42, 43, 50}));
-        assertEquals(46.5, AggregateFunction.MEDIAN.aggregate(new double[] {42, 43, 50, 59}));
+        assertEquals(42.0, AggregateFunction.MEDIAN.aggregate(new double[] { 42 }));
+        assertEquals(42.5, AggregateFunction.MEDIAN.aggregate(new double[] { 42, 43 }));
+        assertEquals(43.0, AggregateFunction.MEDIAN.aggregate(new double[] { 42, 43, 50 }));
+        assertEquals(46.5, AggregateFunction.MEDIAN.aggregate(new double[] { 42, 43, 50, 59 }));
     }
-    
+
     @Test
     public void testSum()
     {
-        assertEquals(42.0, AggregateFunction.SUM.aggregate(new double[] {42}));
-        assertEquals(85.0, AggregateFunction.SUM.aggregate(new double[] {42, 43}));
+        assertEquals(42.0, AggregateFunction.SUM.aggregate(new double[] { 42 }));
+        assertEquals(85.0, AggregateFunction.SUM.aggregate(new double[] { 42, 43 }));
     }
-    
+
     @Test
     public void testMin()
     {
-        assertEquals(42.0, AggregateFunction.MIN.aggregate(new double[] {42}));
-        assertEquals(42.0, AggregateFunction.MIN.aggregate(new double[] {42, 43}));
+        assertEquals(42.0, AggregateFunction.MIN.aggregate(new double[] { 42 }));
+        assertEquals(42.0, AggregateFunction.MIN.aggregate(new double[] { 42, 43 }));
     }
-    
+
     @Test
     public void testMax()
     {
-        assertEquals(42.0, AggregateFunction.MAX.aggregate(new double[] {42}));
-        assertEquals(43.0, AggregateFunction.MAX.aggregate(new double[] {42, 43}));
+        assertEquals(42.0, AggregateFunction.MAX.aggregate(new double[] { 42 }));
+        assertEquals(43.0, AggregateFunction.MAX.aggregate(new double[] { 42, 43 }));
     }
-    
+
     @Test
     public void testCount()
     {
-        assertEquals(1.0, AggregateFunction.COUNT.aggregate(new double[] {42}));
-        assertEquals(2.0, AggregateFunction.COUNT.aggregate(new double[] {42, 43}));
+        assertEquals(1.0, AggregateFunction.COUNT.aggregate(new double[] { 42 }));
+        assertEquals(2.0, AggregateFunction.COUNT.aggregate(new double[] { 42, 43 }));
     }
-    
+
 }

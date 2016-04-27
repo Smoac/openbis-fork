@@ -19,13 +19,12 @@ package ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto;
 import net.lemnik.eodsql.ResultColumn;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ProteinReferenceWithProbabilityAndPeptide extends ProteinReferenceWithProbability
 {
     private static final long serialVersionUID = 1L;
+
     @ResultColumn("sequence")
     private String peptideSequence;
 

@@ -40,7 +40,7 @@ public class ProteinSamplesSection extends ContentPanel
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
     private IDisposableComponent disposableComponent;
-    
+
     public ProteinSamplesSection(final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
             final TechId proteinReferenceID, IIdAndCodeHolder experimentOrNull)
     {
@@ -71,7 +71,7 @@ public class ProteinSamplesSection extends ContentPanel
         }
         super.onDetach();
     }
-    
+
     IDatabaseModificationObserver tryGetDatabaseModificationObserver()
     {
         return disposableComponent;

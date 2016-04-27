@@ -33,16 +33,16 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.ProteinWithAbundanc
 class AbundanceManager
 {
     private final List<ProteinWithAbundances> proteins = new ArrayList<ProteinWithAbundances>();
-    
+
     private final ISampleProvider sampleProvider;
-    
+
     private final Set<Long> sampleIDs = new TreeSet<Long>();
 
     AbundanceManager(ISampleProvider sampleProvider)
     {
         this.sampleProvider = sampleProvider;
     }
-    
+
     public void handle(ProteinReferenceWithProtein proteinReference, List<ProteinAbundance> listOrNull)
     {
         String accessionNumber = proteinReference.getAccessionNumber();
@@ -63,7 +63,7 @@ class AbundanceManager
             }
         }
     }
-    
+
     private Long getSampleIDOrParentSampleID(String samplePermID)
     {
         Sample sample = sampleProvider.getSample(samplePermID);
@@ -80,6 +80,5 @@ class AbundanceManager
     {
         return sampleIDs;
     }
-
 
 }

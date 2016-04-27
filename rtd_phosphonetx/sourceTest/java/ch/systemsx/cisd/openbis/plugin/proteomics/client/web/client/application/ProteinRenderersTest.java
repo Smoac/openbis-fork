@@ -26,8 +26,6 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.Peptide;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.PeptideModification;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ProteinRenderersTest extends AssertJUnit
@@ -42,7 +40,7 @@ public class ProteinRenderersTest extends AssertJUnit
                 + "color='blue' title='position=42, mass=4.5'>A</font>",
                 ProteinRenderers.renderAminoAcidSymbol('A', 42, 4.5));
     }
-    
+
     @Test
     public void testMarkOccurrencesWithHtml()
     {
@@ -59,7 +57,7 @@ public class ProteinRenderersTest extends AssertJUnit
                 ProteinRenderers.markOccurrencesWithHtml("abcdefghijklmnijkopqrstu",
                         Arrays.asList(p1, p2, p3, p4), 5));
     }
-    
+
     private Peptide peptide(String description)
     {
         Peptide peptide = new Peptide();
@@ -81,6 +79,5 @@ public class ProteinRenderersTest extends AssertJUnit
         }
         return peptide;
     }
-    
 
 }

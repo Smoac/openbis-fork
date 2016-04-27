@@ -24,8 +24,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.ProteinSummary;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ListProteinSummaryByExperimentCriteria extends

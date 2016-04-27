@@ -29,8 +29,6 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.IProteomicsDataServiceI
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.MsInjectionSample;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class ProteomicsDataServiceInternalLogger extends AbstractServerLogger implements
@@ -49,14 +47,14 @@ class ProteomicsDataServiceInternalLogger extends AbstractServerLogger implement
         logAccess(sessionToken, "list_raw_data_samples");
         return null;
     }
-    
+
     @Override
     public List<MsInjectionSample> listAllRawDataSamples(String sessionToken)
     {
         logAccess(sessionToken, "list_all_raw_data_samples");
         return null;
     }
-    
+
     @Override
     public void processRawData(String sessionToken, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType)

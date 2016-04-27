@@ -25,8 +25,6 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.AggregateFunc
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.ProteinInfo;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ListProteinByExperimentCriteria extends
@@ -34,9 +32,13 @@ public class ListProteinByExperimentCriteria extends
         IsSerializable
 {
     private TechId experimentID;
+
     private double falseDiscoveryRate;
+
     private AggregateFunction aggregateFunction;
+
     private String treatmentTypeCode;
+
     private boolean aggregateOriginal;
 
     public final TechId getExperimentID()
@@ -58,7 +60,7 @@ public class ListProteinByExperimentCriteria extends
     {
         this.falseDiscoveryRate = falseDiscoveryRate;
     }
-    
+
     public final AggregateFunction getAggregateFunction()
     {
         return aggregateFunction;
@@ -88,5 +90,5 @@ public class ListProteinByExperimentCriteria extends
     {
         this.aggregateOriginal = aggregateOriginal;
     }
-    
+
 }

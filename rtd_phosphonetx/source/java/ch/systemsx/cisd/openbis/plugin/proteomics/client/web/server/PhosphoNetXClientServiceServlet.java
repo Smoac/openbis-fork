@@ -26,16 +26,14 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.client.web.client.IPhosphoNetX
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.ResourceNames;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Controller
-@RequestMapping({"/proteomics", "/openbis/proteomics"})
+@RequestMapping({ "/proteomics", "/openbis/proteomics" })
 public class PhosphoNetXClientServiceServlet extends GWTRPCServiceExporter
 {
     private static final long serialVersionUID = 1L;
-    
+
     @Resource(name = ResourceNames.PROTEOMICS_PLUGIN_SERVICE)
     private IPhosphoNetXClientService service;
 

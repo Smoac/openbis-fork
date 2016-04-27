@@ -75,15 +75,15 @@ public class PhosphoNetXServerLogger extends AbstractServerLogger implements IPh
                         .getLabel(), treatmentTypeCode, aggregateOnOriginal);
         return null;
     }
-    
+
     @Override
     public List<ProteinSummary> listProteinSummariesByExperiment(String sessionToken,
             TechId experimentId) throws UserFailureException
-            {
+    {
         logAccess(sessionToken, "list_protein_summaries_by_experiment", "EXPERIMENT_ID(%s)",
                 experimentId);
         return null;
-            }
+    }
 
     @Override
     public ProteinByExperiment getProteinByExperiment(String sessionToken, TechId experimentId,

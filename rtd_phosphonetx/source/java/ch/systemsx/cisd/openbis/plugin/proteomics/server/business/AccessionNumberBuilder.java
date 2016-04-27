@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.proteomics.server.business;
 
 /**
  * Parses accession numbers of the form
+ * 
  * <pre>
  * ['DECOY_'][&lt;type&gt;'|']&lt;accession number&gt;['|'&lt;some string&gt;]
  * </pre>
@@ -27,14 +28,13 @@ package ch.systemsx.cisd.openbis.plugin.proteomics.server.business;
 public class AccessionNumberBuilder
 {
     static final String DECOY_PREFIX = "DECOY_";
-    
+
     private static final char SEPARATOR = '|';
 
     private final String typeOrNull;
-    
+
     private final String accessionNumber;
 
-    
     public AccessionNumberBuilder(String fullAccessionNumber)
     {
         int indexOfFirstSeparator = fullAccessionNumber.indexOf(SEPARATOR);
@@ -62,7 +62,7 @@ public class AccessionNumberBuilder
             }
         }
     }
-    
+
     private String addPrefixIfNecessary(String prefix, String string)
     {
         return string.startsWith(prefix) ? string : prefix + string;

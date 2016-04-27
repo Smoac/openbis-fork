@@ -128,7 +128,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
             service.logout(session.getSessionToken());
         }
     }
-    
+
     private List<MsInjectionDataInfo> translateSamples(List<MsInjectionSample> samples)
     {
         ArrayList<MsInjectionDataInfo> result = new ArrayList<MsInjectionDataInfo>();

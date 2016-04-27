@@ -27,9 +27,9 @@ public final class PropertyKey implements Serializable
 {
 
     private static final long serialVersionUID = 1L;
-    
+
     private final String id;
-    
+
     private final String label;
 
     /**
@@ -40,7 +40,7 @@ public final class PropertyKey implements Serializable
         this.id = id;
         this.label = label;
     }
-    
+
     /**
      * Returns the ID.
      */
@@ -48,7 +48,7 @@ public final class PropertyKey implements Serializable
     {
         return id;
     }
-    
+
     /**
      * Returns the label.
      */
@@ -56,7 +56,7 @@ public final class PropertyKey implements Serializable
     {
         return label;
     }
-    
+
     @Override
     public boolean equals(Object obj)
     {
@@ -86,5 +86,5 @@ public final class PropertyKey implements Serializable
     {
         return label + "[" + id + "]";
     }
-    
+
 }

@@ -22,32 +22,46 @@ import javax.xml.bind.annotation.XmlType;
 
 import ch.systemsx.cisd.openbis.etlserver.proteomics.Constants;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @XmlType
 public class ProteinSummaryHeader
 {
     private String referenceDatabase;
+
     private String winReferenceDatabase;
+
     private String residueSubstitutions;
+
     private String organism;
+
     private String sourceFiles;
+
     private String sourceFilesAlternative;
+
     private String winSourceFiles;
+
     private String sourceFileType;
+
     private double minimumPeptideProbability;
+
     private double minimumPeptideWeight;
+
     private double numberOfPredictedCorrectProteins;
+
     private int numberOfInput1Spectra;
+
     private int numberOfInput2Spectra;
+
     private int numberOfInput3Spectra;
+
     private double minimumInitialPeptideProbability;
+
     private double totalEstimatedNumberOfCorrectPeptideAssignments;
+
     private String sampleEnzyme;
+
     private ProgramDetails programDetails;
 
     @XmlAttribute(name = "reference_database", required = true)
@@ -249,6 +263,5 @@ public class ProteinSummaryHeader
     {
         this.programDetails = programDetails;
     }
-    
-    
+
 }

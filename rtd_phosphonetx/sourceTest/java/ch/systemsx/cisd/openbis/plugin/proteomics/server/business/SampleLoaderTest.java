@@ -29,8 +29,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Test(groups = "db")
@@ -61,16 +59,16 @@ public class SampleLoaderTest extends AbstractLoaderTestCase
             builder.append(getSortedProperties(parent)).append('\n');
         }
         assertEquals("3VCP5 [] <- 3V-125 [OFFSET: 49]\n"
-                   + "3VCP7 [COMMENT: test comment, ORGANISM: RAT, SIZE: 4711] <- 3V-125 [OFFSET: 49]\n"
-                   + "3VCP8 [] <- 3V-125 [OFFSET: 49]\n" 
-                   + "CP-TEST-1 [ANY_MATERIAL: 1 (GENE), BACTERIUM: BACTERIUM-X (BACTERIUM), "
-                     + "COMMENT: very advanced stuff, ORGANISM: HUMAN, SIZE: 123] "
-                     + "<- CP-TEST-2 [ANY_MATERIAL: 2 (GENE), BACTERIUM: BACTERIUM-Y (BACTERIUM), "
-                     + "COMMENT: extremely simple stuff, ORGANISM: GORILLA, SIZE: 321]\n"
-                   + "CP1-A1 [] <- DP1-A [OFFSET: 42]\n"
-                   + "CP1-A2 [] <- DP1-A [OFFSET: 42]\n" 
-                   + "CP1-B1 [] <- DP1-B [OFFSET: 42]\n"
-                   + "CP2-A1 [] <- DP2-A [OFFSET: 42]\n", builder.toString());
+                + "3VCP7 [COMMENT: test comment, ORGANISM: RAT, SIZE: 4711] <- 3V-125 [OFFSET: 49]\n"
+                + "3VCP8 [] <- 3V-125 [OFFSET: 49]\n"
+                + "CP-TEST-1 [ANY_MATERIAL: 1 (GENE), BACTERIUM: BACTERIUM-X (BACTERIUM), "
+                + "COMMENT: very advanced stuff, ORGANISM: HUMAN, SIZE: 123] "
+                + "<- CP-TEST-2 [ANY_MATERIAL: 2 (GENE), BACTERIUM: BACTERIUM-Y (BACTERIUM), "
+                + "COMMENT: extremely simple stuff, ORGANISM: GORILLA, SIZE: 321]\n"
+                + "CP1-A1 [] <- DP1-A [OFFSET: 42]\n"
+                + "CP1-A2 [] <- DP1-A [OFFSET: 42]\n"
+                + "CP1-B1 [] <- DP1-B [OFFSET: 42]\n"
+                + "CP2-A1 [] <- DP2-A [OFFSET: 42]\n", builder.toString());
     }
 
 }

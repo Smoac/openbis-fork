@@ -62,17 +62,14 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.AggregateFunc
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.Treatment;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses={AbstractClientService.class, PhosphoNetXClientService.class, CacheManager.class})
+@Friend(toClasses = { AbstractClientService.class, PhosphoNetXClientService.class, CacheManager.class })
 public class PhosphoNetXClientServiceTest extends AbstractFileSystemTestCase
 {
     private static final String SESSION_TOKEN = "session-token";
-    
+
     private static final class SimpleResultSetManager<K> implements IResultSetManager<K>
     {
 
@@ -102,10 +99,11 @@ public class PhosphoNetXClientServiceTest extends AbstractFileSystemTestCase
         public void lockResultSet(K resultSetKey)
         {
         }
-        
+
     }
-    
+
     private Mockery context;
+
     private IPhosphoNetXServer server;
 
     private PhosphoNetXClientService clientService;
@@ -140,7 +138,7 @@ public class PhosphoNetXClientServiceTest extends AbstractFileSystemTestCase
 
                     allowing(httpSession).getAttribute("openbis-session-token");
                     will(returnValue(SESSION_TOKEN));
-                    
+
                     allowing(httpSession).getAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
                     will(returnValue(new SimpleResultSetManager<String>()));
                 }
@@ -165,7 +163,7 @@ public class PhosphoNetXClientServiceTest extends AbstractFileSystemTestCase
     {
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetAbundanceColumnDefinitionsForProteinByExperiment()
     {
@@ -198,7 +196,7 @@ public class PhosphoNetXClientServiceTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testListProteinsByExperiment()
     {
@@ -252,10 +250,10 @@ public class PhosphoNetXClientServiceTest extends AbstractFileSystemTestCase
                     one(server).listProteinsByExperiment(SESSION_TOKEN, experimentID1, fdr1, f1,
                             treatment1, true);
                     will(returnValue(Arrays.asList(p6)));
-                    
+
                 }
             });
-        
+
         listAndCheckProteins(p1, experimentID1, fdr1, f1, treatment1, false);
         listAndCheckProteins(p2, experimentID2, fdr1, f1, treatment1, false);
         listAndCheckProteins(p3, experimentID1, fdr2, f1, treatment1, false);
@@ -270,10 +268,10 @@ public class PhosphoNetXClientServiceTest extends AbstractFileSystemTestCase
         listAndCheckProteins(p6, experimentID1, fdr1, f1, treatment1, true);
         assertEquals("Unexpectd number of files: " + Arrays.asList(cacheFolder.listFiles()), 19,
                 cacheFolder.listFiles().length);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     private void listAndCheckProteins(ProteinInfo protein, TechId experimentId,
             double falseDiscoveryRate, AggregateFunction function, String treatmentTypeCode,
             boolean aggregateOnOriginal)

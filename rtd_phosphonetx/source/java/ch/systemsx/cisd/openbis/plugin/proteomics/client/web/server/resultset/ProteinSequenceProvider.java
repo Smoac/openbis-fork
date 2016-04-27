@@ -37,8 +37,11 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.ProteinSequen
 public class ProteinSequenceProvider extends AbstractTableModelProvider<ProteinSequence>
 {
     private final IPhosphoNetXServer server;
+
     private final String sessionToken;
+
     private final TechId experimentID;
+
     private final TechId proteinReferenceID;
 
     public ProteinSequenceProvider(IPhosphoNetXServer server, String sessionToken,

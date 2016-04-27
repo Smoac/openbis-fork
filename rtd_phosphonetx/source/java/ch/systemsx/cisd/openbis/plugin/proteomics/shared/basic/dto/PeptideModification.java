@@ -28,9 +28,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 public class PeptideModification implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
+
     private int position;
-    
+
     private double mass;
 
     public int getPosition()
@@ -52,6 +52,5 @@ public class PeptideModification implements Serializable
     {
         this.mass = mass;
     }
-    
 
 }

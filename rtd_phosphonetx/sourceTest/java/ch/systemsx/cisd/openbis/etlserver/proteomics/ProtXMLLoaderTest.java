@@ -36,8 +36,6 @@ import ch.systemsx.cisd.openbis.etlserver.proteomics.dto.ProteinSummaryDataFilte
 import ch.systemsx.cisd.openbis.etlserver.proteomics.dto.ProteinSummaryHeader;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ProtXMLLoaderTest extends ProtXMLTestCase
@@ -48,7 +46,7 @@ public class ProtXMLLoaderTest extends ProtXMLTestCase
         File file = new File(workingDirectory, "test.xml");
         FileUtilities.writeToFile(file, EXAMPLE);
         ProteinSummary summary = new ProtXMLLoader(true).readProtXML(file);
-        
+
         ProteinSummaryHeader header = summary.getSummaryHeader();
         assertEquals("some/path/uniprot.HUMAN.v125.fasta", header.getReferenceDatabase());
         ProteinProphetDetails proteinProphet =
@@ -58,7 +56,7 @@ public class ProtXMLLoaderTest extends ProtXMLTestCase
         assertEquals(0.25, dataFilters.get(0).getMinProbability());
         assertEquals(1.0, dataFilters.get(0).getSensitivity());
         assertEquals(0.5, dataFilters.get(0).getFalsePositiveErrorRate());
-        
+
         List<ProteinGroup> groups = summary.getProteinGroups();
         assertEquals(2, groups.size());
         assertEquals(1.0, groups.get(0).getProbability());
@@ -101,7 +99,7 @@ public class ProtXMLLoaderTest extends ProtXMLTestCase
         assertEquals(1, protein2.getPeptides().size());
         assertEquals("YSR", protein2.getPeptides().get(0).getSequence());
         assertEquals(0, protein2.getPeptides().get(0).getModifications().size());
-        
+
         assertEquals(0.75, groups.get(1).getProbability());
         assertEquals(1, groups.get(1).getProteins().size());
         Protein protein = groups.get(1).getProteins().get(0);

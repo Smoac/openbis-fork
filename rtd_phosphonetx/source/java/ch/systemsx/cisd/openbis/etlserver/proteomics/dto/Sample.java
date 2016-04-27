@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.etlserver.proteomics.dto;
 import net.lemnik.eodsql.ResultColumn;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class Sample extends AbstractDTOWithIDAndPermID

@@ -19,21 +19,19 @@ package ch.systemsx.cisd.openbis.etlserver.proteomics.dto;
 import net.lemnik.eodsql.ResultColumn;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class Sequence extends AbstractDTOWithID
 {
     @ResultColumn("database_id")
     private long databaseID;
-    
+
     @ResultColumn("protein_reference_id")
     private long proteinReferenceID;
-    
+
     @ResultColumn("amino_acid_sequence")
     private String sequence;
-    
+
     private String checksum;
 
     // Used by eodsql
@@ -47,7 +45,7 @@ public class Sequence extends AbstractDTOWithID
         setSequence(sequence);
         calculateChecksum();
     }
-    
+
     public final long getDatabaseID()
     {
         return databaseID;
@@ -77,7 +75,7 @@ public class Sequence extends AbstractDTOWithID
     {
         this.sequence = sequence;
     }
-    
+
     public void calculateChecksum()
     {
         if (sequence != null)
@@ -122,6 +120,5 @@ public class Sequence extends AbstractDTOWithID
         return getDatabaseID() + "-" + getProteinReferenceID() + ":" + sequence
                 + "[" + checksum + "]";
     }
-    
-    
+
 }

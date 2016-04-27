@@ -30,8 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class UtilTest extends AssertJUnit
@@ -46,14 +44,14 @@ public class UtilTest extends AssertJUnit
         Properties properties = new Properties();
         properties.setProperty("greetings", "hello");
         properties.setProperty("blabla", "blub");
-        
+
         IEntityProperty[] entityProperties = Util.getAndCheckProperties(properties, entityType);
-        
+
         assertEquals(1, entityProperties.length);
         assertEquals("greetings", entityProperties[0].getPropertyType().getCode());
         assertEquals("hello", entityProperties[0].tryGetAsString());
     }
-    
+
     @Test
     public void testGetAndCheckPropertiesForMissingMandatoryProperty()
     {
@@ -63,7 +61,7 @@ public class UtilTest extends AssertJUnit
         entityType.setSampleTypePropertyTypes(Arrays.asList(etpt1, etpt2));
         Properties properties = new Properties();
         properties.setProperty("greetings", "hello");
-        
+
         try
         {
             Util.getAndCheckProperties(properties, entityType);
@@ -73,7 +71,7 @@ public class UtilTest extends AssertJUnit
             assertEquals("The following mandatory properties are missed: [answer]", ex.getMessage());
         }
     }
-    
+
     private SampleTypePropertyType createETPT(String code, boolean mandatory)
     {
         PropertyType propertyType = new PropertyType();
@@ -84,4 +82,3 @@ public class UtilTest extends AssertJUnit
         return etpt;
     }
 }
-

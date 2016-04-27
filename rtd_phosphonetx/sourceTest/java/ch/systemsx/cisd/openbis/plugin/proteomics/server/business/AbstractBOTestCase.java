@@ -23,15 +23,14 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.server.dataaccess.IPhosphoNetX
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.dataaccess.IProteinQueryDAO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractBOTestCase extends AbstractServerTestCase
 {
     protected IPhosphoNetXDAOFactory specificDAOFactory;
+
     protected IProteinQueryDAO proteinDAO;
-    
+
     @Override
     @BeforeMethod
     public void setUp()

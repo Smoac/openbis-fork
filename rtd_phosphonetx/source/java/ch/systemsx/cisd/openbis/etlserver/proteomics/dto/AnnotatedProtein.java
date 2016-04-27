@@ -22,16 +22,14 @@ import javax.xml.bind.annotation.XmlType;
 
 import ch.systemsx.cisd.openbis.etlserver.proteomics.Constants;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @XmlType
 public class AnnotatedProtein
 {
     protected String name;
+
     protected ProteinAnnotation annotation;
 
     @XmlAttribute(name = "protein_name", required = true)
@@ -39,12 +37,12 @@ public class AnnotatedProtein
     {
         return name;
     }
-    
+
     public final void setName(String name)
     {
         this.name = name;
     }
-    
+
     @XmlElement(name = "annotation", namespace = Constants.NAMESPACE)
     public final ProteinAnnotation getAnnotation()
     {
