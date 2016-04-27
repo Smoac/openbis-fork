@@ -48,7 +48,10 @@ public class JythonEvaluatorSpringComponent
         } else
         {
             String msg =
-                    "The jython-version property must be specified in service.properties - possible values are 2.5 and 2.7. Since openBIS version 16.04 recommended jython version is 2.7.";
+                    "The jython-version property must be specified in service.properties - "
+                    + "possible values are 2.5 and 2.7. Since openBIS version 16.04 recommended jython version is 2.7. "
+                    + "There might be compatibility issues. For details see page 'Jython Version for Various Plugins' "  
+                    + "in openBIS documentation.";
             operationLog.error(msg);
             throw new BeanInitializationException(msg);
         }
