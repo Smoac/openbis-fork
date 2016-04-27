@@ -39,8 +39,7 @@ import ch.systemsx.cisd.bds.v1_0.DataStructureV1_0Test;
 import ch.systemsx.cisd.bds.v1_0.IDataStructureV1_0;
 
 /**
- * Test cases for corresponding {@link DataStructureV1_0} class specific to <i>HCS (High-Content
- * Screening) with Images</i>.
+ * Test cases for corresponding {@link DataStructureV1_0} class specific to <i>HCS (High-Content Screening) with Images</i>.
  * 
  * @author Christian Ribeaud
  */

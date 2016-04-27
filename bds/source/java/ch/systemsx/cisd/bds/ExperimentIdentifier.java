@@ -23,8 +23,8 @@ import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
- * Identifier of the experiment which corresponds to the data. This is an immutable but extendable
- * value object class. An instance of this class allows unique identification in the database.
+ * Identifier of the experiment which corresponds to the data. This is an immutable but extendable value object class. An instance of this class
+ * allows unique identification in the database.
  * 
  * @author Franz-Josef Elmer
  */
@@ -64,8 +64,7 @@ public class ExperimentIdentifier implements IStorable
     private final String experimentCode;
 
     /**
-     * Creates an instance for the specified database instance and codes of space, project and
-     * experiment.
+     * Creates an instance for the specified database instance and codes of space, project and experiment.
      * 
      * @param instanceCode A non-empty string of the instance code.
      * @param spaceCode A non-empty string of the space code.

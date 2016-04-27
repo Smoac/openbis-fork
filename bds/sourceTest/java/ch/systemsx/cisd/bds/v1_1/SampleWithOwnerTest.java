@@ -86,7 +86,7 @@ public final class SampleWithOwnerTest extends AbstractFileSystemTestCase
     public final Object[][] getSampleData()
     {
         return new Object[][]
-            {
+        {
                 { INSTANCE_UUID, INSTANCE_CODE, SPACE_CODE },
                 { INSTANCE_UUID, INSTANCE_CODE, "" }, };
     }

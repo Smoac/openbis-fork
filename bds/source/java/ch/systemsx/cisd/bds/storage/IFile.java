@@ -46,8 +46,7 @@ public interface IFile extends INode
     public String getStringContent();
 
     /**
-     * Returns the content of this file node as a string. Doesn't change line terminating
-     * characters.
+     * Returns the content of this file node as a string. Doesn't change line terminating characters.
      * 
      * @return never <code>null</code> but could return an empty string.
      */

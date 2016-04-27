@@ -56,10 +56,8 @@ public final class Location implements Serializable
     }
 
     /**
-     * For given <var>position</var> in given <code>geometry</code> returns corresponding
-     * <code>Location</code>. Position should be greater than 0.<br>
-     * Assumes that element index grows as column/row numbers grow, so for a 3x2 geometry elements
-     * would be numbered like:<br>
+     * For given <var>position</var> in given <code>geometry</code> returns corresponding <code>Location</code>. Position should be greater than 0.<br>
+     * Assumes that element index grows as column/row numbers grow, so for a 3x2 geometry elements would be numbered like:<br>
      * 1 2 3<br>
      * 4 5 6<br>
      * 
@@ -72,10 +70,8 @@ public final class Location implements Serializable
     }
 
     /**
-     * For given <var>position</var> in given <code>geometry</code> returns corresponding
-     * <code>Location</code>. Position should be greater than 0.<br>
-     * Assumes that element index grows as row/column numbers grow, so for a 3x2 geometry elements
-     * would be numbered like:<br>
+     * For given <var>position</var> in given <code>geometry</code> returns corresponding <code>Location</code>. Position should be greater than 0.<br>
+     * Assumes that element index grows as row/column numbers grow, so for a 3x2 geometry elements would be numbered like:<br>
      * 1 3 5<br>
      * 2 4 6<br>
      * 
@@ -113,8 +109,7 @@ public final class Location implements Serializable
     }
 
     /**
-     * For given matrix <var>coordinate</var> (<strong>which is given in transposed form</strong>)
-     * returns corresponding <code>Location</code>.
+     * For given matrix <var>coordinate</var> (<strong>which is given in transposed form</strong>) returns corresponding <code>Location</code>.
      * 
      * @return <code>null</code> if given <var>coordinate</var> is not a matrix coordinate.
      */
@@ -132,9 +127,8 @@ public final class Location implements Serializable
     }
 
     /**
-     * Do the matrix coordinate conversion for coordinates that are specified this way, but in two
-     * columns. <strong>Note that first the <var>columnCoord</var> is given and then the
-     * <var>rowCoord</var>.
+     * Do the matrix coordinate conversion for coordinates that are specified this way, but in two columns. <strong>Note that first the
+     * <var>columnCoord</var> is given and then the <var>rowCoord</var>.
      * 
      * @return <code>null</code> if given <var>coordinate</var> is not a matrix coordinate.
      */

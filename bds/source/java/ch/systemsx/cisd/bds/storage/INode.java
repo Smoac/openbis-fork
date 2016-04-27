@@ -42,15 +42,15 @@ public interface INode
      * Returns this node as a directory, or <code>null</code>, if this node is no directory.
      */
     public IDirectory tryAsDirectory();
-    
+
     /**
      * Returns this node as a file, or <code>null</code>, if this node is no file.
      */
     public IFile tryAsFile();
-    
+
     /**
-     * Whether this <code>INode</code> is valid. As a minimum, a node needs to exist and be readable
-     * in order to be valid. Sub-classes can define additional requirements of validity.
+     * Whether this <code>INode</code> is valid. As a minimum, a node needs to exist and be readable in order to be valid. Sub-classes can define
+     * additional requirements of validity.
      */
     public boolean isValid();
 
@@ -63,8 +63,7 @@ public interface INode
     public void extractTo(final java.io.File directory);
 
     /**
-     * Moves this node and all descendants to the specified directory of the file system. This node
-     * will be automatically removed from its parent.
+     * Moves this node and all descendants to the specified directory of the file system. This node will be automatically removed from its parent.
      */
     public void moveTo(final java.io.File directory);
 }

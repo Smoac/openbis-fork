@@ -38,8 +38,7 @@ public class Utilities
     /**
      * Returns a subdirectory from the specified directory. If it does not exist it will be created.
      * 
-     * @throws DataStructureException if there is already a node named <code>name</code> but which
-     *             isn't a directory.
+     * @throws DataStructureException if there is already a node named <code>name</code> but which isn't a directory.
      */
     public static IDirectory getOrCreateSubDirectory(final IDirectory directory, final String name)
     {
@@ -103,8 +102,7 @@ public class Utilities
     }
 
     /**
-     * Returns the string content of a file from the specified directory. Doesn't change line
-     * terminating characters to '\n'.
+     * Returns the string content of a file from the specified directory. Doesn't change line terminating characters to '\n'.
      * 
      * @param directory Directory of the requested file.
      * @param name Name of the file.
@@ -119,8 +117,7 @@ public class Utilities
     }
 
     /**
-     * Returns the string content of a file from the specified directory as list of
-     * <code>String</code> objects.
+     * Returns the string content of a file from the specified directory as list of <code>String</code> objects.
      * 
      * @param directory Directory of the requested file.
      * @param name Name of the file.
@@ -155,8 +152,7 @@ public class Utilities
     }
 
     /**
-     * Return the string content of a file from the given <var>directory</var> as boolean (<code>TRUE</code>
-     * or <code>FALSE</code>).
+     * Return the string content of a file from the given <var>directory</var> as boolean (<code>TRUE</code> or <code>FALSE</code>).
      * 
      * @throws DataStructureException If the value of <var>name</var> is not a boolean.
      */
@@ -257,9 +253,8 @@ public class Utilities
     //
 
     /**
-     * A boolean object that uses <code>TRUE</code> and <code>FALSE</code> as text
-     * representation but accepts also <code>true</code> and <code>false</code> when converting
-     * from strings.
+     * A boolean object that uses <code>TRUE</code> and <code>FALSE</code> as text representation but accepts also <code>true</code> and
+     * <code>false</code> when converting from strings.
      */
     public static enum Boolean
     {
@@ -278,11 +273,10 @@ public class Utilities
         }
 
         /**
-         * Converts a string value to a {@link Boolean}. Accepts either <code>true</code>,
-         * <code>TRUE</code>, <code>false</code> or <code>FALSE</code>.
+         * Converts a string value to a {@link Boolean}. Accepts either <code>true</code>, <code>TRUE</code>, <code>false</code> or <code>FALSE</code>
+         * .
          * 
-         * @throws IllegalArgumentException if <var>value</var> is not one of the values listed
-         *             above.
+         * @throws IllegalArgumentException if <var>value</var> is not one of the values listed above.
          */
         public static Boolean fromString(final String value)
         {

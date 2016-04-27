@@ -19,8 +19,7 @@ package ch.systemsx.cisd.bds.storage;
 import java.io.File;
 
 /**
- * A {@link INode} implementation which delegates all the interface method calls to the encapsulated
- * object.
+ * A {@link INode} implementation which delegates all the interface method calls to the encapsulated object.
  * 
  * @author Christian Ribeaud
  */

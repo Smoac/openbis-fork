@@ -25,10 +25,9 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
 
 /**
- * Allows to check consistency of <code>HCS_IMAGE V1.0</code> format. Program will try to find all
- * the problems. If the path provided as an argument is not a readable directory or version is
- * incorrect (directory with version does not exist, cannot be parsed, etc.) - program will stop
- * processing the path complaining only about this basic problem.
+ * Allows to check consistency of <code>HCS_IMAGE V1.0</code> format. Program will try to find all the problems. If the path provided as an argument
+ * is not a readable directory or version is incorrect (directory with version does not exist, cannot be parsed, etc.) - program will stop processing
+ * the path complaining only about this basic problem.
  * 
  * @author Izabela Adamczyk
  */
@@ -41,9 +40,8 @@ public class HCSImageChecker extends AbstractChecker
     }
 
     /**
-     * Entry point. If given BDS structure contains inconsistent HCS_IMAGE data, prints a report
-     * containing all problems found and exits with code <code>1</code>, otherwise exits with
-     * code <code>0</code>.
+     * Entry point. If given BDS structure contains inconsistent HCS_IMAGE data, prints a report containing all problems found and exits with code
+     * <code>1</code>, otherwise exits with code <code>0</code>.
      * 
      * @param args - BDS directory
      */
@@ -65,8 +63,7 @@ public class HCSImageChecker extends AbstractChecker
     }
 
     /**
-     * Returns a {@link ProblemReport} with information about problems with HCS_IMAGE structure
-     * inconsistencies.
+     * Returns a {@link ProblemReport} with information about problems with HCS_IMAGE structure inconsistencies.
      */
     public ProblemReport getHCSImageConsistencyReport(final File bdsDirectory)
     {
@@ -306,7 +303,7 @@ public class HCSImageChecker extends AbstractChecker
         {
             checkFileContainsEnumeration(containerNode, path(METADATA, DATA_SET, OBSERVABLE_TYPE),
                     new String[]
-                        { AbstractChecker.HCS_IMAGE });
+                    { AbstractChecker.HCS_IMAGE });
         } catch (final Exception e)
         {
             problemReport.error(e.getMessage());
@@ -332,7 +329,7 @@ public class HCSImageChecker extends AbstractChecker
         try
         {
             checkFileContainsEnumeration(containerNode, path(METADATA, FORMAT, CODE), new String[]
-                { AbstractChecker.HCS_IMAGE });
+            { AbstractChecker.HCS_IMAGE });
         } catch (final Exception e)
         {
             problemReport.error(e.getMessage());

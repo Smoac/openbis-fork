@@ -27,8 +27,8 @@ import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
- * Entity of measurement or calculation covered by the data. This is an immutable value object
- * class. It extends {@link Sample} with an owner (a database instance OR a space).
+ * Entity of measurement or calculation covered by the data. This is an immutable value object class. It extends {@link Sample} with an owner (a
+ * database instance OR a space).
  * 
  * @author Christian Ribeaud
  */
@@ -47,12 +47,10 @@ public final class SampleWithOwner extends Sample
     private final String instanceUUID;
 
     /**
-     * Creates an instance for the specified {@link Sample}, space code and database instance code
-     * of the sample.
+     * Creates an instance for the specified {@link Sample}, space code and database instance code of the sample.
      * 
      * @param spaceCode A non-<code>null</code> string of the space code. Could be empty.
-     * @param instanceCode A non-<code>null</code> string of the database instance code. Could
-     *            not be empty.
+     * @param instanceCode A non-<code>null</code> string of the database instance code. Could not be empty.
      * @param instanceUUID the database instance <i>UUID</i>. Could not be empty.
      */
     public SampleWithOwner(final Sample sample, final String instanceUUID,
@@ -63,14 +61,11 @@ public final class SampleWithOwner extends Sample
     }
 
     /**
-     * Creates an instance for the specified code, type code, type description, space code and
-     * database instance code of the sample.
+     * Creates an instance for the specified code, type code, type description, space code and database instance code of the sample.
      * 
      * @param spaceCode A non-<code>null</code> string of the space code. Could be empty.
-     * @param instanceCode A non-<code>null</code> string of the database instance code. Could
-     *            not be empty.
-     * @param instanceUUID A non-<code>null</code> string of the database instance <i>UUID</i>.
-     *            Could not be empty.
+     * @param instanceCode A non-<code>null</code> string of the database instance code. Could not be empty.
+     * @param instanceUUID A non-<code>null</code> string of the database instance <i>UUID</i>. Could not be empty.
      */
     public SampleWithOwner(final String code, final String typeCode, final String typeDescription,
             final String instanceUUID, final String instanceCode, final String spaceCode)

@@ -45,12 +45,10 @@ public final class DataStructureV1_1 extends DataStructureV1_0 implements IDataS
     /**
      * Returns the sample with its owner (a space or a database instance).
      * <p>
-     * This is only available in version 1.1. Using this method with data structure version 1.0
-     * throws an exception.
+     * This is only available in version 1.1. Using this method with data structure version 1.0 throws an exception.
      * </p>
      * 
-     * @throws DataStructureException if trying to use this method with data structure of version
-     *             1.0.
+     * @throws DataStructureException if trying to use this method with data structure of version 1.0.
      */
     @Override
     public final SampleWithOwner getSampleWithOwner()
@@ -66,12 +64,10 @@ public final class DataStructureV1_1 extends DataStructureV1_0 implements IDataS
     /**
      * Returns the experiment identifier with the database instance <i>UUID</i>.
      * <p>
-     * This is only available in version 1.1. Using this method with data structure version 1.0
-     * throws an exception.
+     * This is only available in version 1.1. Using this method with data structure version 1.0 throws an exception.
      * </p>
      * 
-     * @throws DataStructureException if trying to use this method with data structure of version
-     *             1.0.
+     * @throws DataStructureException if trying to use this method with data structure of version 1.0.
      */
     @Override
     public final ExperimentIdentifierWithUUID getExperimentIdentifierWithUUID()
@@ -97,12 +93,10 @@ public final class DataStructureV1_1 extends DataStructureV1_0 implements IDataS
     /**
      * Returns the sample.
      * <p>
-     * For backward compatibility, loads a {@link Sample} when no
-     * <code>SampleWithOwner.SPACE_CODE</code> node could be found in sample directory.
+     * For backward compatibility, loads a {@link Sample} when no <code>SampleWithOwner.SPACE_CODE</code> node could be found in sample directory.
      * </p>
      * 
-     * @throws DataStructureException if the sample hasn't be loaded nor hasn't be set by
-     *             {@link #setSample(Sample)}.
+     * @throws DataStructureException if the sample hasn't be loaded nor hasn't be set by {@link #setSample(Sample)}.
      * @return a {@link Sample} or {@link SampleWithOwner} (if v1.1).
      */
     @Override
@@ -152,13 +146,12 @@ public final class DataStructureV1_1 extends DataStructureV1_0 implements IDataS
     /**
      * Returns the experiment identifier.
      * <p>
-     * For backward compatibility, loads a {@link ExperimentIdentifier} when no
-     * <code>ExperimentIdentifierWithUUID.INSTANCE_UUID</code> node could be found in experiment
-     * identifier directory.
+     * For backward compatibility, loads a {@link ExperimentIdentifier} when no <code>ExperimentIdentifierWithUUID.INSTANCE_UUID</code> node could be
+     * found in experiment identifier directory.
      * </p>
      * 
-     * @throws DataStructureException if the experiment identifier hasn't be loaded nor hasn't be
-     *             set by {@link #setExperimentIdentifier(ExperimentIdentifier)}.
+     * @throws DataStructureException if the experiment identifier hasn't be loaded nor hasn't be set by
+     *             {@link #setExperimentIdentifier(ExperimentIdentifier)}.
      * @return a {@link Sample} or {@link SampleWithOwner} (if v1.1).
      */
     @Override

@@ -111,7 +111,7 @@ public final class SampleTest extends EqualsHashCodeTestCase<Sample>
     public final Object[][] getSampleData()
     {
         return new Object[][]
-            {
+        {
                 { "code", "typeDescription" } };
     }
 

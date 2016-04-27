@@ -28,8 +28,8 @@ import ch.systemsx.cisd.common.collections.CollectionIO;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 
 /**
- * Identifier of the data set. This is an immutable but extendable value object class. An instance
- * of this class allows unique identification in the database.
+ * Identifier of the data set. This is an immutable but extendable value object class. An instance of this class allows unique identification in the
+ * database.
  * 
  * @author Christian Ribeaud
  */
@@ -64,8 +64,8 @@ public final class DataSet implements IStorable
     private final String dataSetTypeCode;
 
     /**
-     * Specifies whether the data set has been measured from a sample or whether it has been derived
-     * by means of some calculation from another data set.
+     * Specifies whether the data set has been measured from a sample or whether it has been derived by means of some calculation from another data
+     * set.
      */
     private final Boolean isMeasured;
 
@@ -96,8 +96,7 @@ public final class DataSet implements IStorable
      * @param isMeasured measured or derived.
      * @param productionTimestampOrNull production timestamp or <code>null</code> if unknown.
      * @param producerCodeOrNull producer code (aka "device id") or <code>null</code> if unknown.
-     * @param parentCodesOrNull list of parent data sets. Must be <code>null</code> or empty for
-     *            measured data (or not empty for derived data).
+     * @param parentCodesOrNull list of parent data sets. Must be <code>null</code> or empty for measured data (or not empty for derived data).
      */
     public DataSet(final String code, final String dataSetType, final Boolean isMeasured,
             final Date productionTimestampOrNull, final String producerCodeOrNull,

@@ -30,24 +30,20 @@ public interface IDataStructureV1_1 extends IDataStructureV1_0
     /**
      * Returns the sample with its owner (a space or a database instance).
      * <p>
-     * This is only available in version 1.1. Using this method with data structure version 1.0
-     * throws an exception.
+     * This is only available in version 1.1. Using this method with data structure version 1.0 throws an exception.
      * </p>
      * 
-     * @throws DataStructureException if trying to use this method with data structure of version
-     *             1.0.
+     * @throws DataStructureException if trying to use this method with data structure of version 1.0.
      */
     public SampleWithOwner getSampleWithOwner();
 
     /**
      * Returns the experiment identifier with the database instance <i>UUID</i>.
      * <p>
-     * This is only available in version 1.1. Using this method with data structure version 1.0
-     * throws an exception.
+     * This is only available in version 1.1. Using this method with data structure version 1.0 throws an exception.
      * </p>
      * 
-     * @throws DataStructureException if trying to use this method with data structure of version
-     *             1.0.
+     * @throws DataStructureException if trying to use this method with data structure of version 1.0.
      */
     public ExperimentIdentifierWithUUID getExperimentIdentifierWithUUID();
 

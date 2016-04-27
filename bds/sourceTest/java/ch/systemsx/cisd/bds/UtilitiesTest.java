@@ -152,6 +152,7 @@ public class UtilitiesTest extends AbstractFileSystemTestCase
         assertEquals("TRUE", Utilities.Boolean.TRUE.toString());
         assertEquals("FALSE", Utilities.Boolean.FALSE.toString());
     }
+
     @Test
     public void testBooleanFromString()
     {
@@ -160,17 +161,17 @@ public class UtilitiesTest extends AbstractFileSystemTestCase
         assertEquals(Utilities.Boolean.FALSE, Utilities.Boolean.fromString("FALSE"));
         assertEquals(Utilities.Boolean.FALSE, Utilities.Boolean.fromString("false"));
     }
-    
+
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testBooleanFromStringError()
     {
         Utilities.Boolean.fromString("yes");
     }
-    
+
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testBooleanFromStringNull()
     {
         Utilities.Boolean.fromString(null);
     }
-    
+
 }

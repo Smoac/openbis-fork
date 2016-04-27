@@ -23,11 +23,9 @@ import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
- * A small {@link ExperimentIdentifier} extension which adds the reading/writing of database
- * instance <i>UUID</i>.
+ * A small {@link ExperimentIdentifier} extension which adds the reading/writing of database instance <i>UUID</i>.
  * <p>
- * Does not override {@link #equals(Object)} resp. {@link #hashCode()} methods as equality for this
- * class is based on the same rules.
+ * Does not override {@link #equals(Object)} resp. {@link #hashCode()} methods as equality for this class is based on the same rules.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -39,8 +37,7 @@ public final class ExperimentIdentifierWithUUID extends ExperimentIdentifier
     private final String instanceUUID;
 
     /**
-     * Creates an instance for the specified {@link ExperimentIdentifier} and given database
-     * instance <i>UUID</i>.
+     * Creates an instance for the specified {@link ExperimentIdentifier} and given database instance <i>UUID</i>.
      * 
      * @param instanceUUID A non-empty string of the instance <i>UUID</i>.
      * @param experimentIdentifier A non-<code>null</code> experiment identifier.
@@ -54,8 +51,7 @@ public final class ExperimentIdentifierWithUUID extends ExperimentIdentifier
     }
 
     /**
-     * Creates an instance for the specified database instance and codes of space, project and
-     * experiment.
+     * Creates an instance for the specified database instance and codes of space, project and experiment.
      * 
      * @param instanceCode A non-empty string of the instance code.
      * @param instanceUUID A non-empty string of the instance <i>UUID</i>.

@@ -65,7 +65,7 @@ final class Factory<T>
         try
         {
             constructor = clazz.getConstructor(new Class[]
-                { argumentClass });
+            { argumentClass });
         } catch (final Exception ex1)
         {
             throw new EnvironmentFailureException(clazz
@@ -75,7 +75,7 @@ final class Factory<T>
         try
         {
             return constructor.newInstance(new Object[]
-                { argument });
+            { argument });
         } catch (final InvocationTargetException ex)
         {
             throw new DataStructureException("Couldn't create instance of " + clazz

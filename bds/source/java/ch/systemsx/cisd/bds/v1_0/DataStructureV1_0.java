@@ -138,12 +138,10 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
     }
 
     /**
-     * Returns the formatted data. This method can be called only after method
-     * {@link #setFormat(Format)} has been invoked. If the format is not known
+     * Returns the formatted data. This method can be called only after method {@link #setFormat(Format)} has been invoked. If the format is not known
      * {@link UnknownFormatV1_0} will be assumed.
      * 
-     * @throws DataStructureException if this method has been invoked before the format has been
-     *             set.
+     * @throws DataStructureException if this method has been invoked before the format has been set.
      */
     @Override
     public final IFormattedData getFormattedData() throws DataStructureException
@@ -171,8 +169,7 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
     /**
      * Adds the specified format parameter.
      * 
-     * @throws IllegalArgumentException if they is already a parameter with same name as
-     *             <code>parameter</code>.
+     * @throws IllegalArgumentException if they is already a parameter with same name as <code>parameter</code>.
      */
     public final void addFormatParameter(final FormatParameter formatParameter)
     {
@@ -265,8 +262,7 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
     /**
      * Returns the data set.
      * 
-     * @throws DataStructureException if the data set hasn't be loaded nor hasn't be set by
-     *             {@link #setDataSet(DataSet)}.
+     * @throws DataStructureException if the data set hasn't be loaded nor hasn't be set by {@link #setDataSet(DataSet)}.
      */
     @Override
     public final DataSet getDataSet()

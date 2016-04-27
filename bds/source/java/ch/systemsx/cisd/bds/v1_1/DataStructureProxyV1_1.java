@@ -20,8 +20,7 @@ import ch.systemsx.cisd.bds.v1_0.DataStructureProxyV1_0;
 import ch.systemsx.cisd.bds.v1_0.IDataStructureV1_0;
 
 /**
- * A {@link IDataStructureV1_0} implementation which proxies calls to the encapsulated
- * {@link IDataStructureV1_0}.
+ * A {@link IDataStructureV1_0} implementation which proxies calls to the encapsulated {@link IDataStructureV1_0}.
  * 
  * @author Christian Ribeaud
  */

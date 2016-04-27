@@ -85,7 +85,7 @@ public final class FileTest extends AbstractFileSystemTestCase
         {
             fileOutputStream = new FileOutputStream(file);
             fileOutputStream.write(new byte[]
-                { 1, 2, 3, 4 });
+            { 1, 2, 3, 4 });
         } catch (IOException ex)
         {
             throw ex;

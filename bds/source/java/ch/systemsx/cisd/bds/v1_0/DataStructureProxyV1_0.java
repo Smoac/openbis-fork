@@ -35,8 +35,7 @@ import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
- * A {@link IDataStructureV1_0} implementation which proxies calls to the encapsulated
- * {@link IDataStructureV1_0}.
+ * A {@link IDataStructureV1_0} implementation which proxies calls to the encapsulated {@link IDataStructureV1_0}.
  * 
  * @author Christian Ribeaud
  */

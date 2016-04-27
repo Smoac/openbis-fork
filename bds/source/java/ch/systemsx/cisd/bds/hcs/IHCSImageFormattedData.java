@@ -55,12 +55,11 @@ public interface IHCSImageFormattedData extends IFormattedData
     public Geometry getPlateGeometry();
 
     /**
-     * For given <var>channel</var>, given <var>wellLocation</var> and given <var>tileLocation</var>
-     * returns the corresponding <code>INode</code> (found in <code>data/standard</code> directory).
+     * For given <var>channel</var>, given <var>wellLocation</var> and given <var>tileLocation</var> returns the corresponding <code>INode</code>
+     * (found in <code>data/standard</code> directory).
      * 
-     * @return this could be, for instance, a {@link ILink} pointing to the
-     *         <code>data/original</code> directory or a {@link IFile} that can be extracted
-     *         somewhere. Might return <code>null</code>.
+     * @return this could be, for instance, a {@link ILink} pointing to the <code>data/original</code> directory or a {@link IFile} that can be
+     *         extracted somewhere. Might return <code>null</code>.
      */
     public INode tryGetStandardNodeAt(final int channel, final Location wellLocation,
             final Location tileLocation);
@@ -68,13 +67,11 @@ public interface IHCSImageFormattedData extends IFormattedData
     /**
      * Adds a new image file at given coordinates.
      * 
-     * @param imageRootDirectory the root directory where the image is located. This usually is the
-     *            incoming data set directory.
-     * @param imageRelativePath relative path (to <var>imageRootDirectory</var>) name of the image
-     *            file that is going to be added in the <code>standard</code> directory.
-     * @return the new <code>INode</code> just added (encapsulated in returned <code>NodePath</code>
-     *         ) with its path in the <code>standard</code> directory. Never returns
-     *         <code>null</code>.
+     * @param imageRootDirectory the root directory where the image is located. This usually is the incoming data set directory.
+     * @param imageRelativePath relative path (to <var>imageRootDirectory</var>) name of the image file that is going to be added in the
+     *            <code>standard</code> directory.
+     * @return the new <code>INode</code> just added (encapsulated in returned <code>NodePath</code> ) with its path in the <code>standard</code>
+     *         directory. Never returns <code>null</code>.
      * @throws DataStructureException if a node already exists at given coordinates.
      */
     public NodePath addStandardNode(final File imageRootDirectory, final String imageRelativePath,

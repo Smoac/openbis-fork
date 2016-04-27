@@ -41,7 +41,7 @@ public final class LinkMakerProvider
     private final static IImmutableCopier tryCreateHardLinkMaker()
     {
         final IImmutableCopier copier =
-            FastRecursiveHardLinkMaker.tryCreate(TimingParameters.getDefaultParameters());
+                FastRecursiveHardLinkMaker.tryCreate(TimingParameters.getDefaultParameters());
         if (copier != null)
         {
             return copier;
@@ -52,8 +52,7 @@ public final class LinkMakerProvider
     }
 
     /**
-     * Returns an <code>IPathImmutableCopier</code> implementation which makes <i>hard links</i>
-     * using the underlying <i>operating system</i>.
+     * Returns an <code>IPathImmutableCopier</code> implementation which makes <i>hard links</i> using the underlying <i>operating system</i>.
      */
     public final static IImmutableCopier getLinkMaker()
     {

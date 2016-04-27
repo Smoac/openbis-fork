@@ -27,11 +27,9 @@ import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
 
 /**
- * Allows to check if given BDS directory is consistent regarding definition of data structure
- * <code>V1.0</code>. Program will try to find all problems with the structure. If the path
- * provided as an argument is not a readable directory or version is incorrect (directory with
- * version does not exist, cannot be parsed, is not <code>1.0</code>, etc.) - program will stop
- * processing the path complaining only about this basic problem.
+ * Allows to check if given BDS directory is consistent regarding definition of data structure <code>V1.0</code>. Program will try to find all
+ * problems with the structure. If the path provided as an argument is not a readable directory or version is incorrect (directory with version does
+ * not exist, cannot be parsed, is not <code>1.0</code>, etc.) - program will stop processing the path complaining only about this basic problem.
  * 
  * @author Izabela Adamczyk
  */
@@ -44,8 +42,8 @@ public final class StructureChecker extends AbstractChecker
     }
 
     /**
-     * Entry point. If given BDS structure is inconsistent prints a report containing all problems
-     * found and exits with code <code>1</code>, otherwise exits with code <code>0</code>.
+     * Entry point. If given BDS structure is inconsistent prints a report containing all problems found and exits with code <code>1</code>, otherwise
+     * exits with code <code>0</code>.
      * 
      * @param args - BDS directory
      */
@@ -65,8 +63,7 @@ public final class StructureChecker extends AbstractChecker
     }
 
     /**
-     * Returns a {@link ProblemReport} with information about problems with BDS structure
-     * inconsistencies.
+     * Returns a {@link ProblemReport} with information about problems with BDS structure inconsistencies.
      */
     public final ProblemReport getStructureConsistencyReport(final File bdsDirectory)
     {
@@ -224,7 +221,7 @@ public final class StructureChecker extends AbstractChecker
             checkFileNotEmptyAndTrimmed(dataSet, AbstractChecker.OBSERVABLE_TYPE);
             final Boolean isMeasured = checkFileContainsBoolean(dataSet, IS_MEASURED);
             checkFileContainsEnumeration(dataSet, IS_COMPLETE, new String[]
-                { TRUE, FALSE, UNKNOWN });
+            { TRUE, FALSE, UNKNOWN });
             checkParentCodes(dataSet, isMeasured);
         } catch (final Exception e)
         {

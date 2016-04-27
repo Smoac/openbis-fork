@@ -36,8 +36,7 @@ public final class HCSImageFormatV1_0 extends Format
     public static final String FORMAT_CODE = "HCS_IMAGE";
 
     /**
-     * Flag ({@link Boolean#TRUE} or {@link Boolean#FALSE}) specifying whether the data directory
-     * contains the original data or not.
+     * Flag ({@link Boolean#TRUE} or {@link Boolean#FALSE}) specifying whether the data directory contains the original data or not.
      */
     public final static String CONTAINS_ORIGINAL_DATA = "contains_original_data";
 
@@ -47,9 +46,8 @@ public final class HCSImageFormatV1_0 extends Format
     public final static String NUMBER_OF_CHANNELS = "number_of_channels";
 
     /**
-     * Boolean flag specifying whether the items in the incoming folder are just a symbolic links to
-     * the original data. In this case we do not move any data. Instead we create symbolic link to
-     * original data which points to the same place as the link in incoming directory.<br>
+     * Boolean flag specifying whether the items in the incoming folder are just a symbolic links to the original data. In this case we do not move
+     * any data. Instead we create symbolic link to original data which points to the same place as the link in incoming directory.<br>
      * If this parameter is not present we assume that it has false value.
      */
     public final static String IS_INCOMING_SYMBOLIC_LINK = "incoming_items_are_symbolic_link";
@@ -63,17 +61,16 @@ public final class HCSImageFormatV1_0 extends Format
     public final static String DEFAULT_FILE_EXTENSION = "tiff";
 
     /**
-     * The format parameters that must be defined so that this implementation is able to work
-     * properly.
+     * The format parameters that must be defined so that this implementation is able to work properly.
      * <p>
      * These parameters are located in <code>metadata/parameters</code>.
      * </p>
      */
     private final static String[] MANDATORY_FORMAT_PARAMETERS = new String[]
-        { WellGeometry.WELL_GEOMETRY, NUMBER_OF_CHANNELS, CONTAINS_ORIGINAL_DATA };
+    { WellGeometry.WELL_GEOMETRY, NUMBER_OF_CHANNELS, CONTAINS_ORIGINAL_DATA };
 
     private final static String[] OPTIONAL_FORMAT_PARAMETERS = new String[]
-        { IS_INCOMING_SYMBOLIC_LINK, IMAGE_FILE_EXTENSION };
+    { IS_INCOMING_SYMBOLIC_LINK, IMAGE_FILE_EXTENSION };
 
     /**
      * The one and only one instance.

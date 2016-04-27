@@ -23,8 +23,7 @@ import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
- * Entity of measurement or calculation covered by the data. This is an immutable value object
- * class.
+ * Entity of measurement or calculation covered by the data. This is an immutable value object class.
  * 
  * @author Franz-Josef Elmer
  */

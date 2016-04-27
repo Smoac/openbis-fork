@@ -23,8 +23,7 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.INode;
 
 /**
- * A customized <code>IFormatParameterFactory</code> implementation suitable for <i>HCS
- * (High-Content Screening) with Images</i>.
+ * A customized <code>IFormatParameterFactory</code> implementation suitable for <i>HCS (High-Content Screening) with Images</i>.
  * 
  * @author Christian Ribeaud
  */

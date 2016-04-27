@@ -27,8 +27,7 @@ import ch.systemsx.cisd.bds.storage.hdf5.HDF5Storage;
 /**
  * Loader for {@link IDataStructure}s from the file system.
  * <p>
- * Use {@link DataStructureFactory} to get an instance of {@link IDataStructure} appropriate for the
- * version found.
+ * Use {@link DataStructureFactory} to get an instance of {@link IDataStructure} appropriate for the version found.
  * </p>
  * 
  * @author Franz-Josef Elmer
@@ -38,8 +37,7 @@ public final class DataStructureLoader
     private final File baseDir;
 
     /**
-     * Creates an instance for the specified base directory where all data structures to be loaded
-     * have to exist.
+     * Creates an instance for the specified base directory where all data structures to be loaded have to exist.
      */
     public DataStructureLoader(final File baseDir)
     {
@@ -51,8 +49,7 @@ public final class DataStructureLoader
     /**
      * Loads the data structure with specified name. Validates the structure on request.
      * 
-     * @return an unmodifiable {@link IDataStructure} (opened in {@link Mode#READ_ONLY READ_ONLY}
-     *         mode).
+     * @return an unmodifiable {@link IDataStructure} (opened in {@link Mode#READ_ONLY READ_ONLY} mode).
      */
     public final IDataStructure load(final String name, boolean validate)
     {

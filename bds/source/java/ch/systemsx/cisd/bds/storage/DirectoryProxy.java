@@ -21,8 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * A {@link IDirectory} implementation which getDirectory()s all the interface method calls to the
- * encapsulated object.
+ * A {@link IDirectory} implementation which getDirectory()s all the interface method calls to the encapsulated object.
  * 
  * @author Christian Ribeaud
  */

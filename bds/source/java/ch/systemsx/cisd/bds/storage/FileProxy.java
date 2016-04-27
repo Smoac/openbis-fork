@@ -20,8 +20,7 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- * A {@link IFile} implementation which delegates all the interface method calls to the encapsulated
- * object.
+ * A {@link IFile} implementation which delegates all the interface method calls to the encapsulated object.
  * 
  * @author Christian Ribeaud
  */

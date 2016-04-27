@@ -65,8 +65,7 @@ public final class DataStructureFactory
     }
 
     /**
-     * Returns the class of the object returned after invoking
-     * {@link #createDataStructure(IStorage, Version)}.
+     * Returns the class of the object returned after invoking {@link #createDataStructure(IStorage, Version)}.
      * 
      * @param version Version of the data structure.
      * @throws DataStructureException if no data structure can be created for the specified version.
@@ -81,8 +80,7 @@ public final class DataStructureFactory
      * 
      * @param storage Storage behind the data structure.
      * @param version Version of the data structure to be created.
-     * @throws EnvironmentFailureException found data structure class has not an appropriated
-     *             constructor.
+     * @throws EnvironmentFailureException found data structure class has not an appropriated constructor.
      * @throws DataStructureException if no data structure can be created for the specified version.
      */
     public final static IDataStructure createDataStructure(final IStorage storage,
@@ -115,10 +113,8 @@ public final class DataStructureFactory
     //
 
     /**
-     * This {@link InvocationHandler} allows calls for methods that have not been specified in
-     * <code>NO_PROXIED_METHODS</code>, only if
-     * {@link IDataStructure#open(ch.systemsx.cisd.bds.IDataStructure.Mode)} or
-     * {@link IDataStructure#create()} has been called before.
+     * This {@link InvocationHandler} allows calls for methods that have not been specified in <code>NO_PROXIED_METHODS</code>, only if
+     * {@link IDataStructure#open(ch.systemsx.cisd.bds.IDataStructure.Mode)} or {@link IDataStructure#create()} has been called before.
      * 
      * @author Christian Ribeaud
      */
@@ -127,7 +123,7 @@ public final class DataStructureFactory
         private final T dataStructure;
 
         private final static String[] NO_PROXIED_METHODS =
-            { "isOpenOrCreated", "create", "open", "getVersion", "hashCode", "equals", "toString" };
+        { "isOpenOrCreated", "create", "open", "getVersion", "hashCode", "equals", "toString" };
 
         DataStructureProxy(final T dataStructure)
         {
@@ -135,8 +131,7 @@ public final class DataStructureFactory
         }
 
         /**
-         * Asserts that this {@link IDataStructure} is already opened or created otherwise a
-         * {@link IllegalStateException} is thrown.
+         * Asserts that this {@link IDataStructure} is already opened or created otherwise a {@link IllegalStateException} is thrown.
          */
         private final void assertOpenOrCreated()
         {

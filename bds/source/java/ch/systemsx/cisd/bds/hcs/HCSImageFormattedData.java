@@ -36,8 +36,7 @@ import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.bds.v1_0.DataStructureV1_0;
 
 /**
- * {@link IFormattedData} implementation for <i>HCS (High-Content Screening) with Images</i>. It is
- * associated with {@link HCSImageFormatV1_0}.
+ * {@link IFormattedData} implementation for <i>HCS (High-Content Screening) with Images</i>. It is associated with {@link HCSImageFormatV1_0}.
  * 
  * @author Christian Ribeaud
  */
@@ -202,8 +201,7 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
     }
 
     /**
-     * From given <var>wellLocation</var> creates the leaf file name that is found in
-     * <code>data/standard</code>.
+     * From given <var>wellLocation</var> creates the leaf file name that is found in <code>data/standard</code>.
      */
     final static String createWellFileName(final Location wellLocation, String imageFileExtension)
     {

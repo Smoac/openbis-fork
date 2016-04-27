@@ -33,9 +33,8 @@ import ch.systemsx.cisd.bds.storage.INode;
 public class Format implements IStorable
 {
     /**
-     * Optional boolean flag specifying whether checksums for each original file should be computed
-     * and saved (it takes CPU and disk resources). True by default. Not saved explicitly in the
-     * structure.
+     * Optional boolean flag specifying whether checksums for each original file should be computed and saved (it takes CPU and disk resources). True
+     * by default. Not saved explicitly in the structure.
      */
     public static final String COMPUTE_FILE_CHECKSUMS = "compute_file_checksums";
 
@@ -133,8 +132,7 @@ public class Format implements IStorable
     private final String variant;
 
     /**
-     * Creates a new instance based on the specified format code, format variant (optional), and
-     * version.
+     * Creates a new instance based on the specified format code, format variant (optional), and version.
      */
     public Format(final String code, final Version version, final String variantOrNull)
     {
@@ -182,8 +180,7 @@ public class Format implements IStorable
     /**
      * Returns an unmodifiable list of mandatory parameters that are specific to this format.
      * <p>
-     * They can be found in <code>metadata/parameters</code> directory. Default implementation
-     * returns an empty list.
+     * They can be found in <code>metadata/parameters</code> directory. Default implementation returns an empty list.
      * </p>
      */
     public List<String> getMandatoryParameterNames()

@@ -39,13 +39,13 @@ public class NodeFactoryTest extends AbstractFileSystemTestCase
     {
         TimingParameters.setDefault(TimingParameters.createNoRetries(500L));
     }
-    
+
     @AfterTest
     public void afterTest()
     {
         TimingParameters.setDefault(TimingParameters.getStandardParameters());
     }
-    
+
     @Test
     public void testCreateFileNode()
     {

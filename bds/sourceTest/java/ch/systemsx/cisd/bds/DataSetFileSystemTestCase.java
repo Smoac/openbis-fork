@@ -119,7 +119,7 @@ public final class DataSetFileSystemTestCase extends AbstractFileSystemTestCase
     public final Object[][] getDataSetData()
     {
         return new Object[][]
-            {
+        {
                 { "producerCode", new Date(0) },
                 { null, null },
                 { "", null } };

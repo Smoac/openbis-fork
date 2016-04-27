@@ -24,8 +24,8 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 /**
  * A channel is composed of only one child: <code>wavelength</code>.
  * <p>
- * Each channel has its <code>counter</code> which uniquely identifies it. It implements
- * {@link Comparable} based on the <code>wavelength</code> value.
+ * Each channel has its <code>counter</code> which uniquely identifies it. It implements {@link Comparable} based on the <code>wavelength</code>
+ * value.
  * </p>
  * 
  * @author Christian Ribeaud

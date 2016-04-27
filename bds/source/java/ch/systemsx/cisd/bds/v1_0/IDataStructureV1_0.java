@@ -105,8 +105,8 @@ public interface IDataStructureV1_0 extends IDataStructure
     /**
      * Returns the experiment identifier.
      * 
-     * @throws DataStructureException if the experiment identifier hasn't be loaded nor hasn't be
-     *             set by {@link #setExperimentIdentifier(ExperimentIdentifier)}.
+     * @throws DataStructureException if the experiment identifier hasn't be loaded nor hasn't be set by
+     *             {@link #setExperimentIdentifier(ExperimentIdentifier)}.
      */
     public ExperimentIdentifier getExperimentIdentifier();
 
@@ -132,8 +132,7 @@ public interface IDataStructureV1_0 extends IDataStructure
     /**
      * Returns the sample.
      * 
-     * @throws DataStructureException if the sample hasn't be loaded nor hasn't be set by
-     *             {@link #setSample(Sample)}.
+     * @throws DataStructureException if the sample hasn't be loaded nor hasn't be set by {@link #setSample(Sample)}.
      */
     public Sample getSample();
 }
