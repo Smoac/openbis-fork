@@ -26,9 +26,9 @@ import ch.systemsx.cisd.base.utilities.AbstractBuildAndEnvironmentInfo;
 public class BuildAndEnvironmentInfo extends AbstractBuildAndEnvironmentInfo
 {
     private final static String ANT_TASKS = "ant-tasks";
-    
+
     public final static BuildAndEnvironmentInfo INSTANCE = new BuildAndEnvironmentInfo();
-    
+
     private BuildAndEnvironmentInfo()
     {
         super(ANT_TASKS);

@@ -72,7 +72,7 @@ public class GatherRevisionAndVersionTask extends Property
     {
         this.cleanProperty = cleanProperty;
     }
-    
+
     /**
      * Sets the project names explicitly.
      */

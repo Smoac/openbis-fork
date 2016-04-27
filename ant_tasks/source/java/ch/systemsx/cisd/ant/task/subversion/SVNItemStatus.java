@@ -20,8 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The status information for one item in a subversion working copy (as returned by
- * {@link ISVNStatus}.
+ * The status information for one item in a subversion working copy (as returned by {@link ISVNStatus}.
  * 
  * @author Bernd Rinn
  */

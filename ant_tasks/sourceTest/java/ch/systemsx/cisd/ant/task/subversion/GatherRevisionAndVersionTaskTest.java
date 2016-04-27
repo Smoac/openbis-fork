@@ -300,7 +300,7 @@ public class GatherRevisionAndVersionTaskTest
             return ".." + File.separator + name;
         }
     }
-    
+
     private static class SVNLibraryProject extends SVNProject
     {
         SVNLibraryProject(String name)
@@ -360,7 +360,7 @@ public class GatherRevisionAndVersionTaskTest
     //
 
     @Test(expectedExceptions =
-        { BuildException.class })
+    { BuildException.class })
     public void testVersionOrRevisionIsSet()
     {
         System.out.println("testVersionOrRevisionIsSet()");

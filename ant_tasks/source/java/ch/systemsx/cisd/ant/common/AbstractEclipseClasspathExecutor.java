@@ -28,7 +28,6 @@ import org.apache.tools.ant.Task;
 public abstract class AbstractEclipseClasspathExecutor
 {
 
-
     public void executeFor(Task task)
     {
         File baseDir = task.getProject().getBaseDir();

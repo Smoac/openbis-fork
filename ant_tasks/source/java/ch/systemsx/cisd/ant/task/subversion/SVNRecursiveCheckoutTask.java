@@ -32,9 +32,8 @@ import ch.systemsx.cisd.ant.common.StringUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * An <code>ant</code> task that allows to recursively check out a project that follows the CISD
- * project dependency rules. It is distinguished between <code>trunk</code> and <code>tag</code>
- * mode.
+ * An <code>ant</code> task that allows to recursively check out a project that follows the CISD project dependency rules. It is distinguished between
+ * <code>trunk</code> and <code>tag</code> mode.
  * <p>
  * In <code>trunk</code> we assume the following subversion layout:
  * 
@@ -46,11 +45,9 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  * .../&lt;dependent_projectname2&gt;/trunk
  * </pre>
  * 
- * where the <code>&lt;dependent_projectname&lt;n&gt;&gt;</code> are referenced from
- * <code>.../&lt;projectname&gt;/trunk/.classpath</code>.
+ * where the <code>&lt;dependent_projectname&lt;n&gt;&gt;</code> are referenced from <code>.../&lt;projectname&gt;/trunk/.classpath</code>.
  * <p>
- * For releases we assume the following layout in <code>tag</code> mode (applies to both tags and
- * branches) :
+ * For releases we assume the following layout in <code>tag</code> mode (applies to both tags and branches) :
  * 
  * <pre>
  * .../&lt;projectname&gt;/tags/&lt;versiontemplate&gt;/&lt;detailedversion&gt;/&lt;projectname&gt;
@@ -60,8 +57,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  * .../&lt;projectname&gt;/tags/&lt;versiontemplate&gt;/&lt;detailedversion&gt;/&lt;dependent_projectname2&gt;
  * </pre>
  * 
- * For our regularly sprint releases we only tag the version and do not create a branch of it. For
- * this we have the following structure:
+ * For our regularly sprint releases we only tag the version and do not create a branch of it. For this we have the following structure:
  * 
  * <pre>
  * .../&lt;projectname&gt;/tags/sprint/S&lt;sprintnumber&gt;/&lt;projectname&gt;
@@ -85,8 +81,8 @@ public class SVNRecursiveCheckoutTask extends Task
     private final AntTaskSimpleLoggerAdapter LOGGER = new AntTaskSimpleLoggerAdapter(this);
 
     /**
-     * The set of projects that have already been checked out. We need to keep track of it, because
-     * the same project can be referenced from several other projects.
+     * The set of projects that have already been checked out. We need to keep track of it, because the same project can be referenced from several
+     * other projects.
      */
     private final Set<String> projectsAlreadyCheckedOut = new HashSet<String>();
 
@@ -99,8 +95,7 @@ public class SVNRecursiveCheckoutTask extends Task
     private final SVNRepositoryProjectContext context = new SVNRepositoryProjectContext();
 
     /**
-     * A class that checks the classpath entries on whether they require a checkout of a new
-     * project.
+     * A class that checks the classpath entries on whether they require a checkout of a new project.
      * 
      * @author Bernd Rinn
      */
@@ -253,8 +248,7 @@ public class SVNRecursiveCheckoutTask extends Task
     }
 
     /**
-     * Sets the root url of the subversion repository. Defaults to
-     * <code>svn+ssh://svncisd.ethz.ch/repos</code>.
+     * Sets the root url of the subversion repository. Defaults to <code>svn+ssh://svncisd.ethz.ch/repos</code>.
      */
     public void setRepositoryRoot(final String repositoryRoot)
     {
@@ -349,11 +343,9 @@ public class SVNRecursiveCheckoutTask extends Task
     /**
      * Sets the version to <var>versionName</var>.
      * <p>
-     * If <code>versionName == "trunk"</code>, the version will be the trunk. If
-     * <var>versionName</var> fits into the release branch schema, it will be interpreted as a
-     * release branch, if it fits into a release tag schema, it will be interpreted as a release
-     * tag. If it fits into a sprint tag, it will be interpreted as a sprint tag. In all other cases
-     * the version will be interpreted as a feature branch.
+     * If <code>versionName == "trunk"</code>, the version will be the trunk. If <var>versionName</var> fits into the release branch schema, it will
+     * be interpreted as a release branch, if it fits into a release tag schema, it will be interpreted as a release tag. If it fits into a sprint
+     * tag, it will be interpreted as a sprint tag. In all other cases the version will be interpreted as a feature branch.
      */
     public void setVersion(final String versionName)
     {

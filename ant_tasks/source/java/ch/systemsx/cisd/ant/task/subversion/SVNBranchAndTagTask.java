@@ -29,8 +29,8 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * An ant task that allows branching of projects with all dependent projects (using Eclipse'
- * <code>.classpath</code> file to find out about the dependencies).
+ * An ant task that allows branching of projects with all dependent projects (using Eclipse' <code>.classpath</code> file to find out about the
+ * dependencies).
  * 
  * @author Bernd Rinn
  */
@@ -264,8 +264,7 @@ public class SVNBranchAndTagTask extends Task
     /**
      * Copies a project with all dependencies from the source to the destination.
      * 
-     * @param copyKind If the destination is a branch or a tag, this string is only used for log
-     *            messages!
+     * @param copyKind If the destination is a branch or a tag, this string is only used for log messages!
      */
     private static void copyDependentProjectInSvn(final ISVNActions svn,
             final SVNRepositoryProjectContextAntWrapper source,

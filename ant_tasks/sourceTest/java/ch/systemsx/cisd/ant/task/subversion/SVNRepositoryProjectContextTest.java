@@ -265,7 +265,7 @@ public class SVNRepositoryProjectContextTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void testIllegalTag1()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
@@ -273,7 +273,7 @@ public class SVNRepositoryProjectContextTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void testIllegalTag2()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
@@ -281,7 +281,7 @@ public class SVNRepositoryProjectContextTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void testIllegalTag3()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
@@ -289,7 +289,7 @@ public class SVNRepositoryProjectContextTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void testIllegalTag4()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
@@ -297,7 +297,7 @@ public class SVNRepositoryProjectContextTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void testIllegalTag5()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
@@ -305,7 +305,7 @@ public class SVNRepositoryProjectContextTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void testIllegalTag6()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
@@ -313,7 +313,7 @@ public class SVNRepositoryProjectContextTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void testIllegalTag7()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
@@ -321,31 +321,31 @@ public class SVNRepositoryProjectContextTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void testIllegalTag8()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
         def.setReleaseTag("s1.x");
     }
-    
+
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void testIllegalReleaseTag9()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
         def.setReleaseTag("S42");
     }
-    
+
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void testIllegalSprintTag1()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
         def.setSprintTag("1.1");
     }
-    
+
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void testIllegalSprintTag2()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
@@ -353,15 +353,15 @@ public class SVNRepositoryProjectContextTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void testIllegalSprintTag3()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
         def.setSprintTag("s42");
     }
-    
+
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void testIllegalBranch1()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
@@ -369,7 +369,7 @@ public class SVNRepositoryProjectContextTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void testIllegalBranch2()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
@@ -377,7 +377,7 @@ public class SVNRepositoryProjectContextTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void testIllegalBranch3()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
@@ -385,7 +385,7 @@ public class SVNRepositoryProjectContextTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void testIllegalBranch4()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
@@ -393,7 +393,7 @@ public class SVNRepositoryProjectContextTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void testIllegalBranch5()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
@@ -401,7 +401,7 @@ public class SVNRepositoryProjectContextTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void testIllegalBranch6()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
@@ -409,7 +409,7 @@ public class SVNRepositoryProjectContextTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void testIllegalBranch7()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
@@ -417,15 +417,15 @@ public class SVNRepositoryProjectContextTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void testIllegalBranch8()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
         def.setReleaseBranch("s1.0");
     }
-    
+
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void testIllegalBranch9()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
@@ -440,7 +440,7 @@ public class SVNRepositoryProjectContextTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void testMissingNameInGetUrl()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();

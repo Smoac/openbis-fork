@@ -25,8 +25,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Helper class which reads an Eclipse <code>.classpath</code> file and returns a list of
- * {@link EclipseClasspathEntry} instances for each <code>&lt;classpathentry&gt;</code> found.
+ * Helper class which reads an Eclipse <code>.classpath</code> file and returns a list of {@link EclipseClasspathEntry} instances for each
+ * <code>&lt;classpathentry&gt;</code> found.
  * 
  * @author felmer
  */
@@ -36,8 +36,7 @@ public class EclipseClasspathReader
     public static final String CLASSPATH_FILE = ".classpath";
 
     /**
-     * Name of the shadow dependencies file that has the same syntax as a classpath file and can be
-     * used to specify additional dependencies.
+     * Name of the shadow dependencies file that has the same syntax as a classpath file and can be used to specify additional dependencies.
      */
     public static final String SHADOW_DEPENDENCIES_FILE = ".shadow_dependencies";
 

@@ -29,13 +29,15 @@ import ch.systemsx.cisd.ant.task.subversion.SVNUtilities.ProcessInfo;
 class SVNInfoRecordExtractor
 {
     private static final String LAST_CHANGED_DATE = "Last Changed Date";
+
     private static final String LAST_CHANGED_REV = "Last Changed Rev";
+
     private static final String LAST_CHANGED_AUTHOR = "Last Changed Author";
 
     private static interface ValueHandler
     {
         public void handle(SVNInfoRecord record, String key, String value);
-        
+
         public void commit(SVNInfoRecord record);
     }
 
@@ -52,14 +54,14 @@ class SVNInfoRecordExtractor
                 first = false;
             }
         }
-        
+
         @Override
         public void commit(SVNInfoRecord record)
         {
         }
 
         protected abstract void update(Updater updater, String key, String value);
-        
+
     }
 
     private static final class PathHandler extends FirstValueHandler
@@ -110,16 +112,16 @@ class SVNInfoRecordExtractor
     private static final class LastChangedHandler implements ValueHandler
     {
         private String lastChangedAuthor;
-        
+
         private int lastChangedRev;
-        
+
         private String lastChangedDate;
 
         private LastChangedHandler()
         {
             reset();
         }
-        
+
         @Override
         public void handle(SVNInfoRecord record, String key, String value)
         {
@@ -166,7 +168,7 @@ class SVNInfoRecordExtractor
             lastChangedDate = null;
             lastChangedRev = -1;
         }
-        
+
         @Override
         public void commit(SVNInfoRecord record)
         {

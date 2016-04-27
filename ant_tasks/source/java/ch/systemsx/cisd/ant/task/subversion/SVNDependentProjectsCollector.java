@@ -29,8 +29,8 @@ import ch.systemsx.cisd.ant.common.RecursiveProjectTraverser;
 import ch.systemsx.cisd.ant.common.TextBasedEclipseClasspathLocation;
 
 /**
- * A class which collects all dependent projects of a project path in subversion (including the
- * project itself), following the dependencies specified by Eclipse' <code>.classpath</code> files.
+ * A class which collects all dependent projects of a project path in subversion (including the project itself), following the dependencies specified
+ * by Eclipse' <code>.classpath</code> files.
  * <p>
  * Works on both a subversion repository or working copy.
  * 
@@ -45,8 +45,7 @@ class SVNDependentProjectsCollector
     private final boolean librariesOneByOne;
 
     /**
-     * Creates a new instance for the specified project URL and factory for actions on the
-     * Subversion repository.
+     * Creates a new instance for the specified project URL and factory for actions on the Subversion repository.
      */
     public SVNDependentProjectsCollector(ISVNProjectPathProvider pathProvider, ISVNActions actions,
             boolean librariesOneByOne)
@@ -60,8 +59,7 @@ class SVNDependentProjectsCollector
     }
 
     /**
-     * @return The set of projects that the project in <var>projectUrl</var> depends on (including
-     *         itself).
+     * @return The set of projects that the project in <var>projectUrl</var> depends on (including itself).
      * @throws SVNException If there is a problem performing a <code>svn cat</code> command.
      */
     public Set<String> collectDependentProjectsFromClasspath() throws SVNException

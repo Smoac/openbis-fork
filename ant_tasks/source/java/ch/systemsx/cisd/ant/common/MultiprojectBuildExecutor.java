@@ -25,8 +25,7 @@ import java.util.Map;
 /**
  * <ul>
  * <li>analyzes the dependency graph for a given starting (root) project</li>
- * <li>sorts the graph topologically (i.e. in a sequence where every project only depends on
- * projects preceding it)</li>
+ * <li>sorts the graph topologically (i.e. in a sequence where every project only depends on projects preceding it)</li>
  * <li>Iterates over the sorted list and calls the method {@link #executeProjectBuild(File)}</li>
  * </ul>
  * <p>
@@ -63,7 +62,6 @@ public abstract class MultiprojectBuildExecutor
             executeProjectBuild(baseDir);
         }
     }
-
 
     protected File getProjectBaseDir(EclipseClasspathEntry entry)
     {

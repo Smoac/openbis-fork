@@ -176,7 +176,7 @@ public class SVNRecursiveCheckoutTaskTest
     public Object[][] getRepositoryUrl()
     {
         return new Object[][]
-            {
+        {
                 { "http://somehost/somerepos", "projectWithClasspath", false },
                 { "http://somehost/somerepos/trunk", "projectWithClasspath", true } };
     }
@@ -333,7 +333,7 @@ public class SVNRecursiveCheckoutTaskTest
     }
 
     @Test(expectedExceptions =
-        { BuildException.class })
+    { BuildException.class })
     public void testSetInvalidRevision()
     {
         final SVNRecursiveCheckoutTask task = new SVNRecursiveCheckoutTask();

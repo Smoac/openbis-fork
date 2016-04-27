@@ -63,7 +63,7 @@ public class AntTaskSimpleLoggerAdapter implements ISimpleLogger
     {
         log(level, message, null);
     }
-    
+
     @Override
     public void log(LogLevel level, String message, Throwable throwableOrNull)
     {

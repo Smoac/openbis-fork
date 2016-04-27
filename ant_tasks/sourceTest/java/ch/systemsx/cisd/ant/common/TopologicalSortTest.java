@@ -39,9 +39,9 @@ public class TopologicalSortTest extends AssertJUnit
         graph.put("openbis", Arrays.asList("common", "server-common"));
         graph.put("dss", Arrays.asList("openbis", "server-common", "common"));
         graph.put("screening", Arrays.asList("openbis", "dss"));
-        
+
         List<String> sorted = TopologicalSort.sort(graph);
-        
+
         assertEquals(Arrays.asList("common", "server-common", "openbis", "dss", "screening"),
                 sorted);
     }
@@ -54,7 +54,7 @@ public class TopologicalSortTest extends AssertJUnit
         graph.put("A", Arrays.asList("B"));
         graph.put("B", Arrays.asList("C"));
         graph.put("C", Arrays.asList("A"));
-        
+
         TopologicalSort.sort(graph);
     }
 }

@@ -349,8 +349,8 @@ public class SVNBranchAndTagTaskTest
                 StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName,
                         "branches/release"), "/");
         final String releaseTagsUrl =
-            StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName,
-                    "tags/release"), "/");
+                StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName,
+                        "tags/release"), "/");
         listMap.put(releaseBranchesUrl, Collections.singletonList(branchName + "/"));
         listMap.put(releaseTagsUrl, Collections.singletonList(branchName + "/"));
         final Map<String, String> catMap = new HashMap<String, String>();
@@ -370,8 +370,8 @@ public class SVNBranchAndTagTaskTest
         task.setReleaseTag(tagName);
         task.execute();
         final String tagUrlSuper =
-            StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName,
-                    "tags/release", branchName), "/");
+                StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName,
+                        "tags/release", branchName), "/");
         final String tagUrl =
                 StringUtils.join(Arrays.asList(tagUrlSuper, tagName), "/");
         final String branchUrl =
@@ -424,8 +424,8 @@ public class SVNBranchAndTagTaskTest
                 StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName,
                         "branches/sprint", branchName), "/");
         final String targetSuperUrl =
-            StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName,
-                    "tags/sprint", branchName), "/");
+                StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName,
+                        "tags/sprint", branchName), "/");
         final String targetUrl =
                 StringUtils.join(Arrays.asList(targetSuperUrl, tagName), "/");
         final String logMessage = "Create tag '" + tagName + "'";
@@ -512,7 +512,7 @@ public class SVNBranchAndTagTaskTest
     }
 
     @Test(expectedExceptions =
-        { BuildException.class })
+    { BuildException.class })
     public void testCreateSprintBranchAndTagButTagDoesntStartBranch()
     {
         final String repositoryRoot = "http://host/repos";
@@ -552,7 +552,7 @@ public class SVNBranchAndTagTaskTest
     }
 
     @Test(expectedExceptions =
-        { BuildException.class })
+    { BuildException.class })
     public void testCreateSprintTagAlreadyExisting()
     {
         final String repositoryRoot = "http://host/repos";
@@ -583,7 +583,7 @@ public class SVNBranchAndTagTaskTest
     }
 
     @Test(expectedExceptions =
-        { BuildException.class })
+    { BuildException.class })
     public void testCreateReleaseTagWithBranchMissing()
     {
         final String repositoryRoot = "http://host/repos";
@@ -629,8 +629,8 @@ public class SVNBranchAndTagTaskTest
                 StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName,
                         "branches/release"), "/");
         final String tagsBranchesUrl =
-            StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName,
-                    "tags/release"), "/");
+                StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName,
+                        "tags/release"), "/");
         listMap.put(releaseBranchesUrl, Collections.<String> emptyList());
         listMap.put(tagsBranchesUrl, Collections.singletonList(branchName + "/"));
         final Map<String, String> catMap = new HashMap<String, String>();
@@ -678,7 +678,7 @@ public class SVNBranchAndTagTaskTest
     }
 
     @Test(expectedExceptions =
-        { BuildException.class })
+    { BuildException.class })
     public void testCreateReleaseTagWithBranchCreationButIllegalTag()
     {
         final String repositoryRoot = "http://host/repos";

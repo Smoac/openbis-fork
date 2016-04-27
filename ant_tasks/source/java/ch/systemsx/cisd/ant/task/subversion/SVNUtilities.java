@@ -146,8 +146,8 @@ class SVNUtilities
     }
 
     /**
-     * Returns the project name part of a path. If the project is in libraries, then the project
-     * name will contain the next level of the directory, e.g. <code>libraries/activation</code>.
+     * Returns the project name part of a path. If the project is in libraries, then the project name will contain the next level of the directory,
+     * e.g. <code>libraries/activation</code>.
      */
     static String getProjectName(final String path)
     {
@@ -160,8 +160,8 @@ class SVNUtilities
     }
 
     /**
-     * @return The parent directory of the subversion repository <var>urlPath</var>, or
-     *         <code>null</code>, if the <var>urlPath</var> does not have a parent directory.
+     * @return The parent directory of the subversion repository <var>urlPath</var>, or <code>null</code>, if the <var>urlPath</var> does not have a
+     *         parent directory.
      */
     static String getParent(final String urlPath)
     {
@@ -179,8 +179,7 @@ class SVNUtilities
     }
 
     /**
-     * @return The <var>url</var> with all trailing slashes removed and all multiple slashes
-     *         replaced with single ones.
+     * @return The <var>url</var> with all trailing slashes removed and all multiple slashes replaced with single ones.
      */
     static String normalizeUrl(final String url)
     {
@@ -224,8 +223,7 @@ class SVNUtilities
     /**
      * Checks whether the <var>name</var> is valid.
      * 
-     * @throws UserFailureException If <var>projectName</var> is invalid. <var>typeOfName</var> is
-     *             used to create a meaningful error message.
+     * @throws UserFailureException If <var>projectName</var> is invalid. <var>typeOfName</var> is used to create a meaningful error message.
      */
     private static void checkName(final String name, final String typeOfName,
             final boolean slashAllowed) throws UserFailureException
