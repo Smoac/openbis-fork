@@ -109,8 +109,7 @@ public final class ClassUtils
     }
 
     /**
-     * Returns <code>true</code>, if the <var>clazz</var> has a constructor with the given
-     * <var>arguments</var>.
+     * Returns <code>true</code>, if the <var>clazz</var> has a constructor with the given <var>arguments</var>.
      */
     public final static <C> boolean hasConstructor(final Class<C> clazz, final Object... arguments)
     {
@@ -128,8 +127,7 @@ public final class ClassUtils
      * 
      * @param superClazz Super class <code>className</code> has to be implemented or extended.
      * @param clazz Fully-qualified class.
-     * @param arguments Optional constructor arguments. If <code>(Object[])</code> is an empty
-     *            array, then the default constructor will be used.
+     * @param arguments Optional constructor arguments. If <code>(Object[])</code> is an empty array, then the default constructor will be used.
      * @return an instance of type <code>interface</code>.
      */
     public final static <T, C> T create(final Class<T> superClazz, final Class<C> clazz,
@@ -180,10 +178,8 @@ public final class ClassUtils
      * 
      * @param superClazz Super class <code>className</code> has to be implemented or extended.
      * @param className Fully-qualified class name.
-     * @param arguments Optional constructor arguments. If <code>(Object[]) null</code> then
-     *            the empty constructor will be used. Note that <code>(Object) null</code> is not
-     *            interpreted as <code>null</code> arguments but rather as
-     *            <code>new Object[]{null}</code>.
+     * @param arguments Optional constructor arguments. If <code>(Object[]) null</code> then the empty constructor will be used. Note that
+     *            <code>(Object) null</code> is not interpreted as <code>null</code> arguments but rather as <code>new Object[]{null}</code>.
      * @return an instance of type <code>interface</code>.
      */
     public final static <T> T create(final Class<T> superClazz, final String className,
@@ -295,12 +291,10 @@ public final class ClassUtils
     }
 
     /**
-     * Sets declared field named <var>fieldName</var> of given <var>object</var> to given new value
-     * <var>newValue</var>.
+     * Sets declared field named <var>fieldName</var> of given <var>object</var> to given new value <var>newValue</var>.
      * <p>
-     * This is useful when you want to set a <code>private</code> field on which you do not have
-     * access. Note that this method should only be used in very special cases. You should consider
-     * it as a hack.
+     * This is useful when you want to set a <code>private</code> field on which you do not have access. Note that this method should only be used in
+     * very special cases. You should consider it as a hack.
      * </p>
      * 
      * @return a <code>true</code> if <code>fieldName</code> has been modified.
@@ -373,8 +367,7 @@ public final class ClassUtils
     }
 
     /**
-     * Lists all the classes in the given <var>packageName</var> that passes the given
-     * {@link IClassFilter}.
+     * Lists all the classes in the given <var>packageName</var> that passes the given {@link IClassFilter}.
      * <p>
      * This method does not work recursively.
      * </p>
@@ -447,7 +440,7 @@ public final class ClassUtils
     private final static List<File> listClasses(final File packageFile)
     {
         return (List<File>) FileUtils.listFiles(packageFile, new String[]
-            { "class" }, false);
+        { "class" }, false);
     }
 
     private final static List<String> listEntries(final JarFile jarFile, final String packageName)

@@ -76,8 +76,7 @@ public class HardLinkMaker implements IFileImmutableCopier
     }
 
     /**
-     * Creates copier trying to find the path to the <code>ln</code> executable. Uses default timing
-     * parameters.
+     * Creates copier trying to find the path to the <code>ln</code> executable. Uses default timing parameters.
      * 
      * @return <code>null</code> if the <code>ln</code> executable was not found.
      * @see TimingParameters#getDefaultParameters()
@@ -93,8 +92,7 @@ public class HardLinkMaker implements IFileImmutableCopier
     }
 
     /**
-     * Creates copier which is able to retry the operation of creating the hard link of a file if it
-     * does not complete after a specified timeout.
+     * Creates copier which is able to retry the operation of creating the hard link of a file if it does not complete after a specified timeout.
      * 
      * @param lnExec The executable of the 'ln' program.
      * @param timingParameters The timing parameters to use when monitoring the call to 'ln'.
@@ -106,8 +104,8 @@ public class HardLinkMaker implements IFileImmutableCopier
     }
 
     /**
-     * Creates copier which is able to retry the operation of creating the hard link of a file if it
-     * does not complete after a specified timeout. Uses default timing parameters.
+     * Creates copier which is able to retry the operation of creating the hard link of a file if it does not complete after a specified timeout. Uses
+     * default timing parameters.
      * 
      * @param lnExec The executable of the 'ln' program.
      * @see TimingParameters#getDefaultParameters()

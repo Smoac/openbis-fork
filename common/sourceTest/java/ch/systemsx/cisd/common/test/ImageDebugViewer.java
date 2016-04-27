@@ -37,7 +37,6 @@ import javax.swing.JPanel;
 
 import ch.systemsx.cisd.common.image.ImageHistogram;
 
-
 /**
  * Helper class to view {@link BufferedImage} instances when debugging.
  *
@@ -45,13 +44,13 @@ import ch.systemsx.cisd.common.image.ImageHistogram;
  */
 public class ImageDebugViewer
 {
-    private static final String[] IMAGE_TYPES = {"TYPE_CUSTOM", "TYPE_INT_RGB", "TYPE_INT_ARGB",
-        "TYPE_INT_ARGB_PRE", "TYPE_INT_BGR", "TYPE_3BYTE_BGR", "TYPE_4BYTE_ABGR", 
-        "TYPE_4BYTE_ABGR_PRE", "TYPE_USHORT_565_RGB", "TYPE_USHORT_555_RGB", "TYPE_BYTE_GRAY",
-        "TYPE_USHORT_GRAY", "TYPE_BYTE_BINARY", "TYPE_BYTE_INDEXED"};
+    private static final String[] IMAGE_TYPES = { "TYPE_CUSTOM", "TYPE_INT_RGB", "TYPE_INT_ARGB",
+            "TYPE_INT_ARGB_PRE", "TYPE_INT_BGR", "TYPE_3BYTE_BGR", "TYPE_4BYTE_ABGR",
+            "TYPE_4BYTE_ABGR_PRE", "TYPE_USHORT_565_RGB", "TYPE_USHORT_555_RGB", "TYPE_BYTE_GRAY",
+            "TYPE_USHORT_GRAY", "TYPE_BYTE_BINARY", "TYPE_BYTE_INDEXED" };
 
     public static boolean debug = true;
-    
+
     public static void view(String title, final BufferedImage image)
     {
         if (debug == false)
@@ -117,7 +116,7 @@ public class ImageDebugViewer
         panel.add(saveButton, BorderLayout.EAST);
         JOptionPane.showMessageDialog(null, panel);
     }
-    
+
     private static void printDebugInfo(String title, BufferedImage image)
     {
         System.out.println("/--------- " + title);
@@ -142,7 +141,7 @@ public class ImageDebugViewer
         System.out.println("color space: " + colorSpace);
         for (int i = 0; i < colorSpace.getNumComponents(); i++)
         {
-            System.out.println("color space: " + colorSpace.getName(i) 
+            System.out.println("color space: " + colorSpace.getName(i)
                     + ": [" + colorSpace.getMinValue(i) + ", " + colorSpace.getMaxValue(i) + "]");
         }
         try
@@ -156,7 +155,7 @@ public class ImageDebugViewer
         }
         System.out.println("\\_________ " + title);
     }
-    
+
     public static String tryGetTypeAsString(BufferedImage image)
     {
         int type = image.getType();

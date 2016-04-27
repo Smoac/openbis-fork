@@ -23,8 +23,8 @@ import java.util.Formatter;
 import ch.rinn.restrictions.Private;
 
 /**
- * A generator for (pseudo-)random session tokens. It uses the lower half of a time stamp and adds a
- * 128 bit pseudo-random number. Tokens are returned in hexadecimal format.
+ * A generator for (pseudo-)random session tokens. It uses the lower half of a time stamp and adds a 128 bit pseudo-random number. Tokens are returned
+ * in hexadecimal format.
  * 
  * @author Bernd Rinn
  */
@@ -46,8 +46,7 @@ public final class TokenGenerator implements Serializable
     }
 
     /**
-     * @param timeStamp The time stamp (in milli-seconds since start of the epoch) to base token
-     *            generation on.
+     * @param timeStamp The time stamp (in milli-seconds since start of the epoch) to base token generation on.
      * @param separator the character to separate timestamp from the rest of the token
      * @return A new (pseudo-)random session token in hex format.
      */

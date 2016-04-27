@@ -20,11 +20,9 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 
 /**
- * An <code>ISimpleLogger</code> implementation which sends an email (via logger) when the number of
- * log errors reaches a given number.
+ * An <code>ISimpleLogger</code> implementation which sends an email (via logger) when the number of log errors reaches a given number.
  * <p>
- * Note that this class sends one and only one notification email. To reset the state of this class,
- * use {@link #reset(String)}.
+ * Note that this class sends one and only one notification email. To reset the state of this class, use {@link #reset(String)}.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -40,11 +38,9 @@ public final class ConditionalNotificationLogger extends Log4jSimpleLogger
     private boolean notified;
 
     /**
-     * @param log4jLogger The (normal, e.g. non-notify) logger that is called when
-     *            <var>ignoredErrorCountBeforeNotification</var> is not reached yet.
+     * @param log4jLogger The (normal, e.g. non-notify) logger that is called when <var>ignoredErrorCountBeforeNotification</var> is not reached yet.
      * @param notificationLog logger that is conditionally called.
-     * @param ignoredErrorCountBeforeNotification the number of errors that are ignored before
-     *            sending a notification email.
+     * @param ignoredErrorCountBeforeNotification the number of errors that are ignored before sending a notification email.
      */
     public ConditionalNotificationLogger(final Logger log4jLogger, final Logger notificationLog,
             final int ignoredErrorCountBeforeNotification)
@@ -55,11 +51,9 @@ public final class ConditionalNotificationLogger extends Log4jSimpleLogger
     }
 
     /**
-     * @param log4jLogger logger that is called when <var>ignoredErrorCountBeforeNotification</var>
-     *            is not reached yet.
+     * @param log4jLogger logger that is called when <var>ignoredErrorCountBeforeNotification</var> is not reached yet.
      * @param notificationLog the log that is conditionally called.
-     * @param ignoredErrorCountBeforeNotification the number of errors that are ignored before
-     *            sending a notification email.
+     * @param ignoredErrorCountBeforeNotification the number of errors that are ignored before sending a notification email.
      */
     public ConditionalNotificationLogger(final Logger log4jLogger,
             final Priority log4jOverridePriorityOrNull, final Logger notificationLog,
@@ -76,8 +70,8 @@ public final class ConditionalNotificationLogger extends Log4jSimpleLogger
     /**
      * Resets counting of errors and <code>notified</code> flag.
      * <p>
-     * As side effect, it sends a notification log to inform that we are "green" again (if and only
-     * if an email has already been sent to inform the "bad" state and if log info is enabled).
+     * As side effect, it sends a notification log to inform that we are "green" again (if and only if an email has already been sent to inform the
+     * "bad" state and if log info is enabled).
      * </p>
      * 
      * @param messageOrNull the info log message or <code>null</code>, if no message should be sent.

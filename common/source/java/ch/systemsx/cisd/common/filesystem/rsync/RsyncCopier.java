@@ -115,9 +115,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     private final boolean overwriteMode;
 
     /**
-     * If <code>true</code>, the file system of the destination directory requires that already
-     * existing files and directories on the remote side are removed before the copy process is
-     * started.
+     * If <code>true</code>, the file system of the destination directory requires that already existing files and directories on the remote side are
+     * removed before the copy process is started.
      */
     private final boolean destinationDirectoryRequiresDeletionBeforeCreation;
 
@@ -138,8 +137,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
      * Constructs an <code>RsyncCopier</code> with fully custom command line flags.
      * 
      * @param rsyncExecutable The <code>rsync</code> binary to call for copying.
-     * @param sshExecutableOrNull The <code>ssh</code> binary to use for creating tunnels, or
-     *            <code>null</code>, if no <code>ssh</code> is available on this machine.
+     * @param sshExecutableOrNull The <code>ssh</code> binary to use for creating tunnels, or <code>null</code>, if no <code>ssh</code> is available
+     *            on this machine.
      * @param cmdLineFlags The command line flags to use for the rsync command.
      */
     public RsyncCopier(final File rsyncExecutable, final File sshExecutableOrNull,
@@ -169,11 +168,10 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
      * Constructs an <code>RsyncCopier</code>.
      * 
      * @param rsyncExecutable The <code>rsync</code> binary to call for copying.
-     * @param sshExecutableOrNull The <code>ssh</code> binary to use for creating tunnels, or
-     *            <code>null</code>, if no <code>ssh</code> is available on this machine.
-     * @param destinationDirectoryRequiresDeletionBeforeCreation If <code>true</code>, already
-     *            existing files and directories on the remote side will be deleted before starting
-     *            the copy process (no overwriting of paths).
+     * @param sshExecutableOrNull The <code>ssh</code> binary to use for creating tunnels, or <code>null</code>, if no <code>ssh</code> is available
+     *            on this machine.
+     * @param destinationDirectoryRequiresDeletionBeforeCreation If <code>true</code>, already existing files and directories on the remote side will
+     *            be deleted before starting the copy process (no overwriting of paths).
      */
     public RsyncCopier(final File rsyncExecutable, final File sshExecutableOrNull,
             final boolean destinationDirectoryRequiresDeletionBeforeCreation,
@@ -234,9 +232,9 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     {
         return cmdLineFlagsOrNull != null && cmdLineFlagsOrNull.contains("--progress");
     }
-    
+
     @Override
-    public final Status copy(final File sourcePath, final File destinationDirectory, 
+    public final Status copy(final File sourcePath, final File destinationDirectory,
             ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         return copy(sourcePath.getAbsolutePath(), null, destinationDirectory.getAbsolutePath(),
@@ -244,7 +242,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     }
 
     @Override
-    public final Status copyContent(final File sourcePath, final File destinationDirectory, 
+    public final Status copyContent(final File sourcePath, final File destinationDirectory,
             ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         return copy(sourcePath.getAbsolutePath(), null, destinationDirectory.getAbsolutePath(),
@@ -254,7 +252,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     @Override
     public final Status copyFromRemote(final String sourcePath, final String sourceHost,
             final File destinationDirectory, String rsyncModuleNameOrNull,
-            String rsyncPasswordFileOrNull, 
+            String rsyncPasswordFileOrNull,
             ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         return copy(sourcePath, sourceHost, destinationDirectory.getAbsolutePath(), null,
@@ -263,7 +261,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
 
     @Override
     public Status copyContentFromRemote(String sourcePath, String sourceHost,
-            File destinationDirectory, String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull, 
+            File destinationDirectory, String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull,
             ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         return copy(sourcePath, sourceHost, destinationDirectory.getAbsolutePath(), null,
@@ -273,7 +271,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     @Override
     public final Status copyToRemote(final File sourcePath, final String destinationDirectory,
             final String destinationHost, String rsyncModuleNameOrNull,
-            String rsyncPasswordFileOrNull, 
+            String rsyncPasswordFileOrNull,
             ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         return copy(sourcePath.getAbsolutePath(), null, destinationDirectory, destinationHost,
@@ -283,11 +281,11 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     @Override
     public Status copyContentToRemote(File sourcePath, String destinationDirectory,
             String destinationHostOrNull, String rsyncModuleNameOrNull,
-            String rsyncPasswordFileOrNull, 
+            String rsyncPasswordFileOrNull,
             ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         return copy(sourcePath.getAbsolutePath(), null, destinationDirectory,
-                destinationHostOrNull, rsyncModuleNameOrNull, rsyncPasswordFileOrNull, true, 
+                destinationHostOrNull, rsyncModuleNameOrNull, rsyncPasswordFileOrNull, true,
                 stdoutHandlerOrNull, stderrHandlerOrNull);
     }
 
@@ -338,9 +336,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     }
 
     /**
-     * Terminates the copy process if it is still currently running. If no copy process is running,
-     * the method will return immediately. If many copy processes has been launched, only the last
-     * one will be terminated. No more copy operations can be started from that point.
+     * Terminates the copy process if it is still currently running. If no copy process is running, the method will return immediately. If many copy
+     * processes has been launched, only the last one will be terminated. No more copy operations can be started from that point.
      */
     @Override
     synchronized public final boolean terminate()
@@ -541,7 +538,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     private final Status copy(final String sourcePath, final String sourceHostOrNull,
             final String destinationDirectory, final String destinationHostOrNull,
             final String rsyncModuleNameOrNull, final String rsyncPasswordFileOrNull,
-            final boolean copyDirectoryContent, 
+            final boolean copyDirectoryContent,
             ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         assert sourcePath != null;
@@ -568,7 +565,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
                 createCommandLineForMutableCopy(sourcePath, sourceHostOrNull, destinationDirectory,
                         destinationHostOrNull, rsyncModuleNameOrNull, rsyncPasswordFileOrNull,
                         copyDirectoryContent);
-        return createStatus(runCommand(commandLine, ConcurrencyUtilities.NO_TIMEOUT, stdoutHandlerOrNull, 
+        return createStatus(runCommand(commandLine, ConcurrencyUtilities.NO_TIMEOUT, stdoutHandlerOrNull,
                 stderrHandlerOrNull));
     }
 
@@ -660,8 +657,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     }
 
     /**
-     * Builds the path for SSH/RSYNC server. <i>As the server is generally expected to be a Unix
-     * machine, we build a Unix path regardless of the client platform.</i>
+     * Builds the path for SSH/RSYNC server. <i>As the server is generally expected to be a Unix machine, we build a Unix path regardless of the
+     * client platform.</i>
      */
     private static String buildUnixPathForServer(final String host, final String resource,
             final String rsyncModule, final boolean appendSlash)
@@ -694,8 +691,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     }
 
     /**
-     * Since <code>rsync</code> under Windows is from Cygwin, we need to translate the path into a
-     * Cygwin path.
+     * Since <code>rsync</code> under Windows is from Cygwin, we need to translate the path into a Cygwin path.
      */
     private static String toUnix(final String path)
     {

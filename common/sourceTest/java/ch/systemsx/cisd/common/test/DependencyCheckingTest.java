@@ -36,8 +36,7 @@ import classycle.util.WildCardPattern;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
- * Unit test checking dependency definitions by Classycle. Dependency definition file is assumed to
- * be <tt>resource/dependency-structure.dff</tt> .
+ * Unit test checking dependency definitions by Classycle. Dependency definition file is assumed to be <tt>resource/dependency-structure.dff</tt> .
  * 
  * @author Franz-Josef Elmer
  */
@@ -87,13 +86,13 @@ public class DependencyCheckingTest extends AssertJUnit
         if (new File(GRADLE_CLASSES_FOLDER).isDirectory())
         {
             return new String[]
-                { GRADLE_CLASSES_FOLDER };
+            { GRADLE_CLASSES_FOLDER };
         }
 
         String classes = getPathToClassesCompiledByEclipse();
         String path = new File(classes).isDirectory() ? classes : ANT_CLASSES_FOLDER;
         return new String[]
-            { path };
+        { path };
     }
 
     /**
@@ -105,12 +104,10 @@ public class DependencyCheckingTest extends AssertJUnit
     }
 
     /**
-     * Returns a list of wild-card patterns of class files excluded from the analysis. Note, that
-     * <tt>*Test</tt>, <tt>*Test$*</tt>, <tt>*TestCase</tt>, and <tt>*TestCase$*</tt> are already
-     * excluded.
+     * Returns a list of wild-card patterns of class files excluded from the analysis. Note, that <tt>*Test</tt>, <tt>*Test$*</tt>, <tt>*TestCase</tt>
+     * , and <tt>*TestCase$*</tt> are already excluded.
      * <p>
-     * This implementation returns nothing. Subclasses can override it for excluding e.g. helper
-     * classes in <tt>sourceTest/java</tt>
+     * This implementation returns nothing. Subclasses can override it for excluding e.g. helper classes in <tt>sourceTest/java</tt>
      */
     protected List<String> getExcludingClassesPatterns()
     {

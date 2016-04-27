@@ -37,8 +37,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 
 /**
- * An abstract <code>RemoteServiceServlet</code> that merges <i>Spring</i>'s {@link Controller}
- * and manages this servlet the same way <i>Spring</i> beans are.
+ * An abstract <code>RemoteServiceServlet</code> that merges <i>Spring</i>'s {@link Controller} and manages this servlet the same way <i>Spring</i>
+ * beans are.
  * 
  * @author Christian Ribeaud
  */

@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.common.fasta;
 
 /**
- * Enum of sequence types. 
+ * Enum of sequence types.
  *
  * @author Franz-Josef Elmer
  */

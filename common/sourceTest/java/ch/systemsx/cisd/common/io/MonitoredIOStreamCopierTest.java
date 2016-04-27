@@ -42,7 +42,7 @@ public class MonitoredIOStreamCopierTest extends AssertJUnit
         MonitoredIOStreamCopier copier = new MonitoredIOStreamCopier((int) FileUtils.ONE_MB);
 
         copy(copier, (int) (2.5 * FileUtils.ONE_MB));
-        
+
         copier.close();
     }
 
@@ -84,7 +84,7 @@ public class MonitoredIOStreamCopierTest extends AssertJUnit
                 + "INFO: Writing statistics for output stream: 3.50 MB in 4 chunks took 18sec. "
                 + "Average speed: 194.36 KB/sec. Median speed: 150.81 KB/sec.\n", logger.toString());
     }
-    
+
     @Test
     public void testCopyingWithChunksToSmallForMedianCalculation()
     {
@@ -93,11 +93,11 @@ public class MonitoredIOStreamCopierTest extends AssertJUnit
         copier.setTimeProvider(timeProvider);
         MockLogger logger = new MockLogger();
         copier.setLogger(logger);
-        
+
         copy(copier, (int) (0.5 * FileUtils.ONE_MB));
         copy(copier, (int) (0.5 * FileUtils.ONE_MB));
         copier.close();
-        
+
         assertEquals("INFO: Reading statistics for input stream: 1.00 MB in 2 chunks took 5sec. "
                 + "Average speed: 226.30 KB/sec.\n"
                 + "INFO: Writing statistics for output stream: 1.00 MB in 2 chunks took 9sec. "
@@ -112,16 +112,16 @@ public class MonitoredIOStreamCopierTest extends AssertJUnit
         copier.setTimeProvider(timeProvider);
         MockLogger logger = new MockLogger();
         copier.setLogger(logger);
-        
+
         copy(copier, (int) (0.25 * FileUtils.ONE_MB));
         copy(copier, (int) (0.5 * FileUtils.ONE_MB));
         copier.close();
-        
+
         assertEquals("INFO: Reading statistics for input stream: 768.00 KB in 2 chunks took 5sec.\n"
                 + "INFO: Writing statistics for output stream: 768.00 KB in 2 chunks took 9sec.\n",
                 logger.toString());
     }
-    
+
     @Test
     public void testCopyingInThreeChunksWithQueue()
     {
@@ -150,16 +150,16 @@ public class MonitoredIOStreamCopierTest extends AssertJUnit
         copier.setTimeProvider(timeProvider);
         MockLogger logger = new MockLogger();
         copier.setLogger(logger);
-        
+
         copy(copier, (int) (2.5 * FileUtils.ONE_MB));
         copier.close();
-        
+
         assertEquals("INFO: Reading statistics for input stream: 2.50 MB in 3 chunks took 5sec. "
                 + "Average speed: 489.95 KB/sec. Median speed: 605.70 KB/sec.\n"
                 + "INFO: Writing statistics for output stream: 2.50 MB in 3 chunks took 11sec. "
                 + "Average speed: 239.48 KB/sec. Median speed: 280.21 KB/sec.\n", logger.toString());
     }
-    
+
     @Test
     public void testCopyingInThreeChunksWithLimitedQueueFails()
     {
@@ -169,7 +169,7 @@ public class MonitoredIOStreamCopierTest extends AssertJUnit
         copier.setTimeProvider(timeProvider);
         MockLogger logger = new MockLogger();
         copier.setLogger(logger);
-        
+
         try
         {
             copy(copier, (int) (2.5 * FileUtils.ONE_MB));
@@ -180,7 +180,7 @@ public class MonitoredIOStreamCopierTest extends AssertJUnit
         }
         copier.close();
     }
-    
+
     private void copy(MonitoredIOStreamCopier copier, int numberOfBytes)
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -207,18 +207,18 @@ public class MonitoredIOStreamCopierTest extends AssertJUnit
         }
         assertEquals(numberOfBytes, data.length);
     }
-    
+
     private static final class MultiThreadMockTimeProvider implements ITimeAndWaitingProvider
     {
         private Map<Thread, MockTimeProvider> timeProvidersByThread = new HashMap<Thread, MockTimeProvider>();
-        
+
         private MockTimeProvider timeProvider;
-        
+
         public MultiThreadMockTimeProvider(long startTime, long... timeSteps)
         {
             timeProvidersByThread.put(Thread.currentThread(), new MockTimeProvider(startTime, timeSteps));
         }
-        
+
         void defineMockTimeProviderForThread(Thread threadOrNull, long startTime, long... timeSteps)
         {
             MockTimeProvider mockTimeProvider = new MockTimeProvider(startTime, timeSteps);
@@ -241,13 +241,13 @@ public class MonitoredIOStreamCopierTest extends AssertJUnit
             }
             return timeInMilliseconds;
         }
-        
+
         @Override
         public void sleep(long milliseconds)
         {
             getTimeProvider().sleep(milliseconds);
         }
-        
+
         private ITimeAndWaitingProvider getTimeProvider()
         {
             MockTimeProvider provider = timeProvidersByThread.get(Thread.currentThread());

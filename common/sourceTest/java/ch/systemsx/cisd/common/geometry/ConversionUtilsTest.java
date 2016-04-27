@@ -23,8 +23,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ConversionUtilsTest
@@ -33,7 +31,7 @@ public class ConversionUtilsTest
     public Object[][] provideCorrectData()
     {
         return new Object[][]
-            {
+        {
                 { "A01", 0, 0 },
                 { "A1", 0, 0 },
                 { "A123", 0, 122 },
@@ -65,7 +63,7 @@ public class ConversionUtilsTest
             assertEquals("Unspecified location.", e.getMessage());
         }
     }
-    
+
     @Test
     public void testParseSpreadsheetLocationWithOnlyNumbers()
     {
@@ -78,7 +76,7 @@ public class ConversionUtilsTest
             assertEquals("Missing letter part of the location: 123", e.getMessage());
         }
     }
-    
+
     @Test
     public void testParseSpreadsheetLocationWithInvalidLetter()
     {
@@ -91,7 +89,7 @@ public class ConversionUtilsTest
             assertEquals("Invalid letter '?' in location: A?", e.getMessage());
         }
     }
-    
+
     @Test
     public void testParseSpreadsheetLocationWithInvalidDigitLetter()
     {
@@ -104,7 +102,7 @@ public class ConversionUtilsTest
             assertEquals("Number part of the location is not a number: A1?", e.getMessage());
         }
     }
-    
+
     @Test
     public void testParseSpreadsheetLocationWithNonPositiveNumber()
     {

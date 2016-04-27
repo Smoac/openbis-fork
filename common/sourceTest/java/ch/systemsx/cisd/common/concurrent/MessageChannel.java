@@ -31,8 +31,7 @@ import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 
 /**
- * Message channel for controlling multiple threads in unit testing. The channel is a
- * {@link BlockingQueue}.
+ * Message channel for controlling multiple threads in unit testing. The channel is a {@link BlockingQueue}.
  * 
  * @author Franz-Josef Elmer
  */
@@ -41,9 +40,9 @@ public class MessageChannel
     private final BlockingQueue<Object> _queue;
 
     private final long _timeOutInMilliSeconds;
-    
+
     private String name = "?";
-    
+
     private ISimpleLogger logger;
 
     /**
@@ -62,7 +61,7 @@ public class MessageChannel
         _timeOutInMilliSeconds = isDebugMode() ? DateUtils.MILLIS_PER_HOUR : timeOutInMilliSeconds;
         _queue = new LinkedBlockingQueue<Object>();
     }
-    
+
     private boolean isDebugMode()
     {
         List<String> inputArguments = ManagementFactory.getRuntimeMXBean().getInputArguments();
@@ -97,7 +96,7 @@ public class MessageChannel
         _queue.offer(message);
         log("Message '" + message + "' has been sent.");
     }
-    
+
     private void log(String message)
     {
         if (logger != null)
@@ -107,8 +106,7 @@ public class MessageChannel
     }
 
     /**
-     * Asserts specified expected message is next message to be received. Waits not longer than
-     * specified in the constructor.
+     * Asserts specified expected message is next message to be received. Waits not longer than specified in the constructor.
      */
     public void assertNextMessage(Object expectedMessage)
     {
@@ -135,8 +133,7 @@ public class MessageChannel
     }
 
     /**
-     * Asserts specified expected message is part of next message to be received. Waits not longer
-     * than specified in the constructor.
+     * Asserts specified expected message is part of next message to be received. Waits not longer than specified in the constructor.
      */
     public void assertNextMessageContains(Object expectedMessagePart)
     {

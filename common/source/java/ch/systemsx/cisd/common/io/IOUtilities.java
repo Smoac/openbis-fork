@@ -35,28 +35,29 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 public class IOUtilities
 {
     private static final char[] HEX_CHARACTERS =
-            { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', };
+    { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', };
 
     /**
-     * Calculates the CRC32 checksum of specified input stream.
-     * Note, that the input stream is closed after invocation of this method.
+     * Calculates the CRC32 checksum of specified input stream. Note, that the input stream is closed after invocation of this method.
      */
     public static int getChecksumCRC32(InputStream inputStream)
     {
         Checksum checksummer = new CRC32();
         InputStream in = null;
-        try {
+        try
+        {
             in = new CheckedInputStream(inputStream, checksummer);
             IOUtils.copy(in, new NullOutputStream());
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        } finally {
+        } finally
+        {
             IOUtils.closeQuietly(in);
         }
         return (int) checksummer.getValue();
     }
-    
+
     /**
      * Converts a CRC32 checksum to a string representation.
      */

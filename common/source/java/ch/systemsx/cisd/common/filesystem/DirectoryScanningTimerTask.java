@@ -47,13 +47,12 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * A {@link TimerTask} that scans a source directory for entries that are accepted by some
- * {@link FileFilter} and handles the accepted entries by some {@link IPathHandler}. It maintains a
- * list of faulty paths that failed to be handled OK in the past. Clearing the list will make the
- * class to retry handling the paths.
+ * A {@link TimerTask} that scans a source directory for entries that are accepted by some {@link FileFilter} and handles the accepted entries by some
+ * {@link IPathHandler}. It maintains a list of faulty paths that failed to be handled OK in the past. Clearing the list will make the class to retry
+ * handling the paths.
  * <p>
- * The class should be constructed in the start-up phase and as part of the system's self-test in
- * order to reveal problems with incorrect paths timely.
+ * The class should be constructed in the start-up phase and as part of the system's self-test in order to reveal problems with incorrect paths
+ * timely.
  * </p>
  * 
  * @author Bernd Rinn
@@ -130,9 +129,8 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
      * @param scannedStore The store which is scan for entries.
      * @param directoryScanningHandler A directory scanning handler.
      * @param storeHandler The handler that is used for treating the matching paths.
-     * @param ignoredErrorCount The number of consecutive errors of reading the directory that need
-     *            to occur before the next error is logged (can be used to suppress error when the
-     *            directory is on a remote share and the server is flaky sometimes)
+     * @param ignoredErrorCount The number of consecutive errors of reading the directory that need to occur before the next error is logged (can be
+     *            used to suppress error when the directory is on a remote share and the server is flaky sometimes)
      */
     public DirectoryScanningTimerTask(final IScannedStore scannedStore,
             final IDirectoryScanningHandler directoryScanningHandler,
@@ -191,9 +189,8 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
      * @param scannedStore The store which is scan for entries.
      * @param directoryScanningHandler A directory scanning handler.
      * @param storeHandler The handler that is used for treating the matching paths.
-     * @param ignoredErrorCount The number of consecutive errors of reading the directory that need
-     *            to occur before the next error is logged (can be used to suppress error when the
-     *            directory is on a remote share and the server is flaky sometimes)
+     * @param ignoredErrorCount The number of consecutive errors of reading the directory that need to occur before the next error is logged (can be
+     *            used to suppress error when the directory is on a remote share and the server is flaky sometimes)
      * @param threadName The name of the thread
      * @param activityLogDirectory The directory to log activity to.
      */
@@ -233,9 +230,8 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
      * @param sourceDirectory The directory to scan for entries.
      * @param fileFilter The file filter that picks the entries to handle.
      * @param pathHandler The handler that is used for treating the matching paths.
-     * @param ignoredErrorCount The number of consecutive errors of reading the directory that need
-     *            to occur before the next error is logged (can be used to suppress error when the
-     *            directory is on a remote share and the server is flaky sometimes)
+     * @param ignoredErrorCount The number of consecutive errors of reading the directory that need to occur before the next error is logged (can be
+     *            used to suppress error when the directory is on a remote share and the server is flaky sometimes)
      */
     DirectoryScanningTimerTask(final File sourceDirectory, final FileFilter fileFilter,
             final IPathHandler pathHandler, final int ignoredErrorCount)
@@ -251,9 +247,8 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
      * @param sourceDirectory The directory to scan for entries.
      * @param fileFilter The file filter that picks the entries to handle.
      * @param pathHandler The handler that is used for treating the matching paths.
-     * @param ignoredErrorCount The number of consecutive errors of reading the directory that need
-     *            to occur before the next error is logged (can be used to suppress error when the
-     *            directory is on a remote share and the server is flaky sometimes)
+     * @param ignoredErrorCount The number of consecutive errors of reading the directory that need to occur before the next error is logged (can be
+     *            used to suppress error when the directory is on a remote share and the server is flaky sometimes)
      * @param threadName The name of the thread
      * @param activityLogDirectory The directory to log activity to.
      */
@@ -535,8 +530,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
     public static interface IScannedStore
     {
         /**
-         * List <i>all</i> items (not just the ones who are ready to be processed) in the scanned
-         * store in order in which they should be handled.
+         * List <i>all</i> items (not just the ones who are ready to be processed) in the scanned store in order in which they should be handled.
          * 
          * @return <code>null</code> if it was no able to access the items of this scanned store.
          */
@@ -545,35 +539,31 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
         /**
          * Performs a filtering on the items.
          * 
-         * @returns Only those <var>items</var> which are ready to be processed right now, or
-         *          <code>null</code>, if the filtering step produced an exception.
+         * @returns Only those <var>items</var> which are ready to be processed right now, or <code>null</code>, if the filtering step produced an
+         *          exception.
          */
         StoreItem[] tryFilterReadyToProcess(final StoreItem[] items, ISimpleLogger loggerOrNull);
 
         /**
-         * Returns <code>true</code>, if the <var>item</var> either still exists or is in an error
-         * state.
+         * Returns <code>true</code>, if the <var>item</var> either still exists or is in an error state.
          */
         boolean existsOrError(StoreItem item);
 
         /**
-         * returned description should give the user the idea about file location. You should not
-         * use the result for something else than printing it for user. It should not be especially
-         * assumed that the result is the path which could be used in java.io.File constructor.
+         * returned description should give the user the idea about file location. You should not use the result for something else than printing it
+         * for user. It should not be especially assumed that the result is the path which could be used in java.io.File constructor.
          */
         String getLocationDescription(StoreItem item);
 
         /**
          * Convert the store item to a file.
          * 
-         * @throws UnsupportedOperationException Thrown if the store item cannot be represented as a
-         *             file object.
+         * @throws UnsupportedOperationException Thrown if the store item cannot be represented as a file object.
          */
         File asFile(StoreItem item) throws UnsupportedOperationException;
 
         /**
-         * Constructs a {@link StoreItem} from a location description as created by
-         * {@link #getLocationDescription(StoreItem)}.
+         * Constructs a {@link StoreItem} from a location description as created by {@link #getLocationDescription(StoreItem)}.
          */
         StoreItem asStoreItem(String locationDescription);
     }

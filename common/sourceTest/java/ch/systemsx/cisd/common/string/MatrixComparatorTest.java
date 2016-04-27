@@ -34,7 +34,7 @@ public final class MatrixComparatorTest
     private final static String[] createData()
     {
         return new String[]
-            { "a10", "a3", "A11", "B4", "C6", "c23", "a1", "a01" };
+        { "a10", "a3", "A11", "B4", "C6", "c23", "a1", "a01" };
     }
 
     @Test
@@ -43,7 +43,7 @@ public final class MatrixComparatorTest
         String[] s = createData();
         Arrays.sort(s, new MatrixComparator());
         assert Arrays.equals(s, new String[]
-            { "A11", "B4", "C6", "a1", "a01", "a3", "a10", "c23" });
+        { "A11", "B4", "C6", "a1", "a01", "a3", "a10", "c23" });
     }
 
     @Test
@@ -52,14 +52,14 @@ public final class MatrixComparatorTest
         String[] s = createData();
         Arrays.sort(s, new MatrixComparator(false));
         assert Arrays.equals(s, new String[]
-            { "a1", "a01", "a3", "B4", "C6", "a10", "A11", "c23" });
+        { "a1", "a01", "a3", "B4", "C6", "a10", "A11", "c23" });
     }
 
     @Test
     public final void testWrongPattern()
     {
         String[] s =
-            { "12", "3", "aa", "bb", "1c" };
+        { "12", "3", "aa", "bb", "1c" };
         String[] clone = (String[]) ArrayUtils.clone(s);
         Arrays.sort(s, new MatrixComparator());
         Arrays.sort(clone);

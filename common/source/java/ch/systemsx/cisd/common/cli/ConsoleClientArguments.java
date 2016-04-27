@@ -73,9 +73,8 @@ public class ConsoleClientArguments
     /**
      * Check that the arguments make sense.
      * <p>
-     * Note to subclassers -- this command might prompt the user for username and/or password. In
-     * order to check additional parameters {@link #allAdditionalMandatoryArgumentsPresent()} should
-     * be overridden.
+     * Note to subclassers -- this command might prompt the user for username and/or password. In order to check additional parameters
+     * {@link #allAdditionalMandatoryArgumentsPresent()} should be overridden.
      */
     public final boolean isComplete()
     {
@@ -130,7 +129,7 @@ public class ConsoleClientArguments
 
         return true;
     }
-    
+
     /**
      * Returns <code>true</code> if all additional mandatory arguments are present.
      */

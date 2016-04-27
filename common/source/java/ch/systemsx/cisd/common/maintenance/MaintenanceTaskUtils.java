@@ -28,8 +28,7 @@ import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 
 /**
- * A static helper class that knows e.g. how to read configuration of maintenance tasks from
- * {@link Properties} and start all the maintenance plugins.
+ * A static helper class that knows e.g. how to read configuration of maintenance tasks from {@link Properties} and start all the maintenance plugins.
  * 
  * @author Piotr Buczek
  */

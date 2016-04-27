@@ -22,8 +22,7 @@ import java.util.Map;
 /**
  * A pool of {@link Converter}s.
  * <p>
- * You can have your own instance of this class or you can use the static accessor to get a 'public'
- * instance.
+ * You can have your own instance of this class or you can use the static accessor to get a 'public' instance.
  * </p>
  * 
  * @author Christian Ribeaud

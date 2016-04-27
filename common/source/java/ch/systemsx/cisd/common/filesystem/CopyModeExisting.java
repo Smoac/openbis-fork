@@ -19,7 +19,6 @@ package ch.systemsx.cisd.common.filesystem;
 /**
  * An enum to specify how to deal with existing files when copying files and directories.
  * 
- *
  * @author Bernd Rinn
  */
 public enum CopyModeExisting
@@ -27,8 +26,7 @@ public enum CopyModeExisting
     /** It is an error, if a target already exists. */
     ERROR,
     /**
-     * An already existing target will be ignored (i.e. the existing version will remain
-     * unchanged).
+     * An already existing target will be ignored (i.e. the existing version will remain unchanged).
      */
     IGNORE,
     /** A target already existing will be overwritten. */

@@ -16,10 +16,8 @@
 
 package ch.systemsx.cisd.common.test;
 
-
 /**
- * Abstract super class of dependency checking tests for web servers where classes files
- * are in <tt>targets/www/WEB-INF/classes</tt>.
+ * Abstract super class of dependency checking tests for web servers where classes files are in <tt>targets/www/WEB-INF/classes</tt>.
  *
  * @author Franz-Josef Elmer
  */

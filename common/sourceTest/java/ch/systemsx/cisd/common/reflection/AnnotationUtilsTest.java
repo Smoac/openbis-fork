@@ -136,7 +136,8 @@ public final class AnnotationUtilsTest
         }
 
         @SuppressWarnings("unused")
-        protected void doSomething(final Object c, final String d, @Deprecated final Object e)
+        protected void doSomething(final Object c, final String d, @Deprecated
+        final Object e)
         {
         }
     }

@@ -43,8 +43,7 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
     public static final int DEFAULT_HIGHWATER_MARK = -1;
 
     /**
-     * The property name under which you must find a <code>long</code> for the high water mark (in
-     * <i>kilobytes</i>).
+     * The property name under which you must find a <code>long</code> for the high water mark (in <i>kilobytes</i>).
      */
     public static final String HIGHWATER_MARK_PROPERTY_KEY = "highwater-mark";
 
@@ -53,10 +52,8 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
     /**
      * @param hostOrNull the host on which given <var>file</var> is located.
      * @param path the file path.
-     * @param rsyncModuleOrNull The name of the module on the rsync server or <code>null</code>, if
-     *            no rsync server should be used.
-     * @param highwaterMarkInKb the high water mark in <i>kilobytes</i>. <code>-1</code> means that
-     *            the system will not be watching.
+     * @param rsyncModuleOrNull The name of the module on the rsync server or <code>null</code>, if no rsync server should be used.
+     * @param highwaterMarkInKb the high water mark in <i>kilobytes</i>. <code>-1</code> means that the system will not be watching.
      */
     public HostAwareFileWithHighwaterMark(final String hostOrNull, final String path,
             final String rsyncModuleOrNull, final long highwaterMarkInKb)
@@ -67,8 +64,7 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
 
     /**
      * @param path the file path.
-     * @param highwaterMarkInKb the high water mark in <i>kilobytes</i>. <code>-1</code> means that
-     *            the system will not be watching.
+     * @param highwaterMarkInKb the high water mark in <i>kilobytes</i>. <code>-1</code> means that the system will not be watching.
      */
     public HostAwareFileWithHighwaterMark(final String path, final long highwaterMarkInKb)
     {
@@ -86,8 +82,7 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
     /**
      * @param hostOrNull the host on which given <var>file</var> is located.
      * @param path the file path.
-     * @param rsyncModuleOrNull The name of the module on the rsync server or <code>null</code>, if
-     *            no rsync server should be used.
+     * @param rsyncModuleOrNull The name of the module on the rsync server or <code>null</code>, if no rsync server should be used.
      */
     public HostAwareFileWithHighwaterMark(final String hostOrNull, final String path,
             final String rsyncModuleOrNull)
@@ -96,8 +91,7 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
     }
 
     /**
-     * Instantiates a new <code>FileWithHighwaterMark</code> from given <var>properties</var>. Some
-     * examples:
+     * Instantiates a new <code>FileWithHighwaterMark</code> from given <var>properties</var>. Some examples:
      * 
      * <pre>
      * &lt;host-file-property-key&gt; = /temp
@@ -106,8 +100,7 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
      * </pre>
      * 
      * @param hostFilePropertyKey the property key under which the host/file path can be found.
-     * @throws ConfigurationFailureException if given <var>hostFilePropertyKey</var> could not be
-     *             found in given <var>properties</var>.
+     * @throws ConfigurationFailureException if given <var>hostFilePropertyKey</var> could not be found in given <var>properties</var>.
      */
     public final static HostAwareFileWithHighwaterMark fromProperties(final Properties properties,
             final String hostFilePropertyKey) throws ConfigurationFailureException
@@ -122,8 +115,7 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
     }
 
     /**
-     * Instantiates a new <code>FileWithHighwaterMark</code> from specified host file and high-water
-     * mark.
+     * Instantiates a new <code>FileWithHighwaterMark</code> from specified host file and high-water mark.
      * 
      * @param hostFile Either a local file or remote file in SSH notation (i.e. <host>:<path>).
      * @param highwaterMarkInKb -1 means no checking for high water.

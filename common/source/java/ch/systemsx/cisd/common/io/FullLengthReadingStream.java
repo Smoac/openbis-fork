@@ -21,9 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * A stream decorator that always returns a requested number of bytes even though the decorated
- * stream may return this information in smaller chunks (i.e. read method always reads as many bytes
- * as were specified by the length parameter unless the end of the stream is reached).
+ * A stream decorator that always returns a requested number of bytes even though the decorated stream may return this information in smaller chunks
+ * (i.e. read method always reads as many bytes as were specified by the length parameter unless the end of the stream is reached).
  * 
  * @author pkupczyk
  */

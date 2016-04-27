@@ -35,9 +35,8 @@ import ch.systemsx.cisd.common.parser.filter.AlwaysAcceptLineFilter;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 
 /**
- * Convenient class to load (or iterate over) a tab file, a reader or a stream. The loader delivers
- * either a list or an iterator of beans of type <code>T</code>. The following formats for the
- * column headers are recognized.
+ * Convenient class to load (or iterate over) a tab file, a reader or a stream. The loader delivers either a list or an iterator of beans of type
+ * <code>T</code>. The following formats for the column headers are recognized.
  * <ol>
  * <li>Column headers in first line:
  * 
@@ -108,9 +107,8 @@ public class ExcelFileLoader<T>
     /**
      * Loads data from the specified reader.
      * <p>
-     * The header can contain comments which are ignored. The column names can be the first
-     * uncommented line or the last commented line. The latter case is determined by the fact, that
-     * the one before the last line is a single hash.
+     * The header can contain comments which are ignored. The column names can be the first uncommented line or the last commented line. The latter
+     * case is determined by the fact, that the one before the last line is a single hash.
      * </p>
      */
     public List<T> load(final Sheet sheet, int begin, int end, Map<String, String> defaults)
@@ -261,8 +259,8 @@ public class ExcelFileLoader<T>
     }
 
     /**
-     * @param firstContentLineOrNull if not null, it will be returned as the first iterator element,
-     *            followed by all iterator elements from the second parameter
+     * @param firstContentLineOrNull if not null, it will be returned as the first iterator element, followed by all iterator elements from the second
+     *            parameter
      */
     private static Iterator<ILine<Row>> createContentIterator(
             final ILine<Row> firstContentLineOrNull, final Iterator<ILine<Row>> lineIterator)
@@ -315,8 +313,7 @@ public class ExcelFileLoader<T>
      * Note that the search is case-insensitive.
      * </p>
      * 
-     * @throws IllegalArgumentException if there is at least one duplicate in the given
-     *             <var>tokens</var>.
+     * @throws IllegalArgumentException if there is at least one duplicate in the given <var>tokens</var>.
      */
     private final static void notUnique(final String[] tokens)
     {

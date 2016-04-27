@@ -30,7 +30,7 @@ public class LogUtils
         logger.error(message);
         assert false : message;
     }
-    
+
     public static String removeEmbeddedStackTrace(String message)
     {
         StringBuilder builder = new StringBuilder();

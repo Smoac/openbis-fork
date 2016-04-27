@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.common.maintenance;
 
-
 /**
  * A {@link IMaintenanceTask} that optionally requires exclusive access to the data store.
  * 
@@ -26,11 +25,10 @@ public interface IDataStoreLockingMaintenanceTask extends IMaintenanceTask
 {
 
     /**
-     * Maintenance tasks can run concurrently and some of the tasks can require exclusive access to
-     * a certain system resource (e.g. two tasks altering the contents the same directory).
+     * Maintenance tasks can run concurrently and some of the tasks can require exclusive access to a certain system resource (e.g. two tasks altering
+     * the contents the same directory).
      * 
-     * @return <code>true</code> if the task requires exclusive access to the data store while
-     *         executed, <code>false</code> otherwise.
+     * @return <code>true</code> if the task requires exclusive access to the data store while executed, <code>false</code> otherwise.
      */
     public boolean requiresDataStoreLock();
 

@@ -24,8 +24,7 @@ import ch.systemsx.cisd.common.collection.IValidator;
 import ch.systemsx.cisd.common.collection.RegExValidator;
 
 /**
- * <code>ValidatorUtils</code> provides reference implementations and utilities for the
- * <code>IValidator</code> interface.
+ * <code>ValidatorUtils</code> provides reference implementations and utilities for the <code>IValidator</code> interface.
  * 
  * @author Christian Ribeaud
  */
@@ -33,8 +32,7 @@ public final class ValidatorUtils
 {
 
     /**
-     * A <code>IValidator</code> implementation which check whether given <code>Object</code> is
-     * not <code>null</code>.
+     * A <code>IValidator</code> implementation which check whether given <code>Object</code> is not <code>null</code>.
      */
     private final static IValidator<Object> NOT_NULL_VALIDATOR = new IValidator<Object>()
         {
@@ -118,7 +116,7 @@ public final class ValidatorUtils
 
     /** Returns a typed validator for non-<code>null</code> objects. */
     @SuppressWarnings(
-        { "unchecked" })
+    { "unchecked" })
     public static final <T> IValidator<T> getNotNullValidator()
     {
         return (IValidator<T>) NOT_NULL_VALIDATOR;
@@ -126,7 +124,7 @@ public final class ValidatorUtils
 
     /** Returns a typed validator which always returns <code>true</code>. */
     @SuppressWarnings(
-        { "unchecked" })
+    { "unchecked" })
     public static final <T> IValidator<T> getAlwaysTrueValidator()
     {
         return (IValidator<T>) ALWAYS_TRUE;

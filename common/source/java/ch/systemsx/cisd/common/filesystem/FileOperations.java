@@ -79,12 +79,11 @@ public class FileOperations implements IFileOperations, Serializable
     }
 
     /**
-     * Returns the monitored implementation of {@link IFileRemover} for the current thread with the
-     * default {@link TimingParameters} (i.e. with {@link TimingParameters#getDefaultParameters()}).
+     * Returns the monitored implementation of {@link IFileRemover} for the current thread with the default {@link TimingParameters} (i.e. with
+     * {@link TimingParameters#getDefaultParameters()}).
      * <p>
-     * Note that you should only ever cache the return value of this method if you can ensure that
-     * the cached value will only be used in the same thread as the one where this method has been
-     * called. The monitored instance is <i>not</i> thread-safe with respect to the recursive list,
+     * Note that you should only ever cache the return value of this method if you can ensure that the cached value will only be used in the same
+     * thread as the one where this method has been called. The monitored instance is <i>not</i> thread-safe with respect to the recursive list,
      * remove and copy methods.
      */
     public static IFileOperations getMonitoredInstanceForCurrentThread()
@@ -102,8 +101,7 @@ public class FileOperations implements IFileOperations, Serializable
     }
 
     /**
-     * Creates a monitored implementation of {@link IFileRemover} with the given
-     * <var>observerSensor</var>.
+     * Creates a monitored implementation of {@link IFileRemover} with the given <var>observerSensor</var>.
      */
     public static IFileOperations createMonitoredInstance(
             RecordingActivityObserverSensor observerSensor)
@@ -112,8 +110,7 @@ public class FileOperations implements IFileOperations, Serializable
     }
 
     /**
-     * Creates a monitored implementation of {@link IFileRemover} with the given
-     * <var>parameters</var>.
+     * Creates a monitored implementation of {@link IFileRemover} with the given <var>parameters</var>.
      */
     public static IFileOperations createMonitoredInstance(TimingParameters parameters)
     {

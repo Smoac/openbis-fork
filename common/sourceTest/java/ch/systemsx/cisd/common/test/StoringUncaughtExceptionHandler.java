@@ -20,8 +20,7 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
 /**
- * An exception handler that stores the first occurring exception for later investigation. Needs to
- * be activated by
+ * An exception handler that stores the first occurring exception for later investigation. Needs to be activated by
  * 
  * <pre>
  * StoringUncaughtExceptionHandler exceptionHandler = new StoringUncaughtExceptionHandler();
@@ -55,8 +54,7 @@ public final class StoringUncaughtExceptionHandler implements UncaughtExceptionH
     }
 
     /**
-     * @return <code>true</code> if an exception or error has occurred, <code>false</code>
-     *         otherwise.
+     * @return <code>true</code> if an exception or error has occurred, <code>false</code> otherwise.
      */
     public boolean hasExceptionOccurred()
     {
@@ -72,8 +70,7 @@ public final class StoringUncaughtExceptionHandler implements UncaughtExceptionH
     }
 
     /**
-     * @return The name of the thread where the exception or error has occurred, or
-     *         <code>null</code>, if no exception or error has occurred.
+     * @return The name of the thread where the exception or error has occurred, or <code>null</code>, if no exception or error has occurred.
      */
     public String getThreadName()
     {
@@ -81,8 +78,8 @@ public final class StoringUncaughtExceptionHandler implements UncaughtExceptionH
     }
 
     /**
-     * Checks whether an exception or error has occurred and, if yes, re-throws it in the current
-     * thread, wrapping it into a {@link CheckedExceptionTunnel} if necessary.
+     * Checks whether an exception or error has occurred and, if yes, re-throws it in the current thread, wrapping it into a
+     * {@link CheckedExceptionTunnel} if necessary.
      */
     public void checkAndRethrowExceptionWrapIfNecessary()
     {
@@ -93,8 +90,7 @@ public final class StoringUncaughtExceptionHandler implements UncaughtExceptionH
     }
 
     /**
-     * Checks whether an exception or error has occurred and, if yes, re-throws it in the current
-     * thread.
+     * Checks whether an exception or error has occurred and, if yes, re-throws it in the current thread.
      */
     public void checkAndRethrowException() throws Throwable
     {

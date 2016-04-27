@@ -30,7 +30,7 @@ class ServiceConversationRecord
     private final boolean interruptServerOnClientException;
 
     private ITerminableFuture<Void> controller;
-    
+
     ServiceConversationRecord(BidirectionalServiceMessenger messenger,
             boolean interruptServerOnClientException)
     {

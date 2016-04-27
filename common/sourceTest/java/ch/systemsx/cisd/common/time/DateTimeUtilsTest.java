@@ -48,7 +48,7 @@ public class DateTimeUtilsTest extends AssertJUnit
         assertEquals("1h 1min", DateTimeUtils.renderDuration(61 * 1000 * 60));
         assertEquals("2h 3min", DateTimeUtils.renderDuration(123 * 1000 * 60));
     }
-    
+
     @Test
     public void testParseDurationSecs()
     {
@@ -129,12 +129,12 @@ public class DateTimeUtilsTest extends AssertJUnit
         final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date d = df.parse("2009-12-12 14:39:55");
         assertEquals("2009-12-12 23:59:59", df.format(DateTimeUtils.extendUntilEndOfDay(d)));
-        
+
         d = df.parse("2009-12-31 00:00:00");
         assertEquals("2009-12-31 23:59:59", df.format(DateTimeUtils.extendUntilEndOfDay(d)));
 
         d = df.parse("2010-01-01 23:59:59");
         assertEquals("2010-01-01 23:59:59", df.format(DateTimeUtils.extendUntilEndOfDay(d)));
     }
-    
+
 }

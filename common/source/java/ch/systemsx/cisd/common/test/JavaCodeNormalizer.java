@@ -27,9 +27,8 @@ import org.apache.commons.io.IOUtils;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
 /**
- * Normalizes multiline Java code. All lines are trimmed. All block comments and single line
- * comments are removed. Consecutive lines are put into one line separated by a space character.
- * Empty lines and comment lines starting a new line in the normalized output.
+ * Normalizes multiline Java code. All lines are trimmed. All block comments and single line comments are removed. Consecutive lines are put into one
+ * line separated by a space character. Empty lines and comment lines starting a new line in the normalized output.
  * 
  * @author Franz-Josef Elmer
  */
@@ -39,19 +38,20 @@ public class JavaCodeNormalizer
     {
         public IState next(PrintWriter writer, String trimmedLine);
     }
-    
+
     private static final class Code implements IState
     {
         static final IState FIRST_LINE = new Code(true);
+
         static final IState LINE = new Code(false);
-        
+
         private final boolean firstLine;
-        
+
         Code(boolean firstLine)
         {
             this.firstLine = firstLine;
         }
-        
+
         @Override
         public IState next(PrintWriter writer, String trimmedLine)
         {
@@ -83,22 +83,22 @@ public class JavaCodeNormalizer
             return trimmedLine.substring(0, indexOfInlineComment).trim();
         }
     }
-    
+
     private static final class Comment implements IState
     {
         static final IState INSTANCE = new Comment();
-        
+
         @Override
         public IState next(PrintWriter writer, String trimmedLine)
         {
             return trimmedLine.endsWith("*/") ? Code.FIRST_LINE : this;
         }
     }
-    
+
     private JavaCodeNormalizer()
     {
     }
-    
+
     /**
      * Returns the specified Java code in a normalized way.
      */

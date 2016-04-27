@@ -3,11 +3,10 @@ package ch.systemsx.cisd.common.process;
 /**
  * Strategy object to determine how the I/O of a process is handled.
  * <p>
- * A note on the <code>_SAME_THREAD_</code> variants: Reading the I/O in a separate thread is more
- * efficient due to a lower polling overhead. However, in corner cases where the process is
- * terminated prematurely, the <code>_SAME_THREAD_</code> variant may be able to catch more of the
- * process' output than the variant using a separate thread. If you do not care about such corner
- * cases, the variant using the separate thread should be preferred.
+ * A note on the <code>_SAME_THREAD_</code> variants: Reading the I/O in a separate thread is more efficient due to a lower polling overhead. However,
+ * in corner cases where the process is terminated prematurely, the <code>_SAME_THREAD_</code> variant may be able to catch more of the process'
+ * output than the variant using a separate thread. If you do not care about such corner cases, the variant using the separate thread should be
+ * preferred.
  * 
  * @author Bernd Rinn
  */

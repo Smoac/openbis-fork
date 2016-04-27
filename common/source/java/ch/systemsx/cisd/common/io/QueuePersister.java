@@ -131,8 +131,8 @@ public class QueuePersister<E extends Serializable> implements IQueuePersister<E
      * 
      * @param queue The queue to persist.
      * @param queueFile The file to persist the queue in.
-     * @param autoSync If <code>true</code>, the underlying file will be synchronized after each
-     *            write operation. This is safer, but costs a lot of performance.
+     * @param autoSync If <code>true</code>, the underlying file will be synchronized after each write operation. This is safer, but costs a lot of
+     *            performance.
      */
     public QueuePersister(Queue<E> queue, File queueFile, boolean autoSync)
     {
@@ -551,8 +551,8 @@ public class QueuePersister<E extends Serializable> implements IQueuePersister<E
         }
 
         /**
-         * Create a {@link QueuePersister.LegacyQueuePersister} for <var>queue</var>. (Uses a
-         * default initial record size of 32 and switches off auto-sync.)
+         * Create a {@link QueuePersister.LegacyQueuePersister} for <var>queue</var>. (Uses a default initial record size of 32 and switches off
+         * auto-sync.)
          * 
          * @param queue The queue to persist.
          * @param queueFile The file to persist the queue in.
@@ -567,11 +567,10 @@ public class QueuePersister<E extends Serializable> implements IQueuePersister<E
          * 
          * @param queue The queue to persist.
          * @param queueFile The file to persist the queue in.
-         * @param initialRecordSize The initial size of the record. If an element of the queue is
-         *            larger than this, the whole queue file has to be re-written with a larger
-         *            record size.
-         * @param autoSync If <code>true</code>, the underlying file will be synchronized after each
-         *            write operation. This is safer, but costs a lot of performance.
+         * @param initialRecordSize The initial size of the record. If an element of the queue is larger than this, the whole queue file has to be
+         *            re-written with a larger record size.
+         * @param autoSync If <code>true</code>, the underlying file will be synchronized after each write operation. This is safer, but costs a lot
+         *            of performance.
          */
         LegacyQueuePersister(Queue<E> queue, File queueFile, int initialRecordSize, boolean autoSync)
         {

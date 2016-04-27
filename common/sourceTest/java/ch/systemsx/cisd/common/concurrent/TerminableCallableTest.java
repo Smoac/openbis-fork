@@ -167,13 +167,13 @@ public class TerminableCallableTest
         final Thread t = new Thread(callableUnderTest.asRunnable(), "cancel");
         final AtomicReference<Throwable> uncaughtException = new AtomicReference<Throwable>(null);
         t.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler()
-        {
-            @Override
-            public void uncaughtException(Thread t2, Throwable e)
             {
-                uncaughtException.set(e);
-            }
-        });
+                @Override
+                public void uncaughtException(Thread t2, Throwable e)
+                {
+                    uncaughtException.set(e);
+                }
+            });
         t.start();
         finishLatch.await(200L, TimeUnit.MILLISECONDS);
         assertFalse(milestoneLatch.await(0, TimeUnit.MILLISECONDS));
@@ -216,7 +216,6 @@ public class TerminableCallableTest
         assertEquals(0, sensor.cleanUpCount);
         t.stop();
     }
-
 
     @Test(invocationCount = 10)
     public void testThrowException() throws Exception

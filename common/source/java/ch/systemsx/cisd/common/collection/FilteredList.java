@@ -27,11 +27,9 @@ import ch.systemsx.cisd.common.collection.FilteredList;
 import ch.systemsx.cisd.common.collection.IValidator;
 
 /**
- * Decorates another <code>List</code> to validate that all additions match a specified
- * <code>IValidator</code>.
+ * Decorates another <code>List</code> to validate that all additions match a specified <code>IValidator</code>.
  * <p>
- * This list exists to provide validation for the decorated list. This class is not
- * <code>Serializable</code>.
+ * This list exists to provide validation for the decorated list. This class is not <code>Serializable</code>.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -43,8 +41,7 @@ public final class FilteredList<E> extends FilteredCollection<E> implements List
      * Constructor that filters given <code>List</code>.
      * 
      * @param list the list to decorate. Must not be <code>null</code>
-     * @param validator the <code>IValidator</code> to use for validation. Must not be
-     *            <code>null</code>
+     * @param validator the <code>IValidator</code> to use for validation. Must not be <code>null</code>
      */
     protected FilteredList(final List<E> list, final IValidator<E> validator)
     {
@@ -58,8 +55,7 @@ public final class FilteredList<E> extends FilteredCollection<E> implements List
      * </p>
      * 
      * @param list the list to decorate. Must not be <code>null</code>
-     * @param validator the <code>IValidator</code> to use for validation. Must not be
-     *            <code>null</code>
+     * @param validator the <code>IValidator</code> to use for validation. Must not be <code>null</code>
      */
     public static <E> List<E> decorate(final List<E> list, final IValidator<E> validator)
     {
@@ -73,8 +69,7 @@ public final class FilteredList<E> extends FilteredCollection<E> implements List
      * </p>
      * 
      * @param array the array to decorate. Must not be <code>null</code>
-     * @param validator the <code>IValidator</code> to use for validation. Must not be
-     *            <code>null</code>
+     * @param validator the <code>IValidator</code> to use for validation. Must not be <code>null</code>
      */
     public static <E> List<E> decorate(final E[] array, final IValidator<E> validator)
     {

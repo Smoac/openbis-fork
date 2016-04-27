@@ -27,8 +27,6 @@ import net.lemnik.eodsql.TypeMapper;
 import org.apache.commons.lang.SerializationUtils;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class SerializableObjectMapper implements TypeMapper<Serializable>

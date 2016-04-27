@@ -84,8 +84,7 @@ class ClientResponseMessageMultiplexer
     /**
      * Removes a conversation from the multiplexer.
      * 
-     * @return <code>true</code> if the conversation was removed and <code>false</code>, if a
-     *         conversation with the given id could not be found.
+     * @return <code>true</code> if the conversation was removed and <code>false</code>, if a conversation with the given id could not be found.
      */
     boolean removeConversation(String serviceConversationId)
     {

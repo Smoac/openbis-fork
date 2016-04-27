@@ -15,6 +15,7 @@
  */
 
 package ch.systemsx.cisd.common.jython.evaluator;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
@@ -31,10 +32,10 @@ public class EvaluatorException extends UserFailureException
     {
         super(msg);
     }
-    
+
     public EvaluatorException(String message, Throwable cause)
     {
         super(message, cause);
     }
-    
+
 }

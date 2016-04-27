@@ -45,8 +45,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * I/O operations for collections. Allows to read and write collections of {@link String}s and
- * other objects from and to streams and files.
+ * I/O operations for collections. Allows to read and write collections of {@link String}s and other objects from and to streams and files.
  * 
  * @author Bernd Rinn
  */
@@ -57,14 +56,11 @@ public class CollectionIO
             LogFactory.getLogger(LogCategory.MACHINE, FileUtilities.class);
 
     /**
-     * Reads a collection of {@link String}s from a <var>resource</var>. One line in the resource
-     * corresponds to one entry in the collection.
+     * Reads a collection of {@link String}s from a <var>resource</var>. One line in the resource corresponds to one entry in the collection.
      * 
      * @param resource The resource to read the collection from.
-     * @param collection The collection to add the entries from the file to. It will <i>not</i> be
-     *            cleared initially.
-     * @return <code>true</code> if the collection was read successfully, or <code>false</code>
-     *         otherwise.
+     * @param collection The collection to add the entries from the file to. It will <i>not</i> be cleared initially.
+     * @return <code>true</code> if the collection was read successfully, or <code>false</code> otherwise.
      */
     public static boolean readCollectionFromResource(String resource, Collection<String> collection)
     {
@@ -73,15 +69,12 @@ public class CollectionIO
     }
 
     /**
-     * Reads a collection from a <var>resource</var>. One line in the resource corresponds to one
-     * entry in the collection.
+     * Reads a collection from a <var>resource</var>. One line in the resource corresponds to one entry in the collection.
      * 
      * @param resource The resource to read the collection from.
-     * @param collection The collection to add the entries from the file to. It will <i>not</i> be
-     *            cleared initially.
+     * @param collection The collection to add the entries from the file to. It will <i>not</i> be cleared initially.
      * @param converter The converter to use in order to convert each line in the file.
-     * @return <code>true</code> if the collection was read successfully, or <code>false</code>
-     *         otherwise.
+     * @return <code>true</code> if the collection was read successfully, or <code>false</code> otherwise.
      */
     public static <T> boolean readCollectionFromResource(String resource, Collection<T> collection,
             IFromStringConverter<T> converter)
@@ -97,14 +90,11 @@ public class CollectionIO
     }
 
     /**
-     * Reads a collection of {@link String}s from a <var>file</var>. One line in the file
-     * corresponds to one entry in the collection.
+     * Reads a collection of {@link String}s from a <var>file</var>. One line in the file corresponds to one entry in the collection.
      * 
      * @param file The file to read the collection from.
-     * @param collection The collection to add the entries from the file to. It will <i>not</i> be
-     *            cleared initially.
-     * @return <code>true</code> if the collection was read successfully, or <code>false</code>
-     *         otherwise.
+     * @param collection The collection to add the entries from the file to. It will <i>not</i> be cleared initially.
+     * @return <code>true</code> if the collection was read successfully, or <code>false</code> otherwise.
      */
     public static boolean readCollection(File file, Collection<String> collection)
     {
@@ -112,15 +102,12 @@ public class CollectionIO
     }
 
     /**
-     * Reads a collection from a <var>file</var>. One line in the file corresponds to one entry in
-     * the collection.
+     * Reads a collection from a <var>file</var>. One line in the file corresponds to one entry in the collection.
      * 
      * @param file The file to read the collection from.
-     * @param collection The collection to add the entries from the file to. It will <i>not</i> be
-     *            cleared initially.
+     * @param collection The collection to add the entries from the file to. It will <i>not</i> be cleared initially.
      * @param converter The converter to use in order to convert each line in the file.
-     * @return <code>true</code> if the collection was read successfully, or <code>false</code>
-     *         otherwise.
+     * @return <code>true</code> if the collection was read successfully, or <code>false</code> otherwise.
      */
     public static <T> boolean readCollection(File file, Collection<T> collection,
             IFromStringConverter<T> converter)
@@ -137,14 +124,11 @@ public class CollectionIO
     }
 
     /**
-     * Reads a collection of {@link String}s from <var>istream</var>. One line as read from the
-     * stream corresponds to one entry in the collection.
+     * Reads a collection of {@link String}s from <var>istream</var>. One line as read from the stream corresponds to one entry in the collection.
      * 
      * @param istream The stream to read the collection from.
-     * @param collection The collection to add the entries from the file to. It will <i>not</i> be
-     *            cleared initially.
-     * @return <code>true</code> if the collection was read successfully, or <code>false</code>
-     *         otherwise.
+     * @param collection The collection to add the entries from the file to. It will <i>not</i> be cleared initially.
+     * @return <code>true</code> if the collection was read successfully, or <code>false</code> otherwise.
      */
     public static boolean readCollection(InputStream istream, Collection<String> collection)
     {
@@ -152,15 +136,12 @@ public class CollectionIO
     }
 
     /**
-     * Reads a collection from a <var>istream</var>. One line read from the stream corresponds to
-     * one entry in the collection.
+     * Reads a collection from a <var>istream</var>. One line read from the stream corresponds to one entry in the collection.
      * 
      * @param istream The stream to read the collection from.
-     * @param collection The collection to add the entries from the file to. It will <i>not</i> be
-     *            cleared initially.
+     * @param collection The collection to add the entries from the file to. It will <i>not</i> be cleared initially.
      * @param converter The converter to use in order to convert each line in the file.
-     * @return <code>true</code> if the collection was read successfully, or <code>false</code>
-     *         otherwise.
+     * @return <code>true</code> if the collection was read successfully, or <code>false</code> otherwise.
      */
     public static <T> boolean readCollection(InputStream istream, Collection<T> collection,
             IFromStringConverter<T> converter)
@@ -169,17 +150,14 @@ public class CollectionIO
     }
 
     /**
-     * Reads a collection from a <var>istream</var>. One line read read from the stream corresponds
-     * to one entry in the collection.
+     * Reads a collection from a <var>istream</var>. One line read read from the stream corresponds to one entry in the collection.
      * 
      * @param istream The stream to read the collection from.
-     * @param collection The collection to add the entries from the file to. It will <i>not</i> be
-     *            cleared initially.
+     * @param collection The collection to add the entries from the file to. It will <i>not</i> be cleared initially.
      * @param converter The converter to use in order to convert each line in the file.
-     * @param id The identifier associated with the reader (for use in error messages) or
-     *            <code>null</code>, if no identifier is associated with the reader.
-     * @return <code>true</code> if the collection was read successfully, or <code>false</code>
-     *         otherwise.
+     * @param id The identifier associated with the reader (for use in error messages) or <code>null</code>, if no identifier is associated with the
+     *            reader.
+     * @return <code>true</code> if the collection was read successfully, or <code>false</code> otherwise.
      */
     public static <T> boolean readCollection(InputStream istream, Collection<T> collection,
             IFromStringConverter<T> converter, String id)
@@ -230,12 +208,11 @@ public class CollectionIO
     }
 
     /**
-     * Reads a list of {@link String}s from a <var>resource</var>. One line in the resource
-     * corresponds to one entry in the list.
+     * Reads a list of {@link String}s from a <var>resource</var>. One line in the resource corresponds to one entry in the list.
      * 
      * @param resource The resource to read the list from.
-     * @return A new {@link ArrayList} containing the entries from the <var>file</var>, or
-     *         <code>null</code> if there is an error when reading the <var>file</var>.
+     * @return A new {@link ArrayList} containing the entries from the <var>file</var>, or <code>null</code> if there is an error when reading the
+     *         <var>file</var>.
      */
     public static List<String> readListFromResource(String resource)
     {
@@ -243,13 +220,12 @@ public class CollectionIO
     }
 
     /**
-     * Reads a list from a <var>file</var>. One line in the file corresponds to one entry in the
-     * list.
+     * Reads a list from a <var>file</var>. One line in the file corresponds to one entry in the list.
      * 
      * @param resource The resource to read the list from.
      * @param converter The converter to use in order to convert each line in the file.
-     * @return A new {@link ArrayList} containing the entries from the <var>file</var>, or
-     *         <code>null</code> if there is an error when reading the <var>file</var>.
+     * @return A new {@link ArrayList} containing the entries from the <var>file</var>, or <code>null</code> if there is an error when reading the
+     *         <var>file</var>.
      */
     public static <T> List<T> readListFromResource(String resource,
             IFromStringConverter<T> converter)
@@ -268,12 +244,11 @@ public class CollectionIO
     }
 
     /**
-     * Reads a set of {@link String}s from a <var>r</var>. One line in the resource corresponds to
-     * one entry in the set.
+     * Reads a set of {@link String}s from a <var>r</var>. One line in the resource corresponds to one entry in the set.
      * 
      * @param resource The resource to read the set from.
-     * @return A new {@link HashSet} containing the entries from the <var>file</var>, or
-     *         <code>null</code> if there is an error reading when the <var>file</var>.
+     * @return A new {@link HashSet} containing the entries from the <var>file</var>, or <code>null</code> if there is an error reading when the
+     *         <var>file</var>.
      */
     public static Set<String> readSetFromResource(String resource)
     {
@@ -281,13 +256,12 @@ public class CollectionIO
     }
 
     /**
-     * Reads a set from a <var>resource</var>. One line in the resource corresponds to one entry in
-     * the set.
+     * Reads a set from a <var>resource</var>. One line in the resource corresponds to one entry in the set.
      * 
      * @param resource The resource to read the set from.
      * @param converter The converter to use in order to convert each line in the file.
-     * @return A new {@link HashSet} containing the entries from the <var>file</var>, or
-     *         <code>null</code> if there is an error reading when the <var>file</var>.
+     * @return A new {@link HashSet} containing the entries from the <var>file</var>, or <code>null</code> if there is an error reading when the
+     *         <var>file</var>.
      */
     public static <T> Set<T> readSetFromResource(String resource, IFromStringConverter<T> converter)
     {
@@ -305,12 +279,11 @@ public class CollectionIO
     }
 
     /**
-     * Reads a list of {@link String}s from a <var>file</var>. One line in the file corresponds to
-     * one entry in the list.
+     * Reads a list of {@link String}s from a <var>file</var>. One line in the file corresponds to one entry in the list.
      * 
      * @param file The file to read the list from.
-     * @return A new {@link ArrayList} containing the entries from the <var>file</var>, or
-     *         <code>null</code> if there is an error when reading the <var>file</var>.
+     * @return A new {@link ArrayList} containing the entries from the <var>file</var>, or <code>null</code> if there is an error when reading the
+     *         <var>file</var>.
      */
     public static List<String> readList(File file)
     {
@@ -318,13 +291,12 @@ public class CollectionIO
     }
 
     /**
-     * Reads a list from a <var>file</var>. One line in the file corresponds to one entry in the
-     * list.
+     * Reads a list from a <var>file</var>. One line in the file corresponds to one entry in the list.
      * 
      * @param file The file to read the list from.
      * @param converter The converter to use in order to convert each line in the file.
-     * @return A new {@link ArrayList} containing the entries from the <var>file</var>, or
-     *         <code>null</code> if there is an error when reading the <var>file</var>.
+     * @return A new {@link ArrayList} containing the entries from the <var>file</var>, or <code>null</code> if there is an error when reading the
+     *         <var>file</var>.
      */
     public static <T> List<T> readList(File file, IFromStringConverter<T> converter)
     {
@@ -342,12 +314,11 @@ public class CollectionIO
     }
 
     /**
-     * Reads a set of {@link String}s from a <var>file</var>. One line in the file corresponds to
-     * one entry in the set.
+     * Reads a set of {@link String}s from a <var>file</var>. One line in the file corresponds to one entry in the set.
      * 
      * @param file The file to read the set from.
-     * @return A new {@link HashSet} containing the entries from the <var>file</var>, or
-     *         <code>null</code> if there is an error reading when the <var>file</var>.
+     * @return A new {@link HashSet} containing the entries from the <var>file</var>, or <code>null</code> if there is an error reading when the
+     *         <var>file</var>.
      */
     public static Set<String> readSet(File file)
     {
@@ -355,13 +326,12 @@ public class CollectionIO
     }
 
     /**
-     * Reads a set from a <var>file</var>. One line in the file corresponds to one entry in the
-     * set.
+     * Reads a set from a <var>file</var>. One line in the file corresponds to one entry in the set.
      * 
      * @param file The file to read the set from.
      * @param converter The converter to use in order to convert each line in the file.
-     * @return A new {@link HashSet} containing the entries from the <var>file</var>, or
-     *         <code>null</code> if there is an error reading when the <var>file</var>.
+     * @return A new {@link HashSet} containing the entries from the <var>file</var>, or <code>null</code> if there is an error reading when the
+     *         <var>file</var>.
      */
     public static <T> Set<T> readSet(File file, IFromStringConverter<T> converter)
     {
@@ -379,14 +349,11 @@ public class CollectionIO
     }
 
     /**
-     * Writes a collection to a <var>file</var>. One entry in the collection corresponds to one
-     * line in the file.
+     * Writes a collection to a <var>file</var>. One entry in the collection corresponds to one line in the file.
      * 
-     * @param file The file to write the collection to. The file <i>will</i> be truncated
-     *            initially.
+     * @param file The file to write the collection to. The file <i>will</i> be truncated initially.
      * @param iterable The iterable to write to the file.
-     * @return <code>true</code> if the collection was written successfully, or <code>false</code>
-     *         otherwise.
+     * @return <code>true</code> if the collection was written successfully, or <code>false</code> otherwise.
      */
     public static <T> boolean writeIterable(File file, Iterable<T> iterable)
     {
@@ -394,16 +361,12 @@ public class CollectionIO
     }
 
     /**
-     * Writes a collection to a <var>file</var>. One entry in the collection corresponds to one
-     * line in the file.
+     * Writes a collection to a <var>file</var>. One entry in the collection corresponds to one line in the file.
      * 
-     * @param file The file to write the collection to. The file <i>will</i> be truncated
-     *            initially.
+     * @param file The file to write the collection to. The file <i>will</i> be truncated initially.
      * @param iterable The iterable to write to the file.
-     * @param converter The {@link IToStringConverter} to use to convert a <var>T</var> value into
-     *            a {@link String}.
-     * @return <code>true</code> if the collection was written successfully, or <code>false</code>
-     *         otherwise.
+     * @param converter The {@link IToStringConverter} to use to convert a <var>T</var> value into a {@link String}.
+     * @return <code>true</code> if the collection was written successfully, or <code>false</code> otherwise.
      */
     public static <T> boolean writeIterable(File file, Iterable<T> iterable,
             IToStringConverter<? super T> converter)
@@ -434,13 +397,11 @@ public class CollectionIO
     }
 
     /**
-     * Writes a collection to a {@link OutputStream}. One entry in the collection corresponds to
-     * one line written to the stream.
+     * Writes a collection to a {@link OutputStream}. One entry in the collection corresponds to one line written to the stream.
      * 
      * @param ostream The stream to write the collection to.
      * @param iterable The iterable to write to the file.
-     * @return <code>true</code> if the collection was written successfully, or <code>false</code>
-     *         otherwise.
+     * @return <code>true</code> if the collection was written successfully, or <code>false</code> otherwise.
      */
     public static <T> boolean writeIterable(OutputStream ostream, Iterable<T> iterable)
     {
@@ -448,15 +409,12 @@ public class CollectionIO
     }
 
     /**
-     * Writes a collection to a {@link OutputStream}. One entry in the collection corresponds to
-     * one line written to the stream.
+     * Writes a collection to a {@link OutputStream}. One entry in the collection corresponds to one line written to the stream.
      * 
      * @param ostream The stream to write the collection to.
      * @param iterable The iterable to write to the file.
-     * @param converter The {@link IToStringConverter} to use to convert a <var>T</var> value into
-     *            a {@link String}.
-     * @return <code>true</code> if the collection was written successfully, or <code>false</code>
-     *         otherwise.
+     * @param converter The {@link IToStringConverter} to use to convert a <var>T</var> value into a {@link String}.
+     * @return <code>true</code> if the collection was written successfully, or <code>false</code> otherwise.
      */
     public static <T> boolean writeIterable(OutputStream ostream, Iterable<T> iterable,
             IToStringConverter<? super T> converter)
@@ -467,15 +425,12 @@ public class CollectionIO
     }
 
     /**
-     * Writes a collection to a {@link PrintStream}. One entry in the collection corresponds to one
-     * line written to the stream.
+     * Writes a collection to a {@link PrintStream}. One entry in the collection corresponds to one line written to the stream.
      * 
      * @param printStream The stream to write the collection to.
      * @param iterable The iterable to write to the file.
-     * @param converter The {@link IToStringConverter} to use to convert a <var>T</var> value into
-     *            a {@link String}.
-     * @return <code>true</code> if the collection was written successfully, or <code>false</code>
-     *         otherwise.
+     * @param converter The {@link IToStringConverter} to use to convert a <var>T</var> value into a {@link String}.
+     * @return <code>true</code> if the collection was written successfully, or <code>false</code> otherwise.
      */
     public static <T> boolean writeIterable(PrintStream printStream, Iterable<T> iterable,
             IToStringConverter<? super T> converter)
@@ -492,13 +447,11 @@ public class CollectionIO
     }
 
     /**
-     * Writes a collection to a {@link PrintStream}. One entry in the collection corresponds to one
-     * line written to the stream.
+     * Writes a collection to a {@link PrintStream}. One entry in the collection corresponds to one line written to the stream.
      * 
      * @param printStream The stream to write the collection to.
      * @param iterable The iterable to write to the file.
-     * @return <code>true</code> if the collection was written successfully, or <code>false</code>
-     *         otherwise.
+     * @return <code>true</code> if the collection was written successfully, or <code>false</code> otherwise.
      */
     public static <T> boolean writeIterable(PrintStream printStream, Iterable<T> iterable)
     {
@@ -506,13 +459,11 @@ public class CollectionIO
     }
 
     /**
-     * Writes a collection to a {@link Writer}. One entry in the collection corresponds to one line
-     * written to the stream.
+     * Writes a collection to a {@link Writer}. One entry in the collection corresponds to one line written to the stream.
      * 
      * @param writer The writer to write the collection to.
      * @param iterable The iterable to write to the writer.
-     * @return <code>true</code> if the collection was written successfully, or <code>false</code>
-     *         otherwise.
+     * @return <code>true</code> if the collection was written successfully, or <code>false</code> otherwise.
      */
     public final static <T> boolean writeIterable(final Writer writer, final Iterable<T> iterable,
             final IToStringConverter<? super T> converter)
@@ -522,13 +473,11 @@ public class CollectionIO
     }
 
     /**
-     * Writes a collection to a {@link PrintWriter}. One entry in the collection corresponds to one
-     * line written to the stream.
+     * Writes a collection to a {@link PrintWriter}. One entry in the collection corresponds to one line written to the stream.
      * 
      * @param writer The writer to write the collection to.
      * @param iterable The iterable to write to the writer.
-     * @return <code>true</code> if the collection was written successfully, or <code>false</code>
-     *         otherwise.
+     * @return <code>true</code> if the collection was written successfully, or <code>false</code> otherwise.
      */
     public final static <T> boolean writeIterable(final PrintWriter writer,
             final Iterable<T> iterable, final IToStringConverter<? super T> converterOrNull)

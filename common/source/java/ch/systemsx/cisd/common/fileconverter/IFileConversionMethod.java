@@ -21,8 +21,8 @@ import java.io.File;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
 
 /**
- * A role that can do conversion operations on a file. Call {@link ISelfTestable#check()} to see
- * whether the conversion operation is available on this system.
+ * A role that can do conversion operations on a file. Call {@link ISelfTestable#check()} to see whether the conversion operation is available on this
+ * system.
  * 
  * @author Bernd Rinn
  */
@@ -32,10 +32,9 @@ public interface IFileConversionMethod extends ISelfTestable
      * Returns <code>true</code>, if this conversion method is available.
      */
     public boolean isAvailable();
-    
+
     /**
-     * Performs the file conversion on <var>inFile</var>, creating a file <var>outFile</var> in the
-     * process.
+     * Performs the file conversion on <var>inFile</var>, creating a file <var>outFile</var> in the process.
      * 
      * @return <code>true</code>, if the conversion has been performed successful.
      */

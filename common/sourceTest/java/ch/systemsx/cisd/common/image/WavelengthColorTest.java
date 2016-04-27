@@ -36,7 +36,7 @@ public class WavelengthColorTest
     {
         return String.format("%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
     }
-    
+
     @Test
     public void testCommonDyes()
     {
@@ -49,5 +49,5 @@ public class WavelengthColorTest
         Color cy5 = WavelengthColor.getColorForWavelength(660);
         assertEquals("ff0000", hex(cy5));
     }
-    
+
 }

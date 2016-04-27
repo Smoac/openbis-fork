@@ -62,8 +62,7 @@ public class TimerUtilities
      * 
      * @param thread The {@link Thread} to join.
      * @param millis The time-out in milli-seconds to wait for the thread to die.
-     * @return <code>true</code>, if the thread died in due time and <code>false</code>
-     *         otherwise.
+     * @return <code>true</code>, if the thread died in due time and <code>false</code> otherwise.
      */
     private static boolean tryJoinThread(Thread thread, long millis)
     {
@@ -78,8 +77,8 @@ public class TimerUtilities
     }
 
     /**
-     * Returns <code>true</code>, if these utilities are operational (i.e. can work with the
-     * {@link Timer} class of the JRE) and <code>false</code> otherwise.
+     * Returns <code>true</code>, if these utilities are operational (i.e. can work with the {@link Timer} class of the JRE) and <code>false</code>
+     * otherwise.
      */
     public static boolean isOperational()
     {
@@ -87,11 +86,9 @@ public class TimerUtilities
     }
 
     /**
-     * Tries to interrupt the thread that the given <var>timer</var> uses for processing
-     * {@link TimerTask}s.
+     * Tries to interrupt the thread that the given <var>timer</var> uses for processing {@link TimerTask}s.
      * 
-     * @return <code>true</code>, if the timer thread was successfully interrupted and
-     *         <code>false</code> otherwise.
+     * @return <code>true</code>, if the timer thread was successfully interrupted and <code>false</code> otherwise.
      */
     public static boolean tryInterruptTimerThread(Timer timer)
     {
@@ -107,13 +104,11 @@ public class TimerUtilities
     }
 
     /**
-     * Tries to join the thread that <var>timer</var> is running its {@link TimerTask}s in (see
-     * {@link Thread#join(long)}.
+     * Tries to join the thread that <var>timer</var> is running its {@link TimerTask}s in (see {@link Thread#join(long)}.
      * 
      * @param timer The {@link Timer} to get the thread from.
      * @param millis The time-out in milli-seconds to wait for the thread to die.
-     * @return <code>true</code>, if the thread died in due time and <code>false</code>
-     *         otherwise.
+     * @return <code>true</code>, if the thread died in due time and <code>false</code> otherwise.
      */
     public static boolean tryJoinTimerThread(Timer timer, long millis)
     {
@@ -126,14 +121,13 @@ public class TimerUtilities
     }
 
     /**
-     * Tries to shutdown the given <var>timer</var> by calling {@link Timer#cancel()},
-     * interrupting the thread that it running its tasks and then trying to join this thread.
+     * Tries to shutdown the given <var>timer</var> by calling {@link Timer#cancel()}, interrupting the thread that it running its tasks and then
+     * trying to join this thread.
      * 
      * @param timer The timer to shutdown.
-     * @param millis The time-out in milli-seconds to wait for the thread to die. The total time-out
-     *            of this method can be twice as high as the value specified.
-     * @return <code>true</code>, if the thread died in due time and <code>false</code>
-     *         otherwise.
+     * @param millis The time-out in milli-seconds to wait for the thread to die. The total time-out of this method can be twice as high as the value
+     *            specified.
+     * @return <code>true</code>, if the thread died in due time and <code>false</code> otherwise.
      */
     public static boolean tryShutdownTimer(Timer timer, long millis)
     {

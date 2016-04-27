@@ -84,11 +84,11 @@ public class TemplateTest
         Template template = new Template("hello (${name}) (${name2}) {${name3}}");
         assertEquals(0, template.tryGetIndex("name"));
         assertEquals(1, template.tryGetIndex("name2"));
-        final List<IToken> replaced1 = template.replaceBrackets("(",  ")",  "[", "]");
+        final List<IToken> replaced1 = template.replaceBrackets("(", ")", "[", "]");
         assertEquals(2, replaced1.size());
         assertEquals("name", replaced1.get(0).tryGetName());
         assertEquals("name2", replaced1.get(1).tryGetName());
-        final List<IToken> replaced2 = template.replaceBrackets("{",  "}",  "", "");
+        final List<IToken> replaced2 = template.replaceBrackets("{", "}", "", "");
         assertEquals(1, replaced2.size());
         assertEquals("name3", replaced2.get(0).tryGetName());
         template.bind("name", "world");

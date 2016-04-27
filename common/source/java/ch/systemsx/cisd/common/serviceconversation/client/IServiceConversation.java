@@ -28,8 +28,7 @@ import ch.systemsx.cisd.common.serviceconversation.IServiceMessenger;
 public interface IServiceConversation extends IServiceMessenger, Closeable
 {
     /**
-     * Tells the service to terminate. Use this for calls that have no inherent definition of
-     * "finished".
+     * Tells the service to terminate. Use this for calls that have no inherent definition of "finished".
      */
     public void terminate();
 

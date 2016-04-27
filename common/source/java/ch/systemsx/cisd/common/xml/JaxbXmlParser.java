@@ -34,8 +34,7 @@ import javax.xml.transform.stream.StreamSource;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
 /**
- * Loads an XML file to the bean of the specified class. The bean should be annotated with JAXB
- * annotations.
+ * Loads an XML file to the bean of the specified class. The bean should be annotated with JAXB annotations.
  * <p>
  * NOTE: It is not thread safe as it holds {@link Unmarshaller} instance.
  * 
@@ -47,16 +46,13 @@ public class JaxbXmlParser<T>
     private static final boolean DEBUG = false;
 
     /**
-     * NOTE: The implementation is creating an unmarshaller for every file that will be parsed. It
-     * is very inefficient especially when parsing many small files with the same schema at once
-     * (creating unmarshaller can take even 10x more time than parsing a file, not to mention
-     * validation). It is better to create {@link JaxbXmlParser} once and call
-     * {@link JaxbXmlParser#doParse(File)} for every file. On the other hand Unmarshaller is not
-     * thread safe so pooling may be needed in some cases.
+     * NOTE: The implementation is creating an unmarshaller for every file that will be parsed. It is very inefficient especially when parsing many
+     * small files with the same schema at once (creating unmarshaller can take even 10x more time than parsing a file, not to mention validation). It
+     * is better to create {@link JaxbXmlParser} once and call {@link JaxbXmlParser#doParse(File)} for every file. On the other hand Unmarshaller is
+     * not thread safe so pooling may be needed in some cases.
      * 
-     * @param validate if true the parsed xml will be validated with the XML Schema. It is expected
-     *            that the "schema.xsd" file with XML Schema can be found in the same folder as the
-     *            specified bean class.
+     * @param validate if true the parsed xml will be validated with the XML Schema. It is expected that the "schema.xsd" file with XML Schema can be
+     *            found in the same folder as the specified bean class.
      */
     public static <T> T parse(Class<T> beanClass, File dataSet, boolean validate)
     {

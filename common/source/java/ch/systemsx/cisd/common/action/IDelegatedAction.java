@@ -16,10 +16,8 @@
 
 package ch.systemsx.cisd.common.action;
 
-
 /**
- * Use this interface to delegate any kind of action to a different part of code without adding an
- * explicit dependency.
+ * Use this interface to delegate any kind of action to a different part of code without adding an explicit dependency.
  * 
  * @author Tomasz Pylak
  */

@@ -21,8 +21,7 @@ import java.io.Reader;
 import java.nio.CharBuffer;
 
 /**
- * A {@link NamedReader} extension which delegates calls to the internal {@link Reader} and defines
- * a reader name.
+ * A {@link NamedReader} extension which delegates calls to the internal {@link Reader} and defines a reader name.
  * 
  * @author Christian Ribeaud
  */

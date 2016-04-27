@@ -18,7 +18,6 @@ package ch.systemsx.cisd.common.servlet;
 
 import javax.servlet.http.HttpSession;
 
-
 /**
  * Super interface of all action log classes. Has action methods concerning authentication.
  *
@@ -58,14 +57,13 @@ public interface IActionLog
     /**
      * Logs a logout.
      * 
-     * @param httpSession Session objects which might contain information useful to be logged (e.g.
-     *      user to be logged out).
+     * @param httpSession Session objects which might contain information useful to be logged (e.g. user to be logged out).
      */
     public void logLogout(HttpSession httpSession);
 
     /**
-     * Logs a call to set a new session user. 
+     * Logs a call to set a new session user.
      */
     public void logSetSessionUser(String oldUserCode, String newUserCode, final boolean success);
-    
+
 }

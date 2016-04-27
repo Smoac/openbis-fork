@@ -19,10 +19,8 @@ package ch.systemsx.cisd.common.concurrent;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 
-
 /**
- * A class that holds the information about a failure during the operation. Stores the failure
- * status, exception and an item which caused problems.
+ * A class that holds the information about a failure during the operation. Stores the failure status, exception and an item which caused problems.
  * 
  * @author Bernd Rinn
  * @author Tomasz Pylak
@@ -60,8 +58,8 @@ public class FailureRecord<T>
     }
 
     /**
-     * Returns the {@link Status} of the failure. Can have a {@link StatusFlag} of
-     * {@link StatusFlag#RETRIABLE_ERROR} if retrying the operation did not help.
+     * Returns the {@link Status} of the failure. Can have a {@link StatusFlag} of {@link StatusFlag#RETRIABLE_ERROR} if retrying the operation did
+     * not help.
      */
     public final Status getFailureStatus()
     {

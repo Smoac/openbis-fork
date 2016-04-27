@@ -23,8 +23,8 @@ import java.sql.Types;
 import java.util.Set;
 
 /**
- * A simple implementation of {@link java.sql.Array} for <code>long[]</code> and {@link Set} of
- * {@link Long} which only supports {@link #getArray()} for retrieval.
+ * A simple implementation of {@link java.sql.Array} for <code>long[]</code> and {@link Set} of {@link Long} which only supports {@link #getArray()}
+ * for retrieval.
  * 
  * @author Bernd Rinn
  */
@@ -95,8 +95,7 @@ class SimpleSQLLongArray extends AbstractSQLArray
 
     @Override
     /*
-     * * For the PostgreSQL JDBC driver to work with this class, this method needs to return
-     * '{x,y,z,...}'.
+     * * For the PostgreSQL JDBC driver to work with this class, this method needs to return '{x,y,z,...}'.
      */
     public String toString()
     {

@@ -16,12 +16,8 @@
 
 package ch.systemsx.cisd.common.filesystem;
 
-
-
-
 /**
- * An <code>IFreeSpaceProvider</code> implementation which returns {@link Long#MAX_VALUE} as free
- * space value.
+ * An <code>IFreeSpaceProvider</code> implementation which returns {@link Long#MAX_VALUE} as free space value.
  * <p>
  * Therefore the free space available will never be below the <i>high water mark</i>.
  * </p>

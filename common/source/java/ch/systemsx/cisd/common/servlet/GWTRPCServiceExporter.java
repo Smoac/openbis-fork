@@ -46,8 +46,7 @@ import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.common.shared.basic.exception.IOptionalStackTraceLoggingException;
 
 /**
- * This component publishes an object (see {@link #getService()}) as a service to the <i>GWT</i>
- * RPC protocol.
+ * This component publishes an object (see {@link #getService()}) as a service to the <i>GWT</i> RPC protocol.
  * <p>
  * Inspired by <a href="http://gwt-widget.sourceforge.net/">http://gwt-widget.sourceforge.net/</a>.
  * </p>
@@ -106,9 +105,8 @@ public abstract class GWTRPCServiceExporter extends RemoteServiceServlet impleme
     }
 
     /**
-     * Invoked by {@link #processCall(String)} when RPC throws an
-     * {@link IncompatibleRemoteServiceException}. This implementation propagates the exception
-     * back to the client via RPC.
+     * Invoked by {@link #processCall(String)} when RPC throws an {@link IncompatibleRemoteServiceException}. This implementation propagates the
+     * exception back to the client via RPC.
      */
     private final String handleIncompatibleRemoteServiceException(
             final IncompatibleRemoteServiceException e) throws SerializationException
@@ -118,11 +116,9 @@ public abstract class GWTRPCServiceExporter extends RemoteServiceServlet impleme
     }
 
     /**
-     * Handles exceptions thrown by the target service, which are wrapped in
-     * {@link CheckedExceptionTunnel}s due to
-     * {@link ClassUtils#invokeMethod(Method, Object, Object...)} invocation. This method is invoked
-     * by {@link #processCall(String)}. This implementation encodes exceptions as RPC errors and
-     * returns them. For details on arguments please consult
+     * Handles exceptions thrown by the target service, which are wrapped in {@link CheckedExceptionTunnel}s due to
+     * {@link ClassUtils#invokeMethod(Method, Object, Object...)} invocation. This method is invoked by {@link #processCall(String)}. This
+     * implementation encodes exceptions as RPC errors and returns them. For details on arguments please consult
      * {@link #invokeMethodOnService(Method, Object[], RPCRequest)}.
      */
     private final String handleInvocationException(final RuntimeException e,
@@ -156,9 +152,8 @@ public abstract class GWTRPCServiceExporter extends RemoteServiceServlet impleme
     }
 
     /**
-     * Invoked by {@link #processCall(String)} for an exception if no suitable exception handler was
-     * found. This is the outermost exception handler, catching any exceptions not caught by other
-     * exception handlers or even thrown by those handlers.
+     * Invoked by {@link #processCall(String)} for an exception if no suitable exception handler was found. This is the outermost exception handler,
+     * catching any exceptions not caught by other exception handlers or even thrown by those handlers.
      */
     private final String handleExporterProcessingException(final Exception e)
     {
@@ -242,7 +237,6 @@ public abstract class GWTRPCServiceExporter extends RemoteServiceServlet impleme
         operationLog.error("Unexpected throwable", throwable);
         super.doUnexpectedFailure(throwable);
     }
-
 
     /**
      * Overridden from {@link RemoteServiceServlet} and invoked by the servlet code.

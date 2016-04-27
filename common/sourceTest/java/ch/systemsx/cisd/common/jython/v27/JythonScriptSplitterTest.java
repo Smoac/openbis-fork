@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
  */
 // TODO: remove "broken" if jython 2.7 is working
 @Test(groups =
-    { "slow", "broken" })
+{ "slow", "broken" })
 public class JythonScriptSplitterTest
 {
 

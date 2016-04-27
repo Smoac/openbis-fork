@@ -34,8 +34,7 @@ public final class MethodUtils
     }
 
     /**
-     * Returns the specified method as string which shows method name and parameter types in a way
-     * which more compact than {@link Method#toString()}.
+     * Returns the specified method as string which shows method name and parameter types in a way which more compact than {@link Method#toString()}.
      */
     public final static String toString(final Method method)
     {
@@ -66,19 +65,16 @@ public final class MethodUtils
     /**
      * Returns the <code>Method</code> on the stack of <var>level</var>.
      * <p>
-     * <code>level=0</code> is this method itself, <code>level=1</code> is the method that
-     * called it and so forth. This method internally uses {@link Class#getDeclaredMethods()} to
-     * retrieve the <code>Method</code>.
+     * <code>level=0</code> is this method itself, <code>level=1</code> is the method that called it and so forth. This method internally uses
+     * {@link Class#getDeclaredMethods()} to retrieve the <code>Method</code>.
      * </p>
      * <p>
-     * IMPORTANT NOTE: You should carefully use this method in a class having more than one method
-     * with the same name. The internal idea used here (<code>new Throwable().getStackTrace()</code>)
-     * only returns a method name and does not make any other consideration.
+     * IMPORTANT NOTE: You should carefully use this method in a class having more than one method with the same name. The internal idea used here (
+     * <code>new Throwable().getStackTrace()</code>) only returns a method name and does not make any other consideration.
      * </p>
      * 
      * @see StackTraceElement#getMethodName()
-     * @throw {@link IndexOutOfBoundsException} if given <var>level</var> smaller or equal to
-     *        number of stack trace elements.
+     * @throw {@link IndexOutOfBoundsException} if given <var>level</var> smaller or equal to number of stack trace elements.
      */
     public final static Method getMethodOnStack(final int level)
     {
@@ -114,8 +110,7 @@ public final class MethodUtils
     }
 
     /**
-     * Describes given <var>method</var> in following format:
-     * <code>&lt;class-name&gt;.&lt;method-name&gt;</code>, for instance
+     * Describes given <var>method</var> in following format: <code>&lt;class-name&gt;.&lt;method-name&gt;</code>, for instance
      * <code>Object.hashCode</code>.
      */
     public final static String describeMethod(final Method method)

@@ -17,8 +17,7 @@
 package ch.systemsx.cisd.common.parser;
 
 /**
- * A <code>ILineTokenizer</code> implementation is able to split a given <code>T</code> line in an
- * array of tokens.
+ * A <code>ILineTokenizer</code> implementation is able to split a given <code>T</code> line in an array of tokens.
  * 
  * @author Christian Ribeaud
  */

@@ -19,7 +19,6 @@ package ch.systemsx.cisd.common.security;
 import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.Test;
 
-
 import static org.testng.AssertJUnit.assertEquals;
 
 /**

@@ -26,8 +26,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * A class that performs conversion of a tiff file to a png file with optional page extraction and
- * transparency conversion using the ImageMagick <code>convert</code> utility.
+ * A class that performs conversion of a tiff file to a png file with optional page extraction and transparency conversion using the ImageMagick
+ * <code>convert</code> utility.
  * 
  * @author Bernd Rinn
  */

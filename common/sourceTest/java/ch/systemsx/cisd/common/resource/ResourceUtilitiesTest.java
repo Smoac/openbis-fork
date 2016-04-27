@@ -49,7 +49,7 @@ public final class ResourceUtilitiesTest extends AbstractFileSystemTestCase
         final String resourceName =
                 "/" + FileUtilities.class.getCanonicalName().replaceAll("\\.", "/") + ".class";
         final String absoluteTempFileName =
-            ResourceUtilities.copyResourceToTempFile(resourceName, "pre", "post");
+                ResourceUtilities.copyResourceToTempFile(resourceName, "pre", "post");
         assertNotNull(absoluteTempFileName);
         final File tempFile = new File(absoluteTempFileName);
         final String tempFileName = tempFile.getName();

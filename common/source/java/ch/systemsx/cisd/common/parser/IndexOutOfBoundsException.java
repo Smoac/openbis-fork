@@ -21,8 +21,7 @@ import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.string.StringUtilities;
 
 /**
- * A <code>ParserException</code> extension which signalizes a lookup index outside of the
- * currently available tokens.
+ * A <code>ParserException</code> extension which signalizes a lookup index outside of the currently available tokens.
  * 
  * @author Christian Ribeaud
  */

@@ -16,18 +16,15 @@
 
 package ch.systemsx.cisd.common.fasta;
 
-
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class FastaUtilitiesTest extends AssertJUnit
 {
-    
+
     @Test
     public void testLineWithInvalidCharacter()
     {
@@ -45,37 +42,37 @@ public class FastaUtilitiesTest extends AssertJUnit
     {
         assertEquals(SequenceType.PROT, FastaUtilities.determineSequenceType("abij"));
     }
-    
+
     @Test
     public void testLineWithMoreThanFiveDifferentCodes()
     {
         assertEquals(SequenceType.PROT, FastaUtilities.determineSequenceType("ABCDEFG"));
     }
-    
+
     @Test
     public void testLineWithMoreUAndT()
     {
         assertEquals(SequenceType.PROT, FastaUtilities.determineSequenceType("UT"));
     }
-    
+
     @Test
     public void testLineWithOnlyNuclCodesWithT()
     {
         assertEquals(SequenceType.NUCL, FastaUtilities.determineSequenceType("AAGGCCTTN"));
     }
-    
+
     @Test
     public void testLineWithOnlyNuclCodesWithU()
     {
         assertEquals(SequenceType.NUCL, FastaUtilities.determineSequenceType("aagcunnau"));
     }
-    
+
     @Test
     public void testLineWithSpacesInNuclCodes()
     {
         assertEquals(SequenceType.NUCL, FastaUtilities.determineSequenceType("3'-aag ttg cca-5'"));
     }
-    
+
     @Test
     public void testLineWithSpacesInProtCodes()
     {

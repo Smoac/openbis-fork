@@ -16,12 +16,10 @@
 
 package ch.systemsx.cisd.common.filesystem;
 
-
 /**
  * Handles items in the file store.
  * <p>
- * Note that this interface is a higher abstraction of {@link IPathHandler} which works with
- * {@link java.io.File}.
+ * Note that this interface is a higher abstraction of {@link IPathHandler} which works with {@link java.io.File}.
  * </p>
  * 
  * @see IPathHandler

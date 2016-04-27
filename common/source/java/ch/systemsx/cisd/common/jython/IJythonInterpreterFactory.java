@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.common.jython;
 
-
 public interface IJythonInterpreterFactory
 {
     IJythonInterpreter createInterpreter();

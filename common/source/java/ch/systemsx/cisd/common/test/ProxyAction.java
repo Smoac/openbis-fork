@@ -21,8 +21,8 @@ import org.jmock.api.Action;
 import org.jmock.api.Invocation;
 
 /**
- * Abstract proxy class for {@link Action} instances. {@link #doBeforeReturn()} will be invoked
- * before {@link Action#invoke(Invocation)} of the wrapped action.
+ * Abstract proxy class for {@link Action} instances. {@link #doBeforeReturn()} will be invoked before {@link Action#invoke(Invocation)} of the
+ * wrapped action.
  * 
  * @author Franz-Josef Elmer
  */
@@ -47,7 +47,7 @@ public abstract class ProxyAction implements Action
         doBeforeReturn();
         return action.invoke(invocation);
     }
-    
+
     protected abstract void doBeforeReturn();
 
 }

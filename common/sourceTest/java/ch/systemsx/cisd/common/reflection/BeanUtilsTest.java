@@ -59,7 +59,7 @@ public final class BeanUtilsTest
         assertEquals(1, descriptors.size());
         PropertyDescriptor outerDescriptor = null;
         // Play with property 'description'
-        for (final Iterator<PropertyDescriptor> iter = descriptors.iterator(); iter.hasNext(); )
+        for (final Iterator<PropertyDescriptor> iter = descriptors.iterator(); iter.hasNext();)
         {
             final PropertyDescriptor innerDescriptor = iter.next();
             if (innerDescriptor.getName().equals("foo"))
@@ -77,7 +77,7 @@ public final class BeanUtilsTest
         final Method method = outerDescriptor.getWriteMethod();
         final String description = "This is a foolish description.";
         method.invoke(fooBean, new Object[]
-            { description });
+        { description });
         assertEquals(fooBean.getFoo(), description);
     }
 
@@ -412,7 +412,7 @@ public final class BeanUtilsTest
         b1b.setI(42);
         b1b.setS("ttt");
         final Bean1a[] b1Array = new Bean1a[]
-            { b1a, b1b };
+        { b1a, b1b };
         final Bean2a[] b2Array = BeanUtils.createBean(Bean2a[].class, b1Array);
         assertEquals(b1Array.length, b2Array.length);
         for (int i = 0; i < b1Array.length; ++i)
@@ -431,7 +431,7 @@ public final class BeanUtilsTest
     public void testFillPrimitiveArray()
     {
         final int[] array = new int[]
-            { -5, 17, 0, 88 };
+        { -5, 17, 0, 88 };
         final int[] array2 = BeanUtils.createBean(int[].class, array);
         assert Arrays.equals(array, array2);
     }
@@ -440,7 +440,7 @@ public final class BeanUtilsTest
     public void testFillPrimitiveArrayToWrapper()
     {
         final int[] array = new int[]
-            { -5, 17, 0, 88 };
+        { -5, 17, 0, 88 };
         final Integer[] array2 = BeanUtils.createBean(Integer[].class, array);
         for (int i = 0; i < array.length; ++i)
         {
@@ -452,7 +452,7 @@ public final class BeanUtilsTest
     public void testFillPrimitiveArrayFromWrapper()
     {
         final Integer[] array = new Integer[]
-            { -5, 17, 0, 88 };
+        { -5, 17, 0, 88 };
         final int[] array2 = BeanUtils.createBean(int[].class, array);
         for (int i = 0; i < array.length; ++i)
         {
@@ -464,7 +464,7 @@ public final class BeanUtilsTest
     public void testFillImmutableArray()
     {
         final String[] array = new String[]
-            { "apple", "orange", "banana" };
+        { "apple", "orange", "banana" };
         final String[] array2 = BeanUtils.createBean(String[].class, array);
         for (int i = 0; i < array.length; ++i)
         {
@@ -522,7 +522,7 @@ public final class BeanUtilsTest
     {
         final ArrayWrapper1 awrapper = new ArrayWrapper1();
         awrapper.setArray(new byte[]
-            { -1, 0, 100, -88 });
+        { -1, 0, 100, -88 });
         final ArrayWrapper1 awrapper2 = BeanUtils.createBean(ArrayWrapper1.class, awrapper);
         final byte[] array = awrapper.getArray();
         final byte[] array2 = awrapper2.getArray();
@@ -539,7 +539,7 @@ public final class BeanUtilsTest
     {
         final ArrayWrapper1 awrapper = new ArrayWrapper1();
         awrapper.setArray(new byte[]
-            { -1, 0, 100, -88 });
+        { -1, 0, 100, -88 });
         final ArrayWrapper2 awrapper2 = BeanUtils.createBean(ArrayWrapper2.class, awrapper);
         final byte[] array = awrapper.getArray();
         final Byte[] array2 = awrapper2.getArray();
@@ -588,7 +588,7 @@ public final class BeanUtilsTest
     {
         final ArrayWrapper3 aWrapper = new ArrayWrapper3();
         final String[] array = new String[]
-            { "hot", "warm", "cool", "icy" };
+        { "hot", "warm", "cool", "icy" };
         aWrapper.setArray(array);
         final CollectionWrapper1 colWrapper =
                 BeanUtils.createBean(CollectionWrapper1.class, aWrapper);
@@ -606,7 +606,7 @@ public final class BeanUtilsTest
     {
         final CollectionWrapper1 colWrapper = new CollectionWrapper1();
         final List<String> list = new ArrayList<String>(Arrays.asList(new String[]
-            { "hot", "warm", "cool", "icy" }));
+        { "hot", "warm", "cool", "icy" }));
         colWrapper.setArray(list);
         final CollectionWrapper1 colWrapper2 =
                 BeanUtils.createBean(CollectionWrapper1.class, colWrapper);
@@ -648,7 +648,7 @@ public final class BeanUtilsTest
             this.bean = bean;
         }
     }
-    
+
     @Test
     public void testFillComplexBeanWithNull()
     {
@@ -771,7 +771,7 @@ public final class BeanUtilsTest
         b1b.setS("test2");
         final BeanWithBeanArray1 b1Array = new BeanWithBeanArray1();
         final Bean1a[] arrayb1 = new Bean1a[]
-            { b1a, b1b };
+        { b1a, b1b };
         b1Array.setBeanArray(arrayb1);
         final BeanWithBeanCollection2 b2Collection =
                 BeanUtils.createBean(BeanWithBeanCollection2.class, b1Array);
@@ -796,7 +796,7 @@ public final class BeanUtilsTest
         b2b.setS("test2");
         final BeanWithBeanArray2 b2Array = new BeanWithBeanArray2();
         final Bean2a[] arrayb2 = new Bean2a[]
-            { b2a, b2b };
+        { b2a, b2b };
         b2Array.setBeanArray(arrayb2);
         final BeanWithBeanCollection1 b1Collection =
                 BeanUtils.createBean(BeanWithBeanCollection1.class, b2Array);
@@ -827,7 +827,7 @@ public final class BeanUtilsTest
         final Bean1a b1b = createOtherBean1a();
         final BeanWithBeanCollection1 b1Collection = new BeanWithBeanCollection1();
         final Collection<Bean1a> colb1 = new LinkedHashSet<Bean1a>(Arrays.asList(new Bean1a[]
-            { b1a, b1b }));
+        { b1a, b1b }));
         b1Collection.setBeanArray(colb1);
         final BeanWithBeanArray2 b2Array =
                 BeanUtils.createBean(BeanWithBeanArray2.class, b1Collection);
@@ -859,7 +859,7 @@ public final class BeanUtilsTest
         final Bean1a b1b = createOtherBean1a();
         final BeanWithBeanArray1 b1Array = new BeanWithBeanArray1();
         final Bean1a[] arrayb1 = new Bean1a[]
-            { b1a, b1b };
+        { b1a, b1b };
         b1Array.setBeanArray(arrayb1);
         final BeanWithBeanArray2 b2Array = BeanUtils.createBean(BeanWithBeanArray2.class, b1Array);
         final Bean2a[] arrayb2 = b2Array.getBeanArray();
@@ -884,7 +884,7 @@ public final class BeanUtilsTest
         final Bean1a b1b = createOtherBean1a();
         final BeanWithBeanCollection1 b1Collection = new BeanWithBeanCollection1();
         final Collection<Bean1a> colb1 = new LinkedHashSet<Bean1a>(Arrays.asList(new Bean1a[]
-            { b1a, b1b }));
+        { b1a, b1b }));
         b1Collection.setBeanArray(colb1);
         final BeanWithBeanCollection2 b2Collection =
                 BeanUtils.createBean(BeanWithBeanCollection2.class, b1Collection);
@@ -912,7 +912,7 @@ public final class BeanUtilsTest
         final Bean1a b1b = createOtherBean1a();
         final BeanWithBeanCollection1 b1 = new BeanWithBeanCollection1();
         final Collection<Bean1a> colb1 = new LinkedHashSet<Bean1a>(Arrays.asList(new Bean1a[]
-            { b1a, b1b }));
+        { b1a, b1b }));
         b1.setBeanArray(colb1);
         final BeanWithBeanCollection2 b2 = new BeanWithBeanCollection2();
         // With empty collection
@@ -932,7 +932,7 @@ public final class BeanUtilsTest
         final Bean1a b1b = createOtherBean1a();
         final BeanWithBeanArray1 b1 = new BeanWithBeanArray1();
         final Bean1a[] colb1 = new Bean1a[]
-            { b1a, b1b };
+        { b1a, b1b };
         b1.setBeanArray(colb1);
         final BeanWithBeanArray2 b2 = new BeanWithBeanArray2();
         // With empty collection
@@ -1063,9 +1063,9 @@ public final class BeanUtilsTest
     public static class CyclicBeanA1
     {
         private String name;
-        
+
         private CyclicBeanB1 cyclicBeanB;
-        
+
         private CyclicBeanA1[] cyclicBeans;
 
         public final String getName()
@@ -1102,9 +1102,9 @@ public final class BeanUtilsTest
     public static class CyclicBeanB1
     {
         private String name;
-        
+
         private CyclicBeanA1 cyclicBeanA;
-        
+
         private List<CyclicBeanB1> cyclicBeans;
 
         public final String getName()
@@ -1137,30 +1137,30 @@ public final class BeanUtilsTest
             this.cyclicBeans = cyclicBeans;
         }
     }
-    
+
     public static class CyclicBeanA2
     {
         private String name;
-        
+
         private CyclicBeanB2 cyclicBeanB;
-        
+
         private CyclicBeanA2[] cyclicBeans;
 
         public final String getName()
         {
             return name;
         }
-        
+
         public final void setName(String name)
         {
             this.name = name;
         }
-        
+
         public final CyclicBeanB2 getCyclicBeanB()
         {
             return cyclicBeanB;
         }
-        
+
         public final void setCyclicBeanB(CyclicBeanB2 cyclicBeanB)
         {
             this.cyclicBeanB = cyclicBeanB;
@@ -1176,30 +1176,30 @@ public final class BeanUtilsTest
             this.cyclicBeans = cyclicBeans;
         }
     }
-    
+
     public static class CyclicBeanB2
     {
         private String name;
-        
+
         private CyclicBeanA2 cyclicBeanA;
-        
+
         private List<CyclicBeanB2> cyclicBeans;
-        
+
         public final String getName()
         {
             return name;
         }
-        
+
         public final void setName(String name)
         {
             this.name = name;
         }
-        
+
         public final CyclicBeanA2 getCyclicBeanA()
         {
             return cyclicBeanA;
         }
-        
+
         public final void setCyclicBeanA(CyclicBeanA2 cyclicBeanA)
         {
             this.cyclicBeanA = cyclicBeanA;
@@ -1216,7 +1216,7 @@ public final class BeanUtilsTest
             this.cyclicBeans = cyclicBeans;
         }
     }
-    
+
     @Test
     public void testConversionOfCyclicBeans()
     {
@@ -1230,7 +1230,7 @@ public final class BeanUtilsTest
         List<CyclicBeanB1> beans = new ArrayList<CyclicBeanB1>();
         beans.add(cyclicBeanB1);
         cyclicBeanB1.setCyclicBeans(beans);
-        
+
         CyclicBeanA2 cyclicBeanA2 = BeanUtils.createBean(CyclicBeanA2.class, cyclicBeanA1);
         assertEquals("a", cyclicBeanA2.getName());
         CyclicBeanB2 cyclicBeanB2 = cyclicBeanA2.getCyclicBeanB();
@@ -1243,7 +1243,7 @@ public final class BeanUtilsTest
         assertEquals("b", cyclicBeanB2.getCyclicBeans().get(0).getName());
         assertSame(cyclicBeanB2, cyclicBeanB2.getCyclicBeans().get(0));
     }
-    
+
     @Test
     public void testFillBeanFromProperties()
     {
@@ -1254,13 +1254,13 @@ public final class BeanUtilsTest
         props.setProperty("f", "3.14159");
         props.setProperty("bb", "1");
         final Bean2a b = BeanUtils.createBean(Bean2a.class, props, new BeanUtils.Converter()
-        {
-            @SuppressWarnings("unused")
-            public boolean convertToBb(Properties myProps)
             {
-                return "1".equals(myProps.get("bb"));
-            }
-        });
+                @SuppressWarnings("unused")
+                public boolean convertToBb(Properties myProps)
+                {
+                    return "1".equals(myProps.get("bb"));
+                }
+            });
         assertEquals(17, b.getI());
         assertEquals("bla", b.getS());
         assertTrue(b.isB());

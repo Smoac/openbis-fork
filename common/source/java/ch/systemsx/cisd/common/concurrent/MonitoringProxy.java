@@ -43,37 +43,30 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.time.TimingParameters;
 
 /**
- * A class that can provide a dynamic {@link Proxy} for an interface that delegates the method
- * invocations to an implementation of this interface, monitoring for calls to
- * {@link Thread#interrupt()} and for timeouts and allowing the invocation to be retried if it
- * failed. (Note that by default no timeout is set and no retrying of failed operations is
- * performed.)
+ * A class that can provide a dynamic {@link Proxy} for an interface that delegates the method invocations to an implementation of this interface,
+ * monitoring for calls to {@link Thread#interrupt()} and for timeouts and allowing the invocation to be retried if it failed. (Note that by default
+ * no timeout is set and no retrying of failed operations is performed.)
  * <p>
- * On calls to {@link Thread#interrupt()} the proxy will throw a
- * {@link InterruptedExceptionUnchecked}, on timeouts a {@link TimeoutExceptionUnchecked}.
+ * On calls to {@link Thread#interrupt()} the proxy will throw a {@link InterruptedExceptionUnchecked}, on timeouts a
+ * {@link TimeoutExceptionUnchecked}.
  * <p>
- * Retrying failed invocations is enabled by calling {@link #timing(TimingParameters)} with a retry
- * parameter greater than 0. You need to carefully consider whether the methods in the interface are
- * suitable for retrying or not. Note that there is no retrying on thread interruption, but only on
- * timeout. You can configure a 'white-list' of exception classes that are suitable for retrying the
- * operation. By default this white-list is empty, thus method invocations failing with an exception
- * will not be retried.
+ * Retrying failed invocations is enabled by calling {@link #timing(TimingParameters)} with a retry parameter greater than 0. You need to carefully
+ * consider whether the methods in the interface are suitable for retrying or not. Note that there is no retrying on thread interruption, but only on
+ * timeout. You can configure a 'white-list' of exception classes that are suitable for retrying the operation. By default this white-list is empty,
+ * thus method invocations failing with an exception will not be retried.
  * <p>
- * The proxy can be configured by chaining. If all options have been set, the actual proxy can be
- * obtained by calling {@link #get()}. In order to e.g. set the timeout to 10s, the following call
- * chain can be used:
+ * The proxy can be configured by chaining. If all options have been set, the actual proxy can be obtained by calling {@link #get()}. In order to e.g.
+ * set the timeout to 10s, the following call chain can be used:
  * 
  * <pre>
  * If proxy = MonitoringProxy.create(If.class, someInstance).timeoutMillis(10000L).get();
  * </pre>
  * 
- * Instead of throwing an exception, the proxy can also be configured to provide special error
- * values on error conditions. This configuration is done by {@link #errorValueOnInterrupt()} for
- * thread interrupts and {@link #errorValueOnTimeout()} for timeouts.
+ * Instead of throwing an exception, the proxy can also be configured to provide special error values on error conditions. This configuration is done
+ * by {@link #errorValueOnInterrupt()} for thread interrupts and {@link #errorValueOnTimeout()} for timeouts.
  * <p>
- * The error return values can be set, either for the type of the return value of a method, or by
- * the method itself. If present, the specific method-value mapping will take precedence of the
- * generic return-type-value mapping. In order to set a value "ERROR" for String return types, use a
+ * The error return values can be set, either for the type of the return value of a method, or by the method itself. If present, the specific
+ * method-value mapping will take precedence of the generic return-type-value mapping. In order to set a value "ERROR" for String return types, use a
  * chaining call like:
  * 
  * <pre>
@@ -82,13 +75,11 @@ import ch.systemsx.cisd.common.time.TimingParameters;
  *                 .errorTypeValueMapping(String.class, &quot;ERROR&quot;).get();
  * </pre>
  * <p>
- * <strong>Note:</strong> A MonitoringProxy object can only be used safely from more than one thread
- * if
+ * <strong>Note:</strong> A MonitoringProxy object can only be used safely from more than one thread if
  * <ol>
  * <li>The proxied object is thread-safe</li>
- * <li>No proxy-wide observer / sensor pattern is used to detect activity (can produce
- * "false negatives" on hanging method calls), however using a {@link IMonitorCommunicator} is safe.
- * </li>
+ * <li>No proxy-wide observer / sensor pattern is used to detect activity (can produce "false negatives" on hanging method calls), however using a
+ * {@link IMonitorCommunicator} is safe.</li>
  * </ol>
  * 
  * @see IMonitorCommunicator
@@ -131,7 +122,7 @@ public class MonitoringProxy<T>
     private ISimpleLogger loggerOrNull;
 
     private LogLevel logLevelForSuccessfulCalls;
-    
+
     private LogLevel logLevelForNotSuccessfulCalls;
 
     private IMonitoringProxyLogger invocationLoggerOrNull;
@@ -467,7 +458,7 @@ public class MonitoringProxy<T>
     private T createProxy(Class<T> interfaceClass, T objectToProxyFor)
     {
         final Class<?>[] interfaceClasses = new Class<?>[]
-            { interfaceClass };
+        { interfaceClass };
         final Object proxyInstance =
                 Proxy.newProxyInstance(interfaceClass.getClassLoader(), interfaceClasses, handler);
         return cast(interfaceClass, proxyInstance);
@@ -475,14 +466,11 @@ public class MonitoringProxy<T>
     }
 
     /**
-     * A role for communication between the monitor and a monitored method call. The monitored
-     * method will signal activity to the monitor by calling {@link #update()} and learn whether it
-     * has been cancelled by the monitor by calling {@link #isCancelled()}. A
-     * <code>IMonitorCommunicator</code> object is injected into the actual parameters of a method
-     * call by the monitor if and only if the last formal parameter of a proxied method call is of
-     * type <code>IMonitorCommunicator</code>. The actual parameter of the
-     * <code>IMonitorCommunicator</code> provided by the caller is meaningless in this case. The
-     * constant {@link MonitoringProxy#MONITOR_COMMUNICATOR} can be used as a placeholder.
+     * A role for communication between the monitor and a monitored method call. The monitored method will signal activity to the monitor by calling
+     * {@link #update()} and learn whether it has been cancelled by the monitor by calling {@link #isCancelled()}. A <code>IMonitorCommunicator</code>
+     * object is injected into the actual parameters of a method call by the monitor if and only if the last formal parameter of a proxied method call
+     * is of type <code>IMonitorCommunicator</code>. The actual parameter of the <code>IMonitorCommunicator</code> provided by the caller is
+     * meaningless in this case. The constant {@link MonitoringProxy#MONITOR_COMMUNICATOR} can be used as a placeholder.
      * <p>
      * <em>Example:</em> The interface
      * 
@@ -517,10 +505,9 @@ public class MonitoringProxy<T>
      * monitoredObject.possiblyHangingAndRetriedOperation(42, MonitoringProxy.MONITOR_COMMUNICATOR);
      * </pre>
      * <p>
-     * <strong>Note:</strong> The object is unique to the method call, not even a retried method
-     * call (e.g. in case of timeout) will get the same <code>IMonitorCommunicator</code> object
-     * instance. Thus the injected <code>IMonitorCommunicator</code> is a safe way of communicating
-     * between the {@link MonitoringProxy} and the exact method call.
+     * <strong>Note:</strong> The object is unique to the method call, not even a retried method call (e.g. in case of timeout) will get the same
+     * <code>IMonitorCommunicator</code> object instance. Thus the injected <code>IMonitorCommunicator</code> is a safe way of communicating between
+     * the {@link MonitoringProxy} and the exact method call.
      */
     public interface IMonitorCommunicator extends IActivityObserver
     {
@@ -531,9 +518,8 @@ public class MonitoringProxy<T>
     }
 
     /**
-     * A placeholder for an {@link IMonitorCommunicator}. To be used in the actual parameter list of
-     * a monitored proxy call as an indication that a {@link IMonitorCommunicator} instance is used
-     * in this method call.
+     * A placeholder for an {@link IMonitorCommunicator}. To be used in the actual parameter list of a monitored proxy call as an indication that a
+     * {@link IMonitorCommunicator} instance is used in this method call.
      */
     public static final IMonitorCommunicator MONITOR_COMMUNICATOR = new IMonitorCommunicator()
         {
@@ -610,14 +596,12 @@ public class MonitoringProxy<T>
     }
 
     /**
-     * Creates a {@link MonitoringProxy} of type <var>interfaceClass</var> for the
-     * <var>objectToProxyFor</var>.
+     * Creates a {@link MonitoringProxy} of type <var>interfaceClass</var> for the <var>objectToProxyFor</var>.
      * 
-     * @param interfaceClass The type of the interface to proxy for. It is a programming error to
-     *            provide a class that does not represent an interface.
+     * @param interfaceClass The type of the interface to proxy for. It is a programming error to provide a class that does not represent an
+     *            interface.
      * @param objectToProxyFor The object to proxy for.
-     * @return A monitoring proxy that can be configured as required and that finally provides the
-     *         actual proxy with {@link #get()}.
+     * @return A monitoring proxy that can be configured as required and that finally provides the actual proxy with {@link #get()}.
      */
     public static <T> MonitoringProxy<T> create(Class<T> interfaceClass, T objectToProxyFor)
     {
@@ -705,8 +689,7 @@ public class MonitoringProxy<T>
     /**
      * Sets an error return <var>value</var> for the type <var>clazz</var>.
      * <p>
-     * <i>A value set by this method is only relevant if the proxy is configured to return error
-     * values rather than to throw exceptions.</i>
+     * <i>A value set by this method is only relevant if the proxy is configured to return error values rather than to throw exceptions.</i>
      */
     public <V> MonitoringProxy<T> errorTypeValueMapping(Class<V> clazz, V value)
     {
@@ -715,11 +698,10 @@ public class MonitoringProxy<T>
     }
 
     /**
-     * Sets an error return <var>value</var> for the given <var>method</var>. This <var>value</var>
-     * takes precedence over the error type mapping for methods with the same return type.
+     * Sets an error return <var>value</var> for the given <var>method</var>. This <var>value</var> takes precedence over the error type mapping for
+     * methods with the same return type.
      * <p>
-     * <i>A value set by this method is only relevant if the proxy is configured to return error
-     * values rather than to throw exceptions.</i>
+     * <i>A value set by this method is only relevant if the proxy is configured to return error values rather than to throw exceptions.</i>
      */
     public MonitoringProxy<T> errorMethodValueMapping(Method method, Object value)
     {
@@ -728,11 +710,10 @@ public class MonitoringProxy<T>
     }
 
     /**
-     * The monitoring proxy can call some methods in a simple asynchronous way. This method is to
-     * state that the given <var>method</var> should be called asynchronously.
+     * The monitoring proxy can call some methods in a simple asynchronous way. This method is to state that the given <var>method</var> should be
+     * called asynchronously.
      * <p>
-     * <i>Note that asynchronously called methods cannot be monitored for success but will return a
-     * value signing "OK" to the caller.<i>
+     * <i>Note that asynchronously called methods cannot be monitored for success but will return a value signing "OK" to the caller.<i>
      */
     public MonitoringProxy<T> callAsynchronously(Method method)
     {
@@ -743,8 +724,7 @@ public class MonitoringProxy<T>
     /**
      * Sets a return <var>value</var> that signals "OK" for the type <var>clazz</var>.
      * <p>
-     * <i>A value set by this method is only relevant if the proxy is configured to run a method
-     * asynchronously.</i>
+     * <i>A value set by this method is only relevant if the proxy is configured to run a method asynchronously.</i>
      */
     public <V> MonitoringProxy<T> asyncOkTypeValueMapping(Class<V> clazz, V value)
     {
@@ -753,12 +733,10 @@ public class MonitoringProxy<T>
     }
 
     /**
-     * Sets a return <var>value</var> that signals "OK" for the given <var>method</var>. This
-     * <var>value</var> takes precedence over the ok type mapping for methods with the same return
-     * type.
+     * Sets a return <var>value</var> that signals "OK" for the given <var>method</var>. This <var>value</var> takes precedence over the ok type
+     * mapping for methods with the same return type.
      * <p>
-     * <i>A value set by this method is only relevant if the proxy is configured to run a method
-     * asynchronously.</i>
+     * <i>A value set by this method is only relevant if the proxy is configured to run a method asynchronously.</i>
      */
     public MonitoringProxy<T> asyncOkMethodValueMapping(Method method, Object value)
     {
@@ -795,7 +773,7 @@ public class MonitoringProxy<T>
         this.logLevelForSuccessfulCalls = newLogLevelForSuccessfulCalls;
         return this;
     }
-    
+
     /**
      * Sets a log level for not successful calls to the proxy.
      * <p>
@@ -808,15 +786,13 @@ public class MonitoringProxy<T>
     }
 
     /**
-     * Sets a sensor for detecting activity during a monitored method call. Activity on this sensor
-     * can prevent the monitored method invocation from timing out.
+     * Sets a sensor for detecting activity during a monitored method call. Activity on this sensor can prevent the monitored method invocation from
+     * timing out.
      * <p>
-     * <strong>Note:</strong> This sensor is only meant to be used for activity that has to be
-     * detected in the program's execution environment, e.g. recent disk or network activity. If the
-     * activity can be sensed in the monitored method call itself, use the
-     * {@link IMonitorCommunicator} instead. Using the <var>sensor</var> set with this method to
-     * sense activity in the method invocation itself when the invocation may be retried is
-     * inherently unsafe!
+     * <strong>Note:</strong> This sensor is only meant to be used for activity that has to be detected in the program's execution environment, e.g.
+     * recent disk or network activity. If the activity can be sensed in the monitored method call itself, use the {@link IMonitorCommunicator}
+     * instead. Using the <var>sensor</var> set with this method to sense activity in the method invocation itself when the invocation may be retried
+     * is inherently unsafe!
      * 
      * @see IMonitorCommunicator
      */

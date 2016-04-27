@@ -28,8 +28,8 @@ import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 /**
  * A default {@link IParser} implementation.
  * <p>
- * The object type returned by this implementation is generic. This implementation defines a
- * <code>ILineFilter</code> that filters out comment and empty lines.
+ * The object type returned by this implementation is generic. This implementation defines a <code>ILineFilter</code> that filters out comment and
+ * empty lines.
  * </p>
  * 
  * @author Christian Ribeaud

@@ -185,10 +185,9 @@ public class ServiceConversationServer
      * Starts a service conversation of type <var>typeId</var>.
      * 
      * @param typeId The service type of the conversation.
-     * @param clientId The id of the client, used to find a suitable transport to communicate back
-     *            the messages from the service to the client.
-     * @param messageReceivingTimeoutMillis The time in milli-seconds that a service conversation
-     *            method waits for an incoming message from the client before timing out.
+     * @param clientId The id of the client, used to find a suitable transport to communicate back the messages from the service to the client.
+     * @param messageReceivingTimeoutMillis The time in milli-seconds that a service conversation method waits for an incoming message from the client
+     *            before timing out.
      * @return The information about the service conversation started.
      */
     public ServiceConversationDTO startConversation(final String typeId, final String clientId,
@@ -273,8 +272,8 @@ public class ServiceConversationServer
     }
 
     /**
-     * Shuts down the server, waiting for ongoing conversations to finish for
-     * {@link ServiceConversationServerConfig#getShutdownTimeoutMillis()} milli-seconds.
+     * Shuts down the server, waiting for ongoing conversations to finish for {@link ServiceConversationServerConfig#getShutdownTimeoutMillis()}
+     * milli-seconds.
      * 
      * @return <code>true</code>, if the server was shut down properly.
      */

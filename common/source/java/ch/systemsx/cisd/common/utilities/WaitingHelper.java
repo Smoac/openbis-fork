@@ -23,7 +23,7 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.time.DateTimeUtils;
 
 /**
- * Helper class for waiting on a condition to be fulfilled.  
+ * Helper class for waiting on a condition to be fulfilled.
  * 
  * @author Franz-Josef Elmer
  */
@@ -33,18 +33,18 @@ public class WaitingHelper
      * Implemention of {@link IPause} which always returns 0.
      */
     public static final IPause NO_PAUSE = new IPause()
-    {
-        @Override
-        public long pause()
         {
-            return 0;
-        }
-    };
-    
+            @Override
+            public long pause()
+            {
+                return 0;
+            }
+        };
+
     private static final long MINIMUM_LOG_INTERVAL = DateUtils.MILLIS_PER_MINUTE;
 
     private static final long MAXIMUM_LOG_INTERVAL = DateUtils.MILLIS_PER_HOUR;
-    
+
     private static final double FACTOR = (Math.sqrt(5) + 1) / 2;
 
     private static final ISimpleLogger DUMMY_LOGGER = new ISimpleLogger()
@@ -75,7 +75,7 @@ public class WaitingHelper
         this(timeOut, pollingTime, SystemTimeProvider.SYSTEM_TIME_PROVIDER, loggerOrNull, true);
     }
 
-    public WaitingHelper(Long timeOut, long pollingTime, ITimeAndWaitingProvider provider, 
+    public WaitingHelper(Long timeOut, long pollingTime, ITimeAndWaitingProvider provider,
             ISimpleLogger loggerOrNull, boolean logSuccess)
     {
         this.timeOut = timeOut;
@@ -88,8 +88,8 @@ public class WaitingHelper
     /**
      * Waits until specified condition is fulfilled.
      * 
-     * @return <code>true</code> if waiting stops because condition has been fulfilled. 
-     *      If this isn't the case after the specified time out <code>false</code> will be returned.
+     * @return <code>true</code> if waiting stops because condition has been fulfilled. If this isn't the case after the specified time out
+     *         <code>false</code> will be returned.
      */
     public boolean waitOn(IWaitingCondition condition)
     {
@@ -99,9 +99,8 @@ public class WaitingHelper
     /**
      * Waits until specified condition is fulfilled.
      * 
-     * @param initialStartTime Start time. Waiting times out after startTime + timeOut.
-     *      * @return <code>true</code> if waiting stops because condition has been fulfilled. 
-     *      If this isn't the case after the specified time out <code>false</code> will be returned.
+     * @param initialStartTime Start time. Waiting times out after startTime + timeOut. * @return <code>true</code> if waiting stops because condition
+     *            has been fulfilled. If this isn't the case after the specified time out <code>false</code> will be returned.
      * @param pause Pausing operation which is executed after each condition check.
      */
     public boolean waitOn(long initialStartTime, IWaitingCondition condition, IPause pause)
@@ -136,12 +135,12 @@ public class WaitingHelper
         return false;
     }
 
-    private void log(String renderedDuration, IWaitingCondition condition, boolean previousConditionFailed, 
+    private void log(String renderedDuration, IWaitingCondition condition, boolean previousConditionFailed,
             boolean fulfilled)
     {
         if (previousConditionFailed || fulfilled == false || logSuccess)
         {
-            logger.log(LogLevel.INFO, "Condition " + (fulfilled ? "" : "still not ") + "fulfilled after " 
+            logger.log(LogLevel.INFO, "Condition " + (fulfilled ? "" : "still not ") + "fulfilled after "
                     + renderedDuration + ", condition: " + condition);
         }
     }

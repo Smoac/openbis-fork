@@ -74,8 +74,7 @@ public final class ProcessExecutionHelper
     /**
      * Log the <var>result</var> and return the {@link ProcessResult#isOK()} flag.
      * 
-     * @throws InterruptedExceptionUnchecked If the <var>result</var> has the
-     *             {@link ProcessResult#isInterruped()} flag set.
+     * @throws InterruptedExceptionUnchecked If the <var>result</var> has the {@link ProcessResult#isInterruped()} flag set.
      */
     public static final boolean log(ProcessResult result) throws InterruptedExceptionUnchecked
     {
@@ -93,12 +92,10 @@ public final class ProcessExecutionHelper
      * @param cmd The command line to run.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
-     * @param stopOnInterrupt If <code>true</code>, an {@link InterruptedExceptionUnchecked} will be
-     *            thrown if the thread got interrupted, otherwise, the
-     *            {@link ProcessResult#isInterruped()} flag will be set.
+     * @param stopOnInterrupt If <code>true</code>, an {@link InterruptedExceptionUnchecked} will be thrown if the thread got interrupted, otherwise,
+     *            the {@link ProcessResult#isInterruped()} flag will be set.
      * @return The process result.
-     * @throws InterruptedExceptionUnchecked If the thread got interrupted and
-     *             <var>stopOnInterrupt</var> is <code>true</code>.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted and <var>stopOnInterrupt</var> is <code>true</code>.
      */
     public static ProcessResult run(final List<String> cmd, final Logger operationLog,
             final Logger machineLog, boolean stopOnInterrupt) throws InterruptedExceptionUnchecked
@@ -129,8 +126,7 @@ public final class ProcessExecutionHelper
      * @param cmd The command line to run.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
-     * @return <code>true</code>, if the process did complete successfully, <code>false</code>
-     *         otherwise.
+     * @return <code>true</code>, if the process did complete successfully, <code>false</code> otherwise.
      * @throws InterruptedExceptionUnchecked If the thread got interrupted.
      */
     public static boolean runAndLog(final List<String> cmd, final Logger operationLog,
@@ -145,12 +141,9 @@ public final class ProcessExecutionHelper
      * @param cmd The command line to run.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
-     * @param millisToWaitForCompletion The time to wait for the process to complete in
-     *            milli-seconds. If the process is not finished after that time, it will be
-     *            terminated by a watch dog. Use {@link ConcurrencyUtilities#NO_TIMEOUT} if you do
-     *            not want any timeout.
-     * @return <code>true</code>, if the process did complete successfully, <code>false</code>
-     *         otherwise.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in milli-seconds. If the process is not finished after that time,
+     *            it will be terminated by a watch dog. Use {@link ConcurrencyUtilities#NO_TIMEOUT} if you do not want any timeout.
+     * @return <code>true</code>, if the process did complete successfully, <code>false</code> otherwise.
      * @throws InterruptedExceptionUnchecked If the thread got interrupted.
      */
     public static boolean runAndLog(final List<String> cmd, final Logger operationLog,
@@ -166,15 +159,12 @@ public final class ProcessExecutionHelper
      * @param cmd The command line to run.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
-     * @param millisToWaitForCompletion The time to wait for the process to complete in milli
-     *            seconds. If the process is not finished after that time, it will be terminated by
-     *            a watch dog.
-     * @param stopOnInterrupt If <code>true</code>, an {@link InterruptedExceptionUnchecked} will be
-     *            thrown if the thread got interrupted, otherwise, the
-     *            {@link ProcessResult#isInterruped()} flag will be set.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in milli seconds. If the process is not finished after that time,
+     *            it will be terminated by a watch dog.
+     * @param stopOnInterrupt If <code>true</code>, an {@link InterruptedExceptionUnchecked} will be thrown if the thread got interrupted, otherwise,
+     *            the {@link ProcessResult#isInterruped()} flag will be set.
      * @return The process result.
-     * @throws InterruptedExceptionUnchecked If the thread got interrupted and
-     *             <var>stopOnInterrupt</var> is <code>true</code>.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted and <var>stopOnInterrupt</var> is <code>true</code>.
      */
     public static ProcessResult run(final List<String> cmd, final Logger operationLog,
             final Logger machineLog, final long millisToWaitForCompletion,
@@ -191,16 +181,13 @@ public final class ProcessExecutionHelper
      * @param cmd The command line to run.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
-     * @param millisToWaitForCompletion The time to wait for the process to complete in milli
-     *            seconds. If the process is not finished after that time, it will be terminated by
-     *            a watch dog.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in milli seconds. If the process is not finished after that time,
+     *            it will be terminated by a watch dog.
      * @param ioStrategy The strategy to handle process I/O.
-     * @param stopOnInterrupt If <code>true</code>, an {@link InterruptedExceptionUnchecked} will be
-     *            thrown if the thread got interrupted, otherwise, the
-     *            {@link ProcessResult#isInterruped()} flag will be set.
+     * @param stopOnInterrupt If <code>true</code>, an {@link InterruptedExceptionUnchecked} will be thrown if the thread got interrupted, otherwise,
+     *            the {@link ProcessResult#isInterruped()} flag will be set.
      * @return The process result.
-     * @throws InterruptedExceptionUnchecked If the thread got interrupted and
-     *             <var>stopOnInterrupt</var> is <code>true</code>.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted and <var>stopOnInterrupt</var> is <code>true</code>.
      */
     public static ProcessResult run(final List<String> cmd, final Logger operationLog,
             final Logger machineLog, final long millisToWaitForCompletion,
@@ -216,22 +203,17 @@ public final class ProcessExecutionHelper
      * 
      * @param cmd The command line to run.
      * @param environment The environment of the process to start.
-     * @param replaceEnvironment If <code>true</code>, the environment will be cleared before
-     *            addinng the keys from <var>environment</var>, if it is <code>false</code>, the
-     *            keys in <var>environment</var> will be added without clearing the environment
-     *            before.
+     * @param replaceEnvironment If <code>true</code>, the environment will be cleared before addinng the keys from <var>environment</var>, if it is
+     *            <code>false</code>, the keys in <var>environment</var> will be added without clearing the environment before.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
-     * @param millisToWaitForCompletion The time to wait for the process to complete in milli
-     *            seconds. If the process is not finished after that time, it will be terminated by
-     *            a watch dog.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in milli seconds. If the process is not finished after that time,
+     *            it will be terminated by a watch dog.
      * @param ioStrategy The strategy to handle process I/O.
-     * @param stopOnInterrupt If <code>true</code>, an {@link InterruptedExceptionUnchecked} will be
-     *            thrown if the thread got interrupted, otherwise, the
-     *            {@link ProcessResult#isInterruped()} flag will be set.
+     * @param stopOnInterrupt If <code>true</code>, an {@link InterruptedExceptionUnchecked} will be thrown if the thread got interrupted, otherwise,
+     *            the {@link ProcessResult#isInterruped()} flag will be set.
      * @return The process result.
-     * @throws InterruptedExceptionUnchecked If the thread got interrupted and
-     *             <var>stopOnInterrupt</var> is <code>true</code>.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted and <var>stopOnInterrupt</var> is <code>true</code>.
      */
     public static ProcessResult run(final List<String> cmd, final Map<String, String> environment,
             boolean replaceEnvironment, final Logger operationLog, final Logger machineLog,
@@ -248,9 +230,8 @@ public final class ProcessExecutionHelper
      * @param cmd The command line to run.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
-     * @param millisToWaitForCompletion The time to wait for the process to complete in milli
-     *            seconds. If the process is not finished after that time, it will be terminated by
-     *            a watch dog.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in milli seconds. If the process is not finished after that time,
+     *            it will be terminated by a watch dog.
      * @return The process result.
      * @throws InterruptedExceptionUnchecked If the thread got interrupted.
      */
@@ -267,12 +248,10 @@ public final class ProcessExecutionHelper
      * @param cmd The command line to run.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
-     * @param millisToWaitForCompletion The time to wait for the process to complete in
-     *            milli-seconds. If the process is not finished after that time, it will be
-     *            terminated by a watch dog.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in milli-seconds. If the process is not finished after that time,
+     *            it will be terminated by a watch dog.
      * @param processIOStrategy The strategy of how to handle the process I/O.
-     * @return <code>true</code>, if the process did complete successfully, <code>false</code>
-     *         otherwise.
+     * @return <code>true</code>, if the process did complete successfully, <code>false</code> otherwise.
      * @throws InterruptedExceptionUnchecked If the thread got interrupted.
      */
     public static boolean runAndLog(final List<String> cmd, final Logger operationLog,
@@ -288,18 +267,14 @@ public final class ProcessExecutionHelper
      * 
      * @param cmd The command line to run.
      * @param environment The environment of the process to start.
-     * @param replaceEnvironment If <code>true</code>, the environment will be cleared before
-     *            addinng the keys from <var>environment</var>, if it is <code>false</code>, the
-     *            keys in <var>environment</var> will be added without clearing the environment
-     *            before.
+     * @param replaceEnvironment If <code>true</code>, the environment will be cleared before addinng the keys from <var>environment</var>, if it is
+     *            <code>false</code>, the keys in <var>environment</var> will be added without clearing the environment before.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
-     * @param millisToWaitForCompletion The time to wait for the process to complete in
-     *            milli-seconds. If the process is not finished after that time, it will be
-     *            terminated by a watch dog.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in milli-seconds. If the process is not finished after that time,
+     *            it will be terminated by a watch dog.
      * @param processIOStrategy The strategy of how to handle the process I/O.
-     * @return <code>true</code>, if the process did complete successfully, <code>false</code>
-     *         otherwise.
+     * @return <code>true</code>, if the process did complete successfully, <code>false</code> otherwise.
      * @throws InterruptedExceptionUnchecked If the thread got interrupted.
      */
     public static boolean runAndLog(final List<String> cmd, final Map<String, String> environment,
@@ -317,13 +292,10 @@ public final class ProcessExecutionHelper
      * @param cmd The command line to run.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
-     * @param millisToWaitForCompletion The time to wait for the process to complete in
-     *            milli-seconds. If the process is not finished after that time, it will be
-     *            terminated by a watch dog.
-     * @param outputReadingStrategy The strategy for when to read the output (both
-     *            <code>stdout</code> and <code>sterr</code>) of the process.
-     * @return <code>true</code>, if the process did complete successfully, <code>false</code>
-     *         otherwise.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in milli-seconds. If the process is not finished after that time,
+     *            it will be terminated by a watch dog.
+     * @param outputReadingStrategy The strategy for when to read the output (both <code>stdout</code> and <code>sterr</code>) of the process.
+     * @return <code>true</code>, if the process did complete successfully, <code>false</code> otherwise.
      * @throws InterruptedExceptionUnchecked If the thread got interrupted.
      */
     @Deprecated
@@ -341,16 +313,13 @@ public final class ProcessExecutionHelper
      * @param cmd The command line to run.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
-     * @param millisToWaitForCompletion The time to wait for the process to complete in milli
-     *            seconds. If the process is not finished after that time, it will be terminated by
-     *            a watch dog.
-     * @param outputReadingStrategy The strategy for when to read the output (both
-     *            <code>stdout</code> and <code>sterr</code>) of the process.
-     * @param stopOnInterrupt If <code>true</code>, throw a {@link InterruptedExceptionUnchecked} if
-     *            the thread gets interrupted while waiting on the future.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in milli seconds. If the process is not finished after that time,
+     *            it will be terminated by a watch dog.
+     * @param outputReadingStrategy The strategy for when to read the output (both <code>stdout</code> and <code>sterr</code>) of the process.
+     * @param stopOnInterrupt If <code>true</code>, throw a {@link InterruptedExceptionUnchecked} if the thread gets interrupted while waiting on the
+     *            future.
      * @return The process result.
-     * @throws InterruptedExceptionUnchecked If the thread got interrupted and
-     *             <var>stopOnInterrupt</var> is <code>true</code>.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted and <var>stopOnInterrupt</var> is <code>true</code>.
      */
     @Deprecated
     public static ProcessResult run(final List<String> cmd, final Logger operationLog,
@@ -374,18 +343,14 @@ public final class ProcessExecutionHelper
      * @param cmd The command line to run.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
-     * @param millisToWaitForCompletion The time to wait for the process to complete in milli
-     *            seconds. If the process is not finished after that time, it will be terminated by
-     *            a watch dog.
-     * @param outputReadingStrategy The strategy for when to read the output (both
-     *            <code>stdout</code> and <code>sterr</code>) of the process.
-     * @param binaryOutput If <code>true</code>, the process is expected to produce binary output on
-     *            <code>stdout</code>.
-     * @param stopOnInterrupt If <code>true</code>, throw a {@link InterruptedExceptionUnchecked} if
-     *            the thread gets interrupted while waiting on the future.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in milli seconds. If the process is not finished after that time,
+     *            it will be terminated by a watch dog.
+     * @param outputReadingStrategy The strategy for when to read the output (both <code>stdout</code> and <code>sterr</code>) of the process.
+     * @param binaryOutput If <code>true</code>, the process is expected to produce binary output on <code>stdout</code>.
+     * @param stopOnInterrupt If <code>true</code>, throw a {@link InterruptedExceptionUnchecked} if the thread gets interrupted while waiting on the
+     *            future.
      * @return The process result.
-     * @throws InterruptedExceptionUnchecked If the thread got interrupted and
-     *             <var>stopOnInterrupt</var> is <code>true</code>.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted and <var>stopOnInterrupt</var> is <code>true</code>.
      */
     @Deprecated
     public static ProcessResult run(final List<String> cmd, final Logger operationLog,
@@ -405,8 +370,7 @@ public final class ProcessExecutionHelper
     }
 
     /**
-     * Runs an Operating System process, specified by <var>cmd</var>. Does not block waiting for a
-     * result.
+     * Runs an Operating System process, specified by <var>cmd</var>. Does not block waiting for a result.
      * 
      * @param cmd The command line to run.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
@@ -417,7 +381,7 @@ public final class ProcessExecutionHelper
      * @return The handler which allows to wait for the result or terminate the process.
      */
     public static IProcessHandler runUnblocking(final List<String> cmd, Logger operationLog,
-            final Logger machineLog, final ProcessIOStrategy processIOStrategy, 
+            final Logger machineLog, final ProcessIOStrategy processIOStrategy,
             ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         return new ProcessExecutor(cmd, null, false, ConcurrencyUtilities.NO_TIMEOUT,
@@ -425,15 +389,12 @@ public final class ProcessExecutionHelper
     }
 
     /**
-     * Runs an Operating System process, specified by <var>cmd</var>. Does not block waiting for a
-     * result.
+     * Runs an Operating System process, specified by <var>cmd</var>. Does not block waiting for a result.
      * 
      * @param cmd The command line to run.
      * @param environment The environment of the process to start.
-     * @param replaceEnvironment If <code>true</code>, the environment will be cleared before
-     *            addinng the keys from <var>environment</var>, if it is <code>false</code>, the
-     *            keys in <var>environment</var> will be added without clearing the environment
-     *            before.
+     * @param replaceEnvironment If <code>true</code>, the environment will be cleared before addinng the keys from <var>environment</var>, if it is
+     *            <code>false</code>, the keys in <var>environment</var> will be added without clearing the environment before.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
      * @param stdoutHandlerOrNull Handler of stdout lines. Can be <code>null</code>.
@@ -443,18 +404,17 @@ public final class ProcessExecutionHelper
      */
     public static IProcessHandler runUnblocking(final List<String> cmd,
             final Map<String, String> environment, final boolean replaceEnvironment,
-            Logger operationLog, final Logger machineLog, final ProcessIOStrategy processIOStrategy, 
+            Logger operationLog, final Logger machineLog, final ProcessIOStrategy processIOStrategy,
             ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
     {
         return new ProcessExecutor(cmd, environment, replaceEnvironment,
-                ConcurrencyUtilities.NO_TIMEOUT, processIOStrategy, operationLog, machineLog, 
+                ConcurrencyUtilities.NO_TIMEOUT, processIOStrategy, operationLog, machineLog,
                 stdoutHandlerOrNull, stderrHandlerOrNull)
                 .runUnblocking();
     }
 
     /**
-     * Runs an Operating System process, specified by <var>cmd</var>. Does not block waiting for a
-     * result.
+     * Runs an Operating System process, specified by <var>cmd</var>. Does not block waiting for a result.
      * 
      * @param cmd The command line to run.
      * @param outputReadingStrategy The strategy about when to read the output from the process.
@@ -479,11 +439,9 @@ public final class ProcessExecutionHelper
     }
 
     /**
-     * Helper method for non-blocking reading text from a reader and add it to a list of strings,
-     * or, alternatively, discard it.
+     * Helper method for non-blocking reading text from a reader and add it to a list of strings, or, alternatively, discard it.
      * 
-     * @param outputOrNull Must not be <code>null</code> if <var>discard</var> is <code>false</code>
-     *            .
+     * @param outputOrNull Must not be <code>null</code> if <var>discard</var> is <code>false</code> .
      * @return <code>true</code> if reader is end-of-file and <code>false</code> otherwise.
      */
     public static boolean readTextIfAvailable(final BufferedReader reader,
@@ -491,7 +449,7 @@ public final class ProcessExecutionHelper
     {
         return readTextIfAvailable(reader, new AddToListTextHandler(outputOrNull), discard);
     }
-    
+
     static boolean readTextIfAvailable(final BufferedReader reader,
             final ITextHandler textHandler, final boolean discard) throws IOException
     {
@@ -511,11 +469,10 @@ public final class ProcessExecutionHelper
     }
 
     /**
-     * Helper method for non-blocking reading of bytes from an input stream, if available, and
-     * writing them to an output stream, or, alternatively, discard them.
+     * Helper method for non-blocking reading of bytes from an input stream, if available, and writing them to an output stream, or, alternatively,
+     * discard them.
      * 
-     * @param outputOrNull Must not be <code>null</code> if <var>discard</var> is <code>false</code>
-     *            .
+     * @param outputOrNull Must not be <code>null</code> if <var>discard</var> is <code>false</code> .
      * @return The number of bytes being read in this call.
      */
     public static long readBytesIfAvailable(final InputStream input,

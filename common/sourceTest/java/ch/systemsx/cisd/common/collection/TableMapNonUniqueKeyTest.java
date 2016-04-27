@@ -50,7 +50,7 @@ public class TableMapNonUniqueKeyTest
                     String intStr = e.substring(i + 1);
                     String[] intStrs = StringUtils.split(intStr, ',');
                     Collection<Integer> ints = new ArrayList<Integer>(intStrs.length);
-                    for (String inStr : intStrs) 
+                    for (String inStr : intStrs)
                     {
                         ints.add(Integer.parseInt(inStr));
                     }

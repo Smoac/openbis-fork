@@ -23,7 +23,7 @@ public interface RetryClassInterfaceTestWithoutRetry
 {
 
     public void testWithoutRetryAnnotation();
-    
+
     public void setMethod(RetryClassMethod method);
-    
+
 }

@@ -25,23 +25,20 @@ public interface IActivitySensor
     /**
      * Returns the time of last activity on this sensor in milli-seconds since start of the epoch.
      * <p>
-     * Callers should expect that a call of this method may be expensive and thus only call it when
-     * necessary. However, the caller can expect the information returned by is to be up-to-date.
+     * Callers should expect that a call of this method may be expensive and thus only call it when necessary. However, the caller can expect the
+     * information returned by is to be up-to-date.
      * 
-     * @param thresholdMillis The time threshold for activity (in milli-seconds) that qualifies as
-     *            "recent enough" to terminate the search for even more recent activity. An
-     *            implementation can safely ignore this, as it is just meant for the sensor to
-     *            optimize its search. A value <code>thresholdMillis=0</code> translates into
-     *            "The absolutely most recent activity".
+     * @param thresholdMillis The time threshold for activity (in milli-seconds) that qualifies as "recent enough" to terminate the search for even
+     *            more recent activity. An implementation can safely ignore this, as it is just meant for the sensor to optimize its search. A value
+     *            <code>thresholdMillis=0</code> translates into "The absolutely most recent activity".
      */
     long getLastActivityMillisMoreRecentThan(long thresholdMillis);
 
     /**
-     * Returns <code>true</code>, if this sensor has had activity more recent than
-     * <var>thresholdMillis</var> milli-seconds ago.
+     * Returns <code>true</code>, if this sensor has had activity more recent than <var>thresholdMillis</var> milli-seconds ago.
      * 
-     * @param thresholdMillis The time threshold for activity (in milli-seconds) that qualifies as
-     *            "recent enough" to terminate the search for even more recent activity.
+     * @param thresholdMillis The time threshold for activity (in milli-seconds) that qualifies as "recent enough" to terminate the search for even
+     *            more recent activity.
      */
     boolean hasActivityMoreRecentThan(long thresholdMillis);
 }

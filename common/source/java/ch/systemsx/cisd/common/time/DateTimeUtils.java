@@ -26,8 +26,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.time.DateUtils;
 
 /**
- * A suite of utilities surrounding the use of the {@link java.util.Calendar} and
- * {@link java.util.Date} object.
+ * A suite of utilities surrounding the use of the {@link java.util.Calendar} and {@link java.util.Date} object.
  * 
  * @author Christian Ribeaud
  */
@@ -44,8 +43,7 @@ public final class DateTimeUtils
     private static final Pattern milliPattern = Pattern.compile("([0-9]+) *(ms|msec)");
 
     /**
-     * Returns the time zone in the following form: <code>GMT+01:00</code> (could not be easily
-     * performed using {@link DateFormat}).
+     * Returns the time zone in the following form: <code>GMT+01:00</code> (could not be easily performed using {@link DateFormat}).
      */
     public final static String getTimeZone(final Date date)
     {
@@ -114,11 +112,10 @@ public final class DateTimeUtils
     {
         return value + unit;
     }
-    
+
     /**
-     * Gets from specified properties the specified property as a duration time in milliseconds. The
-     * duration can be specified with time unit as explained in the method
-     * {@link #parseDurationToMillis(String)}.
+     * Gets from specified properties the specified property as a duration time in milliseconds. The duration can be specified with time unit as
+     * explained in the method {@link #parseDurationToMillis(String)}.
      * 
      * @return <code>defaultValue</code> if property doesn't exist
      */
@@ -129,8 +126,8 @@ public final class DateTimeUtils
     }
 
     /**
-     * Parses a time duration to milli-seconds. The string will be trimmed and white spaces in
-     * between number and unit are ignored. Accepted numbers are:
+     * Parses a time duration to milli-seconds. The string will be trimmed and white spaces in between number and unit are ignored. Accepted numbers
+     * are:
      * <ul>
      * <li>ms, msec: milli-seconds</li>
      * <li>s, sec or nothing: seconds</li>

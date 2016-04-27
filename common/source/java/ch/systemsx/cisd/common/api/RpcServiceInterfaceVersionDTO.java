@@ -53,8 +53,7 @@ public class RpcServiceInterfaceVersionDTO implements Serializable
     }
 
     /**
-     * The suffix added to the server's URL to produce the URL for this interface. Used by a service
-     * factory to create a proxy to the service.
+     * The suffix added to the server's URL to produce the URL for this interface. Used by a service factory to create a proxy to the service.
      */
     public String getUrlSuffix()
     {
@@ -70,8 +69,7 @@ public class RpcServiceInterfaceVersionDTO implements Serializable
     }
 
     /**
-     * The major version of the interface. E.g., an interface with version 2.11 has minor version
-     * 11.
+     * The major version of the interface. E.g., an interface with version 2.11 has minor version 11.
      */
     public int getMinorVersion()
     {

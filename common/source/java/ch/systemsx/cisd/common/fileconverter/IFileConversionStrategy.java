@@ -28,17 +28,15 @@ public interface IFileConversionStrategy
     /**
      * Checks whether the <var>inFile</var> can be converted by this strategy.
      * 
-     * @return The file that it should be converted into, or <code>null</code>, if <var>inFile</var>
-     *         cannot be converted by this strategy.
+     * @return The file that it should be converted into, or <code>null</code>, if <var>inFile</var> cannot be converted by this strategy.
      */
     public File tryCheckConvert(File inFile);
 
     /**
-     * Returns <code>true</code>, if the original file should be deleted after successful
-     * conversion.
+     * Returns <code>true</code>, if the original file should be deleted after successful conversion.
      */
     public boolean deleteOriginalFile();
-    
+
     /**
      * Returns the actual conversion method.
      */

@@ -23,8 +23,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 
 /**
- * A class that holds the information about the status and the result of an operation. To be used
- * whenever a failure of an operation is signaled back via a return value rather than an exception.
+ * A class that holds the information about the status and the result of an operation. To be used whenever a failure of an operation is signaled back
+ * via a return value rather than an exception.
  * 
  * @author Tomasz Pylak
  */

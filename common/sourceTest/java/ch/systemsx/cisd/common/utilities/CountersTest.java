@@ -19,10 +19,7 @@ package ch.systemsx.cisd.common.utilities;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class CountersTest extends AssertJUnit
@@ -31,7 +28,7 @@ public class CountersTest extends AssertJUnit
     public void test()
     {
         Counters<String> counters = new Counters<String>();
-        
+
         assertEquals(0, counters.getNumberOfDifferentObjectsCounted());
         assertEquals(0, counters.getCountOf("a"));
         assertEquals(1, counters.count("a"));

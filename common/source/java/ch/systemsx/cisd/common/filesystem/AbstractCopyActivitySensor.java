@@ -24,8 +24,7 @@ import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.exceptions.StatusWithResult;
 
 /**
- * A super class for {@link IDescribingActivitySensor}s that sense changes in some sort of copy
- * operation to a "target".
+ * A super class for {@link IDescribingActivitySensor}s that sense changes in some sort of copy operation to a "target".
  * 
  * @author Bernd Rinn
  */
@@ -59,11 +58,11 @@ public abstract class AbstractCopyActivitySensor implements IDescribingActivityS
     }
 
     /**
-     * Returns the result of obtaining the last activity of the target that is more recent than
-     * <var>thresholdMillis</var> (relative to the current point in time).
+     * Returns the result of obtaining the last activity of the target that is more recent than <var>thresholdMillis</var> (relative to the current
+     * point in time).
      * <p>
-     * If the status of the result is {@link StatusFlag#OK}, the result must be the time of last
-     * activity in milli-seconds (and <i>must not</i> be <code>null</code>).
+     * If the status of the result is {@link StatusFlag#OK}, the result must be the time of last activity in milli-seconds (and <i>must not</i> be
+     * <code>null</code>).
      */
     protected abstract StatusWithResult<Long> getTargetTimeOfLastActivityMoreRecentThan(
             long thresholdMillis);
@@ -136,7 +135,7 @@ public abstract class AbstractCopyActivitySensor implements IDescribingActivityS
     //
     // IDescribingActivitySensor
     //
-    
+
     @Override
     public String describeInactivity(long now)
     {

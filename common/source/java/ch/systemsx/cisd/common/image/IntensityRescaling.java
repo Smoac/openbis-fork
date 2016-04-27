@@ -163,8 +163,7 @@ public class IntensityRescaling
     }
 
     /**
-     * Performs an intensity rescaling on a gray-scale image by shifting all intensities by
-     * <var>shiftBits</var> bits.
+     * Performs an intensity rescaling on a gray-scale image by shifting all intensities by <var>shiftBits</var> bits.
      * 
      * @param image The original n-bit gray-scale image (n>8).
      * @param shiftBits The number of bits to shift the image by.
@@ -190,8 +189,8 @@ public class IntensityRescaling
     }
 
     /**
-     * Process <var>image</var> and add its pixels to the <var>histogram</var>. Calling this method
-     * multiple times with the same <var>histogram</var> accumulates the histogram for all images.
+     * Process <var>image</var> and add its pixels to the <var>histogram</var>. Calling this method multiple times with the same <var>histogram</var>
+     * accumulates the histogram for all images.
      */
     public static void addToLevelStats(PixelHistogram histogram, Pixels pixels, Channel... channels)
     {
@@ -214,9 +213,8 @@ public class IntensityRescaling
     }
 
     /**
-     * Extracts and stores all pixels of an image. It is usually more efficient to fetch
-     * all the pixels from {@link BufferedImage} because then accessing all the pixels one by one is
-     * much faster due to compiler optimizations.
+     * Extracts and stores all pixels of an image. It is usually more efficient to fetch all the pixels from {@link BufferedImage} because then
+     * accessing all the pixels one by one is much faster due to compiler optimizations.
      */
     public static class Pixels
     {
@@ -261,7 +259,7 @@ public class IntensityRescaling
             {
                 // In case of the color model isn't a recognized index color model and
                 // number of bands is less then number of color components
-                // we can not use the fast method 
+                // we can not use the fast method
                 for (int y = 0; y < height; y++)
                 {
                     int offset = y * width;
@@ -276,17 +274,15 @@ public class IntensityRescaling
                 }
             }
         }
-        
+
         /**
-         * Creates the index color map from the specified color model. The result is an array
-         * of three integer arrays. The first/second/third array is the red/green/blue index to color map.
+         * Creates the index color map from the specified color model. The result is an array of three integer arrays. The first/second/third array is
+         * the red/green/blue index to color map.
          * <p>
-         * This method only handles {@link IndexColorModel} for 8bit indicies. To handle other
-         * index color models (like loci.formats.gui.Index16ColorModel from the BioFormats library) this
-         * method should be overwritten.
+         * This method only handles {@link IndexColorModel} for 8bit indicies. To handle other index color models (like
+         * loci.formats.gui.Index16ColorModel from the BioFormats library) this method should be overwritten.
          * 
-         * @return <code>null</code> if the color model isn't a known index color model. 
-         * 
+         * @return <code>null</code> if the color model isn't a known index color model.
          */
         protected int[][] tryCreateColorIndexMap(ColorModel colorModel)
         {
@@ -308,7 +304,7 @@ public class IntensityRescaling
             copyTo(blues, result[2]);
             return result;
         }
-        
+
         private void copyTo(byte[] bytes, int[] integers)
         {
             for (int i = 0; i < bytes.length; i++)
@@ -316,7 +312,7 @@ public class IntensityRescaling
                 integers[i] = bytes[i] & 0xff;
             }
         }
-        
+
         /** @return all the pixels of the image */
         public int[][] getPixelData()
         {
@@ -336,7 +332,7 @@ public class IntensityRescaling
         }
 
     }
-    
+
     /**
      * Converts a {@link BufferedImage} instance into a {@link Pixels} instance.
      *
@@ -348,10 +344,9 @@ public class IntensityRescaling
     }
 
     /**
-     * Computes the levels (black point and white point) of the given <var>histogram</var> for the
-     * given symmetric <var>threshold</var>. The tail of the histogram below the black point will
-     * contain the fraction of <var>treshold</var> of all pixels of the histogram. The same is true
-     * for the tail of the <var>histogram</var> above the white point.
+     * Computes the levels (black point and white point) of the given <var>histogram</var> for the given symmetric <var>threshold</var>. The tail of
+     * the histogram below the black point will contain the fraction of <var>treshold</var> of all pixels of the histogram. The same is true for the
+     * tail of the <var>histogram</var> above the white point.
      * 
      * @return The levels of the <var>histogram</var> for the <var>treshold</var>.
      */
@@ -393,12 +388,11 @@ public class IntensityRescaling
         }
         return new Levels(min, max);
     }
-    
+
     /**
-     * Calculates levels for the specified pixels. It starts with a threshold 0.01 (i.e. cut-off of points
-     * to be too light or dark). If the number of levels is less than the specified minimum the threshold
-     * is reduced by a factor 10 and the levels are calculated again. This iteration is continue until
-     * either the number of levels is large enough or the threshold is below 10<sup>-5</sup>.
+     * Calculates levels for the specified pixels. It starts with a threshold 0.01 (i.e. cut-off of points to be too light or dark). If the number of
+     * levels is less than the specified minimum the threshold is reduced by a factor 10 and the levels are calculated again. This iteration is
+     * continue until either the number of levels is large enough or the threshold is below 10<sup>-5</sup>.
      */
     public static Levels computeLevels(Pixels pixels, int minimumNumberOfLevels)
     {
@@ -415,15 +409,14 @@ public class IntensityRescaling
     }
 
     /**
-     * Computes the levels (black point and white point) of the given <var>image</var> for the given
-     * symmetric <var>threshold</var>. The tail of the histogram below the black point will contain
-     * the fraction of <var>treshold</var> of all pixels of the <var>image</var>. The same is true
-     * for the tail of the histogram above the white point.
+     * Computes the levels (black point and white point) of the given <var>image</var> for the given symmetric <var>threshold</var>. The tail of the
+     * histogram below the black point will contain the fraction of <var>treshold</var> of all pixels of the <var>image</var>. The same is true for
+     * the tail of the histogram above the white point.
      * 
      * @param image a gray scale image (will not be checked).
      * @return The levels of the <var>histogram</var> for the <var>treshold</var>.
      */
-    public static Levels computeLevels(Pixels image, float threshold, Channel...channels)
+    public static Levels computeLevels(Pixels image, float threshold, Channel... channels)
     {
         assert channels.length > 0 : "No channels specified.";
         final PixelHistogram stats = new PixelHistogram();
@@ -432,8 +425,8 @@ public class IntensityRescaling
     }
 
     /**
-     * Computes an intensity rescaled image from the given <var>image</var>, using the black point
-     * and white point as defined by <var>levels</var>. Rescaling preserves color hue and saturation.
+     * Computes an intensity rescaled image from the given <var>image</var>, using the black point and white point as defined by <var>levels</var>.
+     * Rescaling preserves color hue and saturation.
      */
     public static BufferedImage rescaleIntensityLevelTo8Bits(Pixels pixels, Levels levels, Channel... channels)
     {

@@ -37,12 +37,12 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public class CheckSecureHttpInvokerBeanPostProcessor implements BeanPostProcessor, InitializingBean
 {
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, 
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             CheckSecureHttpInvokerBeanPostProcessor.class);
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
-    
+
     public class InsecureHttpInvokerServiceExporterException extends BeanDefinitionValidationException
     {
         private static final long serialVersionUID = 1L;
@@ -74,12 +74,13 @@ public class CheckSecureHttpInvokerBeanPostProcessor implements BeanPostProcesso
     @Override
     public void afterPropertiesSet() throws Exception
     {
-        if (configurer == null) {
+        if (configurer == null)
+        {
             return;
         }
         WhiteAndBlackListCodebaseAwareObjectInputStream.populateWhiteAndBlackListOfApiParameterClasses(configurer.getResolvedProps());
     }
-    
+
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException
     {

@@ -35,44 +35,42 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 
 /**
- * Helper class which copies bytes from an {@link InputStream} to an {@link OutputStream}. 
- * Copying is either done in a series of reading/writing a specified amount of bytes (i.e. bufferSize) 
- * or in parallel with an ad-hoc writing thread.
- * If {@link ISimpleLogger} is injected (via {@link #setLogger(ISimpleLogger)} statistical information
- * especially reading/writing speed will be logged after copying has been finished.
+ * Helper class which copies bytes from an {@link InputStream} to an {@link OutputStream}. Copying is either done in a series of reading/writing a
+ * specified amount of bytes (i.e. bufferSize) or in parallel with an ad-hoc writing thread. If {@link ISimpleLogger} is injected (via
+ * {@link #setLogger(ISimpleLogger)} statistical information especially reading/writing speed will be logged after copying has been finished.
  * <p>
  * In order to get accurate speed information the buffer size should be set relatively large, e.g. one MB.
- *  
+ * 
  * @author Franz-Josef Elmer
  */
 public class MonitoredIOStreamCopier
 {
     private int bufferSize;
-    
+
     private ISimpleLogger logger;
 
     private ITimeProvider timeProvider = SystemTimeProvider.SYSTEM_TIME_PROVIDER;
-    
+
     private Statistics readStatistics;
-    
+
     private Statistics writeStatistics;
 
     private LinkedBlockingQueue<WritingItem> queue;
-    
+
     private Throwable writingException;
 
     private Thread writingThread;
 
     /**
-     * Creates an instance for copying in a series of reading/writing chunks of specified size. 
+     * Creates an instance for copying in a series of reading/writing chunks of specified size.
      */
     public MonitoredIOStreamCopier(int bufferSize)
     {
         this(bufferSize, null);
     }
-    
+
     /**
-     * Creates an instance for copying in chunks of specified size in parallel using a queue of specified size. 
+     * Creates an instance for copying in chunks of specified size in parallel using a queue of specified size.
      */
     public MonitoredIOStreamCopier(int bufferSize, Long maxQueueSizeInBytes)
     {
@@ -82,13 +80,13 @@ public class MonitoredIOStreamCopier
             long maxQueueSize = maxQueueSizeInBytes / bufferSize;
             if (maxQueueSize < 1)
             {
-                throw new ConfigurationFailureException("Maximum queue size " 
+                throw new ConfigurationFailureException("Maximum queue size "
                         + maxQueueSizeInBytes + " should be larger than buffer size " + bufferSize + ".");
             }
             queue = new LinkedBlockingQueue<WritingItem>((int) maxQueueSize);
         }
     }
-    
+
     public void setLogger(ISimpleLogger logger)
     {
         this.logger = logger;
@@ -98,7 +96,7 @@ public class MonitoredIOStreamCopier
             writeStatistics = new Statistics(bufferSize);
         }
     }
-    
+
     void setTimeProvider(ITimeProvider timeProvider)
     {
         this.timeProvider = timeProvider;
@@ -122,11 +120,11 @@ public class MonitoredIOStreamCopier
             return totalNumberOfBytes;
         } catch (Throwable ex)
         {
-            throw new EnvironmentFailureException("Error after " + totalNumberOfBytes 
+            throw new EnvironmentFailureException("Error after " + totalNumberOfBytes
                     + " bytes copied: " + ex, ex);
         }
     }
-    
+
     public void close()
     {
         if (logger != null)
@@ -135,7 +133,7 @@ public class MonitoredIOStreamCopier
             logger.log(LogLevel.INFO, "Writing statistics for output stream: " + writeStatistics);
         }
     }
-    
+
     private int readBytes(InputStream input, byte[] buffer) throws IOException
     {
         long t0 = startIO();
@@ -155,7 +153,7 @@ public class MonitoredIOStreamCopier
             addToQueue(writingItem);
         }
     }
-    
+
     private void startWritingThread()
     {
         if (queue == null)
@@ -190,7 +188,7 @@ public class MonitoredIOStreamCopier
             });
         writingThread.start();
     }
-    
+
     private void waitOnFinished() throws Throwable
     {
         if (queue == null)
@@ -210,7 +208,7 @@ public class MonitoredIOStreamCopier
             throw writingException;
         }
     }
-    
+
     private void addToQueue(WritingItem writingItem) throws Throwable
     {
         try
@@ -225,12 +223,12 @@ public class MonitoredIOStreamCopier
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
-    
+
     private long startIO()
     {
-        return  logger != null ? timeProvider.getTimeInMilliseconds() : -1;
+        return logger != null ? timeProvider.getTimeInMilliseconds() : -1;
     }
-    
+
     private void recordTime(int numberOfBytes, long t0, Statistics statistics)
     {
         if (logger != null)
@@ -238,13 +236,15 @@ public class MonitoredIOStreamCopier
             statistics.add(numberOfBytes, t0, timeProvider.getTimeInMilliseconds());
         }
     }
-    
+
     private final class WritingItem
     {
         private OutputStream output;
+
         private byte[] data;
+
         private int numberOfBytes;
-        
+
         public WritingItem(OutputStream output, byte[] data, int numberOfBytes)
         {
             this.output = output;
@@ -259,12 +259,13 @@ public class MonitoredIOStreamCopier
             recordTime(numberOfBytes, t0, writeStatistics);
         }
     }
-    
+
     private static final class Statistics
     {
         private final List<NumberOfBytesAndIOTime> data = new ArrayList<NumberOfBytesAndIOTime>();
+
         private final int minNumberOfBytes;
-        
+
         public Statistics(int minNumberOfBytes)
         {
             this.minNumberOfBytes = minNumberOfBytes;
@@ -277,7 +278,7 @@ public class MonitoredIOStreamCopier
                 data.add(new NumberOfBytesAndIOTime(numberOfBytes, endTime - startTime));
             }
         }
-        
+
         @Override
         public String toString()
         {
@@ -290,25 +291,25 @@ public class MonitoredIOStreamCopier
                 totalTime += nt.ioTime;
                 if (nt.numberOfBytes >= minNumberOfBytes && nt.ioTime > 0)
                 {
-                    speed.add((1000.0 * nt.numberOfBytes)/ nt.ioTime);
+                    speed.add((1000.0 * nt.numberOfBytes) / nt.ioTime);
                 }
             }
             String medianSpeedInfo = "";
             if (speed.isEmpty() == false)
             {
                 long medianBytesPerSecond = Math.round(calculateMedian(speed));
-                medianSpeedInfo = " Median speed: " + FileUtilities.byteCountToDisplaySize(medianBytesPerSecond) 
+                medianSpeedInfo = " Median speed: " + FileUtilities.byteCountToDisplaySize(medianBytesPerSecond)
                         + "/sec.";
             }
             String averageSpeedInfo = "";
             if (totalNumberOfBytes >= minNumberOfBytes && totalTime > 0)
             {
                 long averageBytesPerSecond = Math.round((1000.0 * totalNumberOfBytes) / totalTime);
-                averageSpeedInfo = " Average speed: " + FileUtilities.byteCountToDisplaySize(averageBytesPerSecond) 
+                averageSpeedInfo = " Average speed: " + FileUtilities.byteCountToDisplaySize(averageBytesPerSecond)
                         + "/sec.";
             }
-            return FileUtilities.byteCountToDisplaySize(totalNumberOfBytes) + " in " + data.size() 
-                    + " chunks took " + DateTimeUtils.renderDuration(totalTime) + "." 
+            return FileUtilities.byteCountToDisplaySize(totalNumberOfBytes) + " in " + data.size()
+                    + " chunks took " + DateTimeUtils.renderDuration(totalTime) + "."
                     + averageSpeedInfo + medianSpeedInfo;
         }
 
@@ -324,10 +325,11 @@ public class MonitoredIOStreamCopier
             return medianSpeed;
         }
     }
-    
+
     private static final class NumberOfBytesAndIOTime
     {
         private int numberOfBytes;
+
         private long ioTime;
 
         NumberOfBytesAndIOTime(int numberOfBytes, long ioTime)

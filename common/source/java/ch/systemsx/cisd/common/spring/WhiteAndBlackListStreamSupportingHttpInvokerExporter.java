@@ -22,10 +22,7 @@ import java.io.ObjectInputStream;
 
 import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class WhiteAndBlackListStreamSupportingHttpInvokerExporter extends StreamSupportingHttpInvokerServiceExporter

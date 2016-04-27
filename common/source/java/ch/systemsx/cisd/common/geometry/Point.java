@@ -16,15 +16,15 @@
 
 package ch.systemsx.cisd.common.geometry;
 
-
 /**
- * Immutable value object representing a point in the two dimensional raster. 
+ * Immutable value object representing a point in the two dimensional raster.
  *
  * @author Franz-Josef Elmer
  */
 public final class Point
 {
     private final int x;
+
     private final int y;
 
     /**
@@ -51,7 +51,7 @@ public final class Point
     {
         return y;
     }
-    
+
     //
     // Object
     //
@@ -86,5 +86,4 @@ public final class Point
         return "(" + x + "," + y + ")";
     }
 
-   
 }

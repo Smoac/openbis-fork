@@ -41,7 +41,7 @@ public class HeaderLineFilterTest
     public Object[][] headerNumbers()
     {
         return new Object[][]
-            {
+        {
                 { 0 },
                 { 1 },
                 { 2 },

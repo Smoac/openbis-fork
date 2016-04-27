@@ -30,8 +30,8 @@ import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 /**
  * Test cases for the {@link TimerUtilities}.
  * <p>
- * Note that the semaphores are dual-use as synchronization barrier (ensure the tasks are running
- * when we try to interact with its thread) and as probes for success or failure.
+ * Note that the semaphores are dual-use as synchronization barrier (ensure the tasks are running when we try to interact with its thread) and as
+ * probes for success or failure.
  * 
  * @author Bernd Rinn
  */

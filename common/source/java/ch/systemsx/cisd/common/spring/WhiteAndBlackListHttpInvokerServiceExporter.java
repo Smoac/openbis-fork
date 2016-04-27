@@ -23,8 +23,6 @@ import java.io.ObjectInputStream;
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class WhiteAndBlackListHttpInvokerServiceExporter extends HttpInvokerServiceExporter

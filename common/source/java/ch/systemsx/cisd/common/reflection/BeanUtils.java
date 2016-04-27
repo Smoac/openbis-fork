@@ -138,18 +138,16 @@ public final class BeanUtils
     }
 
     /**
-     * Marker interface for converter classes. The real method are determined via reflection. A
-     * converter needs to match both the source and the destination bean. If the destination bean
-     * has a setter <code>setFoo(FooClass foo)</code> and the converter has a method
-     * <code>FooClass convertToFoo(SourceBeanClass sourceBean)</code>, then this will be called
-     * instead of any getter of the <var>sourceBean</var>.
+     * Marker interface for converter classes. The real method are determined via reflection. A converter needs to match both the source and the
+     * destination bean. If the destination bean has a setter <code>setFoo(FooClass foo)</code> and the converter has a method
+     * <code>FooClass convertToFoo(SourceBeanClass sourceBean)</code>, then this will be called instead of any getter of the <var>sourceBean</var>.
      * <p>
      * Note:
      * <ul>
-     * <li>The declared <code>SourceBeanClass</code> in the converter method can also be a
-     * superclass of <code>sourceBean</code>or an interface implemented by <code>sourceBean</code>
-     * <li>If there is a matching method <code>convertToFoo()</code>, it needs to have an
-     * appropriate return type or else an {@link IllegalArgumentException} will be thrown.
+     * <li>The declared <code>SourceBeanClass</code> in the converter method can also be a superclass of <code>sourceBean</code>or an interface
+     * implemented by <code>sourceBean</code>
+     * <li>If there is a matching method <code>convertToFoo()</code>, it needs to have an appropriate return type or else an
+     * {@link IllegalArgumentException} will be thrown.
      * </ul>
      */
     public interface Converter
@@ -163,7 +161,7 @@ public final class BeanUtils
         };
 
     @SuppressWarnings(
-        { "unchecked", "rawtypes" })
+    { "unchecked", "rawtypes" })
     static final Set<Class> immutableTypes = new LinkedHashSet<Class>(Arrays.asList(boolean.class,
             Boolean.class, byte.class, Byte.class, short.class, Short.class, int.class,
             Integer.class, long.class, Long.class, float.class, Float.class, double.class,
@@ -173,10 +171,8 @@ public final class BeanUtils
      * Creates a new list of Beans of type <var>clazz</var>.
      * 
      * @param clazz element type of the new list.
-     * @param source The iterable to fill the new bean list from. Can be <code>null</code>, in which
-     *            case the method returns <code>null</code>.
-     * @return The new list filled from <var>sourceList</var> or <code>null</code>, if
-     *         <var>sourceList</var> is <code>null</code>.
+     * @param source The iterable to fill the new bean list from. Can be <code>null</code>, in which case the method returns <code>null</code>.
+     * @return The new list filled from <var>sourceList</var> or <code>null</code>, if <var>sourceList</var> is <code>null</code>.
      */
     public final static <T, S> List<T> createBeanList(final Class<T> clazz, final Iterable<S> source)
     {
@@ -184,8 +180,7 @@ public final class BeanUtils
     }
 
     /**
-     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code> for
-     * parameter specification.
+     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code> for parameter specification.
      */
     public final static <T, S> T[] createBeanArray(final Class<T> clazz, final Collection<S> source)
     {
@@ -193,8 +188,7 @@ public final class BeanUtils
     }
 
     /**
-     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code> for
-     * parameter specification.
+     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code> for parameter specification.
      */
     public final static <T, S> T[] createBeanArray(final Class<T> clazz, final S[] source)
     {
@@ -202,8 +196,7 @@ public final class BeanUtils
     }
 
     /**
-     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code> for
-     * parameter specification.
+     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code> for parameter specification.
      */
     public final static <T, S> T[] createBeanArray(final Class<T> clazz, final S[] source,
             final Converter converter)
@@ -212,8 +205,7 @@ public final class BeanUtils
     }
 
     /**
-     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code> for
-     * parameter specification.
+     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code> for parameter specification.
      */
     public final static <T, S> T[] createBeanArray(final Class<T> clazz,
             final Collection<S> source, final Converter converter)
@@ -236,8 +228,7 @@ public final class BeanUtils
     }
 
     /**
-     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code> for
-     * parameter specification.
+     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code> for parameter specification.
      */
     public static <T, S> T[] createBeanArray(final Class<T> clazz, final Iterable<S> source,
             final Converter converter)
@@ -251,13 +242,10 @@ public final class BeanUtils
      * Creates a new list of Beans of type <var>clazz</var>.
      * 
      * @param clazz element type of the new list.
-     * @param source The iterable to fill the new bean list from. Can be <code>null</code>, in which
-     *            case the method returns <code>null</code>.
-     * @param converter The {@link Converter} to use to perform non-standard conversions when
-     *            filling the bean. Can be <code>null</code>, in which case only standard
-     *            conversions are allowed.
-     * @return The new list filled from <var>sourceList</var> or <code>null</code>, if
-     *         <var>sourceList</var> is <code>null</code>.
+     * @param source The iterable to fill the new bean list from. Can be <code>null</code>, in which case the method returns <code>null</code>.
+     * @param converter The {@link Converter} to use to perform non-standard conversions when filling the bean. Can be <code>null</code>, in which
+     *            case only standard conversions are allowed.
+     * @return The new list filled from <var>sourceList</var> or <code>null</code>, if <var>sourceList</var> is <code>null</code>.
      */
     public final static <T, S> List<T> createBeanList(final Class<T> clazz,
             final Iterable<S> source, final Converter converter)
@@ -278,9 +266,8 @@ public final class BeanUtils
     }
 
     /**
-     * Convenience method for
-     * {@link #createBean(Class, Object, ch.systemsx.cisd.common.reflection.BeanUtils.Converter)}
-     * where <var>converter</var> is <code>NULL_CONVERTER</code>.
+     * Convenience method for {@link #createBean(Class, Object, ch.systemsx.cisd.common.reflection.BeanUtils.Converter)} where <var>converter</var> is
+     * <code>NULL_CONVERTER</code>.
      */
     public static <T> T fillBean(final Class<T> beanClass, final T beanInstance,
             final Object sourceBean)
@@ -290,9 +277,8 @@ public final class BeanUtils
     }
 
     /**
-     * Convenience method for
-     * {@link #createBean(Class, Object, ch.systemsx.cisd.common.reflection.BeanUtils.Converter)}
-     * where <var>converter</var> is <code>NULL_CONVERTER</code>.
+     * Convenience method for {@link #createBean(Class, Object, ch.systemsx.cisd.common.reflection.BeanUtils.Converter)} where <var>converter</var> is
+     * <code>NULL_CONVERTER</code>.
      */
     public static <T> T createBean(final Class<T> beanClass, final Object sourceBean)
     {
@@ -301,17 +287,13 @@ public final class BeanUtils
     }
 
     /**
-     * Fills a new bean <var>beanInstance</var> of type <var>beanClass</var> with values from
-     * <var>sourceBean</var>.
+     * Fills a new bean <var>beanInstance</var> of type <var>beanClass</var> with values from <var>sourceBean</var>.
      * 
      * @param beanClass The class to create a new instance from.
-     * @param beanInstance Instance of the bean to be filled. If <code>null</code> a new instance
-     *            will be created.
-     * @param sourceBean The bean to get the values from. Can be <code>null</code>, in which case
-     *            the method returns <code>null</code>.
-     * @param converter The {@link Converter} to use to perform non-standard conversions when
-     *            filling the bean. Can be <code>null</code>, in which case only standard
-     *            conversions are allowed.
+     * @param beanInstance Instance of the bean to be filled. If <code>null</code> a new instance will be created.
+     * @param sourceBean The bean to get the values from. Can be <code>null</code>, in which case the method returns <code>null</code>.
+     * @param converter The {@link Converter} to use to perform non-standard conversions when filling the bean. Can be <code>null</code>, in which
+     *            case only standard conversions are allowed.
      * @return The new bean or <code>null</code> if <var>sourceBean</var> is <code>null</code>.
      */
     public static <T> T fillBean(final Class<T> beanClass, final T beanInstance,
@@ -327,17 +309,15 @@ public final class BeanUtils
     }
 
     /**
-     * Creates a new bean of type <var>beanClass</var> and fills it with values from
-     * <var>sourceBean</var> (which can be a bean or a {@link Properties} object.
+     * Creates a new bean of type <var>beanClass</var> and fills it with values from <var>sourceBean</var> (which can be a bean or a
+     * {@link Properties} object.
      * 
      * @param beanClass The class to create a new instance from.
-     * @param sourceBean The bean to get the values from. Can be <code>null</code>, in which case
-     *            the method returns <code>null</code>. If this is a {@link Properties} object, the
-     *            bean will be created from the property values. In this case only primitive values
-     *            and Strings are supported.
-     * @param converter The {@link Converter} to use to perform non-standard conversions when
-     *            filling the bean. Can be <code>null</code>, in which case only standard
-     *            conversions are allowed.
+     * @param sourceBean The bean to get the values from. Can be <code>null</code>, in which case the method returns <code>null</code>. If this is a
+     *            {@link Properties} object, the bean will be created from the property values. In this case only primitive values and Strings are
+     *            supported.
+     * @param converter The {@link Converter} to use to perform non-standard conversions when filling the bean. Can be <code>null</code>, in which
+     *            case only standard conversions are allowed.
      * @return The new bean or <code>null</code> if <var>sourceBean</var> is <code>null</code>.
      */
     public static <T> T createBean(final Class<T> beanClass, final Object sourceBean,
@@ -361,17 +341,13 @@ public final class BeanUtils
      * Fills the specified bean instance with values from <var>sourceBean</var>.
      * 
      * @param beanClass The class to create a new instance from.
-     * @param beanInstance Instance of the bean to be filled. If <code>null</code> a new instance
-     *            will be created.
-     * @param sourceBean The bean to get the values from. Can be <code>null</code>, in which case
-     *            the method returns <code>null</code>.
-     * @param setterAnnotations The annotations attached to the setter that can be used to determine
-     *            how the result should be created.
-     * @param converter The {@link Converter} to use to perform non-standard conversions when
-     *            filling the bean. Can be <code>null</code>, in which case only standard
-     *            conversions are allowed.
-     * @param repository a {@link Map} composed of source beans as keys and destination beans as
-     *            values. This avoids cycling dependencies during the conversion.
+     * @param beanInstance Instance of the bean to be filled. If <code>null</code> a new instance will be created.
+     * @param sourceBean The bean to get the values from. Can be <code>null</code>, in which case the method returns <code>null</code>.
+     * @param setterAnnotations The annotations attached to the setter that can be used to determine how the result should be created.
+     * @param converter The {@link Converter} to use to perform non-standard conversions when filling the bean. Can be <code>null</code>, in which
+     *            case only standard conversions are allowed.
+     * @param repository a {@link Map} composed of source beans as keys and destination beans as values. This avoids cycling dependencies during the
+     *            conversion.
      * @return The new bean or <code>null</code> if <var>sourceBean</var> is <code>null</code>.
      */
     @SuppressWarnings("unchecked")
@@ -537,7 +513,7 @@ public final class BeanUtils
         {
             final Constructor<? extends Collection> constructorWithSize =
                     mapping.collectionClass().getConstructor(new Class[]
-                        { int.class });
+                    { int.class });
             return constructCollection(constructorWithSize, size);
         } catch (final NoSuchMethodException ex)
         { // Happens e.g. for a LinkedList
@@ -546,7 +522,7 @@ public final class BeanUtils
     }
 
     @SuppressWarnings(
-        { "unchecked", "rawtypes" })
+    { "unchecked", "rawtypes" })
     private static <T> T constructCollection(
             final Constructor<? extends Collection> constructorWithSize, final int size)
             throws InstantiationException, IllegalAccessException, IllegalArgumentException,
@@ -557,11 +533,11 @@ public final class BeanUtils
         // collection, e.g. when using a HashSet as concrete collection class where a List is
         // required.
         return (T) constructorWithSize.newInstance(new Object[]
-            { size });
+        { size });
     }
 
     @SuppressWarnings(
-        { "unchecked", "rawtypes" })
+    { "unchecked", "rawtypes" })
     private final static <T> T constructCollection(final Class<? extends Collection> collectionClazz)
             throws InstantiationException, IllegalAccessException
     {
@@ -750,7 +726,7 @@ public final class BeanUtils
             if (converterMethod != null)
             {
                 valueOrNull = converterMethod.invoke(converter, new Object[]
-                    { source });
+                { source });
             } else
             {
                 final String propertyKey =
@@ -790,7 +766,7 @@ public final class BeanUtils
             if (valueOrNull != null)
             {
                 setter.invoke(destination, new Object[]
-                    { valueOrNull });
+                { valueOrNull });
             }
         }
     }
@@ -820,7 +796,7 @@ public final class BeanUtils
                 try
                 {
                     setter.invoke(destination, new Object[]
-                        { newBean });
+                    { newBean });
                 } catch (final IllegalArgumentException ex)
                 {
                     final String defaultJavaArgumentTypeMismatchMessage = "argument type mismatch";
@@ -844,10 +820,8 @@ public final class BeanUtils
      * <p>
      * The logic of this method is the following:
      * <ol>
-     * <li>If a converter could be found for transferring the value from source bean to destination
-     * bean, then use it</li>
-     * <li>If the value is of primitive type or one of the immutable types specified, then use it
-     * tel quel</li>
+     * <li>If a converter could be found for transferring the value from source bean to destination bean, then use it</li>
+     * <li>If the value is of primitive type or one of the immutable types specified, then use it tel quel</li>
      * <li>If the value is a complexe type, then it should be filled using
      * {@link #fillBean(Class, Object, Map, Object, ch.systemsx.cisd.common.reflection.BeanUtils.AnnotationMap, ch.systemsx.cisd.common.reflection.BeanUtils.Converter)}
      * before using it</li>
@@ -866,7 +840,7 @@ public final class BeanUtils
         if (converterMethod != null)
         {
             return (T) converterMethod.invoke(converter, new Object[]
-                { source });
+            { source });
         }
         final Object oldBean = getOldBean(setter, sourceGetters, source);
         if (oldBean == null)
@@ -890,9 +864,8 @@ public final class BeanUtils
     }
 
     /**
-     * For given <var>setter</var> method, we try to get the corresponding <i>getter</i>. If this
-     * step succeeds, we invoke the found <i>getter</i> on given <var>bean</var> and returns the
-     * value.
+     * For given <var>setter</var> method, we try to get the corresponding <i>getter</i>. If this step succeeds, we invoke the found <i>getter</i> on
+     * given <var>bean</var> and returns the value.
      */
     private final static Object getOldBean(final Method setter, final Map<String, Method> getters,
             final Object bean) throws IllegalArgumentException, IllegalAccessException,
@@ -1024,11 +997,9 @@ public final class BeanUtils
     }
 
     /**
-     * Returns a map of <code>PropertyDescriptor</code>s keyed by
-     * {@link PropertyDescriptor#getName()}.
+     * Returns a map of <code>PropertyDescriptor</code>s keyed by {@link PropertyDescriptor#getName()}.
      * <p>
-     * It introspects given class and remove each (bean) property that does not have a write method
-     * (like <code>class</code>).
+     * It introspects given class and remove each (bean) property that does not have a write method (like <code>class</code>).
      * </p>
      */
     public final static Map<String, PropertyDescriptor> getPropertyDescriptors(final Class<?> clazz)

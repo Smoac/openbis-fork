@@ -25,8 +25,7 @@ public class HttpServletRequestUtils
 {
 
     /**
-     * Returns a value of the specified request parameter as String. If the value is null or the
-     * trimmed value is empty then returns null.
+     * Returns a value of the specified request parameter as String. If the value is null or the trimmed value is empty then returns null.
      */
     public static final String getStringParameter(HttpServletRequest request, String parameterName)
     {
@@ -41,8 +40,7 @@ public class HttpServletRequestUtils
     }
 
     /**
-     * Returns a value of the specified request parameter as Integer. If the value is null or the
-     * trimmed value is empty then returns null.
+     * Returns a value of the specified request parameter as Integer. If the value is null or the trimmed value is empty then returns null.
      * 
      * @throws IllegalArgumentException when the parameter value is not a valid integer
      */

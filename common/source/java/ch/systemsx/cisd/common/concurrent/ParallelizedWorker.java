@@ -30,8 +30,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * A {@link Runnable} worker which allows to execute tasks from the specified queue until it is
- * empty. Many workers can run in parallel using the same queue.
+ * A {@link Runnable} worker which allows to execute tasks from the specified queue until it is empty. Many workers can run in parallel using the same
+ * queue.
  * 
  * @author Bernd Rinn
  * @author Tomasz Pylak

@@ -20,17 +20,17 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TimerTask;
 
-
 /**
- * Decorator of a {@link TimerTask} objects which allows to add {@link ITimerTaskListener} objects
- * which will be notified for certain type of events.
+ * Decorator of a {@link TimerTask} objects which allows to add {@link ITimerTaskListener} objects which will be notified for certain type of events.
  *
  * @author Franz-Josef Elmer
  */
 public class TimerTaskWithListeners extends TimerTask
 {
     private final TimerTask timerTask;
+
     private final ITimerTaskStatusProvider statusProviderOrNull;
+
     private final Set<ITimerTaskListener> listeners = new LinkedHashSet<ITimerTaskListener>();
 
     /**
@@ -53,7 +53,7 @@ public class TimerTaskWithListeners extends TimerTask
             this.statusProviderOrNull = null;
         }
     }
-    
+
     /**
      * Adds the specified listener. Listeners will be informed in the order they had been added.
      * 
@@ -67,7 +67,7 @@ public class TimerTaskWithListeners extends TimerTask
         }
         listeners.add(listener);
     }
-    
+
     @Override
     public void run()
     {

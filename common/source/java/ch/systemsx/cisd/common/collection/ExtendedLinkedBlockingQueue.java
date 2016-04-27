@@ -47,7 +47,7 @@ public class ExtendedLinkedBlockingQueue<E> extends LinkedBlockingQueue<E> imple
     }
 
     private static final long serialVersionUID = -6903933977591709194L;
-    
+
     private static final long PEEK_INTERVAL_MILLIS = 100L;
 
     @Override

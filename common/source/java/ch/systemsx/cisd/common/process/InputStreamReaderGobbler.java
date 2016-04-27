@@ -27,8 +27,7 @@ import java.util.concurrent.Semaphore;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
- * This class uses an internal worker thread to constantly consume input from specified
- * {@link InputStream}.
+ * This class uses an internal worker thread to constantly consume input from specified {@link InputStream}.
  * <p>
  * When it is finished, you can get the lines with {@link #getLines()}.
  * </p>

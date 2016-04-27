@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.common.concurrent;
 
-
 /**
  * Dummy implementation of the timer task listener interface. Useful for subclassing.
  *
@@ -29,7 +28,7 @@ public class DummyTimerTaskListener implements ITimerTaskListener
     public void startRunning()
     {
     }
-    
+
     /** Does nothing. */
     @Override
     public void finishRunning(ITimerTaskStatusProvider statusProviderOrNull)
@@ -41,5 +40,5 @@ public class DummyTimerTaskListener implements ITimerTaskListener
     public void canceling()
     {
     }
-    
+
 }

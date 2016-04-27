@@ -46,9 +46,8 @@ public class SoftLinkMaker
     }
 
     /**
-     * @param targetDirOrFile if directory, a file with the same name as the source file which links
-     *            to a source will be created. Specify a file to change the name of the symbolic
-     *            link file as well.
+     * @param targetDirOrFile if directory, a file with the same name as the source file which links to a source will be created. Specify a file to
+     *            change the name of the symbolic link file as well.
      */
     public static boolean createSymbolicLink(File sourceFile, File targetDirOrFile)
     {

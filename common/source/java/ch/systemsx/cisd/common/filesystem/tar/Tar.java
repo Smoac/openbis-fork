@@ -65,7 +65,7 @@ public class Tar implements Closeable
     {
         this(tarFile, new MonitoredIOStreamCopier(bufferSize));
     }
-    
+
     public Tar(final File tarFile, MonitoredIOStreamCopier copier) throws FileNotFoundException
     {
         this.out = new TarArchiveOutputStream(new FileOutputStream(tarFile));

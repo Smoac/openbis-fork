@@ -20,8 +20,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
 /**
- * The status of an execution of a {@link Runnable} (or {@link Callable}) in an
- * {@link ExecutorService}.
+ * The status of an execution of a {@link Runnable} (or {@link Callable}) in an {@link ExecutorService}.
  * 
  * @author Bernd Rinn
  */
@@ -29,13 +28,13 @@ public enum ExecutionStatus
 {
     /** The {@link Runnable} ran to completion and returned its result if any. */
     COMPLETE,
-    
+
     /** The {@link Runnable} didn't run to completion in the specified time but got a timeout. */
     TIMED_OUT,
-    
+
     /** The {@link Runnable} didn't run to completion because its thread was interrupted. */
     INTERRUPTED,
-    
+
     /** The {@link Runnable} didn't run to completion because it threw an exception or error. */
     EXCEPTION;
 }

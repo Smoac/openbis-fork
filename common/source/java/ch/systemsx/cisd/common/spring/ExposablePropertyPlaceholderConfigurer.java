@@ -86,7 +86,7 @@ public class ExposablePropertyPlaceholderConfigurer extends PropertyPlaceholderC
         injectPropertiesInto(resolvedProps);
         super.processProperties(beanFactoryToProcess, resolvedProps);
     }
-    
+
     protected void injectPropertiesInto(Properties properties)
     {
     }

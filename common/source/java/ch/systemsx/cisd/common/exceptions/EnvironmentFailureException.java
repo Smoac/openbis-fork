@@ -19,8 +19,8 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
 
 /**
- * The <code>EnvironmentFailureException</code> is the super class of all exceptions that have
- * their cause in the software or hardware environment of the system failing.
+ * The <code>EnvironmentFailureException</code> is the super class of all exceptions that have their cause in the software or hardware environment of
+ * the system failing.
  * 
  * @author Bernd Rinn
  */
@@ -57,9 +57,8 @@ public class EnvironmentFailureException extends HighLevelException
     }
 
     /**
-     * Returns the assessment of the subsystem throwing the exception whether the failure could be
-     * temporarily and thus retrying the operation (on a higher level) could possibly help to cure
-     * the problem.
+     * Returns the assessment of the subsystem throwing the exception whether the failure could be temporarily and thus retrying the operation (on a
+     * higher level) could possibly help to cure the problem.
      * <p>
      * This class will always return <code>true</code>, but sub classes can override the method.
      * 

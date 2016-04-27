@@ -34,7 +34,7 @@ public class ServiceMessage implements Serializable
     private final int messageIdx;
 
     private final Serializable payload;
-    
+
     private final ProgressInfo progress;
 
     private final String exceptionDescription;
@@ -60,8 +60,9 @@ public class ServiceMessage implements Serializable
             this.exceptionDescription = null;
         }
     }
-    
-    public ServiceMessage(String conversationId, int messageId, ProgressInfo progress) {
+
+    public ServiceMessage(String conversationId, int messageId, ProgressInfo progress)
+    {
         this.conversationId = conversationId;
         this.progress = progress;
         this.messageIdx = messageId;
@@ -93,7 +94,7 @@ public class ServiceMessage implements Serializable
     {
         return (payload == null) && (exceptionDescription != null);
     }
-    
+
     public boolean hasPayload()
     {
         return (payload != null);
@@ -103,8 +104,9 @@ public class ServiceMessage implements Serializable
     {
         return exceptionDescription;
     }
-    
-    public ProgressInfo getProgress() {
+
+    public ProgressInfo getProgress()
+    {
         return this.progress;
     }
 
@@ -121,7 +123,7 @@ public class ServiceMessage implements Serializable
         } else
         {
             return "ServiceMessage [conversationId=" + conversationId + ", messageIdx="
-                    + messageIdx + ", payload=" + payload + ", progress=" + progress +"]";
+                    + messageIdx + ", payload=" + payload + ", progress=" + progress + "]";
         }
     }
 }

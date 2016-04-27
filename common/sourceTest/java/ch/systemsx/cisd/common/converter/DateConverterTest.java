@@ -32,14 +32,14 @@ public final class DateConverterTest
 {
 
     @Test(expectedExceptions =
-        { AssertionError.class })
+    { AssertionError.class })
     public final void testConstructor()
     {
         new DateConverter(null);
     }
 
     @Test(expectedExceptions =
-        { IllegalArgumentException.class })
+    { IllegalArgumentException.class })
     public final void testConstructorWithBadFormat()
     {
         new DateConverter("badFormat");

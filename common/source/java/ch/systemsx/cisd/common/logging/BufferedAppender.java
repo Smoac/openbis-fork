@@ -30,12 +30,11 @@ import org.apache.log4j.spi.Filter;
 import org.apache.log4j.spi.LoggingEvent;
 
 /**
- * A <code>WriterAppender</code> extension that buffers its output in a
- * <code>ByteArrayOutputStream</code> until you ask for it by using {@link #getLogContent()}.
+ * A <code>WriterAppender</code> extension that buffers its output in a <code>ByteArrayOutputStream</code> until you ask for it by using
+ * {@link #getLogContent()}.
  * <p>
- * It internally uses a <code>ByteArrayOutputStream</code> which collect the log output and can
- * return it using {@link #getLogContent()}. It is a good idea to reset the log recorder by calling
- * {@link #resetLogContent()} before calling a unit test method.
+ * It internally uses a <code>ByteArrayOutputStream</code> which collect the log output and can return it using {@link #getLogContent()}. It is a good
+ * idea to reset the log recorder by calling {@link #resetLogContent()} before calling a unit test method.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -45,8 +44,7 @@ public final class BufferedAppender extends WriterAppender
     private final ByteArrayOutputStream logRecorder;
 
     /**
-     * Constructor with default pattern layout (which is
-     * {@link PatternLayout#DEFAULT_CONVERSION_PATTERN}) and {@link Level#DEBUG} as log level.
+     * Constructor with default pattern layout (which is {@link PatternLayout#DEFAULT_CONVERSION_PATTERN}) and {@link Level#DEBUG} as log level.
      */
     public BufferedAppender()
     {
@@ -54,8 +52,7 @@ public final class BufferedAppender extends WriterAppender
     }
 
     /**
-     * Constructor with default pattern layout (which is
-     * {@link PatternLayout#DEFAULT_CONVERSION_PATTERN}).
+     * Constructor with default pattern layout (which is {@link PatternLayout#DEFAULT_CONVERSION_PATTERN}).
      * 
      * @param logLevel
      */
@@ -70,8 +67,7 @@ public final class BufferedAppender extends WriterAppender
     }
 
     /**
-     * Creates an instance for specified optional layout pattern, log level and regex of the logger name
-     * onto which log entries are filtered.
+     * Creates an instance for specified optional layout pattern, log level and regex of the logger name onto which log entries are filtered.
      */
     public BufferedAppender(final String patternOrNull, final Level logLevel, final String loggerNameRegex)
     {
@@ -94,7 +90,7 @@ public final class BufferedAppender extends WriterAppender
         configureRootLogger();
         setThreshold(logLevel);
     }
-    
+
     public void addRegexForLoggingEventsToBeDropped(String loggerNameRegex)
     {
         final Pattern pattern = Pattern.compile(loggerNameRegex);
@@ -130,9 +126,10 @@ public final class BufferedAppender extends WriterAppender
     {
         return new String(logRecorder.toByteArray()).trim();
     }
-    
-    public List<String> getLogLines() {
-    	return Arrays.asList(getLogContent().split("\n"));
+
+    public List<String> getLogLines()
+    {
+        return Arrays.asList(getLogContent().split("\n"));
     }
 
     public final void resetLogContent()

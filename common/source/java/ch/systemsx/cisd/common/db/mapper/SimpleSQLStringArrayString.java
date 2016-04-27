@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.common.db.mapper;
 
-
 /**
  * A helper class for converting a <code>String[]</code> to a valid array String in SQL.
  * 

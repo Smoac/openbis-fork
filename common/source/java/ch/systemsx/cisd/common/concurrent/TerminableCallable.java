@@ -26,26 +26,21 @@ import ch.systemsx.cisd.base.namedthread.NamedRunnable;
 import ch.systemsx.cisd.common.action.ITerminable;
 
 /**
- * A wrapper for {@link Callable}s that offers a {@link #terminate()} method to safely terminated
- * the callable and providing an optional hook for clean up after the callable is either finished or
- * terminated. It delegates it's {@link Callable#call()} to a delegate.
+ * A wrapper for {@link Callable}s that offers a {@link #terminate()} method to safely terminated the callable and providing an optional hook for
+ * clean up after the callable is either finished or terminated. It delegates it's {@link Callable#call()} to a delegate.
  * <p>
- * The {@link Callable#call()} method can only be called once. Do not try to re-use an instance of
- * this class, but create a new one instead!
+ * The {@link Callable#call()} method can only be called once. Do not try to re-use an instance of this class, but create a new one instead!
  * <p>
- * All code in the delegate {@link #call()} that cannot be interrupted but safely be stopped (see
- * {@link Thread#interrupt()} and <code>Thread.stop()</code>) should be executed in the
- * <var>stoppableExecutor</var>.
+ * All code in the delegate {@link #call()} that cannot be interrupted but safely be stopped (see {@link Thread#interrupt()} and
+ * <code>Thread.stop()</code>) should be executed in the <var>stoppableExecutor</var>.
  * <p>
- * <strong>Note: Code executed in the <var>stoppableExecutor</var> must <i>not</i> change variables
- * or data structures used by several threads or else the problems described in <a
- * href="http://java.sun.com/j2se/1.5.0/docs/guide/misc/threadPrimitiveDeprecation.html">"Why is
- * <code>Thread.stop()</code> deprecated?"</a> apply to your code! Watch out for static thread-safe
- * variables like e.g. the ones of type {@link ThreadLocal}!</strong>
+ * <strong>Note: Code executed in the <var>stoppableExecutor</var> must <i>not</i> change variables or data structures used by several threads or else
+ * the problems described in <a href="http://java.sun.com/j2se/1.5.0/docs/guide/misc/threadPrimitiveDeprecation.html">"Why is
+ * <code>Thread.stop()</code> deprecated?"</a> apply to your code! Watch out for static thread-safe variables like e.g. the ones of type
+ * {@link ThreadLocal}!</strong>
  * <p>
- * The <var>stoppableExecutor</var> is in general supposed to be used for time-consuming algorithmic
- * code which cannot be interrupted (because it doesn't check the thread's interrupt state). The
- * simplest case is one big algorithmic block which uses final variables of the caller as input and
+ * The <var>stoppableExecutor</var> is in general supposed to be used for time-consuming algorithmic code which cannot be interrupted (because it
+ * doesn't check the thread's interrupt state). The simplest case is one big algorithmic block which uses final variables of the caller as input and
  * delivers its result as return value:
  * 
  * <pre>
@@ -105,8 +100,7 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
     public static final long WAIT_FOREVER_MILLIS = Long.MAX_VALUE;
 
     /**
-     * The default time (in milli-seconds) to wait for {@link Thread#interrupt()} to terminate the
-     * callable.
+     * The default time (in milli-seconds) to wait for {@link Thread#interrupt()} to terminate the callable.
      */
     public static final long DEFAULT_WAIT_INTERRUPT_MILLIS = 100L;
 
@@ -154,8 +148,8 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
     }
 
     /**
-     * A role that executes {@link Runnable}s and {@link Callable}s immediately in the current
-     * thread and that marks the code it runs as suitable for <code>Thread.stop()</code>.
+     * A role that executes {@link Runnable}s and {@link Callable}s immediately in the current thread and that marks the code it runs as suitable for
+     * <code>Thread.stop()</code>.
      */
     public interface IStoppableExecutor<V>
     {
@@ -165,8 +159,7 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
     }
 
     /**
-     * A {@link Callable} that has available a {@link TerminableCallable.IStoppableExecutor} for
-     * running code that cannot be interrupted but stopped.
+     * A {@link Callable} that has available a {@link TerminableCallable.IStoppableExecutor} for running code that cannot be interrupted but stopped.
      */
     public interface ICallable<V>
     {
@@ -174,8 +167,8 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
     }
 
     /**
-     * A {@link Callable} that has available a {@link TerminableCallable.IStoppableExecutor} for
-     * running code that cannot be interrupted but stopped and does know its name.
+     * A {@link Callable} that has available a {@link TerminableCallable.IStoppableExecutor} for running code that cannot be interrupted but stopped
+     * and does know its name.
      */
     public interface INamedCallable<V> extends ICallable<V>, ICallableNameProvider
     {
@@ -191,16 +184,14 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
          * {@link ch.systemsx.cisd.common.concurrent.TerminableCallable.ICallable#call(ch.systemsx.cisd.common.concurrent.TerminableCallable.IStoppableExecutor)}
          * method finishes or terminates.
          * <p>
-         * Note that this method is <i>always</i> called, no matter what the cause is. If you want
-         * to perform clean up only for some causes, check <var>cause</var> first.
+         * Note that this method is <i>always</i> called, no matter what the cause is. If you want to perform clean up only for some causes, check
+         * <var>cause</var> first.
          * <p>
-         * <i>It is guaranteed that, if the callable is terminated with the
-         * {@link TerminableCallable#terminate(long)} or the {@link TerminableCallable#terminate()}
-         * method, this call will be interrupted by neither {@link Thread#interrupt()} nor
+         * <i>It is guaranteed that, if the callable is terminated with the {@link TerminableCallable#terminate(long)} or the
+         * {@link TerminableCallable#terminate()} method, this call will be interrupted by neither {@link Thread#interrupt()} nor
          * <code>Thread.stop()</code>.</i>
          * <p>
-         * <strong>Don't perform any time consuming operations in this method and avoid any
-         * operations that can fail with an exception.</strong>
+         * <strong>Don't perform any time consuming operations in this method and avoid any operations that can fail with an exception.</strong>
          * 
          * @param cause The cause why the
          *            {@link ch.systemsx.cisd.common.concurrent.TerminableCallable.ICallable#call(ch.systemsx.cisd.common.concurrent.TerminableCallable.IStoppableExecutor)}
@@ -217,14 +208,13 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
     }
 
     /**
-     * Factory method that creates a {@link TerminableCallable} with a <var>delegate</var>. It sets
-     * a time of {@link #DEFAULT_WAIT_INTERRUPT_MILLIS} to wait for {@link Thread#interrupt()} to
-     * terminate the callable.
+     * Factory method that creates a {@link TerminableCallable} with a <var>delegate</var>. It sets a time of {@link #DEFAULT_WAIT_INTERRUPT_MILLIS}
+     * to wait for {@link Thread#interrupt()} to terminate the callable.
      * <p>
      * Convenience wrapper for
      * {@link #create(ch.systemsx.cisd.common.concurrent.TerminableCallable.ICallable, ch.systemsx.cisd.common.concurrent.TerminableCallable.ICleaner, long, long)}
-     * with <var>waitInterruptMillis</var> set to {@link #DEFAULT_WAIT_INTERRUPT_MILLIS} and
-     * <var>timeoutTerminateMillis</var> set to {@link #WAIT_FOREVER_MILLIS}.
+     * with <var>waitInterruptMillis</var> set to {@link #DEFAULT_WAIT_INTERRUPT_MILLIS} and <var>timeoutTerminateMillis</var> set to
+     * {@link #WAIT_FOREVER_MILLIS}.
      */
     public static <V> TerminableCallable<V> create(ICallable<V> delegate)
     {
@@ -232,15 +222,13 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
     }
 
     /**
-     * Factory method that creates a {@link TerminableCallable} with a
-     * <var>delegateWithCleaner</var> which is also used to clean up after the call. It sets a time
-     * of {@link #DEFAULT_WAIT_INTERRUPT_MILLIS} to wait for {@link Thread#interrupt()} to terminate
-     * the callable.
+     * Factory method that creates a {@link TerminableCallable} with a <var>delegateWithCleaner</var> which is also used to clean up after the call.
+     * It sets a time of {@link #DEFAULT_WAIT_INTERRUPT_MILLIS} to wait for {@link Thread#interrupt()} to terminate the callable.
      * <p>
      * Convenience wrapper for
      * {@link #create(ch.systemsx.cisd.common.concurrent.TerminableCallable.ICallable, ch.systemsx.cisd.common.concurrent.TerminableCallable.ICleaner, long, long)}
-     * with <var>waitInterruptMillis</var> set to {@link #DEFAULT_WAIT_INTERRUPT_MILLIS} and
-     * <var>timeoutTerminateMillis</var> set to {@link #WAIT_FOREVER_MILLIS}.
+     * with <var>waitInterruptMillis</var> set to {@link #DEFAULT_WAIT_INTERRUPT_MILLIS} and <var>timeoutTerminateMillis</var> set to
+     * {@link #WAIT_FOREVER_MILLIS}.
      */
     public static <V> TerminableCallable<V> create(ICallableCleaner<V> delegateWithCleaner)
     {
@@ -249,13 +237,12 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
     }
 
     /**
-     * Factory method that creates a {@link TerminableCallable} with a <var>delegate</var> and a
-     * separate <var>cleaner</var>.
+     * Factory method that creates a {@link TerminableCallable} with a <var>delegate</var> and a separate <var>cleaner</var>.
      * <p>
      * Convenience wrapper for
      * {@link #create(ch.systemsx.cisd.common.concurrent.TerminableCallable.ICallable, ch.systemsx.cisd.common.concurrent.TerminableCallable.ICleaner, long, long)}
-     * with <var>waitInterruptMillis</var> set to {@link #DEFAULT_WAIT_INTERRUPT_MILLIS} and
-     * <var>timeoutTerminateMillis</var> set to {@link #WAIT_FOREVER_MILLIS}.
+     * with <var>waitInterruptMillis</var> set to {@link #DEFAULT_WAIT_INTERRUPT_MILLIS} and <var>timeoutTerminateMillis</var> set to
+     * {@link #WAIT_FOREVER_MILLIS}.
      */
     public static <V> TerminableCallable<V> create(ICallable<V> delegate, ICleaner cleaner)
     {
@@ -263,14 +250,12 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
     }
 
     /**
-     * Factory method that creates a {@link TerminableCallable} with a <var>delegate</var> and a
-     * separate <var>cleanerOrNull</var>.
+     * Factory method that creates a {@link TerminableCallable} with a <var>delegate</var> and a separate <var>cleanerOrNull</var>.
      * 
-     * @param waitInterruptMillis The time (in milli-seconds) that {@link #terminate(long)} should
-     *            wait after calling the {@link Thread#interrupt()} method for the callable to
-     *            terminate. After that time, it will try to stop the thread.
-     * @param timeoutTerminateMillis The time (in milli-seconds) that {@link #terminate()} should
-     *            wait for the callable to finish up, including time required for clean up.
+     * @param waitInterruptMillis The time (in milli-seconds) that {@link #terminate(long)} should wait after calling the {@link Thread#interrupt()}
+     *            method for the callable to terminate. After that time, it will try to stop the thread.
+     * @param timeoutTerminateMillis The time (in milli-seconds) that {@link #terminate()} should wait for the callable to finish up, including time
+     *            required for clean up.
      */
     public static <V> TerminableCallable<V> create(ICallable<V> delegate, ICleaner cleanerOrNull,
             long waitInterruptMillis, long timeoutTerminateMillis)
@@ -280,14 +265,12 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
     }
 
     /**
-     * Factory method that creates a {@link TerminableCallable} with a <var>delegate</var> that only
-     * runs code which is safe to stop.
+     * Factory method that creates a {@link TerminableCallable} with a <var>delegate</var> that only runs code which is safe to stop.
      * <p>
-     * <strong>Note: Code executed in the <var>delegate</var> must <i>not</i> change variables or
-     * data structures used by several threads or else the problems described in <a
-     * href="http://java.sun.com/j2se/1.5.0/docs/guide/misc/threadPrimitiveDeprecation.html">"Why is
-     * <code>Thread.stop()</code> deprecated?"</a> apply to your code! Watch out for static
-     * thread-safe variables like e.g. the ones of type {@link ThreadLocal}!</strong>
+     * <strong>Note: Code executed in the <var>delegate</var> must <i>not</i> change variables or data structures used by several threads or else the
+     * problems described in <a href="http://java.sun.com/j2se/1.5.0/docs/guide/misc/threadPrimitiveDeprecation.html">"Why is
+     * <code>Thread.stop()</code> deprecated?"</a> apply to your code! Watch out for static thread-safe variables like e.g. the ones of type
+     * {@link ThreadLocal}!</strong>
      */
     public static <V> TerminableCallable<V> createStoppable(final Callable<V> delegate)
     {
@@ -305,12 +288,9 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
      * Constructs a {@link TerminableCallable}.
      * 
      * @param delegate The callable to delegate the call to.
-     * @param cleanerOrNull The {@link ICleaner} to use for cleaning up after the callable is
-     *            finished.
-     * @param waitInterruptMillis The time to wait for {@link Thread#interrupt()} to finish the
-     *            callable.
-     * @param timeoutTerminateMillis The time (in milli-seconds) to wait for {@link #terminate()} to
-     *            finish up.
+     * @param cleanerOrNull The {@link ICleaner} to use for cleaning up after the callable is finished.
+     * @param waitInterruptMillis The time to wait for {@link Thread#interrupt()} to finish the callable.
+     * @param timeoutTerminateMillis The time (in milli-seconds) to wait for {@link #terminate()} to finish up.
      */
     private TerminableCallable(ICallable<V> delegate, ICleaner cleanerOrNull,
             long waitInterruptMillis, long timeoutTerminateMillis)
@@ -449,8 +429,7 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
     }
 
     /**
-     * Returns <code>true</code> if the callable is currently running and <code>false</code>
-     * otherwise.
+     * Returns <code>true</code> if the callable is currently running and <code>false</code> otherwise.
      */
     public boolean isRunning()
     {
@@ -482,8 +461,7 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
     }
 
     /**
-     * Waits for the callable to finish running. The method waits at most <var>timeoutMillis</var>
-     * milli-seconds.
+     * Waits for the callable to finish running. The method waits at most <var>timeoutMillis</var> milli-seconds.
      * 
      * @return <code>true</code>, if the callable has finished running when the method returns.
      */
@@ -501,8 +479,7 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
     /**
      * Cancels the callable if it is not yet running.
      * 
-     * @param mayInterruptIfRunning If <code>true</code> and the callable is running, interrupt its
-     *            thread. Otherwise, do nothing.
+     * @param mayInterruptIfRunning If <code>true</code> and the callable is running, interrupt its thread. Otherwise, do nothing.
      * @return <code>true</code>, if the callable is cancelled and <code>false</code> otherwise.
      */
     public boolean cancel(boolean mayInterruptIfRunning)
@@ -511,14 +488,13 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
     }
 
     /**
-     * Terminates this {@link TerminableCallable}. A convenience wrapper for
-     * {@link #terminate(long)} with <var>timeoutMillis</var> set to
+     * Terminates this {@link TerminableCallable}. A convenience wrapper for {@link #terminate(long)} with <var>timeoutMillis</var> set to
      * <var>timeoutTerminateMillis</var> as set in the factory method (see
      * {@link #create(ch.systemsx.cisd.common.concurrent.TerminableCallable.ICallable, ch.systemsx.cisd.common.concurrent.TerminableCallable.ICleaner, long, long)}
      * .
      * 
-     * @return <code>true</code>, if the callable is confirmed to be terminated and cleaned up
-     *         successfully in due time, or <code>false</code>, if a timeout has occurred.
+     * @return <code>true</code>, if the callable is confirmed to be terminated and cleaned up successfully in due time, or <code>false</code>, if a
+     *         timeout has occurred.
      * @throws InterruptedExceptionUnchecked If the current thread is interrupted.
      */
     @Override
@@ -528,15 +504,12 @@ public final class TerminableCallable<V> implements Callable<V>, ICallableNamePr
     }
 
     /**
-     * Tries to terminate this {@link TerminableCallable}. Note that this is a synchronous call that
-     * returns only when either the callable has been terminated or finished or when a timeout has
-     * occurred. Note also that even when providing <var>timeoutMillis</var> as 0, this method may
-     * wait up to <var>waitInterruptMillis</var> milli-seconds for the {@link Thread#interrupt()}
-     * call to terminate the callable.
+     * Tries to terminate this {@link TerminableCallable}. Note that this is a synchronous call that returns only when either the callable has been
+     * terminated or finished or when a timeout has occurred. Note also that even when providing <var>timeoutMillis</var> as 0, this method may wait
+     * up to <var>waitInterruptMillis</var> milli-seconds for the {@link Thread#interrupt()} call to terminate the callable.
      * 
      * @param timeoutMillis The method will wait at most this time (in milli-seconds).
-     * @return <code>true</code>, if the callable is confirmed to be terminated or finished, or
-     *         <code>false</code>, if a timeout has occurred.
+     * @return <code>true</code>, if the callable is confirmed to be terminated or finished, or <code>false</code>, if a timeout has occurred.
      * @throws InterruptedExceptionUnchecked If the current thread is interrupted.
      */
     public boolean terminate(long timeoutMillis) throws InterruptedExceptionUnchecked

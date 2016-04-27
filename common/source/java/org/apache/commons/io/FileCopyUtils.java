@@ -62,9 +62,8 @@ public class FileCopyUtils
     /**
      * Copies a file or directory to a new location, preserving the file date.
      * <p>
-     * This method copies the contents of the specified source file to the specified destination
-     * file. The directory holding the destination file is created if it does not exist. If the
-     * destination file exists, then this method will overwrite it.
+     * This method copies the contents of the specified source file to the specified destination file. The directory holding the destination file is
+     * created if it does not exist. If the destination file exists, then this method will overwrite it.
      * <p>
      * The last modification time of the source is preserved in the copy.
      * 
@@ -88,9 +87,8 @@ public class FileCopyUtils
     /**
      * Copies a file or directory to a new location, preserving the file date.
      * <p>
-     * This method copies the contents of the specified source file to the specified destination
-     * file. The directory holding the destination file is created if it does not exist. If the
-     * destination file exists, then this method will overwrite it.
+     * This method copies the contents of the specified source file to the specified destination file. The directory holding the destination file is
+     * created if it does not exist. If the destination file exists, then this method will overwrite it.
      * <p>
      * The last modification time of the source is preserved in the copy.
      * 
@@ -116,9 +114,8 @@ public class FileCopyUtils
     /**
      * Copies a file or directory to a directory preserving the file or directory date.
      * <p>
-     * This method copies the contents of the specified source file to a file of the same name in
-     * the specified destination directory. The destination directory is created if it does not
-     * exist. If the destination file exists, then this method will overwrite it.
+     * This method copies the contents of the specified source file to a file of the same name in the specified destination directory. The destination
+     * directory is created if it does not exist. If the destination file exists, then this method will overwrite it.
      * <p>
      * The last modification time of the source is preserved in the copy.
      * 
@@ -142,9 +139,8 @@ public class FileCopyUtils
     /**
      * Copies a file or directory to a directory preserving the file or directory date.
      * <p>
-     * This method copies the contents of the specified source file to a file of the same name in
-     * the specified destination directory. The destination directory is created if it does not
-     * exist. If the destination file exists, then this method will overwrite it.
+     * This method copies the contents of the specified source file to a file of the same name in the specified destination directory. The destination
+     * directory is created if it does not exist. If the destination file exists, then this method will overwrite it.
      * <p>
      * The last modification time of the source is preserved in the copy.
      * 
@@ -170,9 +166,8 @@ public class FileCopyUtils
     /**
      * Copies a file to a directory preserving the file date.
      * <p>
-     * This method copies the contents of the specified source file to a file of the same name in
-     * the specified destination directory. The destination directory is created if it does not
-     * exist. If the destination file exists, then this method will overwrite it.
+     * This method copies the contents of the specified source file to a file of the same name in the specified destination directory. The destination
+     * directory is created if it does not exist. If the destination file exists, then this method will overwrite it.
      * <p>
      * The last modification time of the source is preserved in the copy.
      * 
@@ -191,9 +186,8 @@ public class FileCopyUtils
     /**
      * Copies a file to a directory preserving the file date.
      * <p>
-     * This method copies the contents of the specified source file to a file of the same name in
-     * the specified destination directory. The destination directory is created if it does not
-     * exist. If the destination file exists, then this method will overwrite it.
+     * This method copies the contents of the specified source file to a file of the same name in the specified destination directory. The destination
+     * directory is created if it does not exist. If the destination file exists, then this method will overwrite it.
      * <p>
      * The last modification time of the source is preserved in the copy.
      * 
@@ -221,9 +215,8 @@ public class FileCopyUtils
     /**
      * Copies a file to a new location, preserving the file date.
      * <p>
-     * This method copies the contents of the specified source file to the specified destination
-     * file. The directory holding the destination file is created if it does not exist. If the
-     * destination file exists, then this method will overwrite it.
+     * This method copies the contents of the specified source file to the specified destination file. The directory holding the destination file is
+     * created if it does not exist. If the destination file exists, then this method will overwrite it.
      * <p>
      * The last modification time of the source is preserved in the copy.
      * 
@@ -237,13 +230,12 @@ public class FileCopyUtils
     {
         copyFile(srcFile, destFile, null);
     }
-    
+
     /**
      * Copies a file to a new location, preserving the file date.
      * <p>
-     * This method copies the contents of the specified source file to the specified destination
-     * file. The directory holding the destination file is created if it does not exist. If the
-     * destination file exists, then this method will overwrite it.
+     * This method copies the contents of the specified source file to the specified destination file. The directory holding the destination file is
+     * created if it does not exist. If the destination file exists, then this method will overwrite it.
      * <p>
      * The last modification time of the source is preserved in the copy.
      * 
@@ -366,12 +358,10 @@ public class FileCopyUtils
     /**
      * Copies a directory to within another directory preserving the file dates.
      * <p>
-     * This method copies the source directory and all its contents to a directory of the same name
-     * in the specified destination directory.
+     * This method copies the source directory and all its contents to a directory of the same name in the specified destination directory.
      * <p>
-     * The destination directory is created if it does not exist. If the destination directory did
-     * exist, then this method merges the source with the destination, with the source taking
-     * precedence.
+     * The destination directory is created if it does not exist. If the destination directory did exist, then this method merges the source with the
+     * destination, with the source taking precedence.
      * <p>
      * The last modification time of the source is preserved in the copy.
      * 
@@ -390,12 +380,10 @@ public class FileCopyUtils
     /**
      * Copies a directory to within another directory preserving the file dates.
      * <p>
-     * This method copies the source directory and all its contents to a directory of the same name
-     * in the specified destination directory.
+     * This method copies the source directory and all its contents to a directory of the same name in the specified destination directory.
      * <p>
-     * The destination directory is created if it does not exist. If the destination directory did
-     * exist, then this method merges the source with the destination, with the source taking
-     * precedence.
+     * The destination directory is created if it does not exist. If the destination directory did exist, then this method merges the source with the
+     * destination, with the source taking precedence.
      * <p>
      * The last modification time of the source is preserved in the copy.
      * 
@@ -432,12 +420,11 @@ public class FileCopyUtils
     /**
      * Copies a whole directory to a new location preserving the file dates.
      * <p>
-     * This method copies the specified directory and all its child directories and files to the
-     * specified destination. The destination is the new location and name of the directory.
+     * This method copies the specified directory and all its child directories and files to the specified destination. The destination is the new
+     * location and name of the directory.
      * <p>
-     * The destination directory is created if it does not exist. If the destination directory did
-     * exist, then this method merges the source with the destination, with the source taking
-     * precedence.
+     * The destination directory is created if it does not exist. If the destination directory did exist, then this method merges the source with the
+     * destination, with the source taking precedence.
      * <p>
      * The last modification time of the source is preserved in the copy.
      * 
@@ -458,12 +445,10 @@ public class FileCopyUtils
     /**
      * Copies a whole directory to a new location.
      * <p>
-     * This method copies the contents of the specified source directory to within the specified
-     * destination directory.
+     * This method copies the contents of the specified source directory to within the specified destination directory.
      * <p>
-     * The destination directory is created if it does not exist. If the destination directory did
-     * exist, then this method merges the source with the destination, with the source taking
-     * precedence.
+     * The destination directory is created if it does not exist. If the destination directory did exist, then this method merges the source with the
+     * destination, with the source taking precedence.
      * <p>
      * The last modification time of the source is preserved in the copy.
      * 
@@ -482,12 +467,10 @@ public class FileCopyUtils
     /**
      * Copies a filtered directory to a new location.
      * <p>
-     * This method copies the contents of the specified source directory to within the specified
-     * destination directory.
+     * This method copies the contents of the specified source directory to within the specified destination directory.
      * <p>
-     * The destination directory is created if it does not exist. If the destination directory did
-     * exist, then this method merges the source with the destination, with the source taking
-     * precedence.
+     * The destination directory is created if it does not exist. If the destination directory did exist, then this method merges the source with the
+     * destination, with the source taking precedence.
      * <p>
      * The last modification time of the source is preserved in the copy.
      * <h4>Example: Copy directories only</h4>
@@ -526,12 +509,10 @@ public class FileCopyUtils
     /**
      * Copies a filtered directory to a new location.
      * <p>
-     * This method copies the contents of the specified source directory to within the specified
-     * destination directory.
+     * This method copies the contents of the specified source directory to within the specified destination directory.
      * <p>
-     * The destination directory is created if it does not exist. If the destination directory did
-     * exist, then this method merges the source with the destination, with the source taking
-     * precedence.
+     * The destination directory is created if it does not exist. If the destination directory did exist, then this method merges the source with the
+     * destination, with the source taking precedence.
      * <p>
      * The last modification time of the source is preserved in the copy.
      * <h4>Example: Copy directories only</h4>

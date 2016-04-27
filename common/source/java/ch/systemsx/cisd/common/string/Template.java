@@ -33,13 +33,12 @@ import org.apache.commons.lang.StringUtils;
  * String text = template.createText();
  * </pre>
  * 
- * The method {@link #bind(String, String)} throws an exception if the placeholder name is unknown.
- * The method {@link #attemptToBind(String, String)} returns <code>false</code> if the placeholder
- * name is unknown. The method {@link #createText()} throws an exception if not all placeholders
- * have been bound.
+ * The method {@link #bind(String, String)} throws an exception if the placeholder name is unknown. The method {@link #attemptToBind(String, String)}
+ * returns <code>false</code> if the placeholder name is unknown. The method {@link #createText()} throws an exception if not all placeholders have
+ * been bound.
  * <p>
- * Since placeholder bindings change the state of an instance of this class there is method
- * {@link #createFreshCopy()} which creates a copy without reparsing the template. Usage example:
+ * Since placeholder bindings change the state of an instance of this class there is method {@link #createFreshCopy()} which creates a copy without
+ * reparsing the template. Usage example:
  * 
  * <pre>
  * static final Template TEMPLATE = new Template(&quot;Hello ${name}!&quot;);
@@ -78,8 +77,7 @@ public class Template
         public void appendTo(StringBuilder builder);
 
         /**
-         * Returns <code>true</code> if this token is a variable token, <code>false</code>
-         * otherwise.
+         * Returns <code>true</code> if this token is a variable token, <code>false</code> otherwise.
          */
         public boolean isVariable();
 
@@ -94,8 +92,7 @@ public class Template
         public int getVariableIndex();
 
         /**
-         * Returns the value of the token or <code>null</code> if this is a variable token whose
-         * value has not yet been set.
+         * Returns the value of the token or <code>null</code> if this is a variable token whose value has not yet been set.
          */
         public String tryGetValue();
 
@@ -110,27 +107,23 @@ public class Template
         public void setValue(String value);
 
         /**
-         * Sets the value of the token to a substring given by <var>start</var> and
-         * <code>value.length() - indexFromEnd</code> and add <var>prefix</var> and
-         * <var>suffix</var>.
+         * Sets the value of the token to a substring given by <var>start</var> and <code>value.length() - indexFromEnd</code> and add
+         * <var>prefix</var> and <var>suffix</var>.
          */
         public void setSubString(int start, int indexFromEnd, String prefix, String suffix);
 
         /**
-         * Returns the prefix for a variable token, or <code>null</code> if no prefix has been set
-         * or it is not a variable token.
+         * Returns the prefix for a variable token, or <code>null</code> if no prefix has been set or it is not a variable token.
          */
         public String tryGetPrefix();
 
         /**
-         * Returns the suffix for a variable token, or <code>null</code> if no prefix has been set
-         * or it is not a variable token.
+         * Returns the suffix for a variable token, or <code>null</code> if no prefix has been set or it is not a variable token.
          */
         public String tryGetSuffix();
 
         /**
-         * Returns <code>false</code> for a variable token that is not yet bound, <code>true</code>
-         * otherwise.
+         * Returns <code>false</code> for a variable token that is not yet bound, <code>true</code> otherwise.
          */
         public boolean isBound();
 
@@ -596,8 +589,7 @@ public class Template
     }
 
     /**
-     * Returns index (position, starting with 0) of the <var>placeholderName</var>, or -1, if the
-     * place holder name cannot be found in the template.
+     * Returns index (position, starting with 0) of the <var>placeholderName</var>, or -1, if the place holder name cannot be found in the template.
      */
     public int tryGetIndex(String placeholderName)
     {
@@ -611,9 +603,8 @@ public class Template
     }
 
     /**
-     * Returns the metadata of the given <var>placeholderName</var>, or <code>null</code>, if the
-     * place holder name cannot be found in the template or there are no metadata for this
-     * placeholder.
+     * Returns the metadata of the given <var>placeholderName</var>, or <code>null</code>, if the place holder name cannot be found in the template or
+     * there are no metadata for this placeholder.
      */
     public String tryGetMetadata(String placeholderName)
     {
@@ -627,10 +618,9 @@ public class Template
     }
 
     /**
-     * Look through all tokens for variable tokens which are surrounded by plain text tokens which
-     * end / start with the given <var>oldOpeningBracket</var> /
-     * <var>oldClosingBracket</var>. If that is the case, replace these brackets with
-     * <var>newOpeningBracket</var> / <var>newClosingBracket</var>.
+     * Look through all tokens for variable tokens which are surrounded by plain text tokens which end / start with the given
+     * <var>oldOpeningBracket</var> / <var>oldClosingBracket</var>. If that is the case, replace these brackets with <var>newOpeningBracket</var> /
+     * <var>newClosingBracket</var>.
      * 
      * @return The variable tokens where brackets have been replaced.
      */
@@ -654,8 +644,8 @@ public class Template
     }
 
     /**
-     * Returns the left neighbor token of the variable token given by <var>variableName</var>, or
-     * <code>null</code>, if this variable token is not found or doesn't have a left neighbor.
+     * Returns the left neighbor token of the variable token given by <var>variableName</var>, or <code>null</code>, if this variable token is not
+     * found or doesn't have a left neighbor.
      */
     public IToken tryGetLeftNeighbor(String variableName)
     {
@@ -671,8 +661,8 @@ public class Template
     }
 
     /**
-     * Returns the right neighbor token of the variable token given by <var>variableName</var>, or
-     * <code>null</code>, if this variable token is not found or doesn't have a right neighbor.
+     * Returns the right neighbor token of the variable token given by <var>variableName</var>, or <code>null</code>, if this variable token is not
+     * found or doesn't have a right neighbor.
      */
     public IToken tryGetRightNeighbor(String variableName)
     {
@@ -712,8 +702,7 @@ public class Template
     /**
      * Creates the text by using placeholder bindings.
      * 
-     * @param complete If <code>true</code> an {@link IllegalStateException} will be thrown if not
-     *            all bindings are set.
+     * @param complete If <code>true</code> an {@link IllegalStateException} will be thrown if not all bindings are set.
      */
     public String createText(boolean complete)
     {

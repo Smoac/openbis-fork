@@ -32,42 +32,42 @@ public class FullLengthReadingStreamTest extends AssertJUnit
     public void testHalfReadingStream() throws IOException
     {
         HalfReadingStream stream = new HalfReadingStream(new byte[]
-            { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+        { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
 
         byte[] bytes = new byte[10];
         int count = stream.read(bytes, 3, 11);
 
         assertEquals(5, count);
         assertEquals(new byte[]
-            { 0, 0, 0, 0, 1, 2, 3, 4, 0, 0 }, bytes);
+        { 0, 0, 0, 0, 1, 2, 3, 4, 0, 0 }, bytes);
 
         bytes = new byte[10];
         count = stream.read(bytes, 8, 4);
 
         assertEquals(2, count);
         assertEquals(new byte[]
-            { 0, 0, 0, 0, 0, 0, 0, 0, 5, 6 }, bytes);
+        { 0, 0, 0, 0, 0, 0, 0, 0, 5, 6 }, bytes);
 
         bytes = new byte[10];
         count = stream.read(bytes, 0, 10);
 
         assertEquals(3, count);
         assertEquals(new byte[]
-            { 7, 8, 9, 0, 0, 0, 0, 0, 0, 0 }, bytes);
+        { 7, 8, 9, 0, 0, 0, 0, 0, 0, 0 }, bytes);
 
         bytes = new byte[10];
         count = stream.read(bytes, 0, 10);
 
         assertEquals(-1, count);
         assertEquals(new byte[]
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, bytes);
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, bytes);
     }
 
     @Test
     public void testFullReadingStream() throws IOException
     {
         HalfReadingStream stream = new HalfReadingStream(new byte[]
-            { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+        { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
         FullLengthReadingStream fullStream = new FullLengthReadingStream(stream);
 
         byte[] bytes = new byte[6];
@@ -75,21 +75,21 @@ public class FullLengthReadingStreamTest extends AssertJUnit
 
         assertEquals(6, count);
         assertEquals(new byte[]
-            { 0, 1, 2, 3, 4, 5 }, bytes);
+        { 0, 1, 2, 3, 4, 5 }, bytes);
 
         bytes = new byte[6];
         count = fullStream.read(bytes);
 
         assertEquals(4, count);
         assertEquals(new byte[]
-            { 6, 7, 8, 9, 0, 0 }, bytes);
+        { 6, 7, 8, 9, 0, 0 }, bytes);
 
         bytes = new byte[6];
         count = fullStream.read(bytes);
 
         assertEquals(-1, count);
         assertEquals(new byte[]
-            { 0, 0, 0, 0, 0, 0 }, bytes);
+        { 0, 0, 0, 0, 0, 0 }, bytes);
     }
 
     private class HalfReadingStream extends ByteArrayInputStream

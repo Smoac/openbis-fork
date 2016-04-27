@@ -20,8 +20,8 @@ import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.exceptions.InvalidExternalDataException;
 
 /**
- * Data provided to the system from another system is invalid. This class is supposed to be used in
- * cases where the data cannot be attributed to any user, but rather another system.
+ * Data provided to the system from another system is invalid. This class is supposed to be used in cases where the data cannot be attributed to any
+ * user, but rather another system.
  * 
  * @author Bernd Rinn
  */

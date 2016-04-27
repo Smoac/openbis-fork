@@ -60,8 +60,7 @@ public class ServiceConversationDTO implements Serializable
      * Returns the length of the workqueue after submitting this conversation.
      * <p>
      * 0 means: The conversation is running.<br>
-     * 1 means: The conversation is queued but is the next one to run when another conversation
-     * finishes.<br>
+     * 1 means: The conversation is queued but is the next one to run when another conversation finishes.<br>
      * N > 1 means: The conversation is queued and there are N - 1 conversations to run first.
      */
     public int getWorkQueueSize()

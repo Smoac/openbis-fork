@@ -25,8 +25,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.server.IRemoteHostProvider;
 
 /**
- * Abstract super class of action logs. Action logs are logged by one of the following loggers:
- * Authentication logger, access logger, and tracking logger.
+ * Abstract super class of action logs. Action logs are logged by one of the following loggers: Authentication logger, access logger, and tracking
+ * logger.
  * 
  * @author Franz-Josef Elmer
  */
@@ -60,8 +60,8 @@ public abstract class AbstractActionLog implements IActionLog
     }
 
     /**
-     * Creates an instance for the specified request context provider. It is used to provide
-     * {@link HttpSession} in all methods except {@link #logLogout(HttpSession)}.
+     * Creates an instance for the specified request context provider. It is used to provide {@link HttpSession} in all methods except
+     * {@link #logLogout(HttpSession)}.
      * 
      * @param requestContextProvider
      */

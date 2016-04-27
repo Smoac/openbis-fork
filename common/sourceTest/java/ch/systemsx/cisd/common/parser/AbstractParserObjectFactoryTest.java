@@ -23,7 +23,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-
 /**
  * Test cases for corresponding {@link AbstractParserObjectFactory} class.
  * 
@@ -44,11 +43,11 @@ public final class AbstractParserObjectFactoryTest
         if (mixedCase)
         {
             strings = new String[]
-                { "NAME", "Description", "NuMbEr" };
+            { "NAME", "Description", "NuMbEr" };
         } else
         {
             strings = new String[]
-                { "name", "description", "number" };
+            { "name", "description", "number" };
         }
         return new DefaultPropertyMapper(strings, null);
     }
@@ -56,7 +55,7 @@ public final class AbstractParserObjectFactoryTest
     private final static String[] createDefaultLineTokens()
     {
         return new String[]
-            { BEAN_NAME, BEAN_DESCRIPTION, "1" };
+        { BEAN_NAME, BEAN_DESCRIPTION, "1" };
     }
 
     private final void checkBean(final Bean bean)
@@ -76,7 +75,7 @@ public final class AbstractParserObjectFactoryTest
     public final void testPropertyMapperWithUnmatchedProperties()
     {
         final IPropertyMapper propertyMapper = new DefaultPropertyMapper(new String[]
-            { "name", "description", "IsNotIn" }, null);
+        { "name", "description", "IsNotIn" }, null);
         try
         {
             new BeanFactory(Bean.class, propertyMapper);
@@ -93,12 +92,12 @@ public final class AbstractParserObjectFactoryTest
     public final void testMandatoryFields()
     {
         final DefaultPropertyMapper propertyMapper = new DefaultPropertyMapper(new String[]
-            { "description" }, null);
+        { "description" }, null);
         try
         {
             final BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
             final String[] lineTokens = new String[]
-                { "1. experiment" };
+            { "1. experiment" };
             beanFactory.createObject(lineTokens);
             fail("Field/Property code 'name' is mandatory.");
         } catch (final MandatoryPropertyMissingException ex)
@@ -113,7 +112,7 @@ public final class AbstractParserObjectFactoryTest
         final IPropertyMapper propertyMapper = createPropertyMapper(false);
         final BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
         final String[] lineTokens = new String[]
-            { "", "desc", "1" };
+        { "", "desc", "1" };
         String errMsg = "Missing value for the mandatory column 'name'.";
         try
         {

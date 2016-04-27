@@ -33,10 +33,9 @@ import org.apache.log4j.spi.LoggingEvent;
 public class GUIAppender extends AppenderSkeleton
 {
     private final JTextArea textArea;
-    
+
     /**
-     * Creates an instance for the log level {@link Level#DEBUG}. Default pattern layout
-     * {@link PatternLayout#DEFAULT_CONVERSION_PATTERN} is used.
+     * Creates an instance for the log level {@link Level#DEBUG}. Default pattern layout {@link PatternLayout#DEFAULT_CONVERSION_PATTERN} is used.
      */
     public GUIAppender()
     {
@@ -44,8 +43,7 @@ public class GUIAppender extends AppenderSkeleton
     }
 
     /**
-     * Creates an instance for the specified log level. Default pattern layout
-     * {@link PatternLayout#DEFAULT_CONVERSION_PATTERN} is used.
+     * Creates an instance for the specified log level. Default pattern layout {@link PatternLayout#DEFAULT_CONVERSION_PATTERN} is used.
      */
     public GUIAppender(Level logLevel)
     {

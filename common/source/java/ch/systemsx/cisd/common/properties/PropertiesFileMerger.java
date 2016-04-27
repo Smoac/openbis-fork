@@ -35,9 +35,8 @@ import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.SystemExit;
 
 /**
- * Helper class/application to merge properties file. It tries to replace property values by values
- * from the files to be merged assuming that all key-value pairs are of the form
- * <tt>&lt;key&gt; = &lt;value&gt;<tt>. If at least one properties file doesn't use
+ * Helper class/application to merge properties file. It tries to replace property values by values from the files to be merged assuming that all
+ * key-value pairs are of the form <tt>&lt;key&gt; = &lt;value&gt;<tt>. If at least one properties file doesn't use
  * this simple syntax all properties files are just string-concatenated.
  * 
  * @author Franz-Josef Elmer
@@ -48,7 +47,7 @@ public class PropertiesFileMerger
     {
         COMMENT, PROPERTY
     }
-    
+
     private static final class NotSimpleKeyValuePairException extends RuntimeException
     {
         private static final long serialVersionUID = 1L;
@@ -147,17 +146,17 @@ public class PropertiesFileMerger
             return entries;
         }
     }
-    
+
     /**
-     * Merges properties files specified by the arguments. The first file is overloaded by the
-     * content of the other files.
+     * Merges properties files specified by the arguments. The first file is overloaded by the content of the other files.
      */
     public static void main(String[] args)
     {
         main(args, SystemExit.SYSTEM_EXIT);
     }
-    
-    @Private static void main(String[] args, IExitHandler exitHandler)
+
+    @Private
+    static void main(String[] args, IExitHandler exitHandler)
     {
         if (args.length == 0)
         {
@@ -188,8 +187,7 @@ public class PropertiesFileMerger
     }
 
     /**
-     * Merges specified properties file with specified overloading properties files as described
-     * above.
+     * Merges specified properties file with specified overloading properties files as described above.
      */
     public static void mergePropertiesFiles(File propertiesFile, File... overloadingPropertiesFiles)
     {
@@ -217,7 +215,7 @@ public class PropertiesFileMerger
                     } else
                     {
                         printWriter.println(entry.getLine());
-                        
+
                     }
                 }
             } catch (Exception ex)

@@ -25,8 +25,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 /**
  * Utility class to parse properties.
  * <p>
- * Includes utilities to parse properties section. It's assumed that all properties in one section
- * begins with the common prefix.
+ * Includes utilities to parse properties section. It's assumed that all properties in one section begins with the common prefix.
  * </p>
  * 
  * @author Tomasz Pylak
@@ -64,10 +63,8 @@ public class PropertyParametersUtil
      * Extracts properties of the specified sections.
      * 
      * @param properties list of all properties
-     * @param sectionNamesPropertyName property name, its value should contain a list of section
-     *            names
-     * @param attachGeneralProperties if true, each section will have also global properties
-     *            attached (those which do not belong to any section)
+     * @param sectionNamesPropertyName property name, its value should contain a list of section names
+     * @param attachGeneralProperties if true, each section will have also global properties attached (those which do not belong to any section)
      */
     public static SectionProperties[] extractSectionProperties(final Properties properties,
             String sectionNamesPropertyName, boolean attachGeneralProperties)
@@ -90,14 +87,13 @@ public class PropertyParametersUtil
      * 
      * @param properties list of all properties
      * @param sectionName section name
-     * @param attachGeneralProperties if true, section will also have global properties attached
-     *            (those which do not belong to any section)
+     * @param attachGeneralProperties if true, section will also have global properties attached (those which do not belong to any section)
      */
     public static SectionProperties extractSingleSectionProperties(final Properties properties,
             String sectionName, boolean attachGeneralProperties)
     {
         final String[] names =
-            { sectionName };
+        { sectionName };
         SectionProperties[] sectionProperties = extractSectionProperties(names, properties);
         if (attachGeneralProperties)
         {
@@ -107,8 +103,7 @@ public class PropertyParametersUtil
     }
 
     /**
-     * takes a value of a specified property and treats it as a list of tokens separated by a
-     * delimiter.
+     * takes a value of a specified property and treats it as a list of tokens separated by a delimiter.
      */
     private static String[] tryParseItemisedProperty(final Properties properties,
             String itemsListPropertyName)
@@ -122,8 +117,7 @@ public class PropertyParametersUtil
     }
 
     /**
-     * Parses a list of items (e.g. "item1, item2, item3"). Checks that they are unique and
-     * non-empty.
+     * Parses a list of items (e.g. "item1, item2, item3"). Checks that they are unique and non-empty.
      */
     public static String[] parseItemisedProperty(String itemsList, String itemsListPropertyName)
     {

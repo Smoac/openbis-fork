@@ -22,8 +22,8 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 
 /**
- * A class that holds the information about the status of an operation. To be used whenever a
- * failure of an operation is signalled back via a return value rather than an exception.
+ * A class that holds the information about the status of an operation. To be used whenever a failure of an operation is signalled back via a return
+ * value rather than an exception.
  * 
  * @author Bernd Rinn
  */
@@ -131,8 +131,7 @@ public class Status
     }
 
     /**
-     * @return <code>true</code> if this status represents an error where it makes sense to retry
-     *         the operation.
+     * @return <code>true</code> if this status represents an error where it makes sense to retry the operation.
      */
     public final boolean isRetriableError()
     {
@@ -140,8 +139,7 @@ public class Status
     }
 
     /**
-     * @return <code>true</code> if this status represents an error where it does not make sense to
-     *         retry the operation.
+     * @return <code>true</code> if this status represents an error where it does not make sense to retry the operation.
      */
     public final boolean isNonRetriableError()
     {
@@ -149,8 +147,7 @@ public class Status
     }
 
     /**
-     * @return The error message of the operation if <code>getFlag() != OK</code> (can be empty), or
-     *         <code>null</code> otherwise.
+     * @return The error message of the operation if <code>getFlag() != OK</code> (can be empty), or <code>null</code> otherwise.
      */
     public String tryGetErrorMessage()
     {

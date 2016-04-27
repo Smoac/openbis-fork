@@ -45,7 +45,7 @@ public class StringUtilsTest
         assertEquals("a", result.get(0));
         assertEquals("b", result.get(1));
         assertEquals("c", result.get(2));
-        
+
         result = StringUtils.tokenize("  eins  zwei   drei vier  ");
         assertEquals(4, result.size());
         assertEquals("eins", result.get(0));
@@ -76,17 +76,17 @@ public class StringUtilsTest
 
         result = StringUtils.tokenize("");
         assertEquals(0, result.size());
-        
+
         result = StringUtils.tokenize("    ");
         assertEquals(0, result.size());
-        
+
         result = StringUtils.tokenize("    '");
         assertEquals(0, result.size());
-        
+
         result = StringUtils.tokenize("'    ");
         assertEquals(1, result.size());
         assertEquals("    ", result.get(0));
-        
+
     }
 
     @Test
@@ -103,5 +103,5 @@ public class StringUtilsTest
         assertEquals("a", result.get(0));
         assertEquals("berta\\' somemore", result.get(1));
         assertEquals("c", result.get(2));
-}
+    }
 }

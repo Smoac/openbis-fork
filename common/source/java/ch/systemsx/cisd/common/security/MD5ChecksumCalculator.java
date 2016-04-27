@@ -27,7 +27,6 @@ import org.apache.commons.io.IOUtils;
 import com.twmacinta.util.MD5;
 import com.twmacinta.util.MD5InputStream;
 
-
 /**
  * A {@link IChecksumCalculator} implementation based on <i>MD5</i>.
  * 
@@ -67,14 +66,14 @@ public final class MD5ChecksumCalculator implements IChecksumCalculator
             in.close();
         }
     }
-    
+
     /** Calculates a checksum for specified byte array. */
     public static String calculate(byte[] bytes)
     {
         assert bytes != null : "Unspecified byte array.";
         return calculate(new ByteArrayInputStream(bytes), bytes.length);
     }
-    
+
     /** Calculates a checksum for specified stream. */
     public static String calculate(InputStream stream) throws IOException
     {

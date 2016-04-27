@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.common.parser;
 
 /**
- * A <code>IParserObjectFactory</code> implementation knows how to deal with given line tokens and
- * convert them into an appropriate <code>Object</code>.
+ * A <code>IParserObjectFactory</code> implementation knows how to deal with given line tokens and convert them into an appropriate
+ * <code>Object</code>.
  * <p>
  * A <code>IParserObjectFactory</code> is typically registered in {@link IParser}.
  * </p>
@@ -29,8 +29,7 @@ public interface IParserObjectFactory<E>
 {
 
     /**
-     * This <code>IParserObjectFactory</code> implementation does nothing and returns the passed
-     * <code>lineTokens</code> as <code>String[]</code>.
+     * This <code>IParserObjectFactory</code> implementation does nothing and returns the passed <code>lineTokens</code> as <code>String[]</code>.
      * <p>
      * This implementation could be used to debugging purposes.
      * </p>
@@ -54,8 +53,8 @@ public interface IParserObjectFactory<E>
                 };
 
     /**
-     * Parses given text line and returns an appropriate <i>Object</i>. If null is return, the value
-     * is skipped. If an error is encountered, throw a ParserException.
+     * Parses given text line and returns an appropriate <i>Object</i>. If null is return, the value is skipped. If an error is encountered, throw a
+     * ParserException.
      */
     public E createObject(final String[] lineTokens) throws ParserException;
 }

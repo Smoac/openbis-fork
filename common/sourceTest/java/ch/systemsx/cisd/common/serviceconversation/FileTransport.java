@@ -24,26 +24,21 @@ import java.util.Comparator;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
- * An implementation of {@link IServiceMessageTransport} that works with files in the current
- * working directory.
+ * An implementation of {@link IServiceMessageTransport} that works with files in the current working directory.
  * <p>
  * The message files sent by the client are:
  * <ul>
  * <li>MSG_CLIENT_CONNECT_&lt;CLIENT_ID&gt;</li>
  * <li>MSG_CLIENT_DISCONNECT_&lt;CLIENT_ID&gt;</li>
- * <li>MSG_CLIENT_START_CONVERSATION_&lt;CLIENT_ID&gt;__&lt;CONVERSATION_TYPE_ID&gt__&lt;
- * UNIQUE_CONVERSATION_ID&gt;</li>
+ * <li>MSG_CLIENT_START_CONVERSATION_&lt;CLIENT_ID&gt;__&lt;CONVERSATION_TYPE_ID&gt__&lt; UNIQUE_CONVERSATION_ID&gt;</li>
  * <li>MSG_CLIENT_CONVERSATION_&lt;CLIENT_ID&gt;__&lt;CONVERSATION_ID_&gt;__&lt; MESSAGE_IDX&gt;</li>
  * </ul>
  * <p>
  * <p>
  * The messages sent by the server are:
  * <ul>
- * <li>Fill ServiceConversationDTO into
- * MSG_CLIENT_START_CONVERSATION_&lt;CLIENT_ID&gt;__&lt;CONVERSATION_TYPE_ID
- * &gt;__&lt;UNIQUE_SUFFIX&gt;</li>
- * <li>MSG_SERVER_CONVERSATION_&lt;CLIENT_ID&gt;__&lt;CONVERSATION_ID&gt;_&gt;__&lt ;MESSAGE_IDX&gt;
- * </li>
+ * <li>Fill ServiceConversationDTO into MSG_CLIENT_START_CONVERSATION_&lt;CLIENT_ID&gt;__&lt;CONVERSATION_TYPE_ID &gt;__&lt;UNIQUE_SUFFIX&gt;</li>
+ * <li>MSG_SERVER_CONVERSATION_&lt;CLIENT_ID&gt;__&lt;CONVERSATION_ID&gt;_&gt;__&lt ;MESSAGE_IDX&gt;</li>
  * </ul>
  * 
  * @author Bernd Rinn

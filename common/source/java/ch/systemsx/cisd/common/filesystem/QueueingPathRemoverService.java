@@ -37,14 +37,12 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.time.TimingParameters;
 
 /**
- * A service for removing (deep) paths. It provides a method {@link #removeRecursively(File)} that
- * marks {@link File}s for deletion and queues them up, using a separate thread to actually delete
- * them.
+ * A service for removing (deep) paths. It provides a method {@link #removeRecursively(File)} that marks {@link File}s for deletion and queues them
+ * up, using a separate thread to actually delete them.
  * <p>
  * Note that the service needs to be started via {@link #start(File, File, TimingParameters)}.
  * <p>
- * A file can be specified that keeps track of all the items that are to be deleted in order to
- * persist program restart.
+ * A file can be specified that keeps track of all the items that are to be deleted in order to persist program restart.
  * 
  * @author Bernd Rinn
  */
@@ -66,12 +64,12 @@ public class QueueingPathRemoverService
     private static Thread thread = null;
 
     private static IFileRemover deepRemover = null;
-    
+
     private static File shredderDir;
 
     /**
-     * Initializes the shredder thread. Will not persist over program restart. <i>Needs to be called
-     * before this class is constructed for the first time.</i>
+     * Initializes the shredder thread. Will not persist over program restart. <i>Needs to be called before this class is constructed for the first
+     * time.</i>
      */
     public static final void start()
     {
@@ -79,11 +77,9 @@ public class QueueingPathRemoverService
     }
 
     /**
-     * Initializes the shredder thread. <i>Needs to be called before this class is constructed for
-     * the first time.</i>
+     * Initializes the shredder thread. <i>Needs to be called before this class is constructed for the first time.</i>
      * 
-     * @param queueFileOrNull If not <code>null</code>, the file will be used to persist the items
-     *            to be deleted over program restart.
+     * @param queueFileOrNull If not <code>null</code>, the file will be used to persist the items to be deleted over program restart.
      */
     public static final void start(File storeRootOrNull, File queueFileOrNull)
     {
@@ -91,11 +87,9 @@ public class QueueingPathRemoverService
     }
 
     /**
-     * Initializes the shredder thread. <i>Needs to be called before this class is constructed for
-     * the first time.</i>
+     * Initializes the shredder thread. <i>Needs to be called before this class is constructed for the first time.</i>
      * 
-     * @param queueFileOrNull If not <code>null</code>, the file will be used to persist the items
-     *            to be deleted over program restart.
+     * @param queueFileOrNull If not <code>null</code>, the file will be used to persist the items to be deleted over program restart.
      */
     public static synchronized final void start(final File storeRootOrNull, final File queueFileOrNull,
             TimingParameters parameters)
@@ -113,14 +107,16 @@ public class QueueingPathRemoverService
         {
             queue = new ExtendedLinkedBlockingQueue<File>();
         }
-        
-        if (storeRootOrNull != null) {
+
+        if (storeRootOrNull != null)
+        {
             shredderDir = new File(storeRootOrNull, ".SHREDDER");
-            if (!shredderDir.exists()) {
+            if (!shredderDir.exists())
+            {
                 shredderDir.mkdir();
             }
         }
-        
+
         thread = new Thread(new Runnable()
             {
                 @Override
@@ -149,11 +145,11 @@ public class QueueingPathRemoverService
     }
 
     /**
-     * Deletes <var>fileToRemove</var>, if necessary recursively. If it is a file, it will be
-     * deleted immediately, if it is a directory, it will be queued up for asynchronous deletion.
+     * Deletes <var>fileToRemove</var>, if necessary recursively. If it is a file, it will be deleted immediately, if it is a directory, it will be
+     * queued up for asynchronous deletion.
      * <p>
-     * <i>This method does not monitor file system operations for hangs. If you need this
-     * functionality, use {@link IFileOperations#removeRecursivelyQueueing(File)} instead!</i>
+     * <i>This method does not monitor file system operations for hangs. If you need this functionality, use
+     * {@link IFileOperations#removeRecursivelyQueueing(File)} instead!</i>
      */
     public static boolean removeRecursively(File fileToRemove)
     {
@@ -172,12 +168,14 @@ public class QueueingPathRemoverService
                     SHREDDER_PREFIX + System.currentTimeMillis() + "-" + counter.incrementAndGet()
                             + "-" + fileToRemove.getName();
             final File shredderFile;
-            if (shredderDir != null) {
+            if (shredderDir != null)
+            {
                 shredderFile = new File(shredderDir, name);
-            } else {
+            } else
+            {
                 shredderFile = new File(fileToRemove.getParentFile(), name);
             }
-            
+
             final boolean ok = fileToRemove.renameTo(shredderFile);
             if (ok)
             {
@@ -213,8 +211,7 @@ public class QueueingPathRemoverService
     }
 
     /**
-     * Stop the service and wait for it to finish, but at most <var>timeoutMillis</var>
-     * milli-seconds.
+     * Stop the service and wait for it to finish, but at most <var>timeoutMillis</var> milli-seconds.
      * 
      * @return <code>true</code>, if stopping was successful, <code>false</code> otherwise.
      */

@@ -60,15 +60,15 @@ public class PropertyIOUtilsTest extends AbstractFileSystemTestCase
                     + "': question", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testLoadPropertiesWithEmptyLineWithASpace()
     {
         File propertiesFile = new File(workingDirectory, "p.properties");
         FileUtilities.writeToFile(propertiesFile, "  answer =  42 \n \n");
-        
+
         Properties properties = PropertyIOUtils.loadProperties(propertiesFile);
-        
+
         assertEquals("42", properties.getProperty("answer"));
     }
 

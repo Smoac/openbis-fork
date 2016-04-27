@@ -92,13 +92,13 @@ public class ReflectionFieldTraverserTest extends AssertJUnit
                 new LinkedHashSet<TestClass>(Arrays.asList(create("set1"), create("set2"),
                         create("set3")));
         object.array = new TestClass[]
-            { create("array1"), create("array2") };
+        { create("array1"), create("array2") };
         object.complexChild = create("complexChild");
         object.stringList = new ArrayList<String>(Arrays.asList("stringList1", "stringList2"));
         object.stringSet =
                 new TreeSet<String>(Arrays.asList("stringSet2", "stringSet1", "stringSet3"));
         object.stringArray = new String[]
-            { "stringArray1", "stringArray2" };
+        { "stringArray1", "stringArray2" };
 
         ReflectionStringTraverser.traverseDeep(object, new ReflectionStringCapitalizerVisitor());
 
@@ -151,7 +151,7 @@ public class ReflectionFieldTraverserTest extends AssertJUnit
         assertEquals("EL3", stringList.get(2));
     }
 
-	// BROKEN: sets of strings are not handled properly
+    // BROKEN: sets of strings are not handled properly
     @Test(groups = "broken")
     public void testTraverseSetOfStrings()
     {

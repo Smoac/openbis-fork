@@ -18,11 +18,8 @@ package ch.systemsx.cisd.common.filesystem;
 
 import java.io.IOException;
 
-
-
 /**
- * A <code>IFreeSpaceProvider</code> implementation which delegates its job to the encapsulated
- * {@link IFreeSpaceProvider} implementation.
+ * A <code>IFreeSpaceProvider</code> implementation which delegates its job to the encapsulated {@link IFreeSpaceProvider} implementation.
  * 
  * @author Christian Ribeaud
  */

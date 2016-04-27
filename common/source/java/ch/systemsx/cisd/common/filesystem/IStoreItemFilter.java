@@ -16,10 +16,9 @@
 
 package ch.systemsx.cisd.common.filesystem;
 
-
 /**
- * Filter of {@link StoreItem} objects. Note, that a filter can be stateful. That is, invocations
- * of {@link #accept(StoreItem)} with the same argument might return different values.
+ * Filter of {@link StoreItem} objects. Note, that a filter can be stateful. That is, invocations of {@link #accept(StoreItem)} with the same argument
+ * might return different values.
  *
  * @author Franz-Josef Elmer
  */

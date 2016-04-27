@@ -19,9 +19,8 @@ package ch.systemsx.cisd.common.image;
 import java.awt.Color;
 
 /**
- * Class to calculate a physiological color for display on a computer monitor for a given wavelength
- * of the light using Bruton's algorithm, see <a href="http://www.midnightkite.com/color.html">COLOR
- * SCIENCE web page</a> for details.
+ * Class to calculate a physiological color for display on a computer monitor for a given wavelength of the light using Bruton's algorithm, see <a
+ * href="http://www.midnightkite.com/color.html">COLOR SCIENCE web page</a> for details.
  * 
  * @author Bernd Rinn
  */

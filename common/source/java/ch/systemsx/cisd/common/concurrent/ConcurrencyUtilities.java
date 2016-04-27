@@ -64,15 +64,13 @@ public final class ConcurrencyUtilities
         LogLevel getLogLevelForError();
 
         /**
-         * Returns the log level to be used in successful operation (return {@link LogLevel#OFF} to
-         * switch off logging for successful operation).
+         * Returns the log level to be used in successful operation (return {@link LogLevel#OFF} to switch off logging for successful operation).
          */
         LogLevel getLogLevelForSuccess();
     }
 
     /**
-     * A role for notifying the caller that a future will be cancelled <em>before</em> it is
-     * actually cancelled.
+     * A role for notifying the caller that a future will be cancelled <em>before</em> it is actually cancelled.
      */
     public interface ICancellationNotifier
     {
@@ -83,15 +81,12 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * Tries to get the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var>
-     * for the result to become available. Any {@link ExecutionException} that might occur in the
-     * future task is unwrapped and re-thrown.
+     * Tries to get the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var> for the result to become available. Any
+     * {@link ExecutionException} that might occur in the future task is unwrapped and re-thrown.
      * 
      * @param future The future representing the execution to wait for.
-     * @param timeoutMillis The time-out (in milliseconds) to wait for the execution to finish. If
-     *            it is smaller than 0, no time-out will apply.
-     * @return The result of the future, or <code>null</code>, if the result does not become
-     *         available within <var>timeoutMillis</var> ms.
+     * @param timeoutMillis The time-out (in milliseconds) to wait for the execution to finish. If it is smaller than 0, no time-out will apply.
+     * @return The result of the future, or <code>null</code>, if the result does not become available within <var>timeoutMillis</var> ms.
      * @throws InterruptedExceptionUnchecked If the thread got interrupted.
      */
     public static <T> T tryGetResult(Future<T> future, long timeoutMillis)
@@ -101,17 +96,13 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * Tries to get the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var>
-     * for the result to become available. Any {@link ExecutionException} that might occur in the
-     * future task is unwrapped and re-thrown.
+     * Tries to get the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var> for the result to become available. Any
+     * {@link ExecutionException} that might occur in the future task is unwrapped and re-thrown.
      * 
      * @param future The future representing the execution to wait for.
-     * @param timeoutMillis The time-out (in milliseconds) to wait for the execution to finish. If
-     *            it is smaller than 0, no time-out will apply.
-     * @return The result of the future, or <code>null</code>, if the result does not become
-     *         available within <var>timeoutMillis</var> ms.
-     * @throws InterruptedExceptionUnchecked If the thread got interrupted and
-     *             <var>stopOnInterrupt</var> is <code>true</code>.
+     * @param timeoutMillis The time-out (in milliseconds) to wait for the execution to finish. If it is smaller than 0, no time-out will apply.
+     * @return The result of the future, or <code>null</code>, if the result does not become available within <var>timeoutMillis</var> ms.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted and <var>stopOnInterrupt</var> is <code>true</code>.
      */
     public static <T> T tryGetResult(Future<T> future, long timeoutMillis, boolean stopOnInterrupt)
             throws InterruptedExceptionUnchecked
@@ -120,23 +111,18 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * Tries to get the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var>
-     * for the result to become available. Any {@link ExecutionException} that might occur in the
-     * future task is unwrapped and re-thrown (wrapped in a {@link CheckedExceptionTunnel} if
+     * Tries to get the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var> for the result to become available. Any
+     * {@link ExecutionException} that might occur in the future task is unwrapped and re-thrown (wrapped in a {@link CheckedExceptionTunnel} if
      * necessary.
      * 
      * @param future The future representing the execution to wait for.
-     * @param timeoutMillis The time-out (in milliseconds) to wait for the execution to finish. If
-     *            it is smaller than 0, no time-out will apply.
-     * @param logSettingsOrNull The settings for error logging, or <code>null</code>, if error
-     *            conditions should not be logged.
-     * @param stopOnInterrupt If <code>true</code>, throw a {@link InterruptedExceptionUnchecked} if
-     *            the thread gets interrupted while waiting on the future.
-     * @return The result of the future, or <code>null</code>, if the result does not become
-     *         available within <var>timeoutMillis</var> ms or if the waiting thread gets
-     *         interrupted.
-     * @throws InterruptedExceptionUnchecked If the thread got interrupted and
-     *             <var>stopOnInterrupt</var> is <code>true</code>.
+     * @param timeoutMillis The time-out (in milliseconds) to wait for the execution to finish. If it is smaller than 0, no time-out will apply.
+     * @param logSettingsOrNull The settings for error logging, or <code>null</code>, if error conditions should not be logged.
+     * @param stopOnInterrupt If <code>true</code>, throw a {@link InterruptedExceptionUnchecked} if the thread gets interrupted while waiting on the
+     *            future.
+     * @return The result of the future, or <code>null</code>, if the result does not become available within <var>timeoutMillis</var> ms or if the
+     *         waiting thread gets interrupted.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted and <var>stopOnInterrupt</var> is <code>true</code>.
      */
     public static <T> T tryGetResult(Future<T> future, long timeoutMillis,
             ILogSettings logSettingsOrNull, boolean stopOnInterrupt)
@@ -147,8 +133,7 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * Convenience wrapper for {@link #tryDealWithResult(ExecutionResult, boolean)} with
-     * <var>stopOnInterrupt</var> set to <code>true</code>.
+     * Convenience wrapper for {@link #tryDealWithResult(ExecutionResult, boolean)} with <var>stopOnInterrupt</var> set to <code>true</code>.
      */
     public static <T> T tryDealWithResult(ExecutionResult<T> result)
     {
@@ -156,27 +141,23 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * Tries to get the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var>
-     * for the result to become available. Any {@link ExecutionException} that might occur in the
-     * future task is unwrapped and re-thrown (wrapped in a {@link CheckedExceptionTunnel} if
+     * Tries to get the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var> for the result to become available. Any
+     * {@link ExecutionException} that might occur in the future task is unwrapped and re-thrown (wrapped in a {@link CheckedExceptionTunnel} if
      * necessary.
      * <p>
-     * This method is meant to be used if the an {@link ExecutionResult} should <i>mostly</i> be
-     * treated the way {@link #tryGetResult(Future, long, boolean)} does it but not quite. Just deal
-     * with the deviant cases yourself, then call this method to deal with the rest.
+     * This method is meant to be used if the an {@link ExecutionResult} should <i>mostly</i> be treated the way
+     * {@link #tryGetResult(Future, long, boolean)} does it but not quite. Just deal with the deviant cases yourself, then call this method to deal
+     * with the rest.
      * 
      * @param result A
-     * @param stopOnInterrupt If <code>true</code>, throw a {@link InterruptedExceptionUnchecked} if
-     *            the thread gets interrupted while waiting on the future.
-     * @return The value of the <var>result</var> of the future, or <code>null</code>, if the result
-     *         status is {@link ExecutionStatus#TIMED_OUT} or {@link ExecutionStatus#INTERRUPTED}
-     *         and <var>stopOnInterrupt</var> is <code>false</code>.
-     * @throws InterruptedExceptionUnchecked If the thread got interrupted and
-     *             <var>stopOnInterrupt</var> is <code>true</code>.
-     * @throws RuntimeException If the result status is {@link ExecutionStatus#EXCEPTION} and the
-     *             exception is derived from {@link RuntimeException}.
-     * @throws CheckedExceptionTunnel If the result status is {@link ExecutionStatus#EXCEPTION} and
-     *             the exception is not derived from {@link RuntimeException}.
+     * @param stopOnInterrupt If <code>true</code>, throw a {@link InterruptedExceptionUnchecked} if the thread gets interrupted while waiting on the
+     *            future.
+     * @return The value of the <var>result</var> of the future, or <code>null</code>, if the result status is {@link ExecutionStatus#TIMED_OUT} or
+     *         {@link ExecutionStatus#INTERRUPTED} and <var>stopOnInterrupt</var> is <code>false</code>.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted and <var>stopOnInterrupt</var> is <code>true</code>.
+     * @throws RuntimeException If the result status is {@link ExecutionStatus#EXCEPTION} and the exception is derived from {@link RuntimeException}.
+     * @throws CheckedExceptionTunnel If the result status is {@link ExecutionStatus#EXCEPTION} and the exception is not derived from
+     *             {@link RuntimeException}.
      */
     public static <T> T tryDealWithResult(ExecutionResult<T> result, boolean stopOnInterrupt)
     {
@@ -210,24 +191,18 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * Returns the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var> for the
-     * result to become available. The return value is never <code>null</code>, but always a
-     * {@link ExecutionResult} that describes the outcome of the execution. The possible outcomes
-     * are:
+     * Returns the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var> for the result to become available. The return value is
+     * never <code>null</code>, but always a {@link ExecutionResult} that describes the outcome of the execution. The possible outcomes are:
      * <ul>
-     * <li> {@link ExecutionStatus#COMPLETE}: The execution has been performed correctly and a result
-     * is available, if provided.</li>
+     * <li> {@link ExecutionStatus#COMPLETE}: The execution has been performed correctly and a result is available, if provided.</li>
      * <li> {@link ExecutionStatus#EXCEPTION}: The execution has been terminated by an exception.</li>
      * <li> {@link ExecutionStatus#TIMED_OUT}: The execution timed out.</li>
-     * <li> {@link ExecutionStatus#INTERRUPTED}: The thread of the execution was interrupted (see
-     * {@link Thread#interrupt()}).</li>
+     * <li> {@link ExecutionStatus#INTERRUPTED}: The thread of the execution was interrupted (see {@link Thread#interrupt()}).</li>
      * </ul>
      * 
      * @param future The future representing the execution to wait for.
-     * @param timeoutMillis The time-out (in milliseconds) to wait for the execution to finish. If
-     *            it is smaller than 0, no time-out will apply.
-     * @return The {@link ExecutionResult} of the <var>future</var>. May correspond to each one of
-     *         the {@link ExecutionStatus} values.
+     * @param timeoutMillis The time-out (in milliseconds) to wait for the execution to finish. If it is smaller than 0, no time-out will apply.
+     * @return The {@link ExecutionResult} of the <var>future</var>. May correspond to each one of the {@link ExecutionStatus} values.
      */
     public static <T> ExecutionResult<T> getResult(Future<T> future, long timeoutMillis)
     {
@@ -235,26 +210,19 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * Returns the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var> for the
-     * result to become available. The return value is never <code>null</code>, but always a
-     * {@link ExecutionResult} that describes the outcome of the execution. The possible outcomes
-     * are:
+     * Returns the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var> for the result to become available. The return value is
+     * never <code>null</code>, but always a {@link ExecutionResult} that describes the outcome of the execution. The possible outcomes are:
      * <ul>
-     * <li> {@link ExecutionStatus#COMPLETE}: The execution has been performed correctly and a result
-     * is available, if provided.</li>
+     * <li> {@link ExecutionStatus#COMPLETE}: The execution has been performed correctly and a result is available, if provided.</li>
      * <li> {@link ExecutionStatus#EXCEPTION}: The execution has been terminated by an exception.</li>
      * <li> {@link ExecutionStatus#TIMED_OUT}: The execution timed out.</li>
-     * <li> {@link ExecutionStatus#INTERRUPTED}: The thread of the execution was interrupted (see
-     * {@link Thread#interrupt()}).</li>
+     * <li> {@link ExecutionStatus#INTERRUPTED}: The thread of the execution was interrupted (see {@link Thread#interrupt()}).</li>
      * </ul>
      * 
      * @param future The future representing the execution to wait for.
-     * @param timeoutMillis The time-out (in milliseconds) to wait for the execution to finish. If
-     *            it is smaller than 0, no time-out will apply.
-     * @param logSettingsOrNull The settings for error logging, or <code>null</code>, if error
-     *            conditions should not be logged.
-     * @return The {@link ExecutionResult} of the <var>future</var>. May correspond to each one of
-     *         the {@link ExecutionStatus} values.
+     * @param timeoutMillis The time-out (in milliseconds) to wait for the execution to finish. If it is smaller than 0, no time-out will apply.
+     * @param logSettingsOrNull The settings for error logging, or <code>null</code>, if error conditions should not be logged.
+     * @return The {@link ExecutionResult} of the <var>future</var>. May correspond to each one of the {@link ExecutionStatus} values.
      */
     public static <T> ExecutionResult<T> getResult(Future<T> future, long timeoutMillis,
             ILogSettings logSettingsOrNull)
@@ -263,28 +231,20 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * Returns the result of a <var>future</var>, at most waiting <var>timeoutMillis</var> for the
-     * result to become available. The return value is never <code>null</code>, but always a
-     * {@link ExecutionResult} that describes the outcome of the execution. The possible outcomes
-     * are:
+     * Returns the result of a <var>future</var>, at most waiting <var>timeoutMillis</var> for the result to become available. The return value is
+     * never <code>null</code>, but always a {@link ExecutionResult} that describes the outcome of the execution. The possible outcomes are:
      * <ul>
-     * <li> {@link ExecutionStatus#COMPLETE}: The execution has been performed correctly and a result
-     * is available, if provided.</li>
+     * <li> {@link ExecutionStatus#COMPLETE}: The execution has been performed correctly and a result is available, if provided.</li>
      * <li> {@link ExecutionStatus#EXCEPTION}: The execution has been terminated by an exception.</li>
      * <li> {@link ExecutionStatus#TIMED_OUT}: The execution timed out.</li>
-     * <li> {@link ExecutionStatus#INTERRUPTED}: The thread of the execution was interrupted (see
-     * {@link Thread#interrupt()}).</li>
+     * <li> {@link ExecutionStatus#INTERRUPTED}: The thread of the execution was interrupted (see {@link Thread#interrupt()}).</li>
      * </ul>
      * 
      * @param future The future representing the execution to wait for.
-     * @param timeoutMillis The time-out (in milliseconds) to wait for the execution to finish. If
-     *            it is smaller than 0, no time-out will apply.
-     * @param cancelOnTimeout If <code>true</code>, the <var>future</var> will be canceled on
-     *            time-out.
-     * @param logSettingsOrNull The settings for error logging, or <code>null</code>, if error
-     *            conditions should not be logged.
-     * @return The {@link ExecutionResult} of the <var>future</var>. May correspond to each one of
-     *         the {@link ExecutionStatus} values.
+     * @param timeoutMillis The time-out (in milliseconds) to wait for the execution to finish. If it is smaller than 0, no time-out will apply.
+     * @param cancelOnTimeout If <code>true</code>, the <var>future</var> will be canceled on time-out.
+     * @param logSettingsOrNull The settings for error logging, or <code>null</code>, if error conditions should not be logged.
+     * @return The {@link ExecutionResult} of the <var>future</var>. May correspond to each one of the {@link ExecutionStatus} values.
      */
     public static <T> ExecutionResult<T> getResult(Future<T> future, long timeoutMillis,
             boolean cancelOnTimeout, ILogSettings logSettingsOrNull)
@@ -298,31 +258,22 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * Returns the result of a <var>future</var>, at most waiting <var>timeoutMillis</var> for the
-     * result to become available. The return value is never <code>null</code>, but always a
-     * {@link ExecutionResult} that describes the outcome of the execution. The possible outcomes
-     * are:
+     * Returns the result of a <var>future</var>, at most waiting <var>timeoutMillis</var> for the result to become available. The return value is
+     * never <code>null</code>, but always a {@link ExecutionResult} that describes the outcome of the execution. The possible outcomes are:
      * <ul>
-     * <li> {@link ExecutionStatus#COMPLETE}: The execution has been performed correctly and a result
-     * is available, if provided.</li>
+     * <li> {@link ExecutionStatus#COMPLETE}: The execution has been performed correctly and a result is available, if provided.</li>
      * <li> {@link ExecutionStatus#EXCEPTION}: The execution has been terminated by an exception.</li>
      * <li> {@link ExecutionStatus#TIMED_OUT}: The execution timed out.</li>
-     * <li> {@link ExecutionStatus#INTERRUPTED}: The thread of the execution was interrupted (see
-     * {@link Thread#interrupt()}).</li>
+     * <li> {@link ExecutionStatus#INTERRUPTED}: The thread of the execution was interrupted (see {@link Thread#interrupt()}).</li>
      * </ul>
      * 
      * @param future The future representing the execution to wait for.
-     * @param timeoutMillis The time-out (in milliseconds) to wait for the execution to finish. If
-     *            it is smaller than 0, no time-out will apply.
-     * @param cancelOnTimeout If <code>true</code>, the <var>future</var> will be canceled on
-     *            time-out.
-     * @param logSettingsOrNull The settings for error logging, or <code>null</code>, if error
-     *            conditions should not be logged.
-     * @param cancellationNotifierOrNull The notifier for cancellation of the future or
-     *            <code>null</code>
+     * @param timeoutMillis The time-out (in milliseconds) to wait for the execution to finish. If it is smaller than 0, no time-out will apply.
+     * @param cancelOnTimeout If <code>true</code>, the <var>future</var> will be canceled on time-out.
+     * @param logSettingsOrNull The settings for error logging, or <code>null</code>, if error conditions should not be logged.
+     * @param cancellationNotifierOrNull The notifier for cancellation of the future or <code>null</code>
      * @param sensorOrNull A sensor that can prevent the method from timing out by showing activity.
-     * @return The {@link ExecutionResult} of the <var>future</var>. May correspond to each one of
-     *         the {@link ExecutionStatus} values.
+     * @return The {@link ExecutionResult} of the <var>future</var>. May correspond to each one of the {@link ExecutionStatus} values.
      */
     public static <T> ExecutionResult<T> getResult(Future<T> future, long timeoutMillis,
             boolean cancelOnTimeout, ILogSettings logSettingsOrNull,
@@ -498,11 +449,10 @@ public final class ConcurrencyUtilities
     /**
      * Submits the <var>stoppableCallable</var> to the <var>executor</var>.
      * <p>
-     * <strong>Note: Code executed in the <var>stoppableCallable</var> must <i>not</i> change
-     * variables or data structures used by several threads or else the problems described in <a
-     * href="http://java.sun.com/j2se/1.5.0/docs/guide/misc/threadPrimitiveDeprecation.html">"Why is
-     * <code>Thread.stop()</code> deprecated?"</a> apply to your code! Watch out for static
-     * thread-safe variables like e.g. the ones of type {@link ThreadLocal}!</strong>
+     * <strong>Note: Code executed in the <var>stoppableCallable</var> must <i>not</i> change variables or data structures used by several threads or
+     * else the problems described in <a href="http://java.sun.com/j2se/1.5.0/docs/guide/misc/threadPrimitiveDeprecation.html">"Why is
+     * <code>Thread.stop()</code> deprecated?"</a> apply to your code! Watch out for static thread-safe variables like e.g. the ones of type
+     * {@link ThreadLocal}!</strong>
      * 
      * @return A future which allows to terminate the task even when running.
      * @see TerminableCallable#createStoppable(Callable)
@@ -515,8 +465,8 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * The same as {@link Thread#sleep(long)} but throws a {@link InterruptedExceptionUnchecked} on
-     * interruption rather than a {@link InterruptedException}.
+     * The same as {@link Thread#sleep(long)} but throws a {@link InterruptedExceptionUnchecked} on interruption rather than a
+     * {@link InterruptedException}.
      */
     public static void sleep(long millis) throws InterruptedExceptionUnchecked
     {
@@ -530,8 +480,8 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * The same as {@link Thread#join()} but throws a {@link InterruptedExceptionUnchecked} on
-     * interruption rather than a {@link InterruptedException}.
+     * The same as {@link Thread#join()} but throws a {@link InterruptedExceptionUnchecked} on interruption rather than a {@link InterruptedException}
+     * .
      */
     public static void join(Thread thread) throws InterruptedExceptionUnchecked
     {
@@ -545,8 +495,8 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * The same as {@link Thread#join(long)} but throws a {@link InterruptedExceptionUnchecked} on
-     * interruption rather than a {@link InterruptedException}.
+     * The same as {@link Thread#join(long)} but throws a {@link InterruptedExceptionUnchecked} on interruption rather than a
+     * {@link InterruptedException}.
      */
     public static void join(Thread thread, long millis) throws InterruptedExceptionUnchecked
     {
@@ -560,8 +510,8 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * The same as {@link Object#wait()} but throws a {@link InterruptedExceptionUnchecked} on
-     * interruption rather than a {@link InterruptedException}.
+     * The same as {@link Object#wait()} but throws a {@link InterruptedExceptionUnchecked} on interruption rather than a {@link InterruptedException}
+     * .
      */
     public static void wait(Object obj) throws InterruptedExceptionUnchecked
     {
@@ -575,8 +525,8 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * The same as {@link Object#wait(long)} but throws a {@link InterruptedExceptionUnchecked} on
-     * interruption rather than a {@link InterruptedException}.
+     * The same as {@link Object#wait(long)} but throws a {@link InterruptedExceptionUnchecked} on interruption rather than a
+     * {@link InterruptedException}.
      */
     public static void wait(Object obj, long millis) throws InterruptedExceptionUnchecked
     {

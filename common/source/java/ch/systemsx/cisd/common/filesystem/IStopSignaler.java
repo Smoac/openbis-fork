@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.common.filesystem;
 
 /**
- * A role that allows to signal that a worker was stopped. 
+ * A role that allows to signal that a worker was stopped.
  *
  * @author Bernd Rinn
  */
@@ -27,9 +27,8 @@ public interface IStopSignaler
     /**
      * Returns <code>true</code>, if the signaler has been stopped and <code>false</code> otherwise.
      * <p>
-     * Not throwing a StopException, but signaling back that the worker was stopped by means of
-     * this method implies that it was prepared to handle the StopException and clean up
-     * after itself.
+     * Not throwing a StopException, but signaling back that the worker was stopped by means of this method implies that it was prepared to handle the
+     * StopException and clean up after itself.
      */
     boolean isStopped();
 

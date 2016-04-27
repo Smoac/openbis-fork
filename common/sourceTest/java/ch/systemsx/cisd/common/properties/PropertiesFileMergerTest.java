@@ -30,11 +30,9 @@ import ch.systemsx.cisd.common.properties.PropertiesFileMerger;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=PropertiesFileMerger.class)
+@Friend(toClasses = PropertiesFileMerger.class)
 public class PropertiesFileMergerTest extends AbstractFileSystemTestCase
 {
     private static final class MockExitHandler implements IExitHandler
@@ -52,82 +50,82 @@ public class PropertiesFileMergerTest extends AbstractFileSystemTestCase
     public void testNoOverloadingPropertyFiles()
     {
         File propertiesFile = new File(workingDirectory, "prop.properties");
-        String content = "# hello world\n" 
-                       + "\n" 
-                       + "a= alpha\n"
-                       + "b =beta\n";
+        String content = "# hello world\n"
+                + "\n"
+                + "a= alpha\n"
+                + "b =beta\n";
         FileUtilities.writeToFile(propertiesFile, content);
         MockExitHandler exitHandler = new MockExitHandler();
 
         PropertiesFileMerger.main(new String[]
-            { propertiesFile.getPath() }, exitHandler);
+        { propertiesFile.getPath() }, exitHandler);
 
         assertEquals(null, exitHandler.exitCode);
         assertEquals(content, FileUtilities.loadToString(propertiesFile));
     }
-    
+
     @Test
     public void testMergingWithTwoOverloadingPropertyFiles()
     {
         File propertiesFile = new File(workingDirectory, "prop.properties");
-        FileUtilities.writeToFile(propertiesFile, "# hello world\n" 
-                + "\n" 
+        FileUtilities.writeToFile(propertiesFile, "# hello world\n"
+                + "\n"
                 + "a= alpha\n"
                 + "b =beta");
         File prop1 = new File(workingDirectory, "prop1.properties");
-        FileUtilities.writeToFile(prop1, "  a=a  \n" 
-                                       + "# new section\n" 
-                                       + "\n" 
-                                       + "c=gamma");
+        FileUtilities.writeToFile(prop1, "  a=a  \n"
+                + "# new section\n"
+                + "\n"
+                + "c=gamma");
         File prop2 = new File(workingDirectory, "prop2.properties");
-        FileUtilities.writeToFile(prop2, "b   =  b\n" 
-                                       + "# 2. new section\n" 
-                                       + "a = A\n"
-                                       + "  d =    delta  ");
+        FileUtilities.writeToFile(prop2, "b   =  b\n"
+                + "# 2. new section\n"
+                + "a = A\n"
+                + "  d =    delta  ");
         MockExitHandler exitHandler = new MockExitHandler();
 
         PropertiesFileMerger.main(new String[]
-            { propertiesFile.getPath(), prop1.getPath(), prop2.getPath() }, exitHandler);
+        { propertiesFile.getPath(), prop1.getPath(), prop2.getPath() }, exitHandler);
 
         assertEquals(null, exitHandler.exitCode);
-        assertEquals("# hello world\n" 
-                   + "\n" 
-                   + "a = A\n" 
-                   + "b = b\n" 
-                   + "# new section\n" 
-                   + "\n"
-                   + "c = gamma\n" 
-                   + "# 2. new section\nd = delta\n",
+        assertEquals("# hello world\n"
+                + "\n"
+                + "a = A\n"
+                + "b = b\n"
+                + "# new section\n"
+                + "\n"
+                + "c = gamma\n"
+                + "# 2. new section\nd = delta\n",
                 FileUtilities.loadToString(propertiesFile));
     }
-    
+
     @Test
     public void testMergingWithTwoOverloadingPropertyFilesWithMultilineProperty() throws Exception
     {
         File propertiesFile = new File(workingDirectory, "prop.properties");
-        String content = "# hello world\n" 
-                       + "\n" 
-                       + "a= alpha\n"
-                       + "b =beta";
+        String content = "# hello world\n"
+                + "\n"
+                + "a= alpha\n"
+                + "b =beta";
         FileUtilities.writeToFile(propertiesFile, content);
         File prop1 = new File(workingDirectory, "prop1.properties");
-        String content1 = "  a=a  \n" 
-                        + "# new section\n" 
-                        + "\n" 
-                        + "c=gamma";
+        String content1 = "  a=a  \n"
+                + "# new section\n"
+                + "\n"
+                + "c=gamma";
         FileUtilities.writeToFile(prop1, content1);
         File prop2 = new File(workingDirectory, "prop2.properties");
-        String content2 = "b   =  b\n" 
-                        + "# 2. new section\n" 
-                        + "a = A\n"
-                        + "  d =    \\\n"
-                        + "  delta\n";
+        String content2 = "b   =  b\n"
+                + "# 2. new section\n"
+                + "a = A\n"
+                + "  d =    \\\n"
+                + "  delta\n";
         FileUtilities.writeToFile(prop2, content2);
         MockExitHandler exitHandler = new MockExitHandler();
-        
+
         PropertiesFileMerger.main(new String[]
-                { propertiesFile.getPath(), prop1.getPath(), prop2.getPath() }, exitHandler);
-        
+        { propertiesFile.getPath(), prop1.getPath(), prop2.getPath() }, exitHandler);
+
         assertEquals(null, exitHandler.exitCode);
         assertEquals(content + "\n" + content1 + "\n" + content2,
                 FileUtilities.loadToString(propertiesFile));

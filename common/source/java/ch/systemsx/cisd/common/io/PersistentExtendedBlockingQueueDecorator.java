@@ -26,8 +26,7 @@ import ch.systemsx.cisd.base.io.ISynchronizable;
 import ch.systemsx.cisd.common.collection.IExtendedBlockingQueue;
 
 /**
- * A decorator of a {@link IExtendedBlockingQueue} that keeps the current state of the queue current
- * with a file specified in the constructor.
+ * A decorator of a {@link IExtendedBlockingQueue} that keeps the current state of the queue current with a file specified in the constructor.
  * 
  * @author Bernd Rinn
  */

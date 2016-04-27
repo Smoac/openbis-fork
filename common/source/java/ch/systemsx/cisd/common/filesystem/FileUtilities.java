@@ -84,14 +84,12 @@ import ch.systemsx.cisd.common.string.StringUtilities.IUniquenessChecker;
 /**
  * Some useful utility methods for files and directories.
  * <p>
- * Note that these utilities are considered to be <i>internal</i> methods, that means they are not
- * prepared to do the error checking. If you hand in inappropriate values, e.g. <code>null</code>,
- * all you will get are {@link AssertionError}s or {@link NullPointerException}.
+ * Note that these utilities are considered to be <i>internal</i> methods, that means they are not prepared to do the error checking. If you hand in
+ * inappropriate values, e.g. <code>null</code>, all you will get are {@link AssertionError}s or {@link NullPointerException}.
  * <p>
- * If you are tempted to add new functionality to this class, ensure that the new functionality does
- * not yet exist in <code>org.apache.common.io.FileUtils</code>, see <a
- * href="https://commons.apache.org/proper/commons-io/apidocs/org/apache/commons/io/FileUtils.html"
- * >javadoc</a>.
+ * If you are tempted to add new functionality to this class, ensure that the new functionality does not yet exist in
+ * <code>org.apache.common.io.FileUtils</code>, see <a
+ * href="https://commons.apache.org/proper/commons-io/apidocs/org/apache/commons/io/FileUtils.html" >javadoc</a>.
  * 
  * @author Bernd Rinn
  */
@@ -137,12 +135,9 @@ public final class FileUtilities
     /**
      * Loads a text file to a {@link String}.
      * 
-     * @param file the file that should be loaded. This method asserts that given <code>File</code>
-     *            is not <code>null</code>.
-     * @return The content of the file. All newline characters are '\n' (Unix convention). Never
-     *         returns <code>null</code>.
-     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not
-     *             exist.
+     * @param file the file that should be loaded. This method asserts that given <code>File</code> is not <code>null</code>.
+     * @return The content of the file. All newline characters are '\n' (Unix convention). Never returns <code>null</code>.
+     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not exist.
      */
     public static String loadToString(final File file) throws IOExceptionUnchecked
     {
@@ -165,12 +160,9 @@ public final class FileUtilities
     /**
      * Loads a file to a byte[].
      * 
-     * @param file the file that should be loaded. This method asserts that given <code>File</code>
-     *            is not <code>null</code>.
-     * @return The content of the file. All newline characters are '\n' (Unix convention). Never
-     *         returns <code>null</code>.
-     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not
-     *             exist.
+     * @param file the file that should be loaded. This method asserts that given <code>File</code> is not <code>null</code>.
+     * @return The content of the file. All newline characters are '\n' (Unix convention). Never returns <code>null</code>.
+     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not exist.
      */
     public static byte[] loadToByteArray(final File file) throws IOExceptionUnchecked
     {
@@ -206,12 +198,9 @@ public final class FileUtilities
     /**
      * Loads a file to an {@link Object}.
      * 
-     * @param file the file that should be loaded. This method asserts that given <code>File</code>
-     *            is not <code>null</code>.
-     * @return The content of the file. All newline characters are '\n' (Unix convention). Never
-     *         returns <code>null</code>.
-     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not
-     *             exist.
+     * @param file the file that should be loaded. This method asserts that given <code>File</code> is not <code>null</code>.
+     * @return The content of the file. All newline characters are '\n' (Unix convention). Never returns <code>null</code>.
+     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not exist.
      * @throws CheckedExceptionTunnel for wrapping an {@link ClassNotFoundException}.
      */
     @SuppressWarnings("unchecked")
@@ -263,12 +252,9 @@ public final class FileUtilities
     /**
      * Loads a text file to a {@link String}. Doesn't append new line at the end.
      * 
-     * @param file the file that should be loaded. This method asserts that given <code>File</code>
-     *            is not <code>null</code>.
-     * @return The content of the file. All newline characters are '\n' (Unix convention). Never
-     *         returns <code>null</code>.
-     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not
-     *             exist.
+     * @param file the file that should be loaded. This method asserts that given <code>File</code> is not <code>null</code>.
+     * @return The content of the file. All newline characters are '\n' (Unix convention). Never returns <code>null</code>.
+     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not exist.
      */
     public static String loadExactToString(final File file) throws IOExceptionUnchecked
     {
@@ -451,11 +437,9 @@ public final class FileUtilities
     /**
      * Loads a text file line by line to a {@link List} of {@link String}s.
      * 
-     * @param file the file that should be loaded. This method asserts that given <code>File</code>
-     *            is not <code>null</code>.
+     * @param file the file that should be loaded. This method asserts that given <code>File</code> is not <code>null</code>.
      * @return The content of the file line by line.
-     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not
-     *             exist.
+     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not exist.
      */
     public final static List<String> loadToStringList(final File file) throws IOExceptionUnchecked
     {
@@ -465,13 +449,10 @@ public final class FileUtilities
     /**
      * Loads a text file line by line to a {@link List} of {@link String}s.
      * 
-     * @param file the file that should be loaded. This method asserts that given <code>File</code>
-     *            is not <code>null</code>.
-     * @param lineFilterOrNull a line filter if you are not interested in all lines. May be
-     *            <code>null</code>.
+     * @param file the file that should be loaded. This method asserts that given <code>File</code> is not <code>null</code>.
+     * @param lineFilterOrNull a line filter if you are not interested in all lines. May be <code>null</code>.
      * @return The content of the file line by line.
-     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not
-     *             exist.
+     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not exist.
      */
     public final static List<String> loadToStringList(final File file,
             final ILineFilter lineFilterOrNull) throws IOExceptionUnchecked
@@ -498,12 +479,9 @@ public final class FileUtilities
      * A non-existent resource will result in a return value of <code>null</code>.
      * </p>
      * 
-     * @param clazz Class for which <code>getResource()</code> will be invoked (must not be
-     *            <code>null</code>).
-     * @param resource Absolute path of the resource (will be the argument of
-     *            <code>getResource()</code>).
-     * @return The content of the resource, or <code>null</code> if the specified resource does not
-     *         exist.
+     * @param clazz Class for which <code>getResource()</code> will be invoked (must not be <code>null</code>).
+     * @param resource Absolute path of the resource (will be the argument of <code>getResource()</code>).
+     * @return The content of the resource, or <code>null</code> if the specified resource does not exist.
      * @throws IOExceptionUnchecked for wrapping an {@link IOException}
      */
     public static String loadToString(final Class<?> clazz, final String resource)
@@ -533,11 +511,9 @@ public final class FileUtilities
      * </p>
      * 
      * @param clazz Class for which <code>getResource()</code> will be invoked.
-     * @param resource absolute path of the resource (will be the argument of
-     *            <code>getResource()</code>).
+     * @param resource absolute path of the resource (will be the argument of <code>getResource()</code>).
      * @return The content of the resource line by line.
-     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not
-     *             exist.
+     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not exist.
      */
     public final static List<String> loadToStringList(final Class<?> clazz, final String resource)
             throws IOExceptionUnchecked
@@ -552,14 +528,10 @@ public final class FileUtilities
      * </p>
      * 
      * @param clazz Class for which <code>getResource()</code> will be invoked.
-     * @param resource absolute path of the resource (will be the argument of
-     *            <code>getResource()</code>).
-     * @param lineFilterOrNull a line filter if you are not interested in all lines. May be
-     *            <code>null</code>.
-     * @return The content of the resource line by line or <code>null</code> if given
-     *         <var>resource</var> can not be found.
-     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not
-     *             exist.
+     * @param resource absolute path of the resource (will be the argument of <code>getResource()</code>).
+     * @param lineFilterOrNull a line filter if you are not interested in all lines. May be <code>null</code>.
+     * @return The content of the resource line by line or <code>null</code> if given <var>resource</var> can not be found.
+     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not exist.
      */
     public final static List<String> loadToStringList(final Class<?> clazz, final String resource,
             final ILineFilter lineFilterOrNull) throws IOExceptionUnchecked
@@ -657,8 +629,8 @@ public final class FileUtilities
      * Checks whether a <var>path</var> of some <var>kind</var> is fully accessible to the program.
      * 
      * @param kindOfPath description of given <var>path</var>. Mainly used for error messages.
-     * @return <code>null</code> if the <var>directory</var> is fully accessible and an error
-     *         message describing the problem with the <var>directory</var> otherwise.
+     * @return <code>null</code> if the <var>directory</var> is fully accessible and an error message describing the problem with the
+     *         <var>directory</var> otherwise.
      */
     public static String checkPathFullyAccessible(final File path, final String kindOfPath)
     {
@@ -669,12 +641,11 @@ public final class FileUtilities
     }
 
     /**
-     * Checks whether a <var>path</var> of some <var>kind</var> is accessible for reading to the
-     * program.
+     * Checks whether a <var>path</var> of some <var>kind</var> is accessible for reading to the program.
      * 
      * @param kindOfPath description of given <var>path</var>. Mainly used for error messages.
-     * @return <code>null</code> if the <var>directory</var> is fully accessible and an error
-     *         message describing the problem with the <var>directory</var> otherwise.
+     * @return <code>null</code> if the <var>directory</var> is fully accessible and an error message describing the problem with the
+     *         <var>directory</var> otherwise.
      */
     public static String checkPathReadAccessible(final File path, final String kindOfPath)
     {
@@ -685,11 +656,11 @@ public final class FileUtilities
     }
 
     /**
-     * Checks whether a <var>directory</var> of some <var>kind</var> is accessible for reading to
-     * the program (it's a directory, you can read and write in it)
+     * Checks whether a <var>directory</var> of some <var>kind</var> is accessible for reading to the program (it's a directory, you can read and
+     * write in it)
      * 
-     * @return <code>null</code> if the <var>directory</var> is accessible for reading and an error
-     *         message describing the problem with the <var>directory</var> otherwise.
+     * @return <code>null</code> if the <var>directory</var> is accessible for reading and an error message describing the problem with the
+     *         <var>directory</var> otherwise.
      */
     public static String checkDirectoryReadAccessible(final File directory,
             final String kindOfDirectory)
@@ -707,11 +678,11 @@ public final class FileUtilities
     }
 
     /**
-     * Checks whether a <var>directory</var> of some <var>kind</var> is fully accessible to the
-     * program (it's a directory, you can read and write in it)
+     * Checks whether a <var>directory</var> of some <var>kind</var> is fully accessible to the program (it's a directory, you can read and write in
+     * it)
      * 
-     * @return <code>null</code> if the <var>directory</var> is fully accessible and an error
-     *         message describing the problem with the <var>directory</var> otherwise.
+     * @return <code>null</code> if the <var>directory</var> is fully accessible and an error message describing the problem with the
+     *         <var>directory</var> otherwise.
      */
     public static String checkDirectoryFullyAccessible(final File directory,
             final String kindOfDirectory)
@@ -729,11 +700,10 @@ public final class FileUtilities
     }
 
     /**
-     * Checks whether a <var>file</var> of some <var>kindOfFile</var> is accessible for reading to
-     * the program (so it's a file and you can read it)
+     * Checks whether a <var>file</var> of some <var>kindOfFile</var> is accessible for reading to the program (so it's a file and you can read it)
      * 
-     * @return <code>null</code> if the <var>file</var> is accessible to reading and an error
-     *         message describing the problem with the <var>file</var> otherwise.
+     * @return <code>null</code> if the <var>file</var> is accessible to reading and an error message describing the problem with the <var>file</var>
+     *         otherwise.
      */
     public static String checkFileReadAccessible(final File file, final String kindOfFile)
     {
@@ -750,11 +720,11 @@ public final class FileUtilities
     }
 
     /**
-     * Checks whether a <var>file</var> of some <var>kindOfFile</var> is accessible for reading and
-     * writing to the program (so it's a file and you can read and write it)
+     * Checks whether a <var>file</var> of some <var>kindOfFile</var> is accessible for reading and writing to the program (so it's a file and you can
+     * read and write it)
      * 
-     * @return <code>null</code> if the <var>file</var> is fully accessible and an error message
-     *         describing the problem with the <var>file</var> otherwise.
+     * @return <code>null</code> if the <var>file</var> is fully accessible and an error message describing the problem with the <var>file</var>
+     *         otherwise.
      */
     public static String checkFileFullyAccessible(final File file, final String kindOfFile)
     {
@@ -821,15 +791,12 @@ public final class FileUtilities
     }
 
     /**
-     * Deletes a directory recursively, that is deletes all files and directories within first and
-     * then the directory itself.
+     * Deletes a directory recursively, that is deletes all files and directories within first and then the directory itself.
      * <p>
-     * Convenience method for {@link #deleteRecursively(File)} with <var>logger</var> set to
-     * <code>null</code>.
+     * Convenience method for {@link #deleteRecursively(File)} with <var>logger</var> set to <code>null</code>.
      * 
      * @param path Path of the file or directory to delete.
-     * @return <code>true</code> if the path has been deleted successfully, <code>false</code>
-     *         otherwise.
+     * @return <code>true</code> if the path has been deleted successfully, <code>false</code> otherwise.
      * @throws InterruptedExceptionUnchecked If the current thread has been interrupted.
      */
     public static boolean deleteRecursively(final File path) throws InterruptedExceptionUnchecked
@@ -840,14 +807,11 @@ public final class FileUtilities
     }
 
     /**
-     * Deletes a directory recursively, that is deletes all files and directories within first and
-     * then the directory itself.
+     * Deletes a directory recursively, that is deletes all files and directories within first and then the directory itself.
      * 
      * @param path Path of the file or directory to delete.
-     * @param loggerOrNull The logger that should be used to log deletion of path entries, or
-     *            <code>null</code> if nothing should be logged.
-     * @return <code>true</code> if the path has been deleted successfully, <code>false</code>
-     *         otherwise.
+     * @param loggerOrNull The logger that should be used to log deletion of path entries, or <code>null</code> if nothing should be logged.
+     * @return <code>true</code> if the path has been deleted successfully, <code>false</code> otherwise.
      * @throws InterruptedExceptionUnchecked If the current thread has been interrupted.
      */
     public static boolean deleteRecursively(final File path, final ISimpleLogger loggerOrNull)
@@ -857,18 +821,14 @@ public final class FileUtilities
     }
 
     /**
-     * Deletes a directory recursively, that is deletes all files and directories within first and
-     * then the directory itself.
+     * Deletes a directory recursively, that is deletes all files and directories within first and then the directory itself.
      * 
      * @param path Path of the file or directory to delete.
-     * @param loggerOrNull The logger that should be used to log deletion of path entries, or
-     *            <code>null</code> if nothing should be logged.
-     * @param observerOrNull If not <code>null</code>, will be updated on progress in the deletion.
-     *            This can be used to find out whether a (potentially) long-running recursive
-     *            deletion call is alive-and-kicking or hangs (e.g. due to a remote directory
-     *            becoming unresponsive).
-     * @return <code>true</code> if the path has been deleted successfully, <code>false</code>
-     *         otherwise.
+     * @param loggerOrNull The logger that should be used to log deletion of path entries, or <code>null</code> if nothing should be logged.
+     * @param observerOrNull If not <code>null</code>, will be updated on progress in the deletion. This can be used to find out whether a
+     *            (potentially) long-running recursive deletion call is alive-and-kicking or hangs (e.g. due to a remote directory becoming
+     *            unresponsive).
+     * @return <code>true</code> if the path has been deleted successfully, <code>false</code> otherwise.
      * @throws InterruptedExceptionUnchecked If the current thread has been interrupted.
      */
     public static boolean deleteRecursively(final File path, final ISimpleLogger loggerOrNull,
@@ -978,15 +938,13 @@ public final class FileUtilities
     }
 
     /**
-     * Deletes selected parts of a directory recursively, that is deletes all files and directories
-     * within the directory that are accepted by the {@link FileFilter}. Any subdirectory that is
-     * accepted by the <var>filter</var> will be completely deleted. This holds true also for the
+     * Deletes selected parts of a directory recursively, that is deletes all files and directories within the directory that are accepted by the
+     * {@link FileFilter}. Any subdirectory that is accepted by the <var>filter</var> will be completely deleted. This holds true also for the
      * <var>path</var> itself.
      * 
      * @param path Path of the directory to delete the selected content from.
      * @param filter The {@link FileFilter} to use when deciding which paths to delete.
-     * @param logger The logger that should be used to log deletion of path entries, or
-     *            <code>null</code> if nothing should be logged.
+     * @param logger The logger that should be used to log deletion of path entries, or <code>null</code> if nothing should be logged.
      * @return <code>true</code> if the <var>path</var> itself has been deleted.
      * @throws InterruptedExceptionUnchecked If the current thread has been interrupted.
      */
@@ -999,19 +957,16 @@ public final class FileUtilities
     }
 
     /**
-     * Deletes selected parts of a directory recursively, that is deletes all files and directories
-     * within the directory that are accepted by the {@link FileFilter}. Any subdirectory that is
-     * accepted by the <var>filter</var> will be completely deleted. This holds true also for the
+     * Deletes selected parts of a directory recursively, that is deletes all files and directories within the directory that are accepted by the
+     * {@link FileFilter}. Any subdirectory that is accepted by the <var>filter</var> will be completely deleted. This holds true also for the
      * <var>path</var> itself.
      * 
      * @param path Path of the directory to delete the selected content from.
      * @param filter The {@link FileFilter} to use when deciding which paths to delete.
-     * @param logger The logger that should be used to log deletion of path entries, or
-     *            <code>null</code> if nothing should be logged.
-     * @param observerOrNull If not <code>null</code>, will be updated on progress in the deletion.
-     *            This can be used to find out whether a (potentially) long-running recursive
-     *            deletion call is alive-and-kicking or hangs (e.g. due to a remote directory
-     *            becoming unresponsive).
+     * @param logger The logger that should be used to log deletion of path entries, or <code>null</code> if nothing should be logged.
+     * @param observerOrNull If not <code>null</code>, will be updated on progress in the deletion. This can be used to find out whether a
+     *            (potentially) long-running recursive deletion call is alive-and-kicking or hangs (e.g. due to a remote directory becoming
+     *            unresponsive).
      * @return <code>true</code> if the <var>path</var> itself has been deleted.
      * @throws InterruptedExceptionUnchecked If the current thread has been interrupted.
      */
@@ -1047,8 +1002,7 @@ public final class FileUtilities
     }
 
     /**
-     * Recursively finds files that the specified <var>filter</var> accepts starting from given
-     * <var>path</var>.
+     * Recursively finds files that the specified <var>filter</var> accepts starting from given <var>path</var>.
      * 
      * @param path Path of the directory to search in.
      * @param files List of the files found so far.
@@ -1192,20 +1146,16 @@ public final class FileUtilities
     }
 
     /**
-     * Determines the time (in milliseconds since start of the epoch) when any item below
-     * <var>path</var> has last been changed in the file system.
+     * Determines the time (in milliseconds since start of the epoch) when any item below <var>path</var> has last been changed in the file system.
      * 
      * @param path The path (file or directory) to check for last change.
-     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var> are
-     *            checked, if <var>path</var> is a directory. If <var>path</var> is a file, this
-     *            parameter is ignored. When considering what this parameter is good for, note that
-     *            the mtime of a directory is changed when an entry in the directory changes.
-     * @param stopWhenFindYounger If &gt; 0, the recursive search for younger file will be stopped
-     *            when a file or directory is found that is younger than the time specified in this
-     *            parameter. Supposed to be used when one does not care about the absolute youngest
-     *            entry, but only, if there are entries that are "young enough".
-     * @return The time when any file in (or below) <var>path</var> has last been changed in the
-     *         file system.
+     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var> are checked, if <var>path</var> is a directory. If
+     *            <var>path</var> is a file, this parameter is ignored. When considering what this parameter is good for, note that the mtime of a
+     *            directory is changed when an entry in the directory changes.
+     * @param stopWhenFindYounger If &gt; 0, the recursive search for younger file will be stopped when a file or directory is found that is younger
+     *            than the time specified in this parameter. Supposed to be used when one does not care about the absolute youngest entry, but only,
+     *            if there are entries that are "young enough".
+     * @return The time when any file in (or below) <var>path</var> has last been changed in the file system.
      * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not readable.
      * @throws InterruptedExceptionUnchecked if the thread that the method runs in gets interrupted.
      */
@@ -1216,24 +1166,18 @@ public final class FileUtilities
     }
 
     /**
-     * Determines the time (in milliseconds since start of the epoch) when any item below
-     * <var>path</var> has last been changed in the file system.
+     * Determines the time (in milliseconds since start of the epoch) when any item below <var>path</var> has last been changed in the file system.
      * 
      * @param path The path (file or directory) to check for last change.
-     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var> are
-     *            checked, if <var>path</var> is a directory. If <var>path</var> is a file, this
-     *            parameter is ignored. When considering what this parameter is good for, note that
-     *            the mtime of a directory is changed when an entry in the directory changes.
-     * @param stopWhenFindYounger If &gt; 0, the recursive search for younger file will be stopped
-     *            when a file or directory is found that is younger than the time specified in this
-     *            parameter. Supposed to be used when one does not care about the absolute youngest
-     *            entry, but only, if there are entries that are "young enough".
-     * @param observerOrNull If not <code>null</code>, will be updated on progress in scanning. This
-     *            can be used to find out whether a (potentially) long-running recursive deletion
-     *            call is alive-and-kicking or hangs (e.g. due to a remote directory becoming
-     *            unresponsive).
-     * @return The time when any file in (or below) <var>path</var> has last been changed in the
-     *         file system.
+     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var> are checked, if <var>path</var> is a directory. If
+     *            <var>path</var> is a file, this parameter is ignored. When considering what this parameter is good for, note that the mtime of a
+     *            directory is changed when an entry in the directory changes.
+     * @param stopWhenFindYounger If &gt; 0, the recursive search for younger file will be stopped when a file or directory is found that is younger
+     *            than the time specified in this parameter. Supposed to be used when one does not care about the absolute youngest entry, but only,
+     *            if there are entries that are "young enough".
+     * @param observerOrNull If not <code>null</code>, will be updated on progress in scanning. This can be used to find out whether a (potentially)
+     *            long-running recursive deletion call is alive-and-kicking or hangs (e.g. due to a remote directory becoming unresponsive).
+     * @return The time when any file in (or below) <var>path</var> has last been changed in the file system.
      * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not readable.
      * @throws InterruptedExceptionUnchecked if the thread that the method runs in gets interrupted.
      */
@@ -1246,21 +1190,16 @@ public final class FileUtilities
     }
 
     /**
-     * Determines the time (in milliseconds since start of the epoch) when any item below
-     * <var>path</var> has last been changed in the file system.
+     * Determines the time (in milliseconds since start of the epoch) when any item below <var>path</var> has last been changed in the file system.
      * 
      * @param path The path (file or directory) to check for last change.
-     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var> are
-     *            checked, if <var>path</var> is a directory. If <var>path</var> is a file, this
-     *            parameter is ignored. When considering what this parameter is good for, note that
-     *            the mtime of a directory is changed when an entry in the directory changes.
-     * @param stopWhenFindYoungerRelative If &gt; 0, the recursive search for younger file will be
-     *            stopped when a file or directory is found that is younger than
-     *            <code>System.currentTimeMillis() - stopWhenYoungerRelative</code>. Supposed to be
-     *            used when one does not care about the absolute youngest entry, but only, if there
-     *            are entries that are "young enough".
-     * @return The time when any file in (or below) <var>path</var> has last been changed in the
-     *         file system.
+     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var> are checked, if <var>path</var> is a directory. If
+     *            <var>path</var> is a file, this parameter is ignored. When considering what this parameter is good for, note that the mtime of a
+     *            directory is changed when an entry in the directory changes.
+     * @param stopWhenFindYoungerRelative If &gt; 0, the recursive search for younger file will be stopped when a file or directory is found that is
+     *            younger than <code>System.currentTimeMillis() - stopWhenYoungerRelative</code>. Supposed to be used when one does not care about the
+     *            absolute youngest entry, but only, if there are entries that are "young enough".
+     * @return The time when any file in (or below) <var>path</var> has last been changed in the file system.
      * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not readable.
      * @throws InterruptedExceptionUnchecked if the thread that the method runs in gets interrupted.
      */
@@ -1271,25 +1210,18 @@ public final class FileUtilities
     }
 
     /**
-     * Determines the time (in milliseconds since start of the epoch) when any item below
-     * <var>path</var> has last been changed in the file system.
+     * Determines the time (in milliseconds since start of the epoch) when any item below <var>path</var> has last been changed in the file system.
      * 
      * @param path The path (file or directory) to check for last change.
-     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var> are
-     *            checked, if <var>path</var> is a directory. If <var>path</var> is a file, this
-     *            parameter is ignored. When considering what this parameter is good for, note that
-     *            the mtime of a directory is changed when an entry in the directory changes.
-     * @param stopWhenFindYoungerRelative If &gt; 0, the recursive search for younger file will be
-     *            stopped when a file or directory is found that is younger than
-     *            <code>System.currentTimeMillis() - stopWhenYoungerRelative</code>. Supposed to be
-     *            used when one does not care about the absolute youngest entry, but only, if there
-     *            are entries that are "young enough".
-     * @param observerOrNull If not <code>null</code>, will be updated on progress in scanning. This
-     *            can be used to find out whether a (potentially) long-running recursive deletion
-     *            call is alive-and-kicking or hangs (e.g. due to a remote directory becoming
-     *            unresponsive).
-     * @return The time when any file in (or below) <var>path</var> has last been changed in the
-     *         file system.
+     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var> are checked, if <var>path</var> is a directory. If
+     *            <var>path</var> is a file, this parameter is ignored. When considering what this parameter is good for, note that the mtime of a
+     *            directory is changed when an entry in the directory changes.
+     * @param stopWhenFindYoungerRelative If &gt; 0, the recursive search for younger file will be stopped when a file or directory is found that is
+     *            younger than <code>System.currentTimeMillis() - stopWhenYoungerRelative</code>. Supposed to be used when one does not care about the
+     *            absolute youngest entry, but only, if there are entries that are "young enough".
+     * @param observerOrNull If not <code>null</code>, will be updated on progress in scanning. This can be used to find out whether a (potentially)
+     *            long-running recursive deletion call is alive-and-kicking or hangs (e.g. due to a remote directory becoming unresponsive).
+     * @return The time when any file in (or below) <var>path</var> has last been changed in the file system.
      * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not readable.
      * @throws InterruptedExceptionUnchecked if the thread that the method runs in gets interrupted.
      */
@@ -1302,8 +1234,7 @@ public final class FileUtilities
     }
 
     /**
-     * @return The time when any file in (or below) <var>path</var> has last been changed in the
-     *         file system.
+     * @return The time when any file in (or below) <var>path</var> has last been changed in the file system.
      * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not readable.
      * @throws InterruptedExceptionUnchecked if the thread that the method runs in gets interrupted.
      */
@@ -1313,11 +1244,9 @@ public final class FileUtilities
     }
 
     /**
-     * Removes given <var>prefix</var> from given <var>file</var> and returns a new
-     * <code>File</code>.
+     * Removes given <var>prefix</var> from given <var>file</var> and returns a new <code>File</code>.
      * <p>
-     * Returns given <var>file</var> if prefix is <i>empty</i> or could not be found in the file
-     * name.
+     * Returns given <var>file</var> if prefix is <i>empty</i> or could not be found in the file name.
      * </p>
      * 
      * @param file can not be <code>null</code>.
@@ -1349,11 +1278,10 @@ public final class FileUtilities
      * If the new suggested file already exists, then this method is called recursively.
      * </p>
      * 
-     * @param defaultFileNameOrNull the default name for the new file if the digit pattern could not
-     *            be found in its name. If empty then "1" will be appended to its name.
-     * @param regexOrNull pattern to find out the counter. If <code>null</code> then a default (
-     *            <code>(\\d+)</code>) will be used. The given <var>regex</var> must contain
-     *            <code>(\\d+)</code> or <code>([0-9]+)</code>.
+     * @param defaultFileNameOrNull the default name for the new file if the digit pattern could not be found in its name. If empty then "1" will be
+     *            appended to its name.
+     * @param regexOrNull pattern to find out the counter. If <code>null</code> then a default ( <code>(\\d+)</code>) will be used. The given
+     *            <var>regex</var> must contain <code>(\\d+)</code> or <code>([0-9]+)</code>.
      */
     public final static File createNextNumberedFile(final File path, final Pattern regexOrNull,
             final String defaultFileNameOrNull)
@@ -1383,7 +1311,6 @@ public final class FileUtilities
 
     /**
      * Creates a time stamp numbered file in <var>path</var>.
-     * 
      */
     public final static File createTimestampUniqueFile(final File path)
     {
@@ -1421,8 +1348,8 @@ public final class FileUtilities
     /**
      * For given <var>root</var> and <var>file</var> extracts the relative path.
      * <p>
-     * If given <var>file</var> does not contain given <var>root</var> path in its absolute path,
-     * then returns <code>null</code> (as the relative file could not be determined).
+     * If given <var>file</var> does not contain given <var>root</var> path in its absolute path, then returns <code>null</code> (as the relative file
+     * could not be determined).
      * </p>
      * 
      * @return a relative file path with no starting separator.
@@ -1451,8 +1378,7 @@ public final class FileUtilities
     }
 
     /**
-     * Does the same as {@link #getRelativeFilePath(File, File)}, but throws exception if root file
-     * does not contain the specified file.
+     * Does the same as {@link #getRelativeFilePath(File, File)}, but throws exception if root file does not contain the specified file.
      */
     public final static String getRelativeFilePathOrDie(final File root, final File file)
     {
@@ -1469,8 +1395,7 @@ public final class FileUtilities
      * For given <var>relativePath</var> extracts the relative path of parent directory.
      * <p>
      * 
-     * @returns <code>null</code> if given path is empty or <code>null</code>, otherwise parent
-     *          directory path (empty string for current directory).
+     * @returns <code>null</code> if given path is empty or <code>null</code>, otherwise parent directory path (empty string for current directory).
      */
     public final static String getParentRelativePath(String relativePath)
     {
@@ -1504,8 +1429,7 @@ public final class FileUtilities
     }
 
     /**
-     * For given <var>file</var> returns true if it is an HDF5 container/archive based on filename
-     * extension.
+     * For given <var>file</var> returns true if it is an HDF5 container/archive based on filename extension.
      * 
      * @returns <code>true</code> if and only if <var>file</var> has 'h5' or 'h5ar' as extension
      */
@@ -1515,8 +1439,7 @@ public final class FileUtilities
     }
 
     /**
-     * @returns <code>true</code> if and only if <var>file</var> is a valid file and has 'h5' or
-     *          'h5ar' as extension
+     * @returns <code>true</code> if and only if <var>file</var> is a valid file and has 'h5' or 'h5ar' as extension
      */
     public final static boolean isHDF5ContainerFile(File file)
     {
@@ -1528,8 +1451,7 @@ public final class FileUtilities
      * 
      * @param directory the directory to list
      * @param loggerOrNull logger, if <code>null</code> than no logging occurs
-     * @return all files in <var>directory</var> or <code>null</code>, if <var>directory</var> does
-     *         not exist or is not a directory.
+     * @return all files in <var>directory</var> or <code>null</code>, if <var>directory</var> does not exist or is not a directory.
      */
     public static File[] tryListFiles(final File directory, final ISimpleLogger loggerOrNull)
     {
@@ -1540,11 +1462,10 @@ public final class FileUtilities
      * Lists all resources in a given directory which match the filter.
      * 
      * @param directory the directory to list
-     * @param filterOrNull only files matching this filter will show up in the result, if it is not
-     *            <code>null</code>
+     * @param filterOrNull only files matching this filter will show up in the result, if it is not <code>null</code>
      * @param loggerOrNull logger, if <code>null</code> than no logging occurs
-     * @return all files in <var>directory</var> that match the filter, or <code>null</code>, if
-     *         <var>directory</var> does not exist or is not a directory.
+     * @return all files in <var>directory</var> that match the filter, or <code>null</code>, if <var>directory</var> does not exist or is not a
+     *         directory.
      */
     public static File[] tryListFiles(final File directory, final FileFilter filterOrNull,
             final ISimpleLogger loggerOrNull)
@@ -1598,8 +1519,7 @@ public final class FileUtilities
     /**
      * Lists files of given <var>directory</var>.
      * <p>
-     * Throws an <code>EnvironmentFailureException</code> if {@link File#listFiles()} returns
-     * <code>null</code>.
+     * Throws an <code>EnvironmentFailureException</code> if {@link File#listFiles()} returns <code>null</code>.
      * </p>
      * 
      * @param directory must be a directory.
@@ -1705,8 +1625,7 @@ public final class FileUtilities
     }
 
     /**
-     * A {@link FileFilter} that is <code>true</code> if either of the two filters provided is
-     * <code>true</code>.
+     * A {@link FileFilter} that is <code>true</code> if either of the two filters provided is <code>true</code>.
      * 
      * @author Bernd Rinn
      */
@@ -1762,17 +1681,13 @@ public final class FileUtilities
     }
 
     /**
-     * Finds files within a given directory (and optionally its subdirectories) which match an array
-     * of extensions.
+     * Finds files within a given directory (and optionally its subdirectories) which match an array of extensions.
      * 
      * @param directory The directory to search in.
-     * @param filterOrNull The {@link FileFilter} used to decide whether a given file is listed or
-     *            not. If <code>null</code>, all files are returned.
+     * @param filterOrNull The {@link FileFilter} used to decide whether a given file is listed or not. If <code>null</code>, all files are returned.
      * @param recursive If true all subdirectories are searched as well.
-     * @return A list of java.io.File (all files) with the matching files, or an empty list, if
-     *         <var>directory</var> is not a directory.
-     * @throw {@link EnvironmentFailureException} if an error occurs on listing
-     *        <var>directory</var>.
+     * @return A list of java.io.File (all files) with the matching files, or an empty list, if <var>directory</var> is not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing <var>directory</var>.
      */
     public static List<File> listFiles(File directory, FileFilter filterOrNull, boolean recursive)
             throws EnvironmentFailureException
@@ -1781,21 +1696,15 @@ public final class FileUtilities
     }
 
     /**
-     * Finds files within a given directory (and optionally its subdirectories) which match an array
-     * of extensions.
+     * Finds files within a given directory (and optionally its subdirectories) which match an array of extensions.
      * 
      * @param directory The directory to search in.
-     * @param filterOrNull The {@link FileFilter} used to decide whether a given file is listed or
-     *            not. If <code>null</code>, all files are returned.
+     * @param filterOrNull The {@link FileFilter} used to decide whether a given file is listed or not. If <code>null</code>, all files are returned.
      * @param recursive If true all subdirectories are searched as well.
-     * @param observerOrNull If not <code>null</code>, will be updated on progress of file
-     *            gathering. This can be used to find out whether a (potentially) long-running file
-     *            gathering call is alive-and-kicking or hangs (e.g. due to a remote directory
-     *            becoming unresponsive).
-     * @return A list of java.io.File (all files) with the matching files, or an empty list, if
-     *         <var>directory</var> is not a directory.
-     * @throw {@link EnvironmentFailureException} if an error occurs on listing
-     *        <var>directory</var>.
+     * @param observerOrNull If not <code>null</code>, will be updated on progress of file gathering. This can be used to find out whether a
+     *            (potentially) long-running file gathering call is alive-and-kicking or hangs (e.g. due to a remote directory becoming unresponsive).
+     * @return A list of java.io.File (all files) with the matching files, or an empty list, if <var>directory</var> is not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing <var>directory</var>.
      */
     public static List<File> listFiles(File directory, FileFilter filterOrNull, boolean recursive,
             IActivityObserver observerOrNull) throws EnvironmentFailureException
@@ -1804,22 +1713,16 @@ public final class FileUtilities
     }
 
     /**
-     * Finds files within a given directory (and optionally its subdirectories) which match an array
-     * of extensions.
+     * Finds files within a given directory (and optionally its subdirectories) which match an array of extensions.
      * 
      * @param directory The directory to search in.
-     * @param filterOrNull The {@link FileFilter} used to decide whether a given file is listed or
-     *            not. If <code>null</code>, all files are returned.
+     * @param filterOrNull The {@link FileFilter} used to decide whether a given file is listed or not. If <code>null</code>, all files are returned.
      * @param recursive If true all subdirectories are searched as well.
-     * @param observerOrNull If not <code>null</code>, will be updated on progress of file
-     *            gathering. This can be used to find out whether a (potentially) long-running file
-     *            gathering call is alive-and-kicking or hangs (e.g. due to a remote directory
-     *            becoming unresponsive).
+     * @param observerOrNull If not <code>null</code>, will be updated on progress of file gathering. This can be used to find out whether a
+     *            (potentially) long-running file gathering call is alive-and-kicking or hangs (e.g. due to a remote directory becoming unresponsive).
      * @param loggerOrNull The logger to use to report failures in listing.
-     * @return A list of java.io.File (all files) with the matching files, or an empty list, if
-     *         <var>directory</var> is not a directory.
-     * @throw {@link EnvironmentFailureException} if an error occurs on listing
-     *        <var>directory</var>.
+     * @return A list of java.io.File (all files) with the matching files, or an empty list, if <var>directory</var> is not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing <var>directory</var>.
      */
     public static List<File> listFiles(File directory, FileFilter filterOrNull, boolean recursive,
             IActivityObserver observerOrNull, ISimpleLogger loggerOrNull)
@@ -1834,17 +1737,13 @@ public final class FileUtilities
     }
 
     /**
-     * Finds files within a given directory (and optionally its subdirectories) which match an array
-     * of extensions.
+     * Finds files within a given directory (and optionally its subdirectories) which match an array of extensions.
      * 
      * @param directory The directory to search in.
-     * @param extensionsOrNull An array of extensions, ex. {"java","xml"}. If this parameter is
-     *            <code>null</code>, all files are returned.
+     * @param extensionsOrNull An array of extensions, ex. {"java","xml"}. If this parameter is <code>null</code>, all files are returned.
      * @param recursive If true all subdirectories are searched as well.
-     * @return A list of java.io.File (all files) with the matching files, or an empty list, if
-     *         <var>directory</var> is not a directory.
-     * @throw {@link EnvironmentFailureException} if an error occurs on listing
-     *        <var>directory</var>.
+     * @return A list of java.io.File (all files) with the matching files, or an empty list, if <var>directory</var> is not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing <var>directory</var>.
      */
     public static List<File> listFiles(File directory, String[] extensionsOrNull, boolean recursive)
             throws EnvironmentFailureException
@@ -1853,21 +1752,15 @@ public final class FileUtilities
     }
 
     /**
-     * Finds files within a given directory (and optionally its subdirectories) which match an array
-     * of extensions.
+     * Finds files within a given directory (and optionally its subdirectories) which match an array of extensions.
      * 
      * @param directory The directory to search in.
-     * @param extensionsOrNull An array of extensions, ex. {"java","xml"}. If this parameter is
-     *            <code>null</code>, all files are returned.
+     * @param extensionsOrNull An array of extensions, ex. {"java","xml"}. If this parameter is <code>null</code>, all files are returned.
      * @param recursive If true all subdirectories are searched as well.
-     * @param observerOrNull If not <code>null</code>, will be updated on progress of file
-     *            gathering. This can be used to find out whether a (potentially) long-running file
-     *            gathering call is alive-and-kicking or hangs (e.g. due to a remote directory
-     *            becoming unresponsive).
-     * @return A list of java.io.File (all files) with the matching files, or an empty list, if
-     *         <var>directory</var> is not a directory.
-     * @throw {@link EnvironmentFailureException} if an error occurs on listing
-     *        <var>directory</var>.
+     * @param observerOrNull If not <code>null</code>, will be updated on progress of file gathering. This can be used to find out whether a
+     *            (potentially) long-running file gathering call is alive-and-kicking or hangs (e.g. due to a remote directory becoming unresponsive).
+     * @return A list of java.io.File (all files) with the matching files, or an empty list, if <var>directory</var> is not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing <var>directory</var>.
      */
     public static List<File> listFiles(File directory, String[] extensionsOrNull,
             boolean recursive, IActivityObserver observerOrNull) throws EnvironmentFailureException
@@ -1876,22 +1769,16 @@ public final class FileUtilities
     }
 
     /**
-     * Finds files within a given directory (and optionally its subdirectories) which match an array
-     * of extensions.
+     * Finds files within a given directory (and optionally its subdirectories) which match an array of extensions.
      * 
      * @param directory The directory to search in.
-     * @param extensionsOrNull An array of extensions, ex. {"java","xml"}. If this parameter is
-     *            <code>null</code>, all files are returned.
+     * @param extensionsOrNull An array of extensions, ex. {"java","xml"}. If this parameter is <code>null</code>, all files are returned.
      * @param recursive If true all subdirectories are searched as well.
-     * @param observerOrNull If not <code>null</code>, will be updated on progress of file
-     *            gathering. This can be used to find out whether a (potentially) long-running file
-     *            gathering call is alive-and-kicking or hangs (e.g. due to a remote directory
-     *            becoming unresponsive).
+     * @param observerOrNull If not <code>null</code>, will be updated on progress of file gathering. This can be used to find out whether a
+     *            (potentially) long-running file gathering call is alive-and-kicking or hangs (e.g. due to a remote directory becoming unresponsive).
      * @param loggerOrNull The logger to use to report failures in listing.
-     * @return A list of java.io.File (all files) with the matching files, or an empty list, if
-     *         <var>directory</var> is not a directory.
-     * @throw {@link EnvironmentFailureException} if an error occurs on listing
-     *        <var>directory</var>.
+     * @return A list of java.io.File (all files) with the matching files, or an empty list, if <var>directory</var> is not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing <var>directory</var>.
      */
     public static List<File> listFiles(File directory, String[] extensionsOrNull,
             boolean recursive, IActivityObserver observerOrNull, ISimpleLogger loggerOrNull)
@@ -1910,10 +1797,8 @@ public final class FileUtilities
      * 
      * @param directory The directory to search in.
      * @param recursive If true all subdirectories are searched as well.
-     * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var>
-     *         ist not a directory.
-     * @throw {@link EnvironmentFailureException} if an error occurs on listing
-     *        <var>directory</var>.
+     * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var> ist not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing <var>directory</var>.
      */
     public static List<File> listDirectories(File directory, boolean recursive)
             throws EnvironmentFailureException
@@ -1926,14 +1811,10 @@ public final class FileUtilities
      * 
      * @param directory The directory to search in.
      * @param recursive If true all subdirectories are searched as well.
-     * @param observerOrNull If not <code>null</code>, will be updated on progress of file
-     *            gathering. This can be used to find out whether a (potentially) long-running file
-     *            gathering call is alive-and-kicking or hangs (e.g. due to a remote directory
-     *            becoming unresponsive).
-     * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var>
-     *         ist not a directory.
-     * @throw {@link EnvironmentFailureException} if an error occurs on listing
-     *        <var>directory</var>.
+     * @param observerOrNull If not <code>null</code>, will be updated on progress of file gathering. This can be used to find out whether a
+     *            (potentially) long-running file gathering call is alive-and-kicking or hangs (e.g. due to a remote directory becoming unresponsive).
+     * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var> ist not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing <var>directory</var>.
      */
     public static List<File> listDirectories(File directory, boolean recursive,
             IActivityObserver observerOrNull) throws EnvironmentFailureException
@@ -1946,15 +1827,11 @@ public final class FileUtilities
      * 
      * @param directory The directory to search in.
      * @param recursive If true all subdirectories are searched as well.
-     * @param observerOrNull If not <code>null</code>, will be updated on progress of file
-     *            gathering. This can be used to find out whether a (potentially) long-running file
-     *            gathering call is alive-and-kicking or hangs (e.g. due to a remote directory
-     *            becoming unresponsive).
+     * @param observerOrNull If not <code>null</code>, will be updated on progress of file gathering. This can be used to find out whether a
+     *            (potentially) long-running file gathering call is alive-and-kicking or hangs (e.g. due to a remote directory becoming unresponsive).
      * @param loggerOrNull The logger to use to report failures in listing.
-     * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var>
-     *         ist not a directory.
-     * @throw {@link EnvironmentFailureException} if an error occurs on listing
-     *        <var>directory</var>.
+     * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var> ist not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing <var>directory</var>.
      */
     public static List<File> listDirectories(File directory, boolean recursive,
             IActivityObserver observerOrNull, ISimpleLogger loggerOrNull)
@@ -1973,10 +1850,8 @@ public final class FileUtilities
      * 
      * @param directory The directory to search in.
      * @param recursive If true all subdirectories are searched as well.
-     * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var>
-     *         ist not a directory.
-     * @throw {@link EnvironmentFailureException} if an error occurs on listing
-     *        <var>directory</var>.
+     * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var> ist not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing <var>directory</var>.
      */
     public static List<File> listFilesAndDirectories(File directory, boolean recursive)
             throws EnvironmentFailureException
@@ -1989,14 +1864,10 @@ public final class FileUtilities
      * 
      * @param directory The directory to search in.
      * @param recursive If true all subdirectories are searched as well.
-     * @param observerOrNull If not <code>null</code>, will be updated on progress of file
-     *            gathering. This can be used to find out whether a (potentially) long-running file
-     *            gathering call is alive-and-kicking or hangs (e.g. due to a remote directory
-     *            becoming unresponsive).
-     * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var>
-     *         ist not a directory.
-     * @throw {@link EnvironmentFailureException} if an error occurs on listing
-     *        <var>directory</var>.
+     * @param observerOrNull If not <code>null</code>, will be updated on progress of file gathering. This can be used to find out whether a
+     *            (potentially) long-running file gathering call is alive-and-kicking or hangs (e.g. due to a remote directory becoming unresponsive).
+     * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var> ist not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing <var>directory</var>.
      */
     public static List<File> listFilesAndDirectories(File directory, boolean recursive,
             IActivityObserver observerOrNull) throws EnvironmentFailureException
@@ -2009,15 +1880,11 @@ public final class FileUtilities
      * 
      * @param directory The directory to search in.
      * @param recursive If true all subdirectories are searched as well.
-     * @param observerOrNull If not <code>null</code>, will be updated on progress of file
-     *            gathering. This can be used to find out whether a (potentially) long-running file
-     *            gathering call is alive-and-kicking or hangs (e.g. due to a remote directory
-     *            becoming unresponsive).
+     * @param observerOrNull If not <code>null</code>, will be updated on progress of file gathering. This can be used to find out whether a
+     *            (potentially) long-running file gathering call is alive-and-kicking or hangs (e.g. due to a remote directory becoming unresponsive).
      * @param loggerOrNull The logger to use to report failures in listing.
-     * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var>
-     *         ist not a directory.
-     * @throw {@link EnvironmentFailureException} if an error occurs on listing
-     *        <var>directory</var>.
+     * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var> ist not a directory.
+     * @throw {@link EnvironmentFailureException} if an error occurs on listing <var>directory</var>.
      */
     public static List<File> listFilesAndDirectories(File directory, boolean recursive,
             IActivityObserver observerOrNull, ISimpleLogger loggerOrNull)
@@ -2107,8 +1974,7 @@ public final class FileUtilities
     /**
      * Normalizes given <var>file</var> path, removing double and single dot path steps.
      * <p>
-     * It first tries to call {@link File#getCanonicalFile()}. If this fails, works with the file
-     * name returned by {@link File#getAbsolutePath()}.
+     * It first tries to call {@link File#getCanonicalFile()}. If this fails, works with the file name returned by {@link File#getAbsolutePath()}.
      * </p>
      */
     public final static File normalizeFile(final File file)
@@ -2144,11 +2010,9 @@ public final class FileUtilities
     private static final NumberFormat SIZE_FORMAT = new DecimalFormat("0.00");
 
     /**
-     * Returns a human-readable version of the file size, where the input represents a specific
-     * number of bytes.
+     * Returns a human-readable version of the file size, where the input represents a specific number of bytes.
      * <p>
-     * By comparison with {@link FileUtils#byteCountToDisplaySize(long)}, the output of this version
-     * is more exact.
+     * By comparison with {@link FileUtils#byteCountToDisplaySize(long)}, the output of this version is more exact.
      * </p>
      * 
      * @param size the number of bytes
@@ -2227,8 +2091,7 @@ public final class FileUtilities
     /**
      * Checks the given <var>inFile</var> on whether it exists and is readable.
      * 
-     * @throws CheckedExceptionTunnel of {@link FileNotFoundException} if the input file does not
-     *             exist.
+     * @throws CheckedExceptionTunnel of {@link FileNotFoundException} if the input file does not exist.
      * @throws CheckedExceptionTunnel of {@link IOException} if the input file cannot be read .
      */
     public static void checkInputFile(File inFile)
@@ -2248,10 +2111,9 @@ public final class FileUtilities
     /**
      * Checks the given <var>inFile</var> on whether it exists and is readable.
      * 
-     * @throws CheckedExceptionTunnel of {@link FileExistsException} if the <var>outFile</var>
-     *             exists and <var>overwriteOutFile</var> is <code>false</code>.
-     * @throws CheckedExceptionTunnel of {@link IOException} if the output file cannot be written
-     *             to.
+     * @throws CheckedExceptionTunnel of {@link FileExistsException} if the <var>outFile</var> exists and <var>overwriteOutFile</var> is
+     *             <code>false</code>.
+     * @throws CheckedExceptionTunnel of {@link IOException} if the output file cannot be written to.
      */
     public static void checkOutputFile(File outFile, IFileOverwriteStrategy fileOverwriteStrategy)
     {
@@ -2315,8 +2177,7 @@ public final class FileUtilities
     /**
      * Return true if <code>fileName</code> is a valid filename.
      * <p>
-     * The methods works by trying to create a file with the specified name. Thus, the method should
-     * not be called where performance matters.
+     * The methods works by trying to create a file with the specified name. Thus, the method should not be called where performance matters.
      */
     public static boolean isValidFileName(String fileName)
     {
@@ -2342,8 +2203,8 @@ public final class FileUtilities
     }
 
     /**
-     * Returns the size of the specified file or folder. In case of a folder and a Unix-type OS the
-     * command <tt>du</tt> will be used for better performance in case of huge folders/subfolders.
+     * Returns the size of the specified file or folder. In case of a folder and a Unix-type OS the command <tt>du</tt> will be used for better
+     * performance in case of huge folders/subfolders.
      */
     public static long getSizeOf(File file)
     {

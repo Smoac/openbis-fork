@@ -28,15 +28,14 @@ import ch.systemsx.cisd.common.converter.ConverterPool;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 
 /**
- * An abstract <code>IParserObjectFactory</code> which already implements and offers convenience
- * methods.
+ * An abstract <code>IParserObjectFactory</code> which already implements and offers convenience methods.
  * 
  * @author Christian Ribeaud
  */
 public abstract class AbstractParserObjectFactory<E> implements IParserObjectFactory<E>
 {
     protected static final String[] DELETE = new String[]
-        { "--DELETE--", "__DELETE__" };
+    { "--DELETE--", "__DELETE__" };
 
     /** The <code>IPropertyMapper</code> implementation. */
     private final IPropertyMapper propertyMapper;
@@ -110,9 +109,8 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     /**
      * Checks given <code>IPropertyMapper</code>.
      * <p>
-     * This method tries to find properties declared in given <code>IPropertyMapper</code> that are
-     * not in labels in annotated write methods (throws a <code>UnmatchedPropertiesException</code>)
-     * or mandatory fields that could not be found in the same annotated write methods (throws a
+     * This method tries to find properties declared in given <code>IPropertyMapper</code> that are not in labels in annotated write methods (throws a
+     * <code>UnmatchedPropertiesException</code>) or mandatory fields that could not be found in the same annotated write methods (throws a
      * <code>MandatoryPropertyMissingException</code>).
      * </p>
      */
@@ -215,8 +213,7 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     /**
      * Whether unmatched properties should be ignored or not.Default is <code>false</code>.
      * <p>
-     * If <code>false</code> and if some unmatched properties are found, a
-     * {@link UnmatchedPropertiesException} will be thrown.
+     * If <code>false</code> and if some unmatched properties are found, a {@link UnmatchedPropertiesException} will be thrown.
      * </p>
      */
     protected boolean ignoreUnmatchedProperties()

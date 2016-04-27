@@ -60,8 +60,7 @@ public class TimingParameters
     public static final String MAX_RETRY_PROPERTY_NAME = "max-retries";
 
     /**
-     * Name of the property to specify the interval to sleep after a failure and before a retry (in
-     * seconds).
+     * Name of the property to specify the interval to sleep after a failure and before a retry (in seconds).
      */
     public static final String FAILURE_INTERVAL_NAME = "failure-interval";
 
@@ -112,8 +111,7 @@ public class TimingParameters
     }
 
     /**
-     * Returns <code>true</code> if the <var>properties</var> contain timing parameters and
-     * <code>false</code> otherwise.
+     * Returns <code>true</code> if the <var>properties</var> contain timing parameters and <code>false</code> otherwise.
      */
     public static boolean hasTimingParameters(Properties properties)
     {
@@ -145,8 +143,7 @@ public class TimingParameters
     }
 
     /**
-     * Sets the new default from the properties (or fall back to standard values, if
-     * <var>properties</var> do not contain values).
+     * Sets the new default from the properties (or fall back to standard values, if <var>properties</var> do not contain values).
      */
     public static void setDefault(Properties properties)
     {
@@ -235,8 +232,7 @@ public class TimingParameters
     }
 
     /**
-     * Returns the time (in milli-seconds) to wait after a failure has occurred and before retrying
-     * the operation.
+     * Returns the time (in milli-seconds) to wait after a failure has occurred and before retrying the operation.
      */
     public long getIntervalToWaitAfterFailureMillis()
     {

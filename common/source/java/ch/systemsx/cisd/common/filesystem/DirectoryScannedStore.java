@@ -49,8 +49,7 @@ public final class DirectoryScannedStore implements IScannedStore
     //
     // IScannedStore
     //
-    
-    
+
     @Override
     public final String getLocationDescription(final StoreItem item)
     {

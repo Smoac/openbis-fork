@@ -26,10 +26,9 @@ public class ConversionUtils
     private static final int MAX_LETTER_NUMBER = getLetterNumber('Z');
 
     /**
-     * Parses a spreadsheet location and return a point. The location has to start with one or more
-     * letters ignoring case. This letter section code the x-coordinate with 'A'=0, 'B'=1, ...,
-     * 'Z'=25, 'AA'=26, ..., 'AZ'=51, 'BA'=52, 'BB'=53, etc. After the letter section follows one or
-     * more digits.
+     * Parses a spreadsheet location and return a point. The location has to start with one or more letters ignoring case. This letter section code
+     * the x-coordinate with 'A'=0, 'B'=1, ..., 'Z'=25, 'AA'=26, ..., 'AZ'=51, 'BA'=52, 'BB'=53, etc. After the letter section follows one or more
+     * digits.
      * <p>
      * Examples:
      * 
@@ -106,8 +105,7 @@ public class ConversionUtils
     /**
      * Taken from PlateUtils.
      * <p>
-     * Translates a row number into letter code. Thus, 1 -> A, 2 -> B, 26 -> Z, 27 -> AA, 28 -> AB,
-     * etc.
+     * Translates a row number into letter code. Thus, 1 -> A, 2 -> B, 26 -> Z, 27 -> AA, 28 -> AB, etc.
      */
     public static String translateRowNumberIntoLetterCode(int rowNumber)
     {

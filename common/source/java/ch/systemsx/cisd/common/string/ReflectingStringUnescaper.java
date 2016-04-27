@@ -26,8 +26,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogUtils;
 
 /**
- * Performs HTML unescaping the string fields of an object. Its implementation is based on
- * {@link ReflectingStringEscaper} but there is no support to restrict unescaped fields.
+ * Performs HTML unescaping the string fields of an object. Its implementation is based on {@link ReflectingStringEscaper} but there is no support to
+ * restrict unescaped fields.
  * 
  * @author Piotr Buczek
  */

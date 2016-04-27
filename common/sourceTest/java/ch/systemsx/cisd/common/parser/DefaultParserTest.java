@@ -82,13 +82,13 @@ public final class DefaultParserTest
                         HEADER_LENGTH);
         assertTrue(result.hasNext());
         assertTrue(Arrays.equals(new String[]
-            { "firstName", "lastName", "address", "city" }, result.next()));
+        { "firstName", "lastName", "address", "city" }, result.next()));
         assertTrue(result.hasNext());
         assertTrue(Arrays.equals(new String[]
-            { "Charles", "Darwin", "Humboldt Ave. 1865", "4242 Somewhere" }, result.next()));
+        { "Charles", "Darwin", "Humboldt Ave. 1865", "4242 Somewhere" }, result.next()));
         assertTrue(result.hasNext());
         assertTrue(Arrays.equals(new String[]
-            { "Albert", "Einstein", "Newton Road 1905", "4711 Princton" }, result.next()));
+        { "Albert", "Einstein", "Newton Road 1905", "4711 Princton" }, result.next()));
         assertFalse(result.hasNext());
     }
 

@@ -20,10 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 /**
- * Repository of {@link RecordingMatcher} instances. It delivers only one {@link RecordingMatcher}
- * per class of objects to match and record.
+ * Repository of {@link RecordingMatcher} instances. It delivers only one {@link RecordingMatcher} per class of objects to match and record.
  * 
  * @author Franz-Josef Elmer
  */
@@ -36,7 +34,7 @@ public class RecordingMatcherRepository
      * Returns the recording matcher for the specified class.
      */
     @SuppressWarnings(
-        { "rawtypes", "unchecked" })
+    { "rawtypes", "unchecked" })
     public <T> RecordingMatcher<T> getRecordingMatcher(Class<T> clazz)
     {
         RecordingMatcher<?> matcher = map.get(clazz);
@@ -49,8 +47,7 @@ public class RecordingMatcherRepository
     }
 
     /**
-     * Returns the recorded object of specified type. It assumes that only one object of the
-     * specified class has been matched and recorded.
+     * Returns the recorded object of specified type. It assumes that only one object of the specified class has been matched and recorded.
      */
     public <T> T recordedObject(Class<T> clazz)
     {

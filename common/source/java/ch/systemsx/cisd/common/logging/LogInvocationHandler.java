@@ -62,8 +62,7 @@ public final class LogInvocationHandler implements InvocationHandler
      * @param name Meaningful name of <code>object</code>. Will be used in the log message.
      * @param logLevel The log level to use for normal (successful) events.
      * @param classUsedToNameLogger Class used to specify the name of the logger.
-     * @param onlyIfAnnotated whether the log should be activated only if method is annotated with
-     *            {@link LogAnnotation}.
+     * @param onlyIfAnnotated whether the log should be activated only if method is annotated with {@link LogAnnotation}.
      */
     public LogInvocationHandler(final Object object, final String name, final Level logLevel,
             final Class<?> classUsedToNameLogger, final boolean onlyIfAnnotated)

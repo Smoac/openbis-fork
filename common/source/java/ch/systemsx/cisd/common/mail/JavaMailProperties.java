@@ -46,7 +46,7 @@ public final class JavaMailProperties
 
     /** The user name to use when connecting to the mail server. */
     public static final String MAIL_SMTP_USER = "mail.smtp.user";
-    
+
     /** Whether authentication is needed when connecting to the mail server. */
     public static final String MAIL_SMTP_AUTH = "mail.smtp.auth";
 

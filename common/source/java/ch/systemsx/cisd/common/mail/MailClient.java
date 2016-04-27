@@ -53,11 +53,10 @@ import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 /**
  * A small mail client that simplifies the sending of emails using of <i>JavaMail API</i>.
  * <p>
- * Just instantiate this class and use {@link #sendMessage(String, String, String, From, String[])}
- * to send the email via SMTP.
+ * Just instantiate this class and use {@link #sendMessage(String, String, String, From, String[])} to send the email via SMTP.
  * </p>
- * If the SMTP host starts with <code>file://</code> the mail is not send to a real SMTP server but
- * it is stored in a file in the directory specified by the relative path following this prefix.
+ * If the SMTP host starts with <code>file://</code> the mail is not send to a real SMTP server but it is stored in a file in the directory specified
+ * by the relative path following this prefix.
  * 
  * @author Christian Ribeaud
  */
@@ -129,7 +128,7 @@ public final class MailClient extends Authenticator implements IMailClient
 
     private void init()
     {
-        //Add some properties that don't need to come form the service
+        // Add some properties that don't need to come form the service
         String smtpUsername = properties.getProperty(JavaMailProperties.MAIL_SMTP_USER);
         String smtpPassword = properties.getProperty(MailClient.MAIL_SMTP_PASSWORD);
         if (StringUtils.isNotBlank(smtpUsername) && StringUtils.isNotBlank(smtpPassword))
@@ -140,7 +139,7 @@ public final class MailClient extends Authenticator implements IMailClient
         properties.put(JavaMailProperties.MAIL_DEBUG, operationLog.isDebugEnabled() ? Boolean.TRUE.toString() : Boolean.FALSE.toString());
         properties.put(JavaMailProperties.MAIL_TRANSPORT_PROTOCOL, "smtp");
 
-        //Get properties from System
+        // Get properties from System
         try
         {
             Properties systemProperties = System.getProperties();
@@ -156,7 +155,7 @@ public final class MailClient extends Authenticator implements IMailClient
             operationLog.error("System properties can't be read", ex);
         }
 
-        //Clear all properties not staring with mail.
+        // Clear all properties not staring with mail.
         for (String key : properties.stringPropertyNames())
         {
             if (!key.startsWith("mail."))
@@ -270,8 +269,7 @@ public final class MailClient extends Authenticator implements IMailClient
     }
 
     /**
-     * Sends a mail with given <var>subject</var> and <var>content</var> to given
-     * <var>recipients</var>.
+     * Sends a mail with given <var>subject</var> and <var>content</var> to given <var>recipients</var>.
      * 
      * @param recipients list of recipients (of type <code>Message.RecipientType.TO</code>)
      */
@@ -310,8 +308,7 @@ public final class MailClient extends Authenticator implements IMailClient
     }
 
     /**
-     * Sends a mail with given <var>subject</var> and <var>content</var> to given
-     * <var>recipients</var>, includig the given <var>attachment</var>
+     * Sends a mail with given <var>subject</var> and <var>content</var> to given <var>recipients</var>, includig the given <var>attachment</var>
      * 
      * @param recipients list of recipients (of type <code>Message.RecipientType.TO</code>)
      */
@@ -381,8 +378,7 @@ public final class MailClient extends Authenticator implements IMailClient
     }
 
     /**
-     * Sends a mail with given <var>subject</var> and <var>content</var> to given
-     * <var>recipients</var>.
+     * Sends a mail with given <var>subject</var> and <var>content</var> to given <var>recipients</var>.
      * 
      * @param recipients list of recipients (of type <code>Message.RecipientType.TO</code>)
      */
@@ -406,7 +402,7 @@ public final class MailClient extends Authenticator implements IMailClient
             if (replyTo != null)
             {
                 InternetAddress[] replyToAddress =
-                        { replyTo };
+                { replyTo };
                 msg.setReplyTo(replyToAddress);
             }
             msg.addRecipients(Message.RecipientType.TO, recipients);

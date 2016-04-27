@@ -27,9 +27,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * Utility to create a hard link of a file or copy recursively a directories structure, creating a
- * hard link for each file inside. Note that presence of <code>ln</code> executable is required,
- * which is not available under Windows.
+ * Utility to create a hard link of a file or copy recursively a directories structure, creating a hard link for each file inside. Note that presence
+ * of <code>ln</code> executable is required, which is not available under Windows.
  * 
  * @author Tomasz Pylak
  */
@@ -67,11 +66,10 @@ public final class RecursiveHardLinkMaker implements IImmutableCopier
     //
 
     /**
-     * Copies <var>source</var> (file or directory) to <var>destinationDirectory</var> by
-     * duplicating the directory structure and creating a hard link for each file.
+     * Copies <var>source</var> (file or directory) to <var>destinationDirectory</var> by duplicating the directory structure and creating a hard link
+     * for each file.
      * <p>
-     * <i>Note that <var>nameOrNull</var> cannot already exist in given
-     * <var>destinationDirectory</var>.</i>
+     * <i>Note that <var>nameOrNull</var> cannot already exist in given <var>destinationDirectory</var>.</i>
      * </p>
      */
     @Override

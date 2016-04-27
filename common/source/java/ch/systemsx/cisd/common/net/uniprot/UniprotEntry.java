@@ -151,7 +151,7 @@ public class UniprotEntry
     {
         return disease;
     }
-    
+
     private static String toString(String[] array)
     {
         if (array == null)
@@ -173,7 +173,7 @@ public class UniprotEntry
         }
         return builder.toString();
     }
-    
+
     public String getDiseaseStr()
     {
         return toString(disease);
@@ -473,7 +473,7 @@ public class UniprotEntry
     {
         return toString(tissueSpecificity);
     }
-    
+
     public Integer getVersion()
     {
         return version;
@@ -498,7 +498,7 @@ public class UniprotEntry
     {
         return sequenceSimilarities;
     }
-    
+
     public String getSequenceSimilaritiesStr()
     {
         return toString(sequenceSimilarities);

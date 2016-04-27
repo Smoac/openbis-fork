@@ -48,8 +48,7 @@ public enum UniprotColumn
             "virus%20hosts", "Virus hosts\n");
 
     /**
-     * The map from the column header in the Uniprot result set (in lower case characters) and the
-     * {@link UniprotColumn}.
+     * The map from the column header in the Uniprot result set (in lower case characters) and the {@link UniprotColumn}.
      */
     static final Map<String, UniprotColumn> columnMap;
 

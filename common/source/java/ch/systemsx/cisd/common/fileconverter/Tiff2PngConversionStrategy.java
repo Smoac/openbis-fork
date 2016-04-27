@@ -34,11 +34,9 @@ public class Tiff2PngConversionStrategy implements IFileConversionStrategy
     private final IFileConversionMethod method;
 
     /**
-     * @param transparentColorOrNull set the transparent color (either sumbolic or in hexademical
-     *            RGB notation "#XXXXXX".
+     * @param transparentColorOrNull set the transparent color (either sumbolic or in hexademical RGB notation "#XXXXXX".
      * @param page If the tiff file is a multi-page file, which page to convert to png.
-     * @param deleteOriginalFile If <code>true</code>, delte the tiff file after the png file has
-     *            been created successfully.
+     * @param deleteOriginalFile If <code>true</code>, delte the tiff file after the png file has been created successfully.
      * @throws EnvironmentFailureException If no converter method is available.
      */
     public Tiff2PngConversionStrategy(String transparentColorOrNull, int page,

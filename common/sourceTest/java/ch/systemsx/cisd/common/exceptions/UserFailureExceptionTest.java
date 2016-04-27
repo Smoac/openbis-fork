@@ -33,8 +33,7 @@ public final class UserFailureExceptionTest
 {
 
     /**
-     * Test method for
-     * {@link ch.systemsx.cisd.common.exceptions.UserFailureException#fromTemplate(java.lang.String, java.lang.Object[])}.
+     * Test method for {@link ch.systemsx.cisd.common.exceptions.UserFailureException#fromTemplate(java.lang.String, java.lang.Object[])}.
      */
     @Test
     public final void testFromTemplateStringObjectArray()

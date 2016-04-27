@@ -29,9 +29,9 @@ public class MaintenancePlugin
     private final boolean requiresDataStoreLock;
 
     private Timer workerTimer;
-    
+
     private volatile boolean stopped;
-    
+
     public MaintenancePlugin(MaintenanceTaskParameters parameters)
     {
         this.parameters = parameters;
@@ -50,12 +50,12 @@ public class MaintenancePlugin
             task.setUp(parameters.getPluginName(), parameters.getProperties());
         } catch (Throwable t)
         {
-            throw new ConfigurationFailureException("Set up of maintenance task '" + parameters.getPluginName() 
+            throw new ConfigurationFailureException("Set up of maintenance task '" + parameters.getPluginName()
                     + "' failed: " + t.getMessage(), t);
         }
         this.requiresDataStoreLock = requiresDataStoreLock();
     }
-    
+
     /**
      * Constructor that takes a configured maintenance task.
      * 
@@ -81,7 +81,7 @@ public class MaintenancePlugin
     {
         return parameters.getPluginName();
     }
-    
+
     public synchronized void start()
     {
         final String timerThreadName = parameters.getPluginName() + " - Maintenance Plugin";
@@ -108,7 +108,7 @@ public class MaintenancePlugin
             }
         }
     }
-    
+
     public synchronized void shutdown()
     {
         if (workerTimer != null)

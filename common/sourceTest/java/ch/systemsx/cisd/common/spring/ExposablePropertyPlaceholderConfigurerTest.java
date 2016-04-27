@@ -27,13 +27,12 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ExposablePropertyPlaceholderConfigurerTest
 {
     private Mockery context;
+
     private ConfigurableListableBeanFactory beanFactory;
 
     @BeforeMethod
@@ -48,7 +47,7 @@ public class ExposablePropertyPlaceholderConfigurerTest
                 }
             });
     }
-    
+
     @Test
     public void test()
     {
@@ -57,10 +56,10 @@ public class ExposablePropertyPlaceholderConfigurerTest
         properties.setProperty("a", "alpha");
         properties.setProperty("b", "beta");
         properties.setProperty("ab", "${a} ${b}");
-        
+
         configurer.processProperties(beanFactory, properties);
         Properties resolvedProps = configurer.getResolvedProps();
-        
+
         assertEquals("alpha", resolvedProps.get("a"));
         assertEquals("beta", resolvedProps.get("b"));
         assertEquals("alpha beta", resolvedProps.get("ab"));

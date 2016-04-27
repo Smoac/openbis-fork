@@ -17,7 +17,7 @@ public class MultilineSupport
 {
     public static CSVFormat FORMAT = CSVFormat.DEFAULT.withHeader((String[]) null).withDelimiter('\t').withRecordSeparator('\n');
 
-    private static abstract class ClosableMapIterator<FROM, TO> extends MapIterator<FROM, TO>implements AutoCloseable
+    private static abstract class ClosableMapIterator<FROM, TO> extends MapIterator<FROM, TO> implements AutoCloseable
     {
         public ClosableMapIterator(Iterator<FROM> iter)
         {

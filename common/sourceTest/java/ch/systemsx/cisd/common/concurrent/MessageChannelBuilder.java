@@ -29,34 +29,34 @@ import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 public class MessageChannelBuilder
 {
     private final MessageChannel channel;
-    
+
     public MessageChannelBuilder()
     {
         channel = new MessageChannel();
     }
-    
+
     public MessageChannelBuilder(long timeOutInMilliSeconds)
     {
         channel = new MessageChannel(timeOutInMilliSeconds);
     }
-    
+
     public MessageChannelBuilder name(String name)
     {
         channel.setName(name);
         return this;
     }
-    
+
     public MessageChannelBuilder logger(ISimpleLogger logger)
     {
         channel.setLogger(logger);
         return this;
     }
-    
+
     public MessageChannelBuilder logger(Logger logger)
     {
         return logger(new Log4jSimpleLogger(logger));
     }
-    
+
     public MessageChannel getChannel()
     {
         return channel;

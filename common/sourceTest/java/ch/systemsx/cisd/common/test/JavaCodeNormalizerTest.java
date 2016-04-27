@@ -22,40 +22,38 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class JavaCodeNormalizerTest extends AssertJUnit
 {
     private static final String EXAMPLE =
-            "/*\n" 
-          + " * Copyright 2008 ETH Zuerich, CISD\r" 
-          + " */\n" 
-          + "\n"
-          + "package ch.systemsx.cisd.openbis.plugin.generic.shared;\n" 
-          + "\n"
-          + "import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;\n" 
-          + "\n"
-          + "/* A one line block comment. */\n"
-          + "public interface IGenericServer\n" 
-          + "{\n" 
-          + "    /**\n"
-          + "     * blabla\n" 
-          + "     */\n" 
-          + "    @Transactional\n"
-          + "    public ExperimentPE get(int a,\n" 
-          + "            // TODO\n"
-          + "            @Guard // checks ID\n" 
-          + "            Id id);\n";
-    
+            "/*\n"
+                    + " * Copyright 2008 ETH Zuerich, CISD\r"
+                    + " */\n"
+                    + "\n"
+                    + "package ch.systemsx.cisd.openbis.plugin.generic.shared;\n"
+                    + "\n"
+                    + "import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;\n"
+                    + "\n"
+                    + "/* A one line block comment. */\n"
+                    + "public interface IGenericServer\n"
+                    + "{\n"
+                    + "    /**\n"
+                    + "     * blabla\n"
+                    + "     */\n"
+                    + "    @Transactional\n"
+                    + "    public ExperimentPE get(int a,\n"
+                    + "            // TODO\n"
+                    + "            @Guard // checks ID\n"
+                    + "            Id id);\n";
+
     private static final String NORMALIZED_EXAMPLE =
             "package ch.systemsx.cisd.openbis.plugin.generic.shared;" + LINE_SEPARATOR
-          + "import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;" + LINE_SEPARATOR 
-          + "public interface IGenericServer {" + LINE_SEPARATOR 
-          + "@Transactional public ExperimentPE get(int a," + LINE_SEPARATOR 
-          + "@Guard Id id);";
-    
+                    + "import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;" + LINE_SEPARATOR
+                    + "public interface IGenericServer {" + LINE_SEPARATOR
+                    + "@Transactional public ExperimentPE get(int a," + LINE_SEPARATOR
+                    + "@Guard Id id);";
+
     @Test
     public void test()
     {

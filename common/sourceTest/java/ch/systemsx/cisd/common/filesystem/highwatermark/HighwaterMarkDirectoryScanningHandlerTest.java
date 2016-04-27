@@ -67,7 +67,7 @@ public final class HighwaterMarkDirectoryScanningHandlerTest
         context = new Mockery();
         directoryScanningHandler = context.mock(IDirectoryScanningHandler.class);
         scannedStore = context.mock(IScannedStore.class);
-        
+
         freeSpaceProvider = context.mock(IFreeSpaceProvider.class);
         highwaterMarkWatcher = new HighwaterMarkWatcher(HIGHWATER_MARK, freeSpaceProvider);
     }
@@ -106,7 +106,7 @@ public final class HighwaterMarkDirectoryScanningHandlerTest
     public final Object[][] getFreeSpaces()
     {
         return new Object[][]
-            {
+        {
                 { HIGHWATER_MARK - 1 },
                 { HIGHWATER_MARK + 1 } };
     }
@@ -160,7 +160,7 @@ public final class HighwaterMarkDirectoryScanningHandlerTest
     public final void testWithFiles(final long freeSpace) throws IOException
     {
         final File[] files = new File[]
-            { new File("a"), new File("b") };
+        { new File("a"), new File("b") };
         final HighwaterMarkDirectoryScanningHandler scanningHandler =
                 createDirectoryScanningHandler(files);
         final StoreItem storeItem = new StoreItem(STORE_NAME);

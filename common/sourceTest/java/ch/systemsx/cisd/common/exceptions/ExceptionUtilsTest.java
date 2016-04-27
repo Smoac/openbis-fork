@@ -72,7 +72,7 @@ public final class ExceptionUtilsTest
     {
         try
         {
-            ExceptionUtils.createMasqueradingExceptionIfNeeded(null, Collections.<String>emptyList());
+            ExceptionUtils.createMasqueradingExceptionIfNeeded(null, Collections.<String> emptyList());
             fail("Null exception not allowed.");
         } catch (final AssertionError ex)
         {
@@ -107,11 +107,11 @@ public final class ExceptionUtilsTest
         final String message = "Oooops!";
         final Exception exception = new SAXException(message);
         final Exception clientSafeException =
-            ExceptionUtils.createMasqueradingExceptionIfNeeded(exception, Collections
-                    .<String> emptyList());
+                ExceptionUtils.createMasqueradingExceptionIfNeeded(exception, Collections
+                        .<String> emptyList());
         checkReturnedClientSafeException(message, exception, clientSafeException, false);
     }
-    
+
     @Test
     public final void testWithClientSafeExceptionMultipleLevel()
     {

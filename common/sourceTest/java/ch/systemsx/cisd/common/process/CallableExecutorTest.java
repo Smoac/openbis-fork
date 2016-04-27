@@ -83,7 +83,7 @@ public final class CallableExecutorTest
     public final Object[][] getMaxRetryOnFailure()
     {
         return new Object[][]
-            {
+        {
                 { 0 },
                 { 1 },
                 { 3 } };

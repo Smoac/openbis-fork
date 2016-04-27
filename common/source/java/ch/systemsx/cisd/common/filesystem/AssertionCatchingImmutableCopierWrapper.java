@@ -21,8 +21,7 @@ import java.io.File;
 import ch.systemsx.cisd.common.exceptions.Status;
 
 /**
- * A wrapper on an {@link IImmutableCopier} that catches assertions and returns a failure status if
- * any are encountered.
+ * A wrapper on an {@link IImmutableCopier} that catches assertions and returns a failure status if any are encountered.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

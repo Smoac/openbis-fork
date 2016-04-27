@@ -29,16 +29,15 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * Bootstrapper bean responsible for loading resources conditionally basing on property values.
- * Normally properties are initialized by Spring after all beans are being instanced - this class
- * workarounds this problem by refreshing the application context after properties are being loaded.
+ * Bootstrapper bean responsible for loading resources conditionally basing on property values. Normally properties are initialized by Spring after
+ * all beans are being instanced - this class workarounds this problem by refreshing the application context after properties are being loaded.
  * 
  * @author Pawel Glyzewski
  */
 public class Bootstrapper implements ApplicationContextAware, InitializingBean
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, Bootstrapper.class);
-    
+
     private AbstractRefreshableConfigApplicationContext context;
 
     private String[] configLocations;
@@ -48,7 +47,7 @@ public class Bootstrapper implements ApplicationContextAware, InitializingBean
     public void setConfigLocation(final String configLocation)
     {
         this.configLocations = new String[]
-            { configLocation };
+        { configLocation };
     }
 
     public void setConditionalConfigLocations(final String[] conditionalConfigLocations)

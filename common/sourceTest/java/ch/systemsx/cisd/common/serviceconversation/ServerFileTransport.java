@@ -71,27 +71,27 @@ class ServerFileTransport extends FileTransport
             deleteFiles(messageFiles);
         }
     }
-    
+
     /**
      * A class to store a request for a new service conversation.
      */
     static class StartConversationRequest
     {
         private final File requestFile;
-        
+
         private final String clientId;
-        
+
         private final String conversationTypeId;
-        
+
         StartConversationRequest(File requestFile)
         {
             this.requestFile = requestFile;
             final String[] parts = requestFile.getName().substring(START_PREFIX.length()).split("__");
             assert parts.length == 3;
-            this.clientId = parts[0]; 
+            this.clientId = parts[0];
             this.conversationTypeId = parts[1];
         }
-        
+
         String getClientId()
         {
             return clientId;
@@ -107,7 +107,7 @@ class ServerFileTransport extends FileTransport
             FileUtilities.writeToFile(requestFile, conversationDTO);
         }
     }
-    
+
     /**
      * Returns the client requests to start a conversation.
      */
@@ -121,7 +121,7 @@ class ServerFileTransport extends FileTransport
         }
         return requests;
     }
-    
+
     /**
      * Returns the messages that are received from any client within a running service conversation.
      */

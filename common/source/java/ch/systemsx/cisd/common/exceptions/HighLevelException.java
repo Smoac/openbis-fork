@@ -19,8 +19,8 @@ package ch.systemsx.cisd.common.exceptions;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
 
 /**
- * An exception that is "high-level" in the sense that we have a pretty good understanding what the
- * failure means in the context where the exception has been thrown.
+ * An exception that is "high-level" in the sense that we have a pretty good understanding what the failure means in the context where the exception
+ * has been thrown.
  * 
  * @author Bernd Rinn
  */
@@ -40,9 +40,8 @@ public abstract class HighLevelException extends RuntimeException
     }
 
     /**
-     * Returns the assessment of the subsystem throwing the exception whether the failure could be
-     * temporarily and thus retrying the operation (on a higher level) could possibly help to cure
-     * the problem.
+     * Returns the assessment of the subsystem throwing the exception whether the failure could be temporarily and thus retrying the operation (on a
+     * higher level) could possibly help to cure the problem.
      * <p>
      * This class will always return <code>false</code>, but sub classes can override the method.
      * 
@@ -54,9 +53,8 @@ public abstract class HighLevelException extends RuntimeException
     }
 
     /**
-     * Returns the assessment of the subsystem throwing the exception whether the failure could be
-     * temporarily and thus retrying the operation (on a higher level) could possibly help to cure
-     * the problem.
+     * Returns the assessment of the subsystem throwing the exception whether the failure could be temporarily and thus retrying the operation (on a
+     * higher level) could possibly help to cure the problem.
      * <p>
      * This class will always return <code>false</code>, but sub classes can override the method.
      * 

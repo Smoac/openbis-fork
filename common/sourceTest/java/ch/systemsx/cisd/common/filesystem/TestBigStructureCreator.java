@@ -48,8 +48,8 @@ public class TestBigStructureCreator
     public TestBigStructureCreator(File root)
     {
         this(root, new int[]
-            { 100, 10 }, new int[]
-            { 1, 10, 10 });
+        { 100, 10 }, new int[]
+        { 1, 10, 10 });
     }
 
     public TestBigStructureCreator(File root, int[] numberOfFoldersPerLevel,

@@ -35,7 +35,7 @@ public class RecordingActivityObserverSensor implements IActivityObserver, IActi
     {
         return lastActivityMillis;
     }
-    
+
     //
     // IActivityObserver
     //
@@ -49,7 +49,7 @@ public class RecordingActivityObserverSensor implements IActivityObserver, IActi
     //
     // IActivitySensor
     //
-    
+
     @Override
     public long getLastActivityMillisMoreRecentThan(long thresholdMillis)
     {

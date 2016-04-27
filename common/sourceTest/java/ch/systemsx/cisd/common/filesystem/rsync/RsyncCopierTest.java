@@ -129,7 +129,7 @@ public final class RsyncCopierTest
         destinationDirectory.delete();
         assertTrue(destinationDirectory.mkdir());
         destinationDirectory.deleteOnExit();
-        
+
         stdoutContent = new ArrayList<String>();
         stdoutHandler = new AddToListTextHandler(stdoutContent);
         stderrContent = new ArrayList<String>();
@@ -366,7 +366,7 @@ public final class RsyncCopierTest
     }
 
     @Test(groups =
-        { "requires_unix" })
+    { "requires_unix" })
     public void testRsyncFileOK() throws IOException, InterruptedException
     {
         final File rsyncBinary = createRsync(0);
@@ -378,7 +378,7 @@ public final class RsyncCopierTest
     }
 
     @Test(groups =
-        { "requires_unix" })
+    { "requires_unix" })
     public void testRsyncDirectoryOK() throws IOException, InterruptedException
     {
         final File parametersLogFile = new File(workingDirectory, "parameters.log");
@@ -398,7 +398,7 @@ public final class RsyncCopierTest
     }
 
     @Test(groups =
-        { "requires_unix" })
+    { "requires_unix" })
     public void testRsyncWithSSHDirectoryOK() throws IOException, InterruptedException
     {
         final File parametersLogFile = new File(workingDirectory, "parameters.log");
@@ -423,7 +423,7 @@ public final class RsyncCopierTest
     }
 
     @Test(groups =
-        { "requires_unix" })
+    { "requires_unix" })
     public void testRsyncDirectoryContentOK() throws IOException, InterruptedException
     {
         final File parametersLogFile = new File(workingDirectory, "parameters.log");
@@ -443,7 +443,7 @@ public final class RsyncCopierTest
     }
 
     @Test(groups =
-        { "requires_unix" })
+    { "requires_unix" })
     public void testRsyncImmutableCopyImplicitNameOK() throws IOException, InterruptedException
     {
         final File parametersLogFile = new File(workingDirectory, "parameters.log");
@@ -463,7 +463,7 @@ public final class RsyncCopierTest
     }
 
     @Test(groups =
-        { "requires_unix" })
+    { "requires_unix" })
     public void testRsyncImmutableCopyExplicitNameOK() throws IOException, InterruptedException
     {
         final File parametersLogFile = new File(workingDirectory, "parameters.log");
@@ -485,7 +485,7 @@ public final class RsyncCopierTest
     }
 
     @Test(groups =
-        { "requires_unix" })
+    { "requires_unix" })
     public void testRsyncImmutableCopyFailed() throws IOException, InterruptedException
     {
         final File failingRsyncBinary = createRsync(1);
@@ -498,7 +498,7 @@ public final class RsyncCopierTest
     }
 
     @Test(groups =
-        { "requires_unix" })
+    { "requires_unix" })
     public void testRsyncRetriableFailure() throws IOException, InterruptedException
     {
         final int exitValue = 11;
@@ -510,7 +510,7 @@ public final class RsyncCopierTest
     }
 
     @Test(groups =
-        { "requires_unix" })
+    { "requires_unix" })
     public void testRsyncFatalFailure() throws IOException, InterruptedException
     {
         final int exitValue = 1;
@@ -532,7 +532,7 @@ public final class RsyncCopierTest
     }
 
     @Test(groups =
-        { "requires_unix" })
+    { "requires_unix" })
     public void testRsyncAppendMode() throws IOException, InterruptedException
     {
         final File parametersLogFile = new File(workingDirectory, "parameters.log");
@@ -549,7 +549,7 @@ public final class RsyncCopierTest
     }
 
     @Test(groups =
-        { "requires_unix" })
+    { "requires_unix" })
     public void testRsyncAppendModeWhenNotSupported() throws IOException, InterruptedException
     {
         final File parametersLogFile = new File(workingDirectory, "parameters.log");
@@ -566,7 +566,7 @@ public final class RsyncCopierTest
     }
 
     @Test(groups =
-        { "requires_unix" })
+    { "requires_unix" })
     public void testRsyncOverwriteMode() throws IOException, InterruptedException
     {
         final File parametersLogFile = new File(workingDirectory, "parameters.log");
@@ -583,7 +583,7 @@ public final class RsyncCopierTest
     }
 
     @Test(groups =
-        { "requires_unix", "slow" })
+    { "requires_unix", "slow" })
     public void testRsyncTermination() throws IOException, InterruptedException
     {
         final File sleepyRsyncBinary = createSleepProcess(100);
@@ -628,7 +628,7 @@ public final class RsyncCopierTest
     }
 
     @Test(groups =
-        { "slow", "requires_unix" }, expectedExceptions = InterruptedExceptionUnchecked.class)
+    { "slow", "requires_unix" }, expectedExceptions = InterruptedExceptionUnchecked.class)
     public void testStopRsyncCopierCopyImmutably() throws Exception
     {
         final File rsyncExecutable = createSleepingRsyncExecutable("rsync", SLEEP_MILLIS);

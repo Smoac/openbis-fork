@@ -44,7 +44,7 @@ public final class CollectionUtilsTest
     public final void testAbbreviateWithEllipsesAndNoLeft()
     {
         final String[] s = new String[]
-            { "1", "2", "3", "4", "5" };
+        { "1", "2", "3", "4", "5" };
         assertEquals("[1, 2, 3, ...]", CollectionUtils.abbreviate(s, 3, false));
         assertEquals("[1, ...]", CollectionUtils.abbreviate(s, 1, false));
         assertEquals("[]", CollectionUtils.abbreviate(s, 0, false));
@@ -54,7 +54,7 @@ public final class CollectionUtilsTest
     public final void testAbbreviateWithLeft()
     {
         final String[] s = new String[]
-            { "1", "2", "3", "4", "5" };
+        { "1", "2", "3", "4", "5" };
         assertEquals("[]", CollectionUtils.abbreviate(s, 0));
         assertEquals("[1, ... (4 left)]", CollectionUtils.abbreviate(s, 1));
         assertEquals("[1, 2, ... (3 left)]", CollectionUtils.abbreviate(s, 2));

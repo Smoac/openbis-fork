@@ -25,11 +25,10 @@ import ch.systemsx.cisd.common.filesystem.IDirectoryScanningHandler;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
 
 /**
- * A <code>DirectoryScanningHandlerInterceptor</code> extension which bases its decision on the
- * encapsulated {@link HighwaterMarkWatcher} and {@link HostAwareFileWithHighwaterMark}s.
+ * A <code>DirectoryScanningHandlerInterceptor</code> extension which bases its decision on the encapsulated {@link HighwaterMarkWatcher} and
+ * {@link HostAwareFileWithHighwaterMark}s.
  * <p>
- * Note that the decision has precedence over encapsulated {@link IDirectoryScanningHandler}
- * implementation and might short-circuit it.
+ * Note that the decision has precedence over encapsulated {@link IDirectoryScanningHandler} implementation and might short-circuit it.
  * </p>
  * 
  * @author Christian Ribeaud

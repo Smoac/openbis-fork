@@ -25,8 +25,7 @@ import ch.systemsx.cisd.common.collection.UnmodifiableCollectionDecorator;
 import ch.systemsx.cisd.common.collection.UnmodifiableListDecorator;
 
 /**
- * A decorator for a {@link List} that does the same as
- * {@link Collections#unmodifiableList(List)} but with a 'back-door'.
+ * A decorator for a {@link List} that does the same as {@link Collections#unmodifiableList(List)} but with a 'back-door'.
  * 
  * @author Bernd Rinn
  */
@@ -38,15 +37,16 @@ public class UnmodifiableListDecorator<E> extends UnmodifiableCollectionDecorato
     {
         return (List<E>) super.getDecorated();
     }
-    
+
     private final static class UnmodifiableListIterator<E> implements ListIterator<E>
     {
         private final ListIterator<E> iter;
-        
+
         UnmodifiableListIterator(List<E> list, int startIndex)
         {
             iter = list.listIterator(startIndex);
         }
+
         @Override
         public boolean hasNext()
         {
@@ -106,7 +106,7 @@ public class UnmodifiableListDecorator<E> extends UnmodifiableCollectionDecorato
         }
 
     }
-    
+
     public UnmodifiableListDecorator(List<E> list)
     {
         super(list);

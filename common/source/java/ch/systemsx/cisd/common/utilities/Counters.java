@@ -35,9 +35,9 @@ public class Counters<T>
             return ++count;
         }
     }
-    
+
     private final Map<T, Counter> counters = new HashMap<T, Counter>();
-  
+
     /**
      * Returns how often method {@link #count(Object)} has been invoked for the specified object.
      */
@@ -46,7 +46,7 @@ public class Counters<T>
         Counter counter = counters.get(object);
         return counter == null ? 0 : counter.count;
     }
-    
+
     /**
      * Counts the specified object and return how often it has already been counted.
      */
@@ -60,7 +60,7 @@ public class Counters<T>
         }
         return counter.increment();
     }
-    
+
     /**
      * Returns the number of different object for which {@link #count(Object)} has been invoked.
      */

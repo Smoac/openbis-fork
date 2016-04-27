@@ -23,11 +23,11 @@ import org.apache.commons.lang.text.StrMatcher;
 import org.apache.commons.lang.text.StrTokenizer;
 
 /**
- * A default <code>ILineTokenizer</code> implementation that parses a line into an array of
- * <code>String</code> objects. This implementation uses {@link StrTokenizer} as internal worker.
+ * A default <code>ILineTokenizer</code> implementation that parses a line into an array of <code>String</code> objects. This implementation uses
+ * {@link StrTokenizer} as internal worker.
  * <p>
- * The default separator chars used here are <code>\t</code>. If you want to change that, use
- * {@link #setProperty(PropertyKey, String)} with corresponding property key defined here.
+ * The default separator chars used here are <code>\t</code>. If you want to change that, use {@link #setProperty(PropertyKey, String)} with
+ * corresponding property key defined here.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -82,8 +82,8 @@ public class DefaultLineTokenizer implements ILineTokenizer<String>
     /**
      * Sets a property for this <code>TabReaderParser</code>.
      * <p>
-     * Does nothing if given <code>key</code> is <code>null</code> and resets <code>key</code> to
-     * default value if given <code>value</code> is <code>null</code>.
+     * Does nothing if given <code>key</code> is <code>null</code> and resets <code>key</code> to default value if given <code>value</code> is
+     * <code>null</code>.
      * </p>
      */
     public final void setProperty(PropertyKey key, String value)

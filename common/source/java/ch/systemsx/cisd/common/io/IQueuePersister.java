@@ -17,8 +17,7 @@
 package ch.systemsx.cisd.common.io;
 
 /**
- * A role that can persist a {@link java.util.Queue}. It is assumed that the persister gets a
- * reference to the queue in the constructor.
+ * A role that can persist a {@link java.util.Queue}. It is assumed that the persister gets a reference to the queue in the constructor.
  * 
  * @author Bernd Rinn
  */
@@ -50,7 +49,7 @@ public interface IQueuePersister<E>
     public void persist();
 
     /**
-     * Add <var>elem</var> to the tail of the queue. 
+     * Add <var>elem</var> to the tail of the queue.
      * <p>
      * This method needs to be thread-safe if the queue is supposed to be thread-safe.
      */

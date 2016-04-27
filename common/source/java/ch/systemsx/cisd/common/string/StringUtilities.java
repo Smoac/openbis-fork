@@ -31,10 +31,8 @@ import ch.systemsx.cisd.base.utilities.OSUtilities;
 /**
  * Some useful utlities methods for {@link String}s.
  * <p>
- * If you are tempted to add new functionality to this class, ensure that the new functionality does
- * not yet exist in {@link StringUtils}, see <a href=
- * "http://jakarta.apache.org/commons/lang/api-release/org/apache/commons/lang/StringUtils.html"
- * >javadoc</a>.
+ * If you are tempted to add new functionality to this class, ensure that the new functionality does not yet exist in {@link StringUtils}, see <a
+ * href= "http://jakarta.apache.org/commons/lang/api-release/org/apache/commons/lang/StringUtils.html" >javadoc</a>.
  * 
  * @author Bernd Rinn
  */
@@ -43,38 +41,38 @@ public final class StringUtilities
 
     private static final String[] STRINGS =
             new String[]
-                { "phalanx", "nightmare", "concierge", "asbestos", "cody", "hermit", "nbc",
-                        "couplet", "dice", "thumbnail", "finley", "figure", "exclamation",
-                        "whoosh", "punish", "servitor", "portend", "boulevard", "bacterial",
-                        "dilate", "emboss", "birmingham", "illustrate", "pomona", "truk",
-                        "bursitis", "trustworthy", "harriman", "schenectady", "obligate",
-                        "oceania", "knew", "quickstep", "woo", "strickland", "sadie", "malabar",
-                        "posit", "breadfruit", "grandfather", "vishnu", "vacuous", "melpomene",
-                        "assam", "blaine", "taskmaster", "polymeric", "hector",
-                        "counterrevolution", "compassionate", "linkage", "distant", "vet", "shako",
-                        "eagan", "neutronium", "stony", "lie", "hoydenish", "dial", "hecate",
-                        "pinch", "olin", "piglet", "basswood", "yawn", "ouzo", "scrupulosity",
-                        "bestiary", "subpoena", "nudge", "baton", "thing", "hallmark", "bossy",
-                        "preferential", "bambi", "narwhal", "brighten", "omnipotent", "forsake",
-                        "flapping", "orthodoxy", "upcome", "teaspoonful", "wabash", "lipid",
-                        "enjoin", "shoshone", "wartime", "gatekeeper", "litigate", "siderite",
-                        "sadden", "visage", "boogie", "scald", "equate", "tragic", "ordinary",
-                        "wick", "gigawatt", "desultory", "bambi", "aureomycin", "car", "especial",
-                        "rescue", "protector", "burnett", "constant", "heroes", "filmstrip",
-                        "homeown", "verdant", "governor", "cornwall", "predisposition", "sedan",
-                        "resemblant", "satellite", "committeemen", "given", "narragansett",
-                        "switzer", "clockwatcher", "sweeten", "monologist", "execrate", "gila",
-                        "lad", "mahayanist", "solicitation", "linemen", "reading", "hoard",
-                        "phyla", "carcinoma", "glycol", "polymer", "hangmen", "dualism",
-                        "betrayal", "corpsman", "stint", "hannah", "balsam", "granola",
-                        "charitable", "osborn", "party", "laboratory", "norwich", "laxative",
-                        "collude", "rockefeller", "crack", "lamarck", "purposeful", "neuroanotomy",
-                        "araby", "crucible", "oratorical", "dramaturgy", "kitty", "pit", "ephesus",
-                        "bum", "amuse", "clogging", "joker", "fobbing", "extent", "colossal",
-                        "macromolecule", "choppy", "tennessee", "primrose", "glassine", "vampire",
-                        "chap", "precursor", "incorrigible", "slither", "interrogate", "spectral",
-                        "debut", "creche", "pyrolysis", "homicidal", "sonnet", "gin", "science",
-                        "magma", "metaphor", "cobble", "dyer", "narrate", "goody", "optometric" };
+            { "phalanx", "nightmare", "concierge", "asbestos", "cody", "hermit", "nbc",
+                    "couplet", "dice", "thumbnail", "finley", "figure", "exclamation",
+                    "whoosh", "punish", "servitor", "portend", "boulevard", "bacterial",
+                    "dilate", "emboss", "birmingham", "illustrate", "pomona", "truk",
+                    "bursitis", "trustworthy", "harriman", "schenectady", "obligate",
+                    "oceania", "knew", "quickstep", "woo", "strickland", "sadie", "malabar",
+                    "posit", "breadfruit", "grandfather", "vishnu", "vacuous", "melpomene",
+                    "assam", "blaine", "taskmaster", "polymeric", "hector",
+                    "counterrevolution", "compassionate", "linkage", "distant", "vet", "shako",
+                    "eagan", "neutronium", "stony", "lie", "hoydenish", "dial", "hecate",
+                    "pinch", "olin", "piglet", "basswood", "yawn", "ouzo", "scrupulosity",
+                    "bestiary", "subpoena", "nudge", "baton", "thing", "hallmark", "bossy",
+                    "preferential", "bambi", "narwhal", "brighten", "omnipotent", "forsake",
+                    "flapping", "orthodoxy", "upcome", "teaspoonful", "wabash", "lipid",
+                    "enjoin", "shoshone", "wartime", "gatekeeper", "litigate", "siderite",
+                    "sadden", "visage", "boogie", "scald", "equate", "tragic", "ordinary",
+                    "wick", "gigawatt", "desultory", "bambi", "aureomycin", "car", "especial",
+                    "rescue", "protector", "burnett", "constant", "heroes", "filmstrip",
+                    "homeown", "verdant", "governor", "cornwall", "predisposition", "sedan",
+                    "resemblant", "satellite", "committeemen", "given", "narragansett",
+                    "switzer", "clockwatcher", "sweeten", "monologist", "execrate", "gila",
+                    "lad", "mahayanist", "solicitation", "linemen", "reading", "hoard",
+                    "phyla", "carcinoma", "glycol", "polymer", "hangmen", "dualism",
+                    "betrayal", "corpsman", "stint", "hannah", "balsam", "granola",
+                    "charitable", "osborn", "party", "laboratory", "norwich", "laxative",
+                    "collude", "rockefeller", "crack", "lamarck", "purposeful", "neuroanotomy",
+                    "araby", "crucible", "oratorical", "dramaturgy", "kitty", "pit", "ephesus",
+                    "bum", "amuse", "clogging", "joker", "fobbing", "extent", "colossal",
+                    "macromolecule", "choppy", "tennessee", "primrose", "glassine", "vampire",
+                    "chap", "precursor", "incorrigible", "slither", "interrogate", "spectral",
+                    "debut", "creche", "pyrolysis", "homicidal", "sonnet", "gin", "science",
+                    "magma", "metaphor", "cobble", "dyer", "narrate", "goody", "optometric" };
 
     private final static Pattern matrixSplitPattern = Pattern.compile("([a-zA-Z]+)([0-9]+)");
 
@@ -166,8 +164,7 @@ public final class StringUtilities
     /**
      * Splits a matrix coordinate and returns the result in a two-dimensional array.
      * <p>
-     * For instance the following matrix coordinate <code>H24</code> will returns the following
-     * array <code>[H, 24]</code>.
+     * For instance the following matrix coordinate <code>H24</code> will returns the following array <code>[H, 24]</code>.
      * </p>
      * 
      * @return <code>null</code> if the operation fails.
@@ -179,7 +176,7 @@ public final class StringUtilities
         if (matcher.matches())
         {
             return new String[]
-                { matcher.group(1), matcher.group(2) };
+            { matcher.group(1), matcher.group(2) };
         }
         return null;
     }
@@ -228,8 +225,7 @@ public final class StringUtilities
     }
 
     /**
-     * Returns a list of tokens of the specified string which are separated by at least one
-     * whitespace character or comma symbol.
+     * Returns a list of tokens of the specified string which are separated by at least one whitespace character or comma symbol.
      */
     public static List<String> tokenize(String textOrNull)
     {
@@ -272,12 +268,10 @@ public final class StringUtilities
      * If the new suggested string already exists, then this method is called recursively.
      * </p>
      * 
-     * @param defaultStrOrNull the default value for the new string if the digit pattern could not
-     *            be found in <var>str</var>. If <code>null</code> then "1" will be appended to
-     *            <var>str</var>.
-     * @param regexOrNull pattern to find out the counter. If <code>null</code> then a default (
-     *            <code>(\\d+)</code>) will be used. The given <var>regex</var> must contain
-     *            <code>(\\d+)</code> or <code>([0-9]+)</code>.
+     * @param defaultStrOrNull the default value for the new string if the digit pattern could not be found in <var>str</var>. If <code>null</code>
+     *            then "1" will be appended to <var>str</var>.
+     * @param regexOrNull pattern to find out the counter. If <code>null</code> then a default ( <code>(\\d+)</code>) will be used. The given
+     *            <var>regex</var> must contain <code>(\\d+)</code> or <code>([0-9]+)</code>.
      */
     public final static String createUniqueString(final String str,
             final IUniquenessChecker checker, final Pattern regexOrNull,

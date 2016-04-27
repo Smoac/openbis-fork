@@ -36,8 +36,7 @@ public final class AnnotationUtils
     }
 
     /**
-     * For given <code>Class</code> returns a list of methods that are annotated with given
-     * <var>annotationClass</var>.
+     * For given <code>Class</code> returns a list of methods that are annotated with given <var>annotationClass</var>.
      */
     public final static List<Method> getAnnotatedMethodList(final Class<?> clazz,
             final Class<? extends Annotation> annotationClass)
@@ -46,8 +45,7 @@ public final class AnnotationUtils
     }
 
     /**
-     * For given <code>Class</code> returns a list of methods that are annotated with given
-     * <var>annotationClass</var>.
+     * For given <code>Class</code> returns a list of methods that are annotated with given <var>annotationClass</var>.
      * 
      * @param methods if <code>null</code>, then a new <code>List</code> is created.
      */
@@ -77,8 +75,7 @@ public final class AnnotationUtils
     }
 
     /**
-     * For given <code>Class</code> returns a list of fields that are annotated with given
-     * <var>annotationClass</var>.
+     * For given <code>Class</code> returns a list of fields that are annotated with given <var>annotationClass</var>.
      */
     public final static List<Field> getAnnotatedFieldList(final Class<?> clazz,
             final Class<? extends Annotation> annotationClass)
@@ -87,8 +84,7 @@ public final class AnnotationUtils
     }
 
     /**
-     * For given <code>Class</code> returns a list of fields that are annotated with given
-     * <var>annotationClass</var>.
+     * For given <code>Class</code> returns a list of fields that are annotated with given <var>annotationClass</var>.
      * 
      * @param fields if <code>null</code>, then a new <code>List</code> is created.
      */

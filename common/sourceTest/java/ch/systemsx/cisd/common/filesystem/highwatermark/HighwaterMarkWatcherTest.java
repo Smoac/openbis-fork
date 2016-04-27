@@ -86,7 +86,7 @@ public final class HighwaterMarkWatcherTest
     public final Object[][] getHighwaterMarks()
     {
         return new Object[][]
-            {
+        {
                 { 0 },
                 { -1 },
                 { 100 } };
@@ -123,7 +123,7 @@ public final class HighwaterMarkWatcherTest
     {
         int size = Integer.parseInt(m.getName().substring(m.getName().indexOf("Below") + 5));
         return new Object[][]
-            {
+        {
                 { size - 1, true },
                 { size, false },
                 { size + 1, false } };
@@ -201,7 +201,7 @@ public final class HighwaterMarkWatcherTest
     {
         i = 0;
         final long[] freeSpaces =
-            { 99L, 101L };
+        { 99L, 101L };
         context.checking(new Expectations()
             {
                 {

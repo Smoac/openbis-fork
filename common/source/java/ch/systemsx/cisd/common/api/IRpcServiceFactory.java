@@ -21,8 +21,8 @@ import java.util.Collection;
 /**
  * A factory for creating proxies to RPC services on a data store server.
  * <p>
- * Because of the inherent potential variability in the DSS RPC, the interface has been made
- * flexible to provide clients simultaneous access to several different communication interfaces.
+ * Because of the inherent potential variability in the DSS RPC, the interface has been made flexible to provide clients simultaneous access to
+ * several different communication interfaces.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -32,9 +32,8 @@ public interface IRpcServiceFactory
      * Get the RPC service interfaces supported by the server.
      * 
      * @param serverURL The URL of the data store server to query.
-     * @param shouldGetServerCertificateFromServer If the URL scheme is https and
-     *            shouldGetServerCertificateFromServer is true, the factory will retrieve the SSL
-     *            certificate from the server.
+     * @param shouldGetServerCertificateFromServer If the URL scheme is https and shouldGetServerCertificateFromServer is true, the factory will
+     *            retrieve the SSL certificate from the server.
      */
     public abstract Collection<RpcServiceInterfaceDTO> getSupportedInterfaces(String serverURL,
             boolean shouldGetServerCertificateFromServer) throws IncompatibleAPIVersionsException;
@@ -45,8 +44,7 @@ public interface IRpcServiceFactory
      * @param ifaceVersion The proxy interface to return
      * @param ifaceClazz The class of the interface
      * @param serverURL The url of the server that exports the service
-     * @param getServerCertificateFromServer True if the certificate should be retrieved from the
-     *            server.
+     * @param getServerCertificateFromServer True if the certificate should be retrieved from the server.
      */
     public abstract <T extends IRpcService> T getService(
             RpcServiceInterfaceVersionDTO ifaceVersion, Class<T> ifaceClazz, String serverURL,

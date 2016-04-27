@@ -27,8 +27,7 @@ public interface IMonitoringProxyLogger
 {
 
     /**
-     * Log one invocation of <var>method</var> with var<b>result</b>. The flag <var>willRetry</var>
-     * will indicate whether the call will be retried.
+     * Log one invocation of <var>method</var> with var<b>result</b>. The flag <var>willRetry</var> will indicate whether the call will be retried.
      */
     public void log(Method method, ExecutionResult<Object> result, boolean willRetry);
 }

@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
  */
 
 @Test(groups =
-    { "slow" })
+{ "slow" })
 public class JythonScriptSplitterTest
 {
 

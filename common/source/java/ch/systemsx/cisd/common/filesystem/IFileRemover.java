@@ -28,10 +28,8 @@ public interface IFileRemover
     /**
      * Removes the given <var>fileToRemove</var>.
      * 
-     * @param fileToRemove File or directory to remove. If it is a directory, it will be removed
-     *            recursively.
-     * @return <code>true</code> if the file or directory was removed successfully and
-     *         <code>false</code> otherwise.
+     * @param fileToRemove File or directory to remove. If it is a directory, it will be removed recursively.
+     * @return <code>true</code> if the file or directory was removed successfully and <code>false</code> otherwise.
      */
     public boolean removeRecursively(File fileToRemove);
 }

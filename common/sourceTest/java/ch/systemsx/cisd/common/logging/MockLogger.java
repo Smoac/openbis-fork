@@ -28,14 +28,15 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 public final class MockLogger implements ISimpleLogger
 {
     private final StringBuilder builder = new StringBuilder();
+
     private final MessageChannel messageChannel = new MessageChannel();
-    
+
     @Override
     public void log(LogLevel level, String message)
     {
         log(level, message, null);
     }
-    
+
     @Override
     public void log(LogLevel level, String message, Throwable throwableOrNull)
     {
@@ -47,12 +48,12 @@ public final class MockLogger implements ISimpleLogger
     {
         messageChannel.assertNextMessage(expectedMessage);
     }
-    
+
     public void assertNextLogMessageContains(String expectedMessagePart)
     {
         messageChannel.assertNextMessageContains(expectedMessagePart);
     }
-    
+
     public void assertNoMoreLogMessages()
     {
         messageChannel.assertEmpty();

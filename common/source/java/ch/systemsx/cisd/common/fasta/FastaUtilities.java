@@ -33,24 +33,24 @@ public class FastaUtilities
     /**
      * Nucleic acid codes as used in FASTA files (see https://en.wikipedia.org/wiki/FASTA_format).
      */
-    public static final List<Character> NUCLEIC_ACID_CODES = Arrays.asList('A', 'C', 'G', 'T', 'U', 'R', 'Y', 
+    public static final List<Character> NUCLEIC_ACID_CODES = Arrays.asList('A', 'C', 'G', 'T', 'U', 'R', 'Y',
             'K', 'M', 'S', 'W', 'B', 'D', 'H', 'V', 'N', 'X', '-');
 
     /**
      * Amino acid codes as used in FASTA files (see https://en.wikipedia.org/wiki/FASTA_format).
      */
-    public static final List<Character> AMINO_ACID_CODES = Arrays.asList('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 
+    public static final List<Character> AMINO_ACID_CODES = Arrays.asList('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
             'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'Y', 'Z', 'X', '*', '-');
-    
+
     private static final Set<Character> NUCLEIC_ACID_CODES_SET = new HashSet<Character>(NUCLEIC_ACID_CODES);
+
     private static final Set<Character> AMINO_ACID_CODES_SET = new HashSet<Character>(AMINO_ACID_CODES);
 
     /**
      * Determines the sequence type from the specified line of a FASTA file.
      * 
      * @param line Line from a FASTA file. Can be in lowercase.
-     * @throws IllegalArgumentException if the line contains a character which isn't neither 
-     *      from NUCLEIC_ACID_CODES nor AMINO_ACID_CODES.
+     * @throws IllegalArgumentException if the line contains a character which isn't neither from NUCLEIC_ACID_CODES nor AMINO_ACID_CODES.
      */
     public static SequenceType determineSequenceType(String line)
     {

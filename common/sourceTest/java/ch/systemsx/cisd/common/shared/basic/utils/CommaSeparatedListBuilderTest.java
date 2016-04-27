@@ -24,8 +24,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class CommaSeparatedListBuilderTest extends AssertJUnit
@@ -35,7 +33,7 @@ public class CommaSeparatedListBuilderTest extends AssertJUnit
     public void testNoObjectsAppended()
     {
         CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
-        
+
         assertEquals("", builder.toString());
     }
 
@@ -44,30 +42,30 @@ public class CommaSeparatedListBuilderTest extends AssertJUnit
     {
         CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
         builder.append("hello");
-        
+
         assertEquals("hello", builder.toString());
     }
-    
+
     @Test
     public void testTwoObjectsAppended()
     {
         CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
         builder.append("hello");
         builder.append(null);
-        
+
         assertEquals("hello, null", builder.toString());
     }
-    
+
     @Test
     public void testToStringArray()
     {
         assertEquals("hello, 42", CommaSeparatedListBuilder.toString("hello", 42));
     }
-    
+
     @Test
     public void testToStringList()
     {
-        assertEquals("hello, 42", CommaSeparatedListBuilder.toString(Arrays.<Object>asList("hello", 42)));
+        assertEquals("hello, 42", CommaSeparatedListBuilder.toString(Arrays.<Object> asList("hello", 42)));
     }
-    
+
 }

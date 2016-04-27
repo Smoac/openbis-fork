@@ -35,12 +35,10 @@ public class InvocationRecordingWrapper<T>
     /**
      * Creates an instance which contains a proxy of the specified object.
      * 
-     * @param type Interface the specified object implements. The proxy will implement the same
-     *            interface.
-     * @param returnTypesToWrap Interfaces return values of invocations might implement. Invocations
-     *            on such return values will also be recorded. This is done recursively. If the
-     *            return value is an array or a list of such types the elements of the returned
-     *            array/list will also be wrapped.
+     * @param type Interface the specified object implements. The proxy will implement the same interface.
+     * @param returnTypesToWrap Interfaces return values of invocations might implement. Invocations on such return values will also be recorded. This
+     *            is done recursively. If the return value is an array or a list of such types the elements of the returned array/list will also be
+     *            wrapped.
      */
     @SuppressWarnings("unchecked")
     public static <T> InvocationRecordingWrapper<T> wrap(final T object, Class<T> type,
@@ -56,7 +54,7 @@ public class InvocationRecordingWrapper<T>
             final Class<?>... returnTypesToWrap)
     {
         return Proxy.newProxyInstance(type.getClassLoader(), new Class<?>[]
-            { type }, new InvocationHandler()
+        { type }, new InvocationHandler()
             {
                 @Override
                 public Object invoke(Object obj, Method method, Object[] parameters)

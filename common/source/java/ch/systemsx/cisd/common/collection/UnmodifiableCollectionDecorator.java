@@ -21,8 +21,7 @@ import java.util.Collections;
 import java.util.Iterator;
 
 /**
- * A decorator for a {@link Collection} that does the same as
- * {@link Collections#unmodifiableCollection(Collection)} but with a 'back-door'.
+ * A decorator for a {@link Collection} that does the same as {@link Collections#unmodifiableCollection(Collection)} but with a 'back-door'.
  * 
  * @author Bernd Rinn
  */
@@ -34,7 +33,7 @@ public class UnmodifiableCollectionDecorator<E> implements Collection<E>
     {
         this.collection = collection;
     }
-    
+
     /**
      * Returns the decorated (wrapped) collection.
      */

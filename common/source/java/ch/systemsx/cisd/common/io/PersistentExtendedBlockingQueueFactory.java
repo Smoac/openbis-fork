@@ -32,12 +32,11 @@ public class PersistentExtendedBlockingQueueFactory
 {
 
     /**
-     * Creates a {@link PersistentExtendedBlockingQueueDecorator} with a
-     * {@link ExtendedLinkedBlockingQueue} that persists record-based.
+     * Creates a {@link PersistentExtendedBlockingQueueDecorator} with a {@link ExtendedLinkedBlockingQueue} that persists record-based.
      * 
      * @param queueFile The file to persist the queue in.
-     * @param autoSync If <code>true</code>, the underlying file will be synchronized after each
-     *            write operation. This is safer, but costs a lot of performance.
+     * @param autoSync If <code>true</code>, the underlying file will be synchronized after each write operation. This is safer, but costs a lot of
+     *            performance.
      */
     public static <E extends Serializable> PersistentExtendedBlockingQueueDecorator<E> createSmartQueue(
             File queueFile, boolean autoSync)
@@ -49,9 +48,8 @@ public class PersistentExtendedBlockingQueueFactory
     }
 
     /**
-     * Creates a {@link PersistentExtendedBlockingQueueDecorator} with a
-     * {@link ExtendedLinkedBlockingQueue} that persists record-based. (Uses default record size of
-     * 32 and switches off auto-sync.)
+     * Creates a {@link PersistentExtendedBlockingQueueDecorator} with a {@link ExtendedLinkedBlockingQueue} that persists record-based. (Uses default
+     * record size of 32 and switches off auto-sync.)
      * 
      * @param queueFile The file to persist the queue in.
      */

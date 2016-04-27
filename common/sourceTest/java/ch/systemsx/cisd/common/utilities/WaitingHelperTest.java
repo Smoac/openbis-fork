@@ -22,10 +22,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.logging.MockLogger;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class WaitingHelperTest extends AssertJUnit
@@ -33,6 +30,7 @@ public class WaitingHelperTest extends AssertJUnit
     private static final class MockWaitingCondition implements IWaitingCondition
     {
         private int numberOfFalse;
+
         private int numberOfChecks;
 
         MockWaitingCondition(int numberOfFalse)
@@ -57,18 +55,18 @@ public class WaitingHelperTest extends AssertJUnit
         {
             return "Mock Condition";
         }
-        
+
     }
-    
+
     private static final class MockPause implements IPause
     {
         private long pauseTime;
-        
+
         private MockPause(long pauseTime)
         {
             this.pauseTime = pauseTime;
         }
-        
+
         @Override
         public long pause()
         {
@@ -81,32 +79,32 @@ public class WaitingHelperTest extends AssertJUnit
             return "Pausing " + pauseTime;
         }
     }
-    
+
     @Test
     public void testConditionImmediatlelyFulfilled()
     {
         MockLogger logger = new MockLogger();
-        WaitingHelper waitingHelper = new WaitingHelper(5 * DateUtils.MILLIS_PER_HOUR, 
+        WaitingHelper waitingHelper = new WaitingHelper(5 * DateUtils.MILLIS_PER_HOUR,
                 3 * DateUtils.MILLIS_PER_SECOND, new MockTimeProvider(310000, 0), logger, true);
         MockWaitingCondition condition = new MockWaitingCondition(0);
-        
+
         boolean success = waitingHelper.waitOn(condition);
 
         assertEquals("INFO: Condition fulfilled after < 1sec, condition: Mock Condition\n", logger.toString());
         assertEquals(true, success);
         assertEquals(1, condition.getNumberOfChecks());
     }
-    
+
     @Test
     public void testNoTimeOut()
     {
         MockLogger logger = new MockLogger();
-        WaitingHelper waitingHelper = new WaitingHelper(5 * DateUtils.MILLIS_PER_HOUR, 
+        WaitingHelper waitingHelper = new WaitingHelper(5 * DateUtils.MILLIS_PER_HOUR,
                 3 * DateUtils.MILLIS_PER_SECOND, new MockTimeProvider(310000, 0), logger, true);
         MockWaitingCondition condition = new MockWaitingCondition(1000);
-        
+
         boolean success = waitingHelper.waitOn(condition);
-        
+
         assertEquals("INFO: Condition still not fulfilled after < 1sec, condition: Mock Condition\n"
                 + "INFO: Condition still not fulfilled after 99sec, condition: Mock Condition\n"
                 + "INFO: Condition still not fulfilled after 4min, condition: Mock Condition\n"
@@ -118,12 +116,12 @@ public class WaitingHelperTest extends AssertJUnit
         assertEquals(true, success);
         assertEquals(1001, condition.getNumberOfChecks());
     }
-    
+
     @Test
     public void testTimeOut()
     {
         MockLogger logger = new MockLogger();
-        WaitingHelper waitingHelper = new WaitingHelper(5 * DateUtils.MILLIS_PER_HOUR, 
+        WaitingHelper waitingHelper = new WaitingHelper(5 * DateUtils.MILLIS_PER_HOUR,
                 3 * DateUtils.MILLIS_PER_SECOND, new MockTimeProvider(310000, 0), logger, true);
         MockWaitingCondition condition = new MockWaitingCondition(10000);
 
@@ -143,12 +141,12 @@ public class WaitingHelperTest extends AssertJUnit
         assertEquals(false, success);
         assertEquals(6000, condition.getNumberOfChecks());
     }
-    
+
     @Test
     public void testPause()
     {
         MockLogger logger = new MockLogger();
-        WaitingHelper waitingHelper = new WaitingHelper(null, 
+        WaitingHelper waitingHelper = new WaitingHelper(null,
                 10 * DateUtils.MILLIS_PER_SECOND, new MockTimeProvider(310000, 0), logger, true);
         MockWaitingCondition condition = new MockWaitingCondition(180);
 

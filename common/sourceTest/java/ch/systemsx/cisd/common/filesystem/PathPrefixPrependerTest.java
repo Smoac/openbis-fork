@@ -74,7 +74,7 @@ public final class PathPrefixPrependerTest extends AbstractFileSystemTestCase
     public Object[][] getPaths()
     {
         return new Object[][]
-            {
+        {
                 { "" },
                 { "choubidou" },
                 { "/choubidou" },

@@ -24,8 +24,7 @@ import ch.systemsx.cisd.common.collection.FilteredCollection;
 import ch.systemsx.cisd.common.collection.IValidator;
 
 /**
- * Decorates another <code>Collection</code> to validate that additions match a specified
- * <code>IValidator</code>.
+ * Decorates another <code>Collection</code> to validate that additions match a specified <code>IValidator</code>.
  * <p>
  * This collection exists to provide validation for the decorated collection.
  * </p>
@@ -45,8 +44,7 @@ public class FilteredCollection<E> extends AbstractCollectionDecorator<E>
      * </p>
      * 
      * @param coll the collection to decorate. Must not be <code>null</code>.
-     * @param validator the <code>IValidator</code> to use for validation. Must not be
-     *            <code>null</code>.
+     * @param validator the <code>IValidator</code> to use for validation. Must not be <code>null</code>.
      * @return a new filtered collection.
      */
     public static <E> Collection<E> decorate(final Collection<E> coll, final IValidator<E> validator)
@@ -58,8 +56,7 @@ public class FilteredCollection<E> extends AbstractCollectionDecorator<E>
      * Constructor that filters given <code>Collection</code>.
      * 
      * @param collection the collection to decorate. Must not be <code>null</code>.
-     * @param validator the <code>IValidator</code> to use for validation. Must not be
-     *            <code>null</code>.
+     * @param validator the <code>IValidator</code> to use for validation. Must not be <code>null</code>.
      */
     protected FilteredCollection(final Collection<E> collection, final IValidator<E> validator)
     {
@@ -72,8 +69,8 @@ public class FilteredCollection<E> extends AbstractCollectionDecorator<E>
     /**
      * Filters given <var>collection</var> with given <var>validator</var>.
      * <p>
-     * Note that this operation changes passed <code>Collection</code> if some invalid elements
-     * are found. The original collection does not get cloned before.
+     * Note that this operation changes passed <code>Collection</code> if some invalid elements are found. The original collection does not get cloned
+     * before.
      * </p>
      */
     @SuppressWarnings("unchecked")
@@ -84,7 +81,7 @@ public class FilteredCollection<E> extends AbstractCollectionDecorator<E>
         {
             return null;
         }
-        for (final Iterator<? extends E> iter = collection.iterator(); iter.hasNext(); )
+        for (final Iterator<? extends E> iter = collection.iterator(); iter.hasNext();)
         {
             if (validator.isValid(iter.next()) == false)
             {

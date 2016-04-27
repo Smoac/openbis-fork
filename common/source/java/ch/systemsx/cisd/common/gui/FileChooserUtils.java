@@ -33,12 +33,10 @@ public class FileChooserUtils
 {
 
     /**
-     * Let the user choose a file (<code>chooseDirectories=false</code>) or directory (
-     * <code>chooseDirectories=true</code>). Start the selection process in
-     * <var>initialDirectory</var>. The windows will be shown relative to <var>parentFrame</var>.
+     * Let the user choose a file (<code>chooseDirectories=false</code>) or directory ( <code>chooseDirectories=true</code>). Start the selection
+     * process in <var>initialDirectory</var>. The windows will be shown relative to <var>parentFrame</var>.
      * 
-     * @return The new file or directory if the user approved the selection or <code>null</code> if
-     *         the user cancelled the selection.
+     * @return The new file or directory if the user approved the selection or <code>null</code> if the user cancelled the selection.
      */
     public static File tryChooseFile(Frame parentFrame, File initialDirectory,
             boolean chooseDirectories)
@@ -86,12 +84,10 @@ public class FileChooserUtils
     }
 
     /**
-     * Let the user choose a file or directory. Start the selection process in
-     * <var>initialDirectoryOrNull</var> (defaulted to the home directory if it is null). The
-     * windows will be shown relative to <var>parentFrame</var>.
+     * Let the user choose a file or directory. Start the selection process in <var>initialDirectoryOrNull</var> (defaulted to the home directory if
+     * it is null). The windows will be shown relative to <var>parentFrame</var>.
      * 
-     * @return The new file or directory if the user approved the selection or <code>null</code> if
-     *         the user cancelled the selection.
+     * @return The new file or directory if the user approved the selection or <code>null</code> if the user cancelled the selection.
      */
     public static File tryChooseFileOrDirectory(Frame parentFrame, File initialDirectoryOrNull)
     {

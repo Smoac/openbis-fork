@@ -25,8 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 
 /**
- * An extension of {@link Properties}. The extension avoid duplicating properties by reusing. There
- * are two ways to reuse properties:
+ * An extension of {@link Properties}. The extension avoid duplicating properties by reusing. There are two ways to reuse properties:
  * <ol>
  * <li>Use properties in property values. For example,
  * 
@@ -36,18 +35,14 @@ import org.apache.commons.lang.SystemUtils;
  * C=${B} plus more
  * </pre>
  * 
- * will result in <code>getProperty("C")</code> returning the value "1234567890 plus more". Cyclic
- * references are handled by removing the current key before resolving it, i.e. when setting A=${B}
- * and B=${A} and then asking for A, you will get ${A}.
- * 
- * Also, default values can be defined. Example:
+ * will result in <code>getProperty("C")</code> returning the value "1234567890 plus more". Cyclic references are handled by removing the current key
+ * before resolving it, i.e. when setting A=${B} and B=${A} and then asking for A, you will get ${A}. Also, default values can be defined. Example:
  * 
  * <pre>
  * greeting = hello ${user:world}
  * </pre>
  * 
  * If property 'user' hasn't been defined <code>getProperty("greeting")</code> returns "hello world".
- * 
  * <li>Inherit properties. For example,
  * 
  * <pre>
@@ -58,10 +53,10 @@ import org.apache.commons.lang.SystemUtils;
  * my.validator. = validator.
  * my.validator.type.label = A L P H A
  * </pre>
- * will result in <code>getProperty("my.validator.type.code")</code> returning the value "ALPHA".
- * All keys ending with a dot '.' should refer to a key prefix. All properties starting with 
- * this prefix are also properties of the subtree starting with the key with the dot at the end.
- * Inherit properties can be overridden.
+ * 
+ * will result in <code>getProperty("my.validator.type.code")</code> returning the value "ALPHA". All keys ending with a dot '.' should refer to a key
+ * prefix. All properties starting with this prefix are also properties of the subtree starting with the key with the dot at the end. Inherit
+ * properties can be overridden.
  * </ol>
  * 
  * @author Christian Ribeaud
@@ -82,7 +77,7 @@ public final class ExtendedProperties extends Properties
 
     /** Default placeholder delim for default value: ":" */
     private static final String DEFAULT_VALUE_DELIM = ":";
-    
+
     /** Default placeholder prefix: "${" */
     private static final String PREFIX = "${";
 
@@ -106,8 +101,7 @@ public final class ExtendedProperties extends Properties
     }
 
     /**
-     * Returns a subset of given <code>Properties</code> based on given property key prefix.
-     * The subset contains also inherited properties.
+     * Returns a subset of given <code>Properties</code> based on given property key prefix. The subset contains also inherited properties.
      * 
      * @param prefix string, each property key should start with.
      * @param dropPrefix If <code>true</code> the prefix will be removed from the key.
@@ -129,7 +123,7 @@ public final class ExtendedProperties extends Properties
     {
         final ExtendedProperties result = new ExtendedProperties();
         final int prefixLength = prefix.length();
-        for (final Enumeration<?> enumeration = propertyNames(); enumeration.hasMoreElements(); )
+        for (final Enumeration<?> enumeration = propertyNames(); enumeration.hasMoreElements();)
         {
             final String key = enumeration.nextElement().toString();
             if (key.startsWith(prefix) && key.endsWith(PATH_DELIMITER))
@@ -145,7 +139,7 @@ public final class ExtendedProperties extends Properties
                 keys.remove(key);
             }
         }
-        for (final Enumeration<?> enumeration = propertyNames(); enumeration.hasMoreElements(); )
+        for (final Enumeration<?> enumeration = propertyNames(); enumeration.hasMoreElements();)
         {
             final String key = enumeration.nextElement().toString();
             if (key.startsWith(prefix) && key.endsWith(PATH_DELIMITER) == false)
@@ -166,7 +160,7 @@ public final class ExtendedProperties extends Properties
      */
     public void removeSubset(final String prefix)
     {
-        for (final Enumeration<?> enumeration = propertyNames(); enumeration.hasMoreElements(); )
+        for (final Enumeration<?> enumeration = propertyNames(); enumeration.hasMoreElements();)
         {
             final String key = enumeration.nextElement().toString();
             if (key.startsWith(prefix))
@@ -225,8 +219,7 @@ public final class ExtendedProperties extends Properties
     /**
      * Returns the value of property <code>key</code> without resolving.
      * <p>
-     * So the {@link java.util.Map#get(java.lang.Object)} works as usual and returns raw (not
-     * expanded with substituted parameters) property value.
+     * So the {@link java.util.Map#get(java.lang.Object)} works as usual and returns raw (not expanded with substituted parameters) property value.
      * </p>
      */
     public final String getUnalteredProperty(final String key)
@@ -239,15 +232,14 @@ public final class ExtendedProperties extends Properties
     //
 
     /**
-     * Returns the value of specified property or <code>null</code> if undefined. This method 
-     * behaves differently then the same method of the superclass: 
+     * Returns the value of specified property or <code>null</code> if undefined. This method behaves differently then the same method of the
+     * superclass:
      * <ul>
-     * <li>
-     * If nothing found for the specified key other keys are tried as follows:
-     * For all dot characters '.' in the key (starting from the right most) it looks recursively for
-     * a replacement of the left part of the key (including the dot) among all properties.
+     * <li>If nothing found for the specified key other keys are tried as follows: For all dot characters '.' in the key (starting from the right
+     * most) it looks recursively for a replacement of the left part of the key (including the dot) among all properties.
      * <p>
      * Example:
+     * 
      * <pre>
      * type.code = ALPHA
      * type.label = Alpha
@@ -256,20 +248,41 @@ public final class ExtendedProperties extends Properties
      * my.validator. = validator.
      * my.validator.type.label = A L P H A
      * </pre>
+     * 
      * The following table shows the returned value of <code>getProperty()</code> for various keys:
      * <table border=1 cellspacing=1 cellpadding=5>
-     * <tr><th>Key</th><th>Value</th></tr>
-     * <tr><td>validator.order</td><td>1</td></tr>
-     * <tr><td>validator.type.code</td><td>ALPHA</td></tr>
-     * <tr><td>validator.type.label</td><td>Alpha</td></tr>
-     * <tr><td>my.validator.order</td><td>1</td></tr>
-     * <tr><td>my.validator.type.code</td><td>ALPHA</td></tr>
-     * <tr><td>my.validator.type.label</td><td>A L P H A</td></tr>
-     * </table>  
+     * <tr>
+     * <th>Key</th>
+     * <th>Value</th>
+     * </tr>
+     * <tr>
+     * <td>validator.order</td>
+     * <td>1</td>
+     * </tr>
+     * <tr>
+     * <td>validator.type.code</td>
+     * <td>ALPHA</td>
+     * </tr>
+     * <tr>
+     * <td>validator.type.label</td>
+     * <td>Alpha</td>
+     * </tr>
+     * <tr>
+     * <td>my.validator.order</td>
+     * <td>1</td>
+     * </tr>
+     * <tr>
+     * <td>my.validator.type.code</td>
+     * <td>ALPHA</td>
+     * </tr>
+     * <tr>
+     * <td>my.validator.type.label</td>
+     * <td>A L P H A</td>
+     * </tr>
+     * </table>
      * This mechanism allows to inherit property values from complete subtrees of properties.
-     * <li>
-     * Any parameter like <code>${propertyName}</code> in property value will be replaced with the
-     * value of property with name <code>propertyName</code>.
+     * <li>Any parameter like <code>${propertyName}</code> in property value will be replaced with the value of property with name
+     * <code>propertyName</code>.
      * <p>
      * For example, for the following set of properties:
      * 
@@ -284,6 +297,7 @@ public final class ExtendedProperties extends Properties
      * <pre>
      * Alphabet starts with: abcdefgh
      * </pre>
+     * 
      * </ul>
      * </p>
      * 
@@ -331,7 +345,7 @@ public final class ExtendedProperties extends Properties
             throw new IllegalArgumentException("Cyclic definition of property '" + key + "'.");
         }
     }
-    
+
     /**
      * @see java.util.Properties#getProperty(java.lang.String, java.lang.String)
      */

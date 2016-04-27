@@ -31,8 +31,8 @@ import ch.systemsx.cisd.common.exceptions.Status;
 /**
  * Class that keeps around the result of running an Operating System process.
  * <p>
- * Since the process output can only ever be read once from a process, it need to be kept around if
- * it is needed more than once. This is what this class is good for.
+ * Since the process output can only ever be read once from a process, it need to be kept around if it is needed more than once. This is what this
+ * class is good for.
  */
 public final class ProcessResult
 {
@@ -47,14 +47,12 @@ public final class ProcessResult
     public static final int NO_EXIT_VALUE = -1;
 
     /**
-     * The exit value returned by {@link Process#waitFor()} if the process was terminated by
-     * {@link Process#destroy()} on a MS Windows machine.
+     * The exit value returned by {@link Process#waitFor()} if the process was terminated by {@link Process#destroy()} on a MS Windows machine.
      */
     private static final int EXIT_VALUE_FOR_TERMINATION_WINDOWS = 1;
 
     /**
-     * The exit value returned by {@link Process#waitFor()} if the process was terminated by
-     * {@link Process#destroy()} on a UNIX machine.
+     * The exit value returned by {@link Process#waitFor()} if the process was terminated by {@link Process#destroy()} on a UNIX machine.
      */
     private static final int EXIT_VALUE_FOR_TERMINATION_UNIX = 143;
 
@@ -87,8 +85,7 @@ public final class ProcessResult
     private final ExecutionResult<?> processIOResult;
 
     /**
-     * Returns <code>true</code> if the <var>exitValue</var> indicates that the process has been
-     * terminated on the Operating System level.
+     * Returns <code>true</code> if the <var>exitValue</var> indicates that the process has been terminated on the Operating System level.
      */
     public static boolean isProcessTerminated(final int exitValue)
     {
@@ -196,8 +193,8 @@ public final class ProcessResult
     }
 
     /**
-     * Returns <code>true</code> if the output (<code>stdout</code> and <code>stderr</code>) is
-     * available (note that even if it available it may still be empty).
+     * Returns <code>true</code> if the output (<code>stdout</code> and <code>stderr</code>) is available (note that even if it available it may still
+     * be empty).
      */
     public boolean isOutputAvailable()
     {
@@ -205,13 +202,11 @@ public final class ProcessResult
     }
 
     /**
-     * Returns <code>true</code>, if the output of the method is binary and <code>false</code>, if
-     * it is text. If the output is binary, the error output is available separately, otherwise it
-     * is merged with the regular output.
+     * Returns <code>true</code>, if the output of the method is binary and <code>false</code>, if it is text. If the output is binary, the error
+     * output is available separately, otherwise it is merged with the regular output.
      * <p>
-     * If this method returns <code>true</code>, you are supposed to call {@link #getBinaryOutput()}
-     * and {@link #getErrorOutput()}. If it is <code>false</code>, you are supposed to call
-     * {@link #getOutput()}.
+     * If this method returns <code>true</code>, you are supposed to call {@link #getBinaryOutput()} and {@link #getErrorOutput()}. If it is
+     * <code>false</code>, you are supposed to call {@link #getOutput()}.
      */
     public boolean isBinaryOutput()
     {
@@ -219,11 +214,10 @@ public final class ProcessResult
     }
 
     /**
-     * Returns the binary output of the process (<code>stdout</code>). If it not available (see
-     * {@link #isOutputAvailable()}, an empty array is returned.
+     * Returns the binary output of the process (<code>stdout</code>). If it not available (see {@link #isOutputAvailable()}, an empty array is
+     * returned.
      * <p>
-     * <i>Only call this method, if {@link #isBinaryOutput()} is <code>true</code>. Otherwise this
-     * method will return <code>null</code></i>.
+     * <i>Only call this method, if {@link #isBinaryOutput()} is <code>true</code>. Otherwise this method will return <code>null</code></i>.
      */
     public byte[] getBinaryOutput()
     {
@@ -231,11 +225,10 @@ public final class ProcessResult
     }
 
     /**
-     * Returns the text error output of the process (<code>stderr</code>). If it not available (see
-     * {@link #isOutputAvailable()}, an empty array is returned.
+     * Returns the text error output of the process (<code>stderr</code>). If it not available (see {@link #isOutputAvailable()}, an empty array is
+     * returned.
      * <p>
-     * <i>Only call this method, if {@link #isBinaryOutput()} is <code>true</code>. Otherwise this
-     * method will return <code>null</code></i>.
+     * <i>Only call this method, if {@link #isBinaryOutput()} is <code>true</code>. Otherwise this method will return <code>null</code></i>.
      */
     public List<String> getErrorOutput()
     {
@@ -271,17 +264,16 @@ public final class ProcessResult
             }
             return Status.createError((StringUtils.join(getCommandLine(), " ").trim() + "\n  "
                     + "Exit Value: " + getExitValue() + "\n  " + StringUtils.join(
-                            statusOutput, "\n")).trim());
+                    statusOutput, "\n")).trim());
         }
 
     }
 
     /**
-     * Returns the text output of the process (<code>stdout</code> and <code>stderr</code>). If it
-     * not available (see {@link #isOutputAvailable()}, an empty list is returned.
+     * Returns the text output of the process (<code>stdout</code> and <code>stderr</code>). If it not available (see {@link #isOutputAvailable()}, an
+     * empty list is returned.
      * <p>
-     * <i>Only call this method, if {@link #isBinaryOutput()} is <code>false</code>. Otherwise this
-     * method will return <code>null</code></i>.
+     * <i>Only call this method, if {@link #isBinaryOutput()} is <code>false</code>. Otherwise this method will return <code>null</code></i>.
      */
     public List<String> getOutput()
     {
@@ -289,12 +281,10 @@ public final class ProcessResult
     }
 
     /**
-     * Returns the process' I/O result which tells whether there was an error condition on doing
-     * process <code>stdin / stdout / stderr</code> I/O.
+     * Returns the process' I/O result which tells whether there was an error condition on doing process <code>stdin / stdout / stderr</code> I/O.
      * <p>
-     * <b>Note that {@link ExecutionResult#isOK()} does <i>not</i> necessarily mean that all output
-     * has been read from the process. Check {@link ProcessResult#isOK()} instead which also
-     * considers the exit value of the process.</b>
+     * <b>Note that {@link ExecutionResult#isOK()} does <i>not</i> necessarily mean that all output has been read from the process. Check
+     * {@link ProcessResult#isOK()} instead which also considers the exit value of the process.</b>
      */
     public ExecutionResult<?> getProcessIOResult()
     {
@@ -302,8 +292,7 @@ public final class ProcessResult
     }
 
     /**
-     * Returns the exit value of the process, or {@link #NO_EXIT_VALUE}, if the value is not
-     * available.
+     * Returns the exit value of the process, or {@link #NO_EXIT_VALUE}, if the value is not available.
      */
     public int getExitValue()
     {
@@ -311,8 +300,7 @@ public final class ProcessResult
     }
 
     /**
-     * Returns the message that was given when the process failed to startup. If the process didn't
-     * fail on startup, an empty String is returned.
+     * Returns the message that was given when the process failed to startup. If the process didn't fail on startup, an empty String is returned.
      */
     public String getStartupFailureMessage()
     {
@@ -328,8 +316,7 @@ public final class ProcessResult
     }
 
     /**
-     * Returns <code>true</code>, if the process has completed successfully. Do not consider the
-     * state of {@link #getProcessIOResult()} for the check.
+     * Returns <code>true</code>, if the process has completed successfully. Do not consider the state of {@link #getProcessIOResult()} for the check.
      */
     public boolean isOKIgnoreIO()
     {
@@ -361,8 +348,7 @@ public final class ProcessResult
     }
 
     /**
-     * Returns <code>true</code>, if the Java thread that the process was running in got
-     * interrupted.
+     * Returns <code>true</code>, if the Java thread that the process was running in got interrupted.
      */
     public boolean isInterruped()
     {
@@ -392,14 +378,14 @@ public final class ProcessResult
     {
         log(Level.INFO);
     }
-    
+
     private void log(Level level)
     {
         logCommandLine(level);
         logProcessExitValue(level);
         logProcessOutput(level);
     }
-    
+
     private void logCommandLine(final Level logLevel)
     {
         operationLog.log(logLevel, String.format("P%d-{%s} had command line: %s", processNumber,

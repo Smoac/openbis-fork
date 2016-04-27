@@ -18,10 +18,8 @@ package ch.systemsx.cisd.common.filesystem;
 
 import java.io.File;
 
-
 /**
- * A role for handling paths. The paths are supposed to go away when they have been handled
- * successfully.
+ * A role for handling paths. The paths are supposed to go away when they have been handled successfully.
  * 
  * @see IStoreHandler
  * @author Bernd Rinn
@@ -29,8 +27,7 @@ import java.io.File;
 public interface IPathHandler extends IStopSignaler
 {
     /**
-     * Handles the <var>path</var>. Successful handling is indicated by <var>path</var> being gone
-     * when the method returns.
+     * Handles the <var>path</var>. Successful handling is indicated by <var>path</var> being gone when the method returns.
      */
     public void handle(File path);
 }

@@ -29,8 +29,7 @@ import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
 
 /**
- * An abstract super-class for {@link IFileConversionMethod}s that use external executable to
- * perform the conversion.
+ * An abstract super-class for {@link IFileConversionMethod}s that use external executable to perform the conversion.
  * 
  * @author Bernd Rinn
  */

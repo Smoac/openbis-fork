@@ -22,8 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 
 /**
- * <code>IReaderParser</code> is able to parse a given text lines and to return a list of objects of
- * type <code>E</code>.
+ * <code>IReaderParser</code> is able to parse a given text lines and to return a list of objects of type <code>E</code>.
  * 
  * @author Christian Ribeaud
  */
@@ -31,8 +30,7 @@ public interface IParser<E, T>
 {
 
     /**
-     * Parses the lines delivered by the specified <var>lineIterator</var>, creating elements of
-     * type <code>E</code>.
+     * Parses the lines delivered by the specified <var>lineIterator</var>, creating elements of type <code>E</code>.
      * 
      * @param lineFilter A filter lines have to pass in order to be parsed.
      * @param headerLength number of columns in the header
@@ -42,8 +40,7 @@ public interface IParser<E, T>
             final int headerLength) throws ParsingException;
 
     /**
-     * Parses the lines delivered by the specified <var>lineIterator</var> iteratively, creating
-     * elements of type <code>E</code>.
+     * Parses the lines delivered by the specified <var>lineIterator</var> iteratively, creating elements of type <code>E</code>.
      * <p>
      * <i>Use this method for parsing of large input data sets in streaming mode.</i>
      * 

@@ -61,7 +61,7 @@ public class Untar implements Closeable
     {
         this(tarFile, new MonitoredIOStreamCopier(bufferSize));
     }
-    
+
     public Untar(final File tarFile, MonitoredIOStreamCopier copier) throws FileNotFoundException
     {
         this.copier = copier;
@@ -171,7 +171,7 @@ public class Untar implements Closeable
         try
         {
             copier.copy(in, out);
-        } finally 
+        } finally
         {
             out.close();
         }

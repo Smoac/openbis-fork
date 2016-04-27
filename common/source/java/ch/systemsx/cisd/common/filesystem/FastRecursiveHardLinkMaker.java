@@ -30,8 +30,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.time.TimingParameters;
 
 /**
- * A fast {@link IImmutableCopier} that uses a fallback option whenever one of the fast copiers for
- * either files or directories is not available.
+ * A fast {@link IImmutableCopier} that uses a fallback option whenever one of the fast copiers for either files or directories is not available.
  * 
  * @author Bernd Rinn
  */

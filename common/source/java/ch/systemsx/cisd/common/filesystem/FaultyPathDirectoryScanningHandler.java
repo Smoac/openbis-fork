@@ -33,8 +33,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 /**
  * An <code>IDirectoryScanningHandler</code> which manages faulty paths.
  * <p>
- * A faulty path is a {@link StoreItem} which was <i>not handled</i> (still exists in the
- * {@link IScannedStore}).
+ * A faulty path is a {@link StoreItem} which was <i>not handled</i> (still exists in the {@link IScannedStore}).
  * </p>
  * 
  * @author Christian Ribeaud

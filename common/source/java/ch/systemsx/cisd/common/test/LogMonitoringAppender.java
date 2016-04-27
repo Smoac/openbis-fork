@@ -65,8 +65,8 @@ public final class LogMonitoringAppender extends AppenderSkeleton
     }
 
     /**
-     * Creates an appender that monitors for given <var>messageParts</var> and adds it to the
-     * {@link Logger} for <code>category</code> and <code>clazz</code>.
+     * Creates an appender that monitors for given <var>messageParts</var> and adds it to the {@link Logger} for <code>category</code> and
+     * <code>clazz</code>.
      * 
      * @return The created appender.
      */
@@ -83,8 +83,8 @@ public final class LogMonitoringAppender extends AppenderSkeleton
     }
 
     /**
-     * Creates an appender that monitors for <var>messagePart</var> and adds it to the
-     * {@link Logger} for <code>category</code> and <code>clazz</code>.
+     * Creates an appender that monitors for <var>messagePart</var> and adds it to the {@link Logger} for <code>category</code> and <code>clazz</code>
+     * .
      * 
      * @return The created appender.
      */

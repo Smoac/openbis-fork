@@ -25,10 +25,7 @@ import java.util.TimerTask;
 
 import org.testng.annotations.Test;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TimerTaskWithListenersTest
@@ -36,6 +33,7 @@ public class TimerTaskWithListenersTest
     private static final class MockTimerTask extends TimerTask
     {
         private final List<String> recorder;
+
         private final boolean throwException;
 
         MockTimerTask(boolean throwException, List<String> recorder)
@@ -43,7 +41,7 @@ public class TimerTaskWithListenersTest
             this.throwException = throwException;
             this.recorder = recorder;
         }
-        
+
         @Override
         public void run()
         {
@@ -61,10 +59,11 @@ public class TimerTaskWithListenersTest
             return false;
         }
     }
-    
+
     private static final class MockTimerTaskListener implements ITimerTaskListener
     {
         private final List<String> recorder;
+
         private final String name;
 
         MockTimerTaskListener(String name, List<String> recorder)
@@ -72,7 +71,7 @@ public class TimerTaskWithListenersTest
             this.name = name;
             this.recorder = recorder;
         }
-        
+
         @Override
         public void canceling()
         {
@@ -91,7 +90,7 @@ public class TimerTaskWithListenersTest
             recorder.add(name + ".startRunning");
         }
     }
-    
+
     @Test
     public void testRun()
     {
@@ -99,13 +98,13 @@ public class TimerTaskWithListenersTest
         TimerTaskWithListeners task = new TimerTaskWithListeners(new MockTimerTask(false, recorder));
         task.addListener(new MockTimerTaskListener("a", recorder));
         task.addListener(new MockTimerTaskListener("b", recorder));
-        
+
         task.run();
-        
+
         assertEquals("[a.startRunning, b.startRunning, run, a.finishRunning, b.finishRunning]",
                 recorder.toString());
     }
-    
+
     @Test
     public void testRunWithException()
     {
@@ -113,7 +112,7 @@ public class TimerTaskWithListenersTest
         TimerTaskWithListeners task = new TimerTaskWithListeners(new MockTimerTask(true, recorder));
         task.addListener(new MockTimerTaskListener("a", recorder));
         task.addListener(new MockTimerTaskListener("b", recorder));
-        
+
         try
         {
             task.run();
@@ -122,11 +121,11 @@ public class TimerTaskWithListenersTest
         {
             assertEquals("exception", e.getMessage());
         }
-        
+
         assertEquals("[a.startRunning, b.startRunning, run, a.finishRunning, b.finishRunning]",
                 recorder.toString());
     }
-    
+
     @Test
     public void testCancel()
     {
@@ -134,10 +133,10 @@ public class TimerTaskWithListenersTest
         TimerTaskWithListeners task = new TimerTaskWithListeners(new MockTimerTask(false, recorder));
         task.addListener(new MockTimerTaskListener("a", recorder));
         task.addListener(new MockTimerTaskListener("b", recorder));
-        
+
         task.cancel();
-        
+
         assertEquals("[a.canceling, b.canceling, cancel]", recorder.toString());
     }
-    
+
 }

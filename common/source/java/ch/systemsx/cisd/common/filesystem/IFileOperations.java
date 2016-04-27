@@ -31,8 +31,8 @@ import ch.systemsx.cisd.base.io.IOutputStream;
 import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
 
 /**
- * Operations on {@link File} that are good to monitor when being performed on remote file systems
- * because they can hang when a remote resource goes down unexpectedly.
+ * Operations on {@link File} that are good to monitor when being performed on remote file systems because they can hang when a remote resource goes
+ * down unexpectedly.
  * 
  * @author Bernd Rinn
  */
@@ -154,90 +154,72 @@ public interface IFileOperations extends IFileRemover
     //
 
     /**
-     * Finds files within a given directory (and optionally its subdirectories) which match an array
-     * of extensions.
+     * Finds files within a given directory (and optionally its subdirectories) which match an array of extensions.
      * <p>
-     * This call is suitable for large or huge directories on slow file systems as it is able to
-     * notify the monitor of progress.
+     * This call is suitable for large or huge directories on slow file systems as it is able to notify the monitor of progress.
      * 
      * @param directory The directory to search in.
-     * @param extensionsOrNull An array of extensions, ex. {"java","xml"}. If this parameter is
-     *            <code>null</code>, all files are returned.
+     * @param extensionsOrNull An array of extensions, ex. {"java","xml"}. If this parameter is <code>null</code>, all files are returned.
      * @param recursive If true all subdirectories are searched as well.
-     * @return A list of java.io.File (all files) with the matching files, or an empty list, if
-     *         <var>directory</var> ist not a directory.
+     * @return A list of java.io.File (all files) with the matching files, or an empty list, if <var>directory</var> ist not a directory.
      */
     public List<File> listFiles(File directory, String[] extensionsOrNull, boolean recursive);
 
     /**
      * Finds directories within a given directory (and optionally its subdirectories).
      * <p>
-     * This call is suitable for large or huge directories on slow file systems as it is able to
-     * notify the monitor of progress.
+     * This call is suitable for large or huge directories on slow file systems as it is able to notify the monitor of progress.
      * 
      * @param directory The directory to search in.
      * @param recursive If true all subdirectories are searched as well.
-     * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var>
-     *         ist not a directory.
+     * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var> ist not a directory.
      */
     public List<File> listDirectories(File directory, boolean recursive);
 
     /**
      * Finds files or directories within a given directory (and optionally its subdirectories).
      * <p>
-     * This call is suitable for large or huge directories on slow file systems as it is able to
-     * notify the monitor of progress.
+     * This call is suitable for large or huge directories on slow file systems as it is able to notify the monitor of progress.
      * 
      * @param directory The directory to search in.
      * @param recursive If true all subdirectories are searched as well.
-     * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var>
-     *         ist not a directory.
+     * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var> ist not a directory.
      */
     public List<File> listFilesAndDirectories(File directory, boolean recursive);
 
     /**
-     * @return The time when any file in (or below) <var>path</var> has last been changed in the
-     *         file system.
+     * @return The time when any file in (or below) <var>path</var> has last been changed in the file system.
      * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not readable.
      */
     public long lastChanged(final File path) throws UnknownLastChangedException;
 
     /**
-     * Determines the time (in milliseconds since start of the epoch) when any item below
-     * <var>path</var> has last been changed in the file system.
+     * Determines the time (in milliseconds since start of the epoch) when any item below <var>path</var> has last been changed in the file system.
      * 
      * @param path The path (file or directory) to check for last change.
-     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var> are
-     *            checked, if <var>path</var> is a directory. If <var>path</var> is a file, this
-     *            parameter is ignored. When considering what this parameter is good for, note that
-     *            the mtime of a directory is changed when an entry in the directory changes.
-     * @param stopWhenFindYounger If &gt; 0, the recursive search for younger file will be stopped
-     *            when a file or directory is found that is younger than the time specified in this
-     *            parameter. Supposed to be used when one does not care about the absolute youngest
-     *            entry, but only, if there are entries that are "young enough".
-     * @return The time when any file in (or below) <var>path</var> has last been changed in the
-     *         file system.
+     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var> are checked, if <var>path</var> is a directory. If
+     *            <var>path</var> is a file, this parameter is ignored. When considering what this parameter is good for, note that the mtime of a
+     *            directory is changed when an entry in the directory changes.
+     * @param stopWhenFindYounger If &gt; 0, the recursive search for younger file will be stopped when a file or directory is found that is younger
+     *            than the time specified in this parameter. Supposed to be used when one does not care about the absolute youngest entry, but only,
+     *            if there are entries that are "young enough".
+     * @return The time when any file in (or below) <var>path</var> has last been changed in the file system.
      * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not readable.
      */
     public long lastChanged(final File path, final boolean subDirectoriesOnly,
             final long stopWhenFindYounger) throws UnknownLastChangedException;
 
     /**
-     * Determines the time (in milliseconds since start of the epoch) when any item below
-     * <var>path</var> has last been changed in the file system.
+     * Determines the time (in milliseconds since start of the epoch) when any item below <var>path</var> has last been changed in the file system.
      * 
      * @param path The path (file or directory) to check for last change.
-     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var> are
-     *            checked, if <var>path</var> is a directory. If <var>path</var> is a file, this
-     *            parameter is ignored. When considering what this parameter is good for, note that
-     *            the mtime of a directory is changed when an entry in the directory changes.
-     * @param stopWhenFindYoungerRelative If &gt; 0, the recursive search for younger file will be
-     *            stopped when a file or directory is found that is younger than
-     *            <code>System.currentTimeMillis() - stopWhenYoungerRelative</code>. Supposed to be
-     *            used when one does not care about the absolute youngest entry, but only, if there
-     *            are entries that are "young enough".
-     * @return The time when any file in (or below) <var>path</var> has last been changed in the
-     *         file system.
+     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var> are checked, if <var>path</var> is a directory. If
+     *            <var>path</var> is a file, this parameter is ignored. When considering what this parameter is good for, note that the mtime of a
+     *            directory is changed when an entry in the directory changes.
+     * @param stopWhenFindYoungerRelative If &gt; 0, the recursive search for younger file will be stopped when a file or directory is found that is
+     *            younger than <code>System.currentTimeMillis() - stopWhenYoungerRelative</code>. Supposed to be used when one does not care about the
+     *            absolute youngest entry, but only, if there are entries that are "young enough".
+     * @return The time when any file in (or below) <var>path</var> has last been changed in the file system.
      * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not readable.
      */
     public long lastChangedRelative(final File path, final boolean subDirectoriesOnly,
@@ -247,83 +229,76 @@ public interface IFileOperations extends IFileRemover
      * Checks whether a <var>path</var> of some <var>kind</var> is fully accessible to the program.
      * 
      * @param kindOfPath description of given <var>path</var>. Mainly used for error messages.
-     * @return <code>null</code> if the <var>directory</var> is fully accessible and an error
-     *         message describing the problem with the <var>directory</var> otherwise.
+     * @return <code>null</code> if the <var>directory</var> is fully accessible and an error message describing the problem with the
+     *         <var>directory</var> otherwise.
      */
     public String checkPathFullyAccessible(final File path, final String kindOfPath);
 
     /**
-     * Checks whether a <var>path</var> of some <var>kind</var> is accessible for reading to the
-     * program.
+     * Checks whether a <var>path</var> of some <var>kind</var> is accessible for reading to the program.
      * 
      * @param kindOfPath description of given <var>path</var>. Mainly used for error messages.
-     * @return <code>null</code> if the <var>directory</var> is fully accessible and an error
-     *         message describing the problem with the <var>directory</var> otherwise.
+     * @return <code>null</code> if the <var>directory</var> is fully accessible and an error message describing the problem with the
+     *         <var>directory</var> otherwise.
      */
     public String checkPathReadAccessible(final File path, final String kindOfPath);
 
     /**
-     * Checks whether a <var>directory</var> of some <var>kind</var> is fully accessible to the
-     * program (it's a directory, you can read and write in it)
+     * Checks whether a <var>directory</var> of some <var>kind</var> is fully accessible to the program (it's a directory, you can read and write in
+     * it)
      * 
-     * @return <code>null</code> if the <var>directory</var> is fully accessible and an error
-     *         message describing the problem with the <var>directory</var> otherwise.
+     * @return <code>null</code> if the <var>directory</var> is fully accessible and an error message describing the problem with the
+     *         <var>directory</var> otherwise.
      */
     public String checkDirectoryFullyAccessible(final File directory, final String kindOfDirectory);
 
     /**
-     * Checks whether a <var>directory</var> of some <var>kind</var> is accessible for reading to
-     * the program (it's a directory, you can read and write in it)
+     * Checks whether a <var>directory</var> of some <var>kind</var> is accessible for reading to the program (it's a directory, you can read and
+     * write in it)
      * 
-     * @return <code>null</code> if the <var>directory</var> is accessible for reading and an error
-     *         message describing the problem with the <var>directory</var> otherwise.
+     * @return <code>null</code> if the <var>directory</var> is accessible for reading and an error message describing the problem with the
+     *         <var>directory</var> otherwise.
      */
     public String checkDirectoryReadAccessible(final File directory, final String kindOfDirectory);
 
     /**
-     * Checks whether a <var>file</var> of some <var>kindOfFile</var> is accessible for reading to
-     * the program (so it's a file and you can read it)
+     * Checks whether a <var>file</var> of some <var>kindOfFile</var> is accessible for reading to the program (so it's a file and you can read it)
      * 
-     * @return <code>null</code> if the <var>file</var> is accessible to reading and an error
-     *         message describing the problem with the <var>file</var> otherwise.
+     * @return <code>null</code> if the <var>file</var> is accessible to reading and an error message describing the problem with the <var>file</var>
+     *         otherwise.
      */
     public String checkFileReadAccessible(final File file, final String kindOfFile);
 
     /**
-     * Checks whether a <var>file</var> of some <var>kindOfFile</var> is accessible for reading and
-     * writing to the program (so it's a file and you can read and write it)
+     * Checks whether a <var>file</var> of some <var>kindOfFile</var> is accessible for reading and writing to the program (so it's a file and you can
+     * read and write it)
      * 
-     * @return <code>null</code> if the <var>file</var> is fully accessible and an error message
-     *         describing the problem with the <var>file</var> otherwise.
+     * @return <code>null</code> if the <var>file</var> is fully accessible and an error message describing the problem with the <var>file</var>
+     *         otherwise.
      */
     public String checkFileFullyAccessible(final File file, final String kindOfFile);
 
     /**
-     * Sets the file's last modification time to the current time without changing the content. If
-     * the file does not exist, create it empty.
+     * Sets the file's last modification time to the current time without changing the content. If the file does not exist, create it empty.
      * 
-     * @throws IOExceptionUnchecked If the file cannot be created or the last modification time
-     *             cannot be changed.
+     * @throws IOExceptionUnchecked If the file cannot be created or the last modification time cannot be changed.
      */
     public void touch(File file) throws IOExceptionUnchecked;
 
     /**
      * Removes the given <var>fileToRemove</var>, if necessary recursively.
      * 
-     * @param fileToRemove File or directory to remove. If it is a directory, it will be removed
-     *            recursively.
+     * @param fileToRemove File or directory to remove. If it is a directory, it will be removed recursively.
      * @throws IOExceptionUnchecked If the file or directory cannot be removed.
      */
     public void deleteRecursively(File fileToRemove) throws IOExceptionUnchecked;
 
     /**
-     * Removes the given <var>fileToRemove</var>, if necessary recursively. If it is a file, it will
-     * be deleted immediately, if it is a directory, it will be queued up for asynchronous deletion.
+     * Removes the given <var>fileToRemove</var>, if necessary recursively. If it is a file, it will be deleted immediately, if it is a directory, it
+     * will be queued up for asynchronous deletion.
      * 
-     * @param fileToRemove File or directory to remove. If it is a directory, it will be removed
-     *            asynchronous recursively.
-     * @return <code>true</code> if the file or directory was removed successfully and
-     *         <code>false</code> otherwise.
+     * @param fileToRemove File or directory to remove. If it is a directory, it will be removed asynchronous recursively.
+     * @return <code>true</code> if the file or directory was removed successfully and <code>false</code> otherwise.
      */
     public boolean removeRecursivelyQueueing(File fileToRemove);
 
@@ -331,22 +306,19 @@ public interface IFileOperations extends IFileRemover
      * Move <var>source</var> to <var>destinationDirectory</var>.
      * 
      * @param source File or directory to move. Must exist when this method is called.
-     * @param destinationDirectory The directory to move <var>source</var> to. Has to be an existing
-     *            directory.
-     * @throws IOExceptionUnchecked If <var>source</var> cannot be moved into
-     *             <var>destinationDirectory</var>.
+     * @param destinationDirectory The directory to move <var>source</var> to. Has to be an existing directory.
+     * @throws IOExceptionUnchecked If <var>source</var> cannot be moved into <var>destinationDirectory</var>.
      */
     public void moveToDirectory(File source, File destinationDirectory) throws IOExceptionUnchecked;
 
     /**
-     * Rename <var>source</var> to <var>destination</var>, or move <var>source</var> to
-     * <var>destination</var> if it is an existing directory. Combines {@link #rename(File, File)}
-     * and {@link #moveToDirectory(File, File)} in move method, choosing the right method depending
-     * on the <var>destination</var>.
+     * Rename <var>source</var> to <var>destination</var>, or move <var>source</var> to <var>destination</var> if it is an existing directory.
+     * Combines {@link #rename(File, File)} and {@link #moveToDirectory(File, File)} in move method, choosing the right method depending on the
+     * <var>destination</var>.
      * 
      * @param source File or directory to move. Must exist when this method is called.
-     * @param destination If it does not exist, this is the new name for <var>source</var>. If it is
-     *            an existing directory, <var>source</var> will be moved to this directory.
+     * @param destination If it does not exist, this is the new name for <var>source</var>. If it is an existing directory, <var>source</var> will be
+     *            moved to this directory.
      * @throws IOExceptionUnchecked If <var>source</var> cannot be moved to <var>destination</var>.
      */
     public void move(File source, File destination) throws IOExceptionUnchecked;
@@ -354,8 +326,7 @@ public interface IFileOperations extends IFileRemover
     /**
      * Copies a file or a whole directory to a new location preserving the file dates.
      * <p>
-     * Calls {@link #copyFile(File, File)} if <var>source</var> is a file and
-     * {@link #copyDirectory(File, File)} if it is a directory.
+     * Calls {@link #copyFile(File, File)} if <var>source</var> is a file and {@link #copyDirectory(File, File)} if it is a directory.
      * 
      * @param source an existing file or directory to copy, must not be <code>null</code>
      * @param destination the new file or directory, must not be <code>null</code>
@@ -370,8 +341,8 @@ public interface IFileOperations extends IFileRemover
     /**
      * Copies a file or a whole directory to a new location preserving the file dates.
      * <p>
-     * Calls {@link #copyFileToDirectory(File, File)} if <var>source</var> is a file and
-     * {@link #copyDirectoryToDirectory(File, File)} if it is a directory.
+     * Calls {@link #copyFileToDirectory(File, File)} if <var>source</var> is a file and {@link #copyDirectoryToDirectory(File, File)} if it is a
+     * directory.
      * 
      * @param source an existing file or directory to copy, must not be <code>null</code>
      * @param destDir the directory to place the copy in, must not be <code>null</code>
@@ -384,8 +355,7 @@ public interface IFileOperations extends IFileRemover
     public void copyToDirectory(File source, File destDir) throws IOExceptionUnchecked;
 
     /**
-     * Copies a file or a whole directory to a new location with a new specified name. File dates
-     * will be preserved.
+     * Copies a file or a whole directory to a new location with a new specified name. File dates will be preserved.
      * <p>
      * 
      * @param source an existing file or directory to copy, must not be <code>null</code>
@@ -403,12 +373,11 @@ public interface IFileOperations extends IFileRemover
     /**
      * Copies a whole directory to a new location preserving the file dates.
      * <p>
-     * This method copies the specified directory and all its child directories and files to the
-     * specified destination. The destination is the new location and name of the directory.
+     * This method copies the specified directory and all its child directories and files to the specified destination. The destination is the new
+     * location and name of the directory.
      * <p>
-     * The destination directory is created if it does not exist. If the destination directory did
-     * exist, then this method merges the source with the destination, with the source taking
-     * precedence.
+     * The destination directory is created if it does not exist. If the destination directory did exist, then this method merges the source with the
+     * destination, with the source taking precedence.
      * 
      * @param srcDir an existing directory to copy, must not be <code>null</code>
      * @param destDir the new directory, must not be <code>null</code>
@@ -421,9 +390,8 @@ public interface IFileOperations extends IFileRemover
     /**
      * Copies a file to a new location preserving the file date.
      * <p>
-     * This method copies the contents of the specified source file to the specified destination
-     * file. The directory holding the destination file is created if it does not exist. If the
-     * destination file exists, then this method will overwrite it.
+     * This method copies the contents of the specified source file to the specified destination file. The directory holding the destination file is
+     * created if it does not exist. If the destination file exists, then this method will overwrite it.
      * 
      * @param srcFile an existing file to copy, must not be <code>null</code>
      * @param destFile the new file, must not be <code>null</code>
@@ -437,9 +405,8 @@ public interface IFileOperations extends IFileRemover
     /**
      * Copies a file to a directory preserving the file date.
      * <p>
-     * This method copies the contents of the specified source file to a file of the same name in
-     * the specified destination directory. The destination directory is created if it does not
-     * exist. If the destination file exists, then this method will overwrite it.
+     * This method copies the contents of the specified source file to a file of the same name in the specified destination directory. The destination
+     * directory is created if it does not exist. If the destination file exists, then this method will overwrite it.
      * 
      * @param srcFile an existing file to copy, must not be <code>null</code>
      * @param destDir the directory to place the copy in, must not be <code>null</code>
@@ -452,12 +419,10 @@ public interface IFileOperations extends IFileRemover
     /**
      * Copies a directory to within another directory preserving the file dates.
      * <p>
-     * This method copies the source directory and all its contents to a directory of the same name
-     * in the specified destination directory.
+     * This method copies the source directory and all its contents to a directory of the same name in the specified destination directory.
      * <p>
-     * The destination directory is created if it does not exist. If the destination directory did
-     * exist, then this method merges the source with the destination, with the source taking
-     * precedence.
+     * The destination directory is created if it does not exist. If the destination directory did exist, then this method merges the source with the
+     * destination, with the source taking precedence.
      * 
      * @param srcDir an existing directory to copy, must not be <code>null</code>
      * @param destDir the directory to place the copy in, must not be <code>null</code>
@@ -528,8 +493,7 @@ public interface IFileOperations extends IFileRemover
     public IOutputStream getIOutputStream(File file) throws IOExceptionUnchecked;
 
     /**
-     * Writes <var>content</var> to <var>file</var>. If <var>file</var> already exists, it will be
-     * overwritten.
+     * Writes <var>content</var> to <var>file</var>. If <var>file</var> already exists, it will be overwritten.
      * 
      * @throws IOExceptionUnchecked if an IO error occurs during writing
      */

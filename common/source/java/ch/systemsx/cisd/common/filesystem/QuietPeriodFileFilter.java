@@ -34,15 +34,12 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 
 /**
- * A {@link FileFilter} that picks all entries that haven't been changed for longer than some given
- * quiet period.
+ * A {@link FileFilter} that picks all entries that haven't been changed for longer than some given quiet period.
  * <p>
- * Note that the system is designed to be robust when the clocks of the host that runs the datamover
- * and the host that writes the files are out of sync. To this end, we are <i>never<i> comparing
- * times as provided by the datamover host clock with last modification times. Instead we wait for
- * some quiet period as defined solely by the clock of the datamover host. After that time we
- * require the last modification time to be not younger than the last time we checked before we
- * {@link #accept(StoreItem)} the path.
+ * Note that the system is designed to be robust when the clocks of the host that runs the datamover and the host that writes the files are out of
+ * sync. To this end, we are <i>never<i> comparing times as provided by the datamover host clock with last modification times. Instead we wait for
+ * some quiet period as defined solely by the clock of the datamover host. After that time we require the last modification time to be not younger
+ * than the last time we checked before we {@link #accept(StoreItem)} the path.
  * 
  * @author Bernd Rinn
  */
@@ -115,8 +112,7 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
      * Creates a <var>QuietPeriodFileFilter</var>.
      * 
      * @param fileStore Used to check when a pathname was changed.
-     * @param quietPeriodMillis The time interval in milliseconds that a store item needs to be
-     *            "quiet" before being accepted by a filter.
+     * @param quietPeriodMillis The time interval in milliseconds that a store item needs to be "quiet" before being accepted by a filter.
      */
     public QuietPeriodFileFilter(final ILastModificationChecker fileStore,
             final long quietPeriodMillis, final int ignoredErrorCountBeforeNotification)
@@ -129,11 +125,9 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
      * Creates a <var>QuietPeriodFileFilter</var>.
      * 
      * @param fileStore Used to check when a pathname was changed.
-     * @param quietPeriodMillis The time interval in milliseconds that a store item needs to be
-     *            "quiet" before being accepted by a filter.
+     * @param quietPeriodMillis The time interval in milliseconds that a store item needs to be "quiet" before being accepted by a filter.
      * @param timeProvider A role that provides access to the current time.
-     * @param ignoredErrorCountBeforeNotification the number of errors that are ignored before
-     *            sending a notification email.
+     * @param ignoredErrorCountBeforeNotification the number of errors that are ignored before sending a notification email.
      */
     public QuietPeriodFileFilter(final ILastModificationChecker fileStore,
             final long quietPeriodMillis, final ITimeProvider timeProvider,
@@ -188,13 +182,10 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
             {
                 pathMap.put(item, new PathCheckRecord(now, newLastChanged));
                 /**
-                 * in general value of lastChanged time stamp should increase, because the
-                 * modification time of file which is currently copied is set to the current time.
-                 * However there can be jump back in time, when the copy is finished and the
-                 * original modification time is restored. It can also happen when one of many files
-                 * in the directory has been copied and the coping of the next one has not started.
-                 * The jump back in time should never occur if the observed item is not copied, but
-                 * is being generated.
+                 * in general value of lastChanged time stamp should increase, because the modification time of file which is currently copied is set
+                 * to the current time. However there can be jump back in time, when the copy is finished and the original modification time is
+                 * restored. It can also happen when one of many files in the directory has been copied and the coping of the next one has not
+                 * started. The jump back in time should never occur if the observed item is not copied, but is being generated.
                  */
                 if (newLastChanged < oldLastChanged)
                 {

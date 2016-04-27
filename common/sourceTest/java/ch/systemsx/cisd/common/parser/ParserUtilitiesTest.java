@@ -94,7 +94,7 @@ public final class ParserUtilitiesTest
     public final void testGetFirstAcceptedLineWithNullILineFilter() throws IOException
     {
         String[] lines = new String[]
-            { StringUtils.EMPTY, "non-empty line", StringUtils.EMPTY, "hello" };
+        { StringUtils.EMPTY, "non-empty line", StringUtils.EMPTY, "hello" };
         File file = new File(workingDirectory, "test.txt");
         FileUtils.writeLines(file, Arrays.asList(lines));
         ILine<String> line = ParserUtilities.tryGetFirstAcceptedLine(file, null);
@@ -107,7 +107,7 @@ public final class ParserUtilitiesTest
     public final void testGetAllAcceptedLinesWithNullILineFilter() throws IOException
     {
         String[] lines = new String[]
-            { StringUtils.EMPTY, "non-empty line", StringUtils.EMPTY, "hello" };
+        { StringUtils.EMPTY, "non-empty line", StringUtils.EMPTY, "hello" };
         File file = new File(workingDirectory, "test.txt");
         FileUtils.writeLines(file, Arrays.asList(lines));
         ParserUtilities.LineSplitter splitter =
@@ -132,7 +132,7 @@ public final class ParserUtilitiesTest
     public final void testGetFirstAcceptedLine() throws IOException
     {
         String[] lines = new String[]
-            { StringUtils.EMPTY, "# comment line", StringUtils.EMPTY, "hello" };
+        { StringUtils.EMPTY, "# comment line", StringUtils.EMPTY, "hello" };
         File file = new File(workingDirectory, "test.txt");
         FileUtils.writeLines(file, Arrays.asList(lines));
         ILine<String> line =

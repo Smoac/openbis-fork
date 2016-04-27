@@ -34,7 +34,7 @@ class EchoService implements IService
             }
         } catch (InterruptedExceptionUnchecked ex)
         {
-            // This exception will be thrown when  the client terminates the server.
+            // This exception will be thrown when the client terminates the server.
             System.err.println(Thread.currentThread().getName() + " service: shutdown");
         } catch (RuntimeException ex)
         {

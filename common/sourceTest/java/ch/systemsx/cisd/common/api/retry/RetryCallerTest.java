@@ -146,7 +146,7 @@ public class RetryCallerTest
     }
 
     @Test(expectedExceptions =
-        { RemoteConnectFailureException.class })
+    { RemoteConnectFailureException.class })
     void testCallWithTooManyCommunicationErrorsShouldFinallyThrowException() throws Throwable
     {
         mockery.checking(new Expectations()
@@ -165,7 +165,7 @@ public class RetryCallerTest
     }
 
     @Test(expectedExceptions =
-        { RuntimeException.class })
+    { RuntimeException.class })
     void testCallWithNonCommunicationErrorShouldNotBeRetried() throws Throwable
     {
         mockery.checking(new Expectations()

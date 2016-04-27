@@ -2,7 +2,6 @@ package ch.systemsx.cisd.common.filesystem;
 
 import java.io.IOException;
 
-
 /**
  * Each implementation is able to return the free space on a drive or volume.
  * 

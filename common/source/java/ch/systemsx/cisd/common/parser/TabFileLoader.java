@@ -44,9 +44,8 @@ import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 import ch.systemsx.cisd.common.string.UnicodeUtils;
 
 /**
- * Convenient class to load (or iterate over) a tab file, a reader or a stream. The loader delivers
- * either a list or an iterator of beans of type <code>T</code>. The following formats for the
- * column headers are recognized.
+ * Convenient class to load (or iterate over) a tab file, a reader or a stream. The loader delivers either a list or an iterator of beans of type
+ * <code>T</code>. The following formats for the column headers are recognized.
  * <ol>
  * <li>Column headers in first line:
  * 
@@ -120,9 +119,8 @@ public class TabFileLoader<T>
     /**
      * Iterates over the data in the specified file.
      * <p>
-     * The header can contain comments which are ignored. The column names can be the first
-     * uncommented line or the last commented line. The latter case is determined by the fact, that
-     * the one before the last line is a single hash.
+     * The header can contain comments which are ignored. The column names can be the first uncommented line or the last commented line. The latter
+     * case is determined by the fact, that the one before the last line is a single hash.
      * </p>
      */
     public Iterator<T> iterate(final File file, final Map<String, String> defaults)
@@ -174,9 +172,8 @@ public class TabFileLoader<T>
     /**
      * Iterates over the data in the specified reader.
      * <p>
-     * The header can contain comments which are ignored. The column names can be the first
-     * uncommented line or the last commented line. The latter case is determined by the fact, that
-     * the one before the last line is a single hash.
+     * The header can contain comments which are ignored. The column names can be the first uncommented line or the last commented line. The latter
+     * case is determined by the fact, that the one before the last line is a single hash.
      * </p>
      */
     public Iterator<T> iterate(final Reader reader, final Map<String, String> defaults)
@@ -191,9 +188,8 @@ public class TabFileLoader<T>
     /**
      * Loads data from the specified reader.
      * <p>
-     * The header can contain comments which are ignored. The column names can be the first
-     * uncommented line or the last commented line. The latter case is determined by the fact, that
-     * the one before the last line is a single hash.
+     * The header can contain comments which are ignored. The column names can be the first uncommented line or the last commented line. The latter
+     * case is determined by the fact, that the one before the last line is a single hash.
      * </p>
      */
     public List<T> load(final Reader reader, Map<String, String> defaults) throws ParserException,
@@ -208,9 +204,8 @@ public class TabFileLoader<T>
     /**
      * Iterates over the data in the specified stream.
      * <p>
-     * The header can contain comments which are ignored. The column names can be the first
-     * uncommented line or the last commented line. The latter case is determined by the fact, that
-     * the one before the last line is a single hash.
+     * The header can contain comments which are ignored. The column names can be the first uncommented line or the last commented line. The latter
+     * case is determined by the fact, that the one before the last line is a single hash.
      * </p>
      */
     public Iterator<T> iterate(final InputStream stream, final Map<String, String> defaults)
@@ -231,9 +226,8 @@ public class TabFileLoader<T>
     /**
      * Loads data from the specified stream.
      * <p>
-     * The header can contain comments which are ignored. The column names can be the first
-     * uncommented line or the last commented line. The latter case is determined by the fact, that
-     * the one before the last line is a single hash.
+     * The header can contain comments which are ignored. The column names can be the first uncommented line or the last commented line. The latter
+     * case is determined by the fact, that the one before the last line is a single hash.
      * </p>
      */
     public List<T> load(final InputStream stream, Map<String, String> defaults)
@@ -451,10 +445,9 @@ public class TabFileLoader<T>
     }
 
     /**
-     * @param firstContentLineOrNull if not null, it will be returned as the first iterator element,
-     *            followed by all iterator elements from the second parameter
-     * @param lastEmptyTokensToSkip the number of token separators which will be removed form the
-     *            end of each iterated line
+     * @param firstContentLineOrNull if not null, it will be returned as the first iterator element, followed by all iterator elements from the second
+     *            parameter
+     * @param lastEmptyTokensToSkip the number of token separators which will be removed form the end of each iterated line
      */
     private static Iterator<ILine<String>> createContentIterator(
             final ILine<String> firstContentLineOrNull, final Iterator<ILine<String>> lineIterator,
@@ -496,7 +489,7 @@ public class TabFileLoader<T>
                     } else
                     {
                         throw new ParsingException(new String[]
-                            { text }, lineNumber)
+                        { text }, lineNumber)
                             {
                                 private static final long serialVersionUID = 1L;
 
@@ -576,8 +569,7 @@ public class TabFileLoader<T>
      * Note that the search is case-insensitive.
      * </p>
      * 
-     * @throws IllegalArgumentException if there is at least one duplicate in the given
-     *             <var>tokens</var>.
+     * @throws IllegalArgumentException if there is at least one duplicate in the given <var>tokens</var>.
      */
     private final static void notUnique(final String[] tokens)
     {

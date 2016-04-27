@@ -47,7 +47,7 @@ public class PasswordHasherTest
         final String hash = PasswordHasher.computeSaltedHash(PASSWORD);
         assertTrue(PasswordHasher.isPasswordCorrect(PASSWORD, hash));
     }
-    
+
     @Test
     public void testIsPasswordCorrectWrongPassword()
     {

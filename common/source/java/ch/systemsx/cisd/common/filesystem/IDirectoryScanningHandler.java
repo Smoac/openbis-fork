@@ -20,8 +20,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask.IScannedStore;
 
 /**
- * A helper class for {@link DirectoryScanningTimerTask} which performs operations before and after
- * treating the matching paths.
+ * A helper class for {@link DirectoryScanningTimerTask} which performs operations before and after treating the matching paths.
  * 
  * @author Christian Ribeaud
  * @see DirectoryScanningTimerTask
@@ -38,8 +37,7 @@ public interface IDirectoryScanningHandler
     }
 
     /**
-     * The instruction of whether to process an item or not, possibly including a message on why not
-     * to process it.
+     * The instruction of whether to process an item or not, possibly including a message on why not to process it.
      * 
      * @author Bernd Rinn
      */
@@ -98,15 +96,15 @@ public interface IDirectoryScanningHandler
      * Run once before the handler is used.
      */
     public void init(IScannedStore scannedStore);
-    
+
     /**
      * Is performed just before handling all the items contained in the store.
      */
     public void beforeHandle(IScannedStore scannedStore);
 
     /**
-     * Whether given <code>storeItem</code> found in given <var>scannedStore</var> should be
-     * processed or not, and whether not processing it constitues an error or not.
+     * Whether given <code>storeItem</code> found in given <var>scannedStore</var> should be processed or not, and whether not processing it
+     * constitues an error or not.
      */
     public HandleInstruction mayHandle(IScannedStore scannedStore, StoreItem storeItem);
 

@@ -44,8 +44,8 @@ public final class ParserUtilities
     }
 
     /**
-     * A class for splitting text content from a <code>String</code> or <code>File</code> into
-     * lines, optionally filtering them by a {@link ILineFilter}.
+     * A class for splitting text content from a <code>String</code> or <code>File</code> into lines, optionally filtering them by a
+     * {@link ILineFilter}.
      */
     public static class LineSplitter implements Closeable
     {
@@ -120,14 +120,12 @@ public final class ParserUtilities
     }
 
     /**
-     * Returns the first <code>Line</code> that is not filtered out by given
-     * <code>ILineFilter</code>.
+     * Returns the first <code>Line</code> that is not filtered out by given <code>ILineFilter</code>.
      * <p>
      * You should not call this method if given <var>content</var> is <code>null</code>.
      * </p>
      * 
-     * @param lineFilterOrNull could be <code>null</code>. In this case, the
-     *            {@link AlwaysAcceptLineFilter} implementation will be used.
+     * @param lineFilterOrNull could be <code>null</code>. In this case, the {@link AlwaysAcceptLineFilter} implementation will be used.
      * @param content the content that is going to be analyzed. Can not be <code>null</code>.
      * @return <code>null</code> if all lines have been filtered out.
      */
@@ -145,16 +143,13 @@ public final class ParserUtilities
     }
 
     /**
-     * Returns the first <code>Line</code> that is not filtered out by given
-     * <code>ILineFilter</code>.
+     * Returns the first <code>Line</code> that is not filtered out by given <code>ILineFilter</code>.
      * <p>
      * You should not call this method if given <var>file</var> does not exist.
      * </p>
      * 
-     * @param lineFilterOrNull could be <code>null</code>. In this case, the
-     *            {@link AlwaysAcceptLineFilter} implementation will be used.
-     * @param file the file that is going to be analyzed. Can not be <code>null</code> and must
-     *            exists.
+     * @param lineFilterOrNull could be <code>null</code>. In this case, the {@link AlwaysAcceptLineFilter} implementation will be used.
+     * @param file the file that is going to be analyzed. Can not be <code>null</code> and must exists.
      * @return <code>null</code> if all lines have been filtered out.
      */
     public final static ILine<String> tryGetFirstAcceptedLine(final File file,

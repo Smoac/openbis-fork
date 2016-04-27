@@ -87,8 +87,7 @@ public final class StringUtils
     }
 
     /**
-     * Joins the elements of the provided array into a single <code>String</code> containing the
-     * provided list of elements.
+     * Joins the elements of the provided array into a single <code>String</code> containing the provided list of elements.
      */
     public final static String join(final Object[] array, final String separator)
     {
@@ -153,8 +152,7 @@ public final class StringUtils
     }
 
     /**
-     * Returns an empty string if given <var>stringOrNull</var> is <code>null</code>, otherwise it
-     * returns <var>stringOrNull</var> itself.
+     * Returns an empty string if given <var>stringOrNull</var> is <code>null</code>, otherwise it returns <var>stringOrNull</var> itself.
      */
     public static final String emptyIfNull(final String stringOrNull)
     {
@@ -162,8 +160,8 @@ public final class StringUtils
     }
 
     /**
-     * Returns an empty string if given <var>objectOrNull</var> is <code>null</code>, otherwise it
-     * returns result of {@link #toString()} on the object.
+     * Returns an empty string if given <var>objectOrNull</var> is <code>null</code>, otherwise it returns result of {@link #toString()} on the
+     * object.
      */
     public static final String toStringEmptyIfNull(final Object objectOrNull)
     {
@@ -171,8 +169,7 @@ public final class StringUtils
     }
 
     /**
-     * Returns null if given <var>objectOrNull</var> is <code>null</code>, otherwise it returns
-     * result of {@link #toString()} on the object.
+     * Returns null if given <var>objectOrNull</var> is <code>null</code>, otherwise it returns result of {@link #toString()} on the object.
      */
     public static final String toStringOrNull(final Object objectOrNull)
     {
@@ -180,8 +177,7 @@ public final class StringUtils
     }
 
     /**
-     * Returns <var>defaultStr</var>, if <var>str</var> is blank, or otherwise it returns
-     * <var>str</var> itself.
+     * Returns <var>defaultStr</var>, if <var>str</var> is blank, or otherwise it returns <var>str</var> itself.
      */
     public static final String defaultIfBlank(String str, String defaultStr)
     {
@@ -271,14 +267,12 @@ public final class StringUtils
     }
 
     /**
-     * Returns <code>true</code> if given <var>regExp</var> could be found in given
-     * <var>value</var>.
+     * Returns <code>true</code> if given <var>regExp</var> could be found in given <var>value</var>.
      * <p>
      * Allowed modifiers are:
      * <ul>
      * <li><i>i</i> - Perform case-insensitive matching
-     * <li><i>g</i> - Perform a global match (find all matches rather than stopping after the first
-     * match)
+     * <li><i>g</i> - Perform a global match (find all matches rather than stopping after the first match)
      * <li><i>m</i> - Perform multiline matching
      * </ul>
      */
@@ -290,8 +284,7 @@ public final class StringUtils
     }-*/;
 
     /**
-     * Returns <code>true</code> if given <var>regExp</var> could be found in given
-     * <var>value</var>.
+     * Returns <code>true</code> if given <var>regExp</var> could be found in given <var>value</var>.
      */
     public static final native boolean matches(final String regExp, final String value)
     /*-{

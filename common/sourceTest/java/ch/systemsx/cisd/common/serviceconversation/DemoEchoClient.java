@@ -42,8 +42,7 @@ public class DemoEchoClient
     }
 
     /**
-     * Inform server that we wish to connect and ensure that we feed his messages into the client's
-     * incoming message queue.
+     * Inform server that we wish to connect and ensure that we feed his messages into the client's incoming message queue.
      */
     private void init()
     {

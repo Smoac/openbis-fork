@@ -24,7 +24,7 @@ import java.awt.image.DataBufferUShort;
 import java.util.Arrays;
 
 /**
- * Class which calculates color histograms (in red, green, and blue) of {@link BufferedImage} instances. 
+ * Class which calculates color histograms (in red, green, and blue) of {@link BufferedImage} instances.
  *
  * @author Franz-Josef Elmer
  */
@@ -33,9 +33,11 @@ public class ImageHistogram
     private static final class ASCIICanvas
     {
         private int width;
+
         private int height;
+
         private char[] canvas;
-        
+
         ASCIICanvas(int width, int height)
         {
             this.height = height;
@@ -43,12 +45,12 @@ public class ImageHistogram
             canvas = new char[this.width * height];
             Arrays.fill(canvas, ' ');
         }
-        
+
         void setPixel(int x, int y, char symbol)
         {
             canvas[y * width + x] = symbol;
         }
-        
+
         void drawHorizontalLine(int x, int y, int length, char symbol)
         {
             for (int i = x, n = Math.min(x + length, width); i < n; i++)
@@ -56,7 +58,7 @@ public class ImageHistogram
                 canvas[y * width + i] = symbol;
             }
         }
-        
+
         void drawVerticalLine(int x, int y, int length, char symbol)
         {
             for (int i = y, n = Math.min(y + length, height); i < n; i++)
@@ -64,7 +66,7 @@ public class ImageHistogram
                 canvas[i * width + x] = symbol;
             }
         }
-        
+
         void drawCenteredText(int x, int y, String text)
         {
             for (int i = 0; i < text.length(); i++)
@@ -72,7 +74,7 @@ public class ImageHistogram
                 canvas[y * width + x + i - text.length() / 2] = text.charAt(i);
             }
         }
-        
+
         @Override
         public String toString()
         {
@@ -80,9 +82,11 @@ public class ImageHistogram
             return new String(canvas);
         }
     }
-    
+
     private static final int EIGHT_BIT_MASK = 0xff;
+
     private static final int FIVE_BIT_MASK = 0x1f;
+
     private static final int SIX_BIT_MASK = 0x3f;
 
     /**
@@ -99,9 +103,12 @@ public class ImageHistogram
             {
                 case BufferedImage.TYPE_INT_ARGB:
                 case BufferedImage.TYPE_INT_ARGB_PRE:
-                case BufferedImage.TYPE_INT_RGB: return calculateHistogram(db, 16, 8, 0);
-                case BufferedImage.TYPE_INT_BGR: return calculateHistogram(db, 0, 8, 16);
-                default: return calculateHistogramSlow(image);
+                case BufferedImage.TYPE_INT_RGB:
+                    return calculateHistogram(db, 16, 8, 0);
+                case BufferedImage.TYPE_INT_BGR:
+                    return calculateHistogram(db, 0, 8, 16);
+                default:
+                    return calculateHistogramSlow(image);
             }
         }
         if (dataBuffer instanceof DataBufferByte)
@@ -109,11 +116,15 @@ public class ImageHistogram
             DataBufferByte db = (DataBufferByte) dataBuffer;
             switch (type)
             {
-                case BufferedImage.TYPE_3BYTE_BGR: return calculateHistogram(db, 3, 2, 1, 0);
+                case BufferedImage.TYPE_3BYTE_BGR:
+                    return calculateHistogram(db, 3, 2, 1, 0);
                 case BufferedImage.TYPE_4BYTE_ABGR_PRE:
-                case BufferedImage.TYPE_4BYTE_ABGR: return calculateHistogram(db, 4, 3, 2, 1);
-                case BufferedImage.TYPE_BYTE_GRAY: return calculateHistogram(db, 1, 0, 0, 0);
-                default: return calculateHistogramSlow(image);
+                case BufferedImage.TYPE_4BYTE_ABGR:
+                    return calculateHistogram(db, 4, 3, 2, 1);
+                case BufferedImage.TYPE_BYTE_GRAY:
+                    return calculateHistogram(db, 1, 0, 0, 0);
+                default:
+                    return calculateHistogramSlow(image);
             }
         }
         if (dataBuffer instanceof DataBufferUShort)
@@ -121,18 +132,22 @@ public class ImageHistogram
             DataBufferUShort db = (DataBufferUShort) dataBuffer;
             switch (type)
             {
-                case BufferedImage.TYPE_USHORT_555_RGB: return calculateHistogram(db, 10, 
-                        FIVE_BIT_MASK, 5, FIVE_BIT_MASK, 0, FIVE_BIT_MASK);
-                case BufferedImage.TYPE_USHORT_565_RGB: return calculateHistogram(db, 11, 
-                        FIVE_BIT_MASK, 5, SIX_BIT_MASK, 0, FIVE_BIT_MASK);
-                case BufferedImage.TYPE_USHORT_GRAY: return calculateHistogram(db, 8, 
-                        EIGHT_BIT_MASK, 8, EIGHT_BIT_MASK, 8, EIGHT_BIT_MASK);
-                default: return calculateHistogramSlow(image);
+                case BufferedImage.TYPE_USHORT_555_RGB:
+                    return calculateHistogram(db, 10,
+                            FIVE_BIT_MASK, 5, FIVE_BIT_MASK, 0, FIVE_BIT_MASK);
+                case BufferedImage.TYPE_USHORT_565_RGB:
+                    return calculateHistogram(db, 11,
+                            FIVE_BIT_MASK, 5, SIX_BIT_MASK, 0, FIVE_BIT_MASK);
+                case BufferedImage.TYPE_USHORT_GRAY:
+                    return calculateHistogram(db, 8,
+                            EIGHT_BIT_MASK, 8, EIGHT_BIT_MASK, 8, EIGHT_BIT_MASK);
+                default:
+                    return calculateHistogramSlow(image);
             }
         }
         return calculateHistogramSlow(image);
     }
-    
+
     private static final ImageHistogram calculateHistogramSlow(BufferedImage image)
     {
         int[] redCounters = new int[256];
@@ -149,8 +164,8 @@ public class ImageHistogram
         }
         return new ImageHistogram(redCounters, greenCounters, blueCounters);
     }
-    
-    private static final ImageHistogram calculateHistogram(DataBufferInt dataBuffer, 
+
+    private static final ImageHistogram calculateHistogram(DataBufferInt dataBuffer,
             int redShift, int greenShift, int blueShift)
     {
         int[] data = dataBuffer.getData();
@@ -165,8 +180,8 @@ public class ImageHistogram
         }
         return new ImageHistogram(redCounters, greenCounters, blueCounters);
     }
-    
-    private static final ImageHistogram calculateHistogram(DataBufferUShort dataBuffer, 
+
+    private static final ImageHistogram calculateHistogram(DataBufferUShort dataBuffer,
             int redShift, int redMask, int greenShift, int greenMask, int blueShift, int blueMask)
     {
         short[] data = dataBuffer.getData();
@@ -181,8 +196,8 @@ public class ImageHistogram
         }
         return new ImageHistogram(redCounters, greenCounters, blueCounters);
     }
-    
-    private static final ImageHistogram calculateHistogram(DataBufferByte dataBuffer, int pixelSize, 
+
+    private static final ImageHistogram calculateHistogram(DataBufferByte dataBuffer, int pixelSize,
             int redIndex, int greenIndex, int blueIndex)
     {
         byte[] data = dataBuffer.getData();
@@ -197,50 +212,52 @@ public class ImageHistogram
         }
         return new ImageHistogram(redCounters, greenCounters, blueCounters);
     }
-    
+
     private final int[] redCounters;
+
     private final int[] greenCounters;
+
     private final int[] blueCounters;
-    
+
     private ImageHistogram(int[] redCounters, int[] greenCounters, int[] blueCounters)
     {
         this.redCounters = redCounters;
         this.greenCounters = greenCounters;
         this.blueCounters = blueCounters;
     }
-    
+
     /**
-     * Returns the histogram of the 8-bit red color component. 
+     * Returns the histogram of the 8-bit red color component.
      */
     public int[] getRedHistogram()
     {
         return redCounters;
     }
-    
+
     /**
-     * Returns the histogram of the 8-bit green color component. 
+     * Returns the histogram of the 8-bit green color component.
      */
     public int[] getGreenHistogram()
     {
         return greenCounters;
     }
-    
+
     /**
-     * Returns the histogram of the 8-bit blue color component. 
+     * Returns the histogram of the 8-bit blue color component.
      */
     public int[] getBlueHistogram()
     {
         return blueCounters;
     }
-    
+
     @Override
     public String toString()
     {
         return renderAsASCIIChart(40, 10);
     }
-    
+
     /**
-     * Creates a string with the chart of the histogram. 
+     * Creates a string with the chart of the histogram.
      * 
      * @param width Number of characters in width.
      * @param height Number of lines.
@@ -298,7 +315,7 @@ public class ImageHistogram
             canvas.drawVerticalLine(x + 1 + i, y + height - 1 - barLength, barLength, '*');
         }
     }
-    
+
     public boolean isGray()
     {
         for (int i = 0; i < redCounters.length; i++)

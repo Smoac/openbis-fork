@@ -20,8 +20,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask.IScannedStore;
 
 /**
- * An <code>IDirectoryScanningHandler</code> implementation which simply delegates the method
- * calls to the encapsulated implementation.
+ * An <code>IDirectoryScanningHandler</code> implementation which simply delegates the method calls to the encapsulated implementation.
  * 
  * @author Christian Ribeaud
  */

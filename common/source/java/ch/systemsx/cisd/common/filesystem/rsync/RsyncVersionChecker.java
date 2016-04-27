@@ -124,8 +124,7 @@ final class RsyncVersionChecker
         }
 
         /**
-         * @return <code>true</code>, if this version is newer or as new the minimal version
-         *         specified.
+         * @return <code>true</code>, if this version is newer or as new the minimal version specified.
          */
         public boolean isNewerOrEqual(int minMajorVerson, int minMinorVersion, int minPatchLevel)
         {
@@ -153,7 +152,7 @@ final class RsyncVersionChecker
         //
         // Object
         //
-        
+
         @Override
         public String toString()
         {
@@ -163,8 +162,7 @@ final class RsyncVersionChecker
     }
 
     /**
-     * Looks up the version of the <var>rsyncExecutable</var>, and, on its way, checks whether its a
-     * good executable at all.
+     * Looks up the version of the <var>rsyncExecutable</var>, and, on its way, checks whether its a good executable at all.
      * 
      * @param rsyncExecutable The executable to find the version for.
      * @return The version information, or <code>null</code>, if the executable doesn't work.
@@ -216,8 +214,7 @@ final class RsyncVersionChecker
     }
 
     /**
-     * Tries to parse the <var>rsyncVersionLine</var>. Returns <code>null</code>, if it is not a
-     * valid version line.
+     * Tries to parse the <var>rsyncVersionLine</var>. Returns <code>null</code>, if it is not a valid version line.
      */
     static RsyncVersion tryParseVersionLine(String rsyncVersionLine)
     {

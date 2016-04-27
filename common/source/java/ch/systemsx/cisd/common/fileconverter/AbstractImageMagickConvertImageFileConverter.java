@@ -34,7 +34,7 @@ abstract class AbstractImageMagickConvertImageFileConverter extends
         AbstractExecutableFileConverter
 {
     private final String imageMagickVersionOrNull;
-    
+
     protected AbstractImageMagickConvertImageFileConverter(Logger machineLog, Logger operationLog)
     {
         super(machineLog, operationLog);
@@ -44,7 +44,7 @@ abstract class AbstractImageMagickConvertImageFileConverter extends
         } else
         {
             imageMagickVersionOrNull = tryGetImageMagickVersion();
-            
+
         }
     }
 

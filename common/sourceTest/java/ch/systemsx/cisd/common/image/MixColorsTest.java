@@ -49,7 +49,7 @@ public class MixColorsTest
     public void testMixTwoPureColorsFullIntensity()
     {
         Color[] colors = new Color[]
-            { fromhex("ff0000"), fromhex("00cccc") };
+        { fromhex("ff0000"), fromhex("00cccc") };
         assertEquals("ffcccc", tohex(MixColors.calcMixedColorLinear(colors)));
         assertEquals("ffa3a3", tohex(MixColors.calcMixedColorQuadratic(colors)));
     }
@@ -58,7 +58,7 @@ public class MixColorsTest
     public void testMixTwoPureColorsLowBrightness()
     {
         Color[] colors = new Color[]
-            { fromhex("100000"), fromhex("000808") };
+        { fromhex("100000"), fromhex("000808") };
         assertEquals("100808", tohex(MixColors.calcMixedColorLinear(colors)));
         assertEquals("100404", tohex(MixColors.calcMixedColorQuadratic(colors)));
     }
@@ -67,7 +67,7 @@ public class MixColorsTest
     public void testMixTwoPureColorsLowBrightnessIncreasing()
     {
         Color[] colors = new Color[]
-                { fromhex("100000"), fromhex("080808") };
+        { fromhex("100000"), fromhex("080808") };
         assertEquals("180808", tohex(MixColors.calcMixedColorLinear(colors)));
         assertEquals("180505", tohex(MixColors.calcMixedColorQuadratic(colors)));
     }
@@ -76,7 +76,7 @@ public class MixColorsTest
     public void testMixTwoPureColorsLowIntensity()
     {
         Color[] colors = new Color[]
-            { fromhex("FF0000"), fromhex("00FFFF") };
+        { fromhex("FF0000"), fromhex("00FFFF") };
         float[] intensities = new float[] { 0.063f, 0.0314f };
         assertEquals("100808", tohex(MixColors.calcMixedColorLinear(colors, intensities)));
         assertEquals("100404", tohex(MixColors.calcMixedColorQuadratic(colors, intensities)));
@@ -86,7 +86,7 @@ public class MixColorsTest
     public void testMixTwoPureColorsLowIntensityBrightnessIncreaseing()
     {
         Color[] colors = new Color[]
-                { fromhex("FF0000"), fromhex("FFFFFF") };
+        { fromhex("FF0000"), fromhex("FFFFFF") };
         float[] intensities = new float[] { 0.063f, 0.0314f };
         assertEquals("180808", tohex(MixColors.calcMixedColorLinear(colors, intensities)));
         assertEquals("180505", tohex(MixColors.calcMixedColorQuadratic(colors, intensities)));
@@ -96,24 +96,24 @@ public class MixColorsTest
     public void testMixDAPIGFPCY5()
     {
         Color dapi = WavelengthColor.getColorForWavelength(461); // 006bff
-        Color gfp = WavelengthColor.getColorForWavelength(509);  // 00ff0d 
-        Color cy5 = WavelengthColor.getColorForWavelength(660);  // ff0000
+        Color gfp = WavelengthColor.getColorForWavelength(509); // 00ff0d
+        Color cy5 = WavelengthColor.getColorForWavelength(660); // ff0000
 
         assertEquals("3ee5ff", tohex(MixColors.calcMixedColorLinear(new Color[]
-            { dapi, gfp, cy5 }, new float[]
-            { 1f, 0.5f, 0.25f })));
+        { dapi, gfp, cy5 }, new float[]
+        { 1f, 0.5f, 0.25f })));
         assertEquals("10a9ff", tohex(MixColors.calcMixedColorQuadratic(new Color[]
-            { dapi, gfp, cy5 }, new float[]
-            { 1f, 0.5f, 0.25f })));
+        { dapi, gfp, cy5 }, new float[]
+        { 1f, 0.5f, 0.25f })));
 
         assertEquals("7ea9ff", tohex(MixColors.calcMixedColorLinear(new Color[]
-            { dapi, gfp, cy5 }, new float[]
-            { 1f, 0.25f, 0.5f })));
+        { dapi, gfp, cy5 }, new float[]
+        { 1f, 0.25f, 0.5f })));
         assertEquals("407bff", tohex(MixColors.calcMixedColorQuadratic(new Color[]
-            { dapi, gfp, cy5 }, new float[]
-            { 1f, 0.25f, 0.5f })));
+        { dapi, gfp, cy5 }, new float[]
+        { 1f, 0.25f, 0.5f })));
     }
-    
+
     @Test
     public void testManyLowIntensityColors()
     {

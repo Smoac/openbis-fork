@@ -39,16 +39,18 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 public class WhiteAndBlackListCodebaseAwareObjectInputStream extends CodebaseAwareObjectInputStream
 {
     public static final String WHITE_LIST = "allowed-api-parameter-classes";
-    
+
     public static final String BLACK_LIST = "disallowed-api-parameter-classes";
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, 
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             WhiteAndBlackListCodebaseAwareObjectInputStream.class);
 
     private static final Patterns whiteListPatterns = new Patterns();
+
     private static final Patterns blackListPatterns = new Patterns();
 
-    static {
+    static
+    {
         whiteListPatterns.addPattern("char");
         whiteListPatterns.addPattern("\\[C");
         whiteListPatterns.addPattern("byte");
@@ -74,7 +76,7 @@ public class WhiteAndBlackListCodebaseAwareObjectInputStream extends CodebaseAwa
         whiteListPatterns.addPattern("ch\\.ethz\\.sis\\..*");
         whiteListPatterns.addPattern("ch\\.systemsx\\.cisd\\..*");
         whiteListPatterns.addPattern("ch\\.systemsx\\.sybit\\.imageviewer\\..*");
-        
+
         blackListPatterns.addPattern("org\\.apache\\.commons\\.collections\\.functors\\.InvokerTransformer");
         blackListPatterns.addPattern("org\\.python\\.core\\.PyClass.*");
         blackListPatterns.addPattern("org\\.python27\\.core\\.PyClass.*");
@@ -90,7 +92,7 @@ public class WhiteAndBlackListCodebaseAwareObjectInputStream extends CodebaseAwa
     {
         blackListPatterns.addPattern(regex);
     }
-    
+
     public static void populateWhiteAndBlackListOfApiParameterClasses(Properties properties)
     {
         boolean patternsAdded = false;
@@ -115,7 +117,7 @@ public class WhiteAndBlackListCodebaseAwareObjectInputStream extends CodebaseAwa
         operationLog.info("Allowed API parameter classes: " + whiteListPatterns);
         operationLog.info("Disallowed API parameter classes: " + blackListPatterns);
     }
-    
+
     public WhiteAndBlackListCodebaseAwareObjectInputStream(InputStream in, ClassLoader classLoader, boolean acceptProxyClasses) throws IOException
     {
         super(in, classLoader, acceptProxyClasses);
@@ -128,7 +130,7 @@ public class WhiteAndBlackListCodebaseAwareObjectInputStream extends CodebaseAwa
         assertMatchingClassName(className);
         return super.resolveClass(classDesc);
     }
-    
+
     private void assertMatchingClassName(String className) throws ClassNotFoundException
     {
         if (className.startsWith("[L") && className.endsWith(";"))
@@ -143,12 +145,13 @@ public class WhiteAndBlackListCodebaseAwareObjectInputStream extends CodebaseAwa
             }
         }
     }
-    
+
     private static final class Patterns
     {
         private final Set<String> patternsAsStrings = new TreeSet<>();
+
         private final List<Pattern> patterns = new LinkedList<>();
-        
+
         synchronized void addPattern(String pattern)
         {
             if (patternsAsStrings.contains(pattern) == false)
@@ -157,7 +160,7 @@ public class WhiteAndBlackListCodebaseAwareObjectInputStream extends CodebaseAwa
                 patternsAsStrings.add(pattern);
             }
         }
-        
+
         synchronized boolean matches(String string)
         {
             for (Pattern pattern : patterns)

@@ -33,8 +33,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 
 /**
- * Extension of Spring's <code>ContextLoaderListener</code> which initializes logging via
- * {@link LogInitializer#init()} and registers an default handler for uncaught exceptions.
+ * Extension of Spring's <code>ContextLoaderListener</code> which initializes logging via {@link LogInitializer#init()} and registers an default
+ * handler for uncaught exceptions.
  * 
  * @see Log4jConfigListener
  * @see ServletContextListener

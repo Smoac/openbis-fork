@@ -35,27 +35,27 @@ public class AlphanumComparatorTest extends AssertJUnit
     {
         // initial order is natural sorting order
         return new Object[][]
-            {
-                        { new String[]
-                            { "12", "123", "13" }, "[12, 13, 123]" },
-                        { new String[]
-                            { "A12", "A123", "A13" }, "[A12, A13, A123]" },
-                        { new String[]
-                            { "A", "AB", "ABC" }, "[A, AB, ABC]" },
-                        { new String[]
-                            { "A1", "A2", "A3" }, "[A1, A2, A3]" },
-                        { new String[]
-                            { "A", "A1", "A2", "AA" }, "[A, A1, A2, AA]" },
-                        { new String[]
-                            { "12AB1", "12AB12", "12AB2", "1AB1", "2AB12", "2AB3" },
-                                "[1AB1, 2AB3, 2AB12, 12AB1, 12AB2, 12AB12]" },
-                        {
-                                new String[]
-                                    { "1_1", "1_2", "1_10", "2_1", "2_2", "2_10", "10_1", "10_2",
-                                            "10_10" },
-                                "[1_1, 1_2, 1_10, 2_1, 2_2, 2_10, 10_1, 10_2, 10_10]" },
+        {
+                { new String[]
+                { "12", "123", "13" }, "[12, 13, 123]" },
+                { new String[]
+                { "A12", "A123", "A13" }, "[A12, A13, A123]" },
+                { new String[]
+                { "A", "AB", "ABC" }, "[A, AB, ABC]" },
+                { new String[]
+                { "A1", "A2", "A3" }, "[A1, A2, A3]" },
+                { new String[]
+                { "A", "A1", "A2", "AA" }, "[A, A1, A2, AA]" },
+                { new String[]
+                { "12AB1", "12AB12", "12AB2", "1AB1", "2AB12", "2AB3" },
+                        "[1AB1, 2AB3, 2AB12, 12AB1, 12AB2, 12AB12]" },
+                {
+                        new String[]
+                        { "1_1", "1_2", "1_10", "2_1", "2_2", "2_10", "10_1", "10_2",
+                                "10_10" },
+                        "[1_1, 1_2, 1_10, 2_1, 2_2, 2_10, 10_1, 10_2, 10_10]" },
 
-            };
+        };
 
     }
 

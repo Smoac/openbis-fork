@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  * A filter for <code>String</code> values. It supports:
  * <ul>
@@ -325,7 +324,7 @@ public class AlternativesStringFilter
             return m1.matches(value) && m2.matches(value);
         }
     }
-    
+
     private static interface IMatcherFactory
     {
         Matcher tryToCreate(String description);
@@ -345,7 +344,7 @@ public class AlternativesStringFilter
                 }
             });
     }
-    
+
     public void setFilterValue(String value, IMatcherFactory factory)
     {
         alternatives.clear();
@@ -380,7 +379,6 @@ public class AlternativesStringFilter
             alternatives.add(matcher);
         }
     }
-    
 
     public void setDateFilterValue(String value)
     {

@@ -43,8 +43,7 @@ public class PropertyIOUtils
      * Loads properties from the specified file and adds them to the specified properties.
      * <ul>
      * <li>Empty lines and lines starting with a hash symbol '#' are ignored.
-     * <li>All other lines should have a equals symbol '='. The trimmed part before/after '='
-     * specify property key and value , respectively.
+     * <li>All other lines should have a equals symbol '='. The trimmed part before/after '=' specify property key and value , respectively.
      * </ul>
      */
     public static void loadAndAppendProperties(Properties properties, File propertiesFile)
@@ -70,15 +69,14 @@ public class PropertyIOUtils
     }
 
     /**
-     * Loads properties from the specified file. This is a simpler version of
-     * {@link PropertyIOUtils#loadProperties(String)} which does not use {@link Properties#load(InputStream)}:
+     * Loads properties from the specified file. This is a simpler version of {@link PropertyIOUtils#loadProperties(String)} which does not use
+     * {@link Properties#load(InputStream)}:
      * <ul>
      * <li>Empty lines and lines starting with a hash symbol '#' are ignored.
-     * <li>All other lines should have a equals symbol '='. The trimmed part before/after '='
-     * specify property key and value , respectively.
+     * <li>All other lines should have a equals symbol '='. The trimmed part before/after '=' specify property key and value , respectively.
      * </ul>
-     * There is no character escaping as in {@link Properties#load(InputStream)} because this can
-     * lead to problems if this syntax isn't known by the creator of a properties file.
+     * There is no character escaping as in {@link Properties#load(InputStream)} because this can lead to problems if this syntax isn't known by the
+     * creator of a properties file.
      */
     public static Properties loadProperties(File propertiesFile)
     {

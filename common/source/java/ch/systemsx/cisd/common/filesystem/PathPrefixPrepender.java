@@ -24,8 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 
 /**
- * Class which adds a prefix to a path. Which prefix is added depends on whether the path starts
- * with '/' (absolute path) or not (relative path).
+ * Class which adds a prefix to a path. Which prefix is added depends on whether the path starts with '/' (absolute path) or not (relative path).
  * 
  * @author Franz-Josef Elmer
  */
@@ -40,8 +39,7 @@ public final class PathPrefixPrepender
     private final String prefixForRelativePaths;
 
     /**
-     * Creates an instances for the specified prefixes. <code>null</code> arguments are handled as
-     * empty strings.
+     * Creates an instances for the specified prefixes. <code>null</code> arguments are handled as empty strings.
      */
     public PathPrefixPrepender(final String prefixForAbsolutePathsOrNull,
             final String prefixForRelativePathsOrNull) throws ConfigurationFailureException

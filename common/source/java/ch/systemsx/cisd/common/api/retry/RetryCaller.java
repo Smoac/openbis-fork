@@ -38,7 +38,7 @@ public abstract class RetryCaller<T, E extends Throwable>
     private int retryCounter;
 
     private int waitingTime;
-    
+
     private final ISimpleLogger logger;
 
     public RetryCaller()
@@ -50,7 +50,7 @@ public abstract class RetryCaller<T, E extends Throwable>
     {
         this(configuration, new ConsoleLogger(System.err));
     }
-    
+
     public RetryCaller(RetryConfiguration configuration, ISimpleLogger logger)
     {
         if (configuration == null)

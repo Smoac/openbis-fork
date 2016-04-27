@@ -19,10 +19,9 @@ package ch.systemsx.cisd.common.reflection;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
- * A modified short prefix {@link ToStringStyle} which allows to work together with jmock and
- * cruisecontrol. The problem was that in jmock exception messages <code>]]&gt;</code> appeared
- * which is the end of a <code>&lt;![CDATA[</code> section in the XML test report. This yields a
- * hiccup in cruisecontrol.
+ * A modified short prefix {@link ToStringStyle} which allows to work together with jmock and cruisecontrol. The problem was that in jmock exception
+ * messages <code>]]&gt;</code> appeared which is the end of a <code>&lt;![CDATA[</code> section in the XML test report. This yields a hiccup in
+ * cruisecontrol.
  * 
  * @author Franz-Josef Elmer
  */
@@ -48,7 +47,9 @@ public class ModifiedShortPrefixToStringStyle extends ToStringStyle
 
     /**
      * <p>
-     * Ensure <code>Singleton</ode> after serialization.</p>
+     * Ensure <code>Singleton</ode> after serialization.
+     * </p>
+     * 
      * @return the singleton
      */
     private Object readResolve()

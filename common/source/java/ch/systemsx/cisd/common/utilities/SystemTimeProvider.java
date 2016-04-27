@@ -28,20 +28,20 @@ import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 public class SystemTimeProvider implements ITimeAndWaitingProvider, Serializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     /** The one and only one instance of this class. */
     public static final ITimeAndWaitingProvider SYSTEM_TIME_PROVIDER = new SystemTimeProvider();
-    
+
     private SystemTimeProvider()
     {
     }
-    
+
     @Override
     public long getTimeInMilliseconds()
     {
         return System.currentTimeMillis();
     }
-    
+
     @Override
     public void sleep(long milliseconds)
     {

@@ -24,8 +24,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import ch.systemsx.cisd.base.exceptions.StopException;
 
 /**
- * A class that provides the framework for guarding a {@link Thread} such that it can be stopped
- * safely. It will guard the current thread of whoever runs {@link #startGuard()}.
+ * A class that provides the framework for guarding a {@link Thread} such that it can be stopped safely. It will guard the current thread of whoever
+ * runs {@link #startGuard()}.
  * <p>
  * A {@link ThreadGuard} instance can only guard a thread once, it can not be reset.
  * 
@@ -49,7 +49,6 @@ final class ThreadGuard
     private ThreadGuard.State state = State.INITIAL;
 
     private volatile boolean cancelled = false;
-
 
     private synchronized Thread tryInterruptAndGetThread()
     {
@@ -96,8 +95,7 @@ final class ThreadGuard
     /**
      * Wait for the guard to be marked finished.
      * 
-     * @return <code>true</code>, if the guard was marked finished in due time and
-     *         <code>false</code>, if the wait timed out.
+     * @return <code>true</code>, if the guard was marked finished in due time and <code>false</code>, if the wait timed out.
      * @throws InterruptedException If this thread got interrupted.
      */
     boolean waitForFinished(long timeoutMillis) throws InterruptedException
@@ -108,11 +106,9 @@ final class ThreadGuard
     // Whatever manipulates state or thread needs to be synchronized.
 
     /**
-     * Start up the guard. The current thread when running this method will be guarded from now on.
-     * Implies {@link #preventStopping()}.
+     * Start up the guard. The current thread when running this method will be guarded from now on. Implies {@link #preventStopping()}.
      * 
-     * @return <code>true</code>, if the guard was successfully started and <code>false</code>,
-     *         if the guard had been canceled before.
+     * @return <code>true</code>, if the guard was successfully started and <code>false</code>, if the guard had been canceled before.
      */
     synchronized boolean startGuard()
     {
@@ -153,8 +149,8 @@ final class ThreadGuard
     }
 
     /**
-     * Returns <code>true</code> if {@link #cancel(boolean)} has been called on the guard
-     * successfully, or when {@link #terminateAndWait(long, long)} has been called on the guard.
+     * Returns <code>true</code> if {@link #cancel(boolean)} has been called on the guard successfully, or when {@link #terminateAndWait(long, long)}
+     * has been called on the guard.
      */
     boolean isCancelled()
     {
@@ -162,11 +158,10 @@ final class ThreadGuard
     }
 
     /**
-     * Tries to cancel the guard, i.e. prevent it from running if it doesn't run yet. If canceling
-     * is successful, it implies marking the guard as finished.
+     * Tries to cancel the guard, i.e. prevent it from running if it doesn't run yet. If canceling is successful, it implies marking the guard as
+     * finished.
      * 
-     * @param mayInterruptIfRunning If <code>true</code> and the guard is in state
-     *            <code>RUNNING</code>, interrupt the thread. Otherwise, do nothing.
+     * @param mayInterruptIfRunning If <code>true</code> and the guard is in state <code>RUNNING</code>, interrupt the thread. Otherwise, do nothing.
      * @return <code>true</code>, if the guard has been canceled successfully.
      */
     synchronized boolean cancel(boolean mayInterruptIfRunning)
@@ -185,34 +180,26 @@ final class ThreadGuard
     }
 
     /**
-     * Tries to terminate task running in the thread. Note that this is a synchronous call that
-     * returns only when either the guard is marked finished or when a timeout has occurred. Note
-     * also that even when providing <var>timeoutMillis</var> as 0, this method may wait up to
-     * <var>waitInterruptMillis</var> milli-seconds for the {@link Thread#interrupt()} call to
-     * work.
+     * Tries to terminate task running in the thread. Note that this is a synchronous call that returns only when either the guard is marked finished
+     * or when a timeout has occurred. Note also that even when providing <var>timeoutMillis</var> as 0, this method may wait up to
+     * <var>waitInterruptMillis</var> milli-seconds for the {@link Thread#interrupt()} call to work.
      * <p>
      * The following steps are performed:
      * <ol>
-     * <li> If the guard got canceled, return with cod<code>true</code>. </li>
-     * <li> If the guard is already in state finishing, wait for the guard to be set to finished and
-     * return <code>true</code>, if that happens in due time and <code>false</code> otherwise.
-     * </li>
-     * <li> Call <code>Thread.terminate()</code> on the thread. </li>
-     * <li> Wait for the guard to be marked finished in response to the call above (wait for
-     * <var>timeoutInterruptMillis</var> milli-seconds. </li>
-     * <li> If the guard didn't get marked as finished, try to call <code>Thread.stop()</code> on
-     * the thread. This can only succeed, if stopping becomes allowed in due time.</li>
-     * <li> If either interrupt or stop took effect in due time, wait for guard to be marked as
-     * finished. </li>
-     * <li> If the guard is marked finished in due time, return <code>true</code>, otherwise
-     * <code>false</code>. </li>
+     * <li>If the guard got canceled, return with cod<code>true</code>.</li>
+     * <li>If the guard is already in state finishing, wait for the guard to be set to finished and return <code>true</code>, if that happens in due
+     * time and <code>false</code> otherwise.</li>
+     * <li>Call <code>Thread.terminate()</code> on the thread.</li>
+     * <li>Wait for the guard to be marked finished in response to the call above (wait for <var>timeoutInterruptMillis</var> milli-seconds.</li>
+     * <li>If the guard didn't get marked as finished, try to call <code>Thread.stop()</code> on the thread. This can only succeed, if stopping
+     * becomes allowed in due time.</li>
+     * <li>If either interrupt or stop took effect in due time, wait for guard to be marked as finished.</li>
+     * <li>If the guard is marked finished in due time, return <code>true</code>, otherwise <code>false</code>.</li>
      * </ol>
      * 
-     * @param waitInterruptMillis The time to wait for <code>interrupt()</code> to terminate the
-     *            task.
+     * @param waitInterruptMillis The time to wait for <code>interrupt()</code> to terminate the task.
      * @param timeoutMillis The method will wait for at most this time for the task to stop.
-     * @return <code>true</code>, if the guard has been marked finished, or <code>false</code>,
-     *         if a timeout has occurred.
+     * @return <code>true</code>, if the guard has been marked finished, or <code>false</code>, if a timeout has occurred.
      * @throws InterruptedException If the current thread is interrupted.
      */
     // Do not synchronize this or things will stop working!

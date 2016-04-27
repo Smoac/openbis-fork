@@ -26,8 +26,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.ArrayUtils;
 
 /**
- * A class that provides function for computing salted (SHA1) hashes of passwords and comparing
- * plain passwords to those hashes for match or mismatch.
+ * A class that provides function for computing salted (SHA1) hashes of passwords and comparing plain passwords to those hashes for match or mismatch.
  * 
  * @author Bernd Rinn
  */
@@ -112,8 +111,7 @@ public class PasswordHasher
     }
 
     /**
-     * Returns <code>true</code> if the given <var>password</var> matches the <var>saltedHash</var>
-     * as computed by {@link #computeSaltedHash(String)}.
+     * Returns <code>true</code> if the given <var>password</var> matches the <var>saltedHash</var> as computed by {@link #computeSaltedHash(String)}.
      */
     public static boolean isPasswordCorrect(String password, String saltedHash)
     {

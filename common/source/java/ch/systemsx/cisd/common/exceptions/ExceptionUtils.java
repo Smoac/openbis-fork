@@ -36,7 +36,7 @@ public final class ExceptionUtils
      * Default packages (and subpackages) for not been masqueraded.
      */
     private final static String[] ACCEPTED_PACKAGE_NAME_DEPENDENCIES =
-                { "java.lang", "ch.systemsx.cisd.base", "ch.systemsx.cisd.common.exceptions" };
+    { "java.lang", "ch.systemsx.cisd.base", "ch.systemsx.cisd.common.exceptions" };
 
     ExceptionUtils()
     {
@@ -44,10 +44,9 @@ public final class ExceptionUtils
     }
 
     /**
-     * Creates a new {@link MasqueradingException} from given <var>exception</var> and collection
-     * of packages which are not masqueraded (in addition to the default packages) only if it is
-     * needed ({@link #isCandidateForMasquerading(Exception, Collection)} returns <code>true</code>).
-     * Otherwise returns given <var>exception</var>.
+     * Creates a new {@link MasqueradingException} from given <var>exception</var> and collection of packages which are not masqueraded (in addition
+     * to the default packages) only if it is needed ({@link #isCandidateForMasquerading(Exception, Collection)} returns <code>true</code>). Otherwise
+     * returns given <var>exception</var>.
      */
     private final static Exception createMasqueradingException(final Exception exception,
             final Collection<String> acceptedPackages)
@@ -90,9 +89,8 @@ public final class ExceptionUtils
     /**
      * Whether given <var>exception</var> is a candidate for masquerading or not.
      * 
-     * @return <code>true</code> if the fully qualified class name of <code>exception</code>
-     *         doesn't start with a package name from <code>acceptedPackages</code> or
-     *         <code>java.lang, ch.systemsx.cisd.common</code>.
+     * @return <code>true</code> if the fully qualified class name of <code>exception</code> doesn't start with a package name from
+     *         <code>acceptedPackages</code> or <code>java.lang, ch.systemsx.cisd.common</code>.
      */
     final static boolean isCandidateForMasquerading(final Exception exception,
             final Collection<String> acceptedPackages)
@@ -108,7 +106,7 @@ public final class ExceptionUtils
         }
         return true;
     }
-    
+
     private static Set<String> createSetOfAcceptedPackages(Collection<String> acceptedPackages)
     {
         final LinkedHashSet<String> set = new LinkedHashSet<String>();
@@ -118,8 +116,8 @@ public final class ExceptionUtils
     }
 
     /**
-     * Analyzes given <var>exception</var> and makes it independent to packages outside the
-     * specified collection or <code>java.lang, ch.systemsx.cisd.common</code>.
+     * Analyzes given <var>exception</var> and makes it independent to packages outside the specified collection or
+     * <code>java.lang, ch.systemsx.cisd.common</code>.
      */
     public final static Exception createMasqueradingExceptionIfNeeded(final Exception exception,
             final Collection<String> acceptedPackages)
@@ -132,8 +130,7 @@ public final class ExceptionUtils
     }
 
     /**
-     * Returns the first found <code>Throwable</code> of given <var>clazz</var> from the
-     * exception chain of given <var>throwable</var>.
+     * Returns the first found <code>Throwable</code> of given <var>clazz</var> from the exception chain of given <var>throwable</var>.
      */
     public final static <T extends Throwable> T tryGetThrowableOfClass(final Throwable throwable,
             final Class<T> clazz)
@@ -152,7 +149,7 @@ public final class ExceptionUtils
         }
         return null;
     }
-    
+
     /**
      * Returns the last {@link Throwable} of a chain of throwables.
      */

@@ -10,8 +10,7 @@ import java.io.File;
 public interface IFileOverwriteStrategy
 {
     /**
-     * Returns <code>true</code> if the existing <var>outputFile</var> can be overwritten and
-     * <code>false</code> otherwise.
+     * Returns <code>true</code> if the existing <var>outputFile</var> can be overwritten and <code>false</code> otherwise.
      */
     public boolean overwriteAllowed(File outputFile);
 }

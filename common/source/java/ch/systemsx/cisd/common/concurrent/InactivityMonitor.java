@@ -25,9 +25,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * An <code>InactivityMonitor</code> monitors some form of activity of a write activity on a
- * <var>destinationStore</var> and triggers an alarm if there was a period of inactivity that
- * exceeds a given inactivity period.
+ * An <code>InactivityMonitor</code> monitors some form of activity of a write activity on a <var>destinationStore</var> and triggers an alarm if
+ * there was a period of inactivity that exceeds a given inactivity period.
  * 
  * @author Bernd Rinn
  */
@@ -45,8 +44,7 @@ public class InactivityMonitor
         /**
          * Returns a string that describes the kind (and possibly reason) of recent inactivity.
          * <p>
-         * Used for log messages. It can generally be assumed that this method is called after
-         * {@link #getLastActivityMillisMoreRecentThan(long)}.
+         * Used for log messages. It can generally be assumed that this method is called after {@link #getLastActivityMillisMoreRecentThan(long)}.
          * 
          * @param now The current time as it should be used in the description.
          */
@@ -54,18 +52,15 @@ public class InactivityMonitor
     }
 
     /**
-     * The observer that gets updated when the activity monitor has exceeded the inactivity
-     * threshold.
+     * The observer that gets updated when the activity monitor has exceeded the inactivity threshold.
      */
     public interface IInactivityObserver
     {
         /**
-         * Method which is called to inform the observer of a period of inactivity above a
-         * threshold.
+         * Method which is called to inform the observer of a period of inactivity above a threshold.
          * 
          * @param inactiveSinceMillis The period of inactivity.
-         * @param descriptionOfInactivity A description of inactivity, supposed to be used for
-         *            logging.
+         * @param descriptionOfInactivity A description of inactivity, supposed to be used for logging.
          */
         void update(long inactiveSinceMillis, String descriptionOfInactivity);
     }
@@ -83,15 +78,13 @@ public class InactivityMonitor
     /**
      * Creates an inactivity monitor.
      * 
-     * @param sensor The sensor to get the activity information from. Note that this store needs to
-     *            detect and signal time out conditions itself. <i>If an operation on this sensor
-     *            hangs infinitely, then the InactivityMonitor hangs, too!</i>
+     * @param sensor The sensor to get the activity information from. Note that this store needs to detect and signal time out conditions itself.
+     *            <i>If an operation on this sensor hangs infinitely, then the InactivityMonitor hangs, too!</i>
      * @param observer The observer to inform when the inactivity threshold has been exceeded.
-     * @param inactivityThresholdMillis The threshold of a period of inactivity that needs to be
-     *            exceeded before the inactivity observer gets informed.
-     * @param stopAfterFirstEvent If <code>true</code>, the monitor will stop itself after the first
-     *            event of exceeded inactivity threshold has happened, otherwise, the monitor will
-     *            continue to look for such events.
+     * @param inactivityThresholdMillis The threshold of a period of inactivity that needs to be exceeded before the inactivity observer gets
+     *            informed.
+     * @param stopAfterFirstEvent If <code>true</code>, the monitor will stop itself after the first event of exceeded inactivity threshold has
+     *            happened, otherwise, the monitor will continue to look for such events.
      */
     public InactivityMonitor(IDescribingActivitySensor sensor, IInactivityObserver observer,
             long inactivityThresholdMillis, boolean stopAfterFirstEvent)
@@ -122,8 +115,7 @@ public class InactivityMonitor
     }
 
     /**
-     * Stops the activity monitoring. The activity monitor must not be used after calling this
-     * method.
+     * Stops the activity monitoring. The activity monitor must not be used after calling this method.
      */
     public void stop()
     {
@@ -143,8 +135,7 @@ public class InactivityMonitor
         }
 
         /**
-         * Potentially time consuming as the sensor might need some time to determine the time of
-         * last activity.
+         * Potentially time consuming as the sensor might need some time to determine the time of last activity.
          */
         private void updateTimeOfActivity()
         {

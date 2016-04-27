@@ -24,8 +24,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 
 /**
- * A class that contains the result of the execution of a {@link Runnable} (or {@link Callable}) in
- * an {@link ExecutorService}.
+ * A class that contains the result of the execution of a {@link Runnable} (or {@link Callable}) in an {@link ExecutorService}.
  * 
  * @author Bernd Rinn
  */
@@ -46,9 +45,8 @@ public final class ExecutionResult<T>
     }
 
     /**
-     * Creates an {@link ExecutionResult} that corresponds to a "real" result. Since a
-     * {@link Runnable} can also provide a <code>null</code> result, <code>null</code> is an
-     * accepted value for the result.
+     * Creates an {@link ExecutionResult} that corresponds to a "real" result. Since a {@link Runnable} can also provide a <code>null</code> result,
+     * <code>null</code> is an accepted value for the result.
      */
     public static final <T> ExecutionResult<T> create(final T resultOrNull)
     {
@@ -88,7 +86,7 @@ public final class ExecutionResult<T>
     {
         return status;
     }
-    
+
     /**
      * Returns <code>true</code>, if the execution status is {@link ExecutionStatus#COMPLETE}.
      */
@@ -98,8 +96,8 @@ public final class ExecutionResult<T>
     }
 
     /**
-     * Returns the returned result of the execution, or <code>null</code>, if either the status
-     * is not {@link ExecutionStatus#COMPLETE} or if the execution didn't provide a result.
+     * Returns the returned result of the execution, or <code>null</code>, if either the status is not {@link ExecutionStatus#COMPLETE} or if the
+     * execution didn't provide a result.
      */
     public T tryGetResult()
     {
@@ -107,8 +105,7 @@ public final class ExecutionResult<T>
     }
 
     /**
-     * Returns the thrown exception (or error) of the execution, or <code>null</code>, if the
-     * status is not {@link ExecutionStatus#EXCEPTION}.
+     * Returns the thrown exception (or error) of the execution, or <code>null</code>, if the status is not {@link ExecutionStatus#EXCEPTION}.
      */
     public Throwable tryGetException()
     {

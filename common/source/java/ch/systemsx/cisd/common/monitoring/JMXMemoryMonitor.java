@@ -62,9 +62,8 @@ public class JMXMemoryMonitor
      * 
      * @param monitoringIntervalMillis Interval (in ms) for monitoring memory consumption.
      * @param logIntervalMillis Interval (in ms) for regular logging of memory consumption.
-     * @param memoryHighWatermarkPercent High-water mark for heap and non-heap memory consumption
-     *            (in percent of the maximal memory). If this mark is exceeded, a warning
-     *            notification will be sent.
+     * @param memoryHighWatermarkPercent High-water mark for heap and non-heap memory consumption (in percent of the maximal memory). If this mark is
+     *            exceeded, a warning notification will be sent.
      */
     public static final void startMonitor(long monitoringIntervalMillis, long logIntervalMillis,
             int memoryHighWatermarkPercent)
@@ -88,9 +87,9 @@ public class JMXMemoryMonitor
         RuntimeMXBean memMXBean = ManagementFactory.getRuntimeMXBean();
         String prefix = "-XX:MaxPermSize=";
         List<String> jvmArgs = memMXBean.getInputArguments();
-        for (final String jvmArg : jvmArgs) 
+        for (final String jvmArg : jvmArgs)
         {
-            if (jvmArg.startsWith(prefix)) 
+            if (jvmArg.startsWith(prefix))
             {
                 machineLog.info("MaxPermSize: " + jvmArg.substring(prefix.length()));
             }

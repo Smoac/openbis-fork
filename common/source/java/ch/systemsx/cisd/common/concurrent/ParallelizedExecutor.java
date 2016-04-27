@@ -96,11 +96,10 @@ public class ParallelizedExecutor
     /**
      * Processes all items with the specified task executor.
      * <p>
-     * Uses #cores * <var>machineLoad</var> threads for the processing, but not more than
-     * <var>maxThreads</var>.
+     * Uses #cores * <var>machineLoad</var> threads for the processing, but not more than <var>maxThreads</var>.
      * 
-     * @param stopOnFirstFailure if true and processing of any item fails (after the specified
-     *            number of retries), then next items are not processed at all.
+     * @param stopOnFirstFailure if true and processing of any item fails (after the specified number of retries), then next items are not processed
+     *            at all.
      */
     public static <T> Collection<FailureRecord<T>> process(List<T> itemsToProcessOrNull,
             ITaskExecutor<T> taskExecutor, double machineLoad, int maxThreads,
@@ -186,8 +185,7 @@ public class ParallelizedExecutor
     }
 
     /**
-     * Converts the <var>failureRecord</var> to an error string. If
-     * <code>failureRecords.isEmpty()</code>, then return <code>null</code>.
+     * Converts the <var>failureRecord</var> to an error string. If <code>failureRecords.isEmpty()</code>, then return <code>null</code>.
      */
     public static <T> String tryFailuresToString(Collection<FailureRecord<T>> failureRecords)
     {

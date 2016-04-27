@@ -20,7 +20,6 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileSystemUtils;
 
-
 /**
  * A simple <code>IFreeSpaceProvider</code> implementation based on {@link FileSystemUtils}.
  * 

@@ -40,11 +40,9 @@ public final class DBUtils
     }
 
     /**
-     * Translates given regular expression to database-like pattern if possible. Returns
-     * <code>null</code> if translation is not possible.
+     * Translates given regular expression to database-like pattern if possible. Returns <code>null</code> if translation is not possible.
      * 
-     * @return regular expression in database-like pattern, or <code>null</code> if translation is
-     *         not possible.
+     * @return regular expression in database-like pattern, or <code>null</code> if translation is not possible.
      */
     public static String tryToTranslateRegExpToLikePattern(String regexpOrNull)
     {

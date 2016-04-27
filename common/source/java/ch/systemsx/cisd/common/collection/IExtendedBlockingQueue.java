@@ -20,8 +20,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A {@link BlockingQueue} with methods that are able to retrieve, but not remove, the head of the
- * queue, waiting if no elements are present.
+ * A {@link BlockingQueue} with methods that are able to retrieve, but not remove, the head of the queue, waiting if no elements are present.
  * 
  * @author Bernd Rinn
  */
@@ -29,8 +28,7 @@ public interface IExtendedBlockingQueue<E> extends BlockingQueue<E>
 {
 
     /**
-     * Retrieves, but does not remove, the head of this queue, waiting if no elements are present on
-     * this queue.
+     * Retrieves, but does not remove, the head of this queue, waiting if no elements are present on this queue.
      * 
      * @return the head of this queue
      * @throws InterruptedException if interrupted while waiting.
@@ -38,8 +36,8 @@ public interface IExtendedBlockingQueue<E> extends BlockingQueue<E>
     public E peekWait() throws InterruptedException;
 
     /**
-     * Retrieves, but does not remove, the head of this queue, waiting if necessary up to the
-     * specified wait time if no elements are present on this queue.
+     * Retrieves, but does not remove, the head of this queue, waiting if necessary up to the specified wait time if no elements are present on this
+     * queue.
      * 
      * @param timeout how long to wait before giving up, in units of <tt>unit</tt>
      * @param unit a <tt>TimeUnit</tt> determining how to interpret the <tt>timeout</tt> parameter

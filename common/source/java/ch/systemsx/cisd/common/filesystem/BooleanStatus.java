@@ -19,8 +19,8 @@ package ch.systemsx.cisd.common.filesystem;
 import java.io.Serializable;
 
 /**
- * A class that holds the information about the boolean result of an operation. There is a way to
- * find out if an error occurred during operation execution, the result is unavailable then.
+ * A class that holds the information about the boolean result of an operation. There is a way to find out if an error occurred during operation
+ * execution, the result is unavailable then.
  * 
  * @author Tomasz Pylak
  */

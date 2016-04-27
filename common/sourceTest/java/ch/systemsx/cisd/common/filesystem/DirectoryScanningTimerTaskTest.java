@@ -161,7 +161,7 @@ public class DirectoryScanningTimerTaskTest
         assertEquals(someFile, mockPathHandler.handledPaths.get(0));
         final File activityLogFile = new File(activityLogDir, threadName);
         assertTrue(activityLogFile.exists());
-        final long milliDiff = System.currentTimeMillis() - activityLogFile.lastModified(); 
+        final long milliDiff = System.currentTimeMillis() - activityLogFile.lastModified();
         assertTrue(milliDiff + "ms", milliDiff < 1000);
     }
 

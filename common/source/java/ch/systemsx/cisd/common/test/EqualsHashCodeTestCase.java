@@ -60,17 +60,14 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Extend me in order to test a class's functional compliance with the <code>equals</code> and
- * <code>hashCode</code> contract.
+ * Extend me in order to test a class's functional compliance with the <code>equals</code> and <code>hashCode</code> contract.
  * <p>
- * Override my {@link #createInstance() createInstance} and
- * {@link #createNotEqualInstance() createNotEqualInstance} methods to provide me with objects to
- * test against. Both methods should return objects that are of the same class.
+ * Override my {@link #createInstance() createInstance} and {@link #createNotEqualInstance() createNotEqualInstance} methods to provide me with
+ * objects to test against. Both methods should return objects that are of the same class.
  * <p>
- * <b>WARNING</b>: Extend me only if your class overrides <code>equals</code> to test for
- * equivalence. If your class's <code>equals</code> tests for identity or preserves the behavior
- * from <code>Object</code>, I'm not interested, because I expect <code>createInstance</code>
- * to return equivalent but distinct objects.
+ * <b>WARNING</b>: Extend me only if your class overrides <code>equals</code> to test for equivalence. If your class's <code>equals</code> tests for
+ * identity or preserves the behavior from <code>Object</code>, I'm not interested, because I expect <code>createInstance</code> to return equivalent
+ * but distinct objects.
  * 
  * @see java.lang.Object#equals(Object)
  * @see java.lang.Object#hashCode()
@@ -92,8 +89,7 @@ public abstract class EqualsHashCodeTestCase<T>
     /**
      * Creates and returns an instance of the class under test.
      * 
-     * @return a new instance of the class under test; each object returned from this method should
-     *         compare equal to each other.
+     * @return a new instance of the class under test; each object returned from this method should compare equal to each other.
      * @throws Exception
      */
     protected abstract T createInstance() throws Exception;
@@ -101,9 +97,8 @@ public abstract class EqualsHashCodeTestCase<T>
     /**
      * Creates and returns an instance of the class under test.
      * 
-     * @return a new instance of the class under test; each object returned from this method should
-     *         compare equal to each other, but not to the objects returned from
-     *         {@link #createInstance() createInstance}.
+     * @return a new instance of the class under test; each object returned from this method should compare equal to each other, but not to the
+     *         objects returned from {@link #createInstance() createInstance}.
      * @throws Exception
      */
     protected abstract T createNotEqualInstance() throws Exception;
@@ -139,8 +134,7 @@ public abstract class EqualsHashCodeTestCase<T>
     }
 
     /**
-     * Tests whether <code>equals</code> holds up against a new <code>Object</code> (should
-     * always be <code>false</code>).
+     * Tests whether <code>equals</code> holds up against a new <code>Object</code> (should always be <code>false</code>).
      */
     @Test
     public final void testEqualsAgainstNewObject()

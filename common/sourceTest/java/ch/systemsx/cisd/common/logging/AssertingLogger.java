@@ -38,7 +38,7 @@ public class AssertingLogger implements ISimpleLogger
     {
         log(level, message, null);
     }
-    
+
     @Override
     public void log(LogLevel level, String message, Throwable throwableOrNull)
     {
@@ -49,7 +49,7 @@ public class AssertingLogger implements ISimpleLogger
     {
         records.clear();
     }
-    
+
     public void assertNumberOfMessage(final int expectedNumberOfMessages)
     {
         assertEquals(expectedNumberOfMessages, records.size());
@@ -69,7 +69,7 @@ public class AssertingLogger implements ISimpleLogger
                 message, pattern);
         assertTrue(assertError, message.matches(pattern));
     }
-    
+
     public void assertThrowable(int i, LogLevel expectedLevel,
             Class<? extends Throwable> throwableClass, String throwableMessagePattern)
     {
@@ -89,7 +89,7 @@ public class AssertingLogger implements ISimpleLogger
     {
         return records.size();
     }
-    
+
     public void print(PrintStream out)
     {
         for (LogRecord record : records)
@@ -97,7 +97,7 @@ public class AssertingLogger implements ISimpleLogger
             out.println(record);
         }
     }
-    
+
     private static class LogRecord
     {
         final LogLevel level;
@@ -120,7 +120,7 @@ public class AssertingLogger implements ISimpleLogger
             {
                 return "LogRecord [level=" + level + ", message=" + message + ", throwable="
                         + throwableOrNull + "]";
-                
+
             } else
             {
                 return "LogRecord [level=" + level + ", message=" + message + "]";

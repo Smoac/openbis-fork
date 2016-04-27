@@ -369,7 +369,7 @@ public class MonitoringProxyTest
                         .errorTypeValueMapping(Status.class, Status.UUUPS)
                         .errorMethodValueMapping(
                                 ITest.class.getMethod("getSpecialStatus", new Class<?>[]
-                                    { Boolean.TYPE }), Status.SPECIAL_UUUPS).sensor(observerSensor)
+                                { Boolean.TYPE }), Status.SPECIAL_UUUPS).sensor(observerSensor)
                         .errorLog(logger).get();
         final ExecutorService executorService =
                 new NamingThreadPoolExecutor("My Special Monitoring Proxy").corePoolSize(1)
@@ -384,7 +384,7 @@ public class MonitoringProxyTest
                         .errorTypeValueMapping(Status.class, Status.UUUPS)
                         .errorMethodValueMapping(
                                 ITest.class.getMethod("getSpecialStatus", new Class<?>[]
-                                    { Boolean.TYPE }), Status.SPECIAL_UUUPS).sensor(observerSensor)
+                                { Boolean.TYPE }), Status.SPECIAL_UUUPS).sensor(observerSensor)
                         .errorLog(logger)
                         .executorService(executorService)
                         .get();
@@ -403,11 +403,11 @@ public class MonitoringProxyTest
                         .timing(TimingParameters.create(TIMEOUT_MILLIS, 1, 0L))
                         .exceptionClassSuitableForRetrying(RetryItException.class)
                         .callAsynchronously(ITest.class.getMethod("idle", new Class<?>[]
-                            { long[].class }))
+                        { long[].class }))
                         .callAsynchronously(ITest.class.getMethod("throwSignalException"))
                         .callAsynchronously(ITest.class.getMethod("worksOnSecondInvocation"))
                         .callAsynchronously(ITest.class.getMethod("getInteger", new Class<?>[]
-                            { Boolean.TYPE }))
+                        { Boolean.TYPE }))
                         .get();
         retryingOnceExceptionThrowingProxy =
                 MonitoringProxy.create(ITest.class, new TestImpl(observerSensor, true))
@@ -516,7 +516,7 @@ public class MonitoringProxyTest
         asyncLogger.reset();
         final long start = System.currentTimeMillis();
         asynchronouslyExecutingProxy.idle(new long[]
-            { 3000L, 0L });
+        { 3000L, 0L });
         final long stop = System.currentTimeMillis();
         assertTrue(Long.toString(stop - start), (stop - start) < 20);
         for (int i = 0; i < 30; ++i)
@@ -710,7 +710,7 @@ public class MonitoringProxyTest
     }
 
     @Test(groups =
-        { "slow" }, retryAnalyzer = Retry50.class, successPercentage = 2)
+    { "slow" }, retryAnalyzer = Retry50.class, successPercentage = 2)
     public void testRetryOnceFailOnceWithCommunicator()
     {
         retryingOnceExceptionThrowingProxy.resetInvocationsCancelled();

@@ -27,8 +27,7 @@ import ch.systemsx.cisd.common.concurrent.ExecutionResult;
 import ch.systemsx.cisd.common.time.TimingParameters;
 
 /**
- * A <code>DelegateFreeSpaceProvider</code> which does not block, computing the free space in its
- * own thread.
+ * A <code>DelegateFreeSpaceProvider</code> which does not block, computing the free space in its own thread.
  * 
  * @author Christian Ribeaud
  */

@@ -22,8 +22,7 @@ import java.util.Set;
 import ch.systemsx.cisd.common.collection.UnmodifiableCollectionDecorator;
 
 /**
- * A decorator for a {@link Set} that does the same as
- * {@link Collections#unmodifiableSet(Set)} but with a 'back-door'.
+ * A decorator for a {@link Set} that does the same as {@link Collections#unmodifiableSet(Set)} but with a 'back-door'.
  *
  * @author Bernd Rinn
  */

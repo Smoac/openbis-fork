@@ -35,7 +35,7 @@ public class MailClientParameters implements Serializable
     private String smtpHost;
 
     private String smtpPort;
-    
+
     private String testAddress;
 
     public final String getFrom()
@@ -87,7 +87,7 @@ public class MailClientParameters implements Serializable
     {
         this.smtpHost = smtpHost;
     }
-    
+
     public String getSmtpPort()
     {
         return smtpPort;
@@ -97,7 +97,7 @@ public class MailClientParameters implements Serializable
     {
         this.smtpPort = smtpPort;
     }
-    
+
     public String getTestAddress()
     {
         return testAddress;
@@ -108,14 +108,15 @@ public class MailClientParameters implements Serializable
         this.testAddress = testAddress;
     }
 
-    public Properties getPropertiesInstance() {
+    public Properties getPropertiesInstance()
+    {
         Properties properties = new Properties();
-        properties.put(JavaMailProperties.MAIL_FROM, (from == null)?"":from);
-        properties.put(JavaMailProperties.MAIL_SMTP_USER, (smtpUser == null)?"":smtpUser);
-        properties.put(MailClient.MAIL_SMTP_PASSWORD, (smtpPassword == null)?"":smtpPassword);
-        properties.put(JavaMailProperties.MAIL_SMTP_HOST, (smtpHost == null)?"":smtpHost);
-        properties.put(JavaMailProperties.MAIL_SMTP_PORT, (smtpPort == null)?"":smtpPort);
-        properties.put(MailClient.MAIL_TEST_ADDRESS, (testAddress == null)?"":testAddress);
+        properties.put(JavaMailProperties.MAIL_FROM, (from == null) ? "" : from);
+        properties.put(JavaMailProperties.MAIL_SMTP_USER, (smtpUser == null) ? "" : smtpUser);
+        properties.put(MailClient.MAIL_SMTP_PASSWORD, (smtpPassword == null) ? "" : smtpPassword);
+        properties.put(JavaMailProperties.MAIL_SMTP_HOST, (smtpHost == null) ? "" : smtpHost);
+        properties.put(JavaMailProperties.MAIL_SMTP_PORT, (smtpPort == null) ? "" : smtpPort);
+        properties.put(MailClient.MAIL_TEST_ADDRESS, (testAddress == null) ? "" : testAddress);
         return properties;
     }
 }

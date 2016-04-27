@@ -23,34 +23,36 @@ import org.apache.log4j.spi.TriggeringEventEvaluator;
 
 /**
  * A {@link BundledTimestampTriggeringEventEvaluator} that triggers every 10 minutes. Can be used, e.g. to make the
- * {@link org.apache.log4j.net.SMTPAppender} send email also on non-error conditions.;
- * 
- * REMARK: This is a solution for Mario Emmenlauer. It should not be recommended because it can lead
- * to the fact that important log events aren't sent for days because no triggering event appears.
+ * {@link org.apache.log4j.net.SMTPAppender} send email also on non-error conditions.; REMARK: This is a solution for Mario Emmenlauer. It should not
+ * be recommended because it can lead to the fact that important log events aren't sent for days because no triggering event appears.
  * 
  * @author Althea Parker
  */
 public class BundledTimestampTriggeringEventEvaluator implements TriggeringEventEvaluator
 {
 
-	private long timestamp;
-	
-	public static long timePeriod = 10 * 60000;
+    private long timestamp;
 
-    public BundledTimestampTriggeringEventEvaluator() { 
-    	timestamp = new Date().getTime();
-    } 
-	
+    public static long timePeriod = 10 * 60000;
+
+    public BundledTimestampTriggeringEventEvaluator()
+    {
+        timestamp = new Date().getTime();
+    }
+
     @Override
-    public boolean isTriggeringEvent(LoggingEvent event) { 
-    	long current_time = new Date().getTime();
-    	if (current_time >= timestamp + timePeriod) { 
-    		timestamp = current_time; 
-    		return true; 
-    	} 
-    	else { 
-    		return false; 
-    	} 
-    } 
-	
+    public boolean isTriggeringEvent(LoggingEvent event)
+    {
+        long current_time = new Date().getTime();
+        if (current_time >= timestamp + timePeriod)
+        {
+            timestamp = current_time;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
 }

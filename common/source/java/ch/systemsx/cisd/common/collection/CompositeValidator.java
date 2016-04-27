@@ -22,11 +22,9 @@ import java.util.List;
 import ch.systemsx.cisd.common.collection.IValidator;
 
 /**
- * An <code>IValidator</code> implementation which validates using a list of individual
- * <code>IValidator</code>.
+ * An <code>IValidator</code> implementation which validates using a list of individual <code>IValidator</code>.
  * <p>
- * This is an <code>OR</code> operation: the tested object should only be validated by at least
- * one <code>IValidator</code> to be valid.
+ * This is an <code>OR</code> operation: the tested object should only be validated by at least one <code>IValidator</code> to be valid.
  * </p>
  * 
  * @author Christian Ribeaud

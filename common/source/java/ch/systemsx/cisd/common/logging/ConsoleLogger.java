@@ -27,17 +27,17 @@ public class ConsoleLogger implements ISimpleLogger
 {
 
     private final PrintStream pstream;
-    
+
     public ConsoleLogger()
     {
         this(System.out);
     }
-    
+
     public ConsoleLogger(PrintStream pstream)
     {
         this.pstream = pstream;
     }
-    
+
     @Override
     public void log(LogLevel level, String message)
     {

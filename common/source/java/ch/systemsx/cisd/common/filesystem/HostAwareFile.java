@@ -74,7 +74,7 @@ public class HostAwareFile extends AbstractHashable implements Serializable
         }
         return new File(path);
     }
-    
+
     /**
      * Returns the (local or remote) file path.
      */
@@ -84,20 +84,20 @@ public class HostAwareFile extends AbstractHashable implements Serializable
     }
 
     /**
-     * Returns the rsync module on the rsync server to use to access this file, or <code>null</code>
-     * , if no rsync server but rather an ssh tunnel should be used.
+     * Returns the rsync module on the rsync server to use to access this file, or <code>null</code> , if no rsync server but rather an ssh tunnel
+     * should be used.
      */
     public final String tryGetRsyncModule()
     {
         return rsyncModuleOrNull;
     }
-    
+
     /** Return the canonical path of the encapsulated <code>path</code>. */
     public final String getCanonicalPath()
     {
         return FileUtilities.getCanonicalPath(getLocalFile());
     }
-    
+
     /** Return a description of the encapsulated <code>path</code>. */
     public final String getPathDescription()
     {
@@ -118,8 +118,7 @@ public class HostAwareFile extends AbstractHashable implements Serializable
     }
 
     /**
-     * Returns the index between host and file, or -1, if the <var>hostFileString</var> does not
-     * contain a host.
+     * Returns the index between host and file, or -1, if the <var>hostFileString</var> does not contain a host.
      */
     public static int getHostFileIndex(final String hostFileString)
     {

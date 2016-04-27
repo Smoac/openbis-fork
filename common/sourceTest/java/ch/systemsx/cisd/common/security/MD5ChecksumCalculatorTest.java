@@ -55,7 +55,7 @@ public class MD5ChecksumCalculatorTest
         String stringChecksum = MD5ChecksumCalculator.calculate(string);
         AssertJUnit.assertEquals(stringChecksum, streamChecksum);
     }
-    
+
     @Test(expectedExceptions = AssertionError.class)
     public void testCalculateForEmptyString()
     {

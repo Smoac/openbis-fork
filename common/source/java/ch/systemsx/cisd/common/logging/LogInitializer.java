@@ -26,8 +26,7 @@ import org.apache.log4j.helpers.LogLog;
 import org.apache.log4j.xml.DOMConfigurator;
 
 /**
- * Initializes the logging system. The {@link #init()} method needs to be called once at system
- * startup.
+ * Initializes the logging system. The {@link #init()} method needs to be called once at system startup.
  * 
  * @author Bernd Rinn
  */
@@ -132,11 +131,9 @@ public class LogInitializer
     /**
      * Initializes logging system. Does nothing if already initialized.
      * <p>
-     * Logging configuration file is assumed to be in
-     * <code>&lt;working directory&gt;/etc/log.xml</code>. If not found we look for a classpath
+     * Logging configuration file is assumed to be in <code>&lt;working directory&gt;/etc/log.xml</code>. If not found we look for a classpath
      * resource named <code>/etc/log.xml</code>.<br>
-     * If nothing found in both locations <code>org.apache.log4j.BaseConfigurator.configure()</code>
-     * is used.
+     * If nothing found in both locations <code>org.apache.log4j.BaseConfigurator.configure()</code> is used.
      * </p>
      */
     public final static synchronized void init()

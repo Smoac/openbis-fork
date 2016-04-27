@@ -23,8 +23,7 @@ import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
 /**
  * Some utility methods regarding <i>SQL State</i>.
  * <p>
- * This class does the job done in
- * <code>org.springframework.jdbc.support.SQLStateSQLExceptionTranslator</code> back.
+ * This class does the job done in <code>org.springframework.jdbc.support.SQLStateSQLExceptionTranslator</code> back.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -69,8 +68,7 @@ public final class SQLStateUtils
     }
 
     /**
-     * Try to find a {@link SQLException} with a non-<code>null</code> SQL state (using
-     * {@link SQLException#getSQLState()}) in given <var>ex</var>.
+     * Try to find a {@link SQLException} with a non-<code>null</code> SQL state (using {@link SQLException#getSQLState()}) in given <var>ex</var>.
      */
     public final static SQLException tryGetNextExceptionWithNonNullState(final Throwable ex)
     {

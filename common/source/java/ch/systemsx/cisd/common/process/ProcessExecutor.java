@@ -48,8 +48,7 @@ import ch.systemsx.cisd.common.utilities.DelegatingTextHandler;
 import ch.systemsx.cisd.common.utilities.ITextHandler;
 
 /**
- * Utility class to execute a command from a command line and deal with possible process results and
- * the process I/O.
+ * Utility class to execute a command from a command line and deal with possible process results and the process I/O.
  * 
  * @author Bernd Rinn
  */
@@ -85,12 +84,12 @@ class ProcessExecutor
             processErrorOutputHandler = new DelegatingTextHandler(new AddToListTextHandler(processErrorOutput),
                     stderrHandlerOrNull);
         }
-        
+
         ITextHandler getProcessTextOutputHandler()
         {
             return processTextOutputHandler;
         }
-        
+
         ITextHandler getProcessErrorOutputHandler()
         {
             return processErrorOutputHandler;
@@ -231,8 +230,7 @@ class ProcessExecutor
     }
 
     /**
-     * Reads the <code>stdout</code> and <code>stderr</code> of <var>process</var>. If
-     * <code>maxBytes > 0</code>, read not more than so many bytes.
+     * Reads the <code>stdout</code> and <code>stderr</code> of <var>process</var>. If <code>maxBytes > 0</code>, read not more than so many bytes.
      */
     private final void readProcessOutput(final ProcessRecord processRecord, final byte[] buffer,
             final long maxBytes)
@@ -270,8 +268,7 @@ class ProcessExecutor
     }
 
     /**
-     * Returns the <code>stdout</code> and <code>stderr</code> of the <var>process</var> in
-     * <var>processRecord.getProcessOutput()</var>.
+     * Returns the <code>stdout</code> and <code>stderr</code> of the <var>process</var> in <var>processRecord.getProcessOutput()</var>.
      */
     private final void readProcessOutputLines(final List<String> stdoutLines,
             final BufferedReader reader, final boolean discard)
@@ -291,9 +288,8 @@ class ProcessExecutor
     }
 
     /**
-     * The class that performs the actual calling and interaction with the Operating System process.
-     * Since we observed hangs of several process-related methods we call all of this in a separate
-     * thread.
+     * The class that performs the actual calling and interaction with the Operating System process. Since we observed hangs of several
+     * process-related methods we call all of this in a separate thread.
      * <p>
      * Spawns a separate thread for the handling of the process I/O.
      */
@@ -397,9 +393,8 @@ class ProcessExecutor
     }
 
     /**
-     * The class that performs the actual calling and interaction with the Operating System process.
-     * Since we observed hangs of several process-related methods we call all of this in a separate
-     * thread.
+     * The class that performs the actual calling and interaction with the Operating System process. Since we observed hangs of several
+     * process-related methods we call all of this in a separate thread.
      * <p>
      * Performs the process I/O in the same thread.
      */
@@ -496,9 +491,8 @@ class ProcessExecutor
     }
 
     /**
-     * The class that performs the destruction of a process that has timed-out. We do this in a
-     * separate thread because we have observed that, depending on the operating system and Java
-     * version, processes can hang indefinitely on launching.
+     * The class that performs the destruction of a process that has timed-out. We do this in a separate thread because we have observed that,
+     * depending on the operating system and Java version, processes can hang indefinitely on launching.
      */
     private final class ProcessKiller implements NamedCallable<ProcessResult>
     {

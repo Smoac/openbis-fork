@@ -17,8 +17,7 @@
 package ch.systemsx.cisd.common.utilities;
 
 /**
- * A {@link ITextHandler} implementation which delegates {@link #handle(String)} to many wrapped 
- * {@link ITextHandler} instances.
+ * A {@link ITextHandler} implementation which delegates {@link #handle(String)} to many wrapped {@link ITextHandler} instances.
  * 
  * @author Franz-Josef Elmer
  */

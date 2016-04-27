@@ -20,8 +20,8 @@ import org.apache.log4j.spi.LoggingEvent;
 import org.apache.log4j.spi.TriggeringEventEvaluator;
 
 /**
- * A {@link TriggeringEventEvaluator} that is always true. Can be used, e.g. to make the
- * {@link org.apache.log4j.net.SMTPAppender} send email also on non-error conditions.;
+ * A {@link TriggeringEventEvaluator} that is always true. Can be used, e.g. to make the {@link org.apache.log4j.net.SMTPAppender} send email also on
+ * non-error conditions.;
  * 
  * @author Bernd Rinn
  */

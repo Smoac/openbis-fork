@@ -19,8 +19,7 @@ package ch.systemsx.cisd.common.api;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
- * Exception that is thrown if the client can not talk to the server because of API version
- * incompatibility.
+ * Exception that is thrown if the client can not talk to the server because of API version incompatibility.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

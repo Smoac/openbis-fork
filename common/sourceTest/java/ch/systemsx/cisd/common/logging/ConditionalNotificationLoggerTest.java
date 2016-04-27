@@ -88,7 +88,7 @@ public final class ConditionalNotificationLoggerTest
     public final Object[][] getIgnoredErrorCount()
     {
         return new Object[][]
-            {
+        {
                 { 0 },
                 { 1 },
                 { 2 }, };

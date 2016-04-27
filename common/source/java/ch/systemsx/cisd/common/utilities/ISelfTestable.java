@@ -28,18 +28,16 @@ public interface ISelfTestable
 {
 
     /**
-     * Returns <code>true</code>, if this self-testable performs remote operations (i.e. requires
-     * network resources.
+     * Returns <code>true</code>, if this self-testable performs remote operations (i.e. requires network resources.
      */
     public boolean isRemote();
 
     /**
-     * Checks this <code>ISelfTestable</code>. Implementations are not supposed to do any failure
-     * logging (debug logging is OK), but the caller is in charge of this.
+     * Checks this <code>ISelfTestable</code>. Implementations are not supposed to do any failure logging (debug logging is OK), but the caller is in
+     * charge of this.
      * 
      * @throws ConfigurationFailureException If the self-test fails due to a configuration problem.
-     * @throws EnvironmentFailureException If the self-test fails due to a problem in the
-     *             environment.
+     * @throws EnvironmentFailureException If the self-test fails due to a problem in the environment.
      */
     public void check() throws EnvironmentFailureException, ConfigurationFailureException;
 

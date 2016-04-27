@@ -24,8 +24,7 @@ import org.springframework.aop.ThrowsAdvice;
 import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
 
 /**
- * A <code>ThrowsAdvice</code> implementation which remove proprietary/external libraries specific
- * exceptions from the one thrown on the server side.
+ * A <code>ThrowsAdvice</code> implementation which remove proprietary/external libraries specific exceptions from the one thrown on the server side.
  * <p>
  * This is used just before result returns to the client, on the service layer.
  * </p>

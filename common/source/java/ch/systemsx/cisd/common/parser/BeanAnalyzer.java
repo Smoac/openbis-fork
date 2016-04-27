@@ -31,8 +31,7 @@ import ch.systemsx.cisd.common.reflection.AnnotationUtils;
 /**
  * A <i>Bean</i> class analyzer.
  * <p>
- * Its main role is to analyze a given <i>Bean</i> class and to list its mandatory resp. optional
- * properties.
+ * Its main role is to analyze a given <i>Bean</i> class and to list its mandatory resp. optional properties.
  * </p>
  * 
  * @author Christian Ribeaud

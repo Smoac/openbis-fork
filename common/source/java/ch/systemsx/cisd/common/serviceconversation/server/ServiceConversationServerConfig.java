@@ -47,12 +47,10 @@ public class ServiceConversationServerConfig
     }
 
     /**
-     * Configures the number of core threads being spawned for service conversations (default: 10).
-     * Core threads are not shut down and all filled before any incoming service conversation
-     * request is queued.
+     * Configures the number of core threads being spawned for service conversations (default: 10). Core threads are not shut down and all filled
+     * before any incoming service conversation request is queued.
      */
-    public ServiceConversationServerConfig numberOfCoreThreads(@SuppressWarnings("hiding")
-    int numberOfCoreThreads)
+    public ServiceConversationServerConfig numberOfCoreThreads(@SuppressWarnings("hiding") int numberOfCoreThreads)
     {
         this.numberOfCoreThreads = numberOfCoreThreads;
         if (this.maxNumberOfThreads < numberOfCoreThreads)
@@ -68,11 +66,9 @@ public class ServiceConversationServerConfig
     }
 
     /**
-     * Configures the maximum number of threads being spawned for service conversations (default:
-     * {@link Integer#MAX_VALUE}).
+     * Configures the maximum number of threads being spawned for service conversations (default: {@link Integer#MAX_VALUE}).
      */
-    public ServiceConversationServerConfig maxNumberOfThreads(@SuppressWarnings("hiding")
-    int maxNumberOfThreads)
+    public ServiceConversationServerConfig maxNumberOfThreads(@SuppressWarnings("hiding") int maxNumberOfThreads)
     {
         this.maxNumberOfThreads = maxNumberOfThreads;
         return this;
@@ -84,12 +80,10 @@ public class ServiceConversationServerConfig
     }
 
     /**
-     * Configures the length of the work queue (default 0). If set to a value larger than 0, new
-     * service conversations will be queued rather than new threads being spawned when all core
-     * threads are busy.
+     * Configures the length of the work queue (default 0). If set to a value larger than 0, new service conversations will be queued rather than new
+     * threads being spawned when all core threads are busy.
      */
-    public ServiceConversationServerConfig workQueueSize(@SuppressWarnings("hiding")
-    int workQueueSize)
+    public ServiceConversationServerConfig workQueueSize(@SuppressWarnings("hiding") int workQueueSize)
     {
         this.workQueueSize = workQueueSize;
         this.maxNumberOfThreads = this.numberOfCoreThreads;
@@ -104,8 +98,7 @@ public class ServiceConversationServerConfig
     /**
      * Configures the shutdown timeout in milli-seconds (default: 60000).
      */
-    public ServiceConversationServerConfig shutdownTimeoutMillis(@SuppressWarnings("hiding")
-    int shutdownTimeoutMillis)
+    public ServiceConversationServerConfig shutdownTimeoutMillis(@SuppressWarnings("hiding") int shutdownTimeoutMillis)
     {
         this.shutdownTimeoutMillis = shutdownTimeoutMillis;
         return this;
@@ -117,11 +110,9 @@ public class ServiceConversationServerConfig
     }
 
     /**
-     * Configures whether the service conversation threads are daemonized (default:
-     * <code>true</code>).
+     * Configures whether the service conversation threads are daemonized (default: <code>true</code>).
      */
-    public ServiceConversationServerConfig daemonize(@SuppressWarnings("hiding")
-    boolean daemonize)
+    public ServiceConversationServerConfig daemonize(@SuppressWarnings("hiding") boolean daemonize)
     {
         this.daemonize = daemonize;
         return this;

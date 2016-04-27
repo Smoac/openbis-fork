@@ -75,8 +75,7 @@ public final class HighwaterMarkWatcher implements Runnable
     private final IFreeSpaceProvider freeSpaceProvider;
 
     /**
-     * @param highwaterMarkInKb the high water mark value in kilobytes. If negative, then
-     *            {@link #run()} always returns without doing anything.
+     * @param highwaterMarkInKb the high water mark value in kilobytes. If negative, then {@link #run()} always returns without doing anything.
      */
     public HighwaterMarkWatcher(final long highwaterMarkInKb)
     {
@@ -206,7 +205,7 @@ public final class HighwaterMarkWatcher implements Runnable
             throw new EnvironmentFailureException(errorMsg);
         }
         return new HighwaterMarkState(new HostAwareFileWithHighwaterMark(file.tryGetHost(), file
-.getPath(), file.tryGetRsyncModule(), getLocalHighWaterMark(file)),
+                .getPath(), file.tryGetRsyncModule(), getLocalHighWaterMark(file)),
                 freeSpaceInKb);
     }
 
@@ -255,8 +254,7 @@ public final class HighwaterMarkWatcher implements Runnable
     }
 
     /**
-     * @return the highwater mark from the file if it is aware of it, otherwise the default
-     *         highwater mark specified in the constructor
+     * @return the highwater mark from the file if it is aware of it, otherwise the default highwater mark specified in the constructor
      */
     private long getLocalHighWaterMark(HostAwareFile file)
     {
@@ -341,8 +339,7 @@ public final class HighwaterMarkWatcher implements Runnable
     }
 
     /**
-     * A <code>ChangeListener</code> implementation which informs the administrator when free space
-     * becomes tight or when free space is again "green".
+     * A <code>ChangeListener</code> implementation which informs the administrator when free space becomes tight or when free space is again "green".
      * 
      * @author Christian Ribeaud
      */

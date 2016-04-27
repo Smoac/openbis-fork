@@ -41,7 +41,7 @@ public class ThreadDump
         dumpAllThreads(writer);
         writer.flush();
     }
-    
+
     /**
      * Dumps all threads onto the specified logger as an INFO message.
      */
@@ -57,7 +57,7 @@ public class ThreadDump
         writer.flush();
         logger.info("Thread dump:\n" + stringWriter.toString());
     }
-    
+
     /**
      * Dumps all threads onto the specified writer.
      */

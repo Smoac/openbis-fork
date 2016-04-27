@@ -19,9 +19,8 @@ package ch.systemsx.cisd.common.api;
 /**
  * The most generic interface for RPC invocations into openBIS.
  * <p>
- * This interface defines a minimal interface presented by RPC services. It lets clients determine
- * which version of the interface the server supports. To do anything interesting, clients need to
- * get a reference to a specific interface using the {@link IRpcServiceNameServer}.
+ * This interface defines a minimal interface presented by RPC services. It lets clients determine which version of the interface the server supports.
+ * To do anything interesting, clients need to get a reference to a specific interface using the {@link IRpcServiceNameServer}.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -31,14 +30,13 @@ public interface IRpcService
     // Protocol versioning
     //
     /**
-     * Returns the major version of the server side interface. Different major versions are
-     * incompatible with one another.
+     * Returns the major version of the server side interface. Different major versions are incompatible with one another.
      */
     public int getMajorVersion();
 
     /**
-     * Returns the minor version of this server side interface. Different minor versions, within the
-     * same major version, are compatible with one another.
+     * Returns the minor version of this server side interface. Different minor versions, within the same major version, are compatible with one
+     * another.
      */
     public int getMinorVersion();
 

@@ -67,11 +67,9 @@ public class FileConverter
     }
 
     /**
-     * Performs the conversion described by <var>conversionStrategy</var> on all files in
-     * <var>directoryName</var>.
+     * Performs the conversion described by <var>conversionStrategy</var> on all files in <var>directoryName</var>.
      * <p>
-     * Uses #cores * <var>machineLoad</var> threads for the conversion, but not more than
-     * <var>maxThreads</var>.
+     * Uses #cores * <var>machineLoad</var> threads for the conversion, but not more than <var>maxThreads</var>.
      * 
      * @return error message if everything went ok or null otherwise.
      */

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.common.reflection;
 
-
 /**
  * Useful utilities for working with class filters.
  * 

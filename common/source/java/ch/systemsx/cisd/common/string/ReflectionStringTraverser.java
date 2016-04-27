@@ -35,9 +35,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogUtils;
 
 /**
- * Allows to change all non-final and non-static strings referenced within the specified object. If
- * isDeep is true, traverses the object recursively; otherwise, performs a shallow traversal.
- * Handles lists and sets of strings.
+ * Allows to change all non-final and non-static strings referenced within the specified object. If isDeep is true, traverses the object recursively;
+ * otherwise, performs a shallow traversal. Handles lists and sets of strings.
  * 
  * @author Tomasz Pylak
  */
@@ -58,8 +57,7 @@ class ReflectionStringTraverser
     {
         /**
          * @param value The value to modify
-         * @param fieldOrNull The field the modification applies to; Can be null if the modification
-         *            is applied to an array.
+         * @param fieldOrNull The field the modification applies to; Can be null if the modification is applied to an array.
          * @return changed value or null if the value should not be changed
          */
         String tryVisit(String value, Object object, Field fieldOrNull);
@@ -134,9 +132,8 @@ class ReflectionStringTraverser
     }
 
     /**
-     * Traverses all non-final and non-static fields with any visibility (including private fields)
-     * of the object recurisively. Changes value of each primitive field if field visitor provides a
-     * new one.
+     * Traverses all non-final and non-static fields with any visibility (including private fields) of the object recurisively. Changes value of each
+     * primitive field if field visitor provides a new one.
      */
     private void traverseFields(Object object, Class<?> clazz)
     {
@@ -167,11 +164,10 @@ class ReflectionStringTraverser
     }
 
     /**
-     * Return a list of all fields (whatever access status, and on whatever superclass they were
-     * defined) that can be found on this class.
+     * Return a list of all fields (whatever access status, and on whatever superclass they were defined) that can be found on this class.
      * <p>
-     * This works like a union of {@link Class#getDeclaredFields()} which ignores super-classes, and
-     * {@link Class#getFields()} which ignores non-public fields
+     * This works like a union of {@link Class#getDeclaredFields()} which ignores super-classes, and {@link Class#getFields()} which ignores
+     * non-public fields
      * 
      * @param clazz The class to introspect
      * @return The complete list of fields
@@ -362,8 +358,7 @@ class ReflectionStringTraverser
 
     // arrayList[index] contains collection of primitive types which will be modified if necessary
     @SuppressWarnings("unchecked")
-    private void visitStringCollectionArrayListElement(@SuppressWarnings("rawtypes")
-    ArrayList arrayList, int index, Object collection)
+    private void visitStringCollectionArrayListElement(@SuppressWarnings("rawtypes") ArrayList arrayList, int index, Object collection)
     {
         Collection<String> newCollection = visitStringCollection(collection);
         arrayList.set(index, newCollection);
@@ -382,8 +377,7 @@ class ReflectionStringTraverser
 
     // arrayList[index] contains a value of primitive type which will be modified if necessary
     @SuppressWarnings("unchecked")
-    private void visitStringArrayListElement(@SuppressWarnings("rawtypes")
-    ArrayList arrayList, int index, String element)
+    private void visitStringArrayListElement(@SuppressWarnings("rawtypes") ArrayList arrayList, int index, String element)
     {
         String newElement = tryVisitString(element);
         if (newElement != null)

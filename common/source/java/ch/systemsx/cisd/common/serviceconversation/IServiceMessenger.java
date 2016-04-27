@@ -49,10 +49,8 @@ public interface IServiceMessenger
      * 
      * @param messageClass The class of the message to receive.
      * @return The message.
-     * @throws UnexpectedMessagePayloadException If the next message is not compatible with
-     *             <var>messageClass</var>.
-     * @throws TimeoutExceptionUnchecked If no message arrived in the time specified in the
-     *             settings.
+     * @throws UnexpectedMessagePayloadException If the next message is not compatible with <var>messageClass</var>.
+     * @throws TimeoutExceptionUnchecked If no message arrived in the time specified in the settings.
      * @throws InterruptedExceptionUnchecked If the client signaled termination (server-side only).
      * @throws ServiceExecutionException If the server signaled an exception (client-side only).
      */
@@ -64,14 +62,10 @@ public interface IServiceMessenger
      * Receive a message from the counter part.
      * 
      * @param messageClass The class of the message to receive.
-     * @param timeoutMillis The timeout (in milli-seconds) to wait for a message to arrive, if no
-     *            message is queued.
-     * @return The message, or <code>null</code>, if no message become available during the period
-     *         given by <var>timeoutMillis</var>.
-     * @throws UnexpectedMessagePayloadException If the next message is not compatible with
-     *             <var>messageClass</var>.
-     * @throws TimeoutExceptionUnchecked If no message arrived in the time specified in the
-     *             settings.
+     * @param timeoutMillis The timeout (in milli-seconds) to wait for a message to arrive, if no message is queued.
+     * @return The message, or <code>null</code>, if no message become available during the period given by <var>timeoutMillis</var>.
+     * @throws UnexpectedMessagePayloadException If the next message is not compatible with <var>messageClass</var>.
+     * @throws TimeoutExceptionUnchecked If no message arrived in the time specified in the settings.
      * @throws InterruptedExceptionUnchecked If the client signaled termination (server-side only).
      * @throws ServiceExecutionException If the server signaled an exception (client-side only).
      */

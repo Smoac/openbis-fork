@@ -33,8 +33,8 @@ public class SslCertificateHelper
     private final String certificateEntryName;
 
     /**
-     * Create a helper that retrieves a certificate from the serviceURL, and stores it in a keystore
-     * file with the name "keystore" in the configDirectory.
+     * Create a helper that retrieves a certificate from the serviceURL, and stores it in a keystore file with the name "keystore" in the
+     * configDirectory.
      * 
      * @param serviceURL The URL to retrieve the certificate from.
      * @param keystoreFile The file where to store the certificate in.
@@ -138,27 +138,27 @@ public class SslCertificateHelper
     private void setUpAllAcceptingTrustManager()
     {
         TrustManager[] trustAllCerts = new TrustManager[]
-            { new X509TrustManager()
+        { new X509TrustManager()
+            {
+                @Override
+                public java.security.cert.X509Certificate[] getAcceptedIssuers()
                 {
-                    @Override
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers()
-                    {
-                        return null;
-                    }
+                    return null;
+                }
 
-                    @Override
-                    public void checkClientTrusted(java.security.cert.X509Certificate[] certs,
-                            String authType)
-                    {
-                    }
+                @Override
+                public void checkClientTrusted(java.security.cert.X509Certificate[] certs,
+                        String authType)
+                {
+                }
 
-                    @Override
-                    public void checkServerTrusted(java.security.cert.X509Certificate[] certs,
-                            String authType)
-                    {
-                    }
-                } };
-        
+                @Override
+                public void checkServerTrusted(java.security.cert.X509Certificate[] certs,
+                        String authType)
+                {
+                }
+            } };
+
         // Install the all-trusting trust manager
         try
         {

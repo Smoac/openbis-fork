@@ -30,9 +30,8 @@ import ch.systemsx.cisd.common.logging.LogUtils;
 import ch.systemsx.cisd.common.reflection.BeanUtils;
 
 /**
- * Performs HTML escaping the string fields of an object. If desired, users can restrict the fields
- * that are escaped by the invoker. Support for controlling the behavior of the escaper by using
- * annotations may come in the future.
+ * Performs HTML escaping the string fields of an object. If desired, users can restrict the fields that are escaped by the invoker. Support for
+ * controlling the behavior of the escaper by using annotations may come in the future.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -54,12 +53,10 @@ public class ReflectingStringEscaper
     }
 
     /**
-     * Like {@link #escapeDeep(Object)} but the original object is not changed. The result contains
-     * a deep copy of original bean with all the string fields on the bean and all fields of objects
-     * referred to by the bean escaped.
+     * Like {@link #escapeDeep(Object)} but the original object is not changed. The result contains a deep copy of original bean with all the string
+     * fields on the bean and all fields of objects referred to by the bean escaped.
      * <p>
-     * NOTE: If serialization of the provided <code>bean</code> fails the result will not be
-     * escaped.
+     * NOTE: If serialization of the provided <code>bean</code> fails the result will not be escaped.
      */
     public static <T extends Serializable> T escapeDeepWithCopy(T bean)
     {
@@ -132,8 +129,7 @@ public class ReflectingStringEscaper
     }
 
     /**
-     * Escape all the string fields on the bean and all fields of objects referred to by the bean,
-     * restricting the field names to those specified.
+     * Escape all the string fields on the bean and all fields of objects referred to by the bean, restricting the field names to those specified.
      */
     public static <T> T escapeDeepRestricted(T bean, String... escapedProperties)
     {

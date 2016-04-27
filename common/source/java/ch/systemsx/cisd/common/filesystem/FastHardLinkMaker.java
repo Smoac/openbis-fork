@@ -89,8 +89,8 @@ public class FastHardLinkMaker implements IFileImmutableCopier
         };
 
     /**
-     * Returns <code>true</code>, if the native library could be initialized successfully and thus
-     * this class is operational, or <code>false</code> otherwise.
+     * Returns <code>true</code>, if the native library could be initialized successfully and thus this class is operational, or <code>false</code>
+     * otherwise.
      */
     public final static boolean isOperational()
     {
@@ -100,10 +100,8 @@ public class FastHardLinkMaker implements IFileImmutableCopier
     /**
      * Creates an {@link IFileImmutableCopier}.
      * 
-     * @param timingParameters The timing parameters used to monitor and potentially retry the hard
-     *            link creation.
-     * @return The copier, if the native library could be initialized successfully, or
-     *         <code>null</code> otherwise.
+     * @param timingParameters The timing parameters used to monitor and potentially retry the hard link creation.
+     * @return The copier, if the native library could be initialized successfully, or <code>null</code> otherwise.
      */
     public final static IFileImmutableCopier tryCreate(final TimingParameters timingParameters)
     {
@@ -116,11 +114,9 @@ public class FastHardLinkMaker implements IFileImmutableCopier
     }
 
     /**
-     * Creates an {@link IFileImmutableCopier} with default timing parameters (uses
-     * {@link TimingParameters#getDefaultParameters()}.
+     * Creates an {@link IFileImmutableCopier} with default timing parameters (uses {@link TimingParameters#getDefaultParameters()}.
      * 
-     * @return The copier, if the native library could be initialized successfully, or
-     *         <code>null</code> otherwise.
+     * @return The copier, if the native library could be initialized successfully, or <code>null</code> otherwise.
      */
     public final static IFileImmutableCopier tryCreate()
     {

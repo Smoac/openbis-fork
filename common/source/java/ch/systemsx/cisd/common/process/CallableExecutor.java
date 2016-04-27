@@ -47,8 +47,7 @@ public final class CallableExecutor
     }
 
     /**
-     * Executes given <var>callable</var> until it returns a non-<code>null</code> value (or
-     * until <code>maxInvocationsOnFailure</code> is reached).
+     * Executes given <var>callable</var> until it returns a non-<code>null</code> value (or until <code>maxInvocationsOnFailure</code> is reached).
      */
     public final <T> T executeCallable(final Callable<T> callable) throws InterruptedExceptionUnchecked
     {

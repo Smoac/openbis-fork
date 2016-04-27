@@ -49,8 +49,7 @@ import com.sun.org.apache.xerces.internal.jaxp.JAXPConstants;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
 /**
- * Helper class providing convenient methods for parsing XML document with and without schema
- * validation.
+ * Helper class providing convenient methods for parsing XML document with and without schema validation.
  * 
  * @author Franz-Josef Elmer
  */
@@ -148,9 +147,8 @@ public class XMLInfraStructure
     }
 
     /**
-     * Parses the specified XML document and deliver all content event to the specified content
-     * handler. An exception with detailed error messages is thrown in case of enabled Schema
-     * validation.
+     * Parses the specified XML document and deliver all content event to the specified content handler. An exception with detailed error messages is
+     * thrown in case of enabled Schema validation.
      */
     public void parse(Reader xmlDocument, ContentHandler contentHandler)
     {

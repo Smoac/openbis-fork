@@ -39,7 +39,7 @@ public class CommaSeparatedListBuilder
         }
         return listBuilder.toString();
     }
-    
+
     /**
      * Creates comma-separated list from specified objects.
      */
@@ -52,9 +52,9 @@ public class CommaSeparatedListBuilder
         }
         return listBuilder.toString();
     }
-    
+
     private final StringBuilder builder = new StringBuilder();
-    
+
     /**
      * Appends specified object.
      */

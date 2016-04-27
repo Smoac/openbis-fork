@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.common.test;
 
-
 /**
  * Constants useful to create regular expressions from non regular expression strings.
  *
@@ -25,6 +24,8 @@ package ch.systemsx.cisd.common.test;
 public class RegExConstants
 {
     public static final String WILDCARD = ".*";
+
     public static final String START_QUOTING = "\\Q";
+
     public static final String END_QUOTING = "\\E";
 }

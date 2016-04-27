@@ -18,8 +18,8 @@ package ch.systemsx.cisd.common.concurrent;
 import java.util.Observer;
 
 /**
- * A simple role that can observe activity. It is a simple version of {@link Observer} that can only
- * observes the fact that the {@link #update()} method has been called.
+ * A simple role that can observe activity. It is a simple version of {@link Observer} that can only observes the fact that the {@link #update()}
+ * method has been called.
  * 
  * @author Bernd Rinn
  */

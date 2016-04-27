@@ -19,8 +19,7 @@ package ch.systemsx.cisd.common.parser;
 import java.util.Set;
 
 /**
- * The job of <code>PropertyMapper</code> is to return mapping informations regarding a given
- * property code.
+ * The job of <code>PropertyMapper</code> is to return mapping informations regarding a given property code.
  * 
  * @author Christian Ribeaud
  */
@@ -38,8 +37,7 @@ public interface IPropertyMapper
     /**
      * Returns a set of all property codes.
      * <p>
-     * Note that changes applied to returned <code>Set</code> are not reflected in the backed
-     * collection.
+     * Note that changes applied to returned <code>Set</code> are not reflected in the backed collection.
      * </p>
      */
     public Set<String> getAllPropertyCodes();

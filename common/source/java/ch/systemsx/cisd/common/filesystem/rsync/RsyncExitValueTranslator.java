@@ -19,8 +19,7 @@ package ch.systemsx.cisd.common.filesystem.rsync;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 
 /**
- * A class that the return value of the <a href="http://rsync.samba.org">rsync</a> program into a
- * meaningful status and message.
+ * A class that the return value of the <a href="http://rsync.samba.org">rsync</a> program into a meaningful status and message.
  * 
  * @author Bernd Rinn
  */
@@ -28,8 +27,7 @@ final class RsyncExitValueTranslator
 {
 
     /**
-     * Returns the error message of rsync as indicated by the <var>exitValue</var>. Must <i>not</i>
-     * be called for <code>exitValue=0</code>.
+     * Returns the error message of rsync as indicated by the <var>exitValue</var>. Must <i>not</i> be called for <code>exitValue=0</code>.
      */
     public static String getMessage(final int exitValue)
     {
@@ -39,8 +37,7 @@ final class RsyncExitValueTranslator
     }
 
     /**
-     * Returns the raw error message of rsync as indicated by the <var>exitValue</var>. Must <i>not</i>
-     * be called for <code>exitValue=0</code>.
+     * Returns the raw error message of rsync as indicated by the <var>exitValue</var>. Must <i>not</i> be called for <code>exitValue=0</code>.
      */
     private static String getRawMessage(final int exitValue)
     {

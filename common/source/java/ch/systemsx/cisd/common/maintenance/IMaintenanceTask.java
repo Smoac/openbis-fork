@@ -21,16 +21,16 @@ import java.util.Properties;
 /**
  * The interface that should be implemented by all maintenance tasks. Task instances are reusable.
  * <p>
- * If your maintenance task needs cleanup, additionally implement the {@link java.io.Closeable}
- * interface and put the cleanup tasks in {@link java.io.Closeable#close()}.
+ * If your maintenance task needs cleanup, additionally implement the {@link java.io.Closeable} interface and put the cleanup tasks in
+ * {@link java.io.Closeable#close()}.
  * 
  * @author Izabela Adamczyk
  */
 public interface IMaintenanceTask
 {
     /**
-     * Prepares the task for execution and checks that it has been configured correctly. It will be
-     * called exactly once immediately after the task is created.
+     * Prepares the task for execution and checks that it has been configured correctly. It will be called exactly once immediately after the task is
+     * created.
      * 
      * @param pluginName Name of the plugin. Useful for creating messages.
      * @param properties Properties to set up the task.
@@ -38,8 +38,7 @@ public interface IMaintenanceTask
     public void setUp(String pluginName, Properties properties);
 
     /**
-     * Performs the maintenance task. This method is reusable - it will be called many times every
-     * certain time period.
+     * Performs the maintenance task. This method is reusable - it will be called many times every certain time period.
      */
     public void execute();
 }
