@@ -40,7 +40,7 @@ public class LazyLoader implements InvocationHandler
         return java.lang.reflect.Proxy.newProxyInstance(
                 WebElement.class.getClassLoader(),
                 new Class<?>[]
-                    { WebElement.class, WrapsElement.class },
+                { WebElement.class, WrapsElement.class },
                 new LazyLoader(id, null));
     }
 
@@ -49,7 +49,7 @@ public class LazyLoader implements InvocationHandler
         return java.lang.reflect.Proxy.newProxyInstance(
                 WebElement.class.getClassLoader(),
                 new Class<?>[]
-                    { WebElement.class, WrapsElement.class },
+                { WebElement.class, WrapsElement.class },
                 new LazyLoader(xpath, context));
     }
 

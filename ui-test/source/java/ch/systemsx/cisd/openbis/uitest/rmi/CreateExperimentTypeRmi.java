@@ -50,8 +50,7 @@ public class CreateExperimentTypeRmi implements Command<ExperimentType>
     }
 
     private ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType convert(
-            @SuppressWarnings("hiding")
-            ExperimentType type)
+            @SuppressWarnings("hiding") ExperimentType type)
     {
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType experimentType =
                 new ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType();

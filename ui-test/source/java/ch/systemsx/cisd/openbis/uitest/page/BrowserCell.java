@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
-
 /**
  * @author anttil
  */

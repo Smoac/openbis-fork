@@ -42,27 +42,26 @@ public class StartApplicationServer
                 {
 
                     /*
-                    com.google.gwt.dev.DevMode.main(new String[]
-                        { "-startupUrl", "ch.systemsx.cisd.openbis.OpenBIS/index.html",
-                                "ch.systemsx.cisd.openbis.OpenBIS", "-war",
-                                "../openbis/targets/www", "-logLevel", "INFO" });
+                     * com.google.gwt.dev.DevMode.main(new String[] { "-startupUrl", "ch.systemsx.cisd.openbis.OpenBIS/index.html",
+                     * "ch.systemsx.cisd.openbis.OpenBIS", "-war", "../openbis/targets/www", "-logLevel", "INFO" });
+                     */
+                    Server server = new Server(10000);
 
-                    */
-                	Server server = new Server(10000);
-                	
                     WebAppContext context = new WebAppContext();
-                    
-                    if (new File("targets/gradle/openbis-war/openbis.war").exists() == false) {
+
+                    if (new File("targets/gradle/openbis-war/openbis.war").exists() == false)
+                    {
                         context.setDescriptor("targets/www/WEB-INF/web.xml");
-                        context.setResourceBase("targets/www");                    	
-                    } else {
+                        context.setResourceBase("targets/www");
+                    } else
+                    {
                         context.setWar("targets/gradle/openbis-war/openbis.war");
                     }
-                    
+
                     context.setContextPath("/");
                     context.setParentLoaderPriority(true);
                     context.addAliasCheck(new AllowSymLinkAliasChecker());
-                    
+
                     server.setHandler(context);
                     try
                     {

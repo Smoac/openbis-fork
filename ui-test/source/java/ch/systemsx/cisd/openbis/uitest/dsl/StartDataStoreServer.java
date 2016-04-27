@@ -37,7 +37,7 @@ public class StartDataStoreServer
     public static String go() throws Exception
     {
         System.out.println("STARTING DSS");
-        
+
         new File("targets/store").mkdirs();
         new File("dss-root/targets/store").mkdirs();
 
@@ -45,15 +45,16 @@ public class StartDataStoreServer
 
         System.out.println("DSS STARTED");
         String command;
-        
+
         String classpath = System.getProperty("selenium.dss-runtime-classpath");
-        if (classpath == null || classpath.length() == 0) {
-        	classpath = System.getProperty("java.class.path");
+        if (classpath == null || classpath.length() == 0)
+        {
+            classpath = System.getProperty("java.class.path");
         }
-        
-        command = "java -ea -Dfile.encoding=UTF-8 -classpath "+classpath+" ch.systemsx.cisd.openbis.dss.generic.DataStoreServer";
-        
-        System.out.println("Starting External DSS with command "+command);
+
+        command = "java -ea -Dfile.encoding=UTF-8 -classpath " + classpath + " ch.systemsx.cisd.openbis.dss.generic.DataStoreServer";
+
+        System.out.println("Starting External DSS with command " + command);
 
         ProcessHandler p =
                 new ProcessHandler(

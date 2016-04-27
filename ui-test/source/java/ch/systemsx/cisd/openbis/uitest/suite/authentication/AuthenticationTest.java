@@ -22,7 +22,7 @@ public class AuthenticationTest extends SeleniumTest
         useGui();
         enableLegacyUi();
     }
-    
+
     protected void enableLegacyUi()
     {
         login(ADMIN_USER, ADMIN_PASSWORD);

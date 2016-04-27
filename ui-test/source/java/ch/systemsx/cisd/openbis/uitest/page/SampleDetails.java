@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.uitest.page;
 
 /**
- * 
- *
  * @author anttil
  */
 public class SampleDetails

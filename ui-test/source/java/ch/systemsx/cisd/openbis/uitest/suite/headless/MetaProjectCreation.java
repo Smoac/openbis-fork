@@ -38,21 +38,21 @@ public class MetaProjectCreation extends HeadlessSuite
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void metaProjectNamesDoNotAllowSpace() throws Exception
     {
         create(aMetaProject().withName("The Name"));
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void metaProjectNamesDoNotAllowSlash() throws Exception
     {
         create(aMetaProject().withName("This/That"));
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void metaProjectNamesDoNotAllowComma() throws Exception
     {
         create(aMetaProject().withName("This,That"));
@@ -71,7 +71,7 @@ public class MetaProjectCreation extends HeadlessSuite
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void cannotCreateMetaProjectsWithSameNameInDifferentCases() throws Exception
     {
         create(aMetaProject().withName("NamE"));
