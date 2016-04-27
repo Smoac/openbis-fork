@@ -8,9 +8,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 /**
  * Default implementation of the IViewLocatorHandler interface. Designed to be subclassed.
  * <p>
- * The default implementation is bound to one particular action. The method
- * {@link #canHandleLocator(ViewLocator)} returns true if the locator's action matches my
- * handledAction.
+ * The default implementation is bound to one particular action. The method {@link #canHandleLocator(ViewLocator)} returns true if the locator's
+ * action matches my handledAction.
  * 
  * @author Chandrasekhar Ramakrishnan
  * @author Piotr Buczek
@@ -84,8 +83,7 @@ public abstract class AbstractViewLocatorResolver implements IViewLocatorResolve
     }
 
     /**
-     * Utility method that throws an exception with a standard error message if the required
-     * paramter is not specified
+     * Utility method that throws an exception with a standard error message if the required paramter is not specified
      */
     protected static final void checkRequiredParameter(String valueOrNull, String paramName)
             throws UserFailureException

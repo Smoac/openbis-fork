@@ -3,8 +3,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 
 /**
- * Item with label which can be conveniently used in {@link SimpleComboBox} or
- * {@link CheckBoxGroupWithModel}.
+ * Item with label which can be conveniently used in {@link SimpleComboBox} or {@link CheckBoxGroupWithModel}.
  * 
  * @author Tomasz Pylak
  */

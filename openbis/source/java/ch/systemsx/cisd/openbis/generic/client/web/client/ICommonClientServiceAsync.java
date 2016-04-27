@@ -503,18 +503,19 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> criteria,
             boolean showOnlyDirectlyConnected,
             AsyncCallback<TypedTableResultSet<AbstractExternalData>> asyncCallback);
-    
+
     /**
      * @see ICommonClientService#listSampleDataSets(TechId sampleId, boolean showOnlyDirectlyConnected)
      */
     public void listSampleDataSets(TechId sampleId, boolean showOnlyDirectlyConnected,
-           AsyncCallback<List<String>> asyncCallback);
+            AsyncCallback<List<String>> asyncCallback);
 
     /**
      * @see ICommonClientService#getSampleChildrenInfo(List<TechId> sampleIds, boolean showOnlyDirectlyConnected)
      */
     public void getSampleChildrenInfo(List<TechId> sampleIds, boolean showOnlyDirectlyConnected,
             AsyncCallback<List<SampleChildrenInfo>> asyncCallback);
+
     /**
      * @see ICommonClientService#listExperimentDataSets(TechId, DefaultResultSetConfig, boolean)
      */
@@ -1200,7 +1201,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#listPredeployedPlugins(ScriptType)
      */
     public void listPredeployedPlugins(ScriptType scriptType, AsyncCallback<List<String>> callback);
-    
+
     /**
      * @see ICommonClientService#getDisabledText()
      */

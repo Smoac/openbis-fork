@@ -25,8 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 
 /**
- * Holds not only the result set, but also a set of entity types which are contained in the result
- * set.
+ * Holds not only the result set, but also a set of entity types which are contained in the result set.
  * <p>
  * Entity types can be helpful in deciding which property types can be found in the result set.
  * </p>

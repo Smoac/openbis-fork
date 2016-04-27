@@ -208,8 +208,8 @@ public class SpaceGrid extends TypedTableGrid<Space>
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { DatabaseModificationKind.createOrDelete(ObjectKind.SPACE),
-                    DatabaseModificationKind.edit(ObjectKind.SPACE) };
+        { DatabaseModificationKind.createOrDelete(ObjectKind.SPACE),
+                DatabaseModificationKind.edit(ObjectKind.SPACE) };
     }
 
     private static final class GroupListDeletionConfirmationDialog extends

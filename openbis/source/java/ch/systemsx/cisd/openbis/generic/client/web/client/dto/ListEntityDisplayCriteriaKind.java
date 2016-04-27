@@ -21,8 +21,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 /**
  * Enumeration of display criteria kinds that can be used to list entities.<br>
  * <br>
- * Display criteria for entities can consist of either detailed search criterions or simple browsing
- * criterions.
+ * Display criteria for entities can consist of either detailed search criterions or simple browsing criterions.
  * 
  * @author Piotr Buczek
  */

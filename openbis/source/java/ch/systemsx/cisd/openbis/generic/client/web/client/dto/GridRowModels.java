@@ -40,11 +40,9 @@ public class GridRowModels<T> extends ArrayList<GridRowModel<T>> implements Seri
     private List<GridCustomColumnInfo> customColumnsMetadata;
 
     /**
-     * Information about distinct values in the columns. Only those columns which user wanted to
-     * filter with column filters and which at the same time had values belonging to a small set are
-     * included.<br>
-     * Note that all rows are taken into account to compute distinct values, not only those from
-     * this grid row model.<br>
+     * Information about distinct values in the columns. Only those columns which user wanted to filter with column filters and which at the same time
+     * had values belonging to a small set are included.<br>
+     * Note that all rows are taken into account to compute distinct values, not only those from this grid row model.<br>
      */
     private List<ColumnDistinctValues> columnDistinctValues;
 

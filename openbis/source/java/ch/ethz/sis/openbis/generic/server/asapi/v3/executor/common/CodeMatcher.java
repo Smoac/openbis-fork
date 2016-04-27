@@ -19,8 +19,6 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class CodeMatcher<OBJECT extends ICodeHolder> extends StringFieldMatcher<OBJECT>

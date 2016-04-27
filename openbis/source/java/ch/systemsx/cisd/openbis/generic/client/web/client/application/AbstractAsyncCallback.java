@@ -35,8 +35,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessi
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
- * Abstract super class of call backs. Subclasses have to implement {@link #process(Object)}. Note,
- * that instances of this class and its subclasses are stateful and can not be reused.
+ * Abstract super class of call backs. Subclasses have to implement {@link #process(Object)}. Note, that instances of this class and its subclasses
+ * are stateful and can not be reused.
  * 
  * @author Franz-Josef Elmer
  */
@@ -187,8 +187,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     /**
      * Returns the callback id which can be used in tests.
      * <p>
-     * This method should be subclassed if differentiation between callbacks of the same class is
-     * needed in the tests.
+     * This method should be subclassed if differentiation between callbacks of the same class is needed in the tests.
      * </p>
      */
     public String getCallbackId()
@@ -341,11 +340,9 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     }
 
     /**
-     * This method should be overriden if callback should be ignored on success. By default
-     * <var>successAction</var> is always executed.
+     * This method should be overriden if callback should be ignored on success. By default <var>successAction</var> is always executed.
      * <p>
-     * In overriden method one should ignore the callback with {@link #ignore()}. Otherwise the
-     * <var>successAction</var> should be executed.
+     * In overriden method one should ignore the callback with {@link #ignore()}. Otherwise the <var>successAction</var> should be executed.
      */
     protected void performSuccessActionOrIgnore(IDelegatedAction successAction)
     {
@@ -353,8 +350,8 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     }
 
     /**
-     * This method should be called if callback will not be processed immediately after creation. It
-     * is needed for our system test framework to work properly.
+     * This method should be called if callback will not be processed immediately after creation. It is needed for our system test framework to work
+     * properly.
      */
     public final void ignore()
     {
@@ -362,12 +359,10 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     }
 
     /**
-     * NOTE: The basic rule is 'Never reuse a callback object: Instances of AbstractAsyncCallback
-     * are stateful'.
+     * NOTE: The basic rule is 'Never reuse a callback object: Instances of AbstractAsyncCallback are stateful'.
      * <p>
-     * This method is only for special callbacks that are reusable. Call it just before calling
-     * service method but make sure {@link #ignore()} was called first in callback constructor after
-     * calling abstract constructor. It is needed for our system test framework to work properly.
+     * This method is only for special callbacks that are reusable. Call it just before calling service method but make sure {@link #ignore()} was
+     * called first in callback constructor after calling abstract constructor. It is needed for our system test framework to work properly.
      */
     public final void reuse()
     {

@@ -77,8 +77,7 @@ public class TSVRenderer
     }
 
     /**
-     * @return <var>value</var> with white-spaces cleaned in the same way that HTML works (all
-     *         contiguous white-spaces are replaced with single space)
+     * @return <var>value</var> with white-spaces cleaned in the same way that HTML works (all contiguous white-spaces are replaced with single space)
      */
     private String cleanWhitespaces(String value)
     {

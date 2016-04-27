@@ -148,8 +148,7 @@ public class ColumnSettingsDialog extends Dialog
     }
 
     /**
-     * The default implementation links all column settings dialogs to one help page. Subclasses may
-     * override.
+     * The default implementation links all column settings dialogs to one help page. Subclasses may override.
      */
     protected HelpPageIdentifier createHelpPageIdentifier()
     {

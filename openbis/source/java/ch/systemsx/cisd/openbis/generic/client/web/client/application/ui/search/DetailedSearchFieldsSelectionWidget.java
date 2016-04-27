@@ -52,8 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
- * {@link ComboBox} containing list of detailed search fields loaded from the server (property
- * types) and static ones.
+ * {@link ComboBox} containing list of detailed search fields loaded from the server (property types) and static ones.
  * 
  * @author Izabela Adamczyk
  * @author Piotr Buczek
@@ -107,8 +106,7 @@ public final class DetailedSearchFieldsSelectionWidget extends
     }
 
     /**
-     * Returns {@link DetailedSearchField} connected with selected option, or null - if nothing
-     * selected.
+     * Returns {@link DetailedSearchField} connected with selected option, or null - if nothing selected.
      */
     public DetailedSearchField tryGetSelectedField()
     {

@@ -35,8 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
- * {@link ComboBox} containing list of property type codes assigned to specified entity type loaded
- * from the server.
+ * {@link ComboBox} containing list of property type codes assigned to specified entity type loaded from the server.
  * 
  * @author Piotr Buczek
  */

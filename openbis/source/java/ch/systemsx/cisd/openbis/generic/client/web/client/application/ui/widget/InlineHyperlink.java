@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget
 import com.google.gwt.user.client.ui.Hyperlink;
 
 /**
- * A {@link Hyperlink} widget extension that changes default display style from block to inline and
- * keeps no history token.
+ * A {@link Hyperlink} widget extension that changes default display style from block to inline and keeps no history token.
  * 
  * @author Piotr Buczek
  */
@@ -37,5 +36,5 @@ public final class InlineHyperlink extends Hyperlink
         super(text, null);
         addStyleName("inline");
     }
-    
+
 }

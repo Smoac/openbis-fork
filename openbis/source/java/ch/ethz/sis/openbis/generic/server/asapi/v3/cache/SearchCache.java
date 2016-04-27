@@ -38,18 +38,17 @@ public class SearchCache<CRITERIA, FETCH_OPTIONS, OBJECT> implements ISearchCach
 
     @Autowired
     private CacheManager cacheManager;
-    
+
     private RuntimeCache<SearchCacheKey<CRITERIA, FETCH_OPTIONS>, SearchCacheEntry<OBJECT>> runtimeCache;
-    
+
     public SearchCache()
     {
     }
-    
+
     public SearchCache(RuntimeCache<SearchCacheKey<CRITERIA, FETCH_OPTIONS>, SearchCacheEntry<OBJECT>> runtimeCache)
     {
         this.runtimeCache = runtimeCache;
     }
-
 
     @Override
     public SearchCacheEntry<OBJECT> get(SearchCacheKey<CRITERIA, FETCH_OPTIONS> key)

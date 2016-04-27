@@ -36,8 +36,7 @@ public class DatastoreServiceDescriptionModel extends SimplifiedBaseModelData
     }
 
     /**
-     * @param datasetOrNull if not null only services that match the data set's type will be
-     *            converted
+     * @param datasetOrNull if not null only services that match the data set's type will be converted
      */
     public final static List<DatastoreServiceDescriptionModel> convert(
             final List<DatastoreServiceDescription> services, final AbstractExternalData datasetOrNull)

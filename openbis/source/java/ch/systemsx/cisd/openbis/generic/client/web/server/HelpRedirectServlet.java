@@ -31,15 +31,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
 /**
- * Takes a help page identifier (i.e., the context for the help request) and redirects to the
- * appropriate page for that identifier.
+ * Takes a help page identifier (i.e., the context for the help request) and redirects to the appropriate page for that identifier.
  * 
  * @author Chandrasekhar Ramakrishnan
  * @author Piotr Buczek
  */
 @Controller
 @RequestMapping(
-    { "/help", "/openbis/help" })
+{ "/help", "/openbis/help" })
 public class HelpRedirectServlet extends AbstractController
 {
 
@@ -63,8 +62,7 @@ public class HelpRedirectServlet extends AbstractController
     }
 
     /**
-     * Write an HTTP redirect to the help page identified by the request parameters into the
-     * response.
+     * Write an HTTP redirect to the help page identified by the request parameters into the response.
      */
     @Override
     protected ModelAndView handleRequestInternal(HttpServletRequest request,
@@ -129,8 +127,8 @@ public class HelpRedirectServlet extends AbstractController
     }
 
     /**
-     * Construct the portion of the URL that identifies a particular help page from the request. The
-     * parameter {@link GenericConstants#HELP_REDIRECT_PAGE_TITLE_KEY} is used to do this.
+     * Construct the portion of the URL that identifies a particular help page from the request. The parameter
+     * {@link GenericConstants#HELP_REDIRECT_PAGE_TITLE_KEY} is used to do this.
      */
     String tryGetHelpPageTitleForRequest(HttpServletRequest request)
     {

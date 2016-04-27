@@ -228,7 +228,7 @@ public abstract class AbstractExternalDataProvider extends
         }
         return builder.getModel();
     }
-    
+
     private TableMap<String, DataSetType> getDataSetTypes()
     {
         List<DataSetType> dataSetTypes = commonServer.listDataSetTypes(sessionToken);

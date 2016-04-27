@@ -34,7 +34,7 @@ public final class DummyComponent extends LayoutContainer
     {
         this("This feature will be implemented later...");
     }
-    
+
     public DummyComponent(String message)
     {
         setId(ID);

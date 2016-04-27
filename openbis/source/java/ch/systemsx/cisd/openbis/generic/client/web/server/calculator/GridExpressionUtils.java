@@ -62,8 +62,7 @@ public class GridExpressionUtils
     private static final String COLUMN_EVALUATION_ERROR_LONG = "Error: (%s).";
 
     /**
-     * Applies the filter described by <code>customFilterInfo</code> to
-     * all rows and returns indices of all rows passing the filter.
+     * Applies the filter described by <code>customFilterInfo</code> to all rows and returns indices of all rows passing the filter.
      * 
      * @param dataProvider Provider of data and meta-data
      */

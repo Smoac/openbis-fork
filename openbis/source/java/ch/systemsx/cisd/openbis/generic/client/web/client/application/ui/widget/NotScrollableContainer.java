@@ -20,8 +20,8 @@ import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 
 /**
- * Extension of {@link LayoutContainer} which will neither have scrollbars switched on nor the
- * content cut. It is usable when only the parent container should have the scrollbar.
+ * Extension of {@link LayoutContainer} which will neither have scrollbars switched on nor the content cut. It is usable when only the parent
+ * container should have the scrollbar.
  * 
  * @author Tomasz Pylak
  */

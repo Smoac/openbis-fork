@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.console;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 interface ICommand

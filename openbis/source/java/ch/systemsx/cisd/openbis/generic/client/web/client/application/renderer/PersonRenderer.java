@@ -50,8 +50,7 @@ public final class PersonRenderer
     private static final char LOGIN_START = '[';
 
     /**
-     * Registrator renderer. Works only with {@link TableModelRowWithObject} wrapping a DTO
-     * implementing {@link IRegistratorHolder}.
+     * Registrator renderer. Works only with {@link TableModelRowWithObject} wrapping a DTO implementing {@link IRegistratorHolder}.
      */
     public static final GridCellRenderer<BaseEntityModel<?>> REGISTRATOR_RENDERER =
             new GridCellRenderer<BaseEntityModel<?>>()
@@ -70,8 +69,7 @@ public final class PersonRenderer
                 };
 
     /**
-     * Modifier renderer. Works only with {@link TableModelRowWithObject} wrapping a DTO
-     * implementing {@link IRegistratorAndModifierHolder}.
+     * Modifier renderer. Works only with {@link TableModelRowWithObject} wrapping a DTO implementing {@link IRegistratorAndModifierHolder}.
      */
     public static final GridCellRenderer<BaseEntityModel<?>> MODIFIER_RENDERER =
             new GridCellRenderer<BaseEntityModel<?>>()

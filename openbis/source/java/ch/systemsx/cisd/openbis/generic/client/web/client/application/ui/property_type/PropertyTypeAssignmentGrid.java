@@ -296,13 +296,13 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
 
                                         final AsyncCallback<Integer> callback = new UnassignmentPreparationCallback(viewContext, etpt, invoker,
                                                 new UnassigmentExecution()
-                                            {
-                                                @Override
-                                                public void executeUnassignment()
-                                                {
-                                                    (new InMemoryGridRemoveCallback()).callback(etpt);
-                                                }
-                                            });
+                                                    {
+                                                        @Override
+                                                        public void executeUnassignment()
+                                                        {
+                                                            (new InMemoryGridRemoveCallback()).callback(etpt);
+                                                        }
+                                                    });
                                         viewContext.getService().countPropertyTypedEntities(entityKind, propertyTypeCode, entityTypeCode, callback);
 
                                     }
@@ -491,21 +491,21 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
 
                     viewContext.getCommonService().listPropertyTypeAssignments(etpt.getEntityType(),
                             new AbstractAsyncCallback<List<EntityTypePropertyType<?>>>(viewContext)
-                        {
-                            @Override
-                            protected void process(List<EntityTypePropertyType<?>> etpts)
-                            {
-                                form.remove(loading);
-                                if (assignmentsHolder.getAssignments() == null)
                                 {
-                                    initFields(etpts);
-                                } else
-                                {
-                                    initFields(assignmentsHolder.getAssignments().getEntity().getAssignedPropertyTypes());
-                                }
-                                isLoaded = true;
-                            }
-                        });
+                                    @Override
+                                    protected void process(List<EntityTypePropertyType<?>> etpts)
+                                    {
+                                        form.remove(loading);
+                                        if (assignmentsHolder.getAssignments() == null)
+                                        {
+                                            initFields(etpts);
+                                        } else
+                                        {
+                                            initFields(assignmentsHolder.getAssignments().getEntity().getAssignedPropertyTypes());
+                                        }
+                                        isLoaded = true;
+                                    }
+                                });
                 }
 
                 private void initFields(List<? extends EntityTypePropertyType<?>> etpts)
@@ -532,7 +532,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                     // Script Field
                     scriptChooser = createScriptChooserField(viewContext, script != null ? script.getName()
                             : null, script != null, script != null ? script.getScriptType()
-                                    : null,
+                            : null,
                             entityKind);
                     addField(scriptChooser);
 

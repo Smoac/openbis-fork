@@ -67,9 +67,8 @@ public class ModulesMenu extends TopMenuItem implements IModuleInitializationObs
     }
 
     /**
-     * Adds menu items supplied by the specified <var>modules</var> to the this menu and then shows
-     * the menu. Additional simplification of the menu structure is done if there is only one item
-     * in the submenu.
+     * Adds menu items supplied by the specified <var>modules</var> to the this menu and then shows the menu. Additional simplification of the menu
+     * structure is done if there is only one item in the submenu.
      */
     void addModuleItems(List<IModule> modules)
     {
@@ -121,8 +120,7 @@ public class ModulesMenu extends TopMenuItem implements IModuleInitializationObs
     }
 
     /**
-     * If there is only one item in specified <var>topMenu</var> and that item has a sub menu then
-     * 'pull up' this one item into the top menu.
+     * If there is only one item in specified <var>topMenu</var> and that item has a sub menu then 'pull up' this one item into the top menu.
      */
     private static void simplifyIfNecessary(TopMenuItem topMenu)
     {

@@ -21,8 +21,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.ISearchObject
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface ISearchMaterialTypeExecutor extends ISearchObjectExecutor<EntityTypeSearchCriteria, MaterialTypePE>

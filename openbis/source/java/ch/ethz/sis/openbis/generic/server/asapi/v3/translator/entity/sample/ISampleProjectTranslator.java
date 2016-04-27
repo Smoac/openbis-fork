@@ -19,8 +19,6 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.sample;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.project.IObjectToProjectTranslator;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface ISampleProjectTranslator extends IObjectToProjectTranslator

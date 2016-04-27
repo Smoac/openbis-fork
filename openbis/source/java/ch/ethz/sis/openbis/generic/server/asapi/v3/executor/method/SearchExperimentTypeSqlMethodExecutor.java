@@ -31,19 +31,19 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.experiment.
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 
 /**
- *
  * @author Franz-Josef Elmer
  */
 @Component
-public class SearchExperimentTypeSqlMethodExecutor extends AbstractIdSearchMethodExecutor<ExperimentType, ExperimentTypePE, EntityTypeSearchCriteria, ExperimentTypeFetchOptions> 
+public class SearchExperimentTypeSqlMethodExecutor extends
+        AbstractIdSearchMethodExecutor<ExperimentType, ExperimentTypePE, EntityTypeSearchCriteria, ExperimentTypeFetchOptions>
         implements ISearchExperimentTypeMethodExecutor
 {
     @Autowired
     private ISearchExperimentTypeExecutor searchExecutor;
-    
+
     @Autowired
     private IExperimentTypeTranslator translator;
-    
+
     @Override
     protected List<ExperimentTypePE> searchPEs(IOperationContext context, EntityTypeSearchCriteria criteria)
     {

@@ -362,7 +362,7 @@ public class GridCustomColumnGrid extends TypedTableGrid<GridCustomColumn>
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { DatabaseModificationKind.createOrDelete(ObjectKind.GRID_CUSTOM_COLUMN),
-                    DatabaseModificationKind.edit(ObjectKind.GRID_CUSTOM_COLUMN) };
+        { DatabaseModificationKind.createOrDelete(ObjectKind.GRID_CUSTOM_COLUMN),
+                DatabaseModificationKind.edit(ObjectKind.GRID_CUSTOM_COLUMN) };
     }
 }

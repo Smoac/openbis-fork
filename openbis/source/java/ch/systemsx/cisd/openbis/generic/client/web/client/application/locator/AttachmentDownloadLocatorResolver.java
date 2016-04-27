@@ -15,8 +15,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 
 /**
- * ViewLocatorHandler used for downloading attachment. We use permIds to identify attachment holder
- * and we don't have permIds for projects so these locators work only for samples and experiments.
+ * ViewLocatorHandler used for downloading attachment. We use permIds to identify attachment holder and we don't have permIds for projects so these
+ * locators work only for samples and experiments.
  * 
  * @author Piotr Buczek
  */

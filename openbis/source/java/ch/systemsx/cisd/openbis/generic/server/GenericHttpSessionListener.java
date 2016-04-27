@@ -32,11 +32,9 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
- * Implements {@link HttpSessionListener} and allows to perform chosen actions when session is being
- * created or destroyed.
+ * Implements {@link HttpSessionListener} and allows to perform chosen actions when session is being created or destroyed.
  * <p>
- * This ensures that the corresponding {@link Session} gets removed when a {@link HttpSession} gets
- * destroyed.
+ * This ensures that the corresponding {@link Session} gets removed when a {@link HttpSession} gets destroyed.
  * </p>
  * 
  * @author Izabela Adamczyk

@@ -33,8 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 /**
  * A rudimentary example of using the openBIS IGeneralInformationService API to find data sets.
  * <p>
- * The main method gets a reference to the openBIS informational API and then uses this API to list
- * samples and data sets.
+ * The main method gets a reference to the openBIS informational API and then uses this API to list samples and data sets.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -93,8 +92,7 @@ public class DataSetLister
     }
 
     /**
-     * An example that finds all data sets. Depending on the size of the DB, this could be very
-     * slow.
+     * An example that finds all data sets. Depending on the size of the DB, this could be very slow.
      */
     @SuppressWarnings("unused")
     private void findAllDataSets()

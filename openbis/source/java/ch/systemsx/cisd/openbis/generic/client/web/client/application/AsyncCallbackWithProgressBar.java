@@ -24,8 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
 /**
- * {@link AsyncCallback} decorator adding a progress bar that is visible until response is received
- * from a RPC call.
+ * {@link AsyncCallback} decorator adding a progress bar that is visible until response is received from a RPC call.
  * 
  * @author Piotr Buczek
  */

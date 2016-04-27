@@ -112,7 +112,8 @@ public class SearchLocatorResolver extends AbstractViewLocatorResolver
                     }
                 } else
                 {
-                    if (key.startsWith("ui-") == false) {
+                    if (key.startsWith("ui-") == false)
+                    {
                         DetailedSearchCriterion searchCriterion =
                                 getSearchCriterionForKeyValueAndEntityKind(key, value);
                         criterionList.add(searchCriterion);
@@ -136,8 +137,7 @@ public class SearchLocatorResolver extends AbstractViewLocatorResolver
         }
 
         /**
-         * Convert the key/value to a search criterion. The kind of field depends on whether the key
-         * refers to an attribute or property.
+         * Convert the key/value to a search criterion. The kind of field depends on whether the key refers to an attribute or property.
          */
         protected DetailedSearchCriterion getSearchCriterionForKeyValueAndEntityKind(String key,
                 String value)

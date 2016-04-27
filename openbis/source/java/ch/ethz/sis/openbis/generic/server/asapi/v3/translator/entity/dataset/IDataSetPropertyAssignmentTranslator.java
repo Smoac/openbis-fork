@@ -19,8 +19,6 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.dataset;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.property.IPropertyAssignmentTranslator;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IDataSetPropertyAssignmentTranslator extends IPropertyAssignmentTranslator

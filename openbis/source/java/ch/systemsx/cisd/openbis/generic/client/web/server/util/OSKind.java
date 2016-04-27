@@ -19,13 +19,12 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 /**
  * Enum holding OS specific attributes like line separator etc.
  * 
- *
  * @author Franz-Josef Elmer
  */
 public enum OSKind
 {
     MAC("\n"), WINDOWS("\r\n"), UNIX("\n"), OTHER("\n");
-    
+
     private final String lineSeparator;
 
     private OSKind(String lineSeparator)

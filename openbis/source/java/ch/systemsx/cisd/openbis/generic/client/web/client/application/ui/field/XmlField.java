@@ -23,8 +23,7 @@ import com.google.gwt.xml.client.XMLParser;
 import com.google.gwt.xml.client.impl.DOMParseException;
 
 /**
- * Text field allowing to specify an XML document. The document will be validated on blur (it should
- * be a well-formed XML).
+ * Text field allowing to specify an XML document. The document will be validated on blur (it should be a well-formed XML).
  * 
  * @author Piotr Buczek
  */

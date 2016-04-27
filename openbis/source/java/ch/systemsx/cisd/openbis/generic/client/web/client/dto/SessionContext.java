@@ -60,9 +60,8 @@ public class SessionContext implements IsSerializable
     }
 
     /**
-     * Returns the display settings. Display settings shouldn't be manipulated directly. Instead the
-     * display settings manager should be used. It can be accessed by
-     * {@link IViewContext#getDisplaySettingsManager()}.
+     * Returns the display settings. Display settings shouldn't be manipulated directly. Instead the display settings manager should be used. It can
+     * be accessed by {@link IViewContext#getDisplaySettingsManager()}.
      */
     public final DisplaySettings getDisplaySettings()
     {
@@ -70,9 +69,8 @@ public class SessionContext implements IsSerializable
     }
 
     /**
-     * Sets the display settings. This method should not be used on the client. In order to
-     * manipulate the display settings a display settings manager as returned by
-     * {@link IViewContext#getDisplaySettingsManager()} should be used.
+     * Sets the display settings. This method should not be used on the client. In order to manipulate the display settings a display settings manager
+     * as returned by {@link IViewContext#getDisplaySettingsManager()} should be used.
      */
     public final void setDisplaySettings(DisplaySettings displaySettings)
     {

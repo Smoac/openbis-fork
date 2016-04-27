@@ -19,8 +19,6 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.attachment
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.IObjectBaseTranslator;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IAttachmentBaseTranslator extends IObjectBaseTranslator<AttachmentBaseRecord>

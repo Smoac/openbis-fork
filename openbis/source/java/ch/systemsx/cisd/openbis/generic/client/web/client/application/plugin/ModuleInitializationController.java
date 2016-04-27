@@ -24,8 +24,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 
 /**
- * This class controls initialization process of all modules and notifies the
- * {@link IModuleInitializationObserver}s when all initialization is finished.
+ * This class controls initialization process of all modules and notifies the {@link IModuleInitializationObserver}s when all initialization is
+ * finished.
  * 
  * @author Piotr Buczek
  */
@@ -34,9 +34,8 @@ public class ModuleInitializationController
     private static ModuleInitializationController INSTANCE;
 
     /**
-     * Cleans up the controller instance which is kept as a singleton on the client. Should be
-     * called after logout, otherwise module initialization might not be performed on the server
-     * after server restart and modules will stop working (see LMS-2154) .
+     * Cleans up the controller instance which is kept as a singleton on the client. Should be called after logout, otherwise module initialization
+     * might not be performed on the server after server restart and modules will stop working (see LMS-2154) .
      */
     public static void cleanup()
     {

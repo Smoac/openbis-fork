@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public class OpenBisSessionManager extends DefaultSessionManager<Session> implements IOpenBisSessionManager
 {
     private static final int DEFAULT_SESSION_EXPIRATION_PERIOD_FOR_NO_LOGIN = 10;
-    
+
     private static final int getSessionExpirationPeriodMinutesForNoLogin(String property)
     {
         try
@@ -46,7 +46,7 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
             return DEFAULT_SESSION_EXPIRATION_PERIOD_FOR_NO_LOGIN;
         }
     }
-    
+
     IDAOFactory daoFactory;
 
     private String userForAnonymousLogin;
@@ -55,7 +55,7 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
             IAuthenticationService authenticationService, IRemoteHostProvider remoteHostProvider, int sessionExpirationPeriodMinutes,
             String sessionExpirationPeriodMinutesForNoLogin, boolean tryEmailAsUserName, IDAOFactory daoFactory)
     {
-        super(sessionFactory, prefixGenerator, authenticationService, remoteHostProvider, sessionExpirationPeriodMinutes, 
+        super(sessionFactory, prefixGenerator, authenticationService, remoteHostProvider, sessionExpirationPeriodMinutes,
                 getSessionExpirationPeriodMinutesForNoLogin(sessionExpirationPeriodMinutesForNoLogin), tryEmailAsUserName);
         this.daoFactory = daoFactory;
     }

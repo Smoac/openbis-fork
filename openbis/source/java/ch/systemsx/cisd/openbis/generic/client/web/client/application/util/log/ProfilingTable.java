@@ -22,8 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Class for profiling and debugging by developers. Stores debug information about logged events,
- * allows to see duration time of logged events.
+ * Class for profiling and debugging by developers. Stores debug information about logged events, allows to see duration time of logged events.
  * 
  * @author Tomasz Pylak
  */
@@ -129,8 +128,7 @@ public class ProfilingTable implements IProfilingTable
     /**
      * Logs the event.
      * 
-     * @return id of the logged task. Use this id in {@link #logStop} method to measure the time
-     *         between event start and stop.
+     * @return id of the logged task. Use this id in {@link #logStop} method to measure the time between event start and stop.
      */
     @Override
     public int log(String description)
@@ -141,8 +139,7 @@ public class ProfilingTable implements IProfilingTable
     }
 
     /**
-     * Logs the event with the specified id. Use {@link #log(String)} if you do not want to manage
-     * the events ids.
+     * Logs the event with the specified id. Use {@link #log(String)} if you do not want to manage the events ids.
      */
     @Override
     public void log(int taskId, String description)
@@ -151,8 +148,7 @@ public class ProfilingTable implements IProfilingTable
     }
 
     /**
-     * Logs end of the event. It's cheap to call this method. Call this method only if you want to
-     * measure time between start and stop.
+     * Logs end of the event. It's cheap to call this method. Call this method only if you want to measure time between start and stop.
      */
     @Override
     public void logStop(int taskId)

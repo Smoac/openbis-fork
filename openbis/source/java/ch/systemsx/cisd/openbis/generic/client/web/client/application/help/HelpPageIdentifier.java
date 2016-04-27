@@ -22,8 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * An identifier that uniquely designates a help page. The identifier is made up of a domain and an
- * action.
+ * An identifier that uniquely designates a help page. The identifier is made up of a domain and an action.
  * 
  * @author Chandrasekhar Ramakrishnan
  * @author Piotr Buczek
@@ -97,8 +96,7 @@ public class HelpPageIdentifier
         }
 
         /**
-         * List of {@link HelpPageDomain}s starting from the base domain (a domain without super
-         * domain) down to this domain.
+         * List of {@link HelpPageDomain}s starting from the base domain (a domain without super domain) down to this domain.
          */
         public List<HelpPageDomain> getDomainPath()
         {

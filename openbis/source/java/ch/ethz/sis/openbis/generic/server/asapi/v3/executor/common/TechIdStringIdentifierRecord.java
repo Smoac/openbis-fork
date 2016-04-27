@@ -17,12 +17,11 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TechIdStringIdentifierRecord
 {
     public Long id;
+
     public String identifier;
 }

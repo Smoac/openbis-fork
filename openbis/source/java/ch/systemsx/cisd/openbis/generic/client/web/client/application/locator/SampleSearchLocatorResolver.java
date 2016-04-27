@@ -94,7 +94,7 @@ public class SampleSearchLocatorResolver
             // were found, open the search view.
             switch (result.getResultSet().getTotalLength())
             {
-                // Nothing found -- notify the user
+            // Nothing found -- notify the user
                 case 0:
                     GWTUtils.alert("Error", "No samples matching criteria ["
                             + displayCriteria.getSearchCriteria().toString() + "] were found.");

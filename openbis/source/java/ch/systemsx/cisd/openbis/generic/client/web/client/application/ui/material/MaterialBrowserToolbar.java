@@ -109,9 +109,9 @@ public class MaterialBrowserToolbar extends ToolBar implements IDisposableCompon
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { createOrDelete(ObjectKind.MATERIAL_TYPE),
-                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                    edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
+        { createOrDelete(ObjectKind.MATERIAL_TYPE),
+                createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
     @Override

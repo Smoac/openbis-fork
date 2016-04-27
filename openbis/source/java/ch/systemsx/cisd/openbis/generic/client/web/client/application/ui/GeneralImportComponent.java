@@ -11,8 +11,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
- * Allows to specify search criteria for materials contained in wells. Used in experiment section
- * panel or as a standalone module.
+ * Allows to specify search criteria for materials contained in wells. Used in experiment section panel or as a standalone module.
  * 
  * @author Pawel Glyzewski
  */

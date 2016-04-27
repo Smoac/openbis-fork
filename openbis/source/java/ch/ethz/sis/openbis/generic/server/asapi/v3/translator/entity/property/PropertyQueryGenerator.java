@@ -124,7 +124,7 @@ public class PropertyQueryGenerator
     {
 
         StringBuilder sb = new StringBuilder();
-        
+
         for (String line : StringUtils.trim(query).split("\\n"))
         {
             if (line.isEmpty())

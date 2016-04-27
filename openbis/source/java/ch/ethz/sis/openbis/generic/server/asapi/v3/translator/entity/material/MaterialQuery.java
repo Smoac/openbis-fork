@@ -79,11 +79,11 @@ public interface MaterialQuery extends ObjectQuery
 
     @Select(sql = "select ma.mate_id as objectId, ma.mepr_id as relatedId from metaproject_assignments ma where ma.mate_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getTagIds(LongSet materialIds);
-    
-    @Select(sql = "select maty_id as objectId, id as relatedId from material_type_property_types where maty_id = any(?{1})", 
+
+    @Select(sql = "select maty_id as objectId, id as relatedId from material_type_property_types where maty_id = any(?{1})",
             parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getPropertyAssignmentIds(LongSet materialTypeIds);
-    
+
     @Select(sql = "select * from material_type_property_types where id = any(?{1})", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<PropertyAssignmentRecord> getPropertyAssignments(LongSet materialTypePropertyTypeIds);

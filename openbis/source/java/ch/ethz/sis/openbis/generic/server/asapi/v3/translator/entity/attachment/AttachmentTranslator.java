@@ -48,23 +48,23 @@ public class AttachmentTranslator extends AbstractCachingTranslator<Long, Attach
         implements IAttachmentTranslator
 {
     private static Comparator<AttachmentBaseRecord> VERSION_COMPARATOR = new Comparator<AttachmentBaseRecord>()
+        {
+            @Override
+            public int compare(AttachmentBaseRecord r1, AttachmentBaseRecord r2)
             {
-                @Override
-                public int compare(AttachmentBaseRecord r1, AttachmentBaseRecord r2)
-                {
-                    return r2.version - r1.version;
-                }
-            };
-            
-    @Autowired 
+                return r2.version - r1.version;
+            }
+        };
+
+    @Autowired
     private IAttachmentBaseTranslator baseTranslator;
-    
+
     @Autowired
     private IAttachmentRegistratorTranslator registratorTranslator;
-    
+
     @Autowired
     private IAttachmentContentTranslator contentTranslator;
-    
+
     @Override
     protected Attachment createObject(TranslationContext context, Long input, AttachmentFetchOptions fetchOptions)
     {
@@ -86,7 +86,7 @@ public class AttachmentTranslator extends AbstractCachingTranslator<Long, Attach
         buildingHelper.translateRelatedObjects(context);
         return buildingHelper;
     }
-    
+
     private List<List<AttachmentBaseRecord>> groupAndSortByVersion(Collection<ObjectHolder<AttachmentBaseRecord>> records)
     {
         Map<String, List<AttachmentBaseRecord>> mapByFileName = new HashMap<>();
@@ -109,7 +109,7 @@ public class AttachmentTranslator extends AbstractCachingTranslator<Long, Attach
         }
         return new ArrayList<>(lists);
     }
-    
+
     private String createKey(AttachmentBaseRecord record)
     {
         StringBuilder builder = new StringBuilder();
@@ -121,7 +121,7 @@ public class AttachmentTranslator extends AbstractCachingTranslator<Long, Attach
     }
 
     @Override
-    protected void updateObject(TranslationContext context, Long attachmentId, Attachment result, 
+    protected void updateObject(TranslationContext context, Long attachmentId, Attachment result,
             Object objectRelations, AttachmentFetchOptions fetchOptions)
     {
         AttachmentsBuildingHelper buildingHelper = (AttachmentsBuildingHelper) objectRelations;
@@ -140,7 +140,7 @@ public class AttachmentTranslator extends AbstractCachingTranslator<Long, Attach
         result.setLatestVersionPermlink(createPermlink(baseRecord, baseIndexURL, true));
         buildingHelper.addRegistratorAndContent(result, attachmentId);
     }
-    
+
     private String createPermlink(AttachmentBaseRecord baseRecord, String baseIndexURL,
             boolean latestVersionPermlink)
     {
@@ -148,40 +148,47 @@ public class AttachmentTranslator extends AbstractCachingTranslator<Long, Attach
         Integer version = latestVersionPermlink ? null : baseRecord.version;
         if (baseRecord.projectCode != null)
         {
-            return PermlinkUtilities.createProjectAttachmentPermlinkURL(baseIndexURL, fileName, version, 
+            return PermlinkUtilities.createProjectAttachmentPermlinkURL(baseIndexURL, fileName, version,
                     baseRecord.projectCode, baseRecord.spaceCode);
         }
         if (baseRecord.samplePermId != null)
         {
-            return PermlinkUtilities.createAttachmentPermlinkURL(baseIndexURL, fileName, version, 
+            return PermlinkUtilities.createAttachmentPermlinkURL(baseIndexURL, fileName, version,
                     AttachmentHolderKind.SAMPLE, baseRecord.samplePermId);
         }
-        return PermlinkUtilities.createAttachmentPermlinkURL(baseIndexURL, fileName, version, 
+        return PermlinkUtilities.createAttachmentPermlinkURL(baseIndexURL, fileName, version,
                 AttachmentHolderKind.EXPERIMENT, baseRecord.experimentPermId);
     }
-    
+
     private final class AttachmentsBuildingHelper
     {
         private Map<Long, AttachmentBaseRecord> records = new HashMap<>();
+
         private Map<PersonFetchOptions, List<Long>> attachmentsWithRegistrator = new HashMap<>();
+
         private Set<Long> attachmentsWithContent = new HashSet<>();
+
         private Map<Long, AttachmentFetchOptions> fetchOptionsByAttachmentId = new HashMap<>();
+
         private Map<Long, ObjectHolder<Person>> registratorsByAttachmentId = new HashMap<>();
+
         private Map<Long, ObjectHolder<byte[]>> contentsByAttachmentId;
+
         private Map<Long, Long> nextVersionIdByAttachmentId = new HashMap<>();
+
         private Map<Long, Attachment> attachments = new HashMap<>();
-        
+
         AttachmentBaseRecord getBaseRecord(Long attachmentId)
         {
             return records.get(attachmentId);
         }
-        
+
         private <T> T getObject(Map<Long, ObjectHolder<T>> objectsById, Long attachmentId)
         {
             ObjectHolder<T> objectHolder = objectsById.get(attachmentId);
             return objectHolder == null ? null : objectHolder.getObject();
         }
-        
+
         void addRegistratorAndContent(Attachment attachment, Long attachmentId)
         {
             attachments.put(attachmentId, attachment);
@@ -210,7 +217,7 @@ public class AttachmentTranslator extends AbstractCachingTranslator<Long, Attach
             }
         }
 
-        void handleAttachmentsOfDifferentVersions(List<AttachmentBaseRecord> recordsSortedByVersion, 
+        void handleAttachmentsOfDifferentVersions(List<AttachmentBaseRecord> recordsSortedByVersion,
                 AttachmentFetchOptions fetchOptions)
         {
             AttachmentFetchOptions currentFetchOptions = fetchOptions;
@@ -240,7 +247,7 @@ public class AttachmentTranslator extends AbstractCachingTranslator<Long, Attach
                 nextVersionId = attachmentId;
             }
         }
-        
+
         void translateRelatedObjects(TranslationContext context)
         {
             Set<Entry<PersonFetchOptions, List<Long>>> entrySet = attachmentsWithRegistrator.entrySet();
@@ -252,7 +259,7 @@ public class AttachmentTranslator extends AbstractCachingTranslator<Long, Attach
             }
             contentsByAttachmentId = contentTranslator.translate(context, attachmentsWithContent, null);
         }
-        
+
         private void addRequestForRegistrator(Long attachmentId, PersonFetchOptions fetchOptions)
         {
             List<Long> list = attachmentsWithRegistrator.get(fetchOptions);
@@ -263,7 +270,7 @@ public class AttachmentTranslator extends AbstractCachingTranslator<Long, Attach
             }
             list.add(attachmentId);
         }
-        
+
     }
-    
+
 }

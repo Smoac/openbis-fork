@@ -44,29 +44,31 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  */
 @Controller
 @RequestMapping(
-    { "/template-download", "/openbis/template-download" })
+{ "/template-download", "/openbis/template-download" })
 public class FileTemplateServiceServlet extends AbstractFileDownloadServlet
-{   
-    
+{
+
     @Resource(name = ResourceNames.COMMON_SERVICE)
     private ICommonClientService service;
 
     @Resource(name = ComponentNames.SESSION_MANAGER)
     protected IOpenBisSessionManager sessionManager;
-    
+
     protected FileTemplateServiceServlet()
     {
         setSynchronizeOnSession(true);
-        setRequireSession(false); // To allow upload a file for usage from an API given a session token we will manage an alternative session validation programatically.
+        setRequireSession(false); // To allow upload a file for usage from an API given a session token we will manage an alternative session
+                                  // validation programatically.
     }
-    
+
     protected Session getSession(final String sessionToken)
     {
         assert sessionToken != null : "Unspecified session token";
         return sessionManager.getSession(sessionToken);
     }
-    
-    protected HttpSession getSession(final HttpServletRequest request) {
+
+    protected HttpSession getSession(final HttpServletRequest request)
+    {
         // We must have a session reaching this point. See the constructor where we set
         HttpSession session = request.getSession(false);
         String sessionToken = request.getParameter("sessionID");
@@ -81,7 +83,7 @@ public class FileTemplateServiceServlet extends AbstractFileDownloadServlet
                 session.setAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY, sessionFromToken.getSessionToken());
             }
         }
-        
+
         // Corner Case - Same session is been used with a different API Token, update the session token since is the same browser.
         if (session != null && sessionToken != null && !sessionToken.isEmpty())
         {
@@ -97,7 +99,7 @@ public class FileTemplateServiceServlet extends AbstractFileDownloadServlet
         }
         return session;
     }
-    
+
     @Override
     protected FileContent getFileContent(final HttpServletRequest request) throws Exception
     {
@@ -106,7 +108,7 @@ public class FileTemplateServiceServlet extends AbstractFileDownloadServlet
         {
             throw new HttpSessionRequiredException("Pre-existing session required but none found");
         }
-        
+
         final String kind = request.getParameter(GenericConstants.ENTITY_KIND_KEY_PARAMETER);
         final String type = request.getParameter(GenericConstants.ENTITY_TYPE_KEY_PARAMETER);
         final String autoGenerate = request.getParameter(GenericConstants.AUTO_GENERATE);
@@ -117,7 +119,7 @@ public class FileTemplateServiceServlet extends AbstractFileDownloadServlet
                         : false;
         String withSapceParameter = request.getParameter(GenericConstants.WITH_SPACE);
         boolean withSpace = withSapceParameter == null || Boolean.parseBoolean(withSapceParameter);
-        
+
         final String operationKindParameter =
                 request.getParameter(GenericConstants.BATCH_OPERATION_KIND);
         final BatchOperationKind operationKind = BatchOperationKind.valueOf(operationKindParameter);

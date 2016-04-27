@@ -40,7 +40,7 @@ public class VerifySampleExecutor implements IVerifySampleExecutor
 
     @Autowired
     private IVerifySampleExperimentExecutor verifySampleExperimentExecutor;
-    
+
     @Autowired
     private IVerifySampleContainerExecutor verifySampleContainerExecutor;
 
@@ -53,7 +53,7 @@ public class VerifySampleExecutor implements IVerifySampleExecutor
         verifyEntityPropertyExecutor.verify(context, samples);
         verifySampleExperimentExecutor.verify(context, samples);
         // TODO: project samples
-//        verifySampleProjectExecutor.verify(context, samples);
+        // verifySampleProjectExecutor.verify(context, samples);
         verifySampleContainerExecutor.verify(context, samples);
         verifySampleParentsExecutor.verify(context, samples);
     }

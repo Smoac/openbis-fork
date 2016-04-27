@@ -60,8 +60,7 @@ public class MultilineItemsField extends MultilineVarcharField
     }
 
     /**
-     * @return null if the area has not been modified, the list of all items (separated by comma or
-     *         a new line) otherwise
+     * @return null if the area has not been modified, the list of all items (separated by comma or a new line) otherwise
      */
     public final String[] tryGetModifiedItemList()
     {

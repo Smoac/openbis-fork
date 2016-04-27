@@ -304,7 +304,7 @@ public class ProjectGrid extends TypedTableGrid<Project>
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { DatabaseModificationKind.createOrDelete(ObjectKind.PROJECT),
-                    DatabaseModificationKind.edit(ObjectKind.PROJECT) };
+        { DatabaseModificationKind.createOrDelete(ObjectKind.PROJECT),
+                DatabaseModificationKind.edit(ObjectKind.PROJECT) };
     }
 }

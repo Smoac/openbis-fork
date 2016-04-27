@@ -31,19 +31,19 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.sample.ISam
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
 /**
- *
  * @author Franz-Josef Elmer
  */
 @Component
-public class SearchSampleTypeSqlMethodExecutor extends AbstractIdSearchMethodExecutor<SampleType, SampleTypePE, EntityTypeSearchCriteria, SampleTypeFetchOptions> 
+public class SearchSampleTypeSqlMethodExecutor extends
+        AbstractIdSearchMethodExecutor<SampleType, SampleTypePE, EntityTypeSearchCriteria, SampleTypeFetchOptions>
         implements ISearchSampleTypeMethodExecutor
 {
     @Autowired
     private ISearchSampleTypeExecutor searchExecutor;
-    
+
     @Autowired
     private ISampleTypeTranslator translator;
-    
+
     @Override
     protected List<SampleTypePE> searchPEs(IOperationContext context, EntityTypeSearchCriteria criteria)
     {

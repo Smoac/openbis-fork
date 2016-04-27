@@ -27,8 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 
 /**
- * The generic model which can be created automatically using the array of {@link IColumnDefinition}
- * .
+ * The generic model which can be created automatically using the array of {@link IColumnDefinition} .
  * 
  * @author Franz-Josef Elmer
  * @author Tomasz Pylak

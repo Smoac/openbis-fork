@@ -60,7 +60,7 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
 
     @Autowired
     private IUpdateSampleProjectExecutor updateSampleProjectExecutor;
-    
+
     @Autowired
     private IUpdateSampleExperimentExecutor updateSampleExperimentExecutor;
 

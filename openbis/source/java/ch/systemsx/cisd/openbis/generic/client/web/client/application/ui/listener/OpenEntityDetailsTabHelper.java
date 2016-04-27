@@ -50,15 +50,15 @@ public class OpenEntityDetailsTabHelper
     public static void open(IViewContext<?> viewContext, EntityKind entityKind, String permId,
             boolean keyPressed)
     {
-       open(viewContext, entityKind, permId, keyPressed, "");
+        open(viewContext, entityKind, permId, keyPressed, "");
     }
-    
+
     public static void open(IViewContext<?> viewContext, EntityKind entityKind, String permId,
             boolean keyPressed, String subtab)
     {
         viewContext.getCommonService().getEntityInformationHolder(entityKind, permId,
                 new OpenEntityDetailsTabCallback(viewContext, keyPressed, subtab));
-    }    
+    }
 
     public static void open(IViewContext<?> viewContext, BasicEntityDescription description,
             boolean keyPressed)
@@ -80,7 +80,7 @@ public class OpenEntityDetailsTabHelper
     {
 
         private final boolean keyPressed;
-        
+
         private final String subtab;
 
         private OpenEntityDetailsTabCallback(final IViewContext<?> viewContext,
@@ -97,7 +97,6 @@ public class OpenEntityDetailsTabHelper
             this(viewContext, keyPressed, "");
         }
 
-        
         private OpenEntityDetailsTabCallback(final IViewContext<?> viewContext)
         {
             this(viewContext, false);

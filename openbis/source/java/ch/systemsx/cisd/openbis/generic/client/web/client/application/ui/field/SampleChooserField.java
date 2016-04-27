@@ -51,8 +51,7 @@ public class SampleChooserField extends ChosenEntitySetter<TableModelRowWithObje
     }
 
     /**
-     * Creates a text field with the additional browse button which allow to choose a sample from
-     * the list.
+     * Creates a text field with the additional browse button which allow to choose a sample from the list.
      */
     public static SampleChooserFieldAdaptor create(final String labelField,
             final boolean mandatory, final String initialValueOrNull, final boolean addShared,

@@ -26,8 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 
 /**
- * Describes which entities should be exported, in which order and which columns should be present.
- * The result of the export is a table with header.
+ * Describes which entities should be exported, in which order and which columns should be present. The result of the export is a table with header.
  * 
  * @author Tomasz Pylak
  */

@@ -97,9 +97,9 @@ public final class ExperimentTypeSelectionWidget extends
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { createOrDelete(ObjectKind.EXPERIMENT_TYPE), edit(ObjectKind.EXPERIMENT_TYPE),
-                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                    edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
+        { createOrDelete(ObjectKind.EXPERIMENT_TYPE), edit(ObjectKind.EXPERIMENT_TYPE),
+                createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
     //

@@ -86,7 +86,7 @@ public abstract class ObjectToManyRelationTranslator<RELATED_OBJECT, RELATED_FET
 
         return objectIdToRelatedMap;
     }
-    
+
     protected Map<Long, RELATED_OBJECT> filterRelatedObjects(Map<Long, RELATED_OBJECT> relatedObjects)
     {
         return relatedObjects;

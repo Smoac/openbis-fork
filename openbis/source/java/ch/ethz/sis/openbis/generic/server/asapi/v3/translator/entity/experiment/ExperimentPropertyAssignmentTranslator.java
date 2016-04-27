@@ -32,8 +32,6 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.lemnik.eodsql.QueryTool;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Component
@@ -48,7 +46,7 @@ public class ExperimentPropertyAssignmentTranslator extends PropertyAssignmentTr
     }
 
     @Override
-    protected Map<Long, PropertyAssignment> translateRelated(TranslationContext context, 
+    protected Map<Long, PropertyAssignment> translateRelated(TranslationContext context,
             Collection<Long> experimentTypePropertyTypeIds, PropertyAssignmentFetchOptions relatedFetchOptions)
     {
         ExperimentQuery query = QueryTool.getManagedQuery(ExperimentQuery.class);

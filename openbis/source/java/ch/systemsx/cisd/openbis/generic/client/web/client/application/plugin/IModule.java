@@ -27,18 +27,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 
 /**
- * Plugin that does not depend on entity kind and type. All methods except
- * {@link #initialize(AsyncCallback)} are invoked after invocation of the call back of the
- * initialization method.
+ * Plugin that does not depend on entity kind and type. All methods except {@link #initialize(AsyncCallback)} are invoked after invocation of the call
+ * back of the initialization method.
  * 
  * @author Izabela Adamczyk
  */
 public interface IModule
 {
     /**
-     * Initializes the module and invoke method {@link AsyncCallback#onSuccess(Object)} on the
-     * specified call back after successful initialization. Otherwise
-     * {@link AsyncCallback#onFailure(Throwable)} is invoked.
+     * Initializes the module and invoke method {@link AsyncCallback#onSuccess(Object)} on the specified call back after successful initialization.
+     * Otherwise {@link AsyncCallback#onFailure(Throwable)} is invoked.
      */
     void initialize(AsyncCallback<Void> callback);
 
@@ -48,14 +46,12 @@ public interface IModule
     String getName();
 
     /**
-     * Returns a list with menu items (they can be complex submenus or single menu items). The list
-     * should be empty if this module isn't applicable.
+     * Returns a list with menu items (they can be complex submenus or single menu items). The list should be empty if this module isn't applicable.
      */
     List<? extends MenuItem> getMenuItems();
 
     /**
-     * Returns a collection of {@link DisposableTabContent}s that will be added to entity details
-     * view.
+     * Returns a collection of {@link DisposableTabContent}s that will be added to entity details view.
      */
     Collection<? extends TabContent> getSections(
             IEntityInformationHolderWithIdentifier entity);

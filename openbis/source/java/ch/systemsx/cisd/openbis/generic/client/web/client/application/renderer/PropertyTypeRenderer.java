@@ -26,9 +26,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 public class PropertyTypeRenderer
 {
     /**
-     * @return text which can be used as the specified property description. If the property label
-     *         is unique in the specified set of properties, it will be used. Otherwise the code
-     *         will be attached.
+     * @return text which can be used as the specified property description. If the property label is unique in the specified set of properties, it
+     *         will be used. Otherwise the code will be attached.
      */
     public static String getDisplayName(final PropertyType propertyType, List<PropertyType> types)
     {

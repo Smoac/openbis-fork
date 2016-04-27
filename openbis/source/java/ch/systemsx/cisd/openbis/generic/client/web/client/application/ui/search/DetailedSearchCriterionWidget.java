@@ -163,8 +163,7 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
     }
 
     /**
-     * Adds a new {@link DetailedSearchCriterionWidget} coping data from given the
-     * <em>name field</em>.
+     * Adds a new {@link DetailedSearchCriterionWidget} coping data from given the <em>name field</em>.
      */
     private void createNew()
     {
@@ -198,8 +197,8 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
     }
 
     /**
-     * Returns {@link DetailedSearchCriterion} for selected <em>name</em> and <em>value</em>. If
-     * either <em>name</em> or <em>value</em> is not specified, returns null.
+     * Returns {@link DetailedSearchCriterion} for selected <em>name</em> and <em>value</em>. If either <em>name</em> or <em>value</em> is not
+     * specified, returns null.
      */
     public DetailedSearchCriterion tryGetValue()
     {

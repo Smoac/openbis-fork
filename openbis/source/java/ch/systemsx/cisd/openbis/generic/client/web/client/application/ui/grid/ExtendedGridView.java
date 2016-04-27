@@ -26,9 +26,8 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 
 /**
- * {@link GridView} with {@link ColumnHeader} allowing to define additional behavior for header
- * click when SHIFT button is pressed at the same time. By default the width of the column is
- * adjusted.
+ * {@link GridView} with {@link ColumnHeader} allowing to define additional behavior for header click when SHIFT button is pressed at the same time.
+ * By default the width of the column is adjusted.
  * 
  * @author Izabela Adamczyk
  */

@@ -19,9 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.exception;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * The <code>UserFailureException</code> is the super class of all exceptions that have their cause
- * in an inappropriate usage of the system. This implies that the user himself (without help of an
- * administrator) can fix the problem.
+ * The <code>UserFailureException</code> is the super class of all exceptions that have their cause in an inappropriate usage of the system. This
+ * implies that the user himself (without help of an administrator) can fix the problem.
  * 
  * @author Christian Ribeaud
  */

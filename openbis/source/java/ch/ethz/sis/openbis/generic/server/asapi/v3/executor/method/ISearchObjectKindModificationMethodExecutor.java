@@ -21,11 +21,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.fetchopti
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.search.ObjectKindModificationSearchCriteria;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public interface ISearchObjectKindModificationMethodExecutor 
+public interface ISearchObjectKindModificationMethodExecutor
         extends ISearchMethodExecutor<ObjectKindModification, ObjectKindModificationSearchCriteria, ObjectKindModificationFetchOptions>
 {
 

@@ -36,6 +36,6 @@ public interface ProjectQuery extends ObjectQuery
 
     @Select(sql = "select p.id, p.code as identifier from projects p join spaces s on p.space_id = s.id "
             + "where s.code = ?{1} and p.code = any(?{2})", parameterBindings =
-        { TypeMapper.class, StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    { TypeMapper.class, StringArrayMapper.class }, fetchSize = FETCH_SIZE)
     public List<TechIdStringIdentifierRecord> listProjectTechIdsByCodes(String spaceCode, String[] codes);
 }

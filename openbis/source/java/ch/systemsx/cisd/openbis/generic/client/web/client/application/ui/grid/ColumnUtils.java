@@ -187,9 +187,8 @@ public class ColumnUtils
     }
 
     /**
-     * Extension of GXT {@link CellEditor} with automatic conversion from String values that we hold
-     * in tables to specific data types (like {@link Date} or {@link Boolean}) handled by editor
-     * fields and vice versa.
+     * Extension of GXT {@link CellEditor} with automatic conversion from String values that we hold in tables to specific data types (like
+     * {@link Date} or {@link Boolean}) handled by editor fields and vice versa.
      */
     private static class StringBasedCellEditor extends CellEditor
     {

@@ -46,8 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.DataSetUploadInfo.DataSetUp
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 
 /**
- * Panel that allows to specify information necessary to upload data sets and redirects user to
- * specified upload service.
+ * Panel that allows to specify information necessary to upload data sets and redirects user to specified upload service.
  * 
  * @author Izabela Adamczyk
  */

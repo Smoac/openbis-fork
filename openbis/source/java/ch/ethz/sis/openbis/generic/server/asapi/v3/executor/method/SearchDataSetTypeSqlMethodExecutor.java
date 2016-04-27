@@ -31,19 +31,19 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.dataset.IDa
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 
 /**
- *
  * @author Franz-Josef Elmer
  */
 @Component
-public class SearchDataSetTypeSqlMethodExecutor extends AbstractIdSearchMethodExecutor<DataSetType, DataSetTypePE, EntityTypeSearchCriteria, DataSetTypeFetchOptions> 
+public class SearchDataSetTypeSqlMethodExecutor extends
+        AbstractIdSearchMethodExecutor<DataSetType, DataSetTypePE, EntityTypeSearchCriteria, DataSetTypeFetchOptions>
         implements ISearchDataSetTypeMethodExecutor
 {
     @Autowired
     private ISearchDataSetTypeExecutor searchExecutor;
-    
+
     @Autowired
     private IDataSetTypeTranslator translator;
-    
+
     @Override
     protected List<DataSetTypePE> searchPEs(IOperationContext context, EntityTypeSearchCriteria criteria)
     {

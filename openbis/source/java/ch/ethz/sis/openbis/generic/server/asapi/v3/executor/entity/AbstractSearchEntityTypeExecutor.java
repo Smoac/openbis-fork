@@ -29,8 +29,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractSearchEntityTypeExecutor<ENTITY_TYPE_PE extends EntityTypePE>
@@ -42,7 +40,7 @@ public abstract class AbstractSearchEntityTypeExecutor<ENTITY_TYPE_PE extends En
     {
         this.entityKind = entityKind;
     }
-    
+
     @Override
     protected List<ENTITY_TYPE_PE> listAll()
     {

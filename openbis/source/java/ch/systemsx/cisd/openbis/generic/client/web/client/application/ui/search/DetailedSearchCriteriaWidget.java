@@ -97,9 +97,8 @@ abstract public class DetailedSearchCriteriaWidget extends VerticalPanel
     }
 
     /**
-     * Removes given {@link DetailedSearchCriterionWidget} from the panel, unless it is the only one
-     * that left. In this case the state of chosen {@link DetailedSearchCriterionWidget} is set to
-     * initial value (reset).
+     * Removes given {@link DetailedSearchCriterionWidget} from the panel, unless it is the only one that left. In this case the state of chosen
+     * {@link DetailedSearchCriterionWidget} is set to initial value (reset).
      */
     void removeCriterion(DetailedSearchCriterionWidget w)
     {
@@ -196,8 +195,7 @@ abstract public class DetailedSearchCriteriaWidget extends VerticalPanel
     }
 
     /**
-     * Resets "match criteria" radio buttons to initial values, removes unnecessary criteria widgets
-     * and resets the remaining ones.
+     * Resets "match criteria" radio buttons to initial values, removes unnecessary criteria widgets and resets the remaining ones.
      */
     public void reset()
     {
@@ -211,8 +209,8 @@ abstract public class DetailedSearchCriteriaWidget extends VerticalPanel
     }
 
     /**
-     * Set the initial search criteria to the argument. This should be called after creation but
-     * before the user has had a chance to use the window, otherwise user input may be overwritten.
+     * Set the initial search criteria to the argument. This should be called after creation but before the user has had a chance to use the window,
+     * otherwise user input may be overwritten.
      */
     public void setInitialSearchCritera(DetailedSearchCriteria searchCriteria)
     {

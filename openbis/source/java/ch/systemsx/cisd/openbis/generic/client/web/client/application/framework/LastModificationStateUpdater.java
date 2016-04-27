@@ -27,14 +27,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 
 /**
- * Stores last database modification state and provides a method to update the state from the
- * server. Informs a specified modification observer about relevant modifications. For more details
- * see {@link LastModificationState}.
+ * Stores last database modification state and provides a method to update the state from the server. Informs a specified modification observer about
+ * relevant modifications. For more details see {@link LastModificationState}.
  * <p>
- * This updater is associated with {@link DefaultTabItem} where either a
- * {@link DatabaseModificationAwareComponent} or an {@link IDisposableComponent} is the
- * {@link IDatabaseModificationObserver} instance which will be informed if relevant modifications
- * have been detected.
+ * This updater is associated with {@link DefaultTabItem} where either a {@link DatabaseModificationAwareComponent} or an {@link IDisposableComponent}
+ * is the {@link IDatabaseModificationObserver} instance which will be informed if relevant modifications have been detected.
  * 
  * @author Tomasz Pylak
  */
@@ -43,8 +40,8 @@ class LastModificationStateUpdater extends AbstractAsyncCallback<LastModificatio
     private final ICommonClientServiceAsync commonService;
 
     /*
-     * The last database objects modification state seen by this tab. Can be null only for a short
-     * period after the first tab activation when we are waiting for the server response.
+     * The last database objects modification state seen by this tab. Can be null only for a short period after the first tab activation when we are
+     * waiting for the server response.
      */
     private LastModificationState lastSeenModificationStateOrNull;
 

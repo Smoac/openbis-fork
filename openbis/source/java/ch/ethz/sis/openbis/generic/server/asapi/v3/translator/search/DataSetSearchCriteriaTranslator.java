@@ -49,7 +49,7 @@ public class DataSetSearchCriteriaTranslator extends AbstractCompositeSearchCrit
         context.pushEntityKind(EntityKind.DATA_SET);
         SearchCriteriaTranslationResult translationResult = super.doTranslate(context, criteria);
         context.popEntityKind();
-        
+
         if (criteria instanceof DataSetSearchCriteria && context.peekEntityKind() == null)
         {
             return translationResult;

@@ -67,8 +67,8 @@ public class MultilineVarcharField extends TextArea
     }
 
     /**
-     * By default tab key will cause change of focus to next field. Call this method to change the
-     * behaviour to act like a text editor where tab key appends a tab.
+     * By default tab key will cause change of focus to next field. Call this method to change the behaviour to act like a text editor where tab key
+     * appends a tab.
      */
     public void treatTabKeyAsInput()
     {

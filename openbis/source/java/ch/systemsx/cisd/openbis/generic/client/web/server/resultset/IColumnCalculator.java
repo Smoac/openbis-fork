@@ -26,9 +26,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 interface IColumnCalculator
 {
     /**
-     * Calculates the values of the specified custom column definition by using specified data
-     * and specified column definitions. In case of an error the column value is an error
-     * message.
+     * Calculates the values of the specified custom column definition by using specified data and specified column definitions. In case of an error
+     * the column value is an error message.
      * 
      * @param errorMessagesAreLong if <code>true</code> a long error message will be created.
      */

@@ -24,8 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 
 /**
- * A text area to specify list of codes. Codes are specified separated by commas, spaces or new
- * lines.
+ * A text area to specify list of codes. Codes are specified separated by commas, spaces or new lines.
  * 
  * @author Piotr Buczek
  */

@@ -22,8 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailViewConfiguration;
 
 /**
- * {@link LayoutContainer} which allows to choose which contained panels should be visible and uses
- * the whole space available to show them.
+ * {@link LayoutContainer} which allows to choose which contained panels should be visible and uses the whole space available to show them.
  * 
  * @author Izabela Adamczyk
  */

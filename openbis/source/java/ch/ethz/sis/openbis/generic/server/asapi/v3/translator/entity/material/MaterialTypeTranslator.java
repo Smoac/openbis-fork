@@ -42,7 +42,7 @@ public class MaterialTypeTranslator extends AbstractCachingTranslator<Long, Mate
 
     @Autowired
     private IMaterialTypeBaseTranslator baseTranslator;
-    
+
     @Autowired
     private IMaterialPropertyAssignmentTranslator assignmentTranslator;
 
@@ -62,7 +62,7 @@ public class MaterialTypeTranslator extends AbstractCachingTranslator<Long, Mate
         relations.put(IMaterialTypeBaseTranslator.class, baseTranslator.translate(context, typeIds, null));
         if (fetchOptions.hasPropertyAssignments())
         {
-            relations.put(IMaterialPropertyAssignmentTranslator.class, 
+            relations.put(IMaterialPropertyAssignmentTranslator.class,
                     assignmentTranslator.translate(context, typeIds, fetchOptions.withPropertyAssignments()));
         }
 
@@ -80,7 +80,7 @@ public class MaterialTypeTranslator extends AbstractCachingTranslator<Long, Mate
         result.setCode(baseRecord.code);
         result.setDescription(baseRecord.description);
         result.setModificationDate(baseRecord.modificationDate);
-        
+
         if (fetchOptions.hasPropertyAssignments())
         {
             Collection<PropertyAssignment> assignments = relations.get(IMaterialPropertyAssignmentTranslator.class, typeId);

@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
 /**
- * Abstract {@link IDatabaseModificationObserverWithCallback} implementation that delegates
- * execution of {@link IDelegatedAction}.
+ * Abstract {@link IDatabaseModificationObserverWithCallback} implementation that delegates execution of {@link IDelegatedAction}.
  * 
  * @author Piotr Buczek
  */

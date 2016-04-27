@@ -310,7 +310,7 @@ public class GridCustomFilterGrid extends TypedTableGrid<GridCustomFilter>
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { DatabaseModificationKind.createOrDelete(ObjectKind.GRID_CUSTOM_FILTER),
-                    DatabaseModificationKind.edit(ObjectKind.GRID_CUSTOM_FILTER) };
+        { DatabaseModificationKind.createOrDelete(ObjectKind.GRID_CUSTOM_FILTER),
+                DatabaseModificationKind.edit(ObjectKind.GRID_CUSTOM_FILTER) };
     }
 }

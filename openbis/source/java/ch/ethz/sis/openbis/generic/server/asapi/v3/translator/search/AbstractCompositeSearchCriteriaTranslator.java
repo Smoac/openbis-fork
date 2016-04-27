@@ -73,7 +73,8 @@ public abstract class AbstractCompositeSearchCriteriaTranslator extends Abstract
                 continue;
             } else
             {
-                for (DetailedSearchCriteria additionalCriteria: translationResult.getCriteriaList()) {
+                for (DetailedSearchCriteria additionalCriteria : translationResult.getCriteriaList())
+                {
                     detailedCriterionList.addAll(additionalCriteria.getCriteria());
                 }
                 detailedCriterionList.addAll(translationResult.getCriterionList());

@@ -57,8 +57,7 @@ public final class MaterialTypeSelectionWidget extends
     private final boolean withTypeInFile;
 
     /**
-     * Creates a material type chooser with one additional option. It's useful when you want to have
-     * one special value on the list.
+     * Creates a material type chooser with one additional option. It's useful when you want to have one special value on the list.
      */
     public static MaterialTypeSelectionWidget createWithAdditionalOption(
             final IViewContext<ICommonClientServiceAsync> viewContext,
@@ -129,8 +128,7 @@ public final class MaterialTypeSelectionWidget extends
     /**
      * Returns the {@link MaterialType} currently selected.
      * 
-     * @return <code>null</code> if nothing is selected yet or "none" option has been chosen (if it
-     *         has been enabled before).
+     * @return <code>null</code> if nothing is selected yet or "none" option has been chosen (if it has been enabled before).
      */
     public final MaterialType tryGetSelectedMaterialType()
     {
@@ -173,9 +171,9 @@ public final class MaterialTypeSelectionWidget extends
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { createOrDelete(ObjectKind.MATERIAL_TYPE), edit(ObjectKind.MATERIAL_TYPE),
-                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                    edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
+        { createOrDelete(ObjectKind.MATERIAL_TYPE), edit(ObjectKind.MATERIAL_TYPE),
+                createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
     //

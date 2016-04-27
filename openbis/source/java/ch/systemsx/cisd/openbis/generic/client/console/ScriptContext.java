@@ -25,14 +25,12 @@ import java.util.Map.Entry;
 import ch.systemsx.cisd.common.string.Template;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class ScriptContext
 {
     private final Map<String, String> bindings = new HashMap<String, String>();
-    
+
     ScriptContext(Properties properties)
     {
         Set<Entry<Object, Object>> entrySet = properties.entrySet();
@@ -41,7 +39,7 @@ class ScriptContext
             bind((String) entry.getKey(), (String) entry.getValue());
         }
     }
-    
+
     void bind(String variable, String value)
     {
         bindings.put(variable, value);

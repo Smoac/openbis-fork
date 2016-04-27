@@ -21,24 +21,23 @@ import java.util.Set;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 
 /**
- * Interface to be implemented if a component wants to be notified of if for a list of relevant
- * {@link DatabaseModificationKind} instances changes have been observed.
+ * Interface to be implemented if a component wants to be notified of if for a list of relevant {@link DatabaseModificationKind} instances changes
+ * have been observed.
  * 
  * @author Tomasz Pylak
  */
 public interface IDatabaseModificationObserver
 {
     /**
-     * Informs about new modifications in the database. This method is called only if at least one
-     * observed modification is the relevant one.
+     * Informs about new modifications in the database. This method is called only if at least one observed modification is the relevant one.
      * 
      * @param observedModifications The new database modifications which have occurred.
      */
     void update(Set<DatabaseModificationKind> observedModifications);
 
     /**
-     * @return the list of database object modifications in which this observer is interested. Used
-     *         to call the refresh method only when it is really necessary.
+     * @return the list of database object modifications in which this observer is interested. Used to call the refresh method only when it is really
+     *         necessary.
      */
     DatabaseModificationKind[] getRelevantModifications();
 

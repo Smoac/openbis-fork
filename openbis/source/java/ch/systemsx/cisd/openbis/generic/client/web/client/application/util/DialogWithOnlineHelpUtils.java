@@ -32,9 +32,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 /**
  * An utility class used for enhancing {@link Window} with online help functionality.
  * <p>
- * NOTE: Adding abstract superclass to our dialog hierarchy doesn't work well in our case as we
- * already have complex dialog hierarchy subclassing either {@link Window} and {@link Dialog} and we
- * don't want all our dialogs to have help.
+ * NOTE: Adding abstract superclass to our dialog hierarchy doesn't work well in our case as we already have complex dialog hierarchy subclassing
+ * either {@link Window} and {@link Dialog} and we don't want all our dialogs to have help.
  * 
  * @author Chandrasekhar Ramakrishnan
  * @author Piotr Buczek

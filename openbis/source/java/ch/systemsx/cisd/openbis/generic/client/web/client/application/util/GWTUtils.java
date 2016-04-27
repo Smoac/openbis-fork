@@ -59,8 +59,7 @@ public final class GWTUtils
 {
 
     /**
-     * The <code>null</code> value label for {@link ListBox} resp. {@link ComboBox} when no value
-     * has been selected by the user.
+     * The <code>null</code> value label for {@link ListBox} resp. {@link ComboBox} when no value has been selected by the user.
      */
     public static final String NONE_LIST_ITEM = "(None)";
 
@@ -97,7 +96,7 @@ public final class GWTUtils
                         + CommonViewContext.ClientStaticState.getPageTitleSuffix();
         Window.setTitle(title);
     }
-    
+
     public static void alert(String title, String message)
     {
         MessageBox.alert(title, message, null).getDialog().setResizable(true);
@@ -124,10 +123,9 @@ public final class GWTUtils
             });
         return dialog;
     }
-    
+
     /**
-     * Sets up {@link ComboBox} to have width of list auto adjusted to maximum width of elements in
-     * the list.
+     * Sets up {@link ComboBox} to have width of list auto adjusted to maximum width of elements in the list.
      */
     // TODO 2010-05-19, Piotr Buczek: the width is not updated when store is changed;
     public static void setupAutoWidth(final ComboBox<?> comboBox)
@@ -291,8 +289,8 @@ public final class GWTUtils
     }
 
     /**
-     * Sets the tooltip of the component using default configuration (disappear after mouse moved),
-     * replace new lines with html breaks. If null value is passed, tooltip is removed.
+     * Sets the tooltip of the component using default configuration (disappear after mouse moved), replace new lines with html breaks. If null value
+     * is passed, tooltip is removed.
      */
     public static void setToolTip(Component component, String textOrNull)
     {
@@ -306,8 +304,7 @@ public final class GWTUtils
     }
 
     /**
-     * Sets the tooltip of the component using given configuration and replaces new lines with html
-     * breaks.
+     * Sets the tooltip of the component using given configuration and replaces new lines with html breaks.
      */
     public static void setToolTip(Component component, ToolTipConfig config)
     {
@@ -382,8 +379,7 @@ public final class GWTUtils
     }
 
     /**
-     * Tries to return the selected object code (saved as {@link ModelDataPropertyNames#CODE} in the
-     * model) from the given {@link ComboBox}.
+     * Tries to return the selected object code (saved as {@link ModelDataPropertyNames#CODE} in the model) from the given {@link ComboBox}.
      * 
      * @returns <code>null</code> if nothing is selected.
      */
@@ -394,8 +390,7 @@ public final class GWTUtils
     }
 
     /**
-     * Tries to return the selected object (saved as {@link ModelDataPropertyNames#OBJECT} in the
-     * model) from the given {@link ComboBox}.
+     * Tries to return the selected object (saved as {@link ModelDataPropertyNames#OBJECT} in the model) from the given {@link ComboBox}.
      * 
      * @returns <code>null</code> if nothing is selected.
      */
@@ -411,8 +406,7 @@ public final class GWTUtils
     }
 
     /**
-     * Enables and makes visible the field with appropriate 'on' flag set to true. Performs its work
-     * when one and only one 'on' flag is set to true.
+     * Enables and makes visible the field with appropriate 'on' flag set to true. Performs its work when one and only one 'on' flag is set to true.
      */
     public static final void updateVisibleField(boolean firstOn, boolean secondOn,
             Field<?> firstField, Field<?> secondField)
@@ -469,8 +463,7 @@ public final class GWTUtils
     }
 
     /**
-     * Returns the <i>search</i> of a <i>Javascript</i> window location (without the starting
-     * <code>?</code> if any).
+     * Returns the <i>search</i> of a <i>Javascript</i> window location (without the starting <code>?</code> if any).
      * 
      * @return something like <code>key1=value1&key2=value2</code>.
      */

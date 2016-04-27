@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityVisit;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class EntityVisitModel extends SimplifiedBaseModel
@@ -33,7 +31,7 @@ public class EntityVisitModel extends SimplifiedBaseModel
         set(ModelDataPropertyNames.CODE, visit.getIdentifier());
         set(ModelDataPropertyNames.OBJECT, visit);
     }
-    
+
     public EntityVisit getVisit()
     {
         return (EntityVisit) get(ModelDataPropertyNames.OBJECT);

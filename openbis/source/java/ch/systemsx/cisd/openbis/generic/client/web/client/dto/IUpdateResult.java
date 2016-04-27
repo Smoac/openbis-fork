@@ -24,8 +24,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 public interface IUpdateResult
 {
     /**
-     * Returns <code>null</code> if the update was successfully otherwise an error message is
-     * return.
+     * Returns <code>null</code> if the update was successfully otherwise an error message is return.
      */
     public String tryGetErrorMessage();
 }

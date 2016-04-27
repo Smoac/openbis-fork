@@ -115,7 +115,7 @@ public abstract class AbstractClientService implements IClientService,
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
-    
+
     @Autowired
     private TableDataCache<String, Object> tableDataCache;
 

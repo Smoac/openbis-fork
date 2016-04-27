@@ -9,95 +9,101 @@ import java.net.URL;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
-public class UglifyJS {
+public class UglifyJS
+{
 
-	public static void main(String[] args) {
-		
-		new UglifyJS().exec(args);
-	}
+    public static void main(String[] args)
+    {
 
-	public Reader getResourceReader(String url) {
+        new UglifyJS().exec(args);
+    }
 
-		Reader reader = null;
-		
-		try {
-			//TODO jar包内资源加载有通常三种方式，但测试中发现只有第一种方式才找到了资源
-			if(reader == null) {
-				reader = new InputStreamReader(getClass().getClassLoader().getResourceAsStream(url));
-			}
-			
-			/*
-			if (reader == null) {
-				reader = new InputStreamReader(getClass().getResourceAsStream("../"+url));
-			}
+    public Reader getResourceReader(String url)
+    {
 
-			if (reader == null) {
-				reader = new InputStreamReader(getClass().getResourceAsStream("/"+url));
-			}
-			*/
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        Reader reader = null;
 
-		return reader;
-	}
+        try
+        {
+            // TODO jar包内资源加载有通常三种方式，但测试中发现只有第一种方式才找到了资源
+            if (reader == null)
+            {
+                reader = new InputStreamReader(getClass().getClassLoader().getResourceAsStream(url));
+            }
 
-	public void exec(String[] args) {
+            /*
+             * if (reader == null) { reader = new InputStreamReader(getClass().getResourceAsStream("../"+url)); } if (reader == null) { reader = new
+             * InputStreamReader(getClass().getResourceAsStream("/"+url)); }
+             */
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
 
-		ScriptEngine engine = ECMAScriptEngineFactory.getECMAScriptEngine();
-		engine.put("uglify_args", args);
-		engine.put("uglify_no_output", false);
-		run(engine);
-		
-		try {
-			engine.eval("uglify();");
-		} catch (ScriptException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	
-	private void run(ScriptEngine engine) {
-		try {
+        return reader;
+    }
 
-			Reader parsejsReader = getResourceReader("ch/ethz/sis/openbis/generic/shared/api/v3/dto/generators/uglify/javascript/parse-js.js");
-			Reader processjsReader = getResourceReader("ch/ethz/sis/openbis/generic/shared/api/v3/dto/generators/uglify/javascript/process.js");
-			Reader sysjsReader = getResourceReader("ch/ethz/sis/openbis/generic/shared/api/v3/dto/generators/uglify/javascript/adapter/sys.js");
-			Reader jsonjsReader = getResourceReader("ch/ethz/sis/openbis/generic/shared/api/v3/dto/generators/uglify/javascript/adapter/JSON.js");
-			Reader arrayjsReader = getResourceReader("ch/ethz/sis/openbis/generic/shared/api/v3/dto/generators/uglify/javascript/adapter/Array.js");
-			Reader uglifyjsReader = getResourceReader("ch/ethz/sis/openbis/generic/shared/api/v3/dto/generators/uglify/javascript/uglifyjs.js");
+    public void exec(String[] args)
+    {
 
-			engine.eval(arrayjsReader);
-			engine.eval(sysjsReader);
-			engine.eval(parsejsReader);
-			engine.eval(processjsReader);
-			engine.eval(jsonjsReader);
-			engine.eval(uglifyjsReader);
+        ScriptEngine engine = ECMAScriptEngineFactory.getECMAScriptEngine();
+        engine.put("uglify_args", args);
+        engine.put("uglify_no_output", false);
+        run(engine);
 
-		} catch (ScriptException e) {
-			e.printStackTrace();
-		}
-		
-	}
+        try
+        {
+            engine.eval("uglify();");
+        } catch (ScriptException e)
+        {
+            e.printStackTrace();
+        }
+    }
 
-	public String uglify(String[] args){
-		ScriptEngine engine = ECMAScriptEngineFactory.getECMAScriptEngine();
-		engine.put("uglify_args", args);
-		engine.put("uglify_no_output", true);
-		run(engine);
-		
-		String result = null;
-		
-		try {
-			result = (String)engine.eval("uglify();");
-		} catch (ScriptException e) {
-			e.printStackTrace();
-		}		
-		
-		return result;
-	}
-	
-	
-	
+    private void run(ScriptEngine engine)
+    {
+        try
+        {
+
+            Reader parsejsReader = getResourceReader("ch/ethz/sis/openbis/generic/shared/api/v3/dto/generators/uglify/javascript/parse-js.js");
+            Reader processjsReader = getResourceReader("ch/ethz/sis/openbis/generic/shared/api/v3/dto/generators/uglify/javascript/process.js");
+            Reader sysjsReader = getResourceReader("ch/ethz/sis/openbis/generic/shared/api/v3/dto/generators/uglify/javascript/adapter/sys.js");
+            Reader jsonjsReader = getResourceReader("ch/ethz/sis/openbis/generic/shared/api/v3/dto/generators/uglify/javascript/adapter/JSON.js");
+            Reader arrayjsReader = getResourceReader("ch/ethz/sis/openbis/generic/shared/api/v3/dto/generators/uglify/javascript/adapter/Array.js");
+            Reader uglifyjsReader = getResourceReader("ch/ethz/sis/openbis/generic/shared/api/v3/dto/generators/uglify/javascript/uglifyjs.js");
+
+            engine.eval(arrayjsReader);
+            engine.eval(sysjsReader);
+            engine.eval(parsejsReader);
+            engine.eval(processjsReader);
+            engine.eval(jsonjsReader);
+            engine.eval(uglifyjsReader);
+
+        } catch (ScriptException e)
+        {
+            e.printStackTrace();
+        }
+
+    }
+
+    public String uglify(String[] args)
+    {
+        ScriptEngine engine = ECMAScriptEngineFactory.getECMAScriptEngine();
+        engine.put("uglify_args", args);
+        engine.put("uglify_no_output", true);
+        run(engine);
+
+        String result = null;
+
+        try
+        {
+            result = (String) engine.eval("uglify();");
+        } catch (ScriptException e)
+        {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
 
 }

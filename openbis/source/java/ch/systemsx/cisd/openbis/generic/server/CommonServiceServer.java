@@ -48,10 +48,11 @@ public class CommonServiceServer extends WhiteAndBlackListHttpInvokerServiceExpo
     }
 
     @RequestMapping(
-            { "/rmi-common", "/openbis/rmi-common" })
+    { "/rmi-common", "/openbis/rmi-common" })
     @Override
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException
+    {
         super.handleRequest(request, response);
     }
 }

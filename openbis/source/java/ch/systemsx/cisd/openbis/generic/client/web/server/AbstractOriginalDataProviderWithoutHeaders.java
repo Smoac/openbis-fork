@@ -24,8 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDat
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 
 /**
- * Abstract super class of {@link IOriginalDataProvider} implementations which return no
- * {@link TableModelColumnHeader} instances.
+ * Abstract super class of {@link IOriginalDataProvider} implementations which return no {@link TableModelColumnHeader} instances.
  * 
  * @author Franz-Josef Elmer
  */

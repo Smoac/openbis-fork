@@ -17,17 +17,21 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class CustomGridColumnGridColumnIDs
 {
     public static final String CODE = "CODE";
+
     public static final String NAME = "NAME";
+
     public static final String DESCRIPTION = "DESCRIPTION";
+
     public static final String EXPRESSION = "EXPRESSION";
+
     public static final String IS_PUBLIC = "IS_PUBLIC";
+
     public static final String REGISTRATOR = "REGISTRATOR";
+
     public static final String REGISTRATION_DATE = "REGISTRATION_DATE";
 }

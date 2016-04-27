@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 class TableData<K, T>
 {
     private final K dataKey;
-    
+
     private final List<T> originalData;
 
     @IgnoreSizeOf

@@ -21,8 +21,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetType
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface ISearchDataSetTypeMethodExecutor extends ISearchMethodExecutor<DataSetType, EntityTypeSearchCriteria, DataSetTypeFetchOptions>

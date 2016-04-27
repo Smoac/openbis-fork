@@ -537,7 +537,7 @@ public class DisplaySettingsManager
 
     /**
      * @returns hidden tabs for given panel - which tab should be selected<br>
-     *          <br>
+     * <br>
      *          NOTE: Returned value should be used read only
      */
     public final DetailViewConfiguration tryGetDetailViewSettings(String entityDetailViewID)

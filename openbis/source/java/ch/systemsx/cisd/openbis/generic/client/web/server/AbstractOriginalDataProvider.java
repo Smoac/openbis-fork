@@ -37,5 +37,5 @@ abstract class AbstractOriginalDataProvider<T> extends AbstractOriginalDataProvi
         this.commonServer = commonServer;
         this.sessionToken = sessionToken;
     }
-    
+
 }

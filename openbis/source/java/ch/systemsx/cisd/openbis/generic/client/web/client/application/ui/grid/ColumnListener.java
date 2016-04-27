@@ -29,8 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 
 /**
- * Listener for a Grid which delegates click on a cell or link in a cell to a registered
- * {@link ICellListener}.
+ * Listener for a Grid which delegates click on a cell or link in a cell to a registered {@link ICellListener}.
  * 
  * @author Franz-Josef Elmer
  */
@@ -60,10 +59,8 @@ public final class ColumnListener<T, M extends BaseEntityModel<T>> implements
     }
 
     /**
-     * Invokes {@link ICellListener#handle(Object,boolean)} with the base object of the row
-     * specified by the row index of the event. The cell listener is determined by the column index.
-     * This method does nothing if no cell listener has been registered for column determined by the
-     * event.
+     * Invokes {@link ICellListener#handle(Object,boolean)} with the base object of the row specified by the row index of the event. The cell listener
+     * is determined by the column index. This method does nothing if no cell listener has been registered for column determined by the event.
      */
     @Override
     @SuppressWarnings("unchecked")

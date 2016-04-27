@@ -26,7 +26,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Authori
 public class AuthorizationGroupGridColumnIDs
 {
     public static final String CODE = "CODE";
+
     public static final String DESCRIPTION = "DESCRIPTION";
+
     public static final String REGISTRATOR = "REGISTRATOR";
+
     public static final String REGISTRATION_DATE = "REGISTRATION_DATE";
 }

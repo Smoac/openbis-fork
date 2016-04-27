@@ -36,8 +36,8 @@ public class ResultSetFetchConfig<K> implements IsSerializable
     private K resultSetKeyOrNull;
 
     /**
-     * Instruction to compute a new result and to cache it. Should be used only if the result is
-     * computed for the first time and has not been cached yet.
+     * Instruction to compute a new result and to cache it. Should be used only if the result is computed for the first time and has not been cached
+     * yet.
      */
     public static <K> ResultSetFetchConfig<K> createComputeAndCache()
     {
@@ -65,9 +65,8 @@ public class ResultSetFetchConfig<K> implements IsSerializable
     }
 
     /**
-     * Instruction to fetch the result at the specified key in the cache an then recompute the
-     * custom columns and distinct filter values. Remember that rows are filtered anyway, even
-     * without recomputing.
+     * Instruction to fetch the result at the specified key in the cache an then recompute the custom columns and distinct filter values. Remember
+     * that rows are filtered anyway, even without recomputing.
      */
     public static <K> ResultSetFetchConfig<K> createFetchFromCacheAndRecompute(K resultSetKey)
     {
@@ -92,10 +91,8 @@ public class ResultSetFetchConfig<K> implements IsSerializable
 
     /**
      * If mode is COMPUTE_AND_CACHE, returns null.<br>
-     * If mode is FETCH_FROM_CACHE, returns a key which uniquely identifies a result set in the
-     * cache on the server side.<br>
-     * If mode is CLEAR_CACHE_AND_RECOMPUTE, returns a key to the item in the cache which should be
-     * removed.<br>
+     * If mode is FETCH_FROM_CACHE, returns a key which uniquely identifies a result set in the cache on the server side.<br>
+     * If mode is CLEAR_CACHE_AND_RECOMPUTE, returns a key to the item in the cache which should be removed.<br>
      */
     public K tryGetResultSetKey()
     {

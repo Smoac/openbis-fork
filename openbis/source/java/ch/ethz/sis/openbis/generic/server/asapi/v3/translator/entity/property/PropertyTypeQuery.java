@@ -25,14 +25,12 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import net.lemnik.eodsql.Select;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface PropertyTypeQuery extends ObjectQuery
 {
     @Select(sql = "select pt.*, t.code as dataSetTypeCode "
-            + "from property_types pt join data_types t on pt.daty_id=t.id where pt.id = any(?{1})", 
+            + "from property_types pt join data_types t on pt.daty_id=t.id where pt.id = any(?{1})",
             parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<PropertyTypeRecord> getPropertyTypes(LongSet propertyTypeIds);
 }

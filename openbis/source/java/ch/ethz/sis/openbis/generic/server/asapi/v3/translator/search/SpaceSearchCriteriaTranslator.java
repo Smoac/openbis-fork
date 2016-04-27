@@ -32,8 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFi
 public class SpaceSearchCriteriaTranslator extends AbstractFieldFromCompositeSearchCriteriaTranslator
 {
 
-    private static final EnumSet<EntityKind> ENTITY_KINDS_WITH_SPACE 
-            = EnumSet.of(EntityKind.EXPERIMENT,  EntityKind.SAMPLE);
+    private static final EnumSet<EntityKind> ENTITY_KINDS_WITH_SPACE = EnumSet.of(EntityKind.EXPERIMENT, EntityKind.SAMPLE);
 
     public SpaceSearchCriteriaTranslator(IDAOFactory daoFactory, IEntityAttributeProviderFactory entityAttributeProviderFactory)
     {

@@ -505,7 +505,7 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { DatabaseModificationKind.edit(getObjectKind()) };
+        { DatabaseModificationKind.edit(getObjectKind()) };
     }
 
     private ObjectKind getObjectKind()

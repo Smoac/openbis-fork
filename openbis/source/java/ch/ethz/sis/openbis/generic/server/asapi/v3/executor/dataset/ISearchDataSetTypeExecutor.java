@@ -21,8 +21,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.ISearchObject
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface ISearchDataSetTypeExecutor extends ISearchObjectExecutor<EntityTypeSearchCriteria, DataSetTypePE>

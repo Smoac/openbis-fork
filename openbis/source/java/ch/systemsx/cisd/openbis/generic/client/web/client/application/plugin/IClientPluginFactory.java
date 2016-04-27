@@ -35,21 +35,19 @@ public interface IClientPluginFactory
     public boolean isEnabled();
 
     /**
-     * Returns all the entity type codes for given <var>entityKind</var> supported by this
-     * implementation.
+     * Returns all the entity type codes for given <var>entityKind</var> supported by this implementation.
      */
     public Set<String> getEntityTypeCodes(final EntityKind entityKind);
 
     /**
-     * Creates and returns a {@link IClientPlugin} implementation specific to given
-     * <var>entityKind</var> and given <var>entityType</var> each time this method is called.
+     * Creates and returns a {@link IClientPlugin} implementation specific to given <var>entityKind</var> and given <var>entityType</var> each time
+     * this method is called.
      */
     public <T extends BasicEntityType, I extends IIdAndCodeHolder> IClientPlugin<T, I> createClientPlugin(
             final EntityKind entityKind);
 
     /**
-     * Returns {@link IModule} defined for given 'technology' or null if no module should be
-     * created.
+     * Returns {@link IModule} defined for given 'technology' or null if no module should be created.
      */
     public IModule tryGetModule();
 }

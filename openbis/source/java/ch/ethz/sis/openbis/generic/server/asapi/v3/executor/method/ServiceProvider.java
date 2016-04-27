@@ -38,21 +38,23 @@ import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Component
 public class ServiceProvider implements InitializingBean, IServiceProvider
 {
     public static final String SERVICES_PROPERTY_KEY = "services";
+
     public static final String CLASS_KEY = "class";
+
     public static final String LABEL_KEY = "label";
+
     public static final String DESCRIPTION_KEY = "description";
-    
+
     private List<CustomASService> services;
+
     private Map<String, ICustomASServiceExecutor> executors = new HashMap<String, ICustomASServiceExecutor>();
-    
+
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     protected ExposablePropertyPlaceholderConfigurer configurer;
 
@@ -79,17 +81,17 @@ public class ServiceProvider implements InitializingBean, IServiceProvider
         }
         services = Collections.unmodifiableList(list);
     }
-    
+
     @Override
     public List<CustomASService> getCustomASServices()
     {
         return services;
     }
-    
+
     @Override
     public ICustomASServiceExecutor tryGetCustomASServiceExecutor(String code)
     {
         return executors.get(code);
     }
-    
+
 }

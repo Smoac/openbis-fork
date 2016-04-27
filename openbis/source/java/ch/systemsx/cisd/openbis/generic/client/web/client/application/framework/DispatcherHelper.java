@@ -35,8 +35,7 @@ public final class DispatcherHelper
     }
 
     /**
-     * Creates and dispatches an event of type {@link OpenUrlEvent#OPEN_URL_EVENT} which opens a new
-     * window.
+     * Creates and dispatches an event of type {@link OpenUrlEvent#OPEN_URL_EVENT} which opens a new window.
      */
     public final static void dispatchOpenUrlEvent(String url)
     {
@@ -44,8 +43,7 @@ public final class DispatcherHelper
     }
 
     /**
-     * Creates and dispatches an event of type {@link OpenUrlEvent#OPEN_URL_EVENT} which changes the
-     * url of the current window.
+     * Creates and dispatches an event of type {@link OpenUrlEvent#OPEN_URL_EVENT} which changes the url of the current window.
      */
     public final static void dispatchRedirectUrlEvent(String url, String target)
     {
@@ -53,8 +51,7 @@ public final class DispatcherHelper
     }
 
     /**
-     * Creates and dispatches an event of type {@link AppEvents#NAVI_EVENT}. The event opens a new
-     * tab.
+     * Creates and dispatches an event of type {@link AppEvents#NAVI_EVENT}. The event opens a new tab.
      */
     public final static void dispatchNaviEvent(final AbstractTabItemFactory tabItemFactory)
     {

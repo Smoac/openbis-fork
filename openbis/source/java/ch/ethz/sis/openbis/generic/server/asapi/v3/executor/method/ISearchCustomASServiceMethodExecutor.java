@@ -21,11 +21,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.CustomASSer
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.CustomASServiceSearchCriteria;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public interface ISearchCustomASServiceMethodExecutor extends ISearchMethodExecutor<CustomASService, CustomASServiceSearchCriteria, CustomASServiceFetchOptions>
+public interface ISearchCustomASServiceMethodExecutor extends
+        ISearchMethodExecutor<CustomASService, CustomASServiceSearchCriteria, CustomASServiceFetchOptions>
 {
 
 }

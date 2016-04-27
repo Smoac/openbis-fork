@@ -40,7 +40,7 @@ public class EntityTypeSearchCriteriaTranslator extends AbstractFieldFromComposi
     @Override
     protected boolean doAccepts(ISearchCriteria criteria)
     {
-        return criteria instanceof EntityTypeSearchCriteria 
+        return criteria instanceof EntityTypeSearchCriteria
                 && false == (criteria instanceof SampleTypeSearchCriteria);
     }
 

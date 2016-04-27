@@ -197,9 +197,8 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Abstra
     }
 
     /*
-     * Provides property types which should be shown as the grid columns. Takes into account what
-     * types of datasets are displayed and does not show property types which are not assigned to
-     * any of those types.
+     * Provides property types which should be shown as the grid columns. Takes into account what types of datasets are displayed and does not show
+     * property types which are not assigned to any of those types.
      */
     private ICriteriaProvider<PropertyTypesCriteria> createCriteriaProvider()
     {

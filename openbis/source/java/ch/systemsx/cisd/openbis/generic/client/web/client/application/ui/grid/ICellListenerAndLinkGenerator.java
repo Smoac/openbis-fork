@@ -21,8 +21,7 @@ import java.io.Serializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
- * Interface for classes implementing click listener action and generating corresponding URL for
- * simple view mode.
+ * Interface for classes implementing click listener action and generating corresponding URL for simple view mode.
  * 
  * @author Franz-Josef Elmer
  */

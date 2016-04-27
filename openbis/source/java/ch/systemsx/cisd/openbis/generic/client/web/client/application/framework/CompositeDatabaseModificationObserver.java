@@ -25,8 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.SetUt
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 
 /**
- * Composite class to implement {@link IDatabaseModificationObserver} interface for a collection of
- * observers.
+ * Composite class to implement {@link IDatabaseModificationObserver} interface for a collection of observers.
  * 
  * @author Tomasz Pylak
  */

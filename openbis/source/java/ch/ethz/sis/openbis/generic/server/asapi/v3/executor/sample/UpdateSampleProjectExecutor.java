@@ -35,12 +35,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Component
-public class UpdateSampleProjectExecutor extends AbstractUpdateEntityToOneRelationExecutor<SampleUpdate, SamplePE, IProjectId, ProjectPE> 
+public class UpdateSampleProjectExecutor extends AbstractUpdateEntityToOneRelationExecutor<SampleUpdate, SamplePE, IProjectId, ProjectPE>
         implements IUpdateSampleProjectExecutor
 {
     @Autowired
@@ -52,29 +50,25 @@ public class UpdateSampleProjectExecutor extends AbstractUpdateEntityToOneRelati
         return new ProjectIdentifier(related.getIdentifier());
     }
 
-
     @Override
     protected ProjectPE getCurrentlyRelated(SamplePE entity)
     {
         return entity.getProject();
     }
 
-
     @Override
     protected FieldUpdateValue<IProjectId> getRelatedUpdate(SampleUpdate update)
     {
         // TODO: project samples
-//        return update.getProjectId();
+        // return update.getProjectId();
         return null;
     }
-
 
     @Override
     protected Map<IProjectId, ProjectPE> map(IOperationContext context, List<IProjectId> relatedIds)
     {
         return mapProjectByIdExecutor.map(context, relatedIds);
     }
-
 
     @Override
     protected void check(IOperationContext context, SamplePE entity, IProjectId relatedId, ProjectPE related)
@@ -84,7 +78,6 @@ public class UpdateSampleProjectExecutor extends AbstractUpdateEntityToOneRelati
             throw new UnauthorizedObjectAccessException(relatedId);
         }
     }
-
 
     @Override
     protected void update(IOperationContext context, SamplePE entity, ProjectPE related)

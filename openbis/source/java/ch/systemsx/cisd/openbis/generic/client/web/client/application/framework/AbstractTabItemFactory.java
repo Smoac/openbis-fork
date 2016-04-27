@@ -34,11 +34,9 @@ public abstract class AbstractTabItemFactory
     public abstract ITabItem create();
 
     /**
-     * Returns the unique identifier of this tab item. Note that the id should be unique among all
-     * tabs, not widgets.
+     * Returns the unique identifier of this tab item. Note that the id should be unique among all tabs, not widgets.
      * <p>
-     * The framework ensures that no two components with the same id will be displayed. Instead the
-     * one already created will get the focus.
+     * The framework ensures that no two components with the same id will be displayed. Instead the one already created will get the focus.
      * </p>
      */
     public abstract String getId();

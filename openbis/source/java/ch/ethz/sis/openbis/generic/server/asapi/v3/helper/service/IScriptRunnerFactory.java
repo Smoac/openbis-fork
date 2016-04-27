@@ -19,13 +19,11 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.service;
 import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.context.ServiceContext;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IScriptRunnerFactory
 {
     public String getScriptPath();
-    
+
     public IServiceScriptRunner createServiceRunner(ServiceContext context);
 }

@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 
 import java.util.List;
 
-
 /**
  * @author Izabela Adamczyk
  */

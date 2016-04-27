@@ -35,7 +35,6 @@ public class DataSetTypeModel extends SimplifiedBaseModelData
 
     private static final long serialVersionUID = 1L;
 
-    
     public DataSetTypeModel(final DataSetType dataSetType)
     {
         this(dataSetType.getCode(), dataSetType);
@@ -49,7 +48,6 @@ public class DataSetTypeModel extends SimplifiedBaseModelData
         set(ModelDataPropertyNames.OBJECT, object);
     }
 
-    
     public final static List<DataSetTypeModel> convert(final List<DataSetType> dataSetTypes,
             boolean withAll, boolean withTypesInFile)
     {

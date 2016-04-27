@@ -21,8 +21,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.ISearchObject
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface ISearchSampleTypeExecutor extends ISearchObjectExecutor<EntityTypeSearchCriteria, SampleTypePE>

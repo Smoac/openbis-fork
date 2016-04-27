@@ -48,8 +48,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * {@link PagingToolBar} extension with overwritten behavior of the <i>Refresh</i> button and
- * additional <i>Export</i> button.
+ * {@link PagingToolBar} extension with overwritten behavior of the <i>Refresh</i> button and additional <i>Export</i> button.
  * 
  * @author Tomasz Pylak
  */

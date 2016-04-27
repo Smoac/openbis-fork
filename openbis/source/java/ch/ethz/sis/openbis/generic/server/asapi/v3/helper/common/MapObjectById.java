@@ -59,7 +59,7 @@ public class MapObjectById<ID, OBJECT>
         return idClassToIdListMap;
     }
 
-    private Map mapByIds(IOperationContext context, List<IListObjectById<? extends ID, OBJECT>> listers, 
+    private Map mapByIds(IOperationContext context, List<IListObjectById<? extends ID, OBJECT>> listers,
             Map<Class, List> idClassToIdListMap)
     {
         final Map idToObject = new HashMap();
@@ -67,7 +67,7 @@ public class MapObjectById<ID, OBJECT>
         for (Class idClass : idClassToIdListMap.keySet())
         {
             List idList = idClassToIdListMap.get(idClass);
-            IListObjectById listerForIdClass = findLister(listers, idClass, idList); 
+            IListObjectById listerForIdClass = findLister(listers, idClass, idList);
             List objects = listerForIdClass.listByIds(context, idList);
             if (objects != null)
             {
@@ -94,7 +94,7 @@ public class MapObjectById<ID, OBJECT>
         throw new UnsupportedObjectIdException((IObjectId) idList.iterator().next());
     }
 
-    public Map<ID, OBJECT> map(IOperationContext context, List<IListObjectById<? extends ID, OBJECT>> listers, 
+    public Map<ID, OBJECT> map(IOperationContext context, List<IListObjectById<? extends ID, OBJECT>> listers,
             Collection<? extends ID> ids)
     {
         Map<Class, List> idClassToIdListMap = groupIdsByClass(ids);

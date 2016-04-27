@@ -22,14 +22,14 @@ import com.extjs.gxt.ui.client.util.Format;
 import com.google.gwt.i18n.client.Dictionary;
 
 /**
- * Message provider based on a {@link Dictionary} instance. The messages are dynamically loaded at
- * runtime from a JavaScript file.
+ * Message provider based on a {@link Dictionary} instance. The messages are dynamically loaded at runtime from a JavaScript file.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public final class DictonaryBasedMessageProvider implements IMessageProvider
 {
     private final Dictionary dictionary;
+
     private final String dictionaryName;
 
     public DictonaryBasedMessageProvider(final String dictionaryName)
@@ -47,7 +47,7 @@ public final class DictonaryBasedMessageProvider implements IMessageProvider
     {
         return dictionaryName;
     }
-    
+
     @Override
     public final boolean containsKey(final String key)
     {

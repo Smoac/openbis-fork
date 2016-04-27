@@ -31,19 +31,19 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.material.IM
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 
 /**
- *
  * @author Franz-Josef Elmer
  */
 @Component
-public class SearchMaterialTypeSqlMethodExecutor extends AbstractIdSearchMethodExecutor<MaterialType, MaterialTypePE, EntityTypeSearchCriteria, MaterialTypeFetchOptions> 
+public class SearchMaterialTypeSqlMethodExecutor extends
+        AbstractIdSearchMethodExecutor<MaterialType, MaterialTypePE, EntityTypeSearchCriteria, MaterialTypeFetchOptions>
         implements ISearchMaterialTypeMethodExecutor
 {
     @Autowired
     private ISearchMaterialTypeExecutor searchExecutor;
-    
+
     @Autowired
     private IMaterialTypeTranslator translator;
-    
+
     @Override
     protected List<MaterialTypePE> searchPEs(IOperationContext context, EntityTypeSearchCriteria criteria)
     {

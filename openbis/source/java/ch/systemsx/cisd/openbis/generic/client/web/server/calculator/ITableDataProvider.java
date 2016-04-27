@@ -21,7 +21,6 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.server.IBasicTableDataProvider;
 
-
 /**
  * Interface to access table data and meta data. Used by calculator classes.
  *
@@ -40,11 +39,10 @@ public interface ITableDataProvider extends IBasicTableDataProvider
      * Returns a collection of the identifiers of all columns.
      */
     public Collection<String> getAllColumnIDs();
-    
+
     /**
      * Returns the property of specified key for specified column.
      */
     public String tryToGetProperty(String columnID, String key);
-
 
 }

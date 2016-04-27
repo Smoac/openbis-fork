@@ -43,8 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 /**
  * A class that manages the configuring of column settings in the AbstractBrowserGrid.
  * <p>
- * Considered a friend class to AbstractBrowserGried, i.e., it is allowed to use methods that are
- * otherwise private.
+ * Considered a friend class to AbstractBrowserGried, i.e., it is allowed to use methods that are otherwise private.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -177,8 +176,8 @@ public class ColumnSettingsConfigurer<T extends Serializable>
     }
 
     /**
-     * Creates a new column model based on the specified column data models and the old full column
-     * model as provided by {@link TypedTableGrid#getFullColumnModel()}.
+     * Creates a new column model based on the specified column data models and the old full column model as provided by
+     * {@link TypedTableGrid#getFullColumnModel()}.
      */
     private ColumnModel createNewColumnModel(List<ColumnDataModel> newColumnDataModels)
     {

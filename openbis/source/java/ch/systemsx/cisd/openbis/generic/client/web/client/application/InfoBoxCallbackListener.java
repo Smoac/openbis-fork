@@ -20,8 +20,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * A {@link ICallbackListener} which outputs the failure message to the specified
- * {@link IInfoHandler}.
+ * A {@link ICallbackListener} which outputs the failure message to the specified {@link IInfoHandler}.
  * 
  * @author Christian Ribeaud
  */

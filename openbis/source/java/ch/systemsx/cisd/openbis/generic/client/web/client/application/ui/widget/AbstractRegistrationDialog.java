@@ -31,8 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * Abstract {@link Window} with Save and Cancel buttons, useful when simple registration operation
- * is needed.
+ * Abstract {@link Window} with Save and Cancel buttons, useful when simple registration operation is needed.
  * 
  * @author Tomasz Pylak
  */

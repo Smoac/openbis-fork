@@ -33,9 +33,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HttpRequestUtils;
  * A {@link Filter} implementing the a simple caching policy that
  * <ul>
  * <li>Instructs browsers and proxies not to cache resources having '.nocache' in their URLs</li>
- * <li>Sets the correct caching HTTP headers for all other resources (i.e. the ones without
- * '.nocache.' in their names). As a result, static resources such as images stay in cache for a
- * long time.</li>
+ * <li>Sets the correct caching HTTP headers for all other resources (i.e. the ones without '.nocache.' in their names). As a result, static resources
+ * such as images stay in cache for a long time.</li>
  * </ul>
  * 
  * @author Piotr Buczek

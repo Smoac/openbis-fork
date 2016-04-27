@@ -17,8 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
 /**
- * Use this interface to delegate any kind of action to a different part of code without adding an
- * explicit dependency. The action return a result.
+ * Use this interface to delegate any kind of action to a different part of code without adding an explicit dependency. The action return a result.
  * 
  * @author Tomasz Pylak
  */

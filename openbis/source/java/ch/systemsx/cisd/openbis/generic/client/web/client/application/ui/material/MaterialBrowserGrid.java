@@ -75,8 +75,7 @@ public class MaterialBrowserGrid extends AbstractEntityGrid<Material>
     public static final String GRID_ID = BROWSER_ID + "_grid";
 
     /**
-     * Creates a browser with a toolbar which allows to choose the material type. Allows to show or
-     * edit material details.
+     * Creates a browser with a toolbar which allows to choose the material type. Allows to show or edit material details.
      * 
      * @param initialMaterialTypeOrNull
      */
@@ -139,8 +138,7 @@ public class MaterialBrowserGrid extends AbstractEntityGrid<Material>
     }
 
     /**
-     * If the material type is given, does not show the toolbar with material type selection and
-     * refreshes the grid automatically.<br>
+     * If the material type is given, does not show the toolbar with material type selection and refreshes the grid automatically.<br>
      * Does not allow to show or edit the material details.
      */
     public static DisposableEntityChooser<TableModelRowWithObject<Material>> create(

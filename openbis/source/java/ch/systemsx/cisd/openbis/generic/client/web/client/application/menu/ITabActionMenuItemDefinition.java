@@ -26,8 +26,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 public interface ITabActionMenuItemDefinition<S extends IClientServiceAsync>
 {
     /**
-     * Used to create widget ids and dictionary messages. Following messages are expected to be
-     * defined in the dictionary: ${name}_menu_item, ${name}_tab_label
+     * Used to create widget ids and dictionary messages. Following messages are expected to be defined in the dictionary: ${name}_menu_item,
+     * ${name}_tab_label
      */
     public String getName();
 

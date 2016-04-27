@@ -21,8 +21,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IUpdateEntity
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IUpdateSampleProjectExecutor extends IUpdateEntityRelationsExecutor<SampleUpdate, SamplePE>

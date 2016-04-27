@@ -32,8 +32,6 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.lemnik.eodsql.QueryTool;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public abstract class PropertyAssignmentTranslator extends ObjectToManyRelationTranslator<PropertyAssignment, PropertyAssignmentFetchOptions>
@@ -73,7 +71,6 @@ public abstract class PropertyAssignmentTranslator extends ObjectToManyRelationT
         }
         return assignments;
     }
-
 
     @Override
     protected Collection<PropertyAssignment> createCollection()

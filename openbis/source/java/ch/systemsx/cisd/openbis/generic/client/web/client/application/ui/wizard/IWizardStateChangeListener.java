@@ -17,8 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.wizard;
 
 /**
- * Interface to be implemented by classes interested in {@link IWizardState} changes in
- * {@link WizardWorkflowModel}.
+ * Interface to be implemented by classes interested in {@link IWizardState} changes in {@link WizardWorkflowModel}.
  * 
  * @author Franz-Josef Elmer
  */

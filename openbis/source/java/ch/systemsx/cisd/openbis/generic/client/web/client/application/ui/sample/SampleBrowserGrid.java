@@ -176,8 +176,7 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
     }
 
     /**
-     * Create a grid with a toolbar with no initial selection and optional initial selection of
-     * sample type and group.
+     * Create a grid with a toolbar with no initial selection and optional initial selection of sample type and group.
      */
     public static IDisposableComponent create(IViewContext<ICommonClientServiceAsync> viewContext,
             String initialGroupOrNull, String initialSampleTypeOrNull)
@@ -301,9 +300,8 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
     }
 
     /**
-     * Besides providing the static {@link ListSampleCriteria} this class provides all property
-     * types which should be used to build the grid property columns. It is also able to refresh
-     * these properties from the server.
+     * Besides providing the static {@link ListSampleCriteria} this class provides all property types which should be used to build the grid property
+     * columns. It is also able to refresh these properties from the server.
      */
     protected static class SampleCriteriaProvider implements ISampleCriteriaProvider
     {
@@ -502,9 +500,8 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
 
     /**
      * Initializes criteria and refreshes the grid when criteria are fetched. <br>
-     * Note that in this way we do not refresh the grid automatically, but we wait until all the
-     * property types will be fetched from the server (criteria provider will be updated), to set
-     * the available grid columns.
+     * Note that in this way we do not refresh the grid automatically, but we wait until all the property types will be fetched from the server
+     * (criteria provider will be updated), to set the available grid columns.
      */
     protected void updateCriteriaProviderAndRefresh()
     {
@@ -582,37 +579,43 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                     final AbstractAsyncCallback<Void> callback = createRefreshCallback(invoker);
                     final DisplayedAndSelectedEntities<TableModelRowWithObject<Sample>> s =
                             getDisplayedAndSelectedItemsAction().execute();
-                    
+
                     List<TableModelRowWithObject<Sample>> selectedSamples = s.getSelectedItems();
                     final Map<String, String> techIdsToSampleIds = new HashMap<String, String>();
-                    
+
                     List<TechId> sampleIds = TechId.createList(samples);
-                    //put the TechId:SampleIdentifier pairs to a map to use
-                    //later when displaying message to the user
+                    // put the TechId:SampleIdentifier pairs to a map to use
+                    // later when displaying message to the user
                     for (TableModelRowWithObject<Sample> rowObj : selectedSamples)
-                    {                                                
+                    {
                         Sample smp = rowObj.getObjectOrNull();
                         techIdsToSampleIds.put(TechId.create(smp).toString(), smp.getIdentifier());
                     }
-                    
+
                     AbstractAsyncCallback<List<SampleChildrenInfo>> confirmationCallback =
-                          new AbstractAsyncCallback<List<SampleChildrenInfo>>(viewContext)
-                          {
-                              @Override
-                              protected void process(List<SampleChildrenInfo> sampleChildrenInfoList)
-                              {
-                                String additionalMessage = null;
-                                 if(sampleChildrenInfoList.size() == 1) 
-                                  {
-                                      additionalMessage = EntityDeletionConfirmationUtils.getMessageForSingleSample(sampleChildrenInfoList.get(0));
-                                  }
-                                 else {
-                                     additionalMessage = EntityDeletionConfirmationUtils.getMessageForMultipleSamples(sampleChildrenInfoList, techIdsToSampleIds);
-                                 }
-                                 new SampleListDeletionConfirmationDialog<TableModelRowWithObject<Sample>>(viewContext.getCommonViewContext(), samples, callback, s, additionalMessage).show();;
-                               }
-                          };
-                          viewContext.getCommonService().getSampleChildrenInfo(sampleIds, true, confirmationCallback);
+                            new AbstractAsyncCallback<List<SampleChildrenInfo>>(viewContext)
+                                {
+                                    @Override
+                                    protected void process(List<SampleChildrenInfo> sampleChildrenInfoList)
+                                    {
+                                        String additionalMessage = null;
+                                        if (sampleChildrenInfoList.size() == 1)
+                                        {
+                                            additionalMessage =
+                                                    EntityDeletionConfirmationUtils.getMessageForSingleSample(sampleChildrenInfoList.get(0));
+                                        }
+                                        else
+                                        {
+                                            additionalMessage =
+                                                    EntityDeletionConfirmationUtils.getMessageForMultipleSamples(sampleChildrenInfoList,
+                                                            techIdsToSampleIds);
+                                        }
+                                        new SampleListDeletionConfirmationDialog<TableModelRowWithObject<Sample>>(viewContext.getCommonViewContext(),
+                                                samples, callback, s, additionalMessage).show();
+                                        ;
+                                    }
+                                };
+                    viewContext.getCommonService().getSampleChildrenInfo(sampleIds, true, confirmationCallback);
                 }
 
             });
@@ -635,7 +638,7 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
             });
         return button;
     }
-    
+
     protected final IDelegatedActionWithResult<DisplayedAndSelectedEntities<TableModelRowWithObject<Sample>>> getDisplayedAndSelectedItemsAction()
     {
         return new IDelegatedActionWithResult<DisplayedAndSelectedEntities<TableModelRowWithObject<Sample>>>()
@@ -720,17 +723,19 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                 }
             };
     }
-    
-    private abstract class AbstractCreateDialogListenerForSampleGrid extends AbstractCreateDialogListener {
+
+    private abstract class AbstractCreateDialogListenerForSampleGrid extends AbstractCreateDialogListener
+    {
 
         @Override
         protected Dialog createDialog(List<TableModelRowWithObject<Sample>> data, IBrowserGridActionInvoker invoker)
         {
-           createAndShowDialog(data, invoker);
-           return null;
+            createAndShowDialog(data, invoker);
+            return null;
         }
+
         protected abstract void createAndShowDialog(List<TableModelRowWithObject<Sample>> data,
-                IBrowserGridActionInvoker invoker) ;
+                IBrowserGridActionInvoker invoker);
     }
 
 }

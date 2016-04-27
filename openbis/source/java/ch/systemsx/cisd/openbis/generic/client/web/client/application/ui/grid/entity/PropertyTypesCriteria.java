@@ -7,8 +7,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
- * Use this criteria class if you want to enable auto-refresh when property types change. Even when
- * there are no criteria to pre-filter the grid besides the standard paging tab controls.
+ * Use this criteria class if you want to enable auto-refresh when property types change. Even when there are no criteria to pre-filter the grid
+ * besides the standard paging tab controls.
  */
 public class PropertyTypesCriteria extends DefaultResultSetConfig<String, AbstractExternalData>
 {

@@ -38,8 +38,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.Obje
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.ObjectToManyRelationTranslator;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public abstract class EntityAttachmentTranslator extends ObjectToManyRelationTranslator<Attachment, AttachmentFetchOptions>
@@ -48,7 +46,7 @@ public abstract class EntityAttachmentTranslator extends ObjectToManyRelationTra
     private IAttachmentTranslator attachmentTranslator;
 
     protected abstract List<ObjectRelationRecord> loadRecords(LongOpenHashSet entityIds, AttachmentQuery query);
-    
+
     @Override
     protected Map<Long, Attachment> filterRelatedObjects(Map<Long, Attachment> relatedObjects)
     {

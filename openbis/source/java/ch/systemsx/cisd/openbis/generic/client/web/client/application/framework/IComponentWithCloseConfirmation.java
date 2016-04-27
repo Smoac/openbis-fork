@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
 /**
- * Components that implement this interface and are added as tab contents can dynamically control
- * whether closing the tab requires an additional confirmation.
+ * Components that implement this interface and are added as tab contents can dynamically control whether closing the tab requires an additional
+ * confirmation.
  * 
  * @author pkupczyk
  */

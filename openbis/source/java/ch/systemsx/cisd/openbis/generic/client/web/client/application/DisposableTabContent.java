@@ -21,8 +21,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
- * Panel of a details view showing a component which should be disposed at the end (i.e. browser
- * grid).
+ * Panel of a details view showing a component which should be disposed at the end (i.e. browser grid).
  * 
  * @author Franz-Josef Elmer
  */

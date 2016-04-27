@@ -34,8 +34,7 @@ public class PendingFetchManager
     }
 
     /**
-     * Pushes a fetchConfig to the stack of pending fetches, though we currently only keep track of
-     * one pending fetch.
+     * Pushes a fetchConfig to the stack of pending fetches, though we currently only keep track of one pending fetch.
      */
     public void pushPendingFetchConfig(ResultSetFetchConfig<String> fetchConfig)
     {
@@ -43,8 +42,7 @@ public class PendingFetchManager
     }
 
     /**
-     * Returns a pending fetch config. If {@link #hasPendingFetch()} is true, the return value is
-     * non-null. Otherwise, it is null.
+     * Returns a pending fetch config. If {@link #hasPendingFetch()} is true, the return value is non-null. Otherwise, it is null.
      */
     public ResultSetFetchConfig<String> tryTopPendingFetchConfig()
     {

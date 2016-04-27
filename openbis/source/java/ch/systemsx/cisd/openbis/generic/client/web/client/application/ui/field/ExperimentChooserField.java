@@ -31,8 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
- * A field for selecting an experiment in a fixed group from a list or by specifying code and
- * project.
+ * A field for selecting an experiment in a fixed group from a list or by specifying code and project.
  * 
  * @author Tomasz Pylak
  */
@@ -54,8 +53,7 @@ public class ExperimentChooserField extends ChosenEntitySetter<TableModelRowWith
     }
 
     /**
-     * Creates a text field with the additional browse button which allow to choose an experiment
-     * from the list.
+     * Creates a text field with the additional browse button which allow to choose an experiment from the list.
      */
     public static ExperimentChooserFieldAdaptor create(final String labelField,
             final boolean mandatory, final ExperimentIdentifier initialValueOrNull,

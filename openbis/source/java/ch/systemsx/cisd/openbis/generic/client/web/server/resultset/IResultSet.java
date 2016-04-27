@@ -47,8 +47,7 @@ public interface IResultSet<K, T>
     public int getTotalLength();
 
     /**
-     * Returns <code>true</code> if this result set is not complete. Note, that
-     * {@link #getTotalLength()} is meaningless if this is the case.
+     * Returns <code>true</code> if this result set is not complete. Note, that {@link #getTotalLength()} is meaningless if this is the case.
      */
     public boolean isPartial();
 

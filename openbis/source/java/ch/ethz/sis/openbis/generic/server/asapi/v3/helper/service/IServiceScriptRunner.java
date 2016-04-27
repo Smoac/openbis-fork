@@ -21,8 +21,6 @@ import java.io.Serializable;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IServiceScriptRunner

@@ -65,7 +65,7 @@ public class CommonServiceProvider
                         .getBean(ResourceNames.MAIL_CLIENT_PARAMETERS);
         return new MailClient(mailClientParameters);
     }
-    
+
     public static IApplicationServerApi getApplicationServerApi()
     {
         return (IApplicationServerApi) applicationContext.getBean(ApplicationServerApi.INTERNAL_SERVICE_NAME);

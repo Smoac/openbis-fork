@@ -23,8 +23,7 @@ import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
- * Translator of server side {@link ch.systemsx.cisd.common.exceptions.UserFailureException} into
- * GWT compatible {@link UserFailureException}.
+ * Translator of server side {@link ch.systemsx.cisd.common.exceptions.UserFailureException} into GWT compatible {@link UserFailureException}.
  * 
  * @author Franz-Josef Elmer
  */
@@ -44,9 +43,8 @@ public class UserFailureExceptionTranslator
     }
 
     /**
-     * Converts any {@link ch.systemsx.cisd.common.exceptions.UserFailureException} or subclass of
-     * it to a <i>GWT</i> {@link UserFailureException} (or subclass of it if this one could be found
-     * in the same package).
+     * Converts any {@link ch.systemsx.cisd.common.exceptions.UserFailureException} or subclass of it to a <i>GWT</i> {@link UserFailureException} (or
+     * subclass of it if this one could be found in the same package).
      */
     public static UserFailureException translate(
             ch.systemsx.cisd.common.exceptions.UserFailureException exception)
@@ -55,9 +53,8 @@ public class UserFailureExceptionTranslator
     }
 
     /**
-     * Converts any {@link ch.systemsx.cisd.common.exceptions.UserFailureException} or subclass of
-     * it to a <i>GWT</i> {@link UserFailureException} (or subclass of it if this one could be found
-     * in the same package) using specified message as the main message and message in the original
+     * Converts any {@link ch.systemsx.cisd.common.exceptions.UserFailureException} or subclass of it to a <i>GWT</i> {@link UserFailureException} (or
+     * subclass of it if this one could be found in the same package) using specified message as the main message and message in the original
      * exception as the detail message.
      */
     public static UserFailureException translate(

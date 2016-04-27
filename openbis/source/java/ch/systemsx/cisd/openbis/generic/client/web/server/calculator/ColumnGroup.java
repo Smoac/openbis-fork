@@ -29,14 +29,15 @@ import java.util.List;
 public class ColumnGroup
 {
     private final String propertyValue;
+
     private final List<Object> values;
-    
+
     ColumnGroup(String propertyValue, List<Object> values)
     {
         this.propertyValue = propertyValue;
         this.values = Collections.unmodifiableList(values);
     }
-    
+
     /**
      * Returns the property value of this group.
      */
@@ -52,5 +53,5 @@ public class ColumnGroup
     {
         return values;
     }
-    
+
 }

@@ -49,8 +49,7 @@ public class PropertyTypesFilterUtil
     }
 
     /**
-     * returns these property types in specified criteria which are assigned to any of the specified
-     * entity types
+     * returns these property types in specified criteria which are assigned to any of the specified entity types
      */
     public static PropertyTypesCriteria filterPropertyTypesForEntityTypes(
             PropertyTypesCriteria propertyTypesCriteriaOrNull, EntityKind entityKind,

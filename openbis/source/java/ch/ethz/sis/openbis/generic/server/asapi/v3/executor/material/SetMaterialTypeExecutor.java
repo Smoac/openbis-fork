@@ -37,7 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * @author Jakub Straszewski
  */
 @Component
-public class SetMaterialTypeExecutor extends AbstractSetEntityToOneRelationExecutor<MaterialCreation, MaterialPE, IEntityTypeId, EntityTypePE> implements
+public class SetMaterialTypeExecutor extends AbstractSetEntityToOneRelationExecutor<MaterialCreation, MaterialPE, IEntityTypeId, EntityTypePE>
+        implements
         ISetMaterialTypeExecutor
 {
 

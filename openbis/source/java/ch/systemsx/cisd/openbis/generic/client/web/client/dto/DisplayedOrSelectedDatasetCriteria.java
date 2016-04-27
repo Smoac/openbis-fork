@@ -24,8 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
- * Defines a set of datasets by either enumerating their codes or providing the grid configuration
- * for it (together with the cache identifier).
+ * Defines a set of datasets by either enumerating their codes or providing the grid configuration for it (together with the cache identifier).
  * 
  * @author Tomasz Pylak
  */

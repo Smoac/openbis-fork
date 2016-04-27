@@ -21,8 +21,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.ISetEntityRel
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface ISetSampleProjectExecutor extends ISetEntityRelationsExecutor<SampleCreation, SamplePE>

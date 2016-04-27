@@ -19,12 +19,11 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.property;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.ObjectBaseRecord;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class PropertyAssignmentRecord extends ObjectBaseRecord
 {
     public Boolean is_mandatory;
+
     public Long prty_id;
 }

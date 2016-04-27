@@ -25,8 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
- * Criteria for listing <i>data sets</i> related to {@link MatchingEntity}s like samples and
- * experiments.
+ * Criteria for listing <i>data sets</i> related to {@link MatchingEntity}s like samples and experiments.
  * 
  * @author Piotr Buczek
  */

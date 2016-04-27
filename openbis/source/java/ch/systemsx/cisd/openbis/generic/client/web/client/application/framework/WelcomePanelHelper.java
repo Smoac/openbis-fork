@@ -38,7 +38,7 @@ public class WelcomePanelHelper
     private static final String SIMPLE_VIEW_MODE_PAGE_BASE_NAME_GENERIC = "./custom/welcomePageSimpleGeneric";
 
     private static final String SIMPLE_VIEW_MODE_PAGE_BASE_NAME_SCREENING = "./custom/welcomePageSimpleScreening";
-    
+
     public static final Component createWelcomePanel(IViewContext<?> viewContext, String idPrefix)
     {
         final LayoutContainer layoutContainer = new LayoutContainer(new BorderLayout());
@@ -62,11 +62,14 @@ public class WelcomePanelHelper
         return viewContext.isSimpleOrEmbeddedMode() ? getSimpleModeWelcomePageBaseName(viewContext)
                 : APPLICATION_VIEW_MODE_PAGE_BASE_NAME;
     }
-    
-    private static final String getSimpleModeWelcomePageBaseName(IViewContext<?> viewContext) {
-        if (viewContext.getModel().getApplicationInfo().getEnabledTechnologies().contains("screening")) {
+
+    private static final String getSimpleModeWelcomePageBaseName(IViewContext<?> viewContext)
+    {
+        if (viewContext.getModel().getApplicationInfo().getEnabledTechnologies().contains("screening"))
+        {
             return SIMPLE_VIEW_MODE_PAGE_BASE_NAME_SCREENING;
-        } else {
+        } else
+        {
             return SIMPLE_VIEW_MODE_PAGE_BASE_NAME_GENERIC;
         }
     }

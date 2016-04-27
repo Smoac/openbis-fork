@@ -55,7 +55,7 @@ public class SampleTypeTranslator extends AbstractCachingTranslator<Long, Sample
     }
 
     @Override
-    protected TranslationResults getObjectsRelations(TranslationContext context, Collection<Long> typeIds, 
+    protected TranslationResults getObjectsRelations(TranslationContext context, Collection<Long> typeIds,
             SampleTypeFetchOptions fetchOptions)
     {
         TranslationResults relations = new TranslationResults();
@@ -63,7 +63,7 @@ public class SampleTypeTranslator extends AbstractCachingTranslator<Long, Sample
         relations.put(ISampleTypeBaseTranslator.class, baseTranslator.translate(context, typeIds, null));
         if (fetchOptions.hasPropertyAssignments())
         {
-            relations.put(ISamplePropertyAssignmentTranslator.class, 
+            relations.put(ISamplePropertyAssignmentTranslator.class,
                     assignmentTranslator.translate(context, typeIds, fetchOptions.withPropertyAssignments()));
         }
 
@@ -86,7 +86,7 @@ public class SampleTypeTranslator extends AbstractCachingTranslator<Long, Sample
         result.setShowParentMetadata(baseRecord.showParentMetadata);
         result.setSubcodeUnique(baseRecord.subcodeUnique);
         result.setModificationDate(baseRecord.modificationDate);
-        
+
         if (fetchOptions.hasPropertyAssignments())
         {
             Collection<PropertyAssignment> assignments = relations.get(ISamplePropertyAssignmentTranslator.class, typeId);

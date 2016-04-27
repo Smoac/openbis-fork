@@ -49,7 +49,6 @@ public class SimpleModeHeader extends LayoutContainer
 {
     public static final String ID = GenericConstants.ID_PREFIX + "simple-mode-header";
 
-
     private final ToolBar toolBar;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
@@ -100,6 +99,7 @@ public class SimpleModeHeader extends LayoutContainer
         return new Button(logoutLabel, new SelectionListener<ButtonEvent>()
             {
                 private LoginAction loginAction = new LoginAction(viewContext);
+
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
@@ -113,17 +113,18 @@ public class SimpleModeHeader extends LayoutContainer
     {
         String logoutLabel = viewContext.getMessage(Dict.BUTTON_LOGOUT_LABEL);
         return new Button(logoutLabel, new SelectionListener<ButtonEvent>()
-                {
-            private LogoutAction logoutAction = new LogoutAction(viewContext);
-            @Override
-            public void componentSelected(ButtonEvent ce)
             {
-                logoutAction.execute();
-            }
-            
-                });
+                private LogoutAction logoutAction = new LogoutAction(viewContext);
+
+                @Override
+                public void componentSelected(ButtonEvent ce)
+                {
+                    logoutAction.execute();
+                }
+
+            });
     }
-    
+
     @Override
     protected void onRender(final Element parent, final int pos)
     {

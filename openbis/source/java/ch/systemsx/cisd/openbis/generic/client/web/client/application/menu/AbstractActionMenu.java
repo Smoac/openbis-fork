@@ -21,8 +21,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractActionMenu<S extends IClientServiceAsync>

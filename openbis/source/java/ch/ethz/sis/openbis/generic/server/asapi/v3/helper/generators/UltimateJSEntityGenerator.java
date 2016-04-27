@@ -97,8 +97,7 @@ public class UltimateJSEntityGenerator
                 .replaceAll("==", "===")
                 .replaceAll("!=", "!==")
                 // Remove Comments
-                .replaceAll("(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)", "")
-        ;
+                .replaceAll("(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)", "");
     }
 
     private static final void whriteStringAsFile(String filePath, String string) throws IOException

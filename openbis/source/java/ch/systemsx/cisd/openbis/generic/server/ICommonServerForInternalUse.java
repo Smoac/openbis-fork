@@ -37,16 +37,14 @@ public interface ICommonServerForInternalUse extends ICommonServer
     public SessionContextDTO tryToAuthenticateAsSystem();
 
     /**
-     * Registers a core plugin. The operation has no effect if the plugin is already deployed on the
-     * openBIS AS.
+     * Registers a core plugin. The operation has no effect if the plugin is already deployed on the openBIS AS.
      */
     @Transactional(readOnly = false)
     public void registerPlugin(String sessionToken, CorePlugin plugin,
             ICorePluginResourceLoader pluginLoader);
 
     /**
-     * Lists all DSS server registered this openBIS server instance. Any of the returned instances
-     * could be offline at the time of the listing.
+     * Lists all DSS server registered this openBIS server instance. Any of the returned instances could be offline at the time of the listing.
      */
     @Transactional
     public List<DataStore> listDataStores();

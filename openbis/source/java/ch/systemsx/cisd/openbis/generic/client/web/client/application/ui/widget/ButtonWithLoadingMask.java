@@ -45,8 +45,8 @@ public abstract class ButtonWithLoadingMask extends LayoutContainer
     }
 
     /**
-     * @param loadingMaskDirection on which direction you would like the loading mask picture. Only
-     *            {@link Direction#LEFT} or {@link Direction#RIGHT} are supported.
+     * @param loadingMaskDirection on which direction you would like the loading mask picture. Only {@link Direction#LEFT} or {@link Direction#RIGHT}
+     *            are supported.
      */
     public ButtonWithLoadingMask(final String buttonLabel, final String buttonIdOrNull,
             final Direction loadingMaskDirection)

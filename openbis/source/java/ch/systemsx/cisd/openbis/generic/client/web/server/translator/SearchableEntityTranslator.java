@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 
 /**
- * A {@link SearchableEntity} &lt;---&gt;
- * {@link ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity} translator.
+ * A {@link SearchableEntity} &lt;---&gt; {@link ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity} translator.
  * 
  * @author Christian Ribeaud
  */
@@ -43,7 +42,7 @@ public final class SearchableEntityTranslator
         } else
         {
             matchingEntities = new SearchableEntity[]
-                { SearchableEntity.valueOf(searchableEntityOrNull.getName()) };
+            { SearchableEntity.valueOf(searchableEntityOrNull.getName()) };
         }
         return matchingEntities;
     }

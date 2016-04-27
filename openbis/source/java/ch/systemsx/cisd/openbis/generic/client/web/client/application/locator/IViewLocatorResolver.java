@@ -33,12 +33,10 @@ public interface IViewLocatorResolver
     public void locatorExists(ViewLocator locator, AsyncCallback<Void> callback);
 
     /**
-     * Invoke the code to open the view specified by the locator. Implementations should try to
-     * interpret the parameters to the best of their abilities and not fail unless absolutely
-     * necessary (e.g., unnecessary parameters should be ignored).
+     * Invoke the code to open the view specified by the locator. Implementations should try to interpret the parameters to the best of their
+     * abilities and not fail unless absolutely necessary (e.g., unnecessary parameters should be ignored).
      * 
-     * @exception UserFailureException May be thrown if it is determined that some mandatory
-     *                information is not specified.
+     * @exception UserFailureException May be thrown if it is determined that some mandatory information is not specified.
      */
     public void resolve(ViewLocator locator) throws UserFailureException;
 

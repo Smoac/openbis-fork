@@ -28,8 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 public class DatabaseModificationAwareComponent extends DatabaseModificationAwareObject<Component>
 {
     /**
-     * Creates an instance by conversion from a disposable component, these two classes have the
-     * same functionality.
+     * Creates an instance by conversion from a disposable component, these two classes have the same functionality.
      */
     public static DatabaseModificationAwareComponent create(IDisposableComponent disposableComponent)
     {
@@ -38,8 +37,8 @@ public class DatabaseModificationAwareComponent extends DatabaseModificationAwar
     }
 
     /**
-     * Creates a mock with a dummy database modification observer. Use this method if your component
-     * does not need to be refreshed when the database changes.
+     * Creates a mock with a dummy database modification observer. Use this method if your component does not need to be refreshed when the database
+     * changes.
      */
     public static DatabaseModificationAwareComponent wrapUnaware(Component component)
     {

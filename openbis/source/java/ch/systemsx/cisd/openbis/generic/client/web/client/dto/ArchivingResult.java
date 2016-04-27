@@ -19,9 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * Archiving operations are based on data set archiving status. This class returns to the client
- * information needed to create a message after set of data sets have been scheduled for such an
- * operation on the server side.
+ * Archiving operations are based on data set archiving status. This class returns to the client information needed to create a message after set of
+ * data sets have been scheduled for such an operation on the server side.
  * 
  * @author Piotr Buczek
  */

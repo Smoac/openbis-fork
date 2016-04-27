@@ -26,8 +26,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RoleAss
 public class RoleAssignmentGridColumnIDs
 {
     public static final String PERSON = "PERSON";
+
     public static final String AUTHORIZATION_GROUP = "AUTHORIZATION_GROUP";
+
     public static final String SPACE = "SPACE";
+
     public static final String ROLE = "ROLE";
+
     public static final String DATABASE_INSTANCE = "DATABASE_INSTANCE";
 }

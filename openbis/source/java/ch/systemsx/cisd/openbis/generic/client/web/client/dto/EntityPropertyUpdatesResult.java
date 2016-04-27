@@ -21,8 +21,7 @@ import java.io.Serializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * Stores result of update of properties of an entity. Currently used only to transfer error
- * messages to the client side.
+ * Stores result of update of properties of an entity. Currently used only to transfer error messages to the client side.
  * 
  * @author Piotr Buczek
  */

@@ -28,8 +28,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.ICustomASServiceExecu
 import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.context.CustomASServiceContext;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Component

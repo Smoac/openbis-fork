@@ -17,8 +17,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnSettingsDataModelProvider;
 
 /**
- * {@link Dialog} displaying {@link GridColumnChooser}. Used to insert selected columns into an
- * expression to build the custom grid filter or column.
+ * {@link Dialog} displaying {@link GridColumnChooser}. Used to insert selected columns into an expression to build the custom grid filter or column.
  * 
  * @author Izabela Adamczyk
  */

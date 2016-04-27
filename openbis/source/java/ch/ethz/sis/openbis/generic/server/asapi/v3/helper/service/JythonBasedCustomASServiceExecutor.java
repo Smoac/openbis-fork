@@ -27,21 +27,19 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class JythonBasedCustomASServiceExecutor implements ICustomASServiceExecutor
 {
     private static final String SCRIPT_PATH = "script-path";
-    
+
     private final CustomASServiceScriptRunnerFactory factory;
 
     public JythonBasedCustomASServiceExecutor(Properties properties)
     {
         this(PropertyUtils.getMandatoryProperty(properties, SCRIPT_PATH), CommonServiceProvider.getApplicationServerApi());
     }
-    
+
     JythonBasedCustomASServiceExecutor(String scriptPath, IApplicationServerApi applicationService)
     {
         factory = new CustomASServiceScriptRunnerFactory(scriptPath, applicationService);

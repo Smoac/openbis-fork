@@ -17,9 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client;
 
 /**
- * A interface for getting the resources necessary for the help system. Online help is broken into
- * two sections: Generic -- help for OpenBIS in general, provided by CISD; and Specific -- help for
- * the specific installation of OpenBIS, provided by the host of the installation.
+ * A interface for getting the resources necessary for the help system. Online help is broken into two sections: Generic -- help for OpenBIS in
+ * general, provided by CISD; and Specific -- help for the specific installation of OpenBIS, provided by the host of the installation.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -31,11 +30,9 @@ public interface IOnlineHelpResourceLocatorService
     String getOnlineHelpGenericRootURL();
 
     /**
-     * The generic page template is a URL that encodes how to reference the help pages. It takes one
-     * argument, title -- the title of the page, and it should be constructed to automatically
-     * create the page if no page exists. Example:
-     * https://wiki-bsse.ethz.ch/pages/createpage.action?spaceKey=CISDDoc&title=${title
-     * }&linkCreation=true&fromPageId=40633829
+     * The generic page template is a URL that encodes how to reference the help pages. It takes one argument, title -- the title of the page, and it
+     * should be constructed to automatically create the page if no page exists. Example:
+     * https://wiki-bsse.ethz.ch/pages/createpage.action?spaceKey=CISDDoc&title=${title }&linkCreation=true&fromPageId=40633829
      */
     String getOnlineHelpGenericPageTemplate();
 
@@ -45,11 +42,9 @@ public interface IOnlineHelpResourceLocatorService
     String getOnlineHelpSpecificRootURL();
 
     /**
-     * The specific page template is a URL that encodes how to reference the help pages. It takes
-     * one argument, title -- the title of the page, and it should be constructed to automatically
-     * create the page if no page exists. Example:
-     * https://wiki-bsse.ethz.ch/pages/createpage.action?spaceKey=CISDDoc&title=${title
-     * }&linkCreation=true&fromPageId=40633829
+     * The specific page template is a URL that encodes how to reference the help pages. It takes one argument, title -- the title of the page, and it
+     * should be constructed to automatically create the page if no page exists. Example:
+     * https://wiki-bsse.ethz.ch/pages/createpage.action?spaceKey=CISDDoc&title=${title }&linkCreation=true&fromPageId=40633829
      */
     String getOnlineHelpSpecificPageTemplate();
 }

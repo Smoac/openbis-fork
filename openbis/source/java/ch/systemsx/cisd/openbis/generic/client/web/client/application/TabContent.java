@@ -27,8 +27,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 /**
  * {@link ContentPanel} for sections with deferred request handling.
  * <p>
- * If this panel is used outside of {@link SectionsPanel} one needs call
- * {@link #setContentVisible(boolean)} to process requests coming from this section.
+ * If this panel is used outside of {@link SectionsPanel} one needs call {@link #setContentVisible(boolean)} to process requests coming from this
+ * section.
  * 
  * @author Izabela Adamczyk
  */
@@ -44,10 +44,9 @@ abstract public class TabContent extends ContentPanel
     private boolean isContentVisible = false;
 
     /**
-     * Whether additional components created for this section (e.g. browsers) should be
-     * automatically disposed when the section is detached from its container. For sections that can
-     * be temporarily removed from container as in {@link SectionsPanel} it should be turned off and
-     * the container should dispose section components manually.
+     * Whether additional components created for this section (e.g. browsers) should be automatically disposed when the section is detached from its
+     * container. For sections that can be temporarily removed from container as in {@link SectionsPanel} it should be turned off and the container
+     * should dispose section components manually.
      */
     private boolean autoDisposeComponents = true;
 

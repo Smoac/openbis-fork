@@ -31,20 +31,18 @@ public interface IProfilingTable
     /**
      * Logs the event. It's cheap to call this method.
      * 
-     * @return id of the logged task. Use this id in {@link #logStop} method to measure the time
-     *         between event start and stop of the event.
+     * @return id of the logged task. Use this id in {@link #logStop} method to measure the time between event start and stop of the event.
      */
     public int log(String description);
 
     /**
-     * Logs the event with the specified id. Use {@link #log(String)} if you do not want to manage
-     * the events ids.
+     * Logs the event with the specified id. Use {@link #log(String)} if you do not want to manage the events ids.
      */
     public void log(int taskId, String description);
 
     /**
-     * Logs end of the already started event. It's cheap to call this method. Call this method to
-     * log the time from a call of a particular {@link #log} method.
+     * Logs end of the already started event. It's cheap to call this method. Call this method to log the time from a call of a particular
+     * {@link #log} method.
      */
     public void logStop(int taskId);
 

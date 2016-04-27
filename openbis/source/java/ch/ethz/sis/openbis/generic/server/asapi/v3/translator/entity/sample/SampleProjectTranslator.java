@@ -28,8 +28,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.Obje
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.project.ObjectToProjectTranslator;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Component

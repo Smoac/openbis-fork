@@ -11,8 +11,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 
 /**
- * ViewLocatorHandler for Material locators. We don't have permIds for materials so we need a
- * different way of handling permlinks for them. We use material code and type to identify material.
+ * ViewLocatorHandler for Material locators. We don't have permIds for materials so we need a different way of handling permlinks for them. We use
+ * material code and type to identify material.
  * 
  * @author Piotr Buczek
  */

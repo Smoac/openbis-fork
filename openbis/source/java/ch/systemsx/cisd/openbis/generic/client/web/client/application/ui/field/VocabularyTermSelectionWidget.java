@@ -213,8 +213,7 @@ public class VocabularyTermSelectionWidget extends
     private String typedValueOrNull = null;
 
     /**
-     * Allows to choose one of the specified vocabulary's terms, is able to refresh the available
-     * terms by calling the server.
+     * Allows to choose one of the specified vocabulary's terms, is able to refresh the available terms by calling the server.
      */
     public static DatabaseModificationAwareField<VocabularyTermModel> create(String idSuffix,
             String label, Vocabulary vocabulary, final boolean mandatory,
@@ -225,8 +224,7 @@ public class VocabularyTermSelectionWidget extends
     }
 
     /**
-     * Allows to choose one of the specified vocabulary's terms, is able to refresh the available
-     * terms by calling the server.
+     * Allows to choose one of the specified vocabulary's terms, is able to refresh the available terms by calling the server.
      */
     public static DatabaseModificationAwareField<VocabularyTermModel> create(String idSuffix,
             String label, Vocabulary vocabulary, final boolean mandatory,

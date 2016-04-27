@@ -21,11 +21,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public interface ISearchExperimentTypeMethodExecutor extends ISearchMethodExecutor<ExperimentType, EntityTypeSearchCriteria, ExperimentTypeFetchOptions>
+public interface ISearchExperimentTypeMethodExecutor extends
+        ISearchMethodExecutor<ExperimentType, EntityTypeSearchCriteria, ExperimentTypeFetchOptions>
 {
 
 }

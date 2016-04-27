@@ -22,8 +22,8 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * A default <code>PropertyValueRenderer</code> implementation for simple property values which
- * catches <code>null</code> value by rendering <code>-</code> and renders as an inline html.
+ * A default <code>PropertyValueRenderer</code> implementation for simple property values which catches <code>null</code> value by rendering
+ * <code>-</code> and renders as an inline html.
  * 
  * @author Piotr Buczek
  */

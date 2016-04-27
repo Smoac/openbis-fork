@@ -27,8 +27,9 @@ class Lexer
     private static class ParsingContext
     {
         private final List<String> tokens = new ArrayList<String>();
+
         private final StringBuilder builder = new StringBuilder();
-        
+
         public void addCharacter(char character)
         {
             builder.append(character);
@@ -39,7 +40,7 @@ class Lexer
             tokens.add(builder.toString());
             builder.setLength(0);
         }
-        
+
         public List<String> getTokens()
         {
             if (builder.length() > 0)
@@ -49,7 +50,7 @@ class Lexer
             return tokens;
         }
     }
-    
+
     private enum State
     {
         BETWEEN_TOKENS()
@@ -103,7 +104,7 @@ class Lexer
 
         abstract State next(char character, ParsingContext context);
     }
-    
+
     static List<String> extractTokens(String string)
     {
         ParsingContext context = new ParsingContext();

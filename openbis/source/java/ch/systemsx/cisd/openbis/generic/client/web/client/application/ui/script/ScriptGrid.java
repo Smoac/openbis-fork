@@ -200,8 +200,8 @@ public class ScriptGrid extends TypedTableGrid<Script>
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { DatabaseModificationKind.createOrDelete(ObjectKind.SCRIPT),
-                    DatabaseModificationKind.edit(ObjectKind.SCRIPT) };
+        { DatabaseModificationKind.createOrDelete(ObjectKind.SCRIPT),
+                DatabaseModificationKind.edit(ObjectKind.SCRIPT) };
     }
 
     private void openEditor(BaseEntityModel<TableModelRowWithObject<Script>> selectedItem,

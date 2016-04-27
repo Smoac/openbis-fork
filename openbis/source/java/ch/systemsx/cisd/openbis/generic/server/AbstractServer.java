@@ -464,7 +464,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         if (DefaultSessionManager.NO_LOGIN_FILE.exists())
         {
             throw new UserFailureException("Login is disabled by the administrator.");
-        } 
+        }
         return tryToAuthenticate(sessionManager.tryToOpenSession(user, password));
     }
 
@@ -1023,7 +1023,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     {
         return subject + " (initiated at " + startDate + ")";
     }
-    
+
     static boolean isResolved(String name)
     {
         return StringUtils.isNotBlank(name) && name.startsWith("${") == false;

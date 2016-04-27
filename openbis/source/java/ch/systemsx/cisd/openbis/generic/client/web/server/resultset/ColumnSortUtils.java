@@ -83,7 +83,7 @@ class ColumnSortUtils
         }
 
         @SuppressWarnings(
-            { "rawtypes", "unchecked" })
+        { "rawtypes", "unchecked" })
         protected int compare(Comparable v1, Comparable v2)
         {
             return v1.compareTo(v2);

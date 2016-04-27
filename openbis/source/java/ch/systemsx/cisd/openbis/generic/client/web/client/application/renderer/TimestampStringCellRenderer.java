@@ -28,9 +28,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 
 /**
- * An {@link GridCellRenderer} which renders date value stored in
- * {@link BasicConstant#CANONICAL_DATE_FORMAT_PATTERN} in more readable format (the one used in date
- * fields in registration forms).
+ * An {@link GridCellRenderer} which renders date value stored in {@link BasicConstant#CANONICAL_DATE_FORMAT_PATTERN} in more readable format (the one
+ * used in date fields in registration forms).
  * 
  * @author Piotr Buczek
  */

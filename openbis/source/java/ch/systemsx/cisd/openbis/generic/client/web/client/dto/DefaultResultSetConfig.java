@@ -177,8 +177,7 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
     }
 
     /**
-     * Does this result set return long error messages from errors on custom columns? Defaults to
-     * false.
+     * Does this result set return long error messages from errors on custom columns? Defaults to false.
      */
     @Override
     public boolean isCustomColumnErrorMessageLong()

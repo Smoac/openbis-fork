@@ -38,8 +38,7 @@ public class URLListEncoder
     private final static String ESCAPED_SEPARATOR = "" + ITEM_LIST_SEPARATOR + ITEM_LIST_SEPARATOR;
 
     /**
-     * Encodes a list of items by escaping the separator. Decode it back with
-     * {@link #decodeItemList}
+     * Encodes a list of items by escaping the separator. Decode it back with {@link #decodeItemList}
      */
     public static String encodeItemList(String[] items)
     {

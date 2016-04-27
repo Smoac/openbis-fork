@@ -32,8 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 
 /**
- * A {@link ComboBox} extension using simple strings for selecting section name of
- * {@link EntityTypePropertyType}.
+ * A {@link ComboBox} extension using simple strings for selecting section name of {@link EntityTypePropertyType}.
  * 
  * @author Piotr Buczek
  */

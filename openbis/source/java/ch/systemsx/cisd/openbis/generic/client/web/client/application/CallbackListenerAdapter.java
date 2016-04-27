@@ -21,8 +21,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 /**
  * A {@link ICallbackListener} implementation with an empty body for each method implemented.
  * <p>
- * Usually the only method that gets overridden is
- * {@link #onFailureOf(IMessageProvider, AbstractAsyncCallback, String, Throwable)}.
+ * Usually the only method that gets overridden is {@link #onFailureOf(IMessageProvider, AbstractAsyncCallback, String, Throwable)}.
  * </p>
  * 
  * @author Christian Ribeaud

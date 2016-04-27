@@ -90,7 +90,7 @@ public interface SampleQuery extends ObjectQuery
             + "srh.entity_perm_id as relatedObjectId, srh.valid_from_timestamp as validFrom, srh.valid_until_timestamp as validTo, "
             + "srh.space_id as spaceId, srh.expe_id as experimentId, srh.samp_id as sampleId, srh.data_id as dataSetId "
             + "from sample_relationships_history srh where srh.valid_until_timestamp is not null and srh.main_samp_id = any(?{1})", parameterBindings = {
-                    LongSetMapper.class }, fetchSize = FETCH_SIZE)
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<SampleRelationshipRecord> getRelationshipsHistory(LongSet sampleIds);
 
     @Select(sql = "select s.id as objectId, s.expe_id as relatedId from samples s where s.id = any(?{1})", parameterBindings = {
@@ -108,13 +108,13 @@ public interface SampleQuery extends ObjectQuery
     @Select(sql = "select sr.sample_id_child as objectId, sr.sample_id_parent as relatedId from "
             + "sample_relationships sr, relationship_types rt "
             + "where sr.relationship_id = rt.id and rt.code = 'PARENT_CHILD' and sr.sample_id_child = any(?{1}) order by sr.id", parameterBindings = {
-                    LongSetMapper.class }, fetchSize = FETCH_SIZE)
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getParentIds(LongSet sampleIds);
 
     @Select(sql = "select sr.sample_id_parent as objectId, sr.sample_id_child as relatedId from "
             + "sample_relationships sr, relationship_types rt "
             + "where sr.relationship_id = rt.id and rt.code = 'PARENT_CHILD' and sr.sample_id_parent = any(?{1}) order by sr.id", parameterBindings = {
-                    LongSetMapper.class }, fetchSize = FETCH_SIZE)
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getChildIds(LongSet sampleIds);
 
     @Select(sql = "select s.id as objectId, s.pers_id_registerer as relatedId from samples s where s.id = any(?{1})", parameterBindings = {
@@ -140,11 +140,11 @@ public interface SampleQuery extends ObjectQuery
     @Select(sql = "select s.id as objectId, s.proj_id as relatedId from samples s where s.id = any(?{1})", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getProjectIds(LongSet sampleIds);
-    
-    @Select(sql = "select saty_id as objectId, id as relatedId from sample_type_property_types where saty_id = any(?{1})", 
+
+    @Select(sql = "select saty_id as objectId, id as relatedId from sample_type_property_types where saty_id = any(?{1})",
             parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getPropertyAssignmentIds(LongSet sampleTypeIds);
-    
+
     @Select(sql = "select * from sample_type_property_types where id = any(?{1})", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<PropertyAssignmentRecord> getPropertyAssignments(LongSet sampleTypePropertyTypeIds);

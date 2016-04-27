@@ -66,8 +66,7 @@ public class ETLEntityOperationChecker implements IETLEntityOperationChecker
 
     @Override
     public void assertProjectUpdateAllowed(IAuthSession session,
-            @AuthorizationGuard(guardClass = ProjectUpdatesPredicate.class)
-            List<ProjectUpdatesDTO> projectsToUpdate)
+            @AuthorizationGuard(guardClass = ProjectUpdatesPredicate.class) List<ProjectUpdatesDTO> projectsToUpdate)
     {
     }
 

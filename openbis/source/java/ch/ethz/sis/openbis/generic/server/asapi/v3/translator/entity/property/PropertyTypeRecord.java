@@ -19,15 +19,17 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.property;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.ObjectBaseRecord;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class PropertyTypeRecord extends ObjectBaseRecord
 {
     public String code;
+
     public String label;
+
     public String description;
+
     public Boolean is_internal_namespace;
+
     public String dataSetTypeCode;
 }

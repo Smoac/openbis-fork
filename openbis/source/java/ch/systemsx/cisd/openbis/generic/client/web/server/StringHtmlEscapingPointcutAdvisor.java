@@ -33,11 +33,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
 
 /**
- * The advisor for automatically escaping HTML strings in the values returned by implementations of
- * {@link IClientService}.
+ * The advisor for automatically escaping HTML strings in the values returned by implementations of {@link IClientService}.
  * <p>
- * Though it is not necessary to subclass DefaultPointcutAdvisor for the implementation, we subclass
- * here to make the configuration in spring a bit simpler.
+ * Though it is not necessary to subclass DefaultPointcutAdvisor for the implementation, we subclass here to make the configuration in spring a bit
+ * simpler.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -102,8 +101,7 @@ public class StringHtmlEscapingPointcutAdvisor extends DefaultPointcutAdvisor
             MethodInterceptor
     {
         /**
-         * Get the session token and any guarded parameters and invoke the guards on those
-         * parameters.
+         * Get the session token and any guarded parameters and invoke the guards on those parameters.
          */
         @Override
         public Object invoke(MethodInvocation methodInvocation) throws Throwable

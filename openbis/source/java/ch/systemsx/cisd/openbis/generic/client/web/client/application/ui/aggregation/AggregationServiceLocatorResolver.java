@@ -15,8 +15,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.Vi
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
- * An {@link IViewLocatorResolver} that shows the results of an aggregation service as a table
- * model.
+ * An {@link IViewLocatorResolver} that shows the results of an aggregation service as a table model.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

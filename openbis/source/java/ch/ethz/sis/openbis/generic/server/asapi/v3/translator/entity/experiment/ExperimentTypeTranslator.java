@@ -42,7 +42,7 @@ public class ExperimentTypeTranslator extends AbstractCachingTranslator<Long, Ex
 
     @Autowired
     private IExperimentTypeBaseTranslator baseTranslator;
-    
+
     @Autowired
     private IExperimentPropertyAssignmentTranslator assignmentTranslator;
 
@@ -62,7 +62,7 @@ public class ExperimentTypeTranslator extends AbstractCachingTranslator<Long, Ex
         relations.put(IExperimentTypeBaseTranslator.class, baseTranslator.translate(context, typeIds, null));
         if (fetchOptions.hasPropertyAssignments())
         {
-            relations.put(IExperimentPropertyAssignmentTranslator.class, 
+            relations.put(IExperimentPropertyAssignmentTranslator.class,
                     assignmentTranslator.translate(context, typeIds, fetchOptions.withPropertyAssignments()));
         }
 
@@ -80,7 +80,7 @@ public class ExperimentTypeTranslator extends AbstractCachingTranslator<Long, Ex
         result.setCode(baseRecord.code);
         result.setDescription(baseRecord.description);
         result.setModificationDate(baseRecord.modificationDate);
-        
+
         if (fetchOptions.hasPropertyAssignments())
         {
             Collection<PropertyAssignment> assignments = relations.get(IExperimentPropertyAssignmentTranslator.class, typeId);

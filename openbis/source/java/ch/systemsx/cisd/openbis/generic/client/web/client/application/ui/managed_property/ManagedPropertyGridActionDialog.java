@@ -137,9 +137,8 @@ public final class ManagedPropertyGridActionDialog extends
     }
 
     /**
-     * If the managed action requires single row to be selected and there is a binding between given
-     * input field and a table column it tries to get the value from the selected table row and sets
-     * it in the input model.
+     * If the managed action requires single row to be selected and there is a binding between given input field and a table column it tries to get
+     * the value from the selected table row and sets it in the input model.
      */
     private void trySetBoundedValue(IManagedInputWidgetDescription inputDescription)
     {

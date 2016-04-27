@@ -27,24 +27,22 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.Obje
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface AttachmentQuery extends ObjectQuery
 {
-    @Select(sql = "select proj_id as objectId, id as relatedId from attachments where proj_id = any(?{1})", 
+    @Select(sql = "select proj_id as objectId, id as relatedId from attachments where proj_id = any(?{1})",
             parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getProjectAttachments(LongSet projectIds);
-    
-    @Select(sql = "select samp_id as objectId, id as relatedId from attachments where samp_id = any(?{1})", 
+
+    @Select(sql = "select samp_id as objectId, id as relatedId from attachments where samp_id = any(?{1})",
             parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getSampleAttachments(LongSet sampleIds);
-    
-    @Select(sql = "select expe_id as objectId, id as relatedId from attachments where expe_id = any(?{1})", 
+
+    @Select(sql = "select expe_id as objectId, id as relatedId from attachments where expe_id = any(?{1})",
             parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getExperimentAttachments(LongSet experimentIds);
-    
+
     @Select(sql = "select a.id, a.title, a.file_name as fileName, a.description, "
             + "a.registration_timestamp as registrationDate, a.version, "
             + "p.code as projectCode, sp.code as spaceCode, "
@@ -53,19 +51,19 @@ public interface AttachmentQuery extends ObjectQuery
             + "left outer join projects p on a.proj_id=p.id left outer join spaces sp on p.space_id=sp.id "
             + "left outer join samples s on a.samp_id=s.id "
             + "left outer join experiments e on a.expe_id=e.id "
-            + "where a.id = any(?{1})", 
+            + "where a.id = any(?{1})",
             parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<AttachmentBaseRecord> getAttachments(LongSet attachmentIds);
-    
-    @Select(sql = "select id as objectId, pers_id_registerer as relatedId from attachments where id = any(?{1})", 
+
+    @Select(sql = "select id as objectId, pers_id_registerer as relatedId from attachments where id = any(?{1})",
             parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getRegistratorIds(LongSet attachmentIds);
-    
-    @Select(sql = "select id as objectId, exac_id as relatedId from attachments where id = any(?{1})", 
+
+    @Select(sql = "select id as objectId, exac_id as relatedId from attachments where id = any(?{1})",
             parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getContentIds(LongSet attachmentIds);
-    
-    @Select(sql = "select id,value as content from attachment_contents where id = any(?{1})",  
+
+    @Select(sql = "select id,value as content from attachment_contents where id = any(?{1})",
             parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<AttachmentContentRecord> getAttachmentContents(LongSet attachmentContentsIds);
 

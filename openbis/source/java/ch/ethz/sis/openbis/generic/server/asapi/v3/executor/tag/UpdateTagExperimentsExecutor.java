@@ -35,7 +35,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
  * @author pkupczyk
  */
 @Component
-public class UpdateTagExperimentsExecutor extends AbstractUpdateEntityMultipleRelationsExecutor<TagUpdate, MetaprojectPE, IExperimentId, ExperimentPE>
+public class UpdateTagExperimentsExecutor extends
+        AbstractUpdateEntityMultipleRelationsExecutor<TagUpdate, MetaprojectPE, IExperimentId, ExperimentPE>
         implements IUpdateTagExperimentsExecutor
 {
 

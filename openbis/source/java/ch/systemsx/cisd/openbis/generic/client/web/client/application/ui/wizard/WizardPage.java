@@ -34,31 +34,38 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * Base class of a page of a {@link Wizard}. Should be subclassed by overriding {@link #init()},
- * {@link #deactivate()}, {@link #activate()}, {@link #destroy()} if needed.
+ * Base class of a page of a {@link Wizard}. Should be subclassed by overriding {@link #init()}, {@link #deactivate()}, {@link #activate()},
+ * {@link #destroy()} if needed.
  * 
  * @author Franz-Josef Elmer
  */
 public class WizardPage<M extends IWizardDataModel> extends LayoutContainer
 {
     private static final String _LEFT_CONTENT = "_left_content";
+
     public static final String PREVIOUS_BUTTON_LABEL_KEY = "wizard_page_previous_button_label";
+
     public static final String NEXT_BUTTON_LABEL_KEY = "wizard_page_next_button_label";
+
     public static final String FINISH_BUTTON_LABEL_KEY = "wizard_page_finish_button_label";
-    
+
     private final IMessageProvider messageProvider;
+
     protected final M model;
+
     private final IWizardState state;
+
     private final LayoutContainer leftContent;
+
     private final LayoutContainer rightContent;
+
     private Button previousButton;
+
     private Button nextOrFinishButton;
 
     /**
-     * Creates an instance for specified message provider, wizard state and wizard data model.
-     * Subclasses should create in the constructor only widget components which do not need
-     * sever calls. Components created/populated by server callbacks should be created in
-     * {@link #init()}. 
+     * Creates an instance for specified message provider, wizard state and wizard data model. Subclasses should create in the constructor only widget
+     * components which do not need sever calls. Components created/populated by server callbacks should be created in {@link #init()}.
      */
     public WizardPage(IMessageProvider messageProvider, IWizardState state, final M model)
     {
@@ -108,15 +115,15 @@ public class WizardPage<M extends IWizardDataModel> extends LayoutContainer
             });
         rightPanel.addButton(nextOrFinishButton);
     }
-    
+
     IWizardState getWizardState()
     {
         return state;
     }
 
     /**
-     * Sets the content of the left panel by an HTML snippet defined in the dictionary by the
-     * specified key. Note that the complete key in the dictionary reads <code>&lt;wizard
+     * Sets the content of the left panel by an HTML snippet defined in the dictionary by the specified key. Note that the complete key in the
+     * dictionary reads <code>&lt;wizard
      * state&gt;_left_content</code>.
      */
     public void setLeftContentByDictionary()
@@ -134,14 +141,13 @@ public class WizardPage<M extends IWizardDataModel> extends LayoutContainer
     }
 
     /**
-     * Adds specified component to the right hand part of this wizard page. All components are
-     * layout by a vertical {@link RowLayout}.
+     * Adds specified component to the right hand part of this wizard page. All components are layout by a vertical {@link RowLayout}.
      */
     public void addToRightContent(Component component, RowData layoutData)
     {
         rightContent.add(component, layoutData);
     }
-    
+
     /**
      * Enables/disables next/finish button.
      */
@@ -149,9 +155,9 @@ public class WizardPage<M extends IWizardDataModel> extends LayoutContainer
     {
         nextOrFinishButton.setEnabled(enabled);
     }
-    
-    /** 
-     * Initializes this wizard page when it is shown the first time in the wizard. 
+
+    /**
+     * Initializes this wizard page when it is shown the first time in the wizard.
      * <p>
      * This is a hook method which does nothing. It should be overridden if needed.
      */
@@ -160,8 +166,7 @@ public class WizardPage<M extends IWizardDataModel> extends LayoutContainer
     }
 
     /**
-     * Activates this page. This is called after {@link #deactivate()} has been invoked for the
-     * previous page (if any).
+     * Activates this page. This is called after {@link #deactivate()} has been invoked for the previous page (if any).
      * <p>
      * This is a hook method which does nothing. It should be overridden if needed.
      */
@@ -170,27 +175,24 @@ public class WizardPage<M extends IWizardDataModel> extends LayoutContainer
     }
 
     /**
-     * Deactivates this page. This is called after the next/finish button has been pressed but
-     * before {@link #activate()} for the next page has been invoked. After invoking this method and
-     * before invocation of {@link #activate()} the method
-     * {@link IWizardDataModel#determineNextState(IWizardState)} will be invoked if more than one
-     * next states are possible.
+     * Deactivates this page. This is called after the next/finish button has been pressed but before {@link #activate()} for the next page has been
+     * invoked. After invoking this method and before invocation of {@link #activate()} the method
+     * {@link IWizardDataModel#determineNextState(IWizardState)} will be invoked if more than one next states are possible.
      * <p>
      * This is a hook method which does nothing. It should be overridden if needed.
      */
     public void deactivate()
     {
     }
-    
+
     /**
-     * Destroys this page. It will be invoked when the wizard has successfully be finished. That is,
-     * after {@link IWizardDataModel#finish()} has been invoked. This method can be used to release
-     * resources.
+     * Destroys this page. It will be invoked when the wizard has successfully be finished. That is, after {@link IWizardDataModel#finish()} has been
+     * invoked. This method can be used to release resources.
      * <p>
      * This is a hook method which does nothing. It should be overridden if needed.
      */
     public void destroy()
     {
-        
+
     }
 }

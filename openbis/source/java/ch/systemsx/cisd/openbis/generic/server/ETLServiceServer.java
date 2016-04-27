@@ -49,7 +49,7 @@ public class ETLServiceServer extends WhiteAndBlackListHttpInvokerServiceExporte
         setServiceInterface(IServiceForDataStoreServer.class);
         setService(etlService);
         setInterceptors(new Object[]
-            { createExceptionTranslator() });
+        { createExceptionTranslator() });
         super.afterPropertiesSet();
     }
 
@@ -63,10 +63,11 @@ public class ETLServiceServer extends WhiteAndBlackListHttpInvokerServiceExporte
         return exceptionTranslator;
     }
 
-    @RequestMapping({ "/rmi-etl", "/openbis/rmi-etl", "/openbis/openbis/rmi-etl" })    
+    @RequestMapping({ "/rmi-etl", "/openbis/rmi-etl", "/openbis/openbis/rmi-etl" })
     @Override
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException
+    {
         super.handleRequest(request, response);
     }
 }

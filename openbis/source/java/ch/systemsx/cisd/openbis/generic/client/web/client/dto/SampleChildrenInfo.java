@@ -34,13 +34,15 @@ public final class SampleChildrenInfo implements IsSerializable
     private String sampleIdentifier;
 
     private List<String> derivedSamples = new ArrayList<String>();
+
     private List<String> dataSets = new ArrayList<String>();
-    
+
     // we need the following values in case we want to send
     // only children count info, not the lists above
     private int childCount;
+
     private int dataSetCount;
-    
+
     public int getChildCount()
     {
         return childCount;
@@ -61,11 +63,13 @@ public final class SampleChildrenInfo implements IsSerializable
         this.dataSetCount = dataSetCount;
     }
 
-    public void addDerivedSample(String s) {
+    public void addDerivedSample(String s)
+    {
         this.derivedSamples.add(s);
     }
 
-    public void addDataSet(String s) {
+    public void addDataSet(String s)
+    {
         this.dataSets.add(s);
     }
 
@@ -94,7 +98,6 @@ public final class SampleChildrenInfo implements IsSerializable
     {
         return dataSets;
     }
-
 
     @SuppressWarnings("unused")
     // GWT only

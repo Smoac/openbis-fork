@@ -24,8 +24,8 @@ import com.extjs.gxt.ui.client.widget.form.Validator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ValidationUtilities.HyperlinkValidationHelper;
 
 /**
- * A {@link TextField} extension for registering text (<code>String</code>) that will be rendered as
- * a link. Default protocol ("http://") is added on blur if user doesn't provide one.<br>
+ * A {@link TextField} extension for registering text (<code>String</code>) that will be rendered as a link. Default protocol ("http://") is added on
+ * blur if user doesn't provide one.<br>
  * The text characters are validated.
  * 
  * @author Piotr Buczek

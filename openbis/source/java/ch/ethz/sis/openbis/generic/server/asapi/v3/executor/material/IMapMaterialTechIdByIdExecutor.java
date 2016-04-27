@@ -19,10 +19,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IMapObjectByIdExecutor;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IMapMaterialTechIdByIdExecutor extends IMapObjectByIdExecutor<IMaterialId, Long>

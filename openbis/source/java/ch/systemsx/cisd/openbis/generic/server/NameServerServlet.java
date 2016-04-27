@@ -50,12 +50,12 @@ public class NameServerServlet extends AbstractApiServiceExporter
         super.afterPropertiesSet();
     }
 
-    
     @RequestMapping(
-            { IRpcServiceNameServer.PREFFERED_URL_SUFFIX, "/openbis" + IRpcServiceNameServer.PREFFERED_URL_SUFFIX })
+    { IRpcServiceNameServer.PREFFERED_URL_SUFFIX, "/openbis" + IRpcServiceNameServer.PREFFERED_URL_SUFFIX })
     @Override
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException
+    {
         super.handleRequest(request, response);
-    }        
+    }
 }

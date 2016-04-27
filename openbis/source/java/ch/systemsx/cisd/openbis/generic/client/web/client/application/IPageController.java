@@ -24,7 +24,7 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
  * This controller lies on top of the ones specified in {@link Dispatcher}.
  * </p>
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public interface IPageController
 {
@@ -34,8 +34,7 @@ public interface IPageController
      * Depending whether you are logged in or not, this determines the page you will be landing.
      * </p>
      * 
-     * @param logout whether the reload happens after a logout (meaning that the {@link Dispatcher}
-     *            will be cleared).
+     * @param logout whether the reload happens after a logout (meaning that the {@link Dispatcher} will be cleared).
      */
     public void reload(final boolean logout);
 }

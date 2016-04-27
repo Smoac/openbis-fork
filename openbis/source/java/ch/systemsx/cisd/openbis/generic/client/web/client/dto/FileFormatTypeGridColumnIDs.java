@@ -23,7 +23,7 @@ public class FileFormatTypeGridColumnIDs
 {
 
     public static final String CODE = "CODE";
-    
+
     public static final String DESCRIPTION = "DESCRIPTION";
-    
+
 }

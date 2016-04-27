@@ -57,8 +57,7 @@ public class DataSetReportGenerator
     }
 
     /**
-     * Generates a report for specified datasets and invokes specified action with component
-     * containing this report.
+     * Generates a report for specified datasets and invokes specified action with component containing this report.
      */
     public static void generateAndInvoke(IViewContext<ICommonClientServiceAsync> viewContext,
             DatastoreServiceDescription service, DisplayedOrSelectedDatasetCriteria criteria,

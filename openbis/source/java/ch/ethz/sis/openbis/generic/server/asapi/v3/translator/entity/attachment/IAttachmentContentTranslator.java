@@ -20,8 +20,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EmptyFetchOp
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.IObjectToOneRelationTranslator;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IAttachmentContentTranslator extends IObjectToOneRelationTranslator<byte[], EmptyFetchOptions>

@@ -267,8 +267,8 @@ public class AuthorizationGroupGrid extends TypedTableGrid<AuthorizationGroup>
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { DatabaseModificationKind.createOrDelete(ObjectKind.AUTHORIZATION_GROUP),
-                    DatabaseModificationKind.edit(ObjectKind.AUTHORIZATION_GROUP) };
+        { DatabaseModificationKind.createOrDelete(ObjectKind.AUTHORIZATION_GROUP),
+                DatabaseModificationKind.edit(ObjectKind.AUTHORIZATION_GROUP) };
     }
 
     private static final class GroupListDeletionConfirmationDialog extends

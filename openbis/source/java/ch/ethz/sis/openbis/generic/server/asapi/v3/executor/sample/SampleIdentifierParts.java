@@ -19,7 +19,9 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 public final class SampleIdentifierParts
 {
     private String spaceCodeOrNull;
+
     private String projectCodeOrNull;
+
     private String containerCodeOrNull;
 
     SampleIdentifierParts(String spaceCodeOrNull, String projectCodeOrNull, String containerCodeOrNull)
@@ -56,23 +58,23 @@ public final class SampleIdentifierParts
             return false;
         }
         SampleIdentifierParts key = (SampleIdentifierParts) obj;
-        return isEqual(spaceCodeOrNull, key.spaceCodeOrNull) 
+        return isEqual(spaceCodeOrNull, key.spaceCodeOrNull)
                 && isEqual(projectCodeOrNull, key.projectCodeOrNull)
                 && isEqual(containerCodeOrNull, key.containerCodeOrNull);
     }
-    
+
     private boolean isEqual(String str1, String str2)
     {
         return str1 == null ? str1 == str2 : str1.equals(str2);
     }
-    
+
     @Override
     public int hashCode()
     {
-        return 37 * (37 * calcHashCode(spaceCodeOrNull) + calcHashCode(projectCodeOrNull)) 
+        return 37 * (37 * calcHashCode(spaceCodeOrNull) + calcHashCode(projectCodeOrNull))
                 + calcHashCode(containerCodeOrNull);
     }
-    
+
     private int calcHashCode(String str)
     {
         return str == null ? 0 : str.hashCode();

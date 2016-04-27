@@ -23,8 +23,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Component

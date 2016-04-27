@@ -21,20 +21,26 @@ import java.util.Date;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.ObjectBaseRecord;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class AttachmentBaseRecord extends ObjectBaseRecord
 {
     public String title;
+
     public String fileName;
+
     public String description;
+
     public int version;
+
     public Date registrationDate;
+
     public String projectCode;
+
     public String spaceCode;
+
     public String samplePermId;
+
     public String experimentPermId;
 
 }

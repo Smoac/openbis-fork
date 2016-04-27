@@ -27,8 +27,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.attachment.
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.ObjectRelationRecord;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Component

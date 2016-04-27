@@ -22,8 +22,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASService;
 import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.ICustomASServiceExecutor;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IServiceProvider

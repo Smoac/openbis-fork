@@ -26,8 +26,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.TechIdStringIdentifierRecord;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractListTechIdByPermId<ID extends ObjectPermId> extends AbstractListTechIdById<ID>
@@ -40,7 +38,7 @@ public abstract class AbstractListTechIdByPermId<ID extends ObjectPermId> extend
         for (ID permId : ids)
         {
             permIds.add(permId.getPermId());
-        } 
+        }
         String[] permIdsAsArray = permIds.toArray(new String[permIds.size()]);
         Map<Long, ID> result = new HashMap<>();
         List<TechIdStringIdentifierRecord> queryTechIds = queryTechIds(permIdsAsArray);
@@ -50,9 +48,9 @@ public abstract class AbstractListTechIdByPermId<ID extends ObjectPermId> extend
         }
         return result;
     }
-    
+
     protected abstract List<TechIdStringIdentifierRecord> queryTechIds(String[] permIds);
-    
+
     protected abstract ID createPermId(String permIdAsString);
 
 }

@@ -38,8 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
- * The {@link LayoutContainer} extension for batch registration and update of samples of certain
- * type.
+ * The {@link LayoutContainer} extension for batch registration and update of samples of certain type.
  * 
  * @author Christian Ribeaud
  */

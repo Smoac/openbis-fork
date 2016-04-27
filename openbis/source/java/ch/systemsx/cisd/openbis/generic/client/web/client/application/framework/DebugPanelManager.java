@@ -61,8 +61,8 @@ public class DebugPanelManager implements DebugPanelWidget.Listener
     private Widget createWidget()
     {
         return new DebugPanelWidget(this, true, new DebugPanelWidget.Component[]
-            { panelComponent, new DefaultExceptionDebugPanelComponent(em),
-                    new DefaultCookieDebugPanelComponent(), logComponent, xmlComponent });
+        { panelComponent, new DefaultExceptionDebugPanelComponent(em),
+                new DefaultCookieDebugPanelComponent(), logComponent, xmlComponent });
     }
 
     // @Override

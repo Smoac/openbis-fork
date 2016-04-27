@@ -28,11 +28,10 @@ public interface IResultSetManager<K>
 {
 
     /**
-     * Produces a {@link IResultSet} from given <var>resultConfig</var> and given
-     * <var>dataProvider</var>.
+     * Produces a {@link IResultSet} from given <var>resultConfig</var> and given <var>dataProvider</var>.
      * <p>
-     * In case of cached data, the {@link IOriginalDataProvider} implementation is only used in the
-     * first call, when the full data are not already there.
+     * In case of cached data, the {@link IOriginalDataProvider} implementation is only used in the first call, when the full data are not already
+     * there.
      * </p>
      */
     public <T> IResultSet<K, T> getResultSet(final String sessionToken,
@@ -45,10 +44,8 @@ public interface IResultSetManager<K>
     public void removeResultSet(final K resultSetKey) throws UserFailureException;
 
     /**
-     * Locks specified result set. Lock will be released after invocation of
-     * {@link #removeResultSet(Object)} and after reloading of the result set.
-     * {@link #getResultSet(String, IResultSetConfig, IOriginalDataProvider)} waits until lock is
-     * released.
+     * Locks specified result set. Lock will be released after invocation of {@link #removeResultSet(Object)} and after reloading of the result set.
+     * {@link #getResultSet(String, IResultSetConfig, IOriginalDataProvider)} waits until lock is released.
      */
     public void lockResultSet(K resultSetKey);
 

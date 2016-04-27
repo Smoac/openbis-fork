@@ -9,19 +9,23 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 public abstract class ConsumerTask
 {
     private UploadedFilesBean filesForTask;
-    
+
     public abstract String getName();
+
     public abstract String getUserEmail();
+
     public abstract void doActionOrThrowException(Writer writer);
-    
-    public ConsumerTask(UploadedFilesBean filesForTask) throws ch.systemsx.cisd.common.exceptions.UserFailureException {
+
+    public ConsumerTask(UploadedFilesBean filesForTask) throws ch.systemsx.cisd.common.exceptions.UserFailureException
+    {
         this.filesForTask = filesForTask;
     }
-    
-    protected UploadedFilesBean getFilesForTask() {
+
+    protected UploadedFilesBean getFilesForTask()
+    {
         return filesForTask;
     }
-    
+
     public boolean doAction(Writer messageWriter)
     {
         try
@@ -40,10 +44,11 @@ public abstract class ConsumerTask
                         + " when trying to throw exception: " + ex.getMessage(), ex);
             }
             throw ex;
-        } finally {
+        } finally
+        {
             filesForTask.deleteTransferredFiles();
         }
         return true;
     }
-    
+
 }

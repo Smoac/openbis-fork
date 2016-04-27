@@ -21,8 +21,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAs
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.IObjectToManyRelationTranslator;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IPropertyAssignmentTranslator extends IObjectToManyRelationTranslator<PropertyAssignment, PropertyAssignmentFetchOptions>

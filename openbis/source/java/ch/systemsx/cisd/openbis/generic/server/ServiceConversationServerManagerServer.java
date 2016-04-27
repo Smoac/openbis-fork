@@ -49,10 +49,12 @@ public class ServiceConversationServerManagerServer extends WhiteAndBlackListHtt
     }
 
     @RequestMapping(
-            { IServiceConversationServerManagerRemote.PATH, "/openbis" + IServiceConversationServerManagerRemote.PATH,"/openbis/openbis" + IServiceConversationServerManagerRemote.PATH })
+    { IServiceConversationServerManagerRemote.PATH, "/openbis" + IServiceConversationServerManagerRemote.PATH,
+            "/openbis/openbis" + IServiceConversationServerManagerRemote.PATH })
     @Override
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException
+    {
         super.handleRequest(request, response);
     }
 }

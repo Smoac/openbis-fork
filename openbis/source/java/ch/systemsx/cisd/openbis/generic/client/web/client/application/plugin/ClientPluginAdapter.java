@@ -30,8 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 
 /**
- * A dummy {@link IClientPlugin} implementation which throws {@link UnsupportedOperationException}
- * as default behavior.
+ * A dummy {@link IClientPlugin} implementation which throws {@link UnsupportedOperationException} as default behavior.
  * 
  * @author Christian Ribeaud
  */

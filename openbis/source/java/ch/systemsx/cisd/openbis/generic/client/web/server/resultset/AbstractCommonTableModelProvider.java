@@ -21,8 +21,7 @@ import java.io.Serializable;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 
 /**
- * Superclass of {@link ITableModelProvider} which creates the table model lazily by using
- * {@link ICommonServer}.
+ * Superclass of {@link ITableModelProvider} which creates the table model lazily by using {@link ICommonServer}.
  * 
  * @author Franz-Josef Elmer
  */

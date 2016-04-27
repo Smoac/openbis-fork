@@ -20,8 +20,7 @@ import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.data.RpcMap;
 
 /**
- * A Subclass of the GXT BaseModel that simplifies default behavior ignoring special characters
- * (e.g. '.', '[', ']').
+ * A Subclass of the GXT BaseModel that simplifies default behavior ignoring special characters (e.g. '.', '[', ']').
  * 
  * @see SimplifiedBaseModelData
  * @author Chandrasekhar Ramakrishnan

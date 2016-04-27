@@ -40,7 +40,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleIdentifier>
 {
     public static final String CONTAINER_SHORTCUT_ALLOWED_ATTRIBUTE = "container-shortcut-allowed";
-    
+
     private String homeSpaceCodeOrNull;
 
     public ListSampleTechIdByIdentifier(String homeSpaceCodeOrNull)
@@ -74,7 +74,7 @@ public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleI
         }
         return result;
     }
-    
+
     private boolean getContainerShortcutAllowed(IOperationContext context)
     {
         Object value = context.getAttribute(CONTAINER_SHORTCUT_ALLOWED_ATTRIBUTE);
@@ -101,7 +101,7 @@ public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleI
         return groupedIdentifiers;
     }
 
-    private List<TechIdStringIdentifierRecord> list(final SampleQuery query, final SampleIdentifierParts key, 
+    private List<TechIdStringIdentifierRecord> list(final SampleQuery query, final SampleIdentifierParts key,
             final Collection<String> codes, boolean containerShortcutAllowed)
     {
         final String[] codesArray = codes.toArray(new String[codes.size()]);
@@ -174,8 +174,8 @@ public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleI
         return query.listProjectSampleTechIdsByContainerCodeAndCodes(spaceCode, projectCode, containerCode, codesArray);
     }
 
-    private List<TechIdStringIdentifierRecord> listWithoutContainerOrWithSomeContainerAndUniqueCode(SampleQuery query, 
-            String[] codes, IListAction listWithoutContainer, IListAction listWithSomeContainer, 
+    private List<TechIdStringIdentifierRecord> listWithoutContainerOrWithSomeContainerAndUniqueCode(SampleQuery query,
+            String[] codes, IListAction listWithoutContainer, IListAction listWithSomeContainer,
             boolean containerShortcutAllowed)
     {
         try

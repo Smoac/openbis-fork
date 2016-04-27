@@ -23,8 +23,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 /**
  * Stores an object and its database modification observer.
  * <p>
- * This class is useful when you cannot modify some class T to extend
- * {@link IDatabaseModificationObserver} interface (because e.g. this class comes from a library).
+ * This class is useful when you cannot modify some class T to extend {@link IDatabaseModificationObserver} interface (because e.g. this class comes
+ * from a library).
  * </p>
  * 
  * @author Tomasz Pylak

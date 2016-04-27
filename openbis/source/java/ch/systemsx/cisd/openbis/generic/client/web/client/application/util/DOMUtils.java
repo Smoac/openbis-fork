@@ -44,12 +44,10 @@ public final class DOMUtils
     }
 
     /**
-     * Creates an <i>HTML</i> link with given <var>href</var>, <var>styleClass</var> and given
-     * <var>title</var>.
+     * Creates an <i>HTML</i> link with given <var>href</var>, <var>styleClass</var> and given <var>title</var>.
      * 
      * @param href if <code>null</code> then no <code>href</code> attribute will be added.
-     * @param styleClass if <code>null</code> then no <code>class</code> attribute will be
-     *            added.
+     * @param styleClass if <code>null</code> then no <code>class</code> attribute will be added.
      * @param title if <code>null</code> then no <code>title</code> attribute will be added.
      */
     public final static Element createAnchorElement(final String styleClass, final String href,

@@ -66,7 +66,7 @@ public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> ext
         this.selectedAndDisplayedItemsOrNull = null;
         this.setId("deletion-confirmation-dialog");
         this.additionalMessage = additionalMessage;
-     }    
+    }
 
     @Override
     protected void executeDeletion(AsyncCallback<Void> deletionCallback)
@@ -84,14 +84,13 @@ public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> ext
                     reason.getValue(), deletionType, deletionCallback);
         }
     }
-    
+
     @Override
     protected String getAdditionalMessage()
     {
-        return this.additionalMessage;    
-   }
-   
-    
+        return this.additionalMessage;
+    }
+
     @Override
     protected String getEntityName()
     {

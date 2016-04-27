@@ -26,8 +26,6 @@ import org.springframework.stereotype.Component;
 import ch.systemsx.cisd.openbis.generic.shared.util.RuntimeCache;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Component
@@ -40,18 +38,18 @@ public class TableDataCache<K, T>
 
     @Autowired
     private CacheManager cacheManager;
-    
+
     private RuntimeCache<K, T> runtimeCache;
-    
+
     public TableDataCache()
     {
     }
-    
+
     public TableDataCache(CacheManager cacheManager)
     {
         this.cacheManager = cacheManager;
     }
-    
+
     public T getTableData(K key)
     {
         return runtimeCache.get(key);
@@ -61,7 +59,7 @@ public class TableDataCache<K, T>
     {
         runtimeCache.put(key, table);
     }
-    
+
     public boolean removeTableData(K key)
     {
         return runtimeCache.remove(key);

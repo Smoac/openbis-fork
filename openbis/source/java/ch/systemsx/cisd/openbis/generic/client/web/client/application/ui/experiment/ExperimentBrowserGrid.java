@@ -180,8 +180,7 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
     }
 
     /**
-     * Create a grid with the toolbar and a tree and optional initial selection of experiment type
-     * and project.
+     * Create a grid with the toolbar and a tree and optional initial selection of experiment type and project.
      */
     public static DisposableEntityChooser<TableModelRowWithObject<Experiment>> create(
             final IViewContext<ICommonClientServiceAsync> viewContext, String initialSpaceOrNull,

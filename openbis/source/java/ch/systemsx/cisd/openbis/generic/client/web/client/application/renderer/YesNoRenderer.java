@@ -9,8 +9,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 
 /**
- * Renderer of {@link Boolean} value. Render <code>true</code> to <code>yes</code> and
- * <code>false</code> to <code>no</code>.
+ * Renderer of {@link Boolean} value. Render <code>true</code> to <code>yes</code> and <code>false</code> to <code>no</code>.
  * 
  * @author Franz-Josef Elmer
  */

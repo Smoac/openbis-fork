@@ -60,8 +60,7 @@ public class CheckBoxGroupWithModel<T> extends CheckBoxGroup
     private final Set<CheckBoxGroupListner<T>> listeners;
 
     /**
-     * Create a group of check-boxes, one for each item. Use {@link #getSelected()} to fetch items
-     * for which the check-boxes are selected.
+     * Create a group of check-boxes, one for each item. Use {@link #getSelected()} to fetch items for which the check-boxes are selected.
      */
     public CheckBoxGroupWithModel(List<LabeledItem<T>> items)
     {

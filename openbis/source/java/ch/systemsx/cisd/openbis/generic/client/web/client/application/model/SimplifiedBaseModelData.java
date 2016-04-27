@@ -20,16 +20,13 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.RpcMap;
 
 /**
- * A Subclass of the GXT BaseModelData that simplifies default behavior ignoring special characters
- * ('.', '[', ']').
+ * A Subclass of the GXT BaseModelData that simplifies default behavior ignoring special characters ('.', '[', ']').
  * <p>
- * As a result nested value support is turned off. NestedValues check for key strings with '.' in
- * then treat them as paths for traversing multiple HashMaps. We don't need this, and, in fact, it
- * causes problems for us, since we occasionally use '.' as part of a normal column name for a table
+ * As a result nested value support is turned off. NestedValues check for key strings with '.' in then treat them as paths for traversing multiple
+ * HashMaps. We don't need this, and, in fact, it causes problems for us, since we occasionally use '.' as part of a normal column name for a table
  * without intending the nested-value semantics; thus we turn it off.
  * <p>
- * Also handling of property maps with syntax p1[key1] is switched off to allow '[' and ']'
- * characters in normal column names.
+ * Also handling of property maps with syntax p1[key1] is switched off to allow '[' and ']' characters in normal column names.
  * 
  * @author Chandrasekhar Ramakrishnan
  * @author Piotr Buczek

@@ -32,15 +32,13 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
- * Translates deeply nested exceptions thrown on server side e.g. by Spring that contain user
- * readable error messages (like {@link TransactionSystemException} or {@link DataAccessException})
- * into {UserFailureException} with message taken from the root exception cause.
+ * Translates deeply nested exceptions thrown on server side e.g. by Spring that contain user readable error messages (like
+ * {@link TransactionSystemException} or {@link DataAccessException}) into {UserFailureException} with message taken from the root exception cause.
  * <p>
- * The most important reason why this advisor was introduced was to translate exceptions that happen
- * just before commit/rollback of transactions, like {@link TransactionSystemException}. Such
- * exceptions can't be handled inside the server methods because the commit/rollback is invoked
- * outside the server class by Spring AOP (see {@link Transactional}). Without this advisor the
- * translation would need to be done in all clients - web, command line, APIs.
+ * The most important reason why this advisor was introduced was to translate exceptions that happen just before commit/rollback of transactions, like
+ * {@link TransactionSystemException}. Such exceptions can't be handled inside the server methods because the commit/rollback is invoked outside the
+ * server class by Spring AOP (see {@link Transactional}). Without this advisor the translation would need to be done in all clients - web, command
+ * line, APIs.
  * 
  * @author Piotr Buczek
  */

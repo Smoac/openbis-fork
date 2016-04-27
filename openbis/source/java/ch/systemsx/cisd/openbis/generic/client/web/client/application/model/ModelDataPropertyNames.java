@@ -20,16 +20,14 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 /**
- * Some constants used in {@link ModelData} implementations. These constants are typically used in
- * {@link ColumnConfig#setId(String)}. Because they serve a different purpose, they should not be
- * used in {@link ColumnConfig#setHeader(String)}.
+ * Some constants used in {@link ModelData} implementations. These constants are typically used in {@link ColumnConfig#setId(String)}. Because they
+ * serve a different purpose, they should not be used in {@link ColumnConfig#setHeader(String)}.
  * <p>
- * Use <i>Java</i> coding standard for naming these property names and be aware that some of them
- * could be use for sorting when using <i>Result Set</i>.
+ * Use <i>Java</i> coding standard for naming these property names and be aware that some of them could be use for sorting when using <i>Result
+ * Set</i>.
  * </p>
  * <p>
- * <b>Important note</b>: Do not put a <code>_</code> in the property name except for specifying a
- * field path.
+ * <b>Important note</b>: Do not put a <code>_</code> in the property name except for specifying a field path.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -37,8 +35,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 public final class ModelDataPropertyNames
 {
     /**
-     * Try to avoid using this class! Define your model keys as private constants in the model and
-     * expose them with getters.
+     * Try to avoid using this class! Define your model keys as private constants in the model and expose them with getters.
      */
 
     public static final String CODE = "code";

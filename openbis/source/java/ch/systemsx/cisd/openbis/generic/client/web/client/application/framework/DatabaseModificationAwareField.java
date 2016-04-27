@@ -26,8 +26,8 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 public class DatabaseModificationAwareField<T> extends DatabaseModificationAwareObject<Field<T>>
 {
     /**
-     * Creates a mock with a dummy database modification observer. Use this method if your field
-     * does not need to be refreshed when the database changes.
+     * Creates a mock with a dummy database modification observer. Use this method if your field does not need to be refreshed when the database
+     * changes.
      */
     public static <T> DatabaseModificationAwareField<T> wrapUnaware(Field<T> field)
     {

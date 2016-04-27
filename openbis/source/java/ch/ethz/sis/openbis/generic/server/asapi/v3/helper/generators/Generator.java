@@ -151,7 +151,7 @@ public class Generator extends AbstractGenerator
         addModificationDate(gen);
 
         gen.setToStringMethod("\"SampleType \" + code");
-        gen.addPluralFetchedField("List<PropertyAssignment>", List.class.getName(), "propertyAssignments", 
+        gen.addPluralFetchedField("List<PropertyAssignment>", List.class.getName(), "propertyAssignments",
                 "Property assigments", PropertyAssignmentFetchOptions.class);
 
         return gen;
@@ -224,7 +224,7 @@ public class Generator extends AbstractGenerator
         addModificationDate(gen);
 
         gen.setToStringMethod("\"ExperimentType \" + code");
-        gen.addPluralFetchedField("List<PropertyAssignment>", List.class.getName(), "propertyAssignments", 
+        gen.addPluralFetchedField("List<PropertyAssignment>", List.class.getName(), "propertyAssignments",
                 "Property assigments", PropertyAssignmentFetchOptions.class);
 
         // TODO add validation script
@@ -287,7 +287,7 @@ public class Generator extends AbstractGenerator
         addModificationDate(gen);
 
         gen.setToStringMethod("\"DataSetType \" + code");
-        gen.addPluralFetchedField("List<PropertyAssignment>", List.class.getName(), "propertyAssignments", 
+        gen.addPluralFetchedField("List<PropertyAssignment>", List.class.getName(), "propertyAssignments",
                 "Property assigments", PropertyAssignmentFetchOptions.class);
 
         // TODO add validation script
@@ -548,7 +548,7 @@ public class Generator extends AbstractGenerator
         addModificationDate(gen);
 
         gen.setToStringMethod("\"MaterialType \" + code");
-        gen.addPluralFetchedField("List<PropertyAssignment>", List.class.getName(), "propertyAssignments", 
+        gen.addPluralFetchedField("List<PropertyAssignment>", List.class.getName(), "propertyAssignments",
                 "Property assigments", PropertyAssignmentFetchOptions.class);
 
         return gen;

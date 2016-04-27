@@ -50,8 +50,8 @@ public interface IResultSetConfig<K, T>
     public int getLimit();
 
     /**
-     * Returns all columns available. Needed for customized filters and columns. The result will
-     * include custom columns only if this information was already fetched.
+     * Returns all columns available. Needed for customized filters and columns. The result will include custom columns only if this information was
+     * already fetched.
      */
     public Set<IColumnDefinition<T>> getAvailableColumns();
 
@@ -69,8 +69,7 @@ public interface IResultSetConfig<K, T>
     public GridFilters<T> getFilters();
 
     /**
-     * @return grid id which can be used to figure out what are the available custom columns and how
-     *         to compute them.
+     * @return grid id which can be used to figure out what are the available custom columns and how to compute them.
      */
     public String tryGetGridDisplayId();
 

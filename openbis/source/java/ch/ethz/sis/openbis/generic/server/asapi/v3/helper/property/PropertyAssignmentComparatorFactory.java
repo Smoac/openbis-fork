@@ -27,15 +27,13 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.AbstractStringCom
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.ComparatorFactory;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class PropertyAssignmentComparatorFactory extends ComparatorFactory
 {
     private static final Map<String, Comparator<PropertyAssignment>> COMPARATORS_BY_FIELD = new HashMap<>();
-    
-    static 
+
+    static
     {
         COMPARATORS_BY_FIELD.put(PropertyAssignmentSortOptions.CODE, new AbstractPropertyAssignmentComparator()
             {
@@ -46,13 +44,13 @@ public class PropertyAssignmentComparatorFactory extends ComparatorFactory
                 }
             });
         COMPARATORS_BY_FIELD.put(PropertyAssignmentSortOptions.LABEL, new AbstractPropertyAssignmentComparator()
-        {
-            @Override
-            protected String getValue(PropertyType propertyType)
             {
-                return propertyType.getLabel();
-            }
-        });
+                @Override
+                protected String getValue(PropertyType propertyType)
+                {
+                    return propertyType.getLabel();
+                }
+            });
     }
 
     @Override
@@ -82,8 +80,8 @@ public class PropertyAssignmentComparatorFactory extends ComparatorFactory
             String v = propertyType == null ? null : getValue(propertyType);
             return v == null ? "" : v;
         }
-        
+
         protected abstract String getValue(PropertyType propertyType);
-        
+
     }
 }

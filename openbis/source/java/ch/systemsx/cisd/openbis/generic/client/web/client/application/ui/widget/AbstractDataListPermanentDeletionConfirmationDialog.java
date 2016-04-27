@@ -25,8 +25,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 
 /**
- * {@link AbstractDataListDeletionConfirmationDialog} abstract implementation for a confirmation
- * dialog shown before permanent deletion of list of data.
+ * {@link AbstractDataListDeletionConfirmationDialog} abstract implementation for a confirmation dialog shown before permanent deletion of list of
+ * data.
  * 
  * @author Piotr Buczek
  */

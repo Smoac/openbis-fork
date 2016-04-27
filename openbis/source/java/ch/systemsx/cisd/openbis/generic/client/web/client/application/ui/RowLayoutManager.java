@@ -36,9 +36,8 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
 /**
- * Helper class for doing {@link RowLayout} of a {@link LayoutContainer} with instances of
- * {@link ContentPanel} in a dynamic way. Collapsed row components lead to a resize of the
- * non-collapsed components if the row size is defined by a positive value &lt;= 1.
+ * Helper class for doing {@link RowLayout} of a {@link LayoutContainer} with instances of {@link ContentPanel} in a dynamic way. Collapsed row
+ * components lead to a resize of the non-collapsed components if the row size is defined by a positive value &lt;= 1.
  * 
  * @author Franz-Josef Elmer
  */
@@ -51,9 +50,9 @@ public class RowLayoutManager
         void setFor(RowData rowData, double newValue);
 
         int getFrameSizeFor(ContentPanel panel);
-        
+
         int getSize(Container<?> container);
-        
+
         int getPositionFrom(DragEvent dragEvent);
     }
 
@@ -130,7 +129,7 @@ public class RowLayoutManager
             {
                 return dragEvent.getX();
             }
-            
+
         };
 
     private final LayoutContainer container;
@@ -249,7 +248,7 @@ public class RowLayoutManager
                 }
             };
     }
-    
+
     private void handleSplitMovement(final ContentPanel contentPanel, int diff, int indexInDynamicRowDataArray)
     {
         int indexOfResizablePanelAbove = -1;
@@ -296,11 +295,11 @@ public class RowLayoutManager
         diffRatio = Math.min(diffRatio, 1 - DELTA - above.originalValue);
         diffRatio = Math.min(diffRatio, below.originalValue - DELTA);
         diffRatio = Math.max(diffRatio, below.originalValue - 1 + DELTA);
-        
+
         above.originalValue += diffRatio;
         below.originalValue -= diffRatio;
         adjustRelative();
     }
-    
+
     private static final double DELTA = 0.02;
 }

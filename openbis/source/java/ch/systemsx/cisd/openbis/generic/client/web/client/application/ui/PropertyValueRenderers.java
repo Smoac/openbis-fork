@@ -148,8 +148,7 @@ public final class PropertyValueRenderers
     }
 
     /**
-     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link IEntityProperty}
-     * .
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link IEntityProperty} .
      */
     public final static IPropertyValueRenderer<IEntityProperty> createEntityPropertyPropertyValueRenderer(
             final IViewContext<?> viewContext)
@@ -176,8 +175,7 @@ public final class PropertyValueRenderers
     }
 
     /**
-     * Creates a {@link IPropertyValueRenderer} implementation for rendering a String with newlines
-     * preserved.
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering a String with newlines preserved.
      */
     public final static IPropertyValueRenderer<String> createMultilineStringPropertyValueRenderer(
             final IMessageProvider messageProvider)

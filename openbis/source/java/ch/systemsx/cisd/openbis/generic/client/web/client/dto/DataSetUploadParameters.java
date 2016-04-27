@@ -19,20 +19,18 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * 
- *
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class DataSetUploadParameters implements IsSerializable
 {
     private String cifexURL;
-    
+
     private String fileName;
 
     private String userID;
-    
+
     private String password;
-    
+
     private String comment;
 
     public final String getCifexURL()

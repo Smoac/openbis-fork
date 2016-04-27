@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.server;
 import java.util.List;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IBasicTableDataProvider
@@ -32,8 +30,7 @@ public interface IBasicTableDataProvider
     public List<List<? extends Comparable<?>>> getRows();
 
     /**
-     * Returns a list of column titles. The order is the same as the order of row values returned
-     * by {@link #getRows()}.
+     * Returns a list of column titles. The order is the same as the order of row values returned by {@link #getRows()}.
      */
     public List<String> getAllColumnTitles();
 

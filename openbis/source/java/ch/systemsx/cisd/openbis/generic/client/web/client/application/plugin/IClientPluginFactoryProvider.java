@@ -36,8 +36,7 @@ public interface IClientPluginFactoryProvider
             final BasicEntityType entityType);
 
     /**
-     * Registers {@link IModuleInitializationObserver}, that will be modified about all initialized
-     * modules after their initialization.
+     * Registers {@link IModuleInitializationObserver}, that will be modified about all initialized modules after their initialization.
      */
     void registerModuleInitializationObserver(IModuleInitializationObserver observer);
 

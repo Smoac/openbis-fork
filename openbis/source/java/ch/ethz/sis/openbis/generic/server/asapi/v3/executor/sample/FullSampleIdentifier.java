@@ -26,20 +26,22 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 
 /**
- * Helper class which parses a sample identifier string.
- * It offers human readable errors for incorrect inputs.
+ * Helper class which parses a sample identifier string. It offers human readable errors for incorrect inputs.
  * 
  * @author Franz-Josef Elmer
  */
 public class FullSampleIdentifier
 {
     private static final String CODE_CHAR_PATTERN = "a-zA-Z0-9_\\-\\.";
+
     private static final String CODE_CHARS = "[" + CODE_CHAR_PATTERN + "]+";
+
     private static final String CODE_PATTERN = "^" + CODE_CHARS + "$";
-    
+
     private SampleIdentifierParts sampleIdentifierParts;
+
     private String sampleCode;
-    
+
     public FullSampleIdentifier(String sampleIdentifier, String homeSpaceCodeOrNull)
     {
         String[] parts = extractParts(sampleIdentifier);
@@ -65,26 +67,27 @@ public class FullSampleIdentifier
         {
             spaceCode = homeSpaceCodeOrNull;
         }
-        
+
         List<String> splittedCode = splitCode(code, sampleIdentifier);
         if (splittedCode.size() == 2)
         {
             containerCode = splittedCode.get(0);
             plainSampleCode = splittedCode.get(1);
-        } else {
+        } else
+        {
             plainSampleCode = splittedCode.get(0);
         }
-        
-        //Code format validation
+
+        // Code format validation
         verifyCodePattern(spaceCode, "Space code");
         verifyCodePattern(projectCode, "Project code");
         verifyCodePattern(containerCode, "Container sample code");
         verifyCodePattern(plainSampleCode, containerCode == null ? "Sample code" : "Sample subcode");
-            
+
         sampleCode = CodeConverter.tryToDatabase(plainSampleCode);
-        sampleIdentifierParts = new SampleIdentifierParts(CodeConverter.tryToDatabase(spaceCode), 
+        sampleIdentifierParts = new SampleIdentifierParts(CodeConverter.tryToDatabase(spaceCode),
                 CodeConverter.tryToDatabase(projectCode), CodeConverter.tryToDatabase(containerCode));
-        
+
     }
 
     private List<String> splitCode(String code, String sampleIdentifier)
@@ -92,7 +95,7 @@ public class FullSampleIdentifier
         String delim = ":";
         StringTokenizer tokenizer = new StringTokenizer(code, delim, true);
         int numberOfDelims = 0;
-        List<String> tokens = new ArrayList<>(); 
+        List<String> tokens = new ArrayList<>();
         while (tokenizer.hasMoreTokens())
         {
             String token = tokenizer.nextToken();
@@ -106,7 +109,7 @@ public class FullSampleIdentifier
         }
         if (numberOfDelims > 1)
         {
-            throw new IllegalArgumentException("Sample code can not contain more than one '" + delim + "': " 
+            throw new IllegalArgumentException("Sample code can not contain more than one '" + delim + "': "
                     + sampleIdentifier);
         }
         if (numberOfDelims != tokens.size() - 1)
@@ -126,9 +129,9 @@ public class FullSampleIdentifier
         {
             throw new IllegalArgumentException("Sample identifier has to start with a '/': " + sampleIdentifier);
         }
-        
+
         String[] parts = sampleIdentifier.split("/");
-        
+
         if (parts.length == 0)
         {
             throw new IllegalArgumentException("Sample identifier don't contain any codes: " + sampleIdentifier);
@@ -154,8 +157,8 @@ public class FullSampleIdentifier
             throw new IllegalArgumentException(partName + " containing other characters than letters, numbers, "
                     + "'_', '-' and '.': " + code);
         }
-    }    
-    
+    }
+
     public SampleIdentifierParts getParts()
     {
         return sampleIdentifierParts;
@@ -170,12 +173,12 @@ public class FullSampleIdentifier
     public String toString()
     {
         // TODO: project samples
-//        return new SampleIdentifier(sampleIdentifierParts.getSpaceCodeOrNull(), 
-//                sampleIdentifierParts.getProjectCodeOrNull(), sampleIdentifierParts.getContainerCodeOrNull(), 
-//                sampleCode).toString();
-        return new SampleIdentifier(sampleIdentifierParts.getSpaceCodeOrNull(), 
-                sampleIdentifierParts.getContainerCodeOrNull(), 
+        // return new SampleIdentifier(sampleIdentifierParts.getSpaceCodeOrNull(),
+        // sampleIdentifierParts.getProjectCodeOrNull(), sampleIdentifierParts.getContainerCodeOrNull(),
+        // sampleCode).toString();
+        return new SampleIdentifier(sampleIdentifierParts.getSpaceCodeOrNull(),
+                sampleIdentifierParts.getContainerCodeOrNull(),
                 sampleCode).toString();
     }
-    
+
 }

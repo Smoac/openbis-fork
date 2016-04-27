@@ -30,8 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Widge
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 
 /**
- * {@link AbstractDataConfirmationDialog} abstract implementation for deleting given list of data on
- * confirm.
+ * {@link AbstractDataConfirmationDialog} abstract implementation for deleting given list of data on confirm.
  * 
  * @author Piotr Buczek
  */
@@ -106,13 +105,13 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
         }
         return messageProvider.getMessage(Dict.DELETE_CONFIRMATION_MESSAGE_WITH_REASON_TEMPLATE,
                 getOperationName(), deletedObjects, getAdditionalMessage());
-     }
-        
+    }
 
-    protected  String getAdditionalMessage() {
+    protected String getAdditionalMessage()
+    {
         return null;
     }
-    
+
     protected abstract String getEntityName();
 
     protected abstract void executeDeletion(AsyncCallback<Void> callback);
@@ -151,8 +150,7 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
     }
 
     /**
-     * This method should be overriden in subclasses if dialog is supposed to use a radio and set
-     * {@link #onlySelectedRadioOrNull}.
+     * This method should be overriden in subclasses if dialog is supposed to use a radio and set {@link #onlySelectedRadioOrNull}.
      */
     protected RadioGroup createRadio()
     {
@@ -165,8 +163,7 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
     }
 
     /**
-     * Returns deletion callback and shows a progress bar that will be hidden when the callback is
-     * finished.
+     * Returns deletion callback and shows a progress bar that will be hidden when the callback is finished.
      */
     private AsyncCallback<Void> getCallbackWithProgressBar()
     {

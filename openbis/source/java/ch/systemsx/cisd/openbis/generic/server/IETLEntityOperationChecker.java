@@ -48,15 +48,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Checking methods to be invoked to check authorization in context of
- * {@link ServiceForDataStoreServer#performEntityOperations(String, ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails)}
- * .
+ * {@link ServiceForDataStoreServer#performEntityOperations(String, ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails)} .
  * 
  * @author Franz-Josef Elmer
  */
 public interface IETLEntityOperationChecker
 {
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     @Capability("CREATE_SPACES_VIA_DSS")
     public void assertSpaceCreationAllowed(IAuthSession session, List<NewSpace> newSpaces);
 
@@ -70,77 +69,66 @@ public interface IETLEntityOperationChecker
     public void assertMaterialUpdateAllowed(IAuthSession session, List<MaterialUpdateDTO> materials);
 
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_PROJECTS_VIA_DSS")
     public void assertProjectCreationAllowed(IAuthSession session,
-            @AuthorizationGuard(guardClass = NewProjectPredicate.class)
-            List<NewProject> newProjects);
+            @AuthorizationGuard(guardClass = NewProjectPredicate.class) List<NewProject> newProjects);
 
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_PROJECTS_VIA_DSS")
     public void assertProjectUpdateAllowed(IAuthSession session,
-            @AuthorizationGuard(guardClass = ProjectUpdatesPredicate.class)
-            List<ProjectUpdatesDTO> projectsToUpdate);
+            @AuthorizationGuard(guardClass = ProjectUpdatesPredicate.class) List<ProjectUpdatesDTO> projectsToUpdate);
 
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_EXPERIMENTS_VIA_DSS")
     public void assertExperimentCreationAllowed(IAuthSession session,
-            @AuthorizationGuard(guardClass = NewExperimentPredicate.class)
-            List<NewExperiment> newExperiments);
+            @AuthorizationGuard(guardClass = NewExperimentPredicate.class) List<NewExperiment> newExperiments);
 
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_EXPERIMENTS_VIA_DSS")
     public void assertExperimentUpdateAllowed(IAuthSession session,
-            @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class)
-            List<ExperimentUpdatesDTO> experimentUpdates);
+            @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class) List<ExperimentUpdatesDTO> experimentUpdates);
 
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ETL_SERVER)
     @Capability("CREATE_INSTANCE_SAMPLES_VIA_DSS")
     public void assertInstanceSampleCreationAllowed(IAuthSession session,
-            @AuthorizationGuard(guardClass = NewSamplePredicate.class)
-            List<NewSample> instanceSamples);
+            @AuthorizationGuard(guardClass = NewSamplePredicate.class) List<NewSample> instanceSamples);
 
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_SPACE_SAMPLES_VIA_DSS")
     public void assertSpaceSampleCreationAllowed(IAuthSession session,
-            @AuthorizationGuard(guardClass = NewSamplePredicate.class)
-            List<NewSample> spaceSamples);
+            @AuthorizationGuard(guardClass = NewSamplePredicate.class) List<NewSample> spaceSamples);
 
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ETL_SERVER)
     @Capability("UPDATE_INSTANCE_SAMPLES_VIA_DSS")
     public void assertInstanceSampleUpdateAllowed(IAuthSession session,
-            @AuthorizationGuard(guardClass = SampleUpdatesCollectionPredicate.class)
-            List<SampleUpdatesDTO> instanceSamples);
+            @AuthorizationGuard(guardClass = SampleUpdatesCollectionPredicate.class) List<SampleUpdatesDTO> instanceSamples);
 
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_SPACE_SAMPLES_VIA_DSS")
     public void assertSpaceSampleUpdateAllowed(IAuthSession session,
-            @AuthorizationGuard(guardClass = SampleUpdatesCollectionPredicate.class)
-            List<SampleUpdatesDTO> spaceSamples);
+            @AuthorizationGuard(guardClass = SampleUpdatesCollectionPredicate.class) List<SampleUpdatesDTO> spaceSamples);
 
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_DATA_SETS_VIA_DSS")
     public void assertDataSetCreationAllowed(IAuthSession session,
-            @AuthorizationGuard(guardClass = NewExternalDataPredicate.class)
-            List<? extends NewExternalData> dataSets);
+            @AuthorizationGuard(guardClass = NewExternalDataPredicate.class) List<? extends NewExternalData> dataSets);
 
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_DATA_SETS_VIA_DSS")
     public void assertDataSetUpdateAllowed(IAuthSession session,
-            @AuthorizationGuard(guardClass = DataSetUpdatesCollectionPredicate.class)
-            List<DataSetBatchUpdatesDTO> dataSets);
+            @AuthorizationGuard(guardClass = DataSetUpdatesCollectionPredicate.class) List<DataSetBatchUpdatesDTO> dataSets);
 
     @RolesAllowed(
     { RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     @Capability("ASSIGN_ROLE_TO_SPACE_VIA_DSS")
     public void assertSpaceRoleAssignmentAllowed(IAuthSession session,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            SpaceIdentifier space);
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) SpaceIdentifier space);
 }

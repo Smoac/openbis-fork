@@ -16,10 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class SpaceGridColumnIDs

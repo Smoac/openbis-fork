@@ -31,11 +31,9 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.AbstractListTec
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class ListMaterialsTechIdByPermId  extends AbstractListTechIdById<MaterialPermId>
+public class ListMaterialsTechIdByPermId extends AbstractListTechIdById<MaterialPermId>
 {
 
     @Override

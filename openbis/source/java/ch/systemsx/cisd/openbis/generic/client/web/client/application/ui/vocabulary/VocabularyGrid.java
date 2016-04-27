@@ -369,7 +369,7 @@ public class VocabularyGrid extends TypedTableGrid<Vocabulary>
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY) };
+        { DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY) };
     }
 
 }

@@ -36,7 +36,7 @@ public final class ResultSet<T> implements IsSerializable, IResultSetHolder<T>
     private int totalLength;
 
     private String resultSetKey;
-    
+
     private boolean partial;
 
     public final void setList(final GridRowModels<T> result)

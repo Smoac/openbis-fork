@@ -32,8 +32,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ListProjectTechIdByIdentifier extends AbstractListTechIdById<ProjectIdentifier>

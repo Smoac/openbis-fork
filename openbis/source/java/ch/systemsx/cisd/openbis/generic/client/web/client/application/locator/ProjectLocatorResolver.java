@@ -12,8 +12,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 
 /**
- * ViewLocatorHandler for Project locators. We don't have permIds for projects so we need a
- * different way of handling permlinks for them. We use project and space codes to identify project.
+ * ViewLocatorHandler for Project locators. We don't have permIds for projects so we need a different way of handling permlinks for them. We use
+ * project and space codes to identify project.
  * 
  * @author Piotr Buczek
  */

@@ -42,8 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridColumnFilterIn
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 
 /**
- * Combobox which allows to specify the filter for one grid column by choosing one of its values
- * from the list or by typing part of it.
+ * Combobox which allows to specify the filter for one grid column by choosing one of its values from the list or by typing part of it.
  * 
  * @author Tomasz Pylak
  */

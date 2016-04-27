@@ -20,8 +20,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IMapObjectByIdExecutor;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IMapProjectTechIdByIdExecutor extends IMapObjectByIdExecutor<IProjectId, Long>

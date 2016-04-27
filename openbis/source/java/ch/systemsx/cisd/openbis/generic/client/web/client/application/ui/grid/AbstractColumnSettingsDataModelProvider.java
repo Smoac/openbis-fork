@@ -32,8 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 public abstract class AbstractColumnSettingsDataModelProvider
 {
     /**
-     * Will be called passing the columns settings chosen by the user (with the right order) as a
-     * parameter when the Column Settings dialog closes.
+     * Will be called passing the columns settings chosen by the user (with the right order) as a parameter when the Column Settings dialog closes.
      */
     protected abstract void onClose(List<ColumnDataModel> newColumnDataModels);
 
@@ -48,8 +47,8 @@ public abstract class AbstractColumnSettingsDataModelProvider
     }
 
     /**
-     * @return column data model including the current state of the custom columns. Note that the
-     *         order may be different than the one chosen by the user.
+     * @return column data model including the current state of the custom columns. Note that the order may be different than the one chosen by the
+     *         user.
      */
     public List<ColumnDataModel> getColumnDataModels()
     {
@@ -57,8 +56,8 @@ public abstract class AbstractColumnSettingsDataModelProvider
     }
 
     /**
-     * Called when all custom columns definitions are loaded from the database. Some custom columns
-     * may have been added or deleted, it will be taken into account when updating columnDataModels.
+     * Called when all custom columns definitions are loaded from the database. Some custom columns may have been added or deleted, it will be taken
+     * into account when updating columnDataModels.
      * 
      * @param customColumns all custom columns for the grid
      */

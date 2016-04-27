@@ -13,8 +13,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * A simple combobox which provides a model class {@link LabeledItem} to store any value and its
- * label.
+ * A simple combobox which provides a model class {@link LabeledItem} to store any value and its label.
  * 
  * @author Tomasz Pylak
  */
@@ -34,8 +33,7 @@ public class SimpleModelComboBox<T> extends SimpleComboBox<LabeledItem<T>>
     }
 
     /**
-     * Creates a combobox and selects the first value. For each item there should be one
-     * corresponding label.
+     * Creates a combobox and selects the first value. For each item there should be one corresponding label.
      */
     public SimpleModelComboBox(IMessageProvider messageProvider, List<T> items,
             List<String> labels, List<String> tooltips, Integer widthPx)
@@ -114,8 +112,7 @@ public class SimpleModelComboBox<T> extends SimpleComboBox<LabeledItem<T>>
      * @param value the value
      */
     @Override
-    public void add(@SuppressWarnings("hiding")
-    LabeledItem<T> value)
+    public void add(@SuppressWarnings("hiding") LabeledItem<T> value)
     {
         store.add(new ExtendedSimpleComboValue<T>(value));
     }

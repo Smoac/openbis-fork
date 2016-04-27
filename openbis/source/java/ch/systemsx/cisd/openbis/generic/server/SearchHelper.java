@@ -37,8 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
- * A class with helper methods for implementing search. This is the shared code for that searches
- * originating from CommonServer and ETLService.
+ * A class with helper methods for implementing search. This is the shared code for that searches originating from CommonServer and ETLService.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

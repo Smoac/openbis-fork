@@ -71,7 +71,7 @@ final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
         }
         welcomePanel.setStyleName("login-welcome-text");
         final CellPanel northPanel = createNorthPanel();
-        
+
         final HorizontalPanel topPanel = new HorizontalPanel();
         northPanel.add(topPanel);
         northPanel.add(logo);
@@ -89,7 +89,7 @@ final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
                             add(footerPanel);
                         }
                     });
-        
+
         this.setCellVerticalAlignment(footerPanel, HasVerticalAlignment.ALIGN_BOTTOM);
 
     }

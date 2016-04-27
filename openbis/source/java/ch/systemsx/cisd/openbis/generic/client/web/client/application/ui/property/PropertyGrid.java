@@ -113,15 +113,14 @@ public final class PropertyGrid extends Grid
     }
 
     /**
-     * For given <var>className</var> returns the corresponding <code>PropertyValueRenderer</code>
-     * or {@link #defaultPropertyValueRenderer} if:
+     * For given <var>className</var> returns the corresponding <code>PropertyValueRenderer</code> or {@link #defaultPropertyValueRenderer} if:
      * <ul>
      * <li>none is found</li>
      * <li>given <var>clazz</var> is <code>null</code></li>
      * </ul>
      */
     @SuppressWarnings(
-        { "unchecked", "rawtypes" })
+    { "unchecked", "rawtypes" })
     private final <T> IPropertyValueRenderer<? super T> getPropertyValueRenderer(final T value)
     {
         if (value == null)

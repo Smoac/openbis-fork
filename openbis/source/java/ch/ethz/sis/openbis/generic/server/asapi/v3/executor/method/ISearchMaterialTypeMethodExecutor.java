@@ -21,8 +21,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface ISearchMaterialTypeMethodExecutor extends ISearchMethodExecutor<MaterialType, EntityTypeSearchCriteria, MaterialTypeFetchOptions>

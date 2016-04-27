@@ -43,7 +43,7 @@ public class DataSetTypeTranslator extends AbstractCachingTranslator<Long, DataS
 
     @Autowired
     private IDataSetTypeBaseTranslator baseTranslator;
-    
+
     @Autowired
     private IDataSetPropertyAssignmentTranslator assignmentTranslator;
 
@@ -63,7 +63,7 @@ public class DataSetTypeTranslator extends AbstractCachingTranslator<Long, DataS
         relations.put(IDataSetTypeBaseTranslator.class, baseTranslator.translate(context, typeIds, null));
         if (fetchOptions.hasPropertyAssignments())
         {
-            relations.put(IDataSetPropertyAssignmentTranslator.class, 
+            relations.put(IDataSetPropertyAssignmentTranslator.class,
                     assignmentTranslator.translate(context, typeIds, fetchOptions.withPropertyAssignments()));
         }
 
@@ -82,7 +82,7 @@ public class DataSetTypeTranslator extends AbstractCachingTranslator<Long, DataS
         result.setKind(DataSetKind.valueOf(baseRecord.kind));
         result.setDescription(baseRecord.description);
         result.setModificationDate(baseRecord.modificationDate);
-        
+
         if (fetchOptions.hasPropertyAssignments())
         {
             Collection<PropertyAssignment> assignments = relations.get(IDataSetPropertyAssignmentTranslator.class, typeId);

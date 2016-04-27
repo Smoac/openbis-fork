@@ -28,8 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 public interface ITableModelProvider<T extends Serializable>
 {
     /**
-     * Returns the table model limited as specified. For {@link Integer#MAX_VALUE} the full table
-     * model is returned.
+     * Returns the table model limited as specified. For {@link Integer#MAX_VALUE} the full table model is returned.
      */
     public TypedTableModel<T> getTableModel(int maxSize);
 }

@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
 /**
- * {@link IDatabaseModificationObserver} extension with a {@link IDelegatedAction} that should be
- * executed upon successful update completion.
+ * {@link IDatabaseModificationObserver} extension with a {@link IDelegatedAction} that should be executed upon successful update completion.
  * 
  * @author Piotr Buczek
  */

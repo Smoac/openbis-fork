@@ -197,7 +197,7 @@ public class RoleAssignmentGrid extends TypedTableGrid<RoleAssignment>
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { DatabaseModificationKind.createOrDelete(ObjectKind.ROLE_ASSIGNMENT),
-                    DatabaseModificationKind.edit(ObjectKind.ROLE_ASSIGNMENT) };
+        { DatabaseModificationKind.createOrDelete(ObjectKind.ROLE_ASSIGNMENT),
+                DatabaseModificationKind.edit(ObjectKind.ROLE_ASSIGNMENT) };
     }
 }

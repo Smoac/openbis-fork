@@ -27,8 +27,8 @@ public interface ICriteriaProvider<K>
     K tryGetCriteria();
 
     /**
-     * calls the refresh callback only after appropriate criteria are updated. But if there is
-     * nothing to update in the criteria provider the callback is called immediately.
+     * calls the refresh callback only after appropriate criteria are updated. But if there is nothing to update in the criteria provider the callback
+     * is called immediately.
      */
     void update(Set<DatabaseModificationKind> observedModifications,
             final IDataRefreshCallback dataRefreshCallback);

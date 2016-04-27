@@ -39,7 +39,7 @@ import com.extjs.gxt.ui.client.widget.form.MultiField;
  */
 
 @SuppressWarnings(
-    { "rawtypes", "unchecked" })
+{ "rawtypes", "unchecked" })
 public class FormPanelWithSavePoint extends ClickableFormPanel
 {
 

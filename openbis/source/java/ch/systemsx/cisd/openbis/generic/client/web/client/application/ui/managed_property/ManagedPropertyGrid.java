@@ -187,13 +187,13 @@ public class ManagedPropertyGrid extends TypedTableGrid<ReportRowModel>
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            {
-                    // script changes can cause all sorts of changes to the grid
-                    DatabaseModificationKind.edit(ObjectKind.SCRIPT),
-                    // different script can be assigned
-                    DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT)
+        {
+                // script changes can cause all sorts of changes to the grid
+                DatabaseModificationKind.edit(ObjectKind.SCRIPT),
+                // different script can be assigned
+                DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT)
 
-            };
+        };
     }
 
     @Override

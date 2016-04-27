@@ -265,9 +265,8 @@ public class DetailedSearchWindow extends Dialog
     }
 
     /**
-     * Return a help page identifier, possibly using the entity kind as clue to determine it. The
-     * default implementation ignores the entity kind and returns an identifier referencing the
-     * advanced search domain. Subclasses may override.
+     * Return a help page identifier, possibly using the entity kind as clue to determine it. The default implementation ignores the entity kind and
+     * returns an identifier referencing the advanced search domain. Subclasses may override.
      */
     protected HelpPageIdentifier createHelpPageIdentifier(final EntityKind entityKind)
     {
@@ -280,10 +279,8 @@ public class DetailedSearchWindow extends Dialog
     }
 
     /**
-     * Set the initial search string for this window to the argument. Call this after instantiation,
-     * but before the user has provided input, otherwise user input will be overwritten. This method
-     * does not notify the listener of any changes -- the caller must keep the window and toolbar in
-     * sync.
+     * Set the initial search string for this window to the argument. Call this after instantiation, but before the user has provided input, otherwise
+     * user input will be overwritten. This method does not notify the listener of any changes -- the caller must keep the window and toolbar in sync.
      */
     public void setInitialSearchCriteria(DetailedSearchCriteria searchCriteria)
     {

@@ -27,12 +27,12 @@ public interface IWizardDataModel
      * Returns the workflow model.
      */
     public WizardWorkflowModel getWorkflow();
-    
+
     /**
      * Determines at workflow branches the next state based on the specified current state.
      */
     public IWizardState determineNextState(IWizardState currentState);
-    
+
     /**
      * Finishes the wizard, submit/commit data and return a success message for the user.
      */

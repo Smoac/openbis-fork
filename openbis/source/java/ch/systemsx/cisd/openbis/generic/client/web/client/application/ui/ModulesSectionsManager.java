@@ -25,8 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 
 /**
- * Adds module sections the viewer after both {@link SectionsPanel} and {@link IModule}s are
- * initialized.
+ * Adds module sections the viewer after both {@link SectionsPanel} and {@link IModule}s are initialized.
  * 
  * @author Izabela Adamczyk
  */
@@ -40,8 +39,7 @@ public class ModulesSectionsManager
     private List<IModule> modules;
 
     /**
-     * Sets the values of chosen fields. Adds module sections to given container if called after
-     * {@link #initialize(List)}.
+     * Sets the values of chosen fields. Adds module sections to given container if called after {@link #initialize(List)}.
      */
     @SuppressWarnings("hiding")
     public void initialize(final SectionsPanel container,

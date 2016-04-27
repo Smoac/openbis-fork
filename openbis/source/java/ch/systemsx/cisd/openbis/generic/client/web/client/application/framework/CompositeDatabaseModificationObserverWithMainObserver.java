@@ -24,9 +24,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.SetUt
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 
 /**
- * {@link CompositeDatabaseModificationObserver} extension with update of added observers stopped
- * until main observer update is finished. If main observer fails to update other observers will not
- * update at all.
+ * {@link CompositeDatabaseModificationObserver} extension with update of added observers stopped until main observer update is finished. If main
+ * observer fails to update other observers will not update at all.
  * 
  * @author Piotr Buczek
  */

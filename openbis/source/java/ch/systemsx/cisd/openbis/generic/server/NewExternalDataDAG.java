@@ -37,8 +37,7 @@ public class NewExternalDataDAG extends EntityGroupingDAG<NewExternalData>
     }
 
     /**
-     * Return the new data sets in the list of groups, where the earlier groups are independent of
-     * the latter ones.
+     * Return the new data sets in the list of groups, where the earlier groups are independent of the latter ones.
      * 
      * @param dataSetRegistration The list of samples to create.
      */

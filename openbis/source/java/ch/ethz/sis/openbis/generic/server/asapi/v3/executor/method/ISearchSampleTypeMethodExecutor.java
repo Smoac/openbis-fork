@@ -21,8 +21,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface ISearchSampleTypeMethodExecutor extends ISearchMethodExecutor<SampleType, EntityTypeSearchCriteria, SampleTypeFetchOptions>

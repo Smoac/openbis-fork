@@ -34,7 +34,7 @@ public interface IColumnFilterWidget<T>
 
     /** @return filter with the pattern */
     GridColumnFilterInfo<T> getFilter();
-    
+
     void setFilteredField(IColumnDefinition<T> filteredField);
 
     /** id of the filtered column */
@@ -44,11 +44,9 @@ public interface IColumnFilterWidget<T>
     Widget getWidget();
 
     /**
-     * @return creates an appropriate widget or refreshes this one depending on previous state and
-     *         the fact if distinct values are specified.
-     * @param distinctValuesOrNull list of values present in the filtered column which can be chosen
-     *            from the filter or null if user has no list of available choices and has to type
-     *            it by himself
+     * @return creates an appropriate widget or refreshes this one depending on previous state and the fact if distinct values are specified.
+     * @param distinctValuesOrNull list of values present in the filtered column which can be chosen from the filter or null if user has no list of
+     *            available choices and has to type it by himself
      */
     IColumnFilterWidget<T> createOrRefresh(List<String> distinctValuesOrNull);
 }

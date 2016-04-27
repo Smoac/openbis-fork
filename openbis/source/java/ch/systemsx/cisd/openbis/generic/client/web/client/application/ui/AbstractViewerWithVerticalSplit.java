@@ -25,8 +25,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Borde
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 
 /**
- * {@link AbstractViewer} extension with additional support for vertical layout with left panel
- * state (expanded size / collapsed) saved in display settings.
+ * {@link AbstractViewer} extension with additional support for vertical layout with left panel state (expanded size / collapsed) saved in display
+ * settings.
  * 
  * @author Piotr Buczek
  */
@@ -50,8 +50,7 @@ public abstract class AbstractViewerWithVerticalSplit<D extends IEntityInformati
     }
 
     /**
-     * Creates {@link BorderLayoutData} for the left panel extracting initial size from display
-     * settings.
+     * Creates {@link BorderLayoutData} for the left panel extracting initial size from display settings.
      */
     protected final BorderLayoutData createLeftBorderLayoutData()
     {

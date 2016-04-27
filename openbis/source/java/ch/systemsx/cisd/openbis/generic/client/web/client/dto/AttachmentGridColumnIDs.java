@@ -24,10 +24,16 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 public class AttachmentGridColumnIDs
 {
     public static final String FILE_NAME = "FILE_NAME";
+
     public static final String PERMLINK = "PERMLINK";
+
     public static final String VERSION = "VERSION";
+
     public static final String TITLE = "TITLE";
+
     public static final String DESCRIPTION = "DESCRIPTION";
+
     public static final String REGISTRATOR = "REGISTRATOR";
+
     public static final String REGISTRATION_DATE = "REGISTRATION_DATE";
 }

@@ -16,10 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
 
-
-
 /**
- * Definition of column used in jython. 
+ * Definition of column used in jython.
  * <p>
  * All public methods of this class are part of the Filter/Calculated Column API.
  * 
@@ -28,6 +26,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
 public class ColumnDefinition
 {
     private final String columnID;
+
     private final ITableDataProvider provider;
 
     ColumnDefinition(String columnID, ITableDataProvider provider)
@@ -35,7 +34,7 @@ public class ColumnDefinition
         this.columnID = columnID;
         this.provider = provider;
     }
-    
+
     /**
      * Returns the ID of the column.
      */
@@ -43,7 +42,7 @@ public class ColumnDefinition
     {
         return columnID;
     }
-    
+
     /**
      * Returns the value of property specified by the key.
      * 

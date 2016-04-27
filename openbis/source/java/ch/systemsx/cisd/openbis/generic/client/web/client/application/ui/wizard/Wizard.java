@@ -39,14 +39,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 public class Wizard<M extends IWizardDataModel> extends LayoutContainer implements IDisposableComponent
 {
     private final CardLayout layout;
-    
+
     private final M model;
 
     private final WizardWorkflowModel workflowModel;
 
     private final Map<IWizardState, WizardPage<M>> pages =
             new HashMap<IWizardState, WizardPage<M>>();
-    
+
     private final Set<WizardPage<M>> visitedPages = new HashSet<WizardPage<M>>();
 
     /**
@@ -69,7 +69,7 @@ public class Wizard<M extends IWizardDataModel> extends LayoutContainer implemen
             });
 
     }
-    
+
     public M getWizardDataModel()
     {
         return model;

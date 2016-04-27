@@ -26,8 +26,8 @@ import com.google.gwt.user.client.ui.Widget;
 public class DatabaseModificationAwareWidget extends DatabaseModificationAwareObject<Widget>
 {
     /**
-     * Creates a mock with a dummy database modification observer. Use this method if your field
-     * does not need to be refreshed when the database changes.
+     * Creates a mock with a dummy database modification observer. Use this method if your field does not need to be refreshed when the database
+     * changes.
      */
     public static DatabaseModificationAwareWidget wrapUnaware(Widget widget)
     {

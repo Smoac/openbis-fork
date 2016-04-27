@@ -52,7 +52,8 @@ public class SearchCustomASServiceMethodExecutor extends AbstractSearchObjectMan
     private IOpenBisSessionManager sessionManager;
 
     @Override
-    public SearchResult<CustomASService> search(String sessionToken, CustomASServiceSearchCriteria searchCriteria, CustomASServiceFetchOptions fetchOptions)
+    public SearchResult<CustomASService> search(String sessionToken, CustomASServiceSearchCriteria searchCriteria,
+            CustomASServiceFetchOptions fetchOptions)
     {
         List<CustomASService> services = search(new OperationContext(sessionManager.getSession(sessionToken)), searchCriteria);
         List<CustomASService> filtered = new ArrayList<>(new SortAndPage().sortAndPage(services, fetchOptions));

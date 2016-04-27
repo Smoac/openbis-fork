@@ -29,8 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 
 /**
- * Superclass of {@link ITableModelProvider} implementations which creates the actual table model
- * lazily.
+ * Superclass of {@link ITableModelProvider} implementations which creates the actual table model lazily.
  * 
  * @author Franz-Josef Elmer
  */
@@ -40,8 +39,8 @@ public abstract class AbstractTableModelProvider<T extends Serializable> impleme
     private TypedTableModel<T> tableModel = null;
 
     /**
-     * Creates the table model with the specified maximum number of rows. If
-     * {@link Integer#MAX_VALUE} is specified the complete table will be created.
+     * Creates the table model with the specified maximum number of rows. If {@link Integer#MAX_VALUE} is specified the complete table will be
+     * created.
      */
     @Override
     public TypedTableModel<T> getTableModel(int maxSize)

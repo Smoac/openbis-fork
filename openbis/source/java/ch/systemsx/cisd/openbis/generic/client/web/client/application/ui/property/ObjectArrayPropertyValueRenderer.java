@@ -22,8 +22,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * A <code>PropertyValueRenderer</code> implementation for <code>Object[]</code> that renders as a
- * one column table.
+ * A <code>PropertyValueRenderer</code> implementation for <code>Object[]</code> that renders as a one column table.
  * 
  * @author Christian Ribeaud
  */

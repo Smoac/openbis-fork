@@ -33,13 +33,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Component
 public class SetSampleProjectExecutor extends AbstractSetEntityToOneRelationExecutor<SampleCreation, SamplePE, IProjectId, ProjectPE>
-    implements ISetSampleProjectExecutor
+        implements ISetSampleProjectExecutor
 {
     @Autowired
     private IMapProjectByIdExecutor mapProjectByIdExecutor;
@@ -48,7 +46,7 @@ public class SetSampleProjectExecutor extends AbstractSetEntityToOneRelationExec
     protected IProjectId getRelatedId(SampleCreation creation)
     {
         // TODO: project samples
-//        return creation.getProjectId();
+        // return creation.getProjectId();
         return null;
     }
 

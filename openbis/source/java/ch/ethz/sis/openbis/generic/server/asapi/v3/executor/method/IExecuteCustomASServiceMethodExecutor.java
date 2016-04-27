@@ -20,8 +20,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecution
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ICustomASServiceId;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IExecuteCustomASServiceMethodExecutor

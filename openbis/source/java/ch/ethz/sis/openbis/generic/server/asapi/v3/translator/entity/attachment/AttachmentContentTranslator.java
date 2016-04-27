@@ -33,12 +33,10 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.Obje
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.ObjectToOneRelationTranslator;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Component
-public class AttachmentContentTranslator extends ObjectToOneRelationTranslator<byte[], EmptyFetchOptions> 
+public class AttachmentContentTranslator extends ObjectToOneRelationTranslator<byte[], EmptyFetchOptions>
         implements IAttachmentContentTranslator
 {
     @Override
@@ -49,7 +47,7 @@ public class AttachmentContentTranslator extends ObjectToOneRelationTranslator<b
     }
 
     @Override
-    protected Map<Long, byte[]> translateRelated(TranslationContext context, Collection<Long> contentIds, 
+    protected Map<Long, byte[]> translateRelated(TranslationContext context, Collection<Long> contentIds,
             EmptyFetchOptions relatedFetchOptions)
     {
         AttachmentQuery query = QueryTool.getManagedQuery(AttachmentQuery.class);

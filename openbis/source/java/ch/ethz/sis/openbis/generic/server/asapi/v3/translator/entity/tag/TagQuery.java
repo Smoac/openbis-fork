@@ -33,7 +33,7 @@ public interface TagQuery extends ObjectQuery
 
     @Select(sql = "select m.id, m.name, m.description, p.user_id as owner, m.private as isPrivate, m.creation_date as registrationDate from "
             + "metaprojects m, persons p where m.owner = p.id and m.id = any(?{1})", parameterBindings = {
-                    LongSetMapper.class }, fetchSize = FETCH_SIZE)
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<TagBaseRecord> getTags(LongSet tagIds);
 
     @Select(sql = "select m.id, p.user_id as owner, not m.private as isPublic from metaprojects m, persons p where "

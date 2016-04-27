@@ -23,8 +23,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
- * A class that dispatches view locators to handlers for processing (i.e., opening a view with the
- * parameters specified in the locator).
+ * A class that dispatches view locators to handlers for processing (i.e., opening a view with the parameters specified in the locator).
  * 
  * @author Chandrasekhar Ramakrishnan
  * @author Piotr Buczek

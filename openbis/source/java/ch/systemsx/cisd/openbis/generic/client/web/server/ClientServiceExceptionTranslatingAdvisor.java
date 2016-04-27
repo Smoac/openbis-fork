@@ -28,8 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 
 /**
- * Translates server side {@link ch.systemsx.cisd.common.exceptions.UserFailureException} thrown by
- * all {@link IClientService} methods to client side
+ * Translates server side {@link ch.systemsx.cisd.common.exceptions.UserFailureException} thrown by all {@link IClientService} methods to client side
  * {@link ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException}.
  * 
  * @author Piotr Buczek

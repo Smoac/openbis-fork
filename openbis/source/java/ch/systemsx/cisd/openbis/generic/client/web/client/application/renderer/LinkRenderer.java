@@ -225,8 +225,8 @@ public class LinkRenderer
     }
 
     /**
-     * @return {@link Anchor} GWT widget that is displayed as a link with given <var>text</var> and
-     *         a <var>listener</var> registered on the click event.
+     * @return {@link Anchor} GWT widget that is displayed as a link with given <var>text</var> and a <var>listener</var> registered on the click
+     *         event.
      *         <p>
      *         The link display style is default (not invalidated).
      */
@@ -249,10 +249,9 @@ public class LinkRenderer
     /**
      * It is suggested to use {@link #getLinkWidget} method instead of this one.
      * 
-     * @return {@link Hyperlink} GWT widget that is displayed as a link with given <var>text</var>.
-     *         If <var>historyHref</var> is not null and simple view mode is active
-     *         <var>historyHref</var> will be appended to the link after '#'. Otherwise if
-     *         <var>listener</var> is not null it will be registered on the click event.
+     * @return {@link Hyperlink} GWT widget that is displayed as a link with given <var>text</var>. If <var>historyHref</var> is not null and simple
+     *         view mode is active <var>historyHref</var> will be appended to the link after '#'. Otherwise if <var>listener</var> is not null it will
+     *         be registered on the click event.
      *         <p>
      *         The link display style is default (not invalidated).
      */
@@ -308,8 +307,8 @@ public class LinkRenderer
     }
 
     /**
-     * Sets the click listener which executes the specified action when the click occurs if we are
-     * in normal view mode and redirects to the provided URL in simple view mode.
+     * Sets the click listener which executes the specified action when the click occurs if we are in normal view mode and redirects to the provided
+     * URL in simple view mode.
      */
     @SuppressWarnings("deprecation")
     public static Widget createButtonLink(Button button,

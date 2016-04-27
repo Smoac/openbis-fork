@@ -53,23 +53,23 @@ public class ProjectSearchCriteriaTranslator extends AbstractFieldFromCompositeS
     protected boolean doAccepts(ISearchCriteria criteria)
     {
         // TODO: project samples
-//        return criteria instanceof NoProjectSearchCriteria || criteria instanceof ProjectSearchCriteria;
+        // return criteria instanceof NoProjectSearchCriteria || criteria instanceof ProjectSearchCriteria;
         return criteria instanceof ProjectSearchCriteria;
     }
 
     @Override
     protected SearchCriteriaTranslationResult doTranslate(SearchTranslationContext context, ISearchCriteria criteria)
     {
-        if (EnumSet.of(EntityKind.EXPERIMENT,  EntityKind.SAMPLE).contains(context.peekEntityKind()) == false)
+        if (EnumSet.of(EntityKind.EXPERIMENT, EntityKind.SAMPLE).contains(context.peekEntityKind()) == false)
         {
             throw new IllegalArgumentException("Project criteria can be used only in experiment or sample criteria, "
                     + "but was used in: " + context.peekEntityKind() + " context.");
         }
         // TODO: project samples
-//        if (criteria instanceof NoProjectSearchCriteria)
-//        {
-//            return new SearchCriteriaTranslationResult(new DetailedSearchCriterion(PROJECT_ID_FIELD, NullBridge.NULL));
-//        }
+        // if (criteria instanceof NoProjectSearchCriteria)
+        // {
+        // return new SearchCriteriaTranslationResult(new DetailedSearchCriterion(PROJECT_ID_FIELD, NullBridge.NULL));
+        // }
         AbstractCompositeSearchCriteria compositeCriteria = (AbstractCompositeSearchCriteria) criteria;
         Collection<ISearchCriteria> subCriteria = compositeCriteria.getCriteria();
         if (subCriteria.isEmpty())
@@ -88,12 +88,12 @@ public class ProjectSearchCriteriaTranslator extends AbstractFieldFromCompositeS
         if (subCriteria instanceof CodeSearchCriteria)
         {
             return DetailedSearchField.createAttributeField(
-                    entityKind == EntityKind.EXPERIMENT ? ExperimentAttributeSearchFieldKind.PROJECT 
+                    entityKind == EntityKind.EXPERIMENT ? ExperimentAttributeSearchFieldKind.PROJECT
                             : SampleAttributeSearchFieldKind.PROJECT);
         } else if (subCriteria instanceof PermIdSearchCriteria)
         {
             return DetailedSearchField.createAttributeField(
-                    entityKind == EntityKind.EXPERIMENT ? ExperimentAttributeSearchFieldKind.PROJECT_PERM_ID 
+                    entityKind == EntityKind.EXPERIMENT ? ExperimentAttributeSearchFieldKind.PROJECT_PERM_ID
                             : SampleAttributeSearchFieldKind.PROJECT_PERM_ID);
         } else if (subCriteria instanceof SpaceSearchCriteria)
         {

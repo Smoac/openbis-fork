@@ -72,8 +72,7 @@ public class OpenbisCrossOriginFilter extends AbstractCrossOriginFilter
     }
 
     /**
-     * By default the openBIS trusts any cross-origin request coming from the registered DSS
-     * servers.
+     * By default the openBIS trusts any cross-origin request coming from the registered DSS servers.
      */
     private List<String> getDssDomains(ApplicationContext appContext)
     {

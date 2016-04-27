@@ -32,8 +32,8 @@ import com.google.gwt.core.client.JavaScriptException;
  */
 public class WizardWorkflowModel
 {
-    private static final List<IWizardState> EMPTY_LIST = Arrays.<IWizardState>asList();
-    
+    private static final List<IWizardState> EMPTY_LIST = Arrays.<IWizardState> asList();
+
     private final List<IWizardStateChangeListener> changeListeners =
             new ArrayList<IWizardStateChangeListener>();
 
@@ -46,28 +46,26 @@ public class WizardWorkflowModel
     private final Stack<IWizardState> visitedStates = new Stack<IWizardState>();
 
     private final IWizardDataModel dataModel;
-    
+
     private IWizardState initialState;
-    
+
     /**
-     * Creates an instance for the specified data model. The data model is needed to make
-     * decision at workflow branches.
+     * Creates an instance for the specified data model. The data model is needed to make decision at workflow branches.
      */
     public WizardWorkflowModel(IWizardDataModel dataModel)
     {
         this.dataModel = dataModel;
     }
-    
+
     void addStateChangeListener(IWizardStateChangeListener stateChangeListener)
     {
         changeListeners.add(stateChangeListener);
     }
 
     /**
-     * Adds a transition from specified state to specified next state. For one state several
-     * transations can be added. In this branching case
-     * {@link IWizardDataModel#determineNextState(IWizardState)} will be invoked during execution
-     * of the workflow in order to determine which transition to follow.
+     * Adds a transition from specified state to specified next state. For one state several transations can be added. In this branching case
+     * {@link IWizardDataModel#determineNextState(IWizardState)} will be invoked during execution of the workflow in order to determine which
+     * transition to follow.
      */
     public void addTransition(IWizardState state, IWizardState nextState)
     {
@@ -131,7 +129,7 @@ public class WizardWorkflowModel
     {
         return transitionsToNext.get(state) != null;
     }
-    
+
     private List<IWizardState> getNextStates()
     {
         IWizardState currentState = tryGetCurrentState();

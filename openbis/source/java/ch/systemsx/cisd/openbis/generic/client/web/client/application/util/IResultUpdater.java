@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
 /**
- * Use this interface to pass the result from one class to another without making the class
- * receiving the result visible to the class generating the result.
+ * Use this interface to pass the result from one class to another without making the class receiving the result visible to the class generating the
+ * result.
  * 
  * @author Tomasz Pylak
  */

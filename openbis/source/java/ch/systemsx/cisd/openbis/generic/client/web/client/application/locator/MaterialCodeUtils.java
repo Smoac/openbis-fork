@@ -28,17 +28,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLLi
 public class MaterialCodeUtils
 {
     /**
-     * IMPORTANT: The method will work correctly *if* the material codes in the openBIS database do
-     * not contain the character '%'.
+     * IMPORTANT: The method will work correctly *if* the material codes in the openBIS database do not contain the character '%'.
      * <p>
-     * This is an attempt to work-around browser incompatibilities. Basically, all browsers have
-     * different ways of handling url decoding of their history tokens.
+     * This is an attempt to work-around browser incompatibilities. Basically, all browsers have different ways of handling url decoding of their
+     * history tokens.
      * <p>
-     * For example, in the current version of Chrome a URL parameter '%28c%3AC%29' will be decoded
-     * as '(c%3AC)' instead of the expected '(c:C)'.
+     * For example, in the current version of Chrome a URL parameter '%28c%3AC%29' will be decoded as '(c%3AC)' instead of the expected '(c:C)'.
      * <p>
-     * Firefox has yet another way of dealing with decoding of history tokens. The issue is
-     * explained in http://stackoverflow.com/questions/2334312/using-gwt-history-to-pass-parameters
+     * Firefox has yet another way of dealing with decoding of history tokens. The issue is explained in
+     * http://stackoverflow.com/questions/2334312/using-gwt-history-to-pass-parameters
      * <p>
      */
     public static String decode(String materialCode)
@@ -59,8 +57,7 @@ public class MaterialCodeUtils
     }
 
     /**
-     * Assumes GWT has done a preliminary decoding pass-through, but not all characters have been decoded
-     * successfully.
+     * Assumes GWT has done a preliminary decoding pass-through, but not all characters have been decoded successfully.
      * <p>
      * The implementation is based on the java.net.URLDecoder.decode and uses UTF-8 encoding by default.
      */

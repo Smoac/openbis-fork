@@ -28,15 +28,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 public interface IDataStoreServiceRegistrator
 {
     /**
-     * Registers for the specified data store all reporting/processing plugins specified in the
-     * service descriptions.
+     * Registers for the specified data store all reporting/processing plugins specified in the service descriptions.
      */
     public void setServiceDescriptions(DataStorePE dataStore,
             DatastoreServiceDescriptions serviceDescriptions);
 
     /**
-     * Registers for the specified data set type DSS services where the data set type code matches
-     * one of the regular expression for which the service is appropriate.
+     * Registers for the specified data set type DSS services where the data set type code matches one of the regular expression for which the service
+     * is appropriate.
      */
     public void register(DataSetType dataSetType);
 

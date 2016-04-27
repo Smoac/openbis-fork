@@ -91,8 +91,7 @@ public class WindowUtils
     }
 
     /**
-     * Opens a new window with given parameters if pop-up blocker has not been detected and displays
-     * an alert message otherwise.
+     * Opens a new window with given parameters if pop-up blocker has not been detected and displays an alert message otherwise.
      */
     private static void doOpenWindow(String url, String target)
     {
@@ -105,8 +104,7 @@ public class WindowUtils
     }
 
     /**
-     * @return true if the window has been opened, false otherwise (it can be a case e.g. when the
-     *         pop-up detector is switched on)
+     * @return true if the window has been opened, false otherwise (it can be a case e.g. when the pop-up detector is switched on)
      */
     private static native boolean openWindow(String url, String target, String features)
     /*-{      

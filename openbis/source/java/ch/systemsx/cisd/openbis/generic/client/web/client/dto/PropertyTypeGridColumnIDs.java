@@ -26,16 +26,28 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 public class PropertyTypeGridColumnIDs
 {
     public static final String LABEL = "LABEL";
+
     public static final String CODE = "CODE";
+
     public static final String DATA_TYPE = "DATA_TYPE";
+
     public static final String DATA_TYPE_CODE = "DATA_TYPE_CODE";
+
     public static final String VOCABULARY = "VOCABULARY";
+
     public static final String MATERIAL_TYPE = "MATERIAL_TYPE";
+
     public static final String XML_SCHEMA = "XML_SCHEMA";
+
     public static final String XSLT = "XSLT";
+
     public static final String DESCRIPTION = "DESCRIPTION";
+
     public static final String SAMPLE_TYPES = "SAMPLE_TYPES";
+
     public static final String EXPERIMENT_TYPES = "EXPERIMENT_TYPES";
+
     public static final String MATERIAL_TYPES = "MATERIAL_TYPES";
+
     public static final String DATA_SET_TYPES = "DATA_SET_TYPES";
 }

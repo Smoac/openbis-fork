@@ -187,6 +187,6 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { DatabaseModificationKind.createOrDelete(ObjectKind.DELETION) };
+        { DatabaseModificationKind.createOrDelete(ObjectKind.DELETION) };
     }
 }

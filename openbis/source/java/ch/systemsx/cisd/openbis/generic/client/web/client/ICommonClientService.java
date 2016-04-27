@@ -598,7 +598,7 @@ public interface ICommonClientService extends IClientService
     public TypedTableResultSet<AbstractExternalData> listSampleDataSets(final TechId sampleId,
             DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> criteria,
             final boolean showOnlyDirectlyConnected) throws UserFailureException;
-    
+
     /**
      * For given the given sample returns contained data sets.
      */

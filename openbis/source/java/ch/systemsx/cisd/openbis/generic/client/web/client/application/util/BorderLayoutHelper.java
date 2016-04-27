@@ -53,8 +53,7 @@ public class BorderLayoutHelper
     }
 
     /**
-     * Creates {@link BorderLayoutData} for the left panel extracting initial size from display
-     * settings.
+     * Creates {@link BorderLayoutData} for the left panel extracting initial size from display settings.
      */
     public BorderLayoutData createLeftBorderLayoutData()
     {

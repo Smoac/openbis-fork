@@ -29,9 +29,8 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
 
 /**
- * Helper class for setting up a delegated action to be invoked when user puts mouse over a
- * {@link Component}. Implementation of delayed invocation of the action is based on delayed showing
- * of a {@link ToolTip} (with the same naming conventions).
+ * Helper class for setting up a delegated action to be invoked when user puts mouse over a {@link Component}. Implementation of delayed invocation of
+ * the action is based on delayed showing of a {@link ToolTip} (with the same naming conventions).
  */
 public class ToolTipAction
 {

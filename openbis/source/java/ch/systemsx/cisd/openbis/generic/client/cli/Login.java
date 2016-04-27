@@ -39,8 +39,7 @@ import ch.systemsx.cisd.openbis.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
 /**
- * A class to provide a login on an openBIS server. The login information will be put into a
- * sub-directory of the user's home directory.
+ * A class to provide a login on an openBIS server. The login information will be put into a sub-directory of the user's home directory.
  * 
  * @author Bernd Rinn
  */

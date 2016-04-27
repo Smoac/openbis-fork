@@ -94,8 +94,8 @@ public final class CompositeMessageProvider implements IMessageProvider
     }
 
     /**
-     * Returns a {@link IMessageProvider} containing key {@link #IS_DEFAULT_DICTIONARY} with value =
-     * {@link #TRUE} or null if no such {@link IMessageProvider} defined.
+     * Returns a {@link IMessageProvider} containing key {@link #IS_DEFAULT_DICTIONARY} with value = {@link #TRUE} or null if no such
+     * {@link IMessageProvider} defined.
      */
     private IMessageProvider tryGetDefaultDictionary(final String key)
     {

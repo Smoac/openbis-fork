@@ -30,7 +30,7 @@ public class DeletionGridColumnIDs
     public static final String DELETER = "DELETER";
 
     public static final String DELETION_DATE = "DELETION_DATE";
-    
+
     public static final String ENTITIES = "ENTITIES";
 
 }

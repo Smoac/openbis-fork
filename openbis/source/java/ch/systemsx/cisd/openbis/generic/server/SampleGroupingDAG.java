@@ -34,8 +34,7 @@ public class SampleGroupingDAG extends EntityGroupingDAG<NewSample>
     }
 
     /**
-     * Return the new samples in the list of groups, where the earlier groups are independent to the
-     * latter ones.
+     * Return the new samples in the list of groups, where the earlier groups are independent to the latter ones.
      * 
      * @param samples The list of samples to create.
      */

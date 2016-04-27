@@ -17,8 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.wizard;
 
 /**
- * Marker interface for immutable value objects representing a state of a
- * {@link WizardWorkflowModel}. 
+ * Marker interface for immutable value objects representing a state of a {@link WizardWorkflowModel}.
  * 
  * @author Franz-Josef Elmer
  */

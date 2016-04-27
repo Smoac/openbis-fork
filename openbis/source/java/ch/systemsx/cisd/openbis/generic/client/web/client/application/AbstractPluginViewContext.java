@@ -32,8 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 
 /**
- * An <i>abstract</i> {@link IViewContext} implementation which should be extended by each plugin
- * based technology.
+ * An <i>abstract</i> {@link IViewContext} implementation which should be extended by each plugin based technology.
  * 
  * @author Christian Ribeaud
  */
@@ -70,8 +69,7 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
     }
 
     /**
-     * Creates the service. Implementations will usually invoke {@link GWT#create(Class)} with the
-     * corresponding synchronous service interface.
+     * Creates the service. Implementations will usually invoke {@link GWT#create(Class)} with the corresponding synchronous service interface.
      */
     protected abstract T createClientServiceAsync();
 

@@ -32,8 +32,6 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.lemnik.eodsql.QueryTool;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Component
@@ -48,7 +46,7 @@ public class MaterialPropertyAssignmentTranslator extends PropertyAssignmentTran
     }
 
     @Override
-    protected Map<Long, PropertyAssignment> translateRelated(TranslationContext context, 
+    protected Map<Long, PropertyAssignment> translateRelated(TranslationContext context,
             Collection<Long> materialTypePropertyTaypeIds, PropertyAssignmentFetchOptions relatedFetchOptions)
     {
         MaterialQuery query = QueryTool.getManagedQuery(MaterialQuery.class);

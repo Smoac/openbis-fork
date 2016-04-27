@@ -26,12 +26,9 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.ISearchObject
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractIdSearchMethodExecutor<OBJECT, OBJECT_PE extends IIdHolder, 
-            CRITERIA extends AbstractSearchCriteria, FETCH_OPTIONS extends FetchOptions<OBJECT>>
+public abstract class AbstractIdSearchMethodExecutor<OBJECT, OBJECT_PE extends IIdHolder, CRITERIA extends AbstractSearchCriteria, FETCH_OPTIONS extends FetchOptions<OBJECT>>
         extends AbstractSearchMethodExecutor<OBJECT, Long, CRITERIA, FETCH_OPTIONS>
 {
 
@@ -53,7 +50,7 @@ public abstract class AbstractIdSearchMethodExecutor<OBJECT, OBJECT_PE extends I
                 }
             };
     }
-    
+
     protected abstract List<OBJECT_PE> searchPEs(IOperationContext context, CRITERIA criteria);
-    
+
 }

@@ -31,7 +31,7 @@ public class SampleBaseRecord extends ObjectBaseRecord
     public String spaceCode;
 
     public String projectCode;
-    
+
     public String containerCode;
 
     public String permId;

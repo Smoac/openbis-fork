@@ -63,10 +63,8 @@ public class GridFilters<T> implements IsSerializable
     }
 
     /**
-     * @return null if custom filter should be applied. Otherwise returns the column filters which
-     *         are visible for the user, they should be applied for the result if they are not
-     *         empty. They will be also used to calculate distinct values in columns for more
-     *         convenient filtering.
+     * @return null if custom filter should be applied. Otherwise returns the column filters which are visible for the user, they should be applied
+     *         for the result if they are not empty. They will be also used to calculate distinct values in columns for more convenient filtering.
      */
     public List<GridColumnFilterInfo<T>> tryGetFilterInfos()
     {
@@ -74,8 +72,7 @@ public class GridFilters<T> implements IsSerializable
     }
 
     /**
-     * The custom filter which should be applied for the result or null if no custom filter should
-     * be applied.
+     * The custom filter which should be applied for the result or null if no custom filter should be applied.
      */
     public CustomFilterInfo<T> tryGetCustomFilterInfo()
     {

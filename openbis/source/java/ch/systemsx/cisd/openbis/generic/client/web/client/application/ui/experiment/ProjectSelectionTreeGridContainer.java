@@ -71,8 +71,8 @@ import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
- * {@link LayoutContainer} containing a {@link TreeGrid} with projects loaded from the server. Main
- * items of the tree are project spaces and projects are their children.
+ * {@link LayoutContainer} containing a {@link TreeGrid} with projects loaded from the server. Main items of the tree are project spaces and projects
+ * are their children.
  * 
  * @author Piotr Buczek
  */
@@ -421,8 +421,8 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
     }
 
     /**
-     * Refreshes the whole tree. If the previously selected project is no longer present in the db,
-     * nothing will be selected. Otherwise the previous selection will be preserved.
+     * Refreshes the whole tree. If the previously selected project is no longer present in the db, nothing will be selected. Otherwise the previous
+     * selection will be preserved.
      */
     public void refreshTree()
     {

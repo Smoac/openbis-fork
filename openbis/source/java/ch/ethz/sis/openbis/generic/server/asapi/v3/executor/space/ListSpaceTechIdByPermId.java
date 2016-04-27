@@ -25,8 +25,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.TechIdStringI
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.AbstractListTechIdByPermId;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ListSpaceTechIdByPermId extends AbstractListTechIdByPermId<SpacePermId>

@@ -58,8 +58,7 @@ public class SampleChooserButton extends Button implements
             new LinkedHashSet<IChosenEntitiesListener<TableModelRowWithObject<Sample>>>();
 
     /**
-     * Creates a text field with the additional browse button which allow to choose a sample from
-     * the list.
+     * Creates a text field with the additional browse button which allow to choose a sample from the list.
      */
     public static SampleChooserButtonAdaptor create(final String labelField,
             final String buttonText, final boolean addShared, boolean addAll,

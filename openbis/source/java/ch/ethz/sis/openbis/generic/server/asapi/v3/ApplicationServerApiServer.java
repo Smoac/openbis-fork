@@ -47,10 +47,11 @@ public class ApplicationServerApiServer extends AbstractApiServiceExporter
     }
 
     @RequestMapping(
-            { IApplicationServerApi.SERVICE_URL, "/openbis" + IApplicationServerApi.SERVICE_URL, "/openbis/openbis" + IApplicationServerApi.SERVICE_URL })
+    { IApplicationServerApi.SERVICE_URL, "/openbis" + IApplicationServerApi.SERVICE_URL, "/openbis/openbis" + IApplicationServerApi.SERVICE_URL })
     @Override
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException
+    {
         super.handleRequest(request, response);
-    }            
+    }
 }
