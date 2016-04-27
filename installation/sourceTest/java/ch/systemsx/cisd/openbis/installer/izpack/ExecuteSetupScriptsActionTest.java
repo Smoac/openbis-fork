@@ -32,17 +32,20 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ExecuteSetupScriptsActionTest extends AbstractFileSystemTestCase
 {
     private File dssServicePropertiesFile;
+
     private File jettySSLIniFile;
+
     private ExecuteSetupScriptsAction action;
+
     private File myKeystoreFile;
+
     private File keystoreFileAS;
+
     private File keystoreFileDSS;
 
     @BeforeMethod
@@ -61,27 +64,27 @@ public class ExecuteSetupScriptsActionTest extends AbstractFileSystemTestCase
         FileUtils.writeStringToFile(myKeystoreFile, "my-keys");
         action = new ExecuteSetupScriptsAction();
     }
-    
+
     @Test
     public void testInstallKeyStoreWithUndefinedKeyStoreFileName() throws Exception
     {
         action.installKeyStore("", workingDirectory);
-        
+
         assertEquals(false, keystoreFileAS.exists());
         assertEquals(false, keystoreFileDSS.exists());
     }
-    
+
     @Test
     public void testInstallKeyStoreWithKeyStoreFileName() throws Exception
     {
         action.installKeyStore(myKeystoreFile.getPath(), workingDirectory);
-        
+
         assertEquals(true, keystoreFileAS.exists());
         assertEquals("my-keys", FileUtils.readFileToString(keystoreFileAS));
         assertEquals(true, keystoreFileDSS.exists());
         assertEquals("my-keys", FileUtils.readFileToString(keystoreFileDSS));
     }
-    
+
     @Test
     public void testDisableAndEnablePathinfoDB() throws Exception
     {
@@ -122,9 +125,9 @@ public class ExecuteSetupScriptsActionTest extends AbstractFileSystemTestCase
     public void testDisableAndEnablePathinfoDBNotDefinedInServiceProperties() throws Exception
     {
         FileUtilities.writeToFile(dssServicePropertiesFile, "");
-        
+
         action.enablePathinfoDB(false, workingDirectory);
-        
+
         Properties properties = loadProperties(dssServicePropertiesFile);
         assertEquals("", properties.getProperty(ExecuteSetupScriptsAction.DATA_SOURCES_KEY));
         assertEquals("",
@@ -132,9 +135,9 @@ public class ExecuteSetupScriptsActionTest extends AbstractFileSystemTestCase
         assertEquals("",
                 properties.getProperty(ExecuteSetupScriptsAction.MAINTENANCE_PLUGINS_KEY));
         assertEquals("", properties.getProperty(ExecuteSetupScriptsAction.PROCESSING_PLUGINS_KEY));
-        
+
         action.enablePathinfoDB(true, workingDirectory);
-        
+
         properties = loadProperties(dssServicePropertiesFile);
         assertEquals("", properties.getProperty(ExecuteSetupScriptsAction.DATA_SOURCES_KEY));
         assertEquals("",
@@ -143,7 +146,7 @@ public class ExecuteSetupScriptsActionTest extends AbstractFileSystemTestCase
                 properties.getProperty(ExecuteSetupScriptsAction.MAINTENANCE_PLUGINS_KEY));
         assertEquals("", properties.getProperty(ExecuteSetupScriptsAction.PROCESSING_PLUGINS_KEY));
     }
-    
+
     @Test
     public void testEnableAlreadyEnabledPathinfoDB() throws Exception
     {
@@ -154,9 +157,9 @@ public class ExecuteSetupScriptsActionTest extends AbstractFileSystemTestCase
                 properties.getProperty(ExecuteSetupScriptsAction.POST_REGISTRATION_TASKS_KEY));
         assertEquals("post-registration, " + ExecuteSetupScriptsAction.PATHINFO_DB_DELETION_TASK,
                 properties.getProperty(ExecuteSetupScriptsAction.MAINTENANCE_PLUGINS_KEY));
-        
+
         action.enablePathinfoDB(true, workingDirectory);
-        
+
         properties = loadProperties(dssServicePropertiesFile);
         assertEquals(ExecuteSetupScriptsAction.PATHINFO_DB_DATA_SOURCE,
                 properties.getProperty(ExecuteSetupScriptsAction.DATA_SOURCES_KEY).trim());
@@ -165,7 +168,7 @@ public class ExecuteSetupScriptsActionTest extends AbstractFileSystemTestCase
         assertEquals("post-registration, " + ExecuteSetupScriptsAction.PATHINFO_DB_DELETION_TASK,
                 properties.getProperty(ExecuteSetupScriptsAction.MAINTENANCE_PLUGINS_KEY));
     }
-    
+
     @Test
     public void testInjectPasswords() throws Exception
     {

@@ -31,31 +31,29 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class SetTechnologyCheckBoxesActionTest extends AssertJUnit
 {
     private static final File TEST_FOLDER = new File("targets/test-folder");
-    
+
     @BeforeMethod
     public void setUp() throws Exception
     {
         FileUtilities.deleteRecursively(TEST_FOLDER);
         TEST_FOLDER.mkdirs();
     }
-    
+
     @Test
     public void testEmptyInstallDir()
     {
         SetTechnologyCheckBoxesAction action = new SetTechnologyCheckBoxesAction();
-        
+
         assertEquals(false, action.isTechnologyEnabled(TEST_FOLDER, TECHNOLOGY_PROTEOMICS));
         assertEquals(false, action.isTechnologyEnabled(TEST_FOLDER, TECHNOLOGY_SCREENING));
         assertEquals(false, action.isTechnologyEnabled(TEST_FOLDER, "blabla"));
     }
-    
+
     @Test
     public void testDisabledTechnologiesPropertyPresent() throws Exception
     {
@@ -63,12 +61,12 @@ public class SetTechnologyCheckBoxesActionTest extends AssertJUnit
         properties.setProperty(SetTechnologyCheckBoxesAction.ENABLED_TECHNOLOGIES_KEY, "proteomics");
         saveProperties(properties, Utils.CORE_PLUGINS_PROPERTIES_PATH);
         SetTechnologyCheckBoxesAction action = new SetTechnologyCheckBoxesAction();
-        
+
         assertEquals(true, action.isTechnologyEnabled(TEST_FOLDER, TECHNOLOGY_PROTEOMICS));
         assertEquals(false, action.isTechnologyEnabled(TEST_FOLDER, TECHNOLOGY_SCREENING));
         assertEquals(false, action.isTechnologyEnabled(TEST_FOLDER, "blabla"));
     }
-    
+
     @Test
     public void testDisabledTechnologiesPropertyNotPresentForGeneric() throws Exception
     {
@@ -76,11 +74,11 @@ public class SetTechnologyCheckBoxesActionTest extends AssertJUnit
         properties.setProperty(SetTechnologyCheckBoxesAction.ENABLED_TECHNOLOGIES_KEY, "my");
         saveProperties(properties, Utils.SERVICE_PROPERTIES_PATH);
         SetTechnologyCheckBoxesAction action = new SetTechnologyCheckBoxesAction();
-        
+
         assertEquals(false, action.isTechnologyEnabled(TEST_FOLDER, TECHNOLOGY_PROTEOMICS));
         assertEquals(false, action.isTechnologyEnabled(TEST_FOLDER, TECHNOLOGY_SCREENING));
     }
-    
+
     private void saveProperties(Properties properties, String path) throws IOException
     {
         FileWriter fileWriter = null;

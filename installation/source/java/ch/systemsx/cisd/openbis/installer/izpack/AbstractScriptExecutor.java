@@ -35,7 +35,7 @@ import com.izforge.izpack.data.PanelAction;
 public abstract class AbstractScriptExecutor implements PanelAction
 {
     protected static final String INSTALL_BIN_PATH_VARNAME = "INSTALL_BIN_PATH";
-    
+
     @Override
     public final synchronized void executeAction(AutomatedInstallData data, AbstractUIHandler handler)
     {
@@ -48,7 +48,7 @@ public abstract class AbstractScriptExecutor implements PanelAction
             handler.emitErrorAndBlockNext("Error", ex.toString());
         }
     }
-    
+
     protected abstract void executeAction(AutomatedInstallData data);
 
     protected String getAdminScript(AutomatedInstallData data, String scriptFileName)
@@ -102,34 +102,33 @@ public abstract class AbstractScriptExecutor implements PanelAction
             throw new RuntimeException("Error executing " + command[0] + ": " + e.getMessage(), e);
         }
     }
-    
 
     private void pipe(final InputStream src, final OutputStream dest)
     {
-        new Thread(new Runnable() 
-        {
-            @Override
-            public void run() 
+        new Thread(new Runnable()
             {
-                try 
+                @Override
+                public void run()
                 {
-                    byte[] buffer = new byte[1024];
-                    for (int n = 0; n != -1; n = src.read(buffer)) 
+                    try
                     {
-                        dest.write(buffer, 0, n);
+                        byte[] buffer = new byte[1024];
+                        for (int n = 0; n != -1; n = src.read(buffer))
+                        {
+                            dest.write(buffer, 0, n);
+                        }
+                    } catch (IOException e)
+                    {
                     }
-                } catch (IOException e) 
-                { 
                 }
-            }
             }).start();
     }
-    
+
     private static final class DelegatingOutputStream extends OutputStream
     {
         private OutputStream[] outputStreams;
 
-        DelegatingOutputStream(OutputStream...outputStreams)
+        DelegatingOutputStream(OutputStream... outputStreams)
         {
             this.outputStreams = outputStreams;
         }
@@ -142,7 +141,7 @@ public abstract class AbstractScriptExecutor implements PanelAction
                 outputStream.write(b);
             }
         }
-        
+
     }
 
 }

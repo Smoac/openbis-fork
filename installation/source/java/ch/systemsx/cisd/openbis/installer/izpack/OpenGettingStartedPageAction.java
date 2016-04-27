@@ -71,7 +71,6 @@ public class OpenGettingStartedPageAction implements PanelAction
         }
     }
 
-
     @Override
     public void initialize(PanelActionConfiguration arg0)
     {

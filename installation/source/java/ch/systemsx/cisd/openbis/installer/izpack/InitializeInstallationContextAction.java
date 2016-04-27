@@ -33,31 +33,31 @@ import com.izforge.izpack.data.PanelAction;
 public class InitializeInstallationContextAction implements PanelAction
 {
     private static final DynamicInstallerRequirementValidator DUMMY_VALIDATOR = new DynamicInstallerRequirementValidator()
-    {
-        @Override
-        public Status validateData(AutomatedInstallData idata)
         {
-            return Status.OK;
-        }
+            @Override
+            public Status validateData(AutomatedInstallData idata)
+            {
+                return Status.OK;
+            }
 
-        @Override
-        public String getWarningMessageId()
-        {
-            return "";
-        }
+            @Override
+            public String getWarningMessageId()
+            {
+                return "";
+            }
 
-        @Override
-        public String getErrorMessageId()
-        {
-            return "";
-        }
+            @Override
+            public String getErrorMessageId()
+            {
+                return "";
+            }
 
-        @Override
-        public boolean getDefaultAnswer()
-        {
-            return true;
-        }
-    };
+            @Override
+            public boolean getDefaultAnswer()
+            {
+                return true;
+            }
+        };
 
     private static final String ROOT_USERNAME = "root";
 

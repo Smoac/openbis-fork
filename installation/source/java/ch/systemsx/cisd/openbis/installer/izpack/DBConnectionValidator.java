@@ -23,8 +23,7 @@ import java.sql.SQLException;
 import com.izforge.izpack.api.data.AutomatedInstallData;
 
 /**
- * Tests if there is a valid PostgreSQL installation that is setup to accept
- * connections from local users without requiring a password.
+ * Tests if there is a valid PostgreSQL installation that is setup to accept connections from local users without requiring a password.
  * 
  * @author Kaloyan Enimanev
  */
@@ -77,9 +76,9 @@ public class DBConnectionValidator extends AbstractDataValidator
         }
         return Status.OK;
     }
-    
+
     private String getHost()
-    {   
+    {
         return getProperty("database.url-host-part", "localhost");
     }
 
@@ -93,7 +92,7 @@ public class DBConnectionValidator extends AbstractDataValidator
     {
         return getProperty("database.owner-password", NO_PASSWORD);
     }
-    
+
     private String getProperty(String key, String defaultValue)
     {
         if (GlobalInstallationContext.isFirstTimeInstallation)

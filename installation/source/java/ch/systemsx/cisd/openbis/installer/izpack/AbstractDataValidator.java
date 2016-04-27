@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.installer.izpack;
 import com.izforge.izpack.api.installer.DataValidator;
 
 /**
- * Abstract super class of all {@link DataValidator}. It handles setting of error message. Error messages
- * will be printed on the error console. This is needed for console-based installations.
+ * Abstract super class of all {@link DataValidator}. It handles setting of error message. Error messages will be printed on the error console. This
+ * is needed for console-based installations.
  *
  * @author Franz-Josef Elmer
  */
@@ -33,7 +33,7 @@ public abstract class AbstractDataValidator implements DataValidator
         System.err.println(getClass().getName() + ": " + errorMessage);
         this.errorMessage = errorMessage;
     }
-    
+
     protected String getErrorMessage()
     {
         return errorMessage;

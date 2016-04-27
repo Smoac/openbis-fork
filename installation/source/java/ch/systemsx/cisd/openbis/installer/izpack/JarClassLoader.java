@@ -39,8 +39,9 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 public class JarClassLoader extends ClassLoader
 {
     private final List<JarFile> jarFiles = new ArrayList<JarFile>();
+
     private final Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
-    
+
     public JarClassLoader(File jarFileOrFolder)
     {
         super(JarClassLoader.class.getClassLoader());
@@ -54,7 +55,7 @@ public class JarClassLoader extends ClassLoader
             }
         }
     }
-    
+
     private void addJarFile(File file)
     {
         if (file.isFile() && file.getName().endsWith(".jar"))
@@ -74,7 +75,7 @@ public class JarClassLoader extends ClassLoader
     {
         return findClass(name);
     }
-    
+
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException
     {
@@ -124,6 +125,4 @@ public class JarClassLoader extends ClassLoader
         }
     }
 
-    
-    
 }

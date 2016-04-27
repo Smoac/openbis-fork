@@ -45,7 +45,7 @@ public class Extractor
     private static final class VariableResolver
     {
         private final List<String[]> substitutions = new ArrayList<String[]>();
-        
+
         VariableResolver(String rootPath)
         {
             substitutions.add(new String[] { "$INSTALL_PATH/servers", rootPath });
@@ -64,11 +64,11 @@ public class Extractor
             return result;
         }
     }
-    
+
     private static final class Parameters
     {
         private static final String MISSING_PARAMETER_ERROR = "Missing parameters.";
-        
+
         static Parameters parse(String[] args)
         {
             Parameters parameters = new Parameters();
@@ -103,7 +103,7 @@ public class Extractor
             }
             return parameters;
         }
-        
+
         private static Parameters setErrorMessage(Parameters parameters, String errorMessage)
         {
             parameters.errorMessage = errorMessage;
@@ -111,31 +111,34 @@ public class Extractor
         }
 
         private boolean quiet;
+
         private String packageName;
+
         private String installationPath;
+
         private String errorMessage;
-        
+
         boolean isQuiet()
         {
             return quiet;
         }
-        
+
         String getPackageName()
         {
             return packageName;
         }
-        
+
         String getInstallationPath()
         {
             return installationPath;
         }
-        
+
         String getErrorMessageOrNull()
         {
             return errorMessage;
         }
     }
-    
+
     private static final class ConsoleOutput
     {
         private final boolean quiet;
@@ -144,7 +147,7 @@ public class Extractor
         {
             this.quiet = quiet;
         }
-        
+
         void println(String message)
         {
             if (quiet == false)
@@ -169,7 +172,7 @@ public class Extractor
         VariableResolver variableResolver = new VariableResolver(parameters.getInstallationPath());
         ResourceManager resourceManager = ResourceManager.getInstance();
         Info info = (Info) readObject(resourceManager, "info");
-        out.println(info.getAppName()+" Version "+info.getAppVersion());
+        out.println(info.getAppName() + " Version " + info.getAppVersion());
         List<Pack> availablePacks = getAvailablePacks(resourceManager);
         for (Pack pack : availablePacks)
         {
@@ -316,7 +319,7 @@ public class Extractor
         Constructor<Object> constructor = decoder.getDeclaredConstructor(paramsClasses);
         InputStream buffer = new BufferedInputStream(in);
         Object[] params =
-            { buffer };
+        { buffer };
         Object instance = null;
         instance = constructor.newInstance(params);
         if (!InputStream.class.isInstance(instance))

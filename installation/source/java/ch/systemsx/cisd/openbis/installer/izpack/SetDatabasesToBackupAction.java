@@ -77,7 +77,7 @@ public class SetDatabasesToBackupAction extends AbstractScriptExecutor implement
         }
         return builder.toString();
     }
-    
+
     private boolean databaseExists(AutomatedInstallData data, DatabaseDescription databaseDescription)
     {
         File scriptFile = getAdminScriptFile(data, "database-existence-check.sh");
@@ -118,15 +118,19 @@ public class SetDatabasesToBackupAction extends AbstractScriptExecutor implement
                 + Utils.SERVICE_PROPERTIES_PATH).getAbsolutePath());
         System.out.println("Scan following properties file for data source definitions: " + paths);
         return new Object[]
-            { paths.toArray(new String[0]) };
+        { paths.toArray(new String[0]) };
     }
-    
+
     private static final class DatabaseDescription
     {
         private final String description;
+
         private final String database;
+
         private final String username;
+
         private final String password;
+
         private final String host;
 
         DatabaseDescription(String description)
@@ -135,7 +139,7 @@ public class SetDatabasesToBackupAction extends AbstractScriptExecutor implement
             String[] parts = description.split(";");
             if (parts.length < 3)
             {
-                throw new IllegalArgumentException("Only " + parts.length 
+                throw new IllegalArgumentException("Only " + parts.length
                         + " parts separated by ';' in database description: " + description);
             }
             database = getValue(parts[0]);
@@ -143,7 +147,7 @@ public class SetDatabasesToBackupAction extends AbstractScriptExecutor implement
             password = getValue(parts[2]);
             host = parts.length == 4 ? getValue(parts[3]) : "localhost";
         }
-        
+
         private String getValue(String part)
         {
             String[] splitted = part.split("=");
@@ -164,13 +168,13 @@ public class SetDatabasesToBackupAction extends AbstractScriptExecutor implement
         {
             return password;
         }
-        
+
         public String getHost()
         {
             int indexOfColon = host.indexOf(':');
             return indexOfColon < 0 ? host : host.substring(0, indexOfColon);
         }
-        
+
         public String getPort()
         {
             int indexOfColon = host.indexOf(':');
@@ -182,7 +186,7 @@ public class SetDatabasesToBackupAction extends AbstractScriptExecutor implement
         {
             return description;
         }
-        
+
     }
 
 }

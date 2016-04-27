@@ -45,7 +45,7 @@ public class ExecuteBackupAction extends AbstractScriptExecutor
         String password =
                 Utils.tryToGetServicePropertyOfAS(GlobalInstallationContext.installDir,
                         "database.owner-password");
-        
+
         Map<String, String> env = new HashMap<String, String>();
         env.put("PGPASSWORD", password);
 

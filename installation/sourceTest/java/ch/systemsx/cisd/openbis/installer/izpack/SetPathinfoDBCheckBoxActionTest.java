@@ -30,13 +30,12 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class SetPathinfoDBCheckBoxActionTest  extends AbstractFileSystemTestCase
+public class SetPathinfoDBCheckBoxActionTest extends AbstractFileSystemTestCase
 {
     private File dssServicePropertiesFile;
+
     private SetPathinfoDBCheckBoxAction action;
 
     @BeforeMethod
@@ -55,10 +54,10 @@ public class SetPathinfoDBCheckBoxActionTest  extends AbstractFileSystemTestCase
     {
         InstallData data = new InstallData(new Properties(), null);
         action.executeAction(data, null);
-        
+
         assertEquals("true", data.getVariable(GlobalInstallationContext.PATHINFO_DB_ENABLED));
     }
-    
+
     @Test
     public void testRemovedPathinfoDatasource()
     {
@@ -69,14 +68,14 @@ public class SetPathinfoDBCheckBoxActionTest  extends AbstractFileSystemTestCase
 
         assertEquals("false", data.getVariable(GlobalInstallationContext.PATHINFO_DB_ENABLED));
     }
-    
+
     @Test
     public void testNonExistingServiceProperties()
     {
         FileUtilities.delete(dssServicePropertiesFile);
         InstallData data = new InstallData(new Properties(), null);
         action.executeAction(data, null);
-        
+
         assertEquals("true", data.getVariable(GlobalInstallationContext.PATHINFO_DB_ENABLED));
     }
 }

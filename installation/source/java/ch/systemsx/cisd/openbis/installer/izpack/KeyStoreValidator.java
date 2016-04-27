@@ -29,13 +29,11 @@ import org.apache.commons.io.IOUtils;
 import com.izforge.izpack.api.data.AutomatedInstallData;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class KeyStoreValidator extends AbstractDataValidator
 {
-    
+
     @Override
     public Status validateData(AutomatedInstallData data)
     {
@@ -77,7 +75,7 @@ public class KeyStoreValidator extends AbstractDataValidator
         }
         return Status.OK;
     }
-    
+
     private void addKeyStoreFileIfItExists(List<File> keyStoreFiles, File keyStoreFile)
     {
         if (keyStoreFile.isFile())
@@ -85,7 +83,7 @@ public class KeyStoreValidator extends AbstractDataValidator
             keyStoreFiles.add(keyStoreFile);
         }
     }
-    
+
     @Override
     public String getErrorMessageId()
     {

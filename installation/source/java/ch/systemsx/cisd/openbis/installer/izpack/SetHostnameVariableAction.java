@@ -24,8 +24,7 @@ import com.izforge.izpack.api.handler.AbstractUIHandler;
 import com.izforge.izpack.data.PanelAction;
 
 /**
- * Sets the "hostname" variable dependeing on the type of installation chosen (server or local
- * installation).
+ * Sets the "hostname" variable dependeing on the type of installation chosen (server or local installation).
  * 
  * @author Kaloyan Enimanev
  */
@@ -34,6 +33,7 @@ public class SetHostnameVariableAction implements PanelAction
     private static final String INSTALLATION_TYPE_VARNAME = "INSTALLATION_TYPE";
 
     private static final String HOSTNAME_VARNAME = "HOSTNAME";
+
     private static final String SERVER_INSTALLATION_TYPE = "server";
 
     @Override
@@ -49,15 +49,13 @@ public class SetHostnameVariableAction implements PanelAction
         }
     }
 
-
     @Override
     public void initialize(PanelActionConfiguration arg0)
     {
     }
 
     /**
-     * Return the cannonical host name for the localhost machine i.e. the best guess this machine
-     * can make about its
+     * Return the cannonical host name for the localhost machine i.e. the best guess this machine can make about its
      */
     private static String tryGetCannonicalHostName()
     {

@@ -37,6 +37,7 @@ public class PrepareInstallationBackupAction implements PanelAction
     private static final String BACKUP_ROOT = "backup";
 
     private File installDir;
+
     private File backupDir;
 
     @Override
@@ -57,8 +58,8 @@ public class PrepareInstallationBackupAction implements PanelAction
     }
 
     /**
-     * sets a global variable in the installation context that will be visible by other
-     * panels/executables (or any kind of collaborators) in the installation process.
+     * sets a global variable in the installation context that will be visible by other panels/executables (or any kind of collaborators) in the
+     * installation process.
      */
     private String setInstallationWideBackupDirVariable(AutomatedInstallData data)
     {

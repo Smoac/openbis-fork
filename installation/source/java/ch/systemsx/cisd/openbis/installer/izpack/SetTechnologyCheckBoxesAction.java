@@ -26,13 +26,9 @@ import com.izforge.izpack.api.handler.AbstractUIHandler;
 import com.izforge.izpack.data.PanelAction;
 
 /**
- * Action which sets the variables which are the values of check boxes on the technology page. If
- * the variable is already set nothing is done. Otherwise the behavior depends on whether this is
- * installation or upgrading. In case of installation the flag will be <code>false</code>. In case
- * of
- * upgrading <code>service.properties</code> file of AS is scanned in order to check whether a
- * certain
- * technology is enabled or not.
+ * Action which sets the variables which are the values of check boxes on the technology page. If the variable is already set nothing is done.
+ * Otherwise the behavior depends on whether this is installation or upgrading. In case of installation the flag will be <code>false</code>. In case
+ * of upgrading <code>service.properties</code> file of AS is scanned in order to check whether a certain technology is enabled or not.
  * 
  * @author Franz-Josef Elmer
  */

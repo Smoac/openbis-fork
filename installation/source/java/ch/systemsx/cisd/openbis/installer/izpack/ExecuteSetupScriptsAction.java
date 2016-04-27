@@ -32,8 +32,7 @@ import com.izforge.izpack.api.data.PanelActionConfiguration;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
 /**
- * Executes a script that configures the installation, copies key store (if specified) and inject
- * passwords.
+ * Executes a script that configures the installation, copies key store (if specified) and inject passwords.
  * 
  * @author Kaloyan Enimanev
  * @author Franz-Josef Elmer
@@ -41,17 +40,26 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 public class ExecuteSetupScriptsAction extends AbstractScriptExecutor
 {
     static final String DATA_SOURCES_KEY = "data-sources";
+
     static final String PATHINFO_DB_DATA_SOURCE = "path-info-db";
+
     static final String POST_REGISTRATION_TASKS_KEY = "post-registration.post-registration-tasks";
+
     static final String PATHINFO_DB_FEEDING_TASK = "pathinfo-feeding";
+
     static final String MAINTENANCE_PLUGINS_KEY = "maintenance-plugins";
+
     static final String PATHINFO_DB_DELETION_TASK = "path-info-deletion";
+
     static final String PROCESSING_PLUGINS_KEY = "processing-plugins";
+
     static final String PATHINFO_DB_CHECK = "path-info-db-consistency-check";
-    
-    private final String[] KEYS = {DATA_SOURCES_KEY, POST_REGISTRATION_TASKS_KEY, MAINTENANCE_PLUGINS_KEY, PROCESSING_PLUGINS_KEY};
-    private final String[] TERMS = {PATHINFO_DB_DATA_SOURCE, PATHINFO_DB_FEEDING_TASK, PATHINFO_DB_DELETION_TASK, PATHINFO_DB_CHECK};
-    private final String[] CLASS_POSTFIX = {"version-holder-class", "class", "class", "class" };
+
+    private final String[] KEYS = { DATA_SOURCES_KEY, POST_REGISTRATION_TASKS_KEY, MAINTENANCE_PLUGINS_KEY, PROCESSING_PLUGINS_KEY };
+
+    private final String[] TERMS = { PATHINFO_DB_DATA_SOURCE, PATHINFO_DB_FEEDING_TASK, PATHINFO_DB_DELETION_TASK, PATHINFO_DB_CHECK };
+
+    private final String[] CLASS_POSTFIX = { "version-holder-class", "class", "class", "class" };
 
     /**
      * executed for first time installations.
@@ -107,7 +115,7 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor
             }
         }
     }
-    
+
     void enablePathinfoDB(boolean enableFlag, File installDir)
     {
         File dssServicePropertiesFile =
@@ -149,37 +157,38 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor
                 keyStorePassword);
         Utils.updateOrAppendProperty(dssServicePropertiesFile, Utils.DSS_KEYSTORE_KEY_PASSWORD_KEY,
                 keyPassword);
-        
+
         if (Utils.isASInstalled(installDir))
         {
             File jettySSLIniFile = new File(installDir, Utils.AS_PATH + Utils.JETTY_SSL_INI_PATH);
-            if (jettySSLIniFile.exists() == false) {
-            	// ssl not configured
-            	return;
+            if (jettySSLIniFile.exists() == false)
+            {
+                // ssl not configured
+                return;
             }
             try
             {
                 String jettySSLIni = FileUtils.readFileToString(jettySSLIniFile);
                 jettySSLIni =
-                		jettySSLIni.replaceAll("jetty\\.keystore\\.password=.*", "jetty.keystore.password="+ keyStorePassword)
-                				.replaceAll("jetty\\.keymanager\\.password=.*", "jetty.keymanager.password="+ keyPassword)
-                				.replaceAll("jetty\\.truststore\\.password=.*", "jetty.truststore.password="+ keyStorePassword);
+                        jettySSLIni.replaceAll("jetty\\.keystore\\.password=.*", "jetty.keystore.password=" + keyStorePassword)
+                                .replaceAll("jetty\\.keymanager\\.password=.*", "jetty.keymanager.password=" + keyPassword)
+                                .replaceAll("jetty\\.truststore\\.password=.*", "jetty.truststore.password=" + keyStorePassword);
 
-                				FileUtils.writeStringToFile(jettySSLIniFile, jettySSLIni);
+                FileUtils.writeStringToFile(jettySSLIniFile, jettySSLIni);
             } catch (IOException ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
         }
     }
-    
+
     private void executRestoreConfigScript(AutomatedInstallData data)
     {
         String script = getAdminScript(data, RESTORE_CONFIG_FROM_BACKUP_SCRIPT);
         String backupConfigFolder = data.getVariable(GlobalInstallationContext.BACKUP_FOLDER_VARNAME) + "/config-backup";
         executeAdminScript(null, script, backupConfigFolder);
     }
-    
+
     private void executePostInstallationScript(AutomatedInstallData data)
     {
         String script = getAdminScript(data, POST_INSTALLATION_SCRIPT);
@@ -194,8 +203,5 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor
     public void initialize(PanelActionConfiguration arg0)
     {
     }
-    
-
-
 
 }

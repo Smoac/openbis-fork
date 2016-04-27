@@ -41,16 +41,25 @@ import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 class Utils
 {
     private static final String SERVERS_PATH = "servers/";
+
     static final String CORE_PLUGINS_PATH = SERVERS_PATH + "core-plugins/";
+
     static final String AS_PATH = SERVERS_PATH + "openBIS-server/jetty/";
+
     static final String DSS_PATH = SERVERS_PATH + "datastore_server/";
+
     static final String SERVICE_PROPERTIES_PATH = "etc/service.properties";
+
     static final String CORE_PLUGINS_PROPERTIES_PATH = CORE_PLUGINS_PATH + "core-plugins.properties";
+
     static final String JETTY_SSL_INI_PATH = "start.d/ssl.ini";
+
     static final String KEYSTORE_PATH = "etc/openBIS.keystore";
+
     static final String DSS_KEYSTORE_KEY_PASSWORD_KEY = "keystore.key-password";
+
     static final String DSS_KEYSTORE_PASSWORD_KEY = "keystore.password";
-    
+
     static boolean hasCorePluginsFolder(File installDir)
     {
         return new File(installDir, CORE_PLUGINS_PATH).isDirectory();
@@ -61,19 +70,19 @@ class Utils
         Properties serviceProperties = tryToGetServicePropertiesOfAS(installDir);
         return serviceProperties == null ? null : serviceProperties.getProperty(propertyKey);
     }
-    
+
     static String tryToGetCorePluginsProperty(File installDir, String propertyKey)
     {
         Properties serviceProperties = tryToGetCorePluginsProperties(installDir);
         return serviceProperties == null ? null : serviceProperties.getProperty(propertyKey);
     }
-    
+
     static String tryToGetServicePropertyOfDSS(File installDir, String propertyKey)
     {
         Properties serviceProperties = tryToGetServicePropertiesOfDSS(installDir);
         return serviceProperties == null ? null : serviceProperties.getProperty(propertyKey);
     }
-    
+
     static boolean dssPropertiesContains(File installDir, String string)
     {
         Properties properties =
@@ -97,22 +106,22 @@ class Utils
         }
         return false;
     }
-    
+
     private static Properties tryToGetServicePropertiesOfAS(File installDir)
     {
         return tryToGetServiceProperties(installDir, AS_PATH + SERVICE_PROPERTIES_PATH);
     }
-    
+
     private static Properties tryToGetCorePluginsProperties(File installDir)
     {
         return tryToGetServiceProperties(installDir, CORE_PLUGINS_PROPERTIES_PATH);
     }
-    
+
     private static Properties tryToGetServicePropertiesOfDSS(File installDir)
     {
         return tryToGetServiceProperties(installDir, DSS_PATH + SERVICE_PROPERTIES_PATH);
     }
-    
+
     private static Properties tryToGetServiceProperties(File installDir, String relativePath)
     {
         return tryToGetProperties(new File(installDir, relativePath));
@@ -214,7 +223,7 @@ class Utils
             appendEntryToConfigFile(configFile, propertiesEntry);
         }
     }
-    
+
     static void addTermToPropertyList(File configFile, String propertyKey, String newTerm)
     {
         Properties properties = tryToGetProperties(configFile);
@@ -264,7 +273,7 @@ class Utils
         }
         updateOrAppendProperty(configFile, propertyKey, builder.toString());
     }
-    
+
     static File getKeystoreFileForDSS(File installDir)
     {
         return new File(installDir, DSS_PATH + KEYSTORE_PATH);
@@ -274,7 +283,7 @@ class Utils
     {
         return new File(installDir, AS_PATH + KEYSTORE_PATH);
     }
-    
+
     static boolean isASInstalled(File installDir)
     {
         return new File(installDir, AS_PATH).exists();

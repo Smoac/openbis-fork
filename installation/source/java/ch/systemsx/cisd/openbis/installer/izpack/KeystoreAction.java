@@ -22,8 +22,7 @@ import com.izforge.izpack.api.handler.AbstractUIHandler;
 import com.izforge.izpack.data.PanelAction;
 
 /**
- * Action which extracts the passwords from DSS service.properties to fill the passwords in page for
- * key store.
+ * Action which extracts the passwords from DSS service.properties to fill the passwords in page for key store.
  * 
  * @author Franz-Josef Elmer
  */
@@ -31,13 +30,14 @@ public class KeystoreAction implements PanelAction
 {
 
     private static final String DEFAULT_PASSWORD = "changeit";
+
     private static final String DEFAULT_KEY_PASSWORD = "changeit";
 
     @Override
     public void initialize(PanelActionConfiguration configuration)
     {
     }
-    
+
     @Override
     public void executeAction(AutomatedInstallData data, AbstractUIHandler handler)
     {

@@ -37,34 +37,35 @@ public class GlobalInstallationContext
     public static final String KEY_STORE_FILE_VARNAME = "KEY_STORE_FILE";
 
     public static final String KEY_STORE_PASSWORD_VARNAME = "KEY_STORE_PASSWORD";
-    
+
     public static final String KEY_PASSWORD_VARNAME = "KEY_PASSWORD";
-    
+
     public static final String DATA_DIR_VARNAME = "DSS_ROOT_DIR";
 
     public static final String BACKUP_FOLDER_VARNAME = "BACKUP_FOLDER";
-    
+
     public static final String TECHNOLOGY_PROTEOMICS = "PROTEOMICS";
-    
+
     public static final String TECHNOLOGY_SCREENING = "SCREENING";
-    
+
     public static final String TECHNOLOGY_ILLUMINA_NGS = "ILLUMINA-NGS";
-    
+
     public static final String TECHNOLOGY_ELN_LIMS = "ELN-LIMS";
-    
+
     public static final String PATHINFO_DB_ENABLED = "PATHINFO_DB_ENABLED";
-    
+
     public static final String[] TECHNOLOGIES =
-        { TECHNOLOGY_PROTEOMICS, TECHNOLOGY_SCREENING, TECHNOLOGY_ILLUMINA_NGS, TECHNOLOGY_ELN_LIMS };
-    
+    { TECHNOLOGY_PROTEOMICS, TECHNOLOGY_SCREENING, TECHNOLOGY_ILLUMINA_NGS, TECHNOLOGY_ELN_LIMS };
+
     /**
      * set to true if the installation process is trying to update an existing openBIS installation.
      */
     public static boolean isUpdateInstallation = false;
 
     public static boolean isUpdateInstallationWithoutDatabaseSelection = false;
+
     public static boolean isUpdateInstallationWithDatabaseSelection = false;
-    
+
     /**
      * set to true if this is the first openBIS installation on the machine.
      */
@@ -79,7 +80,7 @@ public class GlobalInstallationContext
             .areCommandLineToolsOnPath());
 
     public static boolean presentKeyStoreFile = false;
-    
+
     public static File installDir;
 
     public static void initialize(AutomatedInstallData data)
