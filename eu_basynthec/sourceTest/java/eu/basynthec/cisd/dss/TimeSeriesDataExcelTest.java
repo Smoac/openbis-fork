@@ -36,7 +36,7 @@ public class TimeSeriesDataExcelTest extends AssertJUnit
         List<String[]> metadataLines = data.getRawMetadataLines();
         assertTrue("Metadata lines should not be empty", metadataLines.size() > 0);
         String[][] expectedMetadata =
-            {
+        {
                 { "Property", "Value" },
                 { "Experiment", "/TEST/TEST/TEST" },
                 { "Strain", "CHASSIS 1" },
@@ -50,7 +50,7 @@ public class TimeSeriesDataExcelTest extends AssertJUnit
         List<String[]> dataLines = data.getRawDataLines();
         assertTrue("Data lines should not be empty", dataLines.size() > 0);
         String[][] expectedData =
-            {
+        {
                 { "CompoundID", "HumanReadable", "-703.0", "-603.0" },
                 { "CHEBI:15521", "phosphate1", "0.095157063", "0.083137933" },
                 { "CHEBI:18311", "phosphate2", "0.059749697", "0.044605606" } };
@@ -66,7 +66,7 @@ public class TimeSeriesDataExcelTest extends AssertJUnit
         List<String[]> metadataLines = data.getRawMetadataLines();
         assertTrue("Metadata lines should not be empty", metadataLines.size() > 0);
         String[][] expectedMetadata =
-            {
+        {
                 { "Property", "Value" },
                 { "Experiment", "BLANK" },
                 { "Strain", null },
@@ -87,7 +87,7 @@ public class TimeSeriesDataExcelTest extends AssertJUnit
         List<String[]> metadataLines = data.getRawMetadataLines();
         assertTrue("Metadata lines should not be empty", metadataLines.size() > 0);
         String[][] expectedMetadata =
-            {
+        {
                 { "Property", "Value" },
                 { "Experiment", "/TEST/TEST/TEST" },
                 { "Timepoint Type", "IN" },
@@ -100,7 +100,7 @@ public class TimeSeriesDataExcelTest extends AssertJUnit
         List<String[]> dataLines = data.getRawDataLines();
         assertTrue("Data lines should not be empty", dataLines.size() > 0);
         String[][] expectedData =
-            {
+        {
                 { "Strain", "HumanReadable", "-19020.0", "-17220.0" },
                 { "JJS-MGP001", "OD600", "0.05", "0.064" },
                 { "JJS-MGP100", "OD600", "0.05", "0.064" },
@@ -113,8 +113,7 @@ public class TimeSeriesDataExcelTest extends AssertJUnit
     }
 
     /**
-     * Check that the lines in expected show up in actual in the same order. Actual may have
-     * additional columns, though -- these are ignored.
+     * Check that the lines in expected show up in actual in the same order. Actual may have additional columns, though -- these are ignored.
      */
     private void assertLinesAreEqual(List<String[]> actual, String[][] expected)
     {

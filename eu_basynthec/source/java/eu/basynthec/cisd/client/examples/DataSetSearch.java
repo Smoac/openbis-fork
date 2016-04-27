@@ -33,9 +33,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.SearchOperator;
 
 /**
- * A class that, given a live connection to openBIS, searches for data sets where one of the
- * specified strains appear, downloads the data set and prints information about the data set and
- * experiment.
+ * A class that, given a live connection to openBIS, searches for data sets where one of the specified strains appear, downloads the data set and
+ * prints information about the data set and experiment.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -52,8 +51,7 @@ public class DataSetSearch extends AbstractBaSynthecClient
     private static final String PATH_HEADER = "Data Path";
 
     /**
-     * An enum for keeping track of the metadata fields we are interested in, in the order we want
-     * to display them.
+     * An enum for keeping track of the metadata fields we are interested in, in the order we want to display them.
      * 
      * @author Chandrasekhar Ramakrishnan
      */
@@ -99,8 +97,8 @@ public class DataSetSearch extends AbstractBaSynthecClient
     }
 
     /**
-     * Using the connection to openBIS, get search for data sets that contain data on the specified
-     * strains. Download the data set and print information about the data set and its experiment.<br>
+     * Using the connection to openBIS, get search for data sets that contain data on the specified strains. Download the data set and print
+     * information about the data set and its experiment.<br>
      * <ul>
      * <li>Experiment Date</li>
      * <li>Description</li>

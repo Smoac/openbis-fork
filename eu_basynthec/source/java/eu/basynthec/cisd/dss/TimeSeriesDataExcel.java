@@ -31,8 +31,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ExcelFileReader;
 
 /**
- * An abstraction for accessing time series data following the BaSynthec conventions from an Excel
- * file.
+ * An abstraction for accessing time series data following the BaSynthec conventions from an Excel file.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -120,9 +119,8 @@ public class TimeSeriesDataExcel
     /**
      * Return the metadata has a hashmap, with all keys uppercased.
      * <p>
-     * Assumes the metadata sheet corresponds to the following format: [Property] [Value] [... stuff
-     * that can be ignored], that is the property name is in column 1 and property value is in
-     * column 2, and everything else can be ignored.
+     * Assumes the metadata sheet corresponds to the following format: [Property] [Value] [... stuff that can be ignored], that is the property name
+     * is in column 1 and property value is in column 2, and everything else can be ignored.
      */
     public Map<String, String> getMetadataMap()
     {

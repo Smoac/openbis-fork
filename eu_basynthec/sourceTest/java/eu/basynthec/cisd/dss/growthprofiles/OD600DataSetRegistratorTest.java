@@ -81,10 +81,10 @@ public class OD600DataSetRegistratorTest extends AbstractBaSynthecDataSetRegistr
         String[] contents = tsvSplitFolder.list();
         Arrays.sort(contents);
         String[] expectedContents =
-                    { "OD600-Example.xlsx_JJS-MGP001.tsv", "OD600-Example.xlsx_JJS-MGP020.tsv",
-                            "OD600-Example.xlsx_JJS-MGP100.tsv",
-                            "OD600-Example.xlsx_JJS-MGP999.tsv", "OD600-Example.xlsx_MS.tsv",
-                            "OD600-Example.xlsx_WT 168 trp+.tsv" };
+        { "OD600-Example.xlsx_JJS-MGP001.tsv", "OD600-Example.xlsx_JJS-MGP020.tsv",
+                "OD600-Example.xlsx_JJS-MGP100.tsv",
+                "OD600-Example.xlsx_JJS-MGP999.tsv", "OD600-Example.xlsx_MS.tsv",
+                "OD600-Example.xlsx_WT 168 trp+.tsv" };
         assertEquals(Arrays.asList(expectedContents), Arrays.asList(contents));
         File tsvSplitFile = new File(tsvSplitFolder, "OD600-Example.xlsx_JJS-MGP001.tsv");
         checkTsvSplitContent(tsvSplitFile);

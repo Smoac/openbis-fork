@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationS
 public class MetabolomicsValidator2Test extends AssertJUnit
 {
     private static final String[] VALIDATION_SCRIPT_PATH = new String[]
-        { "dist/etc/shared/shared-classes.py", "dist/etc/metabolomics2/data-set-validator.py" };
+    { "dist/etc/shared/shared-classes.py", "dist/etc/metabolomics2/data-set-validator.py" };
 
     @Test
     public void testGoodData()

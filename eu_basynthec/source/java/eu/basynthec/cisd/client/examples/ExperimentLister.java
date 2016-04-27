@@ -40,8 +40,7 @@ public class ExperimentLister extends AbstractBaSynthecClient
     private static final String REGISTERED_BY_HEADER = "Contact Person";
 
     /**
-     * An enum for keeping track of the metadata fields we are interested in, in the order we want
-     * to display them.
+     * An enum for keeping track of the metadata fields we are interested in, in the order we want to display them.
      * 
      * @author Chandrasekhar Ramakrishnan
      */
@@ -77,8 +76,7 @@ public class ExperimentLister extends AbstractBaSynthecClient
     }
 
     /**
-     * Using the connection to openBIS, get all experiments in the specified projects and print the
-     * following information about the experiment:<br>
+     * Using the connection to openBIS, get all experiments in the specified projects and print the following information about the experiment:<br>
      * <ul>
      * <li>Experiment Date</li>
      * <li>Description</li>
@@ -88,8 +86,7 @@ public class ExperimentLister extends AbstractBaSynthecClient
      * <li>Strains</li>
      * </ul>
      * 
-     * @param projectIdentifiers The projects in which the experiments we are interested in are
-     *            housed.
+     * @param projectIdentifiers The projects in which the experiments we are interested in are housed.
      */
     public void run(List<String> projectIdentifiers)
     {

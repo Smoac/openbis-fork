@@ -91,8 +91,8 @@ public class TranscriptomicsDataSetRegistratorTest extends AbstractBaSynthecData
         String[] contents = tsvSplitFolder.list();
         Arrays.sort(contents);
         String[] expectedContents =
-                    { "Transcriptomics-Example.xlsx_JJS-MGP253.tsv",
-                            "Transcriptomics-Example.xlsx_JJS-MGP776.tsv" };
+        { "Transcriptomics-Example.xlsx_JJS-MGP253.tsv",
+                "Transcriptomics-Example.xlsx_JJS-MGP776.tsv" };
         assertEquals(Arrays.asList(expectedContents), Arrays.asList(contents));
         File tsvSplitFile = new File(tsvSplitFolder, "Transcriptomics-Example.xlsx_JJS-MGP253.tsv");
         checkSplitTsvContent(tsvSplitFile);

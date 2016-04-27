@@ -28,8 +28,7 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.OpenbisServiceFacadeFactory;
 
 /**
- * An example of communcating with openBIS. This example retrieves metadata about an experiment and
- * downaloads data from one data set.
+ * An example of communcating with openBIS. This example retrieves metadata about an experiment and downaloads data from one data set.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

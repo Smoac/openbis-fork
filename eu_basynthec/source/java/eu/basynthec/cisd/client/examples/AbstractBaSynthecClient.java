@@ -23,8 +23,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 
 /**
- * Abstract superclass for code that interacts with the BaSynthec database via the
- * IOpenbisServiceFacade interface.
+ * Abstract superclass for code that interacts with the BaSynthec database via the IOpenbisServiceFacade interface.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

@@ -84,7 +84,7 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
             {
                 {
                     allowing(openBisService).heartbeat();
-                    
+
                     one(
                             openBisService).createPermId();
                     will(returnValue(DATA_SET_CODE));
