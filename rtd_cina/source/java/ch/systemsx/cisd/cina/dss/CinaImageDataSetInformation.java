@@ -19,8 +19,7 @@ package ch.systemsx.cisd.cina.dss;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * This class is simply used as a marker for deciding which storage processor to use. It serves no
- * other purpose.
+ * This class is simply used as a marker for deciding which storage processor to use. It serves no other purpose.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

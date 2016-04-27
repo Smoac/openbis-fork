@@ -341,8 +341,8 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
 
         ResultCode exitCode =
                 command.execute(new String[]
-                    { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "-o", outputFolder.getPath(),
-                            "/SPACE/REPLICA-ID" });
+                { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "-o", outputFolder.getPath(),
+                        "/SPACE/REPLICA-ID" });
 
         assertEquals(ResultCode.OK, exitCode);
 
@@ -371,8 +371,8 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
 
         ResultCode exitCode =
                 command.execute(new String[]
-                    { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "-o", outputFolder.getPath(),
-                            "/SPACE/REPLICA-ID1", "/SPACE/REPLICA-ID2" });
+                { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "-o", outputFolder.getPath(),
+                        "/SPACE/REPLICA-ID1", "/SPACE/REPLICA-ID2" });
 
         assertEquals(ResultCode.OK, exitCode);
 
@@ -406,7 +406,7 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
         try
         {
             command.execute(new String[]
-                { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "/SPACE/REPLICA-ID" });
+            { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "/SPACE/REPLICA-ID" });
             fail("Command should throw an exception when run against an older version of the interface.");
         } catch (EnvironmentFailureException e)
         {

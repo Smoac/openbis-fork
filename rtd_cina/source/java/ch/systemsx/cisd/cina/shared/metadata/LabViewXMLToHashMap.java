@@ -54,8 +54,7 @@ class LabViewXMLToHashMap
     }
 
     /**
-     * Constructor for converting lvdata into the metadataMap, specifying a mapping from cluster
-     * prefixes to key prefixes
+     * Constructor for converting lvdata into the metadataMap, specifying a mapping from cluster prefixes to key prefixes
      * 
      * @param lvdata The XML Data
      * @param metadataMap The map to append the converted content into

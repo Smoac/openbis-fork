@@ -113,7 +113,7 @@ public class CommandSampleListerTest extends AssertJUnit
         ICommand command = new MockCommandSampleLister();
 
         ResultCode exitCode = command.execute(new String[]
-            { "-s", "url", "-u", USER_ID, "-p", PASSWORD });
+        { "-s", "url", "-u", USER_ID, "-p", PASSWORD });
 
         assertEquals(ResultCode.OK, exitCode);
         context.assertIsSatisfied();
@@ -148,8 +148,8 @@ public class CommandSampleListerTest extends AssertJUnit
 
         ResultCode exitCode =
                 command.execute(new String[]
-                    { "-s", "url", "-u", USER_ID, "-p", PASSWORD,
-                            CinaConstants.GRID_PREP_SAMPLE_TYPE_CODE });
+                { "-s", "url", "-u", USER_ID, "-p", PASSWORD,
+                        CinaConstants.GRID_PREP_SAMPLE_TYPE_CODE });
 
         assertEquals(ResultCode.OK, exitCode);
         context.assertIsSatisfied();
@@ -177,8 +177,8 @@ public class CommandSampleListerTest extends AssertJUnit
         try
         {
             command.execute(new String[]
-                { "-s", "url", "-u", USER_ID, "-p", PASSWORD,
-                        CinaConstants.COLLECTION_SAMPLE_TYPE_CODE });
+            { "-s", "url", "-u", USER_ID, "-p", PASSWORD,
+                    CinaConstants.COLLECTION_SAMPLE_TYPE_CODE });
             fail("Command should throw an exception when run against an older version of the interface.");
         } catch (EnvironmentFailureException e)
         {

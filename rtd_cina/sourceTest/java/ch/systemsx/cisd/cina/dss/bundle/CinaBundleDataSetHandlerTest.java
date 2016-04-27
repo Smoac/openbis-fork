@@ -31,8 +31,8 @@ public class CinaBundleDataSetHandlerTest extends CinaBundleRegistrationTest
     private CinaBundleDataSetHandler handler;
 
     /**
-     * First set up expectations for the case that the entities do not exist, then set up the
-     * expectations for existing entities to simulate registering new entities.
+     * First set up expectations for the case that the entities do not exist, then set up the expectations for existing entities to simulate
+     * registering new entities.
      */
     @Test
     public void testHandlingWithCreationOfNewEntities()

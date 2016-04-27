@@ -47,8 +47,7 @@ public interface ICinaUtilities
      * @param searchCriteria The criteria to search for
      * @return A list of samples that match the criteria.
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
-     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
-     *             the server.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to the server.
      */
     public List<Sample> searchForSamples(SearchCriteria searchCriteria)
             throws IllegalStateException, EnvironmentFailureException;
@@ -59,8 +58,7 @@ public interface ICinaUtilities
      * @param sampleTypeCode The sample type of the sample the generated identifier will belong to.
      * @return A sample code for the provided sample type.
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
-     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
-     *             the server.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to the server.
      */
     public String generateSampleCode(String sampleTypeCode) throws IllegalStateException,
             EnvironmentFailureException;
@@ -71,8 +69,7 @@ public interface ICinaUtilities
      * @param experimentType The type of experiment we want listed
      * @return A list of experiments for the given experiment type
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
-     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
-     *             the server.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to the server.
      */
     public List<Experiment> listVisibleExperiments(String experimentType)
             throws IllegalStateException, EnvironmentFailureException;
@@ -83,8 +80,8 @@ public interface ICinaUtilities
      * @param samples The samples we want to retrieve data sets for
      * @return The data sets connected to the sample
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
-     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
-     *             the server or if there are multiple samples with the given code.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to the server or if there are multiple samples with the
+     *             given code.
      * @throws UserFailureException Thrown if no sample exists with the specified code.
      */
     public List<DataSet> listDataSets(List<Sample> samples) throws IllegalStateException,
@@ -95,8 +92,8 @@ public interface ICinaUtilities
      * 
      * @param dataSetCode The code of the data set to download
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
-     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
-     *             the server or if there are multiple samples with the given code.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to the server or if there are multiple samples with the
+     *             given code.
      * @throws UserFailureException Thrown if no sample exists with the specified code.
      */
     public IDataSetDss getDataSet(String dataSetCode) throws IllegalStateException,
@@ -106,12 +103,12 @@ public interface ICinaUtilities
      * Return a list of data sets for the sample specified by code.
      * 
      * @param sample The sample we want to retrieve data sets for
-     * @param areOnlyDirectlyConnectedIncluded If false, data sets for children of the sample are
-     *            included, o.w. only data sets directly connected to the sample are included.
+     * @param areOnlyDirectlyConnectedIncluded If false, data sets for children of the sample are included, o.w. only data sets directly connected to
+     *            the sample are included.
      * @return The data sets connected to the sample
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
-     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
-     *             the server or if there are multiple samples with the given code.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to the server or if there are multiple samples with the
+     *             given code.
      * @throws UserFailureException Thrown if no sample exists with the specified code.
      */
     public List<DataSet> listDataSetsForSample(Sample sample,

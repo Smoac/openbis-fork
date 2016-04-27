@@ -69,8 +69,7 @@ public class CinaUtilitiesFacade implements ICinaUtilities
     }
 
     /**
-     * Public factory method for creating a DssComponent for a user that has already been
-     * authenticated.
+     * Public factory method for creating a DssComponent for a user that has already been authenticated.
      * 
      * @param sessionToken The session token provided by authentication
      * @param openBISUrl The URL to openBIS
@@ -108,8 +107,8 @@ public class CinaUtilitiesFacade implements ICinaUtilities
     /**
      * Create a DSS component that connects to the openBIS instance specified by the URL.
      * <p>
-     * The DSS component needs to connect to openBIS to find out which DSS manages a given data set.
-     * Once it has a connection to openBIS, it can figure out how to connect to DSS servers itself.
+     * The DSS component needs to connect to openBIS to find out which DSS manages a given data set. Once it has a connection to openBIS, it can
+     * figure out how to connect to DSS servers itself.
      */
     private static IDssComponent createDssComponent(IServiceForDataStoreServer openbisService,
             IGeneralInformationService generalInformationService, String sessionTokenOrNull,
@@ -131,12 +130,10 @@ public class CinaUtilitiesFacade implements ICinaUtilities
     /**
      * Internal constructor, also used for testing.
      * 
-     * @param generalInformationService A proxy to the openBIS application server's general
-     *            information service
+     * @param generalInformationService A proxy to the openBIS application server's general information service
      * @param openbisService A proxy to the openBIS application server's ETLLIMS Service
      * @param dssComponent A dss component facade for interacting with dss services
-     * @param sessionTokenOrNull A session token, if the user has already logged in, or null
-     *            otherwise.
+     * @param sessionTokenOrNull A session token, if the user has already logged in, or null otherwise.
      */
     protected CinaUtilitiesFacade(IGeneralInformationService generalInformationService,
             IServiceForDataStoreServer openbisService, IDssComponent dssComponent, String sessionTokenOrNull)
@@ -157,8 +154,7 @@ public class CinaUtilitiesFacade implements ICinaUtilities
 
     /**
      * FOR TESTING ONLY <br>
-     * This method makes it possible to hand in a mocked dssComponent -- it should only be used for
-     * testing and it therefore marked deprecated.
+     * This method makes it possible to hand in a mocked dssComponent -- it should only be used for testing and it therefore marked deprecated.
      * 
      * @deprecated
      */
@@ -177,8 +173,7 @@ public class CinaUtilitiesFacade implements ICinaUtilities
      * Authenticates the <code>user</code> with given <code>password</code>.
      * 
      * @throws AuthorizationFailureException Thrown if the username / password do not authenticate.
-     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
-     *             the server.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to the server.
      */
     void login(String user, String password, long timeoutInMillis)
             throws AuthorizationFailureException,
@@ -253,8 +248,7 @@ public class CinaUtilitiesFacade implements ICinaUtilities
 /**
  * Superclass for component states, which make the state machine of the Cina facade explicit.
  * <p>
- * By default, all methods just throw an exception. Subclasses should override the methods they
- * accept.
+ * By default, all methods just throw an exception. Subclasses should override the methods they accept.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -319,8 +313,7 @@ abstract class AbstractCinaFacadeState implements ICinaUtilities
      * Authenticates the <code>user</code> with given <code>password</code>.
      * 
      * @throws AuthorizationFailureException Thrown if the username / password do not authenticate.
-     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
-     *             the server.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to the server.
      */
     abstract void login(final String user, final String password)
             throws AuthorizationFailureException, EnvironmentFailureException;
@@ -333,8 +326,8 @@ abstract class AbstractCinaFacadeState implements ICinaUtilities
 }
 
 /**
- * An object representing an unauthenticated state. Being in this state implies that the user has
- * not yet logged in. Only login and logout are allowed in this state.
+ * An object representing an unauthenticated state. Being in this state implies that the user has not yet logged in. Only login and logout are allowed
+ * in this state.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -378,8 +371,8 @@ class UnauthenticatedState extends AbstractCinaFacadeState
 }
 
 /**
- * An object representing an authenticated state. Being in this state means that the user has logged
- * in and all operations are available, except login.
+ * An object representing an authenticated state. Being in this state means that the user has logged in and all operations are available, except
+ * login.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

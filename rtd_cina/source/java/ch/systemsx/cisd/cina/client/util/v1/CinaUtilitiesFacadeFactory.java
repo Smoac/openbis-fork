@@ -40,8 +40,7 @@ public class CinaUtilitiesFacadeFactory
     }
 
     /**
-     * Public factory method for creating an ICinaUtilities for a user that has already been
-     * authenticated.
+     * Public factory method for creating an ICinaUtilities for a user that has already been authenticated.
      * 
      * @param sessionToken The session token provided by authentication
      * @param openBISUrl The URL to openBIS

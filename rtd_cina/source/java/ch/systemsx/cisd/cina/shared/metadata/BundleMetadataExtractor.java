@@ -32,7 +32,7 @@ public class BundleMetadataExtractor
 {
     private static final String COLLECTIONS_FOLDER_NAME =
             BundleStructureConstants.COLLECTIONS_FOLDER_NAME;
-    
+
     private static final String METADATA_FOLDER_NAME =
             BundleStructureConstants.METADATA_FOLDER_NAME;
 
@@ -89,8 +89,8 @@ public class BundleMetadataExtractor
     }
 
     /**
-     * Get the metadata extractors for each of the replica files in this bundle. The method
-     * {@link #prepare} must be called before getting the metadata extractors.
+     * Get the metadata extractors for each of the replica files in this bundle. The method {@link #prepare} must be called before getting the
+     * metadata extractors.
      */
     public List<CollectionMetadataExtractor> getReplicaMetadataExtractors()
     {
@@ -112,12 +112,12 @@ public class BundleMetadataExtractor
     private void processDirectory(File file)
     {
         File annotationsDirectory = new File(file, METADATA_FOLDER_NAME);
-        
+
         if (false == annotationsDirectory.exists())
         {
             return;
         }
-        
+
         if (false == annotationsDirectory.isDirectory())
         {
             return;
@@ -151,7 +151,7 @@ public class BundleMetadataExtractor
             {
                 continue;
             }
-            
+
             processDirectory(replicaFile);
         }
     }

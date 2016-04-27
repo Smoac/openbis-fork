@@ -28,12 +28,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * CINA registers data in the form of a bundle. A bundle contains several different kinds data sets.
- * The CinaBundleDataSetHandler breaks apart the data into several pieces and takes action on each
- * of those pieces.
+ * CINA registers data in the form of a bundle. A bundle contains several different kinds data sets. The CinaBundleDataSetHandler breaks apart the
+ * data into several pieces and takes action on each of those pieces.
  * <p>
- * The structure of the bundle mirrors the structure of CINA experiments and is made up of the
- * following pieces:
+ * The structure of the bundle mirrors the structure of CINA experiments and is made up of the following pieces:
  * <ul>
  * <li>Grid Preparation (a template for grids which are imaged by microscopes)</li>
  * <ul>
@@ -71,8 +69,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * <li>Create datasets for each of the annotated images in the data set</li>
  * </ul>
  * </li>
- * <li>Create a bundle data set which points to the metadata and original data sets we registered
- * above</li>
+ * <li>Create a bundle data set which points to the metadata and original data sets we registered above</li>
  * <li>Update the grid preparation's metadata</li>
  * </ul>
  * 

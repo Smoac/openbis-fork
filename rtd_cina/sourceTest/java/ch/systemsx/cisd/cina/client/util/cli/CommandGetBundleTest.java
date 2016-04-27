@@ -365,7 +365,7 @@ public class CommandGetBundleTest extends AbstractFileSystemTestCase
     {
         String[] bundleContents = outputFolder.list();
         Arrays.sort(bundleContents);
-        
+
         assertEquals(BundleStructureConstants.METADATA_FOLDER_NAME, bundleContents[0]);
         assertEquals(BundleStructureConstants.OLD_BUNDLE_METADATA_FILE_NAME, bundleContents[1]);
         assertEquals(BundleStructureConstants.RAW_IMAGES_FOLDER_NAME, bundleContents[2]);
@@ -385,8 +385,8 @@ public class CommandGetBundleTest extends AbstractFileSystemTestCase
 
         ResultCode exitCode =
                 command.execute(new String[]
-                    { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "-o", outputFolder.getPath(),
-                            "/SPACE/GRID-ID" });
+                { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "-o", outputFolder.getPath(),
+                        "/SPACE/GRID-ID" });
 
         assertEquals(ResultCode.OK, exitCode);
 
@@ -403,15 +403,15 @@ public class CommandGetBundleTest extends AbstractFileSystemTestCase
     {
         setupAuthenticationExpectations();
         List<String> sampleCodes = Arrays.asList(new String[]
-            { "REPLICA-ID1", "REPLICA-ID2" });
+        { "REPLICA-ID1", "REPLICA-ID2" });
         setupListDataSetsExpectations(sampleCodes);
         setupDownloadDataSetExpectations(sampleCodes);
         ICommand command = new MockCommandGetBundle();
         File outputFolder = new File(workingDirectory, "Foo.bundle/");
         ResultCode exitCode =
                 command.execute(new String[]
-                    { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "-o", outputFolder.getPath(),
-                            "/SPACE/GRID-ID" });
+                { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "-o", outputFolder.getPath(),
+                        "/SPACE/GRID-ID" });
         assertEquals(ResultCode.OK, exitCode); // Check the contents of the bundle
         verifyBundleTopLevel(outputFolder);
         verifyRawDataContents(outputFolder, 2);
@@ -424,15 +424,15 @@ public class CommandGetBundleTest extends AbstractFileSystemTestCase
     {
         setupAuthenticationExpectations();
         List<String> sampleCodes = Arrays.asList(new String[]
-            { "REPLICA-ID1", "REPLICA-ID2" });
+        { "REPLICA-ID1", "REPLICA-ID2" });
         setupListDataSetsExpectations(sampleCodes);
         setupDownloadDataSetExpectations("REPLICA-ID2");
         ICommand command = new MockCommandGetBundle();
         File outputFolder = new File(workingDirectory, "Foo.bundle/");
         ResultCode exitCode =
                 command.execute(new String[]
-                    { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "-o", outputFolder.getPath(),
-                            "/SPACE/GRID-ID", "/SPACE/REPLICA-ID2" });
+                { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "-o", outputFolder.getPath(),
+                        "/SPACE/GRID-ID", "/SPACE/REPLICA-ID2" });
         assertEquals(ResultCode.OK, exitCode); // Check the contents of the bundle
         verifyBundleTopLevel(outputFolder);
         verifyRawDataContents(outputFolder, 1);
@@ -482,7 +482,7 @@ public class CommandGetBundleTest extends AbstractFileSystemTestCase
         try
         {
             command.execute(new String[]
-                { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "GRID-ID", "REPLICA-ID" });
+            { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "GRID-ID", "REPLICA-ID" });
             fail("Command should throw an exception when run against an older version of the interface.");
         } catch (EnvironmentFailureException e)
         {

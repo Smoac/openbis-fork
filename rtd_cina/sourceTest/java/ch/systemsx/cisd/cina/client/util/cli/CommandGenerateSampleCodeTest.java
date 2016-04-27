@@ -107,7 +107,7 @@ public class CommandGenerateSampleCodeTest extends AssertJUnit
         ICommand command = new MockCommandGenerateSampleCode();
 
         ResultCode exitCode = command.execute(new String[]
-            { "-s", "url", "-u", USER_ID, "-p", PASSWORD, sampleTypeCode });
+        { "-s", "url", "-u", USER_ID, "-p", PASSWORD, sampleTypeCode });
 
         assertEquals(ResultCode.OK, exitCode);
         context.assertIsSatisfied();
@@ -125,7 +125,7 @@ public class CommandGenerateSampleCodeTest extends AssertJUnit
         ICommand command = new MockCommandGenerateSampleCode();
 
         ResultCode exitCode = command.execute(new String[]
-            { "-s", "url", "-u", USER_ID, "-p", PASSWORD });
+        { "-s", "url", "-u", USER_ID, "-p", PASSWORD });
 
         assertEquals(ResultCode.INVALID_ARGS, exitCode);
         context.assertIsSatisfied();

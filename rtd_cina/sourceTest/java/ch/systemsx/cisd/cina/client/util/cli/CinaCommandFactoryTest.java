@@ -57,13 +57,13 @@ public class CinaCommandFactoryTest extends AssertJUnit
         System.out.print("\n");
         cmd = factory.tryCommandForName("help");
         String[] lsArgs =
-            { "preps" };
+        { "preps" };
         cmd.execute(lsArgs);
 
         System.out.print("\n");
         cmd = factory.tryCommandForName("help");
         String[] getArgs =
-            { "genid" };
+        { "genid" };
         cmd.execute(getArgs);
     }
 }

@@ -38,7 +38,7 @@ public class CinaCommandFactory extends AbstractCommandFactory
     public List<String> getKnownCommands()
     {
         String[] commands =
-            { "listsamps", "gencode", "listexps", "getreplica", "getbundle", "listprefs" };
+        { "listsamps", "gencode", "listexps", "getreplica", "getbundle", "listprefs" };
         return Arrays.asList(commands);
     }
 

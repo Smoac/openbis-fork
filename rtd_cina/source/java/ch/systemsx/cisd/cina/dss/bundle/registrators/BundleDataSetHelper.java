@@ -52,8 +52,8 @@ abstract class BundleDataSetHelper
     }
 
     /**
-     * Get all the data set information that has been created as a result of
-     * {@link #registerDataSet}. Only makes sense to invoke after registerDataSet has been called
+     * Get all the data set information that has been created as a result of {@link #registerDataSet}. Only makes sense to invoke after
+     * registerDataSet has been called
      */
     public ArrayList<DataSetInformation> getDataSetInformation()
     {
@@ -77,8 +77,7 @@ abstract class BundleDataSetHelper
     }
 
     /**
-     * Register a file which is already in the store as a data set and add it to the
-     * dataSetInformation collection.
+     * Register a file which is already in the store as a data set and add it to the dataSetInformation collection.
      * <p>
      * Since the file is already in the store, the new data set contains a (hard) link to it.
      * 

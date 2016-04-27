@@ -74,7 +74,7 @@ public class CollectionMetadataExtractor implements IMetadataExtractor
             // We've already parsed this
             return;
         }
-        
+
         // First parse the metadata for the replica
         File metadataFile = new File(folder, REPLICA_METADATA_FILE_NAME);
         lvdata = LVDataParser.parse(metadataFile);
@@ -100,8 +100,7 @@ public class CollectionMetadataExtractor implements IMetadataExtractor
     }
 
     /**
-     * Get the metadata extracted from the file in the form of a map. The method {@link #prepare}
-     * must be called before getting the metadata map.
+     * Get the metadata extracted from the file in the form of a map. The method {@link #prepare} must be called before getting the metadata map.
      */
     @Override
     public Map<String, String> getMetadataMap()
@@ -111,8 +110,8 @@ public class CollectionMetadataExtractor implements IMetadataExtractor
     }
 
     /**
-     * Get the metadata extractors for each of the image files for this replica. The method
-     * {@link #prepare} must be called before getting the metadata extractors.
+     * Get the metadata extractors for each of the image files for this replica. The method {@link #prepare} must be called before getting the
+     * metadata extractors.
      */
     public List<ImageMetadataExtractor> getImageMetadataExtractors()
     {

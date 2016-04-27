@@ -23,8 +23,7 @@ import ch.systemsx.cisd.openbis.dss.etl.MicroscopyBlackboxSeriesStorageProcessor
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * An extension of the {@link MicroscopyBlackboxSeriesStorageProcessor} that accepts a particular
- * subclass of DataSetInformation.
+ * An extension of the {@link MicroscopyBlackboxSeriesStorageProcessor} that accepts a particular subclass of DataSetInformation.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

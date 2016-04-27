@@ -24,8 +24,7 @@ import ch.systemsx.cisd.openbis.dss.client.api.cli.GlobalArguments;
 /**
  * Superclass for cina command-line client commands.
  * <p>
- * Provides services used by most subclasses. In order for the AbstractCommand to work, subclasses
- * must do the following:
+ * Provides services used by most subclasses. In order for the AbstractCommand to work, subclasses must do the following:
  * <ul>
  * <li>Set the parser ivar in their constructor
  * </ul>

@@ -91,8 +91,7 @@ class ReplicaDownloader
     }
 
     /**
-     * Retrieve the raw data and current metadata for the replica sample as well as the current
-     * metadata for the parent grid of the replica.
+     * Retrieve the raw data and current metadata for the replica sample as well as the current metadata for the parent grid of the replica.
      */
     protected void download()
     {

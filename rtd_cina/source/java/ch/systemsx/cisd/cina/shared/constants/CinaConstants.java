@@ -17,8 +17,7 @@
 package ch.systemsx.cisd.cina.shared.constants;
 
 /**
- * A note for understanding the constants: Collections were once called replicas, and the old name
- * has not yet been removed everywere.
+ * A note for understanding the constants: Collections were once called replicas, and the old name has not yet been removed everywere.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
