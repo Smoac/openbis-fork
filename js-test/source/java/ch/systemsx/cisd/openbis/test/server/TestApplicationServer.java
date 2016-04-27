@@ -52,28 +52,30 @@ public class TestApplicationServer
         Runnable r = new Runnable()
             {
                 @SuppressWarnings({ "unchecked", "rawtypes" })
-				@Override
+                @Override
                 public void run()
                 {
                     Server server = new Server(getPort());
 
                     WebAppContext context = new WebAppContext();
-                    
+
                     File war = new File("../../../targets/gradle/openbis-war/openbis.war");
-                    if (war.exists()) {
-                    	context.setWar(war.getAbsolutePath());
-                    	context.setExtractWAR(true);
-                    	context.setTempDirectory(new File(System.getProperty("jetty.home")+"/webapps"));
+                    if (war.exists())
+                    {
+                        context.setWar(war.getAbsolutePath());
+                        context.setExtractWAR(true);
+                        context.setTempDirectory(new File(System.getProperty("jetty.home") + "/webapps"));
                         context.addAliasCheck(new AllowSymLinkAliasChecker());
-                    } else {
-	                    context.setDescriptor(getWebXmlPath());
-	                    context.setResourceBase(getRootPath());
+                    } else
+                    {
+                        context.setDescriptor(getWebXmlPath());
+                        context.setResourceBase(getRootPath());
                     }
                     context.setContextPath(getContextPath());
                     context.setParentLoaderPriority(true);
-                    
+
                     server.setHandler(context);
-                    
+
                     try
                     {
                         server.start();

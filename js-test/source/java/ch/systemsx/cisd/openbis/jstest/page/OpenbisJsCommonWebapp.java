@@ -35,7 +35,7 @@ public class OpenbisJsCommonWebapp
 
     @Locate("qunit-junit-report")
     private WebElement junitReport;
-    
+
     public int getFailedCount()
     {
         SeleniumTest.setImplicitWait(300, TimeUnit.SECONDS);

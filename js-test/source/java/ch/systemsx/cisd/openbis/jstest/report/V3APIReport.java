@@ -56,10 +56,10 @@ public class V3APIReport
             "ch.ethz.sis.openbis.generic.dssapi.v3",
             "ch.ethz.sis.openbis.generic.asapi.v3"
     };
-    
+
     private static final String[] IGNORE_CLASSES = {
-        "ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder",
-        "ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder"
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder",
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder"
     };
 
     @Test
