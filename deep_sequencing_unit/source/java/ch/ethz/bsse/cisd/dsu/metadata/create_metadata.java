@@ -97,7 +97,7 @@ public class create_metadata
     private static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
 
     private static final char[] HEX_CHARACTERS =
-            { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', };
+    { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', };
 
     private static final Map<String, String> SEQUENCER_NAMING;
 
@@ -168,7 +168,7 @@ public class create_metadata
             SortedMap<String, SortedMap<String, String>> flowcellMap = null;
             String flowcellCode = "";
 
-            // Should be always a single sample 
+            // Should be always a single sample
             for (Sample sample : sampleList)
             {
                 List<Sample> children = sample.getChildren();

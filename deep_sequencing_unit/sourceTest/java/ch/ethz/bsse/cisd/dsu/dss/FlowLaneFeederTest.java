@@ -630,7 +630,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
                                     createProperty(FlowLaneFeeder.EXTERNAL_SAMPLE_NAME_KEY,
                                             EXTERNAL_SAMPLE_NAME);
                             will(returnValue(new GenericEntityProperty[]
-                                { p1, p2 }));
+                            { p1, p2 }));
                         }
                     }
                 }

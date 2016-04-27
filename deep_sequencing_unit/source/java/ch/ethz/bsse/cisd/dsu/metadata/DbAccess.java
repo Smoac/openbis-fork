@@ -14,6 +14,7 @@ public class DbAccess
 
     /**
      * Connecting to the pathinfo_DB
+     * 
      * @return Connection
      */
     static Connection connectToDB(Parameters params)
@@ -39,9 +40,8 @@ public class DbAccess
     }
 
     /**
-     * 
-     * @return HashMap<String, Integer> of files and the corresponding checksum for the DB
-     * Uses a file as key and the checksum as value, we assume that a file is unique
+     * @return HashMap<String, Integer> of files and the corresponding checksum for the DB Uses a file as key and the checksum as value, we assume
+     *         that a file is unique
      */
     static HashMap<String, Integer> doQuery(Connection connection, String permId)
     {

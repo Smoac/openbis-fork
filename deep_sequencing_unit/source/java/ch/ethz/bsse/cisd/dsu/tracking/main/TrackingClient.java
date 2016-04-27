@@ -97,11 +97,11 @@ public class TrackingClient
                 .withDescription("list of lanes to track")
                 .create(CL_PARAMETER_LANES);
         lanes.setArgs(Option.UNLIMITED_VALUES);
-        //        Option all = new Option(CL_PARAMETER_ALL, "track all lanes, only for testing, never use in production!");
+        // Option all = new Option(CL_PARAMETER_ALL, "track all lanes, only for testing, never use in production!");
         Option new_lanes = new Option(CL_PARAMETER_CHANGED_LANES, "only list lanes which have new datasets");
 
         options.addOption(lanes);
-        //        options.addOption(all);
+        // options.addOption(all);
         options.addOption(new_lanes);
 
         // automatically generate the help statement
@@ -122,7 +122,7 @@ public class TrackingClient
             }
             if (line.hasOption(CL_PARAMETER_ALL))
             {
-                //                commandLineMap.put(CL_PARAMETER_ALL, null);
+                // commandLineMap.put(CL_PARAMETER_ALL, null);
                 System.out.println("This option is deactivated.");
 
             }

@@ -34,5 +34,5 @@ class Date
     {
         this.Date = date;
     }
-    
+
 }

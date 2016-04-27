@@ -31,8 +31,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataSetInfoExtractorTest extends AbstractFileSystemTestCase
@@ -54,17 +52,17 @@ public class DataSetInfoExtractorTest extends AbstractFileSystemTestCase
         File configFile = new File(workingDirectory, DataSetInfoExtractor.DEFAULT_PATH_TO_CONFIG_FILE);
         configFile.getParentFile().mkdirs();
         FileUtilities.writeToFile(configFile, "<abc>\n  <Software Name='RTA' Version='1.4.15.0'/>\n</abc>\n");
-        
+
         DataSetInformation info = extractor.getDataSetInformation(workingDirectory, null);
-        
+
         List<NewProperty> properties = info.getDataSetProperties();
         assertEquals(1, properties.size());
         assertEquals(DataSetInfoExtractor.VERSION_KEY, properties.get(0).getPropertyCode());
         assertEquals("1.4.15.0", properties.get(0).getValue());
         // checks delegation to DefaultDataSetInfoExtractor
-        assertEquals("DataSetInfoExtractorTest", info.getSampleCode()); 
+        assertEquals("DataSetInfoExtractorTest", info.getSampleCode());
     }
-    
+
     @Test
     public void testWithDoubleQuotes()
     {
@@ -72,15 +70,15 @@ public class DataSetInfoExtractorTest extends AbstractFileSystemTestCase
         File configFile = new File(workingDirectory, DataSetInfoExtractor.DEFAULT_PATH_TO_CONFIG_FILE);
         configFile.getParentFile().mkdirs();
         FileUtilities.writeToFile(configFile, "<abc>\n  <Software Name=\"RTA\" Version=\"1.4.15.0\"/>\n</abc>\n");
-        
+
         DataSetInformation info = extractor.getDataSetInformation(workingDirectory, null);
-        
+
         List<NewProperty> properties = info.getDataSetProperties();
         assertEquals(1, properties.size());
         assertEquals(DataSetInfoExtractor.VERSION_KEY, properties.get(0).getPropertyCode());
         assertEquals("1.4.15.0", properties.get(0).getValue());
     }
-    
+
     @Test
     public void testWithMissingVersion()
     {
@@ -88,22 +86,22 @@ public class DataSetInfoExtractorTest extends AbstractFileSystemTestCase
         File configFile = new File(workingDirectory, DataSetInfoExtractor.DEFAULT_PATH_TO_CONFIG_FILE);
         configFile.getParentFile().mkdirs();
         FileUtilities.writeToFile(configFile, "<abc>\n  </abc>\n");
-        
+
         DataSetInformation info = extractor.getDataSetInformation(workingDirectory, null);
-        
+
         List<NewProperty> properties = info.getDataSetProperties();
         assertEquals(0, properties.size());
         String logContent = appender.getLogContent();
         assertEquals("No version found in config file 'Data/Intensities/config.xml'.", logContent);
     }
-    
+
     @Test
     public void testWithMissingConfigFile()
     {
         DataSetInfoExtractor extractor = new DataSetInfoExtractor(new Properties());
-        
+
         DataSetInformation info = extractor.getDataSetInformation(workingDirectory, null);
-        
+
         List<NewProperty> properties = info.getDataSetProperties();
         assertEquals(0, properties.size());
         String logContent = appender.getLogContent();

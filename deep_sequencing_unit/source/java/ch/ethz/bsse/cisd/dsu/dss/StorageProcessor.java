@@ -23,9 +23,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandl
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 
 /**
- * Storage processor which feeds flow-line drop boxes. Needs the property
- * <code>flow-line-drop-box-template</code>. A <code>{0}</code> is the place holder
- * for the flow-line number.
+ * Storage processor which feeds flow-line drop boxes. Needs the property <code>flow-line-drop-box-template</code>. A <code>{0}</code> is the place
+ * holder for the flow-line number.
  *
  * @author Franz-Josef Elmer
  */

@@ -92,7 +92,7 @@ public class TrackingBO
                     commandLineMap.get(TrackingClient.CL_PARAMETER_LANES), session);
         } else if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_ALL))
         {
-            //            changedEntities = fetchChangedEntities(prevTrackingState, trackingServer, commandLineMap, session);
+            // changedEntities = fetchChangedEntities(prevTrackingState, trackingServer, commandLineMap, session);
             System.out.println("This function is deactivated");
         } else if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_CHANGED_LANES))
         {
@@ -200,7 +200,7 @@ public class TrackingBO
         trackingDAO.saveTrackingState(state);
     }
 
-    // gets *all* data sets 
+    // gets *all* data sets
     private static TrackedEntities fetchChangedEntities(TrackingStateDTO trackingState,
             ITrackingServer trackingServer, HashMap<String, String[]> clMap, SessionContextDTO session)
     {
@@ -327,7 +327,7 @@ public class TrackingBO
             maxDataSetId = Math.max(maxDataSetId, id);
         }
         return 0;
-        //        return maxDataSetId;
+        // return maxDataSetId;
     }
 
     private static long getMaxDataSetIdForSample(TrackingStateDTO trackingState, String lanePermId)
@@ -410,13 +410,13 @@ public class TrackingBO
             TreeMap<String, Long> newTrackingState = new TreeMap<String, Long>();
 
             HashMap<String, ArrayList<Long>> changedTrackingMap = changedEntities.getChangedTrackingMap();
-            //            System.out.println(changedTrackingMap.toString());
+            // System.out.println(changedTrackingMap.toString());
 
             for (Map.Entry<String, ArrayList<Long>> entry : changedTrackingMap.entrySet())
             {
                 newTrackingState.put(entry.getKey(), Collections.max(entry.getValue()));
             }
-            //            System.out.println(newTrackingState.entrySet().toString());
+            // System.out.println(newTrackingState.entrySet().toString());
 
             for (Map.Entry<String, Long> entry : prevState.getLastSeenDataSetIdMap().entrySet())
             {

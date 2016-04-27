@@ -107,7 +107,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
     }
 
     /**
-     * Builds a Map of <spaces, email addresses> 
+     * Builds a Map of <spaces, email addresses>
      * 
      * @author Manuel Kohler
      */
@@ -323,7 +323,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             List<AbstractExternalData> dsList = new ArrayList<AbstractExternalData>();
 
             // we just loop over the data sets and write the connected samples as keys
-            // and the data sets as values in a map, so that we can group together as 
+            // and the data sets as values in a map, so that we can group together as
             // data sets per lane
             for (AbstractExternalData dataSet : dataSets)
             {
@@ -510,14 +510,14 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
                         contactPersonName = pp.getValue();
                     }
 
-                    //                  //if(index1 == parentIndex1 && (!index2 || !parentIndex2 || index2 == parentIndex2)){
+                    // //if(index1 == parentIndex1 && (!index2 || !parentIndex2 || index2 == parentIndex2)){
                     if (parentIndex1.equals(dsIndex1) && (!(dsIndex2.isEmpty()) || !(parentIndex2.isEmpty()) || parentIndex2.equals(dsIndex2)))
                     {
 
                         parentIndex1 = "";
                         parentIndex2 = "";
 
-                        //                        System.out.println("Found matching meta data for: " + dataSet.getCode() + " from " + parent.getCode());
+                        // System.out.println("Found matching meta data for: " + dataSet.getCode() + " from " + parent.getCode());
 
                         parentPropertiesMap.put(EXTERNAL_SAMPLE_NAME_PROPERTY_CODE, externalSampleName);
                         parentPropertiesMap.put(CONTACT_PERSON_NAME_PROPERTY_CODE, contactPersonName);

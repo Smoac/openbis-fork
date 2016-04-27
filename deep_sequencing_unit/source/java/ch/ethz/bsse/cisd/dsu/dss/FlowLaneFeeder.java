@@ -75,8 +75,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
- * Post registration data set handler which makes a hard-link copy of all flow-lane files to
- * associated drop boxes.
+ * Post registration data set handler which makes a hard-link copy of all flow-lane files to associated drop boxes.
  * 
  * @author Franz-Josef Elmer
  */
@@ -438,7 +437,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
     private File createDropBoxFile(String flowLane)
     {
         File dropBox = new File(flowLaneDropBoxTemplate.format(new Object[]
-            { flowLane }));
+        { flowLane }));
         if (dropBox.exists() == false)
         {
             throw new ConfigurationFailureException("Drop box '" + dropBox + "' does not exist.");

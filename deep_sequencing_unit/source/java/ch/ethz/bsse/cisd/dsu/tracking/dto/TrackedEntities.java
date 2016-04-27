@@ -41,7 +41,7 @@ public class TrackedEntities
     private final HashMap<String, ArrayList<Long>> changedTrackingMap;
 
     public TrackedEntities(List<Sample> sequencingSamplesToBeProcessed,
-            List<Sample> sequencingSamplesProcessed, List<AbstractExternalData> dataSets, 
+            List<Sample> sequencingSamplesProcessed, List<AbstractExternalData> dataSets,
             HashMap<String, ArrayList<Long>> changedTrackingMap)
     {
         this.sequencingSamplesToBeProcessed = sequencingSamplesToBeProcessed;
@@ -69,5 +69,5 @@ public class TrackedEntities
     {
         return changedTrackingMap;
     }
-    
+
 }

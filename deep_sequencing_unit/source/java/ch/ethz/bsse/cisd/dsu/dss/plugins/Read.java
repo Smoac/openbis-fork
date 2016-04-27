@@ -36,10 +36,10 @@ import javax.xml.bind.annotation.XmlElement;
 class Read
 {
     private List<Integer> readNumber = new ArrayList<Integer>();
-    
+
     private List<Lane> lanes;
-    
-    @XmlElement (name = "readNumber")
+
+    @XmlElement(name = "readNumber")
     public List<Integer> getReadNumbers()
     {
         return readNumber;
@@ -50,7 +50,7 @@ class Read
         this.readNumber = readNumber;
     }
 
-    @XmlElement (name = "Lane")
+    @XmlElement(name = "Lane")
     public List<Lane> getLanes()
     {
         return lanes;
@@ -60,7 +60,5 @@ class Read
     {
         this.lanes = lanes;
     }
-    
 
 }
-    

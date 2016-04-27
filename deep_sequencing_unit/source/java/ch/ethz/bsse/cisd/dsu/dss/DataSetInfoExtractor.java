@@ -37,9 +37,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
- * Extension of {@link DefaultDataSetInfoExtractor} for DSU which tries to get version information
- * from the content and store it into the data set property <code>ILLUMINA_GA_OUTPUT</code>. The
- * path to the configuration file inside a flow cell folder is specified by the property
+ * Extension of {@link DefaultDataSetInfoExtractor} for DSU which tries to get version information from the content and store it into the data set
+ * property <code>ILLUMINA_GA_OUTPUT</code>. The path to the configuration file inside a flow cell folder is specified by the property
  * <code>path-to-config-file</code>. Its default value is <code>Data/Intensities/config.xml</code>.
  * <p>
  * If version information couldn't be fetched a warning is logged.
@@ -49,14 +48,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 public class DataSetInfoExtractor implements IDataSetInfoExtractor
 {
     static final String VERSION_KEY = "ILLUMINA_PIPELINE_VERSION";
+
     static final String PATH_TO_CONFIG_FILE_KEY = "path-to-config-file";
+
     static final String DEFAULT_PATH_TO_CONFIG_FILE = "Data/Intensities/config.xml";
-    
+
     private final static Logger operationLog =
-        LogFactory.getLogger(LogCategory.OPERATION, DataSetInfoExtractor.class);
+            LogFactory.getLogger(LogCategory.OPERATION, DataSetInfoExtractor.class);
 
     private final IDataSetInfoExtractor dataSetInfoExtractor;
+
     private final String pathToConfigFile;
+
     private final Pattern pattern;
 
     public DataSetInfoExtractor(Properties properties)
@@ -94,7 +97,7 @@ public class DataSetInfoExtractor implements IDataSetInfoExtractor
         }
         return info;
     }
-    
+
     private String tryToExtractVersion(File configFile)
     {
         List<String> configFileContent = FileUtilities.loadToStringList(configFile);
