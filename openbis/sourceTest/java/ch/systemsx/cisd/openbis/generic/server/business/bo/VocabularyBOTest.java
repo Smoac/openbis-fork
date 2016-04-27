@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
@@ -482,6 +483,8 @@ public final class VocabularyBOTest extends AbstractBOTest
         vocabulary.addTerm(translate(term2));
         vocabulary.addTerm(translate(term3));
         final MaterialPropertyPE entityPropertyPE = new MaterialPropertyPE();
+        final MaterialPE entity = new MaterialPE();
+        entity.addProperty(entityPropertyPE);
         context.checking(new Expectations()
             {
                 {
@@ -611,7 +614,8 @@ public final class VocabularyBOTest extends AbstractBOTest
                 new VocabularyTermBatchUpdateDetails(true, false);
         bo.updateTerms(convertToUpdatedTerms(
                 Arrays.asList(createTermWithLabel(RED, LABEL_C, 1),
-                        createTermWithLabel(WHITE, LABEL_D, 2)), details));
+                        createTermWithLabel(WHITE, LABEL_D, 2)),
+                details));
         List<VocabularyTermPE> sorted = sortByOrdinal(bo.getVocabulary().getTerms());
 
         assertEquals(RED, sorted.get(0).getCode());
@@ -637,7 +641,8 @@ public final class VocabularyBOTest extends AbstractBOTest
                 new VocabularyTermBatchUpdateDetails(false, true);
         bo.updateTerms(convertToUpdatedTerms(
                 Arrays.asList(createTermWithDescription(RED, DESC_C, 1),
-                        createTermWithDescription(WHITE, DESC_D, 2)), details));
+                        createTermWithDescription(WHITE, DESC_D, 2)),
+                details));
         List<VocabularyTermPE> sorted = sortByOrdinal(bo.getVocabulary().getTerms());
 
         assertEquals(RED, sorted.get(0).getCode());
