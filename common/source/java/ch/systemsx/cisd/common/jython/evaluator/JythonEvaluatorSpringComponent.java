@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.common.jython.evaluator;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.BeanInitializationException;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.jython.v25.Jython25EvaluatorFactory;
 import ch.systemsx.cisd.common.jython.v27.Jython27EvaluatorFactory;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 
 /**
@@ -27,6 +31,11 @@ import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
  */
 public class JythonEvaluatorSpringComponent
 {
+
+    @Private
+    final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            JythonEvaluatorSpringComponent.class);
+
     public JythonEvaluatorSpringComponent(ExposablePropertyPlaceholderConfigurer propertyConfigurer)
     {
         String jythonVersion = propertyConfigurer.getResolvedProps().getProperty("jython-version");
@@ -38,8 +47,10 @@ public class JythonEvaluatorSpringComponent
             Evaluator.setFactory(new Jython25EvaluatorFactory());
         } else
         {
-            throw new BeanInitializationException(
-                    "The jython-version property must be specified in service.properties - possible values are 2.5 and 2.7. Since openBIS version 16.04 recommended jython version is 2.7.");
+            String msg =
+                    "The jython-version property must be specified in service.properties - possible values are 2.5 and 2.7. Since openBIS version 16.04 recommended jython version is 2.7.";
+            operationLog.error(msg);
+            throw new BeanInitializationException(msg);
         }
     }
 }
