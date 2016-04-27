@@ -45,15 +45,13 @@ public interface IScreeningBusinessObjectFactory
             String datastoreCode);
 
     /**
-     * Note that the loader should be used only for the datasets from the specified data store
-     * server.
+     * Note that the loader should be used only for the datasets from the specified data store server.
      */
     public IHCSFeatureVectorLoader createHCSFeatureVectorLoader(String datastoreCode);
 
     /**
      * @param experimentId the experiment id
-     * @param dataStoreCodes the codes of all data stores containing data sets for the specified
-     *            experimentId
+     * @param dataStoreCodes the codes of all data stores containing data sets for the specified experimentId
      */
     public IExperimentMetadataLoader createExperimentMetadataLoader(long experimentId,
             List<String> dataStoreCodes);

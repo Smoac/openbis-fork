@@ -164,8 +164,8 @@ public class ThumbnailsStorageFormat extends AbstractHashable implements Seriali
     private final Map<String, String> transformations = new HashMap<String, String>();
 
     /**
-     * Creates empty object which instructs that the thumbnails should be generated with default
-     * settings. Use setters to change default behaviour (you will probably not have to).
+     * Creates empty object which instructs that the thumbnails should be generated with default settings. Use setters to change default behaviour
+     * (you will probably not have to).
      */
     public ThumbnailsStorageFormat()
     {
@@ -240,8 +240,7 @@ public class ThumbnailsStorageFormat extends AbstractHashable implements Seriali
     }
 
     /**
-     * The number of threads which will be used during thumbnails generation will be equal to number
-     * of processor cores * machineLoad.
+     * The number of threads which will be used during thumbnails generation will be equal to number of processor cores * machineLoad.
      */
     public void setAllowedMachineLoadDuringGeneration(double machineLoad)
     {
@@ -249,8 +248,8 @@ public class ThumbnailsStorageFormat extends AbstractHashable implements Seriali
     }
 
     /**
-     * Set to true if you want your thumbnails to be of higher quality. In such a case thumbnails
-     * generation during dataset registration will take longer. Recommended for overlay images.
+     * Set to true if you want your thumbnails to be of higher quality. In such a case thumbnails generation during dataset registration will take
+     * longer. Recommended for overlay images.
      */
     public void setHighQuality(boolean highQuality)
     {
@@ -258,11 +257,9 @@ public class ThumbnailsStorageFormat extends AbstractHashable implements Seriali
     }
 
     /**
-     * if true ImageMagic 'convert' utility should be installed and will be used to generate
-     * thumbnails. <br>
-     * Note: if images should be handled with a specific image library, it will be ignored for
-     * thumbnails generation if 'convert' is supposed to be used. Make sure that 'convert' can deal
-     * with your images in such a case.
+     * if true ImageMagic 'convert' utility should be installed and will be used to generate thumbnails. <br>
+     * Note: if images should be handled with a specific image library, it will be ignored for thumbnails generation if 'convert' is supposed to be
+     * used. Make sure that 'convert' can deal with your images in such a case.
      */
     public void setGenerateWithImageMagic(boolean generateWithImageMagic)
     {
@@ -270,9 +267,8 @@ public class ThumbnailsStorageFormat extends AbstractHashable implements Seriali
     }
 
     /**
-     * Sets additional parameters which should be passed to ImageMagic 'convert' utility when it is
-     * used to generate thumbnails. Example: pass "-contrast-stretch 2%" to discard 2% of brightest
-     * and darkest pixels in the thumbnails.
+     * Sets additional parameters which should be passed to ImageMagic 'convert' utility when it is used to generate thumbnails. Example: pass
+     * "-contrast-stretch 2%" to discard 2% of brightest and darkest pixels in the thumbnails.
      */
     public void setImageMagicParams(List<String> imageMagicParams)
     {

@@ -126,9 +126,8 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
     }
 
     /**
-     * Return the id of a column group which will contain a single well property of type material.
-     * It has to be in a separate group to achieve a specific sorting in UI, where a material
-     * precedes its own properties.
+     * Return the id of a column group which will contain a single well property of type material. It has to be in a separate group to achieve a
+     * specific sorting in UI, where a material precedes its own properties.
      */
     private IColumnGroup getMaterialColumnGroup(TypedTableModelBuilder<WellContent> builder,
             IEntityProperty materialProperty)

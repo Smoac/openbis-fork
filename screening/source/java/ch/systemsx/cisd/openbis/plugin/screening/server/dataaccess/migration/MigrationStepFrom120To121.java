@@ -86,8 +86,7 @@ public class MigrationStepFrom120To121 extends MigrationStepAdapter
     }
 
     /**
-     * The map from keys in the new type data_set_types_property_types, to identical in the old
-     * ones.
+     * The map from keys in the new type data_set_types_property_types, to identical in the old ones.
      */
     Map<Long, Long> getNewPropertiesToOldProperties(SimpleJdbcTemplate simpleJdbcTemplate,
             long newTypeId, long oldTypeId)
@@ -117,9 +116,8 @@ public class MigrationStepFrom120To121 extends MigrationStepAdapter
     }
 
     /*
-     * If there are both old and new types defined - move all the data created for new type to the
-     * old one (including properties) and delete the new type. The sql migration will take care of
-     * the renaming itself.
+     * If there are both old and new types defined - move all the data created for new type to the old one (including properties) and delete the new
+     * type. The sql migration will take care of the renaming itself.
      */
     @Override
     public void performPreMigration(SimpleJdbcTemplate simpleJdbcTemplate, DataSource dataSource)

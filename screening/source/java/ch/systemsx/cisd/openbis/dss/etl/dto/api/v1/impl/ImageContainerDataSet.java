@@ -42,7 +42,7 @@ public class ImageContainerDataSet extends DataSet<DataSetInformation> implement
     private DataSet<ImageDataSetInformation> originalDataset;
 
     private List<IDataSet> thumbnailDatasets = Collections.emptyList();
-    
+
     private boolean establishSampleLinkForContainedDataSets = false;
 
     public ImageContainerDataSet(

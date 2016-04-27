@@ -24,8 +24,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-
-
 /**
  * @author Bernd Rinn
  */

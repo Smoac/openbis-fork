@@ -49,8 +49,7 @@ public class MaterialSimpleFeatureVectorSummary implements Serializable
     }
 
     /**
-     * Useful when there are no analysis results for a material in the experiment (but there can be
-     * still some images acquired).
+     * Useful when there are no analysis results for a material in the experiment (but there can be still some images acquired).
      */
     public MaterialSimpleFeatureVectorSummary(ExperimentReference experiment)
     {

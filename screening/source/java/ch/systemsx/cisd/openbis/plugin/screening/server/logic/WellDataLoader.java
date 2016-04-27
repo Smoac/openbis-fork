@@ -209,9 +209,8 @@ class WellDataLoader extends AbstractContentLoader
     }
 
     /**
-     * Return *all* material objects contained in the wells as list. The list can contained
-     * different objects representing the same entity in the database, but we need the duplication
-     * to be able to populate an object graph with wells correctly.
+     * Return *all* material objects contained in the wells as list. The list can contained different objects representing the same entity in the
+     * database, but we need the duplication to be able to populate an object graph with wells correctly.
      */
     private static List<Material> getMaterialsWithDuplicates(List<Sample> samples)
     {
@@ -241,8 +240,7 @@ class WellDataLoader extends AbstractContentLoader
     }
 
     /**
-     * Calculates summaries of feature vectors for each experiment and a specified material. Uses a
-     * constant number of selects.
+     * Calculates summaries of feature vectors for each experiment and a specified material. Uses a constant number of selects.
      */
     public List<MaterialSimpleFeatureVectorSummary> loadMaterialFeatureVectorsFromAllAssaysBatch(
             TechId materialId, AnalysisProcedureCriteria analysisProcedureCriteria,
@@ -333,19 +331,17 @@ class WellDataLoader extends AbstractContentLoader
     }
 
     /**
-     * Fetches wells containing materials of the same type as the specified one in chosen
-     * experiment.
+     * Fetches wells containing materials of the same type as the specified one in chosen experiment.
      */
     private List<BasicWellContentQueryResult> fetchWellLocations(TechId materialId,
             TechId experimentId)
     {
         return fetchWellLocations(materialId, new long[]
-            { experimentId.getId() });
+        { experimentId.getId() });
     }
 
     /**
-     * Fetches wells containing materials of the same type as the specified one in chosen
-     * experiments.
+     * Fetches wells containing materials of the same type as the specified one in chosen experiments.
      */
     private List<BasicWellContentQueryResult> fetchWellLocations(TechId materialId,
             long[] experimentIds)
@@ -511,8 +507,7 @@ class WellDataLoader extends AbstractContentLoader
     }
 
     /**
-     * Calculates summaries of feature vectors for each material of the specified type in the given
-     * experiment.
+     * Calculates summaries of feature vectors for each material of the specified type in the given experiment.
      */
     public MaterialIdSummariesAndFeatures tryCalculateExperimentFeatureVectorSummaries(
             TechId experimentId, String[] replicaMaterialTypeSubstrings,
@@ -522,14 +517,14 @@ class WellDataLoader extends AbstractContentLoader
                 PatternMatchingUtils.asPostgresSimilarExpression(settings
                         .getReplicaMaterialTypeSubstrings());
         List<BasicWellContentQueryResult> wells = fetchWellLocations(typePatterns, new long[]
-            { experimentId.getId() });
+        { experimentId.getId() });
         return tryCalculateExperimentFeatureVectorSummaries(wells, analysisProcedureCriteria,
                 calculateDeviations);
     }
 
     /**
-     * Calculates summaries of feature vectors for each material in the given experiment. A material
-     * of one well is chosen by filtering materials of the same type as the specified one.
+     * Calculates summaries of feature vectors for each material in the given experiment. A material of one well is chosen by filtering materials of
+     * the same type as the specified one.
      */
     public MaterialIdSummariesAndFeatures tryCalculateExperimentFeatureVectorSummaries(
             MaterialFeaturesOneExpCriteria criteria, boolean calculateDeviations)

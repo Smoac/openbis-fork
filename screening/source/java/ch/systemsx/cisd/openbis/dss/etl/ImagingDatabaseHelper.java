@@ -36,8 +36,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgEx
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
 
 /**
- * Helper class for retrieving and/or creating entities associated with the imaging database:
- * experiments, containers, channels and datasets.
+ * Helper class for retrieving and/or creating entities associated with the imaging database: experiments, containers, channels and datasets.
  * 
  * @author Chandrasekhar Ramakrishnan
  * @author Tomasz Pylak
@@ -69,11 +68,9 @@ public class ImagingDatabaseHelper
     }
 
     /**
-     * NOTE: Code responsible for trying to get sample and experiment from the DB and creating them
-     * if they don't exist is in synchronized block and uses currently opened transaction. Then the
-     * transaction is closed and data set is added to the DB in second transaction. If second
-     * transaction will be rolled back sample and experiment created in first transaction will stay
-     * in the DB.
+     * NOTE: Code responsible for trying to get sample and experiment from the DB and creating them if they don't exist is in synchronized block and
+     * uses currently opened transaction. Then the transaction is closed and data set is added to the DB in second transaction. If second transaction
+     * will be rolled back sample and experiment created in first transaction will stay in the DB.
      */
     private static ExperimentAndContainerIds doGetOrCreateExperimentAndContainer(
             IImagingQueryDAO dao, HCSContainerDatasetInfo info)
@@ -93,11 +90,9 @@ public class ImagingDatabaseHelper
     }
 
     /**
-     * NOTE: Code responsible for trying to get sample and experiment from the DB and creating them
-     * if they don't exist is in synchronized block and uses currently opened transaction. Then the
-     * transaction is closed and data set is added to the DB in second transaction. If second
-     * transaction will be rolled back sample and experiment created in first transaction will stay
-     * in the DB.
+     * NOTE: Code responsible for trying to get sample and experiment from the DB and creating them if they don't exist is in synchronized block and
+     * uses currently opened transaction. Then the transaction is closed and data set is added to the DB in second transaction. If second transaction
+     * will be rolled back sample and experiment created in first transaction will stay in the DB.
      */
     public static ExperimentWithChannelsAndContainer getOrCreateExperimentWithChannelsAndContainer(
             IImagingQueryDAO dao, HCSContainerDatasetInfo info, List<Channel> channels)

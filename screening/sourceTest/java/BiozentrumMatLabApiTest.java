@@ -58,7 +58,7 @@ public class BiozentrumMatLabApiTest
         // System.out.println(Arrays.toString(metadata[0]));
         // Object[][][] loadImages =
         Object[][][] images = OpenBISScreeningML.loadImages("/TEST/PLATE1", 1, 1, 1, new String[]
-            { "DAPI" });
+        { "DAPI" });
 
         // String experiment = "/TEST/TEST-USER/MY-ASSAY";
 
@@ -110,7 +110,7 @@ public class BiozentrumMatLabApiTest
         String file = "/Users/tpylak/main/tmp/bioz-test/PlateSummary.csv";
         String datasetCode;
         Object[][] dataSetProperties = new Object[][]
-            { new Object[] {} };
+        { new Object[] {} };
 
         datasetCode =
                 (String) OpenBISScreeningML.uploadDataSet(chosenPlate, file, datasetType,
@@ -129,7 +129,7 @@ public class BiozentrumMatLabApiTest
         print3DArray(featureMatrix);
 
         String[] featureNames = new String[]
-            { "OOF" };
+        { "OOF" };
         featureMatrix =
                 OpenBISScreeningML.getFeatureMatrixForPlate(chosenPlate, null, featureNames);
         System.out.println("one per plate feature -------------------------------");
@@ -200,7 +200,7 @@ public class BiozentrumMatLabApiTest
         // channels are loaded).
         long start = System.currentTimeMillis();
         Object[][][] images = OpenBISScreeningML.loadImages(chosenPlate, 1, 1, 3, new String[]
-            { "CY3" });
+        { "CY3" });
         System.out.println("Image path: " + images[0][0][0]);
         System.out.println("Took: " + (System.currentTimeMillis() - start));
     }
@@ -216,7 +216,7 @@ public class BiozentrumMatLabApiTest
 
         // save description of the well (2,4)
         props = new Object[][]
-            {
+        {
                 { "DESCRIPTION", "hello example" } };
         OpenBISScreeningML.updateWellProperties(chosenPlate, 2, 4, props);
     }

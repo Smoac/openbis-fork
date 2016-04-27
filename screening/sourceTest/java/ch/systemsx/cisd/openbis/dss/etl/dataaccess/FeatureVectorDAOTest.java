@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFe
  * @author Chandrasekhar Ramakrishnan
  */
 @Test(groups =
-    { "db", "screening" })
+{ "db", "screening" })
 public class FeatureVectorDAOTest extends AbstractDBTest
 {
     private IImagingQueryDAO dao;

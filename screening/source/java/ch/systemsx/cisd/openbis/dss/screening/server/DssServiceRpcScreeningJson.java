@@ -353,9 +353,8 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
     }
 
     /*
-     * The collections listed below have been created to help Jackson library embed/detect types of
-     * the collection's items during JSON serialization/deserialization. (see
-     * http://wiki.fasterxml.com/JacksonPolymorphicDeserialization#A5._Known_Issues)
+     * The collections listed below have been created to help Jackson library embed/detect types of the collection's items during JSON
+     * serialization/deserialization. (see http://wiki.fasterxml.com/JacksonPolymorphicDeserialization#A5._Known_Issues)
      */
 
     private static class FeatureInformationList extends ArrayList<FeatureInformation> implements

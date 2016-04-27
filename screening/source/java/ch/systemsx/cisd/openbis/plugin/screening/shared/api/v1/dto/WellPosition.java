@@ -7,8 +7,6 @@ import java.util.StringTokenizer;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-
-
 /**
  * Identifier of a well on a screening plate, contains row and column number.
  * 
@@ -21,8 +19,7 @@ public class WellPosition implements Serializable, Comparable<WellPosition>
     private static final long serialVersionUID = 1L;
 
     /**
-     * Parses a white-space separated list of well position descriptions. A well position
-     * description is of the form
+     * Parses a white-space separated list of well position descriptions. A well position description is of the form
      * <code><it>&lt;row number&gt;</it>.<it>&lt;column number&gt;</it></code>.
      * 
      * @throws IllegalArgumentException in case of parsing error.
@@ -40,8 +37,7 @@ public class WellPosition implements Serializable, Comparable<WellPosition>
     }
 
     /**
-     * Parses a well position description of the form
-     * <code><it>&lt;row number&gt;</it>.<it>&lt;column number&gt;</it></code>.
+     * Parses a well position description of the form <code><it>&lt;row number&gt;</it>.<it>&lt;column number&gt;</it></code>.
      * 
      * @throws IllegalArgumentException in case of parsing error.
      * @since 1.4

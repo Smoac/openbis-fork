@@ -36,11 +36,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageRef
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 /**
- * A test class which downloads image for one well in a data set with and without the
- * transformation. The images are placed on the desktop.
+ * A test class which downloads image for one well in a data set with and without the transformation. The images are placed on the desktop.
  * <p>
- * The constructor takes two arguments, one being the permId of the plate we want to download images
- * for.
+ * The constructor takes two arguments, one being the permId of the plate we want to download images for.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -155,7 +153,7 @@ public class LoadImagesWithTransformationTest
                     {
                         IOUtils.closeQuietly(fos);
                     }
-                    
+
                 }
 
             });

@@ -30,8 +30,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public interface IImageRepresentationFormatSelectionCriterion extends Serializable
 {
     /**
-     * Returns all {@link ImageRepresentationFormat} objects from the specified list which fulfill
-     * this criterion.
+     * Returns all {@link ImageRepresentationFormat} objects from the specified list which fulfill this criterion.
      */
     public List<ImageRepresentationFormat> getMatching(
             List<ImageRepresentationFormat> imageRepresentationFormats);

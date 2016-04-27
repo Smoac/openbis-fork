@@ -277,8 +277,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public PlateContent getPlateContent(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
-            TechId plateId)
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId plateId)
     {
         Session session = getSession(sessionToken);
         return PlateContentLoader.loadImagesAndMetadata(session, daoFactory.getSessionFactory().getCurrentSession(), businessObjectFactory,
@@ -288,8 +287,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public FeatureVectorDataset getFeatureVectorDataset(String sessionToken,
-            @AuthorizationGuard(guardClass = DatasetReferencePredicate.class)
-            DatasetReference dataset, CodeAndLabel featureName)
+            @AuthorizationGuard(guardClass = DatasetReferencePredicate.class) DatasetReference dataset, CodeAndLabel featureName)
     {
         Session session = getSession(sessionToken);
         return PlateContentLoader.loadFeatureVectorDataset(session, daoFactory.getSessionFactory().getCurrentSession(), businessObjectFactory,
@@ -299,8 +297,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public PlateImages getPlateContentForDataset(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class)
-            TechId datasetId)
+            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId)
     {
         Session session = getSession(sessionToken);
         return PlateContentLoader.loadImagesAndMetadataForDataset(session, daoFactory.getSessionFactory().getCurrentSession(), businessObjectFactory,
@@ -311,8 +308,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = WellContentValidator.class)
     public List<WellContent> listPlateWells(String sessionToken,
-            @AuthorizationGuard(guardClass = WellSearchCriteriaPredicate.class)
-            WellSearchCriteria materialCriteria)
+            @AuthorizationGuard(guardClass = WellSearchCriteriaPredicate.class) WellSearchCriteria materialCriteria)
     {
         Session session = getSession(sessionToken);
         return WellContentLoader.load(session, businessObjectFactory, getDAOFactory(),
@@ -322,8 +318,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<WellReplicaImage> listWellImages(String sessionToken, TechId materialId,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            TechId experimentId)
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId)
     {
         Session session = getSession(sessionToken);
         return WellContentLoader.loadWithImages(session, businessObjectFactory, getDAOFactory(),
@@ -333,8 +328,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Material> listMaterials(String sessionToken,
-            @AuthorizationGuard(guardClass = WellSearchCriteriaPredicate.class)
-            WellSearchCriteria materialCriteria)
+            @AuthorizationGuard(guardClass = WellSearchCriteriaPredicate.class) WellSearchCriteria materialCriteria)
     {
         Session session = getSession(sessionToken);
         return WellContentLoader.loadMaterials(session, businessObjectFactory, getDAOFactory(),
@@ -344,8 +338,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public FeatureVectorValues getWellFeatureVectorValues(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
-            String datasetCode, String datastoreCode, WellLocation wellLocation)
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String datasetCode, String datastoreCode, WellLocation wellLocation)
     {
         Session session = getSession(sessionToken);
         return FeatureVectorValuesLoader.loadFeatureVectorValues(session, businessObjectFactory,
@@ -355,8 +348,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public LogicalImageInfo getImageDatasetInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
-            String datasetCode, String datastoreCode, WellLocation wellLocationOrNull)
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String datasetCode, String datastoreCode, WellLocation wellLocationOrNull)
     {
         Session session = getSession(sessionToken);
         return LogicalImageLoader.loadLogicalImageInfo(session, daoFactory.getSessionFactory().getCurrentSession(), businessObjectFactory,
@@ -366,8 +358,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public ImageDatasetEnrichedReference getImageDatasetReference(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
-            String datasetCode, String datastoreCode)
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String datasetCode, String datastoreCode)
     {
         Session session = getSession(sessionToken);
         return LogicalImageLoader.getImageDatasetReference(session, daoFactory.getSessionFactory().getCurrentSession(), businessObjectFactory,
@@ -377,8 +368,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<ImageResolution> getImageDatasetResolutions(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
-            String datasetCode, String datastoreCode)
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String datasetCode, String datastoreCode)
     {
         checkSession(sessionToken);
         IImageResolutionLoader loader =
@@ -389,8 +379,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public ImageSampleContent getImageDatasetInfosForSample(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
-            TechId sampleId, WellLocation wellLocationOrNull)
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleId, WellLocation wellLocationOrNull)
     {
         Session session = getSession(sessionToken);
         return PlateContentLoader.getImageDatasetInfosForSample(session, daoFactory.getSessionFactory().getCurrentSession(), businessObjectFactory,
@@ -400,8 +389,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public AbstractExternalData getDataSetInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class)
-            TechId datasetId)
+            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId)
     {
         return commonServer.getDataSetInfo(sessionToken, datasetId);
     }
@@ -463,8 +451,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Material> listExperimentMaterials(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            TechId experimentId, MaterialType materialType)
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId, MaterialType materialType)
     {
         // TODO 2010-09-01, Piotr Buczek: move it to some BO when we have more queries like that
         IScreeningQuery dao = createDAO(getDAOFactory());
@@ -482,8 +469,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public ExperimentFeatureVectorSummary getExperimentFeatureVectorSummary(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            TechId experimentId, AnalysisProcedureCriteria analysisProcedureCriteria)
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId, AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         Session session = getSession(sessionToken);
         // NOTE: we want the settings to be passed form the client in future
@@ -547,8 +533,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public MaterialReplicaFeatureSummaryResult getMaterialFeatureVectorSummary(String sessionToken,
-            @AuthorizationGuard(guardClass = MaterialFeaturesOneExpPredicate.class)
-            MaterialFeaturesOneExpCriteria criteria)
+            @AuthorizationGuard(guardClass = MaterialFeaturesOneExpPredicate.class) MaterialFeaturesOneExpCriteria criteria)
     {
         Session session = getSession(sessionToken);
         // NOTE: we want the settings to be passed form the client in future
@@ -562,8 +547,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(String sessionToken,
-            @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class)
-            List<? extends PlateIdentifier> plates) throws IllegalArgumentException
+            @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class) List<? extends PlateIdentifier> plates)
+            throws IllegalArgumentException
     {
         return createScreeningApiImpl(sessionToken).listFeatureVectorDatasets(plates);
     }
@@ -571,8 +556,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<ImageDatasetReference> listImageDatasets(String sessionToken,
-            @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class)
-            List<? extends PlateIdentifier> plates) throws IllegalArgumentException
+            @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class) List<? extends PlateIdentifier> plates)
+            throws IllegalArgumentException
     {
         return createScreeningApiImpl(sessionToken).listImageDatasets(plates);
     }
@@ -580,8 +565,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Map<String, ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LogicalImageInfo> getImageInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
-            List<String> datasetCodes)
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes)
     {
         checkSession(sessionToken);
 
@@ -610,8 +594,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Map<String, List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageResolution>> getImageResolutions(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
-            List<String> datasetCodes)
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes)
     {
         checkSession(sessionToken);
 
@@ -652,8 +635,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<ImageDatasetReference> listRawImageDatasets(String sessionToken,
-            @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class)
-            List<? extends PlateIdentifier> plates) throws IllegalArgumentException
+            @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class) List<? extends PlateIdentifier> plates)
+            throws IllegalArgumentException
     {
         return createScreeningApiImpl(sessionToken).listRawImageDatasets(plates);
     }
@@ -661,8 +644,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<ImageDatasetReference> listSegmentationImageDatasets(String sessionToken,
-            @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class)
-            List<? extends PlateIdentifier> plates) throws IllegalArgumentException
+            @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class) List<? extends PlateIdentifier> plates)
+            throws IllegalArgumentException
     {
         return createScreeningApiImpl(sessionToken).listSegmentationImageDatasets(plates);
     }
@@ -671,8 +654,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<PlateWellReferenceWithDatasets> listPlateWells(
             String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class)
-            ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier experimentIdentifer,
+            @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class) ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier experimentIdentifer,
             MaterialIdentifier materialIdentifier, boolean findDatasets)
     {
         return createScreeningApiImpl(sessionToken).listPlateWells(experimentIdentifer,
@@ -692,8 +674,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<WellIdentifier> listPlateWells(String sessionToken,
-            @AuthorizationGuard(guardClass = PlateIdentifierPredicate.class)
-            PlateIdentifier plateIdentifier)
+            @AuthorizationGuard(guardClass = PlateIdentifierPredicate.class) PlateIdentifier plateIdentifier)
     {
         return createScreeningApiImpl(sessionToken).listPlateWells(plateIdentifier);
     }
@@ -701,8 +682,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Sample getWellSample(String sessionToken,
-            @AuthorizationGuard(guardClass = WellIdentifierPredicate.class)
-            WellIdentifier wellIdentifier)
+            @AuthorizationGuard(guardClass = WellIdentifierPredicate.class) WellIdentifier wellIdentifier)
     {
         return createScreeningApiImpl(sessionToken).getWellSample(wellIdentifier, true);
     }
@@ -710,8 +690,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Sample getPlateSample(String sessionToken,
-            @AuthorizationGuard(guardClass = PlateIdentifierPredicate.class)
-            PlateIdentifier plateIdentifier)
+            @AuthorizationGuard(guardClass = PlateIdentifierPredicate.class) PlateIdentifier plateIdentifier)
     {
         return createScreeningApiImpl(sessionToken).getPlateSample(plateIdentifier);
     }
@@ -727,8 +706,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Plate> listPlates(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class)
-            ExperimentIdentifier experiment) throws IllegalArgumentException
+            @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class) ExperimentIdentifier experiment) throws IllegalArgumentException
     {
         return createScreeningApiImpl(sessionToken).listPlates(experiment);
     }
@@ -751,8 +729,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<IDatasetIdentifier> getDatasetIdentifiers(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
-            List<String> datasetCodes)
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes)
     {
         return createScreeningApiImpl(sessionToken).getDatasetIdentifiers(datasetCodes);
     }
@@ -760,8 +737,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public AnalysisProcedures listNumericalDatasetsAnalysisProcedures(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentSearchCriteriaPredicate.class)
-            ExperimentSearchCriteria experimentSearchCriteria)
+            @AuthorizationGuard(guardClass = ExperimentSearchCriteriaPredicate.class) ExperimentSearchCriteria experimentSearchCriteria)
     {
         checkSession(sessionToken);
         IScreeningQuery dao = createDAO(getDAOFactory());
@@ -785,8 +761,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<PlateWellMaterialMapping> listPlateMaterialMapping(String sessionToken,
-            @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class)
-            List<? extends PlateIdentifier> plates,
+            @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class) List<? extends PlateIdentifier> plates,
             MaterialTypeIdentifier materialTypeIdentifierOrNull)
     {
         return createScreeningApiImpl(sessionToken).listPlateMaterialMapping(plates,
@@ -839,8 +814,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<PlateMetadata> getPlateMetadataList(String sessionToken,
-            @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class)
-            List<? extends PlateIdentifier> plateIdentifiers) throws IllegalArgumentException
+            @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class) List<? extends PlateIdentifier> plateIdentifiers)
+            throws IllegalArgumentException
     {
         return createScreeningApiImpl(sessionToken).getPlateMetadata(plateIdentifiers);
     }
@@ -848,8 +823,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public ExperimentImageMetadata getExperimentImageMetadata(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class)
-            ExperimentIdentifier experimentIdentifer)
+            @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class) ExperimentIdentifier experimentIdentifer)
     {
         checkSession(sessionToken);
         return createScreeningApiImpl(sessionToken).getExperimentImageMetadata(experimentIdentifer);

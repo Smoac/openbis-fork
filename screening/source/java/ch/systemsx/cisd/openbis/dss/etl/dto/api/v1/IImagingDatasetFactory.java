@@ -37,10 +37,8 @@ public interface IImagingDatasetFactory
 {
     /**
      * Creates image dataset details. Used if <br>
-     * 1. more then one dataset is created in one transaction and using
-     * {@link #registerImageDataset} is not sufficient or <br>
-     * 2. {@link SimpleImageDataConfig} is not sufficient to describe the dataset and further
-     * modifications on the dataset detail object are required.
+     * 1. more then one dataset is created in one transaction and using {@link #registerImageDataset} is not sufficient or <br>
+     * 2. {@link SimpleImageDataConfig} is not sufficient to describe the dataset and further modifications on the dataset detail object are required.
      */
     @Deprecated
     DataSetRegistrationDetails<ImageDataSetInformation> createImageRegistrationDetails(
@@ -65,8 +63,8 @@ public interface IImagingDatasetFactory
             File incomingDatasetFolder, DataSetRegistrationService<ImageDataSetInformation> service);
 
     /**
-     * Allows to define feature vectors of one image analysis dataset. Used to define a dataset
-     * details with {@link #createFeatureVectorDatasetDetails(IFeaturesBuilder)}.
+     * Allows to define feature vectors of one image analysis dataset. Used to define a dataset details with
+     * {@link #createFeatureVectorDatasetDetails(IFeaturesBuilder)}.
      */
     IFeaturesBuilder createFeaturesBuilder();
 
@@ -98,13 +96,10 @@ public interface IImagingDatasetFactory
             String csvFilePath, Properties properties) throws IOException;
 
     /**
-     * Utility method to find out the plate geometry by looking for which wells images are
-     * available.
+     * Utility method to find out the plate geometry by looking for which wells images are available.
      * 
-     * @return a constant which can be used as a vocabulary term value for $PLATE_GEOMETRY property
-     *         of a plate/
-     * @throws UserFailureException if all available geometries in openBIS are too small (there is a
-     *             well outside).
+     * @return a constant which can be used as a vocabulary term value for $PLATE_GEOMETRY property of a plate/
+     * @throws UserFailureException if all available geometries in openBIS are too small (there is a well outside).
      */
     String figureGeometry(DataSetRegistrationDetails<ImageDataSetInformation> registrationDetails);
 

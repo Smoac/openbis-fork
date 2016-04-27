@@ -534,9 +534,8 @@ class ChannelChooser
                     {
                         @Override
                         public void selectionChanged(List<String> newlySelectedChannels,
-                                @SuppressWarnings("hiding")
-                                String imageTransformationCodeOrNull, @SuppressWarnings("hiding")
-                                Map<String, IntensityRange> rangesOrNull)
+                                @SuppressWarnings("hiding") String imageTransformationCodeOrNull,
+                                @SuppressWarnings("hiding") Map<String, IntensityRange> rangesOrNull)
                         {
                             basicChannelCodes = newlySelectedChannels;
                             ChannelChooser.this.imageTransformationCodeOrNull =

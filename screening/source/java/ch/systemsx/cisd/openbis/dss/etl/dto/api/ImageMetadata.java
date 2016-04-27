@@ -2,10 +2,8 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api;
 
 import org.apache.commons.lang.StringUtils;
 
-
 /**
- * Store well, channel and tile number to which an image belongs. Optionally stores
- * timepoint/depth-scan/image series number.
+ * Store well, channel and tile number to which an image belongs. Optionally stores timepoint/depth-scan/image series number.
  * 
  * @author Tomasz Pylak
  */
@@ -71,9 +69,8 @@ public class ImageMetadata
     }
 
     /**
-     * Sets the integer series number of the image. Optional. Used to order images when there are no
-     * time or depth dimentions but there is a series of images for one well, channel and tile. Can
-     * be also used together with time and depth dimention.
+     * Sets the integer series number of the image. Optional. Used to order images when there are no time or depth dimentions but there is a series of
+     * images for one well, channel and tile. Can be also used together with time and depth dimention.
      */
     public void setSeriesNumber(Integer value)
     {
@@ -81,8 +78,7 @@ public class ImageMetadata
     }
 
     /**
-     * Sets the id of the image inside a container image file format. This is optional and not
-     * needed for image files which contain only one image.
+     * Sets the id of the image inside a container image file format. This is optional and not needed for image files which contain only one image.
      */
     public void setImageIdentifier(ImageIdentifier imageIdentifier)
     {
@@ -110,8 +106,7 @@ public class ImageMetadata
     }
 
     /**
-     * Validates that tile number, channel and well (if argument is <code>false</code>) have been
-     * specified.
+     * Validates that tile number, channel and well (if argument is <code>false</code>) have been specified.
      * 
      * @throws IllegalStateException if the object is not valid.
      */

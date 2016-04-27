@@ -22,8 +22,7 @@ import ch.systemsx.cisd.hcs.Location;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 
 /**
- * Describes properties extracted for one logical screening image (note that one file can contain
- * many logical images).
+ * Describes properties extracted for one logical screening image (note that one file can contain many logical images).
  * 
  * @author Tomasz Pylak
  */

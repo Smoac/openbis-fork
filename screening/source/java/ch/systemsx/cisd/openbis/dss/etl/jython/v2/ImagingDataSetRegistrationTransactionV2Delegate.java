@@ -486,5 +486,5 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     {
         return transaction.getLogger();
     }
-    
+
 }

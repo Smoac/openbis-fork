@@ -34,8 +34,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCriteria;
 
 /**
- * Allows to specify search criteria for materials contained in wells. Used in experiment section
- * panel or as a standalone module.
+ * Allows to specify search criteria for materials contained in wells. Used in experiment section panel or as a standalone module.
  * 
  * @author Tomasz Pylak
  */
@@ -175,7 +174,8 @@ public class WellSearchComponent extends TabContent
 
     private Widget createSearchLink()
     {
-        Button searchButton = new Button(screeningViewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.SEARCH_BUTTON));
+        Button searchButton =
+                new Button(screeningViewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.SEARCH_BUTTON));
         searchButton.setWidth(TEXT_AREA_WIDTH);
         IDelegatedAction normalModeAction = new IDelegatedAction()
             {

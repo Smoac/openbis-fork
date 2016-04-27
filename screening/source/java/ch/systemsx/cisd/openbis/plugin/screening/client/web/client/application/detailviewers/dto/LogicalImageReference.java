@@ -27,8 +27,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
- * Points to one logical image in the image dataset. For HCS it will be all images of the well. For
- * microscopy the whole dataset contains one logical image.
+ * Points to one logical image in the image dataset. For HCS it will be all images of the well. For microscopy the whole dataset contains one logical
+ * image.
  * 
  * @author Tomasz Pylak
  */
@@ -89,8 +89,7 @@ public class LogicalImageReference
     }
 
     /**
-     * Creates a new instance with refreshed dataset references, does not change the current
-     * instance.
+     * Creates a new instance with refreshed dataset references, does not change the current instance.
      */
     public LogicalImageReference updateDatasets(ImageDatasetEnrichedReference refreshedDataset)
     {

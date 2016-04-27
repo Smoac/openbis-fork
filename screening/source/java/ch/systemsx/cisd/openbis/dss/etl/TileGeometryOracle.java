@@ -29,8 +29,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.Location;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 
 /**
- * Utility methods that figure out tile locations/tile geometry based on spatial coordinates of the
- * tiles.
+ * Utility methods that figure out tile locations/tile geometry based on spatial coordinates of the tiles.
  * 
  * @author Kaloyan Enimanev
  */
@@ -61,8 +60,7 @@ public class TileGeometryOracle
     /**
      * Tries to figure out tile locations based on their spatial coordinates.
      * <p>
-     * Two spatial points (x1, y1) and (x2, y2) are assumed lie in the same tile when abs(x1-x2) <
-     * epsilon and abs(y1-y2) < epsilon.
+     * Two spatial points (x1, y1) and (x2, y2) are assumed lie in the same tile when abs(x1-x2) < epsilon and abs(y1-y2) < epsilon.
      * 
      * @param epsilon see the javadoc of the method
      */

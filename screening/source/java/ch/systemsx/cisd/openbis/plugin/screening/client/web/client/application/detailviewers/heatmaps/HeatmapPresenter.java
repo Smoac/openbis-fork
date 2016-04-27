@@ -70,8 +70,7 @@ class HeatmapPresenter
         /**
          * Generates a short description of the well, which can be used as e.g. a tooltip.
          * 
-         * @param distinguishedLabelOrNull if not null contains label of the feature which should be
-         *            distinguished.
+         * @param distinguishedLabelOrNull if not null contains label of the feature which should be distinguished.
          */
         String generateTooltip(int rowIx, int colIx, CodeAndLabel distinguishedLabelOrNull);
     }

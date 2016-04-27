@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageRef
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 @Test(groups =
-    { "slow", "systemtest" })
+{ "slow", "systemtest" })
 public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
 {
     private static String IMAGE1_FILENAME = getTestDataFolder()

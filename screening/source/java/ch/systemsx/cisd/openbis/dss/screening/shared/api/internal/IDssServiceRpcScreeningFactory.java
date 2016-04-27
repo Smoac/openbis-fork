@@ -16,10 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.screening.shared.api.internal;
 
-
 /**
- * A factory for
- * {@link ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening}.
+ * A factory for {@link ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening}.
  * 
  * @author Franz-Josef Elmer
  */

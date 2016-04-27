@@ -37,8 +37,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
- * Based on the list of available plate locations and geometries tries to figure the correct plate
- * geometry.
+ * Based on the list of available plate locations and geometries tries to figure the correct plate geometry.
  * 
  * @author Izabela Adamczyk
  */

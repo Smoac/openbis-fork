@@ -108,8 +108,8 @@ public abstract class AbstractTabularDataGraphTest extends AbstractFileSystemTes
     private static final boolean SAVE_RESULTS = false;
 
     /**
-     * Return a file for writing an image to. Depending on the value of the SAVE_RESULTS constant,
-     * the image output file will be deleted at the end of the test or saved at the end of the test.
+     * Return a file for writing an image to. Depending on the value of the SAVE_RESULTS constant, the image output file will be deleted at the end of
+     * the test or saved at the end of the test.
      */
     protected File getImageOutputFile()
     {
@@ -121,8 +121,7 @@ public abstract class AbstractTabularDataGraphTest extends AbstractFileSystemTes
     }
 
     /**
-     * Return a file for writing an image to. The file will be deleted when the test completes. Use
-     * this for normal testing.
+     * Return a file for writing an image to. The file will be deleted when the test completes. Use this for normal testing.
      */
     protected File getImageOutputFileDeletedAfterTest()
     {
@@ -130,8 +129,8 @@ public abstract class AbstractTabularDataGraphTest extends AbstractFileSystemTes
     }
 
     /**
-     * Return a file for writing an image to. The file will be <b>not</b> be deleted when the test
-     * completes. Use this for looking at the result of generating the images.
+     * Return a file for writing an image to. The file will be <b>not</b> be deleted when the test completes. Use this for looking at the result of
+     * generating the images.
      */
     protected File getImageOutputFileSavedAfterTest()
     {
@@ -149,8 +148,8 @@ public abstract class AbstractTabularDataGraphTest extends AbstractFileSystemTes
     }
 
     /**
-     * Return a file for writing an image to. The file will <b>not</b> be deleted when the test
-     * completes. Use this to view the result of the graph; useful for tweaking appearance.
+     * Return a file for writing an image to. The file will <b>not</b> be deleted when the test completes. Use this to view the result of the graph;
+     * useful for tweaking appearance.
      * 
      * @param fileName The name for the output file
      */

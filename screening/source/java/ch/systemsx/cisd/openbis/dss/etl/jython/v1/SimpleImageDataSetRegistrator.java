@@ -76,8 +76,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgIm
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
 
 /**
- * Allows to prepare the image dataset which should be registered easily using the specified
- * {@link SimpleImageDataConfig}.
+ * Allows to prepare the image dataset which should be registered easily using the specified {@link SimpleImageDataConfig}.
  * 
  * @author Tomasz Pylak
  */
@@ -577,8 +576,7 @@ public class SimpleImageDataSetRegistrator
     /**
      * Computes common intensity range for a list of files.
      * 
-     * @return calculated levels or null if calculation couldn't succeed because some images where
-     *         not in gray scale
+     * @return calculated levels or null if calculation couldn't succeed because some images where not in gray scale
      */
     public static Levels tryComputeCommonIntensityRange(IImageReader readerOrNull,
             List<File> imageFiles, float threshold)

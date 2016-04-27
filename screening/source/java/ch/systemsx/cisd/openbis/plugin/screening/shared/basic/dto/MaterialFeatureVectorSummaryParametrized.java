@@ -21,8 +21,7 @@ import java.io.Serializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * Aggregated feature vector with its ranking in one experiment for one material (represented as any
- * object T).
+ * Aggregated feature vector with its ranking in one experiment for one material (represented as any object T).
  * 
  * @author Tomasz Pylak
  */

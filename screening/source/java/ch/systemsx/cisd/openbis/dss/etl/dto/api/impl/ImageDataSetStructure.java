@@ -29,8 +29,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.ThumbnailsStorageFormat;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ToStringUtil;
 
 /**
- * Information about images needed in HCS/Microscopy. Does not contain information about datasets
- * entities and their metadata.
+ * Information about images needed in HCS/Microscopy. Does not contain information about datasets entities and their metadata.
  * 
  * @author Tomasz Pylak
  */
@@ -75,8 +74,7 @@ public class ImageDataSetStructure implements Serializable
     }
 
     /**
-     * @return image storage configuration for this dataset or null if the global configuration of
-     *         the storage processor should be used.
+     * @return image storage configuration for this dataset or null if the global configuration of the storage processor should be used.
      */
     public ImageStorageConfiguraton getImageStorageConfiguraton()
     {
@@ -110,9 +108,8 @@ public class ImageDataSetStructure implements Serializable
     }
 
     /**
-     * Use this method if channels are encoded in color components of one image (or in other words:
-     * each image contains merged channels). For each channel you have to specify the corresponding
-     * color component of the image.
+     * Use this method if channels are encoded in color components of one image (or in other words: each image contains merged channels). For each
+     * channel you have to specify the corresponding color component of the image.
      */
     public void setChannels(List<Channel> channels,
             List<ChannelColorComponent> channelColorComponents)
@@ -128,8 +125,7 @@ public class ImageDataSetStructure implements Serializable
     }
 
     /**
-     * Allows to configure various image storage parameters. Set to null if the configuration of the
-     * storage processor should be used.
+     * Allows to configure various image storage parameters. Set to null if the configuration of the storage processor should be used.
      */
     public void setImageStorageConfiguraton(ImageStorageConfiguraton imageStorageConfiguratonOrNull)
     {

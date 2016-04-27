@@ -93,7 +93,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifie
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
-
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 
 /**
@@ -200,8 +199,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     {
         return tryCreate(sessionToken, serverUrl, localDss, timeout);
     }
-    
-    
+
     private static IScreeningOpenbisServiceFacade tryCreate(final String sessionToken, final String serverUrl,
             final IDssServiceRpcScreening localDss, final long timeout)
     {
@@ -247,8 +245,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     }
 
     /**
-     * Searchs for Material given a search criteria. This functions
-     * purpose is mainly to expose this functionality to ScreeningML.
+     * Searchs for Material given a search criteria. This functions purpose is mainly to expose this functionality to ScreeningML.
      */
     @Override
     public List<Material> searchForMaterials(SearchCriteria searchCriteria)
@@ -257,8 +254,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     }
 
     /**
-     * Searchs for Samples given a search criteria. This functions
-     * purpose is mainly to expose this functionality to ScreeningML.
+     * Searchs for Samples given a search criteria. This functions purpose is mainly to expose this functionality to ScreeningML.
      */
     @Override
     public List<Sample> searchForSamples(SearchCriteria searchCriteria)

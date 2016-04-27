@@ -228,7 +228,7 @@ public class ScreeningClientApiTest
             renderMaterial(entry.getValue(), builder, indent + "  ");
         }
     }
-    
+
     private static void renderMaterial(Material material, StringBuilder builder, String indent)
     {
         builder.append(indent).append(material.getAugmentedCode()).append(" properties: ");
@@ -354,8 +354,7 @@ public class ScreeningClientApiTest
     }
 
     /**
-     * Saves images for a given list of image references (given by data set code, well position,
-     * channel and tile) in the specified files.<br>
+     * Saves images for a given list of image references (given by data set code, well position, channel and tile) in the specified files.<br>
      * The number of image references has to be the same as the number of files.
      * 
      * @throws IOException when reading images from the server or writing them to the files fails

@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.Range;
 public interface IRangeCalculator
 {
     /**
-     * Calculates the range for the specified numbers. 
+     * Calculates the range for the specified numbers.
      */
     public Range calculate(List<Float> numbers);
 }

@@ -194,10 +194,9 @@ public class WellSearchCriteria implements Serializable
 
         /**
          * Valid only if single experiment is used as a criteria.<br>
-         * It determines the behavior of the link from material detail view in a single experiment
-         * context to the material detail view in 'global' context. If this parameter is true, the
-         * context will be the project to which the current experiment belongs, otherwise the
-         * context will be switched to all experiments.
+         * It determines the behavior of the link from material detail view in a single experiment context to the material detail view in 'global'
+         * context. If this parameter is true, the context will be the project to which the current experiment belongs, otherwise the context will be
+         * switched to all experiments.
          */
         public boolean getRestrictGlobalSearchLinkToProject()
         {
@@ -372,8 +371,8 @@ public class WellSearchCriteria implements Serializable
         private TechId materialIdOrNull;
 
         /**
-         * We look for wells containing materials which have a code contained in the specified list
-         * of codes and type contained in the specified list of types.
+         * We look for wells containing materials which have a code contained in the specified list of codes and type contained in the specified list
+         * of types.
          */
         public static final MaterialSearchCriteria createCodesCriteria(String[] materialCodes,
                 String[] materialTypeCodes, boolean exactMatchOnly)

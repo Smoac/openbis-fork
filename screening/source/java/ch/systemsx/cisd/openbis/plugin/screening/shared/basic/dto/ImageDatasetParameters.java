@@ -23,8 +23,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * Describes the images in the dataset: tiles geometry, channels, dataset code and plate geometry if
- * it is HCS image.
+ * Describes the images in the dataset: tiles geometry, channels, dataset code and plate geometry if it is HCS image.
  * 
  * @author Tomasz Pylak
  */
@@ -124,7 +123,7 @@ public class ImageDatasetParameters implements Serializable
     {
         return channels.size();
     }
-    
+
     public List<InternalImageChannel> getChannels()
     {
         return channels;
@@ -172,8 +171,7 @@ public class ImageDatasetParameters implements Serializable
     }
 
     /**
-     * @param channelCodeOrNull null for merged channels (transformationCode is ignored in that
-     *            case)
+     * @param channelCodeOrNull null for merged channels (transformationCode is ignored in that case)
      */
     public String tryGetTransformerFactorySignature(String channelCodeOrNull,
             String transformationCode)

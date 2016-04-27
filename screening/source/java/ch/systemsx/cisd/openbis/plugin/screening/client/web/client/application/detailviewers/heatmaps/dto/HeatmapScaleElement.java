@@ -48,5 +48,5 @@ public class HeatmapScaleElement
     {
         return label + ":" + color.getHexColor();
     }
-    
+
 }

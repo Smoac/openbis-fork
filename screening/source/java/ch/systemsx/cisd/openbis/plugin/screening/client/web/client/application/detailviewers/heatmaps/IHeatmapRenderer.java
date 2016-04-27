@@ -33,8 +33,7 @@ interface IHeatmapRenderer<T>
     List<HeatmapScaleElement> calculateScale();
 
     /**
-     * @return first label of the scale - if scale is described by ranges (continuous scale).
-     *         Otherwise (discrete scale) returns null.
+     * @return first label of the scale - if scale is described by ranges (continuous scale). Otherwise (discrete scale) returns null.
      */
     String tryGetFirstLabel();
 }

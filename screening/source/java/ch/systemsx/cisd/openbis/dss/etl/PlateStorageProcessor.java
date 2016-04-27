@@ -55,14 +55,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 public final class PlateStorageProcessor extends AbstractImageStorageProcessor
 {
     /**
-     * Optional boolean property. Defines if all image datasets in one experiment have the same
-     * channels or if each imported dataset can have different channels. By default true.
+     * Optional boolean property. Defines if all image datasets in one experiment have the same channels or if each imported dataset can have
+     * different channels. By default true.
      */
     static final String CHANNELS_PER_EXPERIMENT_PROPERTY = "define-channels-per-experiment";
 
     /**
-     * Optional boolean property. If true an email is sent if some images for the uploaded plate are
-     * missing. True by default.
+     * Optional boolean property. If true an email is sent if some images for the uploaded plate are missing. True by default.
      */
     protected static final String NOTIFY_IF_INCOMPLETE_PROPERTY = "notify-if-incomplete";
 

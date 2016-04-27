@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
 /**
- *
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractImageDropboxTestCase extends AbstractScreeningSystemTestCase
@@ -58,19 +57,19 @@ public abstract class AbstractImageDropboxTestCase extends AbstractScreeningSyst
         moveFileToIncoming(exampleDataSet);
         waitUntilDataSetImported(FINISHED_POST_REGISTRATION_CONDITION);
     }
-    
+
     @BeforeMethod
     public void setUpImageChecker()
     {
         imageChecker = new ImageChecker(new File("tmp/wrong_images/" + getClass().getSimpleName()));
     }
-    
+
     @AfterMethod
     public void assertImageChecker()
     {
         imageChecker.assertNoFailures();
     }
-    
+
     protected void registerAdditionalOpenbisMetaData()
     {
     }
@@ -123,7 +122,7 @@ public abstract class AbstractImageDropboxTestCase extends AbstractScreeningSyst
         Experiment experiment = experiments.get(0);
         return commonServer.listRelatedDataSets(sessionToken, new DataSetRelatedEntities(Arrays.asList(experiment)), false);
     }
-    
+
     private String translateIntoCamelCase(String string)
     {
         StringBuilder builder = new StringBuilder();

@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * {@link WellFeatureVectorReference} enriched with the perm id of the plate to which the well
- * belongs.
+ * {@link WellFeatureVectorReference} enriched with the perm id of the plate to which the well belongs.
  * 
  * @author Tomasz Pylak
  */

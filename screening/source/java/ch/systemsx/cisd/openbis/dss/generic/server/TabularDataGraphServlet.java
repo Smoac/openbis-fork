@@ -42,9 +42,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImag
 /**
  * Create a graph from the imaging database.
  * <p>
- * TODO 2010-08-09, CR, LMS-1692, This implementation is inefficient. The better way to implement
- * this would be to lazily get feature vectors necessary for generating the graph, not to egerly get
- * all feature vectors.
+ * TODO 2010-08-09, CR, LMS-1692, This implementation is inefficient. The better way to implement this would be to lazily get feature vectors
+ * necessary for generating the graph, not to egerly get all feature vectors.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

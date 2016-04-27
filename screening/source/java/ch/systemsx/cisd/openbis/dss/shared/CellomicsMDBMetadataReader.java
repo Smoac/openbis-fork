@@ -113,14 +113,14 @@ public class CellomicsMDBMetadataReader
         void writeFeature(Feature feature) throws IOException
         {
             String[] row = new String[]
-                { feature.entityId, feature.getFeatureDescription(), feature.value.toString() };
+            { feature.entityId, feature.getFeatureDescription(), feature.value.toString() };
             csvWriter.writeRecord(row);
         }
 
         public void writeFeatureDefinition(FeatureDefinition fd) throws IOException
         {
             String[] row = new String[]
-                { fd.description, fd.notes };
+            { fd.description, fd.notes };
             csvWriter.writeRecord(row);
         }
 

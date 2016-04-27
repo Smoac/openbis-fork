@@ -33,8 +33,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 
 /**
- * A screening extension of {@link Hdf5CompressingPostRegistrationTask} which fixes up all
- * references in the imaging database to point to the newly created HDF5 data set.
+ * A screening extension of {@link Hdf5CompressingPostRegistrationTask} which fixes up all references in the imaging database to point to the newly
+ * created HDF5 data set.
  * 
  * @author Kaloyan Enimanev
  */
@@ -70,8 +70,7 @@ public class ScreeningHdf5PostRegistrationTask extends Hdf5CompressingPostRegist
         }
 
         /**
-         * Replaces all references to <code>dataSetCode</code> in the imaging database with
-         * <code>hdf5DataSetCode</code>.
+         * Replaces all references to <code>dataSetCode</code> in the imaging database with <code>hdf5DataSetCode</code>.
          */
         @Override
         protected void notifyTwinDataSetCreated(String hdf5DataSetCode)

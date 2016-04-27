@@ -92,11 +92,10 @@ public class DssScreeningUtils
                         ScreeningConstants.IMAGING_DATA_SOURCE);
         return QueryTool.getQuery(dataSource, IImagingTransformerDAO.class);
     }
-    
+
     /**
-     * Creates {@link Pixels} wrapper object for the specified image which can also handle
-     * 16bit index color models. Such color models are used when reading Nikon microscopy
-     * image files with ND2Reader of BioFormats.
+     * Creates {@link Pixels} wrapper object for the specified image which can also handle 16bit index color models. Such color models are used when
+     * reading Nikon microscopy image files with ND2Reader of BioFormats.
      */
     public static Pixels createPixels(BufferedImage image)
     {

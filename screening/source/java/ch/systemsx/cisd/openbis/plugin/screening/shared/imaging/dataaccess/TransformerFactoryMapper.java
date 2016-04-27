@@ -27,8 +27,6 @@ import ch.systemsx.cisd.common.db.mapper.SerializableObjectMapper;
 import net.lemnik.eodsql.TypeMapper;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TransformerFactoryMapper implements TypeMapper<IImageTransformerFactory>

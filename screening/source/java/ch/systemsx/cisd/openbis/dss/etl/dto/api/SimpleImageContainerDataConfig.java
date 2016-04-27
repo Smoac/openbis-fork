@@ -18,10 +18,9 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api;
 
 import java.util.List;
 
-
 /**
- * Subclass of {@link SimpleImageDataConfig} for container image files which creates
- * {@link ImageMetadata} based on {@link ImageIdentifier} using the following simple mapping:
+ * Subclass of {@link SimpleImageDataConfig} for container image files which creates {@link ImageMetadata} based on {@link ImageIdentifier} using the
+ * following simple mapping:
  * <ul>
  * <li>ImageMetadata.seriesNumber = ImageIdentifier.seriesIndex + 1
  * <li>ImageMetadata.timePoint = ImageIdentifier.timeSeriesIndex
@@ -29,8 +28,7 @@ import java.util.List;
  * <li>ImageMetadata.channelCode = 'CHANNEL-' + (ImageIdentifier.colorChannelIndex + 1)
  * <li>ImageMetadata.tileNumber = 1
  * </ul>
- * ImageMetadata.well will be filled with return value of method
- * {@link #tryToExtractWell(ImageIdentifier)}.
+ * ImageMetadata.well will be filled with return value of method {@link #tryToExtractWell(ImageIdentifier)}.
  * 
  * @author Franz-Josef Elmer
  */
@@ -59,8 +57,8 @@ public class SimpleImageContainerDataConfig extends SimpleImageDataConfig
     }
 
     /**
-     * Tries to extract well from the specified image identifier. Default implementation returns
-     * <code>null</code>. In case of screening this method can be overridden.
+     * Tries to extract well from the specified image identifier. Default implementation returns <code>null</code>. In case of screening this method
+     * can be overridden.
      */
     public String tryToExtractWell(ImageIdentifier imageIdentifier)
     {

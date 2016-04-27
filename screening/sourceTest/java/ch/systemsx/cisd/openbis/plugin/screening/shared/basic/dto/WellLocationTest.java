@@ -34,7 +34,7 @@ public class WellLocationTest
     Object[][] provideCorrectData()
     {
         return new Object[][]
-            {
+        {
                 { "A01", 1, 1 },
                 { "A1", 1, 1 },
                 { "A123", 1, 123 },
@@ -60,7 +60,7 @@ public class WellLocationTest
     Object[][] provideWellIdStrings()
     {
         return new Object[][]
-            {
+        {
                 { "A1", 1, 1 },
                 { "A123", 1, 123 },
                 { "B9", 2, 9 },

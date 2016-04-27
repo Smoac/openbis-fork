@@ -26,8 +26,6 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-
-
 /**
  * A bean that lists all image representation formats available for a data set.
  * 

@@ -120,8 +120,7 @@ public class WellFeatureCollectionLoader extends AbstractContentLoader
     }
 
     /**
-     * Fetches feature vectors from different datastores and merges them (assuming that feature
-     * codes are the same).
+     * Fetches feature vectors from different datastores and merges them (assuming that feature codes are the same).
      */
     private class FeatureVectorRetriever
     {

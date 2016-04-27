@@ -48,8 +48,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata;
 
 /**
- * A section of a plate detail view which shows plate's wells and allow to check the content of the
- * well quickly.
+ * A section of a plate detail view which shows plate's wells and allow to check the content of the well quickly.
  * 
  * @author Tomasz Pylak
  */

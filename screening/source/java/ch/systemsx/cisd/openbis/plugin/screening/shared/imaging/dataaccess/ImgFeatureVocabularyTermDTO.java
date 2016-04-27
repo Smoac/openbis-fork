@@ -40,7 +40,7 @@ public class ImgFeatureVocabularyTermDTO
 
     @ResultColumn("DS_ID")
     private long dataSetId;
-    
+
     // All Data-Object classes must have a default constructor.
     @SuppressWarnings("unused")
     private ImgFeatureVocabularyTermDTO()

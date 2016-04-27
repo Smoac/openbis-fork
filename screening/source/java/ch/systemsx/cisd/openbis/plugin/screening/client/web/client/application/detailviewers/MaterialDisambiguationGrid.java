@@ -55,8 +55,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.u
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 
 /**
- * Displays a list of well content materials matching the search criteria and allows to go to their
- * details.
+ * Displays a list of well content materials matching the search criteria and allows to go to their details.
  * 
  * @author Tomasz Pylak
  */

@@ -24,8 +24,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.Def
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 
 /**
- * 
- *
  * @author Tomasz Pylak
  */
 public class ScreeningClient extends Client

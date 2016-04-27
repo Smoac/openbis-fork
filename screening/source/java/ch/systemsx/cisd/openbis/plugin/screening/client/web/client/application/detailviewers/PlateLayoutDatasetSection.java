@@ -32,8 +32,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 
 /**
- * A section of dataset detail view for datasets containing HCS images. Shows where the oligo and
- * gene samples are located on the plate and allow to check the content of the well quickly.
+ * A section of dataset detail view for datasets containing HCS images. Shows where the oligo and gene samples are located on the plate and allow to
+ * check the content of the well quickly.
  * 
  * @author Tomasz Pylak
  */

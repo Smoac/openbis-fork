@@ -37,9 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 
 /**
- * A predicate for lists of entities which have {@link PlateIdentifier} as their super-class. This
- * predicate authorizes for read-only access, i.e. it will allow access to shared samples for all
- * users.
+ * A predicate for lists of entities which have {@link PlateIdentifier} as their super-class. This predicate authorizes for read-only access, i.e. it
+ * will allow access to shared samples for all users.
  * <p>
  * <i>This is an internal class. Do not use it as a user of the API.</i>
  * 
@@ -57,7 +56,7 @@ public class ScreeningPlateListReadOnlyPredicate extends
     public interface ISampleToSpaceQuery extends BaseQuery
     {
         @Select(sql = "select distinct space_id from samples where perm_id = any(?{1})", parameterBindings =
-            { StringArrayMapper.class })
+        { StringArrayMapper.class })
         public List<Long> getSampleSpaceIds(String[] samplePermIds);
     }
 

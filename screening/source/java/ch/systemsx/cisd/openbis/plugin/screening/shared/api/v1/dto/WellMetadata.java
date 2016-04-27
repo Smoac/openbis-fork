@@ -22,12 +22,9 @@ import java.util.Map;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-
-
 /**
- * {@link WellMetadata} holds a complete set of metadata for an openBIS well. Material properties of
- * wells are given a special treatment - API users can retrieve {@link Material} property values via
- * the method {@link #getMaterialProperties()}. All other property values are available via
+ * {@link WellMetadata} holds a complete set of metadata for an openBIS well. Material properties of wells are given a special treatment - API users
+ * can retrieve {@link Material} property values via the method {@link #getMaterialProperties()}. All other property values are available via
  * {@link #getProperties()}.
  * 
  * @since 1.8

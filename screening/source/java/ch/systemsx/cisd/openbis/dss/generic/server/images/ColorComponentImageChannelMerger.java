@@ -23,8 +23,8 @@ import java.util.Arrays;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
- * Handles the special case of merging image channels which in fact are encoded on the same image as
- * different color components. It makes sense to use this class only for exactly two channels.
+ * Handles the special case of merging image channels which in fact are encoded on the same image as different color components. It makes sense to use
+ * this class only for exactly two channels.
  * 
  * @author Tomasz Pylak
  */

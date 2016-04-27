@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.images.dto;
 import java.util.Map;
 
 /**
- * Describes which image transformations should be applied. Note that image-level transformation is
- * always applied for single channels.
+ * Describes which image transformations should be applied. Note that image-level transformation is always applied for single channels.
  * 
  * @author Tomasz Pylak
  */
@@ -32,8 +31,7 @@ public class ImageTransformationParams
     private final boolean useMergedChannelsTransformation;
 
     /**
-     * ignored if {@link #applyNonImageLevelTransformation} is false or if
-     * {@link #useMergedChannelsTransformation} is false
+     * ignored if {@link #applyNonImageLevelTransformation} is false or if {@link #useMergedChannelsTransformation} is false
      */
     private final String singleChannelTransformationCodeOrNull;
 

@@ -24,12 +24,9 @@ public class PlateIdentifier extends PermanentIdentifier
     /**
      * Creates a {@link PlateIdentifier} from the given <var>augmentedCode</code>.
      * 
-     * @param augmentedCode The <var>augmentedCode</code> in the form
-     *            <code>/SPACE/PROJECT/EXPERIMENT</code>
-     * @return A plate identifier corresponding to <var>augmentedCode</code>. Note that this plate
-     *         identifier has no perm id set.
-     * @throws IllegalArgumentException If the <var>augmentedCode</code> is not in one of the forms
-     *             <code>/SPACE/PLATE', /PLATE or PLATE</code>.
+     * @param augmentedCode The <var>augmentedCode</code> in the form <code>/SPACE/PROJECT/EXPERIMENT</code>
+     * @return A plate identifier corresponding to <var>augmentedCode</code>. Note that this plate identifier has no perm id set.
+     * @throws IllegalArgumentException If the <var>augmentedCode</code> is not in one of the forms <code>/SPACE/PLATE', /PLATE or PLATE</code>.
      */
     public static PlateIdentifier createFromAugmentedCode(String augmentedCode)
             throws IllegalArgumentException
@@ -55,10 +52,8 @@ public class PlateIdentifier extends PermanentIdentifier
      * Creates a {@link PlateIdentifier} from the given <var>permId</code>.
      * 
      * @param permId The <var>permId</code>
-     * @return A plate identifier corresponding to <var>permId</code>. Note that this plate
-     *         identifier has no code or space set.
-     * @throws IllegalArgumentException If the <var>augmentedCode</code> is not in one of the forms
-     *             <code>/SPACE/PLATE', /PLATE or PLATE</code>.
+     * @return A plate identifier corresponding to <var>permId</code>. Note that this plate identifier has no code or space set.
+     * @throws IllegalArgumentException If the <var>augmentedCode</code> is not in one of the forms <code>/SPACE/PLATE', /PLATE or PLATE</code>.
      */
     public static PlateIdentifier createFromPermId(String permId) throws IllegalArgumentException
     {
@@ -66,8 +61,8 @@ public class PlateIdentifier extends PermanentIdentifier
     }
 
     /**
-     * An empty <var>spaceCode</var> is interpreted as the home space, a <code>null</code>
-     * <var>spaceCode</code> is interpreted as 'no space', i.e. identifies a shared sample.
+     * An empty <var>spaceCode</var> is interpreted as the home space, a <code>null</code> <var>spaceCode</code> is interpreted as 'no space', i.e.
+     * identifies a shared sample.
      */
     protected PlateIdentifier(String plateCode, String spaceCodeOrNull)
     {

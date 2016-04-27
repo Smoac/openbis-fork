@@ -32,8 +32,8 @@ import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.dbmigration.DatabaseEngine;
 
 /**
- * Exchanges the ids of entity (material,sample,experiment,material) properties of type material
- * with other material ids. The material type of old and new property remains the same.
+ * Exchanges the ids of entity (material,sample,experiment,material) properties of type material with other material ids. The material type of old and
+ * new property remains the same.
  * 
  * @author Izabela Adamczyk
  */
@@ -157,7 +157,7 @@ public class MaterialShuffler extends SimpleJdbcDaoSupport
                         selectNewMaterial(pair, materials);
                     }
                     System.out.print(String.format("Shuffling %s - %s (%s) ...",
-                             material_type, entity,properties.size()));
+                            material_type, entity, properties.size()));
                     updateMaterials(entity, properties);
                     System.out.println("DONE.");
                 }

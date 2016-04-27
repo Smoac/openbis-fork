@@ -20,8 +20,6 @@ import java.io.Serializable;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-
-
 /**
  * Width and height of an image.
  * 

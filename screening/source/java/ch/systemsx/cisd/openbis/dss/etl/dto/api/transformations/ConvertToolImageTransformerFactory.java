@@ -20,16 +20,14 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.base.image.IStreamingImageTransformerFactory;
 
 /**
- * A {@link IStreamingImageTransformerFactory} that constructs {@link ConvertToolImageTransformer}
- * instances.
+ * A {@link IStreamingImageTransformerFactory} that constructs {@link ConvertToolImageTransformer} instances.
  * <p>
- * Warning: The serialized version of this class can be stored in the database for each image.
- * Moving this class to a different package or changing it in a backward incompatible way would make
- * all the saved transformations invalid.
+ * Warning: The serialized version of this class can be stored in the database for each image. Moving this class to a different package or changing it
+ * in a backward incompatible way would make all the saved transformations invalid.
  * 
  * @author Kaloyan Enimanev
  */
-@JsonObject(value="ConvertToolImageTransformerFactory")
+@JsonObject(value = "ConvertToolImageTransformerFactory")
 public class ConvertToolImageTransformerFactory implements IStreamingImageTransformerFactory
 {
     private static final long serialVersionUID = 1L;
@@ -39,8 +37,7 @@ public class ConvertToolImageTransformerFactory implements IStreamingImageTransf
     private final ToolChoice choice;
 
     /**
-     * An enum to choose which of the two tools, ImageMagick or GraphicsMagick, to prefer or to
-     * enforce.
+     * An enum to choose which of the two tools, ImageMagick or GraphicsMagick, to prefer or to enforce.
      */
     public enum ToolChoice
     {

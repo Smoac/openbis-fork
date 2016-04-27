@@ -85,8 +85,7 @@ public class FeatureVectorLoaderMetadataProviderFactory
     }
 
     /**
-     * Metadata provider that get's the request for dataset only once for all datasets at the moment
-     * of creation.
+     * Metadata provider that get's the request for dataset only once for all datasets at the moment of creation.
      */
     public static IMetadataProvider createMetadataProvider(
             final IEncapsulatedOpenBISService openBISService, final List<String> dataSetCodes)
@@ -97,8 +96,7 @@ public class FeatureVectorLoaderMetadataProviderFactory
     }
 
     /**
-     * Creates a metadata provider that will always ask openbis service about the required
-     * information
+     * Creates a metadata provider that will always ask openbis service about the required information
      */
     public static IMetadataProvider createMetadataProvider(
             final IEncapsulatedOpenBISService openBISService)
@@ -175,8 +173,7 @@ public class FeatureVectorLoaderMetadataProviderFactory
     }
 
     /**
-     * Metadata provider that get's the request for dataset only once for all datasets at the moment
-     * of creation
+     * Metadata provider that get's the request for dataset only once for all datasets at the moment of creation
      */
     public static IMetadataProvider createMetadataProviderFromFeatureVectors(
             final IEncapsulatedOpenBISService openBISService,

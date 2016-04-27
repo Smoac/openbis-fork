@@ -61,8 +61,8 @@ public class ImageStorageConfiguraton extends AbstractHashable implements Serial
     private IImageTransformerFactory imageTransformerFactoryOrNull;
 
     /**
-     * null by default, in this case some heuristics are used to find the right library to read the
-     * images, but it is slower and not all libraries are tried.
+     * null by default, in this case some heuristics are used to find the right library to read the images, but it is slower and not all libraries are
+     * tried.
      */
     private ImageLibraryInfo imageLibraryOrNull = null;
 
@@ -94,8 +94,8 @@ public class ImageStorageConfiguraton extends AbstractHashable implements Serial
     }
 
     /**
-     * Convenience method to switch on thumbnails generation with default settings. Overrides the
-     * results of {@link #setThumbnailsStorageFormat(ThumbnailsStorageFormat)}!.
+     * Convenience method to switch on thumbnails generation with default settings. Overrides the results of
+     * {@link #setThumbnailsStorageFormat(ThumbnailsStorageFormat)}!.
      */
     public void switchOnThumbnailsGeneration()
     {
@@ -121,8 +121,8 @@ public class ImageStorageConfiguraton extends AbstractHashable implements Serial
     }
 
     /**
-     * Signalizes that the channels should be saved on experiment level rather than dataset level.
-     * Will be ignored in case of microscopy where all channels are always saved at dataset level.
+     * Signalizes that the channels should be saved on experiment level rather than dataset level. Will be ignored in case of microscopy where all
+     * channels are always saved at dataset level.
      */
     public void setStoreChannelsOnExperimentLevel(boolean storeChannelsOnExperimentLevel)
     {
@@ -154,8 +154,7 @@ public class ImageStorageConfiguraton extends AbstractHashable implements Serial
     }
 
     /**
-     * @return library which should be used to read the images or null if the library is not
-     *         specified.
+     * @return library which should be used to read the images or null if the library is not specified.
      */
     public ImageLibraryInfo tryGetImageLibrary()
     {

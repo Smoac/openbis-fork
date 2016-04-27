@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess;
 
-
 /**
  * A container class for the plate geometry of a plate.
  *
@@ -27,8 +26,8 @@ public class PlateGeometryContainer
     public String perm_id;
 
     public String space_code;
-    
+
     public String plate_code;
-    
+
     public String plate_geometry;
 }

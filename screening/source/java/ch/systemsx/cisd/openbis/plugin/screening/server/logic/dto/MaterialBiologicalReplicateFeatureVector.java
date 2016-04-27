@@ -7,8 +7,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
 
 /**
- * Feature vector summary for the subgroup of well replicas together with detailed feature vectors
- * which were used to calculate the summary.
+ * Feature vector summary for the subgroup of well replicas together with detailed feature vectors which were used to calculate the summary.
  * 
  * @author Tomasz Pylak
  */

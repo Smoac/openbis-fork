@@ -192,7 +192,7 @@ public class PlateLayouter
                             (colIx < (renderedWells[0].length / 2)) ? "left" : "right";
                     final ToolTipConfig config = new ToolTipConfig("Loading...");
                     config.setMouseOffset(new int[]
-                        { 0, 0 });
+                    { 0, 0 });
                     config.setAnchor(anchor);
                     config.setDismissDelay(10000); // 10s to hide
                     GWTUtils.setToolTip(wellComponent, config);
@@ -277,8 +277,7 @@ public class PlateLayouter
     }
 
     /**
-     * changes the feature vector dataset presented on the plate layout. If necessary fetches the
-     * dataset from the screening server
+     * changes the feature vector dataset presented on the plate layout. If necessary fetches the dataset from the screening server
      */
     public void changeDisplayedFeatureVectorDataset(ScreeningViewContext context,
             DatasetReference reference)
@@ -338,9 +337,8 @@ public class PlateLayouter
     }
 
     /**
-     * Renders widget which visualizes the plate. The image dataset which is used to display images
-     * can be changed afterwards with {@link #changeDisplayedImageDataset} method without
-     * re-rendering.
+     * Renders widget which visualizes the plate. The image dataset which is used to display images can be changed afterwards with
+     * {@link #changeDisplayedImageDataset} method without re-rendering.
      */
     private static Widget renderView(Component[][] renderedWells,
             SimpleModelComboBox<CodeAndLabel> heatmapKindChooser,

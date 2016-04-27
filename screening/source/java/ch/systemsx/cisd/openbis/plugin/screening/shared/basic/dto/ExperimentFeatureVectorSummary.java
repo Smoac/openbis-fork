@@ -33,7 +33,7 @@ public class ExperimentFeatureVectorSummary implements Serializable
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private ExperimentReference experiment;
-    
+
     private TableModel tableModelOrNull;
 
     // summaries without computed deviation

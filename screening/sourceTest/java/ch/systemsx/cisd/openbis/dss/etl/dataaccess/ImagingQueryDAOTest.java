@@ -55,7 +55,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgSp
  * @author Piotr Buczek
  */
 @Test(groups =
-    { "db", "screening" })
+{ "db", "screening" })
 public class ImagingQueryDAOTest extends AbstractDBTest
 {
 
@@ -443,7 +443,7 @@ public class ImagingQueryDAOTest extends AbstractDBTest
 
         // test listDatasetsByPermId
         final List<ImgImageDatasetDTO> datasets = dao.listImageDatasetsByPermId(new String[]
-            { permId, "not existing" });
+        { permId, "not existing" });
         assertEquals(1, datasets.size());
         assertEquals(loadedDataset, datasets.get(0));
 

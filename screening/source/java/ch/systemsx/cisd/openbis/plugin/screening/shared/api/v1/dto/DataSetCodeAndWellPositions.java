@@ -20,12 +20,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Helper class for parsing strings containing data set code and well positions. Two forms are
- * accepted:
+ * Helper class for parsing strings containing data set code and well positions. Two forms are accepted:
+ * 
  * <pre>
  *   &lt;data set code&gt;
  * </pre>
+ * 
  * and
+ * 
  * <pre>
  *   &lt;data set code&gt;:&lt;row 1&gt;.&lt;col 1&gt; &lt;row 2&gt;.&lt;col 2&gt; ...
  * </pre>
@@ -36,8 +38,9 @@ import java.util.List;
 public class DataSetCodeAndWellPositions
 {
     private final String dataSetCode;
+
     private final List<WellPosition> wellPositions = new ArrayList<WellPosition>();
-    
+
     /**
      * Creates an instane from the specified description.
      * 
@@ -67,12 +70,11 @@ public class DataSetCodeAndWellPositions
     }
 
     /**
-     * Returns the well positions. An empty list is returned in case of missing well position
-     * descriptions.
+     * Returns the well positions. An empty list is returned in case of missing well position descriptions.
      */
     public final List<WellPosition> getWellPositions()
     {
         return wellPositions;
     }
-    
+
 }

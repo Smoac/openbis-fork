@@ -22,8 +22,6 @@ import java.util.Set;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-
-
 /**
  * Criterion based on the color depth.
  *
@@ -33,7 +31,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public class ColorDepthCriterion extends AbstractFormatSelectionCriterion
 {
     private static final long serialVersionUID = 1L;
-    
+
     private final Set<Integer> colorDepth;
 
     /**

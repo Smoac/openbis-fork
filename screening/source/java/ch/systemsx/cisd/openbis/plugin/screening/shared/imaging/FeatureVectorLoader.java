@@ -58,9 +58,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFe
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureVocabularyTermDTO;
 
 /**
- * Builder for a table of feature vectors. After building a list of feature codes and a list of
- * {@link FeatureTableRow}s are available. Feature vectors are retrieved from
- * {@link IImagingReadonlyQueryDAO}.
+ * Builder for a table of feature vectors. After building a list of feature codes and a list of {@link FeatureTableRow}s are available. Feature
+ * vectors are retrieved from {@link IImagingReadonlyQueryDAO}.
  * 
  * @author Franz-Josef Elmer
  * @author Tomasz Pylak
@@ -87,9 +86,8 @@ public class FeatureVectorLoader
     public static interface IMetadataProvider
     {
         /**
-         * Prefetches in a single call all sample identifiers for given perm ids. Calling this
-         * method before doing calls to <code>getSampleIdentifiers</code> will greatly improve
-         * performance.
+         * Prefetches in a single call all sample identifiers for given perm ids. Calling this method before doing calls to
+         * <code>getSampleIdentifiers</code> will greatly improve performance.
          */
         void getSampleIdentifiers(List<String> samplePermIds);
 
@@ -122,8 +120,7 @@ public class FeatureVectorLoader
      * 
      * @param featureCodes empty list means no filtering.
      * @param metadataProviderOrNull if null plate identifiers in FeatureTableRow are not set
-     * @throws UserFailureException if one of the specified datasets contains no feature vectors or
-     *             does not exist.
+     * @throws UserFailureException if one of the specified datasets contains no feature vectors or does not exist.
      */
     public static WellFeatureCollection<FeatureTableRow> fetchWellFeatures(
             List<FeatureVectorDatasetWellReference> references, List<String> featureCodes,
@@ -140,8 +137,7 @@ public class FeatureVectorLoader
     /**
      * fetches specified features of all wells in the specified dataset
      * 
-     * @throws UserFailureException if the specified dataset contains no feature vectors or does not
-     *             exist.
+     * @throws UserFailureException if the specified dataset contains no feature vectors or does not exist.
      */
     public static WellFeatureCollection<FeatureVectorValues> fetchWellFeatureCollection(
             List<String> datasetCodes, List<String> featureCodes, IImagingReadonlyQueryDAO dao,
@@ -170,8 +166,7 @@ public class FeatureVectorLoader
      * 
      * @param featureCodes empty list means no filtering.
      * @param metadataProviderOrNull if null plate identifiers in FeatureTableRow are not set
-     * @throws UserFailureException if one of the specified datasets contains no feature vectors or
-     *             does not exist.
+     * @throws UserFailureException if one of the specified datasets contains no feature vectors or does not exist.
      */
     public static WellFeatureCollection<FeatureTableRow> fetchDatasetFeatures(
             List<String> datasetCodes, List<String> featureCodes, IImagingReadonlyQueryDAO dao,
@@ -185,8 +180,8 @@ public class FeatureVectorLoader
     }
 
     /**
-     * Fetches all features of specified wells. Uses basic data types. If a reference to a dataset
-     * without any feature vectors is specified, it is silently ignored.
+     * Fetches all features of specified wells. Uses basic data types. If a reference to a dataset without any feature vectors is specified, it is
+     * silently ignored.
      */
     public static WellFeatureCollection<FeatureVectorValues> fetchWellFeatureValuesIfPossible(
             List<WellFeatureVectorReference> references, IImagingReadonlyQueryDAO dao,
@@ -306,8 +301,7 @@ public class FeatureVectorLoader
     /**
      * Adds feature vectors for specified feature vector data set code.
      * 
-     * @throws UserFailureException if dataset with the specified code contains no feature vectors
-     *             or does not exist.
+     * @throws UserFailureException if dataset with the specified code contains no feature vectors or does not exist.
      */
     void addFeatureVectorsOfDataSetsOrDie(Collection<String> datasetCodes)
     {
@@ -394,8 +388,7 @@ public class FeatureVectorLoader
     }
 
     /**
-     * Helper class which fetches all the results from the database at the beginning with one query,
-     * groups them and serves them from the cache.
+     * Helper class which fetches all the results from the database at the beginning with one query, groups them and serves them from the cache.
      */
     private static class DatasetFeatureDefinitionCachedLister
     {
@@ -411,8 +404,7 @@ public class FeatureVectorLoader
         /**
          * @datasets datasets in which we are interested
          * @param featureCodes codes of features for which we want to fetch the values
-         * @param useAllFeatures if true the featureCodes param is ignored and values are fetched
-         *            for all features
+         * @param useAllFeatures if true the featureCodes param is ignored and values are fetched for all features
          */
         public DatasetFeatureDefinitionCachedLister(List<ImgAnalysisDatasetDTO> datasets,
                 Set<String> featureCodes, boolean useAllFeatures, IImagingReadonlyQueryDAO dao,
@@ -604,8 +596,8 @@ public class FeatureVectorLoader
     }
 
     /**
-     * Returns all feature codes/labels found. If the feature code list in the constructor is not
-     * empty the result will a list where the codes are a subset of this list.
+     * Returns all feature codes/labels found. If the feature code list in the constructor is not empty the result will a list where the codes are a
+     * subset of this list.
      */
     List<CodeAndLabel> getCodesAndLabels()
     {
@@ -648,8 +640,8 @@ public class FeatureVectorLoader
     }
 
     /**
-     * Returns all features for the specified wells in previously loaded datasets. Operates on very
-     * basic data types. Ignores the references for which no feature vectors exist.
+     * Returns all features for the specified wells in previously loaded datasets. Operates on very basic data types. Ignores the references for which
+     * no feature vectors exist.
      */
     private List<FeatureVectorValues> createFeatureVectorValuesIfPossible(
             List<WellFeatureVectorReference> references)

@@ -30,8 +30,8 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
- * Implementation of {@link IImageGenerationAlgorithm} which generates from a bunch of images
- * a representative image where at each pixel the brightest pixel from the images are taken. 
+ * Implementation of {@link IImageGenerationAlgorithm} which generates from a bunch of images a representative image where at each pixel the brightest
+ * pixel from the images are taken.
  *
  * @author Antti Luomi
  * @author Franz-Josef Elmer
@@ -41,6 +41,7 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
     private static final class ChannelAndColorComponent
     {
         private Channel channel;
+
         private ColorComponent colorComponent;
 
         ChannelAndColorComponent(Channel channel, ColorComponent colorComponent)
@@ -63,12 +64,12 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
     private int width;
 
     private int height;
-    
+
     private boolean useThumbnails;
 
     /**
-     * Creates an instance for the specified data set type. The generated image will have the same size as
-     * the original images. The file name will be <code>maximum_intensity_projection.png</code>.
+     * Creates an instance for the specified data set type. The generated image will have the same size as the original images. The file name will be
+     * <code>maximum_intensity_projection.png</code>.
      */
     public MaximumIntensityProjectionGenerationAlgorithm(String dataSetTypeCode)
     {
@@ -76,8 +77,7 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
     }
 
     /**
-     * Creates an instance for the specified data set type and file name. 
-     * The generated image will have the same size as the original images.
+     * Creates an instance for the specified data set type and file name. The generated image will have the same size as the original images.
      */
     public MaximumIntensityProjectionGenerationAlgorithm(String dataSetTypeCode, String filename)
     {
@@ -85,8 +85,8 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
     }
 
     /**
-     * Creates an instance for the specified data set type and specified image size.
-     * The file name will be <code>maximum_intensity_projection.png</code>.
+     * Creates an instance for the specified data set type and specified image size. The file name will be
+     * <code>maximum_intensity_projection.png</code>.
      */
     public MaximumIntensityProjectionGenerationAlgorithm(String dataSetTypeCode, int width, int height)
     {
@@ -103,7 +103,7 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
         this.height = height;
         this.filename = filename;
     }
-    
+
     /**
      * Uses thumbnails (if present) instead of original images.
      */
@@ -118,9 +118,9 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
     {
         return dataSetTypeCode;
     }
-    
+
     @Override
-    public List<BufferedImage> generateImages(ImageDataSetInformation information, 
+    public List<BufferedImage> generateImages(ImageDataSetInformation information,
             List<IDataSet> thumbnailDatasets, IImageProvider imageProvider)
     {
         ImageDataSetStructure structure = information.getImageDataSetStructure();
@@ -138,7 +138,7 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
             }
             String channelCode = imageFileInfo.getChannelCode();
             ChannelAndColorComponent channelAndColorComponent = channelsByCode.get(channelCode);
-            BufferedImage image = loadImage(imageProvider, library, images, incomingDirectory, 
+            BufferedImage image = loadImage(imageProvider, library, images, incomingDirectory,
                     thumbnailDataSet, imageFileInfo, channelCode);
             image = ImageChannelsUtils.rescaleIfNot8Bit(image, 0f, channelAndColorComponent.channel.tryGetChannelColor());
             image = ImageChannelsUtils.extractChannel(image, channelAndColorComponent.colorComponent);
@@ -170,7 +170,7 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
         }
     }
 
-    private BufferedImage loadImage(IImageProvider imageProvider, ImageLibraryInfo library, 
+    private BufferedImage loadImage(IImageProvider imageProvider, ImageLibraryInfo library,
             List<ImageFileInfo> images, File incomingDirectory,
             File thumbnailDataSet, ImageFileInfo imageFileInfo, String channelCode)
     {
@@ -217,9 +217,7 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
         }
         return null;
     }
-    
-    
-    
+
     private IDataSet tryFindDataSetByPermId(List<IDataSet> dataSets, String permId)
     {
         for (IDataSet dataSet : dataSets)
@@ -232,7 +230,8 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
         return null;
     }
 
-    @Private BufferedImage loadImage(IImageProvider imageProvider, File incomingDirectory, String imagePath, 
+    @Private
+    BufferedImage loadImage(IImageProvider imageProvider, File incomingDirectory, String imagePath,
             String identifier, ImageLibraryInfo library)
     {
         File file = new File(incomingDirectory, imagePath);
@@ -259,7 +258,7 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
         }
         return channelsByCode;
     }
-    
+
     private ColorComponent tryGetColorComponent(ImageDataSetStructure structure, int i)
     {
         List<ChannelColorComponent> channelColorComponents = structure.getChannelColorComponents();
@@ -269,7 +268,7 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
         }
         return ChannelColorComponent.getColorComponent(channelColorComponents.get(i));
     }
-    
+
     private int adjust(int rgb, int maximumIntensity)
     {
         int maxIntensity = Math.min(255, maximumIntensity);
@@ -278,7 +277,7 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
         int b = rescale(getBlue(rgb), maxIntensity);
         return (r << 16) + (g << 8) + b;
     }
-    
+
     private int rescale(int intensity, int maxIntensity)
     {
         return (intensity * 255 + maxIntensity / 2) / maxIntensity;
@@ -310,7 +309,7 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
                 int intensity1 = intensity(rgb1);
                 int intensity2 = intensity(rgb2);
                 maxIntensity = Math.max(Math.max(maxIntensity, intensity1), intensity2);
- 
+
                 result.setRGB(x, y, intensity1 > intensity2 ? rgb1 : rgb2);
             }
         }

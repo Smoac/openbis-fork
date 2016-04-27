@@ -23,8 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
- * Enriches {@link IWellData} interface with well sample.
- * metadata.
+ * Enriches {@link IWellData} interface with well sample. metadata.
  * 
  * @author Tomasz Pylak
  */

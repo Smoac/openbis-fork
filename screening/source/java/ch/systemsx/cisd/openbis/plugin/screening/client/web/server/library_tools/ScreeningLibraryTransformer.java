@@ -30,8 +30,7 @@ import ch.systemsx.cisd.common.string.UnicodeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.util.MaterialConfigurationProvider;
 
 /**
- * Transforms a screening library file and produces files which can be uploaded to openBIS: genes,
- * oligos and plates with wells.
+ * Transforms a screening library file and produces files which can be uploaded to openBIS: genes, oligos and plates with wells.
  * 
  * @author Tomasz Pylak
  */

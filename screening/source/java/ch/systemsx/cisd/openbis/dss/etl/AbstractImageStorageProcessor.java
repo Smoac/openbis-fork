@@ -77,38 +77,31 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
- * Abstract superclass for storage processor which stores images in a special-purpose imaging
- * database besides putting it into the store. It has ability to compress the whole dataset as an
- * HDF5 container. It can also generate thumbnails for each image.
+ * Abstract superclass for storage processor which stores images in a special-purpose imaging database besides putting it into the store. It has
+ * ability to compress the whole dataset as an HDF5 container. It can also generate thumbnails for each image.
  * <p>
  * Accepts following properties:
  * <ul>
- * <li>generate-thumbnails - should the thumbnails be generated? It slows down the dataset
- * registration, but increases the performance when the user wants to see the image. Can be 'true'
- * or 'false', 'false' is the default value
- * <li>compress-thumbnails - should the thumbnails be compressed? Used if generate-thumbnails is
- * true, otherwise ignored
+ * <li>generate-thumbnails - should the thumbnails be generated? It slows down the dataset registration, but increases the performance when the user
+ * wants to see the image. Can be 'true' or 'false', 'false' is the default value
+ * <li>compress-thumbnails - should the thumbnails be compressed? Used if generate-thumbnails is true, otherwise ignored
  * <li>thumbnail-max-width, thumbnail-max-height - thumbnails size in pixels
  * <li>[deprecated] channel-names - names of the channels in which images have been acquired
  * <li>channel-codes - codes of the channels in which images have been acquired
  * <li>channel-labels - labels of the channels in which images have been acquired
- * <li>well_geometry - format: [width]>x[height], e.g. 3x4. Specifies the grid into which a
- * microscope divided the well to acquire images.
- * <li>file-extractor - implementation of the {@link IImageFileExtractor} interface which maps
- * images to the location on the plate and particular channel
+ * <li>well_geometry - format: [width]>x[height], e.g. 3x4. Specifies the grid into which a microscope divided the well to acquire images.
+ * <li>file-extractor - implementation of the {@link IImageFileExtractor} interface which maps images to the location on the plate and particular
+ * channel
  * <li>data-source - specification of the imaging db
- * <li>extract-single-image-channels - optional comma separated list of color components. Available
- * values: RED, GREEN or BLUE. If specified then the channels are extracted from the color
- * components and override 'file-extractor' results.
- * <li>move-unregistered-datasets-to-error-dir - Optional property, true by default. If set to false
- * then the dataset whcih cannot be registered will be left in the incoming folder and will be
- * mentioned in the .faulty_paths file.
+ * <li>extract-single-image-channels - optional comma separated list of color components. Available values: RED, GREEN or BLUE. If specified then the
+ * channels are extracted from the color components and override 'file-extractor' results.
+ * <li>move-unregistered-datasets-to-error-dir - Optional property, true by default. If set to false then the dataset whcih cannot be registered will
+ * be left in the incoming folder and will be mentioned in the .faulty_paths file.
  * </p>
  * <p>
- * Subclasses of this storage processor can be used in the context of
- * {@link IDispatchableStorageProcessor} only if the given {@link DataSetInformation} can be casted
- * to {@link ImageDataSetInformation}. This requires using special {@link IDataSetInfoExtractor}
- * extension or {@link JythonPlateDataSetHandler}.
+ * Subclasses of this storage processor can be used in the context of {@link IDispatchableStorageProcessor} only if the given
+ * {@link DataSetInformation} can be casted to {@link ImageDataSetInformation}. This requires using special {@link IDataSetInfoExtractor} extension or
+ * {@link JythonPlateDataSetHandler}.
  * </p>
  * 
  * @author Tomasz Pylak
@@ -128,8 +121,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             ImageFileExtractionResult extractedImages, boolean thumbnailsOnly);
 
     /**
-     * Additional image validation (e.g. are there all images that were expected?). Prints warnings
-     * to the log, does not throw exceptions.
+     * Additional image validation (e.g. are there all images that were expected?). Prints warnings to the log, does not throw exceptions.
      * 
      * @return true if the images are 'complete'.
      */
@@ -283,7 +275,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             return rootDirectory;
         }
 
-        private void handleImagesAndMoveToStoreIfPrimaryDataSet(DataSetInformation dataSetInfo, 
+        private void handleImagesAndMoveToStoreIfPrimaryDataSet(DataSetInformation dataSetInfo,
                 boolean primaryDataSet, final IMailClient mailClient)
         {
             ImageFileExtractionWithConfig extractionResultWithConfig =
@@ -306,14 +298,13 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
                 plainMoveToStore();
                 shouldDeleteOriginalDataOnCommit =
                         imageStorageConfiguraton.getOriginalDataStorageFormat().isHdf5()
-                        && false == isOverviewImageDataSet;
+                                && false == isOverviewImageDataSet;
             }
             if (false == isOverviewImageDataSet)
             {
                 processImages(plateImages, datasetRelativeImagesFolderPath,
                         imageStorageConfiguraton);
             }
-            
 
             processor.storeInDatabase(dbTransaction,
                     extractionResultWithConfig.getImageDatasetOwner(), extractionResult,
@@ -632,8 +623,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
     }
 
     /**
-     * @return true if the dataset has been enriched before and already contains all the information
-     *         about images.
+     * @return true if the dataset has been enriched before and already contains all the information about images.
      */
     @Override
     public boolean accepts(DataSetInformation dataSetInformation, File incomingDataSet)
@@ -820,9 +810,8 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
     }
 
     /**
-     * Moves source file/folder to the destination directory. If the source is a symbolic links to
-     * the original data then we do not move any data. Instead we create symbolic link to original
-     * data which points to the same place as the source link.
+     * Moves source file/folder to the destination directory. If the source is a symbolic links to the original data then we do not move any data.
+     * Instead we create symbolic link to original data which points to the same place as the source link.
      * 
      * @return
      */

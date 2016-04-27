@@ -324,12 +324,12 @@ public class JythonScreeningDropboxRecoveryTest extends AbstractJythonDataSetHan
     }
 
     private final String[] allFilesInPlate =
-        { "PLATE1_A01_01_Cy3.jpg", "PLATE1_A01_01_DAPI.jpg", "PLATE1_A01_01_GFP.jpg",
-                "PLATE1_A01_02_Cy3.jpg", "PLATE1_A01_02_DAPI.jpg", "PLATE1_A01_02_GFP.jpg",
-                "PLATE1_A01_03_Cy3.jpg", "PLATE1_A01_03_DAPI.jpg", "PLATE1_A01_03_GFP.jpg",
-                "PLATE1_A01_04_Cy3.jpg", "PLATE1_A01_04_DAPI.jpg", "PLATE1_A01_04_GFP.jpg",
-                "PLATE1_A01_05_Cy3.jpg", "PLATE1_A01_05_DAPI.jpg", "PLATE1_A01_05_GFP.jpg",
-                "PLATE1_A01_06_Cy3.jpg", "PLATE1_A01_06_DAPI.jpg", "PLATE1_A01_06_GFP.jpg" };
+    { "PLATE1_A01_01_Cy3.jpg", "PLATE1_A01_01_DAPI.jpg", "PLATE1_A01_01_GFP.jpg",
+            "PLATE1_A01_02_Cy3.jpg", "PLATE1_A01_02_DAPI.jpg", "PLATE1_A01_02_GFP.jpg",
+            "PLATE1_A01_03_Cy3.jpg", "PLATE1_A01_03_DAPI.jpg", "PLATE1_A01_03_GFP.jpg",
+            "PLATE1_A01_04_Cy3.jpg", "PLATE1_A01_04_DAPI.jpg", "PLATE1_A01_04_GFP.jpg",
+            "PLATE1_A01_05_Cy3.jpg", "PLATE1_A01_05_DAPI.jpg", "PLATE1_A01_05_GFP.jpg",
+            "PLATE1_A01_06_Cy3.jpg", "PLATE1_A01_06_DAPI.jpg", "PLATE1_A01_06_GFP.jpg" };
 
     /**
      * creates a simple images to import

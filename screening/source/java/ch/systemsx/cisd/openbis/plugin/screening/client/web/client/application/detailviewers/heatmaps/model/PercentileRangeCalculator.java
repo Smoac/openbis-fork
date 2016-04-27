@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.Range;
 public class PercentileRangeCalculator implements IRangeCalculator
 {
     private int minPercentile;
+
     private final int maxPercentile;
 
     public PercentileRangeCalculator(int minPercentile, int maxPercentile)
@@ -43,7 +44,7 @@ public class PercentileRangeCalculator implements IRangeCalculator
         Collections.sort(numbers);
         return new Range(pick(numbers, minPercentile), pick(numbers, maxPercentile));
     }
-    
+
     private float pick(List<Float> numbers, int percentile)
     {
         int size = numbers.size();
@@ -58,7 +59,7 @@ public class PercentileRangeCalculator implements IRangeCalculator
         float f2 = numbers.get(index2);
         return (float) (f1 * (index2 - rank) + f2 * (rank - index1));
     }
-    
+
     private int trim(double index, int size)
     {
         return Math.max(0, Math.min(size - 1, (int) index));

@@ -22,8 +22,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 
 /**
- * Bean for a row in a table of feature vectors. Each row is specified by data set code, plate
- * identifier, well position and and array of feature values.
+ * Bean for a row in a table of feature vectors. Each row is specified by data set code, plate identifier, well position and and array of feature
+ * values.
  * 
  * @author Franz-Josef Elmer
  */

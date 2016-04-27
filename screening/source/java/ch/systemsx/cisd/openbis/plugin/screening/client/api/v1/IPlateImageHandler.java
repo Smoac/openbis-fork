@@ -19,9 +19,8 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 
 /**
- * Interface of classes handling plate images as byte arrays. The bytes are either in the original
- * format of the image or PNG-encoded, depending on the parameters given to the method that uses the
- * handler.
+ * Interface of classes handling plate images as byte arrays. The bytes are either in the original format of the image or PNG-encoded, depending on
+ * the parameters given to the method that uses the handler.
  * 
  * @author Franz-Josef Elmer
  */

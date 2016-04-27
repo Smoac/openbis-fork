@@ -9,8 +9,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 
 /**
- * Filters only samples from the spaces to which the user has rights. This code works only in the
- * case of one database instance.
+ * Filters only samples from the spaces to which the user has rights. This code works only in the case of one database instance.
  * <p>
  * <i>This is an internal class. Do not use it as a user of the API.</i>
  * 

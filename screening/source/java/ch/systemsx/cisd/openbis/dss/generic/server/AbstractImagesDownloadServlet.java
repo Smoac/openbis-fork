@@ -31,8 +31,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageGenerationDes
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 
 /**
- * ABstract class for servlets which allow to download screening images in a chosen size for a
- * specified channel.
+ * ABstract class for servlets which allow to download screening images in a chosen size for a specified channel.
  * 
  * @author Tomasz Pylak
  */

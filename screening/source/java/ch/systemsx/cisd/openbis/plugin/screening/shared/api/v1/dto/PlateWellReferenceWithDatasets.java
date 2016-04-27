@@ -22,11 +22,8 @@ import java.util.List;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-
-
 /**
- * Provides a reference to a well on a screening plate, together with available data sets for the
- * screening plate.
+ * Provides a reference to a well on a screening plate, together with available data sets for the screening plate.
  * 
  * @since 1.1
  * @author Bernd Rinn

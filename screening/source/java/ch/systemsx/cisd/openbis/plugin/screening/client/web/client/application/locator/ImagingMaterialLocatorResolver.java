@@ -104,8 +104,7 @@ public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
     }
 
     /**
-     * Open the gene material details tab for the specified identifier. Optionally select experiment
-     * in the viewer.
+     * Open the gene material details tab for the specified identifier. Optionally select experiment in the viewer.
      * 
      * @param analysisProcedureCriteria
      * @param computeRanks

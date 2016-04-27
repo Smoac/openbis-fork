@@ -9,8 +9,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.model.MinMaxAndRange;
 
 /**
- * Allows to convert any object into a float and present the float on the heatmap using
- * {@link NumberHeatmapRenderer}.
+ * Allows to convert any object into a float and present the float on the heatmap using {@link NumberHeatmapRenderer}.
  */
 abstract class DelegatingFloatHeatmapRenderer<T> implements IHeatmapRenderer<T>
 {
@@ -18,9 +17,9 @@ abstract class DelegatingFloatHeatmapRenderer<T> implements IHeatmapRenderer<T>
     protected abstract Float convert(T value);
 
     protected final CodeAndLabel feature;
-    
+
     private final IHeatmapRenderer<Float> delegator;
-    
+
     public DelegatingFloatHeatmapRenderer(MinMaxAndRange minMaxRange, CodeAndLabel feature,
             IRealNumberRenderer realNumberRenderer)
     {

@@ -24,8 +24,6 @@ import java.util.Map;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-
-
 /**
  * Holds the complete metadata of a plate and its wells.
  * 
@@ -42,7 +40,7 @@ public class PlateMetadata extends PlateIdentifier
     private Geometry plateGeometry;
 
     private Map<String, String> properties;
-    
+
     private List<WellMetadata> wells;
 
     public PlateMetadata(PlateIdentifier identifier, Geometry plateGeometry, Map<String, String> properties,
@@ -92,26 +90,26 @@ public class PlateMetadata extends PlateIdentifier
         }
         return Arrays.asList(wellsArray);
     }
-    
+
     //
     // JSON-RPC
     //
 
     private PlateMetadata()
     {
-        super(null,  null);
+        super(null, null);
     }
-    
+
     private void setPlateGeometry(Geometry plateGeometry)
     {
         this.plateGeometry = plateGeometry;
     }
-    
+
     private void setProperties(Map<String, String> properties)
     {
         this.properties = properties;
     }
-    
+
     private void setWells(List<WellMetadata> wells)
     {
         this.wells = wells;

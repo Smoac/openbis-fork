@@ -26,8 +26,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 public class PlateUtils
 {
     /**
-     * Translates a row number into letter code. Thus, 1 -> A, 2 -> B, 26 -> Z, 27 -> AA, 28 -> AB,
-     * etc.
+     * Translates a row number into letter code. Thus, 1 -> A, 2 -> B, 26 -> Z, 27 -> AA, 28 -> AB, etc.
      */
     public static String translateRowNumberIntoLetterCode(int rowNumber)
     {

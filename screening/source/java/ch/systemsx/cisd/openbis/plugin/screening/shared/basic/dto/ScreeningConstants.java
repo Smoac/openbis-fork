@@ -40,15 +40,13 @@ public class ScreeningConstants
     // ---- required entity type patterns -----------
 
     /**
-     * All image datasets (both hcs and microscopy) which contain this marker in the dataset type
-     * code are considered to be container datasets with original physical dataset inside.
-     * Optionally the container can contain thumbnail datasets.
+     * All image datasets (both hcs and microscopy) which contain this marker in the dataset type code are considered to be container datasets with
+     * original physical dataset inside. Optionally the container can contain thumbnail datasets.
      */
     public static final String IMAGE_CONTAINER_DATASET_TYPE_MARKER = "_CONTAINER";
 
     /**
-     * All image datasets (both hcs and microscopy) which contain this marker in the dataset type
-     * code are considered to be thumbnail datasets.
+     * All image datasets (both hcs and microscopy) which contain this marker in the dataset type code are considered to be thumbnail datasets.
      */
     public static final String IMAGE_THUMBNAIL_DATASET_TYPE_MARKER = "_OVERVIEW";
 
@@ -73,8 +71,7 @@ public class ScreeningConstants
     public static final String HCS_RAW_IMAGE_LEGACY_DATASET_TYPE = HCS_IMAGE_DATASET_TYPE_PREFIX;
 
     /**
-     * Type of the dataset which stores plate images (raw, overvies or overlays). We do not want old
-     * analysis data to match to this pattern.
+     * Type of the dataset which stores plate images (raw, overvies or overlays). We do not want old analysis data to match to this pattern.
      */
     public static final String ANY_HCS_IMAGE_DATASET_TYPE_PATTERN = HCS_IMAGE_DATASET_TYPE_PREFIX
             + "($|[^_].*|_[^A].*|_A[^N].*|_AN[^A].*)";
@@ -155,8 +152,7 @@ public class ScreeningConstants
     public static final String DEFAULT_SEGMENTATION_IMAGE_DATASET_TYPE = "HCS_IMAGE_SEGMENTATION";
 
     /**
-     * type of the overview (aka thumbnail) image physical dataset. Used for both raw and overview
-     * datasets.
+     * type of the overview (aka thumbnail) image physical dataset. Used for both raw and overview datasets.
      */
     public static final String DEFAULT_OVERVIEW_IMAGE_DATASET_TYPE = "HCS_IMAGE_OVERVIEW";
 
@@ -171,8 +167,7 @@ public class ScreeningConstants
     public static final String ANALYSIS_FEATURE_LIST = "HCS_ANALYSIS_FEATURES_LIST";
 
     /**
-     * The name of the directory in HCS_ANALYSIS_FEATURES_LIST dataset. (so that in container it is
-     * parallel to 'original' directory)
+     * The name of the directory in HCS_ANALYSIS_FEATURES_LIST dataset. (so that in container it is parallel to 'original' directory)
      */
     public static final String ANALYSIS_FEATURE_LIST_TOP_LEVEL_DIRECTORY_NAME = "feature_lists";
 

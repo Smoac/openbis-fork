@@ -21,8 +21,7 @@ import java.io.Serializable;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.IRangeType;
 
 /**
- * Definition of a range of two float values. Note, that <code>from</code> can be greater than
- * <code>until</code>.
+ * Definition of a range of two float values. Note, that <code>from</code> can be greater than <code>until</code>.
  *
  * @author Franz-Josef Elmer
  */
@@ -31,6 +30,7 @@ public class Range implements Serializable, IRangeType
     private static final long serialVersionUID = 1L;
 
     private float from;
+
     private float until;
 
     // GWT only
@@ -38,7 +38,7 @@ public class Range implements Serializable, IRangeType
     private Range()
     {
     }
-    
+
     public Range(float from, float until)
     {
         this.from = from;

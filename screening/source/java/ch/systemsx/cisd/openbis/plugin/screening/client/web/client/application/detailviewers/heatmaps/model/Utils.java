@@ -20,8 +20,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class Utils
@@ -37,7 +35,5 @@ public class Utils
         FeatureValue value = well.tryGetFeatureValue(featureLabel);
         return value != null ? value.tryAsVocabularyTerm() : null;
     }
-
-
 
 }

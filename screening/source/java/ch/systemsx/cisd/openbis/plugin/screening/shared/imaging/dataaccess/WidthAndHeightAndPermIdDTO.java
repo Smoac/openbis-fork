@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess;
 import net.lemnik.eodsql.ResultColumn;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class WidthAndHeightAndPermIdDTO extends WidthAndHeightDTO

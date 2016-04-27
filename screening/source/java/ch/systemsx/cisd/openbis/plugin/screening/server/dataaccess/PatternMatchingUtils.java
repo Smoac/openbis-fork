@@ -24,8 +24,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningUtils;
 public class PatternMatchingUtils
 {
     /**
-     * Changes a list into a regular expression which matches in 'SIMILAR TO' postgres constructions
-     * with texts which contains any element of the list as a prefix.
+     * Changes a list into a regular expression which matches in 'SIMILAR TO' postgres constructions with texts which contains any element of the list
+     * as a prefix.
      */
     public static String asPostgresSimilarExpression(String[] substrings)
     {

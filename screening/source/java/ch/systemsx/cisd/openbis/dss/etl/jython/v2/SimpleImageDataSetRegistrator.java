@@ -74,8 +74,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgIm
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
 
 /**
- * Allows to prepare the image dataset which should be registered easily using the specified
- * {@link SimpleImageDataConfig}.
+ * Allows to prepare the image dataset which should be registered easily using the specified {@link SimpleImageDataConfig}.
  * 
  * @author Tomasz Pylak
  */
@@ -477,7 +476,7 @@ public class SimpleImageDataSetRegistrator
             operationLog.info(String.format("Computing intensity range for channel '%s'. "
                     + "Found %d images for the channel in incoming directory '%s'.", channelCode,
                     channelImages.size(), incomingDir.getName()));
-            final Levels intensityRange = tryComputeCommonIntensityRange(readerOrNull, channelImages, 
+            final Levels intensityRange = tryComputeCommonIntensityRange(readerOrNull, channelImages,
                     incomingDir, simpleImageConfig.getComputeCommonIntensityRangeOfAllImagesThreshold());
             if (intensityRange != null)
             {
@@ -511,7 +510,7 @@ public class SimpleImageDataSetRegistrator
         channel.setAvailableTransformations(buffer.getTransformations());
     }
 
-    private static List<ImageFileInfo> chooseChannelImages(List<ImageFileInfo> images, 
+    private static List<ImageFileInfo> chooseChannelImages(List<ImageFileInfo> images,
             String channelCode)
     {
         String normalizedChannelCode = CodeNormalizer.normalize(channelCode);
@@ -526,7 +525,7 @@ public class SimpleImageDataSetRegistrator
         }
         return channelImages;
     }
-    
+
     private List<Channel> tryFindChannelsToComputeCommonIntensityRange(List<Channel> channels)
     {
         List<String> channelCodes =
@@ -565,10 +564,9 @@ public class SimpleImageDataSetRegistrator
     /**
      * Computes common intensity range for a list of files.
      * 
-     * @return calculated levels or null if calculation couldn't succeed because some images where
-     *         not in gray scale
+     * @return calculated levels or null if calculation couldn't succeed because some images where not in gray scale
      */
-    private Levels tryComputeCommonIntensityRange(IImageReader readerOrNull, 
+    private Levels tryComputeCommonIntensityRange(IImageReader readerOrNull,
             List<ImageFileInfo> channelImages, File incomingDir, float threshold)
     {
         String libraryName = (readerOrNull == null) ? null : readerOrNull.getLibraryName();

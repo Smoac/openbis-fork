@@ -69,7 +69,7 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
             return null;
         }
     }
-        
+
     private static final String DATA_STORE_CODE = "DSS";
 
     private static final TechId EXPERIMENT_ID = new TechId(42);
@@ -153,8 +153,8 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
         prepareLoadExperiment();
         PhysicalDataSet ds1 =
                 new DataSetBuilder().code("ds1").type("T1")
-                .property(ScreeningConstants.ANALYSIS_PROCEDURE, "extern")
-                .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).getDataSet();
+                        .property(ScreeningConstants.ANALYSIS_PROCEDURE, "extern")
+                        .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).getDataSet();
         prepareListDataSetsByExperiment(ds1);
         prepareCreateReportFails(new UserFailureException("Oohps!"), "viewer1", ds1);
 
@@ -170,10 +170,10 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
                     + "Data Store Server. Reason: Oohps!",
                     ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLoadAnalysisSummaryFromReportWithOtherException()
     {
@@ -182,11 +182,11 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
         prepareLoadExperiment();
         PhysicalDataSet ds1 =
                 new DataSetBuilder().code("ds1").type("T1")
-                .property(ScreeningConstants.ANALYSIS_PROCEDURE, "extern")
-                .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).getDataSet();
+                        .property(ScreeningConstants.ANALYSIS_PROCEDURE, "extern")
+                        .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).getDataSet();
         prepareListDataSetsByExperiment(ds1);
         prepareCreateReportFails(new IllegalArgumentException("Oohps!"), "viewer1", ds1);
-        
+
         try
         {
             createLoaderWithoutCalculation().loadExperimentFeatureVectors(EXPERIMENT_ID,
@@ -199,10 +199,10 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
                     + "Data Store Server. See server logs for the reason.",
                     ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLoadAnalysisForMoreThanOne()
     {
@@ -253,20 +253,20 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
     {
         Properties properties = new Properties();
         prepareLoadExperiment();
-        
+
         ExperimentFeatureVectorSummary summary = createLoaderWithoutCalculation().loadExperimentFeatureVectors(EXPERIMENT_ID,
                 AnalysisProcedureCriteria.createFromCode("extern"), new AnalysisSettings(properties));
-        
+
         assertEquals(null, summary);
         context.assertIsSatisfied();
     }
-    
+
     private ExperimentFeatureVectorSummaryLoader createLoaderWithoutCalculation()
     {
         return new ExperimentFeatureVectorSummaryLoaderWithNoCalculation(session,
                 screeningBOFactory, daoFactory, screeningQuery, materialSummarySettings);
     }
-    
+
     private void prepareLoadExperiment()
     {
         context.checking(new Expectations()
@@ -284,7 +284,7 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
                 }
             });
     }
-    
+
     private void prepareListDataSetsByExperiment(final PhysicalDataSet... dataSets)
     {
         context.checking(new Expectations()
@@ -292,7 +292,7 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
                 {
                     one(screeningBOFactory).createDatasetLister(session);
                     will(returnValue(datasetLister));
-                    
+
                     one(datasetLister).listByExperimentTechId(EXPERIMENT_ID, true);
                     will(returnValue(Arrays.asList(dataSets)));
                 }
@@ -314,7 +314,7 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
                 }
             });
     }
-    
+
     private void prepareCreateReportFails(final Exception exception, final String reportingPluginKey,
             final PhysicalDataSet dataSet)
     {

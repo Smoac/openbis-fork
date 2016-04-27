@@ -28,60 +28,77 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 public class ImageSetMetaData implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
+
     private long id;
+
     private boolean original;
+
     private int width;
+
     private int height;
+
     private Integer colorDepth;
+
     private String fileType;
+
     public long getId()
     {
         return id;
     }
+
     public void setId(long id)
     {
         this.id = id;
     }
+
     public boolean isOriginal()
     {
         return original;
     }
+
     public void setOriginal(boolean original)
     {
         this.original = original;
     }
+
     public int getWidth()
     {
         return width;
     }
+
     public void setWidth(int width)
     {
         this.width = width;
     }
+
     public int getHeight()
     {
         return height;
     }
+
     public void setHeight(int height)
     {
         this.height = height;
     }
+
     public Integer getColorDepth()
     {
         return colorDepth;
     }
+
     public void setColorDepth(Integer colorDepth)
     {
         this.colorDepth = colorDepth;
     }
+
     public String getFileType()
     {
         return fileType;
     }
+
     public void setFileType(String fileType)
     {
         this.fileType = fileType;
     }
-    
+
 }

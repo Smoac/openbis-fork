@@ -32,11 +32,11 @@ public class FeatureVectorContainerDataSetTest extends AbstractFileSystemTestCas
     protected Object[][] getAnalysisMappingTypes()
     {
         return new Object[][]
-            {
+        {
                 { "HCS_ANALYSIS_WELL_FEATURES", "HCS_ANALYSIS_CONTAINER_WELL_FEATURES" },
                 { "HCS_ANALYSIS_CELL_FEATURES", "HCS_ANALYSIS_CONTAINER_CELL_FEATURES" },
                 { "HCS_ANALYSIS_TEST123", "HCS_ANALYSIS_CONTAINER_TEST123" },
-            };
+        };
     }
 
     @Test(dataProvider = "analysisMappingTypes")

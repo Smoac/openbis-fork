@@ -112,8 +112,8 @@ public class ImageDatasetMetadata implements Serializable
     /**
      * Returns channel codes.
      * <p>
-     * <i>Note: If channel codes are unspecified channel names are returned. This will be the case
-     * if a serialized instance of a previous of this class will be deserialized.</i>
+     * <i>Note: If channel codes are unspecified channel names are returned. This will be the case if a serialized instance of a previous of this
+     * class will be deserialized.</i>
      */
     public List<String> getChannelCodes()
     {
@@ -123,8 +123,8 @@ public class ImageDatasetMetadata implements Serializable
     /**
      * Returns channel labels.
      * <p>
-     * <i>Note: If channel labels are unspecified channel names are returned. This will be the case
-     * if a serialized instance of a previous of this class will be deserialized.</i>
+     * <i>Note: If channel labels are unspecified channel names are returned. This will be the case if a serialized instance of a previous of this
+     * class will be deserialized.</i>
      * 
      * @deprecated use {@link #getChannels()} instead.
      */

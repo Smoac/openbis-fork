@@ -66,16 +66,15 @@ public interface IScreeningQuery extends BaseQuery
                     + "      join material_types well_material_type on well_material.maty_id = well_material_type.id";
 
     /**
-     * @return well locations which belong to a parent plate connected to a specified experiment.
-     *         Each well will have a material property (e.g. gene) with the specified id.
+     * @return well locations which belong to a parent plate connected to a specified experiment. Each well will have a material property (e.g. gene)
+     *         with the specified id.
      */
     @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT + " where well_material.id = ?{1} and exp.id = ?{2}")
     public DataIterator<WellContentQueryResult> getPlateLocationsForMaterialId(long materialId,
             long experimentId);
 
     /**
-     * @return well locations which are connected to a given material (e.g. gene) and belong to the
-     *         experiments within a given project.
+     * @return well locations which are connected to a given material (e.g. gene) and belong to the experiments within a given project.
      */
     @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT
             + " where well_material.id = ?{1} and spaces.code = ?{2} and projects.code = ?{3}")
@@ -83,15 +82,13 @@ public interface IScreeningQuery extends BaseQuery
             String spaceCode, String projectCode);
 
     /**
-     * @return well locations which are connected to a given material (e.g. gene) with the specified
-     *         id.
+     * @return well locations which are connected to a given material (e.g. gene) with the specified id.
      */
     @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT + " where well_material.id = ?{1}")
     public DataIterator<WellContentQueryResult> getPlateLocationsForMaterialId(long materialId);
 
     /**
-     * @return well locations which are connected to a given material (e.g. gene) and belong to the
-     *         experiments within a given project.
+     * @return well locations which are connected to a given material (e.g. gene) and belong to the experiments within a given project.
      */
     @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT
             + " where well_material.id = ?{1} and projects.id = ?{2}")
@@ -99,44 +96,39 @@ public interface IScreeningQuery extends BaseQuery
             long materialId, long projectId);
 
     /**
-     * @return well locations which belong to a parent plate connected to any experiment in the
-     *         specified project. Each well will have a material property (e.g. gene) with one of
-     *         the specified codes. The connected material will have one of the specified types.
+     * @return well locations which belong to a parent plate connected to any experiment in the specified project. Each well will have a material
+     *         property (e.g. gene) with one of the specified codes. The connected material will have one of the specified types.
      */
     @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT + " where well_material.id = any(?{1}) and "
             + "well_material_type.code = any(?{2}) and spaces.code = ?{3} and projects.code = ?{4}", parameterBindings =
-        { LongArrayMapper.class, StringArrayMapper.class, TypeMapper.class /* default mapper */,
-                TypeMapper.class })
+    { LongArrayMapper.class, StringArrayMapper.class, TypeMapper.class /* default mapper */,
+            TypeMapper.class })
     public DataIterator<WellContentQueryResult> getPlateLocationsForMaterialCodesInProject(
             long[] materialIds, String[] materialTypeCodes, String spaceCode, String projectCode);
 
     /**
-     * @return well locations which belong to a parent plate connected to a specified experiment.
-     *         Each well will have a material property (e.g. gene) with one of the specified codes.
-     *         The connected material will have one of the specified types.
+     * @return well locations which belong to a parent plate connected to a specified experiment. Each well will have a material property (e.g. gene)
+     *         with one of the specified codes. The connected material will have one of the specified types.
      */
     @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT + " where well_material.id = any(?{1}) and "
             + "well_material_type.code = any(?{2}) and exp.id = ?{3}", parameterBindings =
-        { LongArrayMapper.class, StringArrayMapper.class, TypeMapper.class /* default mapper */})
+    { LongArrayMapper.class, StringArrayMapper.class, TypeMapper.class /* default mapper */})
     public DataIterator<WellContentQueryResult> getPlateLocationsForMaterialCodes(
             long[] materialIds, String[] materialTypeCodes, long experimentId);
 
     /**
-     * @return well locations with the specified materials, from any experiment. Each well will have
-     *         a material property (e.g. gene) with one of the specified codes. The connected
-     *         material will have one of the specified types.
+     * @return well locations with the specified materials, from any experiment. Each well will have a material property (e.g. gene) with one of the
+     *         specified codes. The connected material will have one of the specified types.
      */
     @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT + " where well_material.id = any(?{1}) and "
             + "well_material_type.code = any(?{2})", parameterBindings =
-        { LongArrayMapper.class, StringArrayMapper.class })
+    { LongArrayMapper.class, StringArrayMapper.class })
     public DataIterator<WellContentQueryResult> getPlateLocationsForMaterialCodes(
             long[] materialIds, String[] materialTypeCodes);
 
     /**
-     * @return the material to well plate mapping for the given <var>platePermId</var>. Only
-     *         consider materials of <var>materialTypeCode</var>. Only fills <var>well_code</var>
-     *         and <var>material_content_code</var>. Note that this may return more than one row per
-     *         well.
+     * @return the material to well plate mapping for the given <var>platePermId</var>. Only consider materials of <var>materialTypeCode</var>. Only
+     *         fills <var>well_code</var> and <var>material_content_code</var>. Note that this may return more than one row per well.
      */
     @Select(sql = "select "
             + "      well.code as well_code,"
@@ -151,10 +143,8 @@ public interface IScreeningQuery extends BaseQuery
             String materialTypeCode);
 
     /**
-     * @return the material to well plate mapping for the given <var>platePermId</var>. Consider all
-     *         material types. Only fills <var>well_code</var>, <var>material_content_code</var> and
-     *         <var>material_content_code</var>. Note that this may return more than one row per
-     *         well.
+     * @return the material to well plate mapping for the given <var>platePermId</var>. Consider all material types. Only fills <var>well_code</var>,
+     *         <var>material_content_code</var> and <var>material_content_code</var>. Note that this may return more than one row per well.
      */
     @Select(sql = "select "
             + "      well.code as well_code,"
@@ -169,10 +159,9 @@ public interface IScreeningQuery extends BaseQuery
     public DataIterator<WellContentQueryResult> getPlateMapping(String platePermId);
 
     /**
-     * @return the material to well plate mapping for the given <var>spaceCode</var> and
-     *         <var>plateCode</var>. Only consider materials of <var>materialTypeCode</var>. Only
-     *         fills <var>well_code</var> and <var>material_content_code</var>. Note that this may
-     *         return more than one row per well.
+     * @return the material to well plate mapping for the given <var>spaceCode</var> and <var>plateCode</var>. Only consider materials of
+     *         <var>materialTypeCode</var>. Only fills <var>well_code</var> and <var>material_content_code</var>. Note that this may return more than
+     *         one row per well.
      */
     @Select(sql = "select "
             + "      well.code as well_code,"
@@ -202,31 +191,28 @@ public interface IScreeningQuery extends BaseQuery
                     + "where pl.samp_id_part_of is null ";
 
     /**
-     * @param materialTypesPattern only materials with a type matching to this pattern will be
-     *            considered
+     * @param materialTypesPattern only materials with a type matching to this pattern will be considered
      * @return the material to well plate mapping for all the wells of the specified experiment.
      */
     @Select(sql = MINIMAL_WELLS_FOR_MATERIAL_ID_QUERY + " and exp.id = any(?{1}) "
             + "      and well_material_type.code similar to ?{2}", parameterBindings =
-        { LongArrayMapper.class, TypeMapper.class /* default mapper */}, fetchSize = FETCH_SIZE)
+    { LongArrayMapper.class, TypeMapper.class /* default mapper */}, fetchSize = FETCH_SIZE)
     public List<BasicWellContentQueryResult> getPlateLocationsForExperiment(long[] experimentId,
             String materialTypesPattern);
 
     /**
-     * @return the material to well plate mapping for all the wells of the specified experiment
-     *         which contain specified material.
+     * @return the material to well plate mapping for all the wells of the specified experiment which contain specified material.
      */
     @Select(sql = MINIMAL_WELLS_FOR_MATERIAL_ID_QUERY + " and exp.id = any(?{1}) "
             + "      and well_material.id = ?{2}", parameterBindings =
-        { LongArrayMapper.class, TypeMapper.class /* default mapper */}, fetchSize = FETCH_SIZE)
+    { LongArrayMapper.class, TypeMapper.class /* default mapper */}, fetchSize = FETCH_SIZE)
     public List<BasicWellContentQueryResult> getPlateLocationsForExperiment(long[] experimentId,
             long materialId);
 
     /**
-     * @return the material to well plate mapping for the given <var>spaceCode</var> and
-     *         <var>plateCode</var>. Consider all material types. Only fills <var>well_code</var>,
-     *         <var>material_content_code</var> and <var>material_content_code</var>. Note that this
-     *         may return more than one row per well.
+     * @return the material to well plate mapping for the given <var>spaceCode</var> and <var>plateCode</var>. Consider all material types. Only fills
+     *         <var>well_code</var>, <var>material_content_code</var> and <var>material_content_code</var>. Note that this may return more than one
+     *         row per well.
      */
     @Select(sql = "select "
             + "      well.code as well_code,"
@@ -242,8 +228,8 @@ public interface IScreeningQuery extends BaseQuery
     public DataIterator<WellContentQueryResult> getPlateMapping(String spaceCode, String plateCode);
 
     /**
-     * Returns the plate geometry string for the plate with given <var>platePermId</var>, or
-     * <code>null</code>, if no plate with that perm id can be found.
+     * Returns the plate geometry string for the plate with given <var>platePermId</var>, or <code>null</code>, if no plate with that perm id can be
+     * found.
      */
     @Select(sql = "select space.code as space_code, pl.code as plate_code, cvte.code as plate_geometry "
             + "      from sample_properties sp "
@@ -257,8 +243,8 @@ public interface IScreeningQuery extends BaseQuery
     public PlateGeometryContainer tryGetPlateGeometry(String platePermId);
 
     /**
-     * Returns the plate geometry string for the plate with given <var>spaceCode</var> and
-     * <var>plateCode</var>, or <code>null</code>, if no plate with that code can be found.
+     * Returns the plate geometry string for the plate with given <var>spaceCode</var> and <var>plateCode</var>, or <code>null</code>, if no plate
+     * with that code can be found.
      */
     @Select(sql = "select pl.perm_id, cvte.code as plate_geometry "
             + "      from sample_properties sp "
@@ -305,8 +291,7 @@ public interface IScreeningQuery extends BaseQuery
     public List<ExperimentReferenceQueryResult> getExperimentsWithMaterial(long materialId);
 
     /**
-     * @returns experiments restricted to the specified project in which a given material has been
-     *          screened
+     * @returns experiments restricted to the specified project in which a given material has been screened
      */
     @Select(sql = EXPERIMENTS_WITH_MATERIAL_SELECT
             + " where well_material.id = ?{1} and exp.proj_id = ?{2}")

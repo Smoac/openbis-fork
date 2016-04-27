@@ -323,10 +323,8 @@ public interface IScreeningApiServer extends IRpcService
      */
     @Transactional(readOnly = true)
     @MinimalMinorVersion(10)
-    public List<String> loadImagesBase64(@JsonRpcParam("sessionToken")
-    String sessionToken, @JsonRpcParam("imageReferences")
-    List<PlateImageReference> imageReferences, @JsonRpcParam("convertToPng")
-    boolean convertToPng);
+    public List<String> loadImagesBase64(@JsonRpcParam("sessionToken") String sessionToken,
+            @JsonRpcParam("imageReferences") List<PlateImageReference> imageReferences, @JsonRpcParam("convertToPng") boolean convertToPng);
 
     /**
      * Groups the specified objects by a data store code and calls {@link IDssServiceRpcScreening#loadThumbnailImagesBase64(String, List)} method for
@@ -336,9 +334,8 @@ public interface IScreeningApiServer extends IRpcService
      */
     @Transactional(readOnly = true)
     @MinimalMinorVersion(10)
-    public List<String> loadThumbnailImagesBase64(@JsonRpcParam("sessionToken")
-    String sessionToken, @JsonRpcParam("imageReferences")
-    List<PlateImageReference> imageReferences);
+    public List<String> loadThumbnailImagesBase64(@JsonRpcParam("sessionToken") String sessionToken,
+            @JsonRpcParam("imageReferences") List<PlateImageReference> imageReferences);
 
     /**
      * Groups the specified objects by a data store code and calls {@link IDssServiceRpcScreening#loadImagesBase64(String, List, ImageSize)} method
@@ -348,10 +345,8 @@ public interface IScreeningApiServer extends IRpcService
      */
     @Transactional(readOnly = true)
     @MinimalMinorVersion(10)
-    public List<String> loadImagesBase64(@JsonRpcParam("sessionToken")
-    String sessionToken, @JsonRpcParam("imageReferences")
-    List<PlateImageReference> imageReferences, @JsonRpcParam("size")
-    ImageSize size);
+    public List<String> loadImagesBase64(@JsonRpcParam("sessionToken") String sessionToken,
+            @JsonRpcParam("imageReferences") List<PlateImageReference> imageReferences, @JsonRpcParam("size") ImageSize size);
 
     /**
      * Groups the specified objects by a data store code and calls {@link IDssServiceRpcScreening#loadImagesBase64(String, List)} method for each
@@ -361,9 +356,8 @@ public interface IScreeningApiServer extends IRpcService
      */
     @Transactional(readOnly = true)
     @MinimalMinorVersion(10)
-    public List<String> loadImagesBase64(@JsonRpcParam("sessionToken")
-    String sessionToken, @JsonRpcParam("imageReferences")
-    List<PlateImageReference> imageReferences);
+    public List<String> loadImagesBase64(@JsonRpcParam("sessionToken") String sessionToken,
+            @JsonRpcParam("imageReferences") List<PlateImageReference> imageReferences);
 
     /**
      * Groups the specified objects by a data store code and calls
@@ -374,10 +368,9 @@ public interface IScreeningApiServer extends IRpcService
      */
     @Transactional(readOnly = true)
     @MinimalMinorVersion(10)
-    public List<String> loadImagesBase64(@JsonRpcParam("sessionToken")
-    String sessionToken, @JsonRpcParam("imageReferences")
-    List<PlateImageReference> imageReferences, @JsonRpcParam("configuration")
-    LoadImageConfiguration configuration);
+    public List<String> loadImagesBase64(@JsonRpcParam("sessionToken") String sessionToken,
+            @JsonRpcParam("imageReferences") List<PlateImageReference> imageReferences,
+            @JsonRpcParam("configuration") LoadImageConfiguration configuration);
 
     /**
      * Groups the specified objects by a data store code and calls
@@ -388,10 +381,8 @@ public interface IScreeningApiServer extends IRpcService
      */
     @Transactional(readOnly = true)
     @MinimalMinorVersion(10)
-    public List<String> loadImagesBase64(@JsonRpcParam("sessionToken")
-    String sessionToken, @JsonRpcParam("imageReferences")
-    List<PlateImageReference> imageReferences, @JsonRpcParam("format")
-    ImageRepresentationFormat format);
+    public List<String> loadImagesBase64(@JsonRpcParam("sessionToken") String sessionToken,
+            @JsonRpcParam("imageReferences") List<PlateImageReference> imageReferences, @JsonRpcParam("format") ImageRepresentationFormat format);
 
     /**
      * Groups the specified objects by a data store code and calls
@@ -402,10 +393,9 @@ public interface IScreeningApiServer extends IRpcService
      */
     @Transactional(readOnly = true)
     @MinimalMinorVersion(10)
-    public List<String> loadImagesBase64(@JsonRpcParam("sessionToken")
-    String sessionToken, @JsonRpcParam("imageReferences")
-    List<PlateImageReference> imageReferences, @JsonRpcParam("criteria")
-    IImageRepresentationFormatSelectionCriterion... criteria);
+    public List<String> loadImagesBase64(@JsonRpcParam("sessionToken") String sessionToken,
+            @JsonRpcParam("imageReferences") List<PlateImageReference> imageReferences,
+            @JsonRpcParam("criteria") IImageRepresentationFormatSelectionCriterion... criteria);
 
     /**
      * Groups the specified objects by a data store code and calls {@link IDssServiceRpcScreening#listImageMetadata(String, List)} method for each

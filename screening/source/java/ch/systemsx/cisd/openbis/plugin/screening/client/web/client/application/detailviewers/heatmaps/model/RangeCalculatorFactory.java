@@ -48,8 +48,10 @@ class RangeCalculatorFactory
             RangeType type = (RangeType) rangeType;
             switch (type)
             {
-                case MIN_MAX: return new MinMaxRangeCalculator();
-                case PERCENTILE_10_90: return new PercentileRangeCalculator(10, 90);
+                case MIN_MAX:
+                    return new MinMaxRangeCalculator();
+                case PERCENTILE_10_90:
+                    return new PercentileRangeCalculator(10, 90);
             }
         }
         throw new IllegalArgumentException("Unknown range type: " + rangeType);

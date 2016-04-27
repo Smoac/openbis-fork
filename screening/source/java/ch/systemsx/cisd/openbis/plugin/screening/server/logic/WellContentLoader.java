@@ -94,8 +94,8 @@ public class WellContentLoader extends AbstractContentLoader
     private static final int MAX_NUMBERS_OF_MATERIALS = 1000;
 
     /**
-     * Finds wells containing the specified material and belonging to the specified experiment.
-     * Loads wells metadata, but no information about connected datasets.
+     * Finds wells containing the specified material and belonging to the specified experiment. Loads wells metadata, but no information about
+     * connected datasets.
      */
     public static List<WellContent> loadOnlyMetadata(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
@@ -127,9 +127,8 @@ public class WellContentLoader extends AbstractContentLoader
     }
 
     /**
-     * Finds wells matching the specified criteria. containing the specified materials and belonging
-     * to the specified experiment. Loads wells content: metadata and (if available) image dataset
-     * and feature vectors.
+     * Finds wells matching the specified criteria. containing the specified materials and belonging to the specified experiment. Loads wells content:
+     * metadata and (if available) image dataset and feature vectors.
      */
     public static List<WellContent> load(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
@@ -154,10 +153,9 @@ public class WellContentLoader extends AbstractContentLoader
     }
 
     /**
-     * Finds wells containing the specified material and belonging to the specified experiment.
-     * Loads wells metadata and single image dataset for each well. If there are many image datasets
-     * for the well, all but the first one are ignored. If there is no image dataset for the well,
-     * the whole well is ignored.
+     * Finds wells containing the specified material and belonging to the specified experiment. Loads wells metadata and single image dataset for each
+     * well. If there are many image datasets for the well, all but the first one are ignored. If there is no image dataset for the well, the whole
+     * well is ignored.
      */
     public static List<WellReplicaImage> loadWithImages(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
@@ -272,9 +270,8 @@ public class WellContentLoader extends AbstractContentLoader
     }
 
     /**
-     * @return list of unique materials with codes or properties matching to the query. If the
-     *         experiment is specified, only materials inside well locations connected through the
-     *         plate to this specified experiment(s) will be returned.
+     * @return list of unique materials with codes or properties matching to the query. If the experiment is specified, only materials inside well
+     *         locations connected through the plate to this specified experiment(s) will be returned.
      */
     public static List<Material> loadMaterials(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
@@ -978,9 +975,8 @@ public class WellContentLoader extends AbstractContentLoader
     }
 
     /**
-     * Return *all* material objects contained in the wells as list. The list can contained
-     * different objects representing the same entity in the database, but we need the duplication
-     * to be able to populate an object graph with wells correctly.
+     * Return *all* material objects contained in the wells as list. The list can contained different objects representing the same entity in the
+     * database, but we need the duplication to be able to populate an object graph with wells correctly.
      */
     private static List<Material> getMaterialsWithDuplicates(List<WellContent> wellLocations)
     {

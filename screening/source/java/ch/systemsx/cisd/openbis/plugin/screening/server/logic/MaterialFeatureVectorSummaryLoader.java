@@ -47,8 +47,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummar
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialFeaturesOneExpCriteria;
 
 /**
- * For the specified material in the specified experiment loads feature vectors (details and
- * statistics).<br>
+ * For the specified material in the specified experiment loads feature vectors (details and statistics).<br>
  * Considers only one dataset of a particular type per plate.
  * 
  * @author Tomasz Pylak

@@ -40,7 +40,7 @@ public class ImageValidatorTest extends AbstractFileSystemTestCase
 {
 
     private Mockery context;
-   
+
     private IMailClient mailClient;
 
     private Logger operationLog;

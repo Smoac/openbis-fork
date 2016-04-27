@@ -41,5 +41,4 @@ public class ScreeningReportingBasedProcessingPlugin extends ReportingBasedProce
                 properties, storeRoot);
     }
 
-
 }

@@ -34,8 +34,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * A processing plugin that create a marker file (named with the dataset code) in specified
- * location.
+ * A processing plugin that create a marker file (named with the dataset code) in specified location.
  * 
  * @author Pawel Glyzewski
  */

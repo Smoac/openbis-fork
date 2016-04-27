@@ -33,9 +33,8 @@ public final class ImageFileExtractionResult
     private final List<AcquiredSingleImage> images;
 
     /**
-     * Path to the incoming folder with images, relative to the dataset directory. E.g. if the
-     * incoming folder name is X and the transaction's dataset registration code put it inside
-     * 'original' folder, then this path points to "original/X'.
+     * Path to the incoming folder with images, relative to the dataset directory. E.g. if the incoming folder name is X and the transaction's dataset
+     * registration code put it inside 'original' folder, then this path points to "original/X'.
      */
     private File datasetRelativeImagesFolderPath;
 

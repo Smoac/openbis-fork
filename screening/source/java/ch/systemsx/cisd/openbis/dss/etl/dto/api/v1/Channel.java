@@ -3,8 +3,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorRGB;
 
 /**
- * This class is obsolete, and should not be used. Use
- * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.Channel} instead
+ * This class is obsolete, and should not be used. Use {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.Channel} instead
  * 
  * @author Jakub Straszewski
  * @deprecated

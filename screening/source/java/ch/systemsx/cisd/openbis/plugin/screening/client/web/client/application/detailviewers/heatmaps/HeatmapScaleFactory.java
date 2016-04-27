@@ -25,9 +25,8 @@ class HeatmapScaleFactory
 {
 
     /**
-     * @param firstLabelOrNull - if null, creates a scale widget with one color described by one
-     *            label. Otherwise creates a scale widget with one color described by a range (two
-     *            labels).
+     * @param firstLabelOrNull - if null, creates a scale widget with one color described by one label. Otherwise creates a scale widget with one
+     *            color described by a range (two labels).
      */
     public static Component create(String firstLabelOrNull, List<HeatmapScaleElement> scaleElements)
     {

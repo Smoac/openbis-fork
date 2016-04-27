@@ -33,8 +33,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimension;
 /**
  * Helper class to set the <code>is_complete</code> flag in the <i>BDS</i> library.
  * <p>
- * All the possible combinations are computed in the constructor. This class is also able to spot
- * images which have already been handled.
+ * All the possible combinations are computed in the constructor. This class is also able to spot images which have already been handled.
  * </p>
  * 
  * @author Franz-Josef Elmer
@@ -124,9 +123,8 @@ public final class HCSImageCheckList extends AbstractImageChecklist
     /**
      * Throw an exception if there are duplicate images.
      * <p>
-     * This method should be called after checkOff is called on all the images to register. If any
-     * duplicate images were found in the checkOff calls, an exception will be thrown containing
-     * information about all the duplicate images.
+     * This method should be called after checkOff is called on all the images to register. If any duplicate images were found in the checkOff calls,
+     * an exception will be thrown containing information about all the duplicate images.
      * 
      * @throws IllegalArgumentException Thrown if duplicate images are detected.
      */
@@ -208,8 +206,7 @@ public final class HCSImageCheckList extends AbstractImageChecklist
         }
 
         /**
-         * Return the image associated with a location. This will be non-null if isCheckedOff is
-         * true.
+         * Return the image associated with a location. This will be non-null if isCheckedOff is true.
          * 
          * @return The image for the given location.
          */
@@ -323,8 +320,7 @@ public final class HCSImageCheckList extends AbstractImageChecklist
     }
 
     /**
-     * An internal class for intelligently keeping track of the image associated with a location and
-     * its duplicates.
+     * An internal class for intelligently keeping track of the image associated with a location and its duplicates.
      * 
      * @author Chandrasekhar Ramakrishnan
      */

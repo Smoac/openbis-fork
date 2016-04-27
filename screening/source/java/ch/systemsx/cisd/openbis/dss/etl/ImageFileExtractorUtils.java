@@ -30,7 +30,7 @@ public class ImageFileExtractorUtils
 {
 
     public static final String[] IMAGE_EXTENSIONS = new String[]
-        { "tif", "tiff", "jpg", "jpeg", "gif", "png" };
+    { "tif", "tiff", "jpg", "jpeg", "gif", "png" };
 
     public static List<File> listImageFiles(final File directory)
     {

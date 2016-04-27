@@ -78,15 +78,13 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifie
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 /**
- * Simple Matlab interface for openBIS for Screening. It is meant to be used in one Matlab session
- * at a time, i.e. it is <i>not</i> multi-threading safe.
+ * Simple Matlab interface for openBIS for Screening. It is meant to be used in one Matlab session at a time, i.e. it is <i>not</i> multi-threading
+ * safe.
  * <p>
- * While written in Java, the API is idiomatic for Matlab, i.e. values are returned as
- * multi-dimensional arrays. For the <code>get...</code> and <code>load...</code> methods the first
- * index will contain the actual data, while the second index will contain per-row annotations. For
- * <code>getFeatureMatrix</code>, the third index contains per-column annotations. This allows
- * simple access with Matlab's slicing operator, see doc of e.g.
- * {@link #getFeatureMatrix(String, String, String[])}.
+ * While written in Java, the API is idiomatic for Matlab, i.e. values are returned as multi-dimensional arrays. For the <code>get...</code> and
+ * <code>load...</code> methods the first index will contain the actual data, while the second index will contain per-row annotations. For
+ * <code>getFeatureMatrix</code>, the third index contains per-column annotations. This allows simple access with Matlab's slicing operator, see doc
+ * of e.g. {@link #getFeatureMatrix(String, String, String[])}.
  * <p>
  * A typical Matlab session looks like:
  * 
@@ -102,22 +100,18 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
  * OpenBISScreeningML.logout()
  * </pre>
  * 
- * <i>Note: using this login your password will end up in the Matlab command history. An alternative
- * that avoids this is to call the {@link ch.systemsx.cisd.openbis.generic.client.cli.Login} class.
- * Logging in on the console will grant this class access to the openBIS server.</i>
+ * <i>Note: using this login your password will end up in the Matlab command history. An alternative that avoids this is to call the
+ * {@link ch.systemsx.cisd.openbis.generic.client.cli.Login} class. Logging in on the console will grant this class access to the openBIS server.</i>
  * <p>
- * To learn the API one needs to understand three basic notions: code, augmented code and perm id.
- * Space, project, experiment, plate and well have their own <b>code</b>, which is unique only in
- * the context of the parent.<br>
- * That's why one needs <b>augmented code</b> to point e.g. to one experiment, because two different
- * projects can have experiments with the same code.<br>
+ * To learn the API one needs to understand three basic notions: code, augmented code and perm id. Space, project, experiment, plate and well have
+ * their own <b>code</b>, which is unique only in the context of the parent.<br>
+ * That's why one needs <b>augmented code</b> to point e.g. to one experiment, because two different projects can have experiments with the same code.
+ * <br>
  * Such an augmented code for experiment has a form of "/space-code/project-code/experiment-code".<br>
- * For plate it has a form of "/space-code/plate-code" (note that plate code is unique on the space
- * level). <br>
- * The drawback of an augmented code is that it's not persistent. If someone e.g. moves the
- * experiment from one space to the other augmented code of the experiment becomes invalid. That is
- * why experiments, plates and datasets have <b>perm id</b> (permament identifier) which never
- * change and allow to refer to them with one "magic" identifier, e.g. 20110516124520378-737166.
+ * For plate it has a form of "/space-code/plate-code" (note that plate code is unique on the space level). <br>
+ * The drawback of an augmented code is that it's not persistent. If someone e.g. moves the experiment from one space to the other augmented code of
+ * the experiment becomes invalid. That is why experiments, plates and datasets have <b>perm id</b> (permament identifier) which never change and
+ * allow to refer to them with one "magic" identifier, e.g. 20110516124520378-737166.
  * </p>
  * 
  * @author Bernd Rinn
@@ -259,8 +253,7 @@ public class OpenBISScreeningML
     public static final String REQUIRES_OPENBIS_DSS_API = "1.1";
 
     /**
-     * Root temporary directory for data sets and images. By default <code>java.io.tmpdir</code> is
-     * used.
+     * Root temporary directory for data sets and images. By default <code>java.io.tmpdir</code> is used.
      */
     static File tempDir = new File(System.getProperty("java.io.tmpdir"));
 
@@ -411,10 +404,10 @@ public class OpenBISScreeningML
         {
             final Object[] annotations =
                     new Object[]
-                        { experiments.get(i).getAugmentedCode(), experiments.get(i).getPermId(),
-                                experiments.get(i).getSpaceCode(),
-                                experiments.get(i).getProjectCode(),
-                                experiments.get(i).getExperimentCode() };
+                    { experiments.get(i).getAugmentedCode(), experiments.get(i).getPermId(),
+                            experiments.get(i).getSpaceCode(),
+                            experiments.get(i).getProjectCode(),
+                            experiments.get(i).getExperimentCode() };
             System.arraycopy(annotations, 0, result[i], 0, annotations.length);
         }
         return result;
@@ -483,8 +476,8 @@ public class OpenBISScreeningML
     }
 
     /**
-     * Lists the plates of <var>experiment</var> and analysis procedure. Each returned plate has at
-     * least one data set with the specified analysis procedure.
+     * Lists the plates of <var>experiment</var> and analysis procedure. Each returned plate has at least one data set with the specified analysis
+     * procedure.
      * <p>
      * Matlab example:
      * 
@@ -520,21 +513,20 @@ public class OpenBISScreeningML
         {
             final Object[] annotations =
                     new Object[]
-                        { list.get(i).getAugmentedCode(), list.get(i).getPermId(),
-                                list.get(i).tryGetSpaceCode(), list.get(i).getPlateCode(),
-                                list.get(i).getExperimentIdentifier().getAugmentedCode(),
-                                list.get(i).getExperimentIdentifier().getPermId(),
-                                list.get(i).getExperimentIdentifier().getSpaceCode(),
-                                list.get(i).getExperimentIdentifier().getProjectCode(),
-                                list.get(i).getExperimentIdentifier().getExperimentCode(), };
+                    { list.get(i).getAugmentedCode(), list.get(i).getPermId(),
+                            list.get(i).tryGetSpaceCode(), list.get(i).getPlateCode(),
+                            list.get(i).getExperimentIdentifier().getAugmentedCode(),
+                            list.get(i).getExperimentIdentifier().getPermId(),
+                            list.get(i).getExperimentIdentifier().getSpaceCode(),
+                            list.get(i).getExperimentIdentifier().getProjectCode(),
+                            list.get(i).getExperimentIdentifier().getExperimentCode(), };
             System.arraycopy(annotations, 0, result[i], 0, annotations.length);
         }
         return result;
     }
 
     /**
-     * Returns an alphabetically sorted list of analysis procedure codes of all data sets of a
-     * specified experiment.
+     * Returns an alphabetically sorted list of analysis procedure codes of all data sets of a specified experiment.
      * <p>
      * Matlab example:
      * 
@@ -686,8 +678,7 @@ public class OpenBISScreeningML
      * @param augmentedPlateCode The augmented plate code
      * @param row The row in the plate to get the well properties for
      * @param column The column in the plate to get the well properties for
-     * @return A two dimensional array where the first column contains the property codes and the
-     *         second column the corresponding property values.
+     * @return A two dimensional array where the first column contains the property codes and the second column the corresponding property values.
      */
     public static Object[][] getWellProperties(String augmentedPlateCode, int row, int column)
     {
@@ -712,8 +703,8 @@ public class OpenBISScreeningML
      * @param augmentedPlateCode The augmented plate code
      * @param row The row in the plate to get the well properties for
      * @param column The column in the plate to get the well properties for
-     * @param properties A two dimensional array where the first column contains the property codes
-     *            and the second column the corresponding property values.
+     * @param properties A two dimensional array where the first column contains the property codes and the second column the corresponding property
+     *            values.
      */
     public static void updateWellProperties(String augmentedPlateCode, int row, int column,
             Object[][] properties)
@@ -755,8 +746,7 @@ public class OpenBISScreeningML
      * 
      * @param augmentedPlateCode The augmented plate code.
      * @return <code>{ images width, images height, number of tiles in the well, 
-     *                 number of tiles rows, number of tiles columns, number of plate rows, number of plate columns }</code>
-     *         .
+     *                 number of tiles rows, number of tiles columns, number of plate rows, number of plate columns }</code> .
      */
     public static Object[][] getImagesMetadata(String augmentedPlateCode)
     {
@@ -773,9 +763,9 @@ public class OpenBISScreeningML
             Geometry plateGeometry = imageDatasetReference.getPlateGeometry();
             result[i] =
                     new Object[]
-                        { meta.getWidth(), meta.getHeight(), meta.getNumberOfTiles(),
-                                meta.getTilesRows(), meta.getTilesCols(),
-                                plateGeometry.getNumberOfRows(), plateGeometry.getNumberOfColumns() };
+                    { meta.getWidth(), meta.getHeight(), meta.getNumberOfTiles(),
+                            meta.getTilesRows(), meta.getTilesCols(),
+                            plateGeometry.getNumberOfRows(), plateGeometry.getNumberOfColumns() };
         }
         return result;
     }
@@ -795,8 +785,7 @@ public class OpenBISScreeningML
      * </pre>
      * 
      * @param experiment The augmented code of the experiment to list the channels for
-     * @return Each row contains information about one channel. Currently the only information
-     *         available is the channel name.
+     * @return Each row contains information about one channel. Currently the only information available is the channel name.
      */
     public static Object[][] listChannels(String experiment)
     {
@@ -842,12 +831,10 @@ public class OpenBISScreeningML
      * </pre>
      * 
      * @param experiment The augmented code of the experiment to list the features for
-     * @param analysisProcedureOrNull The analysis procedure used to filter the result. That is, the
-     *            result is restricted to feature vector data sets with a value of property
-     *            <code>ANALYSIS_PROCEDURE</code> as specified. If <code>null</code> (or
-     *            <code>[]</code> in MatLab) no restriction applies.
-     * @return Each row contains information about one feature. Currently the only information
-     *         available is the feature name.
+     * @param analysisProcedureOrNull The analysis procedure used to filter the result. That is, the result is restricted to feature vector data sets
+     *            with a value of property <code>ANALYSIS_PROCEDURE</code> as specified. If <code>null</code> (or <code>[]</code> in MatLab) no
+     *            restriction applies.
+     * @return Each row contains information about one feature. Currently the only information available is the feature name.
      */
     public static Object[][] listFeatures(String experiment, String analysisProcedureOrNull)
     {
@@ -878,11 +865,9 @@ public class OpenBISScreeningML
     }
 
     /**
-     * Loads data sets for specified plate code. For each data set the path to the root of the data
-     * set is returned. If it is possible the path points directly into the data set store. No data
-     * is copied. Otherwise the data is retrieved from the data store server.<br>
-     * If the same dataset is loaded for the second time in one session it will be immediately
-     * returned from the local cache.
+     * Loads data sets for specified plate code. For each data set the path to the root of the data set is returned. If it is possible the path points
+     * directly into the data set store. No data is copied. Otherwise the data is retrieved from the data store server.<br>
+     * If the same dataset is loaded for the second time in one session it will be immediately returned from the local cache.
      * <p>
      * Matlab example:
      * 
@@ -904,11 +889,10 @@ public class OpenBISScreeningML
      * </pre>
      * 
      * @param augmentedPlateCode The augmented plate code.
-     * @param dataSetTypeCodePattern only datasets of the type which matches the specified pattern
-     *            will be returned. To fetch all datasets specify ".*".
-     * @param overrideStoreRootPathOrNull A path, in the context of the local file system mounts, to
-     *            the DSS' store root. If null, paths are returned in the context of the DSS' file
-     *            system mounts.
+     * @param dataSetTypeCodePattern only datasets of the type which matches the specified pattern will be returned. To fetch all datasets specify
+     *            ".*".
+     * @param overrideStoreRootPathOrNull A path, in the context of the local file system mounts, to the DSS' store root. If null, paths are returned
+     *            in the context of the DSS' file system mounts.
      * @return Each row contains information about one data set:
      *         <p>
      *         <code>{ data set code, data set root path, { {key1, value1}, {key2, value2} ...}, parents }</code>
@@ -921,11 +905,9 @@ public class OpenBISScreeningML
     }
 
     /**
-     * Loads data sets for specified plate code. For each data set the path to the root of the data
-     * set is returned. If it is possible the path points directly into the data set store. No data
-     * is copied. Otherwise the data is retrieved from the data store server.<br>
-     * If the same dataset is loaded for the second time in one session it will be immediately
-     * returned from the local cache.
+     * Loads data sets for specified plate code. For each data set the path to the root of the data set is returned. If it is possible the path points
+     * directly into the data set store. No data is copied. Otherwise the data is retrieved from the data store server.<br>
+     * If the same dataset is loaded for the second time in one session it will be immediately returned from the local cache.
      * <p>
      * Matlab example:
      * 
@@ -948,15 +930,13 @@ public class OpenBISScreeningML
      * </pre>
      * 
      * @param augmentedPlateCode The augmented plate code.
-     * @param dataSetTypeCodePattern only data sets of the type which matches the specified pattern
-     *            will be returned. To fetch all data sets specify ".*".
-     * @param properties Only data set with specified property values will be returned. This is a
-     *            two dimensional array where the first column contains the property codes and the
-     *            second column the corresponding property values.
+     * @param dataSetTypeCodePattern only data sets of the type which matches the specified pattern will be returned. To fetch all data sets specify
+     *            ".*".
+     * @param properties Only data set with specified property values will be returned. This is a two dimensional array where the first column
+     *            contains the property codes and the second column the corresponding property values.
      * @return Each row contains information about one data set:
-     * @param overrideStoreRootPathOrNull A path, in the context of the local file system mounts, to
-     *            the DSS' store root. If null, paths are returned in the context of the DSS' file
-     *            system mounts.
+     * @param overrideStoreRootPathOrNull A path, in the context of the local file system mounts, to the DSS' store root. If null, paths are returned
+     *            in the context of the DSS' file system mounts.
      *            <p>
      *            <code>{ data set code, data set root path, { {key1, value1}, {key2, value2} ...}, parents }</code>
      */
@@ -981,11 +961,9 @@ public class OpenBISScreeningML
     }
 
     /**
-     * Loads data sets for specified experiment code. For each data set the path to the root of the
-     * data set is returned. If it is possible the path points directly into the data set store. No
-     * data is copied. Otherwise the data is retrieved from the data store server.<br>
-     * If the same dataset is loaded for the second time in one session it will be immediately
-     * returned from the local cache.
+     * Loads data sets for specified experiment code. For each data set the path to the root of the data set is returned. If it is possible the path
+     * points directly into the data set store. No data is copied. Otherwise the data is retrieved from the data store server.<br>
+     * If the same dataset is loaded for the second time in one session it will be immediately returned from the local cache.
      * <p>
      * Matlab example:
      * 
@@ -1008,15 +986,13 @@ public class OpenBISScreeningML
      * </pre>
      * 
      * @param augmentedExperimentCode The augmented experiment code.
-     * @param dataSetTypeCodePattern only data sets of the type which matches the specified pattern
-     *            will be returned. To fetch all data sets specify ".*".
-     * @param properties Only data set with specified property values will be returned. This is a
-     *            two dimensional array where the first column contains the property codes and the
-     *            second column the corresponding property values.
+     * @param dataSetTypeCodePattern only data sets of the type which matches the specified pattern will be returned. To fetch all data sets specify
+     *            ".*".
+     * @param properties Only data set with specified property values will be returned. This is a two dimensional array where the first column
+     *            contains the property codes and the second column the corresponding property values.
      * @return Each row contains information about one data set:
-     * @param overrideStoreRootPathOrNull A path, in the context of the local file system mounts, to
-     *            the DSS' store root. If null, paths are returned in the context of the DSS' file
-     *            system mounts.
+     * @param overrideStoreRootPathOrNull A path, in the context of the local file system mounts, to the DSS' store root. If null, paths are returned
+     *            in the context of the DSS' file system mounts.
      *            <p>
      *            <code>{ data set code, data set root path, { {key1, value1}, {key2, value2} ...}, parents }</code>
      */
@@ -1042,8 +1018,7 @@ public class OpenBISScreeningML
     }
 
     /**
-     * Lists all files of all data sets for specified experiment and data set type code matching
-     * specified regular expression pattern.
+     * Lists all files of all data sets for specified experiment and data set type code matching specified regular expression pattern.
      * <p>
      * Matlab example:
      * 
@@ -1060,8 +1035,8 @@ public class OpenBISScreeningML
      * </pre>
      * 
      * @param augmentedExperimentCode The augmented experiment code.
-     * @param dataSetTypeCodePattern only data sets of the type which matches the specified pattern
-     *            will be returned. To fetch all data sets specify ".*".
+     * @param dataSetTypeCodePattern only data sets of the type which matches the specified pattern will be returned. To fetch all data sets specify
+     *            ".*".
      * @return <code>{data set code, file/folder paths}</code>
      */
     public static Object[][][] listDataSetFilesForExperiment(String augmentedExperimentCode,
@@ -1082,7 +1057,7 @@ public class OpenBISScreeningML
             String code = dataSet.getCode();
             result[i] = new Object[4][];
             result[i][0] = new Object[]
-                { code };
+            { code };
             result[i][1] = new Object[fileInfos.length];
             for (int j = 0; j < fileInfos.length; j++)
             {
@@ -1114,7 +1089,7 @@ public class OpenBISScreeningML
             }
             Object[][] dataSetProperties = listProperties(dataSet.getProperties());
             result[i] = new Object[]
-                { code, file.getPath(), dataSetProperties, parentCodes };
+            { code, file.getPath(), dataSetProperties, parentCodes };
         }
         return result;
     }
@@ -1142,9 +1117,8 @@ public class OpenBISScreeningML
     }
 
     /**
-     * Loads file/folder of specified data set and specified file/folder path inside the data set.
-     * If it is possible the path points directly into the data set store. No data is copied.
-     * Otherwise the data is retrieved from the data store server.
+     * Loads file/folder of specified data set and specified file/folder path inside the data set. If it is possible the path points directly into the
+     * data set store. No data is copied. Otherwise the data is retrieved from the data store server.
      * <p>
      * Matlab example:
      * 
@@ -1158,11 +1132,9 @@ public class OpenBISScreeningML
      * </pre>
      * 
      * @param dataSetCode The code of the data set.
-     * @param pathInDataSet Path inside the data set pointing to the file/folder which should be
-     *            down loaded. Use '/' if all files are requested.
-     * @param overrideStoreRootPathOrNull A path, in the context of the local file system mounts, to
-     *            the DSS' store root. If null, paths are returned in the context of the DSS' file
-     *            system mounts.
+     * @param pathInDataSet Path inside the data set pointing to the file/folder which should be down loaded. Use '/' if all files are requested.
+     * @param overrideStoreRootPathOrNull A path, in the context of the local file system mounts, to the DSS' store root. If null, paths are returned
+     *            in the context of the DSS' file system mounts.
      * @return path to the down loaded file/folder.
      */
     public static Object loadDataSetFile(String dataSetCode, String pathInDataSet,
@@ -1180,8 +1152,7 @@ public class OpenBISScreeningML
     }
 
     /**
-     * Lists all files of all data sets for specifies plate and data set type code matching
-     * specified regular expression pattern.
+     * Lists all files of all data sets for specifies plate and data set type code matching specified regular expression pattern.
      * <p>
      * Matlab example:
      * 
@@ -1198,8 +1169,8 @@ public class OpenBISScreeningML
      * </pre>
      * 
      * @param augmentedPlateCode The augmented plate code.
-     * @param dataSetTypeCodePattern only data sets of the type which matches the specified pattern
-     *            will be returned. To fetch all data sets specify ".*".
+     * @param dataSetTypeCodePattern only data sets of the type which matches the specified pattern will be returned. To fetch all data sets specify
+     *            ".*".
      * @return <code>{data set code, file/folder paths}</code>
      */
     public static Object[][][] listDataSetsFiles(String augmentedPlateCode,
@@ -1219,7 +1190,7 @@ public class OpenBISScreeningML
             String code = dataSet.getCode();
             result[i] = new Object[4][];
             result[i][0] = new Object[]
-                { code };
+            { code };
             result[i][1] = new Object[fileInfos.length];
             for (int j = 0; j < fileInfos.length; j++)
             {
@@ -1231,9 +1202,8 @@ public class OpenBISScreeningML
     }
 
     /**
-     * Lists meta data of specified data sets. This includes data set type, properties and codes of
-     * connected parent and children data sets. The result is returned in the same order as the data
-     * set code array argument.
+     * Lists meta data of specified data sets. This includes data set type, properties and codes of connected parent and children data sets. The
+     * result is returned in the same order as the data set code array argument.
      * <p>
      * Matlab example:
      * 
@@ -1253,8 +1223,7 @@ public class OpenBISScreeningML
      * </pre>
      * 
      * @param dataSetCodes Codes of data sets from whom meta data are queried.
-     * @return For each data set:
-     *         <code>{{data set code, data set type}, { {key1, value1}, {key2, value2} ...}, parents, children }</code>
+     * @return For each data set: <code>{{data set code, data set type}, { {key1, value1}, {key2, value2} ...}, parents, children }</code>
      */
     public static Object[][][] getDataSetMetaData(String[] dataSetCodes)
     {
@@ -1275,14 +1244,16 @@ public class OpenBISScreeningML
             DataSet dataSet = dataSetMap.tryGet(dataSetCodes[i]);
             result[i] = new Object[5][];
             result[i][0] = new Object[]
-                { dataSet.getCode(), dataSet.getDataSetTypeCode() };
+            { dataSet.getCode(), dataSet.getDataSetTypeCode() };
             result[i][1] = listProperties(dataSet.getProperties());
             result[i][2] = dataSet.getParentCodes().toArray();
             result[i][3] = dataSet.getChildrenCodes().toArray();
-            if (dataSet.isContainerDataSet()){
-              result[i][4] = new Object[] { "" };
-            } else {
-              result[i][4] = new Object[] { dataSet.tryGetInternalPathInDataStore() };
+            if (dataSet.isContainerDataSet())
+            {
+                result[i][4] = new Object[] { "" };
+            } else
+            {
+                result[i][4] = new Object[] { dataSet.tryGetInternalPathInDataStore() };
             }
         }
 
@@ -1304,8 +1275,8 @@ public class OpenBISScreeningML
      * @param augmentedPlateCode The augmented plate code.
      * @param dataSetFilePath Path to the data set file/folder to be uploaded.
      * @param dataSetType Data set type.
-     * @param dataSetProperties A two dimensional array where the first column contains the property
-     *            codes and the second column the corresponding property values.
+     * @param dataSetProperties A two dimensional array where the first column contains the property codes and the second column the corresponding
+     *            property values.
      */
     public static Object uploadDataSet(String augmentedPlateCode, String dataSetFilePath,
             String dataSetType, Object[][] dataSetProperties)
@@ -1349,8 +1320,8 @@ public class OpenBISScreeningML
      * @param parentDataSetCodeObjects The codes of the parents of this data set
      * @param dataSetFilePath Path to the data set file/folder to be uploaded.
      * @param dataSetType Data set type.
-     * @param dataSetProperties A two dimensional array where the first column contains the property
-     *            codes and the second column the corresponding property values.
+     * @param dataSetProperties A two dimensional array where the first column contains the property codes and the second column the corresponding
+     *            property values.
      */
     public static Object uploadDataSetForPlateAndParents(String augmentedPlateCode,
             Object[] parentDataSetCodeObjects, String dataSetFilePath, String dataSetType,
@@ -1379,8 +1350,7 @@ public class OpenBISScreeningML
     }
 
     /**
-     * Uploads a data set to the specified experiment, setting the data set parents. The data set
-     * code will be returned.
+     * Uploads a data set to the specified experiment, setting the data set parents. The data set code will be returned.
      * <p>
      * Matlab example:
      * 
@@ -1397,8 +1367,8 @@ public class OpenBISScreeningML
      * @param parentDataSetCodeObjects The codes of the parents of this data set
      * @param dataSetFilePath Path to the data set file/folder to be uploaded.
      * @param dataSetType Data set type.
-     * @param dataSetProperties A two dimensional array where the first column contains the property
-     *            codes and the second column the corresponding property values.
+     * @param dataSetProperties A two dimensional array where the first column contains the property codes and the second column the corresponding
+     *            property values.
      */
     public static Object uploadDataSetForExperimentAndParents(String augmentedExperimentCode,
             Object[] parentDataSetCodeObjects, String dataSetFilePath, String dataSetType,
@@ -1458,9 +1428,8 @@ public class OpenBISScreeningML
     //
 
     /**
-     * Loads the TIFF images for the given well location, all tiles and all channels and stores them
-     * in temporary files. The temporary files will be removed automatically when the Java Virtual
-     * Machine exits.
+     * Loads the TIFF images for the given well location, all tiles and all channels and stores them in temporary files. The temporary files will be
+     * removed automatically when the Java Virtual Machine exits.
      * <p>
      * Matlab example:
      * 
@@ -1478,11 +1447,9 @@ public class OpenBISScreeningML
      * @param col The column in the plate to get the images for
      * @return <code>{ names of TIFF files, image annotation }</code>
      *         <p>
-     *         Each of <code>names of TIFF files</code> and <code>image annotation</code> is a
-     *         vector of length of the number of images.
+     *         Each of <code>names of TIFF files</code> and <code>image annotation</code> is a vector of length of the number of images.
      *         <p>
-     *         <code>image annotation</code> contains
-     *         <code>{ channel name, tile number, plate well description, 
+     *         <code>image annotation</code> contains <code>{ channel name, tile number, plate well description, 
      *         plate augmented code, plate perm id, plate space code, plate code, row, column, 
      *         experiment augmented code, experiment perm id, experiment space code, 
      *         experiment project code, experiment code, data set code }</code>
@@ -1493,9 +1460,8 @@ public class OpenBISScreeningML
     }
 
     /**
-     * Loads the TIFF images for the given well location, tile number, and all channels and stores
-     * them in temporary files. The temporary files will be removed automatically when the Java
-     * Virtual Machine exits.
+     * Loads the TIFF images for the given well location, tile number, and all channels and stores them in temporary files. The temporary files will
+     * be removed automatically when the Java Virtual Machine exits.
      * <p>
      * Matlab example:
      * 
@@ -1514,11 +1480,9 @@ public class OpenBISScreeningML
      * @param tile The tile number. Starts with 0.
      * @return <code>{ names of TIFF files, image annotation }</code>
      *         <p>
-     *         Each of <code>names of TIFF files</code> and <code>image annotation</code> is a
-     *         vector of length of the number of images.
+     *         Each of <code>names of TIFF files</code> and <code>image annotation</code> is a vector of length of the number of images.
      *         <p>
-     *         <code>image annotation</code> contains
-     *         <code>{ channel name, tile number, plate well description, 
+     *         <code>image annotation</code> contains <code>{ channel name, tile number, plate well description, 
      *         plate augmented code, plate perm id, plate space code, plate code, row, column, 
      *         experiment augmented code, experiment perm id, experiment space code, 
      *         experiment project code, experiment code, data set code }</code>
@@ -1529,9 +1493,8 @@ public class OpenBISScreeningML
     }
 
     /**
-     * Loads the TIFF images for the given well location, list of channels, and all tiles and stores
-     * them in temporary files. The temporary files will be removed automatically when the Java
-     * Virtual Machine exits.
+     * Loads the TIFF images for the given well location, list of channels, and all tiles and stores them in temporary files. The temporary files will
+     * be removed automatically when the Java Virtual Machine exits.
      * <p>
      * Matlab example:
      * 
@@ -1550,11 +1513,9 @@ public class OpenBISScreeningML
      * @param channels The names of the channels to get the images for
      * @return <code>{ names of TIFF files, image annotation }</code>
      *         <p>
-     *         Each of <code>names of TIFF files</code> and <code>image annotation</code> is a
-     *         vector of length of the number of images.
+     *         Each of <code>names of TIFF files</code> and <code>image annotation</code> is a vector of length of the number of images.
      *         <p>
-     *         <code>image annotation</code> contains
-     *         <code>{ channel name, tile number, plate well description, 
+     *         <code>image annotation</code> contains <code>{ channel name, tile number, plate well description, 
      *         plate augmented code, plate perm id, plate space code, plate code, row, column, 
      *         experiment augmented code, experiment perm id, experiment space code, 
      *         experiment project code, experiment code, data set code }</code>
@@ -1565,15 +1526,14 @@ public class OpenBISScreeningML
     }
 
     /**
-     * Has the same effect as {@link #loadImages(String, int, int, String[])}, but instead of
-     * loading raw images loads their segmentation results if available.
+     * Has the same effect as {@link #loadImages(String, int, int, String[])}, but instead of loading raw images loads their segmentation results if
+     * available.
      * 
-     * @param objectNamesOrNull The names of the segmentation objects to get the images for. If
-     *            <code>null</code> (or <code>[]</code> in MatLab) no restriction applies.
-     * @param analysisProcedureOrNull The analysis procedure used to filter the result. That is, the
-     *            result is restricted to feature vector data sets with a value of property
-     *            <code>ANALYSIS_PROCEDURE</code> as specified. If <code>null</code> (or
-     *            <code>[]</code> in MatLab) no restriction applies.
+     * @param objectNamesOrNull The names of the segmentation objects to get the images for. If <code>null</code> (or <code>[]</code> in MatLab) no
+     *            restriction applies.
+     * @param analysisProcedureOrNull The analysis procedure used to filter the result. That is, the result is restricted to feature vector data sets
+     *            with a value of property <code>ANALYSIS_PROCEDURE</code> as specified. If <code>null</code> (or <code>[]</code> in MatLab) no
+     *            restriction applies.
      */
     public static Object[][][] loadSegmentationImages(String plate, int row, int col,
             String[] objectNamesOrNull, String analysisProcedureOrNull)
@@ -1630,9 +1590,8 @@ public class OpenBISScreeningML
     }
 
     /**
-     * Loads the TIFF images for the given well location, tile number, and list of channels and
-     * stores them in temporary files. The temporary files will be removed automatically when the
-     * Java Virtual Machine exits.
+     * Loads the TIFF images for the given well location, tile number, and list of channels and stores them in temporary files. The temporary files
+     * will be removed automatically when the Java Virtual Machine exits.
      * <p>
      * Matlab example:
      * 
@@ -1652,11 +1611,9 @@ public class OpenBISScreeningML
      * @param channels The names of the channels to get the images for
      * @return <code>{ names of TIFF files, image annotation }</code>
      *         <p>
-     *         Each of <code>names of TIFF files</code> and <code>image annotation</code> is a
-     *         vector of length of the number of images.
+     *         Each of <code>names of TIFF files</code> and <code>image annotation</code> is a vector of length of the number of images.
      *         <p>
-     *         <code>image annotation</code> contains
-     *         <code>{ channel name, tile number, plate well description, 
+     *         <code>image annotation</code> contains <code>{ channel name, tile number, plate well description, 
      *         plate augmented code, plate perm id, plate space code, plate code, row, column, 
      *         experiment augmented code, experiment perm id, experiment space code, 
      *         experiment project code, experiment code, data set code }</code>
@@ -1668,15 +1625,14 @@ public class OpenBISScreeningML
     }
 
     /**
-     * Has the same effect as {@link #loadImages(String, int, int, int, String[])}, but instead of
-     * loading raw images loads their segmentation results if available.
+     * Has the same effect as {@link #loadImages(String, int, int, int, String[])}, but instead of loading raw images loads their segmentation results
+     * if available.
      * 
-     * @param objectNamesOrNull The names of the segmentation objects to get the images for. If
-     *            <code>null</code> (or <code>[]</code> in MatLab) no restriction applies.
-     * @param analysisProcedureOrNull The analysis procedure used to filter the result. That is, the
-     *            result is restricted to feature vector data sets with a value of property
-     *            <code>ANALYSIS_PROCEDURE</code> as specified. If <code>null</code> (or
-     *            <code>[]</code> in MatLab) no restriction applies.
+     * @param objectNamesOrNull The names of the segmentation objects to get the images for. If <code>null</code> (or <code>[]</code> in MatLab) no
+     *            restriction applies.
+     * @param analysisProcedureOrNull The analysis procedure used to filter the result. That is, the result is restricted to feature vector data sets
+     *            with a value of property <code>ANALYSIS_PROCEDURE</code> as specified. If <code>null</code> (or <code>[]</code> in MatLab) no
+     *            restriction applies.
      */
     public static Object[][][] loadSegmentationImages(String plate, int row, int col,
             final int tile, String[] objectNamesOrNull, String analysisProcedureOrNull)
@@ -1753,12 +1709,10 @@ public class OpenBISScreeningML
      * </pre>
      * 
      * @param plate augmented code of the plate
-     * @param analysisProcedureOrNull The analysis procedure used to filter the result. That is, the
-     *            result is restricted to feature vector data sets with a value of property
-     *            <code>ANALYSIS_PROCEDURE</code> as specified. If <code>null</code> (or
-     *            <code>[]</code> in MatLab) no restriction applies.
-     * @return Each row contains information about one segmentation object. Currently the only
-     *         information available is the segmentation object name.
+     * @param analysisProcedureOrNull The analysis procedure used to filter the result. That is, the result is restricted to feature vector data sets
+     *            with a value of property <code>ANALYSIS_PROCEDURE</code> as specified. If <code>null</code> (or <code>[]</code> in MatLab) no
+     *            restriction applies.
+     * @return Each row contains information about one segmentation object. Currently the only information available is the segmentation object name.
      */
     public static Object[][] listSegmentationObjects(String plate, String analysisProcedureOrNull)
     {
@@ -1817,7 +1771,7 @@ public class OpenBISScreeningML
         if (meta.isEmpty())
         {
             return new Object[][][]
-                { new Object[0][], new Object[0][] };
+            { new Object[0][], new Object[0][] };
         }
         final List<String> imageChannels;
         if (channelsOrNull == null || channelsOrNull.length == 0)
@@ -1850,16 +1804,16 @@ public class OpenBISScreeningML
                     ExperimentIdentifier expIdentifier = ds.getExperimentIdentifier();
                     final Object[] annotations =
                             new Object[]
-                                { channel, tile,
-                                        createPlateWellDescription(plateIdentifier, row, col),
-                                        plateIdentifier.getAugmentedCode(),
-                                        plateIdentifier.getPermId(),
-                                        plateIdentifier.tryGetSpaceCode(),
-                                        plateIdentifier.getPlateCode(), row, col,
-                                        expIdentifier.getAugmentedCode(),
-                                        expIdentifier.getPermId(), expIdentifier.getSpaceCode(),
-                                        expIdentifier.getProjectCode(),
-                                        expIdentifier.getExperimentCode(), ds.getPermId(), };
+                            { channel, tile,
+                                    createPlateWellDescription(plateIdentifier, row, col),
+                                    plateIdentifier.getAugmentedCode(),
+                                    plateIdentifier.getPermId(),
+                                    plateIdentifier.tryGetSpaceCode(),
+                                    plateIdentifier.getPlateCode(), row, col,
+                                    expIdentifier.getAugmentedCode(),
+                                    expIdentifier.getPermId(), expIdentifier.getSpaceCode(),
+                                    expIdentifier.getProjectCode(),
+                                    expIdentifier.getExperimentCode(), ds.getPermId(), };
                     System.arraycopy(annotations, 0, result[1][resultIdx], 0, annotations.length);
                     resultIdx++;
                 }
@@ -1888,8 +1842,7 @@ public class OpenBISScreeningML
     }
 
     /**
-     * Saves images for a given list of image references (given by data set code, well position,
-     * channel and tile) and files.
+     * Saves images for a given list of image references (given by data set code, well position, channel and tile) and files.
      * 
      * @throws IOException when reading images from the server or writing them to the files fails
      */
@@ -1951,10 +1904,9 @@ public class OpenBISScreeningML
     //
 
     /**
-     * Returns the feature matrix of the specified features for all locations in
-     * <var>experiment</var> (a location is one well position in one feature vector data set) in
-     * <var>experiment</var> connected to <var>gene</var> in <code>[0]</code>, location annotations
-     * in <code>[1]</code> and feature annotation in <code>[2]</code>.
+     * Returns the feature matrix of the specified features for all locations in <var>experiment</var> (a location is one well position in one feature
+     * vector data set) in <var>experiment</var> connected to <var>gene</var> in <code>[0]</code>, location annotations in <code>[1]</code> and
+     * feature annotation in <code>[2]</code>.
      * <p>
      * Matlab example:
      * 
@@ -1982,27 +1934,22 @@ public class OpenBISScreeningML
      * 
      * @param experiment The augmented experiment code
      * @param gene The gene code (stored as material code in openBIS, usually it is gene id)
-     * @param analysisProcedureOrNull The code of the analysis procedure used to calculate requested
-     *            features. That is, the result is restricted to feature vector data sets with a
-     *            value of property <code>ANALYSIS_PROCEDURE</code> as specified. If
-     *            <code>null</code> (or <code>[]</code> in MatLab) no restriction applies.
-     * @param featuresOrNull The codes of the features to contain the feature matrix. Unknown
-     *            feature codes will be ignored. If <code>null</code> (or <code>[]</code> in MatLab)
-     *            all features are returned.
-     * @return a four dimensional matrix. The first dimension denotes the type in the following
-     *         order: <code>{feature matrix, annotations per location, feature codes}</code>. The
-     *         other dimensions depend on the value of the first dimension:
+     * @param analysisProcedureOrNull The code of the analysis procedure used to calculate requested features. That is, the result is restricted to
+     *            feature vector data sets with a value of property <code>ANALYSIS_PROCEDURE</code> as specified. If <code>null</code> (or
+     *            <code>[]</code> in MatLab) no restriction applies.
+     * @param featuresOrNull The codes of the features to contain the feature matrix. Unknown feature codes will be ignored. If <code>null</code> (or
+     *            <code>[]</code> in MatLab) all features are returned.
+     * @return a four dimensional matrix. The first dimension denotes the type in the following order:
+     *         <code>{feature matrix, annotations per location, feature codes}</code>. The other dimensions depend on the value of the first
+     *         dimension:
      *         <ol>
-     *         <li>feature matrix: 2. dimension is feature vector, 3. dimension is location number,
-     *         4. dimension is data set number. If for a particular location and a particular data
-     *         set the corresponding feature value does not exists <code>NaN</code> will be
-     *         returned. <li>annotations: 2. dimension is location number, 3. dimension is data set
-     *         number, 4. dimension is location annotations in the following order: <code>{plate
-     *         well description, plate augmented code, plate perm id, plate space code, plate code,
-     *         row, column, experiment augmented code, experiment perm id, experiment space code,
-     *         experiment project code, experiment code, data set code, data set type}</code> <li>
-     *         feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
-     *         dimension are meaningless (i.e. they have length one)
+     *         <li>feature matrix: 2. dimension is feature vector, 3. dimension is location number, 4. dimension is data set number. If for a
+     *         particular location and a particular data set the corresponding feature value does not exists <code>NaN</code> will be returned. <li>
+     *         annotations: 2. dimension is location number, 3. dimension is data set number, 4. dimension is location annotations in the following
+     *         order: <code>{plate well description, plate augmented code, plate perm id, plate space code, plate code, row, column, experiment
+     *         augmented code, experiment perm id, experiment space code, experiment project code, experiment code, data set code, data set type}
+     *         </code> <li> feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4. dimension are meaningless (i.e. they have
+     *         length one)
      *         </ol>
      */
     public static Object[][][][] getFeatureMatrix(String experiment, String gene,
@@ -2018,7 +1965,7 @@ public class OpenBISScreeningML
         if (experimentPlates == null || experimentPlates.isEmpty())
         {
             return new Object[][][][]
-                { new Object[0][][], new Object[0][][], new Object[0][][] };
+            { new Object[0][][], new Object[0][][], new Object[0][][] };
         }
         final List<FeatureVectorWithDescription> featureVectors =
                 openbis.loadFeaturesForPlateWells(experimentId, new MaterialIdentifier(
@@ -2028,10 +1975,9 @@ public class OpenBISScreeningML
     }
 
     /**
-     * Returns the feature matrix of the specified features for all locations (a location is one
-     * well position in one feature vector data set) in <var>experiment</var> connected to
-     * <var>gene</var> in <code>[0]</code>, location annotations in <code>[1]</code> and feature
-     * annotation in <code>[2]</code>.
+     * Returns the feature matrix of the specified features for all locations (a location is one well position in one feature vector data set) in
+     * <var>experiment</var> connected to <var>gene</var> in <code>[0]</code>, location annotations in <code>[1]</code> and feature annotation in
+     * <code>[2]</code>.
      * <p>
      * Matlab example:
      * 
@@ -2057,27 +2003,22 @@ public class OpenBISScreeningML
      * </pre>
      * 
      * @param gene The gene code (stored as material code in openBIS, usually it is gene id)
-     * @param analysisProcedureOrNull The code of the analysis procedure used to calculate requested
-     *            features. That is, the result is restricted to feature vector data sets with a
-     *            value of property <code>ANALYSIS_PROCEDURE</code> as specified. If
-     *            <code>null</code> (or <code>[]</code> in MatLab) no restriction applies.
-     * @param featuresOrNull The codes of the features to contain the feature matrix. Unknown
-     *            feature codes will be ignored. If <code>null</code> (or <code>[]</code> in MatLab)
-     *            all features are returned.
-     * @return a four dimensional matrix. The first dimension denotes the type in the following
-     *         order: <code>{feature matrix, annotations per location, feature codes}</code>. The
-     *         other dimensions depend on the value of the first dimension:
+     * @param analysisProcedureOrNull The code of the analysis procedure used to calculate requested features. That is, the result is restricted to
+     *            feature vector data sets with a value of property <code>ANALYSIS_PROCEDURE</code> as specified. If <code>null</code> (or
+     *            <code>[]</code> in MatLab) no restriction applies.
+     * @param featuresOrNull The codes of the features to contain the feature matrix. Unknown feature codes will be ignored. If <code>null</code> (or
+     *            <code>[]</code> in MatLab) all features are returned.
+     * @return a four dimensional matrix. The first dimension denotes the type in the following order:
+     *         <code>{feature matrix, annotations per location, feature codes}</code>. The other dimensions depend on the value of the first
+     *         dimension:
      *         <ol>
-     *         <li>feature matrix: 2. dimension is feature vector, 3. dimension is location number,
-     *         4. dimension is data set number. If for a particular location and a particular data
-     *         set the corresponding feature value does not exists <code>NaN</code> will be
-     *         returned. <li>annotations: 2. dimension is location number, 3. dimension is data set
-     *         number, 4. dimension is location annotations in the following order: <code>{plate
-     *         well description, plate augmented code, plate perm id, plate space code, plate code,
-     *         row, column, experiment augmented code, experiment perm id, experiment space code,
-     *         experiment project code, experiment code, data set code, data set type}</code> <li>
-     *         feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
-     *         dimension are meaningless (i.e. they have length one)
+     *         <li>feature matrix: 2. dimension is feature vector, 3. dimension is location number, 4. dimension is data set number. If for a
+     *         particular location and a particular data set the corresponding feature value does not exists <code>NaN</code> will be returned. <li>
+     *         annotations: 2. dimension is location number, 3. dimension is data set number, 4. dimension is location annotations in the following
+     *         order: <code>{plate well description, plate augmented code, plate perm id, plate space code, plate code, row, column, experiment
+     *         augmented code, experiment perm id, experiment space code, experiment project code, experiment code, data set code, data set type}
+     *         </code> <li> feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4. dimension are meaningless (i.e. they have
+     *         length one)
      *         </ol>
      */
     public static Object[][][][] getFeatureMatrix(String gene, String analysisProcedureOrNull,
@@ -2132,10 +2073,9 @@ public class OpenBISScreeningML
     }
 
     /**
-     * Returns the feature matrix of the specified features for all locations (a location is one
-     * well position in one feature vector data set) of all feature vector data sets created by
-     * specified analysis procedure of the given <var>plate</var> in <code>[0]</code>, location
-     * annotations in <code>[1]</code> and feature annotation in <code>[2]</code>.
+     * Returns the feature matrix of the specified features for all locations (a location is one well position in one feature vector data set) of all
+     * feature vector data sets created by specified analysis procedure of the given <var>plate</var> in <code>[0]</code>, location annotations in
+     * <code>[1]</code> and feature annotation in <code>[2]</code>.
      * <p>
      * Matlab example:
      * 
@@ -2160,27 +2100,22 @@ public class OpenBISScreeningML
      * </pre>
      * 
      * @param plate augmented code of the plate for which features should be loaded
-     * @param analysisProcedureOrNull The code of the analysis procedure used to calculate requested
-     *            features. That is, the result is restricted to feature vector data sets with a
-     *            value of property <code>ANALYSIS_PROCEDURE</code> as specified. If
-     *            <code>null</code> (or <code>[]</code> in MatLab) no restriction applies.
-     * @param featuresOrNull The codes of the features to contain the feature matrix. Unknown
-     *            feature codes will be ignored. If <code>null</code> (or <code>[]</code> in MatLab)
-     *            all features are returned.
-     * @return a four dimensional matrix. The first dimension denotes the type in the following
-     *         order: <code>{feature matrix, annotations per location, feature codes}</code>. The
-     *         other dimensions depend on the value of the first dimension:
+     * @param analysisProcedureOrNull The code of the analysis procedure used to calculate requested features. That is, the result is restricted to
+     *            feature vector data sets with a value of property <code>ANALYSIS_PROCEDURE</code> as specified. If <code>null</code> (or
+     *            <code>[]</code> in MatLab) no restriction applies.
+     * @param featuresOrNull The codes of the features to contain the feature matrix. Unknown feature codes will be ignored. If <code>null</code> (or
+     *            <code>[]</code> in MatLab) all features are returned.
+     * @return a four dimensional matrix. The first dimension denotes the type in the following order:
+     *         <code>{feature matrix, annotations per location, feature codes}</code>. The other dimensions depend on the value of the first
+     *         dimension:
      *         <ol>
-     *         <li>feature matrix: 2. dimension is feature vector, 3. dimension is location number,
-     *         4. dimension is data set number. If for a particular location and a particular data
-     *         set the corresponding feature value does not exists <code>NaN</code> will be
-     *         returned. <li>annotations: 2. dimension is location number, 3. dimension is data set
-     *         number, 4. dimension is location annotations in the following order: <code>{plate
-     *         well description, plate augmented code, plate perm id, plate space code, plate code,
-     *         row, column, experiment augmented code, experiment perm id, experiment space code,
-     *         experiment project code, experiment code, data set code, data set type}</code> <li>
-     *         feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
-     *         dimension are meaningless (i.e. they have length one)
+     *         <li>feature matrix: 2. dimension is feature vector, 3. dimension is location number, 4. dimension is data set number. If for a
+     *         particular location and a particular data set the corresponding feature value does not exists <code>NaN</code> will be returned. <li>
+     *         annotations: 2. dimension is location number, 3. dimension is data set number, 4. dimension is location annotations in the following
+     *         order: <code>{plate well description, plate augmented code, plate perm id, plate space code, plate code, row, column, experiment
+     *         augmented code, experiment perm id, experiment space code, experiment project code, experiment code, data set code, data set type}
+     *         </code> <li> feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4. dimension are meaningless (i.e. they have
+     *         length one)
      *         </ol>
      */
     public static Object[][][][] getFeatureMatrixForPlate(String plate,
@@ -2293,19 +2228,19 @@ public class OpenBISScreeningML
     {
         Object[] annotations =
                 new Object[]
-                    { createPlateWellDescription(dataSetRef.getPlate(), vector),
-                            dataSetRef.getPlate().getAugmentedCode(),
-                            dataSetRef.getPlate().getPermId(),
-                            dataSetRef.getPlate().tryGetSpaceCode(),
-                            dataSetRef.getPlate().getPlateCode(),
-                            vector.getWellPosition().getWellRow(),
-                            vector.getWellPosition().getWellColumn(),
-                            dataSetRef.getExperimentIdentifier().getAugmentedCode(),
-                            dataSetRef.getExperimentIdentifier().getPermId(),
-                            dataSetRef.getExperimentIdentifier().getSpaceCode(),
-                            dataSetRef.getExperimentIdentifier().getProjectCode(),
-                            dataSetRef.getExperimentIdentifier().getExperimentCode(),
-                            dataSetRef.getDatasetCode(), dataSetRef.getDataSetType() };
+                { createPlateWellDescription(dataSetRef.getPlate(), vector),
+                        dataSetRef.getPlate().getAugmentedCode(),
+                        dataSetRef.getPlate().getPermId(),
+                        dataSetRef.getPlate().tryGetSpaceCode(),
+                        dataSetRef.getPlate().getPlateCode(),
+                        vector.getWellPosition().getWellRow(),
+                        vector.getWellPosition().getWellColumn(),
+                        dataSetRef.getExperimentIdentifier().getAugmentedCode(),
+                        dataSetRef.getExperimentIdentifier().getPermId(),
+                        dataSetRef.getExperimentIdentifier().getSpaceCode(),
+                        dataSetRef.getExperimentIdentifier().getProjectCode(),
+                        dataSetRef.getExperimentIdentifier().getExperimentCode(),
+                        dataSetRef.getDatasetCode(), dataSetRef.getDataSetType() };
         System.arraycopy(annotations, 0, result[1][wellIndex][dataSetIndex], 0, annotations.length);
     }
 
@@ -2322,8 +2257,7 @@ public class OpenBISScreeningML
     }
 
     /**
-     * Returns the gene mapping for the given <var>plateCodes</var> in <code>[0]</code> and location
-     * annotations in <code>[1]</code>.
+     * Returns the gene mapping for the given <var>plateCodes</var> in <code>[0]</code> and location annotations in <code>[1]</code>.
      * <p>
      * One row in the matrix corresponds to one well.
      * <p>
@@ -2339,8 +2273,8 @@ public class OpenBISScreeningML
      * </pre>
      * 
      * @param platesCodes The augmented codes of the plates to get the mapping for
-     * @return <code>{ gene ids, annotations per well }</code> where <code>gene ids</code> can be 0,
-     *         1 or more gene ids. <code>annotations per location</code> contain:
+     * @return <code>{ gene ids, annotations per well }</code> where <code>gene ids</code> can be 0, 1 or more gene ids.
+     *         <code>annotations per location</code> contain:
      *         <p>
      *         <code>{ plate well description, plate augmented code, plate perm id,
      *         plate space code, plate code, row, column }</code>
@@ -2374,9 +2308,9 @@ public class OpenBISScreeningML
                     final PlateIdentifier plate = mapping.getPlateIdentifier();
                     result[1][resultIdx] =
                             new Object[]
-                                { createPlateWellDescription(plate, row, col),
-                                        plate.getAugmentedCode(), plate.getPermId(),
-                                        plate.tryGetSpaceCode(), plate.getPlateCode(), row, col, };
+                            { createPlateWellDescription(plate, row, col),
+                                    plate.getAugmentedCode(), plate.getPermId(),
+                                    plate.tryGetSpaceCode(), plate.getPlateCode(), row, col, };
                     ++resultIdx;
                 }
             }
@@ -2385,8 +2319,7 @@ public class OpenBISScreeningML
     }
 
     /**
-     * Experimental method that returns an array of {@link PlateMetadata} Java objects for a given
-     * list of plate codes.
+     * Experimental method that returns an array of {@link PlateMetadata} Java objects for a given list of plate codes.
      * <p>
      * 
      * <pre>
@@ -2465,7 +2398,7 @@ public class OpenBISScreeningML
         for (int i = 0; i < list.size(); i++)
         {
             result[i] = new Object[]
-                { list.get(i).getKey(), list.get(i).getValue() };
+            { list.get(i).getKey(), list.get(i).getValue() };
         }
         return result;
     }
@@ -2504,8 +2437,7 @@ public class OpenBISScreeningML
     }
 
     /**
-     * Translates a row number into letter code. Thus, 1 -> A, 2 -> B, 26 -> Z, 27 -> AA, 28 -> AB,
-     * etc.
+     * Translates a row number into letter code. Thus, 1 -> A, 2 -> B, 26 -> Z, 27 -> AA, 28 -> AB, etc.
      */
     private static String translateRowNumberIntoLetterCode(int rowNumber)
     {

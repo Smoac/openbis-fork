@@ -7,8 +7,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.HeatmapScaleElement;
 
 /**
- * Allows to convert any object into a String and present the String on the heatmap using
- * {@link StringHeatmapRenderer}.
+ * Allows to convert any object into a String and present the String on the heatmap using {@link StringHeatmapRenderer}.
  * 
  * @author Tomasz Pylak
  */
@@ -18,6 +17,7 @@ abstract class DelegatingStringHeatmapRenderer<T> implements IHeatmapRenderer<T>
     protected abstract String extractLabel(T value);
 
     private final IHeatmapRenderer<String> delegator;
+
     protected final CodeAndLabel feature;
 
     public DelegatingStringHeatmapRenderer(List<String> uniqueValues, CodeAndLabel feature, List<Color> colorsOrNull)

@@ -39,12 +39,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Test(groups =
-    { "slow", "systemtest" })
+{ "slow", "systemtest" })
 public class MiscellaneousDropBoxApiV2FeaturesTest extends AbstractScreeningSystemTestCase
 {
     @BeforeTest
@@ -64,7 +62,7 @@ public class MiscellaneousDropBoxApiV2FeaturesTest extends AbstractScreeningSyst
             FileUtilities.deleteRecursively(file);
         }
     }
-    
+
     @Test
     public void testSettingPlateGeometryByFigureGeometry()
     {
@@ -80,7 +78,7 @@ public class MiscellaneousDropBoxApiV2FeaturesTest extends AbstractScreeningSyst
         assertEquals("[$PLATE_GEOMETRY: 24_WELLS_4X6]", sample.getProperties().toString());
         assertEquals(1, samples.size());
     }
-    
+
     @Test
     public void testImageResolutions()
     {
@@ -91,9 +89,9 @@ public class MiscellaneousDropBoxApiV2FeaturesTest extends AbstractScreeningSyst
                 commonServer.listSamples(sessionToken,
                         ListSampleCriteria.createForExperiment(new TechId(experiment.getId())));
         Sample sample = samples.get(0);
-        
+
         PlateContent plateContent = screeningServer.getPlateContent(sessionToken, new TechId(sample.getId()));
-        
+
         PlateMetadata plateMetadata = plateContent.getPlateMetadata();
         assertEquals(4, plateMetadata.getRowsNum());
         assertEquals(6, plateMetadata.getColsNum());
@@ -124,7 +122,7 @@ public class MiscellaneousDropBoxApiV2FeaturesTest extends AbstractScreeningSyst
     {
         return "../screening/resource/test-data/" + getClass().getSimpleName() + "/";
     }
-    
+
     @Override
     protected int dataSetImportWaitDurationInSeconds()
     {

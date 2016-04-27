@@ -152,7 +152,7 @@ public class LibraryRegistrationTaskTest extends AssertJUnit
         IEntityProperty geneSymbolProperty = createGeneSymbolProperty(geneSymbol);
         NewMaterial gene = new NewMaterial(code);
         gene.setProperties(new IEntityProperty[]
-            { geneSymbolProperty });
+        { geneSymbolProperty });
 
         return gene;
     }

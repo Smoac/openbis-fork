@@ -259,8 +259,7 @@ public class ChannelChooserPanel extends LayoutContainer
     }
 
     /**
-     * adds a {@link ChannelSelectionListener} that will be receiving notifications when the
-     * selection changes.
+     * adds a {@link ChannelSelectionListener} that will be receiving notifications when the selection changes.
      */
     public void addSelectionChangedListener(ChannelSelectionListener selectionListener)
     {
@@ -277,8 +276,8 @@ public class ChannelChooserPanel extends LayoutContainer
     }
 
     /**
-     * @return the current channel selection. If all channels are selected, returns a list
-     *         containing a single element - {@link ScreeningConstants#MERGED_CHANNELS}.
+     * @return the current channel selection. If all channels are selected, returns a list containing a single element -
+     *         {@link ScreeningConstants#MERGED_CHANNELS}.
      */
     public List<String> getSelectedValues()
     {
@@ -323,8 +322,7 @@ public class ChannelChooserPanel extends LayoutContainer
     }
 
     /**
-     * @return the current channel selection. If all channels are selected, returns whole list of
-     *         channels.
+     * @return the current channel selection. If all channels are selected, returns whole list of channels.
      */
     public List<LabeledItem<String>> getSelectedLabeledValues()
     {

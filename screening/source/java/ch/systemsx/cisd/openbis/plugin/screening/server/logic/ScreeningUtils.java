@@ -295,8 +295,7 @@ public class ScreeningUtils
     }
 
     /**
-     * true if a dataset contains HCS images. Such a dataset can be a parent of a feature vector
-     * dataset or overlay dataset.
+     * true if a dataset contains HCS images. Such a dataset can be a parent of a feature vector dataset or overlay dataset.
      */
     public static boolean isHcsImageDataset(AbstractExternalData externalData)
     {

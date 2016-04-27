@@ -29,8 +29,8 @@ public class QiagenScreeningLibraryColumnExtractorTest extends AssertJUnit
 {
 
     private static final String[] HEADER_TOKENS =
-        { "barcode", "row", "col", "sirna", "productId", "productName", "reseqMrnas", "geneId",
-                "symbol", "description" };
+    { "barcode", "row", "col", "sirna", "productId", "productName", "reseqMrnas", "geneId",
+            "symbol", "description" };
 
     private static final boolean STRICT_MATERIAL_CODES = false;
 
@@ -47,12 +47,12 @@ public class QiagenScreeningLibraryColumnExtractorTest extends AssertJUnit
                 new QiagenScreeningLibraryColumnExtractor(HEADER_TOKENS,
                         MaterialConfigurationProvider.getInstance());
     }
-    
+
     @AfterMethod
     public void tearDown()
     {
         MaterialConfigurationProvider.restoreFromTesting(oldProvider);
-    }    
+    }
 
     @Test
     public void testWellCode()
@@ -91,8 +91,8 @@ public class QiagenScreeningLibraryColumnExtractorTest extends AssertJUnit
     private String[] getRowWithGeneId(String geneId)
     {
         String[] row =
-                    { "H001-1A", "A", "1", "TCCCGTATAAGTATGTTCCAA", "SI00077350", "Hs_BMP15_3",
-                            "NM_005448,9210", geneId, "bone morphogenetic protein 15" };
+        { "H001-1A", "A", "1", "TCCCGTATAAGTATGTTCCAA", "SI00077350", "Hs_BMP15_3",
+                "NM_005448,9210", geneId, "bone morphogenetic protein 15" };
         return row;
     }
 

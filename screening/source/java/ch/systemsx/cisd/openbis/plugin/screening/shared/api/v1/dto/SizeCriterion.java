@@ -37,8 +37,7 @@ public class SizeCriterion implements IImageRepresentationFormatSelectionCriteri
     public static enum Type
     {
         /**
-         * Picks that format where the image size is the largest one which just fits into a bounding
-         * box specified by width and height.
+         * Picks that format where the image size is the largest one which just fits into a bounding box specified by width and height.
          */
         LARGEST_IN_BOUNDING_BOX()
         {
@@ -57,8 +56,7 @@ public class SizeCriterion implements IImageRepresentationFormatSelectionCriteri
             }
         },
         /**
-         * Picks all formats where the image size is inside a bounding box specified by width and
-         * height.
+         * Picks all formats where the image size is inside a bounding box specified by width and height.
          */
         INSIDE_BOUNDING_BOX
         {
@@ -76,8 +74,7 @@ public class SizeCriterion implements IImageRepresentationFormatSelectionCriteri
             }
         },
         /**
-         * Picks that format where the image size is the smallest one covering a bounding box
-         * specified by width and height.
+         * Picks that format where the image size is the smallest one covering a bounding box specified by width and height.
          */
         SMALLEST_COVERING_BOUNDING_BOX
         {
@@ -96,8 +93,7 @@ public class SizeCriterion implements IImageRepresentationFormatSelectionCriteri
             }
         },
         /**
-         * Picks all formats where the image size covers a bounding box specified by width and
-         * height.
+         * Picks all formats where the image size covers a bounding box specified by width and height.
          */
         COVERING_BOUNDING_BOX
         {

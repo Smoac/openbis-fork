@@ -101,11 +101,9 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
     }
 
     /**
-     * Generates thumbnails of specified images whose paths are relative to the specified image
-     * parent directory.
+     * Generates thumbnails of specified images whose paths are relative to the specified image parent directory.
      * 
-     * @param imageDataSetStructure the images dataset structure, including paths relative to the
-     *            imagesParentDirectory
+     * @param imageDataSetStructure the images dataset structure, including paths relative to the imagesParentDirectory
      * @param thumbnailFilePath absolute path to the file where thumbnails will be saved
      * @param imageStorageConfiguraton describes how the thumbnails should be generated
      * @param content
@@ -165,7 +163,7 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
     private final Logger logger;
 
     private final Map<String, ColorComponent> channelColors = new HashMap<String, ColorComponent>();
-    
+
     private final Map<String, IntensityRescaling.Channel> representativeChannels = new HashMap<String, IntensityRescaling.Channel>();
 
     private final boolean registerOriginalImageAsThumbnail;
@@ -205,7 +203,7 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
                 }
             }
         }
-        
+
         if (imageDataSetStructure.getChannelColorComponents() != null
                 && imageDataSetStructure.getChannelColorComponents().size() > 0)
         {
@@ -217,7 +215,7 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
             }
         }
     }
-    
+
     private IntensityRescaling.Channel getRepresentativeColorChannelOrNull(Channel ch)
     {
         ChannelColorRGB channelColor = ch.tryGetChannelColor();
@@ -240,9 +238,8 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
     }
 
     /**
-     * @param bufferOutputStream auxiliary stream which can be used as a temporary buffer to save
-     *            the thumbnail. Using it allows not to allocate memory each time when a thumbnail
-     *            is generated.
+     * @param bufferOutputStream auxiliary stream which can be used as a temporary buffer to save the thumbnail. Using it allows not to allocate
+     *            memory each time when a thumbnail is generated.
      */
     private Status generateThumbnail(IHDF5ContainerWriter writer, ImageFileInfo image,
             ByteArrayOutputStream bufferOutputStream)
@@ -476,9 +473,9 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
 
         boolean highQuality = thumbnailsStorageFormat.isHighQuality();
         IntensityRescaling.Channel representativeChannelOrNull = representativeChannels.get(imageFileInfo.getChannelCode());
-        BufferedImage rescaledImage = ImageUtil.rescale(image, widht, height, false, highQuality, 
+        BufferedImage rescaledImage = ImageUtil.rescale(image, widht, height, false, highQuality,
                 representativeChannelOrNull, DssScreeningUtils.CONVERTER);
-        
+
         final List<ThumbnailData> thumbnails = new ArrayList<ThumbnailData>();
         for (String channelCode : getChannelsToProcess(imageFileInfo.getChannelCode()))
         {

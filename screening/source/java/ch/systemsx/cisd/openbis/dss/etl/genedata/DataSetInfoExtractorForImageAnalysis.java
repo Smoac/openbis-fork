@@ -30,8 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
- * {@link DefaultDataSetInfoExtractor} which sets the parent dataset code to 'spaceCode-plateCode'.
- * Useful for screening image analysis datasets.
+ * {@link DefaultDataSetInfoExtractor} which sets the parent dataset code to 'spaceCode-plateCode'. Useful for screening image analysis datasets.
  * 
  * @author Tomasz Pylak
  */

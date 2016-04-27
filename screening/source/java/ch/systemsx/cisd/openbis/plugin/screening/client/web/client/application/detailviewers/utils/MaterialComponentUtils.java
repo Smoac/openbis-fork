@@ -103,7 +103,7 @@ public class MaterialComponentUtils
     public static String[] getExcludedMatrialProperties()
     {
         return new String[]
-            { ScreeningConstants.GENE_SYMBOLS };
+        { ScreeningConstants.GENE_SYMBOLS };
     }
 
     public static Map<String, String> createAdditionalMaterialProperties(
@@ -115,8 +115,7 @@ public class MaterialComponentUtils
     }
 
     /**
-     * Creates a grid with optional header on top containing the specified title and entity
-     * properties.
+     * Creates a grid with optional header on top containing the specified title and entity properties.
      */
     private static IDisposableComponent createViewer(
             IViewContext<IScreeningClientServiceAsync> viewContext,

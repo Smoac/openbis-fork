@@ -32,9 +32,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 
 /**
- * A frame wrapping all tile images for an unique time/depth/series combination. The tiles are
- * loaded lazily. In order to download and display the tile images one has to call the method
- * {@link #downloadImagesFromServer()}.
+ * A frame wrapping all tile images for an unique time/depth/series combination. The tiles are loaded lazily. In order to download and display the
+ * tile images one has to call the method {@link #downloadImagesFromServer()}.
  * 
  * @author Kaloyan Enimanev
  */

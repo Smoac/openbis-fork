@@ -35,16 +35,14 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 
 /**
- * A {@link MaterialBrowserGrid} extension for showing all materials used in wells of an experiment.
- * Called "Library Index".
+ * A {@link MaterialBrowserGrid} extension for showing all materials used in wells of an experiment. Called "Library Index".
  * 
  * @author Piotr Buczek
  */
 public class ExperimentWellMaterialBrowserGrid extends MaterialBrowserGrid
 {
     /**
-     * Creates a browser with a toolbar which allows to choose the material type. Allows to show or
-     * edit material details.
+     * Creates a browser with a toolbar which allows to choose the material type. Allows to show or edit material details.
      */
     public static DisposableEntityChooser<TableModelRowWithObject<Material>> createForExperiment(
             final IViewContext<IScreeningClientServiceAsync> screeningViewContext,

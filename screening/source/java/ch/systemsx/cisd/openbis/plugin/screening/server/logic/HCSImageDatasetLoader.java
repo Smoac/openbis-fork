@@ -92,7 +92,7 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
     {
         super(session, businessObjectFactory, homeSpaceOrNull, plates,
                 (datasetTypeCodes.length == 0) ? new String[]
-                    { ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN } : datasetTypeCodes);
+                { ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN } : datasetTypeCodes);
     }
 
     /**
@@ -233,8 +233,7 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
     }
 
     /**
-     * Fetched children datasets (with a matching type) for the specified parent datasets, sets
-     * their parents.
+     * Fetched children datasets (with a matching type) for the specified parent datasets, sets their parents.
      */
     protected List<AbstractExternalData> fetchChildrenDataSets(List<AbstractExternalData> parentDataSets,
             String childTypePattern, IDatasetLister datasetLister)
@@ -296,8 +295,8 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
 
     protected ImageDatasetReference tryAsImageDataset(AbstractExternalData externalData)
     {
-        if (externalData == null 
-                || ScreeningUtils.isTypeMatching(externalData, ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN) == false 
+        if (externalData == null
+                || ScreeningUtils.isTypeMatching(externalData, ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN) == false
                 || externalData.getSample() == null)
         {
             return null;

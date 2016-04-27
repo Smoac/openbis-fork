@@ -39,8 +39,7 @@ public class FeatureVector implements Serializable
      * Creates an instance for the specified well.
      * 
      * @param values Array with values of numerical features.
-     * @param vocabularyFeatureFlags Array telling which feature is a numerical one (
-     *            <code>false</code>) or a vocabulary term (<code>true</code>).
+     * @param vocabularyFeatureFlags Array telling which feature is a numerical one ( <code>false</code>) or a vocabulary term (<code>true</code>).
      * @param vocabularyTerms Array with values of vocabulary-based features.
      * @throws IllegalArgumentException if all arrays have not the same length.
      */
@@ -66,8 +65,8 @@ public class FeatureVector implements Serializable
     }
 
     /**
-     * Returns the array of numerical features. If the value is {@link Double#NaN} it means either
-     * an unknown value of the numerical feature or a vocabulary-based feature.
+     * Returns the array of numerical features. If the value is {@link Double#NaN} it means either an unknown value of the numerical feature or a
+     * vocabulary-based feature.
      */
     public double[] getValues()
     {
@@ -75,8 +74,8 @@ public class FeatureVector implements Serializable
     }
 
     /**
-     * Return the array of flags specifying the type of feature where <code>true</code> means
-     * vocabulary-based feature and <code>false</code> numerical feature.
+     * Return the array of flags specifying the type of feature where <code>true</code> means vocabulary-based feature and <code>false</code>
+     * numerical feature.
      */
     public final boolean[] getVocabularyFeatureFlags()
     {
@@ -84,8 +83,8 @@ public class FeatureVector implements Serializable
     }
 
     /**
-     * Returns the array of vocabulary-based features. If the value is <code>null</code> it means
-     * either an unknown value of the vocabulary-base feature or a numerical feature.
+     * Returns the array of vocabulary-based features. If the value is <code>null</code> it means either an unknown value of the vocabulary-base
+     * feature or a numerical feature.
      */
     public final String[] getVocabularyTerms()
     {
@@ -93,9 +92,8 @@ public class FeatureVector implements Serializable
     }
 
     /**
-     * Returns the feature vector as a list of objects. The list element is either an instance of
-     * String (vocabulary-based feature), an instance of Double (numerical feature), or
-     * <code>null</code> if the feature is unknown.
+     * Returns the feature vector as a list of objects. The list element is either an instance of String (vocabulary-based feature), an instance of
+     * Double (numerical feature), or <code>null</code> if the feature is unknown.
      */
     @JsonIgnore
     public List<Object> getValueObjects()

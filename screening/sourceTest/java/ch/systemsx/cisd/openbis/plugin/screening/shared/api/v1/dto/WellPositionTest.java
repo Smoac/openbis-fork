@@ -32,7 +32,7 @@ public class WellPositionTest extends AssertJUnit
         assertEquals(pos1, pos2);
         assertEquals(pos1.hashCode(), pos2.hashCode());
     }
-    
+
     @Test
     public void testParseWellPositions()
     {
@@ -41,7 +41,7 @@ public class WellPositionTest extends AssertJUnit
         assertEquals("[[1, 2], [2, 3], [3, 4], [4, 5]]",
                 WellPosition.parseWellPositions("1.2 2.3  3.4\t4.5").toString());
     }
-    
+
     @Test
     public void testParseWellPoistionWithMissingDot()
     {
@@ -54,7 +54,7 @@ public class WellPositionTest extends AssertJUnit
             assertEquals("Invalid well description: Expecting a '.' in well description: A03", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testParseWellPoistionWithRowIsNotANumber()
     {
@@ -67,7 +67,7 @@ public class WellPositionTest extends AssertJUnit
             assertEquals("Invalid well description: String before '.' isn't a number: a.1", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testParseWellPoistionWithRowIsLessThanOne()
     {
@@ -80,7 +80,7 @@ public class WellPositionTest extends AssertJUnit
             assertEquals("Invalid well description: First row < 1: 0.1", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testParseWellPoistionWithColumnIsNotANumber()
     {
@@ -93,7 +93,7 @@ public class WellPositionTest extends AssertJUnit
             assertEquals("Invalid well description: String after '.' isn't a number: 1.a", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testParseWellPoistionWithColumnIsLessThanOne()
     {

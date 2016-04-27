@@ -33,9 +33,9 @@ public class HCSImageFileExtractorTest extends AssertJUnit
     public void testParseTimepoint()
     {
         String[] tokensThisMeasurement = new String[]
-            { "left", "dia", "pos100", "t20100227", "162542" };
+        { "left", "dia", "pos100", "t20100227", "162542" };
         String[] tokensFirstMeasurement = new String[]
-            { "left", "dia", "pos100", "t20100227", "152439" };
+        { "left", "dia", "pos100", "t20100227", "152439" };
         long secondsFromFirstMeasurement =
                 HCSImageFileExtractor.getSecondsFromFirstMeasurement(tokensThisMeasurement,
                         HCSImageFileExtractor.parseDate(tokensFirstMeasurement));

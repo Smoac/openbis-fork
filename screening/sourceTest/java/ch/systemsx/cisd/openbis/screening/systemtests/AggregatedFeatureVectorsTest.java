@@ -60,7 +60,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureV
  * @author Kaloyan Enimanev
  */
 @Test(groups =
-    { "slow", "systemtest" })
+{ "slow", "systemtest" })
 public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCase
 {
     private static final DefaultResultSetConfig<String, TableModelRowWithObject<MaterialFeatureVectorSummary>> RESULT_SET_CONFIG =
@@ -73,7 +73,7 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
         moveFileToIncoming(exampleDataSet);
         waitUntilDataSetImported();
     }
-    
+
     @AfterMethod
     public void tearDown()
     {
@@ -95,9 +95,9 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
 
         MaterialReplicaFeatureSummaryResult summaryResult =
                 screeningServer.getMaterialFeatureVectorSummary(
-                sessionToken,
-                new MaterialFeaturesOneExpCriteria(new TechId(geneG), AnalysisProcedureCriteria
-                        .createAllProcedures(), new TechId(experiment)));
+                        sessionToken,
+                        new MaterialFeaturesOneExpCriteria(new TechId(geneG), AnalysisProcedureCriteria
+                                .createAllProcedures(), new TechId(experiment)));
 
         assertFeatureSummary("X", 3.5, summaryResult);
         assertFeatureSummary("Y", 2.5, summaryResult);
@@ -111,11 +111,11 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
         Experiment experiment =
                 commonServer.getExperimentInfo(sessionToken, ExperimentIdentifierFactory
                         .parse("/TEST/TEST-PROJECT/AGGREGATED_FEATURES_EXP"));
-        
+
         ExperimentFeatureVectorSummary expFeatureSummary =
                 screeningServer.getExperimentFeatureVectorSummary(sessionToken, new TechId(
                         experiment), AnalysisProcedureCriteria.createAllProcedures());
-        
+
         assertEquals(null, expFeatureSummary.getTableModelOrNull());
         MaterialFeatureVectorSummary materialFeatureSummary =
                 expFeatureSummary.getMaterialsSummary().get(0);
@@ -131,21 +131,21 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
         assertSummaries("[A=15.0, B=2.0, X=3.5, Y=2.5]", featureCodes, materialFeatureSummary);
         assertEquals(1, expFeatureSummary.getMaterialsSummary().size());
     }
-    
+
     @Test
     public void testListExperimentFeatureVectorSummaryCalculated() throws Exception
     {
         Experiment experiment =
                 commonServer.getExperimentInfo(sessionToken, ExperimentIdentifierFactory
                         .parse("/TEST/TEST-PROJECT/AGGREGATED_FEATURES_EXP"));
-        
+
         ResultSet<TableModelRowWithObject<MaterialFeatureVectorSummary>> resultSet =
                 screeningClientService
-                .listExperimentFeatureVectorSummary(
-                        RESULT_SET_CONFIG,
-                        new TechId(experiment),
-                        AnalysisProcedureCriteria.createAllProcedures()).getResultSet();
-        
+                        .listExperimentFeatureVectorSummary(
+                                RESULT_SET_CONFIG,
+                                new TechId(experiment),
+                                AnalysisProcedureCriteria.createAllProcedures()).getResultSet();
+
         GridRowModels<TableModelRowWithObject<MaterialFeatureVectorSummary>> list =
                 resultSet.getList();
         List<TableModelColumnHeader> columnHeaders = list.getColumnHeaders();
@@ -176,7 +176,7 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
         assertEquals("G", getValue(MATERIAL_ID, columnHeaders, row).toString());
         assertEquals(1, list.size());
     }
-    
+
     private ISerializableComparable getValue(String column,
             List<TableModelColumnHeader> columnHeaders,
             TableModelRowWithObject<MaterialFeatureVectorSummary> row)
@@ -192,7 +192,7 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
         }
         throw new AssertionError("Unknown column '" + column + "': " + columns);
     }
-    
+
     @Test
     public void testListExperimentFeatureVectorSummaryFromFile() throws Exception
     {
@@ -200,12 +200,12 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
                 commonServer.getExperimentInfo(sessionToken, ExperimentIdentifierFactory
                         .parse("/TEST/TEST-PROJECT/AGGREGATED_FEATURES_EXP"));
         prepareForGettingAnalysisSummaryFromFile();
-        
+
         ResultSet<TableModelRowWithObject<MaterialFeatureVectorSummary>> resultSet =
                 screeningClientService.listExperimentFeatureVectorSummary(RESULT_SET_CONFIG,
                         new TechId(experiment), AnalysisProcedureCriteria.createFromCode("p1"))
                         .getResultSet();
-        
+
         GridRowModels<TableModelRowWithObject<MaterialFeatureVectorSummary>> list =
                 resultSet.getList();
         List<TableModelColumnHeader> headers = list.getColumnHeaders();
@@ -245,17 +245,17 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
                 commonServer.getExperimentInfo(sessionToken, ExperimentIdentifierFactory
                         .parse("/TEST/TEST-PROJECT/AGGREGATED_FEATURES_EXP"));
         prepareForGettingAnalysisSummaryFromFile();
-        
+
         ResultSet<TableModelRowWithObject<MaterialFeatureVectorSummary>> resultSet =
                 screeningClientService.listExperimentFeatureVectorSummary(RESULT_SET_CONFIG,
                         new TechId(experiment), AnalysisProcedureCriteria.createNoProcedures())
                         .getResultSet();
-        
+
         GridRowModels<TableModelRowWithObject<MaterialFeatureVectorSummary>> list =
                 resultSet.getList();
         assertEquals(0, list.size());
     }
-    
+
     private void prepareForGettingAnalysisSummaryFromFile()
     {
         Properties properties = new Properties();
@@ -275,7 +275,7 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
             }
         }
     }
-    
+
     private void assertRanks(String expectedRanks, MaterialFeatureVectorSummary materialFeatureSummary)
     {
         StringBuilder builder = new StringBuilder();
@@ -303,7 +303,7 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
         Collections.sort(result);
         assertEquals(expectedSummaries, result.toString());
     }
-    
+
     private void assertFeatureSummary(String feature, double featureMedianValue,
             MaterialReplicaFeatureSummaryResult summaryResult)
     {

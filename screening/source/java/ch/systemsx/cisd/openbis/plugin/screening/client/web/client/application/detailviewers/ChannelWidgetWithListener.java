@@ -26,9 +26,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.u
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.IntensityRange;
 
 /**
- * Allows to create a {@link Widget} ({@link #asWidget()}) containing channel view and allows to
- * manually update visible channel via the ({@link #selectionChanged(List, String, IntensityRange)})
- * method.
+ * Allows to create a {@link Widget} ({@link #asWidget()}) containing channel view and allows to manually update visible channel via the (
+ * {@link #selectionChanged(List, String, IntensityRange)}) method.
  * 
  * @author Izabela Adamczyk
  */

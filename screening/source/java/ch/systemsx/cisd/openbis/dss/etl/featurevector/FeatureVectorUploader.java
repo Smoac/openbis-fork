@@ -56,8 +56,7 @@ public class FeatureVectorUploader
     }
 
     /**
-     * Creates a dataset and uploads feature vectors, creates experiment and container if needed.
-     * Commit on the dao is NOT performed.
+     * Creates a dataset and uploads feature vectors, creates experiment and container if needed. Commit on the dao is NOT performed.
      */
     public void uploadFeatureVectors(List<CanonicalFeatureVector> fvecs)
     {

@@ -235,9 +235,8 @@ abstract class AbstractImageDatasetUploader
     }
 
     /**
-     * Because we can have millions of images, we have to create them in batches. That is why we
-     * create all the DTOs first and generate ids for them before they are created in the database.
-     * Then we can save everything in one go.
+     * Because we can have millions of images, we have to create them in batches. That is why we create all the DTOs first and generate ids for them
+     * before they are created in the database. Then we can save everything in one go.
      * 
      * @param list
      */
@@ -397,8 +396,8 @@ abstract class AbstractImageDatasetUploader
     static final class ChannelStackRepresentativesOracle
     {
         /**
-         * For all images of one spot chooses the 'smallest' element as an representative. If there
-         * are no spots than the smallest element of all specified images is chosen.
+         * For all images of one spot chooses the 'smallest' element as an representative. If there are no spots than the smallest element of all
+         * specified images is chosen.
          */
         public static Set<ImgChannelStackDTO> calculateRepresentatives(
                 Set<ImgChannelStackDTO> images)

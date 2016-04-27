@@ -55,8 +55,8 @@ public class RelativeImageFile extends AbstractHashable implements Serializable
     }
 
     /**
-     * Not null if the file pointed by {@link #getImageRelativePath()} is an image container with
-     * potentially many images inside. In this case image id determines the image in the container.
+     * Not null if the file pointed by {@link #getImageRelativePath()} is an image container with potentially many images inside. In this case image
+     * id determines the image in the container.
      */
     public String tryGetImageID()
     {

@@ -25,8 +25,6 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class AnalysisSettingsTest extends AssertJUnit
@@ -35,10 +33,10 @@ public class AnalysisSettingsTest extends AssertJUnit
     public void testNoSettings()
     {
         AnalysisSettings analysisSettings = new AnalysisSettings(new Properties());
-        
+
         assertEquals(true, analysisSettings.noAnalysisSettings());
     }
-    
+
     @Test
     public void testInvalidSettings()
     {
@@ -55,19 +53,18 @@ public class AnalysisSettingsTest extends AssertJUnit
                     ex.getMessage());
         }
     }
-    
+
     @Test
     public void testSettings()
     {
         Properties properties = new Properties();
         properties.setProperty(AnalysisSettings.KEY, "TYPE1:viewer1, TYPE2:viewer2");
         AnalysisSettings analysisSettings = new AnalysisSettings(properties);
-        
+
         assertEquals("viewer1", analysisSettings.tryToGetReportingPluginKey(new DataSetBuilder().type("TYPE1").getDataSet()));
         assertEquals("viewer2", analysisSettings.tryToGetReportingPluginKey(new DataSetBuilder().type("TYPE2").getDataSet()));
         assertEquals(null, analysisSettings.tryToGetReportingPluginKey(new DataSetBuilder().type("TYPE3").getDataSet()));
         assertEquals(false, analysisSettings.noAnalysisSettings());
     }
-    
-    
+
 }

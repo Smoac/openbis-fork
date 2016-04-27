@@ -166,9 +166,8 @@ class LibraryRegistrationTask implements IASyncAction
     }
 
     /**
-     * when an existing gene is being updated, we merge the existing gene symbols with the newly
-     * specified into a space-separated new field. If the new gene does not contain new information
-     * i.e. its gene symbol is already present in the DB, the existing gene symbols are not altered.
+     * when an existing gene is being updated, we merge the existing gene symbols with the newly specified into a space-separated new field. If the
+     * new gene does not contain new information i.e. its gene symbol is already present in the DB, the existing gene symbols are not altered.
      * <p>
      * For further information see LMS-1929.
      */
@@ -203,7 +202,7 @@ class LibraryRegistrationTask implements IASyncAction
         {
             return existingSymbols;
         }
-        
+
         String[] newSymbols = newSymbolString.split("\\s+");
         StringBuilder result = new StringBuilder(existingSymbols);
         for (String newSymbol : newSymbols)
@@ -213,8 +212,8 @@ class LibraryRegistrationTask implements IASyncAction
                 continue;
             }
             boolean alreadyExisting =
-                existingSymbols.startsWith(newSymbol + DELIM) || existingSymbols.endsWith(DELIM + newSymbol)
-                        || (existingSymbols.indexOf(DELIM + newSymbol + DELIM) > 0);
+                    existingSymbols.startsWith(newSymbol + DELIM) || existingSymbols.endsWith(DELIM + newSymbol)
+                            || (existingSymbols.indexOf(DELIM + newSymbol + DELIM) > 0);
 
             if (false == alreadyExisting)
             {

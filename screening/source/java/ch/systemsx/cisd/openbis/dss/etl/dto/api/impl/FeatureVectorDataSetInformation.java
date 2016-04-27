@@ -29,8 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 
 /**
- * Extends {@link DataSetInformation} with information about images analysis on the well level
- * (relevant for HCS).
+ * Extends {@link DataSetInformation} with information about images analysis on the well level (relevant for HCS).
  * 
  * @author Tomasz Pylak
  */

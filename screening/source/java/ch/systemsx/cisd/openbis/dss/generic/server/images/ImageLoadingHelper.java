@@ -36,9 +36,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 
 /**
- * Helper class for loading images using an {@link IImagingLoaderStrategy}. Actually this class
- * doesn't load images but it creates {@link AbsoluteImageReference} instances which contain lazily loaded images 
- * and meta data from the imaging database.
+ * Helper class for loading images using an {@link IImagingLoaderStrategy}. Actually this class doesn't load images but it creates
+ * {@link AbsoluteImageReference} instances which contain lazily loaded images and meta data from the imaging database.
  * <p>
  * This code has been refactored out of {@link ImageChannelsUtils} in autumn 2014.
  *
@@ -54,13 +53,13 @@ class ImageLoadingHelper
         IImagingDatasetLoader loader = HCSImageDatasetLoaderFactory.create(dataSetRoot, datasetCode);
         return ImagingLoaderStrategyFactory.createImageLoaderStrategy(loader);
     }
-    
+
     private final IImagingLoaderStrategy imageLoaderStrategy;
-    
+
     private final RequestedImageSize imageSizeLimit;
-    
+
     private final String singleChannelTransformationCodeOrNull;
-    
+
     @Private
     ImageLoadingHelper(IImagingLoaderStrategy imageLoaderStrategy,
             RequestedImageSize imageSizeLimit, String singleChannelTransformationCodeOrNull)
@@ -69,28 +68,27 @@ class ImageLoadingHelper
         this.imageSizeLimit = imageSizeLimit;
         this.singleChannelTransformationCodeOrNull = singleChannelTransformationCodeOrNull;
     }
-    
+
     ImageLoadingHelper(IImagingLoaderStrategy imageLoaderStrategy, Size imageSizeLimitOrNull,
             String singleChannelTransformationCodeOrNull)
     {
         this(imageLoaderStrategy, new RequestedImageSize(imageSizeLimitOrNull, false),
                 singleChannelTransformationCodeOrNull);
     }
-    
-    ImageLoadingHelper(DatasetAcquiredImagesReference imageChannels, IHierarchicalContentProvider contentProvider, 
+
+    ImageLoadingHelper(DatasetAcquiredImagesReference imageChannels, IHierarchicalContentProvider contentProvider,
             RequestedImageSize imageSizeLimit, String singleChannelTransformationCodeOrNull)
     {
         this(createLoaderStrategy(imageChannels, contentProvider), imageSizeLimit, singleChannelTransformationCodeOrNull);
     }
-    
+
     boolean isMergeAllChannels(DatasetAcquiredImagesReference imageChannels)
     {
         return imageChannels.isMergeAllChannels(getAllChannelCodes());
     }
 
     /**
-     * @param skipNonExisting if true references to non-existing images are ignored, otherwise an
-     *            exception is thrown
+     * @param skipNonExisting if true references to non-existing images are ignored, otherwise an exception is thrown
      * @param mergeAllChannels true if all existing channel images should be merged
      * @param transformationInfo
      */
@@ -104,11 +102,11 @@ class ImageLoadingHelper
         {
             ImageChannelStackReference channelStackReference = imagesReference.getChannelStackReference();
             AbsoluteImageReference image = imageLoaderStrategy.tryGetImage(channelCode, channelStackReference,
-                            imageSizeLimit, singleChannelTransformationCodeOrNull);
+                    imageSizeLimit, singleChannelTransformationCodeOrNull);
             if (image == null && skipNonExisting == false)
             {
                 String item = imageSizeLimit.isThumbnailRequired() ? "thumbnail" : "image";
-                throw EnvironmentFailureException.fromTemplate("No %s found for channel stack %s and channel %s", 
+                throw EnvironmentFailureException.fromTemplate("No %s found for channel stack %s and channel %s",
                         item, channelStackReference, channelCode);
             }
             if (image != null)
@@ -152,14 +150,14 @@ class ImageLoadingHelper
     private AbsoluteImageReference getRepresentativeImageReference(String channelCode,
             Location wellLocationOrNull)
     {
-        AbsoluteImageReference image = imageLoaderStrategy.tryGetRepresentativeImage(channelCode, 
+        AbsoluteImageReference image = imageLoaderStrategy.tryGetRepresentativeImage(channelCode,
                 wellLocationOrNull, imageSizeLimit, singleChannelTransformationCodeOrNull);
         if (image != null)
         {
             return image;
         }
         String item = imageSizeLimit.isThumbnailRequired() ? "thumbnail" : "image";
-        throw EnvironmentFailureException.fromTemplate("No representative %s found for well %s and channel %s", 
+        throw EnvironmentFailureException.fromTemplate("No representative %s found for well %s and channel %s",
                 item, wellLocationOrNull, channelCode);
     }
 

@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellReplicaSummaryCalculator;
 
 /**
- * Interface to access well feature vector and the material replica id, used by
- * {@link WellReplicaSummaryCalculator}.
+ * Interface to access well feature vector and the material replica id, used by {@link WellReplicaSummaryCalculator}.
  * 
  * @author Tomasz Pylak
  */

@@ -72,8 +72,7 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
     }
 
     /**
-     * Accepts all non-image datasets (and assumes they are single CSV files or
-     * FeatureVectorDataSetInformation).
+     * Accepts all non-image datasets (and assumes they are single CSV files or FeatureVectorDataSetInformation).
      */
     @Override
     public boolean accepts(DataSetInformation dataSetInformation, File incomingDataSet)

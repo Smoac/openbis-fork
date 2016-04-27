@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.server;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.AnalysisSettings;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IAnalysisSettingSetter

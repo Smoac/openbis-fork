@@ -35,8 +35,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFe
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 
 /**
- * Converts currentFeature vectors from the Genedata currentFeature vector file format to
- * CanonicaFeatureVector objects.
+ * Converts currentFeature vectors from the Genedata currentFeature vector file format to CanonicaFeatureVector objects.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

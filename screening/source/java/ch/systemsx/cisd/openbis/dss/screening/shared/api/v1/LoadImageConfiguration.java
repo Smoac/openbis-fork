@@ -20,8 +20,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * This class exists only for backward compatibility. Please use
- * {@link ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LoadImageConfiguration}
- * instead.
+ * {@link ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LoadImageConfiguration} instead.
  * 
  * @author pkupczyk
  */

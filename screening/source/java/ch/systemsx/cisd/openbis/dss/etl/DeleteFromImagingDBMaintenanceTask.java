@@ -107,10 +107,10 @@ public class DeleteFromImagingDBMaintenanceTask extends DeleteFromExternalDBMain
         final String joinedIds = joinIds(ids);
 
         final String statement = String.format(
-                        "UPDATE ACQUIRED_IMAGES SET %s = NULL "
-                                + "  WHERE CHANNEL_STACK_ID IN (SELECT ID FROM CHANNEL_STACKS WHERE DS_ID IN (%s)) "
-                                + "    OR CHANNEL_ID IN (SELECT ID FROM CHANNELS WHERE DS_ID IN (%s))",
-                        (isThumbnail ? "THUMBNAIL_ID" : "IMG_ID"), joinedIds, joinedIds);
+                "UPDATE ACQUIRED_IMAGES SET %s = NULL "
+                        + "  WHERE CHANNEL_STACK_ID IN (SELECT ID FROM CHANNEL_STACKS WHERE DS_ID IN (%s)) "
+                        + "    OR CHANNEL_ID IN (SELECT ID FROM CHANNELS WHERE DS_ID IN (%s))",
+                (isThumbnail ? "THUMBNAIL_ID" : "IMG_ID"), joinedIds, joinedIds);
 
         c.createStatement().execute(statement);
     }

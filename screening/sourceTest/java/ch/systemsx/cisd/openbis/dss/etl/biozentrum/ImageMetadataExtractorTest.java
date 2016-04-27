@@ -54,9 +54,10 @@ public class ImageMetadataExtractorTest extends AssertJUnit
 
         /** A01, A02 .. etc */
         String positionID;
-        
+
         @Override
-        public String toString() {
+        public String toString()
+        {
             ToStringBuilder builder = new ToStringBuilder(this);
             builder.append("tileNumber", tileNumber);
             builder.append("positionX", positionX);
@@ -69,14 +70,15 @@ public class ImageMetadataExtractorTest extends AssertJUnit
     @Test
     public void testTileMapping() throws Exception
     {
-        
+
         List<ImageFile> imageFiles = readMetaDataFromFile(TEST_FILE);
-        
+
         Map<Integer, Location> locations =
                 ImageMetadataExtractor.tryGetTileMapping(createMetaData(imageFiles), EPSILON);
-        
+
         Map<String, List<ImageFile>> groupByPosition = groupByPositions(imageFiles);
-        for (String position : groupByPosition.keySet()) {
+        for (String position : groupByPosition.keySet())
+        {
             List<ImageFile> imagesForPosition = groupByPosition.get(position);
             ImageFile firstImage = imagesForPosition.get(0);
             for (ImageFile otherImage : imagesForPosition)
@@ -114,7 +116,7 @@ public class ImageMetadataExtractorTest extends AssertJUnit
     {
         List<ImageFile> result = new ArrayList<ImageFile>();
         CsvReader reader = new CsvReader(fileName);
-        
+
         reader.readHeaders();
 
         int tileNumber = 1;
@@ -125,12 +127,12 @@ public class ImageMetadataExtractorTest extends AssertJUnit
             img.positionX = reader.get("PositionX");
             img.positionY = reader.get("PositionY");
             img.positionID = reader.get("stage-label");
-            
+
             result.add(img);
         }
 
         reader.close();
-        
+
         return result;
     }
 

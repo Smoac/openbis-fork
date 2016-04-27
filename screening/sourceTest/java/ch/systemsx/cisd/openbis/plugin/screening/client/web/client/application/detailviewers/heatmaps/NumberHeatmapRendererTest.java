@@ -38,7 +38,7 @@ public class NumberHeatmapRendererTest
     private static final String COLOR1 = "#111";
 
     private static final String COLOR2 = "#222";
-    
+
     private static final String COLOR3 = "#333";
 
     @Test
@@ -163,7 +163,7 @@ public class NumberHeatmapRendererTest
         assertEquals(COLOR2, element2.getColor().getHexColor());
         assertEquals(-1f + "", element2.getLabel());
     }
-    
+
     @Test
     public void testScaleInsideMinMax()
     {
@@ -171,14 +171,14 @@ public class NumberHeatmapRendererTest
         NumberHeatmapRenderer renderer =
                 new NumberHeatmapRenderer(minMaxAndRange, Arrays.asList(COLOR1, COLOR2, COLOR3),
                         createDummyRealRenderer());
-        
+
         String firstLabel = renderer.tryGetFirstLabel();
         List<HeatmapScaleElement> scale = renderer.calculateScale();
 
         assertEquals("[3.0:#111, 2.0:#222, " + LESS_THAN_EQUAL + " 1.0:#333]", scale.toString());
         assertEquals(GREATER_THAN_EQUAL + " 4.0", firstLabel);
     }
-    
+
     @Test
     public void testScaleOutsideMinMax()
     {
@@ -186,14 +186,14 @@ public class NumberHeatmapRendererTest
         NumberHeatmapRenderer renderer =
                 new NumberHeatmapRenderer(minMaxAndRange, Arrays.asList(COLOR1, COLOR2, COLOR3),
                         createDummyRealRenderer());
-        
+
         String firstLabel = renderer.tryGetFirstLabel();
         List<HeatmapScaleElement> scale = renderer.calculateScale();
-        
+
         assertEquals("[3.0:#111, 2.0:#222, 1.0:#333]", scale.toString());
         assertEquals("4.0", firstLabel);
     }
-    
+
     @Test
     public void testScaleInsideMinMaxButScaleInverted()
     {
@@ -201,14 +201,14 @@ public class NumberHeatmapRendererTest
         NumberHeatmapRenderer renderer =
                 new NumberHeatmapRenderer(minMaxAndRange, Arrays.asList(COLOR1, COLOR2, COLOR3),
                         createDummyRealRenderer());
-        
+
         String firstLabel = renderer.tryGetFirstLabel();
         List<HeatmapScaleElement> scale = renderer.calculateScale();
-        
+
         assertEquals("[2.0:#111, 3.0:#222, " + GREATER_THAN_EQUAL + " 4.0:#333" + "]", scale.toString());
         assertEquals(LESS_THAN_EQUAL + " 1.0", firstLabel);
     }
-    
+
     @Test
     public void testScaleOutsideMinMaxButScaleInverted()
     {
@@ -216,10 +216,10 @@ public class NumberHeatmapRendererTest
         NumberHeatmapRenderer renderer =
                 new NumberHeatmapRenderer(minMaxAndRange, Arrays.asList(COLOR1, COLOR2, COLOR3),
                         createDummyRealRenderer());
-        
+
         String firstLabel = renderer.tryGetFirstLabel();
         List<HeatmapScaleElement> scale = renderer.calculateScale();
-        
+
         assertEquals("[200.0:#111, 300.0:#222, 400.0:#333]", scale.toString());
         assertEquals("100.0", firstLabel);
     }

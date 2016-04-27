@@ -24,8 +24,8 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import ch.systemsx.cisd.dbmigration.java.IMigrationStep;
 
 /**
- * Since S102 it is no longer possible to migrate from database older than version 4 to a newest
- * version directly. One would have to migrate to a version S101 first in such a case.
+ * Since S102 it is no longer possible to migrate from database older than version 4 to a newest version directly. One would have to migrate to a
+ * version S101 first in such a case.
  * <p>
  * Reads all feature vector files and reuploads them to the imaging database.
  * 

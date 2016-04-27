@@ -30,8 +30,7 @@ import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 
 /**
  * This class is obsolete, and should not be used. Use
- * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.AutoRescaleIntensityImageTransformerFactory}
- * instead
+ * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.AutoRescaleIntensityImageTransformerFactory} instead
  * 
  * @author Jakub Straszewski
  */

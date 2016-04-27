@@ -36,10 +36,9 @@ public interface IImageDataSet extends IDataSet
     void setAnalysisProcedure(String analysisProcedure);
 
     /**
-     * If this method is called the contained data sets (original data set and thumbnails) will
-     * automatically linked to the sample specified by
-     * {@link IDataSet#setSample(ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable)}
-     * . By default there will be no such links.
+     * If this method is called the contained data sets (original data set and thumbnails) will automatically linked to the sample specified by
+     * {@link IDataSet#setSample(ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable)} . By default there will be no such
+     * links.
      * 
      * @deprecated this method is for backwards compatibility only
      */
@@ -47,13 +46,10 @@ public interface IImageDataSet extends IDataSet
     void establishSampleLinkForContainedDataSets();
 
     /**
-     * Utility method to find out the plate geometry by looking for which wells images are
-     * available.
+     * Utility method to find out the plate geometry by looking for which wells images are available.
      * 
-     * @return a constant which can be used as a vocabulary term value for $PLATE_GEOMETRY property
-     *         of a plate/
-     * @throws UserFailureException if all available geometries in openBIS are too small (there is a
-     *             well outside).
+     * @return a constant which can be used as a vocabulary term value for $PLATE_GEOMETRY property of a plate/
+     * @throws UserFailureException if all available geometries in openBIS are too small (there is a well outside).
      */
     String figureGeometry();
 

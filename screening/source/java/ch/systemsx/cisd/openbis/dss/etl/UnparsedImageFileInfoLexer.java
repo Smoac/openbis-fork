@@ -27,9 +27,8 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.dss.etl.dto.UnparsedImageFileInfo;
 
 /**
- * Utility to parse information about the image from its file name. Assumes that tokens are
- * separated by '_'. The first letter of the token tells which type of information the token
- * contains. <br>
+ * Utility to parse information about the image from its file name. Assumes that tokens are separated by '_'. The first letter of the token tells
+ * which type of information the token contains. <br>
  * The convention is compatible with the one adopted in Biozentrum by iBrain2.
  * 
  * <pre>

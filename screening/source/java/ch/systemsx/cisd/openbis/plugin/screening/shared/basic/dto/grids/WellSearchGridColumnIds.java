@@ -68,8 +68,7 @@ public class WellSearchGridColumnIds
     }
 
     /**
-     * id of the column which contains properties of the material (which itself is a property of the
-     * well)
+     * id of the column which contains properties of the material (which itself is a property of the well)
      */
     public static String getWellMaterialPropertyColumnGroupPrefix(IEntityProperty materialProperty)
     {

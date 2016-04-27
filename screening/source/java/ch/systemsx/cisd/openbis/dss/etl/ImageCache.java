@@ -33,23 +33,25 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageIdentifier;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 
 /**
- * An image cache based on {@link ReferenceMap}. 
- * All entries with soft value references are removed when free heap space is needed.
+ * An image cache based on {@link ReferenceMap}. All entries with soft value references are removed when free heap space is needed.
  *
  * @author Franz-Josef Elmer
  */
 public class ImageCache implements IImageProvider
 {
     private final Map<String, BufferedImage> images = new ReferenceMap<String, BufferedImage>();
+
     private final Map<String, Size> imageSizes = new ReferenceMap<String, Size>();
+
     private final Map<String, Integer> imageColorDepths = new ReferenceMap<String, Integer>();
+
     private final Map<String, List<ImageIdentifier>> imageIdentifiers = new ReferenceMap<String, List<ImageIdentifier>>();
 
     /**
      * Returns or loads the image specified by file name, identifier and loading library.
      */
     @Override
-    public synchronized BufferedImage getImage(IHierarchicalContentNode contentNode, 
+    public synchronized BufferedImage getImage(IHierarchicalContentNode contentNode,
             String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull)
     {
         String key = createKey(contentNode, imageIdOrNull, imageLibraryOrNull);
@@ -61,7 +63,7 @@ public class ImageCache implements IImageProvider
         }
         return image;
     }
-    
+
     @Override
     public Size getImageSize(IHierarchicalContentNode contentNode, String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull)
     {
@@ -87,7 +89,7 @@ public class ImageCache implements IImageProvider
         }
         return colorDepth;
     }
-    
+
     @Override
     public List<ImageIdentifier> getImageIdentifiers(IImageReader imageReaderOrNull, File file)
     {
@@ -100,17 +102,17 @@ public class ImageCache implements IImageProvider
         }
         return identifiers;
     }
-    
+
     public int size()
     {
         return images.size();
     }
-    
+
     private String createKey(IHierarchicalContentNode contentNode, String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull)
     {
         return contentNode.getName() + ":" + imageIdOrNull + " [" + imageLibraryOrNull + "]";
     }
-    
+
     private static List<ImageIdentifier> readImageIdentifiers(IImageReader readerOrNull,
             File imageFile)
     {

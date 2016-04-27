@@ -69,10 +69,8 @@ public class HCSImageFileExtractor extends AbstractImageFileExtractor
     }
 
     /**
-     * Extracts the well location from given token. Returns <code>null</code> if the operation
-     * fails.<br>
-     * Can be overwritten in the subclasses if they use
-     * {@link #tryExtractHCSImageInfo(UnparsedImageFileInfo, File, File)} internally.
+     * Extracts the well location from given token. Returns <code>null</code> if the operation fails.<br>
+     * Can be overwritten in the subclasses if they use {@link #tryExtractHCSImageInfo(UnparsedImageFileInfo, File, File)} internally.
      */
     protected Location tryGetTileLocation(final String wellLocation)
     {
@@ -90,12 +88,10 @@ public class HCSImageFileExtractor extends AbstractImageFileExtractor
     }
 
     /**
-     * Splits specified image file name into at least four tokens. Only the last four tokens will be
-     * considered. They are sample code, plate location, well location, and channel. Note, that
-     * sample code could be <code>null</code>.
+     * Splits specified image file name into at least four tokens. Only the last four tokens will be considered. They are sample code, plate location,
+     * well location, and channel. Note, that sample code could be <code>null</code>.
      * 
-     * @param shouldValidatePlateName if true it will be checked if the plate code in the file name
-     *            matches the datasetSample plate code.
+     * @param shouldValidatePlateName if true it will be checked if the plate code in the file name matches the datasetSample plate code.
      * @return <code>null</code> if the argument could not be splitted into tokens.
      */
     private final static UnparsedImageFileInfo tryExtractImageInfo(File imageFile,

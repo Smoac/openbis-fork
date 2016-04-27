@@ -22,11 +22,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-
-
 /**
- * Immutable class defining the width and height of something. Two instances are equal if and only
- * if the widths and heights are equal.
+ * Immutable class defining the width and height of something. Two instances are equal if and only if the widths and heights are equal.
  * 
  * @author Franz-Josef Elmer
  */
@@ -183,14 +180,13 @@ public final class Geometry implements Serializable
     }
 
     /**
-     * Returns the cartesian coordinates as an <code>int[]</code>. The width is the x-dimension and
-     * the height is the y-dimension.
+     * Returns the cartesian coordinates as an <code>int[]</code>. The width is the x-dimension and the height is the y-dimension.
      */
     @JsonIgnore
     public final int[] getCartesianDimensions()
     {
         return new int[]
-            { width, height };
+        { width, height };
     }
 
     @Override

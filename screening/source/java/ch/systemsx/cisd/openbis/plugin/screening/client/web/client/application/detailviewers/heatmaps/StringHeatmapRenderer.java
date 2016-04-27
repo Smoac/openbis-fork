@@ -29,8 +29,8 @@ class StringHeatmapRenderer implements IHeatmapRenderer<String>
     private final boolean moreLabelsThanColors;
 
     /**
-     * Assigns colors to string labels from a fixed default set of colors. If there are more values
-     * than colors, the "overhead values" are marked as belonging to one "Others" group.
+     * Assigns colors to string labels from a fixed default set of colors. If there are more values than colors, the "overhead values" are marked as
+     * belonging to one "Others" group.
      */
     public StringHeatmapRenderer(List<String> values)
     {
@@ -51,8 +51,8 @@ class StringHeatmapRenderer implements IHeatmapRenderer<String>
     }
 
     /**
-     * Assigns specified colors to string labels using colors in the specified order. If there are
-     * more values than colors, the "overhead values" are marked as belonging to one "Others" group.
+     * Assigns specified colors to string labels using colors in the specified order. If there are more values than colors, the "overhead values" are
+     * marked as belonging to one "Others" group.
      */
     public StringHeatmapRenderer(List<String> uniqueValues, List<Color> scaleColorsOrNull)
     {

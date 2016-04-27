@@ -43,8 +43,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgIm
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
 
 /**
- * Task which feeds imageing database with images sizes of already registered data sets of type
- * HCS_IMAGE*.
+ * Task which feeds imageing database with images sizes of already registered data sets of type HCS_IMAGE*.
  * 
  * @author Franz-Josef Elmer
  */

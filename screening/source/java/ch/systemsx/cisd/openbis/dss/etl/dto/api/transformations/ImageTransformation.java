@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
  */
 public class ImageTransformation implements Serializable
 {
-    
+
     private static final long serialVersionUID = 1L;
 
     private String code;
@@ -107,16 +107,13 @@ public class ImageTransformation implements Serializable
     }
 
     /**
-     * Calling with true makes this transformation a default user's choice and makes the
-     * 'hard-coded' default unavailable. This transformation will become the first one on the list
-     * automatically.
+     * Calling with true makes this transformation a default user's choice and makes the 'hard-coded' default unavailable. This transformation will
+     * become the first one on the list automatically.
      * <p>
-     * Marking more then one transformation as a default for one channel will make it impossible to
-     * register a dataset.
+     * Marking more then one transformation as a default for one channel will make it impossible to register a dataset.
      * </p>
      * <p>
-     * If no transformation on the list will be marked as default then a 'hard-coded' default
-     * transformation will become available.
+     * If no transformation on the list will be marked as default then a 'hard-coded' default transformation will become available.
      * </p>
      */
     public void setDefault(boolean isDefault)

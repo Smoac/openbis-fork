@@ -63,8 +63,7 @@ public class ThumbnailsInfo implements Serializable
     }
 
     /**
-     * Saves the path to the thumbnail for the specified image. The thumbnail path is relative and
-     * starts with the name of the thumbnail file.
+     * Saves the path to the thumbnail for the specified image. The thumbnail path is relative and starts with the name of the thumbnail file.
      */
     public synchronized void saveThumbnailPath(String permId, RelativeImageFile image,
             ColorComponent colorComponentOrNull, String thumbnailRelativePath, int width,

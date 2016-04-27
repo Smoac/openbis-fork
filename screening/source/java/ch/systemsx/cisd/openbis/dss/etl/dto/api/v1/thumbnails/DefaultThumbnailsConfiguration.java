@@ -17,8 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.thumbnails;
 
 /**
- * This class is obsolete, and should not be used. Use
- * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.thumbnails.DefaultThumbnailsConfiguration}
+ * This class is obsolete, and should not be used. Use {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.thumbnails.DefaultThumbnailsConfiguration}
  * instead
  * 
  * @author Jakub Straszewski

@@ -42,14 +42,14 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplic
  * 
  * @author Tomasz Pylak
  */
-@Friend(toClasses = {WellReplicaSummaryCalculator.class, WellReplicaSummaryCalculator.SummaryFeatureVector.class})
+@Friend(toClasses = { WellReplicaSummaryCalculator.class, WellReplicaSummaryCalculator.SummaryFeatureVector.class })
 public class WellReplicaSummaryCalculatorTest extends AssertJUnit
 {
     @Test
     public void testGeneral()
     {
         List<IWellData> wellDataList = Arrays.asList(
-        // ---- replicaId, [featureValues]
+                // ---- replicaId, [featureValues]
                 createWellData(1, 2, 4),
 
                 createWellData(2, 1, 10),
@@ -65,20 +65,20 @@ public class WellReplicaSummaryCalculatorTest extends AssertJUnit
 
         MaterialIdFeatureVectorSummary repl1 = summary.get(replica1Ix);
         assertArraysEqual(new float[]
-            { 1.5f, 6 }, repl1.getFeatureVectorSummary());
+        { 1.5f, 6 }, repl1.getFeatureVectorSummary());
         assertArraysEqual(new float[]
-            { 0.5f, 2 }, repl1.tryGetFeatureVectorDeviations());
+        { 0.5f, 2 }, repl1.tryGetFeatureVectorDeviations());
 
         MaterialIdFeatureVectorSummary repl2 = summary.get(1 - replica1Ix);
         assertArraysEqual(new float[]
-            { 1, 100 }, repl2.getFeatureVectorSummary());
+        { 1, 100 }, repl2.getFeatureVectorSummary());
         assertArraysEqual(new float[]
-            { 0, 90 }, repl2.tryGetFeatureVectorDeviations());
+        { 0, 90 }, repl2.tryGetFeatureVectorDeviations());
 
         assertArraysEqual(new int[]
-            { 2, 1 }, repl1.getFeatureVectorRanks());
+        { 2, 1 }, repl1.getFeatureVectorRanks());
         assertArraysEqual(new int[]
-            { 1, 2 }, repl2.getFeatureVectorRanks());
+        { 1, 2 }, repl2.getFeatureVectorRanks());
     }
 
     @Test
@@ -100,7 +100,7 @@ public class WellReplicaSummaryCalculatorTest extends AssertJUnit
     public void testCalculateMedianForOddNumberOfValues()
     {
         List<IWellData> wellDataList = Arrays.asList(
-        // ---- replicaId, [featureValues]
+                // ---- replicaId, [featureValues]
                 createWellData(1, 0, Float.NaN),
 
                 createWellData(1, 0, Float.NEGATIVE_INFINITY),
@@ -139,7 +139,7 @@ public class WellReplicaSummaryCalculatorTest extends AssertJUnit
     public void testCalculateMedianForEvenNumberOfValues()
     {
         List<IWellData> wellDataList = Arrays.asList(
-        // ---- replicaId, [featureValues]
+                // ---- replicaId, [featureValues]
                 createWellData(1, 0, Float.NaN),
 
                 createWellData(1, 0, Float.NEGATIVE_INFINITY),
@@ -180,10 +180,10 @@ public class WellReplicaSummaryCalculatorTest extends AssertJUnit
     public void testRanks()
     {
         float[] oneFeatureSummaryValues = new float[]
-            { 2, 1, 1, 2, Float.NaN, 3, Float.POSITIVE_INFINITY };
+        { 2, 1, 1, 2, Float.NaN, 3, Float.POSITIVE_INFINITY };
         int[] ranks = calculateOneFeatureRanks(oneFeatureSummaryValues);
         assertArraysEqual(new int[]
-            { 3, 1, 1, 3, 6, 5, 6 }, ranks);
+        { 3, 1, 1, 3, 6, 5, 6 }, ranks);
     }
 
     private int[] calculateOneFeatureRanks(float[] oneFeatureSummaryValues)
@@ -192,7 +192,7 @@ public class WellReplicaSummaryCalculatorTest extends AssertJUnit
         for (int i = 0; i < oneFeatureSummaryValues.length; i++)
         {
             map.put(new Long(i), new SummaryFeatureVector(new float[]
-                { oneFeatureSummaryValues[i] }, null));
+            { oneFeatureSummaryValues[i] }, null));
         }
         Map<Long, int[]> ranksMap = WellReplicaSummaryCalculator.calculateRanks(map, 1);
         int ranks[] = new int[oneFeatureSummaryValues.length];

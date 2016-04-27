@@ -25,9 +25,8 @@ import ch.systemsx.cisd.hcs.Geometry;
 import ch.systemsx.cisd.hcs.Location;
 
 /**
- * Defines the mapping from tile position to well location. Rows in the mapping string provided to
- * the constructor are separated by semicolon (";"), columns are separated by comma (","). Position
- * marked as zero ("-1"), means that it should be empty.
+ * Defines the mapping from tile position to well location. Rows in the mapping string provided to the constructor are separated by semicolon (";"),
+ * columns are separated by comma (","). Position marked as zero ("-1"), means that it should be empty.
  * <p>
  * Usage Example: <code>
  * TileMapper mapper = new TileMapper("1,-1,3;4,5,-1",geometry); 

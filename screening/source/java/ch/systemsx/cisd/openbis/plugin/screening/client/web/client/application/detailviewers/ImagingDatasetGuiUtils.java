@@ -49,8 +49,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorD
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 
 /**
- * GUI utilities to create links and choosers of connected datasets: image datasets, feature vector
- * datasets and all the other unknown datasets.
+ * GUI utilities to create links and choosers of connected datasets: image datasets, feature vector datasets and all the other unknown datasets.
  * 
  * @author Tomasz Pylak
  */

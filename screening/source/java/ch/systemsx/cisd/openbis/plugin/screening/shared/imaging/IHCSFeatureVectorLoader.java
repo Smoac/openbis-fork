@@ -31,15 +31,14 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoa
 public interface IHCSFeatureVectorLoader
 {
     /**
-     * Fetches all feature vectors of specified wells. Uses basic data types. If a reference to a
-     * dataset without any feature vectors is specified, it is silently ignored.
+     * Fetches all feature vectors of specified wells. Uses basic data types. If a reference to a dataset without any feature vectors is specified, it
+     * is silently ignored.
      */
     WellFeatureCollection<FeatureVectorValues> fetchWellFeatureValuesIfPossible(Session session,
             List<WellFeatureVectorReference> references);
 
     /**
-     * Fetches all features vectors from a specified dataset. Only features with given names will be
-     * fetched.<br>
+     * Fetches all features vectors from a specified dataset. Only features with given names will be fetched.<br>
      * Can be empty if a dataset contains no feature vectors.
      */
     WellFeatureCollection<FeatureVectorValues> fetchDatasetFeatureValues(Session session,

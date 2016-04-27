@@ -43,8 +43,7 @@ public class CanonicalFeatureVector
     }
 
     /**
-     * The feature def for this feature vector. If the feature def has not yet been commited to the
-     * DB, then it has no ID.
+     * The feature def for this feature vector. If the feature def has not yet been commited to the DB, then it has no ID.
      */
     public ImgFeatureDefDTO getFeatureDef()
     {
@@ -57,8 +56,8 @@ public class CanonicalFeatureVector
     }
 
     /**
-     * The feature values for this feature. If the feature values have not yet been commited to the
-     * DB, then FK to the feature def will not be valid and PK will not be valid as well.
+     * The feature values for this feature. If the feature values have not yet been commited to the DB, then FK to the feature def will not be valid
+     * and PK will not be valid as well.
      */
     public List<ImgFeatureValuesDTO> getValues()
     {
@@ -66,9 +65,8 @@ public class CanonicalFeatureVector
     }
 
     /**
-     * The vocabulary terms for this feature if it is not numerical, empty list otherwise. If the
-     * terms have not yet been commited to the DB, then FK to the feature def will not be valid. The
-     * ids of the terms are NOT valid and are never set after the commit.
+     * The vocabulary terms for this feature if it is not numerical, empty list otherwise. If the terms have not yet been commited to the DB, then FK
+     * to the feature def will not be valid. The ids of the terms are NOT valid and are never set after the commit.
      */
     public List<ImgFeatureVocabularyTermDTO> getVocabularyTerms()
     {

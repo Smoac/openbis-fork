@@ -431,7 +431,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
             RequestedImageSize imageSize, String singleChannelTransformationCodeOrNull)
     {
         String[] ret = new String[]
-            { "", "", null };
+        { "", "", null };
         ImgImageZoomLevelDTO bestZoomLevel = null;
         List<ImgImageZoomLevelDTO> zoomLevels = query.listImageZoomLevels(datasetId);
         if (zoomLevels != null && zoomLevels.size() > 0)

@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 
 /**
- * This class is obsolete, and should not be used. Use
- * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.ImageTransformation} instead
+ * This class is obsolete, and should not be used. Use {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.ImageTransformation} instead
  * 
  * @author Jakub Straszewski
  */

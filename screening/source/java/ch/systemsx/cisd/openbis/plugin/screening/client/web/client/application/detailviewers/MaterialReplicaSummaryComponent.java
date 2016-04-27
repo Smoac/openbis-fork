@@ -66,9 +66,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 
 /**
- * Component which for a specified material and experiment presents 1. feature vectors (detailed and
- * aggregated across all replicas of one assay) 2. images grouped by biological and technical
- * replicates.
+ * Component which for a specified material and experiment presents 1. feature vectors (detailed and aggregated across all replicas of one assay) 2.
+ * images grouped by biological and technical replicates.
  * 
  * @author Kaloyan Enimanev
  * @author Tomasz Pylak

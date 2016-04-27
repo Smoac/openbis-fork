@@ -36,9 +36,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 /**
  * Creates files to register genes, oligos and plate with wells.
  * <p>
- * This registrator works with the assumption that the entities which should be registered do not
- * already exist in openBIS. If it is the case we should extend the implementation to fetch existing
- * entities, LIBRARY_ID property can be used to recognize that.
+ * This registrator works with the assumption that the entities which should be registered do not already exist in openBIS. If it is the case we
+ * should extend the implementation to fetch existing entities, LIBRARY_ID property can be used to recognize that.
  * </p>
  * 
  * @author Tomasz Pylak

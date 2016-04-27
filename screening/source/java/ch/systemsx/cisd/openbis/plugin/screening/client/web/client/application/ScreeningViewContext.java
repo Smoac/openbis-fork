@@ -29,7 +29,7 @@ public final class ScreeningViewContext extends
 {
     private static final String TECHNOLOGY_NAME = "screening";
 
-    private Map<Long /*Plate Id*/, ImageDatasetEnrichedReference> currentlyViewedPlateToDataSetMap =
+    private Map<Long /* Plate Id */, ImageDatasetEnrichedReference> currentlyViewedPlateToDataSetMap =
             new HashMap<Long, ImageDatasetEnrichedReference>();
 
     public ScreeningViewContext(final IViewContext<ICommonClientServiceAsync> commonViewContext)

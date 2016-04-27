@@ -22,8 +22,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-
-
 /**
  * A class that represents an image transformation.
  * 
@@ -71,8 +69,7 @@ public class ImageTransformationInfo implements Serializable
     }
 
     /**
-     * The description of the image transformation, or <code>null</code>, if the image
-     * transformation has no description.
+     * The description of the image transformation, or <code>null</code>, if the image transformation has no description.
      */
     public String tryGetDescription()
     {
@@ -80,8 +77,7 @@ public class ImageTransformationInfo implements Serializable
     }
 
     /**
-     * Returns <code>true</code>, if this transformation is the default transformation for this
-     * channel.
+     * Returns <code>true</code>, if this transformation is the default transformation for this channel.
      */
     public boolean isDefaultTransformation()
     {

@@ -31,11 +31,10 @@ public interface IThumbnailsConfiguration
     public String setTransformation(String channelCode, String transformarionCode);
 
     /**
-     * Gets a storage format that describes how thumbnails should be generated. Please note that
-     * changes made to the returned object will NOT change the parameters of thumbnails generation
-     * process. To change the way thumbnails should be generated (e.g. set file name, file format or
-     * transformations) please use {@link #setFileName(String)}, {@link #setFileFormat(String)} and
-     * {@link #setTransformation(String, String)} methods.
+     * Gets a storage format that describes how thumbnails should be generated. Please note that changes made to the returned object will NOT change
+     * the parameters of thumbnails generation process. To change the way thumbnails should be generated (e.g. set file name, file format or
+     * transformations) please use {@link #setFileName(String)}, {@link #setFileFormat(String)} and {@link #setTransformation(String, String)}
+     * methods.
      */
     public ThumbnailsStorageFormat getThumbnailsStorageFormat(SimpleImageDataConfig config);
 

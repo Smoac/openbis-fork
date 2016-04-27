@@ -2,8 +2,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-
-
 /**
  * Identifies one image acquired in a microscopy context.
  * 
@@ -22,9 +20,8 @@ public class MicroscopyImageReference extends DatasetIdentifier
     /**
      * Reference to image dataset which has no wells (like e.g. in microscopy).
      * 
-     * @param dataset if image dataset is specified, image will be fetched from it. If a feature
-     *            vector dataset is specified, a connected image dataset will be found and image
-     *            will be fetched from it.
+     * @param dataset if image dataset is specified, image will be fetched from it. If a feature vector dataset is specified, a connected image
+     *            dataset will be found and image will be fetched from it.
      */
     public MicroscopyImageReference(int tile, String channel, IDatasetIdentifier dataset)
     {

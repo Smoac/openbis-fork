@@ -32,7 +32,7 @@ public class ScreeningSqlMigrationTest extends SqlMigrationTestAbstract
 {
 
     @Test(groups =
-        { "slow" })
+    { "slow" })
     public void test_migration()
             throws Exception
     {

@@ -21,8 +21,6 @@ import java.util.Map;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-
-
 /**
  * Description of one image dataset.
  * 
@@ -82,8 +80,8 @@ public class ImageDatasetReference extends DatasetReference implements IImageDat
     }
 
     /**
-     * Returns the image parent dataset of this data set, or <code>null</code>, if this data set
-     * doesn't have a parent image dataset or the server version is too old (&lt; 1.6) to fill it.
+     * Returns the image parent dataset of this data set, or <code>null</code>, if this data set doesn't have a parent image dataset or the server
+     * version is too old (&lt; 1.6) to fill it.
      * 
      * @since 1.6
      */

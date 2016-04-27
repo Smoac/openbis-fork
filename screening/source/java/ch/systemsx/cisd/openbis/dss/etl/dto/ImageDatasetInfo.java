@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.dss.etl.dto;
 
 import java.util.List;
 
-
 /**
  * Information about the dataset specific for the image datasets (hcs and microscopy).
  * 

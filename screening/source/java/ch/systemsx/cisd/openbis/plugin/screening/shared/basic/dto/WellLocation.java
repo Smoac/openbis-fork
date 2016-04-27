@@ -37,10 +37,9 @@ public class WellLocation implements Serializable
     private int column;
 
     /**
-     * Parses a location given as a string and returns a {@link WellLocation}. The location has to
-     * start with one or more letters ignoring case. This letter section code the x-coordinate with
-     * 'A'=1, 'B'=2, ..., 'Z'=26, 'AA'=27, ..., 'AZ'=52, 'BA'=53, 'BB'=54, etc. After the letter
-     * section follows one or more digits.
+     * Parses a location given as a string and returns a {@link WellLocation}. The location has to start with one or more letters ignoring case. This
+     * letter section code the x-coordinate with 'A'=1, 'B'=2, ..., 'Z'=26, 'AA'=27, ..., 'AZ'=52, 'BA'=53, 'BB'=54, etc. After the letter section
+     * follows one or more digits.
      * <p>
      * Examples:
      * 
@@ -73,8 +72,7 @@ public class WellLocation implements Serializable
     }
 
     /**
-     * See {@link #parseLocationStr}. Returns null instead of throwing IllegalArgumentException when
-     * an error occurs.
+     * See {@link #parseLocationStr}. Returns null instead of throwing IllegalArgumentException when an error occurs.
      */
     public static WellLocation tryParseLocationStr(String locationStr)
     {
@@ -88,10 +86,9 @@ public class WellLocation implements Serializable
     }
 
     /**
-     * Parses a location given as two strings for row and column and returns a {@link WellLocation}.
-     * The location has to start with one or more letters ignoring case. This
-     * <var>rowLocationStr</var> has 'A'=1, 'B'=2, ..., 'Z'=26, 'AA'=27, ..., 'AZ'=52, 'BA'=53,
-     * 'BB'=54, etc. After <var>colLocationStr</var> has one or more digits.
+     * Parses a location given as two strings for row and column and returns a {@link WellLocation}. The location has to start with one or more
+     * letters ignoring case. This <var>rowLocationStr</var> has 'A'=1, 'B'=2, ..., 'Z'=26, 'AA'=27, ..., 'AZ'=52, 'BA'=53, 'BB'=54, etc. After
+     * <var>colLocationStr</var> has one or more digits.
      * <p>
      * Examples:
      * 
@@ -129,10 +126,9 @@ public class WellLocation implements Serializable
     }
 
     /**
-     * Parses a location given as two strings for row and column and returns a {@link WellLocation}.
-     * The location has to start with one or more letters ignoring case. This
-     * <var>rowLocationStr</var> has 'A'=1, 'B'=2, ..., 'Z'=26, 'AA'=27, ..., 'AZ'=52, 'BA'=53,
-     * 'BB'=54, etc. After <var>colLocationStr</var> has one or more digits.
+     * Parses a location given as two strings for row and column and returns a {@link WellLocation}. The location has to start with one or more
+     * letters ignoring case. This <var>rowLocationStr</var> has 'A'=1, 'B'=2, ..., 'Z'=26, 'AA'=27, ..., 'AZ'=52, 'BA'=53, 'BB'=54, etc. After
+     * <var>colLocationStr</var> has one or more digits.
      * <p>
      * Examples:
      * 

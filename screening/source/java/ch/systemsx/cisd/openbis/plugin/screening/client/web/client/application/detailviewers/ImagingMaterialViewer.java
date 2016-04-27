@@ -40,8 +40,7 @@ public class ImagingMaterialViewer extends GenericMaterialViewer
 {
 
     /**
-     * @param experimentCriteriaOrNull if the experiment criteria are specified, they will be chosen
-     *            automatically when the window opens.
+     * @param experimentCriteriaOrNull if the experiment criteria are specified, they will be chosen automatically when the window opens.
      */
     public static DatabaseModificationAwareComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext, TechId materialId,

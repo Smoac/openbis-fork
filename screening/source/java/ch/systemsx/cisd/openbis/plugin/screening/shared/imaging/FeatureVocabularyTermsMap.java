@@ -35,9 +35,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFe
 class FeatureVocabularyTermsMap
 {
     /**
-     * Constructs a {@link FeatureVocabularyTermsMap} from all the vocabulary terms definitions of
-     * the dataset. A constructed map can provide a term definition for a given dataset feature
-     * definition and term sequence number.
+     * Constructs a {@link FeatureVocabularyTermsMap} from all the vocabulary terms definitions of the dataset. A constructed map can provide a term
+     * definition for a given dataset feature definition and term sequence number.
      */
     public static FeatureVocabularyTermsMap createVocabularyTermsMap(
             List<ImgFeatureVocabularyTermDTO> allTerms, Set<ImgFeatureDefDTO> datasetFeatureDefs)
@@ -130,8 +129,7 @@ class FeatureVocabularyTermsMap
     }
 
     /**
-     * Fails if the specified feature has no vocabularies or a term with a specified sequence does
-     * not exist.
+     * Fails if the specified feature has no vocabularies or a term with a specified sequence does not exist.
      */
     public FeatureValue getVocabularyTerm(long featureDefId, int termSequenceNumber)
     {

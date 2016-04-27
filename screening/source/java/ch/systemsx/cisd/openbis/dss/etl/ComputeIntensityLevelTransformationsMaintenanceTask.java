@@ -291,8 +291,7 @@ public class ComputeIntensityLevelTransformationsMaintenanceTask implements IMai
     /**
      * Computes intensity ranges for all images in the dataset.
      * 
-     * @return calculated levels, or null if calculation cannot be done because of a permanent
-     *         problem
+     * @return calculated levels, or null if calculation cannot be done because of a permanent problem
      */
     private Levels computeIntensityRange(ImgImageDatasetDTO imageDataset,
             List<ImgChannelDTO> channels)

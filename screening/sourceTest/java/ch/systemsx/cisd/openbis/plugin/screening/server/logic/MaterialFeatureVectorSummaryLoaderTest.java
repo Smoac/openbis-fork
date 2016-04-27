@@ -64,7 +64,7 @@ public class MaterialFeatureVectorSummaryLoaderTest extends AssertJUnit
         settings.setBiologicalReplicatePropertyTypeCodes(SIRNA_PROPERTY_TYPE_CODE);
         int replId = 0;
         List<WellExtendedData> wellDataList = Arrays.asList(
-        // repl. 1 group 1
+                // repl. 1 group 1
                 createSIRNAWellData(replId, 1, 10, 100),
 
                 createSIRNAWellData(replId, 1, 20, 200),
@@ -95,13 +95,13 @@ public class MaterialFeatureVectorSummaryLoaderTest extends AssertJUnit
             {
                 case 1:
                     assertArraysEqual(new float[]
-                        { 20, 200 }, subgroup.getAggregatedSummary());
+                    { 20, 200 }, subgroup.getAggregatedSummary());
                     assertEquals("siRNA 1", subgroup.getSubgroupLabel());
                     assertEquals(3, subgroup.getTechnicalReplicatesValues().size());
                     break;
                 case 2:
                     assertArraysEqual(new float[]
-                        { 200, 2000 }, subgroup.getAggregatedSummary());
+                    { 200, 2000 }, subgroup.getAggregatedSummary());
                     assertEquals("siRNA 2", subgroup.getSubgroupLabel());
                     assertEquals(3, subgroup.getTechnicalReplicatesValues().size());
                     break;
@@ -124,12 +124,12 @@ public class MaterialFeatureVectorSummaryLoaderTest extends AssertJUnit
 
         MaterialBiologicalReplicateFeatureVector medianSummary =
                 new MaterialBiologicalReplicateFeatureVector(technicalReplicas, new float[]
-                    { 2, 4, 6 }, MaterialReplicaSummaryAggregationType.MEDIAN, "dummyGroup");
+                { 2, 4, 6 }, MaterialReplicaSummaryAggregationType.MEDIAN, "dummyGroup");
 
         MaterialIdFeatureVectorSummary materialSummary =
                 new MaterialIdFeatureVectorSummary(1L, new float[]
-                    { 0.5f, 0.95f, 0 }, null, new int[]
-                    { 1, 2, 3 }, 1);
+                { 0.5f, 0.95f, 0 }, null, new int[]
+                { 1, 2, 3 }, 1);
 
         MaterialAllReplicasFeatureVectors backendResult =
                 new MaterialAllReplicasFeatureVectors(featureDescriptions, materialSummary,

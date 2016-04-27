@@ -75,9 +75,8 @@ public class DatasetAcquiredImagesReference
     }
 
     /**
-     * Check if all exiting channels of the image should be merged (and not a single one or a
-     * subset). We want to treat the case where merged channels were requested in the same way as
-     * the case where all channel names have been enumerated.
+     * Check if all exiting channels of the image should be merged (and not a single one or a subset). We want to treat the case where merged channels
+     * were requested in the same way as the case where all channel names have been enumerated.
      */
     public boolean isMergeAllChannels(List<String> allChannelsCodes)
     {

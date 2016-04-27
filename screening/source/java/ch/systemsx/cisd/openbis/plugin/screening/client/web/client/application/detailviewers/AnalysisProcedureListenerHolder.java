@@ -23,7 +23,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
  */
 public class AnalysisProcedureListenerHolder
 {
-    public AnalysisProcedureListenerHolder() {
+    public AnalysisProcedureListenerHolder()
+    {
     }
 
     private IAnalysisProcedureSelectionListener analysisProcedureListener;

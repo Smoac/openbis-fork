@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
  * @author Tomasz Pylak
  */
 @Test(groups =
-    { "screening" })
+{ "screening" })
 public class ImgChannelStackDTOTest
 {
     @Test

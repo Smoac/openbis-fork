@@ -34,8 +34,7 @@ public class PlateDimensionParser
     /**
      * Returns the plate geometry from the specified properties.
      * 
-     * @throws IllegalArgumentException if either their isn't such a property or it has an invalid
-     *             value.
+     * @throws IllegalArgumentException if either their isn't such a property or it has an invalid value.
      */
     public static PlateDimension getPlateDimension(final IEntityProperty[] properties)
     {

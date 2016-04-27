@@ -19,12 +19,10 @@ package ch.systemsx.cisd.openbis.screening.systemtests;
 import org.testng.annotations.Test;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Test(groups =
-    { "slow", "systemtest" })
+{ "slow", "systemtest" })
 public class TransformedImageRepresentationsV2Test extends TransformedImageRepresentationsTest
 {
 

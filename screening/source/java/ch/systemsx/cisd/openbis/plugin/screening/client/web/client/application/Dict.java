@@ -17,8 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
 
 /**
- * An {@link ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict} extension for
- * <i>screening</i> specific message keys.
+ * An {@link ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict} extension for <i>screening</i> specific message keys.
  * 
  * @author Tomasz Pylak
  */

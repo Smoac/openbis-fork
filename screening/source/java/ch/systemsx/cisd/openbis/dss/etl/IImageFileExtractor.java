@@ -22,9 +22,8 @@ import java.util.Properties;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * This role is supposed to be implemented by classes that can extract HCS or Microscopy image files
- * from an incoming data set directory. Implementations of this interface need to have a constructor
- * that takes {@link Properties} to initialize itself.
+ * This role is supposed to be implemented by classes that can extract HCS or Microscopy image files from an incoming data set directory.
+ * Implementations of this interface need to have a constructor that takes {@link Properties} to initialize itself.
  * 
  * @author Tomasz Pylak
  */
@@ -32,8 +31,8 @@ public interface IImageFileExtractor
 {
 
     /**
-     * Extracts plate images in the given <var>incomingDataSetDirectory</var> and for the given
-     * <var>dataSetInfo</var> and returns the image files that it finds.
+     * Extracts plate images in the given <var>incomingDataSetDirectory</var> and for the given <var>dataSetInfo</var> and returns the image files
+     * that it finds.
      * 
      * @return the extraction result.
      */

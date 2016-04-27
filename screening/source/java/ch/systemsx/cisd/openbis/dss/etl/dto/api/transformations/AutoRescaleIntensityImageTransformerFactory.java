@@ -29,13 +29,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 
 /**
- * Transformation performed by
- * {@link IntensityRescaling#rescaleIntensityLevelTo8Bits(Pixels, Levels, Channel...)} where levels are
- * computed automatically by {@link IntensityRescaling#computeLevels(Pixels, float, Channel...)}.
+ * Transformation performed by {@link IntensityRescaling#rescaleIntensityLevelTo8Bits(Pixels, Levels, Channel...)} where levels are computed
+ * automatically by {@link IntensityRescaling#computeLevels(Pixels, float, Channel...)}.
  * <p>
- * Warning: The serialized version of this class can be stored in the database for each image.
- * Moving this class to a different package or changing it in a backward incompatible way would make
- * all the saved transformations invalid.
+ * Warning: The serialized version of this class can be stored in the database for each image. Moving this class to a different package or changing it
+ * in a backward incompatible way would make all the saved transformations invalid.
  * 
  * @author Tomasz Pylak
  */

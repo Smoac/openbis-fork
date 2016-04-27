@@ -77,8 +77,8 @@ public class ExperimentAnalysisSummarySection extends DisposableTabContent
     private AnalysisProcedureChooser createAnalysisProcedureChooser()
     {
         ExperimentSearchCriteria experimentCriteria =
-            ExperimentSearchCriteria.createExperiment(experiment);
-        
+                ExperimentSearchCriteria.createExperiment(experiment);
+
         ExperimentSearchCriteriaHolder criteriaHolder = new ExperimentSearchCriteriaHolder(experimentCriteria);
 
         return AnalysisProcedureChooser.createHorizontal(screeningViewContext, criteriaHolder,

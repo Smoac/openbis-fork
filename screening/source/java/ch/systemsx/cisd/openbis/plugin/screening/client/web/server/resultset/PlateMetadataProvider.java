@@ -39,11 +39,13 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 public class PlateMetadataProvider extends AbstractTableModelProvider<WellMetadata>
 {
     static final String CONTENT_PROPERTY_PREFIX = "CONTENT_PROPERTY__";
-    
+
     private final IScreeningServer server;
+
     private final String sessionToken;
+
     private final TechId plateId;
-    
+
     public PlateMetadataProvider(IScreeningServer server, String sessionToken, TechId plateId)
     {
         this.server = server;

@@ -186,8 +186,8 @@ public class ScreeningLinkExtractor extends LinkExtractor
     /**
      * Creates a link for material detail view.
      * 
-     * @param experimentCriteriaOrNull if null, no search for data about locations of the material
-     *            takes place. Otherwise the search is performed in all or a single experiment.
+     * @param experimentCriteriaOrNull if null, no search for data about locations of the material takes place. Otherwise the search is performed in
+     *            all or a single experiment.
      */
     public static final String createMaterialDetailsLink(IEntityInformationHolder material,
             ExperimentIdentifierSearchCriteria experimentCriteriaOrNull)

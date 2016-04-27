@@ -30,8 +30,7 @@ public class MaterialSummarySettings implements Serializable
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     /**
-     * The name of a material property type that can be rendered as a link to a details view when a
-     * material is shown.
+     * The name of a material property type that can be rendered as a link to a details view when a material is shown.
      */
     private String materialDetailsPropertyType;
 

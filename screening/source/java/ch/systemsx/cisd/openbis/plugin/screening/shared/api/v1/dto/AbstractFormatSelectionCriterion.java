@@ -22,8 +22,8 @@ import java.util.List;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * Abstract super class of {@link IImageRepresentationFormatSelectionCriterion} which accepting
- * matching {@link ImageRepresentationFormat} instance individually.
+ * Abstract super class of {@link IImageRepresentationFormatSelectionCriterion} which accepting matching {@link ImageRepresentationFormat} instance
+ * individually.
  * 
  * @author Franz-Josef Elmer
  */
@@ -50,8 +50,7 @@ public abstract class AbstractFormatSelectionCriterion implements
     }
 
     /**
-     * Returns <code>true</code> if the specified {@link ImageRepresentationFormat} instance is
-     * accepted by this criterion.
+     * Returns <code>true</code> if the specified {@link ImageRepresentationFormat} instance is accepted by this criterion.
      */
     protected abstract boolean accept(ImageRepresentationFormat format);
 

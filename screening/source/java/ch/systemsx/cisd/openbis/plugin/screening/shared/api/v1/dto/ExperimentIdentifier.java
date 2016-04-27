@@ -20,8 +20,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-
-
 /**
  * Unique identifier for an experiment in openBIS.
  * 
@@ -42,12 +40,10 @@ public class ExperimentIdentifier extends PermanentIdentifier
     /**
      * Creates an {@link ExperimentIdentifier} from the given <var>augmentedCode</code>.
      * 
-     * @param augmentedCode The <var>augmentedCode</code> in the form
-     *            <code>/SPACE/PROJECT/EXPERIMENT</code>
-     * @return An experiment identifer corresponding to <var>augmentedCode</code>. Note that this
-     *         experiment identifier has no perm id set.
-     * @throws IllegalArgumentException If the <var>augmentedCode</code> is not in the form
-     *             <code>/SPACE/PROJECT/EXPERIMENT</code> or <code>PROJECT/EXPERIMENT</code>.
+     * @param augmentedCode The <var>augmentedCode</code> in the form <code>/SPACE/PROJECT/EXPERIMENT</code>
+     * @return An experiment identifer corresponding to <var>augmentedCode</code>. Note that this experiment identifier has no perm id set.
+     * @throws IllegalArgumentException If the <var>augmentedCode</code> is not in the form <code>/SPACE/PROJECT/EXPERIMENT</code> or
+     *             <code>PROJECT/EXPERIMENT</code>.
      */
     public static ExperimentIdentifier createFromAugmentedCode(String augmentedCode)
             throws IllegalArgumentException
@@ -70,8 +66,8 @@ public class ExperimentIdentifier extends PermanentIdentifier
      * Creates an {@link ExperimentIdentifier} from the given <var>permId</code>.
      * 
      * @param permId The <var>permId</code>
-     * @return An experiment identifer corresponding to <var>permId</code>. Note that this
-     *         experiment identifier has no code, project or space information.
+     * @return An experiment identifer corresponding to <var>permId</code>. Note that this experiment identifier has no code, project or space
+     *         information.
      */
     public static ExperimentIdentifier createFromPermId(String permId)
             throws IllegalArgumentException

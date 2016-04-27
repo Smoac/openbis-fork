@@ -88,8 +88,7 @@ public class LoadEmptyImagesTest
         List<PlateImageReference> imageReferences = findPlateImagesToLoad(1000);
 
         /*
-         * try { runAndTime(imageReferences, 0); throw new
-         * RuntimeException("Expected exception not thrown"); } catch (Exception e) { }
+         * try { runAndTime(imageReferences, 0); throw new RuntimeException("Expected exception not thrown"); } catch (Exception e) { }
          */
         try
         {

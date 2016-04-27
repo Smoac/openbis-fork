@@ -23,8 +23,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.IPluginScriptR
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.JythonAggregationService;
 
 /**
- * A version of the {@link JythonAggregationService} with extra support for
- * screening.
+ * A version of the {@link JythonAggregationService} with extra support for screening.
  * 
  * @author Franz-Josef Elmer
  */

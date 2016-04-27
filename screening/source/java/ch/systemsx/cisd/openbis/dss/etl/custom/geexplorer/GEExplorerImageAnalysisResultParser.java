@@ -269,5 +269,4 @@ public class GEExplorerImageAnalysisResultParser extends DefaultHandler
         return StringUtils.trimToEmpty(attrValue);
     }
 
-
 }

@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
  * @author Kaloyan Enimanev
  */
 @Test(groups =
-    { "db", "screening", "slow" })
+{ "db", "screening", "slow" })
 public class WellContentLoaderTest extends AbstractScreeningDAOTest
 {
 
@@ -57,9 +57,9 @@ public class WellContentLoaderTest extends AbstractScreeningDAOTest
     public void testLoadWellContentsWithProperties()
     {
         String[] materialCodes = new String[]
-            { "19*" };
+        { "19*" };
         String[] materialTypeCodes =
-            { "SIRNA" };
+        { "SIRNA" };
 
         WellSearchCriteria searchCriteria =
                 new WellSearchCriteria(ExperimentSearchCriteria.createAllExperiments(),
@@ -76,16 +76,15 @@ public class WellContentLoaderTest extends AbstractScreeningDAOTest
     }
 
     /**
-     * Test that the same well is not displayed twice if the search query matches two different
-     * materials inside the well.
+     * Test that the same well is not displayed twice if the search query matches two different materials inside the well.
      */
     @Test
     public void testDuplicateWellsFilteredOut()
     {
         String[] materialCodes = new String[]
-            { "BACTERIUM-X", "BACTERIUM-Y" };
+        { "BACTERIUM-X", "BACTERIUM-Y" };
         String[] materialTypeCodes =
-            { "BACTERIUM" };
+        { "BACTERIUM" };
 
         WellSearchCriteria searchCriteria =
                 new WellSearchCriteria(ExperimentSearchCriteria.createAllExperiments(),

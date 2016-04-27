@@ -62,7 +62,7 @@ public class DssScreeningApplicationContext
                     }
                     buildingApplicationContext = true;
                     instance = new ClassPathXmlApplicationContext(new String[]
-                        { "screening-dssApplicationContext.xml" }, true)
+                    { "screening-dssApplicationContext.xml" }, true)
                         {
                             {
                                 setDisplayName("Application Context from { screening-dssApplicationContext.xml }");

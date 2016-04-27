@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 
-
 /**
  * A factory for Screening specific DAOs.
  * 

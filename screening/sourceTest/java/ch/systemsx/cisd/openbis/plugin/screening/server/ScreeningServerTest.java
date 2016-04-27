@@ -41,21 +41,25 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses = ScreeningServer.class)
 public class ScreeningServerTest extends AbstractServerTestCase
 {
     private static final String SAMPLE_IDENTIFIER = "/S1/P1";
+
     private static final String PERM_ID = "1234-56";
-    
+
     private IScreeningBusinessObjectFactory screeningBOFactory;
+
     private ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin;
+
     private IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin;
+
     private IDssServiceRpcScreeningMultiplexer dssMultiplexer;
+
     private ScreeningServer server;
+
     private SamplePE exampleSample;
 
     @BeforeMethod
@@ -104,16 +108,16 @@ public class ScreeningServerTest extends AbstractServerTestCase
                 {
                     one(screeningBOFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
-                    
+
                     one(sampleBO).loadBySamplePermId(PERM_ID);
                     one(sampleBO).getSample();
                     will(returnValue(exampleSample));
                 }
             });
-        
+
         Sample sample =
                 server.getPlateSample(SESSION_TOKEN, PlateIdentifier.createFromPermId(PERM_ID));
-        
+
         assertEquals("P1", sample.getCode());
         assertEquals(PERM_ID, sample.getPermId());
         assertEquals("/S1/P1", sample.getIdentifier());
@@ -122,7 +126,7 @@ public class ScreeningServerTest extends AbstractServerTestCase
         assertEquals(null, sample.getExperimentIdentifierOrNull());
         assertEquals("{A=hello}", sample.getProperties().toString());
     }
-    
+
     @Test(groups = "slow")
     public void testGetPlateSampleViaAugmentedCode()
     {

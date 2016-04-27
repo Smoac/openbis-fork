@@ -30,7 +30,8 @@ class FeatureVectorStorageProcessorConfiguration implements
 {
     private static final String DEFAULT_COLUMNS_TO_BE_IGNORED = "barcode";
 
-    @Private static final String COLUMNS_TO_BE_IGNORED_KEY = "columns-to-be-ignored";
+    @Private
+    static final String COLUMNS_TO_BE_IGNORED_KEY = "columns-to-be-ignored";
 
     private static final String SEPARATOR_PROPERTY_KEY = "separator";
 
@@ -70,7 +71,7 @@ class FeatureVectorStorageProcessorConfiguration implements
         this.wellRow = properties.getProperty(WELL_NAME_ROW_PROPERTY_KEY, DEFAULT_WELL_ROW);
 
         this.wellColumn = properties.getProperty(WELL_NAME_COL_PROPERTY_KEY, DEFAULT_WELL_COL);
-        
+
         columnsToBeIgnored =
                 new HashSet<String>(Arrays.asList(properties.getProperty(COLUMNS_TO_BE_IGNORED_KEY,
                         DEFAULT_COLUMNS_TO_BE_IGNORED).split(", *")));

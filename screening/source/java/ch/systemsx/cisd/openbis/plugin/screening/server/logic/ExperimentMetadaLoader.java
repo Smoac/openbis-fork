@@ -62,7 +62,7 @@ public class ExperimentMetadaLoader implements IExperimentMetadataLoader
         this.experimentId = experimentId;
         this.imagingQueries = imagingQueries;
     }
-    
+
     @Override
     public Geometry tryGetPlateGeometry()
     {
@@ -82,13 +82,13 @@ public class ExperimentMetadaLoader implements IExperimentMetadataLoader
     public Geometry tryGetTileGeometry()
     {
         WidthAndHeightDTO tileGeometry = getUniqueOrNull(new IExperimentMetadataQuery<WidthAndHeightDTO>()
-                    {
-                        @Override
-                        public List<WidthAndHeightDTO> select(IImagingReadonlyQueryDAO query)
-                        {
-                            return query.listTileGeometriesForExperiment(experimentId);
-                        }
-                    });
+            {
+                @Override
+                public List<WidthAndHeightDTO> select(IImagingReadonlyQueryDAO query)
+                {
+                    return query.listTileGeometriesForExperiment(experimentId);
+                }
+            });
         return asGeometry(tileGeometry);
     }
 
@@ -158,7 +158,7 @@ public class ExperimentMetadaLoader implements IExperimentMetadataLoader
             });
         return sizes;
     }
-    
+
     private List<WidthAndHeightAndPermIdDTO> getImageSizes(final boolean original)
     {
         return getMergedResult(new IExperimentMetadataQuery<WidthAndHeightAndPermIdDTO>()
@@ -195,7 +195,7 @@ public class ExperimentMetadaLoader implements IExperimentMetadataLoader
     {
         // TODO KE: fetch the image transformations additionally ?
         return new ImageChannel(channel.getCode(), channel.getLabel(), channel.getDescription(),
-                channel.getWavelength(), Collections.<ImageTransformationInfo>emptyList());
+                channel.getWavelength(), Collections.<ImageTransformationInfo> emptyList());
     }
 
     private Geometry asGeometry(WidthAndHeightDTO widthAndHeight)

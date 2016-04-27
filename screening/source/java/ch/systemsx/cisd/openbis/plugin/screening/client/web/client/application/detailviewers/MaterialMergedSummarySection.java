@@ -17,9 +17,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteriaHolder;
 
 /**
- * Section in material detail view which presents either
- * {@link MaterialFeaturesFromAllExperimentsComponent} or {@link MaterialReplicaSummaryComponent}
- * for a selected experiment.
+ * Section in material detail view which presents either {@link MaterialFeaturesFromAllExperimentsComponent} or
+ * {@link MaterialReplicaSummaryComponent} for a selected experiment.
  * 
  * @author Piotr Buczek
  */

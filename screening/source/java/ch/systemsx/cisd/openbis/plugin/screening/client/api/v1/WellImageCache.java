@@ -24,7 +24,6 @@ import java.util.concurrent.CountDownLatch;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
@@ -33,10 +32,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageRef
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 /**
- * A cache for images on a per-well base. The general assumption is that all images for a well
- * should be fetched in one go from the server, but the client using the API may not be able to do
- * so due to a limited programming model. Thus this class caches the data and synchronizes filling
- * of the cache by different threads in a thread-safe way.
+ * A cache for images on a per-well base. The general assumption is that all images for a well should be fetched in one go from the server, but the
+ * client using the API may not be able to do so due to a limited programming model. Thus this class caches the data and synchronizes filling of the
+ * cache by different threads in a thread-safe way.
  * 
  * @author Bernd Rinn
  */
@@ -153,17 +151,17 @@ final class WellImageCache
     }
 
     /**
-     * A cache for one image. It may be loaded asynchronously in another thread and thus the call to
-     * {@link #getImageData} may block until the data have been loaded.
+     * A cache for one image. It may be loaded asynchronously in another thread and thus the call to {@link #getImageData} may block until the data
+     * have been loaded.
      */
     static final class CachedImage
     {
         private final CountDownLatch ready = new CountDownLatch(1);
 
         private byte[] imageData;
-        
+
         private IOException ioe;
-        
+
         private RuntimeException rex;
 
         void set(byte[] imageData)
@@ -191,13 +189,13 @@ final class WellImageCache
                 throw new RuntimeException("Image fetching interrupted.");
             }
         }
-        
+
         void release(IOException ex)
         {
             this.ioe = ex;
             ready.countDown();
         }
-        
+
         void release(RuntimeException ex)
         {
             if (ready.getCount() > 0)
@@ -236,7 +234,7 @@ final class WellImageCache
         {
             return loaderCall;
         }
-        
+
         void cancel(IOException ex)
         {
             for (CachedImage image : imageMap.values())

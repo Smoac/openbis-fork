@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
  * @author Chandrasekhar Ramakrishnan
  */
 @Test(groups =
-    { "slow", "systemtest" })
+{ "slow", "systemtest" })
 public class AggregationServiceAggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCase
 {
     @Test

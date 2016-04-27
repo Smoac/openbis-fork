@@ -40,9 +40,8 @@ public class ImageDataSetInformation extends BasicDataSetInformation
     private File incomingDirectory;
 
     /**
-     * Path to the incoming folder with images, relative to the dataset directory. E.g. if the
-     * incoming folder name is X and the transaction's dataset registration code put it inside
-     * 'original' folder, then this path points to "original/X'.
+     * Path to the incoming folder with images, relative to the dataset directory. E.g. if the incoming folder name is X and the transaction's dataset
+     * registration code put it inside 'original' folder, then this path points to "original/X'.
      */
     private File datasetRelativeImagesFolderPath;
 
@@ -63,7 +62,7 @@ public class ImageDataSetInformation extends BasicDataSetInformation
     private final List<DataSetInformation> secondaryDataSets = new ArrayList<DataSetInformation>();
 
     private IImageGenerationAlgorithm imageGenerationAlgorithm;
-    
+
     public File getIncomingDirectory()
     {
         return incomingDirectory;
@@ -180,12 +179,12 @@ public class ImageDataSetInformation extends BasicDataSetInformation
     {
         this.colorDepth = colorDepth;
     }
-    
+
     public void addSecondaryDataSetInformation(DataSetInformation dataSetInformation)
     {
         secondaryDataSets.add(dataSetInformation);
     }
-    
+
     public List<DataSetInformation> getSecondaryDataSets()
     {
         return secondaryDataSets;
@@ -230,8 +229,9 @@ public class ImageDataSetInformation extends BasicDataSetInformation
     {
         this.imageGenerationAlgorithm = imageGenerationAlgorithm;
     }
-    
-    public IImageGenerationAlgorithm getImageGenerationAlgorithm() {
+
+    public IImageGenerationAlgorithm getImageGenerationAlgorithm()
+    {
         return imageGenerationAlgorithm;
     }
 }

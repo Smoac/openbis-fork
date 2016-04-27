@@ -33,12 +33,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageEnrichedDTO;
 
 /**
- * Rescales colors so that all images of one well have comparable brightness. Used by DynamiX
- * project.
+ * Rescales colors so that all images of one well have comparable brightness. Used by DynamiX project.
  * <p>
- * Currently openBIS converts 16 bit grayscale images to 8 bit. This class has to revert this
- * conversion and apply the correct one (taking all images of a well into account). We cannot avoid
- * double convertions before openBIS supports 16bit images better.
+ * Currently openBIS converts 16 bit grayscale images to 8 bit. This class has to revert this conversion and apply the correct one (taking all images
+ * of a well into account). We cannot avoid double convertions before openBIS supports 16bit images better.
  * <p>
  * Limitations:<br>
  * 1) works on the first color component of the images (perfect for e.g. grayscale images).<br>

@@ -23,14 +23,11 @@ import java.util.List;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-
-
 /**
  * Contains summary meta data for images within an experiment.
  * <p>
- * Most of the class member fields are optional and will have data populated only if it is valid for
- * all entities within the experiment. For example, the field <code>originalImageSize</code> will
- * not be NULL only if all the images in the experiment have the same size.
+ * Most of the class member fields are optional and will have data populated only if it is valid for all entities within the experiment. For example,
+ * the field <code>originalImageSize</code> will not be NULL only if all the images in the experiment have the same size.
  * 
  * @author Kaloyan Enimanev
  */
@@ -82,8 +79,8 @@ public class ExperimentImageMetadata implements Serializable
     }
 
     /**
-     * Returns the plate geometry if all plates in the experiment have the same geometry. Returns
-     * <code>NULL</code> if two or more of the experiment's plates have different geometries.
+     * Returns the plate geometry if all plates in the experiment have the same geometry. Returns <code>NULL</code> if two or more of the experiment's
+     * plates have different geometries.
      */
     public Geometry getPlateGeometry()
     {
@@ -91,8 +88,8 @@ public class ExperimentImageMetadata implements Serializable
     }
 
     /**
-     * Returns the tiles geometry if all tiles in the experiment have the same geometry. Returns
-     * <code>NULL</code> if two or more of the experiment's tiles have different geometries.
+     * Returns the tiles geometry if all tiles in the experiment have the same geometry. Returns <code>NULL</code> if two or more of the experiment's
+     * tiles have different geometries.
      */
     public Geometry getTileGeometry()
     {
@@ -100,8 +97,8 @@ public class ExperimentImageMetadata implements Serializable
     }
 
     /**
-     * Returns the image size if all images in the experiment have the same size. Returns
-     * <code>NULL</code> if two or more of the experiment's images have different sizes.
+     * Returns the image size if all images in the experiment have the same size. Returns <code>NULL</code> if two or more of the experiment's images
+     * have different sizes.
      */
     public ImageSize getOriginalImageSize()
     {
@@ -109,8 +106,7 @@ public class ExperimentImageMetadata implements Serializable
     }
 
     /**
-     * Returns a sorted list of image sizes where for all experiment's images thumbnail images of
-     * these sizes exist.
+     * Returns a sorted list of image sizes where for all experiment's images thumbnail images of these sizes exist.
      * 
      * @return an empty list if no common thumbnail image size exists.
      */

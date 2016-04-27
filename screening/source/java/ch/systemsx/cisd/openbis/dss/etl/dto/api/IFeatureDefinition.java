@@ -24,11 +24,11 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api;
 public interface IFeatureDefinition
 {
     /**
-     * Relevant only in cases where feature values for different timepoints and/or depth-scans are
-     * available. In other cases one does not have to call this method at all.
+     * Relevant only in cases where feature values for different timepoints and/or depth-scans are available. In other cases one does not have to call
+     * this method at all.
      * <p>
-     * Sets the timepoint and/or the depth-scan values which will be used in all subsequent calls to
-     * {@link #addValue} until this method will be called again.
+     * Sets the timepoint and/or the depth-scan values which will be used in all subsequent calls to {@link #addValue} until this method will be
+     * called again.
      * </p>
      */
     void changeSeries(Double timeOrNull, Double depthOrNull);

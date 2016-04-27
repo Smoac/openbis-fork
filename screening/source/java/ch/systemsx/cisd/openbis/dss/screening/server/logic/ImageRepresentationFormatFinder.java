@@ -39,7 +39,7 @@ public class ImageRepresentationFormatFinder
         }
         this.criteria = criteria;
     }
-        
+
     public List<ImageRepresentationFormat> find(List<ImageRepresentationFormat> formats)
     {
         List<ImageRepresentationFormat> filteredFormats = formats;

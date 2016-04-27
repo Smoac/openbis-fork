@@ -16,14 +16,15 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 class NumberHeatmapRenderer implements IHeatmapRenderer<Float>
 {
     static final String LESS_THAN_EQUAL = "\u2264";
+
     static final String GREATER_THAN_EQUAL = "\u2265";
-    
+
     private final float step;
 
     private final List<Color> colors;
 
     private final float from;
-    
+
     private final float until;
 
     private final IRealNumberRenderer realNumberRenderer;
@@ -61,7 +62,7 @@ class NumberHeatmapRenderer implements IHeatmapRenderer<Float>
             scaleBottom = createScaleEndLabel(from, minMaxRange.getMax(), minMaxRange.getMin());
         }
     }
-    
+
     private String createScaleEndLabel(float scaleEnd, float dataEnd, float otherDataEnd)
     {
         String scaleNumber = round(scaleEnd);

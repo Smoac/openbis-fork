@@ -38,5 +38,5 @@ public class Color
     {
         return hexColor;
     }
-    
+
 }

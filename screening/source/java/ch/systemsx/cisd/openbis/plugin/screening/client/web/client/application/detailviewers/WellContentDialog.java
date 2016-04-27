@@ -168,8 +168,7 @@ public class WellContentDialog extends ImageDialog
     /**
      * Creates a view for the specified channels.
      * 
-     * @param channels the channel names. If "MERGED_CHANNELS" is specified, there must be no other
-     *            channel elements present.
+     * @param channels the channel names. If "MERGED_CHANNELS" is specified, there must be no other channel elements present.
      */
     public static Widget createImageViewerForChannel(
             final IViewContext<IScreeningClientServiceAsync> viewContext,

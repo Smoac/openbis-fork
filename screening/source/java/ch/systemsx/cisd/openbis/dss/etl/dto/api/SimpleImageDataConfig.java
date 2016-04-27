@@ -50,15 +50,13 @@ abstract public class SimpleImageDataConfig
     private IImageGenerationAlgorithm imageGenerationAlgorithm;
 
     /**
-     * Extracts tile number, channel code and well code for a given relative path to a single image.
-     * This method should overridden to deal with files containing single images. It is ignored if
-     * {@link #extractImagesMetadata(String, List)} is overridden as well.
+     * Extracts tile number, channel code and well code for a given relative path to a single image. This method should overridden to deal with files
+     * containing single images. It is ignored if {@link #extractImagesMetadata(String, List)} is overridden as well.
      * <p>
-     * It will be called for each file found in the incoming directory which has the extension
-     * returned by {@link #getRecognizedImageExtensions()}.
+     * It will be called for each file found in the incoming directory which has the extension returned by {@link #getRecognizedImageExtensions()}.
      * </p>
-     * To deal with image containers (like multi-page TIFF files) override
-     * {@link #extractImagesMetadata(String, List)} instead, otherwise leave that method unchanged.
+     * To deal with image containers (like multi-page TIFF files) override {@link #extractImagesMetadata(String, List)} instead, otherwise leave that
+     * method unchanged.
      */
     public ImageMetadata extractImageMetadata(String imagePath)
     {
@@ -67,11 +65,10 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Returns meta-data for each image in the specified image container. This method should
-     * overridden to deal with container images (like multi-page TIFF files).
+     * Returns meta-data for each image in the specified image container. This method should overridden to deal with container images (like multi-page
+     * TIFF files).
      * <p>
-     * This implementation returns the result of {@link #extractImageMetadata(String)} wrapped in an
-     * array, image identifiers are ignored.
+     * This implementation returns the result of {@link #extractImageMetadata(String)} wrapped in an array, image identifiers are ignored.
      * </p>
      * 
      * @param imagePath path to the single image or container of many images
@@ -83,14 +80,13 @@ abstract public class SimpleImageDataConfig
 
         ImageMetadata imageMetadata = extractImageMetadata(imagePath);
         return (imageMetadata != null) ? new ImageMetadata[]
-            { imageMetadata } : new ImageMetadata[0];
+        { imageMetadata } : new ImageMetadata[0];
     }
 
     // --- methods which can be overridden -----------------
 
     /**
-     * By default layouts all images in one row by returning (1, maxTileNumber) geometry.Can be
-     * overridden in subclasses.
+     * By default layouts all images in one row by returning (1, maxTileNumber) geometry.Can be overridden in subclasses.
      * 
      * @param imageMetadataList a list of metadata for each encountered image
      * @param maxTileNumber the biggest tile number among all encountered images
@@ -103,8 +99,8 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * For a given tile number and tiles geometry returns (x,y) which describes where the tile is
-     * located on the well. Can be overridden in subclasses.<br>
+     * For a given tile number and tiles geometry returns (x,y) which describes where the tile is located on the well. Can be overridden in
+     * subclasses.<br>
      * Note: The top left tile has coordinates (1,1).
      * 
      * @param tileNumber number of the tile extracted by {@link #extractImageMetadata}.
@@ -122,8 +118,7 @@ abstract public class SimpleImageDataConfig
      * <p>
      * Creates channel description for a given code. Can be overridden in subclasses.
      * </p>
-     * By default the channel label will be equal to the code. Channel color returned by
-     * {@link #getChannelColor(String)} will be used.
+     * By default the channel label will be equal to the code. Channel color returned by {@link #getChannelColor(String)} will be used.
      */
     public Channel createChannel(String channelCode)
     {
@@ -158,11 +153,9 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Sets available transformations which can be applied to images of the specified channel (on
-     * user's request).
+     * Sets available transformations which can be applied to images of the specified channel (on user's request).
      * <p>
-     * Can be overridden in subclasses. The easiest way to create transformations is to use
-     * {@link ImageTransformationBuffer} class.
+     * Can be overridden in subclasses. The easiest way to create transformations is to use {@link ImageTransformationBuffer} class.
      * <p>
      * By default returns null.
      */
@@ -180,12 +173,10 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Returns RGB color for the specified channel. It will be used to display merged channels
-     * images.
+     * Returns RGB color for the specified channel. It will be used to display merged channels images.
      * <p>
-     * Can be overridden in subclasses. It is ignored if {@link #createChannel(String)} is
-     * overridden as well. One should not override {@link #getChannelColor(String)} and
-     * {@link #getChannelColorRGB(String)} at the same time.
+     * Can be overridden in subclasses. It is ignored if {@link #createChannel(String)} is overridden as well. One should not override
+     * {@link #getChannelColor(String)} and {@link #getChannelColorRGB(String)} at the same time.
      * </p>
      * By default returns null (the arbitrary color will be set).
      */
@@ -207,7 +198,7 @@ abstract public class SimpleImageDataConfig
     private boolean isMeasured = false;
 
     private String[] recognizedImageExtensions = new String[]
-        { "tiff", "tif", "png", "gif", "jpg", "jpeg", "c01" };
+    { "tiff", "tif", "png", "gif", "jpg", "jpeg", "c01" };
 
     private List<IThumbnailsConfiguration> imagePyramid = new ArrayList<IThumbnailsConfiguration>();
 
@@ -394,9 +385,8 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Use this method if channels are encoded in color components of one image (or in other words:
-     * each image contains merged channels). For each channel you have to specify the corresponding
-     * color component of the image.
+     * Use this method if channels are encoded in color components of one image (or in other words: each image contains merged channels). For each
+     * channel you have to specify the corresponding color component of the image.
      */
     public void setChannels(List<Channel> channels,
             List<ChannelColorComponent> channelColorComponents)
@@ -454,12 +444,10 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Registers a request for alternate image representations to be generated based on the original
-     * image. The format of the alternate representations is specified by the
-     * {@link IThumbnailsConfiguration} formats argument.
+     * Registers a request for alternate image representations to be generated based on the original image. The format of the alternate
+     * representations is specified by the {@link IThumbnailsConfiguration} formats argument.
      * 
-     * @param formats The formats of the image generated representations. One image representation
-     *            will be created for each format.
+     * @param formats The formats of the image generated representations. One image representation will be created for each format.
      */
     public void setGenerateImageRepresentations(IThumbnailsConfiguration[] formats)
     {
@@ -468,12 +456,10 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Registers a request for alternate image representations to be generated based on the original
-     * image. The alternate image representations vary with respect to resolution from the original
-     * image.
+     * Registers a request for alternate image representations to be generated based on the original image. The alternate image representations vary
+     * with respect to resolution from the original image.
      * 
-     * @param scaleFactors The scale factors applied to the original resolution. Scale factors must
-     *            be greater than 0.
+     * @param scaleFactors The scale factors applied to the original resolution. Scale factors must be greater than 0.
      */
     public void setGenerateImageRepresentationsUsingScaleFactors(double[] scaleFactors)
     {
@@ -501,12 +487,10 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Registers a request for an alternate image representation to be generated based on the
-     * original image. The alternate image representations vary with respect to resolution from the
-     * original image.
+     * Registers a request for an alternate image representation to be generated based on the original image. The alternate image representations vary
+     * with respect to resolution from the original image.
      * 
-     * @param scale The scale factor applied to the original resolution. Scale factors must be
-     *            greater than 0.
+     * @param scale The scale factor applied to the original resolution. Scale factors must be greater than 0.
      * @return The configuration for the image representation
      */
     public IThumbnailsConfiguration addGeneratedImageRepresentationWithScale(double scale)
@@ -524,11 +508,9 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Registers a request for alternate image representations to be generated based on the original
-     * image. The alternate image representations vary with respect to resolution from the original
-     * image. By default, allow enlarging. Use
-     * {@link #setGenerateImageRepresentationsWithoutEnlargingUsingImageResolutions(String[])} to
-     * explicitly prevent enlarging.
+     * Registers a request for alternate image representations to be generated based on the original image. The alternate image representations vary
+     * with respect to resolution from the original image. By default, allow enlarging. Use
+     * {@link #setGenerateImageRepresentationsWithoutEnlargingUsingImageResolutions(String[])} to explicitly prevent enlarging.
      * 
      * @param resolutions The resolutions
      */
@@ -538,11 +520,9 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Registers a request for alternate image representations to be generated based on the original
-     * image. The alternate image representations vary with respect to resolution from the original
-     * image. This method throws an exception if the requested resolution results in the image being
-     * enlarged. Use {@link #setGenerateImageRepresentationsUsingImageResolutions(String[])} to
-     * allow enlarging.
+     * Registers a request for alternate image representations to be generated based on the original image. The alternate image representations vary
+     * with respect to resolution from the original image. This method throws an exception if the requested resolution results in the image being
+     * enlarged. Use {@link #setGenerateImageRepresentationsUsingImageResolutions(String[])} to allow enlarging.
      * 
      * @param resolutions The resolutions
      */
@@ -553,13 +533,11 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Registers a request for alternate image representations to be generated based on the original
-     * image. The alternate image representations vary with respect to resolution from the original
-     * image.
+     * Registers a request for alternate image representations to be generated based on the original image. The alternate image representations vary
+     * with respect to resolution from the original image.
      * 
      * @param resolutions The resolutions
-     * @param allowEnlarging If true, resolutions larger than the original size of the image are
-     *            allowed
+     * @param allowEnlarging If true, resolutions larger than the original size of the image are allowed
      */
     private void setGenerateImageRepresentationsUsingImageResolutions(String[] resolutions,
             boolean allowEnlarging)
@@ -575,9 +553,8 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Registers a request for an alternate image representation to be generated based on the
-     * original image. The alternate image representations vary with respect to resolution from the
-     * original image. Enlarging is allowed. To prevent enlarging of the image, use
+     * Registers a request for an alternate image representation to be generated based on the original image. The alternate image representations vary
+     * with respect to resolution from the original image. Enlarging is allowed. To prevent enlarging of the image, use
      * {@link #addGeneratedImageRepresentationWithoutEnlargingWithResolution}.
      * 
      * @param resolution The resolution of the representation.
@@ -589,9 +566,8 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Registers a request for an alternate image representation to be generated based on the
-     * original image. The alternate image representations vary with respect to resolution from the
-     * original image. Enlarging is not allowed. To allow enlarging of the image, use
+     * Registers a request for an alternate image representation to be generated based on the original image. The alternate image representations vary
+     * with respect to resolution from the original image. Enlarging is not allowed. To allow enlarging of the image, use
      * {@link #addGeneratedImageRepresentationWithResolution}.
      * 
      * @param resolution The resolution of the representation.
@@ -604,13 +580,11 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Registers a request for an alternate image representation to be generated based on the
-     * original image. The alternate image representations vary with respect to resolution from the
-     * original image.
+     * Registers a request for an alternate image representation to be generated based on the original image. The alternate image representations vary
+     * with respect to resolution from the original image.
      * 
      * @param resolution The resolution of the representation.
-     * @param allowEnlarging If true, the generated representation may be <b>larger</b> than the
-     *            original image.
+     * @param allowEnlarging If true, the generated representation may be <b>larger</b> than the original image.
      * @return The configuration for the image representation.
      */
     private IThumbnailsConfiguration addGeneratedImageRepresentationWithResolution(
@@ -638,10 +612,8 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Valid only if thumbnails generation is switched on. Set it to a value lower than 1 if you
-     * want only some of your processor cores to be used for thumbnails generation. Number of
-     * threads that are used for thumbnail generation will be equal to: this constant * number of
-     * processor cores.
+     * Valid only if thumbnails generation is switched on. Set it to a value lower than 1 if you want only some of your processor cores to be used for
+     * thumbnails generation. Number of threads that are used for thumbnail generation will be equal to: this constant * number of processor cores.
      */
     public void setAllowedMachineLoadDuringThumbnailsGeneration(
             double allowedMachineLoadDuringThumbnailsGeneration)
@@ -653,8 +625,8 @@ abstract public class SimpleImageDataConfig
     /**
      * Decides if ImageMagic 'convert' utility will be used to generate thumbnails. True by default.
      * <p>
-     * One should set this option to false and use the internal library if 'convert' tool is not
-     * installed or if many images are stored in one image container file.
+     * One should set this option to false and use the internal library if 'convert' tool is not installed or if many images are stored in one image
+     * container file.
      */
     public void setUseImageMagicToGenerateThumbnails(boolean generateWithImageMagic)
     {
@@ -667,11 +639,9 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Sets additional parameters which should be passed to ImageMagic 'convert' utility when it is
-     * used to generate thumbnails.
+     * Sets additional parameters which should be passed to ImageMagic 'convert' utility when it is used to generate thumbnails.
      * <p>
-     * Example: pass "-contrast-stretch 2%" to discard 2% of brightest and darkest pixels in the
-     * thumbnails.
+     * Example: pass "-contrast-stretch 2%" to discard 2% of brightest and darkest pixels in the thumbnails.
      */
     public void setThumbnailsGenerationImageMagicParams(String[] imageMagicParams)
     {
@@ -684,10 +654,9 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * By default thumbnails are created in high-quality. But this is more time consuming.
-     * Set to <code>false</code> suppresses thumbnail creation in high quality. But this isn't
-     * recommended for 12-bit or 16-bit images. 
-     * This flag is ignored if ImageMagic should be used for thumbnail generation.
+     * By default thumbnails are created in high-quality. But this is more time consuming. Set to <code>false</code> suppresses thumbnail creation in
+     * high quality. But this isn't recommended for 12-bit or 16-bit images. This flag is ignored if ImageMagic should be used for thumbnail
+     * generation.
      */
     public void setGenerateHighQuality8BitThumbnails(boolean highQualityThumbnails)
     {
@@ -712,26 +681,21 @@ abstract public class SimpleImageDataConfig
 
     /**
      * <p>
-     * Can be used only for grayscale images, Useful when images do not use the whole available
-     * color depth of the format in which they are stored (e.g. 10 bits out of 12). By default
-     * switched off. Causes that the conversion to 8 bit color depth looses less information. At the
-     * same time allows to compare images of one dataset to each other.<br>
-     * Warning: causes that all images have to be analysed before registration, this is a costly
-     * operation!
+     * Can be used only for grayscale images, Useful when images do not use the whole available color depth of the format in which they are stored
+     * (e.g. 10 bits out of 12). By default switched off. Causes that the conversion to 8 bit color depth looses less information. At the same time
+     * allows to compare images of one dataset to each other.<br>
+     * Warning: causes that all images have to be analysed before registration, this is a costly operation!
      * </p>
      * <p>
-     * If isComputed is set to true all dataset images will be analysed and one range of pixel
-     * intensities used across all images will be computed (with 0.5% threshold). The result will be
-     * saved and it will be possible to apply on-the-fly transformation when browsing images.
+     * If isComputed is set to true all dataset images will be analysed and one range of pixel intensities used across all images will be computed
+     * (with 0.5% threshold). The result will be saved and it will be possible to apply on-the-fly transformation when browsing images.
      * </p>
      * <p>
-     * Example: let's assume that all plate images are saved as 12 bit grayscales. Each image has
-     * ability to use pixel intensities from 0 to 4095. In our example only a range of the available
-     * intensities is used, let's say from 1024 to 2048. Before the image is displayed to the user
-     * it has to be converted to 8-bit color depth (range of intensities from 0 to 255). Without
-     * taking the effectively used intensities into account the range 1024...2048 would be converted
-     * to a range of 64..128 and other intensities would be unused. Analysing the images allows to
-     * convert 1024...2048 range to the full 0..255 range.
+     * Example: let's assume that all plate images are saved as 12 bit grayscales. Each image has ability to use pixel intensities from 0 to 4095. In
+     * our example only a range of the available intensities is used, let's say from 1024 to 2048. Before the image is displayed to the user it has to
+     * be converted to 8-bit color depth (range of intensities from 0 to 255). Without taking the effectively used intensities into account the range
+     * 1024...2048 would be converted to a range of 64..128 and other intensities would be unused. Analysing the images allows to convert 1024...2048
+     * range to the full 0..255 range.
      * </p>
      */
     public void setComputeCommonIntensityRangeOfAllImagesForAllChannels()
@@ -742,9 +706,8 @@ abstract public class SimpleImageDataConfig
     /**
      * See {@link #setComputeCommonIntensityRangeOfAllImagesForAllChannels()}.
      * 
-     * @param channelCodesOrNull list of channel codes for which the optimal intensity rescaling
-     *            parameters will be computed. If empty all channels will be analysed. If null
-     *            nothing will be analysed (default behavior).
+     * @param channelCodesOrNull list of channel codes for which the optimal intensity rescaling parameters will be computed. If empty all channels
+     *            will be analysed. If null nothing will be analysed (default behavior).
      */
     public void setComputeCommonIntensityRangeOfAllImagesForChannels(String[] channelCodesOrNull)
     {
@@ -753,8 +716,8 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Set the label of the transformation which will rescale dataset images intensities in an
-     * optimal and comparable way. Can be used if the default value is not appropriate.
+     * Set the label of the transformation which will rescale dataset images intensities in an optimal and comparable way. Can be used if the default
+     * value is not appropriate.
      * <p>
      * See {@link #setComputeCommonIntensityRangeOfAllImagesForAllChannels()} for details.
      */
@@ -765,14 +728,11 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Sets the threshold of intensities which should be ignored when computing common intensity
-     * range of all images. By default equal to 0.5%. Note that
-     * {@link #setComputeCommonIntensityRangeOfAllImagesForAllChannels()} or
-     * {@link #setComputeCommonIntensityRangeOfAllImagesForChannels(String[])} has to be called to
-     * switch on analysis.
+     * Sets the threshold of intensities which should be ignored when computing common intensity range of all images. By default equal to 0.5%. Note
+     * that {@link #setComputeCommonIntensityRangeOfAllImagesForAllChannels()} or
+     * {@link #setComputeCommonIntensityRangeOfAllImagesForChannels(String[])} has to be called to switch on analysis.
      * 
-     * @param threshold value from 0 to 1. If set to e.g. 0.1 then 10% of brightest and darkest
-     *            pixels will be ignored.
+     * @param threshold value from 0 to 1. If set to e.g. 0.1 then 10% of brightest and darkest pixels will be ignored.
      */
     public void setComputeCommonIntensityRangeOfAllImagesThreshold(float threshold)
     {
@@ -780,11 +740,9 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Sets fixed levels for the common intensity range transformation for all images. If this one
-     * is set, the automatic level computation is switched off which may give big performance
-     * improvements. If the method
-     * {@link #setComputeCommonIntensityRangeOfAllImagesForChannels(String[])} is not called, will
-     * set the transformation for all channels.
+     * Sets fixed levels for the common intensity range transformation for all images. If this one is set, the automatic level computation is switched
+     * off which may give big performance improvements. If the method {@link #setComputeCommonIntensityRangeOfAllImagesForChannels(String[])} is not
+     * called, will set the transformation for all channels.
      */
     public void setDefaultFixedIntensityRangeForAllImages(int minLevel, int maxLevel)
     {
@@ -796,14 +754,12 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Add fixed levels for the common intensity range transformation of the given cannel for all
-     * images. If this one is set, the automatic level computation is switched off which can give
-     * big performance improvements.
+     * Add fixed levels for the common intensity range transformation of the given cannel for all images. If this one is set, the automatic level
+     * computation is switched off which can give big performance improvements.
      * <p>
-     * Note: If {@link #setDefaultFixedIntensityRangeForAllImages(int, int)} is called as well, then
-     * the values provided here will overwrite the default values provided there for the channel
-     * <var>channelCode</var>. Otherwise, the common intensity transformation will only be computed
-     * for the channels where the levels have been set explicitly by this method.
+     * Note: If {@link #setDefaultFixedIntensityRangeForAllImages(int, int)} is called as well, then the values provided here will overwrite the
+     * default values provided there for the channel <var>channelCode</var>. Otherwise, the common intensity transformation will only be computed for
+     * the channels where the levels have been set explicitly by this method.
      */
     public void addFixedIntensityRangeForAllImages(String channelCode, int minLevel, int maxLevel)
     {
@@ -816,13 +772,10 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Sets if the image transformation using common intensity range of all images should be the
-     * default choice when browsing images.
+     * Sets if the image transformation using common intensity range of all images should be the default choice when browsing images.
      * <p>
-     * True by default, which means e.g. that the 'image optimal' transformation will not be
-     * automatically available for users. However one can still add it explicitly with a chosen
-     * threshold by redefining
-     * {@link SimpleImageDataConfig#getAvailableChannelTransformations(String)} method.
+     * True by default, which means e.g. that the 'image optimal' transformation will not be automatically available for users. However one can still
+     * add it explicitly with a chosen threshold by redefining {@link SimpleImageDataConfig#getAvailableChannelTransformations(String)} method.
      */
     public void setComputeCommonIntensityRangeOfAllImagesIsDefault(boolean isDefault)
     {
@@ -836,10 +789,9 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Should the original data be stored in the original form or should we pack them into one
-     * container? Available values are {@link OriginalDataStorageFormat#UNCHANGED},
-     * {@link OriginalDataStorageFormat#HDF5}, {@link OriginalDataStorageFormat#HDF5_COMPRESSED}.
-     * The default is {@link OriginalDataStorageFormat#UNCHANGED}.
+     * Should the original data be stored in the original form or should we pack them into one container? Available values are
+     * {@link OriginalDataStorageFormat#UNCHANGED}, {@link OriginalDataStorageFormat#HDF5}, {@link OriginalDataStorageFormat#HDF5_COMPRESSED}. The
+     * default is {@link OriginalDataStorageFormat#UNCHANGED}.
      */
     public void setOriginalDataStorageFormat(OriginalDataStorageFormat originalDataStorageFormat)
     {
@@ -854,8 +806,7 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Sets parameters for the 'convert' command line tool, which will be used to apply an image
-     * transformation on the fly when an image is fetched.
+     * Sets parameters for the 'convert' command line tool, which will be used to apply an image transformation on the fly when an image is fetched.
      */
     public void setConvertTransformationCliArguments(String convertTransformationCliArguments)
     {
@@ -868,24 +819,18 @@ abstract public class SimpleImageDataConfig
      * - IJ: [tiff]<br>
      * - ImageIO: [jpg, bmp, jpeg, wbmp, png, gif]<br>
      * - JAI: [pnm, jpeg, fpx, gif, tiff, wbmp, png, bmp]<br>
-     * - BioFormats: [ZipReader, APNGReader, JPEGReader, PGMReader, FitsReader, PCXReader,
-     * GIFReader, BMPReader, IPLabReader, IvisionReader, DeltavisionReader, MRCReader, GatanReader,
-     * GatanDM2Reader, ImarisReader, OpenlabRawReader, OMEXMLReader, LIFReader, AVIReader,
-     * PictReader, SDTReader, EPSReader, SlidebookReader, AliconaReader, MNGReader, KhorosReader,
-     * VisitechReader, LIMReader, PSDReader, InCellReader, L2DReader, FEIReader, NAFReader,
-     * MINCReader, QTReader, MRWReader, TillVisionReader, ARFReader, CellomicsReader, LiFlimReader,
-     * TargaReader, OxfordInstrumentsReader, VGSAMReader, HISReader, WATOPReader, SeikoReader,
-     * TopometrixReader, UBMReader, QuesantReader, BioRadGelReader, RHKReader,
-     * MolecularImagingReader, CellWorxReader, Ecat7Reader, VarianFDFReader, AIMReader, FakeReader,
-     * JEOLReader, NiftiReader, AnalyzeReader, APLReader, NRRDReader, ICSReader, PerkinElmerReader,
-     * AmiraReader, ScanrReader, BDReader, UnisokuReader, PDSReader, BioRadReader, FV1000Reader,
-     * ZeissZVIReader, IPWReader, ND2Reader, JPEG2000Reader, PCIReader, ImarisHDFReader,
-     * ZeissLSMReader, SEQReader, GelReader, ImarisTiffReader, FlexReader, SVSReader, ImaconReader,
-     * LEOReader, JPKReader, MIASReader, TCSReader, LeicaReader, NikonReader, FluoviewReader,
-     * PrairieReader, MetamorphReader, MicromanagerReader, ImprovisionTiffReader,
-     * MetamorphTiffReader, NikonTiffReader, OMETiffReader, PhotoshopTiffReader, FEITiffReader,
-     * SimplePCITiffReader, NikonElementsTiffReader, TiffDelegateReader, TextReader, BurleighReader,
-     * OpenlabReader, DicomReader, SMCameraReader, SBIGReader]
+     * - BioFormats: [ZipReader, APNGReader, JPEGReader, PGMReader, FitsReader, PCXReader, GIFReader, BMPReader, IPLabReader, IvisionReader,
+     * DeltavisionReader, MRCReader, GatanReader, GatanDM2Reader, ImarisReader, OpenlabRawReader, OMEXMLReader, LIFReader, AVIReader, PictReader,
+     * SDTReader, EPSReader, SlidebookReader, AliconaReader, MNGReader, KhorosReader, VisitechReader, LIMReader, PSDReader, InCellReader, L2DReader,
+     * FEIReader, NAFReader, MINCReader, QTReader, MRWReader, TillVisionReader, ARFReader, CellomicsReader, LiFlimReader, TargaReader,
+     * OxfordInstrumentsReader, VGSAMReader, HISReader, WATOPReader, SeikoReader, TopometrixReader, UBMReader, QuesantReader, BioRadGelReader,
+     * RHKReader, MolecularImagingReader, CellWorxReader, Ecat7Reader, VarianFDFReader, AIMReader, FakeReader, JEOLReader, NiftiReader, AnalyzeReader,
+     * APLReader, NRRDReader, ICSReader, PerkinElmerReader, AmiraReader, ScanrReader, BDReader, UnisokuReader, PDSReader, BioRadReader, FV1000Reader,
+     * ZeissZVIReader, IPWReader, ND2Reader, JPEG2000Reader, PCIReader, ImarisHDFReader, ZeissLSMReader, SEQReader, GelReader, ImarisTiffReader,
+     * FlexReader, SVSReader, ImaconReader, LEOReader, JPKReader, MIASReader, TCSReader, LeicaReader, NikonReader, FluoviewReader, PrairieReader,
+     * MetamorphReader, MicromanagerReader, ImprovisionTiffReader, MetamorphTiffReader, NikonTiffReader, OMETiffReader, PhotoshopTiffReader,
+     * FEITiffReader, SimplePCITiffReader, NikonElementsTiffReader, TiffDelegateReader, TextReader, BurleighReader, OpenlabReader, DicomReader,
+     * SMCameraReader, SBIGReader]
      */
     public void setImageLibrary(String imageLibraryName, String readerName)
     {
@@ -893,9 +838,8 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Sets the image library to be used for reading images. Available libraries are: IJ, ImageIO,
-     * JAI, and BioFormats. The first image file is used to determine the actual reader. Note, that
-     * all images are read with the same image reader.
+     * Sets the image library to be used for reading images. Available libraries are: IJ, ImageIO, JAI, and BioFormats. The first image file is used
+     * to determine the actual reader. Note, that all images are read with the same image reader.
      */
     public void setImageLibrary(String imageLibraryName)
     {
@@ -905,8 +849,7 @@ abstract public class SimpleImageDataConfig
     // --- predefined image dataset types
 
     /**
-     * Sets dataset type to the one which should be used for storing raw images. Marks the dataset
-     * as a "measured" one.
+     * Sets dataset type to the one which should be used for storing raw images. Marks the dataset as a "measured" one.
      */
     public void setRawImageDatasetType()
     {
@@ -915,8 +858,7 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Sets dataset type to the one which should be used for storing overview images generated from
-     * raw images. Marks the dataset as a "derived" one.
+     * Sets dataset type to the one which should be used for storing overview images generated from raw images. Marks the dataset as a "derived" one.
      */
     public void setOverviewImageDatasetType()
     {
@@ -925,8 +867,7 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Sets dataset type to the one which should be used for storing overlay images. Marks the
-     * dataset as a "derived" one.
+     * Sets dataset type to the one which should be used for storing overlay images. Marks the dataset as a "derived" one.
      */
     public void setSegmentationImageDatasetType()
     {
@@ -957,9 +898,8 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Sets the microscopy flag which is by default <code>false</code>. This flag is used to check
-     * whether well in {@link ImageMetadata} is specified or not. In case of microscopy well is
-     * ignored. Otherwise it is mandatory.
+     * Sets the microscopy flag which is by default <code>false</code>. This flag is used to check whether well in {@link ImageMetadata} is specified
+     * or not. In case of microscopy well is ignored. Otherwise it is mandatory.
      */
     public void setMicroscopyData(boolean isMicroscopy)
     {
@@ -1005,12 +945,14 @@ abstract public class SimpleImageDataConfig
     {
         this.colorDepth = colorDepth;
     }
-    
-    public IImageGenerationAlgorithm getImageGenerationAlgorithm() {
+
+    public IImageGenerationAlgorithm getImageGenerationAlgorithm()
+    {
         return imageGenerationAlgorithm;
     }
 
-    public void setImageGenerationAlgorithm(IImageGenerationAlgorithm algorithm) {
+    public void setImageGenerationAlgorithm(IImageGenerationAlgorithm algorithm)
+    {
         this.imageGenerationAlgorithm = algorithm;
     }
 }

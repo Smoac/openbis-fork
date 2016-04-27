@@ -29,25 +29,24 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeaturesBuilder;
 public class SimpleFeatureVectorDataConfig
 {
     private Properties properties;
+
     private IFeaturesBuilder featuresBuilder;
-    
+
     /**
-     * Creates an instance with undefined properties assuming that the {@link FeaturesBuilder} is
-     * used to create the feature vectors.
+     * Creates an instance with undefined properties assuming that the {@link FeaturesBuilder} is used to create the feature vectors.
      */
     public SimpleFeatureVectorDataConfig()
     {
     }
 
     /**
-     * Creates an instance for the specified properties object which is used to configure parsing of
-     * a feature vector file.
+     * Creates an instance for the specified properties object which is used to configure parsing of a feature vector file.
      */
     public SimpleFeatureVectorDataConfig(Properties properties)
     {
         this.properties = properties;
     }
-    
+
     public IFeaturesBuilder getFeaturesBuilder()
     {
         if (featuresBuilder == null)

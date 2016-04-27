@@ -109,9 +109,8 @@ public final class MicroscopyImageChecklist extends AbstractImageChecklist
     /**
      * Throw an exception if there are duplicate images.
      * <p>
-     * This method should be called after checkOff is called on all the images to register. If any
-     * duplicate images were found in the checkOff calls, an exception will be thrown containing
-     * information about all the duplicate images.
+     * This method should be called after checkOff is called on all the images to register. If any duplicate images were found in the checkOff calls,
+     * an exception will be thrown containing information about all the duplicate images.
      * 
      * @throws IllegalArgumentException Thrown if duplicate images are detected.
      */
@@ -192,8 +191,7 @@ public final class MicroscopyImageChecklist extends AbstractImageChecklist
         }
 
         /**
-         * Return the image associated with a location. This will be non-null if isCheckedOff is
-         * true.
+         * Return the image associated with a location. This will be non-null if isCheckedOff is true.
          * 
          * @return The image for the given location.
          */
@@ -291,8 +289,7 @@ public final class MicroscopyImageChecklist extends AbstractImageChecklist
     }
 
     /**
-     * An internal class for intelligently keeping track of the image associated with a location and
-     * its duplicates.
+     * An internal class for intelligently keeping track of the image associated with a location and its duplicates.
      * 
      * @author Chandrasekhar Ramakrishnan
      */
@@ -367,7 +364,7 @@ public final class MicroscopyImageChecklist extends AbstractImageChecklist
     {
         return getCheckedOnFullLocations().size();
     }
-    
+
     @Override
     public String getIncompleteDataSetErrorMessage(String dataSetFileName)
     {

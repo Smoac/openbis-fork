@@ -25,8 +25,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * Bean for one feature vector of the well. Contains data set code, well position and a map of
- * feature values. Float.NaN is used for unknown feature value in this array.
+ * Bean for one feature vector of the well. Contains data set code, well position and a map of feature values. Float.NaN is used for unknown feature
+ * value in this array.
  * 
  * @author Tomasz Pylak
  */
@@ -45,8 +45,8 @@ public class FeatureVectorValues implements Serializable
     private Map<String /* feature label */, FeatureValue /* value */> featureMap;
 
     /**
-     * Convert the two arrays into a map. It is assumed that codesAndLabels has the same length as
-     * feature values (this is checked before calling this method).
+     * Convert the two arrays into a map. It is assumed that codesAndLabels has the same length as feature values (this is checked before calling this
+     * method).
      */
     static private Map<String, FeatureValue> asValueMap(CodeAndLabel[] codesAndLabels,
             FeatureValue[] featureValues)
@@ -122,8 +122,7 @@ public class FeatureVectorValues implements Serializable
     }
 
     /**
-     * An internal method that returns the feature map without triggering an initialization. Used by
-     * the copy constructor.
+     * An internal method that returns the feature map without triggering an initialization. Used by the copy constructor.
      */
     private Map<String, FeatureValue> tryFeatureMap()
     {

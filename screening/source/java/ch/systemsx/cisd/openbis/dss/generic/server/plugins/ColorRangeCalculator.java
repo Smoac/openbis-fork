@@ -30,8 +30,7 @@ import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
 import ch.systemsx.cisd.imagereaders.ReadParams;
 
 /**
- * Helper methods and standalone program to calculate the range of brightness of a collection of
- * images in grayscale.
+ * Helper methods and standalone program to calculate the range of brightness of a collection of images in grayscale.
  * 
  * @author Tomasz Pylak
  */
@@ -77,9 +76,8 @@ public class ColorRangeCalculator
     }
 
     /**
-     * We should have converted 'globalRange' to [0,255] but instead a smaller range 'imageRange'
-     * has been converted to [0,255]. We have to squeeze 'imageRange' to a smaller range [a,b] (a >=
-     * 0, b <= 255) into which it would be mapped if globalRange would be used at the beginning.
+     * We should have converted 'globalRange' to [0,255] but instead a smaller range 'imageRange' has been converted to [0,255]. We have to squeeze
+     * 'imageRange' to a smaller range [a,b] (a >= 0, b <= 255) into which it would be mapped if globalRange would be used at the beginning.
      */
     public static ImagePixelsRange rescaleRange(ImagePixelsRange imageRange,
             ImagePixelsRange globalRange)
@@ -164,9 +162,9 @@ public class ColorRangeCalculator
         }
         String[] libraries =
                 new String[]
-                    { ImageReaderConstants.JAI_LIBRARY, ImageReaderConstants.IMAGEIO_LIBRARY,
-                            ImageReaderConstants.IMAGEJ_LIBRARY,
-                            ImageReaderConstants.BIOFORMATS_LIBRARY };
+                { ImageReaderConstants.JAI_LIBRARY, ImageReaderConstants.IMAGEIO_LIBRARY,
+                        ImageReaderConstants.IMAGEJ_LIBRARY,
+                        ImageReaderConstants.BIOFORMATS_LIBRARY };
         for (String libraryName : libraries)
         {
             IImageReader reader =

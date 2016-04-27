@@ -25,8 +25,8 @@ import java.util.Set;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * A holder class for analysis procedures. The codes list contains unique values. It can contain
- * NULL (which can be used for data sets having no ANALYSIS_PROCEDURE value specified).
+ * A holder class for analysis procedures. The codes list contains unique values. It can contain NULL (which can be used for data sets having no
+ * ANALYSIS_PROCEDURE value specified).
  * 
  * @author Kaloyan Enimanev
  */

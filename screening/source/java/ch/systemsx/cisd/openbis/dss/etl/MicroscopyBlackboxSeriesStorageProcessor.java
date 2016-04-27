@@ -36,14 +36,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescription;
 
 /**
- * Storage processor which stores microscopy images in a special-purpose imaging database. Image
- * files do not have to adhere to any naming convention, it's assumed that there is exactly one
- * tile, one channel, no time or depth dimensions. Images are sorted lexicographically and
- * subsequent series numbers are assigned to them.
+ * Storage processor which stores microscopy images in a special-purpose imaging database. Image files do not have to adhere to any naming convention,
+ * it's assumed that there is exactly one tile, one channel, no time or depth dimensions. Images are sorted lexicographically and subsequent series
+ * numbers are assigned to them.
  * <p>
  * In this storage processor one can set neither well geometry, channels nor image file extractor.<br>
- * See {@link AbstractImageStorageProcessor} documentation to check how to configure thumbnails
- * generation.
+ * See {@link AbstractImageStorageProcessor} documentation to check how to configure thumbnails generation.
  * 
  * @author Tomasz Pylak
  */

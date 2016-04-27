@@ -24,9 +24,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
- * A class for providing the values of one feature for screening plate. It uses a two-dimensional
- * {@link MDFloatArray} in the back-end and provides access by row and column as well as by 0-based
- * cartesian coordinates.
+ * A class for providing the values of one feature for screening plate. It uses a two-dimensional {@link MDFloatArray} in the back-end and provides
+ * access by row and column as well as by 0-based cartesian coordinates.
  * <p>
  * The row-column coordinates are obtained from the cartesian coordinates by:
  * 
@@ -72,8 +71,7 @@ public final class PlateFeatureValues
     }
 
     /**
-     * Sets the <var>value</var> in this value object for the cartesian coordinates
-     * <var>(x,y)</var>.
+     * Sets the <var>value</var> in this value object for the cartesian coordinates <var>(x,y)</var>.
      */
     public void setForCartesianCoordinates(float value, int x, int y)
     {
@@ -89,8 +87,7 @@ public final class PlateFeatureValues
     }
 
     /**
-     * Sets the <var>value</var> in this value object for the row-column coordinates
-     * <var>(row,col)</var>.
+     * Sets the <var>value</var> in this value object for the row-column coordinates <var>(row,col)</var>.
      */
     public void setForWellLocation(float value, int row, int col)
     {
@@ -99,8 +96,7 @@ public final class PlateFeatureValues
     }
 
     /**
-     * Returns the <var>value</var> in this value object for the row-column coordinates
-     * <var>(row,col)</var>.
+     * Returns the <var>value</var> in this value object for the row-column coordinates <var>(row,col)</var>.
      */
     public float getForWellLocation(int row, int col)
     {
@@ -109,8 +105,7 @@ public final class PlateFeatureValues
     }
 
     /**
-     * Sets the <var>value</var> in this value object for the row-column coordinates
-     * <var>wellLocation</var>.
+     * Sets the <var>value</var> in this value object for the row-column coordinates <var>wellLocation</var>.
      */
     public void setForWellLocation(float value, WellLocation wellLocation)
     {
@@ -119,8 +114,7 @@ public final class PlateFeatureValues
     }
 
     /**
-     * Returns the <var>value</var> in this value object for the row-column coordinates
-     * <var>wellLocation</var>.
+     * Returns the <var>value</var> in this value object for the row-column coordinates <var>wellLocation</var>.
      */
     public float getForWellLocation(WellLocation wellLocation)
     {

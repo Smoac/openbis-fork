@@ -117,8 +117,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgIm
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
 
 /**
- * Implementation of the screening API interface using RPC. The instance will be created in spring
- * and published as a HTTP invoker servlet configured in service.properties.
+ * Implementation of the screening API interface using RPC. The instance will be created in spring and published as a HTTP invoker servlet configured
+ * in service.properties.
  * 
  * @author Tomasz Pylak
  */
@@ -386,8 +386,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     }
 
     /**
-     * Gets the size of the image by first looking at the zoomLevel table or reads the whole image
-     * as a fallback
+     * Gets the size of the image by first looking at the zoomLevel table or reads the whole image as a fallback
      */
     private Size getOriginalImageSize(IImageDatasetIdentifier dataset,
             IImagingDatasetLoader imageAccessor)
@@ -418,8 +417,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     }
 
     /**
-     * Gets the size of the thumbnail image by first looking at the zoomLevel table or reads the
-     * whole image as a fallback
+     * Gets the size of the thumbnail image by first looking at the zoomLevel table or reads the whole image as a fallback
      */
     private Size getThumbnailImageSize(IImageDatasetIdentifier dataset,
             IImagingDatasetLoader imageAccessor)

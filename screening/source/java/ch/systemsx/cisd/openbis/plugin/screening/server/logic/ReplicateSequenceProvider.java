@@ -35,8 +35,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.utils.IGroupKeyExtractor;
 /**
  * Provides sequence numbers for technical and biological well replicates for a fixed material.
  * <p>
- * E.g. in HCS: all wells which contain the same siRNA are technical replicates. All wells which
- * contain different siRNAs which suppresses the saeme gene are biological replicates.
+ * E.g. in HCS: all wells which contain the same siRNA are technical replicates. All wells which contain different siRNAs which suppresses the saeme
+ * gene are biological replicates.
  * </p>
  * 
  * @author Tomasz Pylak

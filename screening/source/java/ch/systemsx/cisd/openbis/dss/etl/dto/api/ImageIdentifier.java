@@ -21,9 +21,8 @@ import java.io.Serializable;
 import ch.systemsx.cisd.imagereaders.ImageID;
 
 /**
- * Immutable value class of an image ID based on series index, time series index, focal plane index,
- * and color channel index. It will be used to identify images in a container image file format like
- * multi-page TIFF.
+ * Immutable value class of an image ID based on series index, time series index, focal plane index, and color channel index. It will be used to
+ * identify images in a container image file format like multi-page TIFF.
  * 
  * @author Franz-Josef Elmer
  */
@@ -42,8 +41,7 @@ public class ImageIdentifier implements Comparable<ImageIdentifier>, Serializabl
     private final int colorChannelIndex;
 
     /**
-     * Creates an instance for the specified series index, time series (or T) index, focal plane (or
-     * Z) index, color channel index.
+     * Creates an instance for the specified series index, time series (or T) index, focal plane (or Z) index, color channel index.
      */
     public ImageIdentifier(int seriesIndex, int timeSeriesIndex, int focalPlaneIndex,
             int colorChannelIndex)

@@ -56,7 +56,7 @@ public class PlateLayouterModel
     private final List<WellData> wellList; // the same wells as in the matrix
 
     private final Sample plateSample;
-    
+
     private final ScreeningDisplaySettingsManager displaySettingsManager;
 
     // --- internal dynamix state
@@ -76,9 +76,9 @@ public class PlateLayouterModel
     private List<FeatureList> featureLists = new ArrayList<FeatureList>();
 
     private CodeAndLabel chosenFeature;
-    
+
     private IRangeType rangeType;
-    
+
     // ---
 
     public PlateLayouterModel(PlateMetadata plateMetadata, ScreeningDisplaySettingsManager displaySettingsManager)
@@ -140,12 +140,12 @@ public class PlateLayouterModel
         setRangeType(displaySettingsManager.getHeatMapRangeType(chosenFeature.getCode()));
         return availableFeatureLabels.contains(chosenFeature.getLabel());
     }
-    
+
     public CodeAndLabel getChosenFeature()
     {
         return chosenFeature;
     }
-    
+
     public void setRangeType(IRangeType rangeType)
     {
         this.rangeType = rangeType;
@@ -154,20 +154,20 @@ public class PlateLayouterModel
             displaySettingsManager.setHeatMapRangeType(chosenFeature.getCode(), rangeType);
         }
     }
-    
+
     public IRangeType getRangeType()
     {
         return rangeType;
     }
-    
+
     // --- some logic
-    
+
     public MinMaxAndRange calculateRange()
     {
         IRangeCalculator calculator = RangeCalculatorFactory.create(rangeType);
         List<Float> data = new ArrayList<Float>();
         float min = Float.MAX_VALUE;
-        float max = - Float.MAX_VALUE;
+        float max = -Float.MAX_VALUE;
         String featureKey = chosenFeature.getLabel();
         for (WellData wellData : wellList)
         {
@@ -181,7 +181,7 @@ public class PlateLayouterModel
         }
         return new MinMaxAndRange(min, max, calculator.calculate(data));
     }
-    
+
     public List<String> extractUniqueVocabularyTerms()
     {
         Set<String> uniqueValues = new HashSet<String>();

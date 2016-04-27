@@ -50,10 +50,11 @@ public class ScreeningApiServiceServer extends AbstractApiServiceExporter
     }
 
     @RequestMapping(
-            { IScreeningApiServer.SERVICE_URL, "/openbis" + IScreeningApiServer.SERVICE_URL })
+    { IScreeningApiServer.SERVICE_URL, "/openbis" + IScreeningApiServer.SERVICE_URL })
     @Override
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException
+    {
         super.handleRequest(request, response);
-    }    
+    }
 }

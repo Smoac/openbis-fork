@@ -37,8 +37,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummar
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 
 /**
- * Finds all experiments where the given material is present and calculates summaries for feature
- * vectors (if analysis data are available) .
+ * Finds all experiments where the given material is present and calculates summaries for feature vectors (if analysis data are available) .
  * 
  * @author Tomasz Pylak
  */

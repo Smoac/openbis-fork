@@ -23,7 +23,6 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.base.image.IImageTransformer;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 
-
 /**
  * @author Franz-Josef Elmer
  */

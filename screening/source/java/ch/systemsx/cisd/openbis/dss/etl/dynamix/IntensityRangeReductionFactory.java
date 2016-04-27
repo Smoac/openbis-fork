@@ -23,13 +23,10 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.base.image.IImageTransformer;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 
-
 /**
- * Image transformation factory which reduces the intensity of the 8 bit grayscale images, so that
- * only the colors from the given range are used.
+ * Image transformation factory which reduces the intensity of the 8 bit grayscale images, so that only the colors from the given range are used.
  * <p>
- * Do not change this class, it is stored serialized in the database and the code should be
- * considered frozen!
+ * Do not change this class, it is stored serialized in the database and the code should be considered frozen!
  * </p>
  * 
  * @author Tomasz Pylak

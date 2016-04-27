@@ -20,8 +20,7 @@ import ch.systemsx.cisd.common.reflection.AbstractHashable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 
 /**
- * Describes the maximal requested size of the image and if it should be enlarged to the requested
- * size in case when it is smaller.
+ * Describes the maximal requested size of the image and if it should be enlarged to the requested size in case when it is smaller.
  * 
  * @author Tomasz Pylak
  */

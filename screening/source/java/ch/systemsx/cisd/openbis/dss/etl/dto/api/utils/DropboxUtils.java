@@ -31,8 +31,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
 public class DropboxUtils
 {
     /**
-     * Translates a row number into letter code. Thus, 1 -> A, 2 -> B, 26 -> Z, 27 -> AA, 28 -> AB,
-     * etc.
+     * Translates a row number into letter code. Thus, 1 -> A, 2 -> B, 26 -> Z, 27 -> AA, 28 -> AB, etc.
      */
     public static String translateRowNumberIntoLetterCode(int rowNumber)
     {
@@ -50,8 +49,7 @@ public class DropboxUtils
     /**
      * Tries to figure out tile locations based on their spatial coordinates.
      * <p>
-     * Two spatial points (x1, y1) and (x2, y2) are assumed lie in the same tile when abs(x1-x2) <
-     * epsilon and abs(y1-y2) < epsilon.
+     * Two spatial points (x1, y1) and (x2, y2) are assumed lie in the same tile when abs(x1-x2) < epsilon and abs(y1-y2) < epsilon.
      * 
      * @param epsilon see the javadoc of the method
      */

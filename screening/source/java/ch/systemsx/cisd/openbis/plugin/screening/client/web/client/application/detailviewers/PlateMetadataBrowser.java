@@ -54,8 +54,7 @@ public class PlateMetadataBrowser extends TypedTableGrid<WellMetadata>
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "plate_metadata_browser";
 
     /**
-     * Fetches information about the plate with the specified plate id and opens plate metadata
-     * browser tab for that plate.
+     * Fetches information about the plate with the specified plate id and opens plate metadata browser tab for that plate.
      */
     public static void openTab(final String platePermId,
             final IViewContext<IScreeningClientServiceAsync> screeningViewContext)

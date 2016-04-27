@@ -100,8 +100,7 @@ public class ImageGenerationDescription
     }
 
     /**
-     * Creates description of the parameters which can be used e.g. to give a name to the generated
-     * image file.
+     * Creates description of the parameters which can be used e.g. to give a name to the generated image file.
      */
     public String getShortDescription()
     {

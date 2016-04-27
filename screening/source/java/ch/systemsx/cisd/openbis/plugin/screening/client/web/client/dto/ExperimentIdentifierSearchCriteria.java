@@ -66,12 +66,10 @@ public class ExperimentIdentifierSearchCriteria
     }
 
     /**
-     * Valid only if experiment identifier is present ({@link #tryGetExperimentIdentifier} is not
-     * null).<br>
-     * It determines the behavior of the link from material detail view in a single experiment
-     * context to the material detail view in 'global' context. If this parameter is true, the
-     * context will be the project to which the current experiment belongs, otherwise the context
-     * will be switched to all experiments.
+     * Valid only if experiment identifier is present ({@link #tryGetExperimentIdentifier} is not null).<br>
+     * It determines the behavior of the link from material detail view in a single experiment context to the material detail view in 'global'
+     * context. If this parameter is true, the context will be the project to which the current experiment belongs, otherwise the context will be
+     * switched to all experiments.
      */
     public boolean getRestrictGlobalSearchLinkToProject()
     {

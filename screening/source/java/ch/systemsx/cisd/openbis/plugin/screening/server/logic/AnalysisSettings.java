@@ -24,12 +24,11 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
- * Helper class which knows data set types which assume that the data set has the analysis summary
- * as a CSV/TSV file. The file is provided by a reporting plugin.
- * All information comes from the property {@value #KEY} of the AS service.properties which has
- * the form
+ * Helper class which knows data set types which assume that the data set has the analysis summary as a CSV/TSV file. The file is provided by a
+ * reporting plugin. All information comes from the property {@value #KEY} of the AS service.properties which has the form
+ * 
  * <pre>
- * &lt;data set type code 1&gt;:&lt;reporting plugin key 1&gt;, &lt;data set type code 2&gt;:&lt;reporting plugin key 2&gt;,  ... 
+ * &lt;data set type code 1&gt;:&lt;reporting plugin key 1&gt;, &lt;data set type code 2&gt;:&lt;reporting plugin key 2&gt;,  ...
  * </pre>
  * 
  * @author Franz-Josef Elmer
@@ -37,9 +36,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 public class AnalysisSettings
 {
     public static final String KEY = "data-set-types-with-available-analysis-summary";
-    
+
     private final Map<String, String> dataSetType2reportingPluginMap = new HashMap<String, String>();
-    
+
     public AnalysisSettings(Properties properties)
     {
         String property = properties.getProperty(KEY);
@@ -61,7 +60,7 @@ public class AnalysisSettings
             }
         }
     }
-    
+
     /**
      * Returns <code>true</code> if there are no data set types with available analysis summary.
      */
@@ -69,15 +68,14 @@ public class AnalysisSettings
     {
         return dataSetType2reportingPluginMap.isEmpty();
     }
-    
+
     /**
-     * Returns the reporting plugin key for the specified data set or <code>null</code> if for the
-     * data set type of the specified data set no reporting plugin providing an analysis summary has
-     * been configured.
+     * Returns the reporting plugin key for the specified data set or <code>null</code> if for the data set type of the specified data set no
+     * reporting plugin providing an analysis summary has been configured.
      */
     public String tryToGetReportingPluginKey(AbstractExternalData ds)
     {
         return dataSetType2reportingPluginMap.get(ds.getDataSetType().getCode());
     }
-    
+
 }

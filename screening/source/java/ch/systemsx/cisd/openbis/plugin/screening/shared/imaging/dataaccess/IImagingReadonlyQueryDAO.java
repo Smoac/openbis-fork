@@ -27,9 +27,8 @@ import ch.systemsx.cisd.hcs.Location;
 
 /**
  * Operations on imaging database which are read-only.<br>
- * It is recommended to create one instance of this interface, assign it to a static class field and
- * used everywhere in the application. In this way there will be no problem with closing the
- * database connection.
+ * It is recommended to create one instance of this interface, assign it to a static class field and used everywhere in the application. In this way
+ * there will be no problem with closing the database connection.
  * 
  * @author Tomasz Pylak
  */
@@ -106,8 +105,7 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     // ---------------- HCS ---------------------------------
 
     /**
-     * @return an HCS image for the specified chanel, well and tile. If many images (e.g. for
-     *         different timepoints or depths) exist, null is returned.
+     * @return an HCS image for the specified chanel, well and tile. If many images (e.g. for different timepoints or depths) exist, null is returned.
      */
     @Select(SQL_HCS_IMAGE + " and ACQUIRED_IMAGES.IMG_ID = i.ID "
             + SQL_NO_MULTIDIMENTIONAL_DATA_COND)
@@ -115,8 +113,8 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
             Location wellLocation);
 
     /**
-     * @return a HCS thumbnail for the specified chanel, well and tile. If many images (e.g. for
-     *         different timepoints or depths) exist, null is returned.
+     * @return a HCS thumbnail for the specified chanel, well and tile. If many images (e.g. for different timepoints or depths) exist, null is
+     *         returned.
      */
     @Select(SQL_HCS_IMAGE + " and ACQUIRED_IMAGES.THUMBNAIL_ID = i.ID "
             + SQL_NO_MULTIDIMENTIONAL_DATA_COND)
@@ -124,24 +122,21 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
             Location wellLocation);
 
     /**
-     * @return an representative HCS image for the specified dataset and well. Returns null if there
-     *         are no images at all for the specified well.
+     * @return an representative HCS image for the specified dataset and well. Returns null if there are no images at all for the specified well.
      */
     @Select(SQL_HCS_IMAGE_REPRESENTATIVE + " and ACQUIRED_IMAGES.IMG_ID = i.ID ")
     public ImgImageDTO tryGetHCSRepresentativeImage(long datasetId, Location wellLocation,
             long channelId);
 
     /**
-     * @return an representative HCS thumbnail for the specified dataset and well. Returns null if
-     *         there are no images at all for the specified well.
+     * @return an representative HCS thumbnail for the specified dataset and well. Returns null if there are no images at all for the specified well.
      */
     @Select(SQL_HCS_IMAGE_REPRESENTATIVE + " and ACQUIRED_IMAGES.THUMBNAIL_ID = i.ID ")
     public ImgImageDTO tryGetHCSRepresentativeThumbnail(long datasetId, Location wellLocation,
             long channelId);
 
     /**
-     * @return all images of a given dataset and channel, every image is enriched with the
-     *         information about the spot to which it belongs.
+     * @return all images of a given dataset and channel, every image is enriched with the information about the spot to which it belongs.
      */
     @Select("select i.*, ai.image_transformer_factory as image_transformer_factory, "
             + "s.id as spot_id, ai.id as acquired_image_id              "
@@ -155,8 +150,7 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     public List<ImgImageEnrichedDTO> listHCSImages(String datasetPermId, String channelCode);
 
     /**
-     * @return list of wells for which there are any thumbnail or original images (any tile, any
-     *         channel).
+     * @return list of wells for which there are any thumbnail or original images (any tile, any channel).
      */
     @Select(SQL_HCS_WELLS_WITH_IMAGES)
     public List<ImgSpotDTO> listWellsWithAnyImages(long datasetId);
@@ -172,16 +166,16 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     // ---------------- Microscopy ---------------------------------
 
     /**
-     * @return an microscopy image for the specified channel and tile. If many images (e.g. for
-     *         different timepoints or depths) exist, null is returned.
+     * @return an microscopy image for the specified channel and tile. If many images (e.g. for different timepoints or depths) exist, null is
+     *         returned.
      */
     @Select(SQL_MICROSCOPY_IMAGE + " and ACQUIRED_IMAGES.IMG_ID = i.ID "
             + SQL_NO_MULTIDIMENTIONAL_DATA_COND)
     public ImgImageDTO tryGetMicroscopyImage(long channelId, long datasetId, Location tileLocation);
 
     /**
-     * @return a microscopy thumbnail for the specified channel and tile. If many images (e.g. for
-     *         different timepoints or depths) exist, null is returned.
+     * @return a microscopy thumbnail for the specified channel and tile. If many images (e.g. for different timepoints or depths) exist, null is
+     *         returned.
      */
     @Select(SQL_MICROSCOPY_IMAGE + " and ACQUIRED_IMAGES.THUMBNAIL_ID = i.ID "
             + SQL_NO_MULTIDIMENTIONAL_DATA_COND)
@@ -195,8 +189,7 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     public ImgImageDTO tryGetMicroscopyRepresentativeImage(long datasetId, long channelId);
 
     /**
-     * @return an representative microscopy thumbnail for the specified dataset. Can be null if
-     *         thumbnail has not been generated.
+     * @return an representative microscopy thumbnail for the specified dataset. Can be null if thumbnail has not been generated.
      */
     @Select(SQL_MICROSCOPY_IMAGE_REPRESENTATIVE + " and ACQUIRED_IMAGES.THUMBNAIL_ID = i.ID ")
     public ImgImageDTO tryGetMicroscopyRepresentativeThumbnail(long datasetId, long channelId);
@@ -274,7 +267,7 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     public ImgAnalysisDatasetDTO tryGetAnalysisDatasetByPermId(String datasetPermId);
 
     @Select(sql = "select * from IMAGE_DATA_SETS where PERM_ID = any(?{1})", parameterBindings =
-        { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
     public List<ImgImageDatasetDTO> listImageDatasetsByPermId(String... datasetPermIds);
 
     @Select(sql = "select * from IMAGE_ZOOM_LEVELS zoom where zoom.CONTAINER_DATASET_ID = ?{1}", fetchSize = FETCH_SIZE)
@@ -306,7 +299,7 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     public List<ImgImageZoomLevelDTO> listThumbImageZoomLevelsByPermId(String datasetPermId);
 
     @Select(sql = "select * from ANALYSIS_DATA_SETS where PERM_ID = any(?{1})", parameterBindings =
-        { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
     public List<ImgAnalysisDatasetDTO> listAnalysisDatasetsByPermId(String... datasetPermIds);
 
     // ------------ dataset and experiment channels
@@ -375,7 +368,7 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     public ImgContainerDTO getContainerById(long containerId);
 
     @Select(sql = "select * from CONTAINERS where ID = any(?{1})", parameterBindings =
-        { LongArrayMapper.class }, fetchSize = FETCH_SIZE)
+    { LongArrayMapper.class }, fetchSize = FETCH_SIZE)
     public List<ImgContainerDTO> listContainersByIds(long... containerIds);
 
     // join with container is needed to use spots index
@@ -403,18 +396,18 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     // ---------------- HCS - feature vectors ---------------------------------
 
     @Select(sql = "select * from FEATURE_DEFS where DS_ID = any(?{1}) ORDER BY ds_id ASC, id ASC", parameterBindings =
-        { LongArrayMapper.class }, fetchSize = FETCH_SIZE)
+    { LongArrayMapper.class }, fetchSize = FETCH_SIZE)
     public List<ImgFeatureDefDTO> listFeatureDefsByDataSetIds(long... dataSetIds);
 
     @Select(sql = "select t.*, fd.ds_id as DS_ID from FEATURE_VOCABULARY_TERMS t      "
             + "join FEATURE_DEFS fd on fd.id = t.fd_id                                "
             + "where fd.DS_ID = any(?{1}) ORDER BY fd.ds_id ASC, fd.id ASC            ", parameterBindings =
-        { LongArrayMapper.class }, fetchSize = FETCH_SIZE)
+    { LongArrayMapper.class }, fetchSize = FETCH_SIZE)
     public List<ImgFeatureVocabularyTermDTO> listFeatureVocabularyTermsByDataSetId(
             long... dataSetIds);
 
     @Select(sql = "select * from FEATURE_VALUES where FD_ID = any(?{1}) order by T_in_SEC, Z_in_M", parameterBindings =
-        { LongArrayMapper.class }, fetchSize = FETCH_SIZE, resultSetBinding = FeatureVectorDataObjectBinding.class)
+    { LongArrayMapper.class }, fetchSize = FETCH_SIZE, resultSetBinding = FeatureVectorDataObjectBinding.class)
     public List<ImgFeatureValuesDTO> getFeatureValues(long... featureDefIds);
 
     // ------------------ Experiment metadata queries ------------------------

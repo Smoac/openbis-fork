@@ -20,18 +20,15 @@ import ch.systemsx.cisd.common.reflection.AbstractHashable;
 import ch.systemsx.cisd.hcs.Location;
 
 /**
- * Identifies one channel stack in a dataset, by well and tile location in HCS, tile location in
- * microscopy or by the technical id.
+ * Identifies one channel stack in a dataset, by well and tile location in HCS, tile location in microscopy or by the technical id.
  * 
  * @author Tomasz Pylak
  */
 public class ImageChannelStackReference extends AbstractHashable
 {
     /**
-     * Addresses exactly one channel stack of HCS images for a given well and tile, when there are
-     * no image series.<br>
-     * Note that if image series are present for a given well and tile then this object addresses
-     * nothing.
+     * Addresses exactly one channel stack of HCS images for a given well and tile, when there are no image series.<br>
+     * Note that if image series are present for a given well and tile then this object addresses nothing.
      */
     public static final class HCSChannelStackByLocationReference extends AbstractHashable
     {
@@ -63,10 +60,8 @@ public class ImageChannelStackReference extends AbstractHashable
     }
 
     /**
-     * Addresses exactly one channel stack of microscopy images for a given tile, when there are no
-     * image series.<br>
-     * Note that if image series are present for a given well and tile then this object addresses
-     * nothing.
+     * Addresses exactly one channel stack of microscopy images for a given tile, when there are no image series.<br>
+     * Note that if image series are present for a given well and tile then this object addresses nothing.
      */
     public static final class MicroscopyChannelStackByLocationReference extends AbstractHashable
     {

@@ -32,8 +32,7 @@ public class Channel extends AbstractHashable implements Serializable
     private ImageTransformation[] availableTransformations = new ImageTransformation[0];
 
     /**
-     * Constructs a channel with a specified code and label. The channel will be presented in a
-     * default color.
+     * Constructs a channel with a specified code and label. The channel will be presented in a default color.
      */
     public Channel(String code, String label)
     {
@@ -41,8 +40,7 @@ public class Channel extends AbstractHashable implements Serializable
     }
 
     /**
-     * Constructs a channel with a specified code and label. The channel will be presented in a
-     * specified color.
+     * Constructs a channel with a specified code and label. The channel will be presented in a specified color.
      */
     public Channel(String code, String label, ChannelColor channelColorOrNull)
     {
@@ -50,8 +48,7 @@ public class Channel extends AbstractHashable implements Serializable
     }
 
     /**
-     * Constructs a channel with a specified code and label. The channel will be presented in a
-     * specified color.
+     * Constructs a channel with a specified code and label. The channel will be presented in a specified color.
      */
     public Channel(String code, String label, ChannelColorRGB channelColorOrNull)
     {
@@ -92,9 +89,8 @@ public class Channel extends AbstractHashable implements Serializable
     }
 
     /**
-     * @return color for the specified channel which will be used to display merged channels images.
-     *         null only during dataset registration when default color should be used, afterwards
-     *         never null.
+     * @return color for the specified channel which will be used to display merged channels images. null only during dataset registration when
+     *         default color should be used, afterwards never null.
      */
     public ChannelColorRGB tryGetChannelColor()
     {
@@ -123,9 +119,8 @@ public class Channel extends AbstractHashable implements Serializable
 
     /**
      * Sets the wavelength of the light (in nanometers) used to acquire this channel.<br>
-     * Additionally sets the channel color. The color is calculated for display on a computer
-     * monitor on the basis of the given wavelength using Bruton's algorithm. See <a
-     * href="http://www.midnightkite.com/color.html">COLOR SCIENCE web page</a> for details.
+     * Additionally sets the channel color. The color is calculated for display on a computer monitor on the basis of the given wavelength using
+     * Bruton's algorithm. See <a href="http://www.midnightkite.com/color.html">COLOR SCIENCE web page</a> for details.
      * <p>
      * Optional.
      */

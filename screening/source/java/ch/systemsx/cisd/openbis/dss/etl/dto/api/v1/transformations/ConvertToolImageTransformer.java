@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.ConvertToolImageTransformerFactory.ToolChoice;
 
 /**
- * This class is obsolete, and should not be used. Use
- * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.ConvertToolImageTransformer}
+ * This class is obsolete, and should not be used. Use {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.ConvertToolImageTransformer}
  * instead
  * 
  * @author Jakub Straszewski

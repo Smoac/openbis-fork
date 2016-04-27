@@ -29,8 +29,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * Describes the well and its location on the plate. Contains pointers to well and plate samples, a
- * material inside the well and the images from one dataset (if available) acquired for the well.
+ * Describes the well and its location on the plate. Contains pointers to well and plate samples, a material inside the well and the images from one
+ * dataset (if available) acquired for the well.
  * 
  * @author Tomasz Pylak
  */
@@ -41,14 +41,12 @@ public class WellContent extends WellImage implements Serializable, IEntityPrope
     // ------------ Metadata -----------
 
     /**
-     * well properties also contain the referenced materials (if any) enriched with material
-     * properties.
+     * well properties also contain the referenced materials (if any) enriched with material properties.
      */
     private List<IEntityProperty> wellProperties = new ArrayList<IEntityProperty>(0);
 
     /**
-     * this is a lazy-initialized sublist of ({@link #wellProperties}), containing only the well
-     * properties which refer to a material.
+     * this is a lazy-initialized sublist of ({@link #wellProperties}), containing only the well properties which refer to a material.
      */
     private List<IEntityProperty> wellPropertiesOfMaterialType;
 

@@ -53,22 +53,20 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Color
 /**
  * Abstract superclass for {@link IImageFileExtractor} implementations.<br>
  * <br>
- * Assumes that images names have a file extension present in
- * {@link ImageFileExtractorUtils#IMAGE_EXTENSIONS} constant. <br>
+ * Assumes that images names have a file extension present in {@link ImageFileExtractorUtils#IMAGE_EXTENSIONS} constant. <br>
  * <br>
- * If 'extract-single-image-channels' property is specified for storage processor then the channels
- * are extracted from the color components and the channel in the image file name is ignored.
+ * If 'extract-single-image-channels' property is specified for storage processor then the channels are extracted from the color components and the
+ * channel in the image file name is ignored.
  * <p>
- * Deprecated, use python dropboxes instead! Image datasets registered with the extractor 1. cannot
- * have any thumbnails and 2. will not be saved in 'original' directory!
+ * Deprecated, use python dropboxes instead! Image datasets registered with the extractor 1. cannot have any thumbnails and 2. will not be saved in
+ * 'original' directory!
  * 
  * @author Tomasz Pylak
  */
 abstract public class AbstractImageFileExtractor implements IImageFileExtractor
 {
     /**
-     * Extracts {@link ImageFileInfo} for a given image file. Should log all the syntax problems in
-     * image names.
+     * Extracts {@link ImageFileInfo} for a given image file. Should log all the syntax problems in image names.
      */
     abstract protected ImageFileInfo tryExtractImageInfo(File imageFile,
             File incomingDataSetDirectory, SampleIdentifier datasetSample);
@@ -133,11 +131,9 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
     }
 
     /**
-     * @param skipChannelsWithoutImages if true channel names are derived from a set of channel
-     *            codes in the extracted images. In this way we do not restrict available channel
-     *            codes and each channel has at least one image. Channel labels are taken from
-     *            channel descriptions anyway. Should be set to true only for microscopy, in HCS
-     *            each dataset of one experiment should have the same set of channels even if they
+     * @param skipChannelsWithoutImages if true channel names are derived from a set of channel codes in the extracted images. In this way we do not
+     *            restrict available channel codes and each channel has at least one image. Channel labels are taken from channel descriptions anyway.
+     *            Should be set to true only for microscopy, in HCS each dataset of one experiment should have the same set of channels even if they
      *            are not present in some datasets (exceptions: image overlays, test screens).
      */
     protected AbstractImageFileExtractor(List<ChannelDescription> channelDescriptionsOrNull,

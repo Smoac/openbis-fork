@@ -26,7 +26,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.Range;
 public class MinMaxAndRange
 {
     private final float min;
+
     private final float max;
+
     private final Range range;
 
     public MinMaxAndRange(float min, float max, Range range)
@@ -50,5 +52,5 @@ public class MinMaxAndRange
     {
         return range;
     }
-        
+
 }

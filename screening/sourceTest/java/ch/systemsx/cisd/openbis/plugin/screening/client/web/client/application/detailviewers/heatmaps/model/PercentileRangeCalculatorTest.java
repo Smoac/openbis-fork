@@ -25,8 +25,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.Range;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class PercentileRangeCalculatorTest extends AssertJUnit
@@ -35,36 +33,36 @@ public class PercentileRangeCalculatorTest extends AssertJUnit
     public void test()
     {
         List<Float> data = Arrays.asList(40f, 50f, 15f, 20f, 35f);
-        
+
         Range range = new PercentileRangeCalculator(30, 40).calculate(data);
-        
+
         assertEquals(20f, range.getFrom(), 1e-3);
         assertEquals(27.5f, range.getUntil(), 1e-3);
-        
+
         range = new PercentileRangeCalculator(35, 40).calculate(data);
-        
+
         assertEquals(23.75f, range.getFrom(), 1e-3);
         assertEquals(27.5f, range.getUntil(), 1e-3);
     }
-    
+
     @Test
     public void testSingleElementData()
     {
         List<Float> data = Arrays.asList(40f);
-        
+
         Range range = new PercentileRangeCalculator(30, 40).calculate(data);
-        
+
         assertEquals(40f, range.getFrom(), 1e-3);
         assertEquals(40f, range.getUntil(), 1e-3);
     }
-    
+
     @Test
     public void testMinMax()
     {
         List<Float> data = Arrays.asList(40f, 41f, -12f, 23f);
-        
+
         Range range = new PercentileRangeCalculator(0, 100).calculate(data);
-        
+
         assertEquals(-12f, range.getFrom(), 1e-3);
         assertEquals(41f, range.getUntil(), 1e-3);
     }

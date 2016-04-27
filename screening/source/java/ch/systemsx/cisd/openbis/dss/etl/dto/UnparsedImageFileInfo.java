@@ -4,8 +4,7 @@ import ch.systemsx.cisd.common.reflection.AbstractHashable;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageFileInfo;
 
 /**
- * Intermediate DTO containing tokens from which image info {@link ImageFileInfo} can be extracted
- * (if one finds it useful).
+ * Intermediate DTO containing tokens from which image info {@link ImageFileInfo} can be extracted (if one finds it useful).
  * 
  * @author Tomasz Pylak
  */

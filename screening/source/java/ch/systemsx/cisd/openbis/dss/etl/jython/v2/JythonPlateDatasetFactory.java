@@ -126,10 +126,8 @@ public class JythonPlateDatasetFactory extends ProgrammableDropboxObjectFactory<
     }
 
     /**
-     * @return a constant which can be used as a vocabulary term value for $PLATE_GEOMETRY property
-     *         of a plate/
-     * @throws UserFailureException if all available geometries in openBIS are too small (there is a
-     *             well outside).
+     * @return a constant which can be used as a vocabulary term value for $PLATE_GEOMETRY property of a plate/
+     * @throws UserFailureException if all available geometries in openBIS are too small (there is a well outside).
      */
     @Override
     public String figureGeometry(
@@ -159,8 +157,7 @@ public class JythonPlateDatasetFactory extends ProgrammableDropboxObjectFactory<
     }
 
     /**
-     * Parses the feature vectors from the specified CSV file. CSV format can be configured with
-     * following properties:
+     * Parses the feature vectors from the specified CSV file. CSV format can be configured with following properties:
      * 
      * <pre>
      *   # Separator character between headers and row cells.
@@ -205,8 +202,7 @@ public class JythonPlateDatasetFactory extends ProgrammableDropboxObjectFactory<
     // -------- backward compatibility methods
 
     /**
-     * This method exists just for backward compatibility. It used to have the second parameter,
-     * which is now ignored.
+     * This method exists just for backward compatibility. It used to have the second parameter, which is now ignored.
      * 
      * @deprecated use {@link #createFeatureVectorDatasetDetails(IFeaturesBuilder)} instead.
      */
@@ -218,8 +214,7 @@ public class JythonPlateDatasetFactory extends ProgrammableDropboxObjectFactory<
     }
 
     /**
-     * @deprecated Changed to {@link #createFeatureVectorDatasetDetails(String, Properties)} due to
-     *             naming convention change.
+     * @deprecated Changed to {@link #createFeatureVectorDatasetDetails(String, Properties)} due to naming convention change.
      */
     @Deprecated
     public DataSetRegistrationDetails<FeatureVectorDataSetInformation> createFeatureVectorRegistrationDetails(

@@ -22,8 +22,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoader;
 
 /**
- * Loades the requested image from the file system using the metadata from the database to find the
- * image.
+ * Loades the requested image from the file system using the metadata from the database to find the image.
  * 
  * @author Tomasz Pylak
  */
@@ -31,10 +30,8 @@ public interface IImagingDatasetLoader extends IImageDatasetLoader
 {
     /**
      * @param channelCode The code for the channel to get the image for
-     * @param imageSize required image size, specified so that an image with the closest size to the
-     *            required is returned (e.g. a thumbnail version if available). Note that this
-     *            method does no image resizing and the result will most probably not have the
-     *            required size.
+     * @param imageSize required image size, specified so that an image with the closest size to the required is returned (e.g. a thumbnail version if
+     *            available). Note that this method does no image resizing and the result will most probably not have the required size.
      * @param transformationCodeOrNull if transformed images are precomputed, they will be returned
      * @return image (with original file content, page and color)
      */
@@ -51,12 +48,10 @@ public interface IImagingDatasetLoader extends IImageDatasetLoader
      * Finds representative image of this dataset in a given channel.
      * 
      * @param channelCode channel code for which representative image is requested
-     * @param wellLocationOrNull if not null the returned images are restricted to one well.
-     *            Otherwise the dataset is assumed to have no container and spots.
-     * @param imageSize required image size, specified so that an image with the closest size to the
-     *            required is returned (e.g. a thumbnail version if available). Note that this
-     *            method does no image resizing and the result will most probably not have the
-     *            required size.
+     * @param wellLocationOrNull if not null the returned images are restricted to one well. Otherwise the dataset is assumed to have no container and
+     *            spots.
+     * @param imageSize required image size, specified so that an image with the closest size to the required is returned (e.g. a thumbnail version if
+     *            available). Note that this method does no image resizing and the result will most probably not have the required size.
      * @param transformationCodeOrNull if transformed images are precomputed, they will be returned
      */
     AbsoluteImageReference tryGetRepresentativeImage(String channelCode,
@@ -64,18 +59,16 @@ public interface IImagingDatasetLoader extends IImageDatasetLoader
             String transformationCodeOrNull);
 
     /**
-     * Tries to find a representative thumbnail of this data set. Returns <code>null</code> if no
-     * thumbnail was found.
+     * Tries to find a representative thumbnail of this data set. Returns <code>null</code> if no thumbnail was found.
      */
     AbsoluteImageReference tryFindAnyThumbnail();
 
     /**
-     * Tries to find a representative thumbnail of this dataset in a given channel. Returns NULL if
-     * no thumbnail was found.
+     * Tries to find a representative thumbnail of this dataset in a given channel. Returns NULL if no thumbnail was found.
      * 
      * @param channelCode channel code for which representative image is requested
-     * @param wellLocationOrNull if not null the returned images are restricted to one well.
-     *            Otherwise the dataset is assumed to have no container and spots.
+     * @param wellLocationOrNull if not null the returned images are restricted to one well. Otherwise the dataset is assumed to have no container and
+     *            spots.
      * @param imageSize
      * @param transformationCodeOrNull
      */
@@ -84,11 +77,10 @@ public interface IImagingDatasetLoader extends IImageDatasetLoader
             String transformationCodeOrNull);
 
     /**
-     * Returns the stored thumbnail for the given parameters, or <code>null</code>, if no thumbnail
-     * has been stored.
+     * Returns the stored thumbnail for the given parameters, or <code>null</code>, if no thumbnail has been stored.
      * <p>
-     * This method will never do any calculations, it will not rescale, convert or merge any images.
-     * It will just plain give you the byte array that has been stored for the thumbnail.
+     * This method will never do any calculations, it will not rescale, convert or merge any images. It will just plain give you the byte array that
+     * has been stored for the thumbnail.
      * 
      * @param channelCode The code of the channel to get the thumbnail for.
      * @param channelStackReference Specifies well and tile of the thumbnail.

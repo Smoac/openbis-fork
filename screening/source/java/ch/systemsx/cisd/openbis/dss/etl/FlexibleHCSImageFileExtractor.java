@@ -24,8 +24,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageFileInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * A <code>IHCSImageFileExtractor</code> implementation which allows to have optionally time points
- * and depth-scans.
+ * A <code>IHCSImageFileExtractor</code> implementation which allows to have optionally time points and depth-scans.
  * <p>
  * Suitable for images processed by <i>iBrain2</i>, but not only.
  * </p>

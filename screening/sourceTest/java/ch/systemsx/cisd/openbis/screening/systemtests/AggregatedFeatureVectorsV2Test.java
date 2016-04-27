@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.screening.systemtests;
 import org.testng.annotations.Test;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Test(groups =

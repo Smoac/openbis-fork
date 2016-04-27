@@ -20,8 +20,6 @@ import java.io.Serializable;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-
-
 /**
  * A bean that provides information about a feature.
  * 
@@ -123,7 +121,7 @@ public class FeatureInformation implements Serializable, Comparable<FeatureInfor
         return "FeatureDescription [code=" + code + ", label=" + label + ", description="
                 + description + "]";
     }
-    
+
     //
     // JSON-RPC
     //
@@ -131,17 +129,17 @@ public class FeatureInformation implements Serializable, Comparable<FeatureInfor
     private FeatureInformation()
     {
     }
-    
+
     private void setCode(String code)
     {
         this.code = code;
     }
-    
+
     private void setLabel(String label)
     {
         this.label = label;
     }
-    
+
     private void setDescription(String description)
     {
         this.description = description;

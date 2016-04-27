@@ -36,14 +36,14 @@ public class LogicalImageSeriesViewerModelTest extends AssertJUnit
     public void testModel()
     {
         Float times[] = new Float[]
-            { 3.4f, null, 1.2f, 6.6f };
+        { 3.4f, null, 1.2f, 6.6f };
         Float depths[] = new Float[]
-            { 66.6f, 33.4f, null, 11.2f };
+        { 66.6f, 33.4f, null, 11.2f };
         Integer series[] = new Integer[]
-            { 1, 2, 3, null };
+        { 1, 2, 3, null };
 
         LogicalImageSeriesModel model = createModel(times, depths, series);
-        
+
         assertEquals(false, model.isMatrixViewPossible());
         assertEquals(3, model.getNumberOfDepthLevels());
         assertEquals(3, model.getNumberOfTimepoints());
@@ -61,69 +61,69 @@ public class LogicalImageSeriesViewerModelTest extends AssertJUnit
         List<ImageChannelStack> lastList = stackSeriesPoints.get(stackSeriesPoints.size() - 1);
         assertEquals(lastPoint, new LogicalImageSeriesPoint(lastList.get(0)));
     }
-    
+
     @Test
     public void testMatrixViewIsPossible()
     {
         Float times[] = new Float[]
-            { 1.5f, 3f, 4.5f };
+        { 1.5f, 3f, 4.5f };
         Float depths[] = new Float[]
-            { 2.5f, 5f };
+        { 2.5f, 5f };
         Integer series[] = new Integer[]
-            { null };
-        
+        { null };
+
         LogicalImageSeriesModel model = createModel(times, depths, series);
-        
+
         assertEquals(true, model.isMatrixViewPossible());
         assertEquals(3, model.getNumberOfTimepoints());
         assertEquals(2, model.getNumberOfDepthLevels());
     }
-    
+
     @Test
     public void testMatrixViewIsNotPossibleBecauseOfSeriesNumbers()
     {
         Float times[] = new Float[]
-            { 1.5f, 3f, 4.5f };
+        { 1.5f, 3f, 4.5f };
         Float depths[] = new Float[]
-            { 2.5f, 5f };
+        { 2.5f, 5f };
         Integer series[] = new Integer[]
-            { 1 };
-        
+        { 1 };
+
         LogicalImageSeriesModel model = createModel(times, depths, series);
-        
+
         assertEquals(false, model.isMatrixViewPossible());
         assertEquals(3, model.getNumberOfTimepoints());
         assertEquals(2, model.getNumberOfDepthLevels());
     }
-    
+
     @Test
     public void testMatrixViewIsNotPossibleBecauseOfMissingTimePoint()
     {
         List<ImageChannelStack> stacks = new ArrayList<ImageChannelStack>();
         stacks.add(stack(1, 1, null, 2.5f, null));
         stacks.add(stack(1, 1, 1f, 2.5f, null));
-        
+
         LogicalImageSeriesModel model = new LogicalImageSeriesModel(stacks);
-        
+
         assertEquals(false, model.isMatrixViewPossible());
         assertEquals(1, model.getNumberOfTimepoints());
         assertEquals(1, model.getNumberOfDepthLevels());
     }
-    
+
     @Test
     public void testMatrixViewIsNotPossibleBecauseOfMissingDepth()
     {
         List<ImageChannelStack> stacks = new ArrayList<ImageChannelStack>();
         stacks.add(stack(1, 1, 1f, null, null));
         stacks.add(stack(1, 1, 1f, 2.5f, null));
-        
+
         LogicalImageSeriesModel model = new LogicalImageSeriesModel(stacks);
-        
+
         assertEquals(false, model.isMatrixViewPossible());
         assertEquals(1, model.getNumberOfTimepoints());
         assertEquals(1, model.getNumberOfDepthLevels());
     }
-    
+
     @Test
     public void testMatrixViewIsNotPossibleBecauseOfSparseMatrix()
     {
@@ -131,9 +131,9 @@ public class LogicalImageSeriesViewerModelTest extends AssertJUnit
         stacks.add(stack(1, 1, 1f, 1f, null));
         stacks.add(stack(1, 1, 1f, 2f, null));
         stacks.add(stack(1, 1, 2f, 2f, null));
-        
+
         LogicalImageSeriesModel model = new LogicalImageSeriesModel(stacks);
-        
+
         assertEquals(false, model.isMatrixViewPossible());
         assertEquals(2, model.getNumberOfTimepoints());
         assertEquals(2, model.getNumberOfDepthLevels());

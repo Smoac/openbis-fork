@@ -23,8 +23,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * Describes the whole plate - metadata of each non-empty well, references to images datasets,
- * analysis results datasets and all other connected datasets.
+ * Describes the whole plate - metadata of each non-empty well, references to images datasets, analysis results datasets and all other connected
+ * datasets.
  * 
  * @author Tomasz Pylak
  */

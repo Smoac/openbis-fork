@@ -23,15 +23,14 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 
 /**
- * A DTO for transmitting information about how the images should be loaded. The parameters that can
- * be controlled include image size, format (PNG or original), and the application of image
- * transformations stored in openBIS.
+ * A DTO for transmitting information about how the images should be loaded. The parameters that can be controlled include image size, format (PNG or
+ * original), and the application of image transformations stored in openBIS.
  * <p>
- * The default configuration is to retrieve images in their original size and format (i.e., not
- * converted to PNG), without the openBIS image transformation applied.
+ * The default configuration is to retrieve images in their original size and format (i.e., not converted to PNG), without the openBIS image
+ * transformation applied.
  * <p>
- * Providing a non-null desired size will instruct the image loader to return images that maintain
- * the aspect ratio of the original and fit in the desired size.
+ * Providing a non-null desired size will instruct the image loader to return images that maintain the aspect ratio of the original and fit in the
+ * desired size.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -51,8 +50,8 @@ public class LoadImageConfiguration implements Serializable
     /**
      * The desired size of the image. Null if the original size is requested.
      * <p>
-     * The actual size of the returned image will have the same aspect ratio as the original, and
-     * thus might not be exactly the same as the desired size, but will fit in the desired size.
+     * The actual size of the returned image will have the same aspect ratio as the original, and thus might not be exactly the same as the desired
+     * size, but will fit in the desired size.
      * 
      * @return The desired size of the image or null if the original size is to be returned.
      */
@@ -64,11 +63,10 @@ public class LoadImageConfiguration implements Serializable
     /**
      * Set the desired size of the image.
      * <p>
-     * The actual size of the returned image will have the same aspect ratio as the original, and
-     * thus might not be exactly the same as the desired size, but will fit in the desired size.
+     * The actual size of the returned image will have the same aspect ratio as the original, and thus might not be exactly the same as the desired
+     * size, but will fit in the desired size.
      * 
-     * @param desiredImageSizeOrNull Pass in the desired size or null if you want the image to have
-     *            its original size.
+     * @param desiredImageSizeOrNull Pass in the desired size or null if you want the image to have its original size.
      */
     public void setDesiredImageSize(ImageSize desiredImageSizeOrNull)
     {
@@ -78,8 +76,7 @@ public class LoadImageConfiguration implements Serializable
     /**
      * Should the image be converted from its original format to PNG?
      * 
-     * @return True if the image should be converted to PNG; false if it should be left in its
-     *         original format.
+     * @return True if the image should be converted to PNG; false if it should be left in its original format.
      */
     public boolean isDesiredImageFormatPng()
     {
@@ -89,8 +86,7 @@ public class LoadImageConfiguration implements Serializable
     /**
      * Set whether the image should be converted from its original format to PNG.
      * 
-     * @param desiredImageFormatPng Pass in true if the image should be converted to PNG; false if
-     *            it should be left in its original format.
+     * @param desiredImageFormatPng Pass in true if the image should be converted to PNG; false if it should be left in its original format.
      */
     public void setDesiredImageFormatPng(boolean desiredImageFormatPng)
     {
@@ -98,11 +94,9 @@ public class LoadImageConfiguration implements Serializable
     }
 
     /**
-     * Should the image transformation stored in openBIS for a channel or merged channel be applied
-     * to the image?
+     * Should the image transformation stored in openBIS for a channel or merged channel be applied to the image?
      * 
-     * @return True if the image transformation should be applied; false if the original image
-     *         should be returned.
+     * @return True if the image transformation should be applied; false if the original image should be returned.
      */
     public boolean isOpenBisImageTransformationApplied()
     {
@@ -110,11 +104,9 @@ public class LoadImageConfiguration implements Serializable
     }
 
     /**
-     * Set whether the image transformation stored in openBIS for a channel or merged channel should
-     * be applied.
+     * Set whether the image transformation stored in openBIS for a channel or merged channel should be applied.
      * 
-     * @param openBisImageTransformationApplied Pass in true if the transformation should be
-     *            applied; false otherwise.
+     * @param openBisImageTransformationApplied Pass in true if the transformation should be applied; false otherwise.
      */
     public void setOpenBisImageTransformationApplied(boolean openBisImageTransformationApplied)
     {
@@ -133,15 +125,12 @@ public class LoadImageConfiguration implements Serializable
     }
 
     /**
-     * Sets the code of the transformation, which should be applied to the image. This parameter
-     * will be ignored if {@link #isOpenBisImageTransformationApplied()} is false. To keep backward
-     * compatibility if {@link #isOpenBisImageTransformationApplied()} is true and no image
-     * transformation code is specified, then the transformation defined by the Color Adjustment
-     * tool will be applied.
+     * Sets the code of the transformation, which should be applied to the image. This parameter will be ignored if
+     * {@link #isOpenBisImageTransformationApplied()} is false. To keep backward compatibility if {@link #isOpenBisImageTransformationApplied()} is
+     * true and no image transformation code is specified, then the transformation defined by the Color Adjustment tool will be applied.
      * <p>
-     * Transformation has to be assigned (usually during dataset registration) to the channel which
-     * will be fetched. Note that such transformations can be channel-specific. If merged channels
-     * image will be requested or the transformation does not exist then untransformed image will be
+     * Transformation has to be assigned (usually during dataset registration) to the channel which will be fetched. Note that such transformations
+     * can be channel-specific. If merged channels image will be requested or the transformation does not exist then untransformed image will be
      * returned.
      */
     public void setSingleChannelImageTransformationCode(String transformationCodeOrNull)

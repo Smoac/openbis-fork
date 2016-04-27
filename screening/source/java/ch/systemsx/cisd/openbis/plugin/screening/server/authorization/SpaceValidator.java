@@ -24,8 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
- * A validator of objects which are connected to a space. Note: we assume that we operate on _the
- * only_ db instance (the home db)!
+ * A validator of objects which are connected to a space. Note: we assume that we operate on _the only_ db instance (the home db)!
  * 
  * @author Tomasz Pylak
  */

@@ -30,17 +30,17 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 public interface IImagingTransformerDAO extends TransactionQuery, IImagingReadonlyQueryDAO
 {
     @Update(sql = "update experiments set image_transformer_factory = ?{2} where id = ?{1}", parameterBindings =
-        { TransformerFactoryMapper.class, TypeMapper.class /* default */})
+    { TransformerFactoryMapper.class, TypeMapper.class /* default */})
     public void saveTransformerFactoryForExperiment(long experimentId,
             IImageTransformerFactory factory);
 
     @Update(sql = "update image_data_sets set image_transformer_factory = ?{2} where id = ?{1}", parameterBindings =
-        { TransformerFactoryMapper.class, TypeMapper.class /* default */})
+    { TransformerFactoryMapper.class, TypeMapper.class /* default */})
     public void saveTransformerFactoryForImageDataset(long datasetId,
             IImageTransformerFactory factory);
 
     @Update(sql = "update acquired_images set image_transformer_factory = ?{2} where id = ?{1}", parameterBindings =
-        { TransformerFactoryMapper.class, TypeMapper.class /* default */})
+    { TransformerFactoryMapper.class, TypeMapper.class /* default */})
     public void saveTransformerFactoryForImage(long acquiredImageId,
             IImageTransformerFactory factory);
 
@@ -49,11 +49,11 @@ public interface IImagingTransformerDAO extends TransactionQuery, IImagingReadon
     public void addImageTransformation(ImgImageTransformationDTO imageTransformation);
 
     @Update(sql = "update IMAGE_TRANSFORMATIONS set IMAGE_TRANSFORMER_FACTORY = ?{2} where id = ?{1}", parameterBindings =
-        { TransformerFactoryMapper.class, TypeMapper.class /* default */})
+    { TransformerFactoryMapper.class, TypeMapper.class /* default */})
     public void updateImageTransformerFactory(long imageTransformationId,
             IImageTransformerFactory factory);
 
     @Update(sql = "delete from IMAGE_TRANSFORMATIONS where id = ?{1}", parameterBindings =
-        { TransformerFactoryMapper.class })
+    { TransformerFactoryMapper.class })
     public void removeImageTransformation(long imageTransformationId);
 }

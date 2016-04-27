@@ -25,16 +25,14 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.SimpleImageDataConfig;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetInformation;
 
 /**
- * Interface for imaging data set registration transaction. See
- * {@link IDataSetRegistrationTransaction}.
+ * Interface for imaging data set registration transaction. See {@link IDataSetRegistrationTransaction}.
  * 
  * @author Tomasz Pylak
  */
 public interface IImagingDataSetRegistrationTransaction extends IDataSetRegistrationTransaction
 {
     /**
-     * Creates a new image dataset. See {@link SimpleImageDataConfig} documentation for
-     * configuration details.
+     * Creates a new image dataset. See {@link SimpleImageDataConfig} documentation for configuration details.
      */
     IImageDataSet createNewImageDataSet(SimpleImageDataConfig imageDataSet,
             File incomingFolderWithImages);

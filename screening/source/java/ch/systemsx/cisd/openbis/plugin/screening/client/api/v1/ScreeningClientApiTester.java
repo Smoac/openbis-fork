@@ -83,8 +83,11 @@ public class ScreeningClientApiTester
     private static final class Form extends JPanel
     {
         private static final long serialVersionUID = 1L;
+
         private final JPanel panel;
+
         private final Component parent;
+
         private final String title;
 
         Form(Component parent, String title)
@@ -96,14 +99,14 @@ public class ScreeningClientApiTester
             panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
             add(panel, BorderLayout.CENTER);
         }
-        
+
         JTextComponent createTextField(String fieldName, int width, boolean passwordField)
         {
             JTextComponent result = passwordField ? new JPasswordField(width) : new JTextField(width);
             addField(fieldName, result);
             return result;
         }
-        
+
         void addField(String fieldName, JComponent field)
         {
             JPanel fieldPanel = new JPanel(new BorderLayout());
@@ -114,37 +117,37 @@ public class ScreeningClientApiTester
             fieldPanel.add(field, BorderLayout.CENTER);
             panel.add(fieldPanel);
         }
-        
+
         void showForm()
         {
             JOptionPane.showMessageDialog(parent, this, title, JOptionPane.QUESTION_MESSAGE);
         }
-        
+
     }
-    
+
     private static final class TesterFrame extends JFrame
     {
         private static final long serialVersionUID = 1L;
-        
+
         private IScreeningOpenbisServiceFacade facade;
 
         private JPanel content;
 
         private JMenu callApiMenu;
-        
+
         TesterFrame()
         {
             setTitle("Screening API Tester");
             setSize(800, 600);
             setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             Container contentPane = getContentPane();
-            
+
             content = new JPanel();
             content.setLayout(new BorderLayout());
             JScrollPane scrollPane = new JScrollPane(content);
             scrollPane.getVerticalScrollBar().setBlockIncrement(40);
             contentPane.add(scrollPane);
-            
+
             JMenuBar menuBar = new JMenuBar();
             setJMenuBar(menuBar);
             callApiMenu = new JMenu("Call API");
@@ -193,25 +196,25 @@ public class ScreeningClientApiTester
             JMenuItem listPlatesMenuItem = new JMenuItem("List Plates...");
             callApiMenu.add(listPlatesMenuItem);
             listPlatesMenuItem.addActionListener(new ActionListener()
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
                 {
-                    listPlates();
-                }
-            });
+                    @Override
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        listPlates();
+                    }
+                });
             JMenuItem listFeatureVectorsMenuItem = new JMenuItem("Counts Feature Vectors");
             callApiMenu.add(listFeatureVectorsMenuItem);
             listFeatureVectorsMenuItem.addActionListener(new ActionListener()
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
                 {
-                    loadFeatureVectors();
-                }
-            });
+                    @Override
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        loadFeatureVectors();
+                    }
+                });
         }
-        
+
         void setUp(String[] args)
         {
             setVisible(true);
@@ -246,7 +249,7 @@ public class ScreeningClientApiTester
                 callApiMenu.setEnabled(true);
             }
         }
-        
+
         private void loadOverlays()
         {
             content.removeAll();
@@ -276,7 +279,7 @@ public class ScreeningClientApiTester
             }
             textArea.setText(builder.toString());
         }
-        
+
         private void loadPlates()
         {
             content.removeAll();
@@ -324,7 +327,7 @@ public class ScreeningClientApiTester
             }
             validate(panel);
         }
-        
+
         private void listAnalysisProcedures()
         {
             Form form = new Form(this, "Analysis Procedures for an Experiment");
@@ -338,7 +341,7 @@ public class ScreeningClientApiTester
                             .getSelectedItem());
             JOptionPane.showMessageDialog(this, "Analysis Procedures: " + analysisProcedures);
         }
-        
+
         private void listPlates()
         {
             Form form = new Form(this, "Plates for an Experiment");
@@ -350,10 +353,10 @@ public class ScreeningClientApiTester
             form.addField("Analysis Procedure", analysisProcedureField);
             form.showForm();
             List<Plate> plates = facade.listPlates((ExperimentIdentifier) experimentComboBox
-                            .getSelectedItem(), analysisProcedureField.getText());
+                    .getSelectedItem(), analysisProcedureField.getText());
             JOptionPane.showMessageDialog(this, "Plates: " + plates);
         }
-        
+
         private void loadFeatureVectors()
         {
             List<Plate> plates = facade.listPlates();
@@ -373,7 +376,7 @@ public class ScreeningClientApiTester
                     + " Feature Data Sets\n" + featureVectors + " Feature Vectors\n"
                     + featureColumns + " Features\ntook " + duration + " msec");
         }
-        
+
         private void loadImagesByDataSetCode()
         {
             Form form = new Form(this, "Parameters for Loading Images by Data Set");
@@ -493,12 +496,12 @@ public class ScreeningClientApiTester
                 return null;
             }
             int indexOfX = text.indexOf('x');
-            
+
             int width = Integer.parseInt(text.substring(0, indexOfX));
             int height = Integer.parseInt(text.substring(indexOfX + 1));
             return new ImageSize(width, height);
         }
-        
+
         private void validate(JComponent component)
         {
             component.invalidate();
@@ -541,7 +544,7 @@ public class ScreeningClientApiTester
                 };
         }
     }
-    
+
     public static void main(String[] args) throws IOException
     {
         configureLogging();
@@ -555,7 +558,7 @@ public class ScreeningClientApiTester
             JOptionPane.showMessageDialog(testerFrame, ex.toString());
         }
     }
-    
+
     private static void configureLogging()
     {
         Properties props = new Properties();

@@ -76,59 +76,59 @@ public class MicroscopyImageDropboxTest extends AbstractImageDropboxTestCase
         registerDataSetType(commonServer, dataSetType);
         registerProject(commonServer, "/TEST/TEST-PROJECT");
     }
-    
+
     @Override
     protected String getDataFolderToDrop()
     {
         return "aarons_example";
     }
-    
+
     @Test
     public void test()
     {
         AbstractExternalData dataSet = getRegisteredContainerDataSet();
-        imageChecker.check(new File(getTestDataFolder(), "Merged_Default.png"), 
+        imageChecker.check(new File(getTestDataFolder(), "Merged_Default.png"),
                 new ImageLoader(dataSet, sessionToken).microscopy().mode("thumbnail480x480"));
-        imageChecker.check(new File(getTestDataFolder(), "Merged_256x256.png"), 
+        imageChecker.check(new File(getTestDataFolder(), "Merged_256x256.png"),
                 new ImageLoader(dataSet, sessionToken).microscopy().mode("thumbnail256x256"));
-        imageChecker.check(new File(getTestDataFolder(), "Merged_512x512.png"), 
+        imageChecker.check(new File(getTestDataFolder(), "Merged_512x512.png"),
                 new ImageLoader(dataSet, sessionToken).microscopy().mode("thumbnail512x512"));
-        imageChecker.check(new File(getTestDataFolder(), "C1_Default.png"), 
+        imageChecker.check(new File(getTestDataFolder(), "C1_Default.png"),
                 new ImageLoader(dataSet, sessionToken).microscopy().channel("SERIES-0_CHANNEL-1")
-                .mode("thumbnail480x480"));
-        imageChecker.check(new File(getTestDataFolder(), "C1_256x256.png"), 
+                        .mode("thumbnail480x480"));
+        imageChecker.check(new File(getTestDataFolder(), "C1_256x256.png"),
                 new ImageLoader(dataSet, sessionToken).microscopy().channel("SERIES-0_CHANNEL-1")
-                .mode("thumbnail256x256"));
-        imageChecker.check(new File(getTestDataFolder(), "C1_512x512.png"), 
+                        .mode("thumbnail256x256"));
+        imageChecker.check(new File(getTestDataFolder(), "C1_512x512.png"),
                 new ImageLoader(dataSet, sessionToken).microscopy().channel("SERIES-0_CHANNEL-1")
-                .mode("thumbnail512x512"));
-        imageChecker.check(new File(getTestDataFolder(), "C2_Default.png"), 
+                        .mode("thumbnail512x512"));
+        imageChecker.check(new File(getTestDataFolder(), "C2_Default.png"),
                 new ImageLoader(dataSet, sessionToken).microscopy().channel("SERIES-0_CHANNEL-2")
-                .mode("thumbnail480x480"));
-        imageChecker.check(new File(getTestDataFolder(), "C2_256x256.png"), 
+                        .mode("thumbnail480x480"));
+        imageChecker.check(new File(getTestDataFolder(), "C2_256x256.png"),
                 new ImageLoader(dataSet, sessionToken).microscopy().channel("SERIES-0_CHANNEL-2")
-                .mode("thumbnail256x256"));
-        imageChecker.check(new File(getTestDataFolder(), "C2_512x512.png"), 
+                        .mode("thumbnail256x256"));
+        imageChecker.check(new File(getTestDataFolder(), "C2_512x512.png"),
                 new ImageLoader(dataSet, sessionToken).microscopy().channel("SERIES-0_CHANNEL-2")
-                .mode("thumbnail512x512"));
-        imageChecker.check(new File(getTestDataFolder(), "C01_Default.png"), 
+                        .mode("thumbnail512x512"));
+        imageChecker.check(new File(getTestDataFolder(), "C01_Default.png"),
                 new ImageLoader(dataSet, sessionToken).microscopy().channel("SERIES-0_CHANNEL-0")
-                .channel("SERIES-0_CHANNEL-1").mode("thumbnail480x480"));
-        imageChecker.check(new File(getTestDataFolder(), "C01_256x256.png"), 
+                        .channel("SERIES-0_CHANNEL-1").mode("thumbnail480x480"));
+        imageChecker.check(new File(getTestDataFolder(), "C01_256x256.png"),
                 new ImageLoader(dataSet, sessionToken).microscopy().channel("SERIES-0_CHANNEL-0")
-                .channel("SERIES-0_CHANNEL-1").mode("thumbnail256x256"));
-        imageChecker.check(new File(getTestDataFolder(), "C01_512x512.png"), 
+                        .channel("SERIES-0_CHANNEL-1").mode("thumbnail256x256"));
+        imageChecker.check(new File(getTestDataFolder(), "C01_512x512.png"),
                 new ImageLoader(dataSet, sessionToken).microscopy().channel("SERIES-0_CHANNEL-0")
-                .channel("SERIES-0_CHANNEL-1").mode("thumbnail512x512"));
-        imageChecker.check(new File(getTestDataFolder(), "Merged_256x256_C0_0_200_C4_150_300.png"), 
+                        .channel("SERIES-0_CHANNEL-1").mode("thumbnail512x512"));
+        imageChecker.check(new File(getTestDataFolder(), "Merged_256x256_C0_0_200_C4_150_300.png"),
                 new ImageLoader(dataSet, sessionToken).microscopy().rescaling("SERIES-0_CHANNEL-0", 0, 200)
-                .rescaling("SERIES-0_CHANNEL-4", 150, 300).mode("thumbnail256x256"));
+                        .rescaling("SERIES-0_CHANNEL-4", 150, 300).mode("thumbnail256x256"));
         String pathInDataSet = MaximumIntensityProjectionGenerationAlgorithm.DEFAULT_FILE_NAME;
         imageChecker.check(new File(getTestDataFolder(), pathInDataSet), sessionToken, dataSet, pathInDataSet);
 
         imageChecker.assertNoFailures();
     }
-    
+
     private void registerProject(ICommonServer server, String identifier)
     {
         for (Project project : server.listProjects(sessionToken))
@@ -140,9 +140,9 @@ public class MicroscopyImageDropboxTest extends AbstractImageDropboxTestCase
         }
         ProjectIdentifier projectIdentifier = ProjectIdentifierFactory.parse(identifier);
         registerSpace(server, projectIdentifier.getSpaceCode());
-        server.registerProject(sessionToken, projectIdentifier, null, null, Collections.<NewAttachment>emptySet());
+        server.registerProject(sessionToken, projectIdentifier, null, null, Collections.<NewAttachment> emptySet());
     }
-    
+
     private void registerSpace(ICommonServer server, String spaceCode)
     {
         for (Space space : server.listSpaces(sessionToken))
@@ -178,7 +178,7 @@ public class MicroscopyImageDropboxTest extends AbstractImageDropboxTestCase
         }
         server.registerSampleType(sessionToken, sampleType);
     }
-    
+
     private void registerDataSetType(ICommonServer server, DataSetType dataSetType)
     {
         for (EntityType type : server.listDataSetTypes(sessionToken))
@@ -190,5 +190,5 @@ public class MicroscopyImageDropboxTest extends AbstractImageDropboxTestCase
         }
         server.registerDataSetType(sessionToken, dataSetType);
     }
-    
+
 }

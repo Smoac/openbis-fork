@@ -134,7 +134,7 @@ public class FeatureVectorSummaryProvider extends
         }
         return new TypedTableModel<MaterialFeatureVectorSummary>(headers, list);
     }
-    
+
     private int getIndexOfHeaderById(List<TableModelColumnHeader> headers, String id)
     {
         for (int i = 0; i < headers.size(); i++)
@@ -184,7 +184,7 @@ public class FeatureVectorSummaryProvider extends
         }
         return identifierOrNull.toUpperCase();
     }
-    
+
     private int findMaterialColumnIndex(TableModel tableModel)
     {
         List<TableModelColumnHeader> headers = tableModel.getHeader();

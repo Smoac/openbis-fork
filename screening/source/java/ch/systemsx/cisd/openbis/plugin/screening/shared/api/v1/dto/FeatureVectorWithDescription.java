@@ -5,8 +5,6 @@ import java.util.List;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-
-
 /**
  * Feature vectors of one well in one feature vector dataset.
  * 

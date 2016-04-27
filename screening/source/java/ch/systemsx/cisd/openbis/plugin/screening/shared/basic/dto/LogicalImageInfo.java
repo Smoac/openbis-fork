@@ -22,8 +22,8 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * Describes one logical image in the image dataset. For HCS the logical image will consist of all
- * images of the well. For microscopy the whole dataset contains one logical image.
+ * Describes one logical image in the image dataset. For HCS the logical image will consist of all images of the well. For microscopy the whole
+ * dataset contains one logical image.
  * 
  * @author Tomasz Pylak
  */

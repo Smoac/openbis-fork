@@ -33,13 +33,13 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
  */
 public interface IImageProvider
 {
-    public BufferedImage getImage(IHierarchicalContentNode contentNode, 
+    public BufferedImage getImage(IHierarchicalContentNode contentNode,
             String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull);
-    
-    public Size getImageSize(IHierarchicalContentNode contentNode, 
+
+    public Size getImageSize(IHierarchicalContentNode contentNode,
             String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull);
-    
-    public int getImageColorDepth(IHierarchicalContentNode contentNode, 
+
+    public int getImageColorDepth(IHierarchicalContentNode contentNode,
             String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull);
 
     public List<ImageIdentifier> getImageIdentifiers(IImageReader imageReaderOrNull, File file);

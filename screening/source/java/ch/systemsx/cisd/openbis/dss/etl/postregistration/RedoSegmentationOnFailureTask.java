@@ -43,8 +43,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningUtils;
 
 /**
- * Post registration task, that checks if the segmentation dataset has been properly imported. If
- * not it copies the dataset to the dropbox again. This is a workaround for SOB-38.
+ * Post registration task, that checks if the segmentation dataset has been properly imported. If not it copies the dataset to the dropbox again. This
+ * is a workaround for SOB-38.
  * 
  * @author jakubs
  */

@@ -21,8 +21,7 @@ import java.io.Serializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * Contains well description, its image dataset (single) and biological and technical replicate
- * labels.
+ * Contains well description, its image dataset (single) and biological and technical replicate labels.
  * 
  * @author Tomasz Pylak
  */

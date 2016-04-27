@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
- * This class is obsolete, and should not be used. Use
- * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorComponent} instead
+ * This class is obsolete, and should not be used. Use {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorComponent} instead
  * 
  * @author Jakub Straszewski
  * @deprecated

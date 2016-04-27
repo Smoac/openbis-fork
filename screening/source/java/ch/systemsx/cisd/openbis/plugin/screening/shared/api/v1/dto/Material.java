@@ -22,8 +22,6 @@ import java.util.Map;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-
-
 /**
  * Material with properties.
  * 

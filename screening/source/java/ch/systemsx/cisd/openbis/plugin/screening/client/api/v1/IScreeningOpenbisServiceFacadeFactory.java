@@ -28,9 +28,9 @@ public interface IScreeningOpenbisServiceFacadeFactory
      * 
      * @return null if the user could not be authenticated.
      */
-    public  IScreeningOpenbisServiceFacade tryToCreate(String userId, String userPassword,
+    public IScreeningOpenbisServiceFacade tryToCreate(String userId, String userPassword,
             String serverUrl);
-    
+
     /**
      * Tries to create a facade object for specified session token and server URL.
      * 

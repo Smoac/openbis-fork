@@ -36,8 +36,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 /**
  * The {@link ISampleServerPlugin} implementation for plates and wells.
  * <p>
- * This class is annotated with {@link Component} so that it automatically gets registered to
- * {@link SampleServerPluginRegistry} by <i>Spring</i>.
+ * This class is annotated with {@link Component} so that it automatically gets registered to {@link SampleServerPluginRegistry} by <i>Spring</i>.
  * </p>
  * 
  * @author Tomasz Pylak

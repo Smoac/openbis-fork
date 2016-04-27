@@ -53,8 +53,7 @@ public class AbsoluteImageReference extends AbstractImageReference
     private final String channelCodeOrNull;
 
     /**
-     * @param contentNode is the original content before choosing the color component and the image
-     *            ID
+     * @param contentNode is the original content before choosing the color component and the image ID
      */
     public AbsoluteImageReference(IHierarchicalContentNode contentNode, String uniqueId,
             String imageIdOrNull, ColorComponent colorComponentOrNull,
@@ -78,8 +77,8 @@ public class AbsoluteImageReference extends AbstractImageReference
     }
 
     /**
-     * Returns id of the content which uniquely identifies the source of it and distinguishes from
-     * other sources. Example: for a file-system-based content the absolute path is the correct id.
+     * Returns id of the content which uniquely identifies the source of it and distinguishes from other sources. Example: for a file-system-based
+     * content the absolute path is the correct id.
      */
     public String getUniqueId()
     {
@@ -99,9 +98,8 @@ public class AbsoluteImageReference extends AbstractImageReference
     }
 
     /**
-     * @return unchanged image content if the image does not have to be extracted from the original
-     *         content. This method is provided to allow the fastest possible access to original
-     *         images.
+     * @return unchanged image content if the image does not have to be extracted from the original content. This method is provided to allow the
+     *         fastest possible access to original images.
      */
     public IHierarchicalContentNode tryGetRawContentForOriginalImage()
     {
@@ -125,8 +123,7 @@ public class AbsoluteImageReference extends AbstractImageReference
     }
 
     /**
-     * Returns the image size. Preferred method if only image size is needed because only the header
-     * of an image file might be read to get the size.
+     * Returns the image size. Preferred method if only image size is needed because only the header of an image file might be read to get the size.
      */
     public Size getUnchangedImageSize()
     {

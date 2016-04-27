@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * Describes overlay images in one dataset and the way to access them. Contains analysis procedure
- * which produced the dataset (if it has been specified).
+ * Describes overlay images in one dataset and the way to access them. Contains analysis procedure which produced the dataset (if it has been
+ * specified).
  * 
  * @author Tomasz Pylak
  */

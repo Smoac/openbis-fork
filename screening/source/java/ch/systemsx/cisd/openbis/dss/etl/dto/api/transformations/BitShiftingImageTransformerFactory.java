@@ -10,12 +10,10 @@ import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 
 /**
- * Transformation performed by
- * {@link IntensityRescaling#rescaleIntensityBitShiftTo8Bits(Pixels, int)}
+ * Transformation performed by {@link IntensityRescaling#rescaleIntensityBitShiftTo8Bits(Pixels, int)}
  * <p>
- * Warning: The serialized version of this class can be stored in the database for each image.
- * Moving this class to a different package or changing it in a backward incompatible way would make
- * all the saved transformations invalid.
+ * Warning: The serialized version of this class can be stored in the database for each image. Moving this class to a different package or changing it
+ * in a backward incompatible way would make all the saved transformations invalid.
  * 
  * @author Tomasz Pylak
  */

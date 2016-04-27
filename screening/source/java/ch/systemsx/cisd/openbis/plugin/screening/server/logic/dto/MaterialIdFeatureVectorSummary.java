@@ -22,8 +22,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatur
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummaryParametrized;
 
 /**
- * Aggregated feature vector with its ranking in one experiment for one material (represented by the
- * technical id)
+ * Aggregated feature vector with its ranking in one experiment for one material (represented by the technical id)
  * 
  * @author Tomasz Pylak
  */

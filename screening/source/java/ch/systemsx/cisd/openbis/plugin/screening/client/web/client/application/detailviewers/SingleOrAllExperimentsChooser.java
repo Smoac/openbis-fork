@@ -39,8 +39,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
- * A {@link LayoutContainer} making it possible to choose between either all experiments and a
- * single experiment.
+ * A {@link LayoutContainer} making it possible to choose between either all experiments and a single experiment.
  */
 class SingleOrAllExperimentsChooser extends LayoutContainer
 {

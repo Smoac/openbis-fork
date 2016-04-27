@@ -22,8 +22,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.ConvertToolImage
 
 /**
  * This class is obsolete, and should not be used. Use
- * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.ConvertToolImageTransformerFactory}
- * instead
+ * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.ConvertToolImageTransformerFactory} instead
  * 
  * @author Jakub Straszewski
  */
@@ -37,8 +36,7 @@ public class ConvertToolImageTransformerFactory implements IStreamingImageTransf
     private final ToolChoice choice;
 
     /**
-     * An enum to choose which of the two tools, ImageMagick or GraphicsMagick, to prefer or to
-     * enforce.
+     * An enum to choose which of the two tools, ImageMagick or GraphicsMagick, to prefer or to enforce.
      */
     public enum ToolChoice
     {

@@ -21,9 +21,8 @@ import java.io.Serializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * Describes one channel stack which has images for many channels and a specific tile (and
- * optionally timepoint and/or depth). In HCS case this points to one image of one well. In
- * microscopy case this points to one image of one dataset.
+ * Describes one channel stack which has images for many channels and a specific tile (and optionally timepoint and/or depth). In HCS case this points
+ * to one image of one well. In microscopy case this points to one image of one dataset.
  * 
  * @author Tomasz Pylak
  */

@@ -29,8 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageResolutionKind;
 
 /**
  * Allows to:<br>
- * - download screening and microscopy images in a chosen size for a specified channels or with all
- * channels merged.<br>
+ * - download screening and microscopy images in a chosen size for a specified channels or with all channels merged.<br>
  * - fetch representative microscopy dataset image
  * 
  * @author Tomasz Pylak

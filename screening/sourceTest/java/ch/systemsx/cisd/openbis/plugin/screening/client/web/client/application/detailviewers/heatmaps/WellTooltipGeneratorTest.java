@@ -176,19 +176,19 @@ public class WellTooltipGeneratorTest extends AssertJUnit
     {
 
         String[] featureLabels =
-            { "FeatureX", "FeatureY" };
+        { "FeatureX", "FeatureY" };
         CodeAndLabel[] codesAndLabels =
                 new CodeAndLabel[]
-                    { new CodeAndLabel(featureLabels[0], featureLabels[0]),
-                            new CodeAndLabel(featureLabels[1], featureLabels[1]) };
+                { new CodeAndLabel(featureLabels[0], featureLabels[0]),
+                        new CodeAndLabel(featureLabels[1], featureLabels[1]) };
 
         List<FeatureVectorValues> features = new ArrayList<FeatureVectorValues>();
         features.add(new FeatureVectorValues(null, getLocation(WELL_A2), null, codesAndLabels,
                 new FeatureValue[]
-                    { FeatureValue.createFloat(1), FeatureValue.createFloat(2) }));
+                { FeatureValue.createFloat(1), FeatureValue.createFloat(2) }));
         features.add(new FeatureVectorValues(null, getLocation(WELL_B3), null, codesAndLabels,
                 new FeatureValue[]
-                    { FeatureValue.createFloat(-1), FeatureValue.createFloat(-2) }));
+                { FeatureValue.createFloat(-1), FeatureValue.createFloat(-2) }));
         return new FeatureVectorDataset(createDatasetReference(), features,
                 Arrays.asList(codesAndLabels));
     }

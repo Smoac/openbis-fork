@@ -43,8 +43,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgIm
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
 
 /**
- * Helper class for easy handling of HCS image dataset standard structure with no code for handling
- * images.
+ * Helper class for easy handling of HCS image dataset standard structure with no code for handling images.
  * 
  * @author Tomasz Pylak
  * @author Piotr Buczek

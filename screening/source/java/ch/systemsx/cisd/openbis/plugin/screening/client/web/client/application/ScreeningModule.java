@@ -38,8 +38,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.GlobalWellSearchLocatorResolver;
 
 /**
- * Screening extensions: reviewing panel section for the experiment (batch search for gene
- * locations)
+ * Screening extensions: reviewing panel section for the experiment (batch search for gene locations)
  * 
  * @author Tomasz Pylak
  */

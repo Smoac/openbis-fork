@@ -37,8 +37,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.ImageServletUrlParameters;
 
 /**
- * Parses the request parameters to produce {@link ImageGenerationDescription}. Datasets and
- * channels parameters specification:
+ * Parses the request parameters to produce {@link ImageGenerationDescription}. Datasets and channels parameters specification:
  * 
  * <PRE>
  * 'dataset=' [DATASET_CODE] '&' 
@@ -53,9 +52,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  * dataset=201009891233-13213&channel=X&channel=Y&overlay-channel-2008121212-12122=Z
  * </PRE>
  * 
- * Note that the same dataset can have many channels specified (both the base one and overlay). The
- * effect of merged channels can be achieved by specifying all channels. Unexisting channel codes
- * are ignored if there is at least one existing one.
+ * Note that the same dataset can have many channels specified (both the base one and overlay). The effect of merged channels can be achieved by
+ * specifying all channels. Unexisting channel codes are ignored if there is at least one existing one.
  * 
  * @author Tomasz Pylak
  */

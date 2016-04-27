@@ -39,11 +39,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplic
 public class WellReplicaSummaryCalculator
 {
     /**
-     * Calculates summaries and ranks for each group of well replicas (biological or technical).
-     * Usually a replica is determined by the material in the well, e.g. gene or compound.
+     * Calculates summaries and ranks for each group of well replicas (biological or technical). Usually a replica is determined by the material in
+     * the well, e.g. gene or compound.
      * 
-     * @param calculateDeviations if true then deviations for each aggregation will be calculated as
-     *            well
+     * @param calculateDeviations if true then deviations for each aggregation will be calculated as well
      */
     public static List<MaterialIdFeatureVectorSummary> calculateReplicasFeatureVectorSummaries(
             List<? extends IWellData> wellDataList,
@@ -58,8 +57,7 @@ public class WellReplicaSummaryCalculator
     }
 
     /**
-     * Calculates one aggregated number for each feature, taking all specified wells (which should b
-     * technical replicates) into account.
+     * Calculates one aggregated number for each feature, taking all specified wells (which should b technical replicates) into account.
      */
     public static float[] calculateSummaryFeatureVector(
             List<? extends IWellData> techicalReplicaWells,

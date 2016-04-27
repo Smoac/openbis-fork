@@ -25,8 +25,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class PlateUtilsTest extends AssertJUnit

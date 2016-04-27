@@ -33,8 +33,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 
 /**
- * A section of dataset detail view for datasets containing microscopy images to present these
- * images in a viewer.
+ * A section of dataset detail view for datasets containing microscopy images to present these images in a viewer.
  * 
  * @author Tomasz Pylak
  */

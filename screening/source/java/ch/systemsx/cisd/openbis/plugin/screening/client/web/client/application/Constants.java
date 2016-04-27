@@ -20,14 +20,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class Constants
 {
     public static final String IMAGE_VIEWER_LAUNCH_SERVLET_NAME =
-        GenericConstants.createServicePath(ScreeningConstants.IMAGE_VIEWER_LAUNCH_URL);
+            GenericConstants.createServicePath(ScreeningConstants.IMAGE_VIEWER_LAUNCH_URL);
 
     public static final String MATERIAL_DETAILS_PROPERTY_TYPE_KEY =
             "material-details-property-type";

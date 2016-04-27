@@ -44,8 +44,7 @@ public class ImageTransformationBuffer
     }
 
     /**
-     * Appends a single transformation and returns it. Note that code of each added transformation
-     * should be unique.
+     * Appends a single transformation and returns it. Note that code of each added transformation should be unique.
      */
     public ImageTransformation append(ImageTransformation transformation)
     {
@@ -54,8 +53,7 @@ public class ImageTransformationBuffer
     }
 
     /**
-     * Appends any specified transformations. Note that code of each added transformation should be
-     * unique.
+     * Appends any specified transformations. Note that code of each added transformation should be unique.
      */
     public void appendAll(ImageTransformation... transformations)
     {
@@ -115,9 +113,8 @@ public class ImageTransformationBuffer
     // -------------- bit shifting transformations ---------------------
 
     /**
-     * Appends transformations which extracts a range of grayscale image colors by choosing 8
-     * consecutive bits. All shifts which make sense for 12 bit images will be appended (from 0 to
-     * 4).
+     * Appends transformations which extracts a range of grayscale image colors by choosing 8 consecutive bits. All shifts which make sense for 12 bit
+     * images will be appended (from 0 to 4).
      * 
      * @return appended transformations. They can be used to e.g. modify their label or description.
      */
@@ -127,9 +124,8 @@ public class ImageTransformationBuffer
     }
 
     /**
-     * Appends transformations which extracts a range of grayscale image colors by choosing 8
-     * consecutive bits. All shifts which make sense for 16 bit images will be appended (from 0 to
-     * 8).
+     * Appends transformations which extracts a range of grayscale image colors by choosing 8 consecutive bits. All shifts which make sense for 16 bit
+     * images will be appended (from 0 to 8).
      * 
      * @return appended transformations. They can be used to e.g. modify their label or description.
      */
@@ -150,8 +146,7 @@ public class ImageTransformationBuffer
     }
 
     /**
-     * Appends transformation which extracts a range of grayscale image colors by choosing 8
-     * consecutive bits starting from the specified one.
+     * Appends transformation which extracts a range of grayscale image colors by choosing 8 consecutive bits starting from the specified one.
      * 
      * @return appended transformation. It can be used to e.g. modify its label or description.
      */
@@ -161,11 +156,9 @@ public class ImageTransformationBuffer
     }
 
     /**
-     * Creates a transformation which extracts a range of grayscale image colors by choosing 8
-     * consecutive bits, staring from the specified one.
+     * Creates a transformation which extracts a range of grayscale image colors by choosing 8 consecutive bits, staring from the specified one.
      * <p>
-     * This method is useful when one wants to modify the default code, label or description
-     * afterwards.
+     * This method is useful when one wants to modify the default code, label or description afterwards.
      */
     private static ImageTransformation createGrayscaleBitShifting(int shiftBits)
     {
@@ -203,10 +196,8 @@ public class ImageTransformationBuffer
     // -----------------------------
 
     /**
-     * Appends transformation which converts grayscale image pixel intensities from the range
-     * [blackPointIntensity, whitePointIntensity] to 8 bit color depth. Useful to compare images of
-     * higher color depth with each other when they do not use the whole range of available
-     * intensities.
+     * Appends transformation which converts grayscale image pixel intensities from the range [blackPointIntensity, whitePointIntensity] to 8 bit
+     * color depth. Useful to compare images of higher color depth with each other when they do not use the whole range of available intensities.
      * 
      * @return appended transformation. It can be used to e.g. modify its label or description.
      */
@@ -231,14 +222,12 @@ public class ImageTransformationBuffer
     }
 
     /**
-     * Creates a transformation which converts grayscale image pixel intensities from the range
-     * [blackPointIntensity, whitePointIntensity] to 8 bit color depth.
+     * Creates a transformation which converts grayscale image pixel intensities from the range [blackPointIntensity, whitePointIntensity] to 8 bit
+     * color depth.
      * <p>
-     * This method is useful when one wants to modify the default code, label or description
-     * afterwards.
+     * This method is useful when one wants to modify the default code, label or description afterwards.
      * 
-     * @param userFriendlyLabelOrNull label of the transformation. If null a default label is
-     *            assigned.
+     * @param userFriendlyLabelOrNull label of the transformation. If null a default label is assigned.
      */
     public static ImageTransformation createRescaleGrayscaleIntensity(int blackPointIntensity,
             int whitePointIntensity, String userFriendlyLabelOrNull)
@@ -290,17 +279,15 @@ public class ImageTransformationBuffer
     // --------------------------
 
     /**
-     * Appends transformation which converts each single grayscale image to 8 bit color depth and
-     * rescales pixels intensities so that the darkest pixel will become black and the brightest
-     * will become white.
+     * Appends transformation which converts each single grayscale image to 8 bit color depth and rescales pixels intensities so that the darkest
+     * pixel will become black and the brightest will become white.
      * <p>
-     * Note that by default openBIS applies this transformation with threshold 0 if it deals with
-     * grayscale image where color depth is bigger then 8 bit. So calling this method with parameter
-     * 0 is not necessary.
+     * Note that by default openBIS applies this transformation with threshold 0 if it deals with grayscale image where color depth is bigger then 8
+     * bit. So calling this method with parameter 0 is not necessary.
      * </p>
      * 
-     * @param threshold value form 0 to 1, it specifies the percentage of darkest and brightest
-     *            pixels which will be ignored (they will all become black or white).
+     * @param threshold value form 0 to 1, it specifies the percentage of darkest and brightest pixels which will be ignored (they will all become
+     *            black or white).
      * @return appended transformation. It can be used to e.g. modify its label or description.
      */
     public ImageTransformation appendAutoRescaleGrayscaleIntensity(float threshold)
@@ -322,17 +309,14 @@ public class ImageTransformationBuffer
     }
 
     /**
-     * Creates a transformation which converts each single grayscale image to 8 bit color depth and
-     * rescales pixels intensities so that the darkest pixel will become black and the brightest
-     * will become white (with some threshold margin).
+     * Creates a transformation which converts each single grayscale image to 8 bit color depth and rescales pixels intensities so that the darkest
+     * pixel will become black and the brightest will become white (with some threshold margin).
      * <p>
-     * This method is useful when one wants to modify the default code, label or description
-     * afterwards.
+     * This method is useful when one wants to modify the default code, label or description afterwards.
      * 
-     * @param threshold value form 0 to 1, it specifies the percentage of darkest and brightest
-     *            pixels which will be ignored (they will all become black or white).
-     * @param userFriendlyLabelOrNull label of the transformation. If null a default label is
-     *            assigned.
+     * @param threshold value form 0 to 1, it specifies the percentage of darkest and brightest pixels which will be ignored (they will all become
+     *            black or white).
+     * @param userFriendlyLabelOrNull label of the transformation. If null a default label is assigned.
      */
     private static ImageTransformation createAutoRescaleGrayscaleIntensity(float threshold,
             String userFriendlyLabelOrNull)
@@ -378,8 +362,8 @@ public class ImageTransformationBuffer
     // --------------------------
 
     /**
-     * Allows to transform the images with ImageMagic convert tool (which has to be installed and
-     * accessible). Convert will be called with the specified parameters.
+     * Allows to transform the images with ImageMagic convert tool (which has to be installed and accessible). Convert will be called with the
+     * specified parameters.
      * 
      * @return appended transformation. It can be used to e.g. modify its label or description.
      */
@@ -405,11 +389,9 @@ public class ImageTransformationBuffer
     /**
      * Creates a transformation which converts the images with ImageMagic convert tool.
      * <p>
-     * This method is useful when one wants to modify the default code, label or description
-     * afterwards.
+     * This method is useful when one wants to modify the default code, label or description afterwards.
      * 
-     * @param userFriendlyLabelOrNull label of the transformation. If null a default label is
-     *            assigned.
+     * @param userFriendlyLabelOrNull label of the transformation. If null a default label is assigned.
      */
     private static ImageTransformation createImageMagicConvert(String convertCliArguments,
             String transformationCode, String userFriendlyLabelOrNull)

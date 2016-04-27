@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
- * Color component of an image which constitutes one channel. Useful if the image consists of all
- * channels merged together.
+ * Color component of an image which constitutes one channel. Useful if the image consists of all channels merged together.
  * 
  * @author Tomasz Pylak
  */

@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.dss.etl.jython;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 
 /**
- * Reference to {@link ch.systemsx.cisd.openbis.dss.etl.jython.v1.JythonPlateDataSetHandler} kept
- * for backwards compatibility
+ * Reference to {@link ch.systemsx.cisd.openbis.dss.etl.jython.v1.JythonPlateDataSetHandler} kept for backwards compatibility
  * 
  * @author Jakub Straszewski
  */

@@ -99,8 +99,8 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
     }
 
     /**
-     * Enriched with image dataset parents. Note that all feature vector datasets have to be
-     * connected directly to the plate, otherwise they will be skipped.
+     * Enriched with image dataset parents. Note that all feature vector datasets have to be connected directly to the plate, otherwise they will be
+     * skipped.
      */
     public Collection<AbstractExternalData> getFeatureVectorDatasets()
     {

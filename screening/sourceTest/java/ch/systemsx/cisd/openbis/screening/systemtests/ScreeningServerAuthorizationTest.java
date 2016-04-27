@@ -43,7 +43,6 @@ public class ScreeningServerAuthorizationTest extends AbstractScreeningSystemTes
 
     private static final String SPACE_CODE = "CISD";
 
-
     private String userSessionToken;
 
     @BeforeMethod

@@ -26,8 +26,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * {@link DefaultDataSetInfoExtractor} which sets the dataset code to 'spaceCode-plateCode'. Useful
- * for screening image datasets.
+ * {@link DefaultDataSetInfoExtractor} which sets the dataset code to 'spaceCode-plateCode'. Useful for screening image datasets.
  * 
  * @author Tomasz Pylak
  */

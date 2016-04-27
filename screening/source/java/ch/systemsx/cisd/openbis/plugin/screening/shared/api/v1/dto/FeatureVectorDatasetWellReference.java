@@ -21,8 +21,6 @@ import java.util.Map;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-
-
 /**
  * Reference to one well in a feature vector dataset.
  * 

@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
  * @author Chandrasekhar Ramakrishnan
  */
 @Test(groups =
-    { "slow", "systemtest" })
+{ "slow", "systemtest" })
 public class FeatureVectorsDropboxTest extends AbstractScreeningSystemTestCase
 {
     @BeforeTest

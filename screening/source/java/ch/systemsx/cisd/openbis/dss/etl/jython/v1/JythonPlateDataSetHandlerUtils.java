@@ -24,8 +24,6 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
- * 
- *
  * @author jakubs
  */
 public class JythonPlateDataSetHandlerUtils

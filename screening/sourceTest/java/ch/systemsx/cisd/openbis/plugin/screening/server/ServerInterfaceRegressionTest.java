@@ -32,7 +32,7 @@ public class ServerInterfaceRegressionTest extends AnnotationAppliedTestCase
     {
         assertMandatoryMethodAnnotations(IScreeningServer.class, ScreeningServer.class, null);
     }
-    
+
     @Test
     public void testApiServerAnnotations()
     {

@@ -56,10 +56,10 @@ public class GenedataFormatToCanonicalFeatureVectorTest extends AbstractFileSyst
         assertEquals(2, features.size());
 
         float[] feature1Values =
-            { 4.5f, 4.6f, 3.5f, 5.6f, 3.3f, 5.7f };
+        { 4.5f, 4.6f, 3.5f, 5.6f, 3.3f, 5.7f };
         verifyFeature(features.get(0), "alpha", feature1Values);
         float[] feature2Values =
-            { 14.5f, 14.6f, 13.5f, 15.6f, 13.3f, 15.7f };
+        { 14.5f, 14.6f, 13.5f, 15.6f, 13.3f, 15.7f };
         verifyFeature(features.get(1), "beta", feature2Values);
     }
 

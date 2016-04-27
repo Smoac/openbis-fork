@@ -17,8 +17,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCriteria;
 
 /**
- * Locator resolver for Well Search which displays wells containing specified materials optionally
- * restricted to one experiment.
+ * Locator resolver for Well Search which displays wells containing specified materials optionally restricted to one experiment.
  * 
  * @author Tomasz Pylak
  */

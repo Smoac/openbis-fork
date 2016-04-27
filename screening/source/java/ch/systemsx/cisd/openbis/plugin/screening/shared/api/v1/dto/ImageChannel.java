@@ -24,8 +24,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-
-
 /**
  * A class that represents an image channel.
  * 
@@ -102,8 +100,7 @@ public class ImageChannel implements Serializable, Comparable<ImageChannel>
     }
 
     /**
-     * Returns the transformations defined for this channel. May be empty, if there are no
-     * transformations defined.
+     * Returns the transformations defined for this channel. May be empty, if there are no transformations defined.
      */
     public List<ImageTransformationInfo> getTransformations()
     {

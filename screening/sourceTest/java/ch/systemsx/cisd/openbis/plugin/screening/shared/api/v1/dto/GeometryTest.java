@@ -37,7 +37,7 @@ public class GeometryTest
         assertEquals(Geometry.createFromCartesianDimensions(24, 16), Geometry
                 .createFromRowColDimensions(16, 24));
         assertEquals(Geometry.createFromCartesianDimensions(new int[]
-            { 24, 16 }), Geometry.createFromCartesianDimensions(24, 16));
+        { 24, 16 }), Geometry.createFromCartesianDimensions(24, 16));
         assertEquals(Geometry.createFromPlateGeometryString("384_16X24"), Geometry
                 .createFromRowColDimensions(16, 24));
         assertFalse(Geometry.GEOMETRY_384_16X24.equals(Geometry.createFromRowColDimensions(24, 16)));

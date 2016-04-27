@@ -41,8 +41,7 @@ public class ScreeningOpenbisServiceFacadeFactory implements IScreeningOpenbisSe
     }
 
     /**
-     * Creates a service facade which communicates with the openBIS server at the specified URL.
-     * Authenticates the user.
+     * Creates a service facade which communicates with the openBIS server at the specified URL. Authenticates the user.
      * 
      * @return null if the user could not be authenticated.
      */
@@ -53,8 +52,7 @@ public class ScreeningOpenbisServiceFacadeFactory implements IScreeningOpenbisSe
     }
 
     /**
-     * Creates a service facade which communicates with the openBIS server at the specified URL for
-     * an authenticated user.
+     * Creates a service facade which communicates with the openBIS server at the specified URL for an authenticated user.
      * 
      * @param sessionToken The session token for the authenticated user
      * @param serverUrl The URL for the openBIS application server

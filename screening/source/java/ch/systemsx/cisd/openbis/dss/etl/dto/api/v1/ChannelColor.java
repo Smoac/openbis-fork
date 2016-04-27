@@ -1,8 +1,7 @@
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
 /**
- * This class is obsolete, and should not be used. Use
- * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColor} instead
+ * This class is obsolete, and should not be used. Use {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColor} instead
  * 
  * @author Jakub Straszewski
  * @deprecated

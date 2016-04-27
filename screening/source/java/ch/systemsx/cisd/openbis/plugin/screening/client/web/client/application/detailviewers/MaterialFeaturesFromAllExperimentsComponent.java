@@ -26,8 +26,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 
 /**
- * Component displaying details for a material + a grid with the material's features extracted from
- * all available experiments.
+ * Component displaying details for a material + a grid with the material's features extracted from all available experiments.
  * 
  * @author Kaloyan Enimanev
  * @author Tomasz Pylak

@@ -61,7 +61,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageT
 /**
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses = {ImageLoadingHelper.class, ImageChannelsUtils.class})
+@Friend(toClasses = { ImageLoadingHelper.class, ImageChannelsUtils.class })
 public class ImageChannelsUtilsTest extends AssertJUnit
 {
     public static final File TEST_IMAGE_FOLDER = new File("../screening/sourceTest/java/"
@@ -84,7 +84,7 @@ public class ImageChannelsUtilsTest extends AssertJUnit
                     for (int y = 0; y < height; y++)
                     {
                         int rgb = image.getRGB(x, y);
-                        System.out.println(x+" "+y+" "+Integer.toHexString(rgb));
+                        System.out.println(x + " " + y + " " + Integer.toHexString(rgb));
                         output.setRGB(x, y, (rgb & 0xff) << 16);
                     }
                 }
@@ -173,11 +173,11 @@ public class ImageChannelsUtilsTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    private BufferedImage createImage(final DatasetAcquiredImagesReference imageRef, 
+    private BufferedImage createImage(final DatasetAcquiredImagesReference imageRef,
             ImageTransformationParams transformationParams, Size thumbnailSizeOrNull)
     {
         ImageLoadingHelper imageHelper = new ImageLoadingHelper(ImagingLoaderStrategyFactory.createImageLoaderStrategy(loader),
-        new RequestedImageSize(thumbnailSizeOrNull, false), null);
+                new RequestedImageSize(thumbnailSizeOrNull, false), null);
         boolean mergeAllChannels = imageHelper.isMergeAllChannels(imageRef);
         List<AbsoluteImageReference> imageContents =
                 imageHelper.fetchImageContents(imageRef, mergeAllChannels, false, transformationParams);

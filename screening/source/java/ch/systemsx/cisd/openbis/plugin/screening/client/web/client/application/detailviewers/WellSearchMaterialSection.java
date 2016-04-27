@@ -10,8 +10,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 
 /**
- * Section in material detail view. Presenting wells from selected experiment which contain the
- * material from this detail view.
+ * Section in material detail view. Presenting wells from selected experiment which contain the material from this detail view.
  * 
  * @author Tomasz Pylak
  * @author Izabela Adamczyk

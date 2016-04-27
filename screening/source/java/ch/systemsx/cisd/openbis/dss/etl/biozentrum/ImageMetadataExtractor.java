@@ -48,7 +48,6 @@ public class ImageMetadataExtractor
         return imageReader.readMetaData(imageFile, ImageID.NULL, null);
     }
 
-
     /**
      * @param tileToMetadataMap mapping from tile number to image metadata
      */

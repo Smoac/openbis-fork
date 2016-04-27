@@ -35,10 +35,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdent
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ImageViewer
@@ -94,7 +91,7 @@ public class ImageViewer
             content.add(new JLabel(ex.toString()));
             throw ex;
         }
-        
+
         frame.pack();
         frame.setVisible(true);
     }

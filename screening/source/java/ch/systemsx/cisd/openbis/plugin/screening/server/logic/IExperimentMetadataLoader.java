@@ -31,14 +31,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 public interface IExperimentMetadataLoader
 {
     /**
-     * Try to detect the plate geometry of an experiment. Return NULL if there is no plate geometry
-     * or the geometries of the contained plates differ.
+     * Try to detect the plate geometry of an experiment. Return NULL if there is no plate geometry or the geometries of the contained plates differ.
      */
     Geometry tryGetPlateGeometry();
 
     /**
-     * Try to detect the tile geometry of an experiment. Return NULL if there is no tile geometry or
-     * the geometries of the contained tiles differ.
+     * Try to detect the tile geometry of an experiment. Return NULL if there is no tile geometry or the geometries of the contained tiles differ.
      */
     Geometry tryGetTileGeometry();
 
@@ -46,17 +44,16 @@ public interface IExperimentMetadataLoader
      * Return all image channels within an experiment.
      */
     List<ImageChannel> getImageChannels();
-    
+
     /**
      * Returns the original image size.
      * 
      * @return <code>null</code> if not all data sets have the same original image size.
      */
     ImageSize tryGetOriginalImageSize();
-    
+
     /**
-     * Returns a sorted list of image sizes where for all data sets thumbnail images of these sizes
-     * exist.
+     * Returns a sorted list of image sizes where for all data sets thumbnail images of these sizes exist.
      */
     List<ImageSize> getThumbnailImageSizes();
 }

@@ -31,44 +31,40 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeaturesBuilder;
 public interface IImagingDataSetRegistrationTransactionV2 extends IDataSetRegistrationTransactionV2
 {
     /**
-     * Creates a new image data set container based on specified configuration and a specified
-     * new image data set container. From the specified container to original physical image data set
-     * will also be the physical image data set of the new container. 
-     * See {@link SimpleImageDataConfig} documentation for configuration details.
+     * Creates a new image data set container based on specified configuration and a specified new image data set container. From the specified
+     * container to original physical image data set will also be the physical image data set of the new container. See {@link SimpleImageDataConfig}
+     * documentation for configuration details.
      */
     IImageDataSet createNewImageDataSetFromDataSet(SimpleImageDataConfig imageDataSet, IImageDataSet dataSet);
-    
+
     /**
-     * Creates a new image data set. See {@link SimpleImageDataConfig} documentation for
-     * configuration details.
+     * Creates a new image data set. See {@link SimpleImageDataConfig} documentation for configuration details.
      */
     IImageDataSet createNewImageDataSet(SimpleImageDataConfig imageDataSet,
             File incomingFolderWithImages);
 
     /**
-     * Creates a new image data set. See {@link SimpleImageDataConfig} documentation for
-     * configuration details. Also moves the incoming directory to the data set.
+     * Creates a new image data set. See {@link SimpleImageDataConfig} documentation for configuration details. Also moves the incoming directory to
+     * the data set.
      */
     IImageDataSet createNewImageDataSetAndMoveFile(SimpleImageDataConfig imageDataSet,
             File incomingFolderWithImages);
 
     /**
-     * Creates a new overview image data set. See {@link SimpleImageDataConfig} documentation for
-     * configuration details.
+     * Creates a new overview image data set. See {@link SimpleImageDataConfig} documentation for configuration details.
      */
     IDataSet createNewOverviewImageDataSet(SimpleImageDataConfig imageDataSet,
             File incomingFolderWithImages);
 
     /**
-     * Creates a new feature vector data set based on either the {@link FeaturesBuilder} provided by
-     * the specified {@link SimpleFeatureVectorDataConfig} or the specified file.
+     * Creates a new feature vector data set based on either the {@link FeaturesBuilder} provided by the specified
+     * {@link SimpleFeatureVectorDataConfig} or the specified file.
      */
     IFeatureVectorDataSet createNewFeatureVectorDataSet(
             SimpleFeatureVectorDataConfig featureDataSetConfig, File featureVectorFileOrNull);
 
     /**
-     * Creates a new data set, containing the list of features based on the
-     * {@link FeatureListDataConfig}
+     * Creates a new data set, containing the list of features based on the {@link FeatureListDataConfig}
      */
     IDataSet createNewFeatureListDataSet(FeatureListDataConfig config);
 }

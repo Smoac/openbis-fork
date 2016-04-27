@@ -83,7 +83,7 @@ public class ScreeningJythonIngestionService extends JythonIngestionService
                         {
                             return new ImagingDataSetRegistrationTransaction(
                                     rollBackStackParentFolder, workingDirectory, stagingDirectory,
-                                    this, factory, JythonPlateDataSetHandlerUtils.parseOriginalDir(properties), 
+                                    this, factory, JythonPlateDataSetHandlerUtils.parseOriginalDir(properties),
                                     userSessionToken);
                         }
                     };

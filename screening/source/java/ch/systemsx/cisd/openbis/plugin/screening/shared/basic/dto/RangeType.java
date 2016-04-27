@@ -28,5 +28,5 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.IRangeType;
 public enum RangeType implements IRangeType, Serializable
 {
     MIN_MAX, PERCENTILE_10_90;
-    
+
 }

@@ -68,11 +68,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
- * Utility classes to create an image of a specified size containing one channel or a subset of all
- * channels.
+ * Utility classes to create an image of a specified size containing one channel or a subset of all channels.
  * <p>
- * In autumn 2014 this class went throw a bigger refactoring in order to make the code more understandable. 
- * The images created by this class are the result of little processing pipelines. 
+ * In autumn 2014 this class went throw a bigger refactoring in order to make the code more understandable. The images created by this class are the
+ * result of little processing pipelines.
  * 
  * @author Tomasz Pylak
  * @author Franz-Josef Elmer
@@ -84,7 +83,7 @@ public class ImageChannelsUtils
 
     // MIME type of the images which are produced by this class
     public static final String IMAGES_CONTENT_TYPE = "image/png";
-    
+
     private static interface IColorTransformation
     {
         int transform(int rgb);
@@ -96,8 +95,8 @@ public class ImageChannelsUtils
     }
 
     /**
-     * Data class which contains an {@link AbsoluteImageReference} and its corresponding image
-     * which is often no longer the unchanged image from {@link AbsoluteImageReference#getUnchangedImage()}.
+     * Data class which contains an {@link AbsoluteImageReference} and its corresponding image which is often no longer the unchanged image from
+     * {@link AbsoluteImageReference#getUnchangedImage()}.
      */
     private static class ImageWithReference
     {
@@ -115,7 +114,7 @@ public class ImageChannelsUtils
         {
             return image;
         }
-        
+
         public void setImage(BufferedImage image)
         {
             this.image = image;
@@ -163,8 +162,8 @@ public class ImageChannelsUtils
     }
 
     /**
-     * Returns content of image for the specified tile in the specified size and for the requested
-     * channel or with all channels merged. This method is called by the servlets which delivers images.
+     * Returns content of image for the specified tile in the specified size and for the requested channel or with all channels merged. This method is
+     * called by the servlets which delivers images.
      * 
      * @param params
      * @param contentProvider
@@ -180,8 +179,8 @@ public class ImageChannelsUtils
         }
         return createResponseContentStream(image, null);
     }
-    
-    private static BufferedImage calculateImage(ImageGenerationDescription params, 
+
+    private static BufferedImage calculateImage(ImageGenerationDescription params,
             IHierarchicalContentProvider contentProvider)
     {
         DatasetAcquiredImagesReference imageChannels = params.tryGetImageChannels();
@@ -195,13 +194,13 @@ public class ImageChannelsUtils
         ImageLoadingHelper imageLoadingHelper = new ImageLoadingHelper(imageChannels, contentProvider, imageSize, transformationCode);
         boolean mergeAllChannels = imageLoadingHelper.isMergeAllChannels(imageChannels);
         ImageTransformationParams transformationInfo = new ImageTransformationParams(true, mergeAllChannels,
-                        transformationCode, transformationsPerChannel);
+                transformationCode, transformationsPerChannel);
         List<AbsoluteImageReference> imageContents =
                 imageLoadingHelper.fetchImageContents(imageChannels, mergeAllChannels, false, transformationInfo);
         return calculateBufferedImage(imageContents, transformationInfo);
     }
 
-    private static BufferedImage drawOverlays(BufferedImage imageOrNull, ImageGenerationDescription params, 
+    private static BufferedImage drawOverlays(BufferedImage imageOrNull, ImageGenerationDescription params,
             IHierarchicalContentProvider contentProvider)
     {
         RequestedImageSize overlaySize = calcOverlaySize(imageOrNull, params.tryGetThumbnailSize());
@@ -211,7 +210,7 @@ public class ImageChannelsUtils
             // NOTE: never merges the overlays, draws each channel separately (merging looses
             // transparency and is slower)
             String transformationCode = params.tryGetSingleChannelTransformationCode();
-            List<ImageWithReference> overlayImages = getSingleImagesSkipNonExisting(overlayChannels, 
+            List<ImageWithReference> overlayImages = getSingleImagesSkipNonExisting(overlayChannels,
                     overlaySize, transformationCode, contentProvider);
             for (ImageWithReference overlayImage : overlayImages)
             {
@@ -294,11 +293,11 @@ public class ImageChannelsUtils
     {
         IImagingDatasetLoader imageAccessor = HCSImageDatasetLoaderFactory.create(dataSetRoot, datasetCode);
         IImagingLoaderStrategy loaderStrategy = ImagingLoaderStrategyFactory.createImageLoaderStrategy(imageAccessor);
-        ImageLoadingHelper imageLoadingHelper = 
+        ImageLoadingHelper imageLoadingHelper =
                 new ImageLoadingHelper(loaderStrategy, imageSizeLimitOrNull, singleChannelTransformationCodeOrNull);
         List<AbsoluteImageReference> imageReferences = imageLoadingHelper.getRepresentativeImageReferences(wellLocationOrNull);
         ImageTransformationParams transformationParams = new ImageTransformationParams(true, true,
-                        null, new HashMap<String, String>());
+                null, new HashMap<String, String>());
         BufferedImage image = calculateBufferedImage(imageReferences, transformationParams);
         String name = createFileName(datasetCode, wellLocationOrNull, imageSizeLimitOrNull);
         return createResponseContentStream(image, name);
@@ -393,27 +392,30 @@ public class ImageChannelsUtils
         }
         return null;
     }
+
     /**
-     * Calculates from the specified image reference (i.e. image file content and meta data from imaging database)
-     * an 8-bit colored gray image for display purposes. This is done by the following steps:
+     * Calculates from the specified image reference (i.e. image file content and meta data from imaging database) an 8-bit colored gray image for
+     * display purposes. This is done by the following steps:
      * <ol>
-     * <li>Load the unchanged image from the file content. This done by {@link ImageUtil#loadUnchangedImage(IHierarchicalContentNode, String, String, String, ch.systemsx.cisd.imagereaders.IReadParams)}.
+     * <li>Load the unchanged image from the file content. This done by
+     * {@link ImageUtil#loadUnchangedImage(IHierarchicalContentNode, String, String, String, ch.systemsx.cisd.imagereaders.IReadParams)}.
      * <li>Re-scale intensities to 8-bit if at least one color component has more than 8 bit. This is done by {@link IntensityRescaling}.
-     * <li>Re-size to the requested size. This is done by {@link ImageUtil#rescale(BufferedImage, int, int, boolean, boolean, ch.systemsx.cisd.common.image.IntensityRescaling.IImageToPixelsConverter)}.
+     * <li>Re-size to the requested size. This is done by
+     * {@link ImageUtil#rescale(BufferedImage, int, int, boolean, boolean, ch.systemsx.cisd.common.image.IntensityRescaling.IImageToPixelsConverter)}.
      * <li>Extract the color component, if specified.
-     * <li>Apply any transformation as revealed from the imaging database. This can include user-specified intensity ranges.
-     * If there is no transformation in the imaging database {@link AutoRescaleIntensityImageTransformerFactory} is used.
+     * <li>Apply any transformation as revealed from the imaging database. This can include user-specified intensity ranges. If there is no
+     * transformation in the imaging database {@link AutoRescaleIntensityImageTransformerFactory} is used.
      * <li>Finally the gray image is colored by the corresponding channel color.
      * </ol>
-     * 
      * Because rescaling 12/16-bit images to 8-bit before applying user-defined scaling was necessary. Reasons:
-     * <ul><li>A user-defined scale applies for all resolutions.
+     * <ul>
+     * <li>A user-defined scale applies for all resolutions.
      * <li>Depending on the resolution the original 12/16-bit images or the thumbnails are used.
-     * <li>Thumbnails may be in original 12/16-bit resolution or in 8-bit resolution. 
-     * This depends on settings specified in drop-box script as well as type of original image.
+     * <li>Thumbnails may be in original 12/16-bit resolution or in 8-bit resolution. This depends on settings specified in drop-box script as well as
+     * type of original image.
      * </ul>
-     * In 13.04.x we had some bugs because of this. This solution will also have some bugs but hopefully 
-     * less. The big refactoring in autumn 2014 was triggered by issues SOB-171 and SSDM-773 an related.
+     * In 13.04.x we had some bugs because of this. This solution will also have some bugs but hopefully less. The big refactoring in autumn 2014 was
+     * triggered by issues SOB-171 and SSDM-773 an related.
      */
     private static BufferedImage calculateAndTransformSingleImageForDisplay(
             AbsoluteImageReference imageReference, ImageTransformationParams transformationInfo,
@@ -457,7 +459,7 @@ public class ImageChannelsUtils
         }
         Pixels pixels = DssScreeningUtils.createPixels(image);
         float thresholdValue = getThresholdValue(threshold);
-        Channel[] channelsForComputation = pixels.getPixelData().length == 1 ? new Channel[] {Channel.RED} : channels;
+        Channel[] channelsForComputation = pixels.getPixelData().length == 1 ? new Channel[] { Channel.RED } : channels;
         Levels levels = IntensityRescaling.computeLevels(pixels, thresholdValue, channelsForComputation);
         return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels, channelsForComputation);
     }
@@ -466,7 +468,7 @@ public class ImageChannelsUtils
     {
         return threshold == null ? ImageUtil.DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR : threshold;
     }
-    
+
     public static BufferedImage transformGrayToColor(BufferedImage image, final ChannelColorRGB channelColor)
     {
         Channel channel = ImageUtil.getRepresentativeChannelIfEffectiveGray(image);
@@ -476,7 +478,7 @@ public class ImageChannelsUtils
         }
         return transformColor(image, createColorTransformation(channel, channelColor));
     }
-    
+
     private static BufferedImage resize(BufferedImage image, RequestedImageSize requestedSize)
     {
         Size size = requestedSize.tryGetThumbnailSize();
@@ -525,10 +527,10 @@ public class ImageChannelsUtils
     /**
      * Creates a colored image by merging at least two gray images. This done by the following steps:
      * <ol>
-     * <li>The images are loaded a processed similar to {@link #calculateAndTransformSingleImageForDisplay(AbsoluteImageReference, ImageTransformationParams, Float)}.
+     * <li>The images are loaded a processed similar to
+     * {@link #calculateAndTransformSingleImageForDisplay(AbsoluteImageReference, ImageTransformationParams, Float)}.
      * <li>The processed images (colored gray 8-bit images) are merged.
-     * <li>The merged image is transformed either by a transformation found in imaging database or
-     * by an intensity range re-scaling transformation. 
+     * <li>The merged image is transformed either by a transformation found in imaging database or by an intensity range re-scaling transformation.
      * </ol>
      * 
      * @see #calculateAndTransformSingleImageForDisplay(AbsoluteImageReference, ImageTransformationParams, Float)
@@ -545,18 +547,18 @@ public class ImageChannelsUtils
         }
         calculateImagesForMerging(images, transformationInfo);
         BufferedImage mergedImage = mergeImages(images);
-        
+
         // non-user transformation - apply color range fix after mixing
         Map<String, String> transMap = transformationInfo.tryGetTransformationCodeForChannels();
         IImageTransformerFactory channelTransformation = mergedChannelTransformationOrNull;
-        if ((transMap == null || transMap.isEmpty()) && channelTransformation == null) 
+        if ((transMap == null || transMap.isEmpty()) && channelTransformation == null)
         {
             Levels levels = IntensityRescaling.computeLevels(DssScreeningUtils.createPixels(mergedImage), 30);
             int minLevel = levels.getMinLevel();
             int maxLevel = levels.getMaxLevel();
             channelTransformation = new IntensityRangeImageTransformerFactory(minLevel, maxLevel);
         }
-        
+
         // NOTE: even if we are not merging all the channels but just few of them we use the
         // merged-channel transformation
         if (transformationInfo.isApplyNonImageLevelTransformation())
@@ -590,12 +592,11 @@ public class ImageChannelsUtils
         {
             applyNonImageLevelTransformation = transformationInfo.isApplyNonImageLevelTransformation();
         }
-        ImageTransformationParams info 
-                = new ImageTransformationParams(applyNonImageLevelTransformation, false, transformationCode, null);
+        ImageTransformationParams info = new ImageTransformationParams(applyNonImageLevelTransformation, false, transformationCode, null);
         return transform(image, imageReference, info, 0f);
     }
 
-	private static BufferedImage transform(BufferedImage image,
+    private static BufferedImage transform(BufferedImage image,
             AbsoluteImageReference imageReference, ImageTransformationParams transformationInfo, Float threshold)
     {
         BufferedImage resultImage = image;
@@ -630,7 +631,7 @@ public class ImageChannelsUtils
             if (channelLevelTransformationOrNull == null)
             {
                 channelLevelTransformationOrNull = new AutoRescaleIntensityImageTransformerFactory(
-                                getThresholdValue(threshold));
+                        getThresholdValue(threshold));
             }
         }
         return applyImageTransformation(resultImage, channelLevelTransformationOrNull);
@@ -648,7 +649,7 @@ public class ImageChannelsUtils
         return transformedImage;
     }
 
-    private static List<ImageWithReference> calculateSingleImages(List<AbsoluteImageReference> imageContents, 
+    private static List<ImageWithReference> calculateSingleImages(List<AbsoluteImageReference> imageContents,
             IImageCalculator imageCalculator)
     {
         List<ImageWithReference> images = new ArrayList<ImageWithReference>();
@@ -659,7 +660,6 @@ public class ImageChannelsUtils
         }
         return images;
     }
-    
 
     // this method always returns RGB images, even if the input was in grayscale
     private static BufferedImage mergeImages(List<ImageWithReference> images)
@@ -739,9 +739,8 @@ public class ImageChannelsUtils
     }
 
     /**
-     * Draws overlay by computing the maximal color components (r,g,b) for each pixel. In this way
-     * both transparent and black pixels are not drawn. Useful when overlays are saved in a format
-     * which does not support transparency.
+     * Draws overlay by computing the maximal color components (r,g,b) for each pixel. In this way both transparent and black pixels are not drawn.
+     * Useful when overlays are saved in a format which does not support transparency.
      */
     private static void drawOverlaySlow(BufferedImage image, BufferedImage overlayImage)
     {
@@ -803,7 +802,7 @@ public class ImageChannelsUtils
                 }
             });
     }
-    
+
     public static BufferedImage transformColor(BufferedImage bufferedImage, IColorTransformation transformation)
     {
         Pixels pixels = DssScreeningUtils.createPixels(bufferedImage);
@@ -828,7 +827,7 @@ public class ImageChannelsUtils
         }
         return newImage;
     }
-    
+
     private static IHierarchicalContentNode createPngContent(BufferedImage image, String nameOrNull)
     {
         final byte[] output = ImageUtil.imageToPngFast(image);
