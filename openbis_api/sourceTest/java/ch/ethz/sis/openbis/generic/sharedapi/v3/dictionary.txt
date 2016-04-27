@@ -1138,3 +1138,4 @@ Listable Sample Type Search Criteria
 is Listable
 Sample Type Search Criteria
 with Listable
+set Listable
