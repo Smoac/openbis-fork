@@ -82,13 +82,13 @@ public class ReportNodeDialog extends AbstractDescriptionBasedNodeDialog<ReportD
                 public void actionPerformed(ActionEvent e)
                 {
                     performAction(new IQueryFacadeAction()
-                    {
-                        @Override
-                        public void execute(IQueryApiFacade queryFacade)
                         {
-                            chooseDataSet(queryFacade);
-                        }
-                    });
+                            @Override
+                            public void execute(IQueryApiFacade queryFacade)
+                            {
+                                chooseDataSet(queryFacade);
+                            }
+                        });
                 }
             });
         textFieldWithButton.add(button, BorderLayout.EAST);
@@ -195,7 +195,7 @@ public class ReportNodeDialog extends AbstractDescriptionBasedNodeDialog<ReportD
             StringBuilder builder = new StringBuilder();
             for (DataSet dataSet : selectedDataSets)
             {
-                
+
                 if (builder.length() > 0)
                 {
                     builder.append(DELIMITER);
@@ -225,6 +225,6 @@ public class ReportNodeDialog extends AbstractDescriptionBasedNodeDialog<ReportD
             logger.info(dataSets.size() + " data sets of type " + dataSetType);
             allDataSets.addAll(dataSets);
         }
-        return allDataSets;        
+        return allDataSets;
     }
 }

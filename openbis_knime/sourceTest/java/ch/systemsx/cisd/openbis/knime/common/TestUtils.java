@@ -27,8 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TestUtils

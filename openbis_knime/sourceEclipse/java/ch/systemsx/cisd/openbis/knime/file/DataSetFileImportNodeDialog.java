@@ -65,8 +65,11 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
     }
 
     private JTextComponent dataSetCodeField;
+
     private JTextComponent filePathField;
+
     private JTextComponent downloadsPathField;
+
     private JCheckBox reuseCheckBox;
 
     DataSetFileImportNodeDialog()
@@ -116,7 +119,7 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
         northPanel.add(panel, BorderLayout.NORTH);
         queryPanel.add(northPanel, BorderLayout.CENTER);
     }
-    
+
     private JTextComponent createTextFieldWithButton(String label, ActionListener actionListener,
             JPanel panel)
     {
@@ -144,7 +147,7 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
             });
         return descriptions;
     }
-    
+
     @Override
     protected String getDescriptionKey()
     {
@@ -184,7 +187,7 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
             throw new InvalidSettingsException("Location of downloads hasn't been specified.");
         }
         settings.addString(DataSetFileImportNodeModel.DOWNLOADS_PATH_KEY, downloadsPath);
-        settings.addString(DataSetFileImportNodeModel.ABSOLUTE_FILE_PATH_KEY, 
+        settings.addString(DataSetFileImportNodeModel.ABSOLUTE_FILE_PATH_KEY,
                 downloadsPath + "/" + dataSetCode + "/" + filePath);
         settings.addBoolean(DataSetFileImportNodeModel.REUSE_FILE, reuseCheckBox.isSelected());
     }
@@ -206,7 +209,7 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
             showException(ex);
         }
     }
-    
+
     private void chooseDataSetFile()
     {
         final String dataSetCode = dataSetCodeField.getText();
@@ -221,20 +224,20 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
                 public FileInfoDssDTO[] load()
                 {
                     IOpenbisServiceFacade openbisFacade = createOpenbisFacade(createFacade().getSessionToken());
-                        ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet dataSet =
-                                openbisFacade.getDataSet(dataSetCode);
-                        if (dataSet == null)
-                        {
-                            throw new UserFailureException("Unknown data set: " + dataSetCode);
-                        }
-                        return dataSet.listFiles("", true);
+                    ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet dataSet =
+                            openbisFacade.getDataSet(dataSetCode);
+                    if (dataSet == null)
+                    {
+                        throw new UserFailureException("Unknown data set: " + dataSetCode);
+                    }
+                    return dataSet.listFiles("", true);
                 }
-                
+
                 @Override
                 public void build(FileInfoDssDTO[] files)
                 {
                     FileChooser fileChooser = new FileChooser(dataSetCode, files);
-                    int result = JOptionPane.showOptionDialog(getPanel(), fileChooser, "Data Set File Chooser", 
+                    int result = JOptionPane.showOptionDialog(getPanel(), fileChooser, "Data Set File Chooser",
                             JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
                     FileInfoDssDTO fileInfo = fileChooser.getSelectedFileInfoOrNull();
                     if (fileInfo != null && fileInfo.getPathInListing() != null
@@ -264,5 +267,5 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
             downloadsPathField.setText(selectedFile.getPath());
         }
     }
-    
+
 }

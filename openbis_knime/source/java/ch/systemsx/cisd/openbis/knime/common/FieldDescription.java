@@ -28,7 +28,9 @@ import ch.systemsx.cisd.openbis.knime.server.FieldType;
 public class FieldDescription
 {
     private final String name;
+
     private final FieldType fieldType;
+
     private final String fieldParameters;
 
     public FieldDescription(String name, FieldType fieldType, String fieldParameters)
@@ -58,5 +60,5 @@ public class FieldDescription
     {
         return name + ":" + fieldType + (StringUtils.isBlank(fieldParameters) ? "" : "[" + fieldParameters + "]");
     }
-    
+
 }

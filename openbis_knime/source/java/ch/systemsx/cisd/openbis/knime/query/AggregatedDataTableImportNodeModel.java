@@ -28,13 +28,12 @@ import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class AggregatedDataTableImportNodeModel extends AbstractOpenBisNodeTableModel
 {
     private AggregatedDataImportDescription description;
+
     private ParameterBindings parameterBindings = new ParameterBindings();
 
     @Override
@@ -49,7 +48,7 @@ public class AggregatedDataTableImportNodeModel extends AbstractOpenBisNodeTable
     @Override
     protected void saveAdditionalSettingsTo(NodeSettingsWO settings)
     {
-        settings.addByteArray(AggregatedDataImportDescription.AGGREGATION_DESCRIPTION_KEY, 
+        settings.addByteArray(AggregatedDataImportDescription.AGGREGATION_DESCRIPTION_KEY,
                 Util.serializeDescription(description));
         parameterBindings.saveSettingsTo(settings);
     }

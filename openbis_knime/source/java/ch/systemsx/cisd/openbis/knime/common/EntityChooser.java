@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 
 /**
- * Helper class showing a dialog for choosing a data set owner. 
+ * Helper class showing a dialog for choosing a data set owner.
  *
  * @author Franz-Josef Elmer
  */
@@ -60,26 +60,27 @@ public class EntityChooser
         private static final class DecoratedIcon implements Icon
         {
             private final Icon icon;
+
             private final String text;
-            
+
             DecoratedIcon(Icon icon, ChooserTreeNodeType type)
             {
                 this.icon = icon;
                 this.text = type.getLabel();
             }
-            
+
             @Override
             public int getIconHeight()
             {
                 return icon.getIconHeight();
             }
-            
+
             @Override
             public int getIconWidth()
             {
                 return icon.getIconWidth();
             }
-            
+
             @Override
             public void paintIcon(Component c, Graphics g, int x, int y)
             {
@@ -95,7 +96,7 @@ public class EntityChooser
                 g.setFont(font);
             }
         }
-        
+
         private final TreeCellRenderer cellRenderer;
 
         private DecoratingTreeCellRenderer(TreeCellRenderer cellRenderer)
@@ -123,14 +124,18 @@ public class EntityChooser
         }
     }
 
-    
     private final DataSetOwnerType entityType;
+
     private final boolean ownerEntity;
+
     private final IGeneralInformationService service;
+
     private final Component component;
+
     private final String sessionToken;
+
     private final IAsyncNodeAction asyncNodeAction;
-    
+
     private String entityIdentifier;
 
     public EntityChooser(Component component, DataSetOwnerType entityType, boolean ownerEntity, String sessionToken,
@@ -143,7 +148,7 @@ public class EntityChooser
         this.service = service;
         this.asyncNodeAction = asyncNodeAction;
     }
-    
+
     public String getOwnerOrNull()
     {
         final JTree tree = new JTree();
@@ -187,8 +192,8 @@ public class EntityChooser
                 @Override
                 public void propertyChange(PropertyChangeEvent evt)
                 {
-                    if (evt.getSource() == optionPane 
-                            && JOptionPane.VALUE_PROPERTY.equals(evt.getPropertyName()) 
+                    if (evt.getSource() == optionPane
+                            && JOptionPane.VALUE_PROPERTY.equals(evt.getPropertyName())
                             && new Integer(JOptionPane.OK_OPTION).equals(evt.getNewValue()))
                     {
                         TreePath selectionPath = tree.getSelectionPath();
@@ -218,7 +223,7 @@ public class EntityChooser
                 {
                     chooserTreeModel.expandNode(event.getPath(), asyncNodeAction);
                 }
-                
+
                 @Override
                 public void treeCollapsed(TreeExpansionEvent event)
                 {
@@ -226,7 +231,7 @@ public class EntityChooser
                 }
             };
     }
-    
+
     private void setEntityIdentifier(JTree tree)
     {
         TreePath selectionPath = tree.getSelectionPath();
@@ -247,5 +252,5 @@ public class EntityChooser
             entityIdentifier = ((Experiment) nodeObject).getIdentifier();
         }
     }
-    
+
 }

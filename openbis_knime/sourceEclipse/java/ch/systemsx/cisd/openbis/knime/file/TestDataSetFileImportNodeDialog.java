@@ -30,8 +30,6 @@ import ch.systemsx.cisd.openbis.knime.common.AbstractTestNodeDialog;
 import ch.systemsx.cisd.openbis.knime.common.ParameterBindings;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TestDataSetFileImportNodeDialog extends AbstractTestNodeDialog
@@ -45,33 +43,33 @@ public class TestDataSetFileImportNodeDialog extends AbstractTestNodeDialog
     public NodeDialogPane create() throws NotConfigurableException
     {
         return new DataSetFileImportNodeDialog()
-        {
             {
-                NodeSettings settings = createSettings();
-                settings.addStringArray(ParameterBindings.PARAMETER_KEYS_KEY, new String[0]);
-                settings.addStringArray(ParameterBindings.PARAMETER_VALUES_KEY, new String[0]);
-                loadSettingsFrom(settings, (PortObjectSpec[]) null);
-            }
+                {
+                    NodeSettings settings = createSettings();
+                    settings.addStringArray(ParameterBindings.PARAMETER_KEYS_KEY, new String[0]);
+                    settings.addStringArray(ParameterBindings.PARAMETER_VALUES_KEY, new String[0]);
+                    loadSettingsFrom(settings, (PortObjectSpec[]) null);
+                }
 
-            @Override
-            protected String[] getUrls()
-            {
-                return new String[] {"http://localhost:8888"};
-            }
+                @Override
+                protected String[] getUrls()
+                {
+                    return new String[] { "http://localhost:8888" };
+                }
 
-            @Override
-            protected Collection<String> getAllCredentialsNames()
-            {
-                return Arrays.asList("test");
-            }
+                @Override
+                protected Collection<String> getAllCredentialsNames()
+                {
+                    return Arrays.asList("test");
+                }
 
-            @Override
-            protected ICredentials getCredentials()
-            {
-                return new Credentials("_", "test", "a");
-            }
-            
-        };
+                @Override
+                protected ICredentials getCredentials()
+                {
+                    return new Credentials("_", "test", "a");
+                }
+
+            };
     }
 
 }

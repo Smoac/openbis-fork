@@ -76,7 +76,7 @@ public class ChooserTreeModel extends DefaultTreeModel
             return getNodeObject();
         }
     }
-    
+
     private static final class SpaceNode implements IChooserTreeNode<String>
     {
         private final String spaceCode;
@@ -104,7 +104,7 @@ public class ChooserTreeModel extends DefaultTreeModel
             return getNodeObject();
         }
     }
-    
+
     private static final class ProjectNode implements IChooserTreeNode<Project>
     {
         private final Project project;
@@ -132,7 +132,7 @@ public class ChooserTreeModel extends DefaultTreeModel
             return project.getCode();
         }
     }
-    
+
     private static final class ExperimentNode implements IChooserTreeNode<Experiment>
     {
         private final Experiment experiment;
@@ -160,7 +160,7 @@ public class ChooserTreeModel extends DefaultTreeModel
             return experiment.getCode();
         }
     }
-    
+
     private static final class SampleNode implements IChooserTreeNode<Sample>
     {
         private final Sample sample;
@@ -188,38 +188,39 @@ public class ChooserTreeModel extends DefaultTreeModel
             return sample.getIdentifier();
         }
     }
-    
+
     private static final class DataSetNode implements IChooserTreeNode<DataSet>
     {
         private final DataSet dataSet;
-        
+
         DataSetNode(DataSet dataSet)
         {
             this.dataSet = dataSet;
         }
-        
+
         @Override
         public ChooserTreeNodeType getNodeType()
         {
             return ChooserTreeNodeType.DATA_SET;
         }
-        
+
         @Override
         public DataSet getNodeObject()
         {
             return dataSet;
         }
-        
+
         @Override
         public String toString()
         {
             return dataSet.getCode();
         }
     }
-    
+
     private static final class SamplesAndProjects
     {
         private final List<Sample> samples;
+
         private final List<Project> projects;
 
         SamplesAndProjects(List<Sample> samples, List<Project> projects)
@@ -238,10 +239,11 @@ public class ChooserTreeModel extends DefaultTreeModel
             return projects;
         }
     }
-    
+
     private static final class SamplesAndDataSets
     {
         private final List<Sample> samples;
+
         private final List<DataSet> dataSets;
 
         SamplesAndDataSets(List<Sample> samples, List<DataSet> dataSets)
@@ -297,10 +299,13 @@ public class ChooserTreeModel extends DefaultTreeModel
                 return ds1.getCode().compareTo(ds2.getCode());
             }
         };
-                        
+
     private final IGeneralInformationService service;
+
     private final DataSetOwnerType entityType;
+
     private final boolean ownerEntity;
+
     private final String sessionToken;
 
     private List<SampleType> sampleTypes;
@@ -357,13 +362,16 @@ public class ChooserTreeModel extends DefaultTreeModel
         ChooserTreeNodeType nodeType = treeNode.getNodeType();
         switch (entityType)
         {
-            case EXPERIMENT: return nodeType == ChooserTreeNodeType.EXPERIMENT;
-            case SAMPLE: return nodeType == ChooserTreeNodeType.SAMPLE;
-            case DATA_SET: return nodeType == ChooserTreeNodeType.DATA_SET;
+            case EXPERIMENT:
+                return nodeType == ChooserTreeNodeType.EXPERIMENT;
+            case SAMPLE:
+                return nodeType == ChooserTreeNodeType.SAMPLE;
+            case DATA_SET:
+                return nodeType == ChooserTreeNodeType.DATA_SET;
         }
         return false;
     }
-    
+
     public void collapsNode(TreePath path)
     {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
@@ -380,7 +388,7 @@ public class ChooserTreeModel extends DefaultTreeModel
             }
         }
     }
-    
+
     public void expandNode(TreePath path, IAsyncNodeAction action)
     {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
@@ -409,7 +417,7 @@ public class ChooserTreeModel extends DefaultTreeModel
             expandSampleNode(node, sample, action);
         }
     }
-    
+
     private void expandSpaceNode(final DefaultMutableTreeNode node, final String space, IAsyncNodeAction action)
     {
         executeAsync(new ILoadingBuildingAction<SamplesAndProjects>()
@@ -486,7 +494,7 @@ public class ChooserTreeModel extends DefaultTreeModel
                 }
             }, action);
     }
-    
+
     private void expandExperimentNode(final DefaultMutableTreeNode node, final Experiment experiment,
             IAsyncNodeAction action)
     {
@@ -599,7 +607,7 @@ public class ChooserTreeModel extends DefaultTreeModel
                 }
             }, action);
     }
-    
+
     private void addFilteredSamples(List<Sample> samples, List<Sample> samplesToAdd)
     {
         boolean isNotSample = entityType != DataSetOwnerType.SAMPLE;
@@ -616,7 +624,7 @@ public class ChooserTreeModel extends DefaultTreeModel
     {
         return ownerEntity == false && entityType == DataSetOwnerType.SAMPLE;
     }
-    
+
     private void addSampleAndDataSetNodes(DefaultMutableTreeNode node, SamplesAndDataSets data)
     {
         node.removeAllChildren();
@@ -632,7 +640,7 @@ public class ChooserTreeModel extends DefaultTreeModel
         }
         nodeStructureChanged(node);
     }
-    
+
     @SuppressWarnings("unchecked")
     private <T> T tryGetWrappedObject(Class<T> clazz, Object nodeObject)
     {
@@ -643,12 +651,12 @@ public class ChooserTreeModel extends DefaultTreeModel
         Object treeNode = ((IChooserTreeNode<?>) nodeObject).getNodeObject();
         return clazz.isInstance(treeNode) ? (T) treeNode : null;
     }
-    
+
     private DefaultMutableTreeNode createLoadingNode()
     {
         return new DefaultMutableTreeNode(LOADING_TEXT);
     }
-    
+
     private <T> void executeAsync(final ILoadingBuildingAction<T> loadingBuildingAction,
             final IAsyncNodeAction action)
     {

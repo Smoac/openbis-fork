@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.knime.common.ParameterBindings;
  */
 public class TestAggregatedDataTableImportNodeDialog extends AbstractTestNodeDialog
 {
-    
+
     public static void main(String[] args) throws NotConfigurableException
     {
         AbstractTestNodeDialog.createAndShow(new TestAggregatedDataTableImportNodeDialog());
@@ -57,7 +57,7 @@ public class TestAggregatedDataTableImportNodeDialog extends AbstractTestNodeDia
                 @Override
                 protected String[] getUrls()
                 {
-                    return new String[] {"http://localhost:8888"};
+                    return new String[] { "http://localhost:8888" };
                 }
 
                 @Override
@@ -71,7 +71,7 @@ public class TestAggregatedDataTableImportNodeDialog extends AbstractTestNodeDia
                 {
                     return new Credentials("_", "test", "a");
                 }
-                
+
             };
     }
 }

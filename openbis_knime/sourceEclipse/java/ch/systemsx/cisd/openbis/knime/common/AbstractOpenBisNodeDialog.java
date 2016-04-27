@@ -78,7 +78,9 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane implement
     private static final class Key
     {
         private final String url;
+
         private final String userID;
+
         private final String password;
 
         Key(String url, String userID, String password)
@@ -104,7 +106,7 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane implement
                     && String.valueOf(key.userID).equals(String.valueOf(userID))
                     && String.valueOf(key.password).equals(String.valueOf(password));
         }
-        
+
         @Override
         public int hashCode()
         {
@@ -114,13 +116,13 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane implement
             return result;
         }
     }
-    
+
     private Map<Key, IQueryApiFacade> facades = new HashMap<Key, IQueryApiFacade>();
 
     protected NodeLogger logger;
 
     private JComboBox urlField;
-    
+
     private JComboBox credentialsField;
 
     private JTextField userField;
@@ -128,12 +130,12 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane implement
     private JPasswordField passwordField;
 
     private final IOpenbisServiceFacadeFactory serviceFacadeFactory;
-    
+
     protected AbstractOpenBisNodeDialog(String tabTitle)
     {
         this(tabTitle, new OpenbisServiceFacadeFactory());
     }
-    
+
     protected AbstractOpenBisNodeDialog(String tabTitle, IOpenbisServiceFacadeFactory serviceFacadeFactory)
     {
         this.serviceFacadeFactory = serviceFacadeFactory;
@@ -291,7 +293,7 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane implement
 
     protected abstract void saveAdditionalSettingsTo(NodeSettingsWO settings)
             throws InvalidSettingsException;
-    
+
     private void connectServer()
     {
         performAction(new IQueryFacadeAction()
@@ -324,7 +326,7 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane implement
         }
         facades.clear();
     }
-    
+
     protected void performAction(final IQueryFacadeAction action)
     {
         performAction(new ILoadingBuildingAction<IQueryApiFacade>()
@@ -345,7 +347,7 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane implement
 
     protected <T> void performAction(ILoadingBuildingAction<T> loadingBuildingAction)
     {
-        new ActionExecutor().executeAsync(loadingBuildingAction, 
+        new ActionExecutor().executeAsync(loadingBuildingAction,
                 new DefaultAsyncNodeAction(AbstractOpenBisNodeDialog.this));
     }
 
@@ -402,7 +404,7 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane implement
         }
         return selectedItem.toString();
     }
-    
+
     protected ICredentials getCredentials()
     {
         Object selectedItem = credentialsField.getSelectedItem();
@@ -422,7 +424,7 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane implement
         }
         return getCredentialsProvider().get(selectedItem.toString());
     }
-    
+
     protected <T extends JComponent> T addField(Container panel, String label, T field)
     {
         return addField(panel, label, field, false);
@@ -435,7 +437,7 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane implement
         panel.add(field, createLast());
         return field;
     }
-    
+
     protected GridBagConstraints createLast()
     {
         GridBagConstraints last = createFirst();

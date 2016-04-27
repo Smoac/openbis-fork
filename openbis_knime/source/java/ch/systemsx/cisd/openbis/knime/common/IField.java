@@ -19,14 +19,15 @@ package ch.systemsx.cisd.openbis.knime.common;
 import javax.swing.JComponent;
 
 /**
- * Abstraction a GUI field with a String value. It is represented by a {@link JComponent}. 
+ * Abstraction a GUI field with a String value. It is represented by a {@link JComponent}.
  * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IField
 {
     public JComponent getComponent();
+
     public String getValue();
+
     public void setValue(String value);
 }

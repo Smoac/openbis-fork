@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.knime.common.OpenbisServiceFacadeFactory;
  */
 public class TestDataSetRegistrationNodeDialog extends AbstractTestNodeDialog
 {
-    
+
     public static void main(String[] args) throws NotConfigurableException
     {
         AbstractTestNodeDialog.createAndShow(new TestDataSetRegistrationNodeDialog());
@@ -52,10 +52,11 @@ public class TestDataSetRegistrationNodeDialog extends AbstractTestNodeDialog
                     NodeSettings settings = createSettings();
                     loadSettingsFrom(settings, (PortObjectSpec[]) null);
                 }
+
                 @Override
                 protected String[] getUrls()
                 {
-                    return new String[] {"http://localhost:8888"};
+                    return new String[] { "http://localhost:8888" };
                 }
 
                 @Override
@@ -79,8 +80,8 @@ public class TestDataSetRegistrationNodeDialog extends AbstractTestNodeDialog
                 @Override
                 protected Collection<FlowVariable> getFlowVariables()
                 {
-                    return Arrays.asList(new FlowVariable("answer", 42), 
-                            new FlowVariable("fname", "here/and/there"), 
+                    return Arrays.asList(new FlowVariable("answer", 42),
+                            new FlowVariable("fname", "here/and/there"),
                             new FlowVariable("file-name", "this/and/that"));
                 }
             };

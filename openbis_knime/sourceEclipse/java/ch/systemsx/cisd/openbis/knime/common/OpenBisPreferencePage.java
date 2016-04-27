@@ -44,7 +44,7 @@ public class OpenBisPreferencePage extends FieldEditorPreferencePage implements 
     {
         setPreferenceStore(KNIMECorePlugin.getDefault().getPreferenceStore());
     }
-    
+
     @Override
     protected void createFieldEditors()
     {
@@ -56,16 +56,16 @@ public class OpenBisPreferencePage extends FieldEditorPreferencePage implements 
                 {
                     return stringList.split("\n");
                 }
-                
+
                 @Override
                 protected String getNewInputObject()
                 {
-                    InputDialog inputDialog = new InputDialog(shell, "openBIS URL", 
+                    InputDialog inputDialog = new InputDialog(shell, "openBIS URL",
                             "Enter the base URL of an openBIS application server", "", null);
                     inputDialog.setBlockOnOpen(true);
                     return inputDialog.open() == InputDialog.OK ? inputDialog.getValue() : null;
                 }
-                
+
                 @Override
                 protected String createList(String[] items)
                 {

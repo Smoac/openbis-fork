@@ -29,13 +29,11 @@ import org.knime.core.node.workflow.ICredentials;
 import ch.systemsx.cisd.openbis.knime.common.AbstractTestNodeDialog;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TestReportNodeDialog extends AbstractTestNodeDialog
 {
-    
+
     public static void main(String[] args) throws NotConfigurableException
     {
         AbstractTestNodeDialog.createAndShow(new TestReportNodeDialog());

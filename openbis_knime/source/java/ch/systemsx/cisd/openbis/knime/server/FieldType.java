@@ -16,11 +16,9 @@
 
 package ch.systemsx.cisd.openbis.knime.server;
 
-
 /**
  * Enumeration of parameter field types.
  * 
- *
  * @author Franz-Josef Elmer
  */
 public enum FieldType

@@ -24,7 +24,7 @@ package ch.systemsx.cisd.openbis.knime.common;
 public enum ChooserTreeNodeType
 {
     ROOT(""), SPACE(""), PROJECT("P"), EXPERIMENT("E"), SAMPLE("S"), DATA_SET("DS");
-    
+
     private final String label;
 
     private ChooserTreeNodeType(String label)

@@ -19,11 +19,11 @@ package ch.systemsx.cisd.openbis.knime.common;
 /**
  * Two step action (done in different threads): an expensive load action and a fast build action.
  * 
- *
  * @author Franz-Josef Elmer
  */
 public interface ILoadingBuildingAction<T>
 {
     public T load();
+
     public void build(T data);
 }

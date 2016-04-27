@@ -61,31 +61,41 @@ import ch.systemsx.cisd.openbis.knime.common.Util;
 public class DataSetRegistrationNodeModel extends AbstractOpenBisNodeModel
 {
     static final String DATA_SET_TYPE_KEY = "data-set-type";
+
     static final String OWNER_TYPE_KEY = "owner-type";
+
     static final String OWNER_KEY = "owner";
+
     static final String FILE_VARIABLE_KEY = "file-variable";
+
     static final String PROPERTY_TYPE_CODES_KEY = "property-type-codes";
+
     static final String PROPERTY_VALUES_KEY = "property-values";
-    
+
     private final IOpenbisServiceFacadeFactory serviceFacadeFactory;
+
     private DataSetOwnerType ownerType;
+
     private String owner;
+
     private String fileVariable;
+
     private Map<String, String> properties;
+
     private DataSetType dataSetType;
 
     public DataSetRegistrationNodeModel(IOpenbisServiceFacadeFactory serviceFacadeFactory)
     {
         this(URIPortObject.class, serviceFacadeFactory);
     }
-    
-    protected DataSetRegistrationNodeModel(Class<? extends PortObject> portObjectClass, 
+
+    protected DataSetRegistrationNodeModel(Class<? extends PortObject> portObjectClass,
             IOpenbisServiceFacadeFactory serviceFacadeFactory)
     {
-        super(new PortType[] {new PortType(portObjectClass) },  new PortType[] {});
+        super(new PortType[] { new PortType(portObjectClass) }, new PortType[] {});
         this.serviceFacadeFactory = serviceFacadeFactory;
     }
-    
+
     @Override
     protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException
     {
@@ -114,7 +124,7 @@ public class DataSetRegistrationNodeModel extends AbstractOpenBisNodeModel
             throw new InvalidSettingsException("Corrupted properties: " + propertyTypeCodes.length
                     + " property type codes but " + propertyValues.length + " values.");
         }
-        Map<String, String> props = new HashMap<String, String>(); 
+        Map<String, String> props = new HashMap<String, String>();
         for (int i = 0; i < propertyTypeCodes.length; i++)
         {
             String propertyValue = propertyValues[i];
@@ -177,7 +187,7 @@ public class DataSetRegistrationNodeModel extends AbstractOpenBisNodeModel
                 builder.setDataSetOwnerIdentifier(getStringFlowVariable(variableName));
             } catch (NoSuchElementException ex)
             {
-                throw new IllegalArgumentException("Owner " + ownerType.toString().toLowerCase() 
+                throw new IllegalArgumentException("Owner " + ownerType.toString().toLowerCase()
                         + " hasn't been specified. Also flow variable '"
                         + variableName + "' is undefined.");
             }
@@ -238,11 +248,11 @@ public class DataSetRegistrationNodeModel extends AbstractOpenBisNodeModel
             }
         } catch (Exception ex)
         {
-            throw new IllegalArgumentException("Error for data set owner of type " + type.toString().toLowerCase() + " '"  
-                    + identifier +"': " + ex.getMessage(), ex);
+            throw new IllegalArgumentException("Error for data set owner of type " + type.toString().toLowerCase() + " '"
+                    + identifier + "': " + ex.getMessage(), ex);
         }
     }
-    
+
     private File getFirstFile(PortObject[] inObjects)
     {
         if (inObjects.length != 1)
@@ -280,7 +290,7 @@ public class DataSetRegistrationNodeModel extends AbstractOpenBisNodeModel
         }
         return file;
     }
-    
+
     protected Map<String, FlowVariable> getFlowVariables()
     {
         return getAvailableFlowVariables();

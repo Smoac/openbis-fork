@@ -36,7 +36,7 @@ public class AggregationCommand
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             AggregationCommand.class);
-    
+
     public final void handleRequest(Map<String, Object> parameters,
             ISimpleTableModelBuilderAdaptor tableBuilder)
     {
@@ -83,22 +83,20 @@ public class AggregationCommand
             }
         }
     }
-    
+
     /**
-     * Defines parameters and their type by using specified {@link ParameterDescriptionsBuilder}.
-     * Should be overwritten by subclasses.
+     * Defines parameters and their type by using specified {@link ParameterDescriptionsBuilder}. Should be overwritten by subclasses.
      */
     protected void defineParameters(ParameterDescriptionsBuilder parameters)
     {
     }
-    
+
     /**
-     * Aggregates data in tabular form based on specified parameter values.
-     * Should be overwritten by subclasses.
+     * Aggregates data in tabular form based on specified parameter values. Should be overwritten by subclasses.
      */
     protected void aggregate(Map<String, Object> parameters,
             ISimpleTableModelBuilderAdaptor tableBuilder)
     {
     }
-    
+
 }

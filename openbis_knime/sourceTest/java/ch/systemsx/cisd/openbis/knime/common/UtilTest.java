@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.translator.QueryTableModelTr
 public class UtilTest extends AssertJUnit
 {
     private BufferedAppender logRecorder;
-    
+
     private Mockery context;
 
     private IQueryApiFacade facade;
@@ -90,19 +90,19 @@ public class UtilTest extends AssertJUnit
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetFieldDescriptionsWithOneColumn()
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
         builder.addHeader(Constants.PARAMETER_DESCRIPTION_NAME_COLUMN);
         prepareCreateReport(builder);
-        
+
         assertGetFieldDescriptionsFailed("1 columns instead of 2");
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetFieldDescriptionsWithWrongColumns()
     {
@@ -110,12 +110,12 @@ public class UtilTest extends AssertJUnit
         builder.addHeader(Constants.PARAMETER_DESCRIPTION_NAME_COLUMN);
         builder.addHeader("blabla");
         prepareCreateReport(builder);
-        
+
         assertGetFieldDescriptionsFailed("2. column is 'blabla' instead of 'type'.");
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetFieldDescriptionsWithUnspecifiedName()
     {
@@ -124,12 +124,12 @@ public class UtilTest extends AssertJUnit
         builder.addHeader(Constants.PARAMETER_DESCRIPTION_TYPE_COLUMN);
         builder.addRow();
         prepareCreateReport(builder);
-        
+
         assertGetFieldDescriptionsFailed("Unspecified parameter name.");
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetFieldDescriptionsWithUnspecifiedType()
     {
@@ -141,14 +141,14 @@ public class UtilTest extends AssertJUnit
         row.setCell(Constants.PARAMETER_DESCRIPTION_NAME_COLUMN, "Greetings");
         row.setCell(Constants.PARAMETER_DESCRIPTION_TYPE_COLUMN, FieldType.VOCABULARY + ":Hi, Hello");
         prepareCreateReport(builder);
-        
+
         List<FieldDescription> fieldDescriptions = Util.getFieldDescriptions(facade, description, logger);
-        
+
         assertEquals("[Description:VARCHAR, Greetings:VOCABULARY[Hi, Hello]]", fieldDescriptions.toString());
         assertEquals("WARN  test - Unknown field type '' using VARCHAR instead.", logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
-    
+
     private void assertGetFieldDescriptionsFailed(String expectedMessage)
     {
         try
@@ -163,7 +163,6 @@ public class UtilTest extends AssertJUnit
                     expectedMessage, ex.getMessage());
         }
     }
-    
 
     private void prepareCreateReport(SimpleTableModelBuilder builder)
     {

@@ -53,9 +53,11 @@ public class FileChooser extends JPanel
     private static final class FileNode implements TreeNode
     {
         private final FileInfoDssDTO fileInfo;
+
         private final String fileName;
+
         private final List<FileNode> children;
-        
+
         private FileNode parent;
 
         FileNode(FileInfoDssDTO fileInfo)
@@ -70,19 +72,20 @@ public class FileChooser extends JPanel
         {
             return fileInfo.isDirectory();
         }
-        
+
         @Override
         public boolean isLeaf()
         {
             return fileInfo.isDirectory() == false;
         }
-        
+
         @Override
         public Enumeration<FileNode> children()
         {
             return new Enumeration<FileNode>()
                 {
                     Iterator<FileNode> iterator = children.iterator();
+
                     @Override
                     public boolean hasMoreElements()
                     {
@@ -120,7 +123,7 @@ public class FileChooser extends JPanel
         {
             return parent;
         }
-        
+
         void addChild(FileNode fileNode)
         {
             if (isLeaf() == false)
@@ -129,12 +132,12 @@ public class FileChooser extends JPanel
                 fileNode.parent = this;
             }
         }
-        
+
         FileInfoDssDTO getFileInfo()
         {
             return fileInfo;
         }
-        
+
         @Override
         public String toString()
         {
@@ -143,14 +146,14 @@ public class FileChooser extends JPanel
     }
 
     private static final long serialVersionUID = 1L;
-    
+
     private static String extractParentFileName(FileInfoDssDTO fileInfo)
     {
         String path = fileInfo.getPathInDataSet();
         int lastIndexOfPathSeparator = path.lastIndexOf('/');
         return lastIndexOfPathSeparator < 0 ? null : path.substring(0, lastIndexOfPathSeparator);
     }
-    
+
     private static String extractFileName(FileInfoDssDTO fileInfo)
     {
         String path = fileInfo.getPathInDataSet();
@@ -201,7 +204,7 @@ public class FileChooser extends JPanel
         add(new JScrollPane(tree), BorderLayout.CENTER);
         setPreferredSize(new Dimension(500, 700));
     }
-    
+
     private FileNode createTree(String dataSetCode, FileInfoDssDTO[] fileInfos)
     {
         Arrays.sort(fileInfos, new Comparator<FileInfoDssDTO>()
@@ -226,7 +229,7 @@ public class FileChooser extends JPanel
         }
         return root;
     }
- 
+
     FileInfoDssDTO getSelectedFileInfoOrNull()
     {
         TreePath selectionPath = tree.getSelectionPath();

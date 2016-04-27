@@ -34,13 +34,12 @@ import org.knime.core.node.port.PortObjectSpec;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractDescriptionBasedNodeDialog<D extends Serializable> extends AbstractOpenBisNodeDialog
 {
     private JComboBox descriptionComboBox;
+
     private FocusAdapter focusListener;
 
     protected AbstractDescriptionBasedNodeDialog(String tabTitle)
@@ -57,7 +56,7 @@ public abstract class AbstractDescriptionBasedNodeDialog<D extends Serializable>
                 @Override
                 public void focusGained(FocusEvent e)
                 {
-                    JOptionPane.showMessageDialog(descriptionComboBox, 
+                    JOptionPane.showMessageDialog(descriptionComboBox,
                             "Please, reconnect to openBIS to get all available " + getDescriptionKey() + ".");
                     descriptionComboBox.removeFocusListener(focusListener);
                 }
@@ -82,7 +81,7 @@ public abstract class AbstractDescriptionBasedNodeDialog<D extends Serializable>
             }
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     protected D getSelectedDescriptionOrNull()
     {
@@ -112,17 +111,16 @@ public abstract class AbstractDescriptionBasedNodeDialog<D extends Serializable>
         settings.addByteArray(getDescriptionKey(), bytes);
         saveMoreSettingsTo(settings);
     }
-    
+
     protected abstract void defineQueryForm(JPanel queryPanel, JComboBox comboBoxWithDescriptions);
 
     protected abstract List<D> getSortedDescriptions(IQueryApiFacade facade);
-    
+
     protected abstract String getDescriptionKey();
-    
-    
+
     protected abstract void loadMoreSettingsFrom(NodeSettingsRO settings, PortObjectSpec[] specs)
             throws NotConfigurableException;
-    
+
     protected abstract void saveMoreSettingsTo(NodeSettingsWO settings)
             throws InvalidSettingsException;
 }

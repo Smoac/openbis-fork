@@ -25,7 +25,7 @@ import javax.swing.JComponent;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Combo box with a list of String terms. 
+ * Combo box with a list of String terms.
  *
  * @author Franz-Josef Elmer
  */

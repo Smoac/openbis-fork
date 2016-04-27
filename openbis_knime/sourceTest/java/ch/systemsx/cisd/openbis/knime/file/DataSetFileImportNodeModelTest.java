@@ -61,19 +61,27 @@ import ch.systemsx.cisd.openbis.knime.common.IOpenbisServiceFacadeFactory;
 public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
 {
     private static final String FILE_PATH = "document.txt";
+
     private static final String DATA_SET_CODE = "DS-42";
+
     private static final String MY_PASSWORD = "my-password";
+
     private static final String MY_PASSWORD2 = "my-password2";
+
     private static final String CREDENTIALS_NAME = "my-credentials";
+
     private static final String USER = "albert";
+
     private static final String USER2 = "isaac";
+
     private static final String URL = "https://open.bis";
 
     private static final class Model extends DataSetFileImportNodeModel
     {
         private final Map<String, String> flowVariables = new TreeMap<String, String>();
+
         private final Map<String, ICredentials> credentialsMap = new HashMap<String, ICredentials>();
-        
+
         public Model(IOpenbisServiceFacadeFactory factory)
         {
             super(factory);
@@ -97,7 +105,7 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         {
             flowVariables.put(name, value);
         }
-        
+
         void addCredentials(String name, ICredentials credentials)
         {
             credentialsMap.put(name, credentials);
@@ -108,17 +116,17 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         {
             return credentialsMap.get(name);
         }
-        
+
         String getUrl()
         {
             return url;
         }
-        
+
         String getUserId()
         {
             return userID;
         }
-        
+
         String getPassword()
         {
             return password;
@@ -128,7 +136,7 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
     private Mockery context;
 
     private IOpenbisServiceFacadeFactory facadeFactory;
-    
+
     private Model model;
 
     private NodeSettingsRO nodeSettingsRO;
@@ -142,8 +150,9 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
     private IDataSetDss dataSetDss;
 
     private ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet metadata;
-    
+
     private DataSet dataSet;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -171,7 +180,7 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
                 {
                     allowing(dataSetDss).getCode();
                     will(returnValue(DATA_SET_CODE));
-                    
+
                     allowing(facade).getDataSet(DATA_SET_CODE);
                     will(returnValue(dataSet));
                 }
@@ -194,7 +203,7 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         prepareLoadSaveStringSetting(DataSetFileImportNodeModel.DATA_SET_CODE_KEY, DATA_SET_CODE);
         prepareLoadSaveStringSetting(DataSetFileImportNodeModel.FILE_PATH_KEY, FILE_PATH);
         prepareLoadSaveStringSetting(DataSetFileImportNodeModel.DOWNLOADS_PATH_KEY, workingDirectory.getAbsolutePath());
-        prepareSaveStringSetting(DataSetFileImportNodeModel.ABSOLUTE_FILE_PATH_KEY, 
+        prepareSaveStringSetting(DataSetFileImportNodeModel.ABSOLUTE_FILE_PATH_KEY,
                 new File(workingDirectory, DATA_SET_CODE + "/" + FILE_PATH).getAbsolutePath());
         context.checking(new Expectations()
             {
@@ -214,7 +223,7 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         assertEquals(MY_PASSWORD2, model.getPassword());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLoadingAndSavingSettingsWithUserAndPassword() throws InvalidSettingsException
     {
@@ -225,7 +234,7 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         prepareLoadSaveStringSetting(DataSetFileImportNodeModel.DATA_SET_CODE_KEY, DATA_SET_CODE);
         prepareLoadSaveStringSetting(DataSetFileImportNodeModel.FILE_PATH_KEY, FILE_PATH);
         prepareLoadSaveStringSetting(DataSetFileImportNodeModel.DOWNLOADS_PATH_KEY, workingDirectory.getAbsolutePath());
-        prepareSaveStringSetting(DataSetFileImportNodeModel.ABSOLUTE_FILE_PATH_KEY, 
+        prepareSaveStringSetting(DataSetFileImportNodeModel.ABSOLUTE_FILE_PATH_KEY,
                 new File(workingDirectory, DATA_SET_CODE + "/" + FILE_PATH).getAbsolutePath());
         context.checking(new Expectations()
             {
@@ -236,24 +245,24 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
                     one(nodeSettingsWO).addBoolean(DataSetFileImportNodeModel.REUSE_FILE, true);
                 }
             });
-        
+
         model.loadValidatedSettingsFrom(nodeSettingsRO);
         model.saveSettingsTo(nodeSettingsWO);
-        
+
         assertEquals(URL, model.getUrl());
         assertEquals(USER, model.getUserId());
         assertEquals(MY_PASSWORD, model.getPassword());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testConfigure() throws Exception
     {
         NodeSettings settings = createSettings();
         model.loadValidatedSettingsFrom(settings);
-        
+
         PortObjectSpec[] portSpecs = model.configure(null);
-        
+
         assertEquals("[text/plain]", ((URIPortObjectSpec) portSpecs[0])
                 .getFileExtensions().toString());
         assertEquals(1, portSpecs.length);
@@ -269,9 +278,9 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         File file = new File(workingDirectory, DATA_SET_CODE + "/" + FILE_PATH);
         file.getParentFile().mkdirs();
         FileUtilities.writeToFile(file, "hello world");
-        
+
         PortObject[] portObjects = model.execute(null, null);
-        
+
         URIPortObject uriPortObject = (URIPortObject) portObjects[0];
         assertEquals("[text/plain]", uriPortObject.getSpec().getFileExtensions().toString());
         List<URIContent> uriContents = uriPortObject.getURIContents();
@@ -280,7 +289,7 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         assertEquals(1, portObjects.length);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testExecuteReuseFileButFileDoesNotExist() throws Exception
     {
@@ -289,9 +298,9 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         model.loadValidatedSettingsFrom(settings);
         File file = new File(workingDirectory, DATA_SET_CODE + "/" + FILE_PATH);
         prepareGetDataSetFile(FILE_PATH, new ByteArrayInputStream("hello world".getBytes()));
-        
+
         PortObject[] portObjects = model.execute(null, null);
-        
+
         assertEquals("hello world", FileUtilities.loadToString(file).trim());
         URIPortObject uriPortObject = (URIPortObject) portObjects[0];
         assertEquals("[text/plain]", uriPortObject.getSpec().getFileExtensions().toString());
@@ -303,7 +312,7 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
                 model.flowVariables.toString());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testExecuteDoNotReuseFile() throws Exception
     {
@@ -323,7 +332,7 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         prepareGetDataSetFile(FILE_PATH, new ByteArrayInputStream(exampleContent.getBytes()));
 
         PortObject[] portObjects = model.execute(null, null);
-        
+
         assertEquals(exampleContent, FileUtilities.loadToString(file).trim());
         URIPortObject uriPortObject = (URIPortObject) portObjects[0];
         assertEquals("[text/plain]", uriPortObject.getSpec().getFileExtensions().toString());
@@ -333,7 +342,7 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         assertEquals(1, portObjects.length);
         context.assertIsSatisfied();
     }
-    
+
     private NodeSettings createSettings()
     {
         NodeSettings settings = new NodeSettings("test");
@@ -345,7 +354,7 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         settings.addString(DataSetFileImportNodeModel.DOWNLOADS_PATH_KEY, workingDirectory.getAbsolutePath());
         return settings;
     }
-    
+
     private void prepareGetDataSetFile(final String filePath, final InputStream inputStream)
     {
         context.checking(new Expectations()
@@ -353,15 +362,15 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
                 {
                     one(facadeFactory).createFacade(URL, USER, MY_PASSWORD);
                     will(returnValue(facade));
-                    
+
                     one(dataSetDss).getFile(filePath);
                     will(returnValue(inputStream));
-                    
+
                     one(facade).logout();
                 }
             });
     }
-    
+
     private void prepareLoadSaveStringSetting(final String key, final String value)
             throws InvalidSettingsException
     {

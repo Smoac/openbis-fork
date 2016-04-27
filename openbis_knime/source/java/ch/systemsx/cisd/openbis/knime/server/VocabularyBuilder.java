@@ -22,14 +22,14 @@ import java.util.Set;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IRowBuilderAdaptor;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class VocabularyBuilder
 {
     private final IRowBuilderAdaptor row;
+
     private final Set<String> terms = new HashSet<String>();
+
     private final StringBuilder termsBuilder = new StringBuilder();
 
     VocabularyBuilder(IRowBuilderAdaptor row)
@@ -37,7 +37,7 @@ public class VocabularyBuilder
         this.row = row;
         row.setCell(Constants.PARAMETER_DESCRIPTION_TYPE_COLUMN, FieldType.VOCABULARY.toString());
     }
-    
+
     public VocabularyBuilder term(String term)
     {
         if (terms.contains(term))
@@ -49,7 +49,7 @@ public class VocabularyBuilder
             termsBuilder.append(", ");
         }
         termsBuilder.append(term);
-        row.setCell(Constants.PARAMETER_DESCRIPTION_TYPE_COLUMN, 
+        row.setCell(Constants.PARAMETER_DESCRIPTION_TYPE_COLUMN,
                 FieldType.VOCABULARY + ":" + termsBuilder);
         return this;
     }

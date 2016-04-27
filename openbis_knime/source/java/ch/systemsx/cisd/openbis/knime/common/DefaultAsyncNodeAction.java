@@ -24,8 +24,6 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DefaultAsyncNodeAction implements IAsyncNodeAction

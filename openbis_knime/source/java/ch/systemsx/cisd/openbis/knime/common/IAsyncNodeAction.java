@@ -24,6 +24,6 @@ package ch.systemsx.cisd.openbis.knime.common;
 public interface IAsyncNodeAction
 {
     public void execute(Runnable runnable);
-    
+
     public void handleException(Throwable throwable);
 }

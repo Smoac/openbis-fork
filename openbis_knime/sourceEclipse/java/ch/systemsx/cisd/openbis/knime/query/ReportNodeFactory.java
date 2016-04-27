@@ -21,7 +21,7 @@ import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
 /**
- * Factory for {@link ReportNodeDialog} and {@link ReportNodeModel}. 
+ * Factory for {@link ReportNodeDialog} and {@link ReportNodeModel}.
  *
  * @author Franz-Josef Elmer
  */

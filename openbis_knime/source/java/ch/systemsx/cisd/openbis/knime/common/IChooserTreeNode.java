@@ -24,6 +24,6 @@ package ch.systemsx.cisd.openbis.knime.common;
 public interface IChooserTreeNode<T>
 {
     public ChooserTreeNodeType getNodeType();
-    
+
     public T getNodeObject();
 }

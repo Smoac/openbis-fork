@@ -39,11 +39,11 @@ public class OpenbisServiceFacadeFactory implements IOpenbisServiceFacadeFactory
     @Override
     public IOpenbisServiceFacade createFacade(String url, String sessionToken)
     {
-        IOpenbisServiceFacade facade = 
+        IOpenbisServiceFacade facade =
                 ch.systemsx.cisd.openbis.dss.client.api.v1.OpenbisServiceFacadeFactory.tryCreate(sessionToken, url, TIME_OUT);
         return check(facade, url);
     }
-    
+
     private IOpenbisServiceFacade check(IOpenbisServiceFacade facade, String url)
     {
         if (facade == null)

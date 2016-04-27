@@ -26,5 +26,6 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 public interface IOpenbisServiceFacadeFactory
 {
     public IOpenbisServiceFacade createFacade(String url, String userID, String password);
+
     public IOpenbisServiceFacade createFacade(String url, String sessionToken);
 }

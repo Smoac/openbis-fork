@@ -24,22 +24,22 @@ package ch.systemsx.cisd.openbis.knime.server;
 public class Constants
 {
     public static final String REQUEST_KEY = "_REQUEST_";
-    
+
     public static final String GET_PARAMETER_DESCRIPTIONS_REQUEST = "getParameterDescriptions";
-    
+
     public static final String EXCEPTION_COLUMN = "_EXCEPTION_";
-    
+
     public static final String STACK_TRACE_CLASS_COLUMN = "_STACK_TRACE_CLASS_";
-    
+
     public static final String STACK_TRACE_METHOD_NAME_COLUMN = "_STACK_TRACE_METHOD_NAME_";
-    
+
     public static final String STACK_TRACE_FILE_NAME_COLUMN = "_STACK_TRACE_FILE_NAME_";
-    
+
     public static final String STACK_TRACE_LINE_NUMBER_COLUMN = "_STACK_TRACE_LINE_NUMBER_";
-    
+
     public static final String PARAMETER_DESCRIPTION_NAME_COLUMN = "name";
-    
+
     public static final String PARAMETER_DESCRIPTION_TYPE_COLUMN = "type";
-    
+
     public static final String FILE_NAME_COLUMN = "filename";
 }

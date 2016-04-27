@@ -54,7 +54,7 @@ public class Util
 
     private static final String[] EXPECTED_COLUMNS = { Constants.PARAMETER_DESCRIPTION_NAME_COLUMN,
             Constants.PARAMETER_DESCRIPTION_TYPE_COLUMN };
-    
+
     public static <D extends Serializable> byte[] serializeDescription(D descriptionOrNull)
     {
         if (descriptionOrNull == null)
@@ -71,7 +71,7 @@ public class Util
             return null;
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     public static <D extends Serializable> D deserializeDescription(byte[] serializeDescriptionOrNull)
     {
@@ -88,7 +88,7 @@ public class Util
             return null;
         }
     }
-    
+
     public static List<FieldDescription> getFieldDescriptions(IQueryApiFacade facade,
             AggregatedDataImportDescription description, NodeLogger logger)
     {
@@ -163,9 +163,12 @@ public class Util
     {
         switch (dataType)
         {
-            case DOUBLE: return ColumnType.DOUBLE;
-            case LONG: return ColumnType.LONG;
-            default: return ColumnType.STRING;
+            case DOUBLE:
+                return ColumnType.DOUBLE;
+            case LONG:
+                return ColumnType.LONG;
+            default:
+                return ColumnType.STRING;
         }
     }
 
@@ -191,7 +194,7 @@ public class Util
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
-    
+
     public static QueryTableModel createReportFromAggregationService(IQueryApiFacade facade,
             ParameterBindings parameterBindings, AggregatedDataImportDescription description)
     {
@@ -211,7 +214,7 @@ public class Util
         assertNoError(result, description);
         return result;
     }
-    
+
     private static void assertNoError(QueryTableModel result, AggregatedDataImportDescription description)
     {
         List<QueryTableColumn> columns = result.getColumns();
@@ -250,8 +253,8 @@ public class Util
                 {
                     lineNumber = 0;
                 }
-                StackTraceElement stackTraceElement = new StackTraceElement(String.valueOf(row[1]), 
-                        String.valueOf(row[2]), String.valueOf(row[3]), 
+                StackTraceElement stackTraceElement = new StackTraceElement(String.valueOf(row[1]),
+                        String.valueOf(row[2]), String.valueOf(row[3]),
                         lineNumber);
                 stackTrace.add(stackTraceElement);
             }
@@ -275,8 +278,9 @@ public class Util
             int indexOfColon = toStringText.indexOf(":");
             return indexOfColon < 0 ? "" : toStringText.substring(indexOfColon + 1).trim();
         }
-        
+
         private final String toStringText;
+
         private ExceptionReplicate cause;
 
         ExceptionReplicate(String toStringText)
@@ -284,7 +288,7 @@ public class Util
             super(extractMessage(toStringText));
             this.toStringText = toStringText;
         }
-        
+
         public void setCause(ExceptionReplicate cause)
         {
             this.cause = cause;
@@ -295,7 +299,7 @@ public class Util
         {
             return cause;
         }
-        
+
         @Override
         public String toString()
         {

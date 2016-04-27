@@ -44,29 +44,28 @@ import ch.systemsx.cisd.openbis.knime.server.FieldType;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 
 /**
- * Abstract super class of node dialogs with a description and a set of parameters different
- * for each description.
+ * Abstract super class of node dialogs with a description and a set of parameters different for each description.
  *
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractParameterDescriptionBasedNodeDialog<D extends Serializable>  
-    extends AbstractDescriptionBasedNodeDialog<D>
+public abstract class AbstractParameterDescriptionBasedNodeDialog<D extends Serializable>
+        extends AbstractDescriptionBasedNodeDialog<D>
 {
     private ParameterBindings parameterBindings = new ParameterBindings();
 
     private Map<String, IField> parameterFields = new HashMap<String, IField>();
 
     private JPanel parametersPanel;
-    
+
     protected AbstractParameterDescriptionBasedNodeDialog(String tabTitle)
     {
         super(tabTitle);
     }
-    
+
     protected abstract List<FieldDescription> getFieldDescriptions(D description);
-    
+
     protected abstract String getDescriptionComboBoxLabel();
-    
+
     protected String getParametersSectionLabel()
     {
         return getDescriptionComboBoxLabel() + " Parameters";
@@ -171,7 +170,7 @@ public abstract class AbstractParameterDescriptionBasedNodeDialog<D extends Seri
                 return new TextField();
         }
     }
-    
+
     @Override
     protected void loadMoreSettingsFrom(NodeSettingsRO settings, PortObjectSpec[] specs)
             throws NotConfigurableException

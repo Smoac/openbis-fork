@@ -36,10 +36,9 @@ public class AggregationFileCommand extends AggregationCommand
         tableBuilder.addHeader(Constants.FILE_NAME_COLUMN);
         tableBuilder.addRow().setCell(Constants.FILE_NAME_COLUMN, fileName);
     }
-    
+
     /**
-     * Creates a file by aggregating data based on specified parameters.
-     * Should be overridden by subclasses.
+     * Creates a file by aggregating data based on specified parameters. Should be overridden by subclasses.
      * 
      * @return the file name.
      */

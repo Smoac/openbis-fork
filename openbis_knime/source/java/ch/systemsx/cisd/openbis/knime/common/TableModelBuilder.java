@@ -40,28 +40,29 @@ public class TableModelBuilder
     private static final class Column
     {
         private final String name;
+
         private final List<String> values = new ArrayList<String>();
 
         Column(String name)
         {
             this.name = name;
         }
-        
+
         String getName()
         {
             return name;
         }
-        
+
         int getSize()
         {
             return values.size();
         }
-        
+
         String getValue(int rowIndex)
         {
             return rowIndex < getSize() ? values.get(rowIndex) : "";
         }
-        
+
         void addValueAt(int rowIndex, String value)
         {
             while (values.size() < rowIndex)
@@ -82,7 +83,7 @@ public class TableModelBuilder
             }
             return true;
         }
-        
+
         boolean hasOnlyOneDistinctValue()
         {
             String distinctValue = null;
@@ -99,11 +100,11 @@ public class TableModelBuilder
             return true;
         }
     }
-    
+
     private static final class DataSetTableModel extends AbstractTableModel
     {
         private static final long serialVersionUID = 1L;
-        
+
         private final List<Column> columns;
 
         private DataSetTableModel(List<Column> columns)
@@ -148,13 +149,17 @@ public class TableModelBuilder
     }
 
     private final Column codeColumn = new Column("Code");
+
     private final Column typeColumn = new Column("Type");
+
     private final Column experimentColumn = new Column("Experiment");
+
     private final Column sampleColumn = new Column("Sample");
+
     private final Map<String, Column> propertyColumns = new HashMap<String, Column>();
-    
+
     private int numberOfAddedDataSets;
-    
+
     public TableModel getTableModel()
     {
         final List<Column> columns = new ArrayList<Column>(propertyColumns.values());
@@ -178,7 +183,7 @@ public class TableModelBuilder
         columns.add(0, codeColumn);
         return new DataSetTableModel(columns);
     }
-    
+
     public void add(DataSet dataSet)
     {
         codeColumn.addValueAt(numberOfAddedDataSets, dataSet.getCode());
@@ -200,5 +205,5 @@ public class TableModelBuilder
         }
         numberOfAddedDataSets++;
     }
-    
+
 }

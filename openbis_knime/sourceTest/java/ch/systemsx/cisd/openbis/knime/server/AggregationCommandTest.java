@@ -104,7 +104,7 @@ public class AggregationCommandTest extends AssertJUnit
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDefineParameters()
     {
@@ -130,28 +130,27 @@ public class AggregationCommandTest extends AssertJUnit
         assertEquals(null, command.recordedTableBuilder);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testAggregate()
     {
         MockAggregationCommand command = new MockAggregationCommand(null);
-        
+
         command.handleRequest(parameters, tableBuilder);
-        
+
         assertEquals(null, command.recordedParametersBuilder);
         assertSame(parameters, command.recordedParameters);
         assertSame(tableBuilder, command.recordedTableBuilder);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testAggregateFails()
     {
         final IllegalArgumentException nestedException = new IllegalArgumentException();
         final RuntimeException exception = new RuntimeException("Oohps!", nestedException);
         MockAggregationCommand command = new MockAggregationCommand(exception);
-        final List<TableModelColumnHeader> headers 
-                = new ArrayList<TableModelColumnHeader>(Arrays.asList(new TableModelColumnHeader()));
+        final List<TableModelColumnHeader> headers = new ArrayList<TableModelColumnHeader>(Arrays.asList(new TableModelColumnHeader()));
         List<ISerializableComparable> row = Arrays.<ISerializableComparable> asList(new StringTableCell("hi"));
         final List<TableModelRow> rows = new ArrayList<TableModelRow>(Arrays.asList(new TableModelRow(row)));
         final NamedSequence sequence = new NamedSequence("table");
@@ -160,7 +159,7 @@ public class AggregationCommandTest extends AssertJUnit
                 {
                     one(tableBuilder).getTableModel();
                     will(returnValue(new TableModel(headers, rows)));
-                    
+
                     one(tableBuilder).addHeader(Constants.EXCEPTION_COLUMN);
                     inSequence(sequence);
                     one(tableBuilder).addHeader(Constants.STACK_TRACE_CLASS_COLUMN);
@@ -171,7 +170,7 @@ public class AggregationCommandTest extends AssertJUnit
                     inSequence(sequence);
                     one(tableBuilder).addHeader(Constants.STACK_TRACE_LINE_NUMBER_COLUMN);
                     inSequence(sequence);
-                    
+
                     one(tableBuilder).addFullRow(exception.toString(), "", "", "", "");
                     inSequence(sequence);
                     for (StackTraceElement element : exception.getStackTrace())
@@ -190,9 +189,9 @@ public class AggregationCommandTest extends AssertJUnit
                     }
                 }
             });
-        
+
         command.handleRequest(parameters, tableBuilder);
-        
+
         assertEquals(0, headers.size());
         assertEquals(0, rows.size());
         context.assertIsSatisfied();

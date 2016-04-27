@@ -22,10 +22,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.knime.common.Util;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class UtilTest extends AssertJUnit
@@ -36,10 +33,10 @@ public class UtilTest extends AssertJUnit
     {
         QueryDescription queryDescription = new QueryDescription();
         queryDescription.setDescription("description");
-        
+
         byte[] serializedQueryDescription = Util.serializeDescription(queryDescription);
         QueryDescription deserializedQueryDescription = Util.deserializeDescription(serializedQueryDescription);
-        
+
         assertEquals(queryDescription.getDescription(), deserializedQueryDescription.getDescription());
     }
 

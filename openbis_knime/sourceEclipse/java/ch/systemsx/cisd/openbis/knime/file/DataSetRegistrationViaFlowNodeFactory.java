@@ -24,14 +24,12 @@ import ch.systemsx.cisd.openbis.knime.common.IOpenbisServiceFacadeFactory;
 import ch.systemsx.cisd.openbis.knime.common.OpenbisServiceFacadeFactory;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataSetRegistrationViaFlowNodeFactory extends NodeFactory<DataSetRegistrationViaFlowNodeModel>
 {
     private final IOpenbisServiceFacadeFactory factory = new OpenbisServiceFacadeFactory();
-    
+
     @Override
     protected NodeDialogPane createNodeDialogPane()
     {

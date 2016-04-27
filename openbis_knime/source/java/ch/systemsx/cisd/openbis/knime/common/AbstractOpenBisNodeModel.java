@@ -41,14 +41,21 @@ import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 public abstract class AbstractOpenBisNodeModel extends NodeModel
 {
     public static final String URL_KEY = "url";
+
     public static final String CREDENTIALS_KEY = "credentials";
+
     public static final String USER_KEY = "user";
+
     public static final String PASSWORD_KEY = "password";
-    
+
     protected NodeLogger logger;
+
     protected String url;
+
     protected String userID;
+
     protected String password;
+
     private String credentialsName;
 
     protected AbstractOpenBisNodeModel()
@@ -56,7 +63,7 @@ public abstract class AbstractOpenBisNodeModel extends NodeModel
         super(0, 1);
         logger = NodeLogger.getLogger(getClass());
     }
-    
+
     protected AbstractOpenBisNodeModel(PortType[] inPortTypes, PortType[] outPortTypes)
     {
         super(inPortTypes, outPortTypes);
@@ -113,7 +120,7 @@ public abstract class AbstractOpenBisNodeModel extends NodeModel
     protected void validateSettings(NodeSettingsRO settings) throws InvalidSettingsException
     {
     }
-    
+
     @Override
     protected void reset()
     {
@@ -127,7 +134,7 @@ public abstract class AbstractOpenBisNodeModel extends NodeModel
 
     @Override
     protected void loadInternals(File arg0, ExecutionMonitor arg1) throws IOException,
-    CanceledExecutionException
+            CanceledExecutionException
     {
     }
 
@@ -145,5 +152,5 @@ public abstract class AbstractOpenBisNodeModel extends NodeModel
     {
         pushFlowVariableString(name, value);
     }
-    
+
 }

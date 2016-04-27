@@ -66,11 +66,11 @@ enum ColumnType
     {
         this.dataType = dataType;
     }
-    
+
     public DataType getDataType()
     {
         return dataType;
     }
-    
+
     public abstract DataCell createCell(Serializable valueOrNull);
 }

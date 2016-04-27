@@ -30,17 +30,17 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 
 /**
- * One-line text field for an identifier for an entity of type Experiment, Sample or Data Set. 
- * An additional button allows to use {@link EntityChooser}.
+ * One-line text field for an identifier for an entity of type Experiment, Sample or Data Set. An additional button allows to use
+ * {@link EntityChooser}.
  * 
  * @author Franz-Josef Elmer
  */
 class EntityField implements IField
 {
     private final DataSetOwnerType ownerType;
-    
+
     private final IQueryApiFacadeProvider facadeProvider;
-    
+
     private final JPanel textFieldWithButton;
 
     private final JTextField ownerField;

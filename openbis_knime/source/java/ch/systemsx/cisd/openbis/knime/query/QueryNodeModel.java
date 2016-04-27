@@ -35,8 +35,9 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 public class QueryNodeModel extends AbstractOpenBisNodeTableModel
 {
     static final String QUERY_DESCRIPTION_KEY = "query-description";
-    
+
     private QueryDescription queryDescription;
+
     private ParameterBindings parameterBindings = new ParameterBindings();
 
     @Override
@@ -55,11 +56,11 @@ public class QueryNodeModel extends AbstractOpenBisNodeTableModel
                 .serializeDescription(queryDescription));
         parameterBindings.saveSettingsTo(settings);
     }
-    
+
     @Override
     protected QueryTableModel getData(IQueryApiFacade facade)
     {
         return facade.executeQuery(queryDescription.getId(), parameterBindings.getBindings());
     }
-    
+
 }

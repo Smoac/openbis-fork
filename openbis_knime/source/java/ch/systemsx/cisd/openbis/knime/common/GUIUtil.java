@@ -61,7 +61,7 @@ public class GUIUtil
         tableHeader.setDefaultRenderer(new TableCellRenderer()
             {
                 @Override
-                public Component getTableCellRendererComponent(JTable t, Object value, boolean isSelected, 
+                public Component getTableCellRendererComponent(JTable t, Object value, boolean isSelected,
                         boolean hasFocus, int row, int column)
                 {
                     Component component = renderer.getTableCellRendererComponent(t, value, isSelected, hasFocus, row, column);
@@ -109,7 +109,7 @@ public class GUIUtil
         }
         return result;
     }
-    
+
     private static TableModel createTableModel(final List<DataSet> dataSets)
     {
         TableModelBuilder builder = new TableModelBuilder();
@@ -119,23 +119,29 @@ public class GUIUtil
         }
         return builder.getTableModel();
     }
-    
+
     private static JTextField createFilterField(final TableRowSorter<TableModel> sorter)
     {
         final JTextField filterField = new JTextField();
-        filterField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                newFilter();
-            }
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                newFilter();
-            }
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                newFilter();
-            }
+        filterField.getDocument().addDocumentListener(new DocumentListener()
+            {
+                @Override
+                public void changedUpdate(DocumentEvent e)
+                {
+                    newFilter();
+                }
+
+                @Override
+                public void insertUpdate(DocumentEvent e)
+                {
+                    newFilter();
+                }
+
+                @Override
+                public void removeUpdate(DocumentEvent e)
+                {
+                    newFilter();
+                }
 
                 private void newFilter()
                 {
@@ -161,6 +167,5 @@ public class GUIUtil
             });
         return filterField;
     }
-
 
 }

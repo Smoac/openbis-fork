@@ -26,6 +26,6 @@ import javax.swing.JPanel;
 public interface IOpenBisNode
 {
     public void logError(Throwable throwable);
-    
+
     public JPanel getPanel();
 }

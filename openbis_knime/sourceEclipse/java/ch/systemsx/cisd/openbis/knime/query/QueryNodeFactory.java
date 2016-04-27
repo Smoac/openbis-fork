@@ -21,8 +21,6 @@ import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class QueryNodeFactory extends NodeFactory<QueryNodeModel>

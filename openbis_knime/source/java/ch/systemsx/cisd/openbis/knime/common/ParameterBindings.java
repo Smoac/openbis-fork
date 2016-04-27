@@ -37,25 +37,26 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 public class ParameterBindings
 {
     public static final String PARAMETER_KEYS_KEY = "query-parameter-keys";
+
     public static final String PARAMETER_VALUES_KEY = "query-parameter-values";
 
     private Map<String, String> bindings = new LinkedHashMap<String, String>();
-    
+
     public void removeAllBindings()
     {
         bindings.clear();
     }
-    
+
     public void bind(String parameter, String value)
     {
         bindings.put(parameter, value);
     }
-    
+
     public Map<String, String> getBindings()
     {
         return bindings;
     }
-    
+
     public String tryToGetBinding(String parameter)
     {
         return bindings.get(parameter);
@@ -79,7 +80,7 @@ public class ParameterBindings
             bindings.put(parameterKeys[i], parameterValues[i]);
         }
     }
-    
+
     public void saveSettingsTo(NodeSettingsWO settings)
     {
         List<String> parameterKeys = new ArrayList<String>(bindings.size());

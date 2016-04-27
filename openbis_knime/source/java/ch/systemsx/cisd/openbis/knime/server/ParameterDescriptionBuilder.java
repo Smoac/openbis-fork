@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.knime.server;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IRowBuilderAdaptor;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ParameterDescriptionBuilder
@@ -31,17 +29,17 @@ public class ParameterDescriptionBuilder
     {
         this.row = row;
     }
-    
+
     public void text()
     {
         row.setCell(Constants.PARAMETER_DESCRIPTION_TYPE_COLUMN, FieldType.VARCHAR.toString());
     }
-    
+
     public void experiment()
     {
         row.setCell(Constants.PARAMETER_DESCRIPTION_TYPE_COLUMN, FieldType.EXPERIMENT.toString());
     }
-    
+
     public void sample()
     {
         row.setCell(Constants.PARAMETER_DESCRIPTION_TYPE_COLUMN, FieldType.SAMPLE.toString());
@@ -51,8 +49,8 @@ public class ParameterDescriptionBuilder
     {
         row.setCell(Constants.PARAMETER_DESCRIPTION_TYPE_COLUMN, FieldType.DATA_SET.toString());
     }
-    
-    public VocabularyBuilder vocabulary(String...terms)
+
+    public VocabularyBuilder vocabulary(String... terms)
     {
         VocabularyBuilder vocabularyBuilder = new VocabularyBuilder(row);
         for (String term : terms)
@@ -61,5 +59,5 @@ public class ParameterDescriptionBuilder
         }
         return vocabularyBuilder;
     }
-    
+
 }

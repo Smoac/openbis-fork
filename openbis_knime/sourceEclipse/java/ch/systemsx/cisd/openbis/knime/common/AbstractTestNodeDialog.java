@@ -36,8 +36,6 @@ import ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeModel;
 import ch.systemsx.cisd.openbis.knime.common.Util;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractTestNodeDialog
@@ -51,7 +49,7 @@ public abstract class AbstractTestNodeDialog
                 Util.getEncryptedPassword("a".toCharArray()));
         return settings;
     }
-    
+
     public static void createAndShow(AbstractTestNodeDialog factory)
     {
         LogInitializer.init();
@@ -87,12 +85,15 @@ public abstract class AbstractTestNodeDialog
     }
 
     public abstract NodeDialogPane create() throws NotConfigurableException;
-    
+
     private static final class NodeManager
     {
         private final JPanel panel;
+
         private final AbstractTestNodeDialog nodeDialogFactory;
+
         private NodeDialogPane nodeDialog;
+
         private byte[] settings;
 
         NodeManager(JPanel panel, AbstractTestNodeDialog nodeDialogFactory)
@@ -100,7 +101,7 @@ public abstract class AbstractTestNodeDialog
             this.panel = panel;
             this.nodeDialogFactory = nodeDialogFactory;
         }
-        
+
         void createNode()
         {
             try
@@ -122,7 +123,7 @@ public abstract class AbstractTestNodeDialog
                 showMessage(ex);
             }
         }
-        
+
         void saveSettings()
         {
             try
@@ -136,7 +137,7 @@ public abstract class AbstractTestNodeDialog
                 showMessage(ex);
             }
         }
-        
+
         private void showMessage(Exception ex)
         {
             ex.printStackTrace();
@@ -144,6 +145,5 @@ public abstract class AbstractTestNodeDialog
             JOptionPane.showMessageDialog(component, ex.toString());
         }
     }
-
 
 }

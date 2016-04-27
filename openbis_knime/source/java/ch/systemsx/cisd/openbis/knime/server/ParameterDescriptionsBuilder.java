@@ -23,14 +23,12 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IRowBuilderA
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ParameterDescriptionsBuilder
 {
     private final ISimpleTableModelBuilderAdaptor tableBuilder;
-    
+
     private final Set<String> names = new HashSet<String>();
 
     ParameterDescriptionsBuilder(ISimpleTableModelBuilderAdaptor tableBuilder)
@@ -39,7 +37,7 @@ public class ParameterDescriptionsBuilder
         tableBuilder.addHeader(Constants.PARAMETER_DESCRIPTION_NAME_COLUMN);
         tableBuilder.addHeader(Constants.PARAMETER_DESCRIPTION_TYPE_COLUMN);
     }
-    
+
     public ParameterDescriptionBuilder parameter(String name)
     {
         if (names.contains(name))
@@ -51,5 +49,5 @@ public class ParameterDescriptionsBuilder
         row.setCell(Constants.PARAMETER_DESCRIPTION_NAME_COLUMN, name);
         return new ParameterDescriptionBuilder(row);
     }
-    
+
 }

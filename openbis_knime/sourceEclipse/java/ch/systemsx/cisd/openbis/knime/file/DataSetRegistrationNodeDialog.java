@@ -69,8 +69,6 @@ import ch.systemsx.cisd.openbis.knime.common.Util;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
@@ -78,18 +76,19 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
     private static final class ValidationHandler
     {
         private final StringBuilder builder = new StringBuilder();
+
         private final SimplePropertyValidator validator;
 
         ValidationHandler(SimplePropertyValidator validator)
         {
             this.validator = validator;
         }
-        
+
         String getErrorMessage()
         {
             return builder.toString();
         }
-        
+
         void validate(PropertyType propertyType, String value)
         {
             if (value == null || value.trim().length() == 0)
@@ -113,14 +112,14 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
                 }
             }
         }
-        
+
         private void addErrorMessage(PropertyType propertyType, String message)
         {
             builder.append("Invalid property '").append(propertyType.getLabel());
             builder.append("': ").append(message).append(".\n");
         }
     }
-    
+
     private static final class DataSetTypeAdapter
     {
         private final DataSetType dataSetType;
@@ -141,7 +140,7 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
             return dataSetType.getCode();
         }
     }
-    
+
     private static final class TermAdapter
     {
         private final VocabularyTerm vocabularyTerm;
@@ -198,7 +197,7 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
             {
                 return propertyType.getDataType() == DataTypeCode.BOOLEAN;
             }
-            
+
             @Override
             JComponent create(PropertyType propertyType, String valueOrNull)
             {
@@ -214,7 +213,7 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
             {
                 return true;
             }
-            
+
             @Override
             JComponent create(PropertyType propertyType, String valueOrNull)
             {
@@ -227,17 +226,22 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
             }
         },
         ;
-        
+
         abstract boolean canCreate(PropertyType propertyType);
-        
+
         abstract JComponent create(PropertyType propertyType, String valueOrNull);
     }
-    
+
     private JComboBox ownerTypeComboBox;
+
     private JTextField ownerField;
+
     private JComboBox fileVariableComboBox;
+
     private JComboBox dataSetTypeComboBox;
+
     private Map<String, JComponent> propertyFieldRepository = new HashMap<String, JComponent>();
+
     private Map<String, JComponent> propertyFields = new HashMap<String, JComponent>();
 
     private JComponent propertiesLabel;
@@ -262,7 +266,7 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
                 }
             });
         addField(fields, "Owner type", ownerTypeComboBox)
-            .setToolTipText("The type of entity the new data set will directly be linked to.");
+                .setToolTipText("The type of entity the new data set will directly be linked to.");
         ownerField = new JTextField(20);
         setOwnerToolTip();
         JPanel textFieldWithButton = new JPanel(new BorderLayout());
@@ -299,21 +303,27 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
         fields.add(propertiesLabel, createLast());
         queryPanel.add(fields, BorderLayout.NORTH);
     }
-    
+
     protected boolean withFileVariable()
     {
         return false;
     }
-    
+
     private void setOwnerToolTip()
     {
         DataSetOwnerType ownerType = getSelectedOwnerType();
         String ownerTypeName = null;
         switch (ownerType)
         {
-            case EXPERIMENT: ownerTypeName = "an experiment"; break;
-            case SAMPLE: ownerTypeName = "a sample"; break;
-            case DATA_SET: ownerTypeName = "a data set"; break;
+            case EXPERIMENT:
+                ownerTypeName = "an experiment";
+                break;
+            case SAMPLE:
+                ownerTypeName = "a sample";
+                break;
+            case DATA_SET:
+                ownerTypeName = "a data set";
+                break;
         }
         ownerField.setToolTipText("Choose " + ownerTypeName + " or keep it empty if flow variable "
                 + Util.VARIABLE_PREFIX + ownerType.name() + " should be used.");
@@ -323,7 +333,7 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
     {
         return (DataSetOwnerType) ownerTypeComboBox.getSelectedItem();
     }
-    
+
     private void chooseOwner(IQueryApiFacade facade)
     {
         DataSetOwnerType ownerType = getSelectedOwnerType();
@@ -386,7 +396,7 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
             changeDataSetType(dataSetTypes.get(index), new HashMap<String, String>());
         }
     }
-    
+
     private void changeDataSetType(DataSetType dataSetType, Map<String, String> properties)
     {
         Container parent = propertiesLabel.getParent();
@@ -423,7 +433,7 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
         }
         parent.validate();
     }
-    
+
     private JComponent getField(PropertyType propertyType, String valueOrNull)
     {
         JComponent field = propertyFieldRepository.get(propertyType.getCode());
@@ -443,7 +453,7 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
         }
         return field;
     }
-        
+
     @Override
     protected void loadAdditionalSettingsFrom(NodeSettingsRO settings, PortObjectSpec[] specs)
             throws NotConfigurableException
@@ -487,7 +497,7 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
     {
         return getAvailableFlowVariables().values();
     }
-    
+
     @Override
     protected void saveAdditionalSettingsTo(NodeSettingsWO settings)
             throws InvalidSettingsException
@@ -551,7 +561,7 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
         settings.addStringArray(DataSetRegistrationNodeModel.PROPERTY_VALUES_KEY,
                 propertyValues.toArray(new String[0]));
     }
-    
+
     private Map<String, PropertyType> getPropertyTypes(DataSetType dataSetType)
     {
         List<PropertyTypeGroup> propertyTypeGroups = dataSetType.getPropertyTypeGroups();

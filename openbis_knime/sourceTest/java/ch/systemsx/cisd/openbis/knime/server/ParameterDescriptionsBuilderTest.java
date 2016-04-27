@@ -27,8 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IRowBuilderA
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ParameterDescriptionsBuilderTest extends AssertJUnit
@@ -64,14 +62,14 @@ public class ParameterDescriptionsBuilderTest extends AssertJUnit
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testAddParameter()
     {
         prepareAddRow("Name");
-        
+
         builder.parameter("Name");
-        
+
         context.assertIsSatisfied();
     }
 
@@ -80,51 +78,51 @@ public class ParameterDescriptionsBuilderTest extends AssertJUnit
     {
         prepareAddRow("Variable");
         prepareSetType(FieldType.VARCHAR);
-        
+
         builder.parameter("Variable").text();
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testAddParameterOfTypeExperiment()
     {
         prepareAddRow("Variable");
         prepareSetType(FieldType.EXPERIMENT);
-        
+
         builder.parameter("Variable").experiment();
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testAddParameterOfTypeSample()
     {
         prepareAddRow("Variable");
         prepareSetType(FieldType.SAMPLE);
-        
+
         builder.parameter("Variable").sample();
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testAddParameterOfTypeDataSet()
     {
         prepareAddRow("Variable");
         prepareSetType(FieldType.DATA_SET);
-        
+
         builder.parameter("Variable").dataSet();
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testAddSameParameterTwice()
     {
         prepareAddRow("Variable");
         builder.parameter("Variable");
-        
+
         try
         {
             builder.parameter("Variable");
@@ -133,10 +131,10 @@ public class ParameterDescriptionsBuilderTest extends AssertJUnit
         {
             assertEquals("There is already a parameter with name 'Variable'.", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     private void prepareAddRow(final String parameterName)
     {
         context.checking(new Expectations()
@@ -144,12 +142,12 @@ public class ParameterDescriptionsBuilderTest extends AssertJUnit
                 {
                     one(tableBuilder).addRow();
                     will(returnValue(rowBuilder));
-                    
+
                     one(rowBuilder).setCell(Constants.PARAMETER_DESCRIPTION_NAME_COLUMN, parameterName);
                 }
             });
     }
-    
+
     private void prepareSetType(final FieldType fieldType)
     {
         context.checking(new Expectations()

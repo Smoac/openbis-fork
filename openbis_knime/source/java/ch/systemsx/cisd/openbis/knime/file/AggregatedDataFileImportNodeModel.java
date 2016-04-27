@@ -57,10 +57,11 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 public class AggregatedDataFileImportNodeModel extends AbstractOpenBisNodeModel
 {
     static final String FILE_PATH_FLOW_VARIABLE = "absolute-file-path";
-    
+
     private AggregatedDataImportDescription description;
+
     private ParameterBindings parameterBindings = new ParameterBindings();
-    
+
     public AggregatedDataFileImportNodeModel()
     {
         super(new PortType[] {}, new PortType[] { new PortType(URIPortObject.class) });
@@ -78,7 +79,7 @@ public class AggregatedDataFileImportNodeModel extends AbstractOpenBisNodeModel
     @Override
     protected void saveAdditionalSettingsTo(NodeSettingsWO settings)
     {
-        settings.addByteArray(AggregatedDataImportDescription.AGGREGATION_DESCRIPTION_KEY, 
+        settings.addByteArray(AggregatedDataImportDescription.AGGREGATION_DESCRIPTION_KEY,
                 Util.serializeDescription(description));
         parameterBindings.saveSettingsTo(settings);
     }
@@ -105,8 +106,8 @@ public class AggregatedDataFileImportNodeModel extends AbstractOpenBisNodeModel
             String type = createType(fileName);
             logger.info("Content MIME type: " + type);
             return new PortObject[]
-                { new URIPortObject(new URIPortObjectSpec(type), Arrays.asList(new URIContent(file
-                        .toURI(), type))) };
+            { new URIPortObject(new URIPortObjectSpec(type), Arrays.asList(new URIContent(file
+                    .toURI(), type))) };
         } finally
         {
             facade.logout();
@@ -149,7 +150,7 @@ public class AggregatedDataFileImportNodeModel extends AbstractOpenBisNodeModel
             IOUtils.closeQuietly(out);
         }
     }
-    
+
     private DataStore getDataStore(IQueryApiFacade facade)
     {
         String dataStoreCode = description.getAggregationServiceDescription().getDataStoreCode();

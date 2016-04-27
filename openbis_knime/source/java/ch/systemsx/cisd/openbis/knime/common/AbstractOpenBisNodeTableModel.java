@@ -35,15 +35,14 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumn;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 
 /**
- * Abstract super class of node models based on {@link QueryTableModel} objects returned
- * by {@link IQueryApiFacade}.
+ * Abstract super class of node models based on {@link QueryTableModel} objects returned by {@link IQueryApiFacade}.
  *
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractOpenBisNodeTableModel extends AbstractOpenBisNodeModel
 {
     protected abstract QueryTableModel getData(IQueryApiFacade facade);
-    
+
     @Override
     protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec)
             throws Exception
@@ -86,7 +85,7 @@ public abstract class AbstractOpenBisNodeTableModel extends AbstractOpenBisNodeM
                 container.addRowToTable(new DefaultRow(Integer.toString(i), cells));
             }
             container.close();
-            return new BufferedDataTable[] {container.getTable()};
+            return new BufferedDataTable[] { container.getTable() };
         } finally
         {
             facade.logout();

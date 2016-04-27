@@ -56,11 +56,11 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
     static final String DOWNLOADS_PATH_KEY = "downloads-path";
 
     static final String ABSOLUTE_FILE_PATH_KEY = "absolute-file-path";
-    
+
     static final String REUSE_FILE = "reuse-file";
 
     private final IOpenbisServiceFacadeFactory serviceFacadeFactory;
-    
+
     private String dataSetCode = "";
 
     private String filePath = "";
@@ -69,11 +69,10 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
 
     private boolean reuseFile;
 
-
     public DataSetFileImportNodeModel(IOpenbisServiceFacadeFactory serviceFacadeFactory)
     {
         super(new PortType[] {}, new PortType[]
-            { new PortType(URIPortObject.class) });
+        { new PortType(URIPortObject.class) });
         this.serviceFacadeFactory = serviceFacadeFactory;
     }
 
@@ -102,7 +101,7 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
     {
         String type = createType();
         return new PortObjectSpec[]
-            { new URIPortObjectSpec(type) };
+        { new URIPortObjectSpec(type) };
     }
 
     @Override
@@ -116,7 +115,7 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
         String type = createType();
         logger.info("Content MIME type: " + type);
         return new PortObject[]
-            { new URIPortObject(new URIPortObjectSpec(type), Arrays.asList(new URIContent(file.toURI(), type))) };
+        { new URIPortObject(new URIPortObjectSpec(type), Arrays.asList(new URIContent(file.toURI(), type))) };
     }
 
     private void downloadTo(File file) throws Exception
@@ -158,7 +157,7 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
             }
         }
     }
-    
+
     private void pushDataSetMetaDataToVariables(DataSet dataSet)
     {
         addFlowVariable(Util.VARIABLE_PREFIX + DataSetOwnerType.DATA_SET.name(),
@@ -172,7 +171,7 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
                     sampleIdentifierOrNull);
         }
     }
-    
+
     private String createType()
     {
         return MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(filePath);

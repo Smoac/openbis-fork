@@ -21,8 +21,6 @@ import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class AggregatedDataFileImportNodeFactory extends NodeFactory<AggregatedDataFileImportNodeModel>
@@ -32,7 +30,7 @@ public class AggregatedDataFileImportNodeFactory extends NodeFactory<AggregatedD
     {
         return new AggregatedDataFileImportNodeModel();
     }
-    
+
     @Override
     protected NodeDialogPane createNodeDialogPane()
     {

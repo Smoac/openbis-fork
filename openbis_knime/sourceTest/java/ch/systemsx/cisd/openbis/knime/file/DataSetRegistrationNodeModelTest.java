@@ -54,8 +54,6 @@ import ch.systemsx.cisd.openbis.knime.common.Util;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
@@ -63,9 +61,10 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
     private static final class MockDataSetRegistrationNodeModel extends DataSetRegistrationNodeModel
     {
         private final IQueryApiFacade queryFacade;
+
         private final Map<String, String> flowVariables;
 
-        public MockDataSetRegistrationNodeModel(IQueryApiFacade queryFacade, 
+        public MockDataSetRegistrationNodeModel(IQueryApiFacade queryFacade,
                 IOpenbisServiceFacadeFactory serviceFacadeFactory, Map<String, String> flowVariables)
         {
             super(serviceFacadeFactory);
@@ -90,17 +89,27 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
             return value;
         }
     }
-    
+
     private BufferedAppender logRecorder;
+
     private Mockery context;
+
     private IOpenbisServiceFacadeFactory facadeFactory;
+
     private IOpenbisServiceFacade serviceFacade;
+
     private IQueryApiFacade queryFacade;
+
     private MockDataSetRegistrationNodeModel model;
+
     private NodeSettingsRO nodeSettingsRO;
+
     private NodeSettingsWO nodeSettingsWO;
+
     private File file;
+
     private Map<String, String> flowVariables;
+
     private DataSetType dataSetType;
 
     @BeforeMethod
@@ -123,10 +132,10 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
                 {
                     allowing(nodeSettingsRO).getByteArray(DataSetRegistrationNodeModel.DATA_SET_TYPE_KEY, null);
                     will(returnValue(bytes));
-                    
+
                     allowing(facadeFactory).createFacade(null, null, null);
                     will(returnValue(serviceFacade));
-                    
+
                     allowing(queryFacade).logout();
                     allowing(serviceFacade).logout();
                 }
@@ -145,7 +154,7 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testSaveAdditionalSettingsTo() throws Exception
     {
@@ -164,12 +173,12 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
                     one(nodeSettingsWO).addStringArray(DataSetRegistrationNodeModel.PROPERTY_VALUES_KEY, "Albert");
                 }
             });
-        
+
         model.saveAdditionalSettingsTo(nodeSettingsWO);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testExecuteWithInvalidNumberOfInputPorts() throws Exception
     {
@@ -178,16 +187,16 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
         preparePropertyValues();
         model.loadAdditionalValidatedSettingsFrom(nodeSettingsRO);
         logRecorder.resetLogContent();
-        
+
         try
         {
-            model.execute(new PortObject[2] , null);
+            model.execute(new PortObject[2], null);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
             assertEquals("Expecting exactly one port instead of 2.", ex.getMessage());
         }
-        
+
         assertEquals("", logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
@@ -200,20 +209,20 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
         preparePropertyValues();
         model.loadAdditionalValidatedSettingsFrom(nodeSettingsRO);
         logRecorder.resetLogContent();
-        
+
         try
         {
-            model.execute(new PortObject[] {new ImagePortObject()}, null);
+            model.execute(new PortObject[] { new ImagePortObject() }, null);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
             assertEquals("Invalid port: " + ImagePortObject.class.getName() + ".", ex.getMessage());
         }
-        
+
         assertEquals("", logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testExecuteWithNoUriContent() throws Exception
     {
@@ -222,20 +231,20 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
         preparePropertyValues();
         model.loadAdditionalValidatedSettingsFrom(nodeSettingsRO);
         logRecorder.resetLogContent();
-        
+
         try
         {
-            model.execute(new PortObject[] {new URIPortObject(Arrays.<URIContent>asList())}, null);
+            model.execute(new PortObject[] { new URIPortObject(Arrays.<URIContent> asList()) }, null);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
             assertEquals("Expecting at least on URI in input port.", ex.getMessage());
         }
-        
+
         assertEquals("", logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testExecuteWithUnspecifiedFileVariable() throws Exception
     {
@@ -244,20 +253,20 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
         preparePropertyValues();
         model.loadAdditionalValidatedSettingsFrom(nodeSettingsRO);
         logRecorder.resetLogContent();
-        
+
         try
         {
-            model.execute(new PortObject[] {FlowVariablePortObject.INSTANCE}, null);
+            model.execute(new PortObject[] { FlowVariablePortObject.INSTANCE }, null);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
             assertEquals("Unspecified file variable.", ex.getMessage());
         }
-        
+
         assertEquals("", logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testExecuteForUnknownExperimentOwner() throws Exception
     {
@@ -279,13 +288,13 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
             model.execute(new PortObject[] { new URIPortObject(Arrays.asList(content)) }, null);
         } catch (IllegalArgumentException ex)
         {
-            assertEquals("Error for data set owner of type experiment " 
-            		+ "'/SPACE/PROJECT/EXPERIMENT1': Unknown experiment.", ex.getMessage());
+            assertEquals("Error for data set owner of type experiment "
+                    + "'/SPACE/PROJECT/EXPERIMENT1': Unknown experiment.", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testExecuteForExperimentOwner() throws Exception
     {
@@ -296,22 +305,22 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
         final RecordingMatcher<NewDataSetDTO> dataSetMatcher = new RecordingMatcher<NewDataSetDTO>();
         final RecordingMatcher<File> fileMatcher = new RecordingMatcher<File>();
         context.checking(new Expectations()
-        {
             {
-                one(serviceFacade).getExperiments(Arrays.asList("/SPACE/PROJECT/EXPERIMENT1"));
-                will(returnValue(Arrays.asList(TestUtils.experiment("/SPACE/PROJECT", "EXPERIMENT1"))));
-                
-                one(serviceFacade).putDataSet(with(dataSetMatcher), with(fileMatcher));
-            }
-        });
+                {
+                    one(serviceFacade).getExperiments(Arrays.asList("/SPACE/PROJECT/EXPERIMENT1"));
+                    will(returnValue(Arrays.asList(TestUtils.experiment("/SPACE/PROJECT", "EXPERIMENT1"))));
+
+                    one(serviceFacade).putDataSet(with(dataSetMatcher), with(fileMatcher));
+                }
+            });
         logRecorder.resetLogContent();
-        
+
         URIContent content = new URIContent(file.toURI(), "txt");
         URIContent content2 = new URIContent(file.getParentFile().toURI(), "txt");
-        model.execute(new PortObject[] {new URIPortObject(Arrays.asList(content, content2))}, null);
-        
+        model.execute(new PortObject[] { new URIPortObject(Arrays.asList(content, content2)) }, null);
+
         assertEquals("NewDataSetDTO[NewDataSetMetadataDTO[data set type=MY_TYPE,property GREETINGS=HI],"
-                + "NewDataSetDTO.DataSetOwner[Experiment,/SPACE/PROJECT/EXPERIMENT1]," 
+                + "NewDataSetDTO.DataSetOwner[Experiment,/SPACE/PROJECT/EXPERIMENT1],"
                 + "[FileInfoDssDTO[hello.txt,hello.txt,5]]]",
                 dataSetMatcher.recordedObject().toString());
         assertEquals(file.getAbsolutePath(), fileMatcher.recordedObject().getAbsolutePath());
@@ -321,7 +330,7 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
                 + file.getAbsolutePath(), logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testExecuteForUnknownSampleOwner() throws Exception
     {
@@ -343,13 +352,13 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
             model.execute(new PortObject[] { new URIPortObject(Arrays.asList(content)) }, null);
         } catch (IllegalArgumentException ex)
         {
-            assertEquals("Error for data set owner of type sample " 
+            assertEquals("Error for data set owner of type sample "
                     + "'/SPACE/SAMPLE1': Unknown sample.", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testExecuteForSampleOwnerNotLinkedToExperiment() throws Exception
     {
@@ -364,20 +373,20 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
                     will(returnValue(Arrays.asList(TestUtils.sample("T", "S", "S", null))));
                 }
             });
-        
+
         try
         {
             URIContent content = new URIContent(file.toURI(), "txt");
             model.execute(new PortObject[] { new URIPortObject(Arrays.asList(content)) }, null);
         } catch (IllegalArgumentException ex)
         {
-            assertEquals("Error for data set owner of type sample " 
+            assertEquals("Error for data set owner of type sample "
                     + "'/SPACE/SAMPLE1': Not directly linked to an experiment.", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testExecuteForSampleOwner() throws Exception
     {
@@ -392,15 +401,15 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
                 {
                     one(serviceFacade).getSamples(Arrays.asList("/SPACE/SAMPLE1"));
                     will(returnValue(Arrays.asList(TestUtils.sample("T", "S", "S", "/S/P/E"))));
-                    
+
                     one(serviceFacade).putDataSet(with(dataSetMatcher), with(fileMatcher));
                 }
             });
         logRecorder.resetLogContent();
-        
+
         URIContent content = new URIContent(file.toURI(), "txt");
-        model.execute(new PortObject[] {new URIPortObject(Arrays.asList(content))}, null);
-        
+        model.execute(new PortObject[] { new URIPortObject(Arrays.asList(content)) }, null);
+
         assertEquals("NewDataSetDTO[NewDataSetMetadataDTO[data set type=MY_TYPE],"
                 + "NewDataSetDTO.DataSetOwner[Sample,/SPACE/SAMPLE1],[FileInfoDssDTO[hello.txt,hello.txt,5]]]",
                 dataSetMatcher.recordedObject().toString());
@@ -409,7 +418,7 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
                 + file.getAbsolutePath(), logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testExecuteForSampleOwnerForFileFromFlowVariable() throws Exception
     {
@@ -430,9 +439,9 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
                 }
             });
         logRecorder.resetLogContent();
-        
-        model.execute(new PortObject[] {FlowVariablePortObject.INSTANCE}, null);
-        
+
+        model.execute(new PortObject[] { FlowVariablePortObject.INSTANCE }, null);
+
         assertEquals("NewDataSetDTO[NewDataSetMetadataDTO[data set type=MY_TYPE],"
                 + "NewDataSetDTO.DataSetOwner[Sample,/SPACE/SAMPLE1],[FileInfoDssDTO[hello.txt,hello.txt,5]]]",
                 dataSetMatcher.recordedObject().toString());
@@ -441,7 +450,7 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
                 + file.getAbsolutePath(), logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testExecuteForUnknownDataSetOwner() throws Exception
     {
@@ -463,13 +472,13 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
             model.execute(new PortObject[] { new URIPortObject(Arrays.asList(content)) }, null);
         } catch (IllegalArgumentException ex)
         {
-            assertEquals("Error for data set owner of type data set " 
+            assertEquals("Error for data set owner of type data set "
                     + "'DS1': Unknown data set.", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testExecuteForDataSetOwner() throws Exception
     {
@@ -489,10 +498,10 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
                 }
             });
         logRecorder.resetLogContent();
-        
+
         URIContent content = new URIContent(file.toURI(), "txt");
-        model.execute(new PortObject[] {new URIPortObject(Arrays.asList(content))}, null);
-        
+        model.execute(new PortObject[] { new URIPortObject(Arrays.asList(content)) }, null);
+
         assertEquals("NewDataSetDTO[NewDataSetMetadataDTO[data set type=MY_TYPE],"
                 + "NewDataSetDTO.DataSetOwner[Data Set,DS1],[FileInfoDssDTO[hello.txt,hello.txt,5]]]",
                 dataSetMatcher.recordedObject().toString());
@@ -501,7 +510,7 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
                 + file.getAbsolutePath(), logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testExecuteForUnspecifiedDataSetOwner() throws Exception
     {
@@ -517,13 +526,13 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
             model.execute(new PortObject[] { new URIPortObject(Arrays.asList(content)) }, null);
         } catch (IllegalArgumentException ex)
         {
-            assertEquals("Owner data set hasn't been specified. " 
-            		+ "Also flow variable 'openbis.DATA_SET' is undefined.", ex.getMessage());
+            assertEquals("Owner data set hasn't been specified. "
+                    + "Also flow variable 'openbis.DATA_SET' is undefined.", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testExecuteForDataSetOwnerSpecifiedByFlowVariable() throws Exception
     {
@@ -544,10 +553,10 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
             });
         flowVariables.put(Util.VARIABLE_PREFIX + DataSetOwnerType.DATA_SET.name(), "DS1");
         logRecorder.resetLogContent();
-        
+
         URIContent content = new URIContent(file.toURI(), "txt");
-        model.execute(new PortObject[] {new URIPortObject(Arrays.asList(content))}, null);
-        
+        model.execute(new PortObject[] { new URIPortObject(Arrays.asList(content)) }, null);
+
         assertEquals("NewDataSetDTO[NewDataSetMetadataDTO[data set type=MY_TYPE],"
                 + "NewDataSetDTO.DataSetOwner[Data Set,DS1],[FileInfoDssDTO[hello.txt,hello.txt,5]]]",
                 dataSetMatcher.recordedObject().toString());
@@ -556,13 +565,13 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
                 + file.getAbsolutePath(), logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
-    
+
     private void prepareOwnerAndType(DataSetOwnerType ownerType, String owner) throws InvalidSettingsException
     {
         prepareFileVariableOwnerAndType(ownerType, owner, null);
     }
-    
-    private void prepareFileVariableOwnerAndType(final DataSetOwnerType ownerType, final String owner, 
+
+    private void prepareFileVariableOwnerAndType(final DataSetOwnerType ownerType, final String owner,
             final String fileVariable) throws InvalidSettingsException
     {
         context.checking(new Expectations()
@@ -570,37 +579,37 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
                 {
                     one(nodeSettingsRO).getString(DataSetRegistrationNodeModel.OWNER_TYPE_KEY);
                     will(returnValue(ownerType == null ? null : ownerType.name()));
-                    
+
                     one(nodeSettingsRO).getString(DataSetRegistrationNodeModel.OWNER_KEY);
                     will(returnValue(owner));
-                    
+
                     one(nodeSettingsRO).getString(DataSetRegistrationNodeModel.FILE_VARIABLE_KEY, null);
                     will(returnValue(fileVariable));
                 }
             });
     }
-    
+
     private void preparePropertyTypeCodes(final String... propertyTypeCodes) throws InvalidSettingsException
     {
         context.checking(new Expectations()
             {
                 {
-                    one(nodeSettingsRO).getStringArray(DataSetRegistrationNodeModel.PROPERTY_TYPE_CODES_KEY, 
+                    one(nodeSettingsRO).getStringArray(DataSetRegistrationNodeModel.PROPERTY_TYPE_CODES_KEY,
                             new String[0]);
                     will(returnValue(propertyTypeCodes));
                 }
             });
     }
-    
+
     private void preparePropertyValues(final String... propertyValues) throws InvalidSettingsException
     {
         context.checking(new Expectations()
-        {
             {
-                one(nodeSettingsRO).getStringArray(DataSetRegistrationNodeModel.PROPERTY_VALUES_KEY, 
-                        new String[0]);
-                will(returnValue(propertyValues));
-            }
-        });
+                {
+                    one(nodeSettingsRO).getStringArray(DataSetRegistrationNodeModel.PROPERTY_VALUES_KEY,
+                            new String[0]);
+                    will(returnValue(propertyValues));
+                }
+            });
     }
 }

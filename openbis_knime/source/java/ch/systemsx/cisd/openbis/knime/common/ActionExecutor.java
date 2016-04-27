@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.knime.common;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ActionExecutor

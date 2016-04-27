@@ -28,8 +28,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDeta
 import ch.systemsx.cisd.openbis.knime.common.TableModelBuilder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TableModelBuilderTest extends AssertJUnit
@@ -63,7 +61,7 @@ public class TableModelBuilderTest extends AssertJUnit
         assertEquals("Code,Type,Sample,Experiment\n" + "1-2,A,/A/1,/A/B/C\n" + "1-3,B,,/A/B/D\n",
                 render(tableModel));
     }
-    
+
     private String render(TableModel tableModel)
     {
         StringBuilder builder = new StringBuilder();
@@ -92,48 +90,47 @@ public class TableModelBuilderTest extends AssertJUnit
         }
         return builder.toString();
     }
-    
+
     private static final class DataSetBuilder
     {
         private DataSetInitializer initializer = new DataSetInitializer();
-        
+
         DataSetBuilder(String code)
         {
             initializer.setCode(code);
             initializer.setRegistrationDetails(new EntityRegistrationDetails(
                     new EntityRegistrationDetailsInitializer()));
         }
-        
+
         DataSet getDataSet()
         {
             return new DataSet(initializer);
         }
-        
+
         DataSetBuilder type(String type)
         {
             initializer.setDataSetTypeCode(type);
             return this;
         }
-        
+
         DataSetBuilder sample(String sampleIdentifier)
         {
             initializer.setSampleIdentifierOrNull(sampleIdentifier);
             return this;
         }
-        
+
         DataSetBuilder experiment(String experimentIdentifier)
         {
             initializer.setExperimentIdentifier(experimentIdentifier);
             return this;
         }
-        
+
         DataSetBuilder property(String key, String value)
         {
             initializer.getProperties().put(key, value);
             return this;
         }
-        
-        
+
     }
 
 }
