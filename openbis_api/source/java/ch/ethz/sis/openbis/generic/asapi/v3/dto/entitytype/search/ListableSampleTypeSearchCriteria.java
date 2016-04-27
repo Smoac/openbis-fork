@@ -17,6 +17,11 @@ public class ListableSampleTypeSearchCriteria extends AbstractSearchCriteria
 
     public void thatEquals(boolean value)
     {
+        setListable(value);
+    }
+
+    public void setListable(boolean value)
+    {
         this.listable = value;
     }
 
@@ -24,7 +29,7 @@ public class ListableSampleTypeSearchCriteria extends AbstractSearchCriteria
     {
         return listable;
     }
-
+    
     @Override
     public String toString()
     {
