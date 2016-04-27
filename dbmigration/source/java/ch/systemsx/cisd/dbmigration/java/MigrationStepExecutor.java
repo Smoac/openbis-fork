@@ -31,8 +31,7 @@ import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 
 /**
- * Allows to extract {@link IMigrationStep} class from migration script and run the <i>pre</i>- and
- * <i>post</i>- migration java steps.<br>
+ * Allows to extract {@link IMigrationStep} class from migration script and run the <i>pre</i>- and <i>post</i>- migration java steps.<br>
  * Example of the script containing Java Migration Step definition:
  * 
  * <pre>

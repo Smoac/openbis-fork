@@ -200,8 +200,7 @@ public class DatabaseConfigurationContext implements DisposableBean
      * Returns user name of the administrator.
      * 
      * @return The default admin user of the database engine when undefined.
-     * @throws ConfigurationFailureException If neither the admin user nor the database engine are
-     *             defined.
+     * @throws ConfigurationFailureException If neither the admin user nor the database engine are defined.
      */
     private final String getAdminUser() throws ConfigurationFailureException
     {
@@ -260,8 +259,7 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Returns the basic name of the database. The kind of database will be added to this to create
-     * the full database name.
+     * Returns the basic name of the database. The kind of database will be added to this to create the full database name.
      */
     public String getBasicDatabaseName()
     {
@@ -271,8 +269,7 @@ public class DatabaseConfigurationContext implements DisposableBean
     /**
      * Returns data source for admin purposes.
      * 
-     * @throws ConfigurationFailureException If not all relevant information has been defined that
-     *             is needed for the admin data source.
+     * @throws ConfigurationFailureException If not all relevant information has been defined that is needed for the admin data source.
      */
     public final DataSource getAdminDataSource() throws ConfigurationFailureException
     {
@@ -294,8 +291,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Sets the user name of the owner of the database. If <var>owner</var> is <code>null</code> or
-     * empty, the OS user running the VM will be set instead.
+     * Sets the user name of the owner of the database. If <var>owner</var> is <code>null</code> or empty, the OS user running the VM will be set
+     * instead.
      */
     public final void setOwner(final String owner)
     {
@@ -309,9 +306,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Sets the name of group that gets read-only access to all database objects. If
-     * <var>readOnlyGroup</var> is <code>null</code> or empty, then no read-only group will be
-     * created.
+     * Sets the name of group that gets read-only access to all database objects. If <var>readOnlyGroup</var> is <code>null</code> or empty, then no
+     * read-only group will be created.
      */
     public String getReadOnlyGroup()
     {
@@ -327,9 +323,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Sets the name of group that gets read-write access to all database objects. If
-     * <var>readWriteGroup</var> is <code>null</code> or empty, then no read-write group will be
-     * created.
+     * Sets the name of group that gets read-write access to all database objects. If <var>readWriteGroup</var> is <code>null</code> or empty, then no
+     * read-write group will be created.
      */
     public String getReadWriteGroup()
     {
@@ -353,8 +348,7 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Sets the password part of the database credentials for the db owner. A <code>null</code>
-     * password will be replaced by an empty string.
+     * Sets the password part of the database credentials for the db owner. A <code>null</code> password will be replaced by an empty string.
      */
     public final void setPassword(final String password)
     {
@@ -370,8 +364,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     /**
      * Sets user name of the administrator.
      * 
-     * @param adminUser New value. Can be <code>null</code>. For convenience when using with Spring
-     *            property place holders, an empty string will be replaced by <code>null</code>.
+     * @param adminUser New value. Can be <code>null</code>. For convenience when using with Spring property place holders, an empty string will be
+     *            replaced by <code>null</code>.
      */
     public final void setAdminUser(final String adminUser)
     {
@@ -385,8 +379,7 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Sets the basic name of the database. The kind of database will be added to this to create the
-     * full database name.
+     * Sets the basic name of the database. The kind of database will be added to this to create the full database name.
      * 
      * @param basicDatabaseName The basic name of the database. Must not be <code>null</code>.
      */
@@ -423,9 +416,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Sets the host part of the URL. <var>urlHostPart</var> can be <code>null</code>. For
-     * convenience when using with Spring property place holders, an empty string will be replaced
-     * by <code>null</code>.
+     * Sets the host part of the URL. <var>urlHostPart</var> can be <code>null</code>. For convenience when using with Spring property place holders,
+     * an empty string will be replaced by <code>null</code>.
      */
     public final void setUrlHostPart(final String urlHostPart)
     {
@@ -445,9 +437,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * The maximum number of seconds that the pool will wait (when there are no available
-     * connections) for a connection to be returned before throwing an exception, or -1 (by default)
-     * to wait indefinitely.
+     * The maximum number of seconds that the pool will wait (when there are no available connections) for a connection to be returned before throwing
+     * an exception, or -1 (by default) to wait indefinitely.
      */
     public void setMaxWaitForConnectionProp(String maxWaitStr)
     {
@@ -469,8 +460,7 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Sets the maximum number of active connections that can be allocated at the same time (default
-     * is 20).
+     * Sets the maximum number of active connections that can be allocated at the same time (default is 20).
      */
     public void setMaxActiveConnectionsProp(String maxActiveStr)
     {
@@ -481,9 +471,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Set the interval (in seconds) between two regular log entries of currently active database
-     * connections if more than one connection is active. Set to a negative value to disable this
-     * feature.
+     * Set the interval (in seconds) between two regular log entries of currently active database connections if more than one connection is active.
+     * Set to a negative value to disable this feature.
      */
     public void setActiveConnectionsLogIntervalProp(String activeConnectionLogIntervalStr)
     {
@@ -554,8 +543,7 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Returns <code>true</code> if the current database should be dropped and (re)created from
-     * scratch.
+     * Returns <code>true</code> if the current database should be dropped and (re)created from scratch.
      * 
      * @return <code>false</code> when the database should only be migrated if necessary.
      */
@@ -584,9 +572,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Returns <code>true</code> if scripts in the db migration engine should be executed statement
-     * by statement. This mode gives better error messages on where the faulty SQL is but on the
-     * other hand it is a lot slower.
+     * Returns <code>true</code> if scripts in the db migration engine should be executed statement by statement. This mode gives better error
+     * messages on where the faulty SQL is but on the other hand it is a lot slower.
      */
     public final boolean isScriptSingleStepMode()
     {
@@ -613,8 +600,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Sets database kind. This will be append to the name of the database. It allows to have
-     * different database instances in parallel (for developing, testing, etc.).
+     * Sets database kind. This will be append to the name of the database. It allows to have different database instances in parallel (for
+     * developing, testing, etc.).
      * 
      * @param databaseKind New value. Can be <code>null</code>.
      */

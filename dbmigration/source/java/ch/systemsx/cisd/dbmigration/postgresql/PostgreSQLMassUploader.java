@@ -57,7 +57,7 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
             LogFactory.getLogger(LogCategory.OPERATION, PostgreSQLMassUploader.class);
 
     private final DataSource dataSourceOrNull;
-    
+
     private final Connection connectionOrNull;
 
     private CopyManager copyManager;

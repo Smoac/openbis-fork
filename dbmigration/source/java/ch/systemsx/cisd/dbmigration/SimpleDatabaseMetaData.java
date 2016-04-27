@@ -24,8 +24,7 @@ import java.util.Map;
 import ch.systemsx.cisd.common.reflection.AbstractHashable;
 
 /**
- * Immutable class for some meta data of a database. It holds the version of the database and a list
- * of {@link SimpleTableMetaData} for all tables.
+ * Immutable class for some meta data of a database. It holds the version of the database and a list of {@link SimpleTableMetaData} for all tables.
  * 
  * @author Franz-Josef Elmer
  */
@@ -33,7 +32,9 @@ public class SimpleDatabaseMetaData extends AbstractHashable
 {
 
     private final String databaseVersion;
+
     private final List<SimpleTableMetaData> tables;
+
     private final Map<String, SimpleTableMetaData> tableDictonary;
 
     /**
@@ -65,7 +66,7 @@ public class SimpleDatabaseMetaData extends AbstractHashable
     {
         return tables;
     }
-    
+
     /**
      * Returns the table meta data for the specified table name (upper and lower cases ignored).
      * 

@@ -45,7 +45,7 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     private long activeConnectionsLogIntervalMillis = DEFAULT_ACTIVE_CONNECTIONS_LOG_INTERVAL;
 
     private boolean maxIdleIsDefault = true;
-    
+
     //
     // IDataSourceFactory
     //
@@ -72,7 +72,7 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     {
         return maxWaitMillis;
     }
-    
+
     @Override
     public void setMaxWait(long maxWait)
     {
@@ -84,7 +84,7 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     {
         return maxIdle;
     }
-    
+
     @Override
     public void setMaxIdle(int maxIdle)
     {
@@ -97,7 +97,7 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     {
         return maxActive;
     }
-    
+
     @Override
     public void setMaxActive(int maxActive)
     {
@@ -113,7 +113,7 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     {
         return activeConnectionsLogIntervalMillis;
     }
-    
+
     @Override
     public void setActiveConnectionsLogInterval(long activeConnectionLogIntervalMillis)
     {

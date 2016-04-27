@@ -25,8 +25,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * A data source that performs monitoring of active connections to help track load and connection
- * leaks.
+ * A data source that performs monitoring of active connections to help track load and connection leaks.
  * 
  * @author Bernd Rinn
  */
@@ -50,8 +49,7 @@ public class MonitoringDataSource extends BasicDataSource
     }
 
     /**
-     * Returns the interval (in ms) between two regular log entries of currently active database
-     * connections if more than one connection is active.
+     * Returns the interval (in ms) between two regular log entries of currently active database connections if more than one connection is active.
      */
     public long getActiveConnectionsLogInterval()
     {
@@ -59,8 +57,7 @@ public class MonitoringDataSource extends BasicDataSource
     }
 
     /**
-     * Set the interval (in ms) between two regular log entries of currently active database
-     * connections if more than one connection is active.
+     * Set the interval (in ms) between two regular log entries of currently active database connections if more than one connection is active.
      */
     public void setActiveConnectionsLogInterval(long activeConnectionLogInterval)
     {

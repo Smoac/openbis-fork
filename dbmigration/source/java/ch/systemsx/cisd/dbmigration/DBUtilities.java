@@ -38,8 +38,7 @@ public final class DBUtilities
     }
 
     /**
-     * Checks whether given <code>DataAccessException</code> is caused by a "database does not
-     * exist" exception.
+     * Checks whether given <code>DataAccessException</code> is caused by a "database does not exist" exception.
      * <p>
      * This is database specific.
      * </p>
@@ -51,8 +50,7 @@ public final class DBUtilities
     }
 
     /**
-     * Checks whether given <code>DataAccessException</code> is caused by a "duplicate object"
-     * exception.
+     * Checks whether given <code>DataAccessException</code> is caused by a "duplicate object" exception.
      * <p>
      * This is database specific.
      * </p>

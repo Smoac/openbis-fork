@@ -83,8 +83,7 @@ public final class DBMigrationEngine
     /**
      * Creates an instance for the specified DAO factory and SQL script provider.
      * 
-     * @param shouldCreateFromScratch If <code>true</code> the database should be dropped and
-     *            created from scratch.
+     * @param shouldCreateFromScratch If <code>true</code> the database should be dropped and created from scratch.
      */
     public DBMigrationEngine(final IDAOFactory daoFactory, final ISqlScriptProvider scriptProvider,
             final boolean shouldCreateFromScratch)
@@ -102,8 +101,7 @@ public final class DBMigrationEngine
      * Create or migrate database to the specified version.
      * 
      * @throws ConfigurationFailureException If creation/migration fails due to a missing script
-     * @throws EnvironmentFailureException If creation/migration fails due to an inconsistent
-     *             database.
+     * @throws EnvironmentFailureException If creation/migration fails due to an inconsistent database.
      */
     public final void migrateTo(final String version)
     {
@@ -122,7 +120,8 @@ public final class DBMigrationEngine
         }
         final LogEntry entry = getAndCheckLastLogEntry();
         final String databaseVersion = entry.getVersion();
-        if ("0".equals(databaseVersion)) {
+        if ("0".equals(databaseVersion))
+        {
             executeSchemaScript(version);
             fillWithInitialData(version);
             return;

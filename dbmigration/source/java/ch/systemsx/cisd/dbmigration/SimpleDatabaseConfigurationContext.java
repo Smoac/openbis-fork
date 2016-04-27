@@ -33,8 +33,7 @@ import static ch.systemsx.cisd.common.properties.PropertyUtils.*;
 /**
  * Configuration context for database operations.
  * <p>
- * It is a simple counterpart of {@link DatabaseConfigurationContext} that uses only a few basic
- * JDBC configuration parameters:
+ * It is a simple counterpart of {@link DatabaseConfigurationContext} that uses only a few basic JDBC configuration parameters:
  * <li>driver class name
  * <li>url
  * <li>username

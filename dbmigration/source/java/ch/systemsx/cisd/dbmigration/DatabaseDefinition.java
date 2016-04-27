@@ -26,7 +26,6 @@ import java.util.TreeSet;
 /**
  * Meta data of a database necessary to import another database with the same schema.
  * 
- *
  * @author Franz-Josef Elmer
  */
 public final class DatabaseDefinition implements Iterable<TableDefinition>
@@ -64,7 +63,6 @@ public final class DatabaseDefinition implements Iterable<TableDefinition>
      * @param pkColumnName Name of the primary key column.
      * @param fkTableName Name of the table with foreign key.
      * @param fkColumnName Name of the foreign key column.
-     * 
      * @throws IllegalArgumentException if one of the tables or columns do not exist.
      */
     public void connect(String pkTableName, String pkColumnName, String fkTableName,
@@ -89,8 +87,7 @@ public final class DatabaseDefinition implements Iterable<TableDefinition>
     }
 
     /**
-     * Returns the definitions of all tables depending directly or indirectly on the specified
-     * tables.
+     * Returns the definitions of all tables depending directly or indirectly on the specified tables.
      */
     public Set<TableDefinition> getTablesDependingOn(String... tableNames)
     {

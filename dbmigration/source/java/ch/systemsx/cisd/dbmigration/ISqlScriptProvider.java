@@ -28,9 +28,8 @@ import ch.systemsx.cisd.common.db.Script;
 public interface ISqlScriptProvider
 {
     /**
-     * Returns <code>true</code> if this script provider is suitable for a dump restore of the given
-     * <var>version</var> of the database, and <code>false</code>, if it is suitable for a regular
-     * setup.
+     * Returns <code>true</code> if this script provider is suitable for a dump restore of the given <var>version</var> of the database, and
+     * <code>false</code>, if it is suitable for a regular setup.
      */
     public boolean isDumpRestore(String version);
 
@@ -59,8 +58,7 @@ public interface ISqlScriptProvider
     public Script tryGetFunctionScript(String version);
 
     /**
-     * Returns the script containing all domain definitions for the specified version. The name of
-     * the script is expected to be
+     * Returns the script containing all domain definitions for the specified version. The name of the script is expected to be
      * 
      * <pre>
      * &lt;schema script folder&gt;/&lt;version&gt;/domains-&lt;version&gt;.sql
@@ -69,8 +67,7 @@ public interface ISqlScriptProvider
     public Script tryGetDomainsScript(final String version);
 
     /**
-     * Returns the script containing all grant declarations for the specified version. The name of
-     * the script is expected to be
+     * Returns the script containing all grant declarations for the specified version. The name of the script is expected to be
      * 
      * <pre>
      * &lt;schema script folder&gt;/&lt;version&gt;/grants-&lt;version&gt;.sql
@@ -96,8 +93,8 @@ public interface ISqlScriptProvider
     public Script tryGetMigrationScript(String fromVersion, String toVersion);
 
     /**
-     * Returns the function migration script for migrating a database. The function migration will
-     * always be called <i>after</i> the regular migration script.
+     * Returns the function migration script for migrating a database. The function migration will always be called <i>after</i> the regular migration
+     * script.
      * 
      * @param fromVersion The version of the current database.
      * @param toVersion The version of the database after migration.

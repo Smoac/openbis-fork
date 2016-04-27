@@ -19,10 +19,7 @@ package ch.systemsx.cisd.dbmigration;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DatabaseConfigurationContextTest extends AssertJUnit
@@ -33,7 +30,7 @@ public class DatabaseConfigurationContextTest extends AssertJUnit
         DatabaseConfigurationContext context = new DatabaseConfigurationContext();
         assertEquals("[]", context.getSqlScriptFolders().toString());
     }
-    
+
     @Test
     public void testGetSqlScriptFoldersWithScriptFolderHasUnresolvedVariable()
     {
@@ -41,7 +38,7 @@ public class DatabaseConfigurationContextTest extends AssertJUnit
         context.setScriptFolder("${folder}");
         assertEquals("[]", context.getSqlScriptFolders().toString());
     }
-    
+
     @Test
     public void testGetSqlScriptFoldersWithResolvedScriptFolder()
     {
@@ -49,7 +46,7 @@ public class DatabaseConfigurationContextTest extends AssertJUnit
         context.setScriptFolder("my-scripts");
         assertEquals("[my-scripts]", context.getSqlScriptFolders().toString());
     }
-    
+
     @Test
     public void testGetSqlScriptFoldersWithScriptFoldersHaveUnresolvedVariable()
     {
@@ -57,7 +54,7 @@ public class DatabaseConfigurationContextTest extends AssertJUnit
         context.setScriptFolders("${folder}");
         assertEquals("[]", context.getSqlScriptFolders().toString());
     }
-    
+
     @Test
     public void testGetSqlScriptFoldersWithResolvedScriptFolders()
     {

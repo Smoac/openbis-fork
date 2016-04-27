@@ -238,7 +238,7 @@ public class SqlScriptProviderTest
         dumpFile.delete();
         assertFalse(sqlScriptProvider.isDumpRestore(VERSION));
     }
-    
+
     @Test
     public void testTwoRootFolders()
     {
@@ -252,7 +252,7 @@ public class SqlScriptProviderTest
         r1specific001.mkdirs();
         File r1specificSchema001 = new File(r1specific001, "schema-001.sql");
         FileUtilities.writeToFile(r1specificSchema001, "root 1 specific");
-        
+
         File root2 = new File(BASE_FOLDER, "root2");
         root2.mkdirs();
         File r2generic001 = new File(root2, SqlScriptProvider.GENERIC + "/001");
@@ -263,27 +263,27 @@ public class SqlScriptProviderTest
         r2specific001.mkdirs();
         File r2specificSchema001 = new File(r2specific001, "schema-001.sql");
         FileUtilities.writeToFile(r2specificSchema001, "root 2 specific");
-        
+
         ISqlScriptProvider scriptProvider =
                 new SqlScriptProvider(Arrays.asList(root1.getPath(), root2.getPath()),
                         DB_ENGINE_CODE);
-        
+
         assertEquals("root 1 specific", scriptProvider.tryGetSchemaScript("001").getContent().trim());
-        
+
         r1specificSchema001.delete();
-        
+
         assertEquals("root 1 generic", scriptProvider.tryGetSchemaScript("001").getContent().trim());
-        
+
         r1genericSchema001.delete();
-        
+
         assertEquals("root 2 specific", scriptProvider.tryGetSchemaScript("001").getContent().trim());
-        
+
         r2specificSchema001.delete();
-        
+
         assertEquals("root 2 generic", scriptProvider.tryGetSchemaScript("001").getContent().trim());
-        
+
         r2genericSchema001.delete();
-        
+
         assertEquals(null, scriptProvider.tryGetSchemaScript("001"));
     }
 

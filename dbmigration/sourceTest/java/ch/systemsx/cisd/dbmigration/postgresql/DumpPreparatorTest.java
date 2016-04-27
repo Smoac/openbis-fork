@@ -135,7 +135,7 @@ public class DumpPreparatorTest
         checkTableMetaData("data_values", "[id, data_id, saco_id, value]", tables, 2);
         checkTableMetaData("database_version_logs", "[db_version, module_name, run_status]", tables, 3);
     }
-    
+
     private void checkTableMetaData(String expectedTableName, String expectedColumns,
             List<SimpleTableMetaData> list, int index)
     {

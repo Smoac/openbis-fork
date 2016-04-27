@@ -37,11 +37,11 @@ import java.util.List;
 public final class TableColumnDefinition implements Iterable<TableColumnDefinition>
 {
     private final TableDefinition tableDefinition;
-    
+
     private boolean primaryKey;
-    
+
     private long largestPrimaryKey = -1;
-    
+
     private TableColumnDefinition foreignKeyReference;
 
     private String columnName;
@@ -61,8 +61,7 @@ public final class TableColumnDefinition implements Iterable<TableColumnDefiniti
     }
 
     /**
-     * Adds a connection defined by the specified foreign-key column. Sets also the foreign-key
-     * reference of the argument to this.
+     * Adds a connection defined by the specified foreign-key column. Sets also the foreign-key reference of the argument to this.
      * 
      * @throws IllegalStateException if this is not a primary-key column.
      */

@@ -99,7 +99,7 @@ public abstract class AbstractDatabaseAdminDAO extends SimpleJdbcDaoSupport impl
             Statement statement = connection.createStatement();
             DatabaseMetaData metaData = connection.getMetaData();
             ResultSet rs = metaData.getTables(null, null, null, new String[]
-                { "TABLE" });
+            { "TABLE" });
             while (rs.next())
             {
                 databaseDefinition.add(new TableDefinition(rs.getString("TABLE_NAME")));

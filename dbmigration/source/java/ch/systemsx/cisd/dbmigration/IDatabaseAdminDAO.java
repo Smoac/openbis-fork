@@ -41,14 +41,13 @@ public interface IDatabaseAdminDAO
     public DatabaseDefinition getDatabaseDefinition();
 
     /**
-     * Creates the owner/user of the database. Implementation should handle the case of already
-     * existing owner/user gracefully.
+     * Creates the owner/user of the database. Implementation should handle the case of already existing owner/user gracefully.
      */
     public void createOwner();
 
     /**
-     * Creates the groups that should be granted read-only and read-write access to all objects in
-     * this database. Implementation should handle the case of already existing group gracefully.
+     * Creates the groups that should be granted read-only and read-write access to all objects in this database. Implementation should handle the
+     * case of already existing group gracefully.
      */
     public void createGroups();
 

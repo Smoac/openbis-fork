@@ -23,8 +23,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.reflection.AbstractHashable;
 
 /**
- * Immutable class which holds some meta data needed for handling tables stored in
- * delimiter-separated files.
+ * Immutable class which holds some meta data needed for handling tables stored in delimiter-separated files.
  * 
  * @author Franz-Josef Elmer
  */
@@ -32,12 +31,14 @@ public class SimpleTableMetaData extends AbstractHashable
 {
 
     private final String tableName;
+
     private final String tableFileName;
+
     private final List<String> columnNames;
 
     /**
-     * Creates an instance for the specified table name, file name, and list of column names.
-     * Note that table name and column names are converted to upper case.
+     * Creates an instance for the specified table name, file name, and list of column names. Note that table name and column names are converted to
+     * upper case.
      */
     public SimpleTableMetaData(String tableName, String tableFileName, List<String> columnNames)
     {
@@ -45,7 +46,7 @@ public class SimpleTableMetaData extends AbstractHashable
         this.tableFileName = tableFileName;
         this.columnNames = Collections.unmodifiableList(convertToUpperCase(columnNames));
     }
-    
+
     private List<String> convertToUpperCase(List<String> names)
     {
         List<String> list = new ArrayList<String>();
@@ -73,14 +74,13 @@ public class SimpleTableMetaData extends AbstractHashable
     }
 
     /**
-     * Returns the name of the columns in the order the data is stored in the delemiter-separated
-     * file.
+     * Returns the name of the columns in the order the data is stored in the delemiter-separated file.
      */
     public final List<String> getColumnNames()
     {
         return columnNames;
     }
-    
+
     /**
      * Returns the index of the specified column.
      * 
@@ -90,5 +90,5 @@ public class SimpleTableMetaData extends AbstractHashable
     {
         return columnNames.indexOf(columnName.toUpperCase());
     }
-    
+
 }

@@ -60,9 +60,11 @@ public class DumpPreparator
 
     private static final String MAC_POSTGRESQL_90_PATH = "/opt/local/lib/postgresql90/bin/";
 
-    private static final String[] MAC_POSTGRESQL_93_PATH = { "/opt/local/lib/postgresql93/bin/", "/Library/PostgreSQL/9.3/bin/", "/Applications/Postgres.app/Contents/Versions/9.3/bin/" };
+    private static final String[] MAC_POSTGRESQL_93_PATH = { "/opt/local/lib/postgresql93/bin/", "/Library/PostgreSQL/9.3/bin/",
+            "/Applications/Postgres.app/Contents/Versions/9.3/bin/" };
 
-    private static final String[] MAC_POSTGRESQL_94_PATH = { "/opt/local/lib/postgresql94/bin/", "/Library/PostgreSQL/9.4/bin/", "/Applications/Postgres.app/Contents/Versions/9.4/bin/" };
+    private static final String[] MAC_POSTGRESQL_94_PATH = { "/opt/local/lib/postgresql94/bin/", "/Library/PostgreSQL/9.4/bin/",
+            "/Applications/Postgres.app/Contents/Versions/9.4/bin/" };
 
     private static final String DUMP_EXEC = "pg_dump";
 

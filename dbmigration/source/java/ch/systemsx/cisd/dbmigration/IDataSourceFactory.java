@@ -61,9 +61,8 @@ public interface IDataSourceFactory
     public long getActiveConnectionsLogInterval();
 
     /**
-     * Set the interval (in ms) between two regular log entries of currently active database
-     * connections if more than one connection is active. Set to a negative value to disable this
-     * feature.
+     * Set the interval (in ms) between two regular log entries of currently active database connections if more than one connection is active. Set to
+     * a negative value to disable this feature.
      */
     public void setActiveConnectionsLogInterval(long activeConnectionLogIntervalMillis);
 

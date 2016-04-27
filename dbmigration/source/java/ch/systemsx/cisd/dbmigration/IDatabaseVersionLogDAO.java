@@ -27,8 +27,7 @@ import ch.systemsx.cisd.common.db.Script;
 public interface IDatabaseVersionLogDAO extends ISqlScriptExecutionLogger
 {
     /**
-     * Returns <code>true</code> if the database instance with database version log can be
-     * connected.
+     * Returns <code>true</code> if the database instance with database version log can be connected.
      */
     public boolean canConnectToDatabase();
 

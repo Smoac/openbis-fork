@@ -22,11 +22,11 @@ import java.util.TreeMap;
 
 /**
  * Meta data of a database table. Contains
- * <ul><li>Name of the table ({@link #getTableName()})
- *     <li>Meta data for all columns ({@link #getColumnDefinition(String)}, {@link #iterator()})
+ * <ul>
+ * <li>Name of the table ({@link #getTableName()})
+ * <li>Meta data for all columns ({@link #getColumnDefinition(String)}, {@link #iterator()})
  * </ul>
  * 
- *
  * @author Franz-Josef Elmer
  */
 public final class TableDefinition implements Iterable<TableColumnDefinition>,
@@ -60,7 +60,7 @@ public final class TableDefinition implements Iterable<TableColumnDefinition>,
     /**
      * Returns the definition for the specified column.
      * 
-     *  @throws IllegalArgumentException if no definition found.
+     * @throws IllegalArgumentException if no definition found.
      */
     public TableColumnDefinition getColumnDefinition(String columnName)
     {

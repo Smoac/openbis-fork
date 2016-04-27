@@ -129,7 +129,7 @@ public class MonitoringPoolingDataSourceTest
                 new FileOutputStream(new File(".control/db-connections-debug-on"));
         IOUtils.closeQuietly(os);
         Thread.sleep(200L);
-        
+
         os =
                 new FileOutputStream(new File(".control/db-connections-print-active"));
         IOUtils.closeQuietly(os);
@@ -138,7 +138,7 @@ public class MonitoringPoolingDataSourceTest
                 new FileOutputStream(new File(".control/db-connections-debug-off"));
         IOUtils.closeQuietly(os);
         Thread.sleep(900L);
-        
+
         os =
                 new FileOutputStream(new File(".control/db-connections-print-active"));
         IOUtils.closeQuietly(os);

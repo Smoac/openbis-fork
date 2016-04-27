@@ -112,10 +112,10 @@ public class SqlMigrationDataSource implements DataSource, DisposableBean
         return null;
     }
 
-    //@Override -- un-comment when switching to Java 1.7
+    // @Override -- un-comment when switching to Java 1.7
     public Logger getParentLogger() throws SQLFeatureNotSupportedException
     {
         return null;
     }
-    
+
 }

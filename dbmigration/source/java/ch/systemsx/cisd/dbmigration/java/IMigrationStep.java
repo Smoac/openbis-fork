@@ -22,11 +22,10 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 /**
- * An interface which must be implemented by all classes providing Java code that performs migration
- * steps prior (<i>pre</i>) or after (<i>post</i>) the SQL migration script ran.
+ * An interface which must be implemented by all classes providing Java code that performs migration steps prior (<i>pre</i>) or after (<i>post</i>)
+ * the SQL migration script ran.
  * <p>
- * Canonical name of class implementing this interface (preceded by <code>-- JAVA </code>) may be
- * included in the first line of SQL migration script.<br>
+ * Canonical name of class implementing this interface (preceded by <code>-- JAVA </code>) may be included in the first line of SQL migration script.<br>
  * Example:
  * 
  * <pre>

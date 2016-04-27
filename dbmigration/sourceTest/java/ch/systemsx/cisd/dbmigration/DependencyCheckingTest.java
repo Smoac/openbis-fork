@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.dbmigration;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DependencyCheckingTest extends ch.systemsx.cisd.common.test.DependencyCheckingTest

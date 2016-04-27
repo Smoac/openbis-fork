@@ -47,7 +47,7 @@ public enum DatabaseEngine
             "jdbc:h2:{0}{1};DB_CLOSE_DELAY=-1", "file:db/", "sa", null);
 
     private static Map<String, DatabaseEngine> engines = initEngineMap();
-    
+
     private static Map<String, DatabaseEngine> enginesByDriverClass = initEnginesByDriverClassMap();
 
     private final String code;
@@ -148,10 +148,8 @@ public enum DatabaseEngine
     }
 
     /**
-     * @param urlHostPartOrNull The host part of the URL, or <code>null</code>, if the default host
-     *            part should be used.
-     * @param databaseName The name of the database (may be ignored for the admin URL, depending on
-     *            the database engine)
+     * @param urlHostPartOrNull The host part of the URL, or <code>null</code>, if the default host part should be used.
+     * @param databaseName The name of the database (may be ignored for the admin URL, depending on the database engine)
      * @return The admin URL of the db.
      */
     public final String getAdminURL(String urlHostPartOrNull, String databaseName)
@@ -173,8 +171,7 @@ public enum DatabaseEngine
     }
 
     /**
-     * @param urlHostPartOrNull The host part of the URL, or <code>null</code>, if the default host
-     *            part should be used.
+     * @param urlHostPartOrNull The host part of the URL, or <code>null</code>, if the default host part should be used.
      * @param databaseName The name of the database.
      * @return The URL of the db.
      */
@@ -199,7 +196,7 @@ public enum DatabaseEngine
         }
         return engine;
     }
-    
+
     /**
      * Returns the database engine for specified driver class.
      * 
@@ -215,7 +212,7 @@ public enum DatabaseEngine
         }
         return engine;
     }
-    
+
     /**
      * Returns <code>true</code> if a {@link DatabaseEngine} for specified driver class exists.
      */
@@ -243,5 +240,5 @@ public enum DatabaseEngine
         }
         return map;
     }
-    
+
 }
