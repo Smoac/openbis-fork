@@ -23,18 +23,16 @@ import ch.systemsx.cisd.common.filesystem.IStoreItemFilter;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
 
 /**
- * A filter bank of {@link IStoreItemFilter} instances. A {@link StoreItem} tries to passes the
- * filters of the filter bank in the order the filters have been added (with
- * {@link #add(IStoreItemFilter)}). If the item does not pass a filter (i.e.
- * {@link IStoreItemFilter#accept(StoreItem)} return <code>false</code>) it does not pass the
- * filter bank. Note, that in this case the other filter are not checked.
+ * A filter bank of {@link IStoreItemFilter} instances. A {@link StoreItem} tries to passes the filters of the filter bank in the order the filters
+ * have been added (with {@link #add(IStoreItemFilter)}). If the item does not pass a filter (i.e. {@link IStoreItemFilter#accept(StoreItem)} return
+ * <code>false</code>) it does not pass the filter bank. Note, that in this case the other filter are not checked.
  * 
  * @author Franz-Josef Elmer
  */
 public class StoreItemFilterBank implements IStoreItemFilter
 {
     private final List<IStoreItemFilter> filters = new ArrayList<IStoreItemFilter>();
-    
+
     /**
      * Adds the specified filter.
      */
@@ -42,7 +40,7 @@ public class StoreItemFilterBank implements IStoreItemFilter
     {
         filters.add(filter);
     }
-    
+
     /**
      * Accepts the specified item if it accepted by all filters.
      */

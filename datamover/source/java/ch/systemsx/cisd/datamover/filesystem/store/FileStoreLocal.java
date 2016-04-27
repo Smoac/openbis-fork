@@ -228,9 +228,8 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
     // ------
 
     /**
-     * @return <code>true</code> if the <var>simpleCopier</var> on the file system where the
-     *         <var>destinationStore</var> resides requires deleting an existing file before it can
-     *         be overwritten.
+     * @return <code>true</code> if the <var>simpleCopier</var> on the file system where the <var>destinationStore</var> resides requires deleting an
+     *         existing file before it can be overwritten.
      */
     protected final boolean requiresDeletionBeforeCreation(final IFileStore destinationStore,
             final IStoreCopier copier)

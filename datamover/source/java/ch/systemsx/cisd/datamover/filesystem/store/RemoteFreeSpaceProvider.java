@@ -32,8 +32,7 @@ import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.time.TimingParameters;
 
 /**
- * An <code>IFreeSpaceProvider</code> implementation for computing the free space on a remote
- * computer.
+ * An <code>IFreeSpaceProvider</code> implementation for computing the free space on a remote computer.
  * 
  * @author Christian Ribeaud
  */

@@ -32,31 +32,28 @@ public interface IFileSysParameters
     String getLnExecutable();
 
     /**
-     * @return The name of the <code>rsync</code> executable on the incoming host to use for copy
-     *         operations.
+     * @return The name of the <code>rsync</code> executable on the incoming host to use for copy operations.
      */
     public String getIncomingRsyncExecutable();
 
     /**
-     * @return The name of the <code>rsync</code> executable on the outgoing host to use for copy
-     *         operations.
+     * @return The name of the <code>rsync</code> executable on the outgoing host to use for copy operations.
      */
     public String getOutgoingRsyncExecutable();
 
     /**
-     * @return <code>true</code>, if rsync is called in such a way to files that already exist
-     *         are overwritten rather than appended to.
+     * @return <code>true</code>, if rsync is called in such a way to files that already exist are overwritten rather than appended to.
      */
     boolean isRsyncOverwrite();
 
     /**
-     * @return Basic parameters for the <code>rsync</code> command line.  
-     * If set, they will override the default of "--archive --delete-before --inplace". If basic parameters are defined, 
-     * these and the extra rsync parameters will allow full customization of the <code>rsync</code> command-line.
-     * Any further rsync configuration options, such as rsync-overwrite, will be ignored. 
+     * @return Basic parameters for the <code>rsync</code> command line. If set, they will override the default of
+     *         "--archive --delete-before --inplace". If basic parameters are defined, these and the extra rsync parameters will allow full
+     *         customization of the <code>rsync</code> command-line. Any further rsync configuration options, such as rsync-overwrite, will be
+     *         ignored.
      */
-    public String[] getBasicRsyncParameters(); 
-    
+    public String[] getBasicRsyncParameters();
+
     /**
      * @return Additional parameters to be added to the end of the <code>rsync</code> command line.
      */
@@ -68,8 +65,7 @@ public interface IFileSysParameters
     String getSshExecutable();
 
     /**
-     * @return The time interval to wait after a retriable error has occurred before a new attempt
-     *         is made.
+     * @return The time interval to wait after a retriable error has occurred before a new attempt is made.
      */
     public long getIntervalToWaitAfterFailure();
 

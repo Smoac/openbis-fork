@@ -28,8 +28,6 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class CommandBasedTransformerTest extends AssertJUnit
@@ -41,31 +39,31 @@ public class CommandBasedTransformerTest extends AssertJUnit
     {
         logRecorder = new BufferedAppender();
     }
-    
+
     @Test
     public void testCreateCommandWithFilename()
     {
         Properties properties = new Properties();
-        properties.setProperty(CommandBasedTransformer.COMMAND_TEMPLATE_PROP, 
+        properties.setProperty(CommandBasedTransformer.COMMAND_TEMPLATE_PROP,
                 "cmd   -dgH  'alpha beta' ${file-name}");
         CommandBasedTransformer transformer = new CommandBasedTransformer(properties);
-        
+
         List<String> command = transformer.createCommand(new File("abc/def.txt"));
-        
+
         assertEquals("[cmd, -dgH, alpha beta, def.txt]", command.toString());
     }
-    
+
     @Test
     public void testCreateCommandWithAbsoluteFilePath()
     {
         Properties properties = new Properties();
-        properties.setProperty(CommandBasedTransformer.COMMAND_TEMPLATE_PROP, 
+        properties.setProperty(CommandBasedTransformer.COMMAND_TEMPLATE_PROP,
                 "cmd   -dgH  \"alpha 'beta'\" ${absolute-file-path}");
         CommandBasedTransformer transformer = new CommandBasedTransformer(properties);
         File file = new File("abc/def.txt");
-        
+
         List<String> command = transformer.createCommand(file);
-        
+
         assertEquals("[cmd, -dgH, alpha 'beta', " + file.getAbsolutePath() + "]", command.toString());
     }
 
@@ -73,7 +71,7 @@ public class CommandBasedTransformerTest extends AssertJUnit
     public void test()
     {
         Properties properties = new Properties();
-        properties.setProperty(CommandBasedTransformer.COMMAND_TEMPLATE_PROP, 
+        properties.setProperty(CommandBasedTransformer.COMMAND_TEMPLATE_PROP,
                 "env MY_FILE=${file-name}");
         properties.setProperty(CommandBasedTransformer.ENV_PROP_PREFIX + "MY_NAME", "Albert");
         CommandBasedTransformer transformer = new CommandBasedTransformer(properties);
@@ -87,6 +85,6 @@ public class CommandBasedTransformerTest extends AssertJUnit
                 + "Running command: env MY_FILE=def.txt (I/O in separate thread)\n";
         assertEquals(expectedStart, logContent.substring(0, Math.min(logContent.length(), expectedStart.length())));
         assertEquals("log content does not contain env variable MY_NAME.", true, logContent.contains("MY_NAME=Albert"));
-        
+
     }
 }

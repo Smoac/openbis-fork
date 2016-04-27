@@ -47,8 +47,7 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 
 /**
- * A class that starts up the processing pipeline and its monitoring, based on the parameters
- * provided.
+ * A class that starts up the processing pipeline and its monitoring, based on the parameters provided.
  * 
  * @author Bernd Rinn
  * @author Tomasz Pylak
@@ -122,10 +121,10 @@ public final class DataMover
             PROCESSING_MARKER_TEMPLATE, "shutdown");
 
     private static final String[] PROCESS_MARKER_FILENAMES =
-        { INCOMING_PROCESS_MARKER_FILENAME, OUTGOING_PROCESS_MARKER_FILENAME,
-                LOCAL_PROCESS_MARKER_FILENAME, INCOMING_ERROR_MARKER_FILENAME,
-                OUTGOING_ERROR_MARKER_FILENAME, LOCAL_ERROR_MARKER_FILENAME,
-                RECOVERY_PROCESS_MARKER_FILENAME, SHUTDOWN_PROCESS_MARKER_FILENAME };
+    { INCOMING_PROCESS_MARKER_FILENAME, OUTGOING_PROCESS_MARKER_FILENAME,
+            LOCAL_PROCESS_MARKER_FILENAME, INCOMING_ERROR_MARKER_FILENAME,
+            OUTGOING_ERROR_MARKER_FILENAME, LOCAL_ERROR_MARKER_FILENAME,
+            RECOVERY_PROCESS_MARKER_FILENAME, SHUTDOWN_PROCESS_MARKER_FILENAME };
 
     private final Parameters parameters;
 
@@ -134,8 +133,7 @@ public final class DataMover
     private final LocalBufferDirs bufferDirs;
 
     /**
-     * Indicates that a <i>shutdown</i> should be performed by the program (has been asked by
-     * <code>datamover.sh</code>).
+     * Indicates that a <i>shutdown</i> should be performed by the program (has been asked by <code>datamover.sh</code>).
      */
     public static final String SHUTDOWN_MARKER_FILENAME = FileConstants.MARKER_PREFIX + "shutdown";
 
@@ -339,15 +337,13 @@ public final class DataMover
     //
 
     /**
-     * Wraps {@link IStoreHandler} into another one with additional option of logging before and
-     * after handling an item is performed by the <var>originalHandler</var>.
+     * Wraps {@link IStoreHandler} into another one with additional option of logging before and after handling an item is performed by the
+     * <var>originalHandler</var>.
      * 
-     * @param prefixBeforeOrNull if not <code>null</code> a message with this prefix and handled
-     *            item name will be logged before item handling
-     * @param prefixAfterOrNull if not <code>null</code> a message with this prefix and handled item
-     *            name will be logged after item handling
-     * @param prefixAfterFailureOnlyOrNull if not <code>null</code> a message with this prefix and
-     *            handled item name will be logged after item handling, if the handling failed
+     * @param prefixBeforeOrNull if not <code>null</code> a message with this prefix and handled item name will be logged before item handling
+     * @param prefixAfterOrNull if not <code>null</code> a message with this prefix and handled item name will be logged after item handling
+     * @param prefixAfterFailureOnlyOrNull if not <code>null</code> a message with this prefix and handled item name will be logged after item
+     *            handling, if the handling failed
      */
     public final static IStoreHandler wrapHandleWithLogging(final IStoreHandler originalHandler,
             final String prefixBeforeOrNull, final String prefixAfterOrNull,

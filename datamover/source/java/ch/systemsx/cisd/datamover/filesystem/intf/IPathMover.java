@@ -27,9 +27,8 @@ public interface IPathMover
 {
 
     /**
-     * Moves source path (file or directory) to destination directory, putting <var>prefixTemplate</var>
-     * in front of its name, where any occurrence of '%t' in the template is replaced with the
-     * current time stamp.
+     * Moves source path (file or directory) to destination directory, putting <var>prefixTemplate</var> in front of its name, where any occurrence of
+     * '%t' in the template is replaced with the current time stamp.
      * 
      * @return the new path created, or <code>null</code> if the operation fails.
      */

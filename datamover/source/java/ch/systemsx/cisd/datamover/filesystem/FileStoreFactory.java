@@ -97,8 +97,7 @@ public final class FileStoreFactory
     }
 
     /**
-     * Returns the most convenient <code>IFileStore</code> implementation with given
-     * <var>values</var>.
+     * Returns the most convenient <code>IFileStore</code> implementation with given <var>values</var>.
      * 
      * @param checkIntervalMillis only used if given <var>isRemote</var> is <code>true</code>.
      */

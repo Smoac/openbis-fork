@@ -37,12 +37,12 @@ public class FileStoreSelfTestables
     {
         selfTestables.add(selfTestable);
     }
-    
+
     /**
      * Get the array of self testables to test in self test.
      */
     public static synchronized ISelfTestable[] getSelfTestables()
     {
-        return selfTestables.toArray(new ISelfTestable[selfTestables.size()]); 
+        return selfTestables.toArray(new ISelfTestable[selfTestables.size()]);
     }
 }

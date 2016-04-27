@@ -43,7 +43,7 @@ import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { Main.class })
+{ Main.class })
 public final class MainTest extends AbstractFileSystemTestCase
 {
     private static final FileStructEngine DEFAULT_STRUCT = new FileStructEngine("test");
@@ -366,7 +366,7 @@ public final class MainTest extends AbstractFileSystemTestCase
     public Object[][] provideDelays()
     {
         return new Object[][]
-            {
+        {
                 { 0L },
                 { 1000L } };
     }
@@ -374,7 +374,7 @@ public final class MainTest extends AbstractFileSystemTestCase
     // --------------------- tests
 
     @Test(groups =
-        { "slow" }, dataProvider = "delays")
+    { "slow" }, dataProvider = "delays")
     // recovery after copy from incoming has been done, but no marker exists nor the source was not
     // deleted
     public void testRecoveryIncomingCopiedNotDeleted(long delay) throws Exception
@@ -392,7 +392,7 @@ public final class MainTest extends AbstractFileSystemTestCase
     }
 
     @Test(groups =
-        { "slow" }, dataProvider = "delays")
+    { "slow" }, dataProvider = "delays")
     // recovery after failure during coping from incoming
     public void testRecoveryIncomingPartialCopy(long delay) throws Exception
     {
@@ -409,7 +409,7 @@ public final class MainTest extends AbstractFileSystemTestCase
     }
 
     @Test(groups =
-        { "slow" }, dataProvider = "delays")
+    { "slow" }, dataProvider = "delays")
     // recovery after data from incoming has been moved, but no marker was created yet
     public void testRecoveryIncomingNoMarkFile(long delay) throws Exception
     {
@@ -425,7 +425,7 @@ public final class MainTest extends AbstractFileSystemTestCase
     }
 
     @Test(groups =
-        { "slow" }, dataProvider = "delays")
+    { "slow" }, dataProvider = "delays")
     // recovery after failure before data are moved to 'copy-completed'
     public void testRecoveryIncomingCompleteNotMoved(long delay) throws Exception
     {
@@ -442,7 +442,7 @@ public final class MainTest extends AbstractFileSystemTestCase
     }
 
     @Test(groups =
-        { "slow" }, dataProvider = "delays")
+    { "slow" }, dataProvider = "delays")
     // recovery after failure when data are moved to 'copy-completed', but before the marker in
     // in-progress is deleted
     public void testRecoveryIncomingCompleteMarkerNotDeleted(long delay) throws Exception
@@ -460,7 +460,7 @@ public final class MainTest extends AbstractFileSystemTestCase
     }
 
     @Test(groups =
-        { "slow" }, dataProvider = "delays")
+    { "slow" }, dataProvider = "delays")
     // recovery after failure when data are copied to 'copy-completed', but before deletion has been
     // finished
     public void testRecoveryIncomingCompleteDeletionInProgress(long delay) throws Exception
@@ -479,7 +479,7 @@ public final class MainTest extends AbstractFileSystemTestCase
     }
 
     @Test(groups =
-        { "slow" }, dataProvider = "delays")
+    { "slow" }, dataProvider = "delays")
     // recovery after failure when incoming has finished processing and local processing has not
     // started
     public void testRecoveryLocalProcessingNotStarted(long delay) throws Exception
@@ -496,7 +496,7 @@ public final class MainTest extends AbstractFileSystemTestCase
     }
 
     @Test(groups =
-        { "slow" }, dataProvider = "delays")
+    { "slow" }, dataProvider = "delays")
     // recovery after failure during local processing when extra copy in temp dir is partial
     public void testRecoveryLocalProcessingPartialExtraCopyInTmp(long delay) throws Exception
     {
@@ -513,7 +513,7 @@ public final class MainTest extends AbstractFileSystemTestCase
     }
 
     @Test(groups =
-        { "slow" }, dataProvider = "delays")
+    { "slow" }, dataProvider = "delays")
     // recovery after failure during local processing, extra copy created in temp-dir, data moved to
     // read-to-move
     public void testRecoveryLocalProcessingExtraCopyInTmp(long delay) throws Exception
@@ -531,7 +531,7 @@ public final class MainTest extends AbstractFileSystemTestCase
     }
 
     @Test(groups =
-        { "slow" }, dataProvider = "delays")
+    { "slow" }, dataProvider = "delays")
     // recovery after failure during local processing, extra copy created in temp-dir, data moved to
     // read-to-move,
     // outgoing processing has not started. It tests also outgoing process recovery.
@@ -551,7 +551,7 @@ public final class MainTest extends AbstractFileSystemTestCase
     }
 
     @Test(groups =
-        { "slow" }, dataProvider = "delays")
+    { "slow" }, dataProvider = "delays")
     // recovery after failure when partial copy has been done in outgoing
     public void testRecoveryOutgoingPartialCopy(long delay) throws Exception
     {
@@ -569,7 +569,7 @@ public final class MainTest extends AbstractFileSystemTestCase
     }
 
     @Test(groups =
-        { "slow" }, dataProvider = "delays")
+    { "slow" }, dataProvider = "delays")
     // some data are in incoming, test the whole pipeline
     public void testWholePipeline(long delay) throws Exception
     {
@@ -617,7 +617,7 @@ public final class MainTest extends AbstractFileSystemTestCase
     }
 
     @Test(groups =
-        { "slow" })
+    { "slow" })
     // recovery after failure when all threads need recovery
     public void testRecoveryAllThreadsPartialBis() throws Exception
     {
@@ -661,7 +661,7 @@ public final class MainTest extends AbstractFileSystemTestCase
     }
 
     @Test(groups =
-        { "slow" })
+    { "slow" })
     // trigger recovery mode when all threads need recovery, but no restart is made
     public void testRecoveryRequestAllThreadsPartial() throws Exception
     {
@@ -671,7 +671,7 @@ public final class MainTest extends AbstractFileSystemTestCase
     }
 
     @Test(groups =
-        { "slow" })
+    { "slow" })
     // recovery after failure when partial copy has been done in outgoing
     public void testRecoveryAllThreadsPartial() throws Exception
     {
@@ -702,7 +702,7 @@ public final class MainTest extends AbstractFileSystemTestCase
     }
 
     @Test(groups =
-        { "slow" })
+    { "slow" })
     // normal work-flow tests, no extra copy is created
     public void testWholePipelineNoExtraCopy() throws Exception
     {
@@ -724,7 +724,7 @@ public final class MainTest extends AbstractFileSystemTestCase
     }
 
     @Test(groups =
-        { "slow" })
+    { "slow" })
     // data are coming in random moments, while data mover is running
     public void testWholePipelineDataStreaming() throws Exception
     {
@@ -755,7 +755,7 @@ public final class MainTest extends AbstractFileSystemTestCase
     }
 
     @Test(groups =
-        { "slow" })
+    { "slow" })
     // some data are in incoming, test the whole pipeline taking manual intervention and cleansing
     // scenario into account
     public void testWholePipelineCleansingManualIntervention() throws Exception

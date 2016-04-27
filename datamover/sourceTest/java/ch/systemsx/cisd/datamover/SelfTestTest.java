@@ -45,7 +45,7 @@ import ch.systemsx.cisd.datamover.testhelper.FileOperationsUtil;
  * @author Bernd Rinn
  */
 @Friend(toClasses =
-    { FileStoreFactory.class })
+{ FileStoreFactory.class })
 public class SelfTestTest
 {
 
@@ -118,7 +118,7 @@ public class SelfTestTest
                 @Override
                 public Status copyFromRemote(String sourcePath, String sourceHost,
                         File destinationDirectory, String rsyncModuleNameOrNull,
-                        String rsyncPasswordFileOrNull, 
+                        String rsyncPasswordFileOrNull,
                         ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
                 {
                     throw new AssertionError();
@@ -127,14 +127,14 @@ public class SelfTestTest
                 @Override
                 public Status copyToRemote(File sourcePath, String destinationDirectory,
                         String destinationHostOrNull, String rsyncModuleNameOrNull,
-                        String rsyncPasswordFileOrNull, 
+                        String rsyncPasswordFileOrNull,
                         ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
                 {
                     throw new AssertionError();
                 }
 
                 @Override
-                public Status copyContent(File sourcePath, File destinationDirectory, 
+                public Status copyContent(File sourcePath, File destinationDirectory,
                         ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
                 {
                     throw new AssertionError();
@@ -143,7 +143,7 @@ public class SelfTestTest
                 @Override
                 public Status copyContentFromRemote(String sourcePath, String sourceHost,
                         File destinationDirectory, String rsyncModuleNameOrNull,
-                        String rsyncPasswordFileOrNull, 
+                        String rsyncPasswordFileOrNull,
                         ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
                 {
                     throw new AssertionError();
@@ -152,7 +152,7 @@ public class SelfTestTest
                 @Override
                 public Status copyContentToRemote(File sourcePath, String destinationDirectory,
                         String destinationHostOrNull, String rsyncModuleNameOrNull,
-                        String rsyncPasswordFileOrNull, 
+                        String rsyncPasswordFileOrNull,
                         ITextHandler stdoutHandlerOrNull, ITextHandler stderrHandlerOrNull)
                 {
                     throw new AssertionError();
@@ -206,7 +206,7 @@ public class SelfTestTest
         final IFileStore remoteHostOutgoingStore =
                 createRemoteStore(outgoingDirectory.getPath(), outgoingHost, null, "outgoing");
         SelfTest.check(mockCopier, new IFileStore[]
-            { remoteHostOutgoingStore }, new ISelfTestable[0]);
+        { remoteHostOutgoingStore }, new ISelfTestable[0]);
         appender.verifyLogHasHappened();
         LogMonitoringAppender.removeAppender(appender);
     }
@@ -215,7 +215,7 @@ public class SelfTestTest
     public void testEqualPaths()
     {
         SelfTest.check(mockCopier, new IFileStore[]
-            { incomingStore, bufferStore, incomingStore }, new ISelfTestable[0]);
+        { incomingStore, bufferStore, incomingStore }, new ISelfTestable[0]);
     }
 
     @Test(expectedExceptions = ConfigurationFailureException.class, groups = "slow")
@@ -224,7 +224,7 @@ public class SelfTestTest
         final File illegalBufferDirectory = new File(incomingDirectory, "temp");
         final IFileStore illegalBufferStore = createLocalStore(illegalBufferDirectory, "buffer");
         SelfTest.check(mockCopier, new IFileStore[]
-            { incomingStore, illegalBufferStore, outgoingStore }, new ISelfTestable[0]);
+        { incomingStore, illegalBufferStore, outgoingStore }, new ISelfTestable[0]);
     }
 
     @Test(expectedExceptions = ConfigurationFailureException.class, groups = "slow")
@@ -234,29 +234,29 @@ public class SelfTestTest
         final IFileStore nonExistentIncomingStore =
                 createLocalStore(nonExistentIncomingDirectory, "incoming");
         SelfTest.check(mockCopier, new IFileStore[]
-            { nonExistentIncomingStore, bufferStore, outgoingStore }, new ISelfTestable[0]);
+        { nonExistentIncomingStore, bufferStore, outgoingStore }, new ISelfTestable[0]);
     }
 
     @Test(expectedExceptions = ConfigurationFailureException.class, groups = "slow")
     public void testFailingISelfTestable()
     {
         SelfTest.check(mockCopier, new IFileStore[0], new ISelfTestable[]
-            { new ISelfTestable()
+        { new ISelfTestable()
+            {
+                @Override
+                public void check() throws EnvironmentFailureException,
+                        ConfigurationFailureException
                 {
-                    @Override
-                    public void check() throws EnvironmentFailureException,
-                            ConfigurationFailureException
-                    {
-                        throw new ConfigurationFailureException("some failure");
-                    }
+                    throw new ConfigurationFailureException("some failure");
+                }
 
-                    @Override
-                    public boolean isRemote()
-                    {
-                        return false;
-                    }
+                @Override
+                public boolean isRemote()
+                {
+                    return false;
+                }
 
-                } });
+            } });
     }
 
     @Test
@@ -265,22 +265,22 @@ public class SelfTestTest
         final LogMonitoringAppender appender =
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY, "Self-test failed");
         SelfTest.check(mockCopier, new IFileStore[0], new ISelfTestable[]
-            { new ISelfTestable()
+        { new ISelfTestable()
+            {
+                @Override
+                public void check() throws EnvironmentFailureException,
+                        ConfigurationFailureException
                 {
-                    @Override
-                    public void check() throws EnvironmentFailureException,
-                            ConfigurationFailureException
-                    {
-                        throw new ConfigurationFailureException("some failure");
-                    }
+                    throw new ConfigurationFailureException("some failure");
+                }
 
-                    @Override
-                    public boolean isRemote()
-                    {
-                        return true;
-                    }
+                @Override
+                public boolean isRemote()
+                {
+                    return true;
+                }
 
-                } });
+            } });
         appender.verifyLogHasHappened();
         LogMonitoringAppender.removeAppender(appender);
     }

@@ -73,8 +73,7 @@ class DataMoverProcess implements ITerminable, ITriggerable
     }
 
     /**
-     * Starts up the process with a the given <var>delay</var> and <var>period</var> in
-     * milliseconds.
+     * Starts up the process with a the given <var>delay</var> and <var>period</var> in milliseconds.
      */
     public final void startup(final long delay, final long period)
     {

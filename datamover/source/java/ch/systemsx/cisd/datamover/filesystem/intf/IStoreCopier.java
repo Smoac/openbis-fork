@@ -28,5 +28,6 @@ import ch.systemsx.cisd.common.utilities.ITextHandler;
 public interface IStoreCopier extends ITerminable, ISelfTestable
 {
     boolean isProgressEnabled();
+
     Status copy(StoreItem item, ITextHandler stdoutHandler);
 }

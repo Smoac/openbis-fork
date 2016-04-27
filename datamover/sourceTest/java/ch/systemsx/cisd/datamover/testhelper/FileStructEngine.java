@@ -98,7 +98,7 @@ public class FileStructEngine
     private static List<String> createSampleFileContent()
     {
         String[] lines = new String[]
-            { "test line 1", "test line 2", "test line 3" };
+        { "test line 1", "test line 2", "test line 3" };
         List<String> lineList = Arrays.asList(lines);
         return lineList;
     }

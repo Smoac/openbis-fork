@@ -103,10 +103,9 @@ public class SelfTest
     }
 
     /**
-     * Will perform all checks of the self-test. If the method returns without exception, the
-     * self-test can be considered "past", otherwise the exception will have more information on
-     * what went wrong. This method performs failure logging of
-     * {@link ConfigurationFailureException}s and {@link EnvironmentFailureException}s.
+     * Will perform all checks of the self-test. If the method returns without exception, the self-test can be considered "past", otherwise the
+     * exception will have more information on what went wrong. This method performs failure logging of {@link ConfigurationFailureException}s and
+     * {@link EnvironmentFailureException}s.
      */
     public static void check(final IPathCopier copier, final IFileStore[] stores,
             final ISelfTestable[] selfTestables)

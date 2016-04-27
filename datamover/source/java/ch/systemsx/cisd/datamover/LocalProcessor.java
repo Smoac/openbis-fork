@@ -45,9 +45,8 @@ import ch.systemsx.cisd.datamover.transformation.ITransformator;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 
 /**
- * Processing of the files on the local machine. This class does not scan its input directory, all
- * resources must registered with a handler by someone else, also in the case of recovery after
- * shutdown.
+ * Processing of the files on the local machine. This class does not scan its input directory, all resources must registered with a handler by someone
+ * else, also in the case of recovery after shutdown.
  * 
  * @author Tomasz Pylak
  */

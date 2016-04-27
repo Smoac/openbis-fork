@@ -108,9 +108,8 @@ class RetryingPathMover implements IPathMover
     }
 
     /**
-     * Creates a destination path for copying <var>sourcePath</var> to <var>destinationDirectory</var>
-     * with prefix defined by <var>prefixTemplate</var>. Note that '%t' in <var>prefixTemplate</var>
-     * will be replaced by the current time stamp in format YYYYmmddhhMMss.
+     * Creates a destination path for copying <var>sourcePath</var> to <var>destinationDirectory</var> with prefix defined by
+     * <var>prefixTemplate</var>. Note that '%t' in <var>prefixTemplate</var> will be replaced by the current time stamp in format YYYYmmddhhMMss.
      */
     private static String createDestinationPath(final File sourcePath,
             final String destinationHostOrNull, final File destinationDirectory,

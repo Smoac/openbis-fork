@@ -38,7 +38,7 @@ public final class PropertyNames
     static final String DATA_COMPLETED_SCRIPT_TIMEOUT = "data-completed-script-timeout";
 
     static final String REMOTE_CONNECTION_TIMEOUT = "remote-connection-timeout";
-    
+
     static final String REMOTE_OPERATION_TIMEOUT = "remote-operation-timeout";
 
     static final String CLEANSING_REGEX = "cleansing-regex";
@@ -47,8 +47,7 @@ public final class PropertyNames
     static final String EXTRA_COPY_DIR = "extra-copy-dir";
 
     /**
-     * Time period (in seconds) to wait after a failure has occurred before the operation is
-     * re-tried.
+     * Time period (in seconds) to wait after a failure has occurred before the operation is re-tried.
      */
     static final String FAILURE_INTERVAL = "failure-interval";
 
@@ -103,9 +102,9 @@ public final class PropertyNames
     static final String OUTGOING_HOST_RSYNC_EXECUTABLE = "outgoing-host-rsync-executable";
 
     static final String RSYNC_OVERWRITE = "rsync-overwrite";
-    
+
     static final String BASIC_RSYNC_PARAMS = "basic-rsync-params";
-    
+
     static final String EXTRA_RSYNC_PARAMS = "extra-rsync-params";
 
     static final String SSH_EXECUTABLE = "ssh-executable";

@@ -47,30 +47,32 @@ import ch.systemsx.cisd.common.string.Template;
 public class CommandBasedTransformer implements ITransformator
 {
     static final String COMMAND_TEMPLATE_PROP = "command-template";
-    
+
     static final String REPLACE_ENVIRONMENT_PROP = "replace-environment";
-    
+
     static final String ENV_PROP_PREFIX = "env.";
-    
+
     private static final String ABSOLUTE_FILE_PATH_PLACE_HOLDER = "absolute-file-path";
+
     private static final String ABSOLUTE_PARENT_PATH_PLACE_HOLDER = "absolute-parent-path";
+
     private static final String FILE_NAME_PLACE_HOLDER = "file-name";
-    private static final List<String> PLACE_HOLDERS 
-            = Arrays.asList(ABSOLUTE_FILE_PATH_PLACE_HOLDER, ABSOLUTE_PARENT_PATH_PLACE_HOLDER, 
-                    FILE_NAME_PLACE_HOLDER);
+
+    private static final List<String> PLACE_HOLDERS = Arrays.asList(ABSOLUTE_FILE_PATH_PLACE_HOLDER, ABSOLUTE_PARENT_PATH_PLACE_HOLDER,
+            FILE_NAME_PLACE_HOLDER);
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, CommandBasedTransformer.class);
-    
+
     private static final Logger machineLog =
             LogFactory.getLogger(LogCategory.MACHINE, CommandBasedTransformer.class);
-    
+
     private Template commandTemplate;
 
     private boolean replaceEnvironment;
-    
+
     private Map<String, String> environment;
-    
+
     public CommandBasedTransformer(Properties properties)
     {
         commandTemplate = new Template(PropertyUtils.getMandatoryProperty(properties, COMMAND_TEMPLATE_PROP));
@@ -78,7 +80,7 @@ public class CommandBasedTransformer implements ITransformator
         placeholderNames.retainAll(PLACE_HOLDERS);
         if (placeholderNames.isEmpty())
         {
-            throw new ConfigurationFailureException("The property '" + COMMAND_TEMPLATE_PROP 
+            throw new ConfigurationFailureException("The property '" + COMMAND_TEMPLATE_PROP
                     + "' should have at least one of the following place holders: " + PLACE_HOLDERS);
         }
         replaceEnvironment = PropertyUtils.getBoolean(properties, REPLACE_ENVIRONMENT_PROP, false);
@@ -103,13 +105,13 @@ public class CommandBasedTransformer implements ITransformator
     {
         List<String> command = createCommand(path);
         operationLog.info("Execute: " + command);
-        ProcessResult processResult = ProcessExecutionHelper.run(command, environment, replaceEnvironment, 
+        ProcessResult processResult = ProcessExecutionHelper.run(command, environment, replaceEnvironment,
                 operationLog, machineLog, ConcurrencyUtilities.NO_TIMEOUT,
                 ProcessIOStrategy.DEFAULT_IO_STRATEGY, false);
         processResult.log();
         return processResult.toStatus();
     }
-    
+
     List<String> createCommand(File path)
     {
         Template template = commandTemplate.createFreshCopy();
@@ -118,7 +120,7 @@ public class CommandBasedTransformer implements ITransformator
         template.attemptToBind(FILE_NAME_PLACE_HOLDER, path.getName());
         return split(template.createText());
     }
-    
+
     private List<String> split(String command)
     {
         StringBuilder builder = new StringBuilder();
@@ -151,7 +153,7 @@ public class CommandBasedTransformer implements ITransformator
         {
             addTo(result, builder);
             return 0;
-        } 
+        }
         builder.append(c);
         return quoteChar;
     }

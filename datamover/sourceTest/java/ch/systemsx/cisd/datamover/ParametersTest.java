@@ -46,7 +46,7 @@ import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
  * @author Bernd Rinn
  */
 @Friend(toClasses =
-    { SystemExit.class, Parameters.class, FileStoreFactory.class })
+{ SystemExit.class, Parameters.class, FileStoreFactory.class })
 public final class ParametersTest extends AbstractFileSystemTestCase
 {
     private final Parameters parse(final String... args)
@@ -110,9 +110,9 @@ public final class ParametersTest extends AbstractFileSystemTestCase
     public final Object[][] getDirectoryWithHighwaterMark()
     {
         return new Object[][]
-            {
-                    { PropertyNames.BUFFER_DIR, 100 },
-                    { PropertyNames.OUTGOING_TARGET, 200 } };
+        {
+                { PropertyNames.BUFFER_DIR, 100 },
+                { PropertyNames.OUTGOING_TARGET, 200 } };
     }
 
     @Test(dataProvider = "directoryWithHighwaterMark")

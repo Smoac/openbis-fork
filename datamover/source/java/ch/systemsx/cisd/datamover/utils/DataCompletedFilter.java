@@ -39,12 +39,10 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.StoreItemLocation;
 
 /**
- * Filter which executes a shell script in order to determine whether a {@link StoreItem} should be
- * passed (i.e. accepted) or not. The script will be provided with one or two arguments: The
- * absolute path to store item and optional the remote host where the store item is located.
+ * Filter which executes a shell script in order to determine whether a {@link StoreItem} should be passed (i.e. accepted) or not. The script will be
+ * provided with one or two arguments: The absolute path to store item and optional the remote host where the store item is located.
  * <p>
- * The filter remembers the last status of script execution. Status changes are logged with log
- * category {@link LogCategory#NOTIFY}.
+ * The filter remembers the last status of script execution. Status changes are logged with log category {@link LogCategory#NOTIFY}.
  * </p>
  * 
  * @author Franz-Josef Elmer
@@ -61,9 +59,8 @@ public class DataCompletedFilter implements IStoreItemFilter
             LogFactory.getLogger(LogCategory.NOTIFY, DataCompletedFilter.class);
 
     private final ConditionalNotificationLogger conditionalNotificationLog =
-        new ConditionalNotificationLogger(operationLog, notificationLog,
-                DatamoverConstants.IGNORED_ERROR_COUNT_BEFORE_NOTIFICATION);
-
+            new ConditionalNotificationLogger(operationLog, notificationLog,
+                    DatamoverConstants.IGNORED_ERROR_COUNT_BEFORE_NOTIFICATION);
 
     private final IFileStore fileStore;
 
@@ -106,7 +103,8 @@ public class DataCompletedFilter implements IStoreItemFilter
             if (path.endsWith(".bat"))
             {
                 command.addAll(Arrays.asList("cmd", "/c"));
-            } else // Assume we have Cygwin's shell.
+            } else
+            // Assume we have Cygwin's shell.
             {
                 command.add("sh");
             }

@@ -53,16 +53,14 @@ import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 import ch.systemsx.cisd.datamover.utils.StoreItemFilterBank;
 
 /**
- * The <code>IRecoverableTimerTaskFactory</code> implementation which processes files in the
- * <code>incoming</code> directory.
+ * The <code>IRecoverableTimerTaskFactory</code> implementation which processes files in the <code>incoming</code> directory.
  * 
  * @author Tomasz Pylak
  */
 public class IncomingProcessor implements IRecoverableTimerTaskFactory
 {
     /**
-     * The number of consecutive errors of listing the incoming directories that are not reported in
-     * the log to avoid mailbox flooding.
+     * The number of consecutive errors of listing the incoming directories that are not reported in the log to avoid mailbox flooding.
      */
     private final static int NUMBER_OF_ERRORS_IN_LISTING_IGNORED = 2;
 

@@ -27,8 +27,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 
 /**
- * A {@link IDescribingActivitySensor} that senses changes in copy operations to a {@link StoreItem}
- * in a remote store.
+ * A {@link IDescribingActivitySensor} that senses changes in copy operations to a {@link StoreItem} in a remote store.
  * 
  * @author Bernd Rinn
  */

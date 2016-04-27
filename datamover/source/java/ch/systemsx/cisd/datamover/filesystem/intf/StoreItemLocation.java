@@ -45,8 +45,7 @@ public final class StoreItemLocation
     }
 
     /**
-     * Returns the host if this location is on a remote file system. Otherwise <code>null</code>
-     * is returned.
+     * Returns the host if this location is on a remote file system. Otherwise <code>null</code> is returned.
      */
     public final String getHost()
     {

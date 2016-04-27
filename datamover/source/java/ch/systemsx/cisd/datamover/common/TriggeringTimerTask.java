@@ -49,8 +49,7 @@ public class TriggeringTimerTask extends TimerTask
      * Creates a <var>TriggeringTimerTask</var>.
      * 
      * @param triggerFile The file that triggers.
-     * @param triggerable The handler that can perform a recovery action, or <code>null</code> if
-     *            there is no recovery action available.
+     * @param triggerable The handler that can perform a recovery action, or <code>null</code> if there is no recovery action available.
      */
     public TriggeringTimerTask(final File triggerFile, final ITriggerable triggerable)
     {
@@ -61,8 +60,7 @@ public class TriggeringTimerTask extends TimerTask
      * Creates a <var>TriggeringTimerTask</var>.
      * 
      * @param triggerFile The file that triggers.
-     * @param triggerable The handler that can perform a recovery action, or <code>null</code> if
-     *            there is no recovery action available.
+     * @param triggerable The handler that can perform a recovery action, or <code>null</code> if there is no recovery action available.
      * @param monitor The monitor to synchronize on.
      */
     public TriggeringTimerTask(final File triggerFile, final ITriggerable triggerable,

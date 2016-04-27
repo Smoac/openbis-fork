@@ -250,16 +250,16 @@ public final class IncomingProcessorTest
                 {
                     one(mover).tryMove(markerFile, copyCompleteDir, "");
                     will(new CustomAction("move file")
-                    {
-                        @Override
-                        public Object invoke(Invocation invocation) throws Throwable
                         {
-                            final File result =
-                                    new File(copyCompleteDir, markerFile.getName());
-                            markerFile.renameTo(result);
-                            return result;
-                        }
-                    });
+                            @Override
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                final File result =
+                                        new File(copyCompleteDir, markerFile.getName());
+                                markerFile.renameTo(result);
+                                return result;
+                            }
+                        });
 
                     one(mover).tryMove(testDataFile, copyCompleteDir, "");
                     will(new CustomAction("move file")
@@ -313,17 +313,17 @@ public final class IncomingProcessorTest
                 {
                     one(mover).tryMove(markerFile, copyCompleteDir, "");
                     will(new CustomAction("move file")
-                    {
-                        @Override
-                        public Object invoke(Invocation invocation) throws Throwable
                         {
-                            final File result =
-                                    new File(copyCompleteDir, markerFile.getName());
-                            markerFile.renameTo(result);
-                            return result;
-                        }
+                            @Override
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                final File result =
+                                        new File(copyCompleteDir, markerFile.getName());
+                                markerFile.renameTo(result);
+                                return result;
+                            }
 
-                    });
+                        });
 
                     one(mover).tryMove(testDataFile, copyCompleteDir, "");
                     will(returnValue(new File(copyCompleteDir, testDataFile.getName())));
@@ -390,8 +390,8 @@ public final class IncomingProcessorTest
                 new File(new File(TEST_FOLDER, INCOMING_DIR), MarkerFile
                         .createRequiresDeletionBeforeCreationMarker().getName());
         final File inProgressDeletionCheckFile =
-            new File(new File(TEST_FOLDER, COPY_IN_PROGRESS_DIR), MarkerFile
-                    .createRequiresDeletionBeforeCreationMarker().getName());
+                new File(new File(TEST_FOLDER, COPY_IN_PROGRESS_DIR), MarkerFile
+                        .createRequiresDeletionBeforeCreationMarker().getName());
         context.checking(new Expectations()
             {
                 {
@@ -406,7 +406,7 @@ public final class IncomingProcessorTest
 
                     allowing(copier).copy(incomingDeletionCheckFile, copyInProgressDir, null, null);
                     will(returnValue(Status.OK));
-                    
+
                     one(remover).remove(incomingDeletionCheckFile);
                     one(remover).remove(inProgressDeletionCheckFile);
                 }

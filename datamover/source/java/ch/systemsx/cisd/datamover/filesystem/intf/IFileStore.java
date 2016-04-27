@@ -39,33 +39,29 @@ public interface IFileStore extends ISelfTestable, ILastModificationChecker
      */
     @Override
     public boolean isRemote();
-    
+
     /**
      * Returns the location of the specified store item.
      */
     public StoreItemLocation getStoreItemLocation(StoreItem item);
 
     /**
-     * Returns <code>true</code> if this file store is the parent directory of the specified file
-     * store.
+     * Returns <code>true</code> if this file store is the parent directory of the specified file store.
      */
     public boolean isParentDirectory(IFileStore child);
 
     /**
      * Checks whether this store is a directory and is fully accessible to the program.
      * 
-     * @param timeOutMillis The time (in milli-seconds) to wait for the target to become available
-     *            if it is not initially.
-     * @return status describing if the <var>directory</var> is fully accessible. If this operation
-     *         fails, there is an error message available describing the problem with the
-     *         <var>directory</var>. In this case nothing can be stated about directory
-     *         accessability.
+     * @param timeOutMillis The time (in milli-seconds) to wait for the target to become available if it is not initially.
+     * @return status describing if the <var>directory</var> is fully accessible. If this operation fails, there is an error message available
+     *         describing the problem with the <var>directory</var>. In this case nothing can be stated about directory accessability.
      */
     public BooleanStatus checkDirectoryFullyAccessible(final long timeOutMillis);
 
     /**
-     * Checks if the specified store item exists in this file store. This operation can fail, error
-     * status is then available and the result is unknown.
+     * Checks if the specified store item exists in this file store. This operation can fail, error status is then available and the result is
+     * unknown.
      */
     public BooleanStatus exists(StoreItem item);
 
@@ -91,23 +87,20 @@ public interface IFileStore extends ISelfTestable, ILastModificationChecker
     public Status delete(StoreItem item);
 
     /**
-     * @param destinationDirectory The directory to use as a destination in the copy operation. It
-     *            must be readable and writable. Copier will override the destination item if it
-     *            already exists.
+     * @param destinationDirectory The directory to use as a destination in the copy operation. It must be readable and writable. Copier will override
+     *            the destination item if it already exists.
      */
     public IStoreCopier getCopier(IFileStore destinationDirectory);
 
     /**
-     * @return description which should give the user the idea about item location in sthe store. It
-     *         should not be used for something else than printing it for user. In particular it
-     *         should not be assumed that the result is the path which could be used in java.io.File
+     * @return description which should give the user the idea about item location in sthe store. It should not be used for something else than
+     *         printing it for user. In particular it should not be assumed that the result is the path which could be used in java.io.File
      *         constructor.
      */
     public String getLocationDescription(StoreItem item);
 
     /**
-     * Constructs a {@link StoreItem} from a location description as created by
-     * {@link #getLocationDescription(StoreItem)}.
+     * Constructs a {@link StoreItem} from a location description as created by {@link #getLocationDescription(StoreItem)}.
      */
     StoreItem asStoreItem(String locationDescription);
 

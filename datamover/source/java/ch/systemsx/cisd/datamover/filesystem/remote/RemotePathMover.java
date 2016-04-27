@@ -43,8 +43,8 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
- * A class that moves files and directories to remote directories. This class monitors the copy
- * process and, if necessary, notifies an administrator of failures.
+ * A class that moves files and directories to remote directories. This class monitors the copy process and, if necessary, notifies an administrator
+ * of failures.
  * 
  * @author Bernd Rinn
  */
@@ -100,7 +100,7 @@ public final class RemotePathMover implements IStoreMover
     private final IStoreCopier copier;
 
     private final ITimeProvider timeProvider;
-    
+
     private final long intervallToWaitAfterFailure;
 
     private final long inactivityPeriodMillis;
@@ -117,10 +117,8 @@ public final class RemotePathMover implements IStoreMover
      * @param sourceDirectory The directory to move paths from.
      * @param destinationDirectory The directory to move paths to.
      * @param copier Copies items from source to destination
-     * @param timingParameters The timing parameters used for monitoring and reporting stall
-     *            situations.
-     * @param notifyLogOnDeletionFailure If <code>true</code>, a failure to delete the item after
-     *            successful copying will trigger a notification log.
+     * @param timingParameters The timing parameters used for monitoring and reporting stall situations.
+     * @param notifyLogOnDeletionFailure If <code>true</code>, a failure to delete the item after successful copying will trigger a notification log.
      * @throws ConfigurationFailureException If the destination directory is not fully accessible.
      */
     public RemotePathMover(final IFileStore sourceDirectory, final IFileStore destinationDirectory,
@@ -156,7 +154,7 @@ public final class RemotePathMover implements IStoreMover
     {
         LastLineHandler lastLineHandler = new LastLineHandler();
         IDescribingActivitySensor sensor = createSensor(item, lastLineHandler);
-        
+
         final InactivityMonitor monitor =
                 new InactivityMonitor(sensor,
                         new IInactivityObserver()
@@ -175,7 +173,7 @@ public final class RemotePathMover implements IStoreMover
         monitor.stop();
         return copyStatus;
     }
-    
+
     private IDescribingActivitySensor createSensor(StoreItem item, final LastLineHandler lineHandler)
     {
         if (copier.isProgressEnabled() == false)
@@ -184,25 +182,26 @@ public final class RemotePathMover implements IStoreMover
         }
         return new IDescribingActivitySensor()
             {
-                
+
                 @Override
                 public boolean hasActivityMoreRecentThan(long thresholdMillis)
                 {
                     return lineHandler.getLastTimestamp() > thresholdMillis;
                 }
-                
+
                 @Override
                 public long getLastActivityMillisMoreRecentThan(long thresholdMillis)
                 {
                     return lineHandler.getLastTimestamp();
                 }
-                
+
                 @Override
                 public String describeInactivity(long now)
                 {
                     final String inactivityPeriod =
                             DurationFormatUtils.formatDurationHMS(now - lineHandler.getLastTimestamp());
-                    return "No write activity on for " + inactivityPeriod;                }
+                    return "No write activity on for " + inactivityPeriod;
+                }
             };
     }
 
@@ -473,8 +472,11 @@ public final class RemotePathMover implements IStoreMover
     private class LastLineHandler implements ITextHandler
     {
         private static final long MAX_LOG_TIME_INTERVAL = 60000;
+
         private long lastTimestamp;
+
         private long lastLogTimestamp;
+
         private long logTimeInterval = 1000;
 
         @Override
@@ -493,7 +495,7 @@ public final class RemotePathMover implements IStoreMover
         {
             return lastTimestamp;
         }
-        
+
     }
-    
+
 }

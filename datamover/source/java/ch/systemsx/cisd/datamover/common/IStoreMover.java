@@ -31,10 +31,13 @@ import ch.systemsx.cisd.common.filesystem.StoreItem;
  */
 public interface IStoreMover extends IStopSignaler
 {
-    
+
     /** A status information for the moving operation. */
-    public enum MoveStatus { COPY_FAILED, COPY_OK_DELETION_FAILED, MOVE_OK }
-    
+    public enum MoveStatus
+    {
+        COPY_FAILED, COPY_OK_DELETION_FAILED, MOVE_OK
+    }
+
     /**
      * Handles given <var>item</var>.
      * 

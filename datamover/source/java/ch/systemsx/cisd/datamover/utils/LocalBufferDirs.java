@@ -24,8 +24,7 @@ import ch.systemsx.cisd.common.filesystem.highwatermark.HostAwareFileWithHighwat
 /**
  * Paths to different local buffer directories.
  * <p>
- * All these local directories are sub-directories of <code>bufferDir</code> specified in the
- * constructor.
+ * All these local directories are sub-directories of <code>bufferDir</code> specified in the constructor.
  * </p>
  * 
  * @author Tomasz Pylak

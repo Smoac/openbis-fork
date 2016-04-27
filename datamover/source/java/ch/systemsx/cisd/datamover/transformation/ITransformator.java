@@ -23,9 +23,8 @@ import ch.systemsx.cisd.common.exceptions.Status;
 /**
  * Interface of the data transformator.
  * <p>
- * If DMV is restarted all files will be transformed once again because of recovery mechanism.
- * All transformations run in-place so for some of them it may be needed to implement additional
- * mechanism that ignores files that were already transformed.
+ * If DMV is restarted all files will be transformed once again because of recovery mechanism. All transformations run in-place so for some of them it
+ * may be needed to implement additional mechanism that ignores files that were already transformed.
  * 
  * @author Piotr Buczek
  */
@@ -33,13 +32,11 @@ public interface ITransformator
 {
 
     /**
-     * Transforms the directory/file pointed by <var>path</var>. The result of transformation will
-     * be in the same path.
+     * Transforms the directory/file pointed by <var>path</var>. The result of transformation will be in the same path.
      * 
-     * @return {@link Status} of the transformation. If transformation fails because of fatal errors
-     *         and DMV should stop processing files it should contain error information. Otherwise
-     *         it should be {@link Status#OK} (the transformer should take care of logging minor
-     *         errors by itself).
+     * @return {@link Status} of the transformation. If transformation fails because of fatal errors and DMV should stop processing files it should
+     *         contain error information. Otherwise it should be {@link Status#OK} (the transformer should take care of logging minor errors by
+     *         itself).
      */
     Status transform(File path);
 }

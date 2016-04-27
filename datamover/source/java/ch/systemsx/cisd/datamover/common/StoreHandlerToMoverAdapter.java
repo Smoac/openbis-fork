@@ -27,9 +27,9 @@ import ch.systemsx.cisd.datamover.common.IStoreMover.MoveStatus;
  */
 public class StoreHandlerToMoverAdapter implements IStoreHandler
 {
-    
+
     private final IStoreMover mover;
-    
+
     public StoreHandlerToMoverAdapter(IStoreMover mover)
     {
         this.mover = mover;

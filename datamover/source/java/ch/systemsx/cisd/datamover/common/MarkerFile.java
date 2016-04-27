@@ -58,7 +58,7 @@ public class MarkerFile
     public static boolean isFaultyPathsFile(File file)
     {
         assert file != null;
-        
+
         return FileConstants.FAULTY_PATH_FILENAME.equals(file.getName());
     }
 
@@ -87,5 +87,5 @@ public class MarkerFile
     {
         return new StoreItem(".requiresDeletionBeforeCreation");
     }
-    
+
 }

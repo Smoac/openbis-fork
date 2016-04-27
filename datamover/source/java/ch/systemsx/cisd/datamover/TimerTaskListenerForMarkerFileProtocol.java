@@ -28,10 +28,9 @@ import ch.systemsx.cisd.common.concurrent.ITimerTaskStatusProvider;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
- * An implementation of {@link ITimerTaskListener} which creates an empty marker file before the
- * timer task is executed and which removes this marker file when the task has been finished.
- * Optionally, the listener can create another marker file when the task is finished (which it will
- * not remove itself).
+ * An implementation of {@link ITimerTaskListener} which creates an empty marker file before the timer task is executed and which removes this marker
+ * file when the task has been finished. Optionally, the listener can create another marker file when the task is finished (which it will not remove
+ * itself).
  * 
  * @author Franz-Josef Elmer
  */
@@ -46,14 +45,10 @@ public class TimerTaskListenerForMarkerFileProtocol extends DummyTimerTaskListen
     /**
      * Creates an instance for the specified marker file.
      * 
-     * @param markerFileName The name of the marker file that indicates that the
-     *            {@link java.util.TimerTask} is currently running.
-     * @param errorMarkerFileNameOrNull The name of the file indicating that the last time the timer
-     *            task was running it produced an error.
-     * @param successorMarkerFileNameOrNull The name of the file to indicate that the successor of
-     *            this timer task has some work to do.
-     * @throws IllegalArgumentException if the <var>markerFileName</var> is <code>null</code> or
-     *             it denotes a directory.
+     * @param markerFileName The name of the marker file that indicates that the {@link java.util.TimerTask} is currently running.
+     * @param errorMarkerFileNameOrNull The name of the file indicating that the last time the timer task was running it produced an error.
+     * @param successorMarkerFileNameOrNull The name of the file to indicate that the successor of this timer task has some work to do.
+     * @throws IllegalArgumentException if the <var>markerFileName</var> is <code>null</code> or it denotes a directory.
      */
     public TimerTaskListenerForMarkerFileProtocol(String markerFileName,
             String errorMarkerFileNameOrNull, String successorMarkerFileNameOrNull)

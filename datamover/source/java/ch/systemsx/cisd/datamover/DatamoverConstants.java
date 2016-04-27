@@ -17,15 +17,15 @@
 package ch.systemsx.cisd.datamover;
 
 /**
- * Global constants used in datamover. 
+ * Global constants used in datamover.
  *
  * @author Bernd Rinn
  */
 public class DatamoverConstants
 {
     static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
-    
-    public static final String RSYNC_PASSWORD_FILE_INCOMING = "etc/rsync_incoming.passwd"; 
+
+    public static final String RSYNC_PASSWORD_FILE_INCOMING = "etc/rsync_incoming.passwd";
 
     public static final String RSYNC_PASSWORD_FILE_OUTGOING = "etc/rsync_outgoing.passwd";
 
