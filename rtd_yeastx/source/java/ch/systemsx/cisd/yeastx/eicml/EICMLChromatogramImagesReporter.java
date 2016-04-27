@@ -56,8 +56,7 @@ public class EICMLChromatogramImagesReporter extends AbstractEICMLDatastoreRepor
     private static final long serialVersionUID = 1L;
 
     /**
-     * An internal helper class for storing the information for the query parameters to the image
-     * servlet.
+     * An internal helper class for storing the information for the query parameters to the image servlet.
      * 
      * @author Chandrasekhar Ramakrishnan
      */

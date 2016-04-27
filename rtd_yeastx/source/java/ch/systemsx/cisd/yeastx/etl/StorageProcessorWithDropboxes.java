@@ -26,18 +26,15 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.AbstractDatasetDropboxHandler;
 
 /**
- * Storage processor which is able to create a copy of incoming data for additional processing. The
- * copy has a changed name to trace back the dataset to which the original data belong.
+ * Storage processor which is able to create a copy of incoming data for additional processing. The copy has a changed name to trace back the dataset
+ * to which the original data belong.
  * <p>
- * Assumes that {@link IDataSetInfoExtractor} returns extended information about datasets using
- * {@link DataSetInformationYeastX} class.
+ * Assumes that {@link IDataSetInfoExtractor} returns extended information about datasets using {@link DataSetInformationYeastX} class.
  * </p>
  * <p>
- * The processor uses following properties: {@link #DELEGATE_PROCESSOR_CLASS_PROPERTY},
- * {@link #DROPBOX_EICML_INCOMING_DIRECTORY_PROPERTY},
- * {@link #DROPBOX_FIAML_INCOMING_DIRECTORY_PROPERTY} and
- * {@link AbstractDatasetDropboxHandler#DATASET_CODE_SEPARATOR_PROPERTY}. All the properties are
- * also passed for the default processor.
+ * The processor uses following properties: {@link #DELEGATE_PROCESSOR_CLASS_PROPERTY}, {@link #DROPBOX_EICML_INCOMING_DIRECTORY_PROPERTY},
+ * {@link #DROPBOX_FIAML_INCOMING_DIRECTORY_PROPERTY} and {@link AbstractDatasetDropboxHandler#DATASET_CODE_SEPARATOR_PROPERTY}. All the properties
+ * are also passed for the default processor.
  * </p>
  * 
  * @author Tomasz Pylak
@@ -45,14 +42,14 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.AbstractDatasetDropboxH
 public class StorageProcessorWithDropboxes extends DelegatingStorageProcessorWithDropbox
 {
     /**
-     * The path to the directory where an additional copy of the original incoming data will be
-     * created. The file will be converted by external mechanism to eicML format.
+     * The path to the directory where an additional copy of the original incoming data will be created. The file will be converted by external
+     * mechanism to eicML format.
      */
     public final static String DROPBOX_EICML_INCOMING_DIRECTORY_PROPERTY = "eicml-dropbox-dir";
 
     /**
-     * The path to the directory where an additional copy of the original incoming data will be
-     * created. The file will be converted by external mechanism to fiaML format.
+     * The path to the directory where an additional copy of the original incoming data will be created. The file will be converted by external
+     * mechanism to fiaML format.
      */
     public final static String DROPBOX_FIAML_INCOMING_DIRECTORY_PROPERTY = "fiaml-dropbox-dir";
 

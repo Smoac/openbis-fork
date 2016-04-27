@@ -36,9 +36,8 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 /**
- * Generates a chromatogram from EICML data. Can be configured to generate the chromatogram in
- * several different styles -- Line (the standard), Area (filled in contour), Spline (Line using
- * spline curves), and Bar (3-D bar graph).
+ * Generates a chromatogram from EICML data. Can be configured to generate the chromatogram in several different styles -- Line (the standard), Area
+ * (filled in contour), Spline (Line using spline curves), and Bar (3-D bar graph).
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -250,13 +249,13 @@ public class EICMLChromatogramImageGenerator
 
         return plot;
     }
-    
+
     private void setAxisLabelFontSize(Axis axis)
     {
         Font labelFont = axis.getLabelFont();
         axis.setLabelFont(cloneFontWithNewSize(labelFont, Math.max(10, imageHeight / 40)));
     }
-    
+
     private Font cloneFontWithNewSize(Font font, int newSize)
     {
         return new Font(font.getName(), font.getStyle(), newSize);

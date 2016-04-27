@@ -38,8 +38,8 @@ public class XmlUtils
     private static DatatypeFactory DATATYPE_FACTORY = createDatatypeFactory();
 
     /**
-     * Converts duration which is a text representation of {@link Duration}) object into a number of
-     * seconds. Works only if the duration does not refer to months or years.
+     * Converts duration which is a text representation of {@link Duration}) object into a number of seconds. Works only if the duration does not
+     * refer to months or years.
      * 
      * @param durationText should be a valid representation of {@link Duration}) object
      */

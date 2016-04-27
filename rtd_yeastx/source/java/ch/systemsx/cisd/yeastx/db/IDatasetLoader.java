@@ -29,8 +29,8 @@ public interface IDatasetLoader
 
     /**
      * Uploads files with recognized extensions to the additional database.<br>
-     * If the exception is thrown than all the operations are rollbacked automatically and the next
-     * upload can take place without calling {@link #rollback()} or {@link #commit()} explicitly.
+     * If the exception is thrown than all the operations are rollbacked automatically and the next upload can take place without calling
+     * {@link #rollback()} or {@link #commit()} explicitly.
      */
     void upload(final File file, final DMDataSetDTO dataSet) throws SQLException;
 

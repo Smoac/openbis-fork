@@ -16,23 +16,22 @@
 
 package ch.systemsx.cisd.yeastx.fiaml;
 
-
 /**
- * A class that represents the data of a {@link FIAMSRunDTO}. 
+ * A class that represents the data of a {@link FIAMSRunDTO}.
  *
  * @author Bernd Rinn
  */
 public class FIAMSRunDataDTO
 {
-    
+
     private float[] profileMz;
-    
+
     private float[] profileIntensities;
-    
+
     private float[] centroidMz;
-    
+
     private float[] centroidIntensities;
-    
+
     private float[] centroidCorrelations;
 
     public float[] getProfileMz()
@@ -84,5 +83,5 @@ public class FIAMSRunDataDTO
     {
         this.centroidCorrelations = centroidCorrelations;
     }
-    
+
 }

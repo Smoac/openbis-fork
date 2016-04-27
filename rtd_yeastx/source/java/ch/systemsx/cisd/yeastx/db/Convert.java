@@ -1,4 +1,5 @@
 package ch.systemsx.cisd.yeastx.db;
+
 /*
  * Copyright 2009 ETH Zuerich, CISD
  *
@@ -39,8 +40,7 @@ public class Convert
     }
 
     /**
-     * Converts the given <var>csvList</var> string, which is expected to contain a comma-separated
-     * list of values, into a <code>float[]</code>.
+     * Converts the given <var>csvList</var> string, which is expected to contain a comma-separated list of values, into a <code>float[]</code>.
      */
     public static float[] csvToFloatArray(String csvList)
     {

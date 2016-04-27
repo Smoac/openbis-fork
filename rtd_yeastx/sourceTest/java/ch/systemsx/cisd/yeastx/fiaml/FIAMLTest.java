@@ -42,9 +42,11 @@ import ch.systemsx.cisd.yeastx.db.generic.DMGenericUtils;
 public class FIAMLTest extends AbstractDBTest
 {
     private static final String SAMPLE_PERM_ID = "FIAMLTest sample perm id";
+
     private static final String SAMPLE_PERM_ID2 = SAMPLE_PERM_ID + "2";
+
     private static final String SAMPLE_PERM_ID4 = SAMPLE_PERM_ID + "4";
-    
+
     private IFIAMSRunDAO fiamsDAO;
 
     @BeforeMethod(alwaysRun = true)

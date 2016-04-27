@@ -45,7 +45,7 @@ class DatasetMappingUtil
     // extensions of the file which contains dataset mapping. It is assumed that exactly one such a
     // file will exist in the directory.
     private static final String[] MAPPING_FILE_EXTENSIONS = new String[]
-        { "tsv" };
+    { "tsv" };
 
     private static TableMap<String, DataSetMappingInformation> tryAsFileMap(
             List<DataSetMappingInformation> list, LogUtils log, File mappingFile)
@@ -121,8 +121,7 @@ class DatasetMappingUtil
     }
 
     /**
-     * @return email address from the first line of the mapping file or null if there is no emai or
-     *         it is invalid.
+     * @return email address from the first line of the mapping file or null if there is no emai or it is invalid.
      */
     private static String tryGetEmail(File mappingFile, LogUtils log)
     {

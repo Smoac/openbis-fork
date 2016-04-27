@@ -26,8 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 
 /**
- * Implementation of {@link ITypeExtractor} which gets the types from the file extension. Some of
- * the types are hard-coded.
+ * Implementation of {@link ITypeExtractor} which gets the types from the file extension. Some of the types are hard-coded.
  * 
  * @author Tomasz Pylak
  */

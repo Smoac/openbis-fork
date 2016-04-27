@@ -40,10 +40,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.yeastx.etl.DatasetMappingUtil.DataSetMappingInformationFile;
 
 /**
- * {@link IDataSetHandler} implementation which for each dataset directory reads all the files
- * inside that directory and runs the primary dataset handler for it.<br>
- * Following properties can be configured:<br> {@link PreprocessingExecutor#PREPROCESSING_SCRIPT_PATH} -
- * the path to the script which acquires write access.
+ * {@link IDataSetHandler} implementation which for each dataset directory reads all the files inside that directory and runs the primary dataset
+ * handler for it.<br>
+ * Following properties can be configured:<br>
+ * {@link PreprocessingExecutor#PREPROCESSING_SCRIPT_PATH} - the path to the script which acquires write access.
  * 
  * @author Tomasz Pylak
  */

@@ -143,7 +143,7 @@ public class ChromatogramDTO
     //
     // Object
     //
-    
+
     @Override
     public String toString()
     {

@@ -40,8 +40,7 @@ import ch.systemsx.cisd.yeastx.mzxml.dto.MzScanDTO;
 public class MzXml2DatabaseTest
 {
     /**
-     * Tests the logic which adds mzXML run to the database, does not test xml parsing or adding a
-     * dataset/experiment/sample.
+     * Tests the logic which adds mzXML run to the database, does not test xml parsing or adding a dataset/experiment/sample.
      */
     @Test
     public void testUpload()
@@ -60,7 +59,7 @@ public class MzXml2DatabaseTest
         final float mz = 1.11F;
         final float intensity = 2.22F;
         peaks.setPeaks(NativeData.floatToByte(new float[]
-            { mz, intensity }, ByteOrder.BIG_ENDIAN));
+        { mz, intensity }, ByteOrder.BIG_ENDIAN));
         scan.setPeaksBytes(peaks);
         List<MzScanDTO> scans = Arrays.asList(scan, scan);
         run.setScans(scans);

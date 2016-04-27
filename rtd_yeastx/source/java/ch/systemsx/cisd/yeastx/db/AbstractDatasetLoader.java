@@ -26,8 +26,7 @@ import ch.systemsx.cisd.yeastx.db.generic.DMGenericUtils;
 import ch.systemsx.cisd.yeastx.db.generic.IDMGenericDAO;
 
 /**
- * Abstract class for dataset loaders. Provides commit and rollback functionality and creation of
- * the dataset records (without the detail data).
+ * Abstract class for dataset loaders. Provides commit and rollback functionality and creation of the dataset records (without the detail data).
  * 
  * @author Tomasz Pylak
  */
@@ -66,8 +65,7 @@ abstract public class AbstractDatasetLoader<T extends IDMGenericDAO> implements 
     }
 
     /**
-     * Cannot be called twice in a row if {@link #commit()} or {@link #rollback()} has not been
-     * called in between.
+     * Cannot be called twice in a row if {@link #commit()} or {@link #rollback()} has not been called in between.
      */
     protected void createDataSet(DMDataSetDTO dataSet)
     {

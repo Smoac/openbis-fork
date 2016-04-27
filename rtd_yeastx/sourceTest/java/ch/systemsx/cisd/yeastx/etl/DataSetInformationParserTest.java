@@ -41,7 +41,7 @@ public class DataSetInformationParserTest extends AbstractFileSystemTestCase
     private static final String MANDATORY_HEADER_SAMPLE = "file_name sample group\n";
 
     private static final String HEADER =
-    // "# user@gmail.com\n+"+
+            // "# user@gmail.com\n+"+
             "file_name sample parent group experiment project conversion dataset_property_1 dataset_property_2\n";
 
     private static final String TAB = "\t";

@@ -68,8 +68,7 @@ class LogUtils
     }
 
     /**
-     * Logs exception which occurred while storing one dataset file. Uses user log file and email
-     * notification.
+     * Logs exception which occurred while storing one dataset file. Uses user log file and email notification.
      */
     public void datasetFileError(File dataset, Throwable exception)
     {
@@ -95,8 +94,7 @@ class LogUtils
     }
 
     /**
-     * Logs an error about the syntax of the mapping file. Uses user log file and email
-     * notification.
+     * Logs an error about the syntax of the mapping file. Uses user log file and email notification.
      */
     public void mappingFileError(File mappingFile, String messageFormat, Object... arguments)
     {

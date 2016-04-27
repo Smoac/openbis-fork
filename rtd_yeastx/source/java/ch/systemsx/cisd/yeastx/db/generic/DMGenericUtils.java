@@ -24,16 +24,13 @@ package ch.systemsx.cisd.yeastx.db.generic;
 public class DMGenericUtils
 {
     /**
-     * Creates the data set based on the information given in <var>dataSet</var>. The sample and
-     * experiment of the data set may already exist in the database. If they don't, they are created
-     * as well.<br>
+     * Creates the data set based on the information given in <var>dataSet</var>. The sample and experiment of the data set may already exist in the
+     * database. If they don't, they are created as well.<br>
      * Sets sample, experiment and dataset id fields of the specified dataset.
      * <p>
-     * NOTE: Code responsible for trying to get sample and experiment from the DB and creating them
-     * if they don't exist is in synchronized block and uses currently opened transaction. Then the
-     * transaction is closed and data set is added to the DB in second transaction. If second
-     * transaction will be rolled back sample and experiment created in first transaction will stay
-     * in the DB.
+     * NOTE: Code responsible for trying to get sample and experiment from the DB and creating them if they don't exist is in synchronized block and
+     * uses currently opened transaction. Then the transaction is closed and data set is added to the DB in second transaction. If second transaction
+     * will be rolled back sample and experiment created in first transaction will stay in the DB.
      */
     public static void createDataSet(IDMGenericDAO dao, DMDataSetDTO dataSet)
     {

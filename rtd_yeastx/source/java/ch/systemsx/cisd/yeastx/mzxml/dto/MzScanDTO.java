@@ -33,9 +33,9 @@ public class MzScanDTO
     private int level;
 
     private int peaksCount;
-    
+
     private String peakPositions;
-    
+
     private String peakIntensities;
 
     private String polarity;
@@ -193,7 +193,7 @@ public class MzScanDTO
         initPeaks();
         return peakIntensities;
     }
-    
+
     private void initPeaks()
     {
         if (peakPositions == null)
@@ -215,7 +215,7 @@ public class MzScanDTO
             peakIntensities = intensities.toString();
         }
     }
-    
+
     private void addTo(StringBuilder builder, float value)
     {
         if (builder.length() > 0)

@@ -40,8 +40,7 @@ import ch.systemsx.cisd.yeastx.mzxml.MzXml2Database;
 import ch.systemsx.cisd.yeastx.quant.QuantML2Database;
 
 /**
- * Extracts and uploads information from dataset files (like <code>eicML</code> or
- * <code>fiaML</code> files) to the additional database.
+ * Extracts and uploads information from dataset files (like <code>eicML</code> or <code>fiaML</code> files) to the additional database.
  * 
  * @author Tomasz Pylak
  */

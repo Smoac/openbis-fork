@@ -18,7 +18,6 @@ package ch.systemsx.cisd.yeastx;
 
 import ch.systemsx.cisd.base.utilities.AbstractBuildAndEnvironmentInfo;
 
-
 /**
  * The build and environment information for YeastX.
  *
@@ -27,9 +26,9 @@ import ch.systemsx.cisd.base.utilities.AbstractBuildAndEnvironmentInfo;
 public class BuildAndEnvironmentInfo extends AbstractBuildAndEnvironmentInfo
 {
     private final static String BASE = "rtd_yeastx";
-    
+
     public final static BuildAndEnvironmentInfo INSTANCE = new BuildAndEnvironmentInfo();
-    
+
     private BuildAndEnvironmentInfo()
     {
         super(BASE);

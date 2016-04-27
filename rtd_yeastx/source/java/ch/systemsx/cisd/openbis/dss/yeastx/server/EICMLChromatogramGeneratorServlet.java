@@ -63,10 +63,9 @@ public class EICMLChromatogramGeneratorServlet extends AbstractDatasetDownloadSe
     public final static int DEFAULT_HEIGHT = 200;
 
     /**
-     * A utility class for dealing with the parameters required to generate an image from a
-     * chromatogram. This class makes sure all the required parameters are in the request (it throws
-     * exceptions otherwise), and it defaults values for all optional parameters if they are not in
-     * the request.
+     * A utility class for dealing with the parameters required to generate an image from a chromatogram. This class makes sure all the required
+     * parameters are in the request (it throws exceptions otherwise), and it defaults values for all optional parameters if they are not in the
+     * request.
      * 
      * @author Chandrasekhar Ramakrishnan
      */

@@ -31,8 +31,8 @@ import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.utils.PreprocessingExecutor;
 
 /**
- * Stores directories containing quantML files in the DSS store. Additionally extracts and uploads
- * information from *.quantML dataset files to the additional database.
+ * Stores directories containing quantML files in the DSS store. Additionally extracts and uploads information from *.quantML dataset files to the
+ * additional database.
  * 
  * @author Tomasz Pylak
  */
@@ -62,7 +62,6 @@ public class QuantMLStorageProcessor extends AbstractDelegatingStorageProcessor
 
     }
 
-
     // returns the only file with the specified extension or throws an exceptions if none or more
     // than one is found.
     public static File findFile(File incomingItem, String fileExtension)
@@ -73,7 +72,7 @@ public class QuantMLStorageProcessor extends AbstractDelegatingStorageProcessor
             return incomingItem;
         }
         List<File> files = FileOperations.getInstance().listFiles(incomingItem, new String[]
-            { fileExtension }, false);
+        { fileExtension }, false);
         if (files.size() != 1)
         {
             throw UserFailureException.fromTemplate(
