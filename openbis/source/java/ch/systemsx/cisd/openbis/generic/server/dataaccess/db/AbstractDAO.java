@@ -99,12 +99,12 @@ public abstract class AbstractDAO extends HibernateDaoSupport
             String msg = "";
             for (ConstraintViolation v : violations)
             {
-                Object invalidValue = v.getInvalidValue();
-                if (invalidValue instanceof String && (((String) invalidValue).length() > MAX_STRING_ERROR_LENGTH))
+                String invalidValue = (v.getInvalidValue() != null)?v.getInvalidValue().toString():null;
+                if (invalidValue != null && invalidValue.length() > MAX_STRING_ERROR_LENGTH)
                 {
                     invalidValue =
-                            String.format("%s... (complete value was %d characters)", ((String) invalidValue).substring(0, MAX_STRING_ERROR_LENGTH),
-                                    ((String) invalidValue).length());
+                            String.format("%s... (complete value was %d characters)", invalidValue.substring(0, MAX_STRING_ERROR_LENGTH),
+                                    invalidValue.length());
                 }
                 msg += ", " + String.format(v.getMessage(), invalidValue);
             }
