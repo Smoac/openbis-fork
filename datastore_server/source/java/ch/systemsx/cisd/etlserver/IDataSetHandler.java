@@ -29,14 +29,13 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 public interface IDataSetHandler
 {
     /**
-     * Properties key prefix to find the {@link IDataSetHandler} implementation which takes the
-     * properties and the primary (original) IDataSetHandler implementation as a parameter.
+     * Properties key prefix to find the {@link IDataSetHandler} implementation which takes the properties and the primary (original) IDataSetHandler
+     * implementation as a parameter.
      */
     public static final String DATASET_HANDLER_KEY = "dataset-handler";
 
     /**
-     * Handles specified data set and returns informations (like data set code) 
-     * of all actually registered data sets.
+     * Handles specified data set and returns informations (like data set code) of all actually registered data sets.
      */
     public List<DataSetInformation> handleDataSet(final File dataSet);
 

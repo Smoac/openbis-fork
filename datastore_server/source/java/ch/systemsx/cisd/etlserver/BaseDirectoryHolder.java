@@ -19,8 +19,7 @@ package ch.systemsx.cisd.etlserver;
 import java.io.File;
 
 /**
- * A tiny class which holds the <i>base directory</i> and ensures that the <i>target file</i> lazily
- * gets computed only once.
+ * A tiny class which holds the <i>base directory</i> and ensures that the <i>target file</i> lazily gets computed only once.
  * 
  * @author Christian Ribeaud
  */

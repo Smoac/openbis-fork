@@ -42,17 +42,15 @@ public final class ThreadParameters
 {
 
     /**
-     * A path to a script which should be called from command line before data set registration. The
-     * script gets two parameters: data set code and absolute path to the data set in the data
-     * store.
+     * A path to a script which should be called from command line before data set registration. The script gets two parameters: data set code and
+     * absolute path to the data set in the data store.
      */
     @Private
     static final String PRE_REGISTRATION_SCRIPT_KEY = "pre-registration-script";
 
     /**
-     * A path to a script which should be called from command line after successful data set
-     * registration. The script gets two parameters: data set code and absolute path to the data set
-     * in the data store.
+     * A path to a script which should be called from command line after successful data set registration. The script gets two parameters: data set
+     * code and absolute path to the data set in the data store.
      */
     @Private
     static final String POST_REGISTRATION_SCRIPT_KEY = "post-registration-script";
@@ -97,6 +95,7 @@ public final class ThreadParameters
 
     public static final String DATASET_REGISTRATION_PRE_STAGING_BEHAVIOR =
             "dataset-registration-prestaging-behavior";
+
     @Private
     public static final String INCOMING_SHARE_ID = "incoming-share-id";
 
@@ -127,8 +126,8 @@ public final class ThreadParameters
     public static final String RECOVERY_DEVELOPMENT_MODE = "development-mode";
 
     /**
-     * The (local) directory to monitor for new files and directories to move to the remote side.
-     * The directory where data to be processed by the ETL server become available.
+     * The (local) directory to monitor for new files and directories to move to the remote side. The directory where data to be processed by the ETL
+     * server become available.
      */
     private final File incomingDataDirectory;
 
@@ -169,12 +168,11 @@ public final class ThreadParameters
     private final int minimumRecoveryPeriod;
 
     private final DataSetRegistrationPreStagingBehavior dataSetRegistrationPreStagingBehavior;
-    
+
     private final Integer incomingShareId;
 
     /**
-     * @param threadProperties parameters for one processing thread together with general
-     *            parameters.
+     * @param threadProperties parameters for one processing thread together with general parameters.
      */
     public ThreadParameters(final Properties threadProperties, final String threadName)
     {
@@ -213,7 +211,7 @@ public final class ThreadParameters
         this.dataSetRegistrationPreStagingBehavior =
                 getOriginalnputDataSetBehaviour(threadProperties);
         this.incomingShareId = tryGetIncomingShareId(threadProperties);
- 
+
         boolean developmentMode =
                 PropertyUtils.getBoolean(threadProperties, RECOVERY_DEVELOPMENT_MODE, false);
         if (developmentMode)
@@ -374,20 +372,20 @@ public final class ThreadParameters
         }
         return paths;
     }
-    
+
     @Private
     static final Integer tryGetIncomingShareId(final Properties properties)
     {
-       String shareId =  PropertyUtils.getProperty(properties, INCOMING_SHARE_ID);
-       if(StringUtils.isBlank(shareId)) 
-       {
-           return null;
-       }
-       if(SegmentedStoreUtils.SHARE_ID_PATTERN.matcher(shareId).matches() == false)
-       {
+        String shareId = PropertyUtils.getProperty(properties, INCOMING_SHARE_ID);
+        if (StringUtils.isBlank(shareId))
+        {
+            return null;
+        }
+        if (SegmentedStoreUtils.SHARE_ID_PATTERN.matcher(shareId).matches() == false)
+        {
             throw new ConfigurationFailureException("Invalid incoming share Id:" + shareId);
-       }
-       return Integer.parseInt(shareId);
+        }
+        return Integer.parseInt(shareId);
     }
 
     private static String nullIfEmpty(String value)

@@ -31,8 +31,8 @@ public interface ITransactionalCommand extends Serializable
     void execute();
 
     /**
-     * Rollback any side-effects of the execute. Rollback is assumed to be idempotent -- multiple
-     * invocations are allowed. If there is nothing to rollback, just ignore.
+     * Rollback any side-effects of the execute. Rollback is assumed to be idempotent -- multiple invocations are allowed. If there is nothing to
+     * rollback, just ignore.
      */
     void rollback();
 }

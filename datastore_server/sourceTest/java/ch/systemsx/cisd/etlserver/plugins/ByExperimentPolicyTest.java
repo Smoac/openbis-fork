@@ -172,7 +172,7 @@ public class ByExperimentPolicyTest extends ByPoliceAbstractTest
         List<AbstractExternalData> filtered = filter(10, 1000, dataSets);
 
         String value = Code.extractCodes(filtered).toString();
-        
+
         assertTrue(value.equals("[ds3]") || value.equals("[ds4]"));
 
         context.assertIsSatisfied();

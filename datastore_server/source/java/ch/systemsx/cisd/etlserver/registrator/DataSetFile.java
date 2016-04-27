@@ -4,9 +4,8 @@ import java.io.File;
 import java.io.Serializable;
 
 /**
- * Wrapper that bundles two copies of incoming dataset file. One is original file from the dropbox
- * (realIncomingFile), second is the prestaging copy (logicalIncomingFile). In most cases, clients
- * should use the logicalIncomingFile. The exception being for actions that execute on error.
+ * Wrapper that bundles two copies of incoming dataset file. One is original file from the dropbox (realIncomingFile), second is the prestaging copy
+ * (logicalIncomingFile). In most cases, clients should use the logicalIncomingFile. The exception being for actions that execute on error.
  * 
  * @author jakubs
  */
@@ -36,8 +35,7 @@ public class DataSetFile implements Serializable
     }
 
     /**
-     * This file should be used only when it is really important to do something on the original
-     * File.
+     * This file should be used only when it is really important to do something on the original File.
      * 
      * @returns the original incoming dataset.
      */
@@ -63,8 +61,7 @@ public class DataSetFile implements Serializable
     }
 
     /**
-     * @returns something like
-     *          "original file: /local/path/inbox/file.txt logical file: /local/path/pre-staging/file.txt"
+     * @returns something like "original file: /local/path/inbox/file.txt logical file: /local/path/pre-staging/file.txt"
      */
     @Override
     public String toString()

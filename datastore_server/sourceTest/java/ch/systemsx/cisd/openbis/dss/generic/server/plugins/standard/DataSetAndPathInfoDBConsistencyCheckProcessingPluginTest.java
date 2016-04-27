@@ -103,7 +103,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
         for (T t : testCases)
         {
             resultsList[index++] = new Object[]
-                { t };
+            { t };
         }
 
         return resultsList;

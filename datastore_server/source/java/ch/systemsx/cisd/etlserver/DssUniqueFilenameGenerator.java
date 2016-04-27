@@ -52,7 +52,7 @@ public class DssUniqueFilenameGenerator
     {
         this(SystemTimeProvider.SYSTEM_TIME_PROVIDER, threadName, name, extensionOrNull);
     }
-    
+
     public DssUniqueFilenameGenerator(ITimeProvider timeProvider, String threadName, String name, String extensionOrNull)
     {
         super();

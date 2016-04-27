@@ -61,11 +61,10 @@ import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
  */
 public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCase
 {
-    
+
     private static final long START_TIME = 123456789012l;
 
-    private static final String START_TIME_AS_STRING 
-            = new SimpleDateFormat(MultiDataSetArchivingFinalizer.TIME_STAMP_FORMAT).format(START_TIME);
+    private static final String START_TIME_AS_STRING = new SimpleDateFormat(MultiDataSetArchivingFinalizer.TIME_STAMP_FORMAT).format(START_TIME);
 
     private static final String USER_ID = "test-user";
 
@@ -162,7 +161,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         final DatasetDescription ds1 = new DatasetDescriptionBuilder("ds1").getDatasetDescription();
 
         dataFileInArchive.delete();
-        
+
         context.checking(new Expectations()
             {
                 {
@@ -172,9 +171,9 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                     one(openBISService).archiveDataSets(Arrays.asList(ds1.getDataSetCode()), true);
                 }
             });
-        
+
         ProcessingStatus status = createFinalizer().process(Arrays.asList(ds1), processingContext);
-        
+
         assertEquals("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
                 + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
                 + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
@@ -183,7 +182,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                 + "ERROR OPERATION.MultiDataSetArchivingFinalizer - Replication of "
                 + "'" + dataFileInArchive.getPath() + "' failed because the original file does not exist.",
                 logRecorder.getLogContent());
-        assertEquals("ERROR: \"Replication of '" + dataFileInArchive.getPath() + "' failed because the original file does not exist.\"", 
+        assertEquals("ERROR: \"Replication of '" + dataFileInArchive.getPath() + "' failed because the original file does not exist.\"",
                 status.tryGetStatusByDataset(ds1.getDataSetCode()).toString());
         assertEquals("[[ds1] - AVAILABLE]", updatedStatus.toString());
         assertEquals(false, updatedStatus.get(0).isPresentInArchive());
@@ -215,15 +214,15 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         assertEquals("[]", cleaner.toString());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testReplicationForAddToArchiv()
     {
         DatasetDescription ds1 = new DatasetDescriptionBuilder("ds1").getDatasetDescription();
         parameterBindings.put(MultiDataSetArchivingFinalizer.STATUS_KEY, DataSetArchivingStatus.AVAILABLE.toString());
-        
+
         ProcessingStatus status = createFinalizer().process(Arrays.asList(ds1), processingContext);
-        
+
         assertEquals("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
                 + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
                 + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
@@ -240,7 +239,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         assertEquals("[]", cleaner.toString());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testReplicationFailedForArchivingWithPause() throws IOException
     {
@@ -288,10 +287,10 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                 + "condition: 5 bytes of 13 bytes are replicated for " + dataFileInArchive + "\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition still not fulfilled after 1sec, "
                 + "condition: Pause file '" + pauseFile + "' is present. "
-                + "The following action is paused: Waiting for replicated file " + dataFilePartiallyReplicated + "\n" 
+                + "The following action is paused: Waiting for replicated file " + dataFilePartiallyReplicated + "\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition fulfilled after 12sec, "
                 + "condition: Pause file '" + pauseFile + "' has been removed. "
-                + "The following action continues: Waiting for replicated file " + dataFilePartiallyReplicated + "\n" 
+                + "The following action continues: Waiting for replicated file " + dataFilePartiallyReplicated + "\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition still not fulfilled after 2min, "
                 + "condition: 5 bytes of 13 bytes are replicated for " + dataFileInArchive + "\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition still not fulfilled after 5min, "
@@ -307,7 +306,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         assertEquals(Arrays.asList(dataFileInArchive, dataFilePartiallyReplicated).toString(), cleaner.toString());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testReplicationFailedForAddToArchive()
     {
@@ -326,7 +325,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
             });
 
         ProcessingStatus status = createFinalizer().process(Arrays.asList(ds1, ds2), processingContext);
-        
+
         assertEquals("INFO  OPERATION.MultiDataSetArchivingFinalizer - "
                 + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
                 + ", replicated-file-path=" + dataFilePartiallyReplicated.getPath() + ", "
@@ -357,7 +356,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         context.checking(new Expectations()
             {
                 {
-                    one(dataSetDeleter).scheduleDeletionOfDataSets(Arrays.asList(descriptions), 
+                    one(dataSetDeleter).scheduleDeletionOfDataSets(Arrays.asList(descriptions),
                             TimingParameters.DEFAULT_MAXIMUM_RETRY_COUNT,
                             TimingParameters.DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURE_SECONDS);
                 }
@@ -405,23 +404,25 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                 }
             };
     }
-    
+
     private static final class MockTimeProviderWithActions extends MockTimeProvider
     {
         private final Map<Long, IDelegatedAction> actions = new HashMap<Long, IDelegatedAction>();
+
         private long afterTimeStamp;
+
         private IDelegatedAction afterAction;
-        
+
         public MockTimeProviderWithActions(long startTime, long... timeSteps)
         {
             super(startTime, timeSteps);
         }
-        
+
         void bindAction(long timeStamp, IDelegatedAction action)
         {
             actions.put(timeStamp, action);
         }
-        
+
         void bindActionAfter(long timeStamp, IDelegatedAction action)
         {
             this.afterTimeStamp = timeStamp;
@@ -442,7 +443,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
             }
             return time;
         }
-        
+
     }
 
 }

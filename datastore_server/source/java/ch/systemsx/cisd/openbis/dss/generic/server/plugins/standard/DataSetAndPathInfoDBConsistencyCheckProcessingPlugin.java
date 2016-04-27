@@ -30,8 +30,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetAndPathInfoDBCon
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Processing plugin which cheks consitency between data set files in the store and the information
- * stored in pathinfo database.
+ * Processing plugin which cheks consitency between data set files in the store and the information stored in pathinfo database.
  * 
  * @author pkupczyk
  */
@@ -49,7 +48,6 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
     }
 
     /**
-     * 
      * @param fileProvider The hierarchical content provider that references the file system.
      * @param pathInfoProvider The hierarchical content provider that references the path-info db.
      */
@@ -67,7 +65,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
         DataSetAndPathInfoDBConsistencyChecker checker = new DataSetAndPathInfoDBConsistencyChecker(fileProvider, pathInfoProvider);
         checker.check(datasets);
         String report = checker.createReport();
-        
+
         IEmailSender mailSender =
                 new MailService(context.getMailClient(), context.getUserEmailOrNull())
                         .createEmailSender();

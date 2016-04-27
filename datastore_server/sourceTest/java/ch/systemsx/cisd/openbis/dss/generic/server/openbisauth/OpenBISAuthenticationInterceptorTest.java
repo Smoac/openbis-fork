@@ -61,6 +61,7 @@ public class OpenBISAuthenticationInterceptorTest
     private static final String VALiD_SESSION_TOKEN = "valid-session";
 
     private Mockery context;
+
     private IServiceForDataStoreServer limsService;
 
     private OpenBISAuthenticationInterceptor interceptor;
@@ -78,7 +79,7 @@ public class OpenBISAuthenticationInterceptorTest
         limsService = context.mock(IServiceForDataStoreServer.class);
         methodInvocation = context.mock(MethodInvocation.class);
         dataSourceProvider = context.mock(IDataSourceProvider.class);
-        
+
         sessionHolder = new OpenBISSessionHolder();
         sessionHolder.setDataStoreCode(DATA_STORE_CODE);
 
@@ -93,7 +94,6 @@ public class OpenBISAuthenticationInterceptorTest
         interceptor.setPort(PORT);
     }
 
-    
     @AfterMethod
     public void tearDown()
     {
@@ -111,7 +111,7 @@ public class OpenBISAuthenticationInterceptorTest
                     will(throwException(new InvalidSessionException("error")));
                     setUpAuthenticationExpectations(this);
                     one(methodInvocation).proceed();
-                    
+
                     one(dataSourceProvider).getAllDataSourceDefinitions();
                     will(returnValue(Arrays.asList(DataSourceDefinition.fromString("code=a"))));
                 }
@@ -122,7 +122,7 @@ public class OpenBISAuthenticationInterceptorTest
         // the interceptor will reauthenticate and set the new session token
         assertEquals(VALiD_SESSION_TOKEN, sessionHolder.getSessionToken());
     }
-    
+
     @Test
     public final void testInitializeSessionToken() throws Throwable
     {
@@ -132,7 +132,7 @@ public class OpenBISAuthenticationInterceptorTest
                 {
                     setUpAuthenticationExpectations(this);
                     one(methodInvocation).proceed();
-                    
+
                     one(dataSourceProvider).getAllDataSourceDefinitions();
                     will(returnValue(Arrays.asList(DataSourceDefinition.fromString("code=a"))));
                 }

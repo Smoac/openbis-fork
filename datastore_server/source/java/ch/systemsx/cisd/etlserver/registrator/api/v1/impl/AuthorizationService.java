@@ -43,7 +43,6 @@ public class AuthorizationService implements IAuthorizationService
         return openBisService.doesUserHaveRole(user, role, spaceOrNull);
     }
 
-
     @Override
     public List<IDataSetImmutable> filterToVisibleDatasets(String user,
             List<IDataSetImmutable> datasets)
@@ -61,7 +60,6 @@ public class AuthorizationService implements IAuthorizationService
         return AuthorizationHelper.filterToVisible(openBisService, user, datasets,
                 codeMapper, AuthorizationHelper.EntityKind.DATA_SET);
     }
-
 
     @Override
     public List<IExperimentImmutable> filterToVisibleExperiments(String user,

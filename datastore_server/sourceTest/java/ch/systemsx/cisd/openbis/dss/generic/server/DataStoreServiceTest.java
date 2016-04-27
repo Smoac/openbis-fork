@@ -141,17 +141,17 @@ public class DataStoreServiceTest extends AssertJUnit
             return Arrays.asList(sequenceSearchResult);
         }
     }
-    
+
     public static final class MockProcessingTask implements IProcessingPluginTask
     {
         private static final long serialVersionUID = 1L;
-        
+
         private List<List<DatasetDescription>> recordedDataSets = new ArrayList<List<DatasetDescription>>();
 
         public MockProcessingTask(Properties properties, File storeRoot)
         {
         }
-        
+
         @Override
         public ProcessingStatus process(List<DatasetDescription> datasets, DataSetProcessingContext context)
         {
@@ -211,7 +211,7 @@ public class DataStoreServiceTest extends AssertJUnit
 
                     allowing(pluginTaskParameters).getStoreRoot();
                     will(returnValue(TEST_STORE));
-                    
+
                     allowing(pluginTaskParameters).getArchiverPluginFactory();
                     will(returnValue(new ArchiverPluginFactory(new SectionProperties("archiver", new Properties()))));
                 }
@@ -446,18 +446,17 @@ public class DataStoreServiceTest extends AssertJUnit
     {
         List<DatasetDescription> datasets = Arrays.<DatasetDescription> asList(new DatasetDescription());
         Map<String, String> parameterBindings = new HashMap<String, String>();
-        RecordingMatcher<DatastoreServiceDescription> recordingMatcher 
-            = prepareProcessingTaskInfoProvider(datasets, parameterBindings, "my-task");
-        
+        RecordingMatcher<DatastoreServiceDescription> recordingMatcher = prepareProcessingTaskInfoProvider(datasets, parameterBindings, "my-task");
+
         createService().processDatasets(sessionToken, userSessionToken, "my-task", datasets,
                 parameterBindings, USER_ID, EMAIL);
 
         assertEquals("[PROCESSING; my-task; DSS; my-task; .* ; null]", recordingMatcher.recordedObject().toString());
         context.assertIsSatisfied();
     }
-    
+
     private RecordingMatcher<DatastoreServiceDescription> prepareProcessingTaskInfoProvider(
-            final List<DatasetDescription> datasets, final Map<String, String> parameterBindings, 
+            final List<DatasetDescription> datasets, final Map<String, String> parameterBindings,
             final String... tasks)
     {
         final RecordingMatcher<DatastoreServiceDescription> recorder = new RecordingMatcher<DatastoreServiceDescription>();

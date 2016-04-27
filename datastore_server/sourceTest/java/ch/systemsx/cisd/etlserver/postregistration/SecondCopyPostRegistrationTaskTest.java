@@ -98,7 +98,7 @@ public class SecondCopyPostRegistrationTaskTest extends AbstractFileSystemTestCa
     @BeforeMethod
     public void beforeMethod()
     {
-        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO, 
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO,
                 ".*(SecondCopyPostRegistrationTask|AbstractDatastorePlugin|DataSetFileOperationsManager)");
         logRecorder.addFilter(new Filter()
             {

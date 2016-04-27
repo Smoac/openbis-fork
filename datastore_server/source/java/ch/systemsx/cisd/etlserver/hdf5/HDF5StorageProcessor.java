@@ -107,9 +107,8 @@ public class HDF5StorageProcessor extends AbstractStorageProcessor
         }
 
         /**
-         * Write the content of the incomingDataSetDirectory into an HDF5 container with the same
-         * hierarchical structure as the incomingDataSetDirectory. Don't delete the
-         * incomingDataSetDirectory yet (this happens in @link{#commit}).
+         * Write the content of the incomingDataSetDirectory into an HDF5 container with the same hierarchical structure as the
+         * incomingDataSetDirectory. Don't delete the incomingDataSetDirectory yet (this happens in @link{#commit}).
          */
         @Override
         public File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)

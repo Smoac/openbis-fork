@@ -52,7 +52,7 @@ public class DssRegistrationLogDirectoryHelper
         this.dssRegistrationLogDir = dssRegistrationLogDir;
         this.timeProvider = timeProvider;
     }
-    
+
     /**
      * Initialize the subdirectory structure for the logs
      */

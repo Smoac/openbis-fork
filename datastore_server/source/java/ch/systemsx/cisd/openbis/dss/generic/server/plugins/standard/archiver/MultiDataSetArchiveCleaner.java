@@ -36,33 +36,33 @@ import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 
 /**
- * Class doing clean ups of corrupted multi-data-set container files. Depending on the file path a container 
- * file is deleted immediately or later (using a {@link FileDeleter}).
+ * Class doing clean ups of corrupted multi-data-set container files. Depending on the file path a container file is deleted immediately or later
+ * (using a {@link FileDeleter}).
  *
  * @author Franz-Josef Elmer
  */
 class MultiDataSetArchiveCleaner implements IMultiDataSetArchiveCleaner
 {
     static final String FILE_PATH_PREFIXES_FOR_ASYNC_DELETION_KEY = "file-path-prefixes-for-async-deletion";
-    
+
     static final String DELETION_REQUESTS_DIR_KEY = "deletion-requests-dir";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             MultiDataSetArchiveCleaner.class);
 
     private static Map<File, FileDeleter> globalDeleters = new HashMap<File, FileDeleter>();
-    
+
     private final List<String> filePathPrefixesForAsyncDeletion;
-    
+
     private File deletionRequestsDir;
-    
+
     private final Map<File, FileDeleter> deleters;
 
     MultiDataSetArchiveCleaner(Properties properties)
     {
         this(properties, SystemTimeProvider.SYSTEM_TIME_PROVIDER, globalDeleters);
     }
-    
+
     MultiDataSetArchiveCleaner(Properties properties, ITimeAndWaitingProvider timeProvider, Map<File, FileDeleter> deleters)
     {
         this.deleters = deleters;
@@ -75,7 +75,7 @@ class MultiDataSetArchiveCleaner implements IMultiDataSetArchiveCleaner
         deletionRequestsDir = new File(PropertyUtils.getMandatoryProperty(properties, DELETION_REQUESTS_DIR_KEY));
         if (deletionRequestsDir.isFile())
         {
-            throw new ConfigurationFailureException("Property '" + DELETION_REQUESTS_DIR_KEY 
+            throw new ConfigurationFailureException("Property '" + DELETION_REQUESTS_DIR_KEY
                     + "' denotes an existing file instead of a directory: " + deletionRequestsDir);
         }
         if (deletionRequestsDir.exists() == false)
@@ -127,7 +127,7 @@ class MultiDataSetArchiveCleaner implements IMultiDataSetArchiveCleaner
             deleteSync(file);
         }
     }
-    
+
     private void deleteSync(File file)
     {
         if (file.delete())
@@ -138,7 +138,7 @@ class MultiDataSetArchiveCleaner implements IMultiDataSetArchiveCleaner
             operationLog.warn("Failed to delete file immediately: " + file);
         }
     }
-    
+
     private boolean isFileForAsyncDeletion(File file)
     {
         String path = file.getAbsolutePath();

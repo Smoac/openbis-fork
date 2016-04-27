@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.IDataSourceFactory;
 
 /**
  * Stores and provides access to data sources defined in properties file.
- *<p>
+ * <p>
  * Properties file example: <blockquote>
  * 
  * <pre>
@@ -81,7 +81,7 @@ public class DataSourceProvider implements IDataSourceProvider
             LogFactory.getLogger(LogCategory.OPERATION, DataSourceProvider.class);
 
     private final Map<String, DataSourceWithDefinition> dataSources;
-    
+
     private final List<DataSourceDefinition> dataSourceDefinitions =
             new ArrayList<DataSourceDefinition>();
 
@@ -132,8 +132,7 @@ public class DataSourceProvider implements IDataSourceProvider
     }
 
     /**
-     * Returns data source configured with given name or throws {@link IllegalArgumentException} if
-     * not configured.
+     * Returns data source configured with given name or throws {@link IllegalArgumentException} if not configured.
      */
     @Override
     public DataSource getDataSource(String name) throws IllegalArgumentException
@@ -150,8 +149,8 @@ public class DataSourceProvider implements IDataSourceProvider
     }
 
     /**
-     * Extracts data source name ({@link #DATA_SOURCE_KEY}) from properties and returns requested
-     * data source. See also {@link #getDataSource(String)}.
+     * Extracts data source name ({@link #DATA_SOURCE_KEY}) from properties and returns requested data source. See also {@link #getDataSource(String)}
+     * .
      */
     @Override
     public DataSource getDataSource(Properties properties)

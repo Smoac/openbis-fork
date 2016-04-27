@@ -38,11 +38,12 @@ import de.schlichtherle.util.zip.ZipOutputStream;
 public class ZipDataSetPackager extends AbstractDataSetPackager
 {
     private final File zipFile;
+
     private final boolean compress;
-    
+
     private ZipOutputStream zipOutputStream;
 
-    public ZipDataSetPackager(File zipFile, boolean compress,  
+    public ZipDataSetPackager(File zipFile, boolean compress,
             IHierarchicalContentProvider contentProvider, DataSetExistenceChecker dataSetExistenceChecker)
     {
         super(contentProvider, dataSetExistenceChecker);
@@ -55,7 +56,7 @@ public class ZipDataSetPackager extends AbstractDataSetPackager
     {
         return compress == false;
     }
-    
+
     @Override
     public void addEntry(String entryPath, long lastModified, long size, long checksum, InputStream in)
     {
@@ -93,7 +94,7 @@ public class ZipDataSetPackager extends AbstractDataSetPackager
             }
         }
     }
-    
+
     @Override
     public void addDirectoryEntry(String entryPath)
     {
@@ -136,7 +137,7 @@ public class ZipDataSetPackager extends AbstractDataSetPackager
             }
         }
     }
-    
+
     private ZipOutputStream getZipOutputStream()
     {
         if (zipOutputStream == null)

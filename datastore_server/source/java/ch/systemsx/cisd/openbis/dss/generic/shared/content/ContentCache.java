@@ -674,7 +674,7 @@ public class ContentCache implements IContentCache, InitializingBean
                 }
             }
         }
-        
+
         synchronized boolean isDataSetLocked(String dataSetCode)
         {
             Set<String> keySet = locks.keySet();

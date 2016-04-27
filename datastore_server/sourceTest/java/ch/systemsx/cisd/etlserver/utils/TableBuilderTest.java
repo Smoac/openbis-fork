@@ -23,8 +23,6 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TableBuilderTest extends AssertJUnit
@@ -36,7 +34,7 @@ public class TableBuilderTest extends AssertJUnit
         builder.addRow("11");
         builder.addRow(Arrays.asList("21", "22"));
         builder.addRow(Arrays.asList("31", "32", "33"));
-        
+
         List<Column> columns = builder.getColumns();
         assertEquals(2, columns.size());
         assertEquals("alpha", columns.get(0).getHeader());

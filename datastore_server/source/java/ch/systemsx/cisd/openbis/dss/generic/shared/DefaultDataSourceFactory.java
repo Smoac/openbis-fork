@@ -30,9 +30,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSourceWithDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.util.IDataSourceFactory;
 
 /**
- * Creates a {@link DataSource} using {@link DatabaseConfigurationContext} and given properties. The
- * database is migrated to the version specified by {@link #VERSION_HOLDER_CLASS_KEY} property if
- * specified.
+ * Creates a {@link DataSource} using {@link DatabaseConfigurationContext} and given properties. The database is migrated to the version specified by
+ * {@link #VERSION_HOLDER_CLASS_KEY} property if specified.
  * 
  * @author Izabela Adamczyk
  */

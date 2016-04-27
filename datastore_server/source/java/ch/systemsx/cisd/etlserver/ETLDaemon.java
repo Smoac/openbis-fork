@@ -109,8 +109,7 @@ public final class ETLDaemon
     static final String NOTIFY_SUCCESSFUL_REGISTRATION = "notify-successful-registration";
 
     /**
-     * The property name under which we specify a <code>long</code> for the high water mark for the
-     * recovery directory (in <i>kilobytes</i>).
+     * The property name under which we specify a <code>long</code> for the high water mark for the recovery directory (in <i>kilobytes</i>).
      */
     public static final String RECOVERY_HIGHWATER_MARK_PROPERTY_KEY = "recovery-highwater-mark";
 
@@ -282,7 +281,7 @@ public final class ETLDaemon
             File incomingDataDirectory = threadParameters.getIncomingDataDirectory();
             Integer incomingShareIdOrNull = threadParameters.getIncomingShareId();
             String shareId =
-                    SegmentedStoreUtils.findIncomingShare(incomingDataDirectory, storeRootDir, incomingShareIdOrNull, 
+                    SegmentedStoreUtils.findIncomingShare(incomingDataDirectory, storeRootDir, incomingShareIdOrNull,
                             new Log4jSimpleLogger(operationLog));
             incomingShares.add(shareId);
         }
@@ -604,7 +603,7 @@ public final class ETLDaemon
                         reprocessFaultyDatasets, checkIntervalMillis, faultyPathHandlerDelegate);
         return new HighwaterMarkDirectoryScanningHandler(faultyPathHandler, highwaterMarkWatcher,
                 new HostAwareFile[]
-                    { incomingDataDirectory, recoveryStateDirectory });
+                { incomingDataDirectory, recoveryStateDirectory });
     }
 
     private static IDirectoryScanningHandler createFaultyPathHandler(
@@ -750,8 +749,7 @@ public final class ETLDaemon
     }
 
     /**
-     * In order for the post registration queue table in the database to be cleared, there must be a
-     * post registration maintenance task.
+     * In order for the post registration queue table in the database to be cleared, there must be a post registration maintenance task.
      */
     private static void injectPostRegistrationMaintenanceTaskIfNecessary(
             MaintenanceTaskParameters[] maintenancePlugins)
@@ -813,8 +811,7 @@ public final class ETLDaemon
     }
 
     /**
-     * Runs ETL Daemon for system testing: Replaces default {@link IExitHandler} by a one which
-     * throws an {@link AssertionError}.
+     * Runs ETL Daemon for system testing: Replaces default {@link IExitHandler} by a one which throws an {@link AssertionError}.
      */
     public static void runForTesting(String[] args)
     {

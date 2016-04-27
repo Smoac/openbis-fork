@@ -71,7 +71,7 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
 
     private static final String ERROR_LOG_ENTRY_PREFIX_TEMPLATE =
             "ERROR %s.ExperimentBasedArchivingTask - ";
-    
+
     private static final String LOG_ENTRY_PREFIX = String.format(LOG_ENTRY_PREFIX_TEMPLATE,
             LogCategory.OPERATION);
 
@@ -80,7 +80,7 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
 
     private static final String NOTIFY_ERROR_LOG_ENTRY_PREFIX = String.format(
             ERROR_LOG_ENTRY_PREFIX_TEMPLATE, LogCategory.NOTIFY);
-    
+
     private static final String FREE_SPACE_BELOW_THRESHOLD_LOG_ENTRY = LOG_ENTRY_PREFIX
             + "Free space is below threshold, searching for datasets to archive.";
 
@@ -331,7 +331,7 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
                 logEntry(e2, oldDataSet, youngDataSet), logEntry(e1, veryYoungDataSet));
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testArchiveDataSetsWithNoSizeEstimates()
     {
@@ -343,10 +343,10 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
         youngDataSet.setSize(700L);
         prepareArchivingDataSets(veryYoungDataSet, oldDataSet, youngDataSet);
         prepareSizesAndTypes(oldDataSet);
-        
+
         task.setUp("", properties);
         task.execute();
-        
+
         checkLog(true, true, Arrays.asList("A"), logEntry(e1, veryYoungDataSet, oldDataSet, youngDataSet));
         context.assertIsSatisfied();
     }
@@ -379,7 +379,7 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
 
     private void checkLog(boolean noDefault, boolean free90mb, String... archivingEntries)
     {
-        checkLog(noDefault, free90mb, Arrays.<String>asList(), archivingEntries);
+        checkLog(noDefault, free90mb, Arrays.<String> asList(), archivingEntries);
     }
 
     private void checkLog(boolean noDefault, boolean free90mb,
@@ -410,9 +410,9 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
                 operationLogBuilder.append(dataSetsWithMissingEstimates);
                 operationLogBuilder
                         .append("\nPlease, configure the maintenance task with a property " +
-                        		"'estimated-data-set-size-in-KB.<data set type>' " +
-                        		"for each of these data set types. Alternatively, the property " +
-                        		"'estimated-data-set-size-in-KB.DEFAULT' can be specified.");
+                                "'estimated-data-set-size-in-KB.<data set type>' " +
+                                "for each of these data set types. Alternatively, the property " +
+                                "'estimated-data-set-size-in-KB.DEFAULT' can be specified.");
             }
         }
         if (archivingEntries.length > 0)

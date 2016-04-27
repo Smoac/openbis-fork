@@ -109,7 +109,7 @@ final class StandardProcessor implements IProcessor
     private void createFinishedFile(final IFile processingDirectory, final String dataSetName)
     {
         final String finishedFileName = finishedFileFormat.format(new String[]
-            { dataSetName });
+        { dataSetName });
         final IFile finishedFile = fileFactory.create(processingDirectory, finishedFileName);
         finishedFile.write(new byte[0]);
     }

@@ -32,11 +32,9 @@ import javax.swing.table.TableCellRenderer;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.model.SortableFilterableTableModel;
 
 /**
- * A table cell renderer for table headings - uses one of three JButton instances to indicate the
- * sort order for the table column.
+ * A table cell renderer for table headings - uses one of three JButton instances to indicate the sort order for the table column.
  * <P>
- * This class (and also BevelArrowIcon) is adapted from original code by Nobuo Tamemasa (version
- * 1.0, 26-Feb-1999) posted on www.codeguru.com.
+ * This class (and also BevelArrowIcon) is adapted from original code by Nobuo Tamemasa (version 1.0, 26-Feb-1999) posted on www.codeguru.com.
  * 
  * @author Pawel Glyzewski
  */
@@ -79,8 +77,8 @@ public class SortButtonRenderer implements TableCellRenderer
     private JButton descendingButton;
 
     /**
-     * Used to allow the class to work out whether to use the buttuns or labels. Labels are required
-     * when using the aqua look and feel cos the buttons won't fit.
+     * Used to allow the class to work out whether to use the buttuns or labels. Labels are required when using the aqua look and feel cos the buttons
+     * won't fit.
      */
     private boolean useLabels;
 

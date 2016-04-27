@@ -58,13 +58,13 @@ public class DssCommandFactoryTest extends AssertJUnit
         System.out.print("\n");
         cmd = factory.tryCommandForName("help");
         String[] lsArgs =
-            { "ls" };
+        { "ls" };
         cmd.execute(lsArgs);
 
         System.out.print("\n");
         cmd = factory.tryCommandForName("help");
         String[] getArgs =
-            { "get" };
+        { "get" };
         cmd.execute(getArgs);
     }
 

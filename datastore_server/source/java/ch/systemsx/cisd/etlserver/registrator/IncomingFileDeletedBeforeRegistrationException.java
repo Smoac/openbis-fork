@@ -19,8 +19,7 @@ package ch.systemsx.cisd.etlserver.registrator;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * An exception that is thrown if it is determined that the incoming file to register was deleted
- * before any registrations happened.
+ * An exception that is thrown if it is determined that the incoming file to register was deleted before any registrations happened.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

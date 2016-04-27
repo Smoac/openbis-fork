@@ -31,8 +31,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpFileFactory;
 
 /**
- * An {@link FtpFile} implementation which lazily creates and uses {@link IHierarchicalContent} when
- * needed.
+ * An {@link FtpFile} implementation which lazily creates and uses {@link IHierarchicalContent} when needed.
  * <p>
  * The resources represented by {@link FtpFileImpl} exist in the data store.
  * 

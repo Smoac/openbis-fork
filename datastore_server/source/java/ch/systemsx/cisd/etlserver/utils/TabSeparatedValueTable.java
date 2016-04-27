@@ -38,10 +38,13 @@ public class TabSeparatedValueTable
     private static final class RowLineIterator implements Iterator<String>
     {
         private final LineIterator lineIterator;
+
         private final boolean ignoreEmptyLines;
+
         private final boolean ignoreHashedLines;
-        
+
         private String currentLine;
+
         private int currentLineNumber;
 
         RowLineIterator(LineIterator lineIterator, boolean ignoreEmptyLines, boolean ignoreHashedLines)
@@ -49,8 +52,9 @@ public class TabSeparatedValueTable
             this.lineIterator = lineIterator;
             this.ignoreEmptyLines = ignoreEmptyLines;
             this.ignoreHashedLines = ignoreHashedLines;
-            
+
         }
+
         @Override
         public boolean hasNext()
         {
@@ -81,13 +85,13 @@ public class TabSeparatedValueTable
         {
             return currentLineNumber;
         }
-        
+
         @Override
         public void remove()
         {
             throw new UnsupportedOperationException();
         }
-        
+
         private String getNextLine()
         {
             while (true)
@@ -106,14 +110,15 @@ public class TabSeparatedValueTable
             }
         }
     }
-    
+
     private final RowLineIterator rowLineIterator;
+
     private final List<String> headers;
+
     private final boolean strictRowSize;
 
     /**
-     * Creates a new instance. Short cut for
-     * <code>new TabSeparatedValueTable(reader, nameOfReadingSource, ignoreEmptyLines, false)</code>.
+     * Creates a new instance. Short cut for <code>new TabSeparatedValueTable(reader, nameOfReadingSource, ignoreEmptyLines, false)</code>.
      */
     public TabSeparatedValueTable(Reader reader, String nameOfReadingSource,
             boolean ignoreEmptyLines)
@@ -122,15 +127,14 @@ public class TabSeparatedValueTable
     }
 
     /**
-     * Creates an instance for the specified reader. The constructor already reads the header line.
-     * It will be immediately available via {@link #getHeaders()}.
+     * Creates an instance for the specified reader. The constructor already reads the header line. It will be immediately available via
+     * {@link #getHeaders()}.
      * 
      * @param reader Reader pointing to the header line of the table.
-     * @param nameOfReadingSource Source (usually file name) from which the table will be read. This
-     *            is used for error messages only.
+     * @param nameOfReadingSource Source (usually file name) from which the table will be read. This is used for error messages only.
      * @param ignoreEmptyLines If <code>true</code> lines with only white spaces will be ignored.
-     * @param strictRowSize If <code>true</code> the number of row cells have to be equal the number
-     *            of headers and trailing tabs in the header and rows are not allowed.
+     * @param strictRowSize If <code>true</code> the number of row cells have to be equal the number of headers and trailing tabs in the header and
+     *            rows are not allowed.
      * @param ignoreHashedLines If <code>true</code> lines starting with '#' will be ignored.
      */
     public TabSeparatedValueTable(Reader reader, String nameOfReadingSource,
@@ -162,7 +166,7 @@ public class TabSeparatedValueTable
         }
         headers = getRowCells(headerLine);
     }
-    
+
     /**
      * Returns header line.
      */
@@ -172,8 +176,7 @@ public class TabSeparatedValueTable
     }
 
     /**
-     * Returns all columns. This method returns only rows which are not consumed by previous
-     * invocations of {@link #tryToGetNextRow()}.
+     * Returns all columns. This method returns only rows which are not consumed by previous invocations of {@link #tryToGetNextRow()}.
      */
     public List<Column> getColumns()
     {
@@ -185,19 +188,19 @@ public class TabSeparatedValueTable
         }
         return builder.getColumns();
     }
-    
+
     /**
-     * Returns <code>true</code> if more rows available. This method returns always <code>false</code>
-     * if {@link #getColumns()} has already been invoked.
+     * Returns <code>true</code> if more rows available. This method returns always <code>false</code> if {@link #getColumns()} has already been
+     * invoked.
      */
     public boolean hasMoreRows()
     {
         return rowLineIterator.hasNext();
     }
-    
+
     /**
-     * Returns the next row as a list of its cell values. Missing cells are returned as empty strings.
-     * The size of returned list is the size of the header list.
+     * Returns the next row as a list of its cell values. Missing cells are returned as empty strings. The size of returned list is the size of the
+     * header list.
      * 
      * @return <code>null</code> if there are no more rows.
      */
@@ -220,7 +223,7 @@ public class TabSeparatedValueTable
         }
         return row;
     }
-    
+
     private List<String> getRowCells(String line)
     {
         String[] cells = StringUtils.splitByWholeSeparatorPreserveAllTokens(line, "\t");
@@ -232,6 +235,5 @@ public class TabSeparatedValueTable
         row.addAll(Arrays.asList(cells));
         return row;
     }
-
 
 }

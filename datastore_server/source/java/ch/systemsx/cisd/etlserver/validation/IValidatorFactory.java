@@ -24,8 +24,8 @@ package ch.systemsx.cisd.etlserver.validation;
 public interface IValidatorFactory
 {
     /**
-     * Creates a validator for the specified column header. The same instance can be returned as in
-     * a previous call for the same argument if the validator object is immutable and the .
+     * Creates a validator for the specified column header. The same instance can be returned as in a previous call for the same argument if the
+     * validator object is immutable and the .
      */
     public IValidator createValidator(String columnHeader);
 }

@@ -24,10 +24,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 public final class ParsedLogEntry
 {
     private static final String FORMAT_TEMPLATE = "[{0,date," + BasicConstant.DATE_WITHOUT_TIMEZONE_PATTERN + "}][{1}][{2}][{3}]";
-    
+
     private Date timestamp;
+
     private String logLevel;
+
     private String threadName;
+
     private String logMessage;
 
     ParsedLogEntry(Date timestamp, String logLevel, String threadName, String logMessage)
@@ -37,7 +40,7 @@ public final class ParsedLogEntry
         this.threadName = threadName;
         this.logMessage = logMessage;
     }
-    
+
     public void appendToMessage(String logLine)
     {
         logMessage += "\n" + logLine;
@@ -66,7 +69,7 @@ public final class ParsedLogEntry
     @Override
     public String toString()
     {
-        return new MessageFormat(FORMAT_TEMPLATE).format(new Object[] {timestamp, logLevel, threadName, logMessage});
+        return new MessageFormat(FORMAT_TEMPLATE).format(new Object[] { timestamp, logLevel, threadName, logMessage });
     }
-    
+
 }

@@ -29,8 +29,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DefaultDataSourceFactory;
 
 /**
- * Parses a given <code>service.properties</code> and produces a textual description of a database
- * that needs to be backed up. The textual description looks like this :
+ * Parses a given <code>service.properties</code> and produces a textual description of a database that needs to be backed up. The textual description
+ * looks like this :
  * 
  * <pre>
  * database=XXXX;username=XXXX;password=XXXX;host=XXXX

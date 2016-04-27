@@ -41,8 +41,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationE
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationScriptRunner;
 
 /**
- * Command that runs a validation script and returns the error messages if the data set is not
- * valid.
+ * Command that runs a validation script and returns the error messages if the data set is not valid.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

@@ -34,8 +34,7 @@ public interface IStorageProcessorTransactional extends IStoreRootDirectoryHolde
     public static final String STORAGE_PROCESSOR_KEY = "storage-processor";
 
     /**
-     * Instructs the dataset handler what to do with the data in incoming directory if there was an
-     * error during registration in openbis.
+     * Instructs the dataset handler what to do with the data in incoming directory if there was an error during registration in openbis.
      */
     public enum UnstoreDataAction
     {
@@ -56,14 +55,13 @@ public interface IStorageProcessorTransactional extends IStoreRootDirectoryHolde
     public static interface IStorageProcessorTransaction extends Serializable
     {
         /**
-         * Stores the specified incoming data set file to the specified directory. In general some
-         * processing and/or transformation of the incoming data takes place.
+         * Stores the specified incoming data set file to the specified directory. In general some processing and/or transformation of the incoming
+         * data takes place.
          * <p>
-         * Do not try/catch exceptions that could occur here. Preferably let the upper layer handle
-         * them.
+         * Do not try/catch exceptions that could occur here. Preferably let the upper layer handle them.
          * </p>
-         * TODO KE: the incomingDataSetDirectory is here just to make the CifexStorageProcessor work
-         * (because is modifies the incoming directory before invoking a wrapped transaction).
+         * TODO KE: the incomingDataSetDirectory is here just to make the CifexStorageProcessor work (because is modifies the incoming directory
+         * before invoking a wrapped transaction).
          * 
          * @param typeExtractor the {@link ITypeExtractor} implementation.
          * @param mailClient mail client.
@@ -72,45 +70,41 @@ public interface IStorageProcessorTransactional extends IStoreRootDirectoryHolde
                 final File incomingDataSetDirectory);
 
         /**
-         * Commits the changes done by the recent
-         * {@link #storeData(ITypeExtractor, IMailClient, File)} call if the dataset has been also
-         * successfully registered openBIS.
+         * Commits the changes done by the recent {@link #storeData(ITypeExtractor, IMailClient, File)} call if the dataset has been also successfully
+         * registered openBIS.
          * <p>
-         * This operation is useful when the storage processor adds the data to an additional
-         * database. If all the storage processor operations are done on the file system, the
-         * implementation of this method will be usually empty.
+         * This operation is useful when the storage processor adds the data to an additional database. If all the storage processor operations are
+         * done on the file system, the implementation of this method will be usually empty.
          * </p>
          */
         public void commit();
 
         /**
-         * Performs a rollback of {@link #storeData(ITypeExtractor, IMailClient, File)} The data
-         * created in <code>directory</code> will also be removed.
+         * Performs a rollback of {@link #storeData(ITypeExtractor, IMailClient, File)} The data created in <code>directory</code> will also be
+         * removed.
          * <p>
-         * Call to this method is safe as implementations should try/catch exceptions that could
-         * occur here.
+         * Call to this method is safe as implementations should try/catch exceptions that could occur here.
          * </p>
          * 
-         * @param exception an exception which has caused that the unstore operation has to be
-         *            performed
+         * @param exception an exception which has caused that the unstore operation has to be performed
          * @return an instruction what to do with the data in incoming directory
          */
         public UnstoreDataAction rollback(Throwable exception);
 
         /**
-         * Returns the directory where the data set is currently stored (may change when data is moved and <code>setStoredDataDirectory</code> is called).
+         * Returns the directory where the data set is currently stored (may change when data is moved and <code>setStoredDataDirectory</code> is
+         * called).
          */
         public File getStoredDataDirectory();
 
         /**
-         * Set the stored data directory. Done if a client of the transaction has moved the stored
-         * data.
+         * Set the stored data directory. Done if a client of the transaction has moved the stored data.
          */
         public void setStoredDataDirectory(File dir);
 
         /**
-         * Returns the data set in the original proprietary format (before being processed) if
-         * available, or <code>null</code>, if the original data set is no longer available.
+         * Returns the data set in the original proprietary format (before being processed) if available, or <code>null</code>, if the original data
+         * set is no longer available.
          * <p>
          * <strong>Consider the data in the returned file / directory read only!</strong>
          */
@@ -127,9 +121,8 @@ public interface IStorageProcessorTransactional extends IStoreRootDirectoryHolde
 
         /**
          * @param dataSetInformation Information about the data set.
-         * @param incomingDataSetDirectory folder to store. Do not remove it after the
-         *            implementation has finished processing. {@link TransferredDataSetHandler}
-         *            takes care of this.
+         * @param incomingDataSetDirectory folder to store. Do not remove it after the implementation has finished processing.
+         *            {@link TransferredDataSetHandler} takes care of this.
          * @param rootDir directory to whom the data will be stored.
          */
         public StorageProcessorTransactionParameters(DataSetInformation dataSetInformation,
@@ -170,8 +163,7 @@ public interface IStorageProcessorTransactional extends IStoreRootDirectoryHolde
     public StorageFormat getStorageFormat();
 
     /**
-     * Return the action to take when an exception occurs. This might be called outside the context
-     * of a transaction.
+     * Return the action to take when an exception occurs. This might be called outside the context of a transaction.
      * 
      * @param exception an exception which has caused that the unstore operation has to be performed
      * @return an instruction what to do with the data in incoming directory

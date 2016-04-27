@@ -74,13 +74,15 @@ public class EchoDatabase extends AbstractSearchDomainService
             return Collections.emptyList();
         }
     }
-    
+
     public static final class HelperBean
     {
         private SearchDomain searchDomain = new SearchDomain();
+
         private DataSetFileSearchResultLocation dataSetFileResultLocation;
+
         private EntityPropertySearchResultLocation entityPropertyResultLocation;
-        
+
         public ISearchDomainResultLocation getResultLocation()
         {
             return dataSetFileResultLocation == null ? entityPropertyResultLocation : dataSetFileResultLocation;
@@ -90,58 +92,58 @@ public class EchoDatabase extends AbstractSearchDomainService
         {
             return searchDomain;
         }
-        
+
         public void setSearchDomain(String searchDomain)
         {
             this.searchDomain.setName(searchDomain);
         }
-        
+
         public void setDataSetCode(String dataSetCode)
         {
             getDataSetFileResultLocation().setCode(dataSetCode);
             getDataSetFileResultLocation().setPermId(dataSetCode);
         }
-        
+
         public void setPathInDataSet(String path)
         {
             getDataSetFileResultLocation().setPathInDataSet(path);
         }
-        
+
         public void setSequenceIdentifier(String identifier)
         {
             getDataSetFileResultLocation().setIdentifier(identifier);
         }
-        
+
         public void setPositionInSequence(int position)
         {
             getDataSetFileResultLocation().setPosition(position);
         }
-        
+
         public void setEntityKind(EntityKind entityKind)
         {
             getEntityPropertyResultLocation().setEntityKind(entityKind);
         }
-        
+
         public void setEntityType(String entityType)
         {
             getEntityPropertyResultLocation().setEntityType(entityType);
         }
-        
+
         public void setPermId(String permId)
         {
             getEntityPropertyResultLocation().setPermId(permId);
         }
-        
+
         public void setCode(String code)
         {
             getEntityPropertyResultLocation().setCode(code);
         }
-        
+
         public void setPropertyType(String propertyType)
         {
             getEntityPropertyResultLocation().setPropertyType(propertyType);
         }
-        
+
         private DataSetFileSearchResultLocation getDataSetFileResultLocation()
         {
             if (dataSetFileResultLocation == null)
@@ -150,7 +152,7 @@ public class EchoDatabase extends AbstractSearchDomainService
             }
             return dataSetFileResultLocation;
         }
-        
+
         private EntityPropertySearchResultLocation getEntityPropertyResultLocation()
         {
             if (entityPropertyResultLocation == null)

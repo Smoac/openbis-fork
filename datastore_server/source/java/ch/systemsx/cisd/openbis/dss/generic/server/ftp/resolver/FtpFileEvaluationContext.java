@@ -55,9 +55,9 @@ public class FtpFileEvaluationContext
             new HashMap<String, IHierarchicalContent>();
 
     private IHierarchicalContentProvider contentProvider;
-    
+
     private List<EvaluatedElement> evaluatedPaths = new ArrayList<EvaluatedElement>();
-    
+
     FtpFileEvaluationContext(IHierarchicalContentProvider contentProvider)
     {
         this.contentProvider = contentProvider;

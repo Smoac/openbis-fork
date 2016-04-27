@@ -17,8 +17,7 @@
 package ch.systemsx.cisd.etlserver.registrator;
 
 /**
- * This interface publishes a small part of the API of an RollbackStack, that is needed to
- * (de)serialize storage processor transactions.
+ * This interface publishes a small part of the API of an RollbackStack, that is needed to (de)serialize storage processor transactions.
  * 
  * @author Kaloyan Enimanev
  */
@@ -29,16 +28,15 @@ public interface IRollbackStack
      * Push the command onto the stack and execute it.
      */
     void pushAndExecuteCommand(ITransactionalCommand cmd);
-    
+
     /**
-     * Sets the locked state of this rollback stack. Changing this state to true results in creating
-     * or deleting the marker file. If already in a desired state - does nothing.
+     * Sets the locked state of this rollback stack. Changing this state to true results in creating or deleting the marker file. If already in a
+     * desired state - does nothing.
      */
     public void setLockedState(boolean lockedState);
-    
+
     /**
-     * Returns whether this rollback stack is in locked state (i.e. it cannot execute any rollback
-     * actions)
+     * Returns whether this rollback stack is in locked state (i.e. it cannot execute any rollback actions)
      */
     public boolean isLockedState();
 }

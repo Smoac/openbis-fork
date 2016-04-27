@@ -21,13 +21,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public final class Column
 {
     private final String header;
+
     private final List<String> values;
 
     Column(String header)
@@ -40,7 +39,7 @@ public final class Column
     {
         return header;
     }
-    
+
     public final List<String> getValues()
     {
         return Collections.unmodifiableList(values);

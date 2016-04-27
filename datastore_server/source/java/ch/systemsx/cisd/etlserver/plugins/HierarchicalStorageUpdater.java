@@ -53,7 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceTask
 {
     public static final String STOREROOT_DIR_LINK_PATH_KEY = "storeroot-dir-link-path";
-    
+
     public static final String HIERARCHY_ROOT_DIR_KEY = "hierarchy-root-dir";
 
     public static final String HIERARCHY_LINK_NAMING_STRATEGY = "link-naming-strategy";
@@ -109,7 +109,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
         {
             storeRootFileName = PropertyUtils.getMandatoryProperty(pluginProperties, DssPropertyParametersUtil.STOREROOT_DIR_KEY);
         }
-        String hierarchyRootFileName = 
+        String hierarchyRootFileName =
                 PropertyUtils.getMandatoryProperty(pluginProperties, HIERARCHY_ROOT_DIR_KEY);
 
         openBISService = ServiceProvider.getOpenBISService();
@@ -184,8 +184,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
     }
 
     /**
-     * Refreshes the hierarchy of the data inside hierarchical storage accordingly to the database
-     * content.
+     * Refreshes the hierarchy of the data inside hierarchical storage accordingly to the database content.
      */
     private void rebuildHierarchy()
     {
@@ -236,7 +235,8 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
         LinkSourceDescriptor linkSourceDescriptor = getLinkSourceDescriptor(dataSetType);
         File source = dataSetLocationRoot;
 
-        if (linkSourceDescriptor != null) {
+        if (linkSourceDescriptor != null)
+        {
             String subPath = linkSourceDescriptor.getSubFolder();
             if (StringUtils.isBlank(subPath) == false)
             {
@@ -276,8 +276,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
     }
 
     /**
-     * Removes from the <code>linkMappings</code> map all the elements with keys not belonging to
-     * <code>keep</code> set.
+     * Removes from the <code>linkMappings</code> map all the elements with keys not belonging to <code>keep</code> set.
      */
     private void removeUnnecessaryMappings(Map<String, String> linkMappings, Set<String> keep)
     {
@@ -302,8 +301,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
     }
 
     /**
-     * Recursively removes from the file system files with paths defined in <code>toBeDeleted</code>
-     * {@link Set}.
+     * Recursively removes from the file system files with paths defined in <code>toBeDeleted</code> {@link Set}.
      */
     private void deleteObsoleteLinks(Set<String> toBeDeleted)
     {

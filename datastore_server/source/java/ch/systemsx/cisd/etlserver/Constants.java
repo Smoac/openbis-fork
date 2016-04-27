@@ -16,16 +16,14 @@
 
 package ch.systemsx.cisd.etlserver;
 
-
 /**
- * 
- *
  * @author Izabela Adamczyk
  */
 public class Constants
 {
 
     public static final String ERROR_MARKER_FILE = "_delete_me_after_correcting_errors";
+
     public static final String USER_LOG_FILE = "error-log.txt";
 
 }

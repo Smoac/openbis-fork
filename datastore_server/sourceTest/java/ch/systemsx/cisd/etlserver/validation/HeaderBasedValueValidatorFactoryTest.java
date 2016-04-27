@@ -27,8 +27,6 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class HeaderBasedValueValidatorFactoryTest extends AssertJUnit
@@ -37,7 +35,7 @@ public class HeaderBasedValueValidatorFactoryTest extends AssertJUnit
     public void testEmptyProperties()
     {
         HeaderBasedValueValidatorFactory factory = new HeaderBasedValueValidatorFactory(new Properties());
-        
+
         try
         {
             factory.createValidator("blabla");
@@ -47,13 +45,13 @@ public class HeaderBasedValueValidatorFactoryTest extends AssertJUnit
             assertEquals("No value validator found for header 'blabla': ", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testUndefinedHeaderTypes()
     {
         Properties properties = new Properties();
         properties.setProperty(HeaderBasedValueValidatorFactory.HEADER_TYPES_KEY, "a, b");
-        
+
         try
         {
             new HeaderBasedValueValidatorFactory(properties);
@@ -63,14 +61,14 @@ public class HeaderBasedValueValidatorFactoryTest extends AssertJUnit
             assertEquals("Given key 'header-pattern' not found in properties '[]'", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testInvalidPattern()
     {
         Properties properties = new Properties();
         properties.setProperty(HeaderBasedValueValidatorFactory.HEADER_TYPES_KEY, "a");
         properties.setProperty("a." + HEADER_PATTERN_KEY, "][");
-        
+
         try
         {
             new HeaderBasedValueValidatorFactory(properties);
@@ -80,7 +78,7 @@ public class HeaderBasedValueValidatorFactoryTest extends AssertJUnit
             assertEquals("Invalid header pattern for header type 'a': ][", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testNonMatchingHeader()
     {
@@ -96,13 +94,13 @@ public class HeaderBasedValueValidatorFactoryTest extends AssertJUnit
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("No value validator found for header '123': \n" + 
-            		"Regular expression for headers of type 'a' have to match: a.*\n" + 
-            		"Regular expression for headers of type 'b' have to match: b.*", ex.getMessage());
+            assertEquals("No value validator found for header '123': \n" +
+                    "Regular expression for headers of type 'a' have to match: a.*\n" +
+                    "Regular expression for headers of type 'b' have to match: b.*", ex.getMessage());
 
         }
     }
-    
+
     @Test
     public void testSwitchValidator()
     {
@@ -113,7 +111,7 @@ public class HeaderBasedValueValidatorFactoryTest extends AssertJUnit
         properties.setProperty("a." + NumericValidatorFactory.VALUE_RANGE_KEY, "(0,1]");
         properties.setProperty("b." + HEADER_PATTERN_KEY, "b.*");
         HeaderBasedValueValidatorFactory factory = new HeaderBasedValueValidatorFactory(properties);
-        
+
         IValidator validator = factory.createValidator("a1");
         validator.assertValid("0.123");
         try
@@ -124,7 +122,7 @@ public class HeaderBasedValueValidatorFactoryTest extends AssertJUnit
         {
             assertEquals("Number to large: 1.25 > 1.0", ex.getMessage());
         }
-        
+
         factory.createValidator("bc").assertValid("1.25");
     }
 }

@@ -248,8 +248,7 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
     @DataSetAccessGuard
     public String getDownloadUrlForFileForDataSetWithTimeout(
             String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class)
-            DataSetFileDTO fileOrFolder,
+            @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class) DataSetFileDTO fileOrFolder,
             long validityDurationInSeconds) throws IOExceptionUnchecked, IllegalArgumentException
     {
         logAccess(sessionToken, "get_download_url_for_file_for_data_set",

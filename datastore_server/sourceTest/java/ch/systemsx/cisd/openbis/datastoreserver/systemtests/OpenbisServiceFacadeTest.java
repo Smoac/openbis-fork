@@ -165,7 +165,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         assertNotNull(ds.getPrimaryDataSetOrNull());
         assertEquals(ds, ds.getPrimaryDataSetOrNull());
     }
-    
+
     private static String fileInfoString(String startPath, String pathInListing, long length)
     {
         return String.format("FileInfoDssDTO[%s/%s,%s,%d]", startPath, pathInListing,

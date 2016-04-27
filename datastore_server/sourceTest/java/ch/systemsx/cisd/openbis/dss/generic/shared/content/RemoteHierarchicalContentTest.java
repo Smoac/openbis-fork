@@ -46,20 +46,20 @@ public class RemoteHierarchicalContentTest extends AbstractRemoteHierarchicalCon
             });
 
         IHierarchicalContentNode rootNode = content.getRootNode();
-        
+
         assertEquals(true, rootNode.isDirectory());
         assertEquals("", rootNode.getRelativePath());
         assertEquals(null, rootNode.getParentRelativePath());
         assertEquals("", rootNode.getName());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetRootNode() throws Exception
     {
         ContentCache cache = createCache();
         RemoteHierarchicalContent content = createContent(cache);
-        
+
         context.checking(new Expectations()
             {
                 {
@@ -73,11 +73,11 @@ public class RemoteHierarchicalContentTest extends AbstractRemoteHierarchicalCon
                     one(remoteDss).getDownloadUrlForFileForDataSet(SESSION_TOKEN, DATA_SET_CODE,
                             pathInfo.getRelativePath());
                     will(returnValue(remoteFile1.toURI().toURL().toString()));
-                    
+
                     one(persistenceManager).requestPersistence();
                 }
             });
-        
+
         IHierarchicalContentNode rootNode = content.getRootNode();
 
         File file = rootNode.getFile();

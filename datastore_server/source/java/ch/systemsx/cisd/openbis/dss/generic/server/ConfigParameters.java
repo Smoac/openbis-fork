@@ -90,8 +90,7 @@ public final class ConfigParameters implements IServletPropertiesManager
     static final String PLUGIN_SERVICE_PATH_KEY = "path";
 
     /**
-     * The path that contains the jars for webstart applications. This is used to initialize
-     * ResourceHandler, which is used to serve the jars.
+     * The path that contains the jars for webstart applications. This is used to initialize ResourceHandler, which is used to serve the jars.
      * <p>
      * If no value is supplied, this defaults to lib.
      */

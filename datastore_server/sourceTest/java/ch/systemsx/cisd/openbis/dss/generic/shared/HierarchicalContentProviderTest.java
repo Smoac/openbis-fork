@@ -402,7 +402,6 @@ public class HierarchicalContentProviderTest extends AssertJUnit
         {
             return name;
         }
-        
 
     }
 

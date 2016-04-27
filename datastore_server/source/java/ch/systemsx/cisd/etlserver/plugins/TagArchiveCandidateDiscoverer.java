@@ -96,7 +96,7 @@ public class TagArchiveCandidateDiscoverer implements IArchiveCandidateDiscovere
             return false;
         }
         PhysicalDataSet physicalDataSet = (PhysicalDataSet) dataSet;
-        return DataSetArchivingStatus.AVAILABLE.equals(physicalDataSet.getStatus()) 
+        return DataSetArchivingStatus.AVAILABLE.equals(physicalDataSet.getStatus())
                 && physicalDataSet.isPresentInArchive() == false;
     }
 }

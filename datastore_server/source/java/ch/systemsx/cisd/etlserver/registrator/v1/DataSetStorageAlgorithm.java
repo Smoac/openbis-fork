@@ -54,8 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * DataSetStorageAlgorithm is a state machine that executes steps to store a data set in the store
- * and transitions between states.
+ * DataSetStorageAlgorithm is a state machine that executes steps to store a data set in the store and transitions between states.
  * <p>
  * The states and transitions are as follows: <br>
  * 
@@ -68,8 +67,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * States marked with a "*" are terminal.
  * <p>
- * N.b. Methods invoked on states for which the method is not valid will yield a class cast
- * exception since the state object will not be castable to the desired class.
+ * N.b. Methods invoked on states for which the method is not valid will yield a class cast exception since the state object will not be castable to
+ * the desired class.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -170,8 +169,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     }
 
     /**
-     * Prepare registration of a data set. Expects initialized state, and changes into prepared
-     * state
+     * Prepare registration of a data set. Expects initialized state, and changes into prepared state
      * 
      * @param rollbackStack
      */
@@ -196,8 +194,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     }
 
     /**
-     * Moves the data from precommit to the store. Expects Commited State and leaves in stored
-     * state.
+     * Moves the data from precommit to the store. Expects Commited State and leaves in stored state.
      */
     public void moveToTheStore() throws Throwable
     {
@@ -216,8 +213,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     }
 
     /**
-     * Transition to the rolledback state, but don't actually do anything. The rollback logic will
-     * be carried out by the rollback stack.
+     * Transition to the rolledback state, but don't actually do anything. The rollback logic will be carried out by the rollback stack.
      */
     public void transitionToRolledbackState(Throwable throwable)
     {
@@ -259,8 +255,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     }
 
     /**
-     * Ask the storage processor to commit. Used by clients of the algorithm. Expects stored state,
-     * and changes to commited state.
+     * Ask the storage processor to commit. Used by clients of the algorithm. Expects stored state, and changes to commited state.
      */
     public void commitStorageProcessor()
     {

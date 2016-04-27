@@ -112,8 +112,8 @@ public class DatasetAuthorizationCache
     /**
      * Create a new and empty cache and start an expiration timer for cleaning up.
      * <p>
-     * <i>Note that the cache will never return stale authorization information. The expiration
-     * timer is only needed for freeing memory occupied by the cache.</i>
+     * <i>Note that the cache will never return stale authorization information. The expiration timer is only needed for freeing memory occupied by
+     * the cache.</i>
      * 
      * @param cacheExpirationTimeMillis The time (in ms) after which an authorization value expires.
      * @param timerPeriodMillis The time (in ms) after which the expiration timer runs.
@@ -168,8 +168,7 @@ public class DatasetAuthorizationCache
      * 
      * @param sessionToken The token of the session that is granted or denied access.
      * @param datasetCode The code of the data set that the session is granted or denied access to.
-     * @param authorized Whether the session should be granted (<code>true</code>) or denied (
-     *            <code>false</code>) access to the data set.
+     * @param authorized Whether the session should be granted (<code>true</code>) or denied ( <code>false</code>) access to the data set.
      */
     public void put(String sessionToken, String datasetCode, boolean authorized)
     {
@@ -181,8 +180,7 @@ public class DatasetAuthorizationCache
      * 
      * @param sessionToken The token of the session that is granted or denied access.
      * @param datasetCodes The codes of the data sets that the session is granted or denied access to.
-     * @param authorized Whether the session should be granted (<code>true</code>) or denied (
-     *            <code>false</code>) access to the data seta.
+     * @param authorized Whether the session should be granted (<code>true</code>) or denied ( <code>false</code>) access to the data seta.
      */
     public void putAll(String sessionToken, List<String> datasetCodes, boolean authorized)
     {
@@ -194,21 +192,19 @@ public class DatasetAuthorizationCache
     }
 
     /**
-     * Returns authorization state of the <var>datasetCode</var> for the session specified by
-     * <var>sessionToken</var>.
+     * Returns authorization state of the <var>datasetCode</var> for the session specified by <var>sessionToken</var>.
      * 
      * @param sessionToken The token of the session that the authorization information is for.
      * @param datasetCode The code of the data set that the session wants to access.
-     * @return <code>true</code> if the session is granted access, <code>false</code> if the session
-     *         is denied access and <code>null</code> if the cache has no information about this
-     *         session and data set.
+     * @return <code>true</code> if the session is granted access, <code>false</code> if the session is denied access and <code>null</code> if the
+     *         cache has no information about this session and data set.
      */
     public Boolean tryGet(String sessionToken, String datasetCode)
     {
         final ValueRecord v = tryGet(new KeyRecord(sessionToken, datasetCode));
         return v != null ? v.isAuthorized() : null;
     }
-    
+
     /**
      * Removes all entries from this cache.
      */

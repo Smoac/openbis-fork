@@ -271,8 +271,7 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
     }
 
     /**
-     * Returns a bash command listing relative file paths of regular files with their sizes in
-     * bytes.
+     * Returns a bash command listing relative file paths of regular files with their sizes in bytes.
      */
     private static String createListFilesWithFileSizeCmd(final String path, final File findExec)
     {

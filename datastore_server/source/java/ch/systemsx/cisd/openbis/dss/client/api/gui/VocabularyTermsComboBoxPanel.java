@@ -42,8 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.VocabularyTerm;
 
 /**
- * The class creates a ComboBox together with button which makes it possible to add new Vocabulary
- * Term.
+ * The class creates a ComboBox together with button which makes it possible to add new Vocabulary Term.
  * 
  * @author Pawel Glyzewski
  */

@@ -42,42 +42,48 @@ class GenericFastaFileBuilder
     private static final class FastaEntry
     {
         private List<String> lines = new ArrayList<String>();
+
         private SequenceType seqType;
-        
+
         FastaEntry(String id)
         {
             lines.add(">" + id);
         }
-        
+
         void setSeqType(SequenceType seqType)
         {
             this.seqType = seqType;
         }
-        
+
         SequenceType getSeqType()
         {
             return seqType;
         }
-        
+
         void appendSeq(String seq)
         {
             lines.add(seq);
         }
-        
+
         List<String> getLines()
         {
             return lines;
         }
     }
-    
-    enum EntryType { FASTA, FASTQ }
-    
+
+    enum EntryType
+    {
+        FASTA, FASTQ
+    }
+
     private final File tempFolder;
+
     private final String baseName;
+
     private final Map<SequenceType, PrintWriter> writers = new HashMap<SequenceType, PrintWriter>();
 
     private FastaEntry currentFastaEntry;
-    
+
     private EntryType currentEntryType;
 
     GenericFastaFileBuilder(File tempFolder, String baseName)
@@ -85,12 +91,12 @@ class GenericFastaFileBuilder
         this.tempFolder = tempFolder;
         this.baseName = baseName;
     }
-    
+
     String getBaseName()
     {
         return baseName;
     }
-    
+
     void appendToSequence(String line)
     {
         if (currentFastaEntry == null)
@@ -119,7 +125,7 @@ class GenericFastaFileBuilder
         currentFastaEntry.setSeqType(sequenceTypeOrNull);
         currentEntryType = entryType;
     }
-    
+
     void finish()
     {
         writeFastaEntry();
@@ -128,7 +134,7 @@ class GenericFastaFileBuilder
             printWriter.close();
         }
     }
-    
+
     void cleanUp()
     {
         SequenceType[] values = SequenceType.values();
@@ -141,22 +147,22 @@ class GenericFastaFileBuilder
             }
         }
     }
-    
+
     File getTemporaryNuclFastaFileOrNull()
     {
         return getTemporaryFastaFileOrNull(SequenceType.NUCL);
     }
-    
+
     File getTemporaryProtFastaFileOrNull()
     {
         return getTemporaryFastaFileOrNull(SequenceType.PROT);
     }
-    
+
     File getTemporaryFastaFileOrNull(SequenceType seqType)
     {
         return writers.containsKey(seqType) ? getFastaFile(seqType) : null;
     }
-    
+
     void writeFastaEntry()
     {
         if (currentFastaEntry == null)
@@ -176,7 +182,7 @@ class GenericFastaFileBuilder
         }
         currentFastaEntry = null;
     }
-    
+
     private PrintWriter getPrinter(SequenceType seqType)
     {
         PrintWriter printWriter = writers.get(seqType);
@@ -189,7 +195,7 @@ class GenericFastaFileBuilder
                 writers.put(seqType, printWriter);
             } catch (IOException ex)
             {
-                throw new EnvironmentFailureException("Couldn't create temporary FASTA file '" + fastaFile 
+                throw new EnvironmentFailureException("Couldn't create temporary FASTA file '" + fastaFile
                         + "': " + ex.getMessage());
             }
         }
@@ -200,5 +206,5 @@ class GenericFastaFileBuilder
     {
         return new File(tempFolder, BlastUtils.createDatabaseName(baseName, seqType) + ".fa");
     }
-    
+
 }

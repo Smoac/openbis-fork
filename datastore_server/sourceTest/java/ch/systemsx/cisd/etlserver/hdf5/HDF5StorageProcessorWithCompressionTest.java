@@ -20,7 +20,6 @@ import java.util.Properties;
 
 import org.testng.annotations.Test;
 
-
 /**
  * @author Chandrasekhar Ramakrishnan
  */
@@ -62,7 +61,7 @@ public class HDF5StorageProcessorWithCompressionTest extends AbstractHDF5Storage
 
     @Override
     @Test(expectedExceptions =
-        { AssertionError.class })
+    { AssertionError.class })
     public void testStoreDataNullValues()
     {
         super.testStoreDataNullValues();

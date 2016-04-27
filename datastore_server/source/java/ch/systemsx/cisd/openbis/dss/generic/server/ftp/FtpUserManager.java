@@ -30,8 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
- * An implementation of the Apache {@link UserManager} interface, adapting openBIS users to FTP
- * users.
+ * An implementation of the Apache {@link UserManager} interface, adapting openBIS users to FTP users.
  * 
  * @author Kaloyan Enimanev
  */
@@ -41,7 +40,6 @@ public class FtpUserManager implements UserManager
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             FtpUserManager.class);
 
-    
     private final IServiceForDataStoreServer service;
 
     public FtpUserManager(IServiceForDataStoreServer service)
@@ -62,10 +60,11 @@ public class FtpUserManager implements UserManager
             {
                 return new FtpUser(user, session.getSessionToken());
             }
-        } else {
+        } else
+        {
             operationLog.warn("Unsupported authentication type :" + authentication.getClass());
         }
-        
+
         throw new AuthenticationFailedException();
     }
 

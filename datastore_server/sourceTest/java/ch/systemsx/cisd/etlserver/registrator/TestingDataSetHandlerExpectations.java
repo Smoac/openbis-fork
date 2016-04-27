@@ -11,15 +11,15 @@ public class TestingDataSetHandlerExpectations
     protected final boolean shouldRegistrationFail;
 
     protected final boolean shouldReThrowRollbackException;
-    
+
     /*
      * happends
      */
-    
+
     protected boolean didServiceRollbackHappen;
-    
+
     protected boolean didTransactionRollbackHappen;
-    
+
     public boolean isShouldRegistrationFail()
     {
         return shouldRegistrationFail;

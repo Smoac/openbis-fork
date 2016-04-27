@@ -27,8 +27,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmuta
 public interface ISample extends ISampleImmutable
 {
     /**
-     * Set the experiment for this sample. The experiment need not be immutable, but the immutable
-     * one is the superclass.
+     * Set the experiment for this sample. The experiment need not be immutable, but the immutable one is the superclass.
      */
     void setExperiment(IExperimentImmutable experiment);
 
@@ -51,7 +50,7 @@ public interface ISample extends ISampleImmutable
      * Set the parent samples of this sample.
      */
     void setParentSampleIdentifiers(List<String> parentSampleIdentifiers);
-    
+
     /**
      * Add a new attachment to this sample.
      * 

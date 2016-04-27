@@ -39,9 +39,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvide
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 
 /**
- * Unit tests for {@link PathInfoProviderBasedHierarchicalContent}. The tests are based on
- * {@link DefaultFileBasedHierarchicalContentTest} that uses real files even though tests here work
- * with mocks and actual file structure is not important.
+ * Unit tests for {@link PathInfoProviderBasedHierarchicalContent}. The tests are based on {@link DefaultFileBasedHierarchicalContentTest} that uses
+ * real files even though tests here work with mocks and actual file structure is not important.
  * 
  * @author Piotr Buczek
  */
@@ -49,7 +48,7 @@ public class PathInfoProviderBasedHierarchicalContentTest extends AbstractFileSy
 {
     private static final File TEST_HDF5_EXAMPLE = new File(
             "../openbis-common/resource/test-data/HDF5ContainerBasedHierarchicalContentNodeTest/thumbnails.h5");
-    
+
     private File rootDir;
 
     private File file1;
@@ -420,7 +419,7 @@ public class PathInfoProviderBasedHierarchicalContentTest extends AbstractFileSy
         }
         return result;
     }
-    
+
     private static DataSetPathInfo createDummyHDF5FileBasedPath(final File root, final File file)
     {
         DataSetPathInfo result = new DataSetPathInfo();
@@ -430,6 +429,5 @@ public class PathInfoProviderBasedHierarchicalContentTest extends AbstractFileSy
         result.setSizeInBytes(file.length());
         return result;
     }
-    
 
 }

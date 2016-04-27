@@ -19,10 +19,9 @@ package ch.systemsx.cisd.etlserver.registrator;
 import java.util.HashMap;
 
 /**
- * The collection that behaves like a MultiSet<Throwable> with two Exceptions beeing treaded equal
- * if they have the same class, and their cause exceptions are equal in the same sense. The
- * implementation has weak performance, but the expected size of data is very small. If that would
- * ever change, consider reimplementing it.
+ * The collection that behaves like a MultiSet<Throwable> with two Exceptions beeing treaded equal if they have the same class, and their cause
+ * exceptions are equal in the same sense. The implementation has weak performance, but the expected size of data is very small. If that would ever
+ * change, consider reimplementing it.
  * 
  * @author jakubs
  */
@@ -36,11 +35,9 @@ public class DistinctExceptionsCollection
     }
 
     /**
-     * Adds exception to the list of exceptions and returns the integer denoting how many similar
-     * exceptions are already in this collection.
+     * Adds exception to the list of exceptions and returns the integer denoting how many similar exceptions are already in this collection.
      * 
-     * @return the number of times this exception has been add to the collection (incl. this
-     *         operation)
+     * @return the number of times this exception has been add to the collection (incl. this operation)
      */
     public int add(Throwable t)
     {
@@ -70,8 +67,8 @@ public class DistinctExceptionsCollection
     }
 
     /**
-     * @return the Throwable that can be used as a key in the internal collection. It's either
-     *         already an existing key or the <code>param<code> if no suitable throwable exists.
+     * @return the Throwable that can be used as a key in the internal collection. It's either already an existing key or the
+     *         <code>param<code> if no suitable throwable exists.
      */
     private Throwable findEqualKey(Throwable param)
     {

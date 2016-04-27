@@ -320,37 +320,37 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
         person.setEmail(email);
         final Sample baseSample = new SampleBuilder("/S/S").registrator(person).getSample();
         context.checking(new Expectations()
-        {
             {
-                one(limsService).tryGetSampleWithExperiment(dataSetInfo.getSampleIdentifier());
-                will(returnValue(baseSample));
-                
-                one(limsService).tryGetPropertiesOfSample(
-                        dataSetInfo.getSampleIdentifier());
-                will(returnValue(null));
-                
-                String replyTo = null;
-                From nullFrom = null;
-                one(mailClient).sendMessage(
-                        with(equal(String.format(DataStrategyStore.SUBJECT_SAMPLE_FORMAT,
-                                new SampleIdentifier(baseSample.getCode())))),
-                                with(any(String.class)), with(equal(replyTo)), with(equal(nullFrom)),
-                                with(equal(new String[]
-                                        { email })));
-            }
-        });
-        
+                {
+                    one(limsService).tryGetSampleWithExperiment(dataSetInfo.getSampleIdentifier());
+                    will(returnValue(baseSample));
+
+                    one(limsService).tryGetPropertiesOfSample(
+                            dataSetInfo.getSampleIdentifier());
+                    will(returnValue(null));
+
+                    String replyTo = null;
+                    From nullFrom = null;
+                    one(mailClient).sendMessage(
+                            with(equal(String.format(DataStrategyStore.SUBJECT_SAMPLE_FORMAT,
+                                    new SampleIdentifier(baseSample.getCode())))),
+                            with(any(String.class)), with(equal(replyTo)), with(equal(nullFrom)),
+                            with(equal(new String[]
+                            { email })));
+                }
+            });
+
         final IDataStoreStrategy dataStoreStrategy =
                 dataStrategyStore.getDataStoreStrategy(dataSetInfo, incomingDataSetPath);
-        
+
         assertEquals(dataStoreStrategy.getKey(), DataStoreStrategyKey.INVALID);
         final String logContent = logRecorder.getLogContent();
         assertEquals("Unexpected log content: " + logContent, true,
                 logContent.startsWith("ERROR OPERATION.DataStrategyStore"));
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public final void testSampleIsNotRegistered()
     {

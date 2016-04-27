@@ -30,8 +30,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.ID
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * Implementation of {@link IDssSessionAuthorizer} that asks the openBIS application server to check
- * the data set codes.
+ * Implementation of {@link IDssSessionAuthorizer} that asks the openBIS application server to check the data set codes.
  * 
  * @author Bernd Rinn
  */
@@ -46,8 +45,7 @@ public class DatasetSessionAuthorizer implements IDssSessionAuthorizer
     private final DatasetAuthorizationCache authCacheOrNull;
 
     /**
-     * Creates the authorizer with default timing parameters of <code>cacheExpirationMins=5</code>
-     * and <code>cleanupTimerMins=180</code> (3 hours).
+     * Creates the authorizer with default timing parameters of <code>cacheExpirationMins=5</code> and <code>cleanupTimerMins=180</code> (3 hours).
      */
     public DatasetSessionAuthorizer()
     {
@@ -58,8 +56,7 @@ public class DatasetSessionAuthorizer implements IDssSessionAuthorizer
      * Creates the authorizer.
      * 
      * @param cacheExpirationMins Cache expiration time (in minutes). Set to 0 to disable the cache.
-     * @param cleanupTimerMins Time interval between two calls of the cache cleanup timer (in
-     *            minutes).
+     * @param cleanupTimerMins Time interval between two calls of the cache cleanup timer (in minutes).
      */
     public DatasetSessionAuthorizer(int cacheExpirationMins, int cleanupTimerMins)
     {
@@ -189,10 +186,10 @@ public class DatasetSessionAuthorizer implements IDssSessionAuthorizer
         {
             operationLog.info(String.format(
                     "Checking if session '%s' has space power user privileges on "
-                    + "openBIS application server.", sessionToken));
+                            + "openBIS application server.", sessionToken));
         }
         final IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
-        
+
         try
         {
             openBISService.checkSpacePowerUserAuthorization(sessionToken);
@@ -202,7 +199,7 @@ public class DatasetSessionAuthorizer implements IDssSessionAuthorizer
             return Status.createError(ex.getMessage());
         }
     }
-    
+
     /**
      * Clears all entries from the cache (for unit tests).
      */

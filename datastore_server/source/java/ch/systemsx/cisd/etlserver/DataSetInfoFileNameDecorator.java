@@ -27,15 +27,12 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
- * Enriches the extracted data set information by adding a dataset property with a file name of the
- * original dataset.
+ * Enriches the extracted data set information by adding a dataset property with a file name of the original dataset.
  * <p>
- * The name of the property used for the file name can be specified in
- * {@link #FILE_NAME_PROPERTY_NAME} property (default value is
+ * The name of the property used for the file name can be specified in {@link #FILE_NAME_PROPERTY_NAME} property (default value is
  * {@link #FILE_NAME_PROPERTY_NAME_DEFAULT_VALUE}).
  * <p>
- * Additionally extension of the file can be removed from the name if {@link #STRIP_EXTENSION} is
- * set to true (default value is false).
+ * Additionally extension of the file can be removed from the name if {@link #STRIP_EXTENSION} is set to true (default value is false).
  * 
  * @author Tomasz Pylak
  * @author Piotr Buczek
@@ -43,8 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 public class DataSetInfoFileNameDecorator
 {
     /**
-     * Name of the property, which holds the property code in the database, at which the original
-     * dataset file name should be stored.
+     * Name of the property, which holds the property code in the database, at which the original dataset file name should be stored.
      */
     public static final String FILE_NAME_PROPERTY_NAME = "file-name-property-code";
 

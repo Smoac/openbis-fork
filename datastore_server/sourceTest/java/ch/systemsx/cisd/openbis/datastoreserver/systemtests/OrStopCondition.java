@@ -17,13 +17,14 @@
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 
 /**
- * Condition which is fulfilled if at least one of both wrapped conditions is fulfilled. 
+ * Condition which is fulfilled if at least one of both wrapped conditions is fulfilled.
  *
  * @author Franz-Josef Elmer
  */
 public class OrStopCondition implements ILogMonitoringStopCondition
 {
     private ILogMonitoringStopCondition condition1;
+
     private ILogMonitoringStopCondition condition2;
 
     public OrStopCondition(ILogMonitoringStopCondition condition1, ILogMonitoringStopCondition condition2)

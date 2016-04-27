@@ -129,7 +129,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                 {
                     one(dao).getRegistrationTimestampOfLastFeedingEvent();
                     will(returnValue(null));
-                    
+
                     one(service).listOldestPhysicalDataSets(12);
                     will(returnValue(Arrays.asList(ds1, ds2)));
                 }
@@ -206,12 +206,12 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                     one(service).listOldestPhysicalDataSets(timeStamp, 2);
                     will(returnValue(Arrays.asList(ds3, ds4)));
                     inSequence(chunkReadingSequence);
-                    
+
                     one(dao).getRegistrationTimestampOfLastFeedingEvent();
                     Date timeStamp2 = new Date(4000);
                     will(returnValue(timeStamp2));
                     inSequence(chunkReadingSequence);
-                    
+
                     one(service).listOldestPhysicalDataSets(timeStamp2, 2);
                     will(returnValue(Arrays.asList(ds5, ds6)));
                     inSequence(chunkReadingSequence);
@@ -222,10 +222,10 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         prepareCreateLastFeedingEvent(ds2.getRegistrationTimestamp());
         prepareCreateLastFeedingEvent(ds4.getRegistrationTimestamp());
         prepareCreateLastFeedingEvent(ds6.getRegistrationTimestamp());
-        
+
         createTask(2, 3, 0).execute();
     }
-    
+
     @Test
     public void testAsMaintenanceTaskWithFiniteTimeLimit()
     {
@@ -290,24 +290,24 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                     one(service).listOldestPhysicalDataSets(timeStamp, 2);
                     will(returnValue(Arrays.asList(ds3)));
                     inSequence(chunkReadingSequence);
-                    
+
                 }
             });
         prepareHappyCase(ds1, ds3);
         prepareFailing(ds2);
         prepareCreateLastFeedingEvent(ds2.getRegistrationTimestamp());
         prepareCreateLastFeedingEvent(ds3.getRegistrationTimestamp());
-        
+
         createTask(2, 0, 0).execute();
     }
-    
+
     @Test
     public void testToSmallChunkSizeBecauseAllRegistrationTimeStampAreTheSame()
     {
         final SimpleDataSetInformationDTO ds1 = dataSet("ds1", 1000);
         final SimpleDataSetInformationDTO ds2 = dataSet("ds2", 1000);
         final SimpleDataSetInformationDTO ds3 = dataSet("ds3", 1000);
-        
+
         final Sequence chunkReadingSequence = context.sequence("chunkReadingSequence");
         context.checking(new Expectations()
             {
@@ -341,10 +341,10 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
             });
         prepareHappyCase(ds1, ds2, ds3);
         prepareCreateLastFeedingEvent(ds3.getRegistrationTimestamp());
-        
+
         createTask(2, 0, 0).execute();
     }
-    
+
     @Test
     public void testToSmallChunkSizeBecauseOfSameRegistrationTimeStamp()
     {
@@ -352,7 +352,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         final SimpleDataSetInformationDTO ds2 = dataSet("ds2", 1000);
         final SimpleDataSetInformationDTO ds3 = dataSet("ds3", 1000);
         final SimpleDataSetInformationDTO ds4 = dataSet("ds4", 2000);
-        
+
         final Sequence chunkReadingSequence = context.sequence("chunkReadingSequence");
         context.checking(new Expectations()
             {
@@ -385,7 +385,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
         createTask(2, 0, 0).execute();
     }
-    
+
     @Test
     public void testPostRegistrationHappyCase()
     {
@@ -532,26 +532,26 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                     for (IDatasetLocation dataSet : dataSets)
                     {
                         one(shareIdManager).lock(dataSet.getDataSetCode());
-                        
+
                         one(directoryProvider).getDataSetDirectory(dataSet);
                         will(returnValue(dataSetFolder));
-                        
+
                         one(dao).tryGetDataSetId(dataSet.getDataSetCode());
                         will(returnValue(null));
-                        
+
                         one(dao).createDataSet(dataSet.getDataSetCode(), dataSet.getDataSetLocation());
                         will(returnValue(101L));
-                        
+
                         one(contentFactory).asHierarchicalContent(dataSetFolder, DO_NOTHING);
                         will(throwException(new RuntimeException("Oophs!")));
-                        
+
                         one(dao).rollback();
                         one(shareIdManager).releaseLocks();
                     }
                 }
             });
     }
-    
+
     private void prepareCreateLastFeedingEvent(final Date timestamp)
     {
         context.checking(new Expectations()
@@ -578,7 +578,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         dataSet.setStorageConfirmed(true);
         return dataSet;
     }
-    
+
     private PathInfoDatabaseFeedingTask createTask(int chunkSize, int maxNumberOfChunks,
             long timeLimite)
     {

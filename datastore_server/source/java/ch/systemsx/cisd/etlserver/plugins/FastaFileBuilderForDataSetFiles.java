@@ -28,9 +28,9 @@ import ch.systemsx.cisd.common.string.Template;
 class FastaFileBuilderForDataSetFiles extends GenericFastaFileBuilder
 {
     private static final Template ID_EXTENSION_TEMPLATE = new Template("[Data set: ${data_set}, File: ${file}]");
-    
+
     private final String dataSetCode;
-    
+
     private String idExtension;
 
     FastaFileBuilderForDataSetFiles(File tempFolder, String dataSetCode)
@@ -38,7 +38,7 @@ class FastaFileBuilderForDataSetFiles extends GenericFastaFileBuilder
         super(tempFolder, dataSetCode);
         this.dataSetCode = dataSetCode;
     }
-    
+
     void setFilePath(String filePath)
     {
         writeFastaEntry();
@@ -47,7 +47,7 @@ class FastaFileBuilderForDataSetFiles extends GenericFastaFileBuilder
         template.bind("file", filePath);
         idExtension = template.createText();
     }
-    
+
     void handle(String line)
     {
         EntryType entryType = tryToGetEntryType(line);
@@ -63,7 +63,6 @@ class FastaFileBuilderForDataSetFiles extends GenericFastaFileBuilder
             appendToSequence(line);
         }
     }
-    
 
     @Override
     String createErrorMessageForUndefinedEntry(String line)
@@ -75,5 +74,5 @@ class FastaFileBuilderForDataSetFiles extends GenericFastaFileBuilder
     {
         return line.startsWith(">") ? EntryType.FASTA : (line.startsWith("@") ? EntryType.FASTQ : null);
     }
-    
+
 }

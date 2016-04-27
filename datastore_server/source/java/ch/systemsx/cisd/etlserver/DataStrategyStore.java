@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 public class DataStrategyStore implements IDataStrategyStore
 {
     static final String SUBJECT_FORMAT = "ATTENTION: experiment '%s'";
+
     static final String SUBJECT_SAMPLE_FORMAT = "ATTENTION: sample '%s'";
 
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
@@ -77,8 +78,7 @@ public class DataStrategyStore implements IDataStrategyStore
     }
 
     /**
-     * Create version of data strategy store with the same contents as the argument, but caching
-     * openbis calls
+     * Create version of data strategy store with the same contents as the argument, but caching openbis calls
      */
     public DataStrategyStore(final DataStrategyStore other)
     {
@@ -166,14 +166,14 @@ public class DataStrategyStore implements IDataStrategyStore
             final Experiment experiment = sample.getExperiment();
             if (experiment == null)
             {
-                if (sample.getSpace() == null) 
+                if (sample.getSpace() == null)
                 {
                     error(emailOrNull, String.format("Data set for sample '%s' can not be registered "
-                            + "because the sample is a shared sample not assigned to a particular space.", 
+                            + "because the sample is a shared sample not assigned to a particular space.",
                             sampleIdentifier));
                     return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
                 }
-            } else 
+            } else
             {
                 experimentIdentifier = new ExperimentIdentifier(experiment);
                 dataSetInfo.setExperimentIdentifier(experimentIdentifier);
@@ -196,7 +196,7 @@ public class DataStrategyStore implements IDataStrategyStore
                             + "' has a blank email, sending the following email failed:\n"
                             + message);
                 }
-                operationLog.error(createLogMessageForMissingSampleProperties(incomingDataSetPath, 
+                operationLog.error(createLogMessageForMissingSampleProperties(incomingDataSetPath,
                         experimentIdentifier, sampleIdentifier));
                 return dataStoreStrategies.get(DataStoreStrategyKey.INVALID);
             }
@@ -230,10 +230,10 @@ public class DataStrategyStore implements IDataStrategyStore
         String claimedOwner;
         if (experimentIdentifier == null)
         {
-            claimedOwner = String.format("sample '%s'",  sampleIdentifier);
+            claimedOwner = String.format("sample '%s'", sampleIdentifier);
         } else
         {
-            claimedOwner = String.format("experiment '%s' and sample '%s'", 
+            claimedOwner = String.format("experiment '%s' and sample '%s'",
                     experimentIdentifier, sampleIdentifier);
         }
         return String.format("Incoming data set '%s' claims to belong to %s, but according to the openBIS server "

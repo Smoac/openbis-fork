@@ -37,8 +37,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
- * Default implementation which assumes that the information can be extracted from the file name.
- * Following information can be extracted for each dataset:
+ * Default implementation which assumes that the information can be extracted from the file name. Following information can be extracted for each
+ * dataset:
  * <ul>
  * <li>Sample code
  * <li>Sample group code
@@ -46,9 +46,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  * <li>Data producer code
  * <li>Data production date
  * </ul>
- * The name is split into entities separated by the property {@link #ENTITY_SEPARATOR_PROPERTY_NAME}
- * . It is assumed that each of the above-mentioned pieces of information is one of these entities.
- * The extractor can be configured by the following optional properties:
+ * The name is split into entities separated by the property {@link #ENTITY_SEPARATOR_PROPERTY_NAME} . It is assumed that each of the above-mentioned
+ * pieces of information is one of these entities. The extractor can be configured by the following optional properties:
  * <table border="1" * * cellspacing="0" cellpadding="5">
  * <tr>
  * <th>Property</th>
@@ -58,8 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  * <tr>
  * <td><code>strip-file-extension</code></td>
  * <td><code>false</code></td>
- * <td>If <code>true</code> the file extension will be removed before extracting informations from
- * the file name.</td>
+ * <td>If <code>true</code> the file extension will be removed before extracting informations from the file name.</td>
  * </tr>
  * <tr>
  * <td><code>entity-separator</code></td>
@@ -74,54 +72,47 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  * <tr>
  * <td><code>index-of-space-code</code></td>
  * <td><code>null</code></td>
- * <td>This should be a space to which the sample connected with the dataset belongs. If not
- * specified, the default space code will be used if given, otherwise a sample will be assumed to be
- * shared.</td>
+ * <td>This should be a space to which the sample connected with the dataset belongs. If not specified, the default space code will be used if given,
+ * otherwise a sample will be assumed to be shared.</td>
  * </tr>
  * <tr>
  * <td><code>space-code</code></td>
  * <td><code>null</code></td>
- * <td>Default space code of the sample. If unspecified and space code for a specific dataset is
- * also unspecified, a shared sample is assumed.</td>
+ * <td>Default space code of the sample. If unspecified and space code for a specific dataset is also unspecified, a shared sample is assumed.</td>
  * </tr>
  * <tr>
  * <td><code>index-of-sample-code</code></td>
  * <td><code>-1</code></td>
- * <td>Index of the entity which is interpreted as the sample code. It will be ignored
- * <code>index-of-experiment-identifier</code> has been specified.</td>
+ * <td>Index of the entity which is interpreted as the sample code. It will be ignored <code>index-of-experiment-identifier</code> has been specified.
+ * </td>
  * </tr>
  * <tr>
  * <td><code>index-of-experiment-identifier</code></td>
  * <td><code>&nbsp;</code></td>
- * <td>Index of the entity which is interpreted as the experiment identifier. If not specified no
- * experiment identifier will be extracted. In this case <code>index-of-sample-code</code> will be
- * used.</td>
+ * <td>Index of the entity which is interpreted as the experiment identifier. If not specified no experiment identifier will be extracted. In this
+ * case <code>index-of-sample-code</code> will be used.</td>
  * </tr>
  * <tr>
  * <td><code>index-of-parent-data-set-codes</code></td>
  * <td>&nbsp;</td>
- * <td>Index of the entity which is interpreted as parent data set codes. The codes have to be
- * separated by the sub entity separator. If not specified no parent data set codes will be
- * extracted.</td>
+ * <td>Index of the entity which is interpreted as parent data set codes. The codes have to be separated by the sub entity separator. If not specified
+ * no parent data set codes will be extracted.</td>
  * </tr>
  * <tr>
  * <td><code>index-of-data-producer-code</code></td>
  * <td>&nbsp;</td>
- * <td>Index of the entity which is interpreted as the data producer code. If not specified no data
- * producer code will be extracted.</td>
+ * <td>Index of the entity which is interpreted as the data producer code. If not specified no data producer code will be extracted.</td>
  * </tr>
  * <tr>
  * <td><code>index-of-data-production-date</code></td>
  * <td>&nbsp;</td>
- * <td>Index of the entity which is interpreted as the data production date. If not specified no
- * data production date will be extracted.</td>
+ * <td>Index of the entity which is interpreted as the data production date. If not specified no data production date will be extracted.</td>
  * </tr>
  * <tr>
  * <td><code>data-production-date-format</code></td>
  * <td><code>yyyyMMddHHmmss</code></td>
  * <td>Format of the data production date. For the correct syntax see <a
- * href="http://java.sun.com/j2se/1.5.0/docs/api/java/text/SimpleDateFormat.html"
- * >SimpleDateFormat</a>.</td>
+ * href="http://java.sun.com/j2se/1.5.0/docs/api/java/text/SimpleDateFormat.html" >SimpleDateFormat</a>.</td>
  * </tr>
  * <tr>
  * <td><code>data-set-properties-file-name</code></td>
@@ -129,8 +120,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  * <td>Path to a file inside a data set directory which contains data set properties.</td>
  * </tr>
  * </table>
- * The first entity has index 0, the second 1, etc. Using negative numbers one can specify entities
- * from the end. Thus, -1 means the last entity, -2 the second last entity, etc.
+ * The first entity has index 0, the second 1, etc. Using negative numbers one can specify entities from the end. Thus, -1 means the last entity, -2
+ * the second last entity, etc.
  * 
  * @author Franz-Josef Elmer
  */
@@ -144,33 +135,27 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
     protected static final char DEFAULT_SUB_ENTITY_SEPARATOR = '&';
 
     /**
-     * Name of the property specifying the index of the entity which should be interpreted as the
-     * sample code.
+     * Name of the property specifying the index of the entity which should be interpreted as the sample code.
      * <p>
-     * Use a negative number to count from the end, e.g. <code>-1</code> to use the last entity as
-     * the sample code.
+     * Use a negative number to count from the end, e.g. <code>-1</code> to use the last entity as the sample code.
      * </p>
      */
     @Private
     static final String INDEX_OF_SAMPLE_CODE = "index-of-sample-code";
 
     /**
-     * Name of the property specifying the index of the entity which should be interpreted as the
-     * experiment identifier.
+     * Name of the property specifying the index of the entity which should be interpreted as the experiment identifier.
      * <p>
-     * Use a negative number to count from the end, e.g. <code>-1</code> to use the last entity as
-     * the experiment identifer.
+     * Use a negative number to count from the end, e.g. <code>-1</code> to use the last entity as the experiment identifer.
      * </p>
      */
     @Private
     static final String INDEX_OF_EXPERIMENT_IDENTIFIER = "index-of-experiment-identifier";
 
     /**
-     * Name of the property specifying the index of the entity which should be interpreted as parent
-     * data set codes.
+     * Name of the property specifying the index of the entity which should be interpreted as parent data set codes.
      * <p>
-     * Use a negative number to count from the end, e.g. <code>-1</code> to use the last entity as
-     * the sample code.
+     * Use a negative number to count from the end, e.g. <code>-1</code> to use the last entity as the sample code.
      * </p>
      */
     @Private
@@ -180,10 +165,9 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
     private static final int DEFAULT_INDEX_OF_SAMPLE_CODE = -1;
 
     /**
-     * Name of the property specifying the index of the entity which should be interpreted as the
-     * group code. This should be a group to which the sample connected with the dataset belongs. If
-     * not specified, the default group code will be used if given, otherwise a sample will be
-     * assumed to be shared.
+     * Name of the property specifying the index of the entity which should be interpreted as the group code. This should be a group to which the
+     * sample connected with the dataset belongs. If not specified, the default group code will be used if given, otherwise a sample will be assumed
+     * to be shared.
      * <p>
      * Use a negative number to count from the end.
      * </p>
@@ -192,22 +176,18 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
     static final String INDEX_OF_GROUP_CODE = "index-of-space-code";
 
     /**
-     * Name of the property specifying the index of the entity which should be interpreted as the
-     * data producer code.
+     * Name of the property specifying the index of the entity which should be interpreted as the data producer code.
      * <p>
-     * Use a negative number to count from the end, e.g. <code>-1</code> to use the last entity as
-     * the data producer code.
+     * Use a negative number to count from the end, e.g. <code>-1</code> to use the last entity as the data producer code.
      * </p>
      */
     @Private
     static final String INDEX_OF_DATA_PRODUCER_CODE = "index-of-data-producer-code";
 
     /**
-     * Name of the property specifying the index of the entity which should be interpreted as the
-     * data production date.
+     * Name of the property specifying the index of the entity which should be interpreted as the data production date.
      * <p>
-     * Use a negative number to count from the end, e.g. <code>-1</code> to use the last entity as
-     * the data production date.
+     * Use a negative number to count from the end, e.g. <code>-1</code> to use the last entity as the data production date.
      * </p>
      */
     @Private

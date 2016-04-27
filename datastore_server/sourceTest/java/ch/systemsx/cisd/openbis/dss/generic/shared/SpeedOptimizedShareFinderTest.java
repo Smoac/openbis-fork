@@ -30,19 +30,18 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class SpeedOptimizedShareFinderTest extends AbstractIShareFinderTestCase
 {
     private static final String DATA_SET_CODE = "ds-1";
-    
+
     private SpeedOptimizedShareFinder finder;
-    
+
     private Mockery context;
+
     private SimpleDataSetInformationDTO dataSet;
-    
+
     @BeforeMethod
     public void setUp()
     {
@@ -52,7 +51,7 @@ public class SpeedOptimizedShareFinderTest extends AbstractIShareFinderTestCase
         dataSet.setDataSetSize(FileUtils.ONE_MB);
         finder = new SpeedOptimizedShareFinder(new Properties());
     }
-    
+
     @AfterMethod
     public void tearDown(Method method)
     {
@@ -65,7 +64,7 @@ public class SpeedOptimizedShareFinderTest extends AbstractIShareFinderTestCase
             throw new Error(method.getName() + "() : ", t);
         }
     }
-    
+
     @Test
     public void testFindMatchingExtensionShare()
     {
@@ -74,11 +73,11 @@ public class SpeedOptimizedShareFinderTest extends AbstractIShareFinderTestCase
         Share s2 = incomingShare("s2", 0, 50);
         Share s3 = extensionShare("s3", 0, 40);
         Share s4 = extensionShare("s4", megaBytes(11), 50);
-        
+
         Share foundShare = finder.tryToFindShare(dataSet, Arrays.asList(s1, s2, s3, s4));
         assertSame(s4.getShare(), foundShare.getShare());
     }
-    
+
     @Test
     public void testFindExtensionShareRespectingSpeedHint()
     {
@@ -86,11 +85,11 @@ public class SpeedOptimizedShareFinderTest extends AbstractIShareFinderTestCase
         Share s1 = extensionShare("s1", megaBytes(10), 49);
         Share s2 = incomingShare("s2", 0, 50);
         Share s3 = extensionShare("s3", megaBytes(11), 40);
-        
+
         Share foundShare = finder.tryToFindShare(dataSet, Arrays.asList(s1, s2, s3));
         assertSame(s3.getShare(), foundShare.getShare());
     }
-    
+
     @Test
     public void testFindShareIgnoringSpeedHint()
     {
@@ -101,7 +100,7 @@ public class SpeedOptimizedShareFinderTest extends AbstractIShareFinderTestCase
         Share s2 = incomingShare("s2", megaBytes(20), 50);
         Share s3 = extensionShare("s3", megaBytes(11), 60);
         Share s4 = incomingShare("s4", megaBytes(15), 50);
-        
+
         Share foundShare = finder.tryToFindShare(dataSet, Arrays.asList(s1, s2, s3, s4));
         assertSame(s3.getShare(), foundShare.getShare());
     }

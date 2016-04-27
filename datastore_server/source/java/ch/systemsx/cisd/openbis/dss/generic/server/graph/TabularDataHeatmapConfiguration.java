@@ -48,8 +48,7 @@ public class TabularDataHeatmapConfiguration extends TabularDataGraphConfigurati
     }
 
     /**
-     * Create a heatmap configuration where the x and y values are one column and needs to be
-     * parsed.
+     * Create a heatmap configuration where the x and y values are one column and needs to be parsed.
      * 
      * @param title The title for the graph
      * @param indexColumn The data column used for the x/y values

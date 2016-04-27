@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.etlserver.postregistration;
 
-
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -44,7 +43,7 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTaskF
 
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             ArchivingPostRegistrationTask.class);
-    
+
     public ArchivingPostRegistrationTask(Properties properties, IEncapsulatedOpenBISService service)
     {
         super(properties, service);

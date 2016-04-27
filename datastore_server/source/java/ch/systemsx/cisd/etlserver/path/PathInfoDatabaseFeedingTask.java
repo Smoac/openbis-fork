@@ -61,24 +61,25 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
     private static interface IStopCondition
     {
         void handle(SimpleDataSetInformationDTO dataSet);
+
         boolean fulfilled();
     }
-    
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             PathInfoDatabaseFeedingTask.class);
 
     static final String COMPUTE_CHECKSUM_KEY = "compute-checksum";
-    
+
     static final String CHUNK_SIZE_KEY = "data-set-chunk-size";
-    
+
     static final int DEFAULT_CHUNK_SIZE = 1000;
 
     static final String MAX_NUMBER_OF_CHUNKS_KEY = "max-number-of-chunks";
-    
+
     static final int DEFAULT_MAX_NUMBER_OF_DATA_SETS = -1;
-    
+
     static final String TIME_LIMIT_KEY = "time-limit";
-    
+
     private static IPathsInfoDAO createDAO()
     {
         return QueryTool.getQuery(PathInfoDataSourceProvider.getDataSource(), IPathsInfoDAO.class);
@@ -99,7 +100,7 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
     private IDataSetDirectoryProvider directoryProvider;
 
     private ITimeProvider timeProvider;
-    
+
     private IPathsInfoDAO dao;
 
     private IHierarchicalContentFactory hierarchicalContentFactory; // filesystem based
@@ -185,7 +186,7 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
         List<SimpleDataSetInformationDTO> dataSets;
         int chunkCount = 0;
         operationLog.info("Start feeding.");
-        Set<String> processedDataSets = new HashSet<>(); 
+        Set<String> processedDataSets = new HashSet<>();
         do
         {
             dataSets = filteredDataSets(getNextChunk(), processedDataSets);
@@ -211,7 +212,7 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
         } while (dataSets.size() >= chunkSize && stopCondition.fulfilled() == false);
         operationLog.info("Feeding finished.");
     }
-    
+
     @Override
     public void clearCache()
     {
@@ -304,11 +305,11 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
         {
             return result;
         }
-        operationLog.warn("There are at least " + actualChunkSize 
+        operationLog.warn("There are at least " + actualChunkSize
                 + " data sets with same registration time stamp. Twice the chunk size will be tried.");
         return listDataSets(timestamp, 2 * actualChunkSize);
     }
-    
+
     private boolean allRegistrationTimeStampsTheSame(List<SimpleDataSetInformationDTO> dataSets)
     {
         Set<Date> registrationTimeStamps = new HashSet<>();
@@ -440,7 +441,6 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
         return new IStopCondition()
             {
                 private long startTime = timeProvider.getTimeInMilliseconds();
-
 
                 @Override
                 public void handle(SimpleDataSetInformationDTO dataSet)

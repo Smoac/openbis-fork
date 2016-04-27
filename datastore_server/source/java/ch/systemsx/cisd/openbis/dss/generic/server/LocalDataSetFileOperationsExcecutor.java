@@ -243,8 +243,7 @@ public final class LocalDataSetFileOperationsExcecutor implements IDataSetFileOp
         }
 
         /**
-         * Returns a message about different sizes of given <var>path</var> in store and
-         * destination.
+         * Returns a message about different sizes of given <var>path</var> in store and destination.
          */
         public static String createDifferentSizesMsg(String path, Long storeFileSize,
                 Long destinationFileSize)
@@ -267,9 +266,8 @@ public final class LocalDataSetFileOperationsExcecutor implements IDataSetFileOp
         }
 
         /**
-         * Returns report about inconsistencies with file sizes in given maps or empty string if no
-         * inconsistencies were found. The maps contain entries from relative file path to file
-         * size.
+         * Returns report about inconsistencies with file sizes in given maps or empty string if no inconsistencies were found. The maps contain
+         * entries from relative file path to file size.
          */
         public static String findInconsistencies(
                 Map<String /* path */, Long /* size */> dataSetFileSizesByPaths,

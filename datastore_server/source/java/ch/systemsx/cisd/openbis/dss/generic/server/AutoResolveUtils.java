@@ -48,11 +48,9 @@ public class AutoResolveUtils
      * 
      * @param root - the search will start from this directory
      * @param path - narrows the search to this directory; relative to the root
-     * @param pattern - regular expression defining the files that will be accepted; if no pattern
-     *            is specified - the result will be empty
-     * @return empty list - if the pattern has not been specified or no files matched; 1 file - if
-     *         there exactly one file matched; 2 or more files (not necessarily all) - if more than
-     *         one file matched
+     * @param pattern - regular expression defining the files that will be accepted; if no pattern is specified - the result will be empty
+     * @return empty list - if the pattern has not been specified or no files matched; 1 file - if there exactly one file matched; 2 or more files
+     *         (not necessarily all) - if more than one file matched
      */
     public static List<File> findSomeMatchingFiles(File root, String path, final String pattern)
     {
@@ -78,11 +76,9 @@ public class AutoResolveUtils
      * 
      * @param rootContent - the search will start from this abstraction of a directory
      * @param path - narrows the search to this directory; relative to the root
-     * @param pattern - regular expression defining the files that will be accepted; if no pattern
-     *            is specified - the result will be empty
-     * @return empty list - if the pattern has not been specified or no files matched; 1 file - if
-     *         there exactly one file matched; 2 or more files (not necessarily all) - if more than
-     *         one file matched
+     * @param pattern - regular expression defining the files that will be accepted; if no pattern is specified - the result will be empty
+     * @return empty list - if the pattern has not been specified or no files matched; 1 file - if there exactly one file matched; 2 or more files
+     *         (not necessarily all) - if more than one file matched
      */
     public static List<IHierarchicalContentNode> findSomeMatchingFiles(
             IHierarchicalContent rootContent, String path, final String pattern)
@@ -203,8 +199,7 @@ public class AutoResolveUtils
     }
 
     /**
-     * For given directory and main data set pattern decides if the auto resolving should stop or
-     * continue.
+     * For given directory and main data set pattern decides if the auto resolving should stop or continue.
      * <p>
      * The resolving should continue if file has only one child and
      * <li>it is a directory; or
@@ -221,8 +216,7 @@ public class AutoResolveUtils
     }
 
     /**
-     * For given directory node and main data set pattern decides if the auto resolving should stop
-     * or continue.
+     * For given directory node and main data set pattern decides if the auto resolving should stop or continue.
      * <p>
      * The resolving should continue if node has only one child and
      * <li>it is a directory; or
@@ -247,8 +241,7 @@ public class AutoResolveUtils
     }
 
     /**
-     * Recursively browses startingPoint looking for files accepted by the filter. Stops if more
-     * than one file has been already found.
+     * Recursively browses startingPoint looking for files accepted by the filter. Stops if more than one file has been already found.
      */
     private static void findFiles(File startingPoint, FileFilter filter, List<File> result)
     {
@@ -280,8 +273,8 @@ public class AutoResolveUtils
     }
 
     /**
-     * Returns the directory defined by root and given relative path. If path is not defined or the
-     * result file does not exist or is not a directory, root is returned.
+     * Returns the directory defined by root and given relative path. If path is not defined or the result file does not exist or is not a directory,
+     * root is returned.
      */
     @Private
     static File createStartingPoint(File root, String path)

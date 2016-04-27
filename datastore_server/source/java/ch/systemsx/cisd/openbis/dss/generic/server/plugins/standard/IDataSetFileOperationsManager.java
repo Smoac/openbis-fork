@@ -31,44 +31,43 @@ public interface IDataSetFileOperationsManager
 {
 
     /**
-     * Copies specified dataset's data to destination specified in constructor. The path at the
-     * destination is defined by the original location of the data set.
+     * Copies specified dataset's data to destination specified in constructor. The path at the destination is defined by the original location of the
+     * data set.
      */
     public Status copyToDestination(File originalData, DatasetDescription dataset);
 
     /**
-     * Retrieves specified dataset's data from the destination specified in constructor. The path at
-     * the destination is defined by original location of the data set.
+     * Retrieves specified dataset's data from the destination specified in constructor. The path at the destination is defined by original location
+     * of the data set.
      */
     public Status retrieveFromDestination(File originalData, DatasetDescription dataset);
 
     /**
-     * Deletes specified dataset's data from the destination specified in constructor. The path at
-     * the destination is defined by original location of the data set.
+     * Deletes specified dataset's data from the destination specified in constructor. The path at the destination is defined by original location of
+     * the data set.
      */
     public Status deleteFromDestination(IDatasetLocation dataset);
-    
+
     /**
      * Marks the specified data set as deleted. Does not delete the dataset's data.
      */
     public Status markAsDeleted(IDatasetLocation dataset);
 
     /**
-     * Checks if specified dataset's data are present and synchronized in the destination specified
-     * in constructor. The path at the destination is defined by original location of the data set.
+     * Checks if specified dataset's data are present and synchronized in the destination specified in constructor. The path at the destination is
+     * defined by original location of the data set.
      */
     public BooleanStatus isSynchronizedWithDestination(File originalData,
             DatasetDescription dataset);
 
     /**
-     * Checks if specified dataset's data are present in the destination specified in constructor.
-     * The path at the destination is defined by original location of the data set.
+     * Checks if specified dataset's data are present in the destination specified in constructor. The path at the destination is defined by original
+     * location of the data set.
      */
     public BooleanStatus isPresentInDestination(DatasetDescription dataset);
 
     /**
-     * @return true if the destination includes a host information (it means it is not
-     *         local/mounted)
+     * @return true if the destination includes a host information (it means it is not local/mounted)
      */
     public boolean isHosted();
 

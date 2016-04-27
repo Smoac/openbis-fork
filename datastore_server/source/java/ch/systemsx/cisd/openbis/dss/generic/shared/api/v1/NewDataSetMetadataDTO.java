@@ -31,8 +31,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
- * Represents optional metadata (data set type and properties) of a new data set that the DSS should
- * register. The server may override the metadata specified here.
+ * Represents optional metadata (data set type and properties) of a new data set that the DSS should register. The server may override the metadata
+ * specified here.
  * 
  * @author Piotr Buczek
  */
@@ -82,8 +82,7 @@ public class NewDataSetMetadataDTO implements Serializable
     }
 
     /**
-     * The properties for the new data set. Key is the property code, value is the value (as a
-     * string).
+     * The properties for the new data set. Key is the property code, value is the value (as a string).
      */
     public Map<String, String> getProperties()
     {

@@ -27,13 +27,12 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 /**
  * Immutable class with path informations about a {@link IHierarchicalContentNode} and its descendants.
  * 
- *
  * @author Franz-Josef Elmer
  */
 final class PathInfo
 {
     private static final List<PathInfo> NO_CHILDREN = Collections.emptyList();
-    
+
     static PathInfo createPathInfo(IHierarchicalContentNode node, boolean computeChecksum)
     {
         if (node.exists() == false)
@@ -61,7 +60,7 @@ final class PathInfo
         }
         return pathInfo;
     }
-    
+
     private static List<PathInfo> createPathInfos(IHierarchicalContentNode node, boolean computeChecksum)
     {
         if (node.isDirectory() == false)
@@ -84,19 +83,19 @@ final class PathInfo
             });
         return childInfos;
     }
-    
+
     private String fileName;
-    
+
     private long sizeInBytes;
-    
+
     private Integer checksumCRC32;
-    
+
     private PathInfo parent;
-    
+
     private boolean directory;
-    
+
     private List<PathInfo> children;
-    
+
     private Date lastModifiedDate;
 
     public String getFileName()
@@ -133,6 +132,5 @@ final class PathInfo
     {
         return children == null ? NO_CHILDREN : Collections.unmodifiableList(children);
     }
-    
-    
+
 }

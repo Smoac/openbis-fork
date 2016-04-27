@@ -28,8 +28,7 @@ import ch.systemsx.cisd.hcs.Location;
 /**
  * Helper class to set the <code>is_complete</code> flag in the <i>BDS</i> library.
  * <p>
- * All the possible combinations are computed in the constructor. This class is also able to spot
- * images which have already been handled.
+ * All the possible combinations are computed in the constructor. This class is also able to spot images which have already been handled.
  * </p>
  * 
  * @author Franz-Josef Elmer

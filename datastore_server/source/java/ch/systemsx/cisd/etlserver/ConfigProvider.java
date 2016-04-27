@@ -25,8 +25,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUt
 /**
  * The default implementation of {@link IConfigProvider}.
  * <p>
- * Currently it is a simple wrapper around DssPropertyParametersUtil, but in the future we might
- * consider replacing it.
+ * Currently it is a simple wrapper around DssPropertyParametersUtil, but in the future we might consider replacing it.
  * 
  * @author Kaloyan Enimanev
  */

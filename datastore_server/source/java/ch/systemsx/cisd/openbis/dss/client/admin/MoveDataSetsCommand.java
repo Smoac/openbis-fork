@@ -22,15 +22,13 @@ import java.util.TreeSet;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
-
-
 /**
  * Move data sets to another share.
  *
  * @author Franz-Josef Elmer
  */
 public class MoveDataSetsCommand extends AbstractCommand
-{   
+{
     static final class MoveDataSetsCommandArguments extends CommonArguments
     {
         Set<String> getDataSetCodes()
@@ -41,7 +39,7 @@ public class MoveDataSetsCommand extends AbstractCommand
             }
             return new TreeSet<String>(arguments.subList(1, arguments.size()));
         }
-        
+
         String getShareId()
         {
             return arguments.size() < 2 ? "" : arguments.get(0);
@@ -55,7 +53,7 @@ public class MoveDataSetsCommand extends AbstractCommand
     }
 
     private MoveDataSetsCommandArguments arguments;
-    
+
     MoveDataSetsCommand()
     {
         super("move-to");

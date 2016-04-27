@@ -59,7 +59,7 @@ import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses =
-    { PostRegistrationMaintenanceTask.class, TaskExecutor.class })
+{ PostRegistrationMaintenanceTask.class, TaskExecutor.class })
 public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestCase
 {
     private static final String TASK_1_NAME = "task 1";

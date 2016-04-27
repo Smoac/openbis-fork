@@ -24,25 +24,25 @@ import java.util.Set;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
 
 /**
- *  Provider of IDs of incoming shares. This is a helper class to avoid direct connection
- *  between {@link ETLDaemon} (which determines incoming share IDs) and consumers of these IDs.
+ * Provider of IDs of incoming shares. This is a helper class to avoid direct connection between {@link ETLDaemon} (which determines incoming share
+ * IDs) and consumers of these IDs.
  *
  * @author Franz-Josef Elmer
  */
 public class IncomingShareIdProvider
 {
     private static Set<String> incomingShareIds = new LinkedHashSet<String>();
-    
+
     public static Set<String> getIdsOfIncomingShares()
     {
         return Collections.unmodifiableSet(incomingShareIds);
     }
-    
+
     public static void add(Collection<String> ids)
     {
         incomingShareIds.addAll(ids);
     }
-    
+
     public static void removeAllShareIds()
     {
         incomingShareIds.clear();

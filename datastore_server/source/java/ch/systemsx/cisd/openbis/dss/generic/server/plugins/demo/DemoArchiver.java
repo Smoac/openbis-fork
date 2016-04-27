@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 public class DemoArchiver extends AbstractArchiverProcessingPlugin
 {
     private static final long serialVersionUID = 1L;
-    
+
     private final static Set<String/* data set code */> archiveContents = new HashSet<String>();
 
     public DemoArchiver(Properties properties, File storeRoot)
@@ -100,5 +100,5 @@ public class DemoArchiver extends AbstractArchiverProcessingPlugin
     {
         operationLog.info("DemoArchiver - removeFromDataStore supressed: " + datasets);
     }
-    
+
 }

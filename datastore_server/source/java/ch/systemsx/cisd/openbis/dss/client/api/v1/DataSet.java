@@ -35,8 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 
 /**
- * A class that provides uniform access to data set metadata (from the openBIS AS) and data (from
- * the openBIS DSS).
+ * A class that provides uniform access to data set metadata (from the openBIS AS) and data (from the openBIS DSS).
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -53,7 +52,7 @@ public class DataSet
     private List<DataSet> containedDataSets;
 
     private List<DataSet> containerDataSets;
-    
+
     private IDataSetDss dataSetDss;
 
     /* Default constructor needed to create a retry-proxy */
@@ -222,11 +221,10 @@ public class DataSet
                         getMetadata().getContainerOrNull(), null) : null;
         return containerOrNull;
     }
-    
+
     /**
-     * Returns <code>true</code>, if result of {@link #getContainerOrNull()} can be trusted and
-     * <code>false</code>, if it cannot be trusted because the server is too old to deliver this
-     * information.
+     * Returns <code>true</code>, if result of {@link #getContainerOrNull()} can be trusted and <code>false</code>, if it cannot be trusted because
+     * the server is too old to deliver this information.
      */
     public boolean knowsContainer()
     {
@@ -273,13 +271,12 @@ public class DataSet
         }
         return containerDataSets;
     }
-    
+
     /**
-     * Returns the primary data set. For a non-container data set, this is itself. For a container
-     * data set, this is the one contained data set that is considered primary.
+     * Returns the primary data set. For a non-container data set, this is itself. For a container data set, this is the one contained data set that
+     * is considered primary.
      * 
-     * @return The data set that is considered primary, or null if the primary data set cannot be
-     *         determined.
+     * @return The data set that is considered primary, or null if the primary data set cannot be determined.
      */
     @Retry
     public DataSet getPrimaryDataSetOrNull()
@@ -379,8 +376,7 @@ public class DataSet
      * @param isRecursive
      * @throws IllegalArgumentException
      * @throws InvalidSessionException
-     * @see ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss#listFiles(java.lang.String,
-     *      boolean)
+     * @see ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss#listFiles(java.lang.String, boolean)
      */
     @Retry
     public FileInfoDssDTO[] listFiles(String startPath, boolean isRecursive)
@@ -420,8 +416,7 @@ public class DataSet
      * @param downloadDir
      * @throws IllegalArgumentException
      * @throws InvalidSessionException
-     * @see ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss#getLinkOrCopyOfContents(java.lang.String,
-     *      java.io.File)
+     * @see ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss#getLinkOrCopyOfContents(java.lang.String, java.io.File)
      */
     @Retry
     public File getLinkOrCopyOfContents(String overrideStoreRootPathOrNull, File downloadDir)
@@ -436,8 +431,7 @@ public class DataSet
      * @param pathInDataSet
      * @throws IllegalArgumentException
      * @throws InvalidSessionException
-     * @see ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss#getLinkOrCopyOfContent(java.lang.String,
-     *      java.io.File, java.lang.String)
+     * @see ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss#getLinkOrCopyOfContent(java.lang.String, java.io.File, java.lang.String)
      */
     @Retry
     public File getLinkOrCopyOfContent(String overrideStoreRootPathOrNull, File downloadDir,
@@ -458,8 +452,7 @@ public class DataSet
     }
 
     /**
-     * @see ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss#getURLForFileWithTimeout(String,
-     *      long)
+     * @see ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss#getURLForFileWithTimeout(String, long)
      */
     @Retry
     public String getURLForFileWithTimeout(String path, long validityDurationInSeconds)
@@ -470,7 +463,7 @@ public class DataSet
 
     public String tryGetInternalPathInDataStore()
     {
-      return getDataSetDss().tryGetInternalPathInDataStore();
+        return getDataSetDss().tryGetInternalPathInDataStore();
     }
 
     /**

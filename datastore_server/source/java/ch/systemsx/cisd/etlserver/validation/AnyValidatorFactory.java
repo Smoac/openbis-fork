@@ -16,11 +16,10 @@
 
 package ch.systemsx.cisd.etlserver.validation;
 
-
 final class AnyValidatorFactory implements IValidatorFactory
 {
     static final IValidatorFactory INSTANCE = new AnyValidatorFactory();
-    
+
     IValidator VALIDATOR = new IValidator()
         {
             @Override
@@ -28,15 +27,15 @@ final class AnyValidatorFactory implements IValidatorFactory
             {
             }
         };
-    
+
     private AnyValidatorFactory()
     {
     }
-    
+
     @Override
     public IValidator createValidator(String header)
     {
         return VALIDATOR;
     }
-    
+
 }

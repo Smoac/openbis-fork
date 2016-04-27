@@ -80,7 +80,7 @@ public class MultiDataSetUnarchivingMaintenanceTask implements IMaintenanceTask
             operationLog.info("Unarchiving finished for " + CollectionUtils.abbreviate(dataSetCodes, 20));
         }
     }
-    
+
     private void resetRequestUnarchiving(MultiDataSetArchiverContainerDTO container)
     {
         IMultiDataSetArchiverDBTransaction transaction = getTransaction();
@@ -102,7 +102,7 @@ public class MultiDataSetUnarchivingMaintenanceTask implements IMaintenanceTask
             }
         }
     }
-    
+
     private List<DatasetDescription> loadDataSets(List<String> dataSetCodes)
     {
         IEncapsulatedOpenBISService service = getASService();
@@ -113,7 +113,7 @@ public class MultiDataSetUnarchivingMaintenanceTask implements IMaintenanceTask
         }
         return result;
     }
-    
+
     private List<String> extractCodes(List<MultiDataSetArchiverDataSetDTO> dataSets)
     {
         List<String> codes = new ArrayList<String>();
@@ -138,12 +138,12 @@ public class MultiDataSetUnarchivingMaintenanceTask implements IMaintenanceTask
     {
         return ServiceProvider.getDataStoreService();
     }
-    
+
     IMultiDataSetArchiverReadonlyQueryDAO getReadonlyQuery()
     {
         return MultiDataSetArchiverDataSourceUtil.getReadonlyQueryDAO();
     }
-    
+
     IMultiDataSetArchiverDBTransaction getTransaction()
     {
         return new MultiDataSetArchiverDBTransaction();

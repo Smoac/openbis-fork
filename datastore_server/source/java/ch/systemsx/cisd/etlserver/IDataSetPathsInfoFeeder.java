@@ -26,7 +26,7 @@ import java.io.File;
 public interface IDataSetPathsInfoFeeder
 {
     public long addPaths(String dataSetCode, String location, File dataSetRoot);
-    
+
     public void commit();
-    
+
 }

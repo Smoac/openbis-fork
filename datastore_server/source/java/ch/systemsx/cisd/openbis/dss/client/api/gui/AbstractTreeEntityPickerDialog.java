@@ -67,7 +67,7 @@ public abstract class AbstractTreeEntityPickerDialog extends AbstractEntityPicke
     private final JTextField filterField;
 
     private final JTextField identifierField;
-    
+
     private final DataSetOwnerType entityKind;
 
     public AbstractTreeEntityPickerDialog(JFrame mainWindow, String title, DataSetOwnerType entityKind,
@@ -91,22 +91,23 @@ public abstract class AbstractTreeEntityPickerDialog extends AbstractEntityPicke
             final JDialog parent)
     {
         final JScrollPane scrollPane = new JScrollPane(tree);
-        
+
         List<Object> objectsAsList = new ArrayList<Object>();
         objectsAsList.add("Filter experiments: ");
         objectsAsList.add(northPanel);
         objectsAsList.add("Select " + entityKind.toString().toLowerCase() + ":");
-        
+
         objectsAsList.add(scrollPane);
-        
-        if(entityKind == DataSetOwnerType.SAMPLE) {
+
+        if (entityKind == DataSetOwnerType.SAMPLE)
+        {
             objectsAsList.add("Any " + entityKind.toString().toLowerCase() + " identifier:");
             objectsAsList.add(identifierField);
         }
-        
+
         final JOptionPane theOptionPane =
                 new JOptionPane(objectsAsList.toArray(), JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
-        
+
         theOptionPane.addPropertyChangeListener(new PropertyChangeListener()
             {
                 @Override
@@ -150,15 +151,16 @@ public abstract class AbstractTreeEntityPickerDialog extends AbstractEntityPicke
         String selected = tryGetSelected();
         if (selected != null)
         {
-            if(     entityKind != DataSetOwnerType.SAMPLE ||
-                    entityKind == DataSetOwnerType.SAMPLE && clientModel.sampleExists(selected)) {
+            if (entityKind != DataSetOwnerType.SAMPLE ||
+                    entityKind == DataSetOwnerType.SAMPLE && clientModel.sampleExists(selected))
+            {
                 this.setVisible(false);
                 return;
             }
         }
         String label = entityKind.toString();
-        JOptionPane.showMessageDialog(this, "No correct " + label.toLowerCase() + " found, " + selected +" is not correct!",
-                "No correct " + label.toLowerCase() + " found, " + selected +" is not correct!", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(this, "No correct " + label.toLowerCase() + " found, " + selected + " is not correct!",
+                "No correct " + label.toLowerCase() + " found, " + selected + " is not correct!", JOptionPane.WARNING_MESSAGE);
         optionPane.setValue(optionPane.getInitialValue());
     }
 
@@ -180,7 +182,7 @@ public abstract class AbstractTreeEntityPickerDialog extends AbstractEntityPicke
     }
 
     protected abstract void expandNode(final DefaultMutableTreeNode node, Identifier identifier);
-    
+
     @Override
     public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException
     {
@@ -269,7 +271,7 @@ public abstract class AbstractTreeEntityPickerDialog extends AbstractEntityPicke
         {
             return anyIdentifier;
         }
-        
+
         TreePath treePath = tree.getSelectionPath();
         if (treePath == null)
         {
@@ -284,12 +286,13 @@ public abstract class AbstractTreeEntityPickerDialog extends AbstractEntityPicke
         return identifier.getOwnerType() == entityKind ? identifier.toString() : null;
     }
 
-    private JTextField createIdentifierField() {
+    private JTextField createIdentifierField()
+    {
         final JTextField textField = new JTextField();
         textField.setEditable(true);
         return textField;
     }
-    
+
     private JTextField createFilterField()
     {
         final JTextField textField = new JTextField();
@@ -331,7 +334,7 @@ public abstract class AbstractTreeEntityPickerDialog extends AbstractEntityPicke
                 {
                     identifierField.setText("");
                     identifierField.setText(tryGetSelected());
-                    
+
                     if (e.getClickCount() > 1)
                     {
                         optionPane.setValue(JOptionPane.OK_OPTION);

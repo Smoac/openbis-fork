@@ -669,7 +669,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     private void interruptOrWaitTheRetryPeriod(Throwable throwable)
     {
-        
+
         Throwable rootCause = ExceptionUtils.getRootCause(throwable);
         if (rootCause instanceof InterruptedException || rootCause instanceof InterruptedExceptionUnchecked)
         {

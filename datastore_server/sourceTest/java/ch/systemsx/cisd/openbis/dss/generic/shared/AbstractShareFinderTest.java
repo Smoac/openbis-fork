@@ -27,21 +27,22 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class AbstractShareFinderTest extends AssertJUnit
 {
     private static final String DATA_SET_CODE = "ds-1";
+
     private static final List<Share> SHARES = Collections.emptyList();
-    
+
     private static final class MockShareFinder extends AbstractShareFinder
     {
         private final Share[] returnValues;
-        
+
         private int index;
+
         private SimpleDataSetInformationDTO recordedDataSet;
+
         private List<Share> recordedShares;
 
         MockShareFinder(Share... shares)
@@ -57,7 +58,7 @@ public class AbstractShareFinderTest extends AssertJUnit
             recordedShares = shares;
             return returnValues[index++];
         }
-        
+
         void verify(SimpleDataSetInformationDTO dataSet, List<Share> shares)
         {
             assertSame(dataSet, recordedDataSet);
@@ -65,39 +66,39 @@ public class AbstractShareFinderTest extends AssertJUnit
             assertEquals(index, returnValues.length);
         }
     }
-    
+
     @Test
     public void testFindMatchingShareForPositiveHint()
     {
         Share share = share(20);
         MockShareFinder finder = new MockShareFinder(share);
-        
+
         SimpleDataSetInformationDTO dataSet = dataSet(20);
         Share foundShare = finder.tryToFindShare(dataSet, SHARES);
-        
+
         assertSame(share, foundShare);
         finder.verify(dataSet, SHARES);
     }
-    
+
     @Test
     public void testFindMatchingShareForNegativeHint()
     {
         Share share = share(20);
         MockShareFinder finder = new MockShareFinder(share);
-        
+
         SimpleDataSetInformationDTO dataSet = dataSet(-20);
         Share foundShare = finder.tryToFindShare(dataSet, SHARES);
-        
+
         assertSame(share, foundShare);
         finder.verify(dataSet, SHARES);
     }
-    
+
     @Test
     public void testFindInvalidMatchingShare()
     {
         Share share = share(20);
         MockShareFinder finder = new MockShareFinder(share);
-        
+
         SimpleDataSetInformationDTO dataSet = dataSet(21);
         try
         {
@@ -110,39 +111,39 @@ public class AbstractShareFinderTest extends AssertJUnit
         }
         finder.verify(dataSet, SHARES);
     }
-    
+
     @Test
     public void testFindRespectingShareForPositiveHint()
     {
         Share share = share(21);
         MockShareFinder finder = new MockShareFinder(null, share);
-        
+
         SimpleDataSetInformationDTO dataSet = dataSet(20);
         Share foundShare = finder.tryToFindShare(dataSet, SHARES);
-        
+
         assertSame(share, foundShare);
         finder.verify(dataSet, SHARES);
     }
-    
+
     @Test
     public void testFindRespectingShareForNegativeHint()
     {
         Share share = share(19);
         MockShareFinder finder = new MockShareFinder(null, share);
-        
+
         SimpleDataSetInformationDTO dataSet = dataSet(-20);
         Share foundShare = finder.tryToFindShare(dataSet, SHARES);
-        
+
         assertSame(share, foundShare);
         finder.verify(dataSet, SHARES);
     }
-    
+
     @Test
     public void testFindInvalidRespectingShareForPositiveHint()
     {
         Share share = share(20);
         MockShareFinder finder = new MockShareFinder(null, share);
-        
+
         final SimpleDataSetInformationDTO dataSet = dataSet(20);
         try
         {
@@ -155,45 +156,45 @@ public class AbstractShareFinderTest extends AssertJUnit
         }
         finder.verify(dataSet, SHARES);
     }
-    
+
     @Test
     public void testFindAnyShareForPositiveHint()
     {
         Share share = share(10);
         MockShareFinder finder = new MockShareFinder(null, null, share);
-        
+
         SimpleDataSetInformationDTO dataSet = dataSet(20);
         Share foundShare = finder.tryToFindShare(dataSet, SHARES);
-        
+
         assertSame(share, foundShare);
         finder.verify(dataSet, SHARES);
     }
-    
+
     @Test
     public void testFindAnyShareForNegativeHint()
     {
         Share share = share(10);
         MockShareFinder finder = new MockShareFinder(null, null, share);
-        
+
         SimpleDataSetInformationDTO dataSet = dataSet(-20);
         Share foundShare = finder.tryToFindShare(dataSet, SHARES);
-        
+
         assertSame(share, foundShare);
         finder.verify(dataSet, SHARES);
     }
-    
+
     @Test
     public void testFindNoShare()
     {
         MockShareFinder finder = new MockShareFinder(null, null, null);
-        
+
         SimpleDataSetInformationDTO dataSet = dataSet(-20);
         Share foundShare = finder.tryToFindShare(dataSet, SHARES);
-        
+
         assertSame(null, foundShare);
         finder.verify(dataSet, SHARES);
     }
-    
+
     private SimpleDataSetInformationDTO dataSet(int speedHint)
     {
         SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();
@@ -201,7 +202,7 @@ public class AbstractShareFinderTest extends AssertJUnit
         dataSet.setSpeedHint(speedHint);
         return dataSet;
     }
-    
+
     private Share share(int speed)
     {
         return new Share(new File(Integer.toString(speed / 10)), speed, null);

@@ -25,9 +25,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * {@link AbstractDelegatingDataSetInfoExtractor} performing additional file name property
- * extraction. Registration will fail if this property type doesn't exist in openBIS DB or is not
- * attached to the data set type extracted by {@link ITypeExtractor}.
+ * {@link AbstractDelegatingDataSetInfoExtractor} performing additional file name property extraction. Registration will fail if this property type
+ * doesn't exist in openBIS DB or is not attached to the data set type extracted by {@link ITypeExtractor}.
  * 
  * @author Piotr Buczek
  */

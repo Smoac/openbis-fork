@@ -24,17 +24,15 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
-
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class FastaFileBuilderForDataSetFilesTest extends AbstractFileSystemTestCase
 {
     private static final String DATA_SET_CODE = "11358-13";
+
     private File tempFolder;
+
     private FastaFileBuilderForDataSetFiles builder;
 
     @BeforeMethod
@@ -59,7 +57,7 @@ public class FastaFileBuilderForDataSetFilesTest extends AbstractFileSystemTestC
         builder.handle(">lcl|3 example 3");
         builder.handle("GACTTCTTTATATGATTTACCCAACTTAGCGT");
         builder.finish();
-        
+
         assertEquals(null, builder.getTemporaryProtFastaFileOrNull());
         File temporaryNuclFastaFile = builder.getTemporaryNuclFastaFileOrNull();
         assertEquals(DATA_SET_CODE + "-nucl.fa", FileUtilities.getRelativeFilePath(tempFolder, temporaryNuclFastaFile));
@@ -91,7 +89,7 @@ public class FastaFileBuilderForDataSetFilesTest extends AbstractFileSystemTestC
         builder.handle("GACTTCTTTATATGCTTAGCGTATTTACCCAA");
         builder.handle("+");
         builder.finish();
-        
+
         assertEquals(null, builder.getTemporaryProtFastaFileOrNull());
         File temporaryNuclFastaFile = builder.getTemporaryNuclFastaFileOrNull();
         assertEquals(DATA_SET_CODE + "-nucl.fa", FileUtilities.getRelativeFilePath(tempFolder, temporaryNuclFastaFile));
@@ -105,7 +103,7 @@ public class FastaFileBuilderForDataSetFilesTest extends AbstractFileSystemTestC
                 + "GACTTCTTTATATGCTTAGCGTATTTACCCAA",
                 FileUtilities.loadToString(temporaryNuclFastaFile).trim());
     }
-    
+
     @Test
     public void testNuclFastaFileAndProtFastaFile()
     {
@@ -120,7 +118,7 @@ public class FastaFileBuilderForDataSetFilesTest extends AbstractFileSystemTestC
         builder.handle(">lcl|3 example 3");
         builder.handle("VGLTNYAAAYCTGLLLAR");
         builder.finish();
-        
+
         File temporaryNuclFastaFile = builder.getTemporaryNuclFastaFileOrNull();
         assertEquals(DATA_SET_CODE + "-nucl.fa", FileUtilities.getRelativeFilePath(tempFolder, temporaryNuclFastaFile));
         assertEquals(">lcl|1 example 1 [Data set: 11358-13, File: my-data/1.fa]\n"
@@ -136,7 +134,7 @@ public class FastaFileBuilderForDataSetFilesTest extends AbstractFileSystemTestC
                 + "VGLTNYAAAYCTGLLLAR",
                 FileUtilities.loadToString(temporaryProtFastaFile).trim());
     }
-    
+
     @Test
     public void testCleanUp()
     {
@@ -146,12 +144,12 @@ public class FastaFileBuilderForDataSetFilesTest extends AbstractFileSystemTestC
         builder.finish();
         File temporaryNuclFastaFile = builder.getTemporaryNuclFastaFileOrNull();
         assertEquals(true, temporaryNuclFastaFile.exists());
-        
+
         builder.cleanUp();
-        
+
         assertEquals(false, temporaryNuclFastaFile.exists());
     }
-    
+
     @Test
     public void testUnspecifiedFilePath()
     {
@@ -163,7 +161,7 @@ public class FastaFileBuilderForDataSetFilesTest extends AbstractFileSystemTestC
             assertEquals("File path not set [Data Set: 11358-13].", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testMissingIdLine()
     {
@@ -177,7 +175,7 @@ public class FastaFileBuilderForDataSetFilesTest extends AbstractFileSystemTestC
                     + "Line with identifier expected: GATTACA", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testMissingSequenceLine()
     {
@@ -192,5 +190,5 @@ public class FastaFileBuilderForDataSetFilesTest extends AbstractFileSystemTestC
                     + "[>lcl|1 [Data set: 11358-13, File: my-data/1.fa]]", ex.getMessage());
         }
     }
-    
+
 }

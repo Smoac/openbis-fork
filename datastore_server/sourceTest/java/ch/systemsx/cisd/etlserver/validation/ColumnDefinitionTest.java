@@ -27,9 +27,8 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * A test that focuses on the creation of ColumnDefinitions to make sure that useful error messages
- * are provided. More comprehensive tests of the functionality in the context of validation are
- * found in the DataSetValidatorForTSVTest class.
+ * A test that focuses on the creation of ColumnDefinitions to make sure that useful error messages are provided. More comprehensive tests of the
+ * functionality in the context of validation are found in the DataSetValidatorForTSVTest class.
  * 
  * @author Franz-Josef Elmer
  */

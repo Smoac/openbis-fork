@@ -56,24 +56,21 @@ public interface ISampleImmutable extends IMetaprojectContent
     boolean isExistingSample();
 
     /**
-     * Return the value of a property specified by a code. May return null of no such property with
-     * code <code>propertyCode</code> is found.
+     * Return the value of a property specified by a code. May return null of no such property with code <code>propertyCode</code> is found.
      */
     String getPropertyValue(String propertyCode);
 
     /**
-     * Return the contained sample objects. Only available for samples existing prior the
-     * transaction start that were obtained from the server with their contained samples included.
-     * Call {@link #canGetContainedSamples()} to see if these can be provided.
+     * Return the contained sample objects. Only available for samples existing prior the transaction start that were obtained from the server with
+     * their contained samples included. Call {@link #canGetContainedSamples()} to see if these can be provided.
      * 
      * @throws IllegalStateException If the contained samples cannot be returned.
      */
     List<ISampleImmutable> getContainedSamples();
 
     /**
-     * Return true if this sample object has contained samples available. This is independent of
-     * whether or not the sample has contained samples. This method only says if the contained
-     * samples were provided to this object by the application server.
+     * Return true if this sample object has contained samples available. This is independent of whether or not the sample has contained samples. This
+     * method only says if the contained samples were provided to this object by the application server.
      */
     public boolean canGetContainedSamples();
 

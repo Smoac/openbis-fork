@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 
 /**
- * Condition which is fulfilled if the thread name reads '<drop box name> - Incoming Data Monitor'. 
+ * Condition which is fulfilled if the thread name reads '<drop box name> - Incoming Data Monitor'.
  *
  * @author Franz-Josef Elmer
  */

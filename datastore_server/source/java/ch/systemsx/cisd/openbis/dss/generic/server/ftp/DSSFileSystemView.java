@@ -42,8 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
 import ch.systemsx.cisd.openbis.generic.shared.util.Key;
 
 /**
- * A central class that manages the movement of a user up and down the exposed hierarchical
- * structure.
+ * A central class that manages the movement of a user up and down the exposed hierarchical structure.
  * 
  * @author Kaloyan Enimanev
  */
@@ -57,6 +56,7 @@ public class DSSFileSystemView implements FileSystemView
     private final class ServiceInvocationHandler implements InvocationHandler
     {
         private final Map<Key, Object> cache = new HashMap<Key, Object>();
+
         private final IServiceForDataStoreServer openbisService;
 
         private ServiceInvocationHandler(IServiceForDataStoreServer service)
@@ -99,7 +99,7 @@ public class DSSFileSystemView implements FileSystemView
     private final IServiceForDataStoreServer service;
 
     private final IGeneralInformationService generalInfoService;
-    
+
     private FtpFile workingDirectory;
 
     private final IFtpPathResolverRegistry pathResolverRegistry;
@@ -111,7 +111,7 @@ public class DSSFileSystemView implements FileSystemView
         this.sessionToken = sessionToken;
         this.service =
                 (IServiceForDataStoreServer) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]
-                    { IServiceForDataStoreServer.class }, new ServiceInvocationHandler(service));
+                { IServiceForDataStoreServer.class }, new ServiceInvocationHandler(service));
         this.generalInfoService = generalInfoService;
         this.pathResolverRegistry = pathResolverRegistry;
         this.workingDirectory = getHomeDirectory();
@@ -139,7 +139,7 @@ public class DSSFileSystemView implements FileSystemView
     {
         return getFile(path, new Cache(SystemTimeProvider.SYSTEM_TIME_PROVIDER));
     }
-    
+
     public FtpFile getFile(String path, Cache cache) throws FtpException
     {
         String normalizedPath = normalizePath(path);

@@ -94,7 +94,7 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
         }
         return new File(store, fileName);
     }
-    
+
     @Override
     public void start()
     {
@@ -212,8 +212,7 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
     }
 
     /**
-     * Writes the list of items in the command store of the given <var>store</var> directory to
-     * stdout.
+     * Writes the list of items in the command store of the given <var>store</var> directory to stdout.
      */
     public static void listQueuedCommands(File store)
     {
@@ -253,7 +252,7 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
             }
         }
     }
-    
+
     private static List<File> listCommandQueueFiles(File store)
     {
         File[] commandQueueFiles = store.listFiles(new FilenameFilter()
@@ -264,7 +263,7 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
                     return name.startsWith(COMMAND_QUEUE_FILE_PREFIX);
                 }
             });
-        return commandQueueFiles == null ? Collections.<File>emptyList() : Arrays.asList(commandQueueFiles);
+        return commandQueueFiles == null ? Collections.<File> emptyList() : Arrays.asList(commandQueueFiles);
     }
 
 }

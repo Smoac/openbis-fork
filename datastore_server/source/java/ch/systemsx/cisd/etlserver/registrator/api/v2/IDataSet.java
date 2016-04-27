@@ -35,15 +35,13 @@ public interface IDataSet extends IDataSetUpdatable
     public void setDataSetType(String dataSetTypeCode);
 
     /**
-     * Sets the speed hint for the data set. The speed hint is a negative or positive number with an
-     * absolute value less than or equal {@link Constants#MAX_SPEED}.
+     * Sets the speed hint for the data set. The speed hint is a negative or positive number with an absolute value less than or equal
+     * {@link Constants#MAX_SPEED}.
      * <p>
-     * A positive value means that the data set should be stored in a storage with speed &gt;=
-     * <code>speedHint</code>. A negative value means that the data set should be stored in a
-     * storage with speed &lt;= <code>abs(speedHint)</code>. The speed hint might be ignored.
+     * A positive value means that the data set should be stored in a storage with speed &gt;= <code>speedHint</code>. A negative value means that the
+     * data set should be stored in a storage with speed &lt;= <code>abs(speedHint)</code>. The speed hint might be ignored.
      * <p>
-     * If no speed hint has been set the default value {@link Constants#DEFAULT_SPEED_HINT} is
-     * assumed.
+     * If no speed hint has been set the default value {@link Constants#DEFAULT_SPEED_HINT} is assumed.
      * <p>
      * This property is undefined for container data sets.
      */

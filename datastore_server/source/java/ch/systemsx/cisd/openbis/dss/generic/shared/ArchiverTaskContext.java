@@ -44,7 +44,7 @@ public class ArchiverTaskContext
     private String userEmail;
 
     private String userSessionToken;
-    
+
     private boolean forceUnarchiving;
 
     public ArchiverTaskContext(IDataSetDirectoryProvider directoryProvider,
@@ -92,7 +92,7 @@ public class ArchiverTaskContext
     {
         this.userEmail = userEmail;
     }
-    
+
     public String getUserEmail()
     {
         return userEmail;
@@ -117,5 +117,5 @@ public class ArchiverTaskContext
     {
         this.forceUnarchiving = delayedUnarchiving;
     }
-    
+
 }

@@ -132,8 +132,7 @@ public class DataSetUploadClientModel
     }
 
     /**
-     * NewDataSetInfo is a mixture of NewDataSetDTO, which encapsulates information about new data
-     * sets, and upload progress state.
+     * NewDataSetInfo is a mixture of NewDataSetDTO, which encapsulates information about new data sets, and upload progress state.
      * <p>
      * Internally, NewDataSetInfo functions as a state machine with the following state transitions:
      * 
@@ -323,10 +322,12 @@ public class DataSetUploadClientModel
     {
         return openBISService;
     }
-    
-    public boolean sampleExists(final String identifier) {
+
+    public boolean sampleExists(final String identifier)
+    {
         return !openBISService.getSamples(Arrays.asList(identifier)).isEmpty();
     }
+
     public void listSamples(final Identifier identifier,
             final IAsyncAction<List<Sample>> action)
     {
@@ -358,7 +359,7 @@ public class DataSetUploadClientModel
                 }
             });
     }
-    
+
     public void listSamplesDataSets(final Identifier identifier, final IAsyncAction<SamplesDataSets> action)
     {
         execute(new Runnable()
@@ -416,12 +417,12 @@ public class DataSetUploadClientModel
             }
         }
     }
-    
+
     private void execute(Runnable runnable)
     {
         new Thread(runnable).start();
     }
-    
+
     /**
      * Get the data set types that are shown here.
      */
@@ -478,8 +479,7 @@ public class DataSetUploadClientModel
     }
 
     /**
-     * Clean the <var>newDataSetDTO</var> object. This means removing any properties that are not
-     * valid for the data set type.
+     * Clean the <var>newDataSetDTO</var> object. This means removing any properties that are not valid for the data set type.
      */
     public NewDataSetDTO cleanNewDataSetDTO(NewDataSetDTO newDataSetDTO)
     {
@@ -511,8 +511,7 @@ public class DataSetUploadClientModel
     }
 
     /**
-     * Start a data set upload in a separate thread. Callers need to ensure that queuing makes
-     * sense.
+     * Start a data set upload in a separate thread. Callers need to ensure that queuing makes sense.
      */
     public void queueUploadOfDataSet(NewDataSetInfo newDataSetInfo)
     {

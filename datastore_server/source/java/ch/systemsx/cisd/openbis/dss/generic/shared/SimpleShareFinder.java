@@ -26,9 +26,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * Simple share finder tries to find the external share with maximum free space larger than the size
- * of the data set to be moved. If no such external share can be found it tries to find the incoming
- * share with maximum free space larger than the size of the data set to be moved and which is not
+ * Simple share finder tries to find the external share with maximum free space larger than the size of the data set to be moved. If no such external
+ * share can be found it tries to find the incoming share with maximum free space larger than the size of the data set to be moved and which is not
  * the share of the data set.
  * 
  * @author Franz-Josef Elmer

@@ -748,8 +748,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         @DataSetAccessGuard
         public String getDownloadUrlForFileForDataSetWithTimeout(
                 String sessionToken,
-                @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class)
-                DataSetFileDTO fileOrFolder,
+                @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class) DataSetFileDTO fileOrFolder,
                 long validityDurationInSeconds) throws IOExceptionUnchecked,
                 IllegalArgumentException
         {

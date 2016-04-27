@@ -75,7 +75,6 @@ public class AutoArchiverTask implements IMaintenanceTask
 
     private boolean removeFromDataStore;
 
-
     @Override
     public void execute()
     {

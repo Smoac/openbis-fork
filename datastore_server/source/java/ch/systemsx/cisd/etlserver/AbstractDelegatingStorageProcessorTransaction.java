@@ -31,6 +31,7 @@ public abstract class AbstractDelegatingStorageProcessorTransaction extends
         AbstractStorageProcessorTransaction
 {
     private static final long serialVersionUID = 1L;
+
     protected final IStorageProcessorTransaction nestedTransaction;
 
     public AbstractDelegatingStorageProcessorTransaction(

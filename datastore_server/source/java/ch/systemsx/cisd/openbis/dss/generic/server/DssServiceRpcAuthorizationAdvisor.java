@@ -48,21 +48,19 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.authorization
 /**
  * The advisor for authorization in the DSS RPC interfaces.
  * <p>
- * This AOP advisor ensures that invocations of methods on DSS RPC services with the
- * {@link DataSetAccessGuard} annotation conform to the following the authorization requirements:
+ * This AOP advisor ensures that invocations of methods on DSS RPC services with the {@link DataSetAccessGuard} annotation conform to the following
+ * the authorization requirements:
  * <ul>
  * <li>The session token (String) is the the first parameter</li>
  * <li>The second parameter is either a data set code (String) or a DataSetFileDTO object</li>
- * <li>The user who owns the session token (first argument) has access to the specified data set
- * code (second argument)</li>
+ * <li>The user who owns the session token (first argument) has access to the specified data set code (second argument)</li>
  * </ul>
  * <p>
- * It does this check by invoking method on {@link IDssSessionAuthorizer} which it gets from
- * {@link DssSessionAuthorizationHolder}. The correct authorizer is expected to have been set in
- * the holder at programm startup.
+ * It does this check by invoking method on {@link IDssSessionAuthorizer} which it gets from {@link DssSessionAuthorizationHolder}. The correct
+ * authorizer is expected to have been set in the holder at programm startup.
  * <p>
- * Though it is not necessary to subclass DefaultPointcutAdvisor for the implementation, we subclass
- * here because to make the configuration in spring a bit simpler.
+ * Though it is not necessary to subclass DefaultPointcutAdvisor for the implementation, we subclass here because to make the configuration in spring
+ * a bit simpler.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -74,15 +72,15 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
     private static final class InputStreamProxy extends InputStream
     {
         private final InputStream inputStream;
-        
+
         private final IShareIdManager manager;
-        
+
         private InputStreamProxy(InputStream inputStream, IShareIdManager manager)
         {
             this.inputStream = inputStream;
             this.manager = manager;
         }
-        
+
         @Override
         public void close() throws IOException
         {
@@ -94,7 +92,7 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
                 manager.releaseLocks();
             }
         }
-        
+
         @Override
         public int read(byte[] b, int off, int len) throws IOException
         {
@@ -106,7 +104,7 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
         {
             return inputStream.read();
         }
-        
+
         @Override
         public int read(byte[] b) throws IOException
         {
@@ -144,7 +142,7 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
         }
 
     }
-    
+
     private static final long serialVersionUID = 1L;
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
@@ -168,7 +166,7 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
     {
         this(new DssServiceRpcAuthorizationMethodInterceptor(shareIdManager));
     }
-    
+
     /**
      * Constructor for testing purposes.
      * 
@@ -188,15 +186,14 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
     {
 
         private IShareIdManager shareIdManager;
-        
+
         public DssServiceRpcAuthorizationMethodInterceptor(IShareIdManager shareIdManager)
         {
             this.shareIdManager = shareIdManager;
         }
 
         /**
-         * Get the session token and any guarded parameters and invoke the guards on those
-         * parameters.
+         * Get the session token and any guarded parameters and invoke the guards on those parameters.
          */
         @Override
         public Object invoke(MethodInvocation methodInvocation) throws Throwable
@@ -226,10 +223,10 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
                 PrivilegeLevel level = getAndCheckPrivilegeLevel(sessionToken, methodInvocation.getMethod());
 
                 if (level != PrivilegeLevel.INSTANCE_ADMIN) // An instance admin is allowed to work on all
-                                                    // data sets.
+                // data sets.
                 {
                     final Object recv = methodInvocation.getThis();
-                    
+
                     for (Parameter<AuthorizationGuard> param : annotatedParameters)
                     {
                         Object guarded = args[param.getIndex()];
@@ -238,14 +235,14 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
                         {
                             authorizationLog.info(String.format(
                                     "[SESSION:'%s' DATA_SET:%s]: Authorization failure while "
-                                    + "invoking method '%s'", sessionToken, guarded,
+                                            + "invoking method '%s'", sessionToken, guarded,
                                     MethodUtils.describeMethod(methodInvocation.getMethod())));
                             String errorMessage = "Data set does not exist.";
                             if (null != status.tryGetErrorMessage())
                             {
                                 errorMessage = status.tryGetErrorMessage();
                             }
-                            
+
                             throw new AuthorizationFailureException(errorMessage);
                         }
                     }
@@ -265,13 +262,13 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
                 }
             }
         }
-        
+
         private boolean shouldLocksAutomaticallyBeReleased(Method method)
         {
             DataSetAccessGuard guard = method.getAnnotation(DataSetAccessGuard.class);
             return guard == null ? true : guard.releaseDataSetLocks();
         }
-        
+
         private PrivilegeLevel getAndCheckPrivilegeLevel(String sessionToken, Method method)
         {
             DataSetAccessGuard guard = method.getAnnotation(DataSetAccessGuard.class);
@@ -307,31 +304,31 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
                 }
 
                 throw new AuthorizationFailureException(errorMessage);
-                
+
             }
             return level;
         }
 
         /**
-         * Because the predicate is being invoked in a context in which its types are not known,
-         * there is no way to do this in a statically type-safe way.
+         * Because the predicate is being invoked in a context in which its types are not known, there is no way to do this in a statically type-safe
+         * way.
          */
         @SuppressWarnings(
-            { "rawtypes", "unchecked" })
+        { "rawtypes", "unchecked" })
         private List<String> getDataSetCodes(Parameter<AuthorizationGuard> param, Object guarded)
         {
             IAuthorizationGuardPredicate predicate = createPredicate(param);
             return predicate.getDataSetCodes(guarded);
         }
-        
+
         /**
-         * Because the predicate is being invoked in a context in which its types are not known,
-         * there is no way to do this in a statically type-safe way.
+         * Because the predicate is being invoked in a context in which its types are not known, there is no way to do this in a statically type-safe
+         * way.
          */
         @SuppressWarnings(
-                { "rawtypes", "unchecked" })
-                private Status evaluateGuard(String sessionToken, Object recv,
-                        Parameter<AuthorizationGuard> param, Object guarded)
+        { "rawtypes", "unchecked" })
+        private Status evaluateGuard(String sessionToken, Object recv,
+                Parameter<AuthorizationGuard> param, Object guarded)
         {
             IAuthorizationGuardPredicate predicate = createPredicate(param);
             return predicate.evaluate(recv, sessionToken, guarded);
@@ -357,7 +354,7 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
 
             return (String) firstObject;
         }
-        
+
         private IShareIdManager getShareIdManager()
         {
             if (shareIdManager == null)

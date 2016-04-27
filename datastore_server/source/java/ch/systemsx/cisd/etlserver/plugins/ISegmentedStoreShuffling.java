@@ -23,8 +23,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 
 /**
- * Strategy of shuffling data sets from source shares to target shares. Source shares are incoming
- * shares. Target shares are all shares.
+ * Strategy of shuffling data sets from source shares to target shares. Source shares are incoming shares. Target shares are all shares.
  * 
  * @author Franz-Josef Elmer
  */
@@ -34,7 +33,7 @@ public interface ISegmentedStoreShuffling
      * Initialize this instance.
      */
     public void init(ISimpleLogger logger);
-    
+
     /**
      * Moves data sets from source shares to some target shares if necessary.
      */

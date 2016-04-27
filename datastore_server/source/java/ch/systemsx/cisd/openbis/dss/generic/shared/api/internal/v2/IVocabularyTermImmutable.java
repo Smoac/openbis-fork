@@ -49,4 +49,3 @@ public interface IVocabularyTermImmutable
     Long getOrdinal();
 
 }
-

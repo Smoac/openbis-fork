@@ -51,10 +51,11 @@ public class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistr
     }
 
     @Override
-    public String getOpenBisServiceSessionToken() {
+    public String getOpenBisServiceSessionToken()
+    {
         return transaction.getOpenBisServiceSessionToken();
     }
-    
+
     @Override
     public IDataSet createNewDataSet()
     {

@@ -92,8 +92,7 @@ abstract class AbstractPreOrPostRegistrationExecutor
     }
 
     /**
-     * Return a description of a concrete subclass as an adjective, e.g., pre-regitration or
-     * post-registration.
+     * Return a description of a concrete subclass as an adjective, e.g., pre-regitration or post-registration.
      * <p>
      * The implementation should not refer any instance state, since it is used in the constructor.
      */

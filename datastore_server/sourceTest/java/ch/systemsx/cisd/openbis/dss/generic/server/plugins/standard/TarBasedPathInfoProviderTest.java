@@ -33,8 +33,6 @@ import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TarBasedPathInfoProviderTest extends AbstractFileSystemTestCase
@@ -49,6 +47,7 @@ public class TarBasedPathInfoProviderTest extends AbstractFileSystemTestCase
         };
 
     private ISimpleLogger logger;
+
     private TarBasedPathInfoProvider pathInfoProvider;
 
     @BeforeMethod
@@ -82,26 +81,26 @@ public class TarBasedPathInfoProviderTest extends AbstractFileSystemTestCase
     public void testGetRootPathInfo()
     {
         DataSetPathInfo pathInfo = pathInfoProvider.getRootPathInfo();
-        
+
         assertPathInfo("data[data, 0]", pathInfo);
     }
-    
+
     @Test
     public void testTryGetPathInfoByRelativePath()
     {
         assertEquals(null, pathInfoProvider.tryGetPathInfoByRelativePath("blabla"));
         assertPathInfo("data[data, 0]", pathInfoProvider.tryGetPathInfoByRelativePath("data"));
-        assertPathInfo("data/hello.txt[hello.txt, 11, d4a1185]", 
+        assertPathInfo("data/hello.txt[hello.txt, 11, d4a1185]",
                 pathInfoProvider.tryGetPathInfoByRelativePath("data/hello.txt"));
     }
-    
+
     @Test
     public void testListChildrenPathInfos()
     {
         DataSetPathInfo parent = pathInfoProvider.tryGetPathInfoByRelativePath("data/sub");
         List<DataSetPathInfo> children = pathInfoProvider.listChildrenPathInfos(parent);
         Collections.sort(children, COMPARATOR);
-        
+
         assertPathInfo("data/sub/hello.txt[hello.txt, 10, 3d4448e7]", children.get(0));
         assertPathInfo("data/sub/some.txt[some.txt, 38, 2f7b8cfb]", children.get(1));
         AssertionUtil.assertContains("INFO: Reading statistics for input stream: 59 bytes in 7 chunks took < 1sec.",
@@ -110,28 +109,28 @@ public class TarBasedPathInfoProviderTest extends AbstractFileSystemTestCase
                 logger.toString());
         assertEquals(2, children.size());
     }
-    
+
     @Test
     public void testListMatchingPathInfos()
     {
         List<DataSetPathInfo> pathInfos = pathInfoProvider.listMatchingPathInfos(".*hello.*");
         Collections.sort(pathInfos, COMPARATOR);
-        
+
         assertPathInfo("data/hello.txt[hello.txt, 11, d4a1185]", pathInfos.get(0));
         assertPathInfo("data/sub/hello.txt[hello.txt, 10, 3d4448e7]", pathInfos.get(1));
         assertEquals(2, pathInfos.size());
     }
-    
+
     @Test
     public void testListMatchingPathInfos2()
     {
         List<DataSetPathInfo> pathInfos = pathInfoProvider.listMatchingPathInfos("data/sub/", ".*hello.*");
         Collections.sort(pathInfos, COMPARATOR);
-        
+
         assertPathInfo("data/sub/hello.txt[hello.txt, 10, 3d4448e7]", pathInfos.get(0));
         assertEquals(1, pathInfos.size());
     }
-    
+
     private void assertPathInfo(String expectedPathInfo, DataSetPathInfo pathInfo)
     {
         assertNotNull("Unspecified path info", pathInfo);

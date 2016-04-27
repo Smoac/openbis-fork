@@ -28,9 +28,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetO
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
 
 /**
- * The DataSetUploadClientModel manages the list of data sets to register, initiates uploads (which
- * run in a separate thread) and notifies the GUI of updates. It also coordinates the Metadata panel
- * to ensure the two are in sync.
+ * The DataSetUploadClientModel manages the list of data sets to register, initiates uploads (which run in a separate thread) and notifies the GUI of
+ * updates. It also coordinates the Metadata panel to ensure the two are in sync.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -54,7 +53,7 @@ public class DataSetUploadTableModel extends AbstractTableModel
 
     private final ArrayList<DataSetUploadClientModel.NewDataSetInfo> newDataSetInfos =
             new ArrayList<DataSetUploadClientModel.NewDataSetInfo>();
-    
+
     private int sortColumnIndex = 0;
 
     private boolean sortAscending = true;
@@ -72,7 +71,7 @@ public class DataSetUploadTableModel extends AbstractTableModel
         public void setNewDataSetInfo(NewDataSetInfo newDataSetInfo);
 
         public void tableChanged(DataSetUploadTableModel dataSetUploadTableModel);
-        
+
     }
 
     /**
@@ -366,8 +365,7 @@ public class DataSetUploadTableModel extends AbstractTableModel
     }
 
     /**
-     * Start a data set upload in a separate thread. Callers need to ensure that queuing makes
-     * sense.
+     * Start a data set upload in a separate thread. Callers need to ensure that queuing makes sense.
      */
     private void queueUploadOfDataSet(NewDataSetInfo newDataSetInfo)
     {

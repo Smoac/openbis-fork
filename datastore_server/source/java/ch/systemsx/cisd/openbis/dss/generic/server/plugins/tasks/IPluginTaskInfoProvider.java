@@ -43,7 +43,7 @@ public interface IPluginTaskInfoProvider
     public PluginTaskProvider<IReportingPluginTask> getReportingPluginsProvider();
 
     public PluginTaskProvider<IProcessingPluginTask> getProcessingPluginsProvider();
-    
+
     public PluginTaskProvider<ISearchDomainService> getSearchDomainServiceProvider();
 
     public ArchiverPluginFactory getArchiverPluginFactory();

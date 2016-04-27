@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.archiveverifier.batch;
 
-
 /**
  * A batch verification of dataset archive files
  * 

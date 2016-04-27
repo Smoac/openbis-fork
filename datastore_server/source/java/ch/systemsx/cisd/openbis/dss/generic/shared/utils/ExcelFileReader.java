@@ -93,7 +93,7 @@ public class ExcelFileReader
     public static boolean isExcelFile(File file)
     {
         return FilenameUtils.isExtension(file.getName().toLowerCase(), new String[]
-            { "xls", "xlsx" });
+        { "xls", "xlsx" });
     }
 
     /**
@@ -182,6 +182,7 @@ public class ExcelFileReader
         }
         return maxIndex;
     }
+
     private static int extractMaxColumnIndex(Row row)
     {
         int maxColumnIndex = 0;

@@ -186,8 +186,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
     /**
      * a template, that can contain special variables.
      * 
-     * @see #evaluateTemplate(AbstractExternalData, String) to find out what variables are understood and
-     *      interpreted.
+     * @see #evaluateTemplate(AbstractExternalData, String) to find out what variables are understood and interpreted.
      */
     private final Template template;
 
@@ -549,8 +548,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
     }
 
     /**
-     * Given a zero-based disambiguation index, produces the values for
-     * {@value #DISAMBIGUATION_VARNAME}.
+     * Given a zero-based disambiguation index, produces the values for {@value #DISAMBIGUATION_VARNAME}.
      */
     private String computeDisambiguation(int disambiguationIdx)
     {

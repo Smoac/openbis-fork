@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.impl.DssComponent;
 public class DssComponentFactory
 {
     private static final int FIVE_MINS_IN_MILLIS = 5 * 60 * 1000;
-    
+
     /**
      * Public factory method for creating an IDssComponent with a username and password.
      * 
@@ -42,8 +42,7 @@ public class DssComponentFactory
     }
 
     /**
-     * Public factory method for creating an IDssComponent for a user that has already been
-     * authenticated.
+     * Public factory method for creating an IDssComponent for a user that has already been authenticated.
      * 
      * @param sessionToken The session token provided by authentication
      * @param openBISUrl The URL to openBIS
@@ -54,7 +53,7 @@ public class DssComponentFactory
     {
         return DssComponent.tryCreate(sessionToken, openBISUrl, timeoutInMillis);
     }
-    
+
     /** See {@link #tryCreate(String, String, String, long)}. The timeout is fixed to 5 min. */
     public static IDssComponent tryCreate(String user, String password, String openBISUrl)
     {

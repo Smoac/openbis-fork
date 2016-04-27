@@ -75,5 +75,4 @@ public class ValidationScriptReader
         return standardImports + "\n" + scriptString;
     }
 
-
 }

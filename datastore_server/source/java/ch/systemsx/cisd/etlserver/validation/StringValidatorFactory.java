@@ -21,14 +21,12 @@ import java.util.Properties;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class StringValidatorFactory extends AbstractValidatorFactory
 {
     static final String VALUE_PATTERN_KEY = "value-pattern";
-    
+
     private RegExBasedValidator validator;
 
     StringValidatorFactory(Properties properties)
@@ -37,7 +35,7 @@ class StringValidatorFactory extends AbstractValidatorFactory
         String regex = PropertyUtils.getMandatoryProperty(properties, VALUE_PATTERN_KEY);
         validator = new RegExBasedValidator(allowEmptyValues, emptyValueSynonyms, regex);
     }
-    
+
     @Override
     public IValidator createValidator(String header)
     {

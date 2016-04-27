@@ -34,12 +34,17 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.util.JsonPropertyUtil;
 public class ShareInfo implements Serializable
 {
     private static final long serialVersionUID = 1L;
+
     private String shareId;
+
     private long freeSpace;
+
     private boolean incoming;
+
     private boolean withdrawShare;
+
     private boolean ignoredForShuffling;
-    
+
     public ShareInfo(String shareId, long freeSpace)
     {
         this.shareId = shareId;
@@ -56,7 +61,7 @@ public class ShareInfo implements Serializable
     {
         return freeSpace;
     }
-    
+
     /**
      * Returns <code>true</code> if the share is associated with one or more incoming directories.
      */
@@ -84,8 +89,7 @@ public class ShareInfo implements Serializable
     }
 
     /**
-     * Returns <code>true</code> if the share should not be used by shuffling maintenance or
-     * post-registration tasks.
+     * Returns <code>true</code> if the share should not be used by shuffling maintenance or post-registration tasks.
      */
     public boolean isIgnoredForShuffling()
     {
@@ -100,7 +104,7 @@ public class ShareInfo implements Serializable
     //
     // JSON-RPC
     //
-    
+
     private ShareInfo()
     {
     }
@@ -115,7 +119,7 @@ public class ShareInfo implements Serializable
     {
         this.freeSpace = freeSpace;
     }
-    
+
     @JsonProperty("freeSpace")
     private String getFreeSpaceAsString()
     {
@@ -126,5 +130,5 @@ public class ShareInfo implements Serializable
     {
         this.freeSpace = JsonPropertyUtil.toLongOrNull(freeSpace);
     }
-    
+
 }

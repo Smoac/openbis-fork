@@ -54,9 +54,9 @@ public class FtpServerConfigBuilder
     {
         props.setProperty(FtpServerConfig.DATASET_DISPLAY_TEMPLATE_KEY, template);
         return this;
-        
+
     }
-    
+
     public FtpServerConfigBuilder withFileListFilter(String dataSetType, String filterPattern)
     {
         String key = FtpServerConfig.DATASET_FILELIST_FILTER_KEY + dataSetType;

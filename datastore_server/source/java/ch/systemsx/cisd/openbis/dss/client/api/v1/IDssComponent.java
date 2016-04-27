@@ -30,17 +30,16 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationE
 /**
  * A component that manages a connection to openBIS and 1 or more data store servers.
  * <p>
- * The component is a kind of state machine. In the initial state, only login is allowed. After
- * login, other operations may be called. Thus clients should follow the following usage pattern:
+ * The component is a kind of state machine. In the initial state, only login is allowed. After login, other operations may be called. Thus clients
+ * should follow the following usage pattern:
  * <ol>
  * <li>login</li>
  * <li>...do stuff...</li>
  * <li>logout</li>
  * </ol>
  * <p>
- * The IDssComponent itself is designed to be used in a single thread, though it may return objects
- * that can be used in multiple threads. Documentation for the return values clarifies their level
- * of thread safety.
+ * The IDssComponent itself is designed to be used in a single thread, though it may return objects that can be used in multiple threads.
+ * Documentation for the return values clarifies their level of thread safety.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -65,8 +64,7 @@ public interface IDssComponent
      * Get a proxy to the data set designated by the given data set code.
      * 
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
-     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
-     *             the server.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to the server.
      */
     public IDataSetDss getDataSet(String code) throws IllegalStateException,
             EnvironmentFailureException;
@@ -78,8 +76,7 @@ public interface IDssComponent
      * @param dataSetFile A file or folder containing the data
      * @return A proxy to the newly added data set
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
-     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
-     *             the server.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to the server.
      * @throws IOExceptionUnchecked If the file transfer fails.
      */
     public IDataSetDss putDataSet(NewDataSetDTO newDataset, File dataSetFile)
@@ -138,22 +135,20 @@ public interface IDssComponent
      * @param dataSetFile A file or folder containing the data
      * @return A list of validation errors. The list is empty if there were no validation errors.
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
-     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
-     *             the server.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to the server.
      */
     public List<ValidationError> validateDataSet(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException;
 
     /**
-     * Tries to extract the data set property key-values (metadata) from the data. The extracted
-     * metadata can be used by clients to minimize the input needed when uploading data sets.
+     * Tries to extract the data set property key-values (metadata) from the data. The extracted metadata can be used by clients to minimize the input
+     * needed when uploading data sets.
      * 
      * @param newDataset The new data set that should be registered
      * @param dataSetFile A file or folder containing the data
      * @return A map of extracted property-key values
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
-     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
-     *             the server.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to the server.
      */
     public Map<String, String> extractMetadata(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException,

@@ -113,8 +113,7 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
     }
 
     /**
-     * Create an image,overriding the width and height in the configuration from the file lines and
-     * write it to the output stream.
+     * Create an image,overriding the width and height in the configuration from the file lines and write it to the output stream.
      * 
      * @param imageWidth The desired width of the image
      * @param imageHeight The desired height of the image
@@ -248,8 +247,8 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
     }
 
     /**
-     * Convert the data to a {@link Dataset}. If there were problems converting, create an error
-     * chart. If conversion was successful, create a chart using the data set.
+     * Convert the data to a {@link Dataset}. If there were problems converting, create an error chart. If conversion was successful, create a chart
+     * using the data set.
      */
     protected JFreeChart createChart(int imageWidth, int imageHeight)
     {
@@ -285,9 +284,8 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
     }
 
     /**
-     * Try to iterate over the data file lines, passing the columns specified in the configuration
-     * into the line processor. Return false if I could not iterate (e.g., because the file was not
-     * of the expected format); return true on success.
+     * Try to iterate over the data file lines, passing the columns specified in the configuration into the line processor. Return false if I could
+     * not iterate (e.g., because the file was not of the expected format); return true on success.
      */
     protected boolean tryIterateOverFileLinesUsing(ILineProcessor proc)
     {

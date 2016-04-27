@@ -29,45 +29,43 @@ public interface IShareIdManager
      * Returns <code>true</code> if the specified data set is known.
      */
     public boolean isKnown(String dataSetCode);
-    
+
     /**
      * Returns current share id of specified data set.
      * 
      * @throws IllegalArgumentException if data set is unknown.
      */
     public String getShareId(String dataSetCode);
-    
+
     /**
-     * Sets to share id of specified data set. In case of a lock the method waits until lock
-     * has been released.
+     * Sets to share id of specified data set. In case of a lock the method waits until lock has been released.
      */
     public void setShareId(String dataSetCode, String shareId);
-    
+
     /**
-     * Locks specified data set.  
+     * Locks specified data set.
      * 
      * @throws IllegalArgumentException if data set is unknown.
      */
     public void lock(String dataSetCode);
-    
+
     /**
-     * Lock specified data sets. Either all data sets will be locked or none of them. 
+     * Lock specified data sets. Either all data sets will be locked or none of them.
      * 
      * @throws IllegalArgumentException if one of the data sets is unknown.
      */
     public void lock(List<String> dataSetCodes);
-    
+
     /**
      * Awaits until specified data set is no longer locked.
      */
     public void await(String dataSetCode);
-    
+
     /**
-     * Unlocks specified data set. Does nothing if lock already released or data set hasn't been
-     * locked.
+     * Unlocks specified data set. Does nothing if lock already released or data set hasn't been locked.
      */
     public void releaseLock(String dataSetCode);
-    
+
     /**
      * Release all locks which have been requested in the same thread calling this method.
      */

@@ -32,8 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 public interface IDataSetHandlerRpc extends IDataSetHandler
 {
     /**
-     * Handles the data set using the template to get default information for the data sets to be
-     * registered.
+     * Handles the data set using the template to get default information for the data sets to be registered.
      * 
      * @param dataSet The File containing the data set to register
      * @param template A template containing information for the data sets to register
@@ -67,7 +66,7 @@ public interface IDataSetHandlerRpc extends IDataSetHandler
      * Get the owner information provided by the caller.
      */
     public DataSetOwner getDataSetOwner();
-    
+
     /**
      * Get the data set information provided by the caller
      */

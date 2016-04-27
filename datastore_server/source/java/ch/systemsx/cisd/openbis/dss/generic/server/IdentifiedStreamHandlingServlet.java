@@ -36,26 +36,25 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * Delivers the content of input streams from a {@link IStreamRepository}. 
+ * Delivers the content of input streams from a {@link IStreamRepository}.
  *
  * @author Franz-Josef Elmer
  */
 public class IdentifiedStreamHandlingServlet extends HttpServlet
 {
     private static final long serialVersionUID = 1L;
-    
+
     public static final String SERVLET_NAME = "stream-content";
-    
+
     public static final String STREAM_REPOSITORY_BEAN_ID = "stream-repository";
-    
+
     public static final String STREAM_ID_PARAMETER_KEY = "streamID";
-    
+
     protected static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             IdentifiedStreamHandlingServlet.class);
 
     private IStreamRepository streamRepository;
 
-    
     @Override
     public void init(ServletConfig servletConfig) throws ServletException
     {
@@ -94,7 +93,5 @@ public class IdentifiedStreamHandlingServlet extends HttpServlet
             IOUtils.closeQuietly(outputStream);
         }
     }
-    
-    
 
 }

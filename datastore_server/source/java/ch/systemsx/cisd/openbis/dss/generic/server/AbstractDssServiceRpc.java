@@ -62,8 +62,7 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
     }
 
     /**
-     * Configuration method to set the path to the DSS store. Should only be called by the object
-     * that configures the RPC services.
+     * Configuration method to set the path to the DSS store. Should only be called by the object that configures the RPC services.
      */
     public void setStoreDirectory(File aFile)
     {

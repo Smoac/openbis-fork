@@ -22,22 +22,21 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Abstract superclass of implementations of {@link IDataSetCommand} which are based on a
- * list of {@link DatasetDescription} instances.
+ * Abstract superclass of implementations of {@link IDataSetCommand} which are based on a list of {@link DatasetDescription} instances.
  *
  * @author Franz-Josef Elmer
  */
 abstract class AbstractDataSetDescriptionBasedCommand implements IDataSetCommand
 {
     private static final long serialVersionUID = 1L;
-    
+
     protected final List<DatasetDescription> dataSets;
-    
+
     AbstractDataSetDescriptionBasedCommand(List<DatasetDescription> dataSets)
     {
         this.dataSets = dataSets;
     }
-    
+
     @Override
     public List<String> getDataSetCodes()
     {

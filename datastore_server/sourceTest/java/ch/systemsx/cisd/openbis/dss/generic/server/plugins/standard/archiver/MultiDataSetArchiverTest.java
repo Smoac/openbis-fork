@@ -348,7 +348,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         @Override
         public long getTotalNoOfBytesInContainersWithUnarchivingRequested()
         {
-            return 2*FileUtils.ONE_MB;
+            return 2 * FileUtils.ONE_MB;
         }
 
     }
@@ -367,7 +367,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
         private IMultiDataSetArchiveCleaner cleaner;
 
-        public MockMultiDataSetArchiver(Properties properties, File storeRoot, 
+        public MockMultiDataSetArchiver(Properties properties, File storeRoot,
                 IEncapsulatedOpenBISService openBISService, IShareIdManager shareIdManager,
                 IDataSetStatusUpdater statusUpdater, IMultiDataSetArchiverDBTransaction transaction,
                 IMultiDataSetFileOperationsManager fileManager, IMultiDataSetArchiverReadonlyQueryDAO readonlyDAO,
@@ -672,7 +672,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         assertEquals(archive.getAbsolutePath(), freeSpaceRecorder.getRecordedObjects().get(0).getPath());
         assertEquals(6, freeSpaceRecorder.getRecordedObjects().size());
         assertEquals("", dataSetDeleter.toString());
-        assertEquals("[" + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar]", 
+        assertEquals("[" + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar]",
                 removeTimeInformationFromContent(cleaner.toString()));
         context.assertIsSatisfied();
     }
@@ -691,8 +691,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(dssService).scheduleTask(with(MultiDataSetArchiver.ARCHIVING_FINALIZER), 
-                            with(any(MultiDataSetArchivingFinalizer.class)), with(parametersRecorder), 
+                    one(dssService).scheduleTask(with(MultiDataSetArchiver.ARCHIVING_FINALIZER),
+                            with(any(MultiDataSetArchivingFinalizer.class)), with(parametersRecorder),
                             with(Arrays.asList(ds2)), with((String) null), with((String) null), with((String) null));
                 }
             });
@@ -749,7 +749,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "finalizer-max-waiting-time=172800000, status=ARCHIVED}",
                 removeTimeInformationFromContent(parametersRecorder.recordedObject().toString()));
         assertEquals("[]\n", dataSetDeleter.toString());
-        assertEquals("[" + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar]", 
+        assertEquals("[" + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar]",
                 removeTimeInformationFromContent(cleaner.toString()));
         context.assertIsSatisfied();
     }
@@ -780,7 +780,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
         MultiDataSetArchiver archiver = createArchiver(null);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds1, ds2), archiverContext, true);
-        
+
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in "
@@ -819,12 +819,12 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "      >experiment\tregistration_timestamp\t\n"
                 + "      >experiment\tregistrator\t\n", getArchiveFile(ds2));
         assertEquals("[ds1]: ARCHIVED true\n", statusUpdater.toString());
-        assertEquals("Containers:\n" + 
-                "MultiDataSetArchiverContainerDTO [id=0, path=path, unarchiving requested=false]\n" + 
-                "MultiDataSetArchiverContainerDTO [id=2, path=ds2-yyyyMMdd-HHmmss.tar, unarchiving requested=false]\n" + 
-                "Data sets:\n" + 
-                "MultiDataSetArchiverDataSetDTO [id=1, code=ds1, containerId=0, sizeInBytes=10]\n" + 
-                "MultiDataSetArchiverDataSetDTO [id=3, code=ds2, containerId=2, sizeInBytes=20]\n" + 
+        assertEquals("Containers:\n" +
+                "MultiDataSetArchiverContainerDTO [id=0, path=path, unarchiving requested=false]\n" +
+                "MultiDataSetArchiverContainerDTO [id=2, path=ds2-yyyyMMdd-HHmmss.tar, unarchiving requested=false]\n" +
+                "Data sets:\n" +
+                "MultiDataSetArchiverDataSetDTO [id=1, code=ds1, containerId=0, sizeInBytes=10]\n" +
+                "MultiDataSetArchiverDataSetDTO [id=3, code=ds2, containerId=2, sizeInBytes=20]\n" +
                 "committed: true, rolledBack: false", removeTimeInformationFromContent(transaction.toString()));
         assertEquals(archive.getAbsolutePath(), freeSpaceRecorder.getRecordedObjects().get(0).getPath());
         assertEquals(1, freeSpaceRecorder.getRecordedObjects().size());
@@ -834,11 +834,11 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "finalizer-max-waiting-time=172800000, status=ARCHIVED}",
                 removeTimeInformationFromContent(parametersRecorder.recordedObject().toString()));
         assertEquals("[Dataset 'ds1']\n", dataSetDeleter.toString());
-        assertEquals("[" + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar]", 
+        assertEquals("[" + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar]",
                 removeTimeInformationFromContent(cleaner.toString()));
         context.assertIsSatisfied();
     }
-    
+
     private File getArchiveFile(final DatasetDescription dataSet)
     {
         File[] files = archive.listFiles(new FileFilter()
@@ -1023,7 +1023,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "MultiDataSetArchiverDataSetDTO [id=3, code=ds1, containerId=2, sizeInBytes=10]\n"
                 + "committed: true, rolledBack: false", removeTimeInformationFromContent(transaction.toString()));
         assertEquals("[Dataset 'ds1', Dataset 'ds2']\n", dataSetDeleter.toString());
-        assertEquals("[" + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar]", 
+        assertEquals("[" + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar]",
                 removeTimeInformationFromContent(cleaner.toString()));
         context.assertIsSatisfied();
     }
@@ -1056,7 +1056,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         assertEquals("Containers:\nData sets:\ncommitted: false, rolledBack: true", transaction.toString());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testArchiveDataSetFailsInCaseOfReplication()
     {
@@ -1073,10 +1073,10 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 }
             });
         prepareFileOperationsDelete(containerPath);
-        
+
         MultiDataSetArchiver archiver = createArchiver(fileOperations);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds2), archiverContext, false);
-        
+
         assertEquals("[ERROR: \"Couldn't create archive file 123-456.tar. Reason: Failed\"]",
                 status.getErrorStatuses().toString());
         assertEquals("[]", Arrays.asList(staging.listFiles()).toString());
@@ -1138,7 +1138,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         assertEquals("[ds1, ds2]: ARCHIVED true\n[ds1, ds2]: AVAILABLE true\n", statusUpdater.toString());
         assertContent("ds1:\n  data:\n    >0123456789\n", new File(share, ds1.getDataSetCode()));
         assertContent("ds2:\n  data:\n    >01234567890123456789\n", new File(share, ds2.getDataSetCode()));
-        assertEquals("[" + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar]", 
+        assertEquals("[" + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar]",
                 removeTimeInformationFromContent(cleaner.toString()));
         context.assertIsSatisfied();
     }
@@ -1155,19 +1155,18 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         properties.setProperty(MultiDataSetArchiver.DELAY_UNARCHIVING, "true");
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
         MultiDataSetArchiver archiver = createArchiver(null);
-        
+
         ProcessingStatus status = archiver.unarchive(Arrays.asList(ds1, ds2), archiverContext);
-        
+
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - Unarchiving of the following datasets "
                 + "has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Unarchiving delayed\n", getFilteredLogContent());
         assertEquals("", statusUpdater.toString());
         assertEquals("[]", status.getErrorStatuses().toString());
-        assertEquals("[MultiDataSetArchiverContainerDTO [id=0, path=c1, unarchiving requested=true]]", 
+        assertEquals("[MultiDataSetArchiverContainerDTO [id=0, path=c1, unarchiving requested=true]]",
                 transaction.containers.toString());
         context.assertIsSatisfied();
     }
-    
 
     @Test
     public void testForceUnarchive()
@@ -1215,7 +1214,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "34.00 GB, requested space for unarchiving 1 data sets: 10.00 GB\n", getFilteredLogContent());
         assertEquals("[ds1]: ARCHIVED true\n[ds1]: AVAILABLE true\n", statusUpdater.toString());
         assertContent("ds1:\n  data:\n    >0123456789\n", new File(share, ds1.getDataSetCode()));
-        assertEquals("[" + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar]", 
+        assertEquals("[" + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar]",
                 removeTimeInformationFromContent(cleaner.toString()));
         context.assertIsSatisfied();
     }
@@ -1280,8 +1279,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         properties.setProperty(MAXIMUM_UNARCHIVING_CAPACITY_IN_MEGABYTES, "4");
         MultiDataSetArchiverContainerDTO c1 = transaction.createContainer("c1");
         MultiDataSetArchiverContainerDTO c2 = transaction.createContainer("c2");
-        ds1.setDataSetSize(1*FileUtils.ONE_MB);
-        ds2.setDataSetSize(2*FileUtils.ONE_MB);
+        ds1.setDataSetSize(1 * FileUtils.ONE_MB);
+        ds2.setDataSetSize(2 * FileUtils.ONE_MB);
         transaction.insertDataset(ds1, c1);
         transaction.insertDataset(ds2, c2);
         transaction.commit();
@@ -1295,8 +1294,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
             String message = String.format("Total size of selected data sets (%.2f MB)"
                     + " and those already scheduled for unarchiving (%.2f MB) exceeds capacity."
                     + " Please narrow down your selection or try again later.",
-                    ((double)(ds1.getDataSetSize() + ds2.getDataSetSize()) / FileUtils.ONE_MB), 
-                    ((double)transaction.getTotalNoOfBytesInContainersWithUnarchivingRequested() / FileUtils.ONE_MB));
+                    ((double) (ds1.getDataSetSize() + ds2.getDataSetSize()) / FileUtils.ONE_MB),
+                    ((double) transaction.getTotalNoOfBytesInContainersWithUnarchivingRequested() / FileUtils.ONE_MB));
 
             assertEquals(message, ex.getMessage());
         }
@@ -1536,7 +1535,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
     private MultiDataSetArchiver createArchiver(IMultiDataSetFileOperationsManager fileManagerOrNull)
     {
-        return new MockMultiDataSetArchiver(properties, store, openBISService, shareIdManager, statusUpdater, 
+        return new MockMultiDataSetArchiver(properties, store, openBISService, shareIdManager, statusUpdater,
                 transaction, fileManagerOrNull, transaction, freeSpaceProvider, timeProvider, cleaner);
     }
 

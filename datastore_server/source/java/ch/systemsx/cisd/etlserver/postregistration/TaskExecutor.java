@@ -31,17 +31,17 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 
 /**
- * Executing engine of {@link IPostRegistrationTask} instances. Manages persistent
- * {@link ICleanupTask} instances.
+ * Executing engine of {@link IPostRegistrationTask} instances. Manages persistent {@link ICleanupTask} instances.
  * 
  * @author Franz-Josef Elmer
  */
 public class TaskExecutor
 {
-    @Private static final String CLEANUP_TASKS_FOLDER_PROPERTY = "cleanup-tasks-folder";
+    @Private
+    static final String CLEANUP_TASKS_FOLDER_PROPERTY = "cleanup-tasks-folder";
 
     private static final String DEFAULT_CLEANUP_TASKS_FOLDER = "clean-up-tasks";
-    
+
     private static final String FILE_TYPE = ".ser";
 
     private static final FilenameFilter FILTER = new FilenameFilter()
@@ -58,15 +58,14 @@ public class TaskExecutor
     private final File cleanupTasksFolder;
 
     /**
-     * Creates an instance for specified folder which will store persistent {@link ICleanupTask}
-     * instances. 
+     * Creates an instance for specified folder which will store persistent {@link ICleanupTask} instances.
      */
     public TaskExecutor(Properties properties, Logger operationLog)
     {
         this.operationLog = operationLog;
         cleanupTasksFolder =
-            new File(properties.getProperty(CLEANUP_TASKS_FOLDER_PROPERTY,
-                    DEFAULT_CLEANUP_TASKS_FOLDER));
+                new File(properties.getProperty(CLEANUP_TASKS_FOLDER_PROPERTY,
+                        DEFAULT_CLEANUP_TASKS_FOLDER));
         if (cleanupTasksFolder.isFile())
         {
             throw new EnvironmentFailureException("Cleanup tasks folder is a file: "

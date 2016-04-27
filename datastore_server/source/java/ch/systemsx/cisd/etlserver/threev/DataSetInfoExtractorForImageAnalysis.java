@@ -24,17 +24,16 @@ import ch.systemsx.cisd.etlserver.DefaultDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * Implementation which assumes that the information can be extracted from the file name. Following
- * information can be extracted:
+ * Implementation which assumes that the information can be extracted from the file name. Following information can be extracted:
  * <ul>
  * <li>Sample code
  * <li>Parent data set code
  * <li>Data producer code
  * <li>Data production date
  * </ul>
- * This class uses the same properties as {@link DefaultDataSetInfoExtractor} except
- * <code>index-of-parent-data-set-codes</code>. Instead the following properties are used to
- * extract the parent data set code: <table border="1" cellspacing="0" cellpadding="5">
+ * This class uses the same properties as {@link DefaultDataSetInfoExtractor} except <code>index-of-parent-data-set-codes</code>. Instead the
+ * following properties are used to extract the parent data set code:
+ * <table border="1" cellspacing="0" cellpadding="5">
  * <tr>
  * <th>Property</th>
  * <th>Default value</th>
@@ -43,27 +42,25 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * <tr>
  * <td><code>indices-of-parent-data-set-code-entities</code></td>
  * <td>&nbsp;</td>
- * <td>Space or comma separated list of entity indices which define the parent data set code
- * uniquely. This is a mandatory property.</td>
+ * <td>Space or comma separated list of entity indices which define the parent data set code uniquely. This is a mandatory property.</td>
  * </tr>
  * <tr>
  * <td><code>data-set-code-entities-glue</code></td>
  * <td><code>.</code></td>
  * <td>Symbol used to concatenate entities defining the parent data set code.</td>
  * </tr>
- * </table> The first entity has index 0, the second 1, etc. Using negative numbers one can specify
- * entities from the end. Thus, -1 means the last entity, -2 the second last entity, etc.
+ * </table>
+ * The first entity has index 0, the second 1, etc. Using negative numbers one can specify entities from the end. Thus, -1 means the last entity, -2
+ * the second last entity, etc.
  * 
  * @author Franz-Josef Elmer
  */
 public class DataSetInfoExtractorForImageAnalysis extends AbstractDataSetInfoExtractorFor3V
 {
     /**
-     * Name of the property specifying the indices of those entities which define uniquely the
-     * parent data set code.
+     * Name of the property specifying the indices of those entities which define uniquely the parent data set code.
      * <p>
-     * Use a negative number to count from the end, e.g. <code>-1</code> indicates the last
-     * entity.
+     * Use a negative number to count from the end, e.g. <code>-1</code> indicates the last entity.
      * </p>
      */
     @Private

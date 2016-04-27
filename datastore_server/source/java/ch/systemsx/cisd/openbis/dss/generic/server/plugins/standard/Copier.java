@@ -52,7 +52,7 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
     private final File sshExecutable;
 
     private File lnExecutable;
-    
+
     private final String hostFile;
 
     private final String rsyncPasswordFile;
@@ -62,7 +62,7 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
     private final ISshCommandExecutorFactory sshCommandExecutorFactory;
 
     private final IImmutableCopierFactory immutableCopierFactory;
-    
+
     private final boolean renameToDataSetCode;
 
     private final boolean hardLinkCopy;
@@ -142,7 +142,7 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
         if (hardLinkCopy)
         {
             IImmutableCopier hardLinkMaker = immutableCopierFactory.create(rsyncExecutable,
-            lnExecutable);
+                    lnExecutable);
             status =
                     hardLinkMaker.copyImmutably(originalData, new File(destination),
                             renameToDataSetCode ? dataSetCode : null);
@@ -175,8 +175,8 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
             {
                 String newFilePath = finalDestinationFile.getPath();
                 ProcessResult result =
-                    sshCommandExecutor.executeCommandRemotely("mv " + destinationFile.getPath()
-                            + " " + newFilePath, DataSetCopier.SSH_TIMEOUT_MILLIS);
+                        sshCommandExecutor.executeCommandRemotely("mv " + destinationFile.getPath()
+                                + " " + newFilePath, DataSetCopier.SSH_TIMEOUT_MILLIS);
                 if (result.isOK() == false)
                 {
                     operationLog.error("Remote move of '" + destinationFile.getPath() + "' to '"

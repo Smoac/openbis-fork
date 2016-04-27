@@ -32,19 +32,21 @@ public class Identifier
     {
         return new Identifier(experiment.getIdentifier(), experiment.getPermId(), DataSetOwnerType.EXPERIMENT);
     }
-    
+
     public static Identifier create(Sample sample)
     {
         return new Identifier(sample.getIdentifier(), sample.getPermId(), DataSetOwnerType.SAMPLE);
     }
-    
+
     public static Identifier create(DataSet dataSet)
     {
         return new Identifier(dataSet.getCode(), dataSet.getCode(), DataSetOwnerType.DATA_SET);
     }
-    
+
     private final String fullIdentifier;
+
     private final String permId;
+
     private final DataSetOwnerType ownerType;
 
     private Identifier(String fullIdentifier, String permId, DataSetOwnerType entityKind)
@@ -74,5 +76,5 @@ public class Identifier
     {
         return fullIdentifier;
     }
-    
+
 }

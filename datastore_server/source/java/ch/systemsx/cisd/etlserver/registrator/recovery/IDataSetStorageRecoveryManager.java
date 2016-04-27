@@ -34,16 +34,15 @@ public interface IDataSetStorageRecoveryManager
     /**
      * Create a checkpoint at the precommitted state.
      * 
-     * @param registrationId An identifier for the database registration that will happen in the
-     *            stage change from precommitted to committed.
+     * @param registrationId An identifier for the database registration that will happen in the stage change from precommitted to committed.
      * @param runner The algorithm object that manages the registration process.
      */
     <T extends DataSetInformation> void checkpointPrecommittedState(TechId registrationId,
             DataSetStorageAlgorithmRunner<T> runner);
 
     /**
-     * Create a checkpoint at the precommitted state - after the post-registration hook has executed
-     * (so after the entity operations registration has succeeded).
+     * Create a checkpoint at the precommitted state - after the post-registration hook has executed (so after the entity operations registration has
+     * succeeded).
      * 
      * @param runner The algorithm object that manages the registration process.
      */
@@ -51,8 +50,7 @@ public interface IDataSetStorageRecoveryManager
             DataSetStorageAlgorithmRunner<T> runner);
 
     /**
-     * Create a checkpoint after the data has been moved to the store, just before setting the
-     * storage confirmed in the application server.
+     * Create a checkpoint after the data has been moved to the store, just before setting the storage confirmed in the application server.
      */
     <T extends DataSetInformation> void checkpointStoredStateBeforeStorageConfirmation(
             DataSetStorageAlgorithmRunner<T> runner);

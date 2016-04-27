@@ -29,14 +29,14 @@ import javax.swing.tree.TreePath;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.model.IAsyncAction;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public abstract class AsyncNodeAction<T> implements IAsyncAction<T>
 {
     private final JTree tree;
+
     private final Timer scheduler;
+
     private final DefaultMutableTreeNode node;
 
     public AsyncNodeAction(JTree tree, DefaultMutableTreeNode node, Timer scheduler)
@@ -65,9 +65,8 @@ public abstract class AsyncNodeAction<T> implements IAsyncAction<T>
     {
         JOptionPane.showMessageDialog(tree, throwable.toString());
     }
-    
+
     public abstract void handleData(T data);
-    
 
     private void refreshTreeNode()
     {
@@ -86,6 +85,5 @@ public abstract class AsyncNodeAction<T> implements IAsyncAction<T>
                 }, 1500l);
         }
     }
-
 
 }

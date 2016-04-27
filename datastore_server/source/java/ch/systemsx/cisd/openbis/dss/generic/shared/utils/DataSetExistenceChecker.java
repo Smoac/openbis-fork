@@ -29,8 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
- * Helper class checking existence of a data set in a share. Retries existence check in case share
- * is currently not available.
+ * Helper class checking existence of a data set in a share. Retries existence check in case share is currently not available.
  * 
  * @author Franz-Josef Elmer
  */
@@ -47,7 +46,7 @@ public class DataSetExistenceChecker
     private final long waitingTime;
 
     private final int maxRetries;
-    
+
     public DataSetExistenceChecker(IDataSetDirectoryProvider dataSetDirectoryProvider,
             Properties properties)
     {
@@ -74,7 +73,7 @@ public class DataSetExistenceChecker
         return dataSetExists(dataset.getCode(), dataset.getShareIdOrNull(),
                 dataset.getLocationOrNull());
     }
-    
+
     public boolean dataSetExists(IDatasetLocation dataSetLocation)
     {
         String dataSetCode = dataSetLocation.getDataSetCode();

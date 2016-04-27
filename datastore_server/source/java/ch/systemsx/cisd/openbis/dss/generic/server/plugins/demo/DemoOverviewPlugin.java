@@ -34,8 +34,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ResponseContentStream;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageResolutionKind;
 
 /**
- * Demo {@link IDatasetImageOverviewPlugin} implementation showing always the same images dependent
- * on resolution.
+ * Demo {@link IDatasetImageOverviewPlugin} implementation showing always the same images dependent on resolution.
  * 
  * @author Piotr Buczek
  */

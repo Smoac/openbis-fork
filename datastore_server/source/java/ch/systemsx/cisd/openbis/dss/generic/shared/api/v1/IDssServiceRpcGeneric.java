@@ -53,8 +53,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
     @DataSetAccessGuard
     public FileInfoDssDTO[] listFilesForDataSet(
             String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class)
-            DataSetFileDTO fileOrFolder)
+            @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class) DataSetFileDTO fileOrFolder)
             throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
@@ -70,8 +69,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
     @Deprecated
     public InputStream getFileForDataSet(
             String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class)
-            DataSetFileDTO fileOrFolder)
+            @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class) DataSetFileDTO fileOrFolder)
             throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
@@ -86,8 +84,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
     @DataSetAccessGuard
     public String getDownloadUrlForFileForDataSet(
             String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class)
-            DataSetFileDTO fileOrFolder)
+            @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class) DataSetFileDTO fileOrFolder)
             throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
@@ -105,8 +102,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
     @DataSetAccessGuard
     public String getDownloadUrlForFileForDataSetWithTimeout(
             String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class)
-            DataSetFileDTO fileOrFolder,
+            @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class) DataSetFileDTO fileOrFolder,
             long validityDurationInSeconds) throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
@@ -121,8 +117,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
      */
     @DataSetAccessGuard
     public FileInfoDssDTO[] listFilesForDataSet(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class)
-            String dataSetCode,
+            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode,
             String path, boolean isRecursive) throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
@@ -138,8 +133,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
     @DataSetAccessGuard
     @Deprecated
     public InputStream getFileForDataSet(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class)
-            String dataSetCode,
+            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode,
             String path) throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
@@ -154,8 +148,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
      */
     @DataSetAccessGuard
     public String getDownloadUrlForFileForDataSet(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class)
-            String dataSetCode,
+            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode,
             String path) throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
@@ -172,8 +165,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
      */
     @DataSetAccessGuard
     public String getDownloadUrlForFileForDataSetWithTimeout(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class)
-            String dataSetCode,
+            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode,
             String path, long validityDurationInSeconds) throws IOExceptionUnchecked,
             IllegalArgumentException;
 
@@ -189,8 +181,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
      */
     @DataSetAccessGuard
     public String putDataSet(String sessionToken,
-            @AuthorizationGuard(guardClass = NewDataSetPredicate.class)
-            NewDataSetDTO newDataset,
+            @AuthorizationGuard(guardClass = NewDataSetPredicate.class) NewDataSetDTO newDataset,
             InputStream inputStream) throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
@@ -254,8 +245,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
      */
     @DataSetAccessGuard(releaseDataSetLocks = false)
     public String getPathToDataSet(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class)
-            String dataSetCode,
+            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode,
             String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
             IllegalArgumentException;
 
@@ -276,8 +266,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
      */
     @DataSetAccessGuard(releaseDataSetLocks = false)
     public String tryGetPathToDataSet(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class)
-            String dataSetCode,
+            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode,
             String overrideStoreRootPathOrNull) throws IOExceptionUnchecked;
 
     /**
@@ -296,8 +285,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
      */
     @DataSetAccessGuard(privilegeLevel = PrivilegeLevel.INSTANCE_ADMIN)
     public void shuffleDataSet(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class)
-            String dataSetCode, String shareId);
+            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode, String shareId);
 
     /**
      * Get the validation script for the specified data set type.

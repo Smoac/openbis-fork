@@ -91,8 +91,7 @@ public class FileInfoDssDTO implements Serializable
     }
 
     /**
-     * Return the file size if this FileInfo represents a file. If this FileInfo represents a
-     * folder, the return value is negative.
+     * Return the file size if this FileInfo represents a file. If this FileInfo represents a folder, the return value is negative.
      */
     @JsonIgnore
     public long getFileSize()
@@ -103,8 +102,8 @@ public class FileInfoDssDTO implements Serializable
     /**
      * Return the CRC32 checksum, if it is available and <code>null</code> otherwise.
      * <p>
-     * Note that the checksum will only be available when it is precomputed and available from some
-     * sort of database, i.e. if it is computationally "cheap" to provide the checksum.
+     * Note that the checksum will only be available when it is precomputed and available from some sort of database, i.e. if it is computationally
+     * "cheap" to provide the checksum.
      */
     @JsonProperty("crc32Checksum")
     public Integer tryGetCrc32Checksum()
@@ -155,7 +154,7 @@ public class FileInfoDssDTO implements Serializable
     {
         this.fileSize = fileSize;
     }
-    
+
     @JsonProperty("fileSize")
     private String getFileSizeAsString()
     {
@@ -166,7 +165,6 @@ public class FileInfoDssDTO implements Serializable
     {
         this.fileSize = JsonPropertyUtil.toLongOrNull(fileSize);
     }
-
 
     private void setCrc32Checksum(int crc32Checksum)
     {

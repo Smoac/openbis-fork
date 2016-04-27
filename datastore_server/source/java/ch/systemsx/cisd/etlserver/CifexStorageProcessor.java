@@ -38,11 +38,9 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 /**
  * Removes the artificial structure of data sets.
  * <p>
- * The incoming data set structure is scanned for files which match specified (
- * {@link #KEEP_FILE_REGEX_KEY}) regex. If only one such file has been found, it is kept and all the
- * other files including the directory are removed. If more files match the specified regular
- * expression, they are all kept together with the directory structure and files not matching the
- * regex are deleted.
+ * The incoming data set structure is scanned for files which match specified ( {@link #KEEP_FILE_REGEX_KEY}) regex. If only one such file has been
+ * found, it is kept and all the other files including the directory are removed. If more files match the specified regular expression, they are all
+ * kept together with the directory structure and files not matching the regex are deleted.
  * </p>
  * 
  * @author Izabela Adamczyk
@@ -92,7 +90,6 @@ public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
         private transient File fileToMove;
 
         private transient boolean dirDeleted = false;
-
 
         private CifexStorageProcessorTransaction(StorageProcessorTransactionParameters parameters,
                 IStorageProcessorTransaction transaction, String keepFileRegex,

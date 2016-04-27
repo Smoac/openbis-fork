@@ -30,10 +30,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share.ShufflePriority;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * A share finder implementation. The search algorithm considers all shares with enough free space
- * as potential result "candidates" (The free space of the data set "home" share is increased by the
- * data set size). The result (which is simply the best candidate) is elected by the following
- * rules:
+ * A share finder implementation. The search algorithm considers all shares with enough free space as potential result "candidates" (The free space of
+ * the data set "home" share is increased by the data set size). The result (which is simply the best candidate) is elected by the following rules:
  * 
  * <pre>
  * 1. An extension share is preferred above an incoming share.
@@ -42,12 +40,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  * 3. If all candidates have the same parameters for (1) and (2) choose the share with most free space.
  * </pre>
  * 
- * The priority of points (1) and (2) can be swapped if the current location of the data set is an
- * incoming share and it has a shuffle priority of {@link ShufflePriority#SPEED}.
+ * The priority of points (1) and (2) can be swapped if the current location of the data set is an incoming share and it has a shuffle priority of
+ * {@link ShufflePriority#SPEED}.
  * <p>
- * Generally the {@link StandardShareFinder} tends to move data sets from incoming to extension
- * shares. A data set can only be moved from extension to incoming share by an unarchiving operation
- * if at the time of unarchiving all extension shares (regardless of their speeds) are full.
+ * Generally the {@link StandardShareFinder} tends to move data sets from incoming to extension shares. A data set can only be moved from extension to
+ * incoming share by an unarchiving operation if at the time of unarchiving all extension shares (regardless of their speeds) are full.
  * 
  * @author Kaloyan Enimanev
  */
@@ -177,7 +174,6 @@ public class StandardShareFinder implements IShareFinder
             this.freeSpace = freeSpace;
         }
 
-
         @Override
         public int compareTo(CandidateShare otherCandidate)
         {
@@ -210,7 +206,6 @@ public class StandardShareFinder implements IShareFinder
             return compareFreeSpace(otherCandidate);
         }
 
-
         private int compareFreeSpace(CandidateShare otherCandidate)
         {
             long freeSpaceDiff = freeSpace - otherCandidate.freeSpace;
@@ -220,7 +215,6 @@ public class StandardShareFinder implements IShareFinder
             }
             return 0;
         }
-
 
         private int compareIncomingToExtension(CandidateShare otherCandidate)
         {

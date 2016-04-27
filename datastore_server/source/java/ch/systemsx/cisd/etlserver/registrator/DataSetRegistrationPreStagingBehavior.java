@@ -8,8 +8,7 @@ package ch.systemsx.cisd.etlserver.registrator;
 public enum DataSetRegistrationPreStagingBehavior
 {
     /**
-     * The default behavior without pre-staging. The registration uses original input file through
-     * the hole process.
+     * The default behavior without pre-staging. The registration uses original input file through the hole process.
      */
     USE_ORIGINAL,
     /**

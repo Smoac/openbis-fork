@@ -27,8 +27,7 @@ public interface IFtpPathResolverRegistry
     /**
      * Returns an {@link FtpFile} for <var>path</var>.
      * <p>
-     * This method will return a {@link FtpPathResolverRegistry#getNonExistingFile(String, String)}
-     * when the file does not exist.
+     * This method will return a {@link FtpPathResolverRegistry#getNonExistingFile(String, String)} when the file does not exist.
      */
     FtpFile resolve(String path, FtpPathResolverContext resolverContext);
 

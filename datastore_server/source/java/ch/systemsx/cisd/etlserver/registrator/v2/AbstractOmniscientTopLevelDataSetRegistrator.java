@@ -529,7 +529,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction)
     {
         DataSetRegistrationService<T> service =
-                createDataSetRegistrationService(incomingDataSetFile, 
+                createDataSetRegistrationService(incomingDataSetFile,
                         callerDataSetInformationOrNull, cleanAfterwardsAction, delegate);
         service.setUserSessionToken(userSessionToken);
 
@@ -716,7 +716,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         @SuppressWarnings(
         { "unchecked", "rawtypes" })
         DataSetRegistrationService<T> service =
-                new DataSetRegistrationService(this, incomingDataSetFile, 
+                new DataSetRegistrationService(this, incomingDataSetFile,
                         new DefaultDataSetRegistrationDetailsFactory(getRegistratorState(),
                                 callerDataSetInformationOrNull), cleanAfterwardsAction, delegate);
         return service;

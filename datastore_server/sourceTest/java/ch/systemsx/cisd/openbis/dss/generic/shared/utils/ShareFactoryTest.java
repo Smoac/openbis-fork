@@ -77,7 +77,7 @@ public class ShareFactoryTest extends AssertJUnit
         assertEquals(false, share.isIgnoredForShuffling());
         assertEquals(0, share.getExperimentIdentifiers().size());
     }
-    
+
     private Share readShare(String shareName)
     {
         File shareRoot = new File(DATA_DIRECTORY, shareName);

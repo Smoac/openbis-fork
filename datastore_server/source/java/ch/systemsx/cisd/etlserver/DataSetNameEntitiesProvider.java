@@ -37,8 +37,7 @@ public class DataSetNameEntitiesProvider
     private final String errorMessagePrefix;
 
     /**
-     * Creates an instance based on the name of the specified file using the specified character
-     * which separates entities.
+     * Creates an instance based on the name of the specified file using the specified character which separates entities.
      */
     public DataSetNameEntitiesProvider(File dataSetFile, char entitySeparatorCharacter,
             boolean stripExtension)
@@ -47,8 +46,7 @@ public class DataSetNameEntitiesProvider
     }
 
     /**
-     * Creates an instance for the specified name using the specified character which separates
-     * entities.
+     * Creates an instance for the specified name using the specified character which separates entities.
      */
     public DataSetNameEntitiesProvider(String dataSetName, char entitySeparatorCharacter,
             boolean stripExtension)
@@ -69,15 +67,14 @@ public class DataSetNameEntitiesProvider
     }
 
     /**
-     * Returns the entity of specified index. Negative arguments can also be used. They are
-     * interpreted as an index counting from the end of the sequence of entities. For example, -1
-     * denotes the last entity.
+     * Returns the entity of specified index. Negative arguments can also be used. They are interpreted as an index counting from the end of the
+     * sequence of entities. For example, -1 denotes the last entity.
      */
     public String getEntity(int index)
     {
         return getEntity(index, true);
     }
-    
+
     String getEntity(int index, boolean throwException)
     {
         if (index >= entities.length)

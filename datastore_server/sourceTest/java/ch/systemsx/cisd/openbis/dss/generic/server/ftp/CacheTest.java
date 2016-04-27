@@ -29,8 +29,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class CacheTest extends AssertJUnit
@@ -46,9 +44,9 @@ public class CacheTest extends AssertJUnit
         initializer.setRegistrationDetails(new EntityRegistrationDetails(initializer2));
         DataSet dataSet = new DataSet(initializer);
         Cache cache = cache(0, Cache.LIVE_TIME / 2, Cache.LIVE_TIME + 1);
-        
+
         cache.putDataSet(dataSet);
-        
+
         assertSame(dataSet, cache.getDataSet(dataSet.getCode()));
         assertEquals(null, cache.getDataSet(dataSet.getCode()));
     }
@@ -59,32 +57,32 @@ public class CacheTest extends AssertJUnit
         AbstractExternalData dataSet = new ContainerDataSet();
         dataSet.setCode("ds1");
         Cache cache = cache(0, Cache.LIVE_TIME / 2, Cache.LIVE_TIME + 1);
-        
+
         cache.putExternalData(dataSet);
-        
+
         assertSame(dataSet, cache.getExternalData(dataSet.getCode()));
         assertEquals(null, cache.getExternalData(dataSet.getCode()));
     }
-    
+
     @Test
     public void testGetExperiment()
     {
         Experiment experiment = new Experiment();
         experiment.setIdentifier("e1");
         Cache cache = cache(0, Cache.LIVE_TIME / 2, Cache.LIVE_TIME + 1);
-        
+
         cache.putExperiment(experiment);
-        
+
         assertSame(experiment, cache.getExperiment(experiment.getIdentifier()));
         assertEquals(null, cache.getExperiment(experiment.getIdentifier()));
     }
-    
+
     private Cache cache(final long... timestamps)
     {
         return new Cache(new ITimeProvider()
             {
                 private int index;
-                
+
                 @Override
                 public long getTimeInMilliseconds()
                 {

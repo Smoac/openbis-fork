@@ -33,17 +33,14 @@ public interface IDataSetUpdatable extends IDataSetImmutable
     /**
      * Set the experiment for this data set. The experiment may also be set by setting the sample.
      * 
-     * @param experiment The experiment for this data set. Need not actually be immutable, but the
-     *            immutable one is the supertype.
+     * @param experiment The experiment for this data set. Need not actually be immutable, but the immutable one is the supertype.
      */
     void setExperiment(IExperimentImmutable experiment);
 
     /**
-     * Set the sample for this data set. Will also set the experiment, since the sample must have an
-     * experiment.
+     * Set the sample for this data set. Will also set the experiment, since the sample must have an experiment.
      * 
-     * @param sampleOrNull The sample to use. Need not actually be immutable, but the immutable one
-     *            is the supertype.
+     * @param sampleOrNull The sample to use. Need not actually be immutable, but the immutable one is the supertype.
      */
     void setSample(ISampleImmutable sampleOrNull);
 
@@ -70,7 +67,7 @@ public interface IDataSetUpdatable extends IDataSetImmutable
     /** Set the external data management system */
     public void setExternalDataManagementSystem(
             IExternalDataManagementSystemImmutable externalDataManagementSystem);
-    
+
     /** Set the code from the external data management system */
     public void setExternalCode(String externalCode);
 }

@@ -28,8 +28,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.string.StringUtilities;
 
 /**
- * Simple implementation of {@link IPersistenceManager} using a file. Persistence request are
- * processed immediately.
+ * Simple implementation of {@link IPersistenceManager} using a file. Persistence request are processed immediately.
  * 
  * @author Franz-Josef Elmer
  */
@@ -48,7 +47,7 @@ public class SimpleFileBasePersistenceManager implements
     private Serializable object;
 
     /**
-     * Creates an instance for the specified file storing the object. 
+     * Creates an instance for the specified file storing the object.
      *
      * @param nameOfObject Name of the object. Will be used in exception messages.
      */

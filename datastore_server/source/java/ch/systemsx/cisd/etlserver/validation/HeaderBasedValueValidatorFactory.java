@@ -28,8 +28,7 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 
 /**
- * Collection of {@link IValidatorFactory} instances. Which one is used will be selected by a
- * regular expression the column header matches.
+ * Collection of {@link IValidatorFactory} instances. Which one is used will be selected by a regular expression the column header matches.
  * 
  * @author Franz-Josef Elmer
  */

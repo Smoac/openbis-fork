@@ -53,7 +53,7 @@ public class ExperimentPickerDialog extends AbstractEntityPickerDialog
     private static final long serialVersionUID = 6688336042860619854L;
 
     private static String[] HEADERS = new String[]
-        { "Space code", "Project code", "Experiment code", "Experiment identifier" };
+    { "Space code", "Project code", "Experiment code", "Experiment identifier" };
 
     private final JTable table;
 
@@ -82,7 +82,7 @@ public class ExperimentPickerDialog extends AbstractEntityPickerDialog
         final JScrollPane scrollPane = new JScrollPane(table);
 
         Object[] objects = new Object[]
-            { "Filter experiments: ", northPanel, "Select Experiment:", scrollPane };
+        { "Filter experiments: ", northPanel, "Select Experiment:", scrollPane };
         final JOptionPane optionPane =
                 new JOptionPane(objects, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
         optionPane.addPropertyChangeListener(new PropertyChangeListener()
@@ -119,8 +119,8 @@ public class ExperimentPickerDialog extends AbstractEntityPickerDialog
                     ExperimentIdentifierFactory.parse(experiment.getIdentifier());
 
             data.add(new String[]
-                { expId.getSpaceCode(), expId.getProjectCode(), expId.getExperimentCode(),
-                        experiment.getIdentifier() });
+            { expId.getSpaceCode(), expId.getProjectCode(), expId.getExperimentCode(),
+                    experiment.getIdentifier() });
         }
 
         return data;

@@ -24,14 +24,11 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class NumericValidatorFactoryTest extends AssertJUnit
-{ 
+{
     @Test
     public void testInvalidRange()
     {
@@ -44,7 +41,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
             assertEquals("Invalid range: []", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testMissingOpeningBracketInRangeDescription()
     {
@@ -57,7 +54,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
             assertEquals("Range has to start with either '(' or '[': 2,3]", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testMissingClosingBracketInRangeDescription()
     {
@@ -70,7 +67,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
             assertEquals("Range has to end with either ')' or ']': (2,3}", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testMissingCommaInRangeDescription()
     {
@@ -83,7 +80,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
             assertEquals("Missing comma in range definition: (2 3)", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testInvalidMinimumInRangeDescription()
     {
@@ -96,7 +93,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
             assertEquals("Invalid minimum in range definition: (abc,3)", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testInvalidMaximumInRangeDescription()
     {
@@ -109,7 +106,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
             assertEquals("Invalid maximum in range definition: (1,abc)", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testMinLargerThanMaxInRangeDescription()
     {
@@ -122,17 +119,17 @@ public class NumericValidatorFactoryTest extends AssertJUnit
             assertEquals("Minimum is larger than maximum in range description: (1,0.999)", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testInvalidNumber()
     {
         NumericValidatorFactory validatorFactory = new NumericValidatorFactory(new Properties());
         IValidator validator = validatorFactory.createValidator("blabla");
-        
+
         assertNotANumber(validator, "abc");
         assertNotANumber(validator, " -0-");
     }
-    
+
     @Test
     public void testEmptyValue()
     {
@@ -160,7 +157,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
         assertFailingToLarge("> 1.0", validator, "1.25");
         assertFailingToSmall("<= 0.0", validator, "0.0");
     }
-    
+
     @Test
     public void testAllowEmptyValueSynonyms()
     {
@@ -170,7 +167,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
         properties.setProperty(NumericValidatorFactory.VALUE_RANGE_KEY, "(0,1]");
         NumericValidatorFactory validatorFactory = new NumericValidatorFactory(properties);
         IValidator validator = validatorFactory.createValidator("blabla");
-        
+
         validator.assertValid(null);
         validator.assertValid("");
         validator.assertValid("  ");
@@ -180,13 +177,13 @@ public class NumericValidatorFactoryTest extends AssertJUnit
         assertFailingToLarge("> 1.0", validator, "1.25");
         assertFailingToSmall("<= 0.0", validator, "0.0");
     }
-    
+
     @Test
     public void testNoRange()
     {
         NumericValidatorFactory validatorFactory = new NumericValidatorFactory(new Properties());
         IValidator validator = validatorFactory.createValidator("blabla");
-        
+
         validator.assertValid("-Infinity");
         validator.assertValid("-1");
         validator.assertValid("-100");
@@ -195,12 +192,12 @@ public class NumericValidatorFactoryTest extends AssertJUnit
         validator.assertValid("1.78e19");
         validator.assertValid("Infinity");
     }
-    
+
     @Test
     public void testNegativeNumbers()
     {
         IValidator validator = createValidator("(-Infinity,0)");
-        
+
         validator.assertValid("-1");
         validator.assertValid("-100");
         validator.assertValid("-1.78e-9");
@@ -212,7 +209,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
     public void testNonNegativeNumbers()
     {
         IValidator validator = createValidator("[ 0 , Infinity )");
-        
+
         validator.assertValid("1");
         validator.assertValid("100");
         validator.assertValid("1.78e-9");
@@ -220,7 +217,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
         assertFailingToSmall("< 0.0", validator, "-1.0E-9");
         assertFailingToLarge(">= Infinity", validator, "Infinity");
     }
-    
+
     private IValidator createValidator(String range)
     {
         Properties properties = new Properties();
@@ -228,7 +225,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
         NumericValidatorFactory validatorFactory = new NumericValidatorFactory(properties);
         return validatorFactory.createValidator("blabla");
     }
-    
+
     private void assertFailingOnBlankValue(IValidator validator, String value)
     {
         try
@@ -252,7 +249,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
             assertEquals("Not a number: " + string, ex.getMessage());
         }
     }
-    
+
     private void assertFailingToSmall(String expectedPostfix, IValidator validator, String number)
     {
         try
@@ -264,7 +261,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
             assertEquals("Number to small: " + number + " " + expectedPostfix, ex.getMessage());
         }
     }
-    
+
     private void assertFailingToLarge(String expectedPostfix, IValidator validator, String number)
     {
         try

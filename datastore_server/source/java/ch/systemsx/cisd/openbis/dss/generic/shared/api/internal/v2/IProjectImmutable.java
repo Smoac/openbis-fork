@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2;
 
-
 /**
  * @author Kaloyan Enimanev
  */
@@ -26,7 +25,7 @@ public interface IProjectImmutable
      * Returns the permanent id of this project.
      */
     String getPermId();
-    
+
     /**
      * Return the identifier for this project.
      */
@@ -36,17 +35,17 @@ public interface IProjectImmutable
      * Returns the code of the space this project belongs to.
      */
     String getSpaceCode();
-    
+
     /**
      * Returns the code of this project.
      */
     String getCode();
-    
+
     /**
      * Return the description for this project.
      */
     String getDescription();
-    
+
     /**
      * Return true if the project exists in the database.
      */

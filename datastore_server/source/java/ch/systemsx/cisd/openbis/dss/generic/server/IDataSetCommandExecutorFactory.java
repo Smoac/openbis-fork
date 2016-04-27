@@ -26,9 +26,8 @@ import java.io.File;
 interface IDataSetCommandExecutorFactory
 {
     /**
-     * Creates command executor for the specified data store. The file of the command queue will be
-     * located in <var>commandQueueDir</var> or <var>commandQueueDir-nameOrNull</var> 
-     * if <var>nameOrNull</var> isn't an empty string.
+     * Creates command executor for the specified data store. The file of the command queue will be located in <var>commandQueueDir</var> or
+     * <var>commandQueueDir-nameOrNull</var> if <var>nameOrNull</var> isn't an empty string.
      */
     IDataSetCommandExecutor create(File store, File commandQueueDir, String nameOrNull);
 }

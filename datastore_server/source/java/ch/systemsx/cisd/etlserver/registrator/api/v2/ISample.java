@@ -27,8 +27,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmuta
 public interface ISample extends ISampleImmutable
 {
     /**
-     * Set the experiment for this sample. The experiment need not be immutable, but the immutable
-     * one is the superclass.
+     * Set the experiment for this sample. The experiment need not be immutable, but the immutable one is the superclass.
      */
     void setExperiment(IExperimentImmutable experiment);
 

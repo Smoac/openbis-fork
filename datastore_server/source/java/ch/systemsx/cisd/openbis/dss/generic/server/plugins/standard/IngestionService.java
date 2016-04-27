@@ -77,9 +77,9 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
 {
 
     private static final String AGGREGATION_SERVICE_SCRATCH_DIR_NAME = "aggregation-service";
-    
+
     private static final String AGGREGATION_SERVICE_SHARE_ID = "share-id";
-    
+
     private static final long serialVersionUID = 1L;
 
     private static IMailClient getMailClientFromProperties(Properties dssProperties)
@@ -128,7 +128,7 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
     }
 
     private String shareId;
-    
+
     /**
      * Internal constructor that allows explicit configuration of all services. Used in testing.
      * 

@@ -44,8 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Command which processes datasets using the specified plugin instance. This is essentially an
- * adapter to {@link IProcessingPluginTask}.
+ * Command which processes datasets using the specified plugin instance. This is essentially an adapter to {@link IProcessingPluginTask}.
  * 
  * @author Tomasz Pylak
  */
@@ -172,7 +171,7 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
         {
             DataSetProcessingContext context =
                     createDataSetProcessingContext(contentProvider, dataSetDirectoryProvider,
-                    proxyMailClient);
+                            proxyMailClient);
             processingStatusOrNull = task.process(dataSets, context);
         } catch (RuntimeException e)
         {
@@ -312,7 +311,7 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
         }
         return sb.toString();
     }
-    
+
     private static boolean isEmpty(ProcessingStatus processingStatus)
     {
         if (processingStatus.getDatasetsByStatus(Status.OK).isEmpty() == false)

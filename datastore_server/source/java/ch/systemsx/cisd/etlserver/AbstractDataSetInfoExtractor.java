@@ -77,8 +77,7 @@ public abstract class AbstractDataSetInfoExtractor implements IDataSetInfoExtrac
     }
 
     /**
-     * Extracts the data set properties from a tsv file in <var>incomingDataSetPath</var> with name
-     * <var>fileNameOrNull</var>.
+     * Extracts the data set properties from a tsv file in <var>incomingDataSetPath</var> with name <var>fileNameOrNull</var>.
      */
     public static List<NewProperty> extractDataSetProperties(File incomingDataSetPath,
             String fileNameOrNull)

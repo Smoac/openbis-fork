@@ -35,16 +35,15 @@ import ch.systemsx.cisd.etlserver.registrator.ITransactionalCommand;
 /**
  * A package internal class to manage the rollback stack.
  * <p>
- * Since there is no persistent stack class, the rollback stack is implemented with two queues,
- * optimized for pushing onto the stack (poping from the stack is slower).
+ * Since there is no persistent stack class, the rollback stack is implemented with two queues, optimized for pushing onto the stack (poping from the
+ * stack is slower).
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 public class RollbackStack implements IRollbackStack
 {
     /**
-     * Delegate methods for the rollback stack, giving clients of the stack control over its
-     * behavior.
+     * Delegate methods for the rollback stack, giving clients of the stack control over its behavior.
      * 
      * @author Chandrasekhar Ramakrishnan
      */
@@ -52,8 +51,8 @@ public class RollbackStack implements IRollbackStack
     {
 
         /**
-         * Informs clients that the stack will rollback another item. Implementations may throw
-         * exceptions or block the thread until the stack can continue.
+         * Informs clients that the stack will rollback another item. Implementations may throw exceptions or block the thread until the stack can
+         * continue.
          */
         void willContinueRollbackAll(RollbackStack stack);
     }
@@ -73,8 +72,7 @@ public class RollbackStack implements IRollbackStack
     private PersistentExtendedBlockingQueueDecorator<StackElement> tempLifo;
 
     /**
-     * Constructor for a rollback stack that uses queue1File and queue2File for the persistent
-     * queues.
+     * Constructor for a rollback stack that uses queue1File and queue2File for the persistent queues.
      * 
      * @param queue1File File for a persistent queue
      * @param queue2File File for a persistent queue
@@ -242,8 +240,7 @@ public class RollbackStack implements IRollbackStack
     }
 
     /**
-     * Rollback any commands that have been executed. Rollback is done in the reverse order of
-     * execution.
+     * Rollback any commands that have been executed. Rollback is done in the reverse order of execution.
      */
     public void rollbackAll()
     {
@@ -258,8 +255,7 @@ public class RollbackStack implements IRollbackStack
     }
 
     /**
-     * Rollback any commands that have been executed. Rollback is done in the reverse order of
-     * execution.
+     * Rollback any commands that have been executed. Rollback is done in the reverse order of execution.
      */
     public void rollbackAll(IRollbackStackDelegate delegate)
     {
@@ -302,13 +298,12 @@ public class RollbackStack implements IRollbackStack
     }
 
     /**
-     * Internal getter for clients that need to serialize the rollback stack. Use this method with
-     * caution since it exposes implementation details.
+     * Internal getter for clients that need to serialize the rollback stack. Use this method with caution since it exposes implementation details.
      */
     public File[] getBackingFiles()
     {
         return new File[]
-            { queue1File, queue2File };
+        { queue1File, queue2File };
     }
 
     @Override
@@ -347,12 +342,10 @@ public class RollbackStack implements IRollbackStack
     }
 
     /**
-     * A stack element combines the command with an order. The order is used to implement the
-     * ordering in the queue.
+     * A stack element combines the command with an order. The order is used to implement the ordering in the queue.
      * <p>
-     * The queue of rollback actions should be LIFO (a stack), but there is no LIFO queue in the
-     * available libraries that we can use for this purpose. Thus, we use a priority queue, which is
-     * available, and define the priority comparison operator such that it results in a LIFO queue.
+     * The queue of rollback actions should be LIFO (a stack), but there is no LIFO queue in the available libraries that we can use for this purpose.
+     * Thus, we use a priority queue, which is available, and define the priority comparison operator such that it results in a LIFO queue.
      * 
      * @author Chandrasekhar Ramakrishnan
      */
@@ -419,8 +412,7 @@ public class RollbackStack implements IRollbackStack
     }
 
     /**
-     * Do not call this method, it will leave the queue in an incorrect state, but we want to do
-     * this for testing purposes.
+     * Do not call this method, it will leave the queue in an incorrect state, but we want to do this for testing purposes.
      * 
      * @deprecated
      */
@@ -434,8 +426,7 @@ public class RollbackStack implements IRollbackStack
     }
 
     /**
-     * Do not call this method, it will leave the queue in an incorrect state, but we want to do
-     * this for testing purposes.
+     * Do not call this method, it will leave the queue in an incorrect state, but we want to do this for testing purposes.
      * 
      * @deprecated
      */

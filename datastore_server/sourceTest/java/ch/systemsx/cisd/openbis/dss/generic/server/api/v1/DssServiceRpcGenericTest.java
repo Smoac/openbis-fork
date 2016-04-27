@@ -109,7 +109,7 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
         applicationContext.addBean("openBIS-service", service);
         ProxyFactoryBean proxyFactoryBean = new ProxyFactoryBean();
         proxyFactoryBean.setInterfaces(new Class[]
-            { IDssServiceRpcGeneric.class });
+        { IDssServiceRpcGeneric.class });
         DssServiceRpcGeneric nakedDssService =
                 new DssServiceRpcGeneric(service, apiService, infoProvider, freeSpaceProvider,
                         shareIdManager, contentProvider);
@@ -267,9 +267,9 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
     {
         prepareCheckInstanceAdminAuthorization();
         freeSpaceProvider.setFreeSpaceValues(4711, 42);
-        
+
         List<ShareInfo> shares = dssService.listAllShares(SESSION_TOKEN);
-        
+
         assertEquals("1", shares.get(0).getShareId());
         assertEquals(4711 * FileUtils.ONE_KB, shares.get(0).getFreeSpace());
         assertEquals("2", shares.get(1).getShareId());
@@ -277,7 +277,7 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
         assertEquals(2, shares.size());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testShuffleDataSet()
     {
@@ -295,22 +295,22 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
                     dataSet.setShareId("1");
                     dataSet.setLocation("uuid/a/b/c/ds1");
                     will(returnValue(dataSet));
-                    
+
                     one(shareIdManager).getShareId("ds1");
                     will(returnValue("1"));
-                    
+
                     one(shareIdManager).lock("ds1");
                     one(shareIdManager).releaseLock("ds1");
-                    
+
                     one(service).updateShareIdAndSize("ds1", "2", 11);
                     one(shareIdManager).setShareId("ds1", "2");
                     one(shareIdManager).await("ds1");
                 }
             });
         freeSpaceProvider.setFreeSpaceValues(4711, 42);
-        
+
         dssService.shuffleDataSet(SESSION_TOKEN, "ds1", "2");
-        
+
         assertEquals("hello world",
                 FileUtilities.loadToString(new File(share2, "uuid/a/b/c/ds1/hello.txt")).trim());
         context.assertIsSatisfied();
@@ -327,7 +327,7 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
                     atLeast(1).of(service).tryGetDataSet("ds1");
                 }
             });
-        
+
         try
         {
             dssService.shuffleDataSet(SESSION_TOKEN, "ds1", "2");
@@ -338,7 +338,7 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
         }
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testShuffleContainerDataSet()
     {
@@ -351,7 +351,7 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
                     will(returnValue(new ContainerDataSet()));
                 }
             });
-        
+
         try
         {
             dssService.shuffleDataSet(SESSION_TOKEN, "ds1", "2");
@@ -362,7 +362,7 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
         }
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testShuffleDataSetToSameShare()
     {
@@ -389,7 +389,7 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
         }
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testShuffleDataSetToUnknownShare()
     {
@@ -420,7 +420,7 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
         }
         context.assertIsSatisfied();
     }
-    
+
     private static String fileInfoString(String startPath, String pathInListing, long length,
             Integer checksum)
     {

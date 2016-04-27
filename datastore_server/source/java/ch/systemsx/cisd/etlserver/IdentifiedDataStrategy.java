@@ -25,9 +25,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
- * This <code>IDataStoreStrategy</code> implementation if for data set that has been
- * <i>identified</i>, meaning that kind of connection to this data set could be found in the
- * database (through the derived <i>Master Plate</i> or through the experiment specified).
+ * This <code>IDataStoreStrategy</code> implementation if for data set that has been <i>identified</i>, meaning that kind of connection to this data
+ * set could be found in the database (through the derived <i>Master Plate</i> or through the experiment specified).
  * 
  * @author Christian Ribeaud
  */
@@ -53,8 +52,7 @@ public final class IdentifiedDataStrategy implements IDataStoreStrategy
     }
 
     /**
-     * Computes the base directory with given <var>baseDir</var> and given <var>dataSetInfo</var>
-     * and returns it as <code>File</code>.
+     * Computes the base directory with given <var>baseDir</var> and given <var>dataSetInfo</var> and returns it as <code>File</code>.
      * <p>
      * Note that this method does not call {@link File#mkdirs()} on returned <code>File</code>.
      * </p>

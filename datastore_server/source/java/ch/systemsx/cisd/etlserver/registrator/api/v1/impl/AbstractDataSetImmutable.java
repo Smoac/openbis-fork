@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
  *
  * @author Franz-Josef Elmer
  */
-abstract class AbstractDataSetImmutable implements IDataSetImmutable 
+abstract class AbstractDataSetImmutable implements IDataSetImmutable
 {
     protected final IEncapsulatedBasicOpenBISService service;
 
@@ -43,7 +43,7 @@ abstract class AbstractDataSetImmutable implements IDataSetImmutable
     {
         this.service = service;
     }
-    
+
     protected DataSetType getDataSetTypeWithPropertyTypes(String dataSetTypeCode)
     {
         DataSetTypeWithVocabularyTerms dataSetType = service.getDataSetType(dataSetTypeCode);

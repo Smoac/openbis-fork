@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
-
 /**
  * Some common constants.
  *
@@ -38,8 +37,8 @@ public class Constants
 
     /** property with search domain services names separated by delimiter */
     public static final String SEARCH_DOMAIN_SERVICE_NAMES = "search-domain-services";
-    
-    /** Key of service property which is a list of data source IDs. */ 
+
+    /** Key of service property which is a list of data source IDs. */
     public static final String DATA_SOURCES_KEY = "data-sources";
 
     /** Key of service property which is a list of servlet services. */

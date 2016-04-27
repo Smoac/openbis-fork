@@ -25,9 +25,8 @@ import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
 import ch.systemsx.cisd.common.time.TimingParameters;
 
 /**
- * File factory based on {@link File}. Files are copies by creating hard links (if possible) if the
- * parameter <var>hardLinkInsteadOfCopy</var> of the constructor is set to <code>true</code>.
- * Otherwise files are always copied.
+ * File factory based on {@link File}. Files are copies by creating hard links (if possible) if the parameter <var>hardLinkInsteadOfCopy</var> of the
+ * constructor is set to <code>true</code>. Otherwise files are always copied.
  * 
  * @author Franz-Josef Elmer
  */

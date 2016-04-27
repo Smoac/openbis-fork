@@ -110,11 +110,10 @@ public class DatasetDownloadServletTest
     private static final File EXAMPLE_DATA_SET_FOLDER = getDatasetDirectoryLocation(TEST_FOLDER,
             EXAMPLE_DATA_SET_CODE);
 
-    
     private static final String EXAMPLE_FILE_NAME = "read me @home.txt";
-    
+
     private static final String ESCAPED_FILE_NAME_ENCODED = URIUtil.encodePath(EXAMPLE_FILE_NAME);
-    
+
     private static final File EXAMPLE_FILE = new File(EXAMPLE_DATA_SET_FOLDER, EXAMPLE_FILE_NAME);
 
     private static final String EXAMPLE_FILE_CONTENT = "Hello world!";
@@ -138,7 +137,7 @@ public class DatasetDownloadServletTest
     private Mockery context;
 
     private HttpServletRequest request;
-    
+
     private HttpServletResponse response;
 
     private HttpSession httpSession;
@@ -420,7 +419,7 @@ public class DatasetDownloadServletTest
         context.checking(new Expectations()
             {
                 {
-                    
+
                     prepareGetRequestURI(this, externalData, ESCAPED_FILE_NAME_ENCODED);
 
                     one(response).setContentType("text/plain");
@@ -436,16 +435,18 @@ public class DatasetDownloadServletTest
                                 outputStream.write(b);
                             }
 
-							@Override
-							public boolean isReady() {
-								return true;
-							}
+                            @Override
+                            public boolean isReady()
+                            {
+                                return true;
+                            }
 
-							@Override
-							public void setWriteListener(WriteListener arg0) {
-								// TODO Auto-generated method stub
-								
-							}
+                            @Override
+                            public void setWriteListener(WriteListener arg0)
+                            {
+                                // TODO Auto-generated method stub
+
+                            }
                         }));
                 }
             });
@@ -496,17 +497,19 @@ public class DatasetDownloadServletTest
                                 outputStream.write(b);
                             }
 
-							@Override
-							public boolean isReady() {
-								// TODO Auto-generated method stub
-								return true;
-							}
+                            @Override
+                            public boolean isReady()
+                            {
+                                // TODO Auto-generated method stub
+                                return true;
+                            }
 
-							@Override
-							public void setWriteListener(WriteListener arg0) {
-								// TODO Auto-generated method stub
-								
-							}
+                            @Override
+                            public void setWriteListener(WriteListener arg0)
+                            {
+                                // TODO Auto-generated method stub
+
+                            }
                         }));
                 }
             });

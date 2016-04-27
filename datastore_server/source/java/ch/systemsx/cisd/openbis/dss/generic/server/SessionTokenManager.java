@@ -23,19 +23,19 @@ import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.security.TokenGenerator;
 
 /**
- * Class managing DSS session tokens. Each invocation of {@link #drawSessionToken()} generates a new
- * token. The last two tokens are valid. Invocation of {@link #assertValidSessionToken(String)} will
- * throw an {@link InvalidAuthenticationException} in case of an invalid token.
+ * Class managing DSS session tokens. Each invocation of {@link #drawSessionToken()} generates a new token. The last two tokens are valid. Invocation
+ * of {@link #assertValidSessionToken(String)} will throw an {@link InvalidAuthenticationException} in case of an invalid token.
  * 
  * @author Franz-Josef Elmer
  */
 public class SessionTokenManager
 {
     private static final int MAX_NUMBER_OF_TOKENS = 2;
-    
+
     private final List<String> sessionTokens = new ArrayList<String>();
+
     private final TokenGenerator tokenGenerator = new TokenGenerator();
-    
+
     public synchronized String drawSessionToken()
     {
         String sessionToken = tokenGenerator.getNewToken(System.currentTimeMillis());
@@ -46,7 +46,7 @@ public class SessionTokenManager
         }
         return sessionToken;
     }
-    
+
     public void assertValidSessionToken(String sessionToken)
     {
         if (sessionTokens.contains(sessionToken) == false)

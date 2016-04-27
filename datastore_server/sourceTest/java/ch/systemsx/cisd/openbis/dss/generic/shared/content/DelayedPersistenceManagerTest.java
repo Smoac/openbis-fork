@@ -24,15 +24,14 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DelayedPersistenceManagerTest extends AssertJUnit
 {
     private static final int DELAY = 500;
-    
+
     private Mockery context;
+
     private IPersistenceManager persistenceManager;
 
     @BeforeMethod
@@ -41,7 +40,7 @@ public class DelayedPersistenceManagerTest extends AssertJUnit
         context = new Mockery();
         persistenceManager = context.mock(IPersistenceManager.class);
     }
-    
+
     @AfterMethod
     public void tearDown()
     {
@@ -49,6 +48,7 @@ public class DelayedPersistenceManagerTest extends AssertJUnit
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
+
     @Test
     public void testRequestPersistence() throws Exception
     {
@@ -58,9 +58,9 @@ public class DelayedPersistenceManagerTest extends AssertJUnit
                     exactly(3).of(persistenceManager).requestPersistence();
                 }
             });
-        
+
         DelayedPersistenceManager manager = new DelayedPersistenceManager(persistenceManager, DELAY);
-        
+
         manager.requestPersistence();
         manager.requestPersistence();
         manager.requestPersistence();
@@ -70,7 +70,7 @@ public class DelayedPersistenceManagerTest extends AssertJUnit
         Thread.sleep(2 * DELAY);
         manager.requestPersistence();
         Thread.sleep(2 * DELAY);
-        
+
         context.assertIsSatisfied();
     }
 

@@ -26,17 +26,16 @@ import ch.systemsx.cisd.openbis.generic.shared.Constants;
 public class SpeedUtils
 {
     /**
-     * Returns trimmed speed. The trimmed speed is has value between 0 and
-     * {@link Constants#MAX_SPEED}.
+     * Returns trimmed speed. The trimmed speed is has value between 0 and {@link Constants#MAX_SPEED}.
      */
     public static int trim(int speed)
     {
         return Math.max(0, Math.min(Constants.MAX_SPEED, speed));
     }
-    
+
     /**
-     * Returns trimmed speed hint. If the absolute value of speed hint is larger than maximum speed
-     * the maximum value multiplied with the sign of the original value is returned.
+     * Returns trimmed speed hint. If the absolute value of speed hint is larger than maximum speed the maximum value multiplied with the sign of the
+     * original value is returned.
      */
     public static int trimSpeedHint(int speedHint)
     {

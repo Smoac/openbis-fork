@@ -22,7 +22,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 /**
  * Enumeration of {@link ISpeedChecker} ordered in accordance to strictness.
  * 
- *
  * @author Franz-Josef Elmer
  */
 public enum SpeedChecker implements ISpeedChecker

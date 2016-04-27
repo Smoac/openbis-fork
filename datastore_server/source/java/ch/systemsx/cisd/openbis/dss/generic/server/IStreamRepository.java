@@ -33,8 +33,8 @@ public interface IStreamRepository
     /**
      * Retrieves stream by specified id. A stream can be retrieved only once.
      * 
-     * @IllegalArgumentException if a stream is retrieved a second time or the stream become stale
-     *                           because the time between adding and retrieving was to long.
+     * @IllegalArgumentException if a stream is retrieved a second time or the stream become stale because the time between adding and retrieving was
+     *                           to long.
      */
     public InputStreamWithPath getStream(String inputStreamID);
 

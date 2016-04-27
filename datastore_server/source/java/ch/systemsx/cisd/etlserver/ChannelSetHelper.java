@@ -83,8 +83,7 @@ public final class ChannelSetHelper
     /**
      * For given wavelength returns corresponding <code>Channel</code>.
      * <p>
-     * Never returns <code>null</code> and prefers to throw an exception if given <var>wavelength</var>
-     * can not be found.
+     * Never returns <code>null</code> and prefers to throw an exception if given <var>wavelength</var> can not be found.
      * </p>
      */
     public final Channel getChannelForWavelength(final int wavelength)

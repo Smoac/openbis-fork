@@ -30,25 +30,25 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
 {
     private static final String MOCK_FACTORY = MockValidatorFactory.class.getName();
+
     private static final String EXPECTED_VALUES_KEY = "expected-values";
+
     private static final String NAME_KEY = "validator-name";
-    
+
     public static final class MockValidatorFactory implements IValidatorFactory
     {
         private static final List<MockValidator> validators = new ArrayList<MockValidator>();
-        
+
         static void clearValidators()
         {
             validators.clear();
         }
-        
+
         static void assertSatisfied()
         {
             for (MockValidator validator : validators)
@@ -57,11 +57,13 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
             }
             clearValidators();
         }
-        
+
         private static final class MockValidator implements IValidator
         {
             private final String name;
+
             private final String[] expectedValues;
+
             private int index;
 
             MockValidator(Properties properties)
@@ -86,9 +88,9 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
                 assertEquals("Number of calls for validator '" + name + "'", expectedValues.length, index);
             }
         }
-        
+
         private final IValidator validator;
-        
+
         public MockValidatorFactory(Properties properties)
         {
             validator = new MockValidator(properties);
@@ -100,13 +102,13 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
             return validator;
         }
     }
-    
+
     @BeforeMethod
     public void init()
     {
         MockValidatorFactory.clearValidators();
     }
-    
+
     @Test
     public void testPathPatterns()
     {
@@ -116,15 +118,15 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
         properties.setProperty("c." + ColumnDefinition.VALUE_VALIDATOR_KEY, MOCK_FACTORY);
         properties.setProperty("c." + EXPECTED_VALUES_KEY, "1,2");
         DataSetValidatorForTSV validator = new DataSetValidatorForTSV(properties);
-        
+
         FileUtilities.writeToFile(new File(workingDirectory, "a.txt"), "a\n1\n");
         FileUtilities.writeToFile(new File(workingDirectory, "b.tsv"), "b\n2\n");
-        
+
         validator.assertValidDataSet(null, workingDirectory);
-        
+
         MockValidatorFactory.assertSatisfied();
     }
-    
+
     @Test
     public void testExcludePathPatterns()
     {
@@ -134,15 +136,15 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
         properties.setProperty("c." + ColumnDefinition.VALUE_VALIDATOR_KEY, MOCK_FACTORY);
         properties.setProperty("c." + EXPECTED_VALUES_KEY, "1");
         DataSetValidatorForTSV validator = new DataSetValidatorForTSV(properties);
-        
+
         FileUtilities.writeToFile(new File(workingDirectory, "a.txt"), "a\n1\n");
         FileUtilities.writeToFile(new File(workingDirectory, "b.tsv"), "b\n2\n");
-        
+
         validator.assertValidDataSet(null, workingDirectory);
-        
+
         MockValidatorFactory.assertSatisfied();
     }
-    
+
     @Test
     public void testColumnDefinitionCreationErrorMessage()
     {
@@ -156,10 +158,10 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
         } catch (ConfigurationFailureException ex)
         {
             assertEquals("Couldn't create column definition 'c1': " +
-            		"Order value has to be positive: 0", ex.getMessage());
+                    "Order value has to be positive: 0", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testColumnOrderUsedTwice()
     {
@@ -177,7 +179,7 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
                     "There is already a column definied for order 2.", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testNoColumnDefinitionFound()
     {
@@ -188,9 +190,9 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
         properties.setProperty("c1." + ColumnDefinition.VALUE_VALIDATOR_KEY, MOCK_FACTORY);
         properties.setProperty("c1." + NAME_KEY, "c1");
         DataSetValidatorForTSV validator = new DataSetValidatorForTSV(properties);
-        
+
         FileUtilities.writeToFile(new File(workingDirectory, "a.txt"), "ID\n" + "a\n" + "b\n");
-        
+
         try
         {
             validator.assertValidDataSet(null, workingDirectory);
@@ -201,10 +203,10 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
                     + "Column Definition 'c1' does not match: Reason: "
                     + "Does not match the following regular expression: Name", ex.getMessage());
         }
-        
+
         MockValidatorFactory.assertSatisfied();
     }
-    
+
     @Test
     public void testNoColumnDefinitionFound2()
     {
@@ -225,9 +227,9 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
         properties.setProperty("c." + ColumnDefinition.CAN_DEFINE_MULTIPLE_COLUMNS_KEY, "true");
         properties.setProperty("c." + ColumnDefinition.VALUE_VALIDATOR_KEY, MOCK_FACTORY);
         DataSetValidatorForTSV validator = new DataSetValidatorForTSV(properties);
-        
+
         FileUtilities.writeToFile(new File(workingDirectory, "a.txt"), "ID\ta\tC1\n");
-        
+
         try
         {
             validator.assertValidDataSet(null, workingDirectory);
@@ -240,10 +242,10 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
                     + "Column Definition 'a' does not match: Reason: "
                     + "Does not match the following regular expression: A", ex.getMessage());
         }
-        
+
         MockValidatorFactory.assertSatisfied();
     }
-    
+
     @Test
     public void testMissingMandatoryColumn()
     {
@@ -258,22 +260,22 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
         properties.setProperty("c2." + ColumnDefinition.VALUE_VALIDATOR_KEY, MOCK_FACTORY);
         properties.setProperty("c2." + NAME_KEY, "c2");
         DataSetValidatorForTSV validator = new DataSetValidatorForTSV(properties);
-        
+
         FileUtilities.writeToFile(new File(workingDirectory, "a.txt"), "Name\n" + "a\n" + "b\n");
-        
+
         try
         {
             validator.assertValidDataSet(null, workingDirectory);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("No column(s) found for the following mandatory column definition(s): c2", 
+            assertEquals("No column(s) found for the following mandatory column definition(s): c2",
                     ex.getMessage());
         }
-        
+
         MockValidatorFactory.assertSatisfied();
     }
-    
+
     @Test
     public void testMissingMandatoryOrderedColumn()
     {
@@ -287,22 +289,22 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
         properties.setProperty("c1." + ColumnDefinition.VALUE_VALIDATOR_KEY, MOCK_FACTORY);
         properties.setProperty("c1." + NAME_KEY, "c1");
         DataSetValidatorForTSV validator = new DataSetValidatorForTSV(properties);
-        
+
         FileUtilities.writeToFile(new File(workingDirectory, "a.txt"), "\n" + "\n");
-        
+
         try
         {
             validator.assertValidDataSet(null, workingDirectory);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("1. column [name=c1] is mandatory but missing because there are only 0 column headers.", 
+            assertEquals("1. column [name=c1] is mandatory but missing because there are only 0 column headers.",
                     ex.getMessage());
         }
-        
+
         MockValidatorFactory.assertSatisfied();
     }
-    
+
     @Test
     public void testMissingOrderedColumn()
     {
@@ -319,14 +321,14 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
         properties.setProperty("c2." + NAME_KEY, "c2");
         properties.setProperty("c2." + EXPECTED_VALUES_KEY, "1,2");
         DataSetValidatorForTSV validator = new DataSetValidatorForTSV(properties);
-        
+
         FileUtilities.writeToFile(new File(workingDirectory, "a.txt"), "a1\ta2\n" + "1\t2\n");
-        
+
         validator.assertValidDataSet(null, workingDirectory);
-        
+
         MockValidatorFactory.assertSatisfied();
     }
-    
+
     @Test
     public void testRowsLongerThanHeaders()
     {
@@ -341,9 +343,9 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
         properties.setProperty("c2." + NAME_KEY, "c2");
         properties.setProperty("c2." + EXPECTED_VALUES_KEY, "a");
         DataSetValidatorForTSV validator = new DataSetValidatorForTSV(properties);
-        
+
         FileUtilities.writeToFile(new File(workingDirectory, "a.txt"), "ID\n" + "a\n" + "b\tc\n");
-        
+
         try
         {
             validator.assertValidDataSet(null, workingDirectory);
@@ -352,10 +354,10 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
         {
             assertEquals("2. data row has 2 instead of 1 cells.", ex.getMessage());
         }
-        
+
         MockValidatorFactory.assertSatisfied();
     }
-    
+
     @Test
     public void testColumnOrder()
     {
@@ -381,17 +383,17 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
         properties.setProperty("c4." + NAME_KEY, "c4");
         properties.setProperty("c4." + EXPECTED_VALUES_KEY, "b1,b2");
         DataSetValidatorForTSV validator = new DataSetValidatorForTSV(properties);
-        
+
         FileUtilities.writeToFile(new File(workingDirectory, "a.txt"), "ID\tName\tAlpha\n"
                 + "1\ta\ta1\n" + "2\tb\ta2\n");
         FileUtilities.writeToFile(new File(workingDirectory, "b.txt"), "id\tName\tBeta\tAlpha\n"
                 + "3\tc\tb1\ta3\n" + "4\td\tb2\ta4\n");
-        
+
         validator.assertValidDataSet(null, workingDirectory);
-        
+
         MockValidatorFactory.assertSatisfied();
     }
-    
+
     @Test
     public void testUniqueColumnHeaders()
     {
@@ -399,7 +401,7 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
         properties.setProperty(DataSetValidatorForTSV.PATH_PATTERNS_KEY, "*");
         DataSetValidatorForTSV validator = new DataSetValidatorForTSV(properties);
         FileUtilities.writeToFile(new File(workingDirectory, "a.txt"), "A\tA\n");
-        
+
         try
         {
             validator.assertValidDataSet(null, workingDirectory);
@@ -408,10 +410,10 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
         {
             assertEquals("Column header 'A' appeared twice.", ex.getMessage());
         }
-        
+
         MockValidatorFactory.assertSatisfied();
     }
-    
+
     @Test
     public void testColumnDefinitionWhichCanBeUsedToDefineMultipleColumnsOrder()
     {
@@ -430,15 +432,15 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
         properties.setProperty("c2." + NAME_KEY, "c2");
         properties.setProperty("c2." + EXPECTED_VALUES_KEY, "a,b,c,d");
         DataSetValidatorForTSV validator = new DataSetValidatorForTSV(properties);
-        
+
         FileUtilities.writeToFile(new File(workingDirectory, "a.txt"), "ID\tA6\tA42\n"
                 + "1\ta\tb\n" + "2\tc\td\n");
-        
+
         validator.assertValidDataSet(null, workingDirectory);
-        
+
         MockValidatorFactory.assertSatisfied();
     }
-    
+
     @Test
     public void testMissingColumnWithOrder()
     {
@@ -455,15 +457,15 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
         properties.setProperty("c2." + NAME_KEY, "c2");
         properties.setProperty("c2." + EXPECTED_VALUES_KEY, "1,2");
         DataSetValidatorForTSV validator = new DataSetValidatorForTSV(properties);
-        
+
         FileUtilities.writeToFile(new File(workingDirectory, "a.txt"), "ID\n"
                 + "1\n" + "2\n");
-        
+
         validator.assertValidDataSet(null, workingDirectory);
-        
+
         MockValidatorFactory.assertSatisfied();
     }
-    
+
     @Test
     public void testInvalidHeaderOfColumnWithOrder()
     {
@@ -475,7 +477,7 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
         properties.setProperty("c1." + ColumnDefinition.VALUE_VALIDATOR_KEY, MOCK_FACTORY);
         properties.setProperty("c1." + NAME_KEY, "c1");
         DataSetValidatorForTSV validator = new DataSetValidatorForTSV(properties);
-        
+
         FileUtilities.writeToFile(new File(workingDirectory, "a.txt"), "ID\n" + "1\n");
 
         try
@@ -488,8 +490,8 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
                     + "Column Definition 'c1' does not match: Reason: "
                     + "Does not match the following regular expression: Name", ex.getMessage());
         }
-        
+
         MockValidatorFactory.assertSatisfied();
     }
-    
+
 }

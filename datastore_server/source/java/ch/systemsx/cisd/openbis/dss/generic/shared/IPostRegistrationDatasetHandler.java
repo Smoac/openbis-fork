@@ -25,16 +25,15 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 /**
  * Handler of data sets after successful registration in openBIS.
  * <p>
- * {@link IPostRegistrationDatasetHandler} instances exist only within the scope of a storage
- * processor transaction.
+ * {@link IPostRegistrationDatasetHandler} instances exist only within the scope of a storage processor transaction.
  * 
  * @author Franz-Josef Elmer
  */
 public interface IPostRegistrationDatasetHandler
 {
     /**
-     * Handles specified original data file by using specified data set information and parameter
-     * bindings. Note, that <code>originalData</code> is already the path inside the data store.
+     * Handles specified original data file by using specified data set information and parameter bindings. Note, that <code>originalData</code> is
+     * already the path inside the data store.
      * 
      * @return {@link Status} of the operation.
      */

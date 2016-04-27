@@ -24,8 +24,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.filesystem.FileConstants;
 
 /**
- * 
- *
  * @author jakubs
  */
 public class MarkerFileUtilityTest extends AssertJUnit
@@ -34,11 +32,11 @@ public class MarkerFileUtilityTest extends AssertJUnit
     public void testMarkerFileNameGeneration()
     {
         File original = new File("a/b/c/d");
-        
+
         File markerPath = MarkerFileUtility.getMarkerFileFromIncoming(original);
-        
+
         assertEquals(markerPath, new File("a/b/c", FileConstants.IS_FINISHED_PREFIX + original.getName()));
-        
+
         assertEquals(original, MarkerFileUtility.getIncomingFromMarkerFile(markerPath));
     }
 }

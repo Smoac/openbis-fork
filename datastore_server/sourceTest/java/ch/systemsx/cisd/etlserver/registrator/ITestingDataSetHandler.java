@@ -9,6 +9,6 @@ public interface ITestingDataSetHandler
     TestingDataSetHandlerExpectations getExpectations();
 
     void handle(File file);
-    
+
     TopLevelDataSetRegistratorGlobalState getGlobalState();
 }

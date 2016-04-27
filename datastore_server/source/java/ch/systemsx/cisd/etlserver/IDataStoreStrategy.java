@@ -44,11 +44,9 @@ public interface IDataStoreStrategy
             final DataSetType dataSetType);
 
     /**
-     * Create the target path for given <var>baseDirectory</var> and given
-     * <var>incomingDataSetPath</var>.
+     * Create the target path for given <var>baseDirectory</var> and given <var>incomingDataSetPath</var>.
      * <p>
-     * Note that each call either produces a new <i>target path</i> or throws an exception if
-     * computed <i>target path</i> already exists.
+     * Note that each call either produces a new <i>target path</i> or throws an exception if computed <i>target path</i> already exists.
      * </p>
      * 
      * @return The target path.

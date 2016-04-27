@@ -26,8 +26,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.string.Template;
 
 /**
- * An <code>IDirectoryRenderer</code> implementation which renders on simple HTML pages - without
- * extended header and footer.
+ * An <code>IDirectoryRenderer</code> implementation which renders on simple HTML pages - without extended header and footer.
  * 
  * @author Izabela Adamczyk
  */

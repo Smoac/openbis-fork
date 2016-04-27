@@ -35,8 +35,7 @@ public interface IFile extends ISelfTestable
     /**
      * Copies the file denoted by this abstract pathname to given <var>destinationFile</var>.
      * <p>
-     * Note that, depending on the implementation, it effectively copies this abstract pathname or
-     * makes an hard link of it.
+     * Note that, depending on the implementation, it effectively copies this abstract pathname or makes an hard link of it.
      * </p>
      */
     public void copyTo(File destinationFile);
@@ -44,8 +43,7 @@ public interface IFile extends ISelfTestable
     /**
      * Copies given <code>sourceFile</code> to the file denoted by this abstract pathname.
      * <p>
-     * Note that, depending on the implementation, it effectively copies the given <var>sourceFile</var>
-     * or makes an hard link of it.
+     * Note that, depending on the implementation, it effectively copies the given <var>sourceFile</var> or makes an hard link of it.
      * </p>
      */
     public void copyFrom(File sourceFile);

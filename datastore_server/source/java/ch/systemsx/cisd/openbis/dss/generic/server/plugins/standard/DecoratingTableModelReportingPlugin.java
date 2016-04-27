@@ -34,8 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Decorator of a {@link IReportingPluginTask} (of type table model) by a
- * {@link ITableModelTransformation}.
+ * Decorator of a {@link IReportingPluginTask} (of type table model) by a {@link ITableModelTransformation}.
  * 
  * @author Franz-Josef Elmer
  */

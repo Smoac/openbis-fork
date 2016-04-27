@@ -156,7 +156,7 @@ public class SegmentedStoreUtils
     {
         return getShares(storeRootDir, FILTER_ON_SHARES);
     }
-    
+
     /**
      * Lists all folders in specified store root directory which match pattern given by filter.
      */
@@ -164,7 +164,7 @@ public class SegmentedStoreUtils
     {
         File[] files =
                 FileOperations.getMonitoredInstanceForCurrentThread().listFiles(storeRootDir,
-                       filter);
+                        filter);
         if (files == null)
         {
             throw new ConfigurationFailureException(
@@ -185,10 +185,9 @@ public class SegmentedStoreUtils
     }
 
     /**
-     * Creates a test file in the incoming folder
-     * Called repeatedly to create a fresh test file until a suitable share is found
+     * Creates a test file in the incoming folder Called repeatedly to create a fresh test file until a suitable share is found
      */
-     private static File createTestFileInIncomingFolder(File incomingFolder, File storeRoot)
+    private static File createTestFileInIncomingFolder(File incomingFolder, File storeRoot)
     {
         final IFileOperations fileOp = FileOperations.getMonitoredInstanceForCurrentThread();
         if (fileOp.isDirectory(incomingFolder) == false)
@@ -216,31 +215,31 @@ public class SegmentedStoreUtils
 
     private static File findShare(File incomingFolder, File storeRoot, final Integer incomingShareIdOrNull, ISimpleLogger logger)
     {
-        if( incomingShareIdOrNull != null) 
+        if (incomingShareIdOrNull != null)
         {
             File[] shares = getShares(storeRoot, new FileFilter()
-            {
-                @Override
-                public boolean accept(File pathname)
                 {
-                    if (FileOperations.getMonitoredInstanceForCurrentThread().isDirectory(pathname) == false)
+                    @Override
+                    public boolean accept(File pathname)
                     {
-                        return false;
+                        if (FileOperations.getMonitoredInstanceForCurrentThread().isDirectory(pathname) == false)
+                        {
+                            return false;
+                        }
+                        String name = pathname.getName();
+                        Pattern p = Pattern.compile("\\b" + String.valueOf(incomingShareIdOrNull + "\\b"));
+                        return p.matcher(name).matches();
                     }
-                    String name = pathname.getName();
-                    Pattern p = Pattern.compile("\\b" + String.valueOf(incomingShareIdOrNull + "\\b"));
-                    return p.matcher(name).matches();
-                }
-            });
+                });
 
-            if(shares.length != 1)
+            if (shares.length != 1)
             {
                 throw new ConfigurationFailureException("Incoming share: " +
-                        incomingShareIdOrNull + " could not be found for the following incoming folder: "  + incomingFolder.getAbsolutePath());
+                        incomingShareIdOrNull + " could not be found for the following incoming folder: " + incomingFolder.getAbsolutePath());
             }
-            
+
             File share = shares[0];
-            
+
             Share shareObject =
                     new ShareFactory().createShare(share, DUMMY_FREE_SPACE_PROVIDER, logger);
             if (shareObject.isWithdrawShare())
@@ -257,7 +256,7 @@ public class SegmentedStoreUtils
 
         for (File share : getShares(storeRoot))
         {
-            
+
             File testFile = createTestFileInIncomingFolder(incomingFolder, storeRoot);
             File destination = new File(share, testFile.getName());
             if (testFile.renameTo(destination))
@@ -274,7 +273,8 @@ public class SegmentedStoreUtils
                 }
                 return share;
             }
-            else {
+            else
+            {
                 testFile.delete();
             }
         }
@@ -358,7 +358,7 @@ public class SegmentedStoreUtils
             actualFreeSpace = unarchivingScratchShare.calculateFreeSpace();
         }
         logger.log(LogLevel.INFO, "Free space on unarchiving scratch share '"
-                + unarchivingScratchShare.getShareId() + "': " 
+                + unarchivingScratchShare.getShareId() + "': "
                 + FileUtilities.byteCountToDisplaySize(calculateNominalFreeSpace(actualFreeSpace))
                 + ", requested space for unarchiving " + filteredDataSets.size() + " data sets: "
                 + FileUtilities.byteCountToDisplaySize(requestedSpace));
@@ -442,9 +442,9 @@ public class SegmentedStoreUtils
         if (isNotEnoughFreeSpace(requestedSpace, freeSpace))
         {
             throw new EnvironmentFailureException("Even after removing all removable data sets from share '"
-                    + share.getShareId() + "' there would be still only " 
+                    + share.getShareId() + "' there would be still only "
                     + FileUtilities.byteCountToDisplaySize(calculateNominalFreeSpace(freeSpace))
-                    + " free space which is not enough as " + FileUtilities.byteCountToDisplaySize(requestedSpace) 
+                    + " free space which is not enough as " + FileUtilities.byteCountToDisplaySize(requestedSpace)
                     + " is requested.");
         }
         return dataSetsToRemoveFromShare;

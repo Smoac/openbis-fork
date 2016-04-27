@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class MockCleaner implements IMultiDataSetArchiveCleaner

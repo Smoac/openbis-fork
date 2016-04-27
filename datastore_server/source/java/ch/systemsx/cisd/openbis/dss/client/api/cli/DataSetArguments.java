@@ -38,7 +38,7 @@ class DataSetArguments extends GlobalArguments
     {
         return recursive;
     }
-    
+
     public String getDataSetCode()
     {
         List<String> args = getArguments();

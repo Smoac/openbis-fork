@@ -23,8 +23,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IDataSetPredi
 /**
  * Interface for objects that can function as guardClasses in an AuthorizationGuard.
  * <p>
- * Predicates should return Status.OK if the user is authorized for the action; they should return a
- * status with an appropriate error message if the user is not authorized.
+ * Predicates should return Status.OK if the user is authorized for the action; they should return a status with an appropriate error message if the
+ * user is not authorized.
  * <p>
  * <i>This is an internal class. Do not use it as a user of the API.</i>
  * 

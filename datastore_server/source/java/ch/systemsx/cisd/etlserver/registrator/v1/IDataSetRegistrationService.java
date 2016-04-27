@@ -29,16 +29,16 @@ public interface IDataSetRegistrationService
 {
 
     /**
-     * Create a new transaction that atomically performs file operations and registers entities,
-     * using the incoming data set as the root for resolving relative paths.
+     * Create a new transaction that atomically performs file operations and registers entities, using the incoming data set as the root for resolving
+     * relative paths.
      * 
      * @return A new transaction
      */
     public IDataSetRegistrationTransaction transaction();
 
     /**
-     * Create a new transaction that atomically performs file operations and registers entities,
-     * using the file as the root for resolving relative paths.
+     * Create a new transaction that atomically performs file operations and registers entities, using the file as the root for resolving relative
+     * paths.
      * 
      * @param dataSetFile The file for resolving relative paths.
      * @return A new transaction
@@ -48,8 +48,7 @@ public interface IDataSetRegistrationService
     /**
      * Move the incoming file to the error directory for the given data set type.
      * 
-     * @param dataSetTypeCodeOrNull The code of the data set type. Pass null to have the framework
-     *            default this value.
+     * @param dataSetTypeCodeOrNull The code of the data set type. Pass null to have the framework default this value.
      */
     public File moveIncomingToError(String dataSetTypeCodeOrNull);
 

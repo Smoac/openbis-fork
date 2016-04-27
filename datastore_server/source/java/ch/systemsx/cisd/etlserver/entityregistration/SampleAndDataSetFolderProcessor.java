@@ -53,8 +53,8 @@ class SampleAndDataSetFolderProcessor extends AbstractSampleAndDataSetProcessor
     }
 
     /**
-     * Check that the folder passes validation, try to register all the entities in each control
-     * file. Any errors that occur in processing are sent as an email.
+     * Check that the folder passes validation, try to register all the entities in each control file. Any errors that occur in processing are sent as
+     * an email.
      */
     public void register() throws UserFailureException, EnvironmentFailureException
     {

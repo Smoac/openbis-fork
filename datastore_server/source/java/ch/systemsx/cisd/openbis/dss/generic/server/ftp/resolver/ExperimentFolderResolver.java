@@ -32,8 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
 /**
- * Resolves experiment folders with path "/<space-code>/<project-code>/<experiment-code>" to
- * {@link FtpFile}-s.
+ * Resolves experiment folders with path "/<space-code>/<project-code>/<experiment-code>" to {@link FtpFile}-s.
  * 
  * @author Kaloyan Enimanev
  */
@@ -47,8 +46,7 @@ public class ExperimentFolderResolver implements IFtpPathResolver
     }
 
     /**
-     * @return <code>true</code> for all paths containing 3 levels of nested folders,
-     *         <code>false</code> for all other paths.
+     * @return <code>true</code> for all paths containing 3 levels of nested folders, <code>false</code> for all other paths.
      */
     @Override
     public boolean canResolve(String path)

@@ -48,8 +48,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.content.PathInfoDBOnlyHierarc
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataSetAndPathInfoDBConsistencyChecker
@@ -69,7 +67,9 @@ public class DataSetAndPathInfoDBConsistencyChecker
                 };
 
     private IHierarchicalContentProvider fileProvider;
+
     private IHierarchicalContentProvider pathInfoProvider;
+
     private IDssServiceRpcGenericFactory serviceFactory;
 
     private Map<IDatasetLocation, List<Difference>> differences;
@@ -84,7 +84,7 @@ public class DataSetAndPathInfoDBConsistencyChecker
         this.fileProvider = fileProvider;
         this.pathInfoProvider = pathInfoProvider;
     }
-    
+
     public void check(List<? extends IDatasetLocation> datasets)
     {
         dataSets = datasets;
@@ -134,7 +134,7 @@ public class DataSetAndPathInfoDBConsistencyChecker
             }
         }
     }
-    
+
     public ProcessingStatus getStatus()
     {
         if (status == null)
@@ -143,17 +143,17 @@ public class DataSetAndPathInfoDBConsistencyChecker
         }
         return status;
     }
-    
+
     public boolean noErrorAndInconsitencyFound()
     {
         return status.getErrorStatuses().isEmpty() && differences.isEmpty();
     }
-    
+
     public String createReport()
     {
         return status.getErrorStatuses().isEmpty() ? createNormalReport() : createErrorReport();
     }
-    
+
     private String createNormalReport()
     {
         StringBuilder builder = new StringBuilder();
@@ -220,7 +220,7 @@ public class DataSetAndPathInfoDBConsistencyChecker
     {
         IHierarchicalContentNode fileRoot = tryGetRoot(fileContent);
         IHierarchicalContentNode pathInfoRoot = tryGetRoot(pathInfoContent);
-        
+
         if (fileRoot != null && pathInfoRoot != null)
         {
             compare(fileRoot, pathInfoRoot, diffs);
@@ -377,20 +377,20 @@ public class DataSetAndPathInfoDBConsistencyChecker
 
     private class RootExistenceDifference extends Difference
     {
-        
+
         public RootExistenceDifference()
         {
             super(null);
         }
-        
+
         @Override
         public String getDescription()
         {
             return "exists in the path info database but does not exist in the file system";
         }
-        
+
     }
-    
+
     private class NodeExistenceDifference extends Difference
     {
 

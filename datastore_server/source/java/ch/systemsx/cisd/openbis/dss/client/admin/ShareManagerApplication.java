@@ -24,8 +24,6 @@ import org.apache.log4j.helpers.LogLog;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ShareManagerApplication
@@ -40,7 +38,7 @@ public class ShareManagerApplication
             commandMap.put(command.getName(), command);
         }
     }
-    
+
     void parseAndRun(String... args)
     {
         if (args.length == 0)
@@ -62,7 +60,7 @@ public class ShareManagerApplication
         command.login();
         command.execute();
     }
-    
+
     public static void main(String[] args)
     {
         LogLog.setQuietMode(true);

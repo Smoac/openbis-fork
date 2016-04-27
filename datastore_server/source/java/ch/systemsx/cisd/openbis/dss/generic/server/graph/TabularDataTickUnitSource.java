@@ -24,9 +24,8 @@ import org.jfree.chart.axis.TickUnitSource;
 /**
  * A {@link TickUnitSource} derived from {@link org.jfree.chart.axis.StandardTickUnitSource}.
  * <p>
- * Whereas StandardTickUnitSource always generates labels that use scientific notation, this class
- * uses standard numerical notation and switched to scientific notation only if the number of digits
- * exceeds a configurable value.
+ * Whereas StandardTickUnitSource always generates labels that use scientific notation, this class uses standard numerical notation and switched to
+ * scientific notation only if the number of digits exceeds a configurable value.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -51,8 +50,7 @@ public class TabularDataTickUnitSource implements TickUnitSource, Serializable
     }
 
     /**
-     * Returns the tick unit in the collection that is greater than or equal to (in size) the
-     * specified unit.
+     * Returns the tick unit in the collection that is greater than or equal to (in size) the specified unit.
      * 
      * @param unit the unit (<code>null</code> not permitted).
      * @return A unit from the collection.

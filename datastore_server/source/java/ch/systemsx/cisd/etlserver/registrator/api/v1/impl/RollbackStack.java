@@ -23,8 +23,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.etlserver.registrator.ITransactionalCommand;
 
 /**
- * Reference to {@link ch.systemsx.cisd.etlserver.registrator.api.impl.RollbackStack} kept for
- * backwards compatibility
+ * Reference to {@link ch.systemsx.cisd.etlserver.registrator.api.impl.RollbackStack} kept for backwards compatibility
  * 
  * @author Jakub Straszewski
  */

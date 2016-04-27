@@ -75,40 +75,54 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 
 /**
- * This maintenance task creates a BLAST database for all files with defined file types of data set with 
- * matching data set types. 
+ * This maintenance task creates a BLAST database for all files with defined file types of data set with matching data set types.
  *
  * @author Franz-Josef Elmer
  */
 public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
 {
     static final String DATASET_TYPES_PROPERTY = "dataset-types";
+
     static final String BLAST_TEMP_FOLDER_PROPERTY = "blast-temp-folder";
+
     static final String LAST_SEEN_DATA_SET_FILE_PROPERTY = "last-seen-data-set-file";
+
     static final String FILE_TYPES_PROPERTY = "file-types";
+
     static final String ENTITY_SEQUENCE_PROPERTIES_PROPERTY = "entity-sequence-properties";
-    
+
     private static final String DEFAULT_LAST_SEEN_DATA_SET_FILE = "last-seen-data-set-for-BLAST-database-creation";
+
     private static final String DEFAULT_FILE_TYPES = ".fasta .fa .fsa .fastq";
+
     private static final String ID_DELIM = "+";
+
     private static final String DB_NAME_DELIM = "+";
+
     private static final Template ID_TEMPLATE = new Template("${entityKind}" + ID_DELIM + "${permId}"
             + ID_DELIM + "${propertyType}" + ID_DELIM + "${timestamp}");
+
     private static final String TIMESTAMP_TEMPLATE = "yyyyMMddHHmmss";
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, BlastDatabaseCreationMaintenanceTask.class);
-    
+
     private File lastSeenDataSetFile;
 
     private List<Pattern> dataSetTypePatterns;
+
     private List<String> fileTypes;
+
     private File blastDatabasesFolder;
+
     private File tmpFolder;
+
     private String makeblastdb;
+
     private String makembindex;
+
     private List<Loader> loaders;
-    
+
     protected BlastUtils blaster;
 
     @Override
@@ -134,14 +148,14 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
             makeblastdb = null;
         }
         makembindex = blastToolDirectory + "makembindex";
-        
+
     }
 
     protected BlastUtils getBlaster(Properties properties)
     {
         return new BlastUtils(properties, getConfigProvider().getStoreRoot());
     }
-    
+
     private List<Pattern> getDataSetTypePatterns(Properties properties)
     {
         List<Pattern> patterns = new ArrayList<Pattern>();
@@ -155,14 +169,14 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
                     patterns.add(Pattern.compile(regex));
                 } catch (PatternSyntaxException ex)
                 {
-                    throw new ConfigurationFailureException("Property '" + DATASET_TYPES_PROPERTY 
+                    throw new ConfigurationFailureException("Property '" + DATASET_TYPES_PROPERTY
                             + "' has invalid regular expression '" + regex + "': " + ex.getMessage());
                 }
             }
         }
         return patterns;
     }
-    
+
     private List<Loader> createLoaders(Properties properties)
     {
         String property = properties.getProperty(ENTITY_SEQUENCE_PROPERTIES_PROPERTY);
@@ -180,14 +194,14 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
                 result.add(new Loader(definition));
             } catch (Exception ex)
             {
-                throw new ConfigurationFailureException((i + 1) + " definition (" 
-                        + definition + ") in property '" + ENTITY_SEQUENCE_PROPERTIES_PROPERTY 
+                throw new ConfigurationFailureException((i + 1) + " definition ("
+                        + definition + ") in property '" + ENTITY_SEQUENCE_PROPERTIES_PROPERTY
                         + "' is invalid: " + ex.getMessage());
             }
         }
         return result;
     }
-    
+
     private void setUpBlastDatabasesFolder(Properties properties)
     {
         blastDatabasesFolder = blaster.getBlastDatabaseFolder(properties, getConfigProvider().getStoreRoot());
@@ -196,14 +210,14 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         {
             if (blastDatabasesFolder.isFile())
             {
-                throw new ConfigurationFailureException("BLAST databases folder '" + blastDatabasesFolder 
+                throw new ConfigurationFailureException("BLAST databases folder '" + blastDatabasesFolder
                         + "' is an existing file.");
             }
         } else
         {
             if (blastDatabasesFolder.mkdirs() == false)
             {
-                throw new ConfigurationFailureException("Couldn't create BLAST databases folder '" 
+                throw new ConfigurationFailureException("Couldn't create BLAST databases folder '"
                         + blastDatabasesFolder + "'.");
             }
         }
@@ -248,7 +262,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         }
         IEncapsulatedOpenBISService service = getOpenBISService();
         Map<SequenceType, VirtualDatabase> virtualDatabases = loadVirtualDatabases(service);
-        
+
         createBlastDatabasesForDataSets(service, virtualDatabases);
         createBlastDatabasesForEntities(service, virtualDatabases);
         Collection<VirtualDatabase> values = virtualDatabases.values();
@@ -257,8 +271,8 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
             virtualDatabase.save();
         }
     }
-    
-    private void createBlastDatabasesForEntities(IEncapsulatedOpenBISService service, 
+
+    private void createBlastDatabasesForEntities(IEncapsulatedOpenBISService service,
             Map<SequenceType, VirtualDatabase> virtualDatabases)
     {
         DateFormat dateFormat = new SimpleDateFormat(TIMESTAMP_TEMPLATE);
@@ -270,7 +284,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
                 SequenceType sequenceType = entry.getKey();
                 VirtualDatabase virtualDatabase = virtualDatabases.get(sequenceType);
                 Sequences sequences = entry.getValue();
-                String baseName = loader.getDefinition() + DB_NAME_DELIM 
+                String baseName = loader.getDefinition() + DB_NAME_DELIM
                         + dateFormat.format(sequences.getLatestModificationDate());
                 if (databaseExist(baseName, sequenceType))
                 {
@@ -293,7 +307,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
             }
         }
     }
-    
+
     private boolean databaseExist(String baseName, SequenceType sequenceType)
     {
         String[] fileNames = blastDatabasesFolder.list();
@@ -309,8 +323,8 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         }
         return false;
     }
-    
-    private void createBlastDatabasesForDataSets(IEncapsulatedOpenBISService service, 
+
+    private void createBlastDatabasesForDataSets(IEncapsulatedOpenBISService service,
             Map<SequenceType, VirtualDatabase> virtualDatabases)
     {
         if (dataSetTypePatterns.isEmpty())
@@ -332,7 +346,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
                     createBlastDatabase(dataSet, virtualDatabases, contentProvider);
                 } catch (Exception ex)
                 {
-                    operationLog.error("Error caused by creating BLAST database for data set " + dataSet.getCode() 
+                    operationLog.error("Error caused by creating BLAST database for data set " + dataSet.getCode()
                             + ": " + ex.getMessage(), ex);
                 }
             }
@@ -352,7 +366,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         }
         return false;
     }
-    
+
     private Map<SequenceType, VirtualDatabase> loadVirtualDatabases(IEncapsulatedOpenBISService service)
     {
         Map<SequenceType, VirtualDatabase> virtualDatabases = new EnumMap<SequenceType, VirtualDatabase>(SequenceType.class);
@@ -370,7 +384,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         }
         return virtualDatabases;
     }
-    
+
     private void createBlastDatabase(AbstractExternalData dataSet, Map<SequenceType, VirtualDatabase> virtualDatabases,
             IHierarchicalContentProvider contentProvider)
     {
@@ -398,11 +412,11 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
             String databaseName = FilenameUtils.removeExtension(fastaFile.getName());
             String databaseFile = new File(blastDatabasesFolder, databaseName).getAbsolutePath();
             String dbtype = sequenceType.toString().toLowerCase();
-            boolean success = blaster.process(makeblastdb, "-in", fastaFilePath, "-dbtype", dbtype, 
+            boolean success = blaster.process(makeblastdb, "-in", fastaFilePath, "-dbtype", dbtype,
                     "-title", databaseName, "-out", databaseFile);
             if (success == false)
             {
-                operationLog.error("Creation of BLAST database '" + databaseName 
+                operationLog.error("Creation of BLAST database '" + databaseName
                         + "' failed. Temporary fasta file: " + fastaFile);
                 break;
             }
@@ -416,7 +430,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         }
         builder.cleanUp();
     }
-    
+
     private void handle(IHierarchicalContentNode node, FastaFileBuilderForDataSetFiles builder)
     {
         if (node.isDirectory())
@@ -455,9 +469,9 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
             }
         } catch (IOException e)
         {
-            throw new EnvironmentFailureException("Error while reading data from '" + relativePath 
+            throw new EnvironmentFailureException("Error while reading data from '" + relativePath
                     + "': " + e.getMessage(), e);
-        } finally 
+        } finally
         {
             IOUtils.closeQuietly(bufferedReader);
         }
@@ -504,33 +518,37 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         }
         return result;
     }
-    
+
     private void updateLastSeenEventId(Long eventId)
     {
         FileUtilities.writeToFile(lastSeenDataSetFile, String.valueOf(eventId) + "\n");
     }
-    
+
     IConfigProvider getConfigProvider()
     {
         return ServiceProvider.getConfigProvider();
     }
-    
+
     IEncapsulatedOpenBISService getOpenBISService()
     {
         return ServiceProvider.getOpenBISService();
     }
-    
+
     IHierarchicalContentProvider getContentProvider()
     {
         return ServiceProvider.getHierarchicalContentProvider();
     }
-    
+
     private static final class Loader
     {
         private final String definition;
+
         private final String entityKind;
+
         private final EntityLoader entityLoader;
+
         private final String entityType;
+
         private final String propertyType;
 
         Loader(String definition)
@@ -546,7 +564,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
             this.entityType = items[1];
             this.propertyType = items[2];
         }
-        
+
         String getDefinition()
         {
             return definition;
@@ -588,12 +606,13 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
             return map;
         }
     }
-    
+
     private static final class Sequences
     {
         private final List<Sequence> sequences = new ArrayList<Sequence>();
+
         private Date latestModificationDate = new Date(0);
-        
+
         void addSequence(Sequence sequence)
         {
             sequences.add(sequence);
@@ -613,13 +632,17 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
             return latestModificationDate;
         }
     }
-    
+
     private static final class Sequence
     {
         private final String permId;
+
         private final Date modificationDate;
+
         private final String propertyType;
+
         private final String sequence;
+
         private final SequenceType sequenceType;
 
         @SuppressWarnings("rawtypes")
@@ -676,15 +699,15 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         {
             return sequenceType;
         }
-        
+
     }
-   
+
     private static enum EntityLoader
     {
         DATA_SET()
         {
             @Override
-            List<? extends IEntityInformationHolderWithProperties> listEntities(IEncapsulatedOpenBISService service, 
+            List<? extends IEntityInformationHolderWithProperties> listEntities(IEncapsulatedOpenBISService service,
                     SearchCriteria searchCriteria)
             {
                 return service.searchForDataSets(searchCriteria);
@@ -694,12 +717,12 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         {
 
             @Override
-            List<? extends IEntityInformationHolderWithProperties> listEntities(IEncapsulatedOpenBISService service, 
+            List<? extends IEntityInformationHolderWithProperties> listEntities(IEncapsulatedOpenBISService service,
                     SearchCriteria searchCriteria)
             {
                 return service.searchForExperiments(searchCriteria);
             }
-            
+
         },
         SAMPLE()
         {
@@ -711,7 +734,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
             }
         };
 
-        abstract List<? extends IEntityInformationHolderWithProperties> listEntities(IEncapsulatedOpenBISService service, 
+        abstract List<? extends IEntityInformationHolderWithProperties> listEntities(IEncapsulatedOpenBISService service,
                 SearchCriteria searchCriteria);
 
     }
@@ -719,11 +742,17 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
     private static class VirtualDatabase
     {
         private final File databaseFolder;
+
         private final String dbtype;
+
         private final String postfix;
+
         private final File databaseFile;
+
         private final Set<String> databasesToBeDeleted = new TreeSet<String>();
+
         private final Set<String> databasesToBeAdded = new TreeSet<String>();
+
         private final String virtualDatabaseFileType;
 
         VirtualDatabase(File databaseFolder, SequenceType sequenceType)
@@ -758,13 +787,13 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
                 }
             }
         }
-        
+
         void keepDatabase(String baseName)
         {
             databasesToBeAdded.add(baseName);
             databasesToBeDeleted.remove(baseName);
         }
-        
+
         void deleteDatabase(String baseName)
         {
             databasesToBeDeleted.add(baseName);
@@ -780,7 +809,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         {
             return name.contains(DB_NAME_DELIM);
         }
-        
+
         void save()
         {
             File allDatabaseFile = new File(databaseFolder, "all-" + dbtype + virtualDatabaseFileType);
@@ -791,7 +820,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
                 {
                     if (FileUtilities.delete(allDatabaseFile))
                     {
-                        operationLog.info("Virtual BLAST database file " + allDatabaseFile 
+                        operationLog.info("Virtual BLAST database file " + allDatabaseFile
                                 + " deleted because it was empty.");
                     } else
                     {

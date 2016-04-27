@@ -702,6 +702,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                         + "/incoming] can not be assigned to share 1 because its property "
                         + "withdraw-share is set to true.\n", log.toString());
     }
+
     @Test
     public void testFindIncomingShareToBeIgnoredInShuffling()
     {
@@ -754,8 +755,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         assertEquals("2", shares.get(1).getShareId());
         assertEquals(2, shares.size());
     }
-    
-    
+
     @Test
     public void testIncomingShareCannotbeAssignedIfWithdrawn()
     {
@@ -774,15 +774,15 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         {
             SegmentedStoreUtils.findIncomingShare(incomingFolder, store, incomingShareId, log);
             fail("ConfigurationFailureException expected");
-        }
-        catch(ConfigurationFailureException ex) {
+        } catch (ConfigurationFailureException ex)
+        {
             assertEquals("Incoming folder [targets/unit-test-wd/"
-                        + SegmentedStoreUtilsTest.class.getName()
-                        + "/incoming] can not be assigned to share " + String.valueOf(incomingShareId) + " because its property "
-                        + "withdraw-share is set to true.", ex.getMessage());
+                    + SegmentedStoreUtilsTest.class.getName()
+                    + "/incoming] can not be assigned to share " + String.valueOf(incomingShareId) + " because its property "
+                    + "withdraw-share is set to true.", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testIncomingShareAssignment()
     {

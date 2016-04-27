@@ -24,16 +24,14 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
- * A <code>IDataStoreStrategy</code> implementation that creates a named directory and put the
- * candidates (data sets) using numbered subdirectories.
+ * A <code>IDataStoreStrategy</code> implementation that creates a named directory and put the candidates (data sets) using numbered subdirectories.
  * 
  * @author Christian Ribeaud
  */
 final class NamedDataStrategy implements IDataStoreStrategy
 {
     /**
-     * A pattern used in {@link FileUtilities#createNextNumberedFile(File, Pattern, String)} to
-     * number the files in a given directory.
+     * A pattern used in {@link FileUtilities#createNextNumberedFile(File, Pattern, String)} to number the files in a given directory.
      */
     private final static Pattern multipleFilesPatterns = Pattern.compile("_\\[([0-9]+)\\]");
 

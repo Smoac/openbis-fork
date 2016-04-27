@@ -24,12 +24,9 @@ import ch.systemsx.cisd.openbis.common.hdf5.HDF5Container;
 import ch.systemsx.cisd.openbis.common.hdf5.IHDF5ContainerReader;
 
 /**
- * A test to concurrently read entries from a HDF5 container. Created to reproduce problem SOB-121. 
- * 
- * To run the test, copy the file /links/groups/cisd/sob-121/thumbnails.h5 to your local /tmp directory. 
- * The file is from dataset 20110826184451275-75145 from plate EZ03-1K, well I15 from Biozentrum prod.
- * 
- * The test is marked as "broken" so it will not be run as part of automatic test suites.
+ * A test to concurrently read entries from a HDF5 container. Created to reproduce problem SOB-121. To run the test, copy the file
+ * /links/groups/cisd/sob-121/thumbnails.h5 to your local /tmp directory. The file is from dataset 20110826184451275-75145 from plate EZ03-1K, well
+ * I15 from Biozentrum prod. The test is marked as "broken" so it will not be run as part of automatic test suites.
  * 
  * @author anttil
  */

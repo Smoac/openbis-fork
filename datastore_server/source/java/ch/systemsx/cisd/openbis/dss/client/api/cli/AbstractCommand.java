@@ -71,8 +71,7 @@ abstract public class AbstractCommand<T extends GlobalArguments> implements ICom
     }
 
     /**
-     * How is this command invoked from the command line? This is the program call string + command
-     * name
+     * How is this command invoked from the command line? This is the program call string + command name
      */
     protected String getCommandCallString()
     {

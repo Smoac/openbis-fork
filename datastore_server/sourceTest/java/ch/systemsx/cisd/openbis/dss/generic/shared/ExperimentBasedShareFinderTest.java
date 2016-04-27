@@ -29,15 +29,14 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ExperimentBasedShareFinderTest extends AbstractIShareFinderTestCase
 {
     private IShareFinder finder = new ExperimentBasedShareFinder(new Properties());
+
     private List<Share> shares;
-    
+
     @BeforeMethod
     public void setUp()
     {
@@ -58,12 +57,12 @@ public class ExperimentBasedShareFinderTest extends AbstractIShareFinderTestCase
         dataSet.setProjectCode("P1");
         dataSet.setExperimentCode("EXP3");
         dataSet.setDataSetSize(42 * FileUtils.ONE_KB);
-        
+
         Share share = finder.tryToFindShare(dataSet, shares);
-        
+
         assertEquals(null, share);
     }
-    
+
     @Test
     public void testMatchingExperimentsButNotEnoughMemory()
     {
@@ -72,12 +71,12 @@ public class ExperimentBasedShareFinderTest extends AbstractIShareFinderTestCase
         dataSet.setProjectCode("P1");
         dataSet.setExperimentCode("EXP1");
         dataSet.setDataSetSize(142 * FileUtils.ONE_KB);
-        
+
         Share share = finder.tryToFindShare(dataSet, shares);
-        
+
         assertEquals(null, share);
     }
-    
+
     @Test
     public void testMatchingExperimentsAndEnoughMemory()
     {
@@ -86,9 +85,9 @@ public class ExperimentBasedShareFinderTest extends AbstractIShareFinderTestCase
         dataSet.setProjectCode("P2");
         dataSet.setExperimentCode("EXP1");
         dataSet.setDataSetSize(42 * FileUtils.ONE_KB);
-        
+
         Share share = finder.tryToFindShare(dataSet, shares);
-        
+
         assertEquals("1", share.getShareId());
     }
 

@@ -37,7 +37,7 @@ public class FileTypeExtractorTest extends AbstractFileSystemTestCase
     protected Object[][] getMappingTypes()
     {
         return new Object[][]
-            {
+        {
                 { "file.pdf", "PDF" },
                 { "file.mat", "MATLAB" },
                 { "file.zip", "ARCHIVE" },
@@ -46,7 +46,7 @@ public class FileTypeExtractorTest extends AbstractFileSystemTestCase
                 { "file.mzxml", "XML" },
                 { "file.abc", "UNKNOWN" },
 
-            };
+        };
     }
 
     private static Properties preparePropertiesWithNoMapping()

@@ -62,23 +62,31 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
 import de.schlichtherle.io.FileInputStream;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses = HierarchicalContentProvider.class)
 public class ZipDataSetPackagerTest extends AbstractFileSystemTestCase
 {
     private static final String DATA_SET_CODE = "ds1";
+
     private static final String DSS_CODE = "DSS";
+
     private static final String SHARE_ID = "1";
+
     private Mockery context;
+
     private IEncapsulatedOpenBISService openbisService;
+
     private IShareIdManager shareIdManager;
+
     private IConfigProvider configProvider;
+
     private HierarchicalContentProvider contentProvider;
+
     private DataSetExistenceChecker existenceChecker;
+
     private IHierarchicalContentFactory contentProviderFactory;
+
     private File rootFolder;
 
     @BeforeMethod
@@ -93,7 +101,7 @@ public class ZipDataSetPackagerTest extends AbstractFileSystemTestCase
                 {
                     allowing(configProvider).getStoreRoot();
                     will(returnValue(workingDirectory));
-                    
+
                     allowing(configProvider).getDataStoreCode();
                     will(returnValue(DSS_CODE));
                 }
@@ -115,7 +123,7 @@ public class ZipDataSetPackagerTest extends AbstractFileSystemTestCase
         FileUtilities.writeToFile(new File(subFolder, "change-log.txt"), "nothing changed");
         new File(rootFolder, "empty-folder").mkdir();
     }
-    
+
     @AfterMethod
     public void tearDown()
     {
@@ -149,68 +157,68 @@ public class ZipDataSetPackagerTest extends AbstractFileSystemTestCase
         prepareGetDataSetLocation(dataSet);
         File zipFile = new File(workingDirectory, "archived1.zip");
         ZipDataSetPackager packager = new ZipDataSetPackager(zipFile, true, contentProvider, existenceChecker);
-        
+
         packager.addDataSetTo("", dataSet);
         packager.close();
-        
-        checkZipFileContent(zipFile, dataSet, "data_set\tcode\tds1\n" + 
-                "data_set\tproduction_timestamp\t\n" + 
-                "data_set\tproducer_code\t\n" + 
-                "data_set\tdata_set_type\tMY-DATASET\n" + 
-                "data_set\tis_measured\tTRUE\n" + 
-                "data_set\tis_complete\tFALSE\n" + 
-                "data_set\tAGE\t42\n" + 
-                "data_set\tparent_codes\t\n" + 
-                "experiment\tspace_code\tS\n" + 
-                "experiment\tproject_code\tP\n" + 
-                "experiment\texperiment_code\tE3\n" + 
-                "experiment\texperiment_type_code\tMY-EXPERIMENT\n" + 
-                "experiment\tregistration_timestamp\t\n" + 
-                "experiment\tregistrator\t\n" + 
-                "container[0].data_set\tcode\tCDS-1\n" + 
-                "container[0].data_set\tproduction_timestamp\t\n" + 
-                "container[0].data_set\tproducer_code\t\n" + 
-                "container[0].data_set\tdata_set_type\tMY_CONTAINER\n" + 
-                "container[0].data_set\tis_measured\tTRUE\n" + 
-                "container[0].data_set\tA\talpha\n" + 
-                "container[0].data_set\tB\tbeta\n" + 
-                "container[0].data_set\tparent_codes\t\n" + 
-                "container[0].sample\ttype_code\tMY-SAMPLE\n" + 
-                "container[0].sample\tcode\tSAMPLE1\n" + 
-                "container[0].sample\tspace_code\tSPACE1\n" + 
-                "container[0].sample\tregistration_timestamp\t1970-04-25 08:29:03 +0100\n" + 
-                "container[0].sample\tregistrator\t\n" + 
-                "container[0].sample\t1\tone\n" + 
-                "container[0].experiment\tspace_code\tS\n" + 
-                "container[0].experiment\tproject_code\tP\n" + 
-                "container[0].experiment\texperiment_code\tE1\n" + 
-                "container[0].experiment\texperiment_type_code\tMY-EXPERIMENT\n" + 
-                "container[0].experiment\tregistration_timestamp\t\n" + 
-                "container[0].experiment\tregistrator\t\n" + 
-                "container[1].data_set\tcode\tCDS-2\n" + 
-                "container[1].data_set\tproduction_timestamp\t\n" + 
-                "container[1].data_set\tproducer_code\t\n" + 
-                "container[1].data_set\tdata_set_type\tMY_CONTAINER\n" + 
-                "container[1].data_set\tis_measured\tTRUE\n" + 
-                "container[1].data_set\t1\tone\n" + 
-                "container[1].data_set\tparent_codes\t\n" + 
-                "container[1].sample\ttype_code\tMY-SAMPLE\n" + 
-                "container[1].sample\tcode\tSAMPLE2\n" + 
-                "container[1].sample\tspace_code\tSPACE1\n" + 
-                "container[1].sample\tregistration_timestamp\t1970-01-01 01:00:04 +0100\n" + 
-                "container[1].sample\tregistrator\t\n" + 
-                "container[1].sample\tA\talpha\n" + 
-                "container[1].sample\tB\tbeta\n" + 
-                "container[1].experiment\tspace_code\tS\n" + 
-                "container[1].experiment\tproject_code\tP\n" + 
-                "container[1].experiment\texperiment_code\tE2\n" + 
-                "container[1].experiment\texperiment_type_code\tMY-EXPERIMENT\n" + 
-                "container[1].experiment\tregistration_timestamp\t\n" + 
-                "container[1].experiment\tregistrator\t\n" + 
+
+        checkZipFileContent(zipFile, dataSet, "data_set\tcode\tds1\n" +
+                "data_set\tproduction_timestamp\t\n" +
+                "data_set\tproducer_code\t\n" +
+                "data_set\tdata_set_type\tMY-DATASET\n" +
+                "data_set\tis_measured\tTRUE\n" +
+                "data_set\tis_complete\tFALSE\n" +
+                "data_set\tAGE\t42\n" +
+                "data_set\tparent_codes\t\n" +
+                "experiment\tspace_code\tS\n" +
+                "experiment\tproject_code\tP\n" +
+                "experiment\texperiment_code\tE3\n" +
+                "experiment\texperiment_type_code\tMY-EXPERIMENT\n" +
+                "experiment\tregistration_timestamp\t\n" +
+                "experiment\tregistrator\t\n" +
+                "container[0].data_set\tcode\tCDS-1\n" +
+                "container[0].data_set\tproduction_timestamp\t\n" +
+                "container[0].data_set\tproducer_code\t\n" +
+                "container[0].data_set\tdata_set_type\tMY_CONTAINER\n" +
+                "container[0].data_set\tis_measured\tTRUE\n" +
+                "container[0].data_set\tA\talpha\n" +
+                "container[0].data_set\tB\tbeta\n" +
+                "container[0].data_set\tparent_codes\t\n" +
+                "container[0].sample\ttype_code\tMY-SAMPLE\n" +
+                "container[0].sample\tcode\tSAMPLE1\n" +
+                "container[0].sample\tspace_code\tSPACE1\n" +
+                "container[0].sample\tregistration_timestamp\t1970-04-25 08:29:03 +0100\n" +
+                "container[0].sample\tregistrator\t\n" +
+                "container[0].sample\t1\tone\n" +
+                "container[0].experiment\tspace_code\tS\n" +
+                "container[0].experiment\tproject_code\tP\n" +
+                "container[0].experiment\texperiment_code\tE1\n" +
+                "container[0].experiment\texperiment_type_code\tMY-EXPERIMENT\n" +
+                "container[0].experiment\tregistration_timestamp\t\n" +
+                "container[0].experiment\tregistrator\t\n" +
+                "container[1].data_set\tcode\tCDS-2\n" +
+                "container[1].data_set\tproduction_timestamp\t\n" +
+                "container[1].data_set\tproducer_code\t\n" +
+                "container[1].data_set\tdata_set_type\tMY_CONTAINER\n" +
+                "container[1].data_set\tis_measured\tTRUE\n" +
+                "container[1].data_set\t1\tone\n" +
+                "container[1].data_set\tparent_codes\t\n" +
+                "container[1].sample\ttype_code\tMY-SAMPLE\n" +
+                "container[1].sample\tcode\tSAMPLE2\n" +
+                "container[1].sample\tspace_code\tSPACE1\n" +
+                "container[1].sample\tregistration_timestamp\t1970-01-01 01:00:04 +0100\n" +
+                "container[1].sample\tregistrator\t\n" +
+                "container[1].sample\tA\talpha\n" +
+                "container[1].sample\tB\tbeta\n" +
+                "container[1].experiment\tspace_code\tS\n" +
+                "container[1].experiment\tproject_code\tP\n" +
+                "container[1].experiment\texperiment_code\tE2\n" +
+                "container[1].experiment\texperiment_type_code\tMY-EXPERIMENT\n" +
+                "container[1].experiment\tregistration_timestamp\t\n" +
+                "container[1].experiment\tregistrator\t\n" +
                 "container[1].experiment\tGREETINGS\tHello\n");
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCreateUncompressed() throws Exception
     {
@@ -224,10 +232,10 @@ public class ZipDataSetPackagerTest extends AbstractFileSystemTestCase
         prepareGetDataSetLocation(dataSet);
         File zipFile = new File(workingDirectory, "archived2.zip");
         ZipDataSetPackager packager = new ZipDataSetPackager(zipFile, false, contentProvider, existenceChecker);
-        
+
         packager.addDataSetTo("", dataSet);
         packager.close();
-        
+
         checkZipFileContent(zipFile, dataSet, "data_set\tcode\tds1\n" +
                 "data_set\tproduction_timestamp\t\n" +
                 "data_set\tproducer_code\t\n" +
@@ -289,7 +297,7 @@ public class ZipDataSetPackagerTest extends AbstractFileSystemTestCase
         String actualContent = getContentAndClose(zf.getInputStream(entry));
         assertEquals(entry.getName() + " content", expectedContent, actualContent);
     }
-    
+
     private String getContentAndClose(InputStream inputStream) throws Exception
     {
         try
@@ -315,7 +323,7 @@ public class ZipDataSetPackagerTest extends AbstractFileSystemTestCase
             IOUtils.closeQuietly(inputStream);
         }
     }
-    
+
     private void prepareGetDataSetLocation(final PhysicalDataSet dataSet)
     {
         context.checking(new Expectations()
@@ -334,9 +342,9 @@ public class ZipDataSetPackagerTest extends AbstractFileSystemTestCase
                 {
                     exactly(2).of(shareIdManager).getShareId(dataSetCode);
                     will(returnValue(SHARE_ID));
-                    
+
                     one(shareIdManager).lock(dataSetCode);
-                    
+
                     one(shareIdManager).releaseLock(dataSetCode);
                 }
             });

@@ -260,10 +260,11 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
 
         maintenanceTask.setUp("", properties);
 
-        assertEquals("ERROR OPERATION.BlastUtils - BLAST isn't installed in location '/no/such/blast' specified by the property 'blast-tools-directory.\n"
-                + INFO_PREFIX + "File types: [.fasta, .fa, .fsa, .fastq]\n"
-                + INFO_PREFIX + "BLAST databases folder: " + blastDatabaseFolder + "\n"
-                + INFO_PREFIX + "Temp folder '" + blastDatabaseFolder + "/tmp' created.", logRecorder.getLogContent());
+        assertEquals(
+                "ERROR OPERATION.BlastUtils - BLAST isn't installed in location '/no/such/blast' specified by the property 'blast-tools-directory.\n"
+                        + INFO_PREFIX + "File types: [.fasta, .fa, .fsa, .fastq]\n"
+                        + INFO_PREFIX + "BLAST databases folder: " + blastDatabaseFolder + "\n"
+                        + INFO_PREFIX + "Temp folder '" + blastDatabaseFolder + "/tmp' created.", logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
 

@@ -66,8 +66,7 @@ public class DssSessionAuthorizationHolder
         };
 
     /**
-     * Returns the authorizer that can be used to check whether a session is authorized to access a
-     * data set code.
+     * Returns the authorizer that can be used to check whether a session is authorized to access a data set code.
      */
     public static IDssSessionAuthorizer getAuthorizer()
     {

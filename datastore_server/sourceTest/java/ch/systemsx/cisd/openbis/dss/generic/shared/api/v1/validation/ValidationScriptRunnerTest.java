@@ -52,7 +52,7 @@ public class ValidationScriptRunnerTest extends AssertJUnit
     {
         ValidationScriptRunner scriptRunner =
                 ValidationScriptRunner.createValidatorFromScriptPaths(new String[]
-                    { BASIC_VALIDATION_SCRIPT });
+                { BASIC_VALIDATION_SCRIPT });
         List<ValidationError> errors = scriptRunner.validate(new File(VALID_DATA_SET));
 
         assertTrue("The valid data set should have no errors", errors.isEmpty());
@@ -63,7 +63,7 @@ public class ValidationScriptRunnerTest extends AssertJUnit
     {
         ValidationScriptRunner scriptRunner =
                 ValidationScriptRunner.createValidatorFromScriptPaths(new String[]
-                    { SPLITTED_VALIDATION_SCRIPT_1, SPLITTED_VALIDATION_SCRIPT_2 });
+                { SPLITTED_VALIDATION_SCRIPT_1, SPLITTED_VALIDATION_SCRIPT_2 });
         List<ValidationError> errors = scriptRunner.validate(new File(VALID_DATA_SET));
 
         assertTrue("The valid data set should have no errors", errors.isEmpty());
@@ -74,7 +74,7 @@ public class ValidationScriptRunnerTest extends AssertJUnit
     {
         ValidationScriptRunner scriptRunner =
                 ValidationScriptRunner.createValidatorFromScriptPaths(new String[]
-                    { BASIC_VALIDATION_SCRIPT });
+                { BASIC_VALIDATION_SCRIPT });
         List<ValidationError> errors = scriptRunner.validate(new File(INVALID_DATA_SET));
 
         assertEquals(1, errors.size());
@@ -88,7 +88,7 @@ public class ValidationScriptRunnerTest extends AssertJUnit
     {
         ValidationScriptRunner scriptRunner =
                 ValidationScriptRunner.createValidatorFromScriptPaths(new String[]
-                    { SPLITTED_VALIDATION_SCRIPT_1, SPLITTED_VALIDATION_SCRIPT_2 });
+                { SPLITTED_VALIDATION_SCRIPT_1, SPLITTED_VALIDATION_SCRIPT_2 });
         List<ValidationError> errors = scriptRunner.validate(new File(INVALID_DATA_SET));
 
         assertEquals(1, errors.size());

@@ -99,7 +99,6 @@ public abstract class ByPoliceAbstractTest extends AbstractAutoArchiverPolicyTes
         context.assertIsSatisfied();
     }
 
-
     // Some general tests for all policies
 
     protected abstract IAutoArchiverPolicy getPolicy(int min, int max);

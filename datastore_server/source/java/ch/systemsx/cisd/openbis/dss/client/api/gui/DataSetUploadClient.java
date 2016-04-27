@@ -61,11 +61,9 @@ import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DssCommunicationState;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.model.IUserNotifier;
 
 /**
- * The GUI for the WebStart data set upload application. This class assembles the GUI and creates
- * the necessary contextual objects (like the IDssComponent) for interacting with the server.
- * Although {@link DataSetUploadTableModel} handles most of the logic, the contextual information
- * needs to be stored here so clean-up can be performed, e.g., if the user closes the window while
- * an upload is in progress.
+ * The GUI for the WebStart data set upload application. This class assembles the GUI and creates the necessary contextual objects (like the
+ * IDssComponent) for interacting with the server. Although {@link DataSetUploadTableModel} handles most of the logic, the contextual information
+ * needs to be stored here so clean-up can be performed, e.g., if the user closes the window while an upload is in progress.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -90,9 +88,8 @@ public class DataSetUploadClient extends AbstractSwingGUI
     }
 
     /**
-     * Initializes Jython in way which makes it's modules available in Web Start. It silently
-     * ignores all the errors, it's better to have client working without validation, than having it
-     * not working at all.
+     * Initializes Jython in way which makes it's modules available in Web Start. It silently ignores all the errors, it's better to have client
+     * working without validation, than having it not working at all.
      */
     private static void initializeJythonWebStartWorkaround()
     {
@@ -111,70 +108,78 @@ public class DataSetUploadClient extends AbstractSwingGUI
     {
         // setLookAndFeelToNative();
         setLookAndFeelToMetal();
-        
-        if(args.length == 0) { //Login Screen
-        	launchLogin();
-        } else { //Command line login
-        	launchUploader(args);
-        }
-        
-    }
-    
-    private static void launchLogin() {
-    	// Retrieve the user preferences for the login form
-    	final Preferences prefs = Preferences.userNodeForPackage(DataSetUploadClientLoginForm.class);
 
-    	// Preference key name
-    	final String PREF_NAME_SERVER = "PREF_NAME_SERVER";
-    	final String PREF_NAME_USER = "PREF_NAME_USER";
-    	
-    	//Get the value of the preference
-    	String serverValue = prefs.get(PREF_NAME_SERVER, null);
-    	String userValue = prefs.get(PREF_NAME_USER, null);
-    	
-    	final DataSetUploadClientLoginForm loginForm = new DataSetUploadClientLoginForm();
-    	loginForm.getLoginButton().addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-            	//Collect login information
-                String serverURL = loginForm.getServerURLField().getText();
-                String userName = loginForm.getUserNameField().getText();
-                String password = new String(loginForm.getPasswordField().getPassword());
-                String[] args = {serverURL, userName, password};
-                
-                try {
-                	DssCommunicationState commState = new DssCommunicationState(args); //Try to login
-                	launchUploader(commState); //If login succeed, create the uploader view
-                	loginForm.setVisible(false);
-                	//Save correct preferences
-                	prefs.put(PREF_NAME_SERVER, serverURL);
-                	prefs.put(PREF_NAME_USER, userName);
-                	prefs.flush();
-                } catch(Exception ex) {
-                	final JFrame frame = new JFrame(TITLE);
-                    String message = ex.getMessage();
-                    if (null == message || message.length() == 0)
+        if (args.length == 0)
+        { // Login Screen
+            launchLogin();
+        } else
+        { // Command line login
+            launchUploader(args);
+        }
+
+    }
+
+    private static void launchLogin()
+    {
+        // Retrieve the user preferences for the login form
+        final Preferences prefs = Preferences.userNodeForPackage(DataSetUploadClientLoginForm.class);
+
+        // Preference key name
+        final String PREF_NAME_SERVER = "PREF_NAME_SERVER";
+        final String PREF_NAME_USER = "PREF_NAME_USER";
+
+        // Get the value of the preference
+        String serverValue = prefs.get(PREF_NAME_SERVER, null);
+        String userValue = prefs.get(PREF_NAME_USER, null);
+
+        final DataSetUploadClientLoginForm loginForm = new DataSetUploadClientLoginForm();
+        loginForm.getLoginButton().addActionListener(new java.awt.event.ActionListener()
+            {
+                public void actionPerformed(java.awt.event.ActionEvent evt)
+                {
+                    // Collect login information
+                    String serverURL = loginForm.getServerURLField().getText();
+                    String userName = loginForm.getUserNameField().getText();
+                    String password = new String(loginForm.getPasswordField().getPassword());
+                    String[] args = { serverURL, userName, password };
+
+                    try
                     {
-                        message = ex.toString();
+                        DssCommunicationState commState = new DssCommunicationState(args); // Try to login
+                        launchUploader(commState); // If login succeed, create the uploader view
+                        loginForm.setVisible(false);
+                        // Save correct preferences
+                        prefs.put(PREF_NAME_SERVER, serverURL);
+                        prefs.put(PREF_NAME_USER, userName);
+                        prefs.flush();
+                    } catch (Exception ex)
+                    {
+                        final JFrame frame = new JFrame(TITLE);
+                        String message = ex.getMessage();
+                        if (null == message || message.length() == 0)
+                        {
+                            message = ex.toString();
+                        }
+                        JOptionPane.showMessageDialog(frame, message, "Error", JOptionPane.ERROR_MESSAGE);
                     }
-                    JOptionPane.showMessageDialog(frame, message, "Error", JOptionPane.ERROR_MESSAGE);
+
                 }
-                
-            }
-        });
-    	
-    	if(serverValue != null) {
-    		loginForm.getServerURLField().setText(serverValue);
+            });
+
+        if (serverValue != null)
+        {
+            loginForm.getServerURLField().setText(serverValue);
             loginForm.getUserNameField().setText(userValue);
             loginForm.getPasswordField().setText("");
-    	}
-        
-    	loginForm.setVisible(true);
-    	
+        }
+
+        loginForm.setVisible(true);
+
     }
-    
+
     private static void launchUploader(DssCommunicationState commState) throws UserFailureException, EnvironmentFailureException
     {
-    	try
+        try
         {
             initializeJythonWebStartWorkaround();
 
@@ -193,10 +198,10 @@ public class DataSetUploadClient extends AbstractSwingGUI
             System.exit(1);
         }
     }
-    
+
     private static void launchUploader(String[] args) throws UserFailureException, EnvironmentFailureException
     {
-    	try
+        try
         {
             initializeJythonWebStartWorkaround();
             DssCommunicationState commState = new DssCommunicationState(args);
@@ -399,7 +404,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
                 {
                     metadataPanel.setNewDataSetInfo(newDataSetInfo);
                 }
-                
+
                 @Override
                 public void selectRow(int rowIndex)
                 {

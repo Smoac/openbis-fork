@@ -19,10 +19,8 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 import java.util.List;
 
 /**
- * Proxy of a {@link IShareIdManager} which delegates calls to wrapped share ID manager. Methods
- * can be overridden to change behavior.
+ * Proxy of a {@link IShareIdManager} which delegates calls to wrapped share ID manager. Methods can be overridden to change behavior.
  * 
- *
  * @author Franz-Josef Elmer
  */
 public class ProxyShareIdManager implements IShareIdManager
@@ -81,5 +79,5 @@ public class ProxyShareIdManager implements IShareIdManager
     {
         shareIdManager.releaseLocks();
     }
-    
+
 }

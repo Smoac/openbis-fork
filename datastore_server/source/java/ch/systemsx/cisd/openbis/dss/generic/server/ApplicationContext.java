@@ -22,8 +22,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 
 /**
- * Application context. It contains the object accessing the openBIS for retrieving the data set,
- * configuration parameters, and the name of the application which will be a part of its URL.
+ * Application context. It contains the object accessing the openBIS for retrieving the data set, configuration parameters, and the name of the
+ * application which will be a part of its URL.
  * 
  * @author Franz-Josef Elmer
  */

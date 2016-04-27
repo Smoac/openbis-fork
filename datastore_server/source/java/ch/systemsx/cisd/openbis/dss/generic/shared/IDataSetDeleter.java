@@ -29,8 +29,7 @@ public interface IDataSetDeleter
     /**
      * Schedules deletion of all specified data sets.
      * 
-     * @param maxNumberOfRetries Maximum number of retries of deletion if file system is temporarily
-     *            not available.
+     * @param maxNumberOfRetries Maximum number of retries of deletion if file system is temporarily not available.
      * @param waitingTimeBetweenRetries Waiting time (in seconds) between retries.
      */
     void scheduleDeletionOfDataSets(List<? extends IDatasetLocation> dataSets,

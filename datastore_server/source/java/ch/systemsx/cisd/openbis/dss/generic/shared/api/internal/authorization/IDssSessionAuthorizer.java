@@ -31,40 +31,35 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 public interface IDssSessionAuthorizer
 {
     /**
-     * Checks whether the session identified by <var>sessionToken</var> is authorized to access the
-     * given <var>datasetCode</var>.
+     * Checks whether the session identified by <var>sessionToken</var> is authorized to access the given <var>datasetCode</var>.
      * 
-     * @return {@link Status#OK} if the access is granted, an error status otherwise. 
+     * @return {@link Status#OK} if the access is granted, an error status otherwise.
      */
     public Status checkDatasetAccess(String sessionToken, String datasetCode);
 
     /**
-     * Checks whether the session identified by <var>sessionToken</var> is authorized to access the
-     * given <var>datasetCodes</var>.
+     * Checks whether the session identified by <var>sessionToken</var> is authorized to access the given <var>datasetCodes</var>.
      * 
-     * @return {@link Status#OK} if the access is granted, an error status otherwise. 
+     * @return {@link Status#OK} if the access is granted, an error status otherwise.
      */
     public Status checkDatasetAccess(String sessionToken, List<String> datasetCodes);
 
     /**
-     * Checks whether the session identified by <var>sessionToken</var> is authorized to write to
-     * the given <var>spaceId</var>.
+     * Checks whether the session identified by <var>sessionToken</var> is authorized to write to the given <var>spaceId</var>.
      * 
-     * @return {@link Status#OK} if the access is granted, an error status otherwise. 
+     * @return {@link Status#OK} if the access is granted, an error status otherwise.
      */
     public Status checkSpaceWriteable(String sessionToken, SpaceIdentifier spaceId);
 
     /**
-     * Checks whether the session identified by <var>sessionToken</var> has openBIS instance admin
-     * privileges.
+     * Checks whether the session identified by <var>sessionToken</var> has openBIS instance admin privileges.
      * 
-     * @return {@link Status#OK} if the access is granted, an error status otherwise. 
+     * @return {@link Status#OK} if the access is granted, an error status otherwise.
      */
     public Status checkInstanceAdminAuthorization(String sessionToken);
 
     /**
-     * Checks whether the session identified by <var>sessionToken</var> has openBIS space power user
-     * privileges.
+     * Checks whether the session identified by <var>sessionToken</var> has openBIS space power user privileges.
      * 
      * @return {@link Status#OK} if the access is granted, an error status otherwise.
      */

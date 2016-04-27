@@ -31,10 +31,9 @@ public interface IPersistenceManager
      * @param defaultObject will be returned if loading failed.
      */
     public Serializable load(Serializable defaultObject);
-    
+
     /**
-     * Requests for persisting the object. This can be done synchronously or asynchronously
-     * depending on the implementation.
+     * Requests for persisting the object. This can be done synchronously or asynchronously depending on the implementation.
      */
     public void requestPersistence();
 }

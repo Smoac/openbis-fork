@@ -19,15 +19,13 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 import java.util.List;
 
 /**
- * 
- *
  * @author Chandrasekhar Ramakrishnan
  */
 public interface ITabularData
 {
 
     public abstract String[] getHeaderLabels();
-    
+
     public String[] getHeaderCodes();
 
     public abstract List<String[]> getDataLines();

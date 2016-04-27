@@ -39,8 +39,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvide
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 
 /**
- * {@link IHierarchicalContent} implementation using {@link ISingleDataSetPathInfoProvider} to
- * retrieve file metadata.
+ * {@link IHierarchicalContent} implementation using {@link ISingleDataSetPathInfoProvider} to retrieve file metadata.
  * 
  * @author Piotr Buczek
  */
@@ -328,8 +327,7 @@ public class PathInfoProviderBasedHierarchicalContent implements IHierarchicalCo
         }
 
         /**
-         * Returns a file object with given node's relative path. The file doesn't have to exist on
-         * the file system.
+         * Returns a file object with given node's relative path. The file doesn't have to exist on the file system.
          */
         private File doGetFile()
         {

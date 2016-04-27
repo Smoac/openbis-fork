@@ -31,8 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 
 /**
- * Maintenance task that removes data sets from the data store archive after they have been deleted
- * in openBIS.
+ * Maintenance task that removes data sets from the data store archive after they have been deleted in openBIS.
  * 
  * @author Kaloyan Enimanev
  */
@@ -123,7 +122,8 @@ public class DeleteFromArchiveMaintenanceTask extends
     private List<DeletedDataSet> filterOldStyleHistoryEvents(List<DeletedDataSet> datasets)
     {
         List<DeletedDataSet> result = new ArrayList<DeletedDataSet>();
-        for (DeletedDataSet dataset : datasets) {
+        for (DeletedDataSet dataset : datasets)
+        {
             if (dataset.getIdentifier() != null
                     && false == dataset.getIdentifier().equals(dataset.getLocationOrNull()))
             {

@@ -23,8 +23,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for service methods to automagically check that the user invoking the method has
- * access to the data set. It also locks data sets specified by method arguments.
+ * Annotation for service methods to automagically check that the user invoking the method has access to the data set. It also locks data sets
+ * specified by method arguments.
  * <p>
  * <i>This is an internal class. Do not use it as a user of the API.</i>
  * 
@@ -39,9 +39,9 @@ public @interface DataSetAccessGuard
      * Privilege level.
      */
     PrivilegeLevel privilegeLevel() default PrivilegeLevel.DEFAULT;
-    
+
     /**
-     * By default locks on data sets are released after method invocation. 
+     * By default locks on data sets are released after method invocation.
      */
     boolean releaseDataSetLocks() default true;
 }

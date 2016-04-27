@@ -30,14 +30,12 @@ import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 
 /**
- * An implementation of {@link IETLServerPlugin} which is based on a <code>Properties</code> object.
- * The objects delivered by this implementation are created only once. For creation the properties
- * are used. For each object a specific property has to be defined which specifies the
- * fully-qualified class name of the object. The class has to implement a specific interface and it
- * should have a constructor with a single argument of type <code>Properties</code>. The argmunt is
- * derived from the original properties by extracting all properties where the key starts with the
- * prefix <code><i>&lt;class name key&gt;</i> + '.'</code>. The prefix is removed from the key for
- * the derived properties. The following table shows all class name keys and interfaces:
+ * An implementation of {@link IETLServerPlugin} which is based on a <code>Properties</code> object. The objects delivered by this implementation are
+ * created only once. For creation the properties are used. For each object a specific property has to be defined which specifies the fully-qualified
+ * class name of the object. The class has to implement a specific interface and it should have a constructor with a single argument of type
+ * <code>Properties</code>. The argmunt is derived from the original properties by extracting all properties where the key starts with the prefix
+ * <code><i>&lt;class name key&gt;</i> + '.'</code>. The prefix is removed from the key for the derived properties. The following table shows all
+ * class name keys and interfaces:
  * <table cellspacing="0" cellpadding="5" border="1">
  * <tr>
  * <th>Class name key</th>

@@ -30,8 +30,7 @@ public interface IHierarchicalStorageLinkNamingStrategy
 {
 
     /**
-     * For a given {@link SimpleDataSetInformationDTO} creates relevant path part e.g.
-     * <code>Instance_AAA/Group_BBB/Project_CCC...</code>
+     * For a given {@link SimpleDataSetInformationDTO} creates relevant path part e.g. <code>Instance_AAA/Group_BBB/Project_CCC...</code>
      */
     public String createHierarchicalPath(SimpleDataSetInformationDTO data);
 

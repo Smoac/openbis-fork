@@ -25,13 +25,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.AbstractDatasetDropboxH
 
 /**
  * Note: this class is currently used only in integration tests.<br>
- * Storage processor which is able to create a copy of incoming data for additional processing. The
- * copy has a changed name to trace back the dataset to which the original data belong.
+ * Storage processor which is able to create a copy of incoming data for additional processing. The copy has a changed name to trace back the dataset
+ * to which the original data belong.
  * <p>
- * The processor uses following properties: {@link #DELEGATE_PROCESSOR_CLASS_PROPERTY},
- * {@link #DROPBOX_INCOMING_DIRECTORY_PROPERTY} and
- * {@link AbstractDatasetDropboxHandler#DATASET_CODE_SEPARATOR_PROPERTY}. All the properties are
- * also passed for the default processor.
+ * The processor uses following properties: {@link #DELEGATE_PROCESSOR_CLASS_PROPERTY}, {@link #DROPBOX_INCOMING_DIRECTORY_PROPERTY} and
+ * {@link AbstractDatasetDropboxHandler#DATASET_CODE_SEPARATOR_PROPERTY}. All the properties are also passed for the default processor.
  * </p>
  * 
  * @author Tomasz Pylak
@@ -39,8 +37,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.AbstractDatasetDropboxH
 public class StorageProcessorWithDropbox extends DelegatingStorageProcessorWithDropbox
 {
     /**
-     * The path to the directory where an additional copy of the original incoming data will be
-     * created for additional processing.
+     * The path to the directory where an additional copy of the original incoming data will be created for additional processing.
      */
     public final static String DROPBOX_INCOMING_DIRECTORY_PROPERTY = "dropbox-dir";
 
@@ -55,11 +52,10 @@ public class StorageProcessorWithDropbox extends DelegatingStorageProcessorWithD
         return new DatasetDropboxHandler(properties);
     }
 
-
     private static class DatasetDropboxHandler extends AbstractDatasetDropboxHandler
     {
         private static final long serialVersionUID = 1L;
-        
+
         private final File dropboxIncomingDir;
 
         public DatasetDropboxHandler(Properties properties)

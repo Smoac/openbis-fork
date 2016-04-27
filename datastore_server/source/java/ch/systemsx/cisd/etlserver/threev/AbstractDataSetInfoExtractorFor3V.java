@@ -38,8 +38,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 abstract class AbstractDataSetInfoExtractorFor3V extends AbstractDataSetInfoExtractor
 {
     /**
-     * Name of the property specifying the character which will be used to concatenate the entities
-     * specifying the data set code.
+     * Name of the property specifying the character which will be used to concatenate the entities specifying the data set code.
      */
     @Private
     static final String DATA_SET_CODE_ENTITIES_GLUE = "data-set-code-entities-glue";

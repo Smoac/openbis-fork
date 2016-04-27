@@ -102,7 +102,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
         private IFreeSpaceProvider freeSpaceProviderOrNull;
 
-        private FileOperationsManagerFactory(Properties properties, ITimeAndWaitingProvider timeProvider, 
+        private FileOperationsManagerFactory(Properties properties, ITimeAndWaitingProvider timeProvider,
                 IFreeSpaceProvider freeSpaceProviderOrNull)
         {
             this.properties = properties;
@@ -112,7 +112,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
         private IMultiDataSetFileOperationsManager create()
         {
-            return new MultiDataSetFileOperationsManager(properties, new RsyncArchiveCopierFactory(), 
+            return new MultiDataSetFileOperationsManager(properties, new RsyncArchiveCopierFactory(),
                     new SshCommandExecutorFactory(), freeSpaceProviderOrNull, timeProvider);
         }
     }
@@ -124,33 +124,33 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     public static final String MAXIMUM_CONTAINER_SIZE_IN_BYTES = "maximum-container-size-in-bytes";
 
     public static final String MAXIMUM_UNARCHIVING_CAPACITY_IN_MEGABYTES = "maximum-unarchiving-capacity-in-megabytes";
-    
+
     public static final Long DEFAULT_MAXIMUM_CONTAINER_SIZE_IN_BYTES = 80 * FileUtils.ONE_GB;
-    
+
     public static final long DEFAULT_FINALIZER_POLLING_TIME = DateUtils.MILLIS_PER_MINUTE;
-    
+
     public static final long DEFAULT_FINALIZER_MAX_WAITING_TIME = DateUtils.MILLIS_PER_DAY;
 
     public static final Long DEFAULT_UNARCHIVING_CAPACITY_IN_MEGABYTES = 1000 * FileUtils.ONE_GB;
 
     public static final String DELAY_UNARCHIVING = "delay-unarchiving";
-    
+
     public static final String CLEANER_PROPS = "cleaner";
 
     private transient IMultiDataSetArchiverReadonlyQueryDAO readonlyQuery;
-    
+
     private transient IDataStoreServiceInternal dataStoreService;
-    
+
     private transient IMultiDataSetArchiveCleaner cleaner;
-    
+
     private final long minimumContainerSize;
-    
+
     private final long maximumContainerSize;
 
     private final long maximumUnarchivingCapacityInMB;
 
     private final boolean delayUnarchiving;
-    
+
     private final long finalizerPollingTime;
 
     private final long finalizerMaxWaitingTime;
@@ -163,8 +163,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     {
         this(properties, storeRoot, SystemTimeProvider.SYSTEM_TIME_PROVIDER, null);
     }
-    
-    MultiDataSetArchiver(Properties properties, File storeRoot, ITimeAndWaitingProvider timeProvider, 
+
+    MultiDataSetArchiver(Properties properties, File storeRoot, ITimeAndWaitingProvider timeProvider,
             IFreeSpaceProvider freeSpaceProviderOrNull)
     {
         super(properties, storeRoot, null, null);
@@ -172,9 +172,10 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         delayUnarchiving = PropertyUtils.getBoolean(properties, DELAY_UNARCHIVING, false);
         this.minimumContainerSize = PropertyUtils.getLong(properties, MINIMUM_CONTAINER_SIZE_IN_BYTES, DEFAULT_MINIMUM_CONTAINER_SIZE_IN_BYTES);
         this.maximumContainerSize = PropertyUtils.getLong(properties, MAXIMUM_CONTAINER_SIZE_IN_BYTES, DEFAULT_MAXIMUM_CONTAINER_SIZE_IN_BYTES);
-        this.maximumUnarchivingCapacityInMB = PropertyUtils.getLong(properties, MAXIMUM_UNARCHIVING_CAPACITY_IN_MEGABYTES, DEFAULT_UNARCHIVING_CAPACITY_IN_MEGABYTES);
+        this.maximumUnarchivingCapacityInMB =
+                PropertyUtils.getLong(properties, MAXIMUM_UNARCHIVING_CAPACITY_IN_MEGABYTES, DEFAULT_UNARCHIVING_CAPACITY_IN_MEGABYTES);
         this.fileOperationsFactory = new FileOperationsManagerFactory(properties, timeProvider, freeSpaceProviderOrNull);
-        finalizerPollingTime = DateTimeUtils.getDurationInMillis(properties, 
+        finalizerPollingTime = DateTimeUtils.getDurationInMillis(properties,
                 MultiDataSetArchivingFinalizer.FINALIZER_POLLING_TIME_KEY, DEFAULT_FINALIZER_POLLING_TIME);
         finalizerMaxWaitingTime = DateTimeUtils.getDurationInMillis(properties,
                 MultiDataSetArchivingFinalizer.FINALIZER_MAX_WAITING_TIME_KEY, DEFAULT_FINALIZER_MAX_WAITING_TIME);
@@ -184,7 +185,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     }
 
     @Override
-    protected DatasetProcessingStatuses doArchive(List<DatasetDescription> paramDataSets, 
+    protected DatasetProcessingStatuses doArchive(List<DatasetDescription> paramDataSets,
             ArchiverTaskContext context, boolean removeFromDataStore)
     {
         LinkedList<DatasetDescription> dataSets = new LinkedList<DatasetDescription>(paramDataSets);
@@ -314,7 +315,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             Status status = getFileOperations().createContainer(containerPath, dataSets);
             if (status.isError())
             {
-                throw new Exception("Couldn't create archive file " + containerPath 
+                throw new Exception("Couldn't create archive file " + containerPath
                         + ". Reason: " + status.tryGetErrorMessage());
             }
             archivedContent = getFileOperations().getContainerAsHierarchicalContent(containerPath);
@@ -339,7 +340,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         }
         return statuses;
     }
-    
+
     private void establishContainerDataSetMapping(List<DatasetDescription> dataSets, String containerPath,
             IMultiDataSetArchiverDBTransaction transaction)
     {
@@ -349,9 +350,9 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             transaction.insertDataset(dataSet, container);
         }
     }
-    
-    private void scheduleFinalizer(String containerPath, List<DatasetDescription> dataSets, 
-            ArchiverTaskContext archiverContext, boolean removeFromDataStore, 
+
+    private void scheduleFinalizer(String containerPath, List<DatasetDescription> dataSets,
+            ArchiverTaskContext archiverContext, boolean removeFromDataStore,
             MultiDataSetProcessingStatuses statuses)
     {
         if (needsToWaitForReplication() == false)
@@ -359,16 +360,16 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             return;
         }
         statuses.setDataSetsWaitingForReplication(dataSets);
-        MultiDataSetArchivingFinalizer task = new MultiDataSetArchivingFinalizer(cleanerProperties, pauseFile, 
+        MultiDataSetArchivingFinalizer task = new MultiDataSetArchivingFinalizer(cleanerProperties, pauseFile,
                 pauseFilePollingTime, getTimeProvider());
         String userId = archiverContext.getUserId();
         String userEmail = archiverContext.getUserEmail();
         String userSessionToken = archiverContext.getUserSessionToken();
         HashMap<String, String> parameterBindings = new LinkedHashMap<String, String>();
         IMultiDataSetFileOperationsManager operations = getFileOperations();
-        parameterBindings.put(MultiDataSetArchivingFinalizer.ORIGINAL_FILE_PATH_KEY, 
+        parameterBindings.put(MultiDataSetArchivingFinalizer.ORIGINAL_FILE_PATH_KEY,
                 operations.getOriginalArchiveFilePath(containerPath));
-        parameterBindings.put(MultiDataSetArchivingFinalizer.REPLICATED_FILE_PATH_KEY, 
+        parameterBindings.put(MultiDataSetArchivingFinalizer.REPLICATED_FILE_PATH_KEY,
                 operations.getReplicatedArchiveFilePath(containerPath));
         parameterBindings.put(MultiDataSetArchivingFinalizer.FINALIZER_POLLING_TIME_KEY, Long.toString(finalizerPollingTime));
         SimpleDateFormat dateFormat = new SimpleDateFormat(MultiDataSetArchivingFinalizer.TIME_STAMP_FORMAT);
@@ -376,10 +377,10 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         parameterBindings.put(MultiDataSetArchivingFinalizer.FINALIZER_MAX_WAITING_TIME_KEY, Long.toString(finalizerMaxWaitingTime));
         DataSetArchivingStatus status = removeFromDataStore ? DataSetArchivingStatus.ARCHIVED : DataSetArchivingStatus.AVAILABLE;
         parameterBindings.put(MultiDataSetArchivingFinalizer.STATUS_KEY, status.toString());
-        getDataStoreService().scheduleTask(ARCHIVING_FINALIZER, task, parameterBindings, dataSets, 
+        getDataStoreService().scheduleTask(ARCHIVING_FINALIZER, task, parameterBindings, dataSets,
                 userId, userEmail, userSessionToken);
     }
-    
+
     private boolean needsToWaitForReplication()
     {
         return getFileOperations().isReplicatedArchiveDefined();
@@ -434,8 +435,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         List<DatasetDescription> archivedDataSets = super.getArchivedDataSets(datasets, statuses);
         if (statuses instanceof MultiDataSetProcessingStatuses)
         {
-            List<DatasetDescription> dataSetsWaitingForReplication 
-                    = ((MultiDataSetProcessingStatuses) statuses).getDataSetsWaitingForReplication();
+            List<DatasetDescription> dataSetsWaitingForReplication = ((MultiDataSetProcessingStatuses) statuses).getDataSetsWaitingForReplication();
             if (dataSetsWaitingForReplication != null)
             {
                 archivedDataSets.removeAll(dataSetsWaitingForReplication);
@@ -476,7 +476,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         Share scratchShare = shares.get(0);
         return scratchShare;
     }
-    
+
     private static class MultiDataSetUnarchivingPreparations implements IUnarchivingPreparation
     {
         private final Share scratchShare;
@@ -554,7 +554,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         List<String> dataSetCodes = translateToDataSetCodes(dataSets);
         Set<Long> containerIds = assertUnarchivingCapacityNotExceeded(dataSetCodes);
         assertNoAvailableDatasets(dataSetCodes);
-        
+
         context.getUnarchivingPreparation().prepareForUnarchiving(dataSets);
 
         IMultiDataSetFileOperationsManager operations = getFileOperations();
@@ -568,7 +568,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                 return result;
             }
         }
-        
+
         IHierarchicalContentProvider contentProvider = context.getHierarchicalContentProvider();
         for (String dataSetCode : dataSetCodes)
         {
@@ -585,7 +585,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         result.addResult(dataSets, Status.OK, Operation.UNARCHIVE);
         return result;
     }
-    
+
     private void assertFilesExists(String dataSetCode, IHierarchicalContentNode node)
     {
         File file;
@@ -612,11 +612,11 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     private EnvironmentFailureException createException(String dataSetCode,
             IHierarchicalContentNode node, Exception exOrNull)
     {
-        String message = "Data set " + dataSetCode + ": File '" + node.getRelativePath() 
+        String message = "Data set " + dataSetCode + ": File '" + node.getRelativePath()
                 + "' does not exist.";
         if (exOrNull != null)
         {
-            return new EnvironmentFailureException(message + " (reason: " + exOrNull.getMessage() + ")", 
+            return new EnvironmentFailureException(message + " (reason: " + exOrNull.getMessage() + ")",
                     exOrNull);
         }
         return new EnvironmentFailureException(message);
@@ -695,12 +695,12 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             String message = String.format("Total size of selected data sets (%.2f MB)"
                     + " and those already scheduled for unarchiving (%.2f MB) exceeds capacity."
                     + " Please narrow down your selection or try again later.",
-                    ((double)(totalSumInBytes - totalSizeOfUnarchivingRequested) / FileUtils.ONE_MB), 
-                    ((double)totalSizeOfUnarchivingRequested / FileUtils.ONE_MB));
+                    ((double) (totalSumInBytes - totalSizeOfUnarchivingRequested) / FileUtils.ONE_MB),
+                    ((double) totalSizeOfUnarchivingRequested / FileUtils.ONE_MB));
             throw new UserFailureException(message);
         }
         return containers;
-   }
+    }
 
     private Set<Long> getContainers(List<String> dataSetCodes)
     {
@@ -776,7 +776,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         }
         return readonlyQuery;
     }
-    
+
     IDataStoreServiceInternal getDataStoreService()
     {
         if (dataStoreService == null)
@@ -785,7 +785,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         }
         return dataStoreService;
     }
-    
+
     IMultiDataSetArchiveCleaner getCleaner()
     {
         if (cleaner == null)
@@ -794,7 +794,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         }
         return cleaner;
     }
-    
+
     ITimeAndWaitingProvider getTimeProvider()
     {
         if (timeProvider == null)
@@ -803,7 +803,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         }
         return timeProvider;
     }
-    
+
     private static final class MultiDataSetProcessingStatuses extends DatasetProcessingStatuses
     {
         private List<DatasetDescription> dataSetsWaitingForReplication;
@@ -817,7 +817,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         {
             this.dataSetsWaitingForReplication = dataSetsWaitingForReplication;
         }
-        
+
         public void addResults(MultiDataSetProcessingStatuses statuses)
         {
             super.addResults(statuses);

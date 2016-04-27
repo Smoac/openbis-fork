@@ -111,9 +111,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     private ConfigProvider config;
 
-
     public DataStoreService(SessionTokenManager sessionTokenManager, OpenbisSessionTokenCache sessionTokenCache,
-            MailClientParameters mailClientParameters, IPluginTaskInfoProvider pluginTaskParameters, 
+            MailClientParameters mailClientParameters, IPluginTaskInfoProvider pluginTaskParameters,
             IDataSetCommandExecutorProvider dataSetCommandExecutorProvider)
     {
         this.sessionTokenManager = sessionTokenManager;
@@ -321,7 +320,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
         IProcessingPluginTask task = plugins.getPluginInstance(serviceKey);
         DatastoreServiceDescription pluginDescription = plugins.getPluginDescription(serviceKey);
-        scheduleTask(userSessionToken, serviceKey, task, datasets, userId, userEmailOrNull, 
+        scheduleTask(userSessionToken, serviceKey, task, datasets, userId, userEmailOrNull,
                 pluginDescription, parameterBindings);
     }
 
@@ -397,11 +396,11 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         DatastoreServiceDescription pluginDescription =
                 DatastoreServiceDescription.processing(description, description, null, null);
         Map<String, String> parameterBindings = new HashMap<String, String>();
-//        parameterBindings.put("sessionToken", sessionToken);
-        scheduleTask(userSessionToken, description, processingTask, datasets, userId, userEmailOrNull, 
+        // parameterBindings.put("sessionToken", sessionToken);
+        scheduleTask(userSessionToken, description, processingTask, datasets, userId, userEmailOrNull,
                 pluginDescription, parameterBindings);
     }
-    
+
     @Override
     public void scheduleTask(String taskKey, IProcessingPluginTask task, Map<String, String> parameterBindings,
             List<DatasetDescription> datasets, String userId, String userEmailOrNull, String userSessionToken)
@@ -410,8 +409,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         scheduleTask(userSessionToken, taskKey, task, datasets, userId, userEmailOrNull, description, parameterBindings);
     }
 
-    private void scheduleTask(String userSessionToken, String taskKey, IProcessingPluginTask processingTask, 
-            List<DatasetDescription> datasets, String userId, String userEmailOrNull, 
+    private void scheduleTask(String userSessionToken, String taskKey, IProcessingPluginTask processingTask,
+            List<DatasetDescription> datasets, String userId, String userEmailOrNull,
             DatastoreServiceDescription pluginDescription, Map<String, String> parameterBindings)
     {
         IDataSetCommandExecutor commandExecutor = dataSetCommandExecutorProvider.getExecutor(processingTask, taskKey);
@@ -518,7 +517,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     public List<SearchDomain> listAvailableSearchDomains(String sessionToken)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
-        
+
         PluginTaskProvider<ISearchDomainService> provider = pluginTaskInfoProvider.getSearchDomainServiceProvider();
         List<DatastoreServiceDescription> pluginDescriptions = provider.getPluginDescriptions();
         List<SearchDomain> result = new ArrayList<SearchDomain>();
@@ -542,7 +541,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             Map<String, String> optionalParametersOrNull)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
-        
+
         PluginTaskProvider<ISearchDomainService> provider = pluginTaskInfoProvider.getSearchDomainServiceProvider();
         DatastoreServiceDescription serviceDescription = findSearchDomainService(provider, preferredSearchDomainOrNull);
         if (serviceDescription != null)

@@ -79,7 +79,7 @@ public class FtpPathResolverContext implements ISessionTokenProvider
         if (dataSet == null)
         {
             EnumSet<DataSetFetchOption> fetchOptions = EnumSet.of(DataSetFetchOption.BASIC, DataSetFetchOption.PARENTS, DataSetFetchOption.CHILDREN);
-            
+
             List<DataSet> dataSetsWithMetaData =
                     generalInfoService.getDataSetMetaData(sessionToken, Arrays.asList(dataSetCode),
                             fetchOptions);

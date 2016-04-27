@@ -24,17 +24,17 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 public class LogMonitoringStopConditionBuilder
 {
     private ILogMonitoringStopCondition condition;
-    
+
     public LogMonitoringStopConditionBuilder()
     {
         this(AlwaysStopCondition.INSTANCE);
     }
-    
+
     public LogMonitoringStopConditionBuilder(ILogMonitoringStopCondition condition)
     {
-        this.condition = condition; 
+        this.condition = condition;
     }
-    
+
     public ILogMonitoringStopCondition getCondition()
     {
         return condition;
@@ -45,18 +45,18 @@ public class LogMonitoringStopConditionBuilder
         condition = new AndStopCondition(condition, stopCondition);
         return this;
     }
-    
+
     public LogMonitoringStopConditionBuilder and(LogMonitoringStopConditionBuilder conditionBuilder)
     {
         return and(conditionBuilder.getCondition());
     }
-    
+
     public LogMonitoringStopConditionBuilder or(ILogMonitoringStopCondition stopCondition)
     {
         condition = new OrStopCondition(condition, stopCondition);
         return this;
     }
-    
+
     public LogMonitoringStopConditionBuilder or(LogMonitoringStopConditionBuilder conditionBuilder)
     {
         return or(conditionBuilder.getCondition());

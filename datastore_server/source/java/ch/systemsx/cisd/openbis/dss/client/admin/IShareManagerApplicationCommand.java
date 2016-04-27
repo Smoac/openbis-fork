@@ -19,15 +19,13 @@ package ch.systemsx.cisd.openbis.dss.client.admin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IShareManagerApplicationCommand<A extends CommonArguments>
 {
     public String getName();
-    
+
     public A getArguments();
-    
+
     public void execute(IDssServiceRpcGeneric dssService, A arguments);
 }

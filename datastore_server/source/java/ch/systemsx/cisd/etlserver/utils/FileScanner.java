@@ -22,16 +22,15 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- * Scanner of files based on wild-card patterns. In addition of the usual wild cards '*' (zero or 
- * more of any character) and '?' (exactly one arbitrary character) the wild card '**&#47;' 
- * is used for zero or more sub folders of any name. 
+ * Scanner of files based on wild-card patterns. In addition of the usual wild cards '*' (zero or more of any character) and '?' (exactly one
+ * arbitrary character) the wild card '**&#47;' is used for zero or more sub folders of any name.
  *
  * @author Franz-Josef Elmer
  */
 public class FileScanner
 {
     private final Pattern pathRegex;
-    
+
     public FileScanner(String pattern)
     {
         String patternAsRegEx = pattern.replace("$", "\\$");
@@ -43,9 +42,8 @@ public class FileScanner
     }
 
     /**
-     * Returns a list of all files found matching the pattern. If <code>fileOrFolder</code> is a
-     * file the file is return if it matches the pattern. if <code>fileOrFolder</code> is a folder
-     * all files inside the folders are checked.
+     * Returns a list of all files found matching the pattern. If <code>fileOrFolder</code> is a file the file is return if it matches the pattern. if
+     * <code>fileOrFolder</code> is a folder all files inside the folders are checked.
      */
     public List<File> scan(File fileOrFolder)
     {
@@ -58,7 +56,7 @@ public class FileScanner
         gatherFiles(files, fileOrFolder, pathPrefixLength);
         return files;
     }
-    
+
     private void gatherFiles(List<File> gatheredFiles, File fileOrFolder, int pathPrefixLength)
     {
         String fileName = fileOrFolder.toString().substring(pathPrefixLength);

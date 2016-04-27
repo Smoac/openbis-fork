@@ -60,7 +60,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
     private static final String DATA_STORE_SERVER_CODE = "DSS";
 
     private static final String DATA_SET_CODE1 = "ds-1";
-    
+
     private static final String DATA_SET_CODE2 = "ds-2";
 
     private BufferedAppender logRecorder;
@@ -242,7 +242,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
         assertEquals("[1, 2, 3, 4, 2, 2]", freeSpaceProvider.getShares().toString());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testShufflingOfArchivedDataSet()
     {
@@ -254,11 +254,11 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
         freeSpaceProvider.setFreeSpaceValues(200, 1234, 10, 0, 1234, 900);
         prepareListDataSets();
         RecordingMatcher<String> infoMessageMatcher = prepareLogging(LogLevel.WARN);
-        
+
         IPostRegistrationTaskExecutor executor = task.createExecutor(DATA_SET_CODE2, false);
         executor.createCleanupTask();
         executor.execute();
-        
+
         assertEquals("Data set ds-2 couldn't been shuffled because its archiving status is ARCHIVE_PENDING",
                 infoMessageMatcher.recordedObject());
         context.assertIsSatisfied();

@@ -63,9 +63,8 @@ public class PngWritingHelper
     }
 
     /**
-     * The png writing helper that handles images that use the loci.formats.gui.Index16ColorModel
-     * color model from BioFormats and have no component information. Images that use this color
-     * model and have component information are treated normally.
+     * The png writing helper that handles images that use the loci.formats.gui.Index16ColorModel color model from BioFormats and have no component
+     * information. Images that use this color model and have component information are treated normally.
      * 
      * @author cramakri
      */

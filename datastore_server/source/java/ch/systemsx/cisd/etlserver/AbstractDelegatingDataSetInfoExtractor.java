@@ -34,11 +34,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * {@link IDataSetInfoExtractor} which delegates all the tasks to the extractor specified in
- * configuration with {@link #DELEGATE_EXTRACTOR_CLASS_PROPERTY} property.
+ * {@link IDataSetInfoExtractor} which delegates all the tasks to the extractor specified in configuration with
+ * {@link #DELEGATE_EXTRACTOR_CLASS_PROPERTY} property.
  * <p>
- * This class is supposed to be extended to add specific functionality which has to be performed
- * besides the basic operations.
+ * This class is supposed to be extended to add specific functionality which has to be performed besides the basic operations.
  * </p>
  * 
  * @author Piotr Buczek
@@ -46,8 +45,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 abstract public class AbstractDelegatingDataSetInfoExtractor implements IDataSetInfoExtractor
 {
     /**
-     * Property name which is used to specify the class of the default storage processor, to which
-     * all calls are delegated.
+     * Property name which is used to specify the class of the default storage processor, to which all calls are delegated.
      */
     protected final static String DELEGATE_EXTRACTOR_CLASS_PROPERTY = "extractor";
 

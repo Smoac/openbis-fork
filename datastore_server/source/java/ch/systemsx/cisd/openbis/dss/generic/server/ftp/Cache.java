@@ -25,42 +25,46 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
- * Helper class to cache objects retrieved from remote services. Used by
- * {@link FtpPathResolverContext}.
+ * Helper class to cache objects retrieved from remote services. Used by {@link FtpPathResolverContext}.
  * 
  * @author Franz-Josef Elmer
  */
 public class Cache
 {
     static final long LIVE_TIME = 1000;
-    
+
     private static final class TimeStampedObject<T>
     {
         private final long timestamp;
+
         private final T object;
+
         public TimeStampedObject(T object, long timestamp)
         {
             this.object = object;
             this.timestamp = timestamp;
         }
     }
-    
+
     private final Map<String, TimeStampedObject<DataSet>> dataSets = new HashMap<String, Cache.TimeStampedObject<DataSet>>();
-    private final Map<String, TimeStampedObject<AbstractExternalData>> externalData = new HashMap<String, Cache.TimeStampedObject<AbstractExternalData>>();
+
+    private final Map<String, TimeStampedObject<AbstractExternalData>> externalData =
+            new HashMap<String, Cache.TimeStampedObject<AbstractExternalData>>();
+
     private final Map<String, TimeStampedObject<Experiment>> experiments = new HashMap<String, Cache.TimeStampedObject<Experiment>>();
-    
+
     private final ITimeProvider timeProvider;
-    
+
     public Cache(ITimeProvider timeProvider)
     {
         this.timeProvider = timeProvider;
     }
-    
+
     void putDataSet(DataSet dataSet)
     {
         dataSets.put(dataSet.getCode(), timestamp(dataSet));
     }
-    
+
     DataSet getDataSet(String dataSetCode)
     {
         return getObject(dataSets, dataSetCode);
@@ -98,5 +102,5 @@ public class Cache
                 || timeProvider.getTimeInMilliseconds() - timeStampedObject.timestamp > LIVE_TIME ? null
                 : timeStampedObject.object;
     }
-    
+
 }

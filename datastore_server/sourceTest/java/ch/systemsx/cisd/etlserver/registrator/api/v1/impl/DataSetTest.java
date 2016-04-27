@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
-
 import java.io.File;
 
 import org.testng.AssertJUnit;
@@ -28,8 +27,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataSetTest extends AssertJUnit
@@ -41,18 +38,18 @@ public class DataSetTest extends AssertJUnit
                 new DataSetRegistrationDetails<DataSetInformation>();
         registrationDetails.setDataSetInformation(new DataSetInformation());
         IDataSet dataSet = new DataSet<DataSetInformation>(registrationDetails, new File("."), null);
-        
+
         assertEquals(Constants.DEFAULT_SPEED_HINT, dataSet.getSpeedHint());
 
         dataSet.setSpeedHint(Constants.MAX_SPEED * 2);
         assertEquals(Constants.MAX_SPEED, dataSet.getSpeedHint());
-        
+
         dataSet.setSpeedHint(-Constants.MAX_SPEED * 2);
         assertEquals(-Constants.MAX_SPEED, dataSet.getSpeedHint());
-        
+
         dataSet.setSpeedHint(Constants.MAX_SPEED / 3);
         assertEquals(Constants.MAX_SPEED / 3, dataSet.getSpeedHint());
-        
+
         dataSet.setSpeedHint(-Constants.MAX_SPEED / 3);
         assertEquals(-Constants.MAX_SPEED / 3, dataSet.getSpeedHint());
     }

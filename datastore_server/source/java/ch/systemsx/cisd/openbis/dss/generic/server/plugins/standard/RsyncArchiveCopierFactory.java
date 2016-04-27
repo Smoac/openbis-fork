@@ -25,13 +25,12 @@ import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.rsync.RsyncCopier;
 
 /**
- * {@link IPathCopierFactory} that is more reliable than {@link RsyncCopierFactory} when it comes to
- * deciding which files to transfer. {@link IPathCopier} created by {@link RsyncCopierFactory} uses
- * "--append" flag causing files that are bigger in destination than in source to be ignored.
+ * {@link IPathCopierFactory} that is more reliable than {@link RsyncCopierFactory} when it comes to deciding which files to transfer.
+ * {@link IPathCopier} created by {@link RsyncCopierFactory} uses "--append" flag causing files that are bigger in destination than in source to be
+ * ignored.
  * <p>
- * {@link IPathCopier} created by this factory will compare a checksum on files to make a decision
- * if the files have been changed and are in need of a transfer. The performance of such a check is
- * much slower then the default one but with archiving we are concerned mostly about reliability.
+ * {@link IPathCopier} created by this factory will compare a checksum on files to make a decision if the files have been changed and are in need of a
+ * transfer. The performance of such a check is much slower then the default one but with archiving we are concerned mostly about reliability.
  * 
  * @author Piotr Buczek
  */

@@ -64,7 +64,7 @@ public class KeyBasedDataSetCommandExecutorProviderTest extends AbstractFileSyst
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testInvalidMappingDefinitions()
     {
@@ -72,7 +72,7 @@ public class KeyBasedDataSetCommandExecutorProviderTest extends AbstractFileSyst
         assertInvalidMapping("Unspecified executor name in mapping definition:  : abc.* ", " : abc.* ");
         assertInvalidMapping("Invalid regex in mapping definition: q:abc?*", "q:abc?*");
     }
-    
+
     private void assertInvalidMapping(String expectedErrorMessage, String mappingDefinition)
     {
         try
@@ -83,7 +83,7 @@ public class KeyBasedDataSetCommandExecutorProviderTest extends AbstractFileSyst
         {
             assertEquals(expectedErrorMessage, ex.getMessage());
         }
-        
+
     }
 
     @Test

@@ -35,8 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 /**
  * Utitlity class for registering one sample/dataset combination.
  * <p>
- * The processingApplied state of the sampleDataSetPair is updated upon completion of this object's
- * register method.
+ * The processingApplied state of the sampleDataSetPair is updated upon completion of this object's register method.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -127,8 +126,7 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
     }
 
     /**
-     * Return the file that we treat as a data set. This is only valid *after* register has been
-     * called.
+     * Return the file that we treat as a data set. This is only valid *after* register has been called.
      */
     public File getDataSetFile()
     {
@@ -136,8 +134,7 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
     }
 
     /**
-     * If we are in REJECT_EXISTING, the sample should not exist. If we are in REJECT_NONEXISTING,
-     * the sample should exist.
+     * If we are in REJECT_EXISTING, the sample should not exist. If we are in REJECT_NONEXISTING, the sample should exist.
      */
     private void checkConformanceToMode()
     {

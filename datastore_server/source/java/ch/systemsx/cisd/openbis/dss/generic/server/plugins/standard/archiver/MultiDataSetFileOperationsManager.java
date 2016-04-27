@@ -78,29 +78,29 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
     public static final String STAGING_DESTINATION_KEY = "staging-destination";
 
     public static final String FINAL_DESTINATION_KEY = "final-destination";
-    
+
     public static final String REPLICATED_DESTINATION_KEY = "replicated-destination";
 
     public static final String WITH_SHARDING_KEY = "with-sharding";
-    
+
     public static final String WAITING_FOR_FREE_SPACE_POLLING_TIME_KEY = "waiting-for-free-space-polling-time";
-    
+
     public static final String WAITING_FOR_FREE_SPACE_TIME_OUT_KEY = "waiting-for-free-space-time-out";
-    
+
     public static final String MINIMUM_FREE_SPACE_IN_MB_KEY = "minimum-free-space-in-MB";
-    
+
     public static final String HDF5_FILES_IN_DATA_SET = "hdf5-files-in-data-set";
-    
+
     private static final long DEFAULT_WAITING_FOR_FREE_SPACE_POLLING_TIME = DateUtils.MILLIS_PER_MINUTE;
-    
+
     private static final long DEFAULT_WAITING_FOR_FREE_SPACE_TIME_OUT = 4 * DateUtils.MILLIS_PER_HOUR;
-    
+
     private static final long DEFAULT_MINIMUM_FREE_SPACE_IN_MB = 1024;
 
     private transient ArchiveDestination stageArchive;
 
     private transient ArchiveDestination finalArchive;
-    
+
     private transient ArchiveDestination finalReplicatedArchive;
 
     private final ArchiveDestinationFactory stageArchivefactory;
@@ -108,13 +108,13 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
     private final ArchiveDestinationFactory finalArchivefactory;
 
     private final ArchiveDestinationFactory finalReplicatedArchivefactory;
-    
+
     private final boolean withSharding;
 
     private final ITimeAndWaitingProvider timeProvider;
-    
+
     private final IFreeSpaceProvider freeSpaceProviderOrNull;
-    
+
     protected IMultiDataSetPackageManager packageManager;
 
     private long waitingForFreeSpacePollingTime;
@@ -143,11 +143,11 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
                 PropertyUtils.getLong(properties, TIMEOUT_KEY, DEFAULT_TIMEOUT_SECONDS);
         long timeoutInMillis = timeoutInSeconds * DateUtils.MILLIS_PER_SECOND;
 
-        finalArchivefactory = createArchiveFactory(FINAL_DESTINATION_KEY, "final destination", 
+        finalArchivefactory = createArchiveFactory(FINAL_DESTINATION_KEY, "final destination",
                 properties, pathCopierFactory, sshCommandExecutorFactory, timeoutInMillis);
         if (StringUtils.isNotBlank(properties.getProperty(STAGING_DESTINATION_KEY)))
         {
-            stageArchivefactory = createArchiveFactory(STAGING_DESTINATION_KEY, "stage area", 
+            stageArchivefactory = createArchiveFactory(STAGING_DESTINATION_KEY, "stage area",
                     properties, pathCopierFactory, sshCommandExecutorFactory, timeoutInMillis);
         } else
         {
@@ -155,23 +155,23 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
         }
         if (StringUtils.isNotBlank(properties.getProperty(REPLICATED_DESTINATION_KEY)))
         {
-            finalReplicatedArchivefactory = createArchiveFactory(REPLICATED_DESTINATION_KEY, "final cloned destination", 
+            finalReplicatedArchivefactory = createArchiveFactory(REPLICATED_DESTINATION_KEY, "final cloned destination",
                     properties, pathCopierFactory, sshCommandExecutorFactory, timeoutInMillis);
         } else
         {
-            finalReplicatedArchivefactory = finalArchivefactory; 
+            finalReplicatedArchivefactory = finalArchivefactory;
         }
-        
-        waitingForFreeSpacePollingTime = DateTimeUtils.getDurationInMillis(properties, 
+
+        waitingForFreeSpacePollingTime = DateTimeUtils.getDurationInMillis(properties,
                 WAITING_FOR_FREE_SPACE_POLLING_TIME_KEY, DEFAULT_WAITING_FOR_FREE_SPACE_POLLING_TIME);
-        waitingForFreeSpaceTimeOut = DateTimeUtils.getDurationInMillis(properties, 
+        waitingForFreeSpaceTimeOut = DateTimeUtils.getDurationInMillis(properties,
                 WAITING_FOR_FREE_SPACE_TIME_OUT_KEY, DEFAULT_WAITING_FOR_FREE_SPACE_TIME_OUT);
-        minimumFreeSpace = PropertyUtils.getLong(properties, MINIMUM_FREE_SPACE_IN_MB_KEY, DEFAULT_MINIMUM_FREE_SPACE_IN_MB) 
+        minimumFreeSpace = PropertyUtils.getLong(properties, MINIMUM_FREE_SPACE_IN_MB_KEY, DEFAULT_MINIMUM_FREE_SPACE_IN_MB)
                 * FileUtils.ONE_MB;
     }
 
-    private ArchiveDestinationFactory createArchiveFactory(String key, String name, Properties properties, 
-            IPathCopierFactory pathCopierFactory, ISshCommandExecutorFactory sshCommandExecutorFactory, 
+    private ArchiveDestinationFactory createArchiveFactory(String key, String name, Properties properties,
+            IPathCopierFactory pathCopierFactory, ISshCommandExecutorFactory sshCommandExecutorFactory,
             long timeoutInMillis)
     {
         String finalHostFile = PropertyUtils.getMandatoryProperty(properties, key);
@@ -179,9 +179,8 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
         {
             throw new ConfigurationFailureException("Archiving " + name + " '" + finalHostFile + "' is not an existing directory");
         }
-        
-        return
-                new ArchiveDestinationFactory(properties, pathCopierFactory, sshCommandExecutorFactory, finalHostFile, timeoutInMillis);
+
+        return new ArchiveDestinationFactory(properties, pathCopierFactory, sshCommandExecutorFactory, finalHostFile, timeoutInMillis);
     }
 
     private ArchiveDestination getStageArchive()
@@ -210,7 +209,7 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
         }
         return finalReplicatedArchive;
     }
-    
+
     @Override
     public Status deleteContainerFromStage(IMultiDataSetArchiveCleaner cleaner, String containerPath)
     {
@@ -265,7 +264,7 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
         }
         return status;
     }
-    
+
     private Status createContainerFile(String containerPath, List<DatasetDescription> datasetDescriptions)
     {
         File containerFile = new File(getStageArchive().getDestination(), containerPath);
@@ -366,7 +365,7 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
     {
         return getFilePath(getFinalReplicatedArchive(), containerPath);
     }
-    
+
     private String getFilePath(ArchiveDestination archive, String containerPath)
     {
         return new File(archive.getDestination(), containerPath).getAbsolutePath();
@@ -378,7 +377,7 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
         final IDataSetFileOperationsExecutor operationsExecutor = finalDestination.getExecutor();
         final String destinationPath = new File(finalDestination.getDestination()).getAbsolutePath();
         Log4jSimpleLogger logger = new Log4jSimpleLogger(operationLog);
-        WaitingHelper waitingHelper = new WaitingHelper(waitingForFreeSpaceTimeOut, waitingForFreeSpacePollingTime, 
+        WaitingHelper waitingHelper = new WaitingHelper(waitingForFreeSpaceTimeOut, waitingForFreeSpacePollingTime,
                 timeProvider, logger, true);
         boolean conditionFulfilled = waitingHelper.waitOn(new IWaitingCondition()
             {
@@ -403,11 +402,11 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
             long freeSpace = getFreeSpace(operationsExecutor, destinationPath);
             throw new EnvironmentFailureException("Still no free space on '" + destinationPath + "' after "
                     + DateTimeUtils.renderDuration(waitingForFreeSpaceTimeOut) + ". "
-                    + FileUtils.byteCountToDisplaySize(totalSize) + " needed but only " 
+                    + FileUtils.byteCountToDisplaySize(totalSize) + " needed but only "
                     + FileUtilities.byteCountToDisplaySize(freeSpace) + " available.");
         }
     }
-    
+
     private long getFreeSpace(final IDataSetFileOperationsExecutor operationsExecutor, final String destinationPath)
     {
         if (freeSpaceProviderOrNull != null)
@@ -423,7 +422,6 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
         }
         return operationsExecutor.freeSpaceKb(destinationPath) * FileUtils.ONE_KB;
     }
-    
 
     /**
      * Copies specified dataset's data to destination specified in constructor. The path at the destination is defined by the original location of the
@@ -494,8 +492,7 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
         String destinationRoot = archiveDestination.getDestination();
         File containerInDestination = new File(destinationRoot, containerPath);
 
-        IHierarchicalContent containerMetaData 
-                = packageManager.asHierarchialContent(containerInDestination, hdf5FilesInDataSet == false);
+        IHierarchicalContent containerMetaData = packageManager.asHierarchialContent(containerInDestination, hdf5FilesInDataSet == false);
         return new FilteredHierarchicalContent(containerMetaData, METADATA_IN_CONTAINER_FILTER);
     }
 

@@ -424,7 +424,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         assertEquals(null, metaproject);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetExistingMetaproject()
     {
@@ -474,7 +474,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         assertSame(metaproject1, metaproject2);
         context.assertIsSatisfied();
     }
-    
+
     private File[] listRollbackQueueFiles()
     {
         File[] rollbackQueueFiles = workingDirectory.listFiles(new FilenameFilter()

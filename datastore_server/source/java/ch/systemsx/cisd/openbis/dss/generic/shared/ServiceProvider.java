@@ -215,7 +215,7 @@ public class ServiceProvider
         }
         return result;
     }
-    
+
     public static IContentCache getContentCache()
     {
         return (IContentCache) getApplicationContext().getBean("content-cache");

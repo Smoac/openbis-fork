@@ -513,7 +513,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     @Override
     public boolean compareAndSetDataSetStatus(String dataSetCode, DataSetArchivingStatus oldStatus,
             DataSetArchivingStatus newStatus, boolean newPresentInArchive)
-                    throws UserFailureException
+            throws UserFailureException
     {
         assert dataSetCode != null : "missing data set codes";
         assert oldStatus != null : "missing old status";

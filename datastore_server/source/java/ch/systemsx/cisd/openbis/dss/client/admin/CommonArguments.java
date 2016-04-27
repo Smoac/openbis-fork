@@ -45,6 +45,5 @@ public class CommonArguments extends ConsoleClientArguments
         }
         return new File(path);
     }
-    
 
 }

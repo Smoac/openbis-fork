@@ -22,8 +22,7 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 
 /**
- * Returns the undo store action as configured by a properties file, defaulting those that are not
- * configured.
+ * Returns the undo store action as configured by a properties file, defaulting those that are not configured.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -67,7 +66,7 @@ public class ConfiguredOnErrorActionDecision implements IDataSetOnErrorActionDec
         storageProcessorError = getAction(ErrorType.STORAGE_PROCESSOR_ERROR, properties);
         postRegistrationError = getAction(ErrorType.POST_REGISTRATION_ERROR, properties);
         preRegistrationError = getAction(ErrorType.PRE_REGISTRATION_ERROR, properties);
-           }
+    }
 
     @Override
     public UnstoreDataAction computeUndoAction(ErrorType errorType, Throwable failureOrNull)
@@ -159,7 +158,7 @@ public class ConfiguredOnErrorActionDecision implements IDataSetOnErrorActionDec
             case VALIDATION_SCRIPT_ERROR:
             case POST_REGISTRATION_ERROR:
             case PRE_REGISTRATION_ERROR:
-                    action = UnstoreDataAction.LEAVE_UNTOUCHED;
+                action = UnstoreDataAction.LEAVE_UNTOUCHED;
                 break;
         }
 

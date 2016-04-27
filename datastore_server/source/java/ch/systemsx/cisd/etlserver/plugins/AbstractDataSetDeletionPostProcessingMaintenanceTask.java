@@ -33,8 +33,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 
 /**
- * Maintenance task which executes after a data set has been deleted in openBIS. Example use cases
- * for it include purging data set archives or/and external databases.
+ * Maintenance task which executes after a data set has been deleted in openBIS. Example use cases for it include purging data set archives or/and
+ * external databases.
  * 
  * @author Kaloyan Enimanev
  */
@@ -46,13 +46,13 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTask imple
             LogFactory.getLogger(LogCategory.OPERATION, AbstractDataSetDeletionPostProcessingMaintenanceTask.class);
 
     protected static final String DELAY_AFTER_DELETION = "delay-after-user-deletion";
-    
+
     protected static final String CHUNK_SIZE = "chunk-size";
 
     protected final IEncapsulatedOpenBISService openBISService;
 
     protected long delayAfterDeletion;
-    
+
     protected int chunkSize;
 
     ITimeProvider timeProvider;
@@ -91,9 +91,9 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTask imple
                     openBISService.listDeletedDataSets(lastSeenEventId, computeMaxDeletionDate());
             if (deletedDataSets.size() > 0)
             {
-                
+
                 long t0 = getCurrentTime();
-                
+
                 for (int i = 0; i < deletedDataSets.size(); i += chunkSize)
                 {
                     List<DeletedDataSet> chunk = deletedDataSets.subList(i, Math.min(deletedDataSets.size(), i + chunkSize));
@@ -110,7 +110,7 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTask imple
         } catch (Throwable t)
         {
             operationLog.error("Failed to process data-set deletion info :", t);
-        } 
+        }
     }
 
     private Date computeMaxDeletionDate()
@@ -119,7 +119,7 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTask imple
         long maxDeletionTimestamp = now - delayAfterDeletion;
         return new Date(maxDeletionTimestamp);
     }
-    
+
     private long getCurrentTime()
     {
         return timeProvider == null ? System.currentTimeMillis() : timeProvider
@@ -142,5 +142,5 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTask imple
             updateLastSeenEventId(maxEventId);
         }
     }
-    
+
 }

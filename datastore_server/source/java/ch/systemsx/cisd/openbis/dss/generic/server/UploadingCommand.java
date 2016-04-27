@@ -278,14 +278,14 @@ class UploadingCommand implements IDataSetCommand
                         TimingParameters.create(new Properties()));
         try
         {
-            packager = new ZipDataSetPackager(zipFile, true, 
+            packager = new ZipDataSetPackager(zipFile, true,
                     getHierarchicalContentProvider(), dataSetExistenceChecker);
             for (AbstractExternalData externalData : dataSets)
             {
                 String newRootPath = createRootPath(externalData) + "/";
                 try
                 {
-                    
+
                     packager.addDataSetTo(newRootPath, externalData);
                 } catch (RuntimeException ex)
                 {

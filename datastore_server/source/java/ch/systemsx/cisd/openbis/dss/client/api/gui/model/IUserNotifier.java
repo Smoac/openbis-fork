@@ -17,8 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.client.api.gui.model;
 
 /**
- * Notifies the user of the given <var>throwable</var>, if the error message is different from
- * <var>lastExceptionMessageOrNull</var>.
+ * Notifies the user of the given <var>throwable</var>, if the error message is different from <var>lastExceptionMessageOrNull</var>.
  * 
  * @author Chandrasekhar Ramakrishnan
  * @author Franz-Josef Elmer

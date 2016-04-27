@@ -261,7 +261,7 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
         return createThumbnail(image, thumbnailSize, converterOrNull);
     }
 
-    protected static final BufferedImage createThumbnail(BufferedImage image, Size thumbnailSize, 
+    protected static final BufferedImage createThumbnail(BufferedImage image, Size thumbnailSize,
             IImageToPixelsConverter converterOrNull)
     {
         int width = thumbnailSize.getWidth();

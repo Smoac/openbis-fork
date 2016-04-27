@@ -49,8 +49,7 @@ public interface IVocabularyImmutable
     boolean isChosenFromList();
 
     /**
-     * Returns a URL template (e.g a search query) that can display additional information for the
-     * concrete vocabulary terms. Can return null.
+     * Returns a URL template (e.g a search query) that can display additional information for the concrete vocabulary terms. Can return null.
      */
     String getUrlTemplate();
 

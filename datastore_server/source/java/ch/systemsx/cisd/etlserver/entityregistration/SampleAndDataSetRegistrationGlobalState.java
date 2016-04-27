@@ -144,8 +144,7 @@ class SampleAndDataSetRegistrationGlobalState
     }
 
     /**
-     * Since the mail client is not known at object initialization time, we need to offer a setter
-     * for it.
+     * Since the mail client is not known at object initialization time, we need to offer a setter for it.
      */
     public void initializeMailClient(IMailClient aMailClient)
     {

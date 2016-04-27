@@ -60,7 +60,7 @@ public class IdentifiedStreamHandlingServletTest extends AssertJUnit
     }
 
     private MockStream mockStream;
-    
+
     private Mockery context;
 
     private IStreamRepository streamRepository;
@@ -87,10 +87,10 @@ public class IdentifiedStreamHandlingServletTest extends AssertJUnit
                 {
                     one(servletConfig).getServletContext();
                     will(returnValue(servletContext));
-                    
+
                     one(servletContext).getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
                     will(returnValue(beanFactory));
-                    
+
                     one(beanFactory).getBean(IdentifiedStreamHandlingServlet.STREAM_REPOSITORY_BEAN_ID);
                     will(returnValue(streamRepository));
                 }
@@ -98,7 +98,7 @@ public class IdentifiedStreamHandlingServletTest extends AssertJUnit
         servlet = new IdentifiedStreamHandlingServlet();
         servlet.init(servletConfig);
     }
-    
+
     @AfterMethod
     public void tearDown()
     {
@@ -120,7 +120,7 @@ public class IdentifiedStreamHandlingServletTest extends AssertJUnit
 
                     one(streamRepository).getStream("id");
                     will(returnValue(new InputStreamWithPath(mockStream, "a/b/c/file.txt")));
-                    
+
                     one(servletResponse).setHeader("Content-Disposition", "inline; filename=file.txt");
                     one(servletResponse).setContentType("binary");
 
@@ -133,17 +133,19 @@ public class IdentifiedStreamHandlingServletTest extends AssertJUnit
                                 output.write(b);
                             }
 
-							@Override
-							public boolean isReady() {
-								// TODO Auto-generated method stub
-								return true;
-							}
+                            @Override
+                            public boolean isReady()
+                            {
+                                // TODO Auto-generated method stub
+                                return true;
+                            }
 
-							@Override
-							public void setWriteListener(WriteListener arg0) {
-								// TODO Auto-generated method stub
-								
-							}
+                            @Override
+                            public void setWriteListener(WriteListener arg0)
+                            {
+                                // TODO Auto-generated method stub
+
+                            }
                         }));
                 }
             });

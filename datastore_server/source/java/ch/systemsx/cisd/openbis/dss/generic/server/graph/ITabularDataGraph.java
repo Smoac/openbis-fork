@@ -33,8 +33,7 @@ public interface ITabularDataGraph
     public abstract void generateImage() throws IOException;
 
     /**
-     * Create an image,overriding the width and height in the configuration from the file lines and
-     * write it to the output stream.
+     * Create an image,overriding the width and height in the configuration from the file lines and write it to the output stream.
      * 
      * @param imageWidth The desired width of the image
      * @param imageHeight The desired height of the image

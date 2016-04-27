@@ -59,7 +59,7 @@ public class ShareIdManagerTest extends AssertJUnit
     {
         level = Logger.getRootLogger().getLevel();
         Logger.getRootLogger().setLevel(Level.DEBUG);
-        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.DEBUG, 
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.DEBUG,
                 ".*" + ShareIdManager.class.getSimpleName());
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
@@ -166,8 +166,7 @@ public class ShareIdManagerTest extends AssertJUnit
             }, "T1").start();
         ch.assertNextMessage("Lock for data set ds1 hasn't been released after "
                 + "time out of 1 seconds.");
-        
-        
+
         String logContent = logRecorder.getLogContent();
 
         assertTrue(logContent.contains("INFO  OPERATION.ShareIdManager"
@@ -263,8 +262,7 @@ public class ShareIdManagerTest extends AssertJUnit
             assertEquals("Lock for data set ds1 hasn't been released after time out of 1 seconds.",
                     ex.getMessage());
         }
-        
-        
+
         String logContent = logRecorder.getLogContent();
 
         assertTrue(logContent.contains("INFO  OPERATION.ShareIdManager"

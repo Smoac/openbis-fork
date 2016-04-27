@@ -32,12 +32,10 @@ public class FtpFileFactory
 {
 
     /**
-     * This is just a convenience method that retrieves all necessary data from an
-     * {@link IHierarchicalContentNode} and constructs an {@link FtpFile}.
+     * This is just a convenience method that retrieves all necessary data from an {@link IHierarchicalContentNode} and constructs an {@link FtpFile}.
      * <p>
-     * The reference to {@link IHierarchicalContentNode} is *not* kept by the returned instance.
-     * Thus, callers are responsible for closing all resources associated with the
-     * {@link IHierarchicalContentNode} on their own.
+     * The reference to {@link IHierarchicalContentNode} is *not* kept by the returned instance. Thus, callers are responsible for closing all
+     * resources associated with the {@link IHierarchicalContentNode} on their own.
      */
     public static FtpFile createFtpFile(String dataSetCode, String path,
             IHierarchicalContentNode contentNode, IHierarchicalContent content,

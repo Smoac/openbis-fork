@@ -26,6 +26,7 @@ import java.io.InputStream;
 public class InputStreamWithPath
 {
     private final InputStream inputStream;
+
     private final String path;
 
     InputStreamWithPath(InputStream inputStream, String path)
@@ -43,5 +44,5 @@ public class InputStreamWithPath
     {
         return path;
     }
-        
+
 }

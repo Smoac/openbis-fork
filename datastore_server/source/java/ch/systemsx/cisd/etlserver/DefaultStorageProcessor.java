@@ -156,8 +156,7 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor implements
         }
 
         /**
-         * returns the only file or directory which is expected to be found inside original
-         * directory
+         * returns the only file or directory which is expected to be found inside original directory
          */
         @Override
         public File tryGetProprietaryData()

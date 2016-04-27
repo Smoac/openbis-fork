@@ -20,8 +20,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMetaprojectC
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMetaprojectImmutable;
 
 /**
- * 
- *
  * @author Jakub Straszewski
  */
 public interface IMetaproject extends IMetaprojectImmutable

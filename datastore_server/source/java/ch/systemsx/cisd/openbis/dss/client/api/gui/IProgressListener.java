@@ -26,12 +26,12 @@ import java.io.File;
 public interface IProgressListener
 {
     public void start(File file, String operationName, long fileSize, Long fileIdOrNull);
-    
+
     public void reportProgress(int percentage, long numberOfBytes);
-    
+
     public void finished(boolean successful);
- 
+
     public void warningOccured(String warningMessage);
-    
+
     public void exceptionOccured(Throwable throwable);
 }

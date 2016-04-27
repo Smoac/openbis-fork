@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.client.api.cli;
 
-
-
-
 import ch.systemsx.cisd.common.utilities.SystemExit;
 
 /**

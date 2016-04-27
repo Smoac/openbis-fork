@@ -23,8 +23,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.mail.IMailClient;
 
 /**
- * Storage processor which uses an {@link IDataSetUploader} after data set has been stored by a
- * wrapped {@link IStorageProcessorTransactional}.
+ * Storage processor which uses an {@link IDataSetUploader} after data set has been stored by a wrapped {@link IStorageProcessorTransactional}.
  * 
  * @author Franz-Josef Elmer
  */
@@ -41,8 +40,7 @@ public abstract class AbstractStrorageProcessorWithUploader extends
     }
 
     /**
-     * Creates an instance with a wrapped storage processor which will be created from the specified
-     * properties.
+     * Creates an instance with a wrapped storage processor which will be created from the specified properties.
      */
     public AbstractStrorageProcessorWithUploader(Properties properties, IDataSetUploader uploader)
     {
@@ -69,7 +67,9 @@ public abstract class AbstractStrorageProcessorWithUploader extends
 
         private final transient AbstractStrorageProcessorWithUploader processor;
 
-        StorageProcessorWithUploaderTransaction(StorageProcessorTransactionParameters parameters, IStorageProcessorTransaction nestedTransaction, AbstractStrorageProcessorWithUploader processor) {
+        StorageProcessorWithUploaderTransaction(StorageProcessorTransactionParameters parameters, IStorageProcessorTransaction nestedTransaction,
+                AbstractStrorageProcessorWithUploader processor)
+        {
             super(parameters, nestedTransaction);
             this.processor = processor;
         }
@@ -78,20 +78,20 @@ public abstract class AbstractStrorageProcessorWithUploader extends
         protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
         {
 
-                nestedTransaction.storeData(typeExtractor, mailClient, incomingDataSetDirectory);
+            nestedTransaction.storeData(typeExtractor, mailClient, incomingDataSetDirectory);
             File storeData = nestedTransaction.getStoredDataDirectory();
             File originalData = nestedTransaction.tryGetProprietaryData();
             if (originalData == null)
-                {
+            {
                 throw new ConfigurationFailureException(
                         "The original data is no longer available by the wrapped storage processor. "
                                 + "Another storage processor should be used.");
-                }
+            }
             processor.uploader.upload(originalData, dataSetInformation);
             return storeData;
         }
 
-            @Override
+        @Override
         public UnstoreDataAction executeRollback(Throwable exception)
         {
             try
@@ -111,14 +111,14 @@ public abstract class AbstractStrorageProcessorWithUploader extends
             return UnstoreDataAction.LEAVE_UNTOUCHED;
         }
 
-            @Override
+        @Override
         public void executeCommit()
         {
             nestedTransaction.commit();
             processor.uploader.commit();
         }
 
-        }
+    }
 
     /**
      * Logs an error for the specified data set and exception.

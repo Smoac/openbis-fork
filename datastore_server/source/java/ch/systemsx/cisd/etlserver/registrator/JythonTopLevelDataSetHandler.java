@@ -20,8 +20,7 @@ import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * The version of {@link ch.systemsx.cisd.etlserver.registrator.v1.JythonTopLevelDataSetHandler}.
- * Left here for backwards compatibility
+ * The version of {@link ch.systemsx.cisd.etlserver.registrator.v1.JythonTopLevelDataSetHandler}. Left here for backwards compatibility
  * 
  * @author Jakub Straszewski
  */

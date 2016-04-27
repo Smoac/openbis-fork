@@ -17,19 +17,17 @@
 package ch.systemsx.cisd.etlserver.postregistration;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DummyPostRegistrationTaskExecutor implements IPostRegistrationTaskExecutor
 {
     public static final IPostRegistrationTaskExecutor INSTANCE = new DummyPostRegistrationTaskExecutor();
-    
+
     @Override
     public void execute()
     {
     }
-    
+
     @Override
     public ICleanupTask createCleanupTask()
     {

@@ -36,13 +36,11 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 
 /**
- * PostgreSQL database files are designed to grow until they take up the entire available disk
- * space. It is therefore impossible to estimate what part of a hard disk is "free" by just asking
- * the file system.
+ * PostgreSQL database files are designed to grow until they take up the entire available disk space. It is therefore impossible to estimate what part
+ * of a hard disk is "free" by just asking the file system.
  * <p>
- * The {@link PostgresPlusFileSystemFreeSpaceProvider} estimates the free space on a drive as the
- * sum of the free disk space and the free space of a PostgreSQL database as returned by its
- * "pgstattuple" extension.
+ * The {@link PostgresPlusFileSystemFreeSpaceProvider} estimates the free space on a drive as the sum of the free disk space and the free space of a
+ * PostgreSQL database as returned by its "pgstattuple" extension.
  * 
  * <pre>
  * IMPORTANT: The class requires that the extension 'pgstattuple' is installed on the target
@@ -54,7 +52,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
  */
 public class PostgresPlusFileSystemFreeSpaceProvider implements IFreeSpaceProvider
 {
-    
+
     static final String EXECUTE_VACUUM_KEY = "execute-vacuum";
 
     static final String DATA_SOURCE_KEY = "monitored-data-source";

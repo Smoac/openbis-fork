@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.etlserver.registrator.recovery;
 
 /**
- * 
- *
  * @author jakubs
  */
 public class ContainerRecoveryAlgorithm

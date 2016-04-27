@@ -45,9 +45,9 @@ public class DataSetArgumentsTest extends AssertJUnit
     public void testParseBasicArguments()
     {
         String[] args =
-                    { "-u", "foo", "-p", "bar", "-s",
-                            TestInstanceHostUtils.getOpenBISUrl() + "/openbis",
-                            "20100318094819344-4" };
+        { "-u", "foo", "-p", "bar", "-s",
+                TestInstanceHostUtils.getOpenBISUrl() + "/openbis",
+                "20100318094819344-4" };
         try
         {
             parser.parseArgument(args);
@@ -68,7 +68,7 @@ public class DataSetArgumentsTest extends AssertJUnit
     public void testParseIncompleteArguments()
     {
         String[] args =
-            { "-u", "foo", "-p", "bar", "-s", TestInstanceHostUtils.getOpenBISUrl() + "/openbis" };
+        { "-u", "foo", "-p", "bar", "-s", TestInstanceHostUtils.getOpenBISUrl() + "/openbis" };
         try
         {
             parser.parseArgument(args);

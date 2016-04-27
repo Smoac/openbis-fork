@@ -128,13 +128,15 @@ public final class FileInfoDssDownloader
             IOUtils.copyLarge(is, fos);
         } catch (IOException e)
         {
-            if (file.exists()) {
+            if (file.exists())
+            {
                 file.delete();
             }
             throw new IOExceptionUnchecked(e);
         } catch (Exception e)
         {
-            if (file.exists()) {
+            if (file.exists())
+            {
                 file.delete();
             }
             throw new RuntimeException(e);

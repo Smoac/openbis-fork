@@ -223,8 +223,7 @@ class DataSetTypeToRegistratorMapper
         }
 
         public HashMap<String, ITopLevelDataSetRegistrator> getHandlerMap(
-                @SuppressWarnings("hiding")
-                HashMap<String, ITopLevelDataSetRegistrator> dropboxToHandlerMap)
+                @SuppressWarnings("hiding") HashMap<String, ITopLevelDataSetRegistrator> dropboxToHandlerMap)
         {
             HashMap<String, ITopLevelDataSetRegistrator> map =
                     new HashMap<String, ITopLevelDataSetRegistrator>();

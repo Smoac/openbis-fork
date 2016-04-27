@@ -26,9 +26,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 /**
  * A provider of {@link IHierarchicalContent} for given data set.
  * <p>
- * <b>NOTE</b>{@link IHierarchicalContent#close()} needs to be called to release resources when
- * working with the content is done. Otherwise data set will remain locked in its share until
- * timeout occurs.
+ * <b>NOTE</b>{@link IHierarchicalContent#close()} needs to be called to release resources when working with the content is done. Otherwise data set
+ * will remain locked in its share until timeout occurs.
  * 
  * @author Piotr Buczek
  * @author Chandrasekhar Ramakrishnan
@@ -78,9 +77,9 @@ public interface IHierarchicalContentProvider
      */
     @Deprecated
     IHierarchicalContent asContent(File datasetDirectory);
-    
+
     /**
-     * Creates a clone of this provider for the specified session token provider. 
+     * Creates a clone of this provider for the specified session token provider.
      */
     IHierarchicalContentProvider cloneFor(ISessionTokenProvider sessionTokenProvider);
 }

@@ -34,8 +34,7 @@ public class HierarchicalFileInfoDssBuilder
     /**
      * Constructor for FileInfoDssFactory
      * 
-     * @param listingRootNode node in the directory structure from which the recursive traversal
-     *            starts
+     * @param listingRootNode node in the directory structure from which the recursive traversal starts
      */
     public HierarchicalFileInfoDssBuilder(IHierarchicalContentNode listingRootNode)
     {
@@ -43,8 +42,7 @@ public class HierarchicalFileInfoDssBuilder
     }
 
     /**
-     * Append file info starting from the listing root node. Assumes that the parameters have been
-     * verified already.
+     * Append file info starting from the listing root node. Assumes that the parameters have been verified already.
      * 
      * @param list The list the files infos are appended to
      * @param isRecursive If true, directories will be recursively appended to the list

@@ -35,11 +35,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 
 /**
- * Reporting plugin that returns a table in which each column contains a graph. The number and
- * format of the graphs can be configured in a properties file.
+ * Reporting plugin that returns a table in which each column contains a graph. The number and format of the graphs can be configured in a properties
+ * file.
  * <p>
- * This plugin reads data from a file. The ImageAnalysisGraphReportingPlugin (in the screening
- * project) reads from the imaging db.
+ * This plugin reads data from a file. The ImageAnalysisGraphReportingPlugin (in the screening project) reads from the imaging db.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

@@ -46,7 +46,7 @@ public class TopLevelDataSetChecker
 
     public void runCheck()
     {
-        
+
         final File storeRootDirectory = storeRootDirectoryHolder.getStoreRootDirectory();
         storeRootDirectory.mkdirs();
         if (operationLog.isDebugEnabled())

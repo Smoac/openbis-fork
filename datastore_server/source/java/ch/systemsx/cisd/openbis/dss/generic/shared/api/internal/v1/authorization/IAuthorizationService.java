@@ -28,11 +28,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmuta
 public interface IAuthorizationService
 {
     boolean doesUserHaveRole(String user, String role, String spaceOrNull);
-    
+
     List<ISampleImmutable> filterToVisibleSamples(String user, List<ISampleImmutable> samples);
-    
+
     List<IDataSetImmutable> filterToVisibleDatasets(String user, List<IDataSetImmutable> datasets);
-    
+
     List<IExperimentImmutable> filterToVisibleExperiments(String user, List<IExperimentImmutable> experiments);
-    
+
 }

@@ -32,19 +32,29 @@ import ch.systemsx.cisd.common.reflection.ClassUtils;
 class ColumnDefinition
 {
     static final String MANDATORY_KEY = "mandatory";
+
     static final String ORDER_KEY = "order";
+
     static final String HEADER_VALIDATOR_KEY = "header-validator";
+
     static final String HEADER_PATTERN_KEY = "header-pattern";
+
     static final String VALUE_VALIDATOR_KEY = "value-validator";
+
     static final String CAN_DEFINE_MULTIPLE_COLUMNS_KEY = "can-define-multiple-columns";
-    
+
     private final String name;
+
     private final IColumnHeaderValidator headerValidator;
+
     private final IValidatorFactory valueValidatorFactory;
+
     private final boolean mandatory;
+
     private final Integer orderOrNull;
+
     private final boolean canDefineMultipleColumns;
-    
+
     static ColumnDefinition create(String name, Properties properties)
     {
         boolean mandatory = PropertyUtils.getBoolean(properties, MANDATORY_KEY, false);
@@ -103,7 +113,7 @@ class ColumnDefinition
         this.orderOrNull = orderOrNull;
         this.canDefineMultipleColumns = canDefineMultipleColumns;
     }
-    
+
     boolean canDefineMultipleColumns()
     {
         return canDefineMultipleColumns;

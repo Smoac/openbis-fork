@@ -31,13 +31,11 @@ public class HierarchicalContentTraverseUtil
 {
 
     /**
-     * Traverses all {@link IHierarchicalContentNode}-s within a data set specified by a data set
-     * code.
+     * Traverses all {@link IHierarchicalContentNode}-s within a data set specified by a data set code.
      * 
      * @param provider a provider class used to construct {@link IHierarchicalContent}.
      * @param dataSetCode the code of the data set to be traversed
-     * @param visitor a visitor that will be invoked for every traversed
-     *            {@link IHierarchicalContentNode}.
+     * @param visitor a visitor that will be invoked for every traversed {@link IHierarchicalContentNode}.
      */
     public static void traverse(IHierarchicalContentProvider provider, String dataSetCode,
             IHierarchicalContentNodeVisitor visitor)

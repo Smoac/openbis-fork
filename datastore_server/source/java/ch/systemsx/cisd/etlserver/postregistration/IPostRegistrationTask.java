@@ -21,9 +21,8 @@ import java.util.Properties;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 
 /**
- * Interface of a task executed after registration of a data set. Implementing class should have a
- * public constructor with two parameters: First is of type {@link Properties} and second is of type
- * {@link IEncapsulatedOpenBISService}.
+ * Interface of a task executed after registration of a data set. Implementing class should have a public constructor with two parameters: First is of
+ * type {@link Properties} and second is of type {@link IEncapsulatedOpenBISService}.
  * 
  * @author Franz-Josef Elmer
  */
@@ -33,17 +32,17 @@ public interface IPostRegistrationTask
      * Clear potential cache.
      */
     public void clearCache();
-    
+
     /**
      * Returns <code>true</code> if this task needs a lock onto the data store.
      */
     public boolean requiresDataStoreLock();
-    
+
     /**
      * Creates a task executor for the specified data set.
+     * 
      * @param container If <code>true</code> the data set is a container data set.
      */
     public IPostRegistrationTaskExecutor createExecutor(String dataSetCode, boolean container);
-    
-    
+
 }

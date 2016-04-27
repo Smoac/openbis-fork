@@ -208,21 +208,21 @@ public class MultiDataSetUnarchivingMaintenanceTaskTest extends AssertJUnit
 
         maintenanceTask.execute();
 
-        assertEquals(LOG_PREFIX + "Start unarchiving [DS-42, DS-43, DS-44]\n" 
-                + LOG_PREFIX + "Unarchiving finished for [DS-42, DS-43, DS-44]\n" 
+        assertEquals(LOG_PREFIX + "Start unarchiving [DS-42, DS-43, DS-44]\n"
+                + LOG_PREFIX + "Unarchiving finished for [DS-42, DS-43, DS-44]\n"
                 + LOG_PREFIX + "Start unarchiving [DS-45]\n"
                 + LOG_PREFIX + "Unarchiving finished for [DS-45]", logRecorder.getLogContent());
         assertExpectedArchiverTaskContext(recordingMatcher1.recordedObject());
         assertExpectedArchiverTaskContext(recordingMatcher2.recordedObject());
         context.assertIsSatisfied();
     }
-    
+
     private void assertExpectedArchiverTaskContext(ArchiverTaskContext archiverTaskContext)
     {
         assertSame(directoryProvider, archiverTaskContext.getDirectoryProvider());
         assertSame(hierarchicalContentProvider, archiverTaskContext.getHierarchicalContentProvider());
         assertEquals(true, archiverTaskContext.isForceUnarchiving());
-        
+
     }
 
     private void prepareListContainersForUnarchiving(final MultiDataSetArchiverContainerDTO... containers)

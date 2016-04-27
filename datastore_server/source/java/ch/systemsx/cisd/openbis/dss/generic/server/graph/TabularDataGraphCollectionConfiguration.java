@@ -394,8 +394,7 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
     }
 
     /**
-     * Return the graph generator associated with the graphTypeCode, initialized by the fileLines
-     * and out.
+     * Return the graph generator associated with the graphTypeCode, initialized by the fileLines and out.
      * 
      * @param graphName The name of the graph type
      * @param fileLines The data to generate a graph from

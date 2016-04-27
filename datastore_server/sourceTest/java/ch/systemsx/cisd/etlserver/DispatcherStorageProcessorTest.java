@@ -88,7 +88,7 @@ public class DispatcherStorageProcessorTest extends AssertJUnit
 
                     one(dummyA).accepts(dataset2, null);
                     will(returnValue(true));
-                    
+
                     one(dummyA).createTransaction(
                             with(any(StorageProcessorTransactionParameters.class)));
                     will(returnValue(transactionA));
@@ -101,7 +101,6 @@ public class DispatcherStorageProcessorTest extends AssertJUnit
         storeTransactionally(dispatcher, dataset1).commit();
         storeTransactionally(dispatcher, dataset2).rollback(new Throwable());
     }
-
 
     private void store(IStorageProcessorTransaction transaction,
             final DataSetInformation dataset)

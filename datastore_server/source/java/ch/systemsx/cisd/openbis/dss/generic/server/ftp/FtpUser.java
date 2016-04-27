@@ -24,8 +24,7 @@ import org.apache.ftpserver.ftplet.AuthorizationRequest;
 import org.apache.ftpserver.ftplet.User;
 
 /**
- * An implementation of the Apache {@link User} interface, additionally holding an authenticated
- * openBIS session token.
+ * An implementation of the Apache {@link User} interface, additionally holding an authenticated openBIS session token.
  * 
  * @author Kaloyan Enimanev
  */

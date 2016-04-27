@@ -33,7 +33,7 @@ public class AbstractFileTest extends SystemTestCase
     protected Set<String> directories;
 
     protected Set<String> files;
-    
+
     protected Set<String> filesAndDirectories;
 
     @Override
@@ -71,15 +71,14 @@ public class AbstractFileTest extends SystemTestCase
         filesAndDirectories = new HashSet<>();
         filesAndDirectories.addAll(files);
         filesAndDirectories.addAll(directories);
-        
+
         moveFileToIncoming(dataSetDir);
         waitUntilDataSetImported();
         waitUntilIndexUpdaterIsIdle();
         waitUntilDataSetPostRegistrationCompleted(dataSetCode);
     }
 
-    private void createDirectories(File dataSetDir, @SuppressWarnings("hiding")
-    Set<String> directories)
+    private void createDirectories(File dataSetDir, @SuppressWarnings("hiding") Set<String> directories)
     {
         for (String dir : directories)
         {

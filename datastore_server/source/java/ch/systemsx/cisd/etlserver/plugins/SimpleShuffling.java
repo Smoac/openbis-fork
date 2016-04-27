@@ -41,8 +41,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * Simple shuffling which moves data sets from full shares to the share with initial most free space
- * until it is full.
+ * Simple shuffling which moves data sets from full shares to the share with initial most free space until it is full.
  * 
  * @author Franz-Josef Elmer
  */

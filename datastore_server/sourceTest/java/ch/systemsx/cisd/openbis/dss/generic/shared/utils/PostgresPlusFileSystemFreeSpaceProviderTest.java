@@ -52,6 +52,7 @@ public class PostgresPlusFileSystemFreeSpaceProviderTest extends AssertJUnit
     private Mockery context;
 
     private IFreeSpaceProvider fsFreeSpaceProvider;
+
     private Connection connection;
 
     private BeanFactory mockApplicationContext;
@@ -64,7 +65,7 @@ public class PostgresPlusFileSystemFreeSpaceProviderTest extends AssertJUnit
         connection = context.mock(Connection.class);
 
         ServiceProviderTestWrapper.setApplicationContext(mockApplicationContext);
-        
+
         final IDataSourceProvider dsProvider =
                 ServiceProviderTestWrapper.mock(context, IDataSourceProvider.class);
         final DataSource dataSource = context.mock(DataSource.class);
@@ -89,7 +90,8 @@ public class PostgresPlusFileSystemFreeSpaceProviderTest extends AssertJUnit
         ServiceProviderTestWrapper.restoreApplicationContext();
     }
 
-    private Properties createProperties(boolean executeVacuum) {
+    private Properties createProperties(boolean executeVacuum)
+    {
         Properties props = new Properties();
         props.put(DATA_SOURCE_KEY, DATA_SOURCE);
         if (executeVacuum)
@@ -114,11 +116,11 @@ public class PostgresPlusFileSystemFreeSpaceProviderTest extends AssertJUnit
         final long postgresFreeSpace = 4098L;
         final long fsFreeSpace = 5001L;
         prepareFreeSpaceExpectations(postgresFreeSpace, fsFreeSpace);
-        
+
         File workDir = new File(".");
         HostAwareFile file = new HostAwareFile(workDir);
         long totalFreeSpace = provider.freeSpaceKb(file);
-        
+
         assertEquals(5005, totalFreeSpace);
     }
 

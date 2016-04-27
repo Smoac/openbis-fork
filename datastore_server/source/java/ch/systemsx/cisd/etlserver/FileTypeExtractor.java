@@ -31,8 +31,7 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 
 /**
- * Implementation of {@link IFileFormatTypeExtractor} which gets the types from the file extension.
- * Some of the types are hard-coded.
+ * Implementation of {@link IFileFormatTypeExtractor} which gets the types from the file extension. Some of the types are hard-coded.
  * 
  * @author Piotr Buczek
  */

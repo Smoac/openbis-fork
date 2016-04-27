@@ -28,8 +28,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
 
 /**
- * Abstract super class of {@link IPostRegistrationDatasetHandler} classes creating files which have
- * to be deleted in case of undo.
+ * Abstract super class of {@link IPostRegistrationDatasetHandler} classes creating files which have to be deleted in case of undo.
  * 
  * @author Franz-Josef Elmer
  */
@@ -51,7 +50,7 @@ public abstract class AbstractPostRegistrationDataSetHandlerForFileBasedUndo imp
     {
         this.fileOperations = fileOperations;
     }
-    
+
     /**
      * Returns the abstraction of file operations.
      */
@@ -59,7 +58,7 @@ public abstract class AbstractPostRegistrationDataSetHandlerForFileBasedUndo imp
     {
         return fileOperations;
     }
-    
+
     /**
      * Adds the specified file. In case of undo it will be deleted.
      */

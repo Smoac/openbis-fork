@@ -53,8 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
 /**
- * Helper class that maintains the state for handling put requests. The requests themselves are
- * serviced by the {@link PutDataSetExecutor}.
+ * Helper class that maintains the state for handling put requests. The requests themselves are serviced by the {@link PutDataSetExecutor}.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

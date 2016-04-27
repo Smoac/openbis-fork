@@ -43,9 +43,9 @@ public interface IMultiDataSetFileOperationsManager
 
     Status restoreDataSetsFromContainerInFinalDestination(String containerPath,
             List<? extends IDatasetLocation> dataSetLocations);
-    
+
     boolean isReplicatedArchiveDefined();
-    
+
     boolean isStagingAreaDefined();
 
     String getOriginalArchiveFilePath(String containerPath);

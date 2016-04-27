@@ -433,7 +433,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
 
                     one(hierarchicalContentProvider).asContent((AbstractExternalData) ds1);
                     will(returnValue(content));
-                    
+
                     one(hierarchicalContentProvider).cloneFor(with(sessionTokeProviderMatcher));
                     will(returnValue(hierarchicalContentProvider));
 

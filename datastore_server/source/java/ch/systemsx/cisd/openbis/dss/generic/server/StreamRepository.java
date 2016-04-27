@@ -72,7 +72,7 @@ public class StreamRepository implements IStreamRepository
 
     private final Map<String, InputStreamWithValidityDuration> streams =
 
-    new HashMap<String, InputStreamWithValidityDuration>();
+            new HashMap<String, InputStreamWithValidityDuration>();
 
     private final IUniqueIdGenerator inputStreamIDGenerator;
 

@@ -26,6 +26,6 @@ public interface IRendererFactory
     public String getContentType();
 
     public IDirectoryRenderer createDirectoryRenderer(RenderingContext context);
-    
+
     public IErrorRenderer createErrorRenderer();
 }

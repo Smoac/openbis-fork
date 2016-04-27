@@ -57,9 +57,9 @@ public class ShareFactory
     static final String SHUFFLE_PRIORITY_PROP = "shuffle-priority";
 
     public static final String WITHDRAW_SHARE_PROP = "withdraw-share";
-    
+
     public static final String IGNORED_FOR_SHUFFLING_PROP = "ignored-for-shuffling";
-    
+
     public static final String UNARCHIVING_SCRATCH_SHARE_PROP = "unarchiving-scratch-share";
 
     public static final String EXPERIMENTS_PROP = "experiments";
@@ -73,9 +73,9 @@ public class ShareFactory
     private boolean withdrawShare;
 
     private boolean ignoredForShuffling;
-    
+
     private boolean unarchivingScratchShare;
-    
+
     private Set<String> experimentIdentifiers = Collections.emptySet();
 
     private Set<String> dataSetTypes = Collections.emptySet();

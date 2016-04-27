@@ -32,8 +32,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 
 /**
- * Maintenance task deleting from a custom-specific database data sets which have been deleted from
- * openbis.
+ * Maintenance task deleting from a custom-specific database data sets which have been deleted from openbis.
  * 
  * @author Izabela Adamczyk
  */

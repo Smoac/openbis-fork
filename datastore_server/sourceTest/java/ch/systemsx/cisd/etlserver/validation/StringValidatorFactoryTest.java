@@ -25,8 +25,6 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class StringValidatorFactoryTest extends AssertJUnit
@@ -44,7 +42,7 @@ public class StringValidatorFactoryTest extends AssertJUnit
                     + "' not found in properties '[]'", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testEmptyValuesNotAllowed()
     {
@@ -74,7 +72,7 @@ public class StringValidatorFactoryTest extends AssertJUnit
             assertEquals("Empty value is not allowed.", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testEmptyValuesAllowed()
     {
@@ -83,7 +81,7 @@ public class StringValidatorFactoryTest extends AssertJUnit
         properties.setProperty(AbstractValidatorFactory.ALLOW_EMPTY_VALUES_KEY, "yes");
         StringValidatorFactory factory = new StringValidatorFactory(properties);
         IValidator validator = factory.createValidator("blabla");
-        
+
         validator.assertValid("a");
         validator.assertValid("a1");
         validator.assertValid("abc");
@@ -100,7 +98,7 @@ public class StringValidatorFactoryTest extends AssertJUnit
                     ex.getMessage());
         }
     }
-    
+
     @Test
     public void testEmptyValueSynonyms()
     {
@@ -110,7 +108,7 @@ public class StringValidatorFactoryTest extends AssertJUnit
         properties.setProperty(AbstractValidatorFactory.EMPTY_VALUE_SYNONYMS_KEY, "-");
         StringValidatorFactory factory = new StringValidatorFactory(properties);
         IValidator validator = factory.createValidator("blabla");
-        
+
         validator.assertValid("a");
         validator.assertValid("a1");
         validator.assertValid("abc");

@@ -90,8 +90,8 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
         private final GlobalProperties properties;
 
         /**
-         * Creates a wrapper on the properties. The FileNotFoundExcecption cannot happen in
-         * practice, since we've already verified that the file exists.
+         * Creates a wrapper on the properties. The FileNotFoundExcecption cannot happen in practice, since we've already verified that the file
+         * exists.
          * 
          * @param controlFile
          * @throws FileNotFoundException
@@ -138,9 +138,8 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
     /**
      * Utility class for accessing the properties defined in a control file.
      * <p>
-     * After instantiating this object, you should call check validity to ensure that none of the
-     * methods return null. If the object is invalid, you should check for null values, otherwise
-     * all methods will return non-null values unless otherwise noted.
+     * After instantiating this object, you should call check validity to ensure that none of the methods return null. If the object is invalid, you
+     * should check for null values, otherwise all methods will return non-null values unless otherwise noted.
      * 
      * @author Chandrasekhar Ramakrishnan
      */
@@ -153,8 +152,8 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
         private final Person user;
 
         /**
-         * An object that gets the definitive properties for registration. The properties are
-         * created by taking overrides when available, and defaults otherwise.
+         * An object that gets the definitive properties for registration. The properties are created by taking overrides when available, and defaults
+         * otherwise.
          */
         ControlFileRegistrationProperties(ControlFileOverrideProperties overrideProperties,
                 SampleAndDataSetRegistrationGlobalState globalProperties)
@@ -243,8 +242,8 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
     }
 
     /**
-     * Register the entities defined in the control file. Collect all the errors that happen and
-     * notify the user. If the file itself has errors, then throw an exception to the parent.
+     * Register the entities defined in the control file. Collect all the errors that happen and notify the user. If the file itself has errors, then
+     * throw an exception to the parent.
      */
     public void register() throws UserFailureException, EnvironmentFailureException,
             FileNotFoundException
@@ -479,8 +478,7 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
     }
 
     /**
-     * Send an email message to the person who uploaded the file, telling them that everything went
-     * ok.
+     * Send an email message to the person who uploaded the file, telling them that everything went ok.
      */
     private void sendEmailWithSuccessMessage(String message)
     {
@@ -502,9 +500,8 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
     }
 
     /**
-     * Send an email message to the person who uploaded the file. This method is only called if we
-     * have a valid email address to contact. Otherwise, errors are forwarded to a higher level for
-     * handling.
+     * Send an email message to the person who uploaded the file. This method is only called if we have a valid email address to contact. Otherwise,
+     * errors are forwarded to a higher level for handling.
      */
     private void sendEmailWithErrorMessage(String message)
     {

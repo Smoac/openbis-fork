@@ -17,15 +17,14 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 /**
- *  Interface for a renderer of an error messages. 
+ * Interface for a renderer of an error messages.
  *
  * @author Franz-Josef Elmer
  */
 public interface IErrorRenderer extends IWriterInjector
 {
     /**
-     * Prints the error message set by
-     * {@link IWriterInjector#setWriter(java.io.PrintWriter)}.
+     * Prints the error message set by {@link IWriterInjector#setWriter(java.io.PrintWriter)}.
      */
     public void printErrorMessage(String errorMessage);
 }

@@ -124,8 +124,8 @@ public class CommandPutTest extends AbstractFileSystemTestCase
 
         ResultCode exitCode =
                 command.execute(new String[]
-                    { "-s", "url", "-u", "user", "-p", "pswd", "-t", "my_type", "EXPERIMENT",
-                            "/s/p/e", dataSetExample.getPath() });
+                { "-s", "url", "-u", "user", "-p", "pswd", "-t", "my_type", "EXPERIMENT",
+                        "/s/p/e", dataSetExample.getPath() });
 
         assertEquals(ResultCode.OK, exitCode);
         context.assertIsSatisfied();

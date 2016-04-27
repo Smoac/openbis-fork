@@ -92,7 +92,7 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
             });
     }
 
-    @AfterMethod(alwaysRun=true)
+    @AfterMethod(alwaysRun = true)
     public void tearDown()
     {
         ServiceProviderTestWrapper.restoreApplicationContext();
@@ -164,7 +164,6 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
         assertEquals(errMessage, templateSize, rootSize);
     }
 
-
     private HierarchicalStorageUpdater updater()
     {
         return createUpdater(false);
@@ -175,14 +174,13 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
         return createUpdater(true);
     }
 
-
     private HierarchicalStorageUpdater createUpdater(boolean linkFromFirstChild)
     {
         final String pluginName = "hierarchical-storage-updater";
 
         Properties properties = new Properties();
         properties.setProperty(DssPropertyParametersUtil.STOREROOT_DIR_KEY, getStoreRoot().getAbsolutePath());
-        properties.setProperty(HierarchicalStorageUpdater.HIERARCHY_ROOT_DIR_KEY, 
+        properties.setProperty(HierarchicalStorageUpdater.HIERARCHY_ROOT_DIR_KEY,
                 getHierarchyRoot().getAbsolutePath());
         if (linkFromFirstChild)
         {

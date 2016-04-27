@@ -59,12 +59,11 @@ public class MarkerFileUtility
     {
         return new File(incoming.getParentFile(), FileConstants.IS_FINISHED_PREFIX + incoming.getName());
     }
-    
+
     /**
      * From given <var>isFinishedPath</var> gets the incoming data set path and checks it.
      * 
-     * @return <code>null</code> if a problem has happened. Otherwise a useful and usable incoming
-     *         data set path is returned.
+     * @return <code>null</code> if a problem has happened. Otherwise a useful and usable incoming data set path is returned.
      */
     public final File getIncomingDataSetPathFromMarker(final File isFinishedPath)
     {

@@ -25,8 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 
 /**
- * Implementation of {@link ITypeExtractor} which gets the types from the properties argument of the
- * constructor.
+ * Implementation of {@link ITypeExtractor} which gets the types from the properties argument of the constructor.
  * 
  * @author Franz-Josef Elmer
  */

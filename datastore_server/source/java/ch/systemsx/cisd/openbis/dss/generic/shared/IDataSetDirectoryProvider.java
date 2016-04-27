@@ -43,8 +43,7 @@ public interface IDataSetDirectoryProvider
     public File getDataSetDirectory(String shareId, String location);
 
     /**
-     * Returns the share id manager which is used for {@link #getDataSetDirectory(IDatasetLocation)}
-     * .
+     * Returns the share id manager which is used for {@link #getDataSetDirectory(IDatasetLocation)} .
      */
     public IShareIdManager getShareIdManager();
 }

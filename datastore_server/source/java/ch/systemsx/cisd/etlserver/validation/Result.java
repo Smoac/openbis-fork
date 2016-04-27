@@ -24,20 +24,20 @@ package ch.systemsx.cisd.etlserver.validation;
 public class Result
 {
     public static final Result OK = new Result(null);
-    
+
     public static final Result failure(String failureMessage)
     {
         assert failureMessage != null;
         return new Result(failureMessage);
     }
-    
+
     private final String failureMessage;
 
     private Result(String failureMessage)
     {
         this.failureMessage = failureMessage;
     }
-    
+
     public boolean isValid()
     {
         return failureMessage == null;
@@ -48,6 +48,5 @@ public class Result
     {
         return failureMessage == null ? "" : failureMessage;
     }
-    
-    
+
 }

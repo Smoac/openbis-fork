@@ -35,9 +35,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 
 /**
- * DataSetUploadOperation represents a request to upload a data set to openBIS/dss. The upload
- * operation runs in its own thread, which is managed by this class, and notifies the GUI and client
- * model of changes in status.
+ * DataSetUploadOperation represents a request to upload a data set to openBIS/dss. The upload operation runs in its own thread, which is managed by
+ * this class, and notifies the GUI and client model of changes in status.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -89,8 +88,8 @@ final class DataSetUploadOperation implements Runnable
     }
 
     /**
-     * When metadata extraction has produced non-existing vocabulary terms, we create them on the
-     * fly (as ad-hoc terms) to make the data set registration possible.
+     * When metadata extraction has produced non-existing vocabulary terms, we create them on the fly (as ad-hoc terms) to make the data set
+     * registration possible.
      */
     private void createAdHocVocabularyTermsIfNeeded(NewDataSetInfo dataSetInfo)
     {

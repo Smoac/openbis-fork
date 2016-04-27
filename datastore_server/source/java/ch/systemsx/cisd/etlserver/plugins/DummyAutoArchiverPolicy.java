@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 public class DummyAutoArchiverPolicy implements IAutoArchiverPolicy
 {
     public static final IAutoArchiverPolicy INSTANCE = new DummyAutoArchiverPolicy(null);
-    
+
     public DummyAutoArchiverPolicy(Properties properties)
     {
     }

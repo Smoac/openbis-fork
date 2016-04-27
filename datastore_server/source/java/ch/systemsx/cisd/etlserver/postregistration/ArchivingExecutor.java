@@ -188,7 +188,7 @@ class ArchivingExecutor implements IPostRegistrationTaskExecutor
                 boolean statusUpdated =
                         getService().compareAndSetDataSetStatus(dataSetCode, BACKUP_PENDING, AVAILABLE,
                                 false);
-                
+
                 if (statusUpdated == false)
                 {
                     // invalid data set status, do not continue
@@ -209,7 +209,7 @@ class ArchivingExecutor implements IPostRegistrationTaskExecutor
                         + "archiving of dataset '" + dataSetCode + "'.");
             }
         }
-        
+
         private IEncapsulatedOpenBISService getService()
         {
             if (service == null)
@@ -218,7 +218,7 @@ class ArchivingExecutor implements IPostRegistrationTaskExecutor
             }
             return service;
         }
-        
+
         private IArchiverPlugin getArchiver()
         {
             if (archiver == null)

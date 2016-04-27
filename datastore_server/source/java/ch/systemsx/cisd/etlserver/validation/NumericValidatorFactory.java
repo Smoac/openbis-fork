@@ -34,10 +34,13 @@ class NumericValidatorFactory extends AbstractValidatorFactory
     private static final class Range
     {
         private double minimum;
+
         private boolean minimumIncluded;
+
         private double maximum;
+
         private boolean maximumIncluded;
-        
+
         Range(String rangeDescription)
         {
             if (rangeDescription.length() < 3)
@@ -113,17 +116,17 @@ class NumericValidatorFactory extends AbstractValidatorFactory
             }
         }
     }
-    
+
     private final static class NumericValidator extends AbstractValidator
     {
         private final Range rangeOrNull;
-        
+
         NumericValidator(boolean allowEmptyValues, Set<String> emptyValueSynonyms, Range rangeOrNull)
         {
             super(allowEmptyValues, emptyValueSynonyms);
             this.rangeOrNull = rangeOrNull;
         }
-        
+
         @Override
         protected void assertValidNonEmptyValue(String value)
         {
@@ -139,11 +142,11 @@ class NumericValidatorFactory extends AbstractValidatorFactory
                 throw new UserFailureException("Not a number: " + value);
             }
         }
-        
+
     }
-    
+
     private NumericValidator validator;
-    
+
     NumericValidatorFactory(Properties properties)
     {
         super(properties);

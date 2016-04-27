@@ -103,7 +103,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
     private final IFreeSpaceProvider freeSpaceProvider;
 
     private final IDataSetMover dataSetMover;
-    
+
     private final IChecksumProvider checksumProvider;
 
     private final ISimpleLogger logger;
@@ -113,7 +113,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
     private final File storeRoot;
 
     private final String dataStoreCode;
-    
+
     private final Set<String> incomingShares;
 
     private IShareFinder finder;
@@ -179,8 +179,9 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
             return null;
         }
     }
-    
+
     private List<Share> shares;
+
     private Date sharesTimestamp;
 
     @Override
@@ -197,10 +198,10 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
 
     private List<Share> getShares()
     {
-        if (shares == null || sharesTimestamp == null 
+        if (shares == null || sharesTimestamp == null
                 || sharesTimestamp.getTime() + SHARES_CACHING_TIMEOUT < System.currentTimeMillis())
         {
-            shares = SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode, 
+            shares = SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode,
                     FilterOptions.AVAILABLE_FOR_SHUFFLING,
                     incomingShares, freeSpaceProvider, service, logger);
             sharesTimestamp = new Date();
@@ -258,12 +259,13 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
                     if (service.isDataSetOnTrashCanOrDeleted(dataSetCode))
                     {
                         logger.log(LogLevel.WARN, "Data set " + dataSetCode + " will not be moved from share "
-                                + dataSet.getDataSetShareId() + " to " + shareId 
+                                + dataSet.getDataSetShareId() + " to " + shareId
                                 + " because it is in the trash can or has been deleted.");
-                    } else {
+                    } else
+                    {
                         long freeSpaceBefore = shareWithMostFreeOrNull.calculateFreeSpace();
                         File share = new File(storeRoot, shareIdManager.getShareId(dataSetCode));
-                        
+
                         dataSetMover.moveDataSetToAnotherShare(
                                 new File(share, dataSet.getDataSetLocation()),
                                 shareWithMostFreeOrNull.getShare(), getChecksumProvider(), logger);

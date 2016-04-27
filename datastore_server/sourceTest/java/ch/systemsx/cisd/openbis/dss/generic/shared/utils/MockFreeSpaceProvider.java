@@ -35,7 +35,7 @@ public class MockFreeSpaceProvider implements IFreeSpaceProvider
     {
         this.freeSpaceValues = freeSpaceValues;
     }
-    
+
     public List<String> getShares()
     {
         return shares;

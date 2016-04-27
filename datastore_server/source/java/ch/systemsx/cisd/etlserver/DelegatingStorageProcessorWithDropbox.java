@@ -25,11 +25,10 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
 
 /**
- * Storage processor which delegates to a wrapped {@link IStorageProcessorTransactional}. In
- * addition a {@link IPostRegistrationDatasetHandler} handles the data set.
+ * Storage processor which delegates to a wrapped {@link IStorageProcessorTransactional}. In addition a {@link IPostRegistrationDatasetHandler}
+ * handles the data set.
  * <p>
- * The processor uses following properties: {@link #DELEGATE_PROCESSOR_CLASS_PROPERTY}. All the
- * properties are also passed for the default processor.
+ * The processor uses following properties: {@link #DELEGATE_PROCESSOR_CLASS_PROPERTY}. All the properties are also passed for the default processor.
  * </p>
  * 
  * @author Tomasz Pylak
@@ -60,7 +59,6 @@ public abstract class DelegatingStorageProcessorWithDropbox extends
         this.properties = properties;
         this.fileOperations = fileOperations;
     }
-
 
     //
     // AbstractStorageProcessor

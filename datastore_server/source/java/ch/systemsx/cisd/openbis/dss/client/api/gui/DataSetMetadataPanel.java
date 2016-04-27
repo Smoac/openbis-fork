@@ -204,7 +204,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         dataSetTypePanel = new JPanel();
 
         String[] initialOptions =
-            { EMPTY_FILE_SELECTION };
+        { EMPTY_FILE_SELECTION };
         dataSetFileComboBox = new JComboBox(initialOptions);
         dataSetFileButton = new JButton("Browse...");
         dataSetFileValidateButton = new JButton("Validate");

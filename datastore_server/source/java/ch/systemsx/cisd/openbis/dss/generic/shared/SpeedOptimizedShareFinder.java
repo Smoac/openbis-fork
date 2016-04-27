@@ -23,10 +23,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * A share finder which first searches for the extension share with most free space which matches
- * speed. If nothing is found it does the same also for all extension shares but speed needs not to
- * match but speed hint needs to be respected. If this isn't working {@link SimpleShareFinder} is
- * used ignoring speed hint.
+ * A share finder which first searches for the extension share with most free space which matches speed. If nothing is found it does the same also for
+ * all extension shares but speed needs not to match but speed hint needs to be respected. If this isn't working {@link SimpleShareFinder} is used
+ * ignoring speed hint.
  * 
  * @author Franz-Josef Elmer
  */
@@ -78,5 +77,5 @@ public class SpeedOptimizedShareFinder implements IShareFinder
         }
         return result;
     }
-    
+
 }

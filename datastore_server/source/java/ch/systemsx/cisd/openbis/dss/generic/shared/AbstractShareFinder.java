@@ -22,8 +22,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * Abstract implementation which fulfills the contract of {@link IShareFinder} concerning speed
- * hint.
+ * Abstract implementation which fulfills the contract of {@link IShareFinder} concerning speed hint.
  * 
  * @author Franz-Josef Elmer
  */
@@ -61,9 +60,8 @@ public abstract class AbstractShareFinder implements IShareFinder
     }
 
     /**
-     * Tries to find a share from the specified shares to whom the specified data set can be moved.
-     * The returned share has to fulfill specified speed checker. That is, if return value
-     * <code>share != null</code> then <code>speedChecker(dataSet, share) == true</code>.
+     * Tries to find a share from the specified shares to whom the specified data set can be moved. The returned share has to fulfill specified speed
+     * checker. That is, if return value <code>share != null</code> then <code>speedChecker(dataSet, share) == true</code>.
      */
     protected abstract Share tryToFindShare(SimpleDataSetInformationDTO dataSet,
             List<Share> shares, ISpeedChecker speedChecker);

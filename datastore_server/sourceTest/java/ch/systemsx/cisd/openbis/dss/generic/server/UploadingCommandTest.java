@@ -294,7 +294,7 @@ public class UploadingCommandTest extends AssertJUnit
                 {
                     one(shareIdManager).getShareId("1");
                     will(returnValue(SHARE_ID));
-                    
+
                     one(shareIdManager).getShareId("2");
                     will(returnValue(SHARE_ID));
                 }
@@ -532,7 +532,7 @@ public class UploadingCommandTest extends AssertJUnit
                     will(throwException(new AuthorizationFailureException("forget it!")));
                 }
             });
-        
+
         try
         {
             commandAdminSessionNotAuthenticated.execute(null, directoryProvider);

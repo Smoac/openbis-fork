@@ -27,8 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 public class CodeAndLabelUtil
 {
     /**
-     * Creates an instance from specified label with optional code prefix in form of
-     * <code>&lt;code&gt;</code>. The code will be normalized.
+     * Creates an instance from specified label with optional code prefix in form of <code>&lt;code&gt;</code>. The code will be normalized.
      */
     public static CodeAndLabel create(String labelWithOptionalCode)
     {

@@ -34,12 +34,12 @@ class Project extends ProjectImmutable implements IProject
         super(project);
         newAttachments = new ArrayList<NewAttachment>();
     }
-    
+
     public Project(String projectIdentifier)
     {
         this(projectIdentifier, false);
     }
-    
+
     public Project(String projectIdentifier, boolean isExistingProject)
     {
         super(new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project(), isExistingProject);

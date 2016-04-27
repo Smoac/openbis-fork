@@ -36,18 +36,20 @@ import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DSSFileSystemViewTest extends AssertJUnit
 {
     private static final String SESSION_TOKEN = "session";
-    
+
     private TrackingMockery context;
+
     private IServiceForDataStoreServer service;
+
     private IGeneralInformationService infoService;
+
     private IFtpPathResolverRegistry registry;
+
     private DSSFileSystemView view;
 
     @BeforeMethod
@@ -60,7 +62,7 @@ public class DSSFileSystemViewTest extends AssertJUnit
         prepareTryResolve("/");
         view = new DSSFileSystemView(SESSION_TOKEN, service, infoService, registry);
     }
-    
+
     @AfterMethod
     public void tearDown(Method m)
     {
@@ -72,38 +74,38 @@ public class DSSFileSystemViewTest extends AssertJUnit
             throw new Error(m.getName() + "() : ", t);
         }
     }
-    
+
     @Test
     public void testGetRoot() throws FtpException
     {
         FtpFile file = view.getFile("./");
-        
+
         assertEquals("/", file.getAbsolutePath());
     }
-    
+
     @Test
     public void testGetFile() throws FtpException
     {
         prepareTryResolve("/abc/g h_i/j  k l");
-        
+
         FtpFile file = view.getFile("abc/def/../g h_i//j  k l//");
-        
+
         assertEquals("/abc/g h_i/j  k l", file.getAbsolutePath());
     }
-    
+
     @Test
     public void testChangeDirAndGetFile() throws FtpException
     {
         prepareTryResolve("/abc");
         prepareTryResolve("/abc/def/ghi");
-        
+
         view.changeWorkingDirectory("abc");
-        
+
         FtpFile file = view.getFile("def/ghi/");
-        
+
         assertEquals("/abc/def/ghi", file.getAbsolutePath());
     }
-    
+
     private void prepareTryResolve(final String normalizedPath)
     {
         context.checking(new Expectations()
@@ -113,37 +115,37 @@ public class DSSFileSystemViewTest extends AssertJUnit
                     one(registry).resolve(with(normalizedPath), with(recorder));
                     will(returnValue(new AbstractFtpFile(normalizedPath)
                         {
-                            
+
                             @Override
                             public boolean isFile()
                             {
                                 return false;
                             }
-                            
+
                             @Override
                             public boolean isDirectory()
                             {
                                 return true;
                             }
-                            
+
                             @Override
                             public long getSize()
                             {
                                 return 0;
                             }
-                            
+
                             @Override
                             public long getLastModified()
                             {
                                 return 0;
                             }
-                            
+
                             @Override
                             public InputStream createInputStream(long offset) throws IOException
                             {
                                 return null;
                             }
-                            
+
                             @Override
                             public List<FtpFile> unsafeListFiles() throws RuntimeException
                             {

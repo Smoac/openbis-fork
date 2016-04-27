@@ -23,14 +23,12 @@ import java.util.Set;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class UniqueValidatorFactory implements IValidatorFactory
 {
     private final IValidator validator;
-    
+
     UniqueValidatorFactory(Properties properties)
     {
         String regex = properties.getProperty(StringValidatorFactory.VALUE_PATTERN_KEY);
@@ -49,7 +47,7 @@ class UniqueValidatorFactory implements IValidatorFactory
         return new IValidator()
             {
                 private final Set<String> values = new HashSet<String>();
-                
+
                 @Override
                 public void assertValid(String value)
                 {

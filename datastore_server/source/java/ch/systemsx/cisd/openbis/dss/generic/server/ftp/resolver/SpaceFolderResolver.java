@@ -36,8 +36,7 @@ public class SpaceFolderResolver implements IFtpPathResolver
 {
 
     /**
-     * @return <code>true</code> for all paths containing single folder, <code>false</code> for all
-     *         other paths.
+     * @return <code>true</code> for all paths containing single folder, <code>false</code> for all other paths.
      */
     @Override
     public boolean canResolve(String path)

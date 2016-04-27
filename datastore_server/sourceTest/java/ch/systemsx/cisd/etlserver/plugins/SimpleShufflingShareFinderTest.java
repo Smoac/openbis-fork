@@ -41,11 +41,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=SimpleShufflingShareFinder.class)
+@Friend(toClasses = SimpleShufflingShareFinder.class)
 public class SimpleShufflingShareFinderTest extends AssertJUnit
 {
     private static final String DATA_SET_CODE = "ds-1";
@@ -53,11 +51,13 @@ public class SimpleShufflingShareFinderTest extends AssertJUnit
     private static final class MockSpeedChecker implements ISpeedChecker
     {
         private final boolean[] checkingResults;
-        
+
         private final List<Share> recordedShares = new ArrayList<Share>();
+
         private SimpleDataSetInformationDTO recordedDataSet;
+
         private int index;
-        
+
         MockSpeedChecker(boolean... checkingResults)
         {
             this.checkingResults = checkingResults;
@@ -70,7 +70,7 @@ public class SimpleShufflingShareFinderTest extends AssertJUnit
             recordedShares.add(share);
             return checkingResults[index++];
         }
-        
+
         void verify(SimpleDataSetInformationDTO expectedDataSet, Share... expectedShares)
         {
             assertEquals(index, checkingResults.length);
@@ -82,11 +82,13 @@ public class SimpleShufflingShareFinderTest extends AssertJUnit
             assertEquals(expectedShares.length, recordedShares.size());
         }
     }
-    
+
     private Mockery context;
+
     private IFreeSpaceProvider freeSpaceProvider;
+
     private SimpleDataSetInformationDTO dataSet;
-    
+
     @BeforeMethod
     public void setUp()
     {
@@ -96,35 +98,35 @@ public class SimpleShufflingShareFinderTest extends AssertJUnit
         dataSet.setDataSetCode(DATA_SET_CODE);
         dataSet.setDataSetSize(FileUtils.ONE_MB);
     }
-    
+
     @Test
     public void testNoSpeedCheckingShare()
     {
         SimpleShufflingShareFinder finder = new SimpleShufflingShareFinder(new Properties());
         MockSpeedChecker speedChecker = new MockSpeedChecker(false);
         Share share = share("1", 0);
-        
+
         Share foundShare = finder.tryToFindShare(dataSet, Arrays.asList(share), speedChecker);
-        
+
         assertEquals(null, foundShare);
         speedChecker.verify(dataSet, share);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testFoundNothing()
     {
         SimpleShufflingShareFinder finder = new SimpleShufflingShareFinder(new Properties());
         MockSpeedChecker speedChecker = new MockSpeedChecker(true);
         Share share = share("1", 10 * FileUtils.ONE_MB);
-        
+
         Share foundShare = finder.tryToFindShare(dataSet, Arrays.asList(share), speedChecker);
-        
+
         assertSame(null, foundShare);
         speedChecker.verify(dataSet, share);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testFoundMaximum()
     {
@@ -135,14 +137,14 @@ public class SimpleShufflingShareFinderTest extends AssertJUnit
         Share s1 = share("1", 10 * FileUtils.ONE_MB);
         Share s2 = share("2", 0);
         Share s3 = share("3", 30 * FileUtils.ONE_MB);
-        
+
         Share foundShare = finder.tryToFindShare(dataSet, Arrays.asList(s1, s2, s3), speedChecker);
-        
+
         assertSame(s3, foundShare);
         speedChecker.verify(dataSet, s1, s2, s3);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDoNotFindHomeShare()
     {

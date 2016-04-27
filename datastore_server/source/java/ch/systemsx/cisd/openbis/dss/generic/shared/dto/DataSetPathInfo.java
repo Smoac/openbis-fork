@@ -32,11 +32,11 @@ public class DataSetPathInfo
     private String relativePath;
 
     private boolean directory;
-    
+
     private Date lastModified;
 
     private long sizeInBytes;
-    
+
     private Integer checksumCRC32;
 
     private DataSetPathInfo parent;

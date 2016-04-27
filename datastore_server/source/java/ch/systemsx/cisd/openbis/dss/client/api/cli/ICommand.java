@@ -22,8 +22,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * A <code>ICommand</code> encapsulates one action that gets called on the client side using the
- * prompt or terminal window.
+ * A <code>ICommand</code> encapsulates one action that gets called on the client side using the prompt or terminal window.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -35,8 +34,8 @@ public interface ICommand
      * <p>
      * The arguments are the <code>main(String[])</code> method ones.
      * </p>
-     * Note that this method is expected to throw given <code>RuntimeException</code>
-     * (<i>unchecked</i>) exceptions. So do not catch them and let the <i>caller</i> handle them.
+     * Note that this method is expected to throw given <code>RuntimeException</code> (<i>unchecked</i>) exceptions. So do not catch them and let the
+     * <i>caller</i> handle them.
      * 
      * @return exit code, will be used in <code>System.exit()</code>.
      */
@@ -46,8 +45,7 @@ public interface ICommand
     /**
      * Returns the name of this command.
      * <p>
-     * On the client side, this <code>ICommand</code> is registered with this name. This is kind of
-     * unique identifier of this <code>ICommand</code>.
+     * On the client side, this <code>ICommand</code> is registered with this name. This is kind of unique identifier of this <code>ICommand</code>.
      * </p>
      */
     public String getName();

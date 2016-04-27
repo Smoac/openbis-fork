@@ -37,14 +37,12 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 
 /**
- * A service for updating data set status in openBIS. It provides a method
- * {@link #update(DataSetCodesWithStatus)} that queues updates using a separate thread to actually
- * perform update.
+ * A service for updating data set status in openBIS. It provides a method {@link #update(DataSetCodesWithStatus)} that queues updates using a
+ * separate thread to actually perform update.
  * <p>
  * Note that the service needs to be started via {@link #start(File, TimingParameters)}.
  * <p>
- * A file that keeps track of all the data sets that are to be updated needs to be specified in
- * order to persist program restart.
+ * A file that keeps track of all the data sets that are to be updated needs to be specified in order to persist program restart.
  * 
  * @author Piotr Buczek
  */
@@ -66,11 +64,9 @@ public class QueueingDataSetStatusUpdaterService
     private static IDataSetStatusUpdater updater = null;
 
     /**
-     * Initializes the updater thread. <i>Needs to be called before this class is constructed for
-     * the first time.</i>
+     * Initializes the updater thread. <i>Needs to be called before this class is constructed for the first time.</i>
      * 
-     * @param queueFile the file that will be used to persist the items to be deleted over program
-     *            restart.
+     * @param queueFile the file that will be used to persist the items to be deleted over program restart.
      */
     public static final void start(File queueFile)
     {
@@ -78,11 +74,9 @@ public class QueueingDataSetStatusUpdaterService
     }
 
     /**
-     * Initializes the updater thread. <i>Needs to be called before this class is constructed for
-     * the first time.</i>
+     * Initializes the updater thread. <i>Needs to be called before this class is constructed for the first time.</i>
      * 
-     * @param queueFile the file that will be used to persist the items to be deleted over program
-     *            restart.
+     * @param queueFile the file that will be used to persist the items to be deleted over program restart.
      */
     public static synchronized final void start(final File queueFile, TimingParameters parameters)
     {
@@ -206,8 +200,7 @@ public class QueueingDataSetStatusUpdaterService
     }
 
     /**
-     * Stop the service and wait for it to finish, but at most <var>timeoutMillis</var>
-     * milli-seconds.
+     * Stop the service and wait for it to finish, but at most <var>timeoutMillis</var> milli-seconds.
      * 
      * @return <code>true</code>, if stopping was successful, <code>false</code> otherwise.
      */
@@ -255,8 +248,7 @@ public class QueueingDataSetStatusUpdaterService
     }
 
     /**
-     * Helper class with a {@link #sleepAndIncreaseSleepTime()} method that invokes
-     * {@link Thread#sleep(long)} with an increasing amount time.
+     * Helper class with a {@link #sleepAndIncreaseSleepTime()} method that invokes {@link Thread#sleep(long)} with an increasing amount time.
      */
     private static class Sleeper
     {

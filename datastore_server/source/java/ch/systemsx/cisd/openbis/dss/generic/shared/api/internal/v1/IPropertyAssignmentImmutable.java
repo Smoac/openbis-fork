@@ -54,8 +54,7 @@ public interface IPropertyAssignmentImmutable
     String getSection();
 
     /**
-     * Return the position at which the property will be rendered when editing/registering objects
-     * of the specified entity type.
+     * Return the position at which the property will be rendered when editing/registering objects of the specified entity type.
      */
     Long getPositionInForms();
 

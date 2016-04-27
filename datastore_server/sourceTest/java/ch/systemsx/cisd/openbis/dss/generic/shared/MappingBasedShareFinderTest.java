@@ -41,14 +41,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SimpleDataSetHelper;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class MappingBasedShareFinderTest extends AbstractFileSystemTestCase
 {
     private File mappingFile;
+
     private Properties properties;
+
     private SimpleDataSetInformationDTO dataSetInfo;
 
     @BeforeMethod
@@ -62,7 +62,7 @@ public class MappingBasedShareFinderTest extends AbstractFileSystemTestCase
                 .getDataSet();
         dataSetInfo = SimpleDataSetHelper.filterAndTranslate(Arrays.<AbstractExternalData> asList(dataSet)).get(0);
     }
-    
+
     @Test
     public void test()
     {
@@ -73,12 +73,12 @@ public class MappingBasedShareFinderTest extends AbstractFileSystemTestCase
                 + "/S2\t4,5\t");
         properties.setProperty(MappingBasedShareFinder.MAPPING_FILE_KEY, mappingFile.toString());
         IShareFinder shareFinder = new MappingBasedShareFinder(properties);
-        
+
         Share share = shareFinder.tryToFindShare(dataSetInfo, shares(9, 11, 12));
-        
+
         assertEquals("2", share.getShareId());
     }
-    
+
     private List<Share> shares(int... sizes)
     {
         List<Share> shares = new ArrayList<Share>();

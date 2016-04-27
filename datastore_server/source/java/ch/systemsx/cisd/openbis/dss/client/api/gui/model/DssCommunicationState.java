@@ -33,8 +33,7 @@ public class DssCommunicationState
     private static final long CONNECTION_TIMEOUT_MILLIS = 60 * DateUtils.MILLIS_PER_SECOND;
 
     /**
-     * Create a new instance of the DssCommunicationState based info in the arguments. Throws an
-     * exception if it could not be created.
+     * Create a new instance of the DssCommunicationState based info in the arguments. Throws an exception if it could not be created.
      */
     public DssCommunicationState(String[] args) throws UserFailureException,
             EnvironmentFailureException

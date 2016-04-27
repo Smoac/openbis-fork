@@ -23,27 +23,28 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskFacto
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchDomainService;
 
 /**
- * Abstract super class of all {@link ISearchDomainService} implementations which get the label from 
- * the property {@link PluginTaskFactory#LABEL_PROPERTY_NAME}.
+ * Abstract super class of all {@link ISearchDomainService} implementations which get the label from the property
+ * {@link PluginTaskFactory#LABEL_PROPERTY_NAME}.
  *
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractSearchDomainService implements ISearchDomainService
 {
     private final String label;
+
     protected String name;
 
     protected AbstractSearchDomainService(Properties properties, File storeRoot)
     {
         label = properties.getProperty(PluginTaskFactory.LABEL_PROPERTY_NAME);
     }
-    
+
     @Override
     public String getLabel()
     {
         return label;
     }
-    
+
     public void setName(String name)
     {
         this.name = name;

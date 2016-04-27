@@ -57,8 +57,7 @@ public abstract class AbstractEntityPickerDialog extends JDialog
     /**
      * @param mainWindow The parent window of thie dialog
      * @param title The title of the window
-     * @param clientModel the client model used for connecting to the openBIS server and for
-     *            caching.
+     * @param clientModel the client model used for connecting to the openBIS server and for caching.
      */
     public AbstractEntityPickerDialog(JFrame mainWindow, String title,
             DataSetUploadClientModel clientModel)
@@ -115,7 +114,7 @@ public abstract class AbstractEntityPickerDialog extends JDialog
                 }
             }.start();
     }
-    
+
     protected static JPanel createFilterAndRefreshButtonPanel(JTextField textField,
             JButton refreshButton)
     {

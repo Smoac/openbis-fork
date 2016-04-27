@@ -37,8 +37,7 @@ public interface IDataSetImmutable extends IMetaprojectContent
     public String getDataSetCode();
 
     /**
-     * Get the experiment for this data set. This can only be null at initialization time, and will
-     * be non-null for a valid data set.
+     * Get the experiment for this data set. This can only be null at initialization time, and will be non-null for a valid data set.
      * 
      * @return The experiment for this data set (will be non-null for a valid data set)
      */
@@ -52,8 +51,7 @@ public interface IDataSetImmutable extends IMetaprojectContent
     ISampleImmutable getSample();
 
     /**
-     * The file format type of the data set. Defaults to the default specified in
-     * {@link FileFormatType}.
+     * The file format type of the data set. Defaults to the default specified in {@link FileFormatType}.
      * <p>
      * This property is undefined for container data sets.
      * 
@@ -69,14 +67,12 @@ public interface IDataSetImmutable extends IMetaprojectContent
     public boolean isMeasuredData();
 
     /**
-     * Get the data set type. This is only null during initialization and is non-null for a valid
-     * data set.
+     * Get the data set type. This is only null during initialization and is non-null for a valid data set.
      */
     public String getDataSetType();
 
     /**
-     * Returns data set type with property types and vocabulary terms for all property types with
-     * vocabulary data type.
+     * Returns data set type with property types and vocabulary terms for all property types with vocabulary data type.
      * 
      * @throws UserFailureException if data set type code hasn't been defined.
      */
@@ -95,8 +91,7 @@ public interface IDataSetImmutable extends IMetaprojectContent
     public String getPropertyValue(String propertyCode);
 
     /**
-     * Returns codes of all properties of this dataset. Each code can be used when calling
-     * {@link #getPropertyValue(String)}.
+     * Returns codes of all properties of this dataset. Each code can be used when calling {@link #getPropertyValue(String)}.
      */
     public List<String> getAllPropertyCodes();
 
@@ -104,8 +99,7 @@ public interface IDataSetImmutable extends IMetaprojectContent
     public List<String> getParentDatasets();
 
     /**
-     * Gets the children data sets. Only available for data sets existing prior the transaction
-     * start.
+     * Gets the children data sets. Only available for data sets existing prior the transaction start.
      */
     public List<IDataSetImmutable> getChildrenDataSets();
 
@@ -113,8 +107,7 @@ public interface IDataSetImmutable extends IMetaprojectContent
     public boolean isContainerDataSet();
 
     /**
-     * Get the codes for contained data sets. This is empty if {@link #isContainerDataSet()} returns
-     * false.
+     * Get the codes for contained data sets. This is empty if {@link #isContainerDataSet()} returns false.
      */
     public List<String> getContainedDataSetCodes();
 
@@ -124,19 +117,19 @@ public interface IDataSetImmutable extends IMetaprojectContent
     public boolean isContainedDataSet();
 
     /**
-     * Return the code of the container in which this data set is contained. If the data set is in more than
-     * one container only the code of one of these containers is returned. 
+     * Return the code of the container in which this data set is contained. If the data set is in more than one container only the code of one of
+     * these containers is returned.
      * 
      * @deprecated Use {@link #getContainerDataSets()}.
      */
     @Deprecated
     public String getContainerDataSet();
-    
+
     /**
      * Returns the codes of all containers in which this data set is contained.
      */
     public List<String> getContainerDataSets();
-    
+
     /**
      * Returns the order of this data set in the specified container data set.
      * 
@@ -148,8 +141,7 @@ public interface IDataSetImmutable extends IMetaprojectContent
     public boolean isLinkDataSet();
 
     /**
-     * @return true if this dataset doesn't contain any files. It can be for example container or
-     *         link data set.
+     * @return true if this dataset doesn't contain any files. It can be for example container or link data set.
      */
     public boolean isNoFileDataSet();
 

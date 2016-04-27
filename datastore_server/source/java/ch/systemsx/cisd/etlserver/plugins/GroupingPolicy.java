@@ -40,24 +40,25 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 
 /**
- * Configurable auto archiving policy which allows to find a group of data sets with total size
- * from a specified interval. Grouping can be defined by space, project, experiment, sample, data set type or
- * a combination of those. The combination defines a so called 'grouping key'. 
- * Groups can be merged if they are too small. Several grouping keys can be specified.
+ * Configurable auto archiving policy which allows to find a group of data sets with total size from a specified interval. Grouping can be defined by
+ * space, project, experiment, sample, data set type or a combination of those. The combination defines a so called 'grouping key'. Groups can be
+ * merged if they are too small. Several grouping keys can be specified.
  * <p>
- * Searching for an appropriate group of data sets for auto archiving is logged. If no group could be found
- * the admin (as specified in log.xml) is notified be email with the searching log as content. 
+ * Searching for an appropriate group of data sets for auto archiving is logged. If no group could be found the admin (as specified in log.xml) is
+ * notified be email with the searching log as content.
  *
  * @author Franz-Josef Elmer
  */
 public class GroupingPolicy extends BaseGroupingPolicy
 {
     static final String GROUPING_KEYS_KEY = "grouping-keys";
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, GroupingPolicy.class);
+
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, GroupingPolicy.class);
-   
+
     private final List<CombinedGroupKeys> groupKeyProviders = new ArrayList<CombinedGroupKeys>();
 
     public GroupingPolicy(Properties properties)
@@ -72,7 +73,7 @@ public class GroupingPolicy extends BaseGroupingPolicy
             {
                 if ("merge".equals(splitted[1]) == false)
                 {
-                    throw new ConfigurationFailureException("Invalid grouping key in property '" + GROUPING_KEYS_KEY 
+                    throw new ConfigurationFailureException("Invalid grouping key in property '" + GROUPING_KEYS_KEY
                             + "' because 'merge' is expected after ':': " + groupingKey);
                 }
                 merge = true;
@@ -86,8 +87,8 @@ public class GroupingPolicy extends BaseGroupingPolicy
                     groupings.add(Grouping.valueOf(keyItem));
                 } catch (IllegalArgumentException ex)
                 {
-                    throw new ConfigurationFailureException("Invalid basic grouping key in property '" 
-                            + GROUPING_KEYS_KEY + "': " + keyItem + " (valid values are " 
+                    throw new ConfigurationFailureException("Invalid basic grouping key in property '"
+                            + GROUPING_KEYS_KEY + "': " + keyItem + " (valid values are "
                             + Arrays.asList(Grouping.values()) + ")");
                 }
             }
@@ -99,19 +100,18 @@ public class GroupingPolicy extends BaseGroupingPolicy
     protected List<AbstractExternalData> filterDataSetsWithSizes(List<AbstractExternalData> dataSets)
     {
         List<String> log = new ArrayList<String>();
-        log(log, "Search for a group of data sets with total size between " 
-                + FileUtils.byteCountToDisplaySize(minArchiveSize) + " and " 
+        log(log, "Search for a group of data sets with total size between "
+                + FileUtils.byteCountToDisplaySize(minArchiveSize) + " and "
                 + FileUtils.byteCountToDisplaySize(maxArchiveSize) + ". Data sets: "
                 + CollectionUtils.abbreviate(Code.extractCodes(dataSets), 50));
         for (CombinedGroupKeys combinedGroupKeys : groupKeyProviders)
         {
             List<DatasetListWithTotal> groups = splitIntoGroups(dataSets, combinedGroupKeys);
-            log(log, combinedGroupKeys + " has grouped " + dataSets.size() + " data sets into " 
+            log(log, combinedGroupKeys + " has grouped " + dataSets.size() + " data sets into "
                     + groups.size() + " groups.");
             if (groups.isEmpty() == false)
             {
-                List<AbstractExternalData> result 
-                    = tryFindGroupOrMerge(groups, combinedGroupKeys.isMerge(), log);
+                List<AbstractExternalData> result = tryFindGroupOrMerge(groups, combinedGroupKeys.isMerge(), log);
                 if (result != null)
                 {
                     log(log, "filtered data sets: " + CollectionUtils.abbreviate(Code.extractCodes(result), 20));
@@ -131,8 +131,8 @@ public class GroupingPolicy extends BaseGroupingPolicy
         notificationLog.warn(builder.toString());
         return new ArrayList<AbstractExternalData>();
     }
-    
-    private List<AbstractExternalData> tryFindGroupOrMerge(List<DatasetListWithTotal> groups, 
+
+    private List<AbstractExternalData> tryFindGroupOrMerge(List<DatasetListWithTotal> groups,
             boolean merge, List<String> log)
     {
         List<DatasetListWithTotal> tooSmallGroups = new ArrayList<DatasetListWithTotal>();
@@ -148,7 +148,7 @@ public class GroupingPolicy extends BaseGroupingPolicy
                 fittingGroups.add(group);
             }
         }
-        log(log, fittingGroups.size() + " groups match in size, " + tooSmallGroups.size() + " groups are too small and " 
+        log(log, fittingGroups.size() + " groups match in size, " + tooSmallGroups.size() + " groups are too small and "
                 + (groups.size() - fittingGroups.size() - tooSmallGroups.size()) + " groups are too large.");
         if (fittingGroups.isEmpty() == false)
         {
@@ -183,7 +183,7 @@ public class GroupingPolicy extends BaseGroupingPolicy
         Collections.sort(groupsWithAge);
         return groupsWithAge;
     }
-    
+
     private List<AbstractExternalData> tryMerge(List<DatasetListWithTotal> groups, List<String> log)
     {
         List<GroupWithAge> groupsWithAge = sortGroupsByAge(groups);
@@ -198,19 +198,19 @@ public class GroupingPolicy extends BaseGroupingPolicy
             {
                 if (total <= maxArchiveSize)
                 {
-                    log(log, (i+1) + " groups have been merged.");
+                    log(log, (i + 1) + " groups have been merged.");
                     return result;
                 }
-                log(log, (i+1) + " groups have been merged, but the total size of " + FileUtils.byteCountToDisplaySize(total) 
+                log(log, (i + 1) + " groups have been merged, but the total size of " + FileUtils.byteCountToDisplaySize(total)
                         + " is above the required maximum of " + FileUtils.byteCountToDisplaySize(maxArchiveSize));
                 return null;
             }
         }
-        log(log, "Merging all " + groups.size() + " groups gives a total size of " + FileUtils.byteCountToDisplaySize(total) 
+        log(log, "Merging all " + groups.size() + " groups gives a total size of " + FileUtils.byteCountToDisplaySize(total)
                 + " which is still below required minimum of " + FileUtils.byteCountToDisplaySize(minArchiveSize));
         return null;
     }
-    
+
     private List<DatasetListWithTotal> splitIntoGroups(List<AbstractExternalData> dataSets, IGroupKeyProvider groupKeyProvider)
     {
         List<DatasetListWithTotal> groups = new ArrayList<DatasetListWithTotal>(
@@ -218,7 +218,7 @@ public class GroupingPolicy extends BaseGroupingPolicy
         Collections.sort(groups);
         return groups;
     }
-    
+
     private void log(List<String> log, Object logMessage)
     {
         log.add(logMessage.toString());
@@ -228,6 +228,7 @@ public class GroupingPolicy extends BaseGroupingPolicy
     private static final class CombinedGroupKeys implements IGroupKeyProvider
     {
         private final List<IGroupKeyProvider> groupKeyProviders;
+
         private final boolean merge;
 
         CombinedGroupKeys(List<IGroupKeyProvider> groupKeyProviders, boolean merge)
@@ -274,13 +275,15 @@ public class GroupingPolicy extends BaseGroupingPolicy
             }
             return "Grouping key: '" + builder.toString() + "'";
         }
-        
+
     }
 
     private static class GroupWithAge implements Comparable<GroupWithAge>
     {
         private long age;
+
         private DatasetListWithTotal group;
+
         GroupWithAge(DatasetListWithTotal group)
         {
             this.group = group;
@@ -290,6 +293,7 @@ public class GroupingPolicy extends BaseGroupingPolicy
                 age = Math.max(age, dataSet.getAccessTimestamp().getTime());
             }
         }
+
         @Override
         public int compareTo(GroupWithAge that)
         {

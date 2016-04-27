@@ -46,7 +46,7 @@ public class AutoSymlink
                 new CorePluginsInjector(ScannerType.DSS, DssPluginType.values());
         Map<String, File> pluginFolders =
                 injector.injectCorePlugins(serviceProperties);
-    
+
         try
         {
             File libDir = new File("lib");
@@ -57,7 +57,7 @@ public class AutoSymlink
                     link.delete();
                 }
             }
-    
+
             for (String key : pluginFolders.keySet())
             {
                 File pluginLibFolder = new File(pluginFolders.get(key).getCanonicalPath() + "/lib");
@@ -74,7 +74,7 @@ public class AutoSymlink
                         }
                     }
                 }
-    
+
             }
         } catch (IOException ex)
         {

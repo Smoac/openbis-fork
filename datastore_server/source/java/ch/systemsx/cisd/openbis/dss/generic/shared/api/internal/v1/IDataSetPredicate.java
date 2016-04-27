@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1;
 import java.util.List;
 
 /**
- * Interface implemented by classes which are able to extract data set codes from a
- * method argument of type <code>A</code>.
+ * Interface implemented by classes which are able to extract data set codes from a method argument of type <code>A</code>.
  * <p>
  * <i>This is an internal class. Do not use it as a user of the API.</i>
  *
@@ -29,8 +28,7 @@ import java.util.List;
 public interface IDataSetPredicate<A>
 {
     /**
-     * Extracts from the specified argument data set codes. Returns an empty list if there is no
-     * data set code to extract.
+     * Extracts from the specified argument data set codes. Returns an empty list if there is no data set code to extract.
      */
     public List<String> getDataSetCodes(A argument);
 }

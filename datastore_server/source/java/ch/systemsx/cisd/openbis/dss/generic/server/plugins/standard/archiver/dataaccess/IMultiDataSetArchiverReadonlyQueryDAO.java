@@ -39,7 +39,7 @@ public interface IMultiDataSetArchiverReadonlyQueryDAO extends BaseQuery
 
     @Select(sql = SELECT_CONTAINER + "WHERE unarchiving_requested = 't'")
     public List<MultiDataSetArchiverContainerDTO> listContainersForUnarchiving();
-    
+
     /*
      * SELECT DATA_SET
      */
@@ -58,7 +58,7 @@ public interface IMultiDataSetArchiverReadonlyQueryDAO extends BaseQuery
     public List<MultiDataSetArchiverDataSetDTO> listDataSetsForContainerId(long containerId);
 
     @Select(sql = "SELECT SUM(size_in_bytes) FROM data_sets, containers "
-                + "WHERE data_sets.ctnr_id = containers.id"
-                + " AND unarchiving_requested = 't'")
+            + "WHERE data_sets.ctnr_id = containers.id"
+            + " AND unarchiving_requested = 't'")
     public long getTotalNoOfBytesInContainersWithUnarchivingRequested();
 }

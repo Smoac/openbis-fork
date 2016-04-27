@@ -42,7 +42,7 @@ public class FtpServerConfig
     private final static String PREFIX = "ftp.server.";
 
     final static String ENABLE_KEY = PREFIX + "enable";
-    
+
     final static String SFTP_PORT_KEY = PREFIX + "sftp-port";
 
     final static String LEGACY_FTP_PORT_KEY = PREFIX + "port";
@@ -66,7 +66,7 @@ public class FtpServerConfig
     final static String ACTIVE_PORT_KEY = PREFIX + "activemode.port";
 
     final static String PASSIVE_MODE_PORT_RANGE_KEY = PREFIX + "passivemode.port.range";
-    
+
     final static String SHOW_PARENTS_AND_CHILDREN_KEY = PREFIX + "dataset.show-parents-and-children";
 
     private static final int DEFAULT_ACTIVE_PORT = 2122;
@@ -84,7 +84,7 @@ public class FtpServerConfig
     private boolean startServer;
 
     private int ftpPort;
-    
+
     private boolean ftpMode;
 
     private boolean activeModeEnabled;
@@ -119,7 +119,8 @@ public class FtpServerConfig
 
     private int sftpPort;
 
-    public FtpServerConfig(Properties props) {
+    public FtpServerConfig(Properties props)
+    {
         this.startServer = PropertyUtils.getBoolean(props, ENABLE_KEY, false);
         if (startServer)
         {
@@ -151,7 +152,7 @@ public class FtpServerConfig
         dataSetDisplayTemplate =
                 PropertyUtils.getProperty(props, DATASET_DISPLAY_TEMPLATE_KEY, DEFAULT_DATASET_TEMPLATE);
         showParentsAndChildren = PropertyUtils.getBoolean(props, SHOW_PARENTS_AND_CHILDREN_KEY, false);
-        
+
         ExtendedProperties fileListSubPathProps =
                 ExtendedProperties.getSubset(props, DATASET_FILELIST_SUBPATH_KEY, true);
         for (Object key : fileListSubPathProps.keySet())
@@ -205,7 +206,7 @@ public class FtpServerConfig
     {
         return ftpMode;
     }
-    
+
     public int getFtpPort()
     {
         return ftpPort;

@@ -30,14 +30,15 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 abstract class AbstractValidator implements IValidator
 {
     private final boolean allowEmptyValues;
+
     private final Set<String> emptyValueSynonyms;
-    
+
     AbstractValidator(boolean allowEmptyValues, Set<String> emptyValueSynonyms)
     {
         this.allowEmptyValues = allowEmptyValues;
         this.emptyValueSynonyms = emptyValueSynonyms;
     }
-    
+
     @Override
     public final void assertValid(String value)
     {
@@ -53,7 +54,7 @@ abstract class AbstractValidator implements IValidator
         }
         assertValidNonEmptyValue(value);
     }
-    
+
     protected abstract void assertValidNonEmptyValue(String value);
 
 }

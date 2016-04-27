@@ -241,10 +241,11 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     @Override
-    public String getOpenBisServiceSessionToken() {
+    public String getOpenBisServiceSessionToken()
+    {
         return openBisService.getSessionToken();
     }
-    
+
     @Override
     public IDSSRegistrationLogger getLogger()
     {

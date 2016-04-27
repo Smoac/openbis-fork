@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
  * @author Kaloyan Enimanev
  */
 @Test(groups =
-    { "slow" })
+{ "slow" })
 public class JsonDssServiceRpcGenericTest extends SystemTestCase
 {
     private static final String DATA_SET_CODE = "20081105092159111-1";

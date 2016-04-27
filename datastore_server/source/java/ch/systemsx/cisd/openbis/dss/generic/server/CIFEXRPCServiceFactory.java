@@ -25,10 +25,11 @@ import ch.systemsx.cisd.common.exceptions.MasqueradingException;
 final class CIFEXRPCServiceFactory implements ICIFEXRPCServiceFactory
 {
     private static final long serialVersionUID = 1L;
+
     private final String cifexURL;
-    
+
     private transient ICIFEXComponent cifexComponent;
-    
+
     CIFEXRPCServiceFactory(String cifexURL)
     {
         this.cifexURL = cifexURL;

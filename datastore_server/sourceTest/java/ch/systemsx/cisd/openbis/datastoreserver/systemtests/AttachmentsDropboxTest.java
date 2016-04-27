@@ -52,7 +52,7 @@ public class AttachmentsDropboxTest extends SystemTestCase
     {
         createData("success");
         waitUntilDataSetImported(new LogMonitoringStopConditionBuilder(new DropBoxNameCondition("attachments-test"))
-        .and(new ContainsCondition("Successfully committed transaction")).getCondition());
+                .and(new ContainsCondition("Successfully committed transaction")).getCondition());
         assertStreamsReleased(3);
     }
 

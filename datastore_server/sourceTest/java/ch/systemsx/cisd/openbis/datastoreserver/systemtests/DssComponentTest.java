@@ -152,11 +152,10 @@ public class DssComponentTest extends SystemTestCase
     }
 
     /**
-     * Checks that the registration log is as we expect it to be. Each test registering data sets
-     * should choose a unique name for the data set.
+     * Checks that the registration log is as we expect it to be. Each test registering data sets should choose a unique name for the data set.
      */
     @Test(dependsOnMethods =
-        { "testPutDataSet", "testFailingPutDataSet", "testFailingValidationPutDataSet" })
+    { "testPutDataSet", "testFailingPutDataSet", "testFailingValidationPutDataSet" })
     public void testRegistrationLog() throws Exception
     {
         File registrationLogDir = getRegistrationLogDir();
@@ -174,23 +173,23 @@ public class DssComponentTest extends SystemTestCase
         checkLogFileContents(
                 pickLogFile(succeededDir, PUT_DATA_SET_NAME),
                 new String[]
-                    {
-                            "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Prepared registration of 1 data set:$",
-                            "^\\t\\d+-\\d+$",
-                            "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Data has been moved to the pre-commit directory: .*$",
-                            "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} About to register metadata with AS: registrationId\\(\\d+\\)$",
-                            "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Data has been registered with the openBIS Application Server.$",
-                            "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Storage processors have committed.$",
-                            "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Data has been moved to the final store.$",
-                            "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Storage has been confirmed in openBIS Application Server.$" });
+                {
+                        "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Prepared registration of 1 data set:$",
+                        "^\\t\\d+-\\d+$",
+                        "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Data has been moved to the pre-commit directory: .*$",
+                        "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} About to register metadata with AS: registrationId\\(\\d+\\)$",
+                        "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Data has been registered with the openBIS Application Server.$",
+                        "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Storage processors have committed.$",
+                        "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Data has been moved to the final store.$",
+                        "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Storage has been confirmed in openBIS Application Server.$" });
 
         checkLogFileContents(
                 pickLogFile(failedDir, FAILING_VALIDATION_PUT_DATA_SET_NAME),
                 new String[]
-                    { "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Validation script .* found errors in incoming data set .*" });
+                { "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Validation script .* found errors in incoming data set .*" });
 
         checkLogFileContents(pickLogFile(failedDir, FAILING_PUT_DATA_SET_NAME), new String[]
-            { "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Processing failed : .*" });
+        { "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Processing failed : .*" });
 
     }
 

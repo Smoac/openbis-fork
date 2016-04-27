@@ -26,14 +26,15 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * Share finde which is based on a mapping file mapping space/project/experiment identifiers onto a list
- * of possible shares. The first share having enough space for the data set is returned.
+ * Share finde which is based on a mapping file mapping space/project/experiment identifiers onto a list of possible shares. The first share having
+ * enough space for the data set is returned.
  *
  * @author Franz-Josef Elmer
  */
 public class MappingBasedShareFinder implements IShareFinder
 {
     static final String MAPPING_FILE_KEY = "mapping-file";
+
     private IdentifierAttributeMappingManager mapping;
 
     public MappingBasedShareFinder(Properties properties)
@@ -41,7 +42,7 @@ public class MappingBasedShareFinder implements IShareFinder
         String mappingFilePath = PropertyUtils.getMandatoryProperty(properties, MAPPING_FILE_KEY);
         mapping = new IdentifierAttributeMappingManager(mappingFilePath, false, null);
     }
-    
+
     @Override
     /**
      * Returns the first share defined in the mapping file which has enough space for specified data set 
@@ -70,5 +71,5 @@ public class MappingBasedShareFinder implements IShareFinder
         }
         return null;
     }
-    
+
 }

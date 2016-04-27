@@ -30,10 +30,10 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 class RegExBasedValidator extends AbstractValidator implements IColumnHeaderValidator
 {
     private final Pattern pattern;
-    
+
     RegExBasedValidator(String regularExpression)
     {
-        this(false, Collections.<String>emptySet(), regularExpression);
+        this(false, Collections.<String> emptySet(), regularExpression);
     }
 
     RegExBasedValidator(boolean allowEmptyValues, Set<String> emptyValueSynonyms,

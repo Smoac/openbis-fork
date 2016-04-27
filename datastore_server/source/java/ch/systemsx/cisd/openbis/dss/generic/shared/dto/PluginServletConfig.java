@@ -39,7 +39,7 @@ public final class PluginServletConfig
         this.servletClass = servletClass;
         this.servletPath = servletPath;
         this.servletProperties = new HashMap<String, String>();
-        for (Entry<Object,Object> e : servletProperties.entrySet())
+        for (Entry<Object, Object> e : servletProperties.entrySet())
         {
             this.servletProperties.put(e.getKey().toString(), e.getValue().toString());
         }

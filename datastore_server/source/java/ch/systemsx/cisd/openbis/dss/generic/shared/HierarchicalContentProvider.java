@@ -72,7 +72,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
 
     public HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
             IShareIdManager shareIdManager, IConfigProvider configProvider,
-            IContentCache contentCache, 
+            IContentCache contentCache,
             ISessionTokenProvider sessionTokenProvider,
             ExposablePropertyPlaceholderConfigurer infoProvider)
     {
@@ -106,7 +106,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                         && "true".equalsIgnoreCase(infoProvider.getResolvedProps().getProperty(
                                 "trust-all-certificates")));
     }
-    
+
     private HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
             IDataSetDirectoryProvider directoryProvider,
             IHierarchicalContentFactory hierarchicalContentFactory,
@@ -121,9 +121,9 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
         this.sessionTokenProvider = sessionTokenProvider;
         this.dataStoreCode = dataStoreCode;
         this.trustAllCertificates = trustAllCertificates;
-        
+
     }
-    
+
     @Override
     public IHierarchicalContentProvider cloneFor(ISessionTokenProvider anotherSessionTokenProvider)
     {
@@ -184,7 +184,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                         {
                             return getOrderInContainer(n1) - getOrderInContainer(n2);
                         }
-                        
+
                         private int getOrderInContainer(IDatasetLocationNode node)
                         {
                             Integer orderInContainer = node.getLocation().getOrderInContainer(containerDataSetCode);

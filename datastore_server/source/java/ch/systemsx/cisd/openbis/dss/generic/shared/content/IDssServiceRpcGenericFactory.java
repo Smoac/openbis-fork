@@ -19,15 +19,14 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.content;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 
 /**
- * Factory for remote {@link IDssServiceRpcGeneric} based on an URL. 
+ * Factory for remote {@link IDssServiceRpcGeneric} based on an URL.
  *
  * @author Franz-Josef Elmer
  */
 public interface IDssServiceRpcGenericFactory
 {
     /**
-     * Returns the service for the specified base URL. Always return the same instance for equal
-     * service URLs.
+     * Returns the service for the specified base URL. Always return the same instance for equal service URLs.
      */
     public IDssServiceRpcGeneric getService(String baseURL);
 }

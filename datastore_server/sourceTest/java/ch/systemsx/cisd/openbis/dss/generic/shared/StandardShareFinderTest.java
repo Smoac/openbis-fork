@@ -153,19 +153,19 @@ public class StandardShareFinderTest extends AbstractIShareFinderTestCase
 
         assertShareFoundForDataSet("5", dataSet("1", megaBytes(100), -50));
     }
-    
+
     @Test
     public void testWithdrawShare()
     {
         Share share4 = extensionShare("4", megaBytes(500), 50);
         shares =
-            Arrays.asList(
-                    incomingShare("1", megaBytes(100), 50, ShufflePriority.MOVE_TO_EXTENSION),
-                    incomingShare("2", megaBytes(400), 50, ShufflePriority.MOVE_TO_EXTENSION),
-                    extensionShare("3", megaBytes(200), 70),
-                    share4);
+                Arrays.asList(
+                        incomingShare("1", megaBytes(100), 50, ShufflePriority.MOVE_TO_EXTENSION),
+                        incomingShare("2", megaBytes(400), 50, ShufflePriority.MOVE_TO_EXTENSION),
+                        extensionShare("3", megaBytes(200), 70),
+                        share4);
         assertShareFoundForDataSet("4", dataSet("1", megaBytes(100), -50));
-        
+
         share4.setWithdrawShare(true);
         assertShareFoundForDataSet("3", dataSet("1", megaBytes(100), -50));
     }

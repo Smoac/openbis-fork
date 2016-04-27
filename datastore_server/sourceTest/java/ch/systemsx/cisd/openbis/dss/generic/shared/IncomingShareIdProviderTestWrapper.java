@@ -34,7 +34,7 @@ public class IncomingShareIdProviderTestWrapper
         IncomingShareIdProvider.removeAllShareIds();
         IncomingShareIdProvider.add(shareIds);
     }
-    
+
     public static void restoreOriginalShareIds()
     {
         IncomingShareIdProvider.removeAllShareIds();

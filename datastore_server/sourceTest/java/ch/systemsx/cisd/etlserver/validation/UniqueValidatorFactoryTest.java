@@ -24,8 +24,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class UniqueValidatorFactoryTest extends AssertJUnit
@@ -35,7 +33,7 @@ public class UniqueValidatorFactoryTest extends AssertJUnit
     {
         UniqueValidatorFactory factory = new UniqueValidatorFactory(new Properties());
         IValidator validator = factory.createValidator("blabla");
-        
+
         validator.assertValid("a");
         validator.assertValid("b");
         try
@@ -47,7 +45,7 @@ public class UniqueValidatorFactoryTest extends AssertJUnit
             assertEquals("The following value is not unique: a", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testWithPattern()
     {
@@ -55,7 +53,7 @@ public class UniqueValidatorFactoryTest extends AssertJUnit
         properties.setProperty(StringValidatorFactory.VALUE_PATTERN_KEY, "a[0-9]*");
         UniqueValidatorFactory factory = new UniqueValidatorFactory(properties);
         IValidator validator = factory.createValidator("blabla");
-        
+
         validator.assertValid("a");
         validator.assertValid("a1");
         validator.assertValid("a123");
@@ -69,17 +67,17 @@ public class UniqueValidatorFactoryTest extends AssertJUnit
                     + "a[0-9]*", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testCreateValidatorReturnsFreshValidator()
     {
         UniqueValidatorFactory factory = new UniqueValidatorFactory(new Properties());
         IValidator validator = factory.createValidator("blabla");
-        
+
         validator.assertValid("a");
-        
+
         validator = factory.createValidator("blabla");
-        
+
         validator.assertValid("a");
     }
 }

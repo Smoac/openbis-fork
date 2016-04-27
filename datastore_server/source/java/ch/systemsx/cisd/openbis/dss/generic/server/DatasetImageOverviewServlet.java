@@ -30,8 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.DatasetImageOverviewUtiliti
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageResolutionKind;
 
 /**
- * Servlet that dispatches requests for image representative for a dataset to a plugin depending on
- * dataset type.
+ * Servlet that dispatches requests for image representative for a dataset to a plugin depending on dataset type.
  * 
  * @author Piotr Buczek
  */
@@ -43,8 +42,8 @@ public class DatasetImageOverviewServlet extends AbstractDatasetDownloadServlet
     private static DatasetImageOverviewConfiguration configuration;
 
     /**
-     * A utility class for dealing with the URL parameters required to generate an overview image.
-     * This class makes sure all the required parameters are in the request.
+     * A utility class for dealing with the URL parameters required to generate an overview image. This class makes sure all the required parameters
+     * are in the request.
      * 
      * @author Piotr Buczek
      */

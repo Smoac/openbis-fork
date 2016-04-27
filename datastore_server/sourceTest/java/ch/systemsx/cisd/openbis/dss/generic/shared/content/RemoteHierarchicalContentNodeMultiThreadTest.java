@@ -67,7 +67,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
         prepareRequestPersistence(2);
 
         File file1 = node1.getFile();
-        
+
         assertEquals(1000, file1.getParentFile().lastModified());
         assertEquals(new File(workSpace, ContentCache.CACHE_FOLDER
                 + "/" + DATA_SET_CODE + "/" + remoteFile1.getName()).getAbsolutePath(),
@@ -77,7 +77,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
                 "[]",
                 Arrays.asList(
                         new File(workSpace, ContentCache.DOWNLOADING_FOLDER).list()).toString());
-        
+
         File file2 = node2.getFile();
 
         assertEquals(61000, file2.getParentFile().lastModified());
@@ -128,7 +128,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
         assertEquals(FILE1_CONTENT, FileUtilities.loadToString(file).trim());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetTwoDifferentFilesInTwoThreads() throws Exception
     {
@@ -273,7 +273,6 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
         context.assertIsSatisfied();
     }
 
-    
     @Test
     public void testGetSameFileInThreeThreads() throws Exception
     {
@@ -335,7 +334,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
                 }
             });
         prepareRequestPersistence(3);
-        
+
         thread1.start();
         thread2.start();
         thread3.start();
@@ -343,7 +342,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
         channel1.assertNextMessage(FINISHED_MESSAGE);
         channel2.assertNextMessage(FINISHED_MESSAGE);
         channel3.assertNextMessage(FINISHED_MESSAGE);
-        
+
         File file1 = fileRunnable1.tryGetResult();
         File file2 = fileRunnable2.tryGetResult();
         File file3 = fileRunnable3.tryGetResult();
@@ -355,7 +354,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
         assertEquals(file1, file3);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetSameFileInTwoThreadsFirstDownloadFails() throws Exception
     {
@@ -402,17 +401,17 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
                             }
                         });
                     inSequence(sequence);
-                    
+
                     one(remoteDss).getDownloadUrlForFileForDataSet(SESSION_TOKEN, DATA_SET_CODE,
                             pathInfo.getRelativePath());
                     will(new ProxyAction(returnValue(remoteFile1.toURI().toURL().toString()))
-                    {
-                        @Override
-                        protected void doBeforeReturn()
                         {
-                            channel3.send(FINISHED_MESSAGE);
-                        }
-                    });
+                            @Override
+                            protected void doBeforeReturn()
+                            {
+                                channel3.send(FINISHED_MESSAGE);
+                            }
+                        });
                     inSequence(sequence);
                 }
             });
@@ -432,10 +431,10 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
         assertEquals(FILE1_CONTENT, FileUtilities.loadToString(file2).trim());
         context.assertIsSatisfied();
     }
-    
+
     private IHierarchicalContentNode createRemoteNode(DataSetPathInfo pathInfo, ContentCache cache)
     {
-        return new RemoteHierarchicalContentNode(DATA_SET_LOCATION, pathInfo, pathInfoProvider, 
+        return new RemoteHierarchicalContentNode(DATA_SET_LOCATION, pathInfo, pathInfoProvider,
                 serviceFactory, sessionHolder, cache);
     }
 

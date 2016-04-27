@@ -31,9 +31,8 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
 
 /**
- * Adapter of {@link File}. Files are copies by creating hard links (if possible) if the parameter
- * <var>hardLinkInsteadOfCopy</var> of the constructor is set to <code>true</code>. Otherwise files
- * are always copied.
+ * Adapter of {@link File}. Files are copies by creating hard links (if possible) if the parameter <var>hardLinkInsteadOfCopy</var> of the constructor
+ * is set to <code>true</code>. Otherwise files are always copied.
  * 
  * @author Franz-Josef Elmer
  */
@@ -47,8 +46,7 @@ public class FileBasedFile implements IFile
      * Creates a new instance for the specified file with the specified copy policy.
      * 
      * @param file Real file wrapped by this adapter.
-     * @param hardLinkCopierOrNull If specified, will be used instead of the normal file system
-     *            copier for copying files and directories.
+     * @param hardLinkCopierOrNull If specified, will be used instead of the normal file system copier for copying files and directories.
      */
     public FileBasedFile(final File file, final IImmutableCopier hardLinkCopierOrNull)
     {

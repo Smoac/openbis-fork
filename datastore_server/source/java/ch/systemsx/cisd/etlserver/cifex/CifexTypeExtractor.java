@@ -26,10 +26,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 
 /**
- * {@link ITypeExtractor} which extracts data set type and file format from the CIFEX comment saved
- * in 'request.properties' file. <br>
- * Locator type, processor type and 'is measured' values are calculated by corresponding methods of
- * {@link SimpleTypeExtractor}.
+ * {@link ITypeExtractor} which extracts data set type and file format from the CIFEX comment saved in 'request.properties' file. <br>
+ * Locator type, processor type and 'is measured' values are calculated by corresponding methods of {@link SimpleTypeExtractor}.
  * 
  * @author Izabela Adamczyk
  */

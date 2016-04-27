@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 public abstract class AbstractPostRegistrationTask implements IPostRegistrationTask
 {
     protected final Properties properties;
+
     protected final IEncapsulatedOpenBISService service;
 
     public AbstractPostRegistrationTask(Properties properties, IEncapsulatedOpenBISService service)

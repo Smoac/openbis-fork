@@ -157,8 +157,7 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
     }
 
     /**
-     * Create a LookupPaintScale based on the <a href="http://colorbrewer.org/">Color Brewer</a>
-     * RdBu color scheme.
+     * Create a LookupPaintScale based on the <a href="http://colorbrewer.org/">Color Brewer</a> RdBu color scheme.
      */
     private static PaintScale getPaintScale(HeatmapDataset dataset)
     {
@@ -290,8 +289,7 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
      * Update the bounds of the heatmap data.
      * 
      * @param heatmapData The heatmap data to update
-     * @param areZBoundsInitialized Have the Z-bounds been initialized yet? If not, they are
-     *            initialized to finiteDouble
+     * @param areZBoundsInitialized Have the Z-bounds been initialized yet? If not, they are initialized to finiteDouble
      * @param finiteDouble A double value which is not NaN and not +/- inf
      * @return Return the new value of areZBoundsInitialized
      */

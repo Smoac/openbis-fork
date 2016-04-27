@@ -44,7 +44,7 @@ public class GlobalArgumentsTest extends AssertJUnit
     public void testHelp()
     {
         String[] args =
-            { "-h" };
+        { "-h" };
         try
         {
             parser.parseArgument(args);
@@ -60,7 +60,7 @@ public class GlobalArgumentsTest extends AssertJUnit
     public void testHelpWithCommand()
     {
         String[] args =
-            { "-h", "get" };
+        { "-h", "get" };
         try
         {
             parser.parseArgument(args);

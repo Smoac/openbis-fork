@@ -40,22 +40,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
- * Transparently handles openBIS authentication for methods annotated with
- * {@link ManagedAuthentication}.
+ * Transparently handles openBIS authentication for methods annotated with {@link ManagedAuthentication}.
  * <p>
- * DSS is authenticated upon the first openBIS method invocation and the session token is kept in an
- * {@link OpenBISSessionHolder} from where it can be accessed by the advised instances (e.g.
- * {@link EncapsulatedOpenBISService}).
+ * DSS is authenticated upon the first openBIS method invocation and the session token is kept in an {@link OpenBISSessionHolder} from where it can be
+ * accessed by the advised instances (e.g. {@link EncapsulatedOpenBISService}).
  * </p>
  * <p>
- * Sessions can go stale for reasons like openBIS server restart or network problems. Stale session
- * tokens result in {@link InvalidSessionException} being thrown by the advised methods. If this
- * happens a re-authentication request is issued automatically and the failed method invocation is
+ * Sessions can go stale for reasons like openBIS server restart or network problems. Stale session tokens result in {@link InvalidSessionException}
+ * being thrown by the advised methods. If this happens a re-authentication request is issued automatically and the failed method invocation is
  * retried once.
  * </p>
  * <p>
- * This class is thread safe (otherwise one thread can change the session and cause the other thread
- * to use the invalid one).
+ * This class is thread safe (otherwise one thread can change the session and cause the other thread to use the invalid one).
  * </p>
  * 
  * @author Kaloyan Enimanev
@@ -161,7 +157,7 @@ public class OpenBISAuthenticationInterceptor implements MethodInterceptor
         dataStoreServerInfo.setArchiverConfigured(archiverConfigured);
         dataStoreServerInfo.setTimeoutInMinutes(timeoutInMinutes);
         dataStoreServerInfo.setDataSourceDefinitions(dataSourceProvider.getAllDataSourceDefinitions());
-        
+
         service.registerDataStoreServer(sessionToken, dataStoreServerInfo);
     }
 

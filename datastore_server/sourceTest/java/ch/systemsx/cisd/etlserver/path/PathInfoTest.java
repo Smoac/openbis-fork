@@ -29,8 +29,6 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class PathInfoTest extends AbstractFileSystemTestCase
@@ -48,9 +46,9 @@ public class PathInfoTest extends AbstractFileSystemTestCase
         d3.mkdirs();
         new File(d3, "d4").mkdirs();
         FileUtilities.writeToFile(new File(d3, "read.me"), "nothing to read");
-        
+
         PathInfo root = PathInfo.createPathInfo(create(workingDirectory), true);
-        
+
         assertEquals(null, root.getParent());
         List<PathInfo> children = root.getChildren();
         PathInfo c0 = children.get(0);
@@ -65,16 +63,16 @@ public class PathInfoTest extends AbstractFileSystemTestCase
         check("d4", true, 0, null, 0, c1.getChildren().get(0));
         check("read.me", false, 15, 1246790599, 0, c1.getChildren().get(1));
     }
-    
+
     @Test
     public void testWithoutChecksum()
     {
         File d1 = new File(workingDirectory, "d1");
         d1.mkdirs();
         FileUtilities.writeToFile(new File(d1, "hello.txt"), "hello world");
-        
+
         PathInfo root = PathInfo.createPathInfo(create(workingDirectory), false);
-        
+
         assertEquals(null, root.getParent());
         List<PathInfo> children = root.getChildren();
         PathInfo c0 = children.get(0);
@@ -82,7 +80,7 @@ public class PathInfoTest extends AbstractFileSystemTestCase
         check("d1", true, 11, null, 1, c0);
         check("hello.txt", false, 11, null, 0, c0.getChildren().get(0));
     }
-    
+
     private void check(String expectedName, boolean expectedIsDirectory, long expectedSize,
             Integer expectedChecksum, int expectedNumberOfChildren, PathInfo pathInfo)
     {
@@ -105,7 +103,7 @@ public class PathInfoTest extends AbstractFileSystemTestCase
             // ignored
         }
     }
-    
+
     private IHierarchicalContentNode create(File file)
     {
         DefaultFileBasedHierarchicalContentFactory factory = new DefaultFileBasedHierarchicalContentFactory();

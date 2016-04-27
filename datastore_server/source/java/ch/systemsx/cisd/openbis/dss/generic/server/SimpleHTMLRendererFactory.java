@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
-
 /**
  * Factory for rendering file system view in HTML without data set information.
  * 

@@ -28,8 +28,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IProcessingPluginTask;
 public interface IDataSetCommandExecutorProvider
 {
     public void init(File storeRoot);
-    
+
     public IDataSetCommandExecutor getDefaultExecutor();
-    
+
     public IDataSetCommandExecutor getExecutor(IProcessingPluginTask processingTask, String processingTaskKey);
 }

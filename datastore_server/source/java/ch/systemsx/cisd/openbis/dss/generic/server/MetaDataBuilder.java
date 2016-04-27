@@ -38,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 /**
  * Helper class to render a data set with properties as multi-line text.
  * 
- *
  * @author Franz-Josef Elmer
  */
 public class MetaDataBuilder
@@ -102,7 +101,7 @@ public class MetaDataBuilder
             builder.dataSet("is_complete", BooleanOrUnknown.T.equals(completeFlag));
         }
         builder.dataSetProperties(dataSet.getProperties());
-    
+
         StringBuilder stringBuilder = new StringBuilder();
         List<AbstractExternalData> parents = getParents(dataSet);
         if (parents.isEmpty() == false)
@@ -151,12 +150,13 @@ public class MetaDataBuilder
     }
 
     private final StringBuilder builder = new StringBuilder();
+
     private final String prefix;
-    
+
     private MetaDataBuilder(String prefix)
     {
         this.prefix = prefix;
-        
+
     }
 
     private void dataSetProperties(List<IEntityProperty> properties)
@@ -186,7 +186,7 @@ public class MetaDataBuilder
             addRow(category, property.getPropertyType().getCode(), property.tryGetAsString());
         }
     }
-    
+
     private void dataSet(String key, String value)
     {
         addRow(DATA_SET, key, value);

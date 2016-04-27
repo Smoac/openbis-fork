@@ -24,9 +24,8 @@ import org.jmock.Mockery;
 import org.springframework.beans.factory.BeanFactory;
 
 /**
- * When running a test suite the Spring application context is initialized only once. Thus when a
- * test replaces the {@link ServiceProvider} application context it needs to restore it back after
- * the its execution.
+ * When running a test suite the Spring application context is initialized only once. Thus when a test replaces the {@link ServiceProvider}
+ * application context it needs to restore it back after the its execution.
  * 
  * @author Kaloyan Enimanev
  */
@@ -34,6 +33,7 @@ public class ServiceProviderTestWrapper
 {
 
     private static BeanFactory mockApplicationContext;
+
     private static BeanFactory cachedApplicationContext;
 
     private final static Map<Class<?>, String /* bean name */> classNameToBeanName;
@@ -51,8 +51,7 @@ public class ServiceProviderTestWrapper
     }
 
     /**
-     * caches the existing application context and replaces it temporarily with another one for test
-     * purposes.
+     * caches the existing application context and replaces it temporarily with another one for test purposes.
      */
     @SuppressWarnings("deprecation")
     public static void setApplicationContext(BeanFactory applicationContext)
@@ -64,10 +63,9 @@ public class ServiceProviderTestWrapper
         mockApplicationContext = applicationContext;
         ServiceProvider.setBeanFactory(applicationContext);
     }
-    
+
     /**
-     * restore the replaced application context back, so that it will be available for other tests
-     * in the same suite.
+     * restore the replaced application context back, so that it will be available for other tests in the same suite.
      */
     @SuppressWarnings("deprecation")
     public static void restoreApplicationContext()
@@ -82,8 +80,7 @@ public class ServiceProviderTestWrapper
     }
 
     /**
-     * A helper method for test cases that creates a mock instance and sets it up within the mocked
-     * application context of ServiceProvider.
+     * A helper method for test cases that creates a mock instance and sets it up within the mocked application context of ServiceProvider.
      */
     public static <T> T mock(Mockery mockery, final Class<T> clazz)
     {

@@ -58,8 +58,9 @@ public class PathInfoDatabaseChecksumCalculationTaskTest extends AbstractFileSys
     private ITimeProvider timeProvider = new ITimeProvider()
         {
             private long previousTime;
+
             private long currentTime = 1000;
-            
+
             @Override
             public long getTimeInMilliseconds()
             {
@@ -75,7 +76,9 @@ public class PathInfoDatabaseChecksumCalculationTaskTest extends AbstractFileSys
     private IHierarchicalContent content2;
 
     private IHierarchicalContentNode node1;
+
     private IHierarchicalContentNode node2;
+
     private IHierarchicalContentNode node3;
 
     @BeforeMethod
@@ -123,37 +126,37 @@ public class PathInfoDatabaseChecksumCalculationTaskTest extends AbstractFileSys
 
                     one(contentProvider).asContentWithoutModifyingAccessTimestamp("3");
                     will(throwException(new IllegalArgumentException("unkown data set 3")));
-                    
+
                     one(content1).getNode("f1.txt");
                     will(returnValue(node1));
-                    
+
                     one(node1).getInputStream();
                     will(returnValue(new ByteArrayInputStream("a".getBytes())));
-                    
+
                     one(dao).updateChecksum(e1.getId(), 1908338681);
-                    
+
                     one(content1).getNode("f2.txt");
                     will(returnValue(node2));
-                    
+
                     one(node2).getInputStream();
                     will(returnValue(new ByteArrayInputStream("b".getBytes())));
-                    
+
                     one(dao).updateChecksum(e2.getId(), -390611389);
-                    
+
                     one(dao).commit();
-                    
+
                     one(content2).getNode("f3.txt");
                     will(returnValue(node3));
-                    
+
                     one(node3).getInputStream();
                     will(returnValue(new ByteArrayInputStream("c".getBytes())));
-                    
+
                     one(dao).updateChecksum(e3.getId(), 112844655);
-                    
+
                     one(dao).commit();
                 }
             });
-        
+
         task.execute();
 
         assertEquals(LOG_INFO_PREFIX + "Start calculating checksums of 4 files in 3 data sets.\n"

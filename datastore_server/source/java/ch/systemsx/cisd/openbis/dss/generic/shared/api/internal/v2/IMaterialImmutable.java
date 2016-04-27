@@ -43,8 +43,7 @@ public interface IMaterialImmutable extends IMetaprojectContent
     boolean isExistingMaterial();
 
     /**
-     * Return the value of a property specified by a code. May return null of no such property with
-     * code <code>propertyCode</code> is found.
+     * Return the value of a property specified by a code. May return null of no such property with code <code>propertyCode</code> is found.
      */
     String getPropertyValue(String propertyCode);
 

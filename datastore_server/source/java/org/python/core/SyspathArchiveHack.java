@@ -5,8 +5,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 /**
- * This class exists to expose the two-arg constructor of SyspathArchive and to hack getEntry to
- * work when the jar file name doesn't end with .jar. Fixed a bit to work with openBIS.
+ * This class exists to expose the two-arg constructor of SyspathArchive and to hack getEntry to work when the jar file name doesn't end with .jar.
+ * Fixed a bit to work with openBIS.
  * 
  * @author Kent Johnson
  */

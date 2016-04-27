@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 public class SamplesDataSets
 {
     private final List<Sample> samples;
+
     private final List<DataSet> dataSets;
 
     public SamplesDataSets(List<Sample> samples, List<DataSet> dataSets)
@@ -46,5 +47,5 @@ public class SamplesDataSets
     {
         return dataSets;
     }
-    
+
 }

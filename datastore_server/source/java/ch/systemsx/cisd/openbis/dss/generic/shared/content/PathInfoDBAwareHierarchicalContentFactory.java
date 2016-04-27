@@ -29,9 +29,8 @@ public class PathInfoDBAwareHierarchicalContentFactory extends
             PathInfoDBAwareHierarchicalContentFactory.class);
 
     /**
-     * Returns implementation of {@link IHierarchicalContentFactory} based on configuration of Path
-     * Info DB. If the DB is not configured than file system based implementation will be used.
-     * Otherwise the implementation will use the DB to retrieve file metadata.
+     * Returns implementation of {@link IHierarchicalContentFactory} based on configuration of Path Info DB. If the DB is not configured than file
+     * system based implementation will be used. Otherwise the implementation will use the DB to retrieve file metadata.
      */
     public static IHierarchicalContentFactory create()
     {

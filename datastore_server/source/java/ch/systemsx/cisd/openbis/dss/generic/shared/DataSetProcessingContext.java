@@ -40,7 +40,7 @@ public class DataSetProcessingContext
 {
     final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSetProcessingContext.class);
-    
+
     private final Map<String, String> parameterBindings;
 
     private final IMailClient mailClient;
@@ -63,8 +63,7 @@ public class DataSetProcessingContext
     private final IEncapsulatedOpenBISService service;
 
     /**
-     * Creates an instance for specified directory provider, parameter bindings, e-mail client, and
-     * optional user e-mail address and sessionToken.
+     * Creates an instance for specified directory provider, parameter bindings, e-mail client, and optional user e-mail address and sessionToken.
      */
     // This method is only used in tests.
     public DataSetProcessingContext(IHierarchicalContentProvider contentProvider,
@@ -76,8 +75,7 @@ public class DataSetProcessingContext
     }
 
     /**
-     * Creates an instance for specified directory provider, parameter bindings, e-mail client, and
-     * optional user e-mail address and sessionToken.
+     * Creates an instance for specified directory provider, parameter bindings, e-mail client, and optional user e-mail address and sessionToken.
      */
     public DataSetProcessingContext(IHierarchicalContentProvider contentProvider,
             IDataSetDirectoryProvider directoryProvider, Map<String, String> parameterBindings,
@@ -88,8 +86,8 @@ public class DataSetProcessingContext
     }
 
     /**
-     * Creates an instance for specified directory provider, workspace provider, parameter bindings,
-     * e-mail client, and optional user e-mail address and sessionToken.
+     * Creates an instance for specified directory provider, workspace provider, parameter bindings, e-mail client, and optional user e-mail address
+     * and sessionToken.
      */
     public DataSetProcessingContext(IHierarchicalContentProvider contentProvider,
             IDataSetDirectoryProvider directoryProvider,
@@ -103,8 +101,8 @@ public class DataSetProcessingContext
     }
 
     /**
-     * Creates an instance for specified service, directory provider, workspace provider, parameter
-     * bindings, e-mail client, and optional user e-mail address and sessionToken.
+     * Creates an instance for specified service, directory provider, workspace provider, parameter bindings, e-mail client, and optional user e-mail
+     * address and sessionToken.
      */
     private DataSetProcessingContext(IEncapsulatedOpenBISService service,
             IHierarchicalContentProvider contentProvider,
@@ -130,8 +128,7 @@ public class DataSetProcessingContext
     }
 
     /**
-     * Returns the session workspace provider of this context, if available and <code>null</code> if
-     * this context has no session workspace provider.
+     * Returns the session workspace provider of this context, if available and <code>null</code> if this context has no session workspace provider.
      */
     public ISessionWorkspaceProvider tryGetSessionWorkspaceProvider()
     {
@@ -211,7 +208,7 @@ public class DataSetProcessingContext
                 {
                     return contentProvider.cloneFor(sessionTokenProvider);
                 }
-                
+
             };
     }
 

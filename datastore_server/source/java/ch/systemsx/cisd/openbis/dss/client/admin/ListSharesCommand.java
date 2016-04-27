@@ -22,24 +22,22 @@ import ch.systemsx.cisd.openbis.dss.generic.server.DirectoryRendererUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.ShareInfo;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ListSharesCommand extends AbstractCommand
 {
     static final class ListSharesCommandArguments extends CommonArguments
     {
-        
+
     }
-    
+
     private ListSharesCommandArguments arguments = new ListSharesCommandArguments();
 
     ListSharesCommand()
     {
         super("list-shares");
     }
-    
+
     @Override
     protected ListSharesCommandArguments getArguments()
     {

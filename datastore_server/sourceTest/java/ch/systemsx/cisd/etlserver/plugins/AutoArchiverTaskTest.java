@@ -66,13 +66,13 @@ public class AutoArchiverTaskTest extends AssertJUnit
         }
 
         @Override
-        public List<AbstractExternalData> findDatasetsForArchiving(IEncapsulatedOpenBISService openbis, 
+        public List<AbstractExternalData> findDatasetsForArchiving(IEncapsulatedOpenBISService openbis,
                 ArchiverDataSetCriteria criteria)
         {
             return dataSets;
         }
     }
-    
+
     public static final class MockPolicy implements IAutoArchiverPolicy
     {
         private Set<String> dataSetToBeFiltered;
@@ -96,6 +96,7 @@ public class AutoArchiverTaskTest extends AssertJUnit
             return result;
         }
     }
+
     private BufferedAppender logRecorder;
 
     private Mockery context;
@@ -142,22 +143,22 @@ public class AutoArchiverTaskTest extends AssertJUnit
         assertEquals(null, criteriaRecorder.recordedObject().tryGetDataSetTypeCode());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testArchivingWithDefaultProperties()
     {
         PhysicalDataSet ds1 = new DataSetBuilder().code("ds1").getDataSet();
         RecordingMatcher<ArchiverDataSetCriteria> criteriaRecorder = prepareListAvailableDataSets(ds1);
         prepareArchiveDataSets(false, Arrays.asList("ds1"));
-        
+
         createAutoArchiver(new Properties()).execute();
-        
+
         assertLogs(applyLog(1), archivingLog("ds1"));
         assertEquals(30, criteriaRecorder.recordedObject().getOlderThan());
         assertEquals(null, criteriaRecorder.recordedObject().tryGetDataSetTypeCode());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testArchivingWithNoFilteredDataSets()
     {
@@ -165,15 +166,15 @@ public class AutoArchiverTaskTest extends AssertJUnit
         RecordingMatcher<ArchiverDataSetCriteria> criteriaRecorder = prepareListAvailableDataSets(ds1);
         Properties properties = new Properties();
         properties.setProperty("policy.class", MockPolicy.class.getName());
-        
+
         createAutoArchiver(properties).execute();
-        
+
         assertLogs(applyLog(1), nothingLog());
         assertEquals(30, criteriaRecorder.recordedObject().getOlderThan());
         assertEquals(null, criteriaRecorder.recordedObject().tryGetDataSetTypeCode());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testArchivingWithFilteredDataSets()
     {
@@ -188,9 +189,9 @@ public class AutoArchiverTaskTest extends AssertJUnit
         properties.setProperty("policy.class", MockPolicy.class.getName());
         properties.setProperty("policy.data-sets", "ds1, ds3");
         prepareArchiveDataSets(true, Arrays.asList("ds1", "ds3"));
-        
+
         createAutoArchiver(properties).execute();
-        
+
         assertLogs(applyLog(3), archivingLog("ds1", "ds3"));
         assertEquals(10, criteriaRecorder.recordedObject().getOlderThan());
         assertEquals("MY-TYPE", criteriaRecorder.recordedObject().tryGetDataSetTypeCode());
@@ -204,13 +205,13 @@ public class AutoArchiverTaskTest extends AssertJUnit
         properties.setProperty("archive-candidate-discoverer.data-sets", "ds1, ds2");
         properties.setProperty("archive-candidate-discoverer.class", MockDiscoverer.class.getName());
         prepareArchiveDataSets(false, Arrays.asList("ds1", "ds2"));
-        
+
         createAutoArchiver(properties).execute();
-        
+
         assertLogs(applyLog(2), archivingLog("ds1", "ds2"));
         context.assertIsSatisfied();
     }
-    
+
     private void prepareArchiveDataSets(final boolean removeFromDataStore, final List<String> dataSetCodes)
     {
         context.checking(new Expectations()
@@ -233,23 +234,23 @@ public class AutoArchiverTaskTest extends AssertJUnit
             });
         return criteriaRecorder;
     }
-    
+
     private String applyLog(int numberOfCandidates)
     {
         return "apply policy to " + numberOfCandidates + " candidates for archiving.";
     }
-    
+
     private String nothingLog()
     {
         return "nothing to archive";
     }
-    
-    private String archivingLog(String...dataSetCodes)
+
+    private String archivingLog(String... dataSetCodes)
     {
         return "archiving: " + Arrays.asList(dataSetCodes);
     }
-    
-    private void assertLogs(String...expectedLogEntries)
+
+    private void assertLogs(String... expectedLogEntries)
     {
         assertEquals(createBasicLogExpectation(expectedLogEntries).toString().trim(), logRecorder.getLogContent());
     }
@@ -265,7 +266,7 @@ public class AutoArchiverTaskTest extends AssertJUnit
         }
         return builder;
     }
-    
+
     private AutoArchiverTask createAutoArchiver(Properties properties)
     {
         AutoArchiverTask autoArchiverTask = new AutoArchiverTask();

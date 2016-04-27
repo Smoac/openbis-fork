@@ -73,8 +73,8 @@ public class Parameters
 
     /**
      * Valid only when {@link ThreadParameters#INCOMING_DATA_COMPLETENESS_CONDITION} is false.<br>
-     * The period to wait before a file or directory is considered "quiet" (in milliseconds). This
-     * setting is used when deciding whether a file or directory is ready to be processed.
+     * The period to wait before a file or directory is considered "quiet" (in milliseconds). This setting is used when deciding whether a file or
+     * directory is ready to be processed.
      */
     @Option(name = "q", longName = QUIET_PERIOD_NAME, usage = "The period of no write access that needs to pass before an incoming data item is "
             + "considered complete and ready to be processed (in seconds) [default: 300]. "
@@ -84,8 +84,7 @@ public class Parameters
     /**
      * The time-out for clean up work in the shutdown sequence (in seconds).
      * <p>
-     * Note that that the maximal time for the shutdown sequence to complete can be as large as
-     * twice this time.
+     * Note that that the maximal time for the shutdown sequence to complete can be as large as twice this time.
      */
     @Option(name = "t", longName = "shutdown-timeout", usage = "The time-out for clean up work "
             + "in the shutdown sequence (in seconds) [default: 30]")
@@ -150,9 +149,8 @@ public class Parameters
     }
 
     /**
-     * This factory method is used by the DSS API to get information about the threads that have
-     * been configured. Since the validity of the parameters has already been verified by the
-     * ETLServer startup, it does not need to be verified again.
+     * This factory method is used by the DSS API to get information about the threads that have been configured. Since the validity of the parameters
+     * has already been verified by the ETLServer startup, it does not need to be verified again.
      */
     public static Parameters createParametersForApiUse()
     {
@@ -299,8 +297,7 @@ public class Parameters
     /**
      * Returns the time-out for clean up work in the shutdown sequence (in seconds).
      * <p>
-     * Note that that the maximal time for the shutdown sequence to complete can be as large as
-     * twice this time.
+     * Note that that the maximal time for the shutdown sequence to complete can be as large as twice this time.
      */
     public long getShutdownTimeOutMillis()
     {

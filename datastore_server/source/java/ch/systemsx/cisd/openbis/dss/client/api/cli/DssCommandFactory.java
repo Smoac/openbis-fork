@@ -88,7 +88,7 @@ public class DssCommandFactory extends AbstractCommandFactory
     public List<String> getKnownCommands()
     {
         String[] commands =
-            { "ls", "get", "put", "testvalid", "testextract" };
+        { "ls", "get", "put", "testvalid", "testextract" };
         return Arrays.asList(commands);
     }
 }

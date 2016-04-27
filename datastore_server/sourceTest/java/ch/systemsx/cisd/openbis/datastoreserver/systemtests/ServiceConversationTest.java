@@ -617,7 +617,7 @@ public class ServiceConversationTest
                 + clientManager2.getConversationCount() + " server: "
                 + serverManager.getConversationCount());
     }
-    
+
     private BaseServiceConversationClientManager createClientManager()
     {
         return new BaseServiceConversationClientManager();
@@ -688,7 +688,7 @@ public class ServiceConversationTest
         public ServiceExporter(final int port, final String path, final Class<?> serviceInterface,
                 final S service)
         {
-        	this.server = new Server();
+            this.server = new Server();
             HttpConfiguration httpConfig = new HttpConfiguration();
             ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
             connector.setPort(port);

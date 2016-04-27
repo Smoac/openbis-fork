@@ -449,24 +449,25 @@ public class DataStoreServer
             sslContextFactory.setKeyStorePassword(configParams.getKeystorePassword());
             sslContextFactory.setKeyManagerPassword(configParams.getKeystoreKeyPassword());
 
-            //whole SSL protocol family is insecure and should be dissabled
-            String[] excludedProtocols = {"SSL","SSLv2","SSLv2Hello","SSLv3"};
+            // whole SSL protocol family is insecure and should be dissabled
+            String[] excludedProtocols = { "SSL", "SSLv2", "SSLv2Hello", "SSLv3" };
             sslContextFactory.setExcludeProtocols(excludedProtocols);
-            
-            /* Disable cipher suites with Diffie-Hellman key exchange to prevent Logjam attack 
-            and avoid the ssl_error_weak_server_ephemeral_dh_key error in recent browsers */
+
+            /*
+             * Disable cipher suites with Diffie-Hellman key exchange to prevent Logjam attack and avoid the ssl_error_weak_server_ephemeral_dh_key
+             * error in recent browsers
+             */
             String[] excludedCiphers = {
-                "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
-                "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256",
-                "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
-                "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256",
-                "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
-                "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256",
-                "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
-                "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256"        
+                    "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
+                    "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256",
+                    "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
+                    "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256",
+                    "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+                    "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256",
+                    "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+                    "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256"
             };
             sslContextFactory.setExcludeCipherSuites(excludedCiphers);
-            
 
             HttpConfiguration httpsConfig = new HttpConfiguration(httpConfig);
             httpsConfig.addCustomizer(new SecureRequestCustomizer());

@@ -31,8 +31,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 
 /**
- * An implementation of the storage algorithm that registers data sets without file contents. This
- * requires a different registration process. In particular there is no storage part.
+ * An implementation of the storage algorithm that registers data sets without file contents. This requires a different registration process. In
+ * particular there is no storage part.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

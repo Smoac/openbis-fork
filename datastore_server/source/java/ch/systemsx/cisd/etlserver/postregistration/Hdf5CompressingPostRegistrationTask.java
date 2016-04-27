@@ -60,8 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
- * A post-registration task replacing uncompressed datasets with new datasets which are HDF5
- * compressed.
+ * A post-registration task replacing uncompressed datasets with new datasets which are HDF5 compressed.
  * 
  * <pre>
  * In order for a data set to be compressed the following prerequisites must be met 
@@ -90,7 +89,7 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
      * white list of the data set types to be compressed.
      */
     private final Set<String> processedDataSetTypes;
-    
+
     public Hdf5CompressingPostRegistrationTask(Properties properties, IEncapsulatedOpenBISService service)
     {
         super(properties, service);
@@ -114,8 +113,7 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
         }
 
         /**
-         * Callback executed right after hdf5-compressed twin data set has been created and before
-         * the existing dataset set has been deleted.
+         * Callback executed right after hdf5-compressed twin data set has been created and before the existing dataset set has been deleted.
          * <p>
          * Can be overriden by extending classes..
          */
@@ -133,7 +131,7 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
             {
                 return;
             }
-            
+
             IHierarchicalContent hierarchicalContent = tryGetHierarchicalContent(externalData);
             if (hierarchicalContent == null)
             {
@@ -142,7 +140,8 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
 
             try
             {
-                if (false == hasFoldersForCompressing(hierarchicalContent)) {
+                if (false == hasFoldersForCompressing(hierarchicalContent))
+                {
                     if (false == hasCompressedFiles(hierarchicalContent))
                     {
                         operationLog.info(String.format(
@@ -319,9 +318,9 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
             if (false == processedDataSetTypes.contains(dataSetTypeCode))
             {
                 operationLog.debug(String.format(
-                                "Data set type '%s' is not configured for HDF5 compressing. Skipping "
-                                        + "compression for data set '%s'...", dataSetTypeCode,
-                                dataSetCode));
+                        "Data set type '%s' is not configured for HDF5 compressing. Skipping "
+                                + "compression for data set '%s'...", dataSetTypeCode,
+                        dataSetCode));
                 return false;
             }
             return true;

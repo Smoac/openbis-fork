@@ -33,8 +33,7 @@ public interface ITopLevelDataSetRegistrator extends IPathHandler, ISelfTestable
         IFaultyPathDirectoryScanningHandlerDelegate
 {
     /**
-     * A lock used to synchronize shutting down the processing thread of the top-level data set
-     * registrator.
+     * A lock used to synchronize shutting down the processing thread of the top-level data set registrator.
      */
     public Lock getRegistrationLock();
 
@@ -44,12 +43,11 @@ public interface ITopLevelDataSetRegistrator extends IPathHandler, ISelfTestable
     public TopLevelDataSetRegistratorGlobalState getGlobalState();
 
     /**
-     * Process a file, using the callerDataSetInformation as a guide for creating the data set and
-     * notifying the delegate of activity.
+     * Process a file, using the callerDataSetInformation as a guide for creating the data set and notifying the delegate of activity.
      * 
      * @param file The file to process.
-     * @param callerDataSetInformation A DataSetInformation provided by the caller. Implementors
-     *            will want to use this as a template when they register data sets.
+     * @param callerDataSetInformation A DataSetInformation provided by the caller. Implementors will want to use this as a template when they
+     *            register data sets.
      * @param delegate The delegate to notify as activity happens.
      */
     public void handle(File file, String userSessionToken,

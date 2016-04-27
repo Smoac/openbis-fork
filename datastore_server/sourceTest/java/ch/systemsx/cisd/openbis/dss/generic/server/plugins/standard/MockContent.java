@@ -24,9 +24,8 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
 /**
- * Mock content based on an array of textual content descriptions of the form:
- * <path>:<size>:<checksum>. An empty string for <path> denotes root node. Directory paths end with
- * '/'.
+ * Mock content based on an array of textual content descriptions of the form: <path>:<size>:<checksum>. An empty string for <path> denotes root node.
+ * Directory paths end with '/'.
  * 
  * @author Franz-Josef Elmer
  */

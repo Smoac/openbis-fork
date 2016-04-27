@@ -30,8 +30,8 @@ import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * Represents a share of a segmented store. Holds the root directory of the share as well as
- * the data sets. It is able to calculate the free disk space.
+ * Represents a share of a segmented store. Holds the root directory of the share as well as the data sets. It is able to calculate the free disk
+ * space.
  * 
  * @author Franz-Josef Elmer
  */
@@ -60,8 +60,7 @@ public final class Share
          */
         SPEED,
         /**
-         * allows a shuffling operation to ignore the speed hints when moving from incoming to
-         * extension share.
+         * allows a shuffling operation to ignore the speed hints when moving from incoming to extension share.
          */
         MOVE_TO_EXTENSION;
     }
@@ -88,9 +87,9 @@ public final class Share
     private ShufflePriority shufflePriority = ShufflePriority.SPEED;
 
     private boolean withdrawShare;
-    
+
     private boolean unarchivingScratchShare;
-    
+
     private boolean ignoredForShuffling;
 
     private Set<String> experimentIdentifiers;

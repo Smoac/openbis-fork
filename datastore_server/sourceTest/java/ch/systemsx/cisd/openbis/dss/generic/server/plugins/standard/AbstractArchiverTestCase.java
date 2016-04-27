@@ -61,13 +61,13 @@ public abstract class AbstractArchiverTestCase extends AbstractFileSystemTestCas
     public static final class ShareFinder implements IShareFinder
     {
         static Properties properties;
-    
+
         static SimpleDataSetInformationDTO recordedDataSet;
-    
+
         static List<Share> recordedShares;
-    
+
         private boolean alwaysReturnNull = false;
-    
+
         public ShareFinder(Properties properties)
         {
             ShareFinder.properties = properties;
@@ -76,7 +76,7 @@ public abstract class AbstractArchiverTestCase extends AbstractFileSystemTestCas
                 this.alwaysReturnNull = true;
             }
         }
-    
+
         @Override
         public Share tryToFindShare(SimpleDataSetInformationDTO dataSet, List<Share> shares)
         {

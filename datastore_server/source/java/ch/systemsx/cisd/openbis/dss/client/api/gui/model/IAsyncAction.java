@@ -24,6 +24,6 @@ package ch.systemsx.cisd.openbis.dss.client.api.gui.model;
 public interface IAsyncAction<T>
 {
     public void performAction(T data);
-    
+
     public void handleException(Throwable throwable);
 }

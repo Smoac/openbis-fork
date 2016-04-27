@@ -39,9 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Processing plugin that sends email with a TSV representation of a table created by
- * {@link JythonBasedReportingPlugin}. There are two options to use the plugin. There may be a
- * separate table/email generated for every processed data set or a single table/email for all.
+ * Processing plugin that sends email with a TSV representation of a table created by {@link JythonBasedReportingPlugin}. There are two options to use
+ * the plugin. There may be a separate table/email generated for every processed data set or a single table/email for all.
  * 
  * @author Piotr Buczek
  */

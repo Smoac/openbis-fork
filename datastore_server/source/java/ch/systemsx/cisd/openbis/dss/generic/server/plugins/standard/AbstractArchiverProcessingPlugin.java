@@ -92,15 +92,15 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     public static final String BATCH_SIZE_IN_BYTES = "batch-size-in-bytes";
 
     public static final String TEMP_FOLDER = "temp-folder";
-    
+
     public static final String PAUSE_FILE_KEY = "pause-file";
-    
+
     public static final String DEFAULT_PAUSE_FILE = "pause-archiving";
 
     public static final String PAUSE_FILE_POLLING_TIME_KEY = "pause-file-polling-time";
-    
+
     public static final long DEFAULT_PAUSE_FILE_POOLING_TIME = 10 * DateUtils.MILLIS_PER_MINUTE;
-    
+
     private final IStatusChecker archivePrerequisiteOrNull;
 
     private final IStatusChecker unarchivePrerequisiteOrNull;
@@ -108,11 +108,11 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     private final boolean synchronizeArchive;
 
     private final File tempFolder;
-    
+
     protected final File pauseFile;
 
     protected final long pauseFilePollingTime;
-    
+
     private transient IShareIdManager shareIdManager;
 
     private transient IEncapsulatedOpenBISService service;
@@ -137,7 +137,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         if (pauseFilePath == null)
         {
             pauseFile = new File(storeRoot, DEFAULT_PAUSE_FILE);
-            
+
         } else
         {
             int prefixLength = FilenameUtils.getPrefixLength(pauseFilePath);
@@ -149,16 +149,17 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
                 pauseFile = new File(storeRoot, pauseFilePath);
             } else
             {
-                throw new ConfigurationFailureException("Invalid value of property '" + PAUSE_FILE_KEY 
+                throw new ConfigurationFailureException("Invalid value of property '" + PAUSE_FILE_KEY
                         + "': " + pauseFilePath);
             }
         }
-        pauseFilePollingTime = DateTimeUtils.getDurationInMillis(properties, PAUSE_FILE_POLLING_TIME_KEY, 
+        pauseFilePollingTime = DateTimeUtils.getDurationInMillis(properties, PAUSE_FILE_POLLING_TIME_KEY,
                 DEFAULT_PAUSE_FILE_POOLING_TIME);
     }
 
     /**
      * NOTE: this method is not allowed to throw exception as this will leave data sets in the openBIS database with an inconsistent status.
+     * 
      * @param removeFromDataStore TODO
      */
     abstract protected DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets,
@@ -418,7 +419,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
         return statuses.getProcessingStatus();
     }
-    
+
     protected boolean delayUnarchiving(List<DatasetDescription> datasets, ArchiverTaskContext context)
     {
         return false;
@@ -435,11 +436,12 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         return new UnarchivingPreparation(getShareFinder(),
                 getShareIdManager(), getService(), shares);
     }
-    
+
     protected IFreeSpaceProvider createFreeSpaceProvider()
     {
         return new SimpleFreeSpaceProvider();
     }
+
     /**
      * a 'safe' method that never throws any exceptions.
      */

@@ -90,7 +90,7 @@ public class DataSetImmutable extends AbstractDataSetImmutable
             throw new UnsupportedOperationException(message);
         }
     }
-    
+
     protected final AbstractExternalData dataSet;
 
     public DataSetImmutable(AbstractExternalData dataSet, IEncapsulatedBasicOpenBISService service)

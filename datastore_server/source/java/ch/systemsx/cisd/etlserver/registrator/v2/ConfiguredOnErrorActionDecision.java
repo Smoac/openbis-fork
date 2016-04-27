@@ -22,8 +22,7 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 
 /**
- * Returns the undo store action as configured by a properties file, defaulting those that are not
- * configured.
+ * Returns the undo store action as configured by a properties file, defaulting those that are not configured.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

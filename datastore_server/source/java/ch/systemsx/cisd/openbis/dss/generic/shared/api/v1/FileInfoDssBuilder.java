@@ -26,9 +26,8 @@ import java.util.List;
 /**
  * Helper Class for creating FileInfoDss objects based on file system.
  * <p>
- * NOTE: This implementation is not using file system abstraction and therefore doesn't support
- * special handling for HDF5 containers or data set containers. In cases when such a support would
- * be required use {@link HierarchicalFileInfoDssBuilder}.
+ * NOTE: This implementation is not using file system abstraction and therefore doesn't support special handling for HDF5 containers or data set
+ * containers. In cases when such a support would be required use {@link HierarchicalFileInfoDssBuilder}.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -36,8 +35,8 @@ public class FileInfoDssBuilder
 {
 
     /**
-     * Return a list of {@link FileInfoDssDTO} objects corresponding to all files existing within a
-     * certain folder. The list is accumulated recursively.
+     * Return a list of {@link FileInfoDssDTO} objects corresponding to all files existing within a certain folder. The list is accumulated
+     * recursively.
      */
     public static List<FileInfoDssDTO> getFileInfos(File dataSetContents)
     {
@@ -64,8 +63,7 @@ public class FileInfoDssBuilder
     /**
      * Constructor for FileInfoDssFactory
      * 
-     * @param dataSetRoot The root of the directory structure; used to determine the path for
-     *            FileInfoDss objects
+     * @param dataSetRoot The root of the directory structure; used to determine the path for FileInfoDss objects
      */
     public FileInfoDssBuilder(String dataSetRoot, String relativeRoot)
     {
@@ -74,8 +72,7 @@ public class FileInfoDssBuilder
     }
 
     /**
-     * Append file info for the requested file or file hierarchy. Assumes that the parameters have
-     * been verified already.
+     * Append file info for the requested file or file hierarchy. Assumes that the parameters have been verified already.
      * 
      * @param requestedFile A file known to be accessible by the user
      * @param list The list the files infos are appended to

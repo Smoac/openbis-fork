@@ -50,11 +50,11 @@ public class TarPackageManager extends AbstractPackageManager
     private static final String BUFFER_SIZE_KEY = "buffer-size";
 
     private static final int DEFAULT_BUFFER_SIZE = (int) (10 * FileUtils.ONE_MB);
-    
+
     private final File tempFolder;
 
     private final int bufferSize;
-    
+
     protected final ISimpleLogger logger;
 
     private Long maxQueueSize;
@@ -79,7 +79,7 @@ public class TarPackageManager extends AbstractPackageManager
     {
         return new TarDataSetPackager(packageFile, getContentProvider(), existenceChecker, bufferSize, maxQueueSize);
     }
-    
+
     @Override
     public List<VerificationError> verify(File packageFile)
     {
@@ -125,8 +125,7 @@ public class TarPackageManager extends AbstractPackageManager
     {
         if (onlyMetaData)
         {
-            final ISingleDataSetPathInfoProvider pathInfoProvider 
-                    = new TarBasedPathInfoProvider(packageFile, bufferSize, logger);
+            final ISingleDataSetPathInfoProvider pathInfoProvider = new TarBasedPathInfoProvider(packageFile, bufferSize, logger);
             return new PathInfoProviderBasedHierarchicalContent(pathInfoProvider, null, new IDelegatedAction()
                 {
                     @Override

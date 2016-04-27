@@ -37,8 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
- * Decorator of a {@link TableModel} instance by turning cell of some columns into
- * {@link EntityTableCell}.
+ * Decorator of a {@link TableModel} instance by turning cell of some columns into {@link EntityTableCell}.
  * 
  * @author Franz-Josef Elmer
  */
@@ -96,7 +95,7 @@ public class EntityLinksDecorator implements ITableModelTransformation
         SAMPLE()
         {
             private static final String DEFAULT_SPACE_KEY = "default-space";
-            
+
             @Override
             IEntityTableCellTranslation create(Properties properties)
             {
@@ -111,7 +110,7 @@ public class EntityLinksDecorator implements ITableModelTransformation
                 }
                 return new IEntityTableCellTranslation()
                     {
-                        
+
                         @Override
                         public ISerializableComparable translation(ISerializableComparable value)
                         {
@@ -123,7 +122,7 @@ public class EntityLinksDecorator implements ITableModelTransformation
                             entityTableCell.setLinkText(value.toString());
                             return entityTableCell;
                         }
-                        
+
                         @Override
                         public EntityKind getEntityKind()
                         {

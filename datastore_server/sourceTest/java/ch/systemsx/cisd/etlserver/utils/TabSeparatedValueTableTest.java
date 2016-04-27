@@ -25,8 +25,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TabSeparatedValueTableTest extends AssertJUnit
@@ -43,7 +41,7 @@ public class TabSeparatedValueTableTest extends AssertJUnit
             assertEquals("Empty file 'source'.", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testNoColumnsNoRows()
     {
@@ -54,7 +52,7 @@ public class TabSeparatedValueTableTest extends AssertJUnit
         assertEquals(null, table.tryToGetNextRow());
         assertEquals(0, table.getColumns().size());
     }
-    
+
     @Test
     public void testNoColumnsSeveralRows()
     {
@@ -67,7 +65,7 @@ public class TabSeparatedValueTableTest extends AssertJUnit
         assertEquals(false, table.hasMoreRows());
         assertEquals(null, table.tryToGetNextRow());
     }
-    
+
     @Test
     public void testGetHeaders()
     {
@@ -75,23 +73,23 @@ public class TabSeparatedValueTableTest extends AssertJUnit
         List<String> headers = new TabSeparatedValueTable(source, "", false).getHeaders();
         assertEquals("[alpha, beta]", headers.toString());
     }
-    
+
     @Test
     public void testRowIterationForNoRows()
     {
         StringReader source = new StringReader("alpha\tbeta");
         TabSeparatedValueTable table = new TabSeparatedValueTable(source, "", false);
-        
+
         assertEquals(false, table.hasMoreRows());
         assertEquals(null, table.tryToGetNextRow());
     }
-    
+
     @Test
     public void testRowIterationSomeRows()
     {
         StringReader source = new StringReader("alpha\tbeta\n11\t12\n\t22\n31\n\n");
         TabSeparatedValueTable table = new TabSeparatedValueTable(source, "", false);
-        
+
         assertEquals(true, table.hasMoreRows());
         assertEquals("[11, 12]", table.tryToGetNextRow().toString());
         assertEquals(true, table.hasMoreRows());
@@ -103,7 +101,7 @@ public class TabSeparatedValueTableTest extends AssertJUnit
         assertEquals(false, table.hasMoreRows());
         assertEquals(null, table.tryToGetNextRow());
     }
-    
+
     @Test
     public void testGetColumns()
     {
@@ -119,20 +117,20 @@ public class TabSeparatedValueTableTest extends AssertJUnit
         assertEquals(false, table.hasMoreRows());
         assertEquals(null, table.tryToGetNextRow());
     }
-    
+
     @Test
     public void testParsingIgnoringEmptyLinesTrailingEmptyCellsAndHashedLines()
     {
         StringReader source = new StringReader("alpha\tbeta\n" +
-        		"\n" +
-        		"# hello world\n" +
-        		"11\t12\t\n" +
-        		"\t22\n" +
-        		"31\n" +
-        		"\n");
+                "\n" +
+                "# hello world\n" +
+                "11\t12\t\n" +
+                "\t22\n" +
+                "31\n" +
+                "\n");
         TabSeparatedValueTable table = new TabSeparatedValueTable(source, "", true, false, true);
         List<Column> columns = table.getColumns();
-        
+
         assertEquals(2, columns.size());
         assertEquals("alpha", columns.get(0).getHeader());
         assertEquals("[11, , 31]", columns.get(0).getValues().toString());
@@ -141,7 +139,7 @@ public class TabSeparatedValueTableTest extends AssertJUnit
         assertEquals(false, table.hasMoreRows());
         assertEquals(null, table.tryToGetNextRow());
     }
-    
+
     @Test
     public void testParsingTrailingEmptyCellsForStrictRowSize()
     {
@@ -156,7 +154,7 @@ public class TabSeparatedValueTableTest extends AssertJUnit
             assertEquals("1. data row has 3 instead of 2 cells.", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testParsingTrailingEmptyHeaders()
     {
@@ -170,9 +168,9 @@ public class TabSeparatedValueTableTest extends AssertJUnit
             assertEquals("2 trailing tab characters detected in headers line: 'alpha\tbeta\t\t'.",
                     ex.getMessage());
         }
-        
+
     }
-    
+
     @Test
     public void testParsingTooLongRows()
     {
@@ -187,14 +185,14 @@ public class TabSeparatedValueTableTest extends AssertJUnit
             assertEquals("1. data row has 5 instead of 2 cells.", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testParsingTrailingEmptyCellsNoStrictRowSize()
     {
         StringReader source = new StringReader("alpha\tbeta\n1\t\t\t \n");
         TabSeparatedValueTable table = new TabSeparatedValueTable(source, "", true, false, true);
         List<Column> columns = table.getColumns();
-        
+
         assertEquals(2, columns.size());
         assertEquals("alpha", columns.get(0).getHeader());
         assertEquals("[1]", columns.get(0).getValues().toString());
@@ -203,13 +201,13 @@ public class TabSeparatedValueTableTest extends AssertJUnit
         assertEquals(false, table.hasMoreRows());
         assertEquals(null, table.tryToGetNextRow());
     }
-    
+
     @Test
     public void testParsingStrictRowSize()
     {
         StringReader source = new StringReader("alpha\tbeta\n1\t2\t3\n");
         TabSeparatedValueTable table = new TabSeparatedValueTable(source, "", true, true, true);
-        
+
         try
         {
             table.getColumns();
@@ -219,7 +217,7 @@ public class TabSeparatedValueTableTest extends AssertJUnit
             assertEquals("1. data row has 3 instead of 2 cells.", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testGetColumnsCombinedWithIterator()
     {
@@ -227,9 +225,9 @@ public class TabSeparatedValueTableTest extends AssertJUnit
         TabSeparatedValueTable table = new TabSeparatedValueTable(source, "", true);
         assertEquals(true, table.hasMoreRows());
         assertEquals("[11, 12]", table.tryToGetNextRow().toString());
-        
+
         List<Column> columns = table.getColumns();
-        
+
         assertEquals(2, columns.size());
         assertEquals("alpha", columns.get(0).getHeader());
         assertEquals("[, 31]", columns.get(0).getValues().toString());

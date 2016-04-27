@@ -27,8 +27,7 @@ import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 
 /**
- * Implementation of {@link IDssServiceRpcGenericFactory} using on {@link HttpInvokerUtils} and
- * caching services in a map.
+ * Implementation of {@link IDssServiceRpcGenericFactory} using on {@link HttpInvokerUtils} and caching services in a map.
  * 
  * @author Franz-Josef Elmer
  */
@@ -36,7 +35,7 @@ public class DssServiceRpcGenericFactory implements IDssServiceRpcGenericFactory
 {
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DssServiceRpcGenericFactory.class);
-    
+
     private final Map<String, IDssServiceRpcGeneric> services =
             new HashMap<String, IDssServiceRpcGeneric>();
 

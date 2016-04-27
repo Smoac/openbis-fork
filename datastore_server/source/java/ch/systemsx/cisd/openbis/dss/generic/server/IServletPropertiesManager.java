@@ -30,7 +30,7 @@ import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperti
 public interface IServletPropertiesManager
 {
     /**
-     * Adds servlets properties from specified section properties. 
+     * Adds servlets properties from specified section properties.
      * 
      * @param keyPrefix Prefix added to section key for error messaging.
      */

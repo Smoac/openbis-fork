@@ -29,8 +29,8 @@ public interface ISessionWorkspaceProvider
     /**
      * Returns the directory representing this user session's workspace.
      * <p>
-     * Files put in this directory will be available during the user session and will be
-     * automatically cleaned up when the user session is closed (or expires).
+     * Files put in this directory will be available during the user session and will be automatically cleaned up when the user session is closed (or
+     * expires).
      */
     public File getSessionWorkspace();
 }

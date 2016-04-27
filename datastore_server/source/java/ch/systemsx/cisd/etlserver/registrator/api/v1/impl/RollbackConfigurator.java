@@ -17,17 +17,15 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 /**
- * A public class for setting rollback configuration variables (which are stored in package-visible
- * classes).
+ * A public class for setting rollback configuration variables (which are stored in package-visible classes).
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 public class RollbackConfigurator
 {
     /**
-     * These two variables determine together how long the rollback mechanism waits for a file
-     * system that has become unavailable and how often it checks for the file system to become
-     * available.
+     * These two variables determine together how long the rollback mechanism waits for a file system that has become unavailable and how often it
+     * checks for the file system to become available.
      * <p>
      * The duration the rollback mechanism will wait before giving up equals waitTimeMS * waitCount;
      * <p>

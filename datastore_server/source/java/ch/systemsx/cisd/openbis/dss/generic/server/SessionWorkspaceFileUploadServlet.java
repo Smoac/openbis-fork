@@ -35,13 +35,12 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 
 /**
- * Servlet that handles the upload of files to the session workspace when Uploader2 library is in
- * HTML5 FileAPI mode. Files are uploaded slice by slice to give a feedback about the upload
- * progress.
+ * Servlet that handles the upload of files to the session workspace when Uploader2 library is in HTML5 FileAPI mode. Files are uploaded slice by
+ * slice to give a feedback about the upload progress.
  * <ul>
  * <li>Accepted HTTP methods: POST</li>
- * <li>HTTP request parameters: sessionID (String required), id (Integer required), startByte
- * (Integer required), endByte (Integer required), filename (String required)</li>
+ * <li>HTTP request parameters: sessionID (String required), id (Integer required), startByte (Integer required), endByte (Integer required), filename
+ * (String required)</li>
  * <li>HTTP request body: file slice to be uploaded</li>
  * </ul>
  * 

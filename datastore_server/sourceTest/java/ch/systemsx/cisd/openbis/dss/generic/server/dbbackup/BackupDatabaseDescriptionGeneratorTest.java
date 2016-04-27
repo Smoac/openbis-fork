@@ -31,8 +31,8 @@ public class BackupDatabaseDescriptionGeneratorTest extends AssertJUnit
     {
         BackupDatabaseDescriptionGenerator generator = new BackupDatabaseDescriptionGenerator();
         generator.process(new String[]
-            { getResourceFileName("openBIS-server/jetty/etc/service.properties"),
-                    getResourceFileName("datastore_server/etc/service.properties") });
+        { getResourceFileName("openBIS-server/jetty/etc/service.properties"),
+                getResourceFileName("datastore_server/etc/service.properties") });
 
         String username = System.getProperty("user.name");
         String resultTemplate =

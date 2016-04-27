@@ -250,31 +250,31 @@ public class ImageUtilTest extends AssertJUnit
     {
         assertFileType("gif", "gif-example.gif");
     }
-    
+
     @Test
     public void testJpg() throws Exception
     {
         assertFileType("jpg", "jpeg-example.jpg");
     }
-    
+
     @Test
     public void testPng() throws Exception
     {
         assertFileType("png", "png-example.png");
     }
-    
+
     @Test
     public void testTiff() throws Exception
     {
         assertFileType("tif", "tiff-example.tiff");
     }
-    
+
     @Test
     public void testFileContainingOnlyOneUmlaut() throws Exception
     {
         assertFileType(null, "one-umlaut.txt");
     }
-    
+
     @Test
     public void testMarkUnsupportedInputStream()
     {
@@ -296,7 +296,7 @@ public class ImageUtilTest extends AssertJUnit
                     ex.getMessage());
         }
     }
-    
+
     @Test
     public void testInputStreamAtTheBeginning() throws Exception
     {
@@ -307,17 +307,17 @@ public class ImageUtilTest extends AssertJUnit
 
         assertEquals(0, buffer.getFilePointer());
     }
-    
+
     @Test
     public void testGetRepresentaticChannelIfBlack()
     {
         BufferedImage image = new BufferedImage(20, 10, BufferedImage.TYPE_INT_RGB);
-        
+
         Channel channel = ImageUtil.getRepresentativeChannelIfEffectiveGray(image);
-        
+
         assertEquals(Channel.RED, channel);
     }
-    
+
     @Test
     public void testGetRepresentaticChannelIfReallyGray()
     {
@@ -326,12 +326,12 @@ public class ImageUtilTest extends AssertJUnit
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         graphics.setColor(new Color(100, 100, 100));
         graphics.drawOval(0, 0, 5, 7);
-        
+
         Channel channel = ImageUtil.getRepresentativeChannelIfEffectiveGray(image);
-        
+
         assertEquals(Channel.RED, channel);
     }
-    
+
     @Test
     public void testGetRepresentaticChannelIfColoredGrayGreen()
     {
@@ -340,12 +340,12 @@ public class ImageUtilTest extends AssertJUnit
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         graphics.setColor(new Color(0, 255, 0));
         graphics.drawOval(0, 0, 5, 7);
-        
+
         Channel channel = ImageUtil.getRepresentativeChannelIfEffectiveGray(image);
-        
+
         assertEquals(Channel.GREEN, channel);
     }
-    
+
     @Test
     public void testGetRepresentaticChannelIfColoredGrayGreenAndBlue()
     {
@@ -354,12 +354,12 @@ public class ImageUtilTest extends AssertJUnit
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         graphics.setColor(new Color(0, 255, 255));
         graphics.drawOval(0, 0, 5, 7);
-        
+
         Channel channel = ImageUtil.getRepresentativeChannelIfEffectiveGray(image);
-        
+
         assertEquals(Channel.GREEN, channel);
     }
-    
+
     @Test
     public void testGetRepresentaticChannelIfColored()
     {
@@ -370,12 +370,12 @@ public class ImageUtilTest extends AssertJUnit
         graphics.drawOval(0, 0, 5, 7);
         graphics.setColor(Color.BLUE);
         graphics.fillOval(3, 3, 3, 4);
-        
+
         Channel channel = ImageUtil.getRepresentativeChannelIfEffectiveGray(image);
-        
+
         assertEquals(null, channel);
     }
-    
+
     private void assertFileType(String expectedFileType, String fileName) throws Exception
     {
         RandomAccessFileImpl handle = null;
@@ -383,7 +383,7 @@ public class ImageUtilTest extends AssertJUnit
         {
             handle = new RandomAccessFileImpl(new File(dir, fileName), "r");
             String type = ImageUtil.tryToFigureOutFileTypeOf(handle);
-            
+
             assertEquals(expectedFileType, type);
         } finally
         {
@@ -394,13 +394,14 @@ public class ImageUtilTest extends AssertJUnit
 
     private void closeQuetly(RandomAccessFileImpl handle)
     {
-        try {
+        try
+        {
             handle.close();
         } catch (Exception ex)
         {
             // keep quiet
         }
-        
+
     }
 
 }

@@ -40,8 +40,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
@@ -53,7 +51,7 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
     {
         logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO);
     }
-    
+
     @AfterMethod
     public void afterMethod(Method method)
     {
@@ -83,16 +81,16 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
             assertEquals(expectedExceptionMessage, ex.getMessage());
         }
     }
-    
+
     @Test
     public void testAllEmpty()
     {
         List<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>();
-        
+
         assertEquals("[]", filter(40, 100, "All", dataSets).toString());
         assertEquals("", logRecorder.getLogContent());
     }
-    
+
     @Test
     public void testAll()
     {
@@ -101,27 +99,27 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
         dataSets.add(ctx.createDataset("s2", "p2", "e4", "dt2", "ds2", 10L));
         dataSets.add(ctx.createDataset("s3", "p3", "e5", "dt3", "ds3", 10L));
         dataSets.add(ctx.createDataset("s4", "p4", "e6", "dt4", "ds4", 10L));
-        
+
         List<String> filteredDataSets = filter(40, 100, "All", dataSets);
-        
-        assertLogs(searchLog("40 bytes", "100 bytes", dataSets), groupingKeyLog("All", 4, 1), 
+
+        assertLogs(searchLog("40 bytes", "100 bytes", dataSets), groupingKeyLog("All", 4, 1),
                 groupsMatchLog(1, 0, 0), filteredLog(filteredDataSets));
         assertEquals("[ds1, ds2, ds3, ds4]", filteredDataSets.toString());
     }
-    
+
     @Test
     public void testSpaceOneGroupTooSmallNoMerge()
     {
         List<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>();
         dataSets.add(ctx.createDataset("s1", "p1", "e1", "dt1", "ds1", 10L));
-        
+
         List<String> filteredDataSets = filter(25, 100, "Space:merge", dataSets);
-        
-        assertLogs(1, "25 bytes", "100 bytes", searchLog("25 bytes", "100 bytes", dataSets), 
+
+        assertLogs(1, "25 bytes", "100 bytes", searchLog("25 bytes", "100 bytes", dataSets),
                 groupingKeyLog("Space:merge", 1, 1), groupsMatchLog(0, 1, 0));
         assertEquals("[]", filteredDataSets.toString());
     }
-    
+
     @Test
     public void testSpaceAllGroupsTooSmall()
     {
@@ -130,14 +128,14 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
         dataSets.add(ctx.createDataset("s1", "p1", "e1", "dt1", "ds2", 10L));
         dataSets.add(ctx.createDataset("s2", "p1", "e1", "dt1", "ds3", 10L));
         dataSets.add(ctx.createDataset("s3", "p1", "e1", "dt1", "ds4", 10L));
-        
+
         List<String> filteredDataSets = filter(25, 100 * FileUtils.ONE_MB, "Space", dataSets);
-        
-        assertLogs(4, "25 bytes", "100 MB", searchLog("25 bytes", "100 MB", dataSets), 
+
+        assertLogs(4, "25 bytes", "100 MB", searchLog("25 bytes", "100 MB", dataSets),
                 groupingKeyLog("Space", 4, 3), groupsMatchLog(0, 3, 0));
         assertEquals("[]", filteredDataSets.toString());
     }
-    
+
     @Test
     public void testSpaceAllGroupsTooSmallMerge()
     {
@@ -146,14 +144,14 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
         dataSets.add(ctx.createDataset("s2", "p1", "e1", "dt1", "ds2", 4000L, 11L));
         dataSets.add(ctx.createDataset("s3", "p1", "e1", "dt1", "ds3", 6000L, 12L));
         dataSets.add(ctx.createDataset("s4", "p1", "e1", "dt1", "ds4", 2000L, 13L));
-        
+
         List<String> filteredDataSets = filter(25, 100 * FileUtils.ONE_MB, "Space:merge", dataSets);
-        
-        assertLogs(searchLog("25 bytes", "100 MB", dataSets), groupingKeyLog("Space:merge", 4, 4), 
+
+        assertLogs(searchLog("25 bytes", "100 MB", dataSets), groupingKeyLog("Space:merge", 4, 4),
                 groupsMatchLog(0, 4, 0), mergedLog(3), filteredLog(filteredDataSets));
         assertEquals("[ds4, ds2, ds3]", filteredDataSets.toString());
     }
-    
+
     @Test
     public void testSpaceAllGroupsTooLarge()
     {
@@ -162,14 +160,14 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
         dataSets.add(ctx.createDataset("s1", "p1", "e1", "dt1", "ds2", 70L));
         dataSets.add(ctx.createDataset("s2", "p1", "e1", "dt1", "ds3", 101L));
         dataSets.add(ctx.createDataset("s3", "p1", "e1", "dt1", "ds4", 101L));
-        
+
         List<String> filteredDataSets = filter(25, 100, "Space", dataSets);
-        
-        assertLogs(4, "25 bytes", "100 bytes", searchLog("25 bytes", "100 bytes", dataSets), 
+
+        assertLogs(4, "25 bytes", "100 bytes", searchLog("25 bytes", "100 bytes", dataSets),
                 groupingKeyLog("Space", 4, 3), groupsMatchLog(0, 0, 3));
         assertEquals("[]", filteredDataSets.toString());
     }
-    
+
     @Test
     public void testSpaceAllGroupsTooLargeOrTooSmall()
     {
@@ -178,14 +176,14 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
         dataSets.add(ctx.createDataset("s1", "p1", "e1", "dt1", "ds2", 10L));
         dataSets.add(ctx.createDataset("s2", "p1", "e1", "dt1", "ds3", 101L));
         dataSets.add(ctx.createDataset("s3", "p1", "e1", "dt1", "ds4", 101L));
-        
+
         List<String> filteredDataSets = filter(25, 100, "Space", dataSets);
-        
-        assertLogs(4, "25 bytes", "100 bytes", searchLog("25 bytes", "100 bytes", dataSets), 
+
+        assertLogs(4, "25 bytes", "100 bytes", searchLog("25 bytes", "100 bytes", dataSets),
                 groupingKeyLog("Space", 4, 3), groupsMatchLog(0, 1, 2));
         assertEquals("[]", filteredDataSets.toString());
     }
-    
+
     @Test
     public void testSpaceBestGroupsJustAtMaxSize()
     {
@@ -195,14 +193,14 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
         dataSets.add(ctx.createDataset("s2", "p1", "e1", "dt1", "ds3", 50L));
         dataSets.add(ctx.createDataset("s2", "p1", "e1", "dt1", "ds4", 50L));
         dataSets.add(ctx.createDataset("s3", "p1", "e1", "dt1", "ds5", 101L));
-        
+
         List<String> filteredDataSets = filter(25, 100, "Space", dataSets);
-        
-        assertLogs(searchLog("25 bytes", "100 bytes", dataSets), groupingKeyLog("Space", 5, 3), 
+
+        assertLogs(searchLog("25 bytes", "100 bytes", dataSets), groupingKeyLog("Space", 5, 3),
                 groupsMatchLog(1, 1, 1), filteredLog(filteredDataSets));
         assertEquals("[ds3, ds4]", filteredDataSets.toString());
     }
-    
+
     @Test
     public void testSpaceOldestDataSet()
     {
@@ -212,28 +210,28 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
         dataSets.add(ctx.createDataset("s2", "p1", "e1", "dt3", "ds3", 200000L, 50L));
         dataSets.add(ctx.createDataset("s3", "p1", "e1", "dt4", "ds4", 100000L, 70L));
         dataSets.add(ctx.createDataset("s4", "p1", "e1", "dt5", "ds5", 101L));
-        
+
         List<String> filteredDataSets = filter(25, 100, "Space", dataSets);
-        
-        assertLogs(searchLog("25 bytes", "100 bytes", dataSets), groupingKeyLog("Space", 5, 4),  
-                groupsMatchLog(2, 1, 1), oldestLog(100000L), 
+
+        assertLogs(searchLog("25 bytes", "100 bytes", dataSets), groupingKeyLog("Space", 5, 4),
+                groupsMatchLog(2, 1, 1), oldestLog(100000L),
                 filteredLog(filteredDataSets));
         assertEquals("[ds4]", filteredDataSets.toString());
     }
-    
+
     @Test
     public void testSpaceSingleton()
     {
         List<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>();
         dataSets.add(ctx.createDataset("s2", "p1", "e1", "dt3", "ds3", 50L));
-        
+
         List<String> filteredDataSets = filter(25, 100, "Space", dataSets);
-        
-        assertLogs(searchLog("25 bytes", "100 bytes", dataSets), groupingKeyLog("Space", 1, 1), 
+
+        assertLogs(searchLog("25 bytes", "100 bytes", dataSets), groupingKeyLog("Space", 1, 1),
                 groupsMatchLog(1, 0, 0), filteredLog(filteredDataSets));
         assertEquals("[ds3]", filteredDataSets.toString());
     }
-    
+
     @Test
     public void testProjectDataSetTypeAllGroupsTooSmall()
     {
@@ -242,14 +240,14 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
         dataSets.add(ctx.createDataset("s1", "p1", "e3", "dt1", "ds2", 10L));
         dataSets.add(ctx.createDataset("s1", "p1", "e3", "dt2", "ds3", 10L));
         dataSets.add(ctx.createDataset("s1", "p1", "e3", "dt2", "ds4", 10L));
-        
+
         List<String> filteredDataSets = filter(25, 100, "Project#DataSetType", dataSets);
-        
-        assertLogs(4, "25 bytes", "100 bytes", searchLog("25 bytes", "100 bytes", dataSets), 
+
+        assertLogs(4, "25 bytes", "100 bytes", searchLog("25 bytes", "100 bytes", dataSets),
                 groupingKeyLog("Project#DataSetType", 4, 2), groupsMatchLog(0, 2, 0));
         assertEquals("[]", filteredDataSets.toString());
     }
-    
+
     @Test
     public void testCombinationProjectAndDataSetType()
     {
@@ -259,14 +257,14 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
         dataSets.add(ctx.createDataset("s1", "p2", "e1", "dt1", "ds3", 30000L, 42L));
         dataSets.add(ctx.createDataset("s1", "p1", "e1", "dt2", "ds4", 15000L, 73L));
         dataSets.add(ctx.createDataset("s1", "p2", "e1", "dt2", "ds5", 40000L, 74L));
-        
+
         List<String> filteredDataSets = filter(25, 100, "Project#DataSetType", dataSets);
-        
-        assertLogs(searchLog("25 bytes", "100 bytes", dataSets), groupingKeyLog("Project#DataSetType", 5, 4), 
+
+        assertLogs(searchLog("25 bytes", "100 bytes", dataSets), groupingKeyLog("Project#DataSetType", 5, 4),
                 groupsMatchLog(4, 0, 0), oldestLog(15000), filteredLog(filteredDataSets));
         assertEquals("[ds4]", filteredDataSets.toString());
     }
-    
+
     @Test
     public void testProjectAllGroupsTooLargeButSequenceProjectAndProjectDataSetTypeFits()
     {
@@ -276,18 +274,18 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
         dataSets.add(ctx.createDataset("s1", "p2", "e1", "dt1", "ds3", 30000L, 42L));
         dataSets.add(ctx.createDataset("s1", "p1", "e1", "dt2", "ds4", 15000L, 73L));
         dataSets.add(ctx.createDataset("s1", "p2", "e1", "dt2", "ds5", 40000L, 74L));
-        
+
         assertEquals("[]", filter(25, 100, "Project", dataSets).toString());
-        
+
         logRecorder.resetLogContent();
         List<String> filteredDataSets = filter(25, 100, "Project, Project#DataSetType", dataSets);
-        
-        assertLogs(searchLog("25 bytes", "100 bytes", dataSets), groupingKeyLog("Project", 5,  2), 
-                groupsMatchLog(0, 0, 2), groupingKeyLog("Project#DataSetType", 5, 4), groupsMatchLog(4, 0, 0), 
+
+        assertLogs(searchLog("25 bytes", "100 bytes", dataSets), groupingKeyLog("Project", 5, 2),
+                groupsMatchLog(0, 0, 2), groupingKeyLog("Project#DataSetType", 5, 4), groupsMatchLog(4, 0, 0),
                 oldestLog(15000), filteredLog(filteredDataSets));
         assertEquals("[ds4]", filteredDataSets.toString());
     }
-    
+
     @Test
     public void testByExperimentTooSmall()
     {
@@ -298,15 +296,15 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
         dataSets.add(ctx.createDataset("s1", "p1", "e1", "dt2", "ds4", 13L));
         assertEquals("[]", filter(20, 50, "DataSetType#Experiment", dataSets).toString());
         logRecorder.resetLogContent();
-        
+
         List<String> filteredDataSets = filterByExperiment(20, 50, dataSets);
-        
-        assertLogs(searchLog("20 bytes", "50 bytes", dataSets), groupingKeyLog("DataSetType#Experiment", 4, 4), 
-                groupsMatchLog(0, 4, 0), groupingKeyLog("DataSetType#Project", 4, 2), groupsMatchLog(1, 1, 0), 
+
+        assertLogs(searchLog("20 bytes", "50 bytes", dataSets), groupingKeyLog("DataSetType#Experiment", 4, 4),
+                groupsMatchLog(0, 4, 0), groupingKeyLog("DataSetType#Project", 4, 2), groupsMatchLog(1, 1, 0),
                 filteredLog(filteredDataSets));
         assertEquals("[ds1, ds2, ds3]", filteredDataSets.toString());
     }
-    
+
     @Test
     public void testByExperimentTooLarge()
     {
@@ -315,16 +313,16 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
         dataSets.add(ctx.createDataset("s1", "p1", "e1", "dt1", "smp1", "ds2", 10L));
         dataSets.add(ctx.createDataset("s1", "p1", "e1", "dt1", "smp2", "ds3", 18L));
         dataSets.add(ctx.createDataset("s1", "p1", "e1", "dt2", "smp1", "ds4", 10L));
-        
+
         List<String> filteredDataSets = filterByExperiment(20, 30, dataSets);
-        
-        assertLogs(searchLog("20 bytes", "30 bytes", dataSets), groupingKeyLog("DataSetType#Experiment", 4, 2), 
+
+        assertLogs(searchLog("20 bytes", "30 bytes", dataSets), groupingKeyLog("DataSetType#Experiment", 4, 2),
                 groupsMatchLog(0, 1, 1), groupingKeyLog("DataSetType#Project", 4, 2), groupsMatchLog(0, 1, 1),
                 groupingKeyLog("DataSetType#Experiment#Sample", 4, 3), groupsMatchLog(1, 2, 0),
                 filteredLog(filteredDataSets));
         assertEquals("[ds1, ds2]", filteredDataSets.toString());
     }
-    
+
     @Test
     public void testBySpaceTooSmall()
     {
@@ -333,10 +331,10 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
         dataSets.add(ctx.createDataset("s1", "p1", "e1", "dt1", "smp1", "ds2", 2 * FileUtils.ONE_KB));
         dataSets.add(ctx.createDataset("s2", "p1", "e1", "dt1", "smp2", "ds3", 8 * FileUtils.ONE_KB));
         dataSets.add(ctx.createDataset("s1", "p1", "e1", "dt2", "smp1", "ds4", 1 * FileUtils.ONE_KB));
-        
+
         List<String> filteredDataSets = filterBySpace(20 * FileUtils.ONE_KB, 30 * FileUtils.ONE_KB, dataSets);
-        
-        assertLogs(4, "20 KB", "30 KB", searchLog("20 KB", "30 KB", dataSets), 
+
+        assertLogs(4, "20 KB", "30 KB", searchLog("20 KB", "30 KB", dataSets),
                 groupingKeyLog("DataSetType#Space", 4, 3), groupsMatchLog(0, 3, 0),
                 groupingKeyLog("DataSetType#Project:merge", 4, 3), groupsMatchLog(0, 3, 0),
                 mergedTooSmallLog(3, "17 KB", "20 KB"),
@@ -348,7 +346,7 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
                 mergedTooSmallLog(4, "17 KB", "20 KB"));
         assertEquals("[]", filteredDataSets.toString());
     }
-    
+
     @Test
     public void testBySpaceTooBigButProjectLevelFits()
     {
@@ -358,15 +356,15 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
         dataSets.add(ctx.createDataset("s1", "p1", "e1", "dt1", "smp1", "ds3", 12L));
         dataSets.add(ctx.createDataset("s1", "p2", "e1", "dt1", "smp1", "ds4", 13L));
         dataSets.add(ctx.createDataset("s2", "p1", "e1", "dt1", "smp2", "ds5", 14L));
-        
+
         List<String> filteredDataSets = filterBySpace(20, 30, dataSets);
-        
-        assertLogs(searchLog("20 bytes", "30 bytes", dataSets), groupingKeyLog("DataSetType#Space", 5, 3), 
-                groupsMatchLog(0, 2, 1), groupingKeyLog("DataSetType#Project:merge", 5, 4), 
+
+        assertLogs(searchLog("20 bytes", "30 bytes", dataSets), groupingKeyLog("DataSetType#Space", 5, 3),
+                groupsMatchLog(0, 2, 1), groupingKeyLog("DataSetType#Project:merge", 5, 4),
                 groupsMatchLog(1, 3, 0), filteredLog(filteredDataSets));
         assertEquals("[ds2, ds3]", filteredDataSets.toString());
     }
-    
+
     @Test
     public void testBySpaceTooBigOrTooSmallProjectLevelTooSmallButProjectGroupsMerged()
     {
@@ -376,15 +374,15 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
         dataSets.add(ctx.createDataset("s1", "p3", "e1", "dt1", "smp1", "ds3", 12L));
         dataSets.add(ctx.createDataset("s1", "p2", "e1", "dt1", "smp1", "ds4", 13L));
         dataSets.add(ctx.createDataset("s2", "p1", "e1", "dt1", "smp2", "ds5", 14L));
-        
+
         List<String> filteredDataSets = filterBySpace(20, 30, dataSets);
-        
-        assertLogs(searchLog("20 bytes", "30 bytes", dataSets), groupingKeyLog("DataSetType#Space", 5, 3), 
-                groupsMatchLog(0, 2, 1), groupingKeyLog("DataSetType#Project:merge", 5, 5), 
+
+        assertLogs(searchLog("20 bytes", "30 bytes", dataSets), groupingKeyLog("DataSetType#Space", 5, 3),
+                groupsMatchLog(0, 2, 1), groupingKeyLog("DataSetType#Project:merge", 5, 5),
                 groupsMatchLog(0, 5, 0), mergedLog(2), filteredLog(filteredDataSets));
         assertEquals("[ds1, ds2]", filteredDataSets.toString());
     }
-    
+
     @Test
     public void testBySpaceTooBigButExperimentLevelFits()
     {
@@ -395,16 +393,16 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
         dataSets.add(ctx.createDataset("s1", "p2", "e1", "dt2", "smp1", "ds4", 12L));
         dataSets.add(ctx.createDataset("s1", "p2", "e2", "dt2", "smp1", "ds5", 13L));
         dataSets.add(ctx.createDataset("s1", "p2", "e2", "dt2", "smp2", "ds6", 14L));
-        
+
         List<String> filteredDataSets = filterBySpace(20, 30, dataSets);
-        
-        assertLogs(searchLog("20 bytes", "30 bytes", dataSets), groupingKeyLog("DataSetType#Space", 6, 2), 
-                groupsMatchLog(0, 0, 2), groupingKeyLog("DataSetType#Project:merge", 6, 2), 
-                groupsMatchLog(0, 0, 2), groupingKeyLog("DataSetType#Experiment:merge", 6, 4), 
+
+        assertLogs(searchLog("20 bytes", "30 bytes", dataSets), groupingKeyLog("DataSetType#Space", 6, 2),
+                groupsMatchLog(0, 0, 2), groupingKeyLog("DataSetType#Project:merge", 6, 2),
+                groupsMatchLog(0, 0, 2), groupingKeyLog("DataSetType#Experiment:merge", 6, 4),
                 groupsMatchLog(2, 2, 0), oldestLog(0), filteredLog(filteredDataSets));
         assertEquals("[ds2, ds3]", filteredDataSets.toString());
     }
-    
+
     @Test
     public void testBySpaceTooBigExperimentLevelTooSmallAndMergedTooBig()
     {
@@ -415,21 +413,21 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
         dataSets.add(ctx.createDataset("s1", "p2", "e1", "dt2", "smp1", "ds4", 16L));
         dataSets.add(ctx.createDataset("s1", "p2", "e2", "dt2", "smp1", "ds5", 18L));
         dataSets.add(ctx.createDataset("s1", "p2", "e2", "dt2", "smp2", "ds6", 19L));
-        
+
         List<String> filteredDataSets = filterBySpace(20, 30, dataSets);
-        
-        assertLogs(6, "20 bytes", "30 bytes", searchLog("20 bytes", "30 bytes", dataSets), 
+
+        assertLogs(6, "20 bytes", "30 bytes", searchLog("20 bytes", "30 bytes", dataSets),
                 groupingKeyLog("DataSetType#Space", 6, 2), groupsMatchLog(0, 0, 2),
                 groupingKeyLog("DataSetType#Project:merge", 6, 2), groupsMatchLog(0, 0, 2),
                 groupingKeyLog("DataSetType#Experiment:merge", 6, 4), groupsMatchLog(0, 2, 2),
-                mergedTooLargeLog(2, "31 bytes", "30 bytes"), 
+                mergedTooLargeLog(2, "31 bytes", "30 bytes"),
                 groupingKeyLog("DataSetType#Experiment#Sample:merge", 6, 6), groupsMatchLog(0, 6, 0),
-                mergedTooLargeLog(2, "31 bytes", "30 bytes"), 
+                mergedTooLargeLog(2, "31 bytes", "30 bytes"),
                 groupingKeyLog("DataSet:merge", 6, 6), groupsMatchLog(0, 6, 0),
                 mergedTooLargeLog(2, "31 bytes", "30 bytes"));
         assertEquals("[]", filteredDataSets.toString());
     }
-    
+
     @Test
     public void testBySpaceTooBigButSampleLevelFits()
     {
@@ -442,10 +440,10 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
         dataSets.add(ctx.createDataset("s1", "p2", "e1", "dt2", "smp2", "ds6", 23000L, 25L));
         dataSets.add(ctx.createDataset("s1", "p2", "e2", "dt2", "smp1", "ds7", 25000L, 26L));
         dataSets.add(ctx.createDataset("s1", "p2", "e2", "dt2", "smp2", "ds8", 27000L, 27L));
-        
+
         List<String> filteredDataSets = filterBySpace(20, 30, dataSets);
-        
-        assertLogs(searchLog("20 bytes", "30 bytes", dataSets), 
+
+        assertLogs(searchLog("20 bytes", "30 bytes", dataSets),
                 groupingKeyLog("DataSetType#Space", 8, 2), groupsMatchLog(0, 0, 2),
                 groupingKeyLog("DataSetType#Project:merge", 8, 2), groupsMatchLog(0, 0, 2),
                 groupingKeyLog("DataSetType#Experiment:merge", 8, 4), groupsMatchLog(0, 0, 4),
@@ -453,7 +451,7 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
                 oldestLog(21000), filteredLog(filteredDataSets));
         assertEquals("[ds5]", filteredDataSets.toString());
     }
-    
+
     @Test
     public void testBySpaceTooBigButDataSetLevelFits()
     {
@@ -462,10 +460,10 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
         dataSets.add(ctx.createDataset("s1", "p1", "e1", "dt1", "smp1", "ds2", 19L));
         dataSets.add(ctx.createDataset("s1", "p1", "e1", "dt1", "smp2", "ds3", 20L));
         dataSets.add(ctx.createDataset("s1", "p1", "e1", "dt1", "smp2", "ds4", 19L));
-        
+
         List<String> filteredDataSets = filterBySpace(20, 30, dataSets);
-        
-        assertLogs(searchLog("20 bytes", "30 bytes", dataSets), 
+
+        assertLogs(searchLog("20 bytes", "30 bytes", dataSets),
                 groupingKeyLog("DataSetType#Space", 4, 1), groupsMatchLog(0, 0, 1),
                 groupingKeyLog("DataSetType#Project:merge", 4, 1), groupsMatchLog(0, 0, 1),
                 groupingKeyLog("DataSetType#Experiment:merge", 4, 1), groupsMatchLog(0, 0, 1),
@@ -474,18 +472,18 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
                 filteredLog(filteredDataSets));
         assertEquals("[ds3]", filteredDataSets.toString());
     }
-    
+
     private List<String> filterBySpace(long min, long max, List<AbstractExternalData> dataSets)
     {
         return filter(min, max, "DataSetType#Space, DataSetType#Project:merge, DataSetType#Experiment:merge, "
                 + "DataSetType#Experiment#Sample:merge, DataSet:merge", dataSets);
     }
-    
+
     private List<String> filterByExperiment(long min, long max, List<AbstractExternalData> dataSets)
     {
         return filter(min, max, "DataSetType#Experiment, DataSetType#Project, DataSetType#Experiment#Sample", dataSets);
     }
-    
+
     private List<String> filter(long min, long max, String groupingKeys, List<AbstractExternalData> dataSets)
     {
         return Code.extractCodes(createPolicy(min, max, groupingKeys).filter(dataSets));
@@ -497,57 +495,57 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
         properties.setProperty(GroupingPolicy.GROUPING_KEYS_KEY, groupingKeys);
         return new GroupingPolicy(properties);
     }
-    
+
     private String searchLog(String minSize, String maxSize, List<AbstractExternalData> dataSets)
     {
-        return "Search for a group of data sets with total size between " + minSize + " and " + maxSize 
+        return "Search for a group of data sets with total size between " + minSize + " and " + maxSize
                 + ". Data sets: " + Code.extractCodes(dataSets);
     }
-    
+
     private String groupingKeyLog(String key, int dataSets, int groups)
     {
         return String.format("Grouping key: '%s' has grouped %d data sets into %d groups.", key, dataSets, groups);
     }
-    
+
     private String groupsMatchLog(int match, int tooSmall, int tooLarge)
     {
-        return String.format("%d groups match in size, %d groups are too small and %d groups are too large.", 
+        return String.format("%d groups match in size, %d groups are too small and %d groups are too large.",
                 match, tooSmall, tooLarge);
     }
-    
+
     private String oldestLog(long timestamp)
     {
-        return String.format("All data sets of the selected group have been accessed at %s or before.", 
+        return String.format("All data sets of the selected group have been accessed at %s or before.",
                 new SimpleDateFormat(BasicConstant.DATE_WITHOUT_TIMEZONE_PATTERN).format(new Date(timestamp)));
     }
-    
+
     private String mergedLog(int groups)
     {
         return groups + " groups have been merged.";
     }
-    
+
     private String mergedTooSmallLog(int groups, String size, String minSize)
     {
-        return "Merging all " + groups + " groups gives a total size of " + size 
+        return "Merging all " + groups + " groups gives a total size of " + size
                 + " which is still below required minimum of " + minSize;
     }
-    
+
     private String mergedTooLargeLog(int groups, String size, String maxSize)
     {
-        return groups + " groups have been merged, but the total size of " + size 
+        return groups + " groups have been merged, but the total size of " + size
                 + " is above the required maximum of " + maxSize;
     }
-    
+
     private String filteredLog(Object filteredDataSets)
     {
         return String.format("filtered data sets: %s", filteredDataSets);
     }
-    
-    private void assertLogs(int dataSets, String minSize, String maxSize, String...expectedLogEntries)
+
+    private void assertLogs(int dataSets, String minSize, String maxSize, String... expectedLogEntries)
     {
         StringBuilder builder = createBasicLogExpectation(expectedLogEntries);
         builder.append(String.format("WARN  NOTIFY.GroupingPolicy - "
-                + "From %d data sets no group could be found to be fit between %s and %s\n\nLog:\n", 
+                + "From %d data sets no group could be found to be fit between %s and %s\n\nLog:\n",
                 dataSets, minSize, maxSize));
         for (String logEntry : expectedLogEntries)
         {
@@ -555,8 +553,8 @@ public class GroupingPolicyTest extends AbstractAutoArchiverPolicyTestCase
         }
         assertEquals(builder.toString().trim(), logRecorder.getLogContent());
     }
-    
-    private void assertLogs(String...expectedLogEntries)
+
+    private void assertLogs(String... expectedLogEntries)
     {
         assertEquals(createBasicLogExpectation(expectedLogEntries).toString().trim(), logRecorder.getLogContent());
     }

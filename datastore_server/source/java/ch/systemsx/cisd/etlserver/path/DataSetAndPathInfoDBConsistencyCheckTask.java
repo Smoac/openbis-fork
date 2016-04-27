@@ -49,7 +49,7 @@ public class DataSetAndPathInfoDBConsistencyCheckTask implements IMaintenanceTas
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSetAndPathInfoDBConsistencyCheckTask.class);
-    
+
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             DataSetAndPathInfoDBConsistencyCheckTask.class);
 
@@ -62,7 +62,7 @@ public class DataSetAndPathInfoDBConsistencyCheckTask implements IMaintenanceTas
     private long timeInterval;
 
     private ITimeProvider timeProvider;
-    
+
     public DataSetAndPathInfoDBConsistencyCheckTask()
     {
     }

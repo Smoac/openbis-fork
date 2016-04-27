@@ -41,10 +41,10 @@ import ch.systemsx.cisd.common.time.DateTimeUtils;
 import ch.systemsx.cisd.common.utilities.ITimeAndWaitingProvider;
 
 /**
- * Class starting a daemon for deleting files. 
+ * Class starting a daemon for deleting files.
  * <p>
- * A deletion is requested by creating a deletion request file in a specified directory. Such a file contains 
- * the absolute path of the file to be deleted. It will be created by invoking {@link #requestDeletion(File)}. 
+ * A deletion is requested by creating a deletion request file in a specified directory. Such a file contains the absolute path of the file to be
+ * deleted. It will be created by invoking {@link #requestDeletion(File)}.
  *
  * @author Franz-Josef Elmer
  */
@@ -52,38 +52,38 @@ public class FileDeleter
 {
     /** File type of deletion request files. **/
     public static final String FILE_TYPE = ".deletionrequest";
-    
-    /** Format of the time stamp of deletion request. **/ 
+
+    /** Format of the time stamp of deletion request. **/
     public static final String TIMESTAMP_FORMAT = "yyyyMMdd-HHmmss";
-    
+
     /** Property: Time interval in milliseconds the daemon tries to handle deletion requests. */
     public static final String DELETION_POLLING_TIME_KEY = "deletion-polling-time";
-    
+
     private static final long DEFAULT_DELETION_POLLING_TIME = 10 * DateUtils.MILLIS_PER_MINUTE;
-    
+
     /** Property: Time out in milliseconds of deletion requests. */
     public static final String DELETION_TIME_OUT_KEY = "deletion-time-out";
-    
+
     private static final long DEFAULT_DELETION_TIME_OUT = 24 * DateUtils.MILLIS_PER_HOUR;
-    
+
     /** Property: Email address for notifying time-outed deletion requests. */
     public static final String EMAIL_ADDRESS_KEY = "email-address";
-    
+
     /** Property: Email address for the 'from' field. */
     public static final String EMAIL_FROM_ADDRESS_KEY = "email-from-address";
-    
+
     /** Property: Email subject. */
     public static final String EMAIL_SUBJECT_KEY = "email-subject";
-    
+
     /** Property: Template with variable ${file-list}. */
     public static final String EMAIL_TEMPLATE_KEY = "email-template";
-    
+
     /** Name of the file list variable in {@link #EMAIL_TEMPLATE_KEY} property. */
     public static final String FILE_LIST_VARIABLE = "file-list";
-    
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             FileDeleter.class);
-    
+
     static final Template THREAD_NAME_TEMPLATE = new Template("File Deleter (${directory})");
 
     private static final FileFilter FILE_FILTER = new FileFilter()
@@ -98,19 +98,28 @@ public class FileDeleter
     private final SimpleDateFormat timestampFormat = new SimpleDateFormat(TIMESTAMP_FORMAT);
 
     private final File directory;
-    private final ITimeAndWaitingProvider timeProvider;
-    private final IMailClientProvider eMailClientProvider;
-    private final long pollingTime;
-    private final long timeOut;
-    private String emailOrNull;
-    private String emailTemplate;
-    private String emailSubject;
-    private String emailFromAddressOrNull;
-    
-    private int counter;
-    private boolean started;
-    private long threadStartTime;
 
+    private final ITimeAndWaitingProvider timeProvider;
+
+    private final IMailClientProvider eMailClientProvider;
+
+    private final long pollingTime;
+
+    private final long timeOut;
+
+    private String emailOrNull;
+
+    private String emailTemplate;
+
+    private String emailSubject;
+
+    private String emailFromAddressOrNull;
+
+    private int counter;
+
+    private boolean started;
+
+    private long threadStartTime;
 
     /**
      * Creates an instance for the specified directory, time provider, email client and properties.
@@ -119,7 +128,7 @@ public class FileDeleter
     {
         this.eMailClientProvider = eMailClientProvider;
         assert directory.isDirectory();
-        
+
         this.directory = directory;
         this.timeProvider = timeProvider;
         pollingTime = DateTimeUtils.getDurationInMillis(properties, DELETION_POLLING_TIME_KEY, DEFAULT_DELETION_POLLING_TIME);
@@ -132,7 +141,7 @@ public class FileDeleter
             emailFromAddressOrNull = properties.getProperty(EMAIL_FROM_ADDRESS_KEY);
         }
     }
-    
+
     /**
      * Starts daemon.
      */
@@ -155,7 +164,7 @@ public class FileDeleter
         template.attemptToBind("directory", directory.toString());
         new Thread(null, runnable, template.createText()).start();
     }
-    
+
     /**
      * Requests deletion of specified file.
      */
@@ -170,7 +179,7 @@ public class FileDeleter
         stagedDeletionRequestFile.renameTo(deletionRequestFile);
         operationLog.info("Deletion request file for '" + file + "': " + deletionRequestFile);
     }
-    
+
     /**
      * Stops daemon.
      */
@@ -178,7 +187,7 @@ public class FileDeleter
     {
         started = false;
     }
-    
+
     private void polling()
     {
         threadStartTime = timeProvider.getTimeInMilliseconds();
@@ -197,7 +206,7 @@ public class FileDeleter
                 template.attemptToBind(FILE_LIST_VARIABLE, builder.toString());
                 String emailMessage = template.createText();
                 IMailClient mailClient = eMailClientProvider.getMailClient();
-                mailClient.sendEmailMessage(emailSubject, emailMessage, 
+                mailClient.sendEmailMessage(emailSubject, emailMessage,
                         new EMailAddress(emailOrNull), new EMailAddress(emailFromAddressOrNull));
             }
             timeProvider.sleep(pollingTime);
@@ -221,8 +230,8 @@ public class FileDeleter
                 }
             } else if (deletionTime > timeOut)
             {
-                String message = file + "\n   Deletion requested at " 
-                        + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(fileTime) 
+                String message = file + "\n   Deletion requested at "
+                        + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(fileTime)
                         + " (" + DateTimeUtils.renderDuration(deletionTime) + " elapsed)";
                 operationLog.warn(message);
                 long timeSinceStart = time - threadStartTime;
@@ -233,7 +242,7 @@ public class FileDeleter
             }
         }
     }
-    
+
     private Long getFileTime(File trackingFile)
     {
         try

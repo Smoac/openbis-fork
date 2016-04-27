@@ -165,7 +165,7 @@ class ServiceProxyBuilder<T extends IRpcService>
         final ClassLoader classLoader = DssServiceRpcFactory.class.getClassLoader();
         final ServiceInvocationHandler invocationHandler = new ServiceInvocationHandler(service);
         final T proxy = (T) Proxy.newProxyInstance(classLoader, new Class[]
-            { clazz }, invocationHandler);
+        { clazz }, invocationHandler);
         return proxy;
     }
 

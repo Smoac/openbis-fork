@@ -23,8 +23,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.IPreRegistrationAction;
 
 /**
- * A class which is configured from properties and is able to execute a script from the command line
- * using the configured path.
+ * A class which is configured from properties and is able to execute a script from the command line using the configured path.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

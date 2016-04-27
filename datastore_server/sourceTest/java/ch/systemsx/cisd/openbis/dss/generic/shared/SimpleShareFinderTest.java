@@ -29,8 +29,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class SimpleShareFinderTest extends AbstractIShareFinderTestCase
@@ -38,11 +36,13 @@ public class SimpleShareFinderTest extends AbstractIShareFinderTestCase
     private static final class MockSpeedChecker implements ISpeedChecker
     {
         private final boolean[] checkingResults;
-        
+
         private final List<Share> recordedShares = new ArrayList<Share>();
+
         private SimpleDataSetInformationDTO recordedDataSet;
+
         private int index;
-        
+
         MockSpeedChecker(boolean... checkingResults)
         {
             this.checkingResults = checkingResults;
@@ -55,7 +55,7 @@ public class SimpleShareFinderTest extends AbstractIShareFinderTestCase
             recordedShares.add(share);
             return checkingResults[index++];
         }
-        
+
         void verify(SimpleDataSetInformationDTO expectedDataSet, Share... expectedShares)
         {
             assertEquals(index, checkingResults.length);
@@ -66,7 +66,7 @@ public class SimpleShareFinderTest extends AbstractIShareFinderTestCase
             }
         }
     }
-    
+
     private SimpleShareFinder shareFinder;
 
     @BeforeMethod
@@ -74,7 +74,7 @@ public class SimpleShareFinderTest extends AbstractIShareFinderTestCase
     {
         shareFinder = new SimpleShareFinder(new Properties());
     }
-    
+
     @Test
     public void testMaxFreeExtensionShare()
     {
@@ -85,14 +85,14 @@ public class SimpleShareFinderTest extends AbstractIShareFinderTestCase
         Share s2 = incomingShare("2", kiloBytes(300), 0);
         Share s3 = extensionShare("3", kiloBytes(30), 0);
         Share s4 = extensionShare("4", kiloBytes(50), 0);
-        
+
         MockSpeedChecker speedChecker = new MockSpeedChecker(true, true, true, true);
         Share share = shareFinder.tryToFindShare(dataSet, Arrays.asList(s1, s2, s3, s4), speedChecker);
-        
+
         assertSame(s4, share);
         speedChecker.verify(dataSet, s1, s2, s3, s4);
     }
-    
+
     @Test
     public void testMaxFreeIncomingShare()
     {
@@ -103,10 +103,10 @@ public class SimpleShareFinderTest extends AbstractIShareFinderTestCase
         Share s2 = incomingShare("2", kiloBytes(400), 0);
         Share s3 = extensionShare("3", kiloBytes(30), 0);
         Share s4 = extensionShare("4", kiloBytes(50), 0);
-        
+
         MockSpeedChecker speedChecker = new MockSpeedChecker(true, true, true, false);
         Share share = shareFinder.tryToFindShare(dataSet, Arrays.asList(s1, s2, s3, s4), speedChecker);
-        
+
         assertSame(s2, share);
         speedChecker.verify(dataSet, s1, s2, s3, s4);
     }
@@ -120,12 +120,12 @@ public class SimpleShareFinderTest extends AbstractIShareFinderTestCase
         Share s1 = incomingShare("1", kiloBytes(300), 0);
         Share s2 = incomingShare("2", kiloBytes(200), 0);
         Share s3 = extensionShare("3", kiloBytes(30), 0);
-        
+
         Share share = shareFinder.tryToFindShare(dataSet, Arrays.asList(s1, s2, s3));
-        
+
         assertSame(null, share);
     }
-    
+
     @Test
     public void testExtensionDataSetShareHasMoreSpaceThanOtherExtensionShare()
     {
@@ -135,12 +135,12 @@ public class SimpleShareFinderTest extends AbstractIShareFinderTestCase
         Share s1 = extensionShare("1", kiloBytes(300), 0);
         Share s2 = extensionShare("2", kiloBytes(200), 0);
         Share s3 = incomingShare("3", kiloBytes(50), 0);
-        
+
         Share share = shareFinder.tryToFindShare(dataSet, Arrays.asList(s1, s2, s3));
-        
+
         assertSame(null, share);
     }
-    
+
     @Test
     public void testExtensionDataSetShareHasSlightlyMoreSpaceThanDataSetSize()
     {
@@ -149,9 +149,9 @@ public class SimpleShareFinderTest extends AbstractIShareFinderTestCase
         dataSet.setDataSetShareId("1");
         Share s1 = incomingShare("1", kiloBytes(10), 0);
         Share s2 = extensionShare("2", kiloBytes(109), 0);
-        
+
         Share share = shareFinder.tryToFindShare(dataSet, Arrays.asList(s1, s2));
-        
+
         assertSame(null, share);
     }
 }

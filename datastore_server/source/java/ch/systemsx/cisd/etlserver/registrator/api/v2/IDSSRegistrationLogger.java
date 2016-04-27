@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
-
 /**
  * Logging interface exposed through a dropbox api.
  * 

@@ -54,8 +54,8 @@ public class ErrorsPanel extends JPanel
             new ImageIcon(ErrorsPanel.class.getResource("/ok.png"));
 
     private static final ImageIcon WRONG_ICON =
-        new ImageIcon(ErrorsPanel.class.getResource("/wrong.png"));
-    
+            new ImageIcon(ErrorsPanel.class.getResource("/wrong.png"));
+
     private static final ImageIcon WAIT_ICON = new ImageIcon(
             ErrorsPanel.class.getResource("/wait.gif"));
 

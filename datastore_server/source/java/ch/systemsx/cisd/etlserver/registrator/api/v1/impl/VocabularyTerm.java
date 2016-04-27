@@ -19,8 +19,6 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IVocabularyTerm;
 
 /**
- * 
- *
  * @author Jakub Straszewski
  */
 public class VocabularyTerm extends VocabularyTermImmutable implements IVocabularyTerm
@@ -53,6 +51,5 @@ public class VocabularyTerm extends VocabularyTermImmutable implements IVocabula
     {
         getVocabularyTerm().setOrdinal(ordinal);
     }
-
 
 }

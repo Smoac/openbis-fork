@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.etlserver;
 
 /**
- * The interface is almost the same as {@link IPostRegistrationAction}, except that the second
- * argument is the path in the dropbox (not the path in the store).
+ * The interface is almost the same as {@link IPostRegistrationAction}, except that the second argument is the path in the dropbox (not the path in
+ * the store).
  * 
  * @author Chandrasekhar Ramakrishnan
  */

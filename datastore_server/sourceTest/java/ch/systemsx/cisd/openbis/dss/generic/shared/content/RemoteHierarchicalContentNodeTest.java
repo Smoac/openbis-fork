@@ -69,7 +69,7 @@ public class RemoteHierarchicalContentNodeTest
     Mockery context;
 
     private IFileOperations fileOperations;
-    
+
     ISingleDataSetPathInfoProvider provider;
 
     IDssServiceRpcGeneric remoteDss;
@@ -116,13 +116,13 @@ public class RemoteHierarchicalContentNodeTest
                 {
                     one(fileOperations).removeRecursivelyQueueing(
                             new File(SESSION_WORKSPACE_DIR, ContentCache.DOWNLOADING_FOLDER));
-                    
+
                     allowing(serviceFactory).getService(DATA_STORE_URL);
                     will(returnValue(remoteDss));
-                    
+
                     one(persistenceManager).load(dataSetInfos);
                     will(returnValue(dataSetInfos));
-                    
+
                     one(persistenceManager).requestPersistence();
                 }
             });
@@ -150,7 +150,7 @@ public class RemoteHierarchicalContentNodeTest
                     allowing(remoteDss).getDownloadUrlForFileForDataSet(with(any(String.class)),
                             with(any(String.class)), with(any(String.class)));
                     will(returnValue(remoteFile.toURI().toURL().toString()));
-                    
+
                     one(persistenceManager).requestPersistence();
                 }
             });
@@ -228,7 +228,7 @@ public class RemoteHierarchicalContentNodeTest
                             CACHED_DATASET_LOCATION.getDataSetCode(), pathInfo.getRelativePath(),
                             false);
                     will(returnValue(new FileInfoDssDTO[]
-                        { new FileInfoDssDTO("path/to/file", "path/to/file", false, 3) }));
+                    { new FileInfoDssDTO("path/to/file", "path/to/file", false, 3) }));
                 }
             });
 
@@ -254,5 +254,5 @@ public class RemoteHierarchicalContentNodeTest
             ex.printStackTrace();
         }
     }
-    
+
 }

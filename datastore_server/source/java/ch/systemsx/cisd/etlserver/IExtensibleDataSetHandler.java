@@ -22,8 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * An interface for data set handlers that give other code a chance to implement the registration of
- * the new data object.
+ * An interface for data set handlers that give other code a chance to implement the registration of the new data object.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

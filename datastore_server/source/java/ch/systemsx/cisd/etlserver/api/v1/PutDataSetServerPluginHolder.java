@@ -30,8 +30,7 @@ import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * Not a real top-level data set registrator. It is just a placeholder to make it possible to
- * extract the IETLServerPlugin.
+ * Not a real top-level data set registrator. It is just a placeholder to make it possible to extract the IETLServerPlugin.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

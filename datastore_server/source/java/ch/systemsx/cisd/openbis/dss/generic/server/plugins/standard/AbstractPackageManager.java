@@ -30,8 +30,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetExistenceChecker
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 abstract class AbstractPackageManager implements IPackageManager
@@ -55,13 +53,13 @@ abstract class AbstractPackageManager implements IPackageManager
     private void create(File packageFile, List<AbstractExternalData> dataSets, boolean withPathPrefix)
     {
         AbstractDataSetPackager packager = null;
-        
+
         try
         {
             DataSetExistenceChecker existenceChecker =
                     new DataSetExistenceChecker(getDirectoryProvider(), TimingParameters.create(new Properties()));
             packager = createPackager(packageFile, existenceChecker);
-            
+
             for (AbstractExternalData dataSet : dataSets)
             {
                 packager.addDataSetTo(withPathPrefix ? dataSet.getCode() + "/" : "", dataSet);
@@ -74,9 +72,8 @@ abstract class AbstractPackageManager implements IPackageManager
             }
         }
     }
-    
+
     protected abstract AbstractDataSetPackager createPackager(File packageFile, DataSetExistenceChecker existenceChecker);
-    
 
     protected IHierarchicalContentProvider getContentProvider()
     {
@@ -86,7 +83,7 @@ abstract class AbstractPackageManager implements IPackageManager
         }
         return contentProvider;
     }
-    
+
     private IDataSetDirectoryProvider getDirectoryProvider()
     {
         if (directoryProvider == null)
@@ -94,4 +91,5 @@ abstract class AbstractPackageManager implements IPackageManager
             directoryProvider = ServiceProvider.getDataStoreService().getDataSetDirectoryProvider();
         }
         return directoryProvider;
-    }}
+    }
+}

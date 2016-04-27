@@ -390,7 +390,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         @Override
         public void process(IDataSetRegistrationTransactionV2 transaction,
                 Map<String, Object> parameters, ISimpleTableModelBuilderAdaptor tableBuilder)
-                        throws EvaluatorException
+                throws EvaluatorException
         {
             evaluator.evalFunction(FUNCTION_NAME, transaction, parameters, tableBuilder);
         }

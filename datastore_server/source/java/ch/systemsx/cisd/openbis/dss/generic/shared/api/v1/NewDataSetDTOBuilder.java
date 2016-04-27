@@ -48,8 +48,7 @@ public class NewDataSetDTOBuilder
     }
 
     /**
-     * The owner identifier may be and empty during construction but is non-null in a well-formed
-     * object.
+     * The owner identifier may be and empty during construction but is non-null in a well-formed object.
      */
     public String getDataSetOwnerIdentifier()
     {
@@ -91,8 +90,7 @@ public class NewDataSetDTOBuilder
     }
 
     /**
-     * The file that contains the data set. May be null during initialization but should be non-null
-     * in a well-formed data set.
+     * The file that contains the data set. May be null during initialization but should be non-null in a well-formed data set.
      */
     public File getFile()
     {

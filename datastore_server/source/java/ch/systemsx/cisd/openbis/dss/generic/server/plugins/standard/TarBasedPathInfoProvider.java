@@ -44,18 +44,20 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvide
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 
 /**
- * An implementations of {@link ISingleDataSetPathInfoProvider} which retrieves and calculates path info 
- * from a tar file.
+ * An implementations of {@link ISingleDataSetPathInfoProvider} which retrieves and calculates path info from a tar file.
  *
  * @author Franz-Josef Elmer
  */
 class TarBasedPathInfoProvider implements ISingleDataSetPathInfoProvider
 {
     private final File packageFile;
+
     private final int bufferSize;
+
     private final ISimpleLogger ioSpeedLogger;
-    
+
     private Map<String, DataSetPathInfo> pathInfos;
+
     private Map<String, List<DataSetPathInfo>> pathInfoChildren;
 
     TarBasedPathInfoProvider(File packageFile, int bufferSize, ISimpleLogger ioSpeedLogger)
@@ -105,7 +107,7 @@ class TarBasedPathInfoProvider implements ISingleDataSetPathInfoProvider
         Pattern pattern = Pattern.compile(fileNamePattern);
         for (DataSetPathInfo pathInfo : getPathInfos().values())
         {
-            if (pathInfo.getRelativePath().startsWith(startingPath) 
+            if (pathInfo.getRelativePath().startsWith(startingPath)
                     && pattern.matcher(pathInfo.getFileName()).matches())
             {
                 result.add(pathInfo);
@@ -113,13 +115,12 @@ class TarBasedPathInfoProvider implements ISingleDataSetPathInfoProvider
         }
         return result;
     }
-    
+
     private Map<String, List<DataSetPathInfo>> getPathInfoChildren()
     {
         getPathInfos(); // lazy creation of pathInfoChildren
         return pathInfoChildren;
     }
-
 
     private Map<String, DataSetPathInfo> getPathInfos()
     {
@@ -153,7 +154,7 @@ class TarBasedPathInfoProvider implements ISingleDataSetPathInfoProvider
         }
         return pathInfos;
     }
-    
+
     private void createPathInfoLinks()
     {
         pathInfoChildren = new HashMap<String, List<DataSetPathInfo>>();
@@ -175,7 +176,7 @@ class TarBasedPathInfoProvider implements ISingleDataSetPathInfoProvider
             }
         }
     }
-    
+
     private static final void addDirectory(String path, Map<String, DataSetPathInfo> pathInfos)
     {
         if (StringUtils.isNotBlank(path) && pathInfos.containsKey(path) == false)
@@ -189,7 +190,7 @@ class TarBasedPathInfoProvider implements ISingleDataSetPathInfoProvider
         }
 
     }
-    
+
     private static final class UntarMetaData extends Untar
     {
         private Map<String, DataSetPathInfo> pathInfos;
@@ -206,7 +207,7 @@ class TarBasedPathInfoProvider implements ISingleDataSetPathInfoProvider
         {
             return new PathInfoOutputStream(entry, pathInfos);
         }
-        
+
         @Override
         protected void createDirectory(File directory)
         {
@@ -233,12 +234,15 @@ class TarBasedPathInfoProvider implements ISingleDataSetPathInfoProvider
         {
         }
     }
-    
+
     private static final class PathInfoOutputStream extends FilterOutputStream
     {
         private final TarArchiveEntry entry;
+
         private final Map<String, DataSetPathInfo> pathInfos;
+
         private final Checksum checksum;
+
         private long fileSize;
 
         public PathInfoOutputStream(TarArchiveEntry entry, Map<String, DataSetPathInfo> pathInfos)
@@ -280,6 +284,6 @@ class TarBasedPathInfoProvider implements ISingleDataSetPathInfoProvider
             pathInfos.put(name, pathInfo);
             addDirectory(FileUtilities.getParentRelativePath(name), pathInfos);
         }
-        
+
     }
 }

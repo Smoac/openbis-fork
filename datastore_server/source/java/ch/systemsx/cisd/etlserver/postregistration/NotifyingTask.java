@@ -35,11 +35,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 
 /**
- * Post registration task which write a message as a file. A message template is used to create the
- * message. Template place holders have the form <code>${<i>&lt;place holder name&gt;</i>}</code>.
- * The place holder name for the data set code is <code>data-set-code</code>. To refer a data set
- * property the place holder name has the form
- * <code>property.<i>&lt;property type code (ignoring case)&gt;></code>.
+ * Post registration task which write a message as a file. A message template is used to create the message. Template place holders have the form
+ * <code>${<i>&lt;place holder name&gt;</i>}</code>. The place holder name for the data set code is <code>data-set-code</code>. To refer a data set
+ * property the place holder name has the form <code>property.<i>&lt;property type code (ignoring case)&gt;></code>.
  * 
  * @author Franz-Josef Elmer
  */
@@ -50,8 +48,8 @@ public class NotifyingTask extends AbstractPostRegistrationTask
     private static final String DESTINATION_PATH_TEMPLATE_KEY = "destination-path-template";
 
     /**
-     * Optional. Contains comma separated patterns (java regexp). If specified then only datasets
-     * which have type matching to any of the patterns will be processed.
+     * Optional. Contains comma separated patterns (java regexp). If specified then only datasets which have type matching to any of the patterns will
+     * be processed.
      */
     private static final String INCLUDE_DATASET_TYPES_PATTERN = "include-dataset-type-patterns";
 

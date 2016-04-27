@@ -39,28 +39,28 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUt
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 abstract class AbstractCommand
 {
     static final String BASH_COMMAND = "share-manager.sh";
+
     private final String name;
-    
+
     protected String sessionToken;
+
     protected IDssServiceRpcGeneric service;
 
     AbstractCommand(String name)
     {
         this.name = name;
     }
-    
+
     String getName()
     {
         return name;
     }
-    
+
     void parseArguments(String[] args)
     {
         CommonArguments arguments = getArguments();
@@ -70,7 +70,7 @@ abstract class AbstractCommand
             parser.parseArgument(args);
             if (arguments.isComplete() == false)
             {
-               throw new IllegalArgumentException(); 
+                throw new IllegalArgumentException();
             }
         } catch (Exception ex)
         {
@@ -84,7 +84,7 @@ abstract class AbstractCommand
             throw new UserFailureException(writer.toString());
         }
     }
-    
+
     void login()
     {
         String username = getArguments().getUsername();
@@ -151,8 +151,8 @@ abstract class AbstractCommand
     }
 
     protected abstract CommonArguments getArguments();
-    
+
     protected abstract String getRequiredArgumentsString();
-    
+
     abstract void execute();
 }

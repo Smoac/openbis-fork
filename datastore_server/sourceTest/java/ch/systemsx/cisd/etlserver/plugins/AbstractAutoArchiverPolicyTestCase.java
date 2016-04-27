@@ -36,19 +36,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class AbstractAutoArchiverPolicyTestCase extends AssertJUnit
 {
 
-
     protected static final class ExecutionContext
     {
         private AtomicInteger counter = new AtomicInteger();
 
-        public AbstractExternalData createDataset(String projectCode, String experimentCode, 
+        public AbstractExternalData createDataset(String projectCode, String experimentCode,
                 String datasetType, String dsCode, Long size)
         {
             return createDataset("___space", projectCode, experimentCode, datasetType, dsCode, size);
@@ -57,7 +54,7 @@ public class AbstractAutoArchiverPolicyTestCase extends AssertJUnit
         /**
          * If datasetCode is null then it gets assigned unique code containing the word "generated"
          */
-        public AbstractExternalData createDataset(String spaceCode, String projectCode, String experimentCode, 
+        public AbstractExternalData createDataset(String spaceCode, String projectCode, String experimentCode,
                 String datasetType, String dsCode, Long accessTimestamp, Long size)
         {
             return createDataset(spaceCode, projectCode, experimentCode, datasetType, null, dsCode, accessTimestamp, size);
@@ -66,25 +63,25 @@ public class AbstractAutoArchiverPolicyTestCase extends AssertJUnit
         /**
          * If datasetCode is null then it gets assigned unique code containing the word "generated"
          */
-        public AbstractExternalData createDataset(String spaceCode, String projectCode, String experimentCode, 
+        public AbstractExternalData createDataset(String spaceCode, String projectCode, String experimentCode,
                 String datasetType, String dsCode, Long size)
         {
             return createDataset(spaceCode, projectCode, experimentCode, datasetType, null, dsCode, size);
         }
-        
+
         /**
          * If datasetCode is null then it gets assigned unique code containing the word "generated"
          */
-        public AbstractExternalData createDataset(String spaceCode, String projectCode, String experimentCode, 
+        public AbstractExternalData createDataset(String spaceCode, String projectCode, String experimentCode,
                 String datasetType, String sampleCode, String dsCode, Long size)
         {
             return createDataset(spaceCode, projectCode, experimentCode, datasetType, sampleCode, dsCode, null, size);
         }
-        
+
         /**
          * If datasetCode is null then it gets assigned unique code containing the word "generated"
          */
-        public AbstractExternalData createDataset(String spaceCode, String projectCode, String experimentCode, 
+        public AbstractExternalData createDataset(String spaceCode, String projectCode, String experimentCode,
                 String datasetType, String sampleCode, String dsCode, Long accessTimestamp, Long size)
         {
             Space space = new Space();
@@ -140,7 +137,7 @@ public class AbstractAutoArchiverPolicyTestCase extends AssertJUnit
     {
         ctx = new ExecutionContext();
     }
-    
+
     protected ExtendedProperties createPolicyProperties(long min, long max)
     {
         ExtendedProperties props = new ExtendedProperties();

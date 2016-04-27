@@ -21,8 +21,8 @@ import java.text.DecimalFormat;
 import org.jfree.chart.axis.NumberTickUnit;
 
 /**
- * This is a variation on the NumberTickUnit that gracefully switches from standard to scientific
- * notation depending on the size of the numbers for the labels.
+ * This is a variation on the NumberTickUnit that gracefully switches from standard to scientific notation depending on the size of the numbers for
+ * the labels.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

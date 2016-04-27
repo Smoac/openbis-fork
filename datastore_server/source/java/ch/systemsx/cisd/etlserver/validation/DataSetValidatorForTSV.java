@@ -48,8 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
  * <ul>
  * <li>All column headers are unique.
  * <li>For each column a {@link ColumnDefinition} as specified by the properties are found.
- * <li>All values of a column are valid in accordance to the {@link IValidator} created by the
- * {@link ColumnDefinition} instance of the column.
+ * <li>All values of a column are valid in accordance to the {@link IValidator} created by the {@link ColumnDefinition} instance of the column.
  * </ul>
  * 
  * @author Franz-Josef Elmer
@@ -61,7 +60,7 @@ public class DataSetValidatorForTSV implements IDataSetValidator
     static final String EXCLUDE_PATH_PATTERNS_KEY = "exclude-path-patterns";
 
     static final String IGNORE_EMPTY_LINES_KEY = "ignore-empty-lines";
-    
+
     static final String STRICT_ROW_SIZE_KEY = "strict-row-size";
 
     static final String COLUMNS_KEY = "columns";

@@ -25,13 +25,16 @@ final class TimeProviderWithMessageChannelInteraction implements ITimeAndWaiting
     static final String CONTINUE_MESSAGE = "continue";
 
     private final MockTimeProvider mockTimeProvider = new MockTimeProvider(600000, 0);
+
     private FileDeleter deleter;
-    
+
     private int numberOfPolls;
+
     private MessageChannel deleterChannel;
+
     private MessageChannel testrunnerChannel;
-    
-    TimeProviderWithMessageChannelInteraction(MessageChannel deleterChannel, MessageChannel testrunnerChannel, 
+
+    TimeProviderWithMessageChannelInteraction(MessageChannel deleterChannel, MessageChannel testrunnerChannel,
             int numberOfPolls)
     {
         this.deleterChannel = deleterChannel;
@@ -57,10 +60,10 @@ final class TimeProviderWithMessageChannelInteraction implements ITimeAndWaiting
         deleterChannel.send(numberOfPolls + " polls");
         testrunnerChannel.assertNextMessage(CONTINUE_MESSAGE);
     }
-    
+
     void setDeleter(FileDeleter deleter)
     {
         this.deleter = deleter;
-        
+
     }
 }

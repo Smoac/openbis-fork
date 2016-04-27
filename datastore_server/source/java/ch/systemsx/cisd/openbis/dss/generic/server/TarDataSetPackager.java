@@ -42,7 +42,7 @@ public class TarDataSetPackager extends AbstractDataSetPackager
 
     private final Tar tar;
 
-    public TarDataSetPackager(File tarFile, IHierarchicalContentProvider contentProvider, 
+    public TarDataSetPackager(File tarFile, IHierarchicalContentProvider contentProvider,
             DataSetExistenceChecker dataSetExistenceChecker, int bufferSize, Long maxQueueSizeInBytesOrNull)
     {
         super(contentProvider, dataSetExistenceChecker);

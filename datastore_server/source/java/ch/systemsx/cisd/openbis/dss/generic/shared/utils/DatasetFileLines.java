@@ -114,8 +114,7 @@ public class DatasetFileLines implements ITabularData
     }
 
     /**
-     * Returns the normalized headers. Normalization is done by
-     * {@link CodeNormalizer#normalize(String)}.
+     * Returns the normalized headers. Normalization is done by {@link CodeNormalizer#normalize(String)}.
      */
     @Override
     public String[] getHeaderCodes()

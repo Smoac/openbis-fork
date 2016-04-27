@@ -31,8 +31,7 @@ public interface IDataSetValidator
 {
 
     /**
-     * Validates the specified data set file/folder assuming the specified data set type.
-     * Implementation can ignore data set type.
+     * Validates the specified data set file/folder assuming the specified data set type. Implementation can ignore data set type.
      * 
      * @throws UserFailureException if validation failed.
      */
@@ -45,5 +44,5 @@ public interface IDataSetValidator
      * @throws UserFailureException if validation failed.
      */
     public abstract void assertValidDataSet(DataSetType dataSetType, Reader reader, String dataSourceName);
-    
+
 }

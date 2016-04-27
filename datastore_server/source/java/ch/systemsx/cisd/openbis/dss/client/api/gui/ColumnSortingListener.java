@@ -33,18 +33,20 @@ import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadTableModel
 class ColumnSortingListener extends MouseAdapter
 {
     private final DataSetUploadTableModel model;
+
     private final JTable table;
+
     public ColumnSortingListener(DataSetUploadTableModel model, JTable table)
     {
         this.model = model;
         this.table = table;
     }
-    
+
     @Override
     public void mouseClicked(MouseEvent e)
     {
         TableColumnModel colModel = table.getColumnModel();
-        
+
         int columnModelIndex = colModel.getColumnIndexAtX(e.getX());
         int modelIndex = colModel.getColumn(columnModelIndex).getModelIndex();
 

@@ -66,9 +66,9 @@ public class MultiDataSetArchiveCleanerTest extends AbstractFileSystemTestCase
     private File dataFolder3;
 
     private MessageChannel deleterChannel;
-    
+
     private MessageChannel testrunnerChannel;
-    
+
     @BeforeMethod
     public void setUpTestEnvironment()
     {
@@ -88,7 +88,7 @@ public class MultiDataSetArchiveCleanerTest extends AbstractFileSystemTestCase
         properties = new Properties();
         deleterChannel = new MessageChannelBuilder().name("deleter").getChannel();
         testrunnerChannel = new MessageChannelBuilder().name("testrunner").getChannel();
-        
+
         deletionRequestDir = new File(workingDirectory, "deletion-requests");
         deletionRequestDir.mkdirs();
         dataFolder1 = new File(workingDirectory, "data-folder1");
@@ -123,14 +123,14 @@ public class MultiDataSetArchiveCleanerTest extends AbstractFileSystemTestCase
         assertEquals(true, file.exists());
 
         cleaner.delete(dataFolder1);
-        
+
         assertEquals(true, dataFolder1.exists());
         assertEquals(true, file.exists());
-        assertEquals("WARN  OPERATION.MultiDataSetArchiveCleaner - Failed to delete file immediately: " + dataFolder1, 
+        assertEquals("WARN  OPERATION.MultiDataSetArchiveCleaner - Failed to delete file immediately: " + dataFolder1,
                 logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDeleteForNoPrefixesForAsyncDeletion()
     {
@@ -138,43 +138,43 @@ public class MultiDataSetArchiveCleanerTest extends AbstractFileSystemTestCase
         File file = new File(dataFolder1, "hi.txt");
         FileUtilities.writeToFile(file, "hello world!");
         assertEquals(true, file.exists());
-        
+
         cleaner.delete(file);
-        
+
         assertEquals(false, file.exists());
-        assertEquals("INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " + file, 
+        assertEquals("INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " + file,
                 logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testMissingPropertyDeletionRequestsDir()
     {
-        properties.setProperty(MultiDataSetArchiveCleaner.FILE_PATH_PREFIXES_FOR_ASYNC_DELETION_KEY, 
+        properties.setProperty(MultiDataSetArchiveCleaner.FILE_PATH_PREFIXES_FOR_ASYNC_DELETION_KEY,
                 dataFolder2.getAbsolutePath());
-        
+
         try
         {
             createCleaner(0);
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
-            assertEquals("Given key 'deletion-requests-dir' not found in properties '[" 
+            assertEquals("Given key 'deletion-requests-dir' not found in properties '["
                     + MultiDataSetArchiveCleaner.FILE_PATH_PREFIXES_FOR_ASYNC_DELETION_KEY + "]'", ex.getMessage());
         }
-        
+
         assertEquals("", logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testInvalidProperty()
     {
-        properties.setProperty(MultiDataSetArchiveCleaner.FILE_PATH_PREFIXES_FOR_ASYNC_DELETION_KEY, 
+        properties.setProperty(MultiDataSetArchiveCleaner.FILE_PATH_PREFIXES_FOR_ASYNC_DELETION_KEY,
                 dataFolder2.getAbsolutePath());
         properties.setProperty(MultiDataSetArchiveCleaner.DELETION_REQUESTS_DIR_KEY, deletionRequestDir.getPath());
         properties.setProperty(FileDeleter.DELETION_POLLING_TIME_KEY, "abc");
-        
+
         try
         {
             createCleaner(0);
@@ -183,15 +183,15 @@ public class MultiDataSetArchiveCleanerTest extends AbstractFileSystemTestCase
         {
             assertEquals("'abc' is not a valid duration", ex.getMessage());
         }
-        
+
         assertEquals("", logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testSyncDeleteWithDefinedPrefixes()
     {
-        properties.setProperty(MultiDataSetArchiveCleaner.FILE_PATH_PREFIXES_FOR_ASYNC_DELETION_KEY, 
+        properties.setProperty(MultiDataSetArchiveCleaner.FILE_PATH_PREFIXES_FOR_ASYNC_DELETION_KEY,
                 dataFolder2.getAbsolutePath() + ", " + dataFolder3.getAbsolutePath());
         properties.setProperty(MultiDataSetArchiveCleaner.DELETION_REQUESTS_DIR_KEY, deletionRequestDir.getPath());
         MultiDataSetArchiveCleaner cleaner = createCleaner(0);
@@ -200,30 +200,30 @@ public class MultiDataSetArchiveCleanerTest extends AbstractFileSystemTestCase
         assertEquals(true, file.exists());
 
         cleaner.delete(file);
-        
+
         assertEquals(false, file.exists());
-        assertEquals("INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " + file, 
+        assertEquals("INFO  OPERATION.MultiDataSetArchiveCleaner - File immediately deleted: " + file,
                 logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testAsyncDeleteWithDefinedPrefixes()
     {
-        properties.setProperty(MultiDataSetArchiveCleaner.FILE_PATH_PREFIXES_FOR_ASYNC_DELETION_KEY, 
+        properties.setProperty(MultiDataSetArchiveCleaner.FILE_PATH_PREFIXES_FOR_ASYNC_DELETION_KEY,
                 dataFolder2.getAbsolutePath() + ", " + dataFolder3.getAbsolutePath());
         properties.setProperty(MultiDataSetArchiveCleaner.DELETION_REQUESTS_DIR_KEY, deletionRequestDir.getPath());
         MultiDataSetArchiveCleaner cleaner = createCleaner(2);
         File file = new File(dataFolder3, "hi.txt");
         FileUtilities.writeToFile(file, "hello world!");
         assertEquals(true, file.exists());
-        
+
         cleaner.delete(file);
         deleterChannel.assertNextMessage("1 polls");
         testrunnerChannel.send(TimeProviderWithMessageChannelInteraction.CONTINUE_MESSAGE);
         deleterChannel.assertNextMessage("0 polls");
         testrunnerChannel.send(TimeProviderWithMessageChannelInteraction.CONTINUE_MESSAGE);
-        
+
         assertEquals("INFO  OPERATION.FileDeleter - Schedule for deletion: " + file + "\n"
                 + "INFO  OPERATION.FileDeleter - Deletion request file for '" + file
                 + "': " + deletionRequestDir + "/19700101-01?000_1.deletionrequest\n"
@@ -237,16 +237,16 @@ public class MultiDataSetArchiveCleanerTest extends AbstractFileSystemTestCase
     private MultiDataSetArchiveCleaner createCleaner(int numberOfPolls)
     {
         HashMap<File, FileDeleter> deleters = new HashMap<File, FileDeleter>();
-        TimeProviderWithMessageChannelInteraction timeProvider 
-                = new TimeProviderWithMessageChannelInteraction(deleterChannel, testrunnerChannel, numberOfPolls);
-        MultiDataSetArchiveCleaner cleaner = new MultiDataSetArchiveCleaner(properties, 
+        TimeProviderWithMessageChannelInteraction timeProvider =
+                new TimeProviderWithMessageChannelInteraction(deleterChannel, testrunnerChannel, numberOfPolls);
+        MultiDataSetArchiveCleaner cleaner = new MultiDataSetArchiveCleaner(properties,
                 timeProvider, deleters);
         Collection<FileDeleter> values = deleters.values();
         for (FileDeleter fileDeleter : values)
         {
             timeProvider.setDeleter(fileDeleter);
         }
-        
+
         return cleaner;
     }
 

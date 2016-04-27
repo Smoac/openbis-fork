@@ -41,10 +41,11 @@ public class KeyBasedDataSetCommandExecutorProvider implements IDataSetCommandEx
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             KeyBasedDataSetCommandExecutorProvider.class);
-    
+
     private static final class ExecutorNameMapping
     {
         private final String name;
+
         private final Pattern pattern;
 
         ExecutorNameMapping(String mapping)
@@ -67,7 +68,7 @@ public class KeyBasedDataSetCommandExecutorProvider implements IDataSetCommandEx
                 throw new ConfigurationFailureException("Invalid regex in mapping definition: " + mapping, ex);
             }
         }
-        
+
         ExecutorNameMapping(String name, Pattern pattern)
         {
             this.name = name;
@@ -84,14 +85,17 @@ public class KeyBasedDataSetCommandExecutorProvider implements IDataSetCommandEx
             return pattern;
         }
     }
-    
+
     private final List<ExecutorNameMapping> nameMappings = new ArrayList<ExecutorNameMapping>();
+
     private final Map<String, IDataSetCommandExecutor> executorsByName = new HashMap<String, IDataSetCommandExecutor>();
+
     private final String commandQueueDirPath;
+
     private final IDataSetCommandExecutorFactory executorFactory;
-    
+
     private IDataSetCommandExecutor defaultExecutor;
-    
+
     public KeyBasedDataSetCommandExecutorProvider(String mapping, String commandQueueDir)
     {
         this(mapping, commandQueueDir, new IDataSetCommandExecutorFactory()
@@ -103,8 +107,8 @@ public class KeyBasedDataSetCommandExecutorProvider implements IDataSetCommandEx
                 }
             });
     }
-    
-    KeyBasedDataSetCommandExecutorProvider(String mapping, String commandQueueDir, 
+
+    KeyBasedDataSetCommandExecutorProvider(String mapping, String commandQueueDir,
             IDataSetCommandExecutorFactory executorFactory)
     {
         this.executorFactory = executorFactory;
@@ -117,7 +121,7 @@ public class KeyBasedDataSetCommandExecutorProvider implements IDataSetCommandEx
             }
         }
         nameMappings.add(new ExecutorNameMapping("", Pattern.compile(".*")));
-        this.commandQueueDirPath = StringUtils.isBlank(commandQueueDir) || commandQueueDir.startsWith("${") 
+        this.commandQueueDirPath = StringUtils.isBlank(commandQueueDir) || commandQueueDir.startsWith("${")
                 ? "" : commandQueueDir;
     }
 
@@ -169,7 +173,7 @@ public class KeyBasedDataSetCommandExecutorProvider implements IDataSetCommandEx
         }
         throw new IllegalStateException("Couldn't find executor. This is a programming error.");
     }
-    
+
     protected String getIdentifier(IProcessingPluginTask processingTask, String processingTaskKey)
     {
         return processingTaskKey;

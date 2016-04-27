@@ -31,8 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Shows the data as a table if one 'main data set' file exists, matches the selected dataset
- * pattern and is a 'tsv' file.
+ * Shows the data as a table if one 'main data set' file exists, matches the selected dataset pattern and is a 'tsv' file.
  * 
  * @author Izabela Adamczyk
  */

@@ -27,20 +27,17 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Reporting plugin that concatenates column tabular files of all data sets, using a merge column to
- * identify matching rows. Per data set there must be one file to consider for merging, which can be
- * defined by include and exclude patterns.
+ * Reporting plugin that concatenates column tabular files of all data sets, using a merge column to identify matching rows. Per data set there must
+ * be one file to consider for merging, which can be defined by include and exclude patterns.
  * <p>
  * Properties:
  * <ul>
- * <li><code>row-id-column-header</code> - The header of the merge column (default: <code>id</code>)
- * </li>
- * <li><code>file-include-pattern</code> - The regular expression pattern to use for defining what
- * files to consider (default: <i>not defined</i>)</li>
- * <li><code>file-exclude-pattern</code> - The regular expression pattern to use for defining what
- * files <i>not</i> to consider (default: <code>.*\.tsv</code>)</li>
- * <li><code>sub-directory-name</code> - The name of the sub directory in the data set to start the
- * search for an appropriate file (default: <code>original</code>)</li>
+ * <li><code>row-id-column-header</code> - The header of the merge column (default: <code>id</code>)</li>
+ * <li><code>file-include-pattern</code> - The regular expression pattern to use for defining what files to consider (default: <i>not defined</i>)</li>
+ * <li><code>file-exclude-pattern</code> - The regular expression pattern to use for defining what files <i>not</i> to consider (default:
+ * <code>.*\.tsv</code>)</li>
+ * <li><code>sub-directory-name</code> - The name of the sub directory in the data set to start the search for an appropriate file (default:
+ * <code>original</code>)</li>
  * </ul>
  * 
  * @author Bernd Rinn

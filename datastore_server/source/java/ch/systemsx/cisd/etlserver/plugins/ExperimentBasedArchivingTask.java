@@ -60,8 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 
 /**
- * Archiving maintenance task which archives all data sets of experiments starting with the oldest
- * experiment if free disk space is below a threshold.
+ * Archiving maintenance task which archives all data sets of experiments starting with the oldest experiment if free disk space is below a threshold.
  * 
  * @author Franz-Josef Elmer
  */
@@ -70,18 +69,19 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
     private static final class NotificationMessageBuilder
     {
         private final StringBuilder archivingMessages = new StringBuilder();
+
         private final Set<String> missingEstimates = new TreeSet<String>();
-        
+
         void addArchivingMessage(String message)
         {
             archivingMessages.append('\n').append("Archived " + message);
         }
-        
+
         void addMissingEstimatesFor(String dataSetType)
         {
             missingEstimates.add(dataSetType);
         }
-        
+
         public boolean hasMessages()
         {
             return archivingMessages.length() > 0;
@@ -91,7 +91,7 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
         {
             return missingEstimates.isEmpty() == false;
         }
-        
+
         String renderMissingEstimates()
         {
             StringBuilder builder = new StringBuilder();
@@ -303,7 +303,7 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
             }
         }
     }
-    
+
     private long getFreeSpace()
     {
         try

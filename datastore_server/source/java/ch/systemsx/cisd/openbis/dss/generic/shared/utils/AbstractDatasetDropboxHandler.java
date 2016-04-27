@@ -38,8 +38,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandl
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * Class which is able to create a copy of incoming data for additional processing. The copy has a
- * changed name to trace back the dataset to which the original data belong.
+ * Class which is able to create a copy of incoming data for additional processing. The copy has a changed name to trace back the dataset to which the
+ * original data belong.
  * <p>
  * The processor uses following properties: {@link #DATASET_CODE_SEPARATOR_PROPERTY}.
  * </p>
@@ -78,8 +78,8 @@ abstract public class AbstractDatasetDropboxHandler implements Serializable,
     private static final String DEFAULT_DATASET_CODE_SEPARATOR = ".";
 
     /**
-     * Property name which is used to specify the text which will be used to separate the sample
-     * code and dataset code in the name of the file which will be created in the dropbox.
+     * Property name which is used to specify the text which will be used to separate the sample code and dataset code in the name of the file which
+     * will be created in the dropbox.
      */
     public final static String DATASET_CODE_SEPARATOR_PROPERTY = "entity-separator";
 

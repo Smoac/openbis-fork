@@ -54,7 +54,7 @@ import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses =
-    { ShareFactory.class, SegmentedStoreShufflingTask.class })
+{ ShareFactory.class, SegmentedStoreShufflingTask.class })
 public class SegmentedStoreShufflingTaskTest extends AbstractFileSystemTestCase
 {
     private static final String DATA_STORE_CODE = "DATA-STORE-1";

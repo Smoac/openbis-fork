@@ -27,7 +27,7 @@ import java.util.List;
 public class TableBuilder
 {
     private final List<Column> columns;
-    
+
     /**
      * Creates an instance for the specified list of column headers.
      */
@@ -35,7 +35,7 @@ public class TableBuilder
     {
         this(headers.toArray(new String[headers.size()]));
     }
-    
+
     /**
      * Creates an instance for the specified array of column headers.
      */
@@ -47,7 +47,7 @@ public class TableBuilder
             columns.add(new Column(header));
         }
     }
-    
+
     /**
      * Adds the specified values as a new row to the table.
      */
@@ -55,7 +55,7 @@ public class TableBuilder
     {
         addRow(values.toArray(new String[values.size()]));
     }
-    
+
     /**
      * Adds the specified values as a new row to the table.
      */
@@ -63,8 +63,8 @@ public class TableBuilder
     {
         for (int i = 0, n = columns.size(); i < n; i++)
         {
-           Column column = columns.get(i);
-           column.add(i < values.length ? values[i] : "");
+            Column column = columns.get(i);
+            column.add(i < values.length ? values[i] : "");
         }
     }
 

@@ -17,13 +17,14 @@
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 
 /**
- * Condition which is fulfilled if both wrapped conditions are fulfilled. 
+ * Condition which is fulfilled if both wrapped conditions are fulfilled.
  *
  * @author Franz-Josef Elmer
  */
 public class AndStopCondition implements ILogMonitoringStopCondition
 {
     private ILogMonitoringStopCondition condition1;
+
     private ILogMonitoringStopCondition condition2;
 
     public AndStopCondition(ILogMonitoringStopCondition condition1, ILogMonitoringStopCondition condition2)

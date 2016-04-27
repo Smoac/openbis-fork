@@ -23,15 +23,14 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 
 /**
- * Predicate for checking that the current user has access to a data set specified by a
- * DataSetFileDTO
+ * Predicate for checking that the current user has access to a data set specified by a DataSetFileDTO
  * <p>
  * <i>This is an internal class. Do not use it as a user of the API.</i>
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 public class DataSetFileDTOPredicate extends
-AbstractDataSetAccessPredicate<IDssServiceRpcGeneric, DataSetFileDTO>
+        AbstractDataSetAccessPredicate<IDssServiceRpcGeneric, DataSetFileDTO>
 {
     @Override
     public List<String> getDataSetCodes(DataSetFileDTO argument)

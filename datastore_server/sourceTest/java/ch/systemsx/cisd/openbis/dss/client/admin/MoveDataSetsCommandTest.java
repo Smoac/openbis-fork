@@ -35,7 +35,6 @@ public class MoveDataSetsCommandTest extends AssertJUnit
 
     private IDssServiceRpcGeneric dssService;
 
-
     @BeforeMethod
     public void setUp()
     {
@@ -99,7 +98,7 @@ public class MoveDataSetsCommandTest extends AssertJUnit
                     service = dssService;
                 }
             };
-            
+
         command.parseArguments(toArray("-u", "user", "-p", "pswd", "3", "ds3", "ds2", "ds1", "ds1"));
         command.execute();
 

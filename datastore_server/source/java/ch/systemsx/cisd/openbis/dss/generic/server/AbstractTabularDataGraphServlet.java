@@ -53,9 +53,8 @@ public abstract class AbstractTabularDataGraphServlet extends AbstractDatasetDow
     public static final String FILE_PATH_PARAM = "file";
 
     /**
-     * A utility class for dealing with the URL parameters required to generate an image. This class
-     * makes sure all the required parameters are in the request (it throws exceptions otherwise),
-     * and it defaults values for all optional parameters if they are not in the request.
+     * A utility class for dealing with the URL parameters required to generate an image. This class makes sure all the required parameters are in the
+     * request (it throws exceptions otherwise), and it defaults values for all optional parameters if they are not in the request.
      * 
      * @author Chandrasekhar Ramakrishnan
      */
@@ -258,8 +257,7 @@ public abstract class AbstractTabularDataGraphServlet extends AbstractDatasetDow
     }
 
     /**
-     * Get the configuration for this graph. Defaults to the configuration ivar. Subclasses may
-     * override.
+     * Get the configuration for this graph. Defaults to the configuration ivar. Subclasses may override.
      */
     protected TabularDataGraphCollectionConfiguration getConfiguration(HttpServletRequest request)
     {

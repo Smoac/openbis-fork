@@ -37,16 +37,16 @@ public class SimpleShufflingShareFinder extends AbstractShareFinder
 {
     @Private
     public static final String MINIMUM_FREE_SPACE_KEY = "minimum-free-space-in-MB";
-    
+
     private final long minimumFreeSpace;
 
     public SimpleShufflingShareFinder(Properties properties)
     {
         minimumFreeSpace =
-            FileUtils.ONE_MB * PropertyUtils.getLong(properties, MINIMUM_FREE_SPACE_KEY, 1024);
+                FileUtils.ONE_MB * PropertyUtils.getLong(properties, MINIMUM_FREE_SPACE_KEY, 1024);
 
     }
-    
+
     @Override
     protected Share tryToFindShare(SimpleDataSetInformationDTO dataSet, List<Share> shares,
             ISpeedChecker speedChecker)

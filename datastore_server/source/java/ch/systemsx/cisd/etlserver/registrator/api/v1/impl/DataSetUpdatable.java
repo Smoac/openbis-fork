@@ -42,8 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
- * A data set already existing in the openBIS database, that is changed as part of the registration
- * process of another data set.
+ * A data set already existing in the openBIS database, that is changed as part of the registration process of another data set.
  * 
  * @author Kaloyan Enimanev
  */

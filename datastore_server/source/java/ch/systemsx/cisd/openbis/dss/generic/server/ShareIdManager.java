@@ -375,8 +375,7 @@ public class ShareIdManager implements IShareIdManager
         {
             /*
              * If dataset is not physical we assume it has default share id. see {@link
-             * ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService#
-             * listDataSetShareIds}
+             * ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService# listDataSetShareIds}
              */
             shareId = ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID;
         }

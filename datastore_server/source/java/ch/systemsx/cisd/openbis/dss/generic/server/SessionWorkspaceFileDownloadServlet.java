@@ -37,8 +37,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 
 /**
- * Servlet that handles the download of files from the session workspace. The content type of the
- * response is guessed from the downloaded file name.
+ * Servlet that handles the download of files from the session workspace. The content type of the response is guessed from the downloaded file name.
  * <ul>
  * <li>Accepted HTTP methods: GET</li>
  * <li>HTTP request parameters: sessionID (String required), filePath (String required)</li>

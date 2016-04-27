@@ -32,9 +32,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 
 /**
- * Reporting plugin that concatenates rows of tabular files of all data sets (stripping the header
- * lines of all but the first file) and delivers the result back in the table model. Each row has
- * additional Data Set code column.
+ * Reporting plugin that concatenates rows of tabular files of all data sets (stripping the header lines of all but the first file) and delivers the
+ * result back in the table model. Each row has additional Data Set code column.
  * 
  * @author Piotr Buczek
  */

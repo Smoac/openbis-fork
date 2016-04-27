@@ -47,9 +47,8 @@ public abstract class AbstractFtpFile implements FtpFile
     }
 
     /**
-     * Base implementation of the {@link #listFiles()} method that makes sure no unchecked
-     * exceptions are being propagated to the surrounding Apache FTP classes. Apache FTP swallows
-     * exceptions without logging and thereby hinders error analysis.
+     * Base implementation of the {@link #listFiles()} method that makes sure no unchecked exceptions are being propagated to the surrounding Apache
+     * FTP classes. Apache FTP swallows exceptions without logging and thereby hinders error analysis.
      */
     @Override
     public final List<FtpFile> listFiles()

@@ -26,26 +26,23 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Interface of the reporting plugin task. Implementations will be singletons serving all the
- * requests, thus implementors of this interface must be thread safe, as the methods may be invoked
- * in multiple threads.
+ * Interface of the reporting plugin task. Implementations will be singletons serving all the requests, thus implementors of this interface must be
+ * thread safe, as the methods may be invoked in multiple threads.
  * <p>
- * Users should check the result of getReportingPluginType to determine which methods on the
- * interface they can invoke. Not all methods make sense for all types.
+ * Users should check the result of getReportingPluginType to determine which methods on the interface they can invoke. Not all methods make sense for
+ * all types.
  * 
  * @author Tomasz Pylak
  */
 public interface IReportingPluginTask
 {
     /**
-     * Get the type of this reporting plugin. The type determines which of the interface methods are
-     * valid.
+     * Get the type of this reporting plugin. The type determines which of the interface methods are valid.
      */
     ReportingPluginType getReportingPluginType();
 
     /**
-     * Creates a report for the specified datasets. This method should be safe for use in multiple
-     * threads.
+     * Creates a report for the specified datasets. This method should be safe for use in multiple threads.
      * <p>
      * Implemented by all ReportingPluginTypes.
      */
@@ -59,8 +56,7 @@ public interface IReportingPluginTask
     LinkModel createLink(DatasetDescription dataset);
 
     /**
-     * Creates a report for the specified datasets. This method should be safe for use in multiple
-     * threads.
+     * Creates a report for the specified datasets. This method should be safe for use in multiple threads.
      * <p>
      * Implemented by all ReportingPluginTypes.
      */

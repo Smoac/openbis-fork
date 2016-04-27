@@ -35,32 +35,27 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * Extension of {@link DefaultDataSetInfoExtractor} which allows to choose a parent dataset(s)
- * without specifying dataset codes.
+ * Extension of {@link DefaultDataSetInfoExtractor} which allows to choose a parent dataset(s) without specifying dataset codes.
  * 
  * @author Tomasz Pylak
  */
 public class SmartParentDataSetInfoExtractor extends DefaultDataSetInfoExtractor
 {
     /**
-     * The value should be a java reqular expression with a parent dataset type code pattern. If
-     * specified the parent dataset will be chosen in a smart way from all datasets of the specified
-     * type connected to the sample (or experiment if sample is not specified).<br>
-     * Optional property, can be specified only if {@link #INDEX_OF_PARENT_DATA_SET_CODES} is not
-     * given and {@link #INDEX_OF_SAMPLE_CODE} and/or {@link #INDEX_OF_EXPERIMENT_IDENTIFIER} is
-     * given.
+     * The value should be a java reqular expression with a parent dataset type code pattern. If specified the parent dataset will be chosen in a
+     * smart way from all datasets of the specified type connected to the sample (or experiment if sample is not specified).<br>
+     * Optional property, can be specified only if {@link #INDEX_OF_PARENT_DATA_SET_CODES} is not given and {@link #INDEX_OF_SAMPLE_CODE} and/or
+     * {@link #INDEX_OF_EXPERIMENT_IDENTIFIER} is given.
      */
     @Private
     static final String SMART_PARENT_DATA_SET_RESOLUTION_DATASET_TYPE =
             "smart-parent-data-set-resolution-dataset-type";
 
     /**
-     * Specifies the behavior of smart parent resolution when many parent dataset candidates are
-     * found. Cannot be specified if {@link #SMART_PARENT_DATA_SET_RESOLUTION_DATASET_TYPE} is not
-     * given. Possible values:
+     * Specifies the behavior of smart parent resolution when many parent dataset candidates are found. Cannot be specified if
+     * {@link #SMART_PARENT_DATA_SET_RESOLUTION_DATASET_TYPE} is not given. Possible values:
      * <ul>
-     * <li>CHOOSE_YOUNGEST - the dataset with the most recent registration date will be chosen as a
-     * parent
+     * <li>CHOOSE_YOUNGEST - the dataset with the most recent registration date will be chosen as a parent
      * <li>CHOOSE_ALL - all datasets will become parents
      * <li>CHOOSE_NONE - child dataset will have no parents
      * <li>FAIL - dataset will not be registered and error will be reported
@@ -72,9 +67,8 @@ public class SmartParentDataSetInfoExtractor extends DefaultDataSetInfoExtractor
             "smart-parent-data-set-resolution-many-parents-mode";
 
     /**
-     * Specifies if the registration should fail if no parents can be found during the smart parent
-     * resolution. Optional boolean property, true by default. Cannot be specified if
-     * {@link #SMART_PARENT_DATA_SET_RESOLUTION_DATASET_TYPE} is not given.
+     * Specifies if the registration should fail if no parents can be found during the smart parent resolution. Optional boolean property, true by
+     * default. Cannot be specified if {@link #SMART_PARENT_DATA_SET_RESOLUTION_DATASET_TYPE} is not given.
      */
     @Private
     static final String SMART_PARENT_DATA_SET_RESOLUTION_FAIL_IF_MISSING =

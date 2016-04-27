@@ -41,8 +41,7 @@ public class ProjectFolderResolver implements IFtpPathResolver
 {
 
     /**
-     * @return <code>true</code> for all paths containing 2 levels of nested folders,
-     *         <code>false</code> for all other paths.
+     * @return <code>true</code> for all paths containing 2 levels of nested folders, <code>false</code> for all other paths.
      */
     @Override
     public boolean canResolve(String path)

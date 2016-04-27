@@ -27,8 +27,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandl
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Processing plugin which copies data sets to a destination folder by using rsync. The destination
- * can be
+ * Processing plugin which copies data sets to a destination folder by using rsync. The destination can be
  * <ul>
  * <li>on the local file system,
  * <li>a mounted remote folder,
@@ -47,9 +46,9 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
     public static final String RSYNC_PASSWORD_FILE_KEY = "rsync-password-file";
 
     public static final String RENAME_TO_DATASET_CODE_KEY = "rename-to-dataset-code";
-    
+
     public static final String HARD_LINK_COPY_KEY = "hard-link-copy";
-    
+
     @Private
     static final String ALREADY_EXIST_MSG = "already exist";
 
@@ -61,7 +60,7 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
     public static final String RSYNC_EXEC = "rsync";
 
     public static final String LN_EXEC = "ln";
-    
+
     public static final String SSH_EXEC = "ssh";
 
     public static final long SSH_TIMEOUT_MILLIS = 15 * 1000; // 15s

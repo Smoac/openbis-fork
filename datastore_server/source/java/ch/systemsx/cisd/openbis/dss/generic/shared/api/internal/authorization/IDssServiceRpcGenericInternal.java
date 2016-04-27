@@ -24,9 +24,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 /**
  * The IDssServiceRpcGeneric interface extended with methods that are internal to the DSS server.
  * <p>
- * This interface is necessary because the implementation of IDssServiceRpcGeneric that is visible
- * to the {@link DataStoreServer} is a proxy. The methods here are used internally, but need to be
- * known to the proxy as well. (See the dssApplicationContext.xml file as well.)
+ * This interface is necessary because the implementation of IDssServiceRpcGeneric that is visible to the {@link DataStoreServer} is a proxy. The
+ * methods here are used internally, but need to be known to the proxy as well. (See the dssApplicationContext.xml file as well.)
  * <p>
  * <i>This is an internal class. Do not use it as a user of the API.</i>
  * 

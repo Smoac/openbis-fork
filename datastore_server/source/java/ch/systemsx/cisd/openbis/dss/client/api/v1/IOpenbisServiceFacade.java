@@ -34,12 +34,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
- * Provides a fully-blown API for openBIS integration. The internals of the openBIS architecture are
- * abstracted away from the API users (e.g. they do not need to know openBIS is actually two servers
- * - AS and DSS).
+ * Provides a fully-blown API for openBIS integration. The internals of the openBIS architecture are abstracted away from the API users (e.g. they do
+ * not need to know openBIS is actually two servers - AS and DSS).
  * <p>
- * For the most basic operations (simple listing operations, data set upload/download) you can use
- * instances of {@link IOpenbisServiceFacade} as "simple" {@link ISimpleOpenbisServiceFacade}.
+ * For the most basic operations (simple listing operations, data set upload/download) you can use instances of {@link IOpenbisServiceFacade} as
+ * "simple" {@link ISimpleOpenbisServiceFacade}.
  * </p>
  * 
  * @author Kaloyan Enimanev
@@ -53,9 +52,10 @@ public interface IOpenbisServiceFacade extends ISimpleOpenbisServiceFacade
      * @param webAppId The id of the custom web app to get the display settings for.
      */
     public WebAppSettings getWebAppSettings(String webAppId);
-    
+
     /**
      * Sets the persistent settings for a given custom web app.
+     * 
      * @param customDisplaySettings The new display settings
      */
     public void setWebAppSettings(WebAppSettings customDisplaySettings);
@@ -64,10 +64,10 @@ public interface IOpenbisServiceFacade extends ISimpleOpenbisServiceFacade
      * Returns all experiments matching specified search criteria.
      */
     public List<Experiment> searchForExperiments(SearchCriteria searchCriteria);
-    
+
     /**
-     * Return all samples that match the search criteria.
-     * This is a short cut for
+     * Return all samples that match the search criteria. This is a short cut for
+     * 
      * <pre>
      * searchForSamples(searchCritera, EnumSet.of(SampleFetchOption.PROPERTIES))
      * </pre>
@@ -81,10 +81,8 @@ public interface IOpenbisServiceFacade extends ISimpleOpenbisServiceFacade
      * Return all samples that match the search criteria.
      * 
      * @param searchCriteria The sample metadata values to be matched against.
-     * @param fetchOptions Describes the amount of information about the sample that is needed. For
-     *            more details see
-     *            {@link IGeneralInformationService#searchForSamples(String, SearchCriteria, EnumSet)}
-     *            .
+     * @param fetchOptions Describes the amount of information about the sample that is needed. For more details see
+     *            {@link IGeneralInformationService#searchForSamples(String, SearchCriteria, EnumSet)} .
      */
     @Retry
     public List<Sample> searchForSamples(SearchCriteria searchCriteria,
@@ -113,10 +111,8 @@ public interface IOpenbisServiceFacade extends ISimpleOpenbisServiceFacade
      * @param code Code of new vocabulary term.
      * @param label Label of new vocabulary term.
      * @param description Free text describing new vocabulary term.
-     * @param previousTermOrdinal new vocabulary term will be placed right after vocabulary term
-     *            with given ordinal number.
-     * @deprecated Please use the {@link #addAdHocVocabularyTerm(Long, NewVocabularyTerm)} method
-     *             instead.
+     * @param previousTermOrdinal new vocabulary term will be placed right after vocabulary term with given ordinal number.
+     * @deprecated Please use the {@link #addAdHocVocabularyTerm(Long, NewVocabularyTerm)} method instead.
      */
     @Deprecated
     public void addAdHocVocabularyTerm(TechId vocabularyId, String code, String label,

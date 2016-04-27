@@ -7,9 +7,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * A container for a jython dropbox that can be used to store information during the registration
- * process. This is the suggested way for the users of dropboxes to share some data beetween the
- * dropbox scripts and and the functions like post_registration, post_storage etc.
+ * A container for a jython dropbox that can be used to store information during the registration process. This is the suggested way for the users of
+ * dropboxes to share some data beetween the dropbox scripts and and the functions like post_registration, post_storage etc.
  * 
  * @author jakubs
  */
@@ -46,9 +45,8 @@ public class DataSetRegistrationPersistentMap implements Serializable
     }
 
     /**
-     * @param value object to put into the map. Method accepts Object instead of Serializable, so
-     *            that it can fail with informative message if the jython script calls the method
-     *            with inappropriate type
+     * @param value object to put into the map. Method accepts Object instead of Serializable, so that it can fail with informative message if the
+     *            jython script calls the method with inappropriate type
      * @throws IllegalArgumentException if the value is not Serializable.
      */
     public Serializable put(String key, Object value)

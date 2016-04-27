@@ -23,8 +23,7 @@ import java.util.Date;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
- * Simple data type with information about recovery state. - the file - time of last recovery try -
- * total count of tries to recover
+ * Simple data type with information about recovery state. - the file - time of last recovery try - total count of tries to recover
  * 
  * @author jakubs
  */

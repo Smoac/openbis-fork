@@ -84,8 +84,7 @@ public abstract class AbstractDataMergingReportingPlugin extends AbstractFileTab
     }
 
     /**
-     * @param addFileNameColumn if true the second column will contain file name from which the row
-     *            was generated
+     * @param addFileNameColumn if true the second column will contain file name from which the row was generated
      */
     protected static void addDataRows(SimpleTableModelBuilder builder, DatasetDescription dataset,
             DatasetFileLines lines, boolean addFileNameColumn)

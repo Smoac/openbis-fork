@@ -50,38 +50,42 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Task which waits until multi data set container file in the archive is replicated and archiving status
- * can be set.
+ * Task which waits until multi data set container file in the archive is replicated and archiving status can be set.
  *
  * @author Franz-Josef Elmer
  */
 class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
 {
     private static final long serialVersionUID = 1L;
-    
+
     public static final String ORIGINAL_FILE_PATH_KEY = "original-file-path";
+
     public static final String REPLICATED_FILE_PATH_KEY = "replicated-file-path";
+
     public static final String FINALIZER_POLLING_TIME_KEY = "finalizer-polling-time";
+
     public static final String FINALIZER_MAX_WAITING_TIME_KEY = "finalizer-max-waiting-time";
+
     public static final String START_TIME_KEY = "start-time";
+
     public static final String STATUS_KEY = "status";
-    
+
     public static final String TIME_STAMP_FORMAT = "yyyyMMdd-HHmmss";
-    
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             MultiDataSetArchivingFinalizer.class);
 
     private final File pauseFile;
-    
+
     private final long pauseFilePollingTime;
-    
+
     private final ITimeAndWaitingProvider timeProvider;
 
     private final Properties cleanerProperties;
-    
+
     private transient IMultiDataSetArchiveCleaner cleaner;
 
-    MultiDataSetArchivingFinalizer(Properties cleanerProperties, File pauseFile, long pauseFilePollingTime, 
+    MultiDataSetArchivingFinalizer(Properties cleanerProperties, File pauseFile, long pauseFilePollingTime,
             ITimeAndWaitingProvider timeProvider)
     {
         this.cleanerProperties = cleanerProperties;
@@ -89,7 +93,7 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         this.pauseFilePollingTime = pauseFilePollingTime;
         this.timeProvider = timeProvider;
     }
-    
+
     @Override
     public ProcessingStatus process(List<DatasetDescription> datasets, DataSetProcessingContext context)
     {
@@ -137,7 +141,8 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         return processingStatus;
     }
 
-    private Status createStatusAndRearchive(List<String> dataSetCodes, Parameters parameters, boolean removeFromDataStore, File originalFile, String message)
+    private Status createStatusAndRearchive(List<String> dataSetCodes, Parameters parameters, boolean removeFromDataStore, File originalFile,
+            String message)
     {
         operationLog.error(message);
         Status status = Status.createError(message);
@@ -168,7 +173,7 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         ServiceProvider.getOpenBISService().updateDataSetStatuses(codesWithStatus.getDataSetCodes(),
                 codesWithStatus.getStatus(), codesWithStatus.isPresentInArchive());
     }
-    
+
     protected IMultiDataSetArchiveCleaner getCleaner()
     {
         if (cleaner == null)
@@ -177,12 +182,12 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         }
         return cleaner;
     }
-    
+
     IMultiDataSetArchiverDBTransaction getTransaction()
     {
         return new MultiDataSetArchiverDBTransaction();
     }
-    
+
     private boolean waitUntilReplicated(Parameters parameters)
     {
         final File originalFile = parameters.getOriginalFile();
@@ -192,7 +197,7 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         Log4jSimpleLogger logger = new Log4jSimpleLogger(operationLog);
         WaitingHelper waitingHelper = new WaitingHelper(waitingTime, parameters.getPollingTime(), timeProvider, logger, true);
         long startTime = parameters.getStartTime();
-        FileBasedPause pause = new FileBasedPause(pauseFile, pauseFilePollingTime, timeProvider, logger, 
+        FileBasedPause pause = new FileBasedPause(pauseFile, pauseFilePollingTime, timeProvider, logger,
                 "Waiting for replicated file " + parameters.getReplicatedFile());
         return waitingHelper.waitOn(startTime, new IWaitingCondition()
             {
@@ -205,13 +210,13 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
                 @Override
                 public String toString()
                 {
-                    return FileUtilities.byteCountToDisplaySize(replicatedFile.length()) 
-                            + " of " + FileUtilities.byteCountToDisplaySize(originalSize) 
+                    return FileUtilities.byteCountToDisplaySize(replicatedFile.length())
+                            + " of " + FileUtilities.byteCountToDisplaySize(originalSize)
                             + " are replicated for " + originalFile;
                 }
             }, pause);
     }
-    
+
     private List<String> extracCodes(List<DatasetDescription> datasets)
     {
         List<String> codes = new ArrayList<String>();
@@ -221,7 +226,7 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         }
         return codes;
     }
-    
+
     private Parameters getParameters(DataSetProcessingContext context)
     {
         Map<String, String> parameterBindings = context.getParameterBindings();
@@ -235,7 +240,7 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         parameters.setStatus(DataSetArchivingStatus.valueOf(getProperty(parameterBindings, STATUS_KEY)));
         return parameters;
     }
-    
+
     private long getTimestamp(Map<String, String> parameterBindings, String property)
     {
         String value = getProperty(parameterBindings, property);
@@ -244,11 +249,11 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
             return new SimpleDateFormat(TIME_STAMP_FORMAT).parse(value).getTime();
         } catch (ParseException ex)
         {
-            throw new IllegalArgumentException("Property '" + property + "' isn't a time stamp of format " 
+            throw new IllegalArgumentException("Property '" + property + "' isn't a time stamp of format "
                     + TIME_STAMP_FORMAT + ": " + value);
         }
     }
-    
+
     private long getNumber(Map<String, String> parameterBindings, String property)
     {
         String value = getProperty(parameterBindings, property);
@@ -260,7 +265,7 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
             throw new IllegalArgumentException("Property '" + property + "' isn't a number: " + value);
         }
     }
-    
+
     private String getProperty(Map<String, String> parameterBindings, String property)
     {
         String value = parameterBindings.get(property);
@@ -270,15 +275,20 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         }
         return value;
     }
-    
+
     private static final class Parameters
     {
 
         private File originalFile;
+
         private File replicatedFile;
+
         private long pollingTime;
+
         private long startTime;
+
         private long waitingTime;
+
         private DataSetArchivingStatus status;
 
         public void setOriginalFile(File file)
@@ -290,17 +300,17 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         {
             return originalFile;
         }
-        
+
         public void setPollingTime(long pollingTime)
         {
             this.pollingTime = pollingTime;
         }
-        
+
         public long getPollingTime()
         {
             return pollingTime;
         }
-        
+
         public long getStartTime()
         {
             return startTime;
@@ -320,7 +330,7 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         {
             return waitingTime;
         }
-        
+
         public void setReplicatedFile(File file)
         {
             replicatedFile = file;
@@ -335,7 +345,7 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         {
             this.status = status;
         }
-        
+
         public DataSetArchivingStatus getStatus()
         {
             return status;

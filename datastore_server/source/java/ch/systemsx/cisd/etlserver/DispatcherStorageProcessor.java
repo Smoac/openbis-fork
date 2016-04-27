@@ -34,20 +34,18 @@ import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * Storage processor which dispatches the tasks between defined dispatchable storage processors
- * specified in configuration with {@link #DISPATCHER_PROCESSORS_LIST_PROPERTY} property. A dataset
- * storage processor is dispatchable only if it implements {@link IDispatchableStorageProcessor}!
+ * Storage processor which dispatches the tasks between defined dispatchable storage processors specified in configuration with
+ * {@link #DISPATCHER_PROCESSORS_LIST_PROPERTY} property. A dataset storage processor is dispatchable only if it implements
+ * {@link IDispatchableStorageProcessor}!
  * <p>
- * If more than one storage processor accepts a dataset, the first one which is defined in the
- * configuration will be used.
+ * If more than one storage processor accepts a dataset, the first one which is defined in the configuration will be used.
  * 
  * @author Tomasz Pylak
  */
 public class DispatcherStorageProcessor extends AbstractStorageProcessor
 {
     /**
-     * A storage processor can be used by the {@link DispatcherStorageProcessor} only if extends
-     * this interface.
+     * A storage processor can be used by the {@link DispatcherStorageProcessor} only if extends this interface.
      */
     public static interface IDispatchableStorageProcessor extends IStorageProcessorTransactional
     {
@@ -56,8 +54,7 @@ public class DispatcherStorageProcessor extends AbstractStorageProcessor
     }
 
     /**
-     * Property name which is used to specify list of storage processors names. All of them should
-     * implement {@link IDispatchableStorageProcessor}.
+     * Property name which is used to specify list of storage processors names. All of them should implement {@link IDispatchableStorageProcessor}.
      */
     protected final static String DISPATCHER_PROCESSORS_LIST_PROPERTY = "processors";
 
@@ -122,7 +119,7 @@ public class DispatcherStorageProcessor extends AbstractStorageProcessor
     public IStorageProcessorTransaction createTransaction(final StorageProcessorTransactionParameters transactionParameters)
     {
         final IStorageProcessorTransactional storageProcessor =
-            chooseStorageProcessor(transactionParameters.getDataSetInformation(), transactionParameters.getIncomingDataSetDirectory());
+                chooseStorageProcessor(transactionParameters.getDataSetInformation(), transactionParameters.getIncomingDataSetDirectory());
         return storageProcessor.createTransaction(transactionParameters);
     }
 

@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * The helper class to assert jython hooks. The jython hooks can log into the working directory, and
- * the test classes can compare what the script has logged with expectations
+ * The helper class to assert jython hooks. The jython hooks can log into the working directory, and the test classes can compare what the script has
+ * logged with expectations
  * 
  * @author jakubs
  */
@@ -76,8 +76,7 @@ public class JythonHookTestTool
     }
 
     /**
-     * Assert that the provided messages has been logged and nothign else. Clears the log file
-     * afterwards.
+     * Assert that the provided messages has been logged and nothign else. Clears the log file afterwards.
      */
     public static void assertMessagesInWorkingDirectory(File workingDirectory, String... messages)
     {
@@ -148,8 +147,7 @@ public class JythonHookTestTool
     }
 
     /**
-     * Method to use in the test to assert that the given messages were written to the file in the
-     * specified order
+     * Method to use in the test to assert that the given messages were written to the file in the specified order
      */
     public void assertLogged(String message)
     {

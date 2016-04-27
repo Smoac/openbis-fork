@@ -159,8 +159,8 @@ public class TopLevelDataSetRegistratorGlobalState implements IReleasable
         this.storageRecoveryManager
                 .setMaximumRertyCount(threadParameters.getMaximumRecoveryCount());
         this.storageRecoveryManager
-.setRetryPeriodInSeconds(threadParameters
-                .getMinimumRecoveryPeriod());
+                .setRetryPeriodInSeconds(threadParameters
+                        .getMinimumRecoveryPeriod());
 
         // Initialize the DSS Registration Log Directory
         new DssRegistrationLogDirectoryHelper(dssRegistrationLogDir).initializeSubdirectories();
@@ -311,8 +311,7 @@ public class TopLevelDataSetRegistratorGlobalState implements IReleasable
     }
 
     /*
-     * Properties that control the location of directories. Other properties are rather more
-     * suitable in ThreadParameters
+     * Properties that control the location of directories. Other properties are rather more suitable in ThreadParameters
      */
     public static final String STAGING_DIR = "staging-dir";
 
@@ -346,15 +345,13 @@ public class TopLevelDataSetRegistratorGlobalState implements IReleasable
     }
 
     /**
-     * Get a directory local to the share, respecting the user override, if one is specified, and
-     * defaulting to the defaultDirName.
+     * Get a directory local to the share, respecting the user override, if one is specified, and defaulting to the defaultDirName.
      * 
      * @param storeRoot The root of the DSS store
      * @param shareId The shareId the directory should be local to
      * @param threadProperties The properties where the the override might be specified
      * @param overridePropertyName The name of the property that specifies the override
-     * @param defaultDirName The default name of the directory to use if no override has been
-     *            specified
+     * @param defaultDirName The default name of the directory to use if no override has been specified
      * @return The directory to use
      */
     private static File getShareLocalDir(File storeRoot, String shareId,

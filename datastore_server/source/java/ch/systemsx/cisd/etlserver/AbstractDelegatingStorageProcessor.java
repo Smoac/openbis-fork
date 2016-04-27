@@ -31,11 +31,10 @@ import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
 /**
- * Storage processor which delegates all the tasks to the storage processor specified in
- * configuration with {@link #DELEGATE_PROCESSOR_CLASS_PROPERTY} property.
+ * Storage processor which delegates all the tasks to the storage processor specified in configuration with {@link #DELEGATE_PROCESSOR_CLASS_PROPERTY}
+ * property.
  * <p>
- * This class is supposed to be extended to add specific functionality which has to be performed
- * besides the basic operations.
+ * This class is supposed to be extended to add specific functionality which has to be performed besides the basic operations.
  * </p>
  * 
  * @author Tomasz Pylak
@@ -43,8 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 abstract public class AbstractDelegatingStorageProcessor implements IStorageProcessorTransactional
 {
     /**
-     * Property name which is used to specify the class of the default storage processor, to which
-     * all calls are delegated.
+     * Property name which is used to specify the class of the default storage processor, to which all calls are delegated.
      */
     protected final static String DELEGATE_PROCESSOR_CLASS_PROPERTY = "processor";
 

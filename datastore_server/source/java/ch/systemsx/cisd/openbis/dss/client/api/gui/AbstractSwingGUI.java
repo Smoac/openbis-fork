@@ -190,8 +190,7 @@ public abstract class AbstractSwingGUI
     protected abstract boolean cancel();
 
     /**
-     * Notifies the user of the given <var>throwable</var>, if the error message is different from
-     * <var>lastExceptionMessageOrNull</var>.
+     * Notifies the user of the given <var>throwable</var>, if the error message is different from <var>lastExceptionMessageOrNull</var>.
      */
     public static String notifyUserOfThrowable(final Frame parentFrame, final String fileName,
             final String operationName, final Throwable throwable,
@@ -219,8 +218,7 @@ public abstract class AbstractSwingGUI
     }
 
     /**
-     * Notifies the user of the given <var>throwable</var>, if the error message is different from
-     * <var>lastExceptionMessageOrNull</var>.
+     * Notifies the user of the given <var>throwable</var>, if the error message is different from <var>lastExceptionMessageOrNull</var>.
      */
     static void notifyUserOfThrowable(final Frame parentFrame, final String message,
             final String title, final Throwable throwable)

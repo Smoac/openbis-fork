@@ -31,8 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 
 /**
- * Reporting plugin which can be used for demonstration purposes. Shows last modification time of
- * main datasets directories.
+ * Reporting plugin which can be used for demonstration purposes. Shows last modification time of main datasets directories.
  * 
  * @author Tomasz Pylak
  */

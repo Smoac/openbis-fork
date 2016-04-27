@@ -54,7 +54,7 @@ public class EncapsulatedOpenBISServiceTest
     private OpenBISSessionHolder session;
 
     private IShareIdManager shareIdManager;
-    
+
     @BeforeMethod
     public void setUp()
     {
@@ -106,7 +106,7 @@ public class EncapsulatedOpenBISServiceTest
         encapsulatedLimsService.registerDataSet(dataSetInfo, data);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public final void testRegisterSampleAndDataSet()
     {
@@ -115,16 +115,16 @@ public class EncapsulatedOpenBISServiceTest
         data.setCode("ds1");
         data.setShareId("42");
         context.checking(new Expectations()
-        {
             {
-                one(limsService).registerSampleAndDataSet(SESSION_TOKEN, sample, data, "user-id");
-                one(shareIdManager).setShareId("ds1", "42");
-            }
-        });
+                {
+                    one(limsService).registerSampleAndDataSet(SESSION_TOKEN, sample, data, "user-id");
+                    one(shareIdManager).setShareId("ds1", "42");
+                }
+            });
         encapsulatedLimsService.registerSampleAndDataSet(sample, data, "user-id");
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public final void testUpdateSampleAndRegisterDataSet()
     {
@@ -144,7 +144,7 @@ public class EncapsulatedOpenBISServiceTest
         encapsulatedLimsService.updateSampleAndRegisterDataSet(sample, data);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public final void testIsSampleRegisteredForDataSet()
     {

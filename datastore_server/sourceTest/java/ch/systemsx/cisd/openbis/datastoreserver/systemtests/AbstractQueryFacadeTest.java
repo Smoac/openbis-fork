@@ -232,18 +232,18 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
             HashMap<String, Object> parameters = new HashMap<String, Object>();
             String code = UUID.randomUUID().toString();
             parameters.put("code", code);
-            
+
             QueryTableModel table =
                     createReportFromAggregationService(
                             "example-jython-db-modifying-aggregation-service", parameters);
-            
+
             assertEquals("[CODE, IDENTIFIER]", getHeaders(table).toString());
             assertEquals("[" + code + ", /CISD/" + code + "]", Arrays.asList(table.getRows().get(0))
                     .toString());
             assertEquals(1, table.getRows().size());
-            
+
             IGeneralInformationService generalInformationService = getGeneralInformationService();
-            
+
             List<Sample> samples =
                     generalInformationService.listSamplesForExperiment(getSessionToken(),
                             "/CISD/NEMO/EXP-TEST-1");
@@ -256,7 +256,7 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
                     foundSample = true;
                 }
             }
-            
+
             assertTrue("Did not find a sample called " + code, foundSample);
         } catch (Exception ex)
         {

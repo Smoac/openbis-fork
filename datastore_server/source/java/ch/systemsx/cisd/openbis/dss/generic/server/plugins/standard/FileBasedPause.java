@@ -25,19 +25,20 @@ import ch.systemsx.cisd.common.utilities.IWaitingCondition;
 import ch.systemsx.cisd.common.utilities.WaitingHelper;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class FileBasedPause implements IPause
 {
     private File pauseFile;
+
     private ITimeAndWaitingProvider timeAndWaitingProvider;
+
     private WaitingHelper waitingHelper;
+
     private String pausedActionDescriptionOrNull;
 
-    public FileBasedPause(File pauseFile, long pauseFilePollingTime, 
-            ITimeAndWaitingProvider timeAndWaitingProvider, ISimpleLogger loggerOrNull, 
+    public FileBasedPause(File pauseFile, long pauseFilePollingTime,
+            ITimeAndWaitingProvider timeAndWaitingProvider, ISimpleLogger loggerOrNull,
             String pausedActionDescriptionOrNull)
     {
         this.pauseFile = pauseFile;

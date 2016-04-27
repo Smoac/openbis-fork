@@ -21,8 +21,7 @@ import java.util.Map;
 import net.lemnik.eodsql.DataSet;
 
 /**
- * A service that supports executing queries on a data source configured in the DSS
- * service.properties.
+ * A service that supports executing queries on a data source configured in the DSS service.properties.
  * <p>
  * Jython usage example:
  * 
@@ -52,14 +51,11 @@ public interface IDataSourceQueryService
     /**
      * Execute a query against the data source with the specified name.
      * 
-     * @param dataSourceName The name of the data source to query against, as declared in the
-     *            service.properties file.
-     * @param query The SQL query to execute, possibly including parameters marked by '?{X}' where X
-     *            is the parameter number.
+     * @param dataSourceName The name of the data source to query against, as declared in the service.properties file.
+     * @param query The SQL query to execute, possibly including parameters marked by '?{X}' where X is the parameter number.
      * @return A List of Maps with the data. Do not forget to close the result when done!
      * @throw IllegalArgumentException Throws if there is no data source with the given name.
-     * @throw InvalidQueryException Thrown the given query string cannot be parsed, or doesn't match
-     *        the given parameters.
+     * @throw InvalidQueryException Thrown the given query string cannot be parsed, or doesn't match the given parameters.
      */
     DataSet<Map<String, Object>> select(String dataSourceName, String query)
             throws IllegalArgumentException;
@@ -67,15 +63,12 @@ public interface IDataSourceQueryService
     /**
      * Execute a query against the data source with the specified name.
      * 
-     * @param dataSourceName The name of the data source to query against, as declared in the
-     *            service.properties file.
-     * @param query The SQL query to execute, possibly including parameters marked by '?{X}' where X
-     *            is the parameter number.
+     * @param dataSourceName The name of the data source to query against, as declared in the service.properties file.
+     * @param query The SQL query to execute, possibly including parameters marked by '?{X}' where X is the parameter number.
      * @param parameters The values for filling in the query parameters.
      * @return A List of Maps with the data. Do not forget to close the result when done!
      * @throw IllegalArgumentException Thrown if there is no data source with the given name.
-     * @throw InvalidQueryException Thrown the given query string cannot be parsed, or doesn't match
-     *        the given parameters.
+     * @throw InvalidQueryException Thrown the given query string cannot be parsed, or doesn't match the given parameters.
      */
     DataSet<Map<String, Object>> select(String dataSourceName, String query, Object... parameters)
             throws IllegalArgumentException;

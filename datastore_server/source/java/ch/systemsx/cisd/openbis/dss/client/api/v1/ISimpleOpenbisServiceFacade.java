@@ -54,7 +54,7 @@ public interface ISimpleOpenbisServiceFacade
      * Returns the minor version of the general information service.
      */
     public int getMinorVersionInformationService();
-    
+
     /**
      * Returns all available projects.
      */
@@ -68,43 +68,43 @@ public interface ISimpleOpenbisServiceFacade
     List<SpaceWithProjectsAndRoleAssignments> getSpacesWithProjects();
 
     /**
-     * Return {@link Experiment} objects for a set of given experiment identifiers. If some of the
-     * specified experiment identifiers does not exist in openBIS it will be silently ignored.
+     * Return {@link Experiment} objects for a set of given experiment identifiers. If some of the specified experiment identifiers does not exist in
+     * openBIS it will be silently ignored.
      */
     @Retry
     List<Experiment> getExperiments(List<String> experimentIdentifiers);
 
     /**
-     * Return all experiments for a given list of project identifiers. If some of the specified
-     * project identifiers does not exist in openBIS it will be silently ignored.
+     * Return all experiments for a given list of project identifiers. If some of the specified project identifiers does not exist in openBIS it will
+     * be silently ignored.
      */
     @Retry
     List<Experiment> listExperimentsForProjects(List<String> projectIdentifiers);
 
     /**
-     * Return all experiments having samples for a given list of project identifiers. If some of the
-     * specified project identifiers does not exist in openBIS it will be silently ignored.
+     * Return all experiments having samples for a given list of project identifiers. If some of the specified project identifiers does not exist in
+     * openBIS it will be silently ignored.
      */
     @Retry
     List<Experiment> listExperimentsHavingSamplesForProjects(List<String> projectIdentifiers);
 
     /**
-     * Return all experiments having data sets for a given list of project identifiers. If some of
-     * the specified project identifiers does not exist in openBIS it will be silently ignored.
+     * Return all experiments having data sets for a given list of project identifiers. If some of the specified project identifiers does not exist in
+     * openBIS it will be silently ignored.
      */
     @Retry
     List<Experiment> listExperimentsHavingDataSetsForProjects(List<String> projectIdentifiers);
 
     /**
-     * Return {@link Sample} objects for a set of given sample identifiers. If some of the specified
-     * sample identifiers does not exist in openBIS it will be silently ignored.
+     * Return {@link Sample} objects for a set of given sample identifiers. If some of the specified sample identifiers does not exist in openBIS it
+     * will be silently ignored.
      */
     @Retry
     List<Sample> getSamples(List<String> sampleIdentifiers);
 
     /**
-     * Return {@link Sample} objects for a set of given sample identifiers. If some of the specified
-     * sample identifiers does not exist in openBIS it will be silently ignored.
+     * Return {@link Sample} objects for a set of given sample identifiers. If some of the specified sample identifiers does not exist in openBIS it
+     * will be silently ignored.
      * 
      * @param sampleIdentifiers sample identifiers for which samples should be retrieved
      * @param fetchOptions Options that control which parts of the samples are fetched.
@@ -114,15 +114,15 @@ public interface ISimpleOpenbisServiceFacade
             EnumSet<SampleFetchOption> fetchOptions);
 
     /**
-     * Return all samples for a given list of experiments identifiers. If some of the specified
-     * experiment identifiers does not exist in openBIS it will be silently ignored.
+     * Return all samples for a given list of experiments identifiers. If some of the specified experiment identifiers does not exist in openBIS it
+     * will be silently ignored.
      */
     @Retry
     List<Sample> listSamplesForExperiments(List<String> experimentIdentifiers);
 
     /**
-     * Return all samples for a given list of experiments identifiers. If some of the specified
-     * experiment identifiers does not exist in openBIS it will be silently ignored.
+     * Return all samples for a given list of experiments identifiers. If some of the specified experiment identifiers does not exist in openBIS it
+     * will be silently ignored.
      * 
      * @param experimentIdentifiers experiment identifiers for which samples should be retrieved
      * @param fetchOptions Options that control which parts of the samples are fetched.
@@ -130,7 +130,7 @@ public interface ISimpleOpenbisServiceFacade
     @Retry
     List<Sample> listSamplesForExperiments(List<String> experimentIdentifiers,
             EnumSet<SampleFetchOption> fetchOptions);
-    
+
     /**
      * Returns all samples for specified experiment and of specified type.
      * 
@@ -138,7 +138,7 @@ public interface ISimpleOpenbisServiceFacade
      */
     @Retry
     List<Sample> listSamplesForExperimentAndSampleType(String experimentPermId, String sampleType);
-    
+
     /**
      * Returns all samples which are components or children of the specified sample.
      * 
@@ -148,15 +148,15 @@ public interface ISimpleOpenbisServiceFacade
     List<Sample> listSamplesOfSample(String samplePermId);
 
     /**
-     * Return all samples for a given list of project identifiers. If some of the specified project
-     * identifiers does not exist in openBIS it will be silently ignored.
+     * Return all samples for a given list of project identifiers. If some of the specified project identifiers does not exist in openBIS it will be
+     * silently ignored.
      */
     @Retry
     public List<Sample> listSamplesForProjects(List<String> projectIdentifiers);
 
     /**
-     * Return all samples for a given list of project identifiers. If some of the specified project
-     * identifiers does not exist in openBIS it will be silently ignored.
+     * Return all samples for a given list of project identifiers. If some of the specified project identifiers does not exist in openBIS it will be
+     * silently ignored.
      * 
      * @param projectIdentifiers project identifiers for which samples should be retrieved
      * @param fetchOptions Options that control which parts of the samples are fetched.
@@ -166,8 +166,8 @@ public interface ISimpleOpenbisServiceFacade
             EnumSet<SampleFetchOption> fetchOptions);
 
     /**
-     * Return a {@link DataSet} object for for the given code. If some of the specified data set
-     * code does not exist in openBIS, null will be returned.
+     * Return a {@link DataSet} object for for the given code. If some of the specified data set code does not exist in openBIS, null will be
+     * returned.
      * 
      * @return The requested data set, or null if it does not exist.
      */
@@ -175,19 +175,19 @@ public interface ISimpleOpenbisServiceFacade
     DataSet getDataSet(String dataSetCode);
 
     /**
-     * Return {@link DataSet} objects for given a set of codes. If some of the specified data set
-     * codes does not exist in openBIS it will be silently ignored.
+     * Return {@link DataSet} objects for given a set of codes. If some of the specified data set codes does not exist in openBIS it will be silently
+     * ignored.
      */
     @Retry
     List<DataSet> getDataSets(List<String> dataSetCodes);
 
     /**
-     * Return all data sets for a given list of experiments identifiers. If some of the specified
-     * experiment identifiers does not exist in openBIS it will be silently ignored.
+     * Return all data sets for a given list of experiments identifiers. If some of the specified experiment identifiers does not exist in openBIS it
+     * will be silently ignored.
      */
     @Retry
     List<DataSet> listDataSetsForExperiments(List<String> experimentIdentifiers);
-    
+
     /**
      * Returns all data sets of specified experiment.
      * 
@@ -197,8 +197,8 @@ public interface ISimpleOpenbisServiceFacade
     List<DataSet> listDataSetsForExperiment(String experimentPermId);
 
     /**
-     * Return all data sets for a given list of sample identifiers. If some of the specified sample
-     * identifiers does not exist in openBIS it will be silently ignored.
+     * Return all data sets for a given list of sample identifiers. If some of the specified sample identifiers does not exist in openBIS it will be
+     * silently ignored.
      */
     @Retry
     List<DataSet> listDataSetsForSamples(List<String> sampleIdentifiers);
@@ -210,7 +210,7 @@ public interface ISimpleOpenbisServiceFacade
      */
     @Retry
     List<DataSet> listDataSetsForSample(String samplePermId);
-    
+
     /**
      * Returns all data set types available in openBIS.
      */
@@ -222,13 +222,13 @@ public interface ISimpleOpenbisServiceFacade
      */
     @Retry
     List<SampleType> listSampleTypes();
-    
+
     /**
      * Returns all experiment types available in openBIS.
      */
     @Retry
     List<ExperimentType> listExperimentTypes();
-    
+
     /**
      * Return all vocabularies available in openBIS together with the contained vocabulary terms.
      */
@@ -251,8 +251,7 @@ public interface ISimpleOpenbisServiceFacade
      * @param dataSetFile A file or folder containing the data
      * @return A list of validation errors. The list is empty if there were no validation errors.
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
-     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
-     *             the server.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to the server.
      */
     @Retry
     public List<ValidationError> validateDataSet(NewDataSetDTO newDataset, File dataSetFile)
@@ -265,8 +264,7 @@ public interface ISimpleOpenbisServiceFacade
      * @param dataSetFile A file or folder containing the data
      * @return Map of property name/value pairs.
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
-     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
-     *             the server.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to the server.
      */
     @Retry
     public Map<String, String> extractMetadata(NewDataSetDTO newDataset, File dataSetFile)
@@ -283,9 +281,8 @@ public interface ISimpleOpenbisServiceFacade
     /**
      * Logs out from openBIS and frees all associated resources on the server.
      * <p>
-     * IMPORTANT NOTE: If clients fail to call this method after finishing interaction with openBIS,
-     * then their session will be kept on the server until it expires. It is considered a security
-     * risk to leave openBIS sessions open.
+     * IMPORTANT NOTE: If clients fail to call this method after finishing interaction with openBIS, then their session will be kept on the server
+     * until it expires. It is considered a security risk to leave openBIS sessions open.
      */
     public void logout();
 }

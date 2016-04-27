@@ -61,19 +61,18 @@ public class PluginTaskFactory<T>
     /** Property name which stores a list of dataset type codes. */
     @Private
     public final static String DATASET_CODES_PROPERTY_NAME = "dataset-types";
-    
+
     /** Property name which stores a plugin class name. */
     public final static String CLASS_PROPERTY_NAME = "class";
 
     @Private
     public static final String SERVLET_PROPERTY_NAME = "servlet";
-    
+
     @Private
     public static final String SERVLETS_PROPERTY_NAME = "servlets";
-    
+
     /**
-     * Property name which stores a file path. The file should contain properties which are plugin
-     * parameters.
+     * Property name which stores a file path. The file should contain properties which are plugin parameters.
      */
     @Private
     public final static String PARAMS_FILE_PATH_PROPERTY_NAME = "properties-file";
@@ -148,7 +147,7 @@ public class PluginTaskFactory<T>
                             datastoreCode);
         }
     }
-    
+
     /**
      * Logs the current parameters to the {@link LogCategory#OPERATION} log.
      */
@@ -158,7 +157,6 @@ public class PluginTaskFactory<T>
         operationLog.info(String.format(pluginTaskName + " '%s' configuration:", key));
         logPropertiesConfiguration();
     }
-
 
     /**
      * Returns an instance of a plugin task
@@ -234,8 +232,7 @@ public class PluginTaskFactory<T>
     /**
      * Ensures that the factory configuration is correct and it is able to create plugins instances
      * 
-     * @param checkIfSerializable if true it will be checked that the plugiin instance can be
-     *            serialized and deserialized
+     * @param checkIfSerializable if true it will be checked that the plugiin instance can be serialized and deserialized
      */
     public void check(boolean checkIfSerializable)
     {

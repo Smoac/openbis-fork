@@ -38,10 +38,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 
 /**
- * Servlet that handles the upload of files to the session workspace when Uploader2 library is in
- * HTML4 form fallback mode. Files are uploaded in one multipart request therefore no information
- * about progress is provided. This servlet is currently NOT USED as Uploader2 library cannot handle
- * IE in the fallback mode yet.
+ * Servlet that handles the upload of files to the session workspace when Uploader2 library is in HTML4 form fallback mode. Files are uploaded in one
+ * multipart request therefore no information about progress is provided. This servlet is currently NOT USED as Uploader2 library cannot handle IE in
+ * the fallback mode yet.
  * <ul>
  * <li>Accepted HTTP methods: multipart POST</li>
  * <li>HTTP request parameters: sessionID (String required)</li>

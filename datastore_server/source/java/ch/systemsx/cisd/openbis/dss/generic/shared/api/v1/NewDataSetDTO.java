@@ -26,17 +26,13 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-
-
 /**
  * Represents a new data set that the DSS should register.
  * <p>
- * The information required to register a new data set are the owner of the data set, the name of
- * the container of the data set (folder or file name), and file info about the files in the data
- * set.
+ * The information required to register a new data set are the owner of the data set, the name of the container of the data set (folder or file name),
+ * and file info about the files in the data set.
  * <p>
- * Optionally, a data set type and properties may be specified. The type and properties will
- * override those inferred by the server.
+ * Optionally, a data set type and properties may be specified. The type and properties will override those inferred by the server.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -51,7 +47,7 @@ public class NewDataSetDTO implements Serializable
      * @author Chandrasekhar Ramakrishnan
      */
     @JsonObject("DataSetOwnerType")
-    public static enum DataSetOwnerType 
+    public static enum DataSetOwnerType
     {
         EXPERIMENT
         {
@@ -83,8 +79,7 @@ public class NewDataSetDTO implements Serializable
     }
 
     /**
-     * The identifier of the owner of the new data set. This could either be an experiment
-     * identifier or a sample identifier.
+     * The identifier of the owner of the new data set. This could either be an experiment identifier or a sample identifier.
      * 
      * @author Chandrasekhar Ramakrishnan
      */
@@ -159,8 +154,8 @@ public class NewDataSetDTO implements Serializable
      * Constructor
      * 
      * @param dataSetOwner The owner of the new data set
-     * @param dataSetFolderNameOrNull The name of the folder the data is stored in. If the data set
-     *            is just a single file and the folder name is null, a folder will be created.
+     * @param dataSetFolderNameOrNull The name of the folder the data is stored in. If the data set is just a single file and the folder name is null,
+     *            a folder will be created.
      * @param fileInfos FileInfoDssDTO objects for each of the files in the data set.
      */
     public NewDataSetDTO(DataSetOwner dataSetOwner, String dataSetFolderNameOrNull,
@@ -174,8 +169,8 @@ public class NewDataSetDTO implements Serializable
      * 
      * @param dataSetType The type of the new data set
      * @param dataSetOwner The owner of the new data set
-     * @param dataSetFolderNameOrNull The name of the folder the data is stored in. If the data set
-     *            is just a single file and the folder name is null, a folder will be created.
+     * @param dataSetFolderNameOrNull The name of the folder the data is stored in. If the data set is just a single file and the folder name is null,
+     *            a folder will be created.
      * @param fileInfos FileInfoDssDTO objects for each of the files in the data set.
      */
     public NewDataSetDTO(String dataSetType, DataSetOwner dataSetOwner,
@@ -188,11 +183,10 @@ public class NewDataSetDTO implements Serializable
     /**
      * Constructor
      * 
-     * @param dataSetMetadata The metadata (type and properties) that will override those inferred
-     *            by the server.
+     * @param dataSetMetadata The metadata (type and properties) that will override those inferred by the server.
      * @param dataSetOwner The owner of the new data set
-     * @param dataSetFolderNameOrNull The name of the folder the data is stored in. If the data set
-     *            is just a single file and the folder name is null, a folder will be created.
+     * @param dataSetFolderNameOrNull The name of the folder the data is stored in. If the data set is just a single file and the folder name is null,
+     *            a folder will be created.
      * @param fileInfos FileInfoDssDTO objects for each of the files in the data set.
      */
     public NewDataSetDTO(NewDataSetMetadataDTO dataSetMetadata, DataSetOwner dataSetOwner,

@@ -40,8 +40,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
 
 /**
- * Maintenance task to calculate checksums for file entries in the pathinfo database with unknown
- * checksum.
+ * Maintenance task to calculate checksums for file entries in the pathinfo database with unknown checksum.
  * 
  * @author Franz-Josef Elmer
  */

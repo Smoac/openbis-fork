@@ -129,7 +129,7 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
             try
             {
                 ignoreBeforeDate = DateUtils.parseDate(property, new String[]
-                    { "yyyy-MM-dd" });
+                { "yyyy-MM-dd" });
             } catch (ParseException ex)
             {
                 throw new ConfigurationFailureException("Invalid value of property '"
@@ -139,8 +139,8 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
     }
 
     /**
-     * The PostRegistrationMaintenanceTask is a bit exceptional since it needs to be run even if it
-     * is not configured by the user. This method is used to set it up in that case.
+     * The PostRegistrationMaintenanceTask is a bit exceptional since it needs to be run even if it is not configured by the user. This method is used
+     * to set it up in that case.
      */
     public void setUpEmpty()
     {

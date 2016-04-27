@@ -32,8 +32,8 @@ import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 
 /**
- * A class which is configured from properties and is able to execute a script from the command line
- * using the configured path {@link #PREPROCESSING_SCRIPT_PATH}.
+ * A class which is configured from properties and is able to execute a script from the command line using the configured path
+ * {@link #PREPROCESSING_SCRIPT_PATH}.
  * 
  * @author Tomasz Pylak
  */
@@ -61,9 +61,8 @@ public class PreprocessingExecutor
         };
 
     /**
-     * A path to a script which should be called from command line for every dataset batch before it
-     * is processed. Can be used e.g. to change file permissions. The script gets one parameter, the
-     * path to the dataset file, relative to the incoming directory.
+     * A path to a script which should be called from command line for every dataset batch before it is processed. Can be used e.g. to change file
+     * permissions. The script gets one parameter, the path to the dataset file, relative to the incoming directory.
      */
     public final static String PREPROCESSING_SCRIPT_PATH = "preprocessing-script";
 

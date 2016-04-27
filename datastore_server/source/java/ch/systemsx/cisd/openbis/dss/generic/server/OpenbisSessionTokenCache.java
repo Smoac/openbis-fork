@@ -30,13 +30,14 @@ import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 public class OpenbisSessionTokenCache
 {
     private final IServiceForDataStoreServer service;
+
     private final Set<String> sessionTokens = new HashSet<String>();
 
     public OpenbisSessionTokenCache(IServiceForDataStoreServer service)
     {
         this.service = service;
     }
-    
+
     public boolean isValidSessionToken(String sessionToken)
     {
         if (sessionTokens.contains(sessionToken))
@@ -53,7 +54,7 @@ public class OpenbisSessionTokenCache
             return false;
         }
     }
-    
+
     public void removeSessionToken(String sessionToken)
     {
         sessionTokens.remove(sessionToken);

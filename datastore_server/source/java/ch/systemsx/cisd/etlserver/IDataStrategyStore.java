@@ -21,8 +21,7 @@ import java.io.File;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * The main purpose of this interface is to return a <code>IDataStoreStrategy</code> for a given
- * <code>DataSetInformation</code>.
+ * The main purpose of this interface is to return a <code>IDataStoreStrategy</code> for a given <code>DataSetInformation</code>.
  * <p>
  * To perform its job it might use some helpers defined in the constructor.
  * </p>
@@ -33,9 +32,8 @@ public interface IDataStrategyStore
 {
 
     /**
-     * For given <var>dataSetInfo</var> and given <var>incomingDataSetPath</var> returns the
-     * corresponding <code>IDataStoreStrategy</code>. As a side effect sets also the sample
-     * properties, the experiment, and if not already set, the experiment identifier.
+     * For given <var>dataSetInfo</var> and given <var>incomingDataSetPath</var> returns the corresponding <code>IDataStoreStrategy</code>. As a side
+     * effect sets also the sample properties, the experiment, and if not already set, the experiment identifier.
      * 
      * @param dataSetInfo The data set information, gets enriched in the process.
      * @param incomingDataSetPath mainly used for logging purposes.
@@ -44,8 +42,7 @@ public interface IDataStrategyStore
             final File incomingDataSetPath);
 
     /**
-     * For given <var>dataStoreStrategyKey</var> return corresponding
-     * <code>IDataStoreStrategy</code>
+     * For given <var>dataStoreStrategyKey</var> return corresponding <code>IDataStoreStrategy</code>
      */
     public IDataStoreStrategy getDataStoreStrategy(DataStoreStrategyKey dataStoreStrategyKey);
 

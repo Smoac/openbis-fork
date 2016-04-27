@@ -46,13 +46,11 @@ public class OpenbisServiceFacadeFactory implements IOpenbisServiceFacadeFactory
     }
 
     /**
-     * Creates an {@link OpenbisServiceFacade} instance that can be used to interact with an openBIS
-     * backend.
+     * Creates an {@link OpenbisServiceFacade} instance that can be used to interact with an openBIS backend.
      * 
      * @param username an openBIS user id.
      * @param password a password corresponding to the <code>username</code> parameter.
-     * @param openbisUrl the HTTP url of the remote openBIS server e.g.
-     *            https://openbis.ethz.ch/openbis/
+     * @param openbisUrl the HTTP url of the remote openBIS server e.g. https://openbis.ethz.ch/openbis/
      * @param timeoutInMillis a remote-call timeout.
      */
     public static IOpenbisServiceFacade tryCreate(String username, String password,
@@ -62,12 +60,10 @@ public class OpenbisServiceFacadeFactory implements IOpenbisServiceFacadeFactory
     }
 
     /**
-     * Creates an {@link OpenbisServiceFacade} instance that can be used to interact with an openBIS
-     * backend.
+     * Creates an {@link OpenbisServiceFacade} instance that can be used to interact with an openBIS backend.
      * 
      * @param sessionToken token for existing sesstion in openBIS.
-     * @param openbisUrl the HTTP url of the remote openBIS server e.g.
-     *            https://openbis.ethz.ch/openbis/
+     * @param openbisUrl the HTTP url of the remote openBIS server e.g. https://openbis.ethz.ch/openbis/
      * @param timeoutInMillis a remote-call timeout.
      */
     public static IOpenbisServiceFacade tryCreate(String sessionToken, String openbisUrl,

@@ -32,17 +32,15 @@ public interface IDataSourceProvider
 {
 
     /**
-     * Returns data source configured with given name or throws {@link IllegalArgumentException} if
-     * not configured.
+     * Returns data source configured with given name or throws {@link IllegalArgumentException} if not configured.
      */
     public DataSource getDataSource(String name);
 
     /**
-     * Extracts the data source name from the specified properties and returns the requested data
-     * source by calling {@link #getDataSource(String)}.
+     * Extracts the data source name from the specified properties and returns the requested data source by calling {@link #getDataSource(String)}.
      */
     public DataSource getDataSource(Properties properties);
-    
+
     /**
      * Returns all data source definitions. Note, that not all data sources have a definition.
      */

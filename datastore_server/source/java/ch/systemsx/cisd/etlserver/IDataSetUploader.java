@@ -24,8 +24,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 /**
  * Uploads data to an additional project-specific database.
  * <p>
- * {@link IDataSetUploader} instances exist only within the scope of a storage processor
- * transaction.
+ * {@link IDataSetUploader} instances exist only within the scope of a storage processor transaction.
  * 
  * @author Franz-Josef Elmer
  */

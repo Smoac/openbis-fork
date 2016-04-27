@@ -83,7 +83,7 @@ public class ErrorMessageDialog extends JDialog
         this.mainWindow = mainWindow;
         JScrollPane scrollPane = new JScrollPane(this.errorArea);
         Object[] objects =
-            { "Validation error occured: ", scrollPane };
+        { "Validation error occured: ", scrollPane };
 
         final JOptionPane optionPane =
                 new JOptionPane(objects, JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION,

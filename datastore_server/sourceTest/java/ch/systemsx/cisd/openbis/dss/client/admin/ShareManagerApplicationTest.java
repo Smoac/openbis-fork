@@ -28,8 +28,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ShareManagerApplicationTest extends AssertJUnit
@@ -89,19 +87,23 @@ public class ShareManagerApplicationTest extends AssertJUnit
             recordedOpenBisServerUrl = openBisServerUrl;
             return service;
         }
-        
+
         @Override
         void execute()
         {
             executed = true;
         }
-        
+
     }
-    
+
     private Mockery context;
+
     private IDssServiceRpcGeneric dssService;
+
     private IGeneralInformationService service;
+
     private ShareManagerApplication shareManagerApplication;
+
     private MockCommand mockCommand;
 
     @BeforeMethod
@@ -119,11 +121,12 @@ public class ShareManagerApplicationTest extends AssertJUnit
     {
         context.assertIsSatisfied();
     }
+
     @Test(expectedExceptionsMessageRegExp = "No command specified. Allowed commands are \\[mock\\]\\.", expectedExceptions = UserFailureException.class)
     public void testParseAndRunMissingCommand()
     {
         shareManagerApplication.parseAndRun();
-        
+
         context.assertIsSatisfied();
     }
 
@@ -131,10 +134,10 @@ public class ShareManagerApplicationTest extends AssertJUnit
     public void testParseAndRunUnknowngCommand()
     {
         shareManagerApplication.parseAndRun("hello");
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testMissingMandatoryArgument()
     {
@@ -157,7 +160,7 @@ public class ShareManagerApplicationTest extends AssertJUnit
         }
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testParseAndRunLoginFailed()
     {
@@ -168,7 +171,7 @@ public class ShareManagerApplicationTest extends AssertJUnit
                     will(returnValue(null));
                 }
             });
-        
+
         try
         {
             shareManagerApplication.parseAndRun("mock", "-u", "user", "-p", "pswd", "a");
@@ -177,27 +180,27 @@ public class ShareManagerApplicationTest extends AssertJUnit
         {
             assertEquals("Invalid username/password combination.", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testParseAndRun()
     {
         context.checking(new Expectations()
-        {
             {
-                one(service).tryToAuthenticateForAllServices("user", "pswd");
-                will(returnValue(SEESION_TOKEN));
-            }
-        });
-        
+                {
+                    one(service).tryToAuthenticateForAllServices("user", "pswd");
+                    will(returnValue(SEESION_TOKEN));
+                }
+            });
+
         shareManagerApplication.parseAndRun("mock", "-u", "user", "-p", "pswd", "a");
-        
+
         assertEquals(true, mockCommand.executed);
         assertEquals("http://localhost:8888", mockCommand.recordedOpenBisServerUrl);
         assertEquals("http://localhost:8889", mockCommand.recordedDownloadUrl);
         context.assertIsSatisfied();
     }
-    
+
 }

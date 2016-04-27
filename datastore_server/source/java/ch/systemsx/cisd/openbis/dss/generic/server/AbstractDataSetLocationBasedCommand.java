@@ -22,8 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
- * Abstract superclass of implementations of {@link IDataSetCommand} which are based on a list of
- * {@link IDatasetLocation} instances.
+ * Abstract superclass of implementations of {@link IDataSetCommand} which are based on a list of {@link IDatasetLocation} instances.
  * 
  * @author Piotr Buczek
  */
