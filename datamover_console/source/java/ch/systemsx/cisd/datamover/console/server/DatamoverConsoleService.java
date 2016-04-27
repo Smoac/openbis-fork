@@ -40,8 +40,6 @@ import ch.systemsx.cisd.datamover.console.client.dto.DatamoverStatus;
 import ch.systemsx.cisd.datamover.console.client.dto.User;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DatamoverConsoleService implements IDatamoverConsoleService
@@ -52,10 +50,10 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
      * The Crowd property for the display name.
      */
     private static final String DISPLAY_NAME_PROPERTY = "displayName";
-    
+
     private static final Logger operationLog =
-        LogFactory.getLogger(LogCategory.OPERATION, DatamoverConsoleService.class);
-    
+            LogFactory.getLogger(LogCategory.OPERATION, DatamoverConsoleService.class);
+
     private final IAuthenticationService authenticationService;
 
     /** Session timeout in seconds. */
@@ -66,13 +64,13 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
     private final IRequestContextProvider requestContextProvider;
 
     private final IDatamoverConsoleFactory factory;
-    
+
     private Map<String, IDatamoverConsole> consoles;
 
     private Map<String, String> targets;
 
     private ApplicationInfo applicationInfo;
-    
+
     public DatamoverConsoleService(final IAuthenticationService authenticationService,
             IRequestContextProvider requestContextProvider,
             IDatamoverConsoleFactory factory, IConsoleActionLog actionLog)
@@ -82,12 +80,12 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
         this.factory = factory;
         this.actionLog = actionLog;
     }
-    
+
     public final void setSessionExpirationPeriodInMinutes(final int sessionExpirationPeriodInMinutes)
     {
         sessionExpirationPeriod = sessionExpirationPeriodInMinutes * 60;
     }
-    
+
     public final void setConfigParameters(ConfigParameters configParameters)
     {
         targets = configParameters.getTargets();
@@ -120,7 +118,7 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
         return (User) session.getAttribute(SESSION_USER);
     }
 
-    public User tryToLogin(String user, String password) 
+    public User tryToLogin(String user, String password)
     {
         final String applicationToken = authenticationService.authenticateApplication();
         if (applicationToken == null)
@@ -163,7 +161,7 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
         actionLog.logSuccessfulLogin();
         return userBean;
     }
-    
+
     public void logout()
     {
         HttpSession session = getSession();
@@ -225,7 +223,7 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
             actionLog.logShutdownDatamover(datamoverName);
         }
     }
-    
+
     private void checkAuthenticated()
     {
         HttpSession session = getSession();

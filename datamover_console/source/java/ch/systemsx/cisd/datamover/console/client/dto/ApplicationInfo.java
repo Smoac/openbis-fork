@@ -19,14 +19,12 @@ package ch.systemsx.cisd.datamover.console.client.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ApplicationInfo implements IsSerializable
 {
     private String version;
-    
+
     private int refreshTimeInterval;
 
     public final String getVersion()

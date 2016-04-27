@@ -32,22 +32,26 @@ import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.datamover.console.client.dto.User;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class ActionLogTest 
+public class ActionLogTest
 {
     private static final String SESSION_ID = "session-id";
+
     private static final String HOST = "test-host";
+
     private static final String USER = "AE";
-    
+
     private Mockery context;
+
     private IRequestContextProvider requestContextProvider;
+
     private HttpServletRequest request;
+
     private HttpSession session;
+
     private ActionLog actionLog;
-    
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -55,20 +59,20 @@ public class ActionLogTest
         requestContextProvider = context.mock(IRequestContextProvider.class);
         request = context.mock(HttpServletRequest.class);
         session = context.mock(HttpSession.class);
-        
+
         context.checking(new Expectations()
             {
                 {
                     allowing(requestContextProvider).getHttpServletRequest();
                     will(returnValue(request));
-                    
+
                     allowing(request).getRemoteHost();
                     will(returnValue(HOST));
                 }
             });
         actionLog = new ActionLog(requestContextProvider);
     }
-    
+
     @Test
     public void testLogStartDatamover()
     {
@@ -77,13 +81,13 @@ public class ActionLogTest
                 LogMonitoringAppender.addAppender(LogCategory.TRACKING, "{USER: " + USER
                         + ", HOST: " + HOST + ", WEBSESSION: " + SESSION_ID
                         + "} Start Datamover 'dm1' with target 't1'");
-        
+
         actionLog.logStartDatamover("dm1", "t1");
-        
+
         appender.verifyLogHasHappened();
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLogShutdownDatamover()
     {
@@ -92,9 +96,9 @@ public class ActionLogTest
                 LogMonitoringAppender.addAppender(LogCategory.TRACKING, "{USER: " + USER
                         + ", HOST: " + HOST + ", WEBSESSION: " + SESSION_ID
                         + "} Shutdown Datamover 'dm1'");
-        
+
         actionLog.logShutdownDatamover("dm1");
-        
+
         appender.verifyLogHasHappened();
         context.assertIsSatisfied();
     }
@@ -106,10 +110,10 @@ public class ActionLogTest
                 {
                     one(request).getSession();
                     will(returnValue(session));
-                    
+
                     one(session).getId();
                     will(returnValue(SESSION_ID));
-                    
+
                     one(session).getAttribute(SESSION_USER);
                     final User user = new User();
                     user.setUserCode(USER);

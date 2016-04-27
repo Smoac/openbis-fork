@@ -21,8 +21,6 @@ import java.util.Date;
 import com.google.gwt.i18n.client.Messages;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IMessageResources extends Messages
@@ -43,19 +41,19 @@ public interface IMessageResources extends Messages
     /** Returns the footer text. */
     @Key("footer.text")
     public String getFooterText(String version);
-    
+
     /** Returns the header title. */
     @Key("header.title")
     public String getHeaderTitle();
-    
+
     /** Returns welcome text that appears on the first page (login page). */
     @Key("login.welcome.text")
     public String getLoginWelcomeText();
-    
+
     /** Returns legend of login field set. */
     @Key("login.legend")
     public String getLoginLegend();
-    
+
     /** Returns the password label for the login form. */
     @Key("login.password.label")
     public String getLoginPasswordLabel();
@@ -71,7 +69,7 @@ public interface IMessageResources extends Messages
     /** Returns the text shown when login failed. */
     @Key("login.failed.message")
     public String getLoginFailedMessage();
-    
+
     /** Returns the status line with the specified timestamp. */
     @Key("console.status.line")
     public String getConsoleStatusLine(Date timestamp);
@@ -79,37 +77,37 @@ public interface IMessageResources extends Messages
     /** Returns the label of the logout button. */
     @Key("console.logout.button.label")
     public String getLogoutButtonLabel();
-    
+
     /** Returns the wait message used when wait for server response. */
     @Key("console.wait.message")
     public String getConsoleWaitMessage();
-    
+
     /** Returns the column header of datamover. */
     @Key("console.column.datamover")
     public String getDatamoverColumnHeader();
-    
+
     /** Returns the column header of target location. */
     @Key("console.column.target.location")
     public String getTargetLocationColumnHeader();
-    
+
     /** Returns the column header of status. */
     @Key("console.column.status")
     public String getStatusColumnHeader();
-    
+
     /** Returns the column header of command. */
     @Key("console.column.command")
     public String getCommandColumnHeader();
-    
+
     /** Returns the label of the start button. */
     @Key("console.start.button.label")
     public String getStartButtonLabel();
-    
+
     /** Returns the label of the stop button. */
     @Key("console.stop.button.label")
     public String getStopButtonLabel();
-    
+
     /** Returns the label of the refresh button. */
     @Key("console.refresh.button.label")
     public String getRefreshButtonLabel();
-    
+
 }

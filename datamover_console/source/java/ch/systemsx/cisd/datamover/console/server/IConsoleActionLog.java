@@ -20,7 +20,7 @@ import ch.systemsx.cisd.common.servlet.IActionLog;
 import ch.systemsx.cisd.datamover.console.client.IDatamoverConsoleService;
 
 /**
- * Interface for logging invocations of methods of {@link IDatamoverConsoleService}. 
+ * Interface for logging invocations of methods of {@link IDatamoverConsoleService}.
  *
  * @author Franz-Josef Elmer
  */
@@ -30,7 +30,7 @@ public interface IConsoleActionLog extends IActionLog
      * Logs that the specified datamover has been started for the specified target.
      */
     public void logStartDatamover(String datamover, String targetName);
-    
+
     /**
      * Logs that the specified datamover has been triggered for shuting down.
      */

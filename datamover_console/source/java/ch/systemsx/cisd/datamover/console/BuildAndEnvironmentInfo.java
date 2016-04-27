@@ -18,7 +18,6 @@ package ch.systemsx.cisd.datamover.console;
 
 import ch.systemsx.cisd.base.utilities.AbstractBuildAndEnvironmentInfo;
 
-
 /**
  * The build and environment information for datamover console.
  *
@@ -27,9 +26,9 @@ import ch.systemsx.cisd.base.utilities.AbstractBuildAndEnvironmentInfo;
 public class BuildAndEnvironmentInfo extends AbstractBuildAndEnvironmentInfo
 {
     private final static String BASE = "datamover_console";
-    
+
     public final static BuildAndEnvironmentInfo INSTANCE = new BuildAndEnvironmentInfo();
-    
+
     private BuildAndEnvironmentInfo()
     {
         super(BASE);

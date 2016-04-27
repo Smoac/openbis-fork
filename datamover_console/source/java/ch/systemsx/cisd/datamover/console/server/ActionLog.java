@@ -22,10 +22,7 @@ import ch.systemsx.cisd.common.servlet.AbstractActionLog;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.datamover.console.client.dto.User;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ActionLog extends AbstractActionLog implements IConsoleActionLog

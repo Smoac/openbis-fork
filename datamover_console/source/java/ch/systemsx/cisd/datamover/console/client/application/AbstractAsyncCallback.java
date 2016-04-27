@@ -23,21 +23,18 @@ import com.google.gwt.user.client.rpc.InvocationException;
 import ch.systemsx.cisd.datamover.console.client.InvalidSessionException;
 import ch.systemsx.cisd.datamover.console.client.application.utils.StringUtils;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 {
     protected final ViewContext viewContext;
-    
+
     public AbstractAsyncCallback(ViewContext viewContext)
     {
         this.viewContext = viewContext;
     }
-    
+
     public void onFailure(Throwable caught)
     {
         IMessageResources messageResources = viewContext.getMessageResources();

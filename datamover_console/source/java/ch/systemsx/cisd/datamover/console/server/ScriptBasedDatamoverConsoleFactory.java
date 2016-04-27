@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.datamover.console.server;
 
-
 /**
  * Implementation creating {@link ScriptBasedDatamoverConsole} instances.
  *

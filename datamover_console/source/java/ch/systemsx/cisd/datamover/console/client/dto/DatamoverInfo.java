@@ -26,35 +26,38 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class DatamoverInfo implements IsSerializable
 {
     private String name;
+
     private String targetLocation;
+
     private String errorMessage;
+
     private DatamoverStatus status = DatamoverStatus.DOWN;
-    
+
     public final String getName()
     {
         return name;
     }
-    
+
     public final void setName(String name)
     {
         this.name = name;
     }
-    
+
     public final String getTargetLocation()
     {
         return targetLocation;
     }
-    
+
     public final void setTargetLocation(String targetLocation)
     {
         this.targetLocation = targetLocation;
     }
-    
+
     public final DatamoverStatus getStatus()
     {
         return status;
     }
-    
+
     public final void setStatus(DatamoverStatus status)
     {
         this.status = status;
@@ -69,6 +72,5 @@ public class DatamoverInfo implements IsSerializable
     {
         this.errorMessage = errorMessage;
     }
-    
-    
+
 }

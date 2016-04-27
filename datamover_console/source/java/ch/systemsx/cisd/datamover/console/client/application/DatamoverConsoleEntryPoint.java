@@ -32,8 +32,6 @@ import ch.systemsx.cisd.datamover.console.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.User;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DatamoverConsoleEntryPoint implements EntryPoint
@@ -42,12 +40,12 @@ public class DatamoverConsoleEntryPoint implements EntryPoint
     private final static IDatamoverConsoleServiceAsync createService()
     {
         final IDatamoverConsoleServiceAsync service =
-                GWT.<IDatamoverConsoleServiceAsync>create(IDatamoverConsoleService.class);
+                GWT.<IDatamoverConsoleServiceAsync> create(IDatamoverConsoleService.class);
         final ServiceDefTarget endpoint = (ServiceDefTarget) service;
         endpoint.setServiceEntryPoint(Constants.SERVER_NAME);
         return service;
     }
-    
+
     private IPageController pageController = new IPageController()
         {
             private Timer timer;
@@ -67,9 +65,9 @@ public class DatamoverConsoleEntryPoint implements EntryPoint
                 onModuleLoad();
             }
         };
-        
+
     private ViewContext viewContext;
-    
+
     public void onModuleLoad()
     {
         setupViewContext();
@@ -101,7 +99,7 @@ public class DatamoverConsoleEntryPoint implements EntryPoint
                 }
             });
     }
-    
+
     private void setupViewContext()
     {
         if (viewContext == null)

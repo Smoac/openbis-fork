@@ -18,11 +18,9 @@ package ch.systemsx.cisd.datamover.console.client;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-
 /**
- * The <code>EnvironmentFailureException</code> is the super class of all exceptions that have
- * their cause in a failure condition in the environment of the system. This implies that the user
- * himself cannot fix the problem.
+ * The <code>EnvironmentFailureException</code> is the super class of all exceptions that have their cause in a failure condition in the environment
+ * of the system. This implies that the user himself cannot fix the problem.
  * 
  * @author Bernd Rinn
  */

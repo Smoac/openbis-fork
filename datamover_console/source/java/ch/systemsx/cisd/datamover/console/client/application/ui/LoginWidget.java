@@ -41,9 +41,11 @@ import ch.systemsx.cisd.datamover.console.client.dto.User;
 public class LoginWidget extends Composite
 {
     private static final String STYLE_PREFIX = "console-login-";
-    
+
     private final ViewContext viewContext;
+
     private final TextBox userNameField;
+
     private final TextBox passwordField;
 
     public LoginWidget(ViewContext viewContext)
@@ -54,11 +56,11 @@ public class LoginWidget extends Composite
         panel.setSpacing(10);
         panel.setStyleName(STYLE_PREFIX + "main");
         panel.setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
-        
+
         Label welcome = new HTML(messageResources.getLoginWelcomeText());
         welcome.setStyleName(STYLE_PREFIX + "welcome");
         panel.add(welcome);
-        
+
         VerticalPanel loginPanel = new VerticalPanel();
         loginPanel.setStyleName(STYLE_PREFIX + "content");
         panel.add(loginPanel);
@@ -78,10 +80,10 @@ public class LoginWidget extends Composite
             });
         loginPanel.setHorizontalAlignment(VerticalPanel.ALIGN_RIGHT);
         loginPanel.add(button);
-        
+
         initWidget(panel);
     }
-    
+
     private TextBox createLabeledTextBoxIn(Grid grid, int rowIndex, String label, boolean password)
     {
         grid.setText(rowIndex, 0, label + ":");
@@ -89,7 +91,7 @@ public class LoginWidget extends Composite
         grid.setWidget(rowIndex, 1, textBox);
         return textBox;
     }
-    
+
     void authenticate()
     {
         String userName = userNameField.getText();
@@ -110,5 +112,5 @@ public class LoginWidget extends Composite
                         }
                     });
     }
-    
+
 }

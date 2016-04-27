@@ -46,7 +46,7 @@ public class FieldSet extends Widget
         setElement(fieldSet);
         setStyleName("cisd-fieldset");
     }
-    
+
     /**
      * Add a widget to be surounded by the field set border.
      */
@@ -54,5 +54,5 @@ public class FieldSet extends Widget
     {
         DOM.appendChild(fieldSet, widget.getElement());
     }
-    
+
 }

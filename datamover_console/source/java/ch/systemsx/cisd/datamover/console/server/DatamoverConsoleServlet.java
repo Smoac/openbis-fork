@@ -41,8 +41,6 @@ import ch.systemsx.cisd.datamover.console.client.dto.DatamoverInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.User;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DatamoverConsoleServlet extends GWTSpringController implements IDatamoverConsoleService
@@ -56,7 +54,7 @@ public class DatamoverConsoleServlet extends GWTSpringController implements IDat
             LogFactory.getLogger(LogCategory.OPERATION, DatamoverConsoleServlet.class);
 
     private IDatamoverConsoleService service;
-    
+
     @Override
     public final void init(final ServletConfig config) throws ServletException
     {
@@ -94,7 +92,7 @@ public class DatamoverConsoleServlet extends GWTSpringController implements IDat
             datamoverConsoleService.setConfigParameters(configParameters);
         }
     }
-    
+
     public ApplicationInfo getApplicationInfo()
     {
         return service.getApplicationInfo();
@@ -135,5 +133,5 @@ public class DatamoverConsoleServlet extends GWTSpringController implements IDat
     {
         service.shutdownDatamover(datamoverName);
     }
-    
+
 }

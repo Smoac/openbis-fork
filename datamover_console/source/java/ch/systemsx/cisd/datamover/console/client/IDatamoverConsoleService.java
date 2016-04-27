@@ -36,10 +36,9 @@ public interface IDatamoverConsoleService extends RemoteService
      * Returns static information of the application needed by the client.
      */
     public ApplicationInfo getApplicationInfo();
-    
+
     /**
-     * Returns the currently logged-in {@link User}, or <code>null</code> if the user is not
-     * logged-in.
+     * Returns the currently logged-in {@link User}, or <code>null</code> if the user is not logged-in.
      */
     public User tryToGetCurrentUser() throws UserFailureException;
 
@@ -59,12 +58,12 @@ public interface IDatamoverConsoleService extends RemoteService
      * Lists information of all datamovers.
      */
     public List<DatamoverInfo> listDatamoverInfos() throws UserFailureException;
-    
+
     /**
      * Gets map of target symbol names to target locations.
      */
     public Map<String, String> getTargets() throws UserFailureException;
-    
+
     /**
      * Starts the specified datamover using the specified location as the outgoing target.
      */
@@ -74,5 +73,5 @@ public interface IDatamoverConsoleService extends RemoteService
      * Shuts down the specified datamover.
      */
     public void shutdownDatamover(String datamoverName) throws UserFailureException;
-    
+
 }

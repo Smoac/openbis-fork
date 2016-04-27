@@ -32,8 +32,7 @@ public interface IDatamoverConsole extends ISelfTestable
     public DatamoverStatus obtainStatus();
 
     /**
-     * Obtains the error message of this datamover. The error message will be <code>null</code>,
-     * if this datamover is not in an error state.
+     * Obtains the error message of this datamover. The error message will be <code>null</code>, if this datamover is not in an error state.
      */
     public String tryObtainErrorMessage();
 

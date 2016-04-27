@@ -25,8 +25,6 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.datamover.console.client.application.ViewContext;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class HeaderFooterDecorator extends Composite
@@ -43,10 +41,10 @@ public class HeaderFooterDecorator extends Composite
         verticalPanel2.add(createHeader(viewContext));
         verticalPanel2.add(widget);
         verticalPanel.add(createFooter(viewContext));
-        
+
         initWidget(verticalPanel);
     }
-    
+
     private Widget createHeader(ViewContext viewContext)
     {
         VerticalPanel headerPanel = new VerticalPanel();
@@ -55,14 +53,14 @@ public class HeaderFooterDecorator extends Composite
         HorizontalPanel header = new HorizontalPanel();
         headerPanel.add(header);
         header.setSpacing(10);
-        
+
         header.add(viewContext.getImageBundle().getLogo().createImage());
         Label title = new Label(viewContext.getMessageResources().getHeaderTitle());
         title.setStyleName("header-title");
         header.add(title);
         return headerPanel;
     }
-    
+
     private Widget createFooter(ViewContext viewContext)
     {
         VerticalPanel footerPanel = new VerticalPanel();

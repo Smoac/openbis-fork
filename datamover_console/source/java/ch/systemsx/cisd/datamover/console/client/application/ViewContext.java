@@ -19,14 +19,12 @@ package ch.systemsx.cisd.datamover.console.client.application;
 import ch.systemsx.cisd.datamover.console.client.IDatamoverConsoleServiceAsync;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ViewContext
 {
     private final IDatamoverConsoleServiceAsync service;
-    
+
     private final ViewModel model = new ViewModel();
 
     private final IPageController pageController;
@@ -68,5 +66,5 @@ public class ViewContext
     {
         return model;
     }
-    
+
 }

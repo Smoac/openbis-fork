@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.datamover.console.client.application;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class Constants

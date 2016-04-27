@@ -34,17 +34,17 @@ import ch.systemsx.cisd.datamover.console.client.dto.User;
 public interface IDatamoverConsoleServiceAsync extends RemoteService
 {
     public void getApplicationInfo(AsyncCallback<ApplicationInfo> callback);
-    
+
     public void tryToGetCurrentUser(AsyncCallback<User> callback);
 
     public void tryToLogin(final String user, final String password, AsyncCallback<User> callback);
 
     public void logout(AsyncCallback<Void> callback);
-    
+
     public void listDatamoverInfos(AsyncCallback<List<DatamoverInfo>> callback);
-    
+
     public void getTargets(AsyncCallback<Map<String, String>> callback);
-    
+
     public void startDatamover(String datamoverName, String targetLocation, AsyncCallback<Void> callback);
 
     public void shutdownDatamover(String datamoverName, AsyncCallback<Void> callback);

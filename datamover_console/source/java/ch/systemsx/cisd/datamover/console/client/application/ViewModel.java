@@ -24,15 +24,16 @@ import ch.systemsx.cisd.datamover.console.client.dto.DatamoverInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.User;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ViewModel
 {
     private ApplicationInfo applicationInfo;
+
     private User user;
+
     private Map<String, String> targets;
+
     private List<DatamoverInfo> infos;
 
     public final ApplicationInfo getApplicationInfo()
@@ -89,5 +90,5 @@ public class ViewModel
             this.infos.set(i, info);
         }
     }
-    
+
 }

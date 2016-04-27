@@ -29,7 +29,7 @@ public interface IPageController
      * Sets the current refresh timer. Cancels previous timer.
      */
     public void setTimer(Timer timerOrNull);
-    
+
     /**
      * Cancels previous refresh timer and reloads page.
      */
