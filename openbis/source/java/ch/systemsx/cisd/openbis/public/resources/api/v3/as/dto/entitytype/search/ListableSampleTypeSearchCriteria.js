@@ -9,9 +9,13 @@ define([ "stjs", "as/dto/common/search/AbstractSearchCriteria" ], function(stjs,
 		prototype['@type'] = 'as.dto.entitytype.search.ListableSampleTypeSearchCriteria';
 		constructor.serialVersionUID = 1;
 		
-		prototype.listable = true;
+		prototype.listable;
 	    
 		prototype.thatEquals = function(value) {
+	        this.setListable(value);
+	    }
+
+		prototype.setListable = function(value) {
 	        this.listable = value;
 	    }
 
