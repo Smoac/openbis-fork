@@ -4,7 +4,6 @@ import os.path
 import re
 import time
 from time import mktime
-from datetime import datetime
 
 import settings
 import systemtest.testcase
