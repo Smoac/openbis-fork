@@ -73,8 +73,8 @@ function build {
       echo "./build_ant.sh openbis_all $FULL_VER"
       ./build_ant.sh openbis_all $FULL_VER
     else
-      echo "$BIN_DIR/build/build.sh release/$VER.x $FULL_VER"
-      "$BIN_DIR/build/build.sh" release/$VER.x $FULL_VER
+      echo "../$BIN_DIR/build/build.sh release/$VER.x $FULL_VER"
+      "../$BIN_DIR/build/build.sh" release/$VER.x $FULL_VER
     fi
   fi
   state_end
