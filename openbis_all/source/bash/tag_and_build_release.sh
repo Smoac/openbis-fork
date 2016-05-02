@@ -63,14 +63,6 @@ function setup {
       ./$BIN_DIR/build/branch.sh stage/$VER.x
     fi
   fi
-  echo "svn delete svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/release/$VER.x"
-  if [ $EXECUTE_COMMANDS ]; then
-    svn delete -m "replace release/$VER.x by stage/$VER.x: step 1: delete release/$VER.x" svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/release/$VER.x 2>/dev/null
-  fi
-  echo "svn cp svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/stage/$VER.x svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/release/$VER.x"
-  if [ $EXECUTE_COMMANDS ]; then
-    svn cp -m "replace release/$VER.x by stage/$VER.x: step 2: copy stage/$VER.x to release/$VER.x" svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/stage/$VER.x svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/release/$VER.x
-  fi
   
   state_end
 }
@@ -88,9 +80,9 @@ function tag13 {
 function tag {
   state_start "Tagging release/$VER.x to $FULL_VER..."
   
-  echo "$BIN_DIR/build/tag.sh release/$VER.x $FULL_VER"
+  echo "$BIN_DIR/build/tag.sh stage/$VER.x release/$VER.x/$FULL_VER"
   if [ $EXECUTE_COMMANDS ]; then
-    "$BIN_DIR/build/tag.sh" release/$VER.x $FULL_VER
+    "$BIN_DIR/build/tag.sh" stage/$VER.x release/$VER.x/$FULL_VER
   fi
   
   state_end
