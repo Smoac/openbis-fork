@@ -58,6 +58,7 @@ function tag {
 	
 	echo "./tag_release.sh openbis_all $FULL_VER"
 	if [ $EXECUTE_COMMANDS ]; then
+	
 		./tag_release.sh openbis_all $FULL_VER
 	fi
 	state_end
@@ -68,7 +69,11 @@ function build {
 	
 	echo "./build_ant.sh openbis_all $FULL_VER"
 	if [ $EXECUTE_COMMANDS ]; then
-		./build_ant.sh openbis_all $FULL_VER
+    if [ ${FULL_VER%.*} == '13' ]; then
+      ./build_ant.sh openbis_all $FULL_VER
+    else
+      ./build/build.sh release/$VER.x $FULL_VER
+    fi
 	fi
 	state_end
 }
