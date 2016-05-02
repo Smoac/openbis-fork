@@ -24,8 +24,9 @@ class TestCase(systemtest.testcase.TestCase):
 #        openbisController = self.createOpenbisController(dropDatabases=False)
         testDataFolder = self.getTestDataFolder(openbisController)
 #        self.dropTestExample(openbisController, testDataFolder, "ivmtcbeb087rjsmilcus17nu18")
-        self.dropTestExample(openbisController, testDataFolder, "m9du561cidup7n0gdp97k8gh6u")
-        self.dropTestExample(openbisController, testDataFolder, "okn3scc5tmhk199m6qk80d20op")
+        self.dropTestExample(openbisController, testDataFolder, "cj8p7jgmqlvv8g12ng1it8a5os")
+#        self.dropTestExample(openbisController, testDataFolder, "m9du561cidup7n0gdp97k8gh6u")
+#       self.dropTestExample(openbisController, testDataFolder, "okn3scc5tmhk199m6qk80d20op")
         for exampleName in sorted(os.listdir(testDataFolder)):
             if os.path.isdir("%s/%s" % (testDataFolder, exampleName)):
                 break
@@ -52,6 +53,17 @@ class TestCase(systemtest.testcase.TestCase):
         util.printAndFlush("path to core plugin in the repository: %s" % path)
         destination = "%s/servers/core-plugins/openbis/" % openbisController.installPath
         util.unzipSubfolder(path, 'obit_microscopy_core_technology-master/core-plugins/microscopy/1/', destination)
+        self.setThumbnailResolutions(openbisController, ['256x256'])
+        
+    def setThumbnailResolutions(self, openbisController, resolutions):
+        path = "%s/servers/core-plugins/openbis/1/dss/drop-boxes/MicroscopyDropbox/GlobalSettings.py" % openbisController.installPath
+        with open(path, "r")  as f:
+            content = f.readlines()
+        with open(path, "w") as f:
+            for line in content:
+                if line.find('ImageResolutions') > 0:
+                    line = line.replace('[]', str(resolutions))
+                f.write("%s" % line)
         
     def getTestDataFolder(self, openbisController):
         testDataFolder = "%s/../../test-data/integration_%s" % (self.playgroundFolder, self.name)
