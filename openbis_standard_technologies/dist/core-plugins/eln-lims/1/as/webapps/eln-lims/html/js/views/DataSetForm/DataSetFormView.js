@@ -220,11 +220,14 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				}
 				var dataSetTypeCode = profile.getDataSetTypeForFileName(_this._dataSetFormModel.files, data.name);
 				if(dataSetTypeCode != null) {
-					$("#DATASET_TYPE").val(dataSetTypeCode);
-					if(!_this._dataSetFormModel.isMini){
-						_this._repaintMetadata(
-								_this._dataSetFormController._getDataSetType(dataSetTypeCode)
-						);
+					var selectedDataSetTypeCode = $("#DATASET_TYPE").val();
+					if(selectedDataSetTypeCode !== dataSetTypeCode) {
+						$("#DATASET_TYPE").val(dataSetTypeCode);
+						if(!_this._dataSetFormModel.isMini){
+							_this._repaintMetadata(
+									_this._dataSetFormController._getDataSetType(dataSetTypeCode)
+							);
+						}
 					}
 				}
 				

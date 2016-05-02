@@ -17,7 +17,7 @@ dependencies {
     
     testCompile project(path: ':common', configuration: 'tests')
     
-    distribution 'jfree:jfreechart:1.0.13'
+    distribution 'jfree:jfreechart:+'
 }
 
 sourceSets { 

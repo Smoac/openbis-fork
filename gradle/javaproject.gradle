@@ -92,7 +92,7 @@ def execute_working_dir(command, arguments, working_dir) {
 ext.svnCommand = 'svn'
 
 def isSvnProject() {
-   return new java.io.File(projectDir, "../.svn").isDirectory()
+   return new java.io.File(projectDir, ".svn").isDirectory() || new java.io.File(projectDir, "../.svn").isDirectory() 
 }
 
 def executeSVN(arguments) {
