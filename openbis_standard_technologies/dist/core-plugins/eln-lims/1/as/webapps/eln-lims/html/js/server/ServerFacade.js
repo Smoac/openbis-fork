@@ -497,7 +497,7 @@ function ServerFacade(openbisServer) {
  	//
  	this.customELNApi = function(parameters, callbackFunction, service) {
  		if(!service) {
- 			service = "newbrowserapi";
+ 			service = "eln-lims-api";
  		}
  		
  		var dataStoreCode = profile.getDefaultDataStoreCode();
@@ -523,7 +523,7 @@ function ServerFacade(openbisServer) {
  	
  	this.createReportFromAggregationService = function(dataStoreCode, parameters, callbackFunction, service) {
  		if(!service) {
- 			service = "newbrowserapi";
+ 			service = "eln-lims-api";
  		}
  		if(!parameters) {
  			parameters = {};
