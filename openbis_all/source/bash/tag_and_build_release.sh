@@ -10,6 +10,7 @@ if [ $# -lt 1 ]; then
     exit 1
 fi
 
+BIN_DIR=`dirname "$0"`
 TODAY=`date "+%Y-%m-%d"`
 VER=$1
 SUBVER=0
@@ -65,17 +66,18 @@ function tag {
 }
 
 function build {
-	state_start "Building openBIS..."
-	
-	echo "./build_ant.sh openbis_all $FULL_VER"
-	if [ $EXECUTE_COMMANDS ]; then
+  state_start "Building openBIS..."
+
+  if [ $EXECUTE_COMMANDS ]; then
     if [ ${FULL_VER%.*} == '13' ]; then
+      echo "./build_ant.sh openbis_all $FULL_VER"
       ./build_ant.sh openbis_all $FULL_VER
     else
-      ./build/build.sh release/$VER.x $FULL_VER
+      echo "$BIN_DIR/build/build.sh release/$VER.x $FULL_VER"
+      "$BIN_DIR/build/build.sh" release/$VER.x $FULL_VER
     fi
-	fi
-	state_end
+  fi
+  state_end
 }
 
 function copy_to_cisd_server {
