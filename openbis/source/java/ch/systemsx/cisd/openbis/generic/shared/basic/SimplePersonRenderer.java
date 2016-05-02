@@ -30,6 +30,7 @@ public class SimplePersonRenderer
         {
             final String lastName = person.getLastName();
             final String firstName = person.getFirstName();
+            final String userId = person.getUserId();
             if (isBlank(lastName) == false)
             {
                 builder.append(lastName);
@@ -41,6 +42,9 @@ public class SimplePersonRenderer
                     builder.append(", ");
                 }
                 builder.append(firstName);
+            }
+            if(isBlank(lastName) && isBlank(firstName)) {
+            	builder.append(userId);
             }
         }
         return builder;
