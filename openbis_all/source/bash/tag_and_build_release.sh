@@ -10,6 +10,7 @@ if [ $# -lt 1 ]; then
     exit 1
 fi
 
+BIN_DIR=`dirname "$0"`
 TODAY=`date "+%Y-%m-%d"`
 VER=$1
 SUBVER=0
@@ -39,8 +40,8 @@ function state_end {
 	echo ""	
 }
 
-function setup {
-	state_start Setup
+function setup13 {
+	state_start "Setup for 13.05"
   	echo "svn checkout svn+ssh://svncisd.ethz.ch/repos/cisd/build_resources/trunk build_resources"
 	if [ $EXECUTE_COMMANDS ]; then
   		svn checkout svn+ssh://svncisd.ethz.ch/repos/cisd/build_resources/trunk build_resources
@@ -53,7 +54,28 @@ function setup {
 	state_end
 }
 
-function tag {
+function setup {
+  state_start Setup
+  
+  if [ $SUBVER -eq 0 ]; then
+    echo "$BIN_DIR/build/branch.sh stage/$VER.x"
+    if [ $EXECUTE_COMMANDS ]; then
+      ./$BIN_DIR/build/branch.sh stage/$VER.x
+    fi
+  fi
+  echo "svn delete svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/release/$VER.x"
+  if [ $EXECUTE_COMMANDS ]; then
+    svn delete -m "replace release/$VER.x by stage/$VER.x: step 1: delete release/$VER.x" svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/release/$VER.x 2>/dev/null
+  fi
+  echo "svn cp svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/stage/$VER.x svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/release/$VER.x"
+  if [ $EXECUTE_COMMANDS ]; then
+    svn cp -m "replace release/$VER.x by stage/$VER.x: step 2: copy stage/$VER.x to release/$VER.x" svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/stage/$VER.x svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/release/$VER.x
+  fi
+  
+  state_end
+}
+
+function tag13 {
 	state_start "Tagging openBIS to $FULL_VER..."
 	
 	echo "./tag_release.sh openbis_all $FULL_VER"
@@ -63,7 +85,18 @@ function tag {
 	state_end
 }
 
-function build {
+function tag {
+  state_start "Tagging release/$VER.x to $FULL_VER..."
+  
+  echo "$BIN_DIR/build/tag.sh release/$VER.x $FULL_VER"
+  if [ $EXECUTE_COMMANDS ]; then
+    "$BIN_DIR/build/tag.sh" release/$VER.x $FULL_VER
+  fi
+  
+  state_end
+}
+
+function build13 {
 	state_start "Building openBIS..."
 	
 	echo "./build_ant.sh openbis_all $FULL_VER"
@@ -71,6 +104,17 @@ function build {
 		./build_ant.sh openbis_all $FULL_VER
 	fi
 	state_end
+}
+
+function build {
+  state_start "Building openBIS $FULL_VER"
+  
+  echo "$BIN_DIR/build/build.sh release/$VER.x $FULL_VER"
+  if [ $EXECUTE_COMMANDS ]; then
+    "$BIN_DIR/build/build.sh" release/$VER.x $FULL_VER
+  fi
+  
+  state_end
 }
 
 function copy_to_cisd_server {
@@ -128,11 +172,17 @@ else
 	state_start "RUNNING DRY RUN"
 fi
 
-setup
-tag
-build
-copy_to_cisd_server
-publish_javadocs
-install_sprint
+if [ ${VER%.*} == "13" ]; then
+  setup13
+  tag13
+  build13
+  copy_to_cisd_server
+  publish_javadocs
+  install_sprint
+else
+  setup
+  tag
+  build
+fi
 
 state_start Done!
