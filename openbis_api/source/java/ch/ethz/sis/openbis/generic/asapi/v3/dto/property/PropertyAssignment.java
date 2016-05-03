@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.property;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
@@ -59,11 +60,13 @@ public class PropertyAssignment implements Serializable
         this.propertyType = propertyType;
     }
 
+    @JsonIgnore
     public VocabularyFetchOptions getVocabularyFetchOptions()
     {
         return propertyType.getVocabularyFetchOptions();
     }
     
+    @JsonIgnore
     public Vocabulary getVocabulary()
     {
         if (getVocabularyFetchOptions() != null)

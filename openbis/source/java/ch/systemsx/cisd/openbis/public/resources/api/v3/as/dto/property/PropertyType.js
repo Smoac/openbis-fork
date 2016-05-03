@@ -48,7 +48,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.vocabularyFetchOptions = vocabularyFetchOptions;
 		};
 		prototype.getVocabulary = function() {
-			if (this.getVocabularyFetchOptions() && this.getVocabularyFetchOptions().hasVocabulary()) {
+			if (this.getVocabularyFetchOptions()) {
 				return this.vocabulary;
 			} else {
 				throw new exceptions.NotFetchedException("Vocabulary has not been fetched.");
@@ -58,7 +58,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.vocabulary = vocabulary;
 		};
 	}, {
-		vocabularyFetchOptions : "VocabularyTermFetchOptions",
+		vocabularyFetchOptions : "VocabularyFetchOptions",
 		vocabulary : "Vocabulary",
 		dataTypeCode : "DataTypeCode"
 	});

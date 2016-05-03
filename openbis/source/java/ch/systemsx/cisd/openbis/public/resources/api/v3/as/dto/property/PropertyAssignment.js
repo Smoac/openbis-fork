@@ -19,6 +19,9 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			this.propertyType = propertyType;
 		};
 		prototype.getVocabularyFetchOptions = function() {
+			if (this.propertyType == null) {
+				return null;
+			}
 			return this.propertyType.getVocabularyFetchOptions();
 		}
 		prototype.getVocabulary = function() {

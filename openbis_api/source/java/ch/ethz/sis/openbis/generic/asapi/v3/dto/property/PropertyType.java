@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.property;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
@@ -116,6 +117,7 @@ public class PropertyType implements ICodeHolder, Serializable
         this.vocabularyFetchOptions = fetchOptions;
     }
     
+    @JsonIgnore
     public Vocabulary getVocabulary()
     {
         if (getVocabularyFetchOptions() != null)
