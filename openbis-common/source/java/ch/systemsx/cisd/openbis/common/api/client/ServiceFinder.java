@@ -36,7 +36,9 @@ import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
  */
 public class ServiceFinder
 {
-    private static final long SERVER_TIMEOUT = 5 * DateUtils.MILLIS_PER_MINUTE;
+    public static final int SERVER_TIMEOUT_IN_MINUTES = 15;
+
+    private static final long SERVER_TIMEOUT = SERVER_TIMEOUT_IN_MINUTES * DateUtils.MILLIS_PER_MINUTE;
 
     private final String applicationName;
 
