@@ -227,6 +227,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 				var type = experimentTypes[0];
 				c.assertEqual(type.getCode(), "HT_SEQUENCING", "Experiment type code");
 				c.assertEqual(type.getFetchOptions().hasPropertyAssignments(), true);
+				c.assertEqual(type.getFetchOptions().withPropertyAssignments().hasVocabulary(), false);
 				var assignments = type.getPropertyAssignments();
 				c.assertEqual(assignments.length, 1, "Number of property assignments");
 				c.assertEqual(assignments[0].isMandatory(), false, "Mandatory property assignment?");
@@ -241,6 +242,38 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			testSearch(c, fSearch, fCheck);
 		});
 
+		QUnit.test("searchExperimentTypes() with vocabularies", function(assert) {
+			var c = new common(assert);
+			
+			var fSearch = function(facade) {
+				var criteria = new c.EntityTypeSearchCriteria();
+				criteria.withCode().thatStartsWith("HT");
+				var fetchOptions = new c.ExperimentTypeFetchOptions();
+				fetchOptions.withPropertyAssignments().withVocabulary();
+				return facade.searchExperimentTypes(criteria, fetchOptions);
+			}
+			
+			var fCheck = function(facade, experimentTypes) {
+				c.assertEqual(experimentTypes.length, 1, "Number of experiment types");
+				var type = experimentTypes[0];
+				c.assertEqual(type.getCode(), "HT_SEQUENCING", "Experiment type code");
+				c.assertEqual(type.getFetchOptions().hasPropertyAssignments(), true);
+				c.assertEqual(type.getFetchOptions().withPropertyAssignments().hasVocabulary(), true);
+				var assignments = type.getPropertyAssignments();
+				c.assertEqual(assignments.length, 1, "Number of property assignments");
+				c.assertEqual(assignments[0].isMandatory(), false, "Mandatory property assignment?");
+				var propertyType = assignments[0].getPropertyType();
+				c.assertEqual(propertyType.getCode(), "EXPERIMENT_DESIGN", "Property type code");
+				c.assertEqual(propertyType.getLabel(), "Experiment Design", "Property type label");
+				c.assertEqual(propertyType.getDescription(), "", "Property type description");
+				c.assertEqual(propertyType.getDataTypeCode(), "CONTROLLEDVOCABULARY", "Property data type code");
+				c.assertEqual(propertyType.getVocabulary().getCode(), "EXPERIMENT_DESIGN", "Vocabulary code");
+				c.assertEqual(propertyType.isInternalNameSpace(), false, "Property type internal name space?");
+			}
+			
+			testSearch(c, fSearch, fCheck);
+		});
+		
 		QUnit.test("searchSamples()", function(assert) {
 			var c = new common(assert);
 
