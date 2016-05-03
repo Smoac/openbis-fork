@@ -185,7 +185,10 @@ public class SortAndPage
                             } else
                             {
                                 Collection newValue = sortAndPage(Collections.singleton(value), subFo);
-                                setMethod.invoke(object, newValue.iterator().next());
+                                if (setMethod != null)
+                                {
+                                    setMethod.invoke(object, newValue.iterator().next());
+                                }
                             }
                         }
                     }

@@ -1139,3 +1139,6 @@ is Listable
 Sample Type Search Criteria
 with Listable
 set Listable
+
+get Vocabulary Fetch Options
+set Vocabulary Fetch Options

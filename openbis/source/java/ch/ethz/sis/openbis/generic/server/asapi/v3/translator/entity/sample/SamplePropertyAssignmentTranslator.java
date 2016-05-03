@@ -49,7 +49,8 @@ public class SamplePropertyAssignmentTranslator extends PropertyAssignmentTransl
             Collection<Long> sampleTypePropertyTypeIds, PropertyAssignmentFetchOptions relatedFetchOptions)
     {
         SampleQuery query = QueryTool.getManagedQuery(SampleQuery.class);
-        return getAssignments(query.getPropertyAssignments(new LongOpenHashSet(sampleTypePropertyTypeIds)));
+        return getAssignments(context, query.getPropertyAssignments(new LongOpenHashSet(sampleTypePropertyTypeIds)), 
+                relatedFetchOptions);
     }
 
 }

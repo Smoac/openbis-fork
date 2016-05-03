@@ -50,7 +50,8 @@ public class MaterialPropertyAssignmentTranslator extends PropertyAssignmentTran
             Collection<Long> materialTypePropertyTaypeIds, PropertyAssignmentFetchOptions relatedFetchOptions)
     {
         MaterialQuery query = QueryTool.getManagedQuery(MaterialQuery.class);
-        return getAssignments(query.getPropertyAssignments(new LongOpenHashSet(materialTypePropertyTaypeIds)));
+        return getAssignments(context, query.getPropertyAssignments(new LongOpenHashSet(materialTypePropertyTaypeIds)), 
+                relatedFetchOptions);
     }
 
 }
