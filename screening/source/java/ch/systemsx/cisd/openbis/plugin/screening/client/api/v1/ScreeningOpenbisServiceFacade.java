@@ -108,7 +108,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
 
     private static final String OPENBIS_SCREENING_API = "/rmi-screening-api-v" + MAJOR_VERSION_AS;
 
-    static final long SERVER_TIMEOUT_MILLIS = 5 * DateUtils.MILLIS_PER_MINUTE;
+    static final long SERVER_TIMEOUT_MILLIS = ServiceFinder.SERVER_TIMEOUT_IN_MINUTES * DateUtils.MILLIS_PER_MINUTE;
 
     private static final IDssServiceRpcScreeningFactory DSS_SERVICE_FACTORY =
             new IDssServiceRpcScreeningFactory()
