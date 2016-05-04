@@ -115,7 +115,7 @@ function SampleHierarchyTableView(controller, model) {
 		AnnotationUtil.buildAnnotations(annotations, samples, {
 			startRow : function() {
 				if (content !== "") {
-					content += "</br>";
+					content += "<br /><br />";
 				}
 				rowStarted = true;
 			},
