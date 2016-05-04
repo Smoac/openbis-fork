@@ -30,7 +30,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.sample.search.SampleSearchCriteria")
-public class SampleSearchCriteria extends AbstractEntitySearchCriteria<ISampleId, SampleTypeSearchCriteria>
+public class SampleSearchCriteria extends AbstractEntitySearchCriteria<ISampleId>
 {
 
     private static final long serialVersionUID = 1L;

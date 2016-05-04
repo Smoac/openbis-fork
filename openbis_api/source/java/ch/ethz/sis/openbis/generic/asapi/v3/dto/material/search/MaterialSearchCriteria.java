@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractEntitySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -27,7 +26,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.material.search.MaterialSearchCriteria")
-public class MaterialSearchCriteria extends AbstractEntitySearchCriteria<IMaterialId, EntityTypeSearchCriteria>
+public class MaterialSearchCriteria extends AbstractEntitySearchCriteria<IMaterialId>
 {
 
     private static final long serialVersionUID = 1L;

@@ -20,7 +20,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractEntitySear
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.NoExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.NoSampleSearchCriteria;
@@ -31,7 +30,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.dataset.search.DataSetSearchCriteria")
-public class DataSetSearchCriteria extends AbstractEntitySearchCriteria<IDataSetId, EntityTypeSearchCriteria>
+public class DataSetSearchCriteria extends AbstractEntitySearchCriteria<IDataSetId>
 {
 
     private static final long serialVersionUID = 1L;
