@@ -60,7 +60,7 @@ public class SearchSampleTypeExecutor extends AbstractSearchEntityTypeExecutor<S
             boolean listable = ((ListableSampleTypeSearchCriteria) criteria).isListable();
             for (SampleTypePE entity : objects)
             {
-                if (listable == false || entity.isListable())
+                if (listable == entity.isListable())
                 {
                     list.add(entity);
                 }

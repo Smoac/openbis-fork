@@ -145,11 +145,27 @@ public class SearchSampleTypeTest extends AbstractTest
     }
     
     @Test
-    public void testSearchListableAndNonListable()
+    public void testSearchNonListableOnly()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
         searchCriteria.withListable().thatEquals(false);
+        SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
+        
+        SearchResult<SampleType> searchResult = v3api.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
+        
+        List<SampleType> types = searchResult.getObjects();
+        List<String> codes = extractCodes(types);
+        Collections.sort(codes);
+        assertEquals(codes.toString(), "[WELL]");
+        v3api.logout(sessionToken);
+    }
+    
+    @Test
+    public void testSearchListableAndNonListable()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
         SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
         
         SearchResult<SampleType> searchResult = v3api.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);

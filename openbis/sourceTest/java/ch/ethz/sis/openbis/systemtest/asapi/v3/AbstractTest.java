@@ -702,12 +702,12 @@ public class AbstractTest extends SystemTestCase
         assertEquals(format.format(actualDate), format.format(new Date()));
     }
 
-    protected List<String> extractCodes(List<? extends ICodeHolder> types)
+    protected List<String> extractCodes(List<? extends ICodeHolder> codeHolders)
     {
         List<String> codes = new ArrayList<>();
-        for (ICodeHolder sampleType : types)
+        for (ICodeHolder codeHolder : codeHolders)
         {
-            codes.add(sampleType.getCode());
+            codes.add(codeHolder.getCode());
         }
         return codes;
     }
