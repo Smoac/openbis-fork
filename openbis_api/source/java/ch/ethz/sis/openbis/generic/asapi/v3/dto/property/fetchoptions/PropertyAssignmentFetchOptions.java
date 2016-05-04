@@ -78,6 +78,7 @@ public class PropertyAssignmentFetchOptions extends FetchOptions<PropertyAssignm
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {
         FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("PropertyAssignment", this);
+        f.addFetchOption("Vocabulary", vocabulary);
         return f;
     }
 }
