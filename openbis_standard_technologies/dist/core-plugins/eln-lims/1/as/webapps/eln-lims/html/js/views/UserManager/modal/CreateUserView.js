@@ -22,6 +22,15 @@ function CreateUserView(createUserController, createUserModel) {
 	this._passwordGroup = null;
 	this._passFieldRepeat = null;
 	this._passwordGroupRepeat = null;
+	this._$btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
+	
+	this.disableAccept = function() {
+		this._$btnAccept.attr("disabled", "");
+	}
+	
+	this.enableAccept = function() {
+		this._$btnAccept.removeAttr("disabled");
+	}
 	
 	this.showPasswordField = function() {
 		this._passField.removeAttr('disabled');
@@ -93,14 +102,12 @@ function CreateUserView(createUserController, createUserModel) {
 		//
 		// Buttons
 		//
-		var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
-
 		var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
 		$btnCancel.click(function() {
 			Util.unblockUI();
 		});
 		
-		$window.append($btnAccept).append('&nbsp;').append($btnCancel);
+		$window.append(this._$btnAccept).append('&nbsp;').append($btnCancel);
 		
 		var css = {
 				'text-align' : 'left',
