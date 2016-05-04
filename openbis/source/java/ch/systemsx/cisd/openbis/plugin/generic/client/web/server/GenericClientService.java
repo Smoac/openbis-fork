@@ -505,18 +505,19 @@ public class GenericClientService extends AbstractClientService implements IGene
             final String samplesSessionKey, final NewExperiment experiment)
     {
         final String sessionToken = getSessionToken();
+        boolean autoGenerateCodes = experiment.isGenerateCodes();
+        BatchSamplesOperation parsedSamples = null;
         if (experiment.isRegisterSamples())
         {
             final ExperimentIdentifier identifier =
                     new ExperimentIdentifierFactory(experiment.getIdentifier()).createIdentifier();
-            BatchSamplesOperation result =
-                    parseSamples(
-                            experiment.getSampleType(),
-                            samplesSessionKey,
-                            new SpaceIdentifier(identifier.getSpaceCode()).toString(), experiment.isGenerateCodes(),
-                            false, null, BatchOperationKind.REGISTRATION);
-            experiment.setNewSamples(result.getSamples());
-            experiment.setSamples(result.getCodes());
+            parsedSamples = parseSamples(
+                    experiment.getSampleType(),
+                    samplesSessionKey,
+                    new SpaceIdentifier(identifier.getSpaceCode()).toString(), autoGenerateCodes,
+                    false, null, BatchOperationKind.REGISTRATION);
+            experiment.setNewSamples(parsedSamples.getSamples());
+            experiment.setSamples(parsedSamples.getCodes());
         }
         class ExperimentRegistrationHelper extends AttachmentRegistrationHelper
         {
@@ -530,6 +531,10 @@ public class GenericClientService extends AbstractClientService implements IGene
         }
         ExperimentRegistrationHelper helper = new ExperimentRegistrationHelper();
         helper.process(attachmentsSessionKey, getHttpSession(), experiment.getAttachments());
+        if (autoGenerateCodes && shouldContinuousSampleCodesCreated() && parsedSamples != null)
+        {
+            updateTemporaryCodes(sessionToken, parsedSamples);
+        }
         return helper.exp;
     }
 
@@ -1129,16 +1134,17 @@ public class GenericClientService extends AbstractClientService implements IGene
     {
         final String sessionToken = getSessionToken();
         final ExperimentUpdateResult result = new ExperimentUpdateResult();
+        boolean autoGenerateCodes = updates.isGenerateCodes();
+        BatchSamplesOperation info = null;
         if (updates.isRegisterSamples())
         {
             final ProjectIdentifier newProject =
                     new ProjectIdentifierFactory(updates.getProjectIdentifier()).createIdentifier();
-            BatchSamplesOperation info =
-                    parseSamples(
-                            updates.getSampleType(),
-                            updates.getSamplesSessionKey(),
-                            new SpaceIdentifier(newProject.getSpaceCode()).toString(), updates.isGenerateCodes(), false,
-                            null, BatchOperationKind.REGISTRATION);
+            info = parseSamples(
+                    updates.getSampleType(),
+                    updates.getSamplesSessionKey(),
+                    new SpaceIdentifier(newProject.getSpaceCode()).toString(), autoGenerateCodes, false,
+                    null, BatchOperationKind.REGISTRATION);
             updates.setNewSamples(info.getSamples());
             updates.setSampleCodes(info.getCodes());
         }
@@ -1154,6 +1160,10 @@ public class GenericClientService extends AbstractClientService implements IGene
                     result.copyFrom(updateResult);
                 }
             }.process(updates.getAttachmentSessionKey(), getHttpSession(), updates.getAttachments());
+        if (autoGenerateCodes && shouldContinuousSampleCodesCreated() && info != null)
+        {
+            updateTemporaryCodes(sessionToken, info);
+        }
         return result;
     }
 
