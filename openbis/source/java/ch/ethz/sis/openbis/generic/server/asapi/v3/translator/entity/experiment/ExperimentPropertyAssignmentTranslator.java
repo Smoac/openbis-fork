@@ -50,7 +50,8 @@ public class ExperimentPropertyAssignmentTranslator extends PropertyAssignmentTr
             Collection<Long> experimentTypePropertyTypeIds, PropertyAssignmentFetchOptions relatedFetchOptions)
     {
         ExperimentQuery query = QueryTool.getManagedQuery(ExperimentQuery.class);
-        return getAssignments(query.getPropertyAssignments(new LongOpenHashSet(experimentTypePropertyTypeIds)));
+        return getAssignments(context, query.getPropertyAssignments(new LongOpenHashSet(experimentTypePropertyTypeIds)), 
+                relatedFetchOptions);
     }
 
 }

@@ -20,12 +20,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-
-import net.lemnik.eodsql.DynamicTransactionQuery;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -95,6 +94,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierF
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifierFactory;
+
+import net.lemnik.eodsql.DynamicTransactionQuery;
 
 /**
  * Abstract superclass for the states a DataSetRegistrationTransaction can be in.
@@ -182,6 +183,8 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
 
         private final List<ExperimentUpdatable> experimentsToBeUpdated =
                 new ArrayList<ExperimentUpdatable>();
+
+        private HashSet<String> registeredIdentifiers = new HashSet<>();
 
         private final List<Space> spacesToBeRegistered = new ArrayList<Space>();
 
@@ -571,6 +574,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             Sample sample = new Sample(sampleIdentifierString, permId);
             sample.setSampleType(sampleTypeCode);
             samplesToBeRegistered.add(sample);
+            addIdentifier(sampleIdentifierString, "Sample");
             return sample;
         }
 
@@ -612,7 +616,17 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             Sample sample = new Sample(sampleIdentifierString, permId);
             sample.setSampleType(sampleTypeCode);
             samplesToBeRegistered.add(sample);
+            addIdentifier(sampleIdentifierString, "Sample");
             return sample;
+        }
+
+        /// Asserts that given entity hasn't been yet created within this transaction
+        private void addIdentifier(String identifier, String entityKind)
+        {
+            String updatedId = entityKind + identifier.trim().toUpperCase();
+            if (registeredIdentifiers.contains(updatedId))
+                throw new IllegalArgumentException(entityKind + " with identifier " + identifier + " has already been created in this transaction");
+            registeredIdentifiers.add(updatedId);
         }
 
         public IExperimentUpdatable getExperimentForUpdate(String experimentIdentifierString)
@@ -696,6 +710,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             Experiment experiment = new Experiment(experimentIdentifierString, permId);
             experiment.setExperimentType(experimentTypeCode);
             experimentsToBeRegistered.add(experiment);
+            addIdentifier(experimentIdentifierString, "Experiment");
             return experiment;
         }
 
@@ -703,6 +718,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         {
             Space space = new Space(spaceCode, spaceAdminUserIdOrNull);
             spacesToBeRegistered.add(space);
+            addIdentifier(spaceCode, "Space");
             return space;
         }
 
@@ -710,6 +726,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         {
             Project project = new Project(projectIdentifier);
             projectsToBeRegistered.add(project);
+            addIdentifier(projectIdentifier, "Project");
             return project;
         }
 

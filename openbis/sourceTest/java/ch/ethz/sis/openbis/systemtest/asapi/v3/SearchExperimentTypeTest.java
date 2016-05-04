@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,12 +37,12 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.CodeComparator;
 public class SearchExperimentTypeTest extends AbstractTest
 {
     @Test
-    public void testSearchAll()
+    public void testSearchAllWithVocabularies()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
         ExperimentTypeFetchOptions fetchOptions = new ExperimentTypeFetchOptions();
-        fetchOptions.withPropertyAssignments();
+        fetchOptions.withPropertyAssignments().withVocabulary();
         SearchResult<ExperimentType> searchResult = v3api.searchExperimentTypes(sessionToken, searchCriteria, fetchOptions);
 
         List<ExperimentType> types = searchResult.getObjects();
@@ -49,6 +50,13 @@ public class SearchExperimentTypeTest extends AbstractTest
         Collections.sort(codes);
         assertEquals(codes.toString(), "[COMPOUND_HCS, DELETION_TEST, SIRNA_HCS]");
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
+        
+        List<String> vocabularyCodes = new ArrayList<String>();
+        for(ExperimentType type:types) {
+        	vocabularyCodes.addAll(extractVocabularyCodes(type.getPropertyAssignments()));
+        }
+        Collections.sort(vocabularyCodes);
+        assertEquals(vocabularyCodes.toString(), "[GENDER, ORGANISM]");
         v3api.logout(sessionToken);
     }
 

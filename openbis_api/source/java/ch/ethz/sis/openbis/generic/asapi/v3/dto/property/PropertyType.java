@@ -18,9 +18,13 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.property;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -45,7 +49,13 @@ public class PropertyType implements ICodeHolder, Serializable
 
     @JsonProperty
     private boolean internalNameSpace;
+    
+    @JsonProperty
+    private VocabularyFetchOptions vocabularyFetchOptions;
 
+    @JsonProperty
+    private Vocabulary vocabulary;
+    
     @Override
     public String getCode()
     {
@@ -97,4 +107,31 @@ public class PropertyType implements ICodeHolder, Serializable
         this.internalNameSpace = internalNameSpace;
     }
 
+    public VocabularyFetchOptions getVocabularyFetchOptions()
+    {
+        return vocabularyFetchOptions;
+    }
+
+    public void setVocabularyFetchOptions(VocabularyFetchOptions fetchOptions)
+    {
+        this.vocabularyFetchOptions = fetchOptions;
+    }
+    
+    @JsonIgnore
+    public Vocabulary getVocabulary()
+    {
+        if (getVocabularyFetchOptions() != null)
+        {
+            return vocabulary;
+        }
+        else
+        {
+            throw new NotFetchedException("Vocabulary has not been fetched.");
+        }
+    }
+    
+    public void setVocabulary(Vocabulary vocabulary)
+    {
+        this.vocabulary = vocabulary;
+    }
 }

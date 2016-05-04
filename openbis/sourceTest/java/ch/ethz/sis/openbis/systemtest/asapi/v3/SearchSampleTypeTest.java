@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,16 +37,27 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.CodeComparator;
 public class SearchSampleTypeTest extends AbstractTest
 {
     @Test
-    public void testSearchAll()
+    public void testSearchAllWithVocabularies()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
         SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
-        fetchOptions.withPropertyAssignments();
+        fetchOptions.withPropertyAssignments().withVocabulary();
+        
         SearchResult<SampleType> searchResult = v3api.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
 
         List<SampleType> types = searchResult.getObjects();
         List<String> codes = extractCodes(types);
+        
+        List<String> vocabularyCodes = new ArrayList<String>();
+        for(SampleType type:types) {
+        	vocabularyCodes.addAll(extractVocabularyCodes(type.getPropertyAssignments()));
+        }
+        
+        Collections.sort(vocabularyCodes);
+        assertEquals(
+        		vocabularyCodes.toString(),
+                "[$PLATE_GEOMETRY, $PLATE_GEOMETRY, ORGANISM, ORGANISM, TEST_VOCABULARY]");
         Collections.sort(codes);
         assertEquals(
                 codes.toString(),

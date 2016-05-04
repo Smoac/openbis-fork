@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,7 +28,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataTypeCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.CodeComparator;
 
 /**
@@ -47,13 +52,103 @@ public class SearchDataSetTypeTest extends AbstractTest
         List<DataSetType> types = searchResult.getObjects();
         List<String> codes = extractCodes(types);
         Collections.sort(codes);
-        assertEquals(
-                codes.toString(),
-                "[CONTAINER_TYPE, DELETION_TEST, DELETION_TEST_CONTAINER, HCS_IMAGE, HCS_IMAGE_ANALYSIS_DATA, LINK_TYPE, REQUIRES_EXPERIMENT, UNKNOWN, VALIDATED_CONTAINER_TYPE, VALIDATED_IMPOSSIBLE_TO_UPDATE_TYPE, VALIDATED_NORMAL_TYPE]");
+        assertEquals(codes.toString(), "[CONTAINER_TYPE, DELETION_TEST, DELETION_TEST_CONTAINER, HCS_IMAGE, "
+                + "HCS_IMAGE_ANALYSIS_DATA, LINK_TYPE, REQUIRES_EXPERIMENT, UNKNOWN, VALIDATED_CONTAINER_TYPE, "
+                + "VALIDATED_IMPOSSIBLE_TO_UPDATE_TYPE, VALIDATED_NORMAL_TYPE]");
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
         v3api.logout(sessionToken);
     }
 
+    @Test
+    public void testSearchAllWithoutVocabularies()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
+        fetchOptions.withPropertyAssignments();
+        
+        SearchResult<DataSetType> searchResult = v3api.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
+        
+        List<DataSetType> types = searchResult.getObjects();
+        List<String> codes = extractCodes(types);
+        Collections.sort(codes);
+        assertEquals(codes.toString(), "[CONTAINER_TYPE, DELETION_TEST, DELETION_TEST_CONTAINER, HCS_IMAGE, "
+                + "HCS_IMAGE_ANALYSIS_DATA, LINK_TYPE, REQUIRES_EXPERIMENT, UNKNOWN, VALIDATED_CONTAINER_TYPE, "
+                + "VALIDATED_IMPOSSIBLE_TO_UPDATE_TYPE, VALIDATED_NORMAL_TYPE]");
+        assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
+        assertEquals(getDataSetTypePropertyTypeInfo(types).toString(), "[CONTAINER_TYPE:, "
+                + "DELETION_TEST: BACTERIUM[MATERIAL] DESCRIPTION[VARCHAR] ORGANISM[CONTROLLEDVOCABULARY:?], "
+                + "DELETION_TEST_CONTAINER: BACTERIUM[MATERIAL] DESCRIPTION[VARCHAR] ORGANISM[CONTROLLEDVOCABULARY:?], "
+                + "HCS_IMAGE: ANY_MATERIAL[MATERIAL] BACTERIUM[MATERIAL] COMMENT[VARCHAR] GENDER[CONTROLLEDVOCABULARY:?], "
+                + "HCS_IMAGE_ANALYSIS_DATA:, LINK_TYPE:, REQUIRES_EXPERIMENT:, UNKNOWN:, "
+                + "VALIDATED_CONTAINER_TYPE:, VALIDATED_IMPOSSIBLE_TO_UPDATE_TYPE:, VALIDATED_NORMAL_TYPE:]");
+        v3api.logout(sessionToken);
+    }
+    
+    @Test
+    public void testSearchAllWithVocabularies()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
+        PropertyAssignmentFetchOptions assignmentFetchOptions = fetchOptions.withPropertyAssignments();
+        assignmentFetchOptions.sortBy().label().desc();
+        assignmentFetchOptions.withVocabulary();
+        
+        SearchResult<DataSetType> searchResult = v3api.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
+        
+        List<DataSetType> types = searchResult.getObjects();
+        List<String> codes = extractCodes(types);
+        Collections.sort(codes);
+        assertEquals(codes.toString(), "[CONTAINER_TYPE, DELETION_TEST, DELETION_TEST_CONTAINER, HCS_IMAGE, "
+                + "HCS_IMAGE_ANALYSIS_DATA, LINK_TYPE, REQUIRES_EXPERIMENT, UNKNOWN, VALIDATED_CONTAINER_TYPE, "
+                + "VALIDATED_IMPOSSIBLE_TO_UPDATE_TYPE, VALIDATED_NORMAL_TYPE]");
+        assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
+        assertEquals(getDataSetTypePropertyTypeInfo(types).toString(), "[CONTAINER_TYPE:, "
+                + "DELETION_TEST: BACTERIUM[MATERIAL] ORGANISM[CONTROLLEDVOCABULARY:ORGANISM] DESCRIPTION[VARCHAR], "
+                + "DELETION_TEST_CONTAINER: BACTERIUM[MATERIAL] ORGANISM[CONTROLLEDVOCABULARY:ORGANISM] DESCRIPTION[VARCHAR], "
+                + "HCS_IMAGE: BACTERIUM[MATERIAL] ANY_MATERIAL[MATERIAL] GENDER[CONTROLLEDVOCABULARY:GENDER] COMMENT[VARCHAR], "
+                + "HCS_IMAGE_ANALYSIS_DATA:, LINK_TYPE:, REQUIRES_EXPERIMENT:, UNKNOWN:, "
+                + "VALIDATED_CONTAINER_TYPE:, VALIDATED_IMPOSSIBLE_TO_UPDATE_TYPE:, VALIDATED_NORMAL_TYPE:]");
+        List<String> vocabularyCodes = new ArrayList<String>();
+        for(DataSetType type:types) {
+        	vocabularyCodes.addAll(extractVocabularyCodes(type.getPropertyAssignments()));
+        }
+        Collections.sort(vocabularyCodes);
+        assertEquals(vocabularyCodes.toString(), "[GENDER, ORGANISM, ORGANISM]");
+        v3api.logout(sessionToken);
+    }
+    
+    protected List<String> getDataSetTypePropertyTypeInfo(List<DataSetType> types)
+    {
+        List<String> infos = new ArrayList<>();
+        for (DataSetType type : types)
+        {
+            List<PropertyAssignment> assignments = type.getPropertyAssignments();
+            String info = type.getCode() + ":";
+            for (PropertyAssignment assignment : assignments)
+            {
+                PropertyType propertyType = assignment.getPropertyType();
+                info += " " + propertyType.getCode() + "[" + propertyType.getDataTypeCode();
+                if (propertyType.getVocabularyFetchOptions() != null)
+                {
+                    Vocabulary vocabulary = propertyType.getVocabulary();
+                    if (vocabulary != null)
+                    {
+                        info += ":" + vocabulary.getCode();
+                    }
+                } else if (propertyType.getDataTypeCode() == DataTypeCode.CONTROLLEDVOCABULARY)
+                {
+                    info += ":?";
+                }
+                info += "]";
+            }
+            infos.add(info);
+        }
+        Collections.sort(infos);
+        return infos;
+    }
+    
     @Test
     public void testSearchExactCode()
     {

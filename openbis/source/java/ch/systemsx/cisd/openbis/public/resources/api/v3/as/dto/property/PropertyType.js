@@ -9,6 +9,8 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.description = null;
 		prototype.dataTypeCode = null;
 		prototype.internalNameSpace = null;
+		prototype.vocabularyFetchOptions = null;
+		prototype.vocabulary = null;
 		prototype.getCode = function() {
 			return this.code;
 		};
@@ -39,7 +41,25 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setInternalNameSpace = function(internalNameSpace) {
 			this.internalNameSpace = internalNameSpace;
 		};
+		prototype.getVocabularyFetchOptions = function() {
+			return this.vocabularyFetchOptions;
+		};
+		prototype.setVocabularyFetchOptions = function(vocabularyFetchOptions) {
+			this.vocabularyFetchOptions = vocabularyFetchOptions;
+		};
+		prototype.getVocabulary = function() {
+			if (this.getVocabularyFetchOptions()) {
+				return this.vocabulary;
+			} else {
+				throw new exceptions.NotFetchedException("Vocabulary has not been fetched.");
+			}
+		};
+		prototype.setVocabulary = function(vocabulary) {
+			this.vocabulary = vocabulary;
+		};
 	}, {
+		vocabularyFetchOptions : "VocabularyFetchOptions",
+		vocabulary : "Vocabulary",
 		dataTypeCode : "DataTypeCode"
 	});
 	return PropertyType;

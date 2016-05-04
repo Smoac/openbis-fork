@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,12 +37,12 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.CodeComparator;
 public class SearchMaterialTypeTest extends AbstractTest
 {
     @Test
-    public void testSearchAll()
+    public void testSearchAllWithVocabularies()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
         MaterialTypeFetchOptions fetchOptions = new MaterialTypeFetchOptions();
-        fetchOptions.withPropertyAssignments();
+        fetchOptions.withPropertyAssignments().withVocabulary();
         SearchResult<MaterialType> searchResult = v3api.searchMaterialTypes(sessionToken, searchCriteria, fetchOptions);
 
         List<MaterialType> types = searchResult.getObjects();
@@ -49,6 +50,14 @@ public class SearchMaterialTypeTest extends AbstractTest
         Collections.sort(codes);
         assertEquals(codes.toString(), "[BACTERIUM, CELL_LINE, COMPOUND, CONTROL, DELETION_TEST, GENE, OTHER_REF, SELF_REF, SIRNA, SLOW_GENE, VIRUS]");
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
+        
+        List<String> vocabularyCodes = new ArrayList<String>();
+        for(MaterialType type:types) {
+        	vocabularyCodes.addAll(extractVocabularyCodes(type.getPropertyAssignments()));
+        }
+        Collections.sort(vocabularyCodes);
+        assertEquals(vocabularyCodes.toString(), "[ORGANISM, ORGANISM]");
+        
         v3api.logout(sessionToken);
     }
 

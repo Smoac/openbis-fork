@@ -31,11 +31,11 @@ configurations.create('externalDss')
 
 dependencies {
 	testCompile project(':datastore_server'),
-			'selenium:selenium-java:2.37.0'
+			'selenium:selenium-java:+'
 			
-	testRuntimeFirst 'javax:servlet-api:3.1.0', 'reflections:reflections:0.9.5'
+	testRuntimeFirst 'javax:servlet-api:+', 'reflections:reflections:+'
 
-	testRuntimeSecond 'google:gwt-user:2.4'
+	testRuntimeSecond 'google:gwt-user:+'
 	
 	externalDss project(':datastore_server')
 } 
