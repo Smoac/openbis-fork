@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.openbis.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.PluginServletConfig;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
@@ -56,7 +57,7 @@ public final class ConfigParameters implements IServletPropertiesManager
 
     static final String SERVER_TIMEOUT_IN_MINUTES = "server-timeout-in-minutes";
 
-    static final int DEFAULT_SERVER_TIMEOUT_IN_MINUTES = 5;
+    static final int DEFAULT_SERVER_TIMEOUT_IN_MINUTES = ServiceFinder.SERVER_TIMEOUT_IN_MINUTES;
 
     static final String DOWNLOAD_URL = "download-url";
 

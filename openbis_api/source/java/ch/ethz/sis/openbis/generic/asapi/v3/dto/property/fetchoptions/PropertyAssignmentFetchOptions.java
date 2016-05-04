@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -33,7 +34,29 @@ public class PropertyAssignmentFetchOptions extends FetchOptions<PropertyAssignm
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
+    private VocabularyFetchOptions vocabulary;
+    
+    @JsonProperty
     private PropertyAssignmentSortOptions sort;
+
+    public VocabularyFetchOptions withVocabulary()
+    {
+        if (vocabulary == null)
+        {
+            vocabulary = new VocabularyFetchOptions();
+        }
+        return vocabulary;
+    }
+
+    public VocabularyFetchOptions withVocabularyUsing(VocabularyFetchOptions fetchOptions)
+    {
+        return vocabulary = fetchOptions;
+    }
+
+    public boolean hasVocabulary()
+    {
+        return vocabulary != null;
+    }
 
     @Override
     public PropertyAssignmentSortOptions sortBy()

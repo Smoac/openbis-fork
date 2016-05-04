@@ -32,4 +32,5 @@ public class PropertyTypeRecord extends ObjectBaseRecord
     public Boolean is_internal_namespace;
 
     public String dataSetTypeCode;
+    public Long covo_id;
 }

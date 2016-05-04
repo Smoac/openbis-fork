@@ -50,7 +50,8 @@ public class DataSetPropertyAssignmentTranslator extends PropertyAssignmentTrans
             Collection<Long> dataSetTypePropertyTypeIds, PropertyAssignmentFetchOptions relatedFetchOptions)
     {
         DataSetQuery query = QueryTool.getManagedQuery(DataSetQuery.class);
-        return getAssignments(query.getPropertyAssignments(new LongOpenHashSet(dataSetTypePropertyTypeIds)));
+        return getAssignments(context, query.getPropertyAssignments(new LongOpenHashSet(dataSetTypePropertyTypeIds)), 
+                relatedFetchOptions);
     }
 
 }
