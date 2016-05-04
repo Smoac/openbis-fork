@@ -48,16 +48,18 @@ public class SearchMaterialTypeTest extends AbstractTest
         List<MaterialType> types = searchResult.getObjects();
         List<String> codes = extractCodes(types);
         Collections.sort(codes);
-        assertEquals(codes.toString(), "[BACTERIUM, CELL_LINE, COMPOUND, CONTROL, DELETION_TEST, GENE, OTHER_REF, SELF_REF, SIRNA, SLOW_GENE, VIRUS]");
+        assertEquals(codes.toString(),
+                "[BACTERIUM, CELL_LINE, COMPOUND, CONTROL, DELETION_TEST, GENE, OTHER_REF, SELF_REF, SIRNA, SLOW_GENE, VIRUS]");
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
-        
+
         List<String> vocabularyCodes = new ArrayList<String>();
-        for(MaterialType type:types) {
-        	vocabularyCodes.addAll(extractVocabularyCodes(type.getPropertyAssignments()));
+        for (MaterialType type : types)
+        {
+            vocabularyCodes.addAll(extractVocabularyCodes(type.getPropertyAssignments()));
         }
         Collections.sort(vocabularyCodes);
         assertEquals(vocabularyCodes.toString(), "[ORGANISM, ORGANISM]");
-        
+
         v3api.logout(sessionToken);
     }
 

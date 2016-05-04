@@ -52,8 +52,9 @@ public class SearchExperimentTypeTest extends AbstractTest
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
         
         List<String> vocabularyCodes = new ArrayList<String>();
-        for(ExperimentType type:types) {
-        	vocabularyCodes.addAll(extractVocabularyCodes(type.getPropertyAssignments()));
+        for (ExperimentType type : types)
+        {
+            vocabularyCodes.addAll(extractVocabularyCodes(type.getPropertyAssignments()));
         }
         Collections.sort(vocabularyCodes);
         assertEquals(vocabularyCodes.toString(), "[GENDER, ORGANISM]");

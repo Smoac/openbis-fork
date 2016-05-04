@@ -48,15 +48,16 @@ public class SearchSampleTypeTest extends AbstractTest
 
         List<SampleType> types = searchResult.getObjects();
         List<String> codes = extractCodes(types);
-        
+
         List<String> vocabularyCodes = new ArrayList<String>();
-        for(SampleType type:types) {
-        	vocabularyCodes.addAll(extractVocabularyCodes(type.getPropertyAssignments()));
+        for (SampleType type : types)
+        {
+            vocabularyCodes.addAll(extractVocabularyCodes(type.getPropertyAssignments()));
         }
-        
+
         Collections.sort(vocabularyCodes);
         assertEquals(
-        		vocabularyCodes.toString(),
+                vocabularyCodes.toString(),
                 "[$PLATE_GEOMETRY, $PLATE_GEOMETRY, ORGANISM, ORGANISM, TEST_VOCABULARY]");
         Collections.sort(codes);
         assertEquals(

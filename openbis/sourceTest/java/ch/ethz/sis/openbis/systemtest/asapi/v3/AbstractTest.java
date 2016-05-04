@@ -712,15 +712,19 @@ public class AbstractTest extends SystemTestCase
         return codes;
     }
     
-    protected List<String> extractVocabularyCodes(List<PropertyAssignment> propertyAssignments) {
-    	List<String> codes = new ArrayList<>();
-        	if(propertyAssignments != null) {
-        		for(PropertyAssignment propertyAssignment : propertyAssignments) {
-                	if(propertyAssignment.getVocabulary() != null) {
-                		codes.add(propertyAssignment.getVocabulary().getCode());
-                	}
+    protected List<String> extractVocabularyCodes(List<PropertyAssignment> propertyAssignments)
+    {
+        List<String> codes = new ArrayList<>();
+        if (propertyAssignments != null)
+        {
+            for (PropertyAssignment propertyAssignment : propertyAssignments)
+            {
+                if (propertyAssignment.getVocabulary() != null)
+                {
+                    codes.add(propertyAssignment.getVocabulary().getCode());
                 }
-        	}
+            }
+        }
         return codes;
     }
 
