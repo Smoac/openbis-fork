@@ -83,7 +83,7 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 			}
 			
 			//Create and display table
-			var dataGridController = SampleDataGridUtil.getSampleDataGrid(selectedSampleTypeCode, samples, null);
+			var dataGridController = SampleDataGridUtil.getSampleDataGrid(selectedSampleTypeCode, samples, null, null, null, null, null, null, false);
 			dataGridController.init(this._sampleTableView.getTableContainer());
 		}
 	}

@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-function DataGridModel(title, columns, data, rowClickEventHandler, datagrid) {
+function DataGridModel(title, columns, data, rowClickEventHandler, datagrid, isMultiselectable) {
 	this.title = title;
 	this.columns = columns;
 	this.data = data;
 	this.rowClickEventHandler = rowClickEventHandler;
 	this.datagrid = datagrid;
+	this.isMultiselectable = isMultiselectable;
 }

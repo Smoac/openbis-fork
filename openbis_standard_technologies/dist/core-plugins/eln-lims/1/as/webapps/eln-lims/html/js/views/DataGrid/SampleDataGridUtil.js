@@ -1,5 +1,5 @@
 var SampleDataGridUtil = new function() {
-	this.getSampleDataGrid = function(mandatoryConfigPostKey, samples, rowClick, customOperations, customColumns, optionalConfigPostKey, isOperationsDisabled, isLinksDisabled) {
+	this.getSampleDataGrid = function(mandatoryConfigPostKey, samples, rowClick, customOperations, customColumns, optionalConfigPostKey, isOperationsDisabled, isLinksDisabled, isMultiselectable) {
 		
 		var foundPropertyCodes = {};
 		var foundSampleTypes = {};
@@ -204,7 +204,7 @@ var SampleDataGridUtil = new function() {
 		if(optionalConfigPostKey) {
 			configKey += "_" + optionalConfigPostKey;
 		}
-		var dataGridController = new DataGridController(null, columns, getDataList, rowClick, false, configKey);
+		var dataGridController = new DataGridController(null, columns, getDataList, rowClick, false, configKey, isMultiselectable);
 		return dataGridController;
 	}
 	
