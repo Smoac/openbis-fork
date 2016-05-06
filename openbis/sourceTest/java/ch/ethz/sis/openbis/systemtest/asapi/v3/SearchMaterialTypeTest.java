@@ -37,36 +37,10 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.CodeComparator;
 public class SearchMaterialTypeTest extends AbstractTest
 {
     @Test
-    public void testSearchAllWithVocabularies()
+    public void testSearchAll()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
-        MaterialTypeFetchOptions fetchOptions = new MaterialTypeFetchOptions();
-        fetchOptions.withPropertyAssignments().withVocabulary();
-        SearchResult<MaterialType> searchResult = v3api.searchMaterialTypes(sessionToken, searchCriteria, fetchOptions);
-
-        List<MaterialType> types = searchResult.getObjects();
-        List<String> codes = extractCodes(types);
-        Collections.sort(codes);
-        assertEquals(codes.toString(), "[BACTERIUM, CELL_LINE, COMPOUND, CONTROL, DELETION_TEST, GENE, OTHER_REF, SELF_REF, SIRNA, SLOW_GENE, VIRUS]");
-        assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
-        
-        List<String> vocabularyCodes = new ArrayList<String>();
-        for(MaterialType type:types) {
-        	vocabularyCodes.addAll(extractVocabularyCodes(type.getPropertyAssignments()));
-        }
-        Collections.sort(vocabularyCodes);
-        assertEquals(vocabularyCodes.toString(), "[ORGANISM, ORGANISM]");
-        
-        v3api.logout(sessionToken);
-    }
-
-    @Test
-    public void testSearchExactCode()
-    {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
-        searchCriteria.withCode().thatEquals("SIRNA");
         MaterialTypeFetchOptions fetchOptions = new MaterialTypeFetchOptions();
         fetchOptions.withPropertyAssignments();
         SearchResult<MaterialType> searchResult = v3api.searchMaterialTypes(sessionToken, searchCriteria, fetchOptions);
@@ -74,8 +48,36 @@ public class SearchMaterialTypeTest extends AbstractTest
         List<MaterialType> types = searchResult.getObjects();
         List<String> codes = extractCodes(types);
         Collections.sort(codes);
-        assertEquals(codes.toString(), "[SIRNA]");
+        assertEquals(codes.toString(),
+                "[BACTERIUM, CELL_LINE, COMPOUND, CONTROL, DELETION_TEST, GENE, OTHER_REF, SELF_REF, SIRNA, SLOW_GENE, VIRUS]");
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchExactCodeWithVocabularies()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        searchCriteria.withCode().thatEquals("BACTERIUM");
+        MaterialTypeFetchOptions fetchOptions = new MaterialTypeFetchOptions();
+        fetchOptions.withPropertyAssignments().withVocabulary();
+        SearchResult<MaterialType> searchResult = v3api.searchMaterialTypes(sessionToken, searchCriteria, fetchOptions);
+
+        List<MaterialType> types = searchResult.getObjects();
+        List<String> codes = extractCodes(types);
+        Collections.sort(codes);
+        assertEquals(codes.toString(), "[BACTERIUM]");
+        assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
+        
+        List<String> vocabularyCodes = new ArrayList<String>();
+        for (MaterialType type : types)
+        {
+            vocabularyCodes.add(type.getCode() + ":" + extractVocabularyCodes(type.getPropertyAssignments()));
+        }
+        Collections.sort(vocabularyCodes);
+        assertEquals(vocabularyCodes.toString(), "[BACTERIUM:[ORGANISM]]");
+        
         v3api.logout(sessionToken);
     }
 

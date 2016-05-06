@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
@@ -48,15 +49,16 @@ public class SearchSampleTypeTest extends AbstractTest
 
         List<SampleType> types = searchResult.getObjects();
         List<String> codes = extractCodes(types);
-        
+
         List<String> vocabularyCodes = new ArrayList<String>();
-        for(SampleType type:types) {
-        	vocabularyCodes.addAll(extractVocabularyCodes(type.getPropertyAssignments()));
+        for (SampleType type : types)
+        {
+            vocabularyCodes.addAll(extractVocabularyCodes(type.getPropertyAssignments()));
         }
-        
+
         Collections.sort(vocabularyCodes);
         assertEquals(
-        		vocabularyCodes.toString(),
+                vocabularyCodes.toString(),
                 "[$PLATE_GEOMETRY, $PLATE_GEOMETRY, ORGANISM, ORGANISM, TEST_VOCABULARY]");
         Collections.sort(codes);
         assertEquals(
@@ -106,7 +108,7 @@ public class SearchSampleTypeTest extends AbstractTest
     public void testSearchWithPropertyAssignmentSortByLabelDesc()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        EntityTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
         searchCriteria.withCode().thatStartsWith("D");
         SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
         fetchOptions.withPropertyAssignments().sortBy().label().desc();
@@ -120,6 +122,60 @@ public class SearchSampleTypeTest extends AbstractTest
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
         List<PropertyAssignment> propertyAssignments = types.get(0).getPropertyAssignments();
         assertOrder(propertyAssignments, "BACTERIUM", "ORGANISM", "DESCRIPTION");
+        v3api.logout(sessionToken);
+    }
+    
+    @Test
+    public void testSearchListableOnly()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
+        searchCriteria.withListable().thatEquals(true);
+        SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
+
+        SearchResult<SampleType> searchResult = v3api.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
+        
+        List<SampleType> types = searchResult.getObjects();
+        List<String> codes = extractCodes(types);
+        Collections.sort(codes);
+        assertEquals(codes.toString(), "[CELL_PLATE, CONTROL_LAYOUT, DELETION_TEST, DILUTION_PLATE, "
+                + "DYNAMIC_PLATE, IMPOSSIBLE, IMPOSSIBLE_TO_UPDATE, MASTER_PLATE, NORMAL, REINFECT_PLATE, "
+                + "VALIDATE_CHILDREN]");
+        v3api.logout(sessionToken);
+    }
+    
+    @Test
+    public void testSearchNonListableOnly()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
+        searchCriteria.withListable().thatEquals(false);
+        SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
+        
+        SearchResult<SampleType> searchResult = v3api.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
+        
+        List<SampleType> types = searchResult.getObjects();
+        List<String> codes = extractCodes(types);
+        Collections.sort(codes);
+        assertEquals(codes.toString(), "[WELL]");
+        v3api.logout(sessionToken);
+    }
+    
+    @Test
+    public void testSearchListableAndNonListable()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
+        SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
+        
+        SearchResult<SampleType> searchResult = v3api.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
+        
+        List<SampleType> types = searchResult.getObjects();
+        List<String> codes = extractCodes(types);
+        Collections.sort(codes);
+        assertEquals(codes.toString(), "[CELL_PLATE, CONTROL_LAYOUT, DELETION_TEST, DILUTION_PLATE, "
+                + "DYNAMIC_PLATE, IMPOSSIBLE, IMPOSSIBLE_TO_UPDATE, MASTER_PLATE, NORMAL, REINFECT_PLATE, "
+                + "VALIDATE_CHILDREN, WELL]");
         v3api.logout(sessionToken);
     }
 

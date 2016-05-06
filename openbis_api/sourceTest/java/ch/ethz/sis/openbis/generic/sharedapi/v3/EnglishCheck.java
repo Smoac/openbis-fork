@@ -90,16 +90,16 @@ public class EnglishCheck
 
         Multimap<String, String> map = reflections.getStore().get(SubTypesScanner.class);
 
-        Collection<String> nonInnerClassNames = Collections2.filter(map.values(), new Predicate<String>()
+        Collection<String> nonInnerClassesAndTestClasses = Collections2.filter(map.values(), new Predicate<String>()
             {
 
                 @Override
                 public boolean apply(String item)
                 {
-                    return false == item.contains("$");
+                    return false == (item.contains("$") || item.endsWith("Test"));
                 }
             });
-        Collection<String> uniqueClassNames = new TreeSet<String>(nonInnerClassNames);
+        Collection<String> uniqueClassNames = new TreeSet<String>(nonInnerClassesAndTestClasses);
         Collection<Class<?>> uniqueClasses = ImmutableSet.copyOf(ReflectionUtils.forNames(uniqueClassNames));
 
         for (Class<?> uniqueClass : uniqueClasses)

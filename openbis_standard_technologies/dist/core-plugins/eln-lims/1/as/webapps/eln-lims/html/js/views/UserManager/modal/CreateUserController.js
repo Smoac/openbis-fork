@@ -24,6 +24,8 @@ function CreateUserController() {
 	
 	this.createUser = function() {
 		var _this = this;
+		this._createUserView.disableAccept();
+		
 			var createUser = function() {
 				mainController.serverFacade.createELNUser(_this._createUserModel.userId, function(isRegistered, message) {
 					if(isRegistered) {
@@ -31,10 +33,13 @@ function CreateUserController() {
 							location.reload();
 						});
 					} else if (message.indexOf("Following persons already exist") !== -1){
-						Util.showError(message);
+						Util.showError(message, function() {
+							_this._createUserView.enableAccept();
+						}, true);
 					} else {
 						_this._createUserView.showPasswordField();
 						_this._createUserModel.isPasswordRequired = true;
+						_this._createUserView.enableAccept();
 					}
 				});
 			}
@@ -50,11 +55,13 @@ function CreateUserController() {
 								if(isRegistered) {
 									createUser();
 								} else {
-									Util.showError("User can't be created, check with your administator.");
+									Util.showError("User can't be created, check with your administator.", function() {
+										_this._createUserView.enableAccept();
+									}, true);
 								}
 							});
 				} else {
-					Util.showError("Passwords are not equal.", function() {}, true);
+					Util.showError("Passwords are not equal.", function() { _this._createUserView.enableAccept(); }, true);
 				}
 			}
 		

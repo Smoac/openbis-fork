@@ -16,8 +16,15 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.ListableSampleTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.Matcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSearchEntityTypeExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -31,5 +38,34 @@ public class SearchSampleTypeExecutor extends AbstractSearchEntityTypeExecutor<S
     public SearchSampleTypeExecutor()
     {
         super(EntityKind.SAMPLE);
+    }
+
+    @Override
+    protected Matcher<SampleTypePE> getMatcher(ISearchCriteria criteria)
+    {
+        if (criteria instanceof ListableSampleTypeSearchCriteria)
+        {
+            return new ListableMatcher();
+        }
+        return super.getMatcher(criteria);
+    }
+    
+    private static final class ListableMatcher extends Matcher<SampleTypePE>
+    {
+        @Override
+        public List<SampleTypePE> getMatching(IOperationContext context, List<SampleTypePE> objects,
+                ISearchCriteria criteria)
+        {
+            List<SampleTypePE> list = new ArrayList<>();
+            boolean listable = ((ListableSampleTypeSearchCriteria) criteria).isListable();
+            for (SampleTypePE entity : objects)
+            {
+                if (listable == entity.isListable())
+                {
+                    list.add(entity);
+                }
+            }
+            return list;
+        }
     }
 }
