@@ -19,31 +19,31 @@ dependencies {
             'lucene:lucene-queryparser:4.10.3',
             'lucene:lucene-analyzers-common:4.10.3',
 			'hibernate:hibernate-search-orm:5.0.1.Final',
-			'eclipse:jetty-deploy:9.2+',
+			'eclipse:jetty-deploy:9.2.10.v20150310',
 			'google:gwt-debug-panel:1.0',
-			'javax:servlet-api:+',
-			'google:gwt-user:+',
-			'reveregroup:gwt-image-loader:+',
-			'springframework:spring-orm:+',
+			'javax:servlet-api:3.1.0',
+			'google:gwt-user:2.4',
+			'reveregroup:gwt-image-loader:1.1.4',
+			'springframework:spring-orm:4.1.4.RELEASE',
 			'cisd:cisd-hotdeploy:13.01.0',
 			'apache:poi-ooxml:3.8-20120326',
 			'hibernate:hibernate-validator:4.2.0.Final',
 			'unimi:fastutil:5.1.5',
-			'apache:commons-collections:+',
-			'springframework:spring-context-support:+',
+			'apache:commons-collections:4.01.01',
+			'springframework:spring-context-support:4.1.4.RELEASE',
 			'ehcache:ehcache:2.10.0'
 
-    runtime 'slf4j:slf4j-log4j12:+'
+    runtime 'slf4j:slf4j-log4j12:1.6.2'
 
 	testCompile project(path: ':common', configuration: 'tests'),
 				project(path: ':dbmigration', configuration: 'tests'),
-				'springframework:spring-test:+'
+				'springframework:spring-test:4.1.4.RELEASE'
 
 	testRuntime project(path: ':common', configuration: 'tests'),
 				project(path: ':dbmigration', configuration: 'tests'), 
-				'apache:commons-fileupload:+'
+				'apache:commons-fileupload:1.3.1'
 
-	testRuntimeFirst 'javax:servlet-api:+'
+	testRuntimeFirst 'javax:servlet-api:3.1.0'
 	
 }
 
