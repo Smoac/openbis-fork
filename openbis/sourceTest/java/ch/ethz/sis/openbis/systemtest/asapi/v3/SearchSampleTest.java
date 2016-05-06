@@ -20,6 +20,8 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotSame;
 import static org.testng.Assert.assertSame;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.testng.annotations.Test;
@@ -968,56 +970,44 @@ public class SearchSampleTest extends AbstractSampleTest
         v3api.logout(sessionToken);
     }
 
-    final String LISTED_ID = "/CISD/C1";
-
-    final String UNLISTED_ID = "/CISD/CL1:A01";
-
     @Test
-    public void testSearchListableOnlyShouldNotFindUnlisted()
+    public void testSearchListableOnlyShouldNotFindUnlistable()
     {
-
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fo = new SampleFetchOptions();
-
         SampleSearchCriteria criteria = new SampleSearchCriteria();
-        criteria.withId().thatEquals(new SampleIdentifier(UNLISTED_ID));
-
+        criteria.withCode().thatStartsWith("CL1");
         List<Sample> samples = search(sessionToken, criteria, fo);
-
-        assertEquals(samples.size(), 1);
-
-        assertSampleIdentifiersInOrder(samples, UNLISTED_ID);
-
-        final SampleTypeSearchCriteria withType = criteria.withType();
-        withType.withListable().thatEquals(true);
+        List<String> identifiers = extractIndentifiers(samples);
+        Collections.sort(identifiers);
+        assertEquals(identifiers.toString(), "[/CISD/CL1, /CISD/CL1:A01, /CISD/CL1:A03]");
+        criteria.withType().withListable().thatEquals(true);
+        
         samples = search(sessionToken, criteria, fo);
-        assertEquals(samples.size(), 0);
+        
+        identifiers = extractIndentifiers(samples);
+        Collections.sort(identifiers);
+        assertEquals(identifiers.toString(), "[/CISD/CL1]");
     }
 
     @Test
-    public void testSearchListableOnlyShouldFindListed()
+    public void testSearchUnlistableOnlyShouldFindListable()
     {
-
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fo = new SampleFetchOptions();
-        fo.withType();
-        fo.withProperties();
-
         SampleSearchCriteria criteria = new SampleSearchCriteria();
-        criteria.withId().thatEquals(new SampleIdentifier(LISTED_ID));
-        final SampleTypeSearchCriteria withType = criteria.withType();
-
+        criteria.withCode().thatStartsWith("CL1");
         List<Sample> samples = search(sessionToken, criteria, fo);
-
-        assertEquals(samples.size(), 1);
-
-        assertEquals(samples.get(0).getIdentifier().getIdentifier(), LISTED_ID);
-
-        withType.withListable().thatEquals(true);
+        List<String> identifiers = extractIndentifiers(samples);
+        Collections.sort(identifiers);
+        assertEquals(identifiers.toString(), "[/CISD/CL1, /CISD/CL1:A01, /CISD/CL1:A03]");
+        criteria.withType().withListable().thatEquals(false);
+        
         samples = search(sessionToken, criteria, fo);
-        assertEquals(samples.size(), 1);
-
-        assertEquals(samples.get(0).getIdentifier().getIdentifier(), LISTED_ID);
+        
+        identifiers = extractIndentifiers(samples);
+        Collections.sort(identifiers);
+        assertEquals(identifiers.toString(), "[/CISD/CL1:A01, /CISD/CL1:A03]");
     }
 
     private void testSearch(String user, SampleSearchCriteria criteria, String... expectedIdentifiers)
@@ -1041,6 +1031,16 @@ public class SearchSampleTest extends AbstractSampleTest
         SearchResult<Sample> searchResult =
                 v3api.searchSamples(sessionToken, criteria, fetchOptions);
         return searchResult.getObjects();
+    }
+    
+    private List<String> extractIndentifiers(List<Sample> samples)
+    {
+        List<String> identifiers = new ArrayList<>();
+        for (Sample sample : samples)
+        {
+            identifiers.add(sample.getIdentifier().getIdentifier());
+        }
+        return identifiers;
     }
 
 }

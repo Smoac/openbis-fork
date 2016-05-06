@@ -111,8 +111,9 @@ public class SearchDataSetTypeTest extends AbstractTest
                 + "HCS_IMAGE_ANALYSIS_DATA:, LINK_TYPE:, REQUIRES_EXPERIMENT:, UNKNOWN:, "
                 + "VALIDATED_CONTAINER_TYPE:, VALIDATED_IMPOSSIBLE_TO_UPDATE_TYPE:, VALIDATED_NORMAL_TYPE:]");
         List<String> vocabularyCodes = new ArrayList<String>();
-        for(DataSetType type:types) {
-        	vocabularyCodes.addAll(extractVocabularyCodes(type.getPropertyAssignments()));
+        for (DataSetType type : types)
+        {
+            vocabularyCodes.addAll(extractVocabularyCodes(type.getPropertyAssignments()));
         }
         Collections.sort(vocabularyCodes);
         assertEquals(vocabularyCodes.toString(), "[GENDER, ORGANISM, ORGANISM]");
