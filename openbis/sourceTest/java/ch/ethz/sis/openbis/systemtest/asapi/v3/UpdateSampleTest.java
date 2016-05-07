@@ -49,6 +49,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
+import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.AssertionUtil;
@@ -60,6 +61,21 @@ import junit.framework.Assert;
  */
 public class UpdateSampleTest extends AbstractSampleTest
 {
+
+    @Test
+    public void testUpdateWithIndexCheck()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        ReindexingState state = new ReindexingState();
+
+        SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200811050945092-976"));
+        update.setProperty("OFFSET", "50");
+
+        v3api.updateSamples(sessionToken, Arrays.asList(update));
+
+        assertSamplesReindexed(state, "200811050945092-976");
+    }
 
     @Test
     public void testUpdateWithSampleExisting()
@@ -803,6 +819,30 @@ public class UpdateSampleTest extends AbstractSampleTest
 
         assertSampleIdentifier(component3, "/CISD/TEST_CONTAINER_2:TEST_COMPONENT_3");
         assertEquals(component3.getContainer(), container2);
+    }
+
+    @Test
+    public void testUpdateWithComponentsAndIndexCheck()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleCreation containerCreation = masterPlateCreation("CISD", "TEST_CONTAINER");
+        SampleCreation componentCreation = wellCreation("CISD", "TEST_COMPONENT");
+
+        List<SamplePermId> ids = v3api.createSamples(sessionToken, Arrays.asList(containerCreation, componentCreation));
+
+        SamplePermId containerId = ids.get(0);
+        SamplePermId componentId = ids.get(1);
+
+        SampleUpdate containerUpdate = new SampleUpdate();
+        containerUpdate.setSampleId(containerId);
+        containerUpdate.getComponentIds().add(componentId);
+
+        ReindexingState state = new ReindexingState();
+
+        v3api.updateSamples(sessionToken, Arrays.asList(containerUpdate));
+
+        assertSamplesReindexed(state, containerId.getPermId(), componentId.getPermId());
     }
 
     @Test

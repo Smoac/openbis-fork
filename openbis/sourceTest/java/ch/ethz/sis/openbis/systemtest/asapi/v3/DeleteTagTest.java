@@ -26,15 +26,16 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.deletion.TagDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
+import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 
 /**
@@ -94,12 +95,19 @@ public class DeleteTagTest extends AbstractDeletionTest
     @Test
     public void testDeleteWithNotEmptyTag()
     {
+        ReindexingState state = new ReindexingState();
+
+        ExperimentPermId experimentId = new ExperimentPermId("200811050952663-1029");
+        SamplePermId sampleId = new SamplePermId("200902091219327-1025");
+        DataSetPermId dataSetId = new DataSetPermId("20120619092259000-22");
+        MaterialPermId materialId = new MaterialPermId("AD3", "VIRUS");
+
         TagCreation creation = new TagCreation();
         creation.setCode("TAG_TO_DELETE");
-        creation.setExperimentIds(Arrays.asList(new ExperimentIdentifier("/CISD/NEMO/EXP10")));
-        creation.setSampleIds(Arrays.asList(new SampleIdentifier("/CISD/CP-TEST-1")));
-        creation.setDataSetIds(Arrays.asList(new DataSetPermId("20120619092259000-22")));
-        creation.setMaterialIds(Arrays.asList(new MaterialPermId("AD3", "VIRUS")));
+        creation.setExperimentIds(Arrays.asList(experimentId));
+        creation.setSampleIds(Arrays.asList(sampleId));
+        creation.setDataSetIds(Arrays.asList(dataSetId));
+        creation.setMaterialIds(Arrays.asList(materialId));
 
         Tag before = createTag(TEST_USER, PASSWORD, creation);
 
@@ -108,6 +116,11 @@ public class DeleteTagTest extends AbstractDeletionTest
 
         Tag after = deleteTag(TEST_USER, PASSWORD, before.getPermId(), options);
         assertNull(after);
+
+        assertExperimentsReindexed(state, experimentId.getPermId());
+        assertSamplesReindexed(state, sampleId.getPermId());
+        assertDataSetsReindexed(state, dataSetId.getPermId());
+        assertMaterialsReindexed(state, materialId);
     }
 
     @Test

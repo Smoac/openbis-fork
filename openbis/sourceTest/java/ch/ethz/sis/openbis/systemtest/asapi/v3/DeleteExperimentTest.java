@@ -16,9 +16,11 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
-import java.util.Collections;
+import static org.testng.Assert.assertEquals;
 
-import junit.framework.Assert;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.testng.annotations.Test;
 
@@ -27,13 +29,36 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.systemtest.asapi.v3.index.RemoveFromIndexState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+
+import junit.framework.Assert;
 
 /**
  * @author pkupczyk
  */
 public class DeleteExperimentTest extends AbstractDeletionTest
 {
+
+    @Test
+    public void testDeleteWithIndexCheck()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentPermId permId = createCisdExperiment();
+        ExperimentDeletionOptions options = new ExperimentDeletionOptions();
+        options.setReason("It is just a test");
+
+        List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listByPermID(Arrays.asList(permId.getPermId()));
+        assertEquals(experiments.size(), 1);
+
+        RemoveFromIndexState state = new RemoveFromIndexState(daoFactory);
+
+        v3api.deleteExperiments(sessionToken, Collections.singletonList(permId), options);
+
+        assertExperimentsRemovedFromIndex(state, experiments.get(0).getId());
+    }
 
     @Test
     public void testDeleteExperiment()

@@ -16,8 +16,11 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,9 +32,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityToOneRelationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IReindexEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.space.IMapSpaceByIdExecutor;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
@@ -45,6 +50,25 @@ public class UpdateProjectSpaceExecutor extends AbstractUpdateEntityToOneRelatio
 
     @Autowired
     private IMapSpaceByIdExecutor mapSpaceByIdExecutor;
+
+    @Autowired
+    private IReindexEntityExecutor reindexObjectExecutor;
+
+    @Override
+    public void update(IOperationContext context, Map<ProjectUpdate, ProjectPE> entitiesMap)
+    {
+        super.update(context, entitiesMap);
+
+        reindex(context, entitiesMap.values());
+    }
+
+    @Override
+    public void update(IOperationContext context, Map<ProjectUpdate, ProjectPE> entitiesMap, Map<ISpaceId, SpacePE> relatedMap)
+    {
+        super.update(context, entitiesMap, relatedMap);
+
+        reindex(context, entitiesMap.values());
+    }
 
     @Override
     protected ISpaceId getRelatedId(SpacePE related)
@@ -90,4 +114,15 @@ public class UpdateProjectSpaceExecutor extends AbstractUpdateEntityToOneRelatio
             relationshipService.assignProjectToSpace(context.getSession(), entity, related);
         }
     }
+
+    private void reindex(IOperationContext context, Collection<ProjectPE> projects)
+    {
+        Set<ExperimentPE> experiments = new HashSet<ExperimentPE>();
+        for (ProjectPE project : projects)
+        {
+            experiments.addAll(project.getExperiments());
+        }
+        reindexObjectExecutor.reindex(context, ExperimentPE.class, experiments);
+    }
+
 }

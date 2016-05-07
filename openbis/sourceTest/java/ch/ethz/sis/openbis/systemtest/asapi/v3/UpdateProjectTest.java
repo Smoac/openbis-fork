@@ -16,9 +16,14 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -35,6 +40,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.update.ProjectUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 
 /**
@@ -165,47 +171,58 @@ public class UpdateProjectTest extends AbstractTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final IProjectId projectId = new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT");
+        final IProjectId projectId = new ProjectPermId("20120814110011738-105");
         ProjectFetchOptions projectFetchOptions = new ProjectFetchOptions();
         projectFetchOptions.withSpace();
         projectFetchOptions.withExperiments().withSamples().withSpace();
 
         Map<IProjectId, Project> projectMap = v3api.getProjects(sessionToken, Arrays.asList(projectId), projectFetchOptions);
 
+        Set<String> beforeExperimentPermIds = new HashSet<String>();
         for (Project project : projectMap.values())
         {
             Assert.assertEquals(project.getSpace().getCode(), "TEST-SPACE");
 
             for (Experiment experiment : project.getExperiments())
             {
+                beforeExperimentPermIds.add(experiment.getPermId().getPermId());
+
                 for (Sample sample : experiment.getSamples())
                 {
                     Assert.assertEquals(sample.getSpace().getCode(), "TEST-SPACE");
                 }
             }
-
         }
+        assertTrue(beforeExperimentPermIds.size() > 0);
 
         final ProjectUpdate update = new ProjectUpdate();
         update.setProjectId(projectId);
         update.setSpaceId(new SpacePermId("CISD"));
 
+        ReindexingState state = new ReindexingState();
+
         v3api.updateProjects(sessionToken, Arrays.asList(update));
 
         projectMap = v3api.getProjects(sessionToken, Arrays.asList(projectId), projectFetchOptions);
 
+        Set<String> afterExperimentPermIds = new HashSet<String>();
         for (Project project : projectMap.values())
         {
             Assert.assertEquals(project.getSpace().getCode(), "CISD");
 
             for (Experiment experiment : project.getExperiments())
             {
+                afterExperimentPermIds.add(experiment.getPermId().getPermId());
+
                 for (Sample sample : experiment.getSamples())
                 {
                     Assert.assertEquals(sample.getSpace().getCode(), "CISD");
                 }
             }
         }
+        assertTrue(afterExperimentPermIds.size() > 0);
+        assertEquals(beforeExperimentPermIds, afterExperimentPermIds);
+        assertExperimentsReindexed(state, beforeExperimentPermIds.toArray(new String[] {}));
     }
 
     @Test

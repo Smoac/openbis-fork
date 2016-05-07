@@ -36,6 +36,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
+import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -46,6 +47,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
  */
 public class CreateMaterialTest extends AbstractSampleTest
 {
+
+    @Test
+    public void testCreateWithIndexCheck()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        MaterialCreation material = geneCreation("1982");
+        ReindexingState state = new ReindexingState();
+
+        List<MaterialPermId> permIds = v3api.createMaterials(sessionToken, Arrays.asList(material));
+
+        assertMaterialsReindexed(state, permIds.get(0));
+    }
 
     @Test
     public void testSimpleMaterialCreation()

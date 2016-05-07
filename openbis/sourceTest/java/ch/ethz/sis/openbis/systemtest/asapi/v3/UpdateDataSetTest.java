@@ -40,6 +40,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
+import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.AssertionUtil;
@@ -49,6 +50,21 @@ import ch.systemsx.cisd.common.test.AssertionUtil;
  */
 public class UpdateDataSetTest extends AbstractSampleTest
 {
+
+    @Test
+    public void testUpdateWithIndexCheck()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        ReindexingState state = new ReindexingState();
+
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(new DataSetPermId("20081105092159111-1"));
+        update.setProperty("COMMENT", "an updated comment");
+
+        v3api.updateDataSets(sessionToken, Arrays.asList(update));
+
+        assertDataSetsReindexed(state, "20081105092159111-1");
+    }
 
     @Test
     public void testUpdateWithDataSetIdNull()

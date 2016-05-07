@@ -47,6 +47,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
+import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 
@@ -55,6 +56,21 @@ import ch.systemsx.cisd.common.test.AssertionUtil;
  */
 public class UpdateExperimentTest extends AbstractExperimentTest
 {
+
+    @Test
+    public void testUpdateWithIndexCheck()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        ReindexingState state = new ReindexingState();
+
+        ExperimentUpdate experiment = new ExperimentUpdate();
+        experiment.setExperimentId(new ExperimentPermId("200811050951882-1028"));
+        experiment.setProperty("DESCRIPTION", "an updated description");
+
+        v3api.updateExperiments(sessionToken, Arrays.asList(experiment));
+
+        assertExperimentsReindexed(state, "200811050951882-1028");
+    }
 
     @Test
     public void testUpdateWithExperimentUnauthorized()

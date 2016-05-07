@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IdListUpdateValue;
@@ -29,6 +30,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityToManyRelationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IReindexEntityExecutor;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -40,6 +42,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public class UpdateSampleComponentsExecutor extends AbstractUpdateEntityToManyRelationExecutor<SampleUpdate, SamplePE, ISampleId, SamplePE>
         implements IUpdateSampleComponentsExecutor
 {
+
+    @Autowired
+    private IReindexEntityExecutor reindexObjectExecutor;
 
     @Override
     protected Collection<SamplePE> getCurrentlyRelated(SamplePE entity)
@@ -109,6 +114,16 @@ public class UpdateSampleComponentsExecutor extends AbstractUpdateEntityToManyRe
 
             service.removeSampleFromContainer(context.getSession(), related);
         }
+    }
+
+    @Override
+    protected void postUpdate(IOperationContext context, Collection<SamplePE> allAdded, Collection<SamplePE> allRemoved)
+    {
+        Collection<SamplePE> entitiesToReindex = new HashSet<SamplePE>();
+        entitiesToReindex.addAll(allAdded);
+        entitiesToReindex.addAll(allRemoved);
+
+        reindexObjectExecutor.reindex(context, SamplePE.class, entitiesToReindex);
     }
 
 }
