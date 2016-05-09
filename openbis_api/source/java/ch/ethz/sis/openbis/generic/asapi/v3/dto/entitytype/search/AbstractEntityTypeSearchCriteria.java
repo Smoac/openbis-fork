@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, CISD
+ * Copyright 2016 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,48 +14,39 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractEntitySearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractObjectSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
-@JsonObject("as.dto.material.search.MaterialSearchCriteria")
-public class MaterialSearchCriteria extends AbstractEntitySearchCriteria<IMaterialId>
+@JsonObject("as.dto.entitytype.search.AbstractEntityTypeSearchCriteria")
+public abstract class AbstractEntityTypeSearchCriteria extends AbstractObjectSearchCriteria<IEntityTypeId>
 {
 
     private static final long serialVersionUID = 1L;
 
-    public MaterialSearchCriteria()
+    public CodeSearchCriteria withCode()
     {
+        return with(new CodeSearchCriteria());
     }
 
-    public MaterialTypeSearchCriteria withType()
+    public PermIdSearchCriteria withPermId()
     {
-        return with(new MaterialTypeSearchCriteria());
-    }
-
-    public MaterialSearchCriteria withOrOperator()
-    {
-        return (MaterialSearchCriteria) withOperator(SearchOperator.OR);
-    }
-
-    public MaterialSearchCriteria withAndOperator()
-    {
-        return (MaterialSearchCriteria) withOperator(SearchOperator.AND);
+        return with(new PermIdSearchCriteria());
     }
 
     @Override
     protected SearchCriteriaToStringBuilder createBuilder()
     {
         SearchCriteriaToStringBuilder builder = super.createBuilder();
-        builder.setName("MATERIAL");
+        builder.setName("TYPE");
         return builder;
     }
-
 }

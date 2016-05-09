@@ -3,7 +3,7 @@
  */
 define(
 		[ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria", "as/dto/common/search/SearchOperator", "as/dto/common/search/CodeSearchCriteria",
-				"as/dto/entitytype/search/EntityTypeSearchCriteria", "as/dto/common/search/PermIdSearchCriteria", "as/dto/common/search/RegistrationDateSearchCriteria",
+				"as/dto/common/search/PermIdSearchCriteria", "as/dto/common/search/RegistrationDateSearchCriteria",
 				"as/dto/common/search/ModificationDateSearchCriteria", "as/dto/common/search/NumberPropertySearchCriteria", "as/dto/tag/search/TagSearchCriteria",
 				"as/dto/common/search/StringPropertySearchCriteria", "as/dto/common/search/DatePropertySearchCriteria", "as/dto/common/search/AnyPropertySearchCriteria",
 				"as/dto/common/search/AnyFieldSearchCriteria", "as/dto/common/search/AbstractCompositeSearchCriteria" ], function(require, stjs, AbstractObjectSearchCriteria, SearchOperator) {
@@ -24,10 +24,6 @@ define(
 				prototype.withCode = function() {
 					var CodeSearchCriteria = require("as/dto/common/search/CodeSearchCriteria");
 					return this.addCriteria(new CodeSearchCriteria());
-				};
-				prototype.withType = function() {
-					var EntityTypeSearchCriteria = require("as/dto/entitytype/search/EntityTypeSearchCriteria");
-					return this.addCriteria(new EntityTypeSearchCriteria());
 				};
 				prototype.withPermId = function() {
 					var PermIdSearchCriteria = require("as/dto/common/search/PermIdSearchCriteria");

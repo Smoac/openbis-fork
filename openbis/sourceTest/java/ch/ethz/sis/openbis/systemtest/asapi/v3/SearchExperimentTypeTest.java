@@ -25,9 +25,9 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.CodeComparator;
 
@@ -40,7 +40,7 @@ public class SearchExperimentTypeTest extends AbstractTest
     public void testSearchAllWithVocabularies()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        ExperimentTypeSearchCriteria searchCriteria = new ExperimentTypeSearchCriteria();
         ExperimentTypeFetchOptions fetchOptions = new ExperimentTypeFetchOptions();
         fetchOptions.withPropertyAssignments().withVocabulary();
         SearchResult<ExperimentType> searchResult = v3api.searchExperimentTypes(sessionToken, searchCriteria, fetchOptions);
@@ -65,7 +65,7 @@ public class SearchExperimentTypeTest extends AbstractTest
     public void testSearchExactCode()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        ExperimentTypeSearchCriteria searchCriteria = new ExperimentTypeSearchCriteria();
         searchCriteria.withCode().thatEquals("SIRNA_HCS");
         ExperimentTypeFetchOptions fetchOptions = new ExperimentTypeFetchOptions();
         fetchOptions.withPropertyAssignments();
@@ -83,7 +83,7 @@ public class SearchExperimentTypeTest extends AbstractTest
     public void testSearchWithCodeThatStartsWithD()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        ExperimentTypeSearchCriteria searchCriteria = new ExperimentTypeSearchCriteria();
         searchCriteria.withCode().thatStartsWith("D");
         ExperimentTypeFetchOptions fetchOptions = new ExperimentTypeFetchOptions();
 
@@ -101,7 +101,7 @@ public class SearchExperimentTypeTest extends AbstractTest
     public void testSearchWithPropertyAssignmentSortByCodeDesc()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        ExperimentTypeSearchCriteria searchCriteria = new ExperimentTypeSearchCriteria();
         searchCriteria.withCode().thatStartsWith("D");
         ExperimentTypeFetchOptions fetchOptions = new ExperimentTypeFetchOptions();
         fetchOptions.withPropertyAssignments().sortBy().code().desc();

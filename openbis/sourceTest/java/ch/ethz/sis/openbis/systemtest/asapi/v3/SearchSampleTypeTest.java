@@ -25,11 +25,10 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.CodeComparator;
 
 /**
@@ -41,7 +40,7 @@ public class SearchSampleTypeTest extends AbstractTest
     public void testSearchAllWithVocabularies()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
         SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
         fetchOptions.withPropertyAssignments().withVocabulary();
         
@@ -72,7 +71,7 @@ public class SearchSampleTypeTest extends AbstractTest
     public void testSearchExactCode()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
         searchCriteria.withCode().thatEquals("MASTER_PLATE");
         SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
         fetchOptions.withPropertyAssignments();
@@ -90,7 +89,7 @@ public class SearchSampleTypeTest extends AbstractTest
     public void testSearchWithCodeThatStartsWithD()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
         searchCriteria.withCode().thatStartsWith("D");
         SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
 
@@ -108,7 +107,7 @@ public class SearchSampleTypeTest extends AbstractTest
     public void testSearchWithPropertyAssignmentSortByLabelDesc()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        EntityTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
+        SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
         searchCriteria.withCode().thatStartsWith("D");
         SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
         fetchOptions.withPropertyAssignments().sortBy().label().desc();

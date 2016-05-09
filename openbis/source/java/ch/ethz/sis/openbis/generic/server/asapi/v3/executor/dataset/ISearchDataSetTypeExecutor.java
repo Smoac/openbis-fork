@@ -16,14 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.ISearchObjectExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 
 /**
  * @author Franz-Josef Elmer
  */
-public interface ISearchDataSetTypeExecutor extends ISearchObjectExecutor<EntityTypeSearchCriteria, DataSetTypePE>
+public interface ISearchDataSetTypeExecutor extends ISearchObjectExecutor<DataSetTypeSearchCriteria, DataSetTypePE>
 {
 
 }

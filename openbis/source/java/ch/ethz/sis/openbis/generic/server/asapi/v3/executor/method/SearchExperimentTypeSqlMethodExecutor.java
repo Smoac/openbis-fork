@@ -21,9 +21,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.ISearchExperimentTypeExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
  */
 @Component
 public class SearchExperimentTypeSqlMethodExecutor extends
-        AbstractIdSearchMethodExecutor<ExperimentType, ExperimentTypePE, EntityTypeSearchCriteria, ExperimentTypeFetchOptions>
+        AbstractIdSearchMethodExecutor<ExperimentType, ExperimentTypePE, ExperimentTypeSearchCriteria, ExperimentTypeFetchOptions>
         implements ISearchExperimentTypeMethodExecutor
 {
     @Autowired
@@ -45,7 +45,7 @@ public class SearchExperimentTypeSqlMethodExecutor extends
     private IExperimentTypeTranslator translator;
 
     @Override
-    protected List<ExperimentTypePE> searchPEs(IOperationContext context, EntityTypeSearchCriteria criteria)
+    protected List<ExperimentTypePE> searchPEs(IOperationContext context, ExperimentTypeSearchCriteria criteria)
     {
         return searchExecutor.search(context, criteria);
     }

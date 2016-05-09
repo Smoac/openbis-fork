@@ -21,9 +21,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.ISearchMaterialTypeExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
  */
 @Component
 public class SearchMaterialTypeSqlMethodExecutor extends
-        AbstractIdSearchMethodExecutor<MaterialType, MaterialTypePE, EntityTypeSearchCriteria, MaterialTypeFetchOptions>
+        AbstractIdSearchMethodExecutor<MaterialType, MaterialTypePE, MaterialTypeSearchCriteria, MaterialTypeFetchOptions>
         implements ISearchMaterialTypeMethodExecutor
 {
     @Autowired
@@ -45,7 +45,7 @@ public class SearchMaterialTypeSqlMethodExecutor extends
     private IMaterialTypeTranslator translator;
 
     @Override
-    protected List<MaterialTypePE> searchPEs(IOperationContext context, EntityTypeSearchCriteria criteria)
+    protected List<MaterialTypePE> searchPEs(IOperationContext context, MaterialTypeSearchCriteria criteria)
     {
         return searchExecutor.search(context, criteria);
     }

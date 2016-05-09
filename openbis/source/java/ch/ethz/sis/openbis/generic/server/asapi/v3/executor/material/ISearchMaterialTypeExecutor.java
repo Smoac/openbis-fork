@@ -16,14 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.ISearchObjectExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 
 /**
  * @author Franz-Josef Elmer
  */
-public interface ISearchMaterialTypeExecutor extends ISearchObjectExecutor<EntityTypeSearchCriteria, MaterialTypePE>
+public interface ISearchMaterialTypeExecutor extends ISearchObjectExecutor<MaterialTypeSearchCriteria, MaterialTypePE>
 {
 
 }
