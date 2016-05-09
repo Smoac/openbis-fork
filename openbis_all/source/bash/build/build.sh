@@ -34,11 +34,13 @@ then
 	exit
 fi
 
-cd tmp/gradle
-./gradlew :openbis_standard_technologies:clientsAndApis -x test
-./gradlew :installation:build -x test
-./gradlew :openbis_standard_technologies:generateJavadoc
-./gradlew :plasmid:build -x test
+cd tmp/openbis_standard_technologies
+./gradlew :clientsAndApis -x test
+./gradlew :generateJavadoc
+cd ../installation
+./gradlew :build -x test
+cd ../plasmid
+./gradlew :build -x test
 cd ../..
 mv tmp/openbis_standard_technologies/targets/gradle/distributions/openBIS-clients-and-APIs*.zip .
 mv tmp/installation/targets/gradle/distributions/openBIS-installation-standard-technologies*.tar.gz .
