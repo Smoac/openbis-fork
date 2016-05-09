@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -1329,27 +1330,34 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
         flushWithSqlExceptionHandling(getHibernateTemplate());
         scheduleDynamicPropertiesEvaluation(dataSets);
-
-        //Schedule contained datasets for index update, they also have the experiment and samples ids the index at least
-        for(DataPE dataSet:dataSets) {
-            scheduleDynamicPropertiesEvaluation(dataSet.getContainedDataSets());
-        }
         
         // if session is not cleared registration of many samples slows down after each batch
         hibernateTemplate.clear();
     }
-
+    
     @Override
     public final void validateAndSaveUpdatedEntity(DataPE entity) throws DataAccessException
     {
         this.currentSession().flush();
         super.validateAndSaveUpdatedEntity(entity);
         scheduleDynamicPropertiesEvaluation(Arrays.asList(entity));
-        
-        //Schedule contained datasets for index update, they also have the experiment and samples ids the index at least
-        scheduleDynamicPropertiesEvaluation(entity.getContainedDataSets());
     }
 
+    public void scheduleDynamicPropertiesEvaluation(List<DataPE> dataSets) 
+    {
+        Deque<DataPE> toSchedule = new LinkedList<DataPE>(dataSets);
+        List<DataPE> toUpdate = new ArrayList<DataPE>();
+        
+        //Schedule contained datasets for index update, they also have the experiment and samples ids the index at least
+        while(false == toSchedule.isEmpty()) {
+            DataPE next = toSchedule.removeFirst();
+            toUpdate.add(next);
+            toSchedule.addAll(next.getContainedDataSets());
+        }
+        
+        super.scheduleDynamicPropertiesEvaluation(toUpdate);
+    }
+    
     @Override
     public List<TechId> listDataSetIdsBySampleIds(final Collection<TechId> samples)
     {
