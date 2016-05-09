@@ -1330,6 +1330,11 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         flushWithSqlExceptionHandling(getHibernateTemplate());
         scheduleDynamicPropertiesEvaluation(dataSets);
 
+        //Schedule contained datasets for index update, they also have the experiment and samples ids the index at least
+        for(DataPE dataSet:dataSets) {
+            scheduleDynamicPropertiesEvaluation(dataSet.getContainedDataSets());
+        }
+        
         // if session is not cleared registration of many samples slows down after each batch
         hibernateTemplate.clear();
     }
@@ -1340,6 +1345,9 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         this.currentSession().flush();
         super.validateAndSaveUpdatedEntity(entity);
         scheduleDynamicPropertiesEvaluation(Arrays.asList(entity));
+        
+        //Schedule contained datasets for index update, they also have the experiment and samples ids the index at least
+        scheduleDynamicPropertiesEvaluation(entity.getContainedDataSets());
     }
 
     @Override

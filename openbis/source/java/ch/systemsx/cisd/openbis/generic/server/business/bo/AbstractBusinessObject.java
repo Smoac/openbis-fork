@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.EntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;
@@ -47,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityHistoryDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityOperationsLogDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
@@ -82,6 +84,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ICodeSequenceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Identifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -92,6 +95,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IModifierAndModificationDateBean;
@@ -832,6 +836,25 @@ abstract class AbstractBusinessObject implements IDAOFactory
         NewDataSetToSampleExperimentAssignmentManager assignmentManager = new NewDataSetToSampleExperimentAssignmentManager(dataSetTypeChecker);
         assignmentManager.assignDataSetAndRelatedComponents(data, newSample, experiment);
         assignmentManager.performAssignment(relationshipService, session);
+    }
+    
+    protected <T extends IEntityInformationWithPropertiesHolder> void reindex(Class<T> objectClass, Collection<T> objects)
+    {
+        IDynamicPropertyEvaluationScheduler indexUpdater = daoFactory.getPersistencyResources().getDynamicPropertyEvaluationScheduler();
+        List<Long> objectIds = new ArrayList<Long>();
+
+        for (IIdHolder object : objects)
+        {
+            if (object != null && object.getId() != null)
+            {
+                objectIds.add(object.getId());
+            }
+        }
+
+        if (false == objectIds.isEmpty())
+        {
+            indexUpdater.scheduleUpdate(DynamicPropertyEvaluationOperation.evaluate(objectClass, objectIds));
+        }
     }
 
 }
