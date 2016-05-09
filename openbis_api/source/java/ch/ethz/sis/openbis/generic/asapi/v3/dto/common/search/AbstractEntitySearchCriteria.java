@@ -17,7 +17,6 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.search.TagSearchCriteria;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -33,11 +32,6 @@ public abstract class AbstractEntitySearchCriteria<ID extends IObjectId> extends
     public CodeSearchCriteria withCode()
     {
         return with(new CodeSearchCriteria());
-    }
-
-    public EntityTypeSearchCriteria withType()
-    {
-        return with(new EntityTypeSearchCriteria());
     }
 
     public PermIdSearchCriteria withPermId()

@@ -2,7 +2,8 @@
  * @author pkupczyk
  */
 define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria", "as/dto/common/search/SearchOperator", "as/dto/dataset/search/DataSetSearchRelation", ,
-		"as/dto/experiment/search/ExperimentSearchCriteria", "as/dto/experiment/search/NoExperimentSearchCriteria", "as/dto/sample/search/SampleSearchCriteria", "as/dto/sample/search/NoSampleSearchCriteria" ],
+		"as/dto/experiment/search/ExperimentSearchCriteria", "as/dto/experiment/search/NoExperimentSearchCriteria", "as/dto/sample/search/SampleSearchCriteria", 
+		"as/dto/sample/search/NoSampleSearchCriteria", "as/dto/dataset/search/DataSetTypeSearchCriteria" ],
 		function(require, stjs, AbstractEntitySearchCriteria, SearchOperator, DataSetSearchRelation) {
 			var DataSetSearchCriteria = function(relation) {
 				AbstractEntitySearchCriteria.call(this);
@@ -12,6 +13,10 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 				prototype['@type'] = 'as.dto.dataset.search.DataSetSearchCriteria';
 				constructor.serialVersionUID = 1;
 				prototype.relation = null;
+				prototype.withType = function() {
+					var DataSetTypeSearchCriteria = require("as/dto/dataset/search/DataSetTypeSearchCriteria");
+					return this.addCriteria(new DataSetTypeSearchCriteria());
+				};
 				prototype.withParents = function() {
 					return this.addCriteria(new DataSetParentsSearchCriteria());
 				};

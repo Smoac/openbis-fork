@@ -40,7 +40,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.TechIdSearchCriter
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.AbstractEntityTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
@@ -550,7 +550,7 @@ public abstract class AbstractSearchObjectExecutor<CRITERIA extends AbstractObje
             ISearchCriteria parentCriterion = parentCriteriaCopy.isEmpty() ? null : parentCriteriaCopy.pop();
             ISearchCriteria grandParentCriterion = parentCriteriaCopy.isEmpty() ? null : parentCriteriaCopy.pop();
 
-            return parentCriterion instanceof EntityTypeSearchCriteria && grandParentCriterion != null
+            return parentCriterion instanceof AbstractEntityTypeSearchCriteria && grandParentCriterion != null
                     && getEntityCriteriaClass().isAssignableFrom(grandParentCriterion.getClass());
         }
 

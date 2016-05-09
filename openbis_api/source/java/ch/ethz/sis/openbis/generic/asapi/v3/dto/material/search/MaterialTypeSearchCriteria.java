@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, CISD
+ * Copyright 2016 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,45 +16,25 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractEntitySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.AbstractEntityTypeSearchCriteria;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * @author pkupczyk
+ * 
+ *
+ * @author Franz-Josef Elmer
  */
-@JsonObject("as.dto.material.search.MaterialSearchCriteria")
-public class MaterialSearchCriteria extends AbstractEntitySearchCriteria<IMaterialId>
+@JsonObject("as.dto.material.search.MaterialTypeSearchCriteria")
+public class MaterialTypeSearchCriteria extends AbstractEntityTypeSearchCriteria
 {
-
     private static final long serialVersionUID = 1L;
-
-    public MaterialSearchCriteria()
-    {
-    }
-
-    public MaterialTypeSearchCriteria withType()
-    {
-        return with(new MaterialTypeSearchCriteria());
-    }
-
-    public MaterialSearchCriteria withOrOperator()
-    {
-        return (MaterialSearchCriteria) withOperator(SearchOperator.OR);
-    }
-
-    public MaterialSearchCriteria withAndOperator()
-    {
-        return (MaterialSearchCriteria) withOperator(SearchOperator.AND);
-    }
 
     @Override
     protected SearchCriteriaToStringBuilder createBuilder()
     {
         SearchCriteriaToStringBuilder builder = super.createBuilder();
-        builder.setName("MATERIAL");
+        builder.setName("MATERIAL_TYPE");
         return builder;
     }
 

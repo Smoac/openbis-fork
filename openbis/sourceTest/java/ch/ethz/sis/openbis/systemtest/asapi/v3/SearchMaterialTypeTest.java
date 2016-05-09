@@ -25,9 +25,9 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.CodeComparator;
 
@@ -40,7 +40,7 @@ public class SearchMaterialTypeTest extends AbstractTest
     public void testSearchAll()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        MaterialTypeSearchCriteria searchCriteria = new MaterialTypeSearchCriteria();
         MaterialTypeFetchOptions fetchOptions = new MaterialTypeFetchOptions();
         fetchOptions.withPropertyAssignments();
         SearchResult<MaterialType> searchResult = v3api.searchMaterialTypes(sessionToken, searchCriteria, fetchOptions);
@@ -58,7 +58,7 @@ public class SearchMaterialTypeTest extends AbstractTest
     public void testSearchExactCodeWithVocabularies()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        MaterialTypeSearchCriteria searchCriteria = new MaterialTypeSearchCriteria();
         searchCriteria.withCode().thatEquals("BACTERIUM");
         MaterialTypeFetchOptions fetchOptions = new MaterialTypeFetchOptions();
         fetchOptions.withPropertyAssignments().withVocabulary();
@@ -85,7 +85,7 @@ public class SearchMaterialTypeTest extends AbstractTest
     public void testSearchWithCodeThatStartsWithB()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        MaterialTypeSearchCriteria searchCriteria = new MaterialTypeSearchCriteria();
         searchCriteria.withCode().thatStartsWith("B");
         MaterialTypeFetchOptions fetchOptions = new MaterialTypeFetchOptions();
 
@@ -103,7 +103,7 @@ public class SearchMaterialTypeTest extends AbstractTest
     public void testSearchWithPropertyAssignmentSortByLabelDesc()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        MaterialTypeSearchCriteria searchCriteria = new MaterialTypeSearchCriteria();
         searchCriteria.withCode().thatStartsWith("B");
         MaterialTypeFetchOptions fetchOptions = new MaterialTypeFetchOptions();
         fetchOptions.withPropertyAssignments().sortBy().label().desc();

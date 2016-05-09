@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataTypeCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
@@ -44,7 +44,7 @@ public class SearchDataSetTypeTest extends AbstractTest
     public void testSearchAll()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        DataSetTypeSearchCriteria searchCriteria = new DataSetTypeSearchCriteria();
         DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
         fetchOptions.withPropertyAssignments();
         SearchResult<DataSetType> searchResult = v3api.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
@@ -63,7 +63,7 @@ public class SearchDataSetTypeTest extends AbstractTest
     public void testSearchAllWithoutVocabularies()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        DataSetTypeSearchCriteria searchCriteria = new DataSetTypeSearchCriteria();
         DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
         fetchOptions.withPropertyAssignments();
         
@@ -89,7 +89,7 @@ public class SearchDataSetTypeTest extends AbstractTest
     public void testSearchAllWithVocabularies()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        DataSetTypeSearchCriteria searchCriteria = new DataSetTypeSearchCriteria();
         DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
         PropertyAssignmentFetchOptions assignmentFetchOptions = fetchOptions.withPropertyAssignments();
         assignmentFetchOptions.sortBy().label().desc();
@@ -154,7 +154,7 @@ public class SearchDataSetTypeTest extends AbstractTest
     public void testSearchExactCode()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        DataSetTypeSearchCriteria searchCriteria = new DataSetTypeSearchCriteria();
         searchCriteria.withCode().thatEquals("HCS_IMAGE");
         DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
         fetchOptions.withPropertyAssignments();
@@ -172,7 +172,7 @@ public class SearchDataSetTypeTest extends AbstractTest
     public void testSearchWithCodeThatStartsWithD()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        DataSetTypeSearchCriteria searchCriteria = new DataSetTypeSearchCriteria();
         searchCriteria.withCode().thatStartsWith("D");
         DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
 
@@ -190,7 +190,7 @@ public class SearchDataSetTypeTest extends AbstractTest
     public void testSearchWithPropertyAssignmentSortByCodeDesc()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        EntityTypeSearchCriteria searchCriteria = new EntityTypeSearchCriteria();
+        DataSetTypeSearchCriteria searchCriteria = new DataSetTypeSearchCriteria();
         searchCriteria.withCode().thatStartsWith("D");
         DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
         fetchOptions.withPropertyAssignments().sortBy().code().desc();

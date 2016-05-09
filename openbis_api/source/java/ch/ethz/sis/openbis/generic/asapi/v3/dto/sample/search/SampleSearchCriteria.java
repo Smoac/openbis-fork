@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractEntitySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.NoExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
@@ -84,7 +83,6 @@ public class SampleSearchCriteria extends AbstractEntitySearchCriteria<ISampleId
         return this;
     }
 
-    @Override
     public SampleTypeSearchCriteria withType()
     {
         return with(new SampleTypeSearchCriteria());

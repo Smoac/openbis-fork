@@ -17,8 +17,8 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.SampleTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.AbstractEntityTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
@@ -40,7 +40,7 @@ public class EntityTypeSearchCriteriaTranslator extends AbstractFieldFromComposi
     @Override
     protected boolean doAccepts(ISearchCriteria criteria)
     {
-        return criteria instanceof EntityTypeSearchCriteria
+        return criteria instanceof AbstractEntityTypeSearchCriteria
                 && false == (criteria instanceof SampleTypeSearchCriteria);
     }
 

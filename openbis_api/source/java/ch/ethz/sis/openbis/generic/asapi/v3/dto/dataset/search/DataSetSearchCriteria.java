@@ -47,6 +47,11 @@ public class DataSetSearchCriteria extends AbstractEntitySearchCriteria<IDataSet
         this.relation = relation;
     }
 
+    public DataSetTypeSearchCriteria withType()
+    {
+        return with(new DataSetTypeSearchCriteria());
+    }
+
     public DataSetSearchCriteria withParents()
     {
         return with(new DataSetParentsSearchCriteria());
