@@ -16,15 +16,15 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentTypeSearchCriteria;
 
 /**
  * @author Franz-Josef Elmer
  */
 public interface ISearchExperimentTypeMethodExecutor extends
-        ISearchMethodExecutor<ExperimentType, EntityTypeSearchCriteria, ExperimentTypeFetchOptions>
+        ISearchMethodExecutor<ExperimentType, ExperimentTypeSearchCriteria, ExperimentTypeFetchOptions>
 {
 
 }

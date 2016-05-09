@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material;
 
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSearchEntityTypeExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -26,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * @author Franz-Josef Elmer
  */
 @Component
-public class SearchMaterialTypeExecutor extends AbstractSearchEntityTypeExecutor<MaterialTypePE> implements ISearchMaterialTypeExecutor
+public class SearchMaterialTypeExecutor extends AbstractSearchEntityTypeExecutor<MaterialTypeSearchCriteria, MaterialTypePE> implements ISearchMaterialTypeExecutor
 {
     public SearchMaterialTypeExecutor()
     {

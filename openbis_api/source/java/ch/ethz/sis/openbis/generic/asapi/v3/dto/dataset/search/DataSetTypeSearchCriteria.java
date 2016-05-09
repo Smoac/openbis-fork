@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, CISD
+ * Copyright 2016 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,43 +14,27 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractObjectSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.AbstractEntityTypeSearchCriteria;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * @author pkupczyk
+ * 
+ *
+ * @author Franz-Josef Elmer
  */
-@JsonObject("as.dto.entitytype.search.EntityTypeSearchCriteria")
-public class EntityTypeSearchCriteria extends AbstractObjectSearchCriteria<IEntityTypeId>
+@JsonObject("as.dto.dataset.search.DataSetTypeSearchCriteria")
+public class DataSetTypeSearchCriteria extends AbstractEntityTypeSearchCriteria
 {
-
     private static final long serialVersionUID = 1L;
-
-    public EntityTypeSearchCriteria()
-    {
-    }
-
-    public CodeSearchCriteria withCode()
-    {
-        return with(new CodeSearchCriteria());
-    }
-
-    public PermIdSearchCriteria withPermId()
-    {
-        return with(new PermIdSearchCriteria());
-    }
 
     @Override
     protected SearchCriteriaToStringBuilder createBuilder()
     {
         SearchCriteriaToStringBuilder builder = super.createBuilder();
-        builder.setName("TYPE");
+        builder.setName("DATA_SET_TYPE");
         return builder;
     }
 }

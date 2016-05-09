@@ -36,6 +36,11 @@ public class ExperimentSearchCriteria extends AbstractEntitySearchCriteria<IExpe
     {
     }
 
+    public ExperimentTypeSearchCriteria withType()
+    {
+        return with(new ExperimentTypeSearchCriteria());
+    }
+
     public ProjectSearchCriteria withProject()
     {
         return with(new ProjectSearchCriteria());

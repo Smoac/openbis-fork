@@ -3,11 +3,11 @@
  */
 define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria", "as/dto/common/search/CodeSearchCriteria", "as/dto/common/search/PermIdSearchCriteria",
 		"as/dto/common/search/AbstractCompositeSearchCriteria" ], function(require, stjs, AbstractObjectSearchCriteria) {
-	var EntityTypeSearchCriteria = function() {
+	var AbstractEntityTypeSearchCriteria = function() {
 		AbstractObjectSearchCriteria.call(this);
 	};
-	stjs.extend(EntityTypeSearchCriteria, AbstractObjectSearchCriteria, [ AbstractObjectSearchCriteria ], function(constructor, prototype) {
-		prototype['@type'] = 'as.dto.entitytype.search.EntityTypeSearchCriteria';
+	stjs.extend(AbstractEntityTypeSearchCriteria, AbstractObjectSearchCriteria, [ AbstractObjectSearchCriteria ], function(constructor, prototype) {
+		prototype['@type'] = 'as.dto.entitytype.search.AbstractEntityTypeSearchCriteria';
 		constructor.serialVersionUID = 1;
 		prototype.withCode = function() {
 			var CodeSearchCriteria = require("as/dto/common/search/CodeSearchCriteria");
@@ -23,5 +23,5 @@ define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria",
 			arguments : [ "ISearchCriteria" ]
 		}
 	});
-	return EntityTypeSearchCriteria;
+	return AbstractEntityTypeSearchCriteria;
 })

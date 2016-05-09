@@ -22,7 +22,8 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.ListableSampleTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.ListableSampleTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.Matcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSearchEntityTypeExecutor;
@@ -33,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * @author Franz-Josef Elmer
  */
 @Component
-public class SearchSampleTypeExecutor extends AbstractSearchEntityTypeExecutor<SampleTypePE> implements ISearchSampleTypeExecutor
+public class SearchSampleTypeExecutor extends AbstractSearchEntityTypeExecutor<SampleTypeSearchCriteria, SampleTypePE> implements ISearchSampleTypeExecutor
 {
     public SearchSampleTypeExecutor()
     {

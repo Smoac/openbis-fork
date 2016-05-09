@@ -16,14 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 
 /**
  * @author Franz-Josef Elmer
  */
-public interface ISearchSampleTypeMethodExecutor extends ISearchMethodExecutor<SampleType, EntityTypeSearchCriteria, SampleTypeFetchOptions>
+public interface ISearchSampleTypeMethodExecutor extends ISearchMethodExecutor<SampleType, SampleTypeSearchCriteria, SampleTypeFetchOptions>
 {
 
 }

@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSearchEntityTypeExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -26,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * @author Franz-Josef Elmer
  */
 @Component
-public class SearchDataSetTypeExecutor extends AbstractSearchEntityTypeExecutor<DataSetTypePE> implements ISearchDataSetTypeExecutor
+public class SearchDataSetTypeExecutor extends AbstractSearchEntityTypeExecutor<DataSetTypeSearchCriteria, DataSetTypePE> implements ISearchDataSetTypeExecutor
 {
     public SearchDataSetTypeExecutor()
     {

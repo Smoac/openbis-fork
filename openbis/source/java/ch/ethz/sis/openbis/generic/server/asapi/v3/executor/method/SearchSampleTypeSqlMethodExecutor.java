@@ -21,9 +21,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ISearchSampleTypeExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
  */
 @Component
 public class SearchSampleTypeSqlMethodExecutor extends
-        AbstractIdSearchMethodExecutor<SampleType, SampleTypePE, EntityTypeSearchCriteria, SampleTypeFetchOptions>
+        AbstractIdSearchMethodExecutor<SampleType, SampleTypePE, SampleTypeSearchCriteria, SampleTypeFetchOptions>
         implements ISearchSampleTypeMethodExecutor
 {
     @Autowired
@@ -45,7 +45,7 @@ public class SearchSampleTypeSqlMethodExecutor extends
     private ISampleTypeTranslator translator;
 
     @Override
-    protected List<SampleTypePE> searchPEs(IOperationContext context, EntityTypeSearchCriteria criteria)
+    protected List<SampleTypePE> searchPEs(IOperationContext context, SampleTypeSearchCriteria criteria)
     {
         return searchExecutor.search(context, criteria);
     }

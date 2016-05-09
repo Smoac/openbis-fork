@@ -149,7 +149,10 @@ ECMAScriptEngineFactory
 EmptyFetchOptions
 EntitySortOptions
 EntityTypePermId
-EntityTypeSearchCriteria
+Abstract Entity Type Search Criteria
+Data Set Type Search Criteria
+Experiment Type Search Criteria
+Material Type Search Criteria
 equals
 exec
 EXPERIMENT

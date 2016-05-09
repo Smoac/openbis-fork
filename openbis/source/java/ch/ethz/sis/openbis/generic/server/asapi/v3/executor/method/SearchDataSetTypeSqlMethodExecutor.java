@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ISearchDataSetTypeExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
  */
 @Component
 public class SearchDataSetTypeSqlMethodExecutor extends
-        AbstractIdSearchMethodExecutor<DataSetType, DataSetTypePE, EntityTypeSearchCriteria, DataSetTypeFetchOptions>
+        AbstractIdSearchMethodExecutor<DataSetType, DataSetTypePE, DataSetTypeSearchCriteria, DataSetTypeFetchOptions>
         implements ISearchDataSetTypeMethodExecutor
 {
     @Autowired
@@ -45,7 +45,7 @@ public class SearchDataSetTypeSqlMethodExecutor extends
     private IDataSetTypeTranslator translator;
 
     @Override
-    protected List<DataSetTypePE> searchPEs(IOperationContext context, EntityTypeSearchCriteria criteria)
+    protected List<DataSetTypePE> searchPEs(IOperationContext context, DataSetTypeSearchCriteria criteria)
     {
         return searchExecutor.search(context, criteria);
     }

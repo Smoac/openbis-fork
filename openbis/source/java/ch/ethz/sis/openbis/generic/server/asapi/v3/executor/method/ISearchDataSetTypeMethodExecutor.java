@@ -18,12 +18,12 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
 
 /**
  * @author Franz-Josef Elmer
  */
-public interface ISearchDataSetTypeMethodExecutor extends ISearchMethodExecutor<DataSetType, EntityTypeSearchCriteria, DataSetTypeFetchOptions>
+public interface ISearchDataSetTypeMethodExecutor extends ISearchMethodExecutor<DataSetType, DataSetTypeSearchCriteria, DataSetTypeFetchOptions>
 {
 
 }

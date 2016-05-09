@@ -3,7 +3,7 @@
  */
 define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria", "as/dto/common/search/SearchOperator", "as/dto/sample/search/SampleSearchRelation", "as/dto/space/search/SpaceSearchCriteria",
 		"as/dto/experiment/search/ExperimentSearchCriteria", "as/dto/experiment/search/NoExperimentSearchCriteria",
-		"as/dto/sample/search/NoSampleContainerSearchCriteria", "as/dto/entitytype/search/SampleTypeSearchCriteria" ], 
+		"as/dto/sample/search/NoSampleContainerSearchCriteria", "as/dto/sample/search/SampleTypeSearchCriteria" ], 
 		function(require, stjs, AbstractEntitySearchCriteria, SearchOperator, SampleSearchRelation) {
 
 	var SampleSearchCriteria = function(relation) {

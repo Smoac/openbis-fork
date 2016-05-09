@@ -21,7 +21,7 @@ import java.util.List;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.EntityTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.AbstractEntityTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.AbstractSearchObjectManuallyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.CodeMatcher;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.Matcher;
@@ -31,8 +31,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 /**
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractSearchEntityTypeExecutor<ENTITY_TYPE_PE extends EntityTypePE>
-        extends AbstractSearchObjectManuallyExecutor<EntityTypeSearchCriteria, ENTITY_TYPE_PE>
+public abstract class AbstractSearchEntityTypeExecutor<ENTITY_TYPE_SEARCH_CRITERIA extends AbstractEntityTypeSearchCriteria, ENTITY_TYPE_PE extends EntityTypePE>
+        extends AbstractSearchObjectManuallyExecutor<ENTITY_TYPE_SEARCH_CRITERIA, ENTITY_TYPE_PE>
 {
     private final EntityKind entityKind;
 

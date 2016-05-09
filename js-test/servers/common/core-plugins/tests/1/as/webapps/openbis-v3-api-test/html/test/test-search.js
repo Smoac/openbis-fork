@@ -215,7 +215,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			var c = new common(assert);
 
 			var fSearch = function(facade) {
-				var criteria = new c.EntityTypeSearchCriteria();
+				var criteria = new c.ExperimentTypeSearchCriteria();
 				criteria.withCode().thatStartsWith("HT");
 				var fetchOptions = new c.ExperimentTypeFetchOptions();
 				fetchOptions.withPropertyAssignments();
@@ -246,7 +246,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			var c = new common(assert);
 			
 			var fSearch = function(facade) {
-				var criteria = new c.EntityTypeSearchCriteria();
+				var criteria = new c.ExperimentTypeSearchCriteria();
 				criteria.withCode().thatStartsWith("HT");
 				var fetchOptions = new c.ExperimentTypeFetchOptions();
 				fetchOptions.withPropertyAssignments().withVocabulary();
@@ -396,7 +396,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			var c = new common(assert);
 
 			var fSearch = function(facade) {
-				var criteria = new c.EntityTypeSearchCriteria();
+				var criteria = new c.SampleTypeSearchCriteria();
 				criteria.withCode().thatStartsWith("MA");
 				var fetchOptions = new c.SampleTypeFetchOptions();
 				fetchOptions.withPropertyAssignments().sortBy().label().desc();
@@ -559,7 +559,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			var c = new common(assert);
 
 			var fSearch = function(facade) {
-				var criteria = new c.EntityTypeSearchCriteria();
+				var criteria = new c.DataSetTypeSearchCriteria();
 				criteria.withCode().thatStartsWith("MA");
 				var fetchOptions = new c.DataSetTypeFetchOptions();
 				fetchOptions.withPropertyAssignments().sortBy().code().asc();
@@ -627,7 +627,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			var c = new common(assert);
 
 			var fSearch = function(facade) {
-				var criteria = new c.EntityTypeSearchCriteria();
+				var criteria = new c.MaterialTypeSearchCriteria();
 				criteria.withCode().thatStartsWith("G");
 				var fetchOptions = new c.MaterialTypeFetchOptions();
 				fetchOptions.withPropertyAssignments().sortBy().code().desc();

@@ -1,7 +1,8 @@
 /**
  * @author pkupczyk
  */
-define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria", "as/dto/common/search/SearchOperator", "as/dto/project/search/ProjectSearchCriteria" ], function(require, stjs,
+define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria", "as/dto/common/search/SearchOperator", 
+         "as/dto/project/search/ProjectSearchCriteria", "as/dto/experiment/search/ExperimentTypeSearchCriteria" ], function(require, stjs,
 		AbstractEntitySearchCriteria, SearchOperator) {
 	var ExperimentSearchCriteria = function() {
 		AbstractEntitySearchCriteria.call(this);
@@ -9,6 +10,10 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 	stjs.extend(ExperimentSearchCriteria, AbstractEntitySearchCriteria, [ AbstractEntitySearchCriteria ], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.experiment.search.ExperimentSearchCriteria';
 		constructor.serialVersionUID = 1;
+		prototype.withType = function() {
+			var ExperimentTypeSearchCriteria = require("as/dto/experiment/search/ExperimentTypeSearchCriteria");
+			return this.addCriteria(new ExperimentTypeSearchCriteria());
+		};
 		prototype.withProject = function() {
 			var ProjectSearchCriteria = require("as/dto/project/search/ProjectSearchCriteria");
 			return this.addCriteria(new ProjectSearchCriteria());
