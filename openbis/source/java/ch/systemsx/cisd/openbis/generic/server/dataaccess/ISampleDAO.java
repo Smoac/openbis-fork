@@ -119,6 +119,9 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
     /** Returns ids of samples connected with experiments specified by given ids. */
     List<TechId> listSampleIdsByExperimentIds(Collection<TechId> experimentIds);
 
+    /** Returns ids of sample of specified types specified by given ids. */
+    List<TechId> listSampleIdsBySampleTypeIds(Collection<TechId> sampleTypeIds);
+    
     /**
      * Lists samples (with minimal additional information) belonging to the given <code>space</code> and having a property with the specified value.
      */

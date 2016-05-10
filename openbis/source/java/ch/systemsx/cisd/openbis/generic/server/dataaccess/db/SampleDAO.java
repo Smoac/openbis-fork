@@ -741,6 +741,30 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     }
 
     @Override
+    public List<TechId> listSampleIdsBySampleTypeIds(Collection<TechId> sampleTypeIds)
+    {
+        final List<Long> longIds = TechId.asLongs(sampleTypeIds);
+        final List<Long> results =
+                DAOUtils.listByCollection(getHibernateTemplate(), new IDetachedCriteriaFactory()
+                    {
+                        @Override
+                        public DetachedCriteria createCriteria()
+                        {
+                            final DetachedCriteria criteria =
+                                    DetachedCriteria.forClass(SamplePE.class);
+                            criteria.setProjection(Projections.id());
+                            return criteria;
+                        }
+                    }, "sampleType.id", longIds);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.info(String.format("found %s samples for given sample types",
+                    results.size()));
+        }
+        return transformNumbers2TechIdList(results);
+    }
+    
+    @Override
     public List<TechId> listSampleIdsByExperimentIds(final Collection<TechId> experiments)
     {
         final List<Long> longIds = TechId.asLongs(experiments);
