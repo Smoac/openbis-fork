@@ -8,7 +8,7 @@ import traceback
 import util
 
 INSTALLER_PROJECT = 'installation-16.05'
-OPENBIS_STANDARD_TECHNOLOGIES_PROJECT = 'gradle-openbis-standard-technologies'
+OPENBIS_STANDARD_TECHNOLOGIES_PROJECT = 'openbis-standard-technologies-16.05'
 DATAMOVER_PROJECT = 'datamover-16.05'
 
 PSQL_EXE = 'psql'
