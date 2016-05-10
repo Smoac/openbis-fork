@@ -1343,19 +1343,21 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         scheduleDynamicPropertiesEvaluation(Arrays.asList(entity));
     }
 
-    public void scheduleDynamicPropertiesEvaluation(List<DataPE> dataSets) 
+    @Override
+    protected void scheduleDynamicPropertiesEvaluation(List<DataPE> dataSets) 
     {
-        Deque<DataPE> toSchedule = new LinkedList<DataPE>(dataSets);
         List<DataPE> toUpdate = new ArrayList<DataPE>();
-        
-        //Schedule contained datasets for index update, they also have the experiment and samples ids the index at least
-        while(false == toSchedule.isEmpty()) {
-            DataPE next = toSchedule.removeFirst();
-            toUpdate.add(next);
-            toSchedule.addAll(next.getContainedDataSets());
-        }
-        
+        addAllDataSetsAndComponentsRecursively(toUpdate, dataSets);
         super.scheduleDynamicPropertiesEvaluation(toUpdate);
+    }
+    
+    private void addAllDataSetsAndComponentsRecursively(List<DataPE> resultDataSets, List<DataPE> dataSets)
+    {
+        for (DataPE dataSet : dataSets)
+        {
+            resultDataSets.add(dataSet);
+            addAllDataSetsAndComponentsRecursively(resultDataSets, dataSet.getContainedDataSets());
+        }
     }
     
     @Override
