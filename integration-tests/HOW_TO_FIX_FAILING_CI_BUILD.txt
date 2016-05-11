@@ -4,7 +4,7 @@ ERROR causing test failure: Test data folder missing
 
 Solution:
 
-ssh hudson
-cd ~/hudson/jobs/integration-tests/workspace/integration-tests/targets/
-ln -s ../../../../../test-data test-data
+ssh stage-jenkins
+cd ~/hudson/tests-16.05/integration-tests/targets/
+ln -s ../../../test-data test-data
 
