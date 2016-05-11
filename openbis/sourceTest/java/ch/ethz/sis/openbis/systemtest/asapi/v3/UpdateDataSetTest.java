@@ -335,6 +335,53 @@ public class UpdateDataSetTest extends AbstractSampleTest
     }
 
     @Test
+    public void testUpdateWithExperimentWhenComponentsExist()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetPermId containerId = new DataSetPermId("CONTAINER_1");
+        DataSetPermId component1Id = new DataSetPermId("COMPONENT_1A");
+        DataSetPermId component2Id = new DataSetPermId("COMPONENT_1B");
+
+        ExperimentPermId experimentBeforeId = new ExperimentPermId("200811050940555-1032");
+        ExperimentPermId experimentAfterId = new ExperimentPermId("200811050951882-1028");
+
+        DataSetFetchOptions fe = new DataSetFetchOptions();
+        fe.withExperiment();
+        fe.withComponents().withExperiment();
+
+        DataSet result = v3api.getDataSets(sessionToken, Collections.singletonList(containerId), fe).get(containerId);
+
+        assertEquals(result.getCode(), containerId.getPermId());
+        assertEquals(result.getExperiment().getPermId(), experimentBeforeId);
+        AssertionUtil.assertCollectionContainsOnly(dataSetCodes(result.getComponents()), component1Id.getPermId(), component2Id.getPermId());
+        for (DataSet component : result.getComponents())
+        {
+            assertEquals(component.getExperiment().getPermId(), experimentBeforeId);
+        }
+
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(containerId);
+        update.setExperimentId(experimentAfterId);
+
+        ReindexingState state = new ReindexingState();
+
+        v3api.updateDataSets(sessionToken, Collections.singletonList(update));
+
+        result = v3api.getDataSets(sessionToken, Collections.singletonList(containerId), fe).get(containerId);
+
+        assertEquals(result.getCode(), containerId.getPermId());
+        assertEquals(result.getExperiment().getPermId(), experimentAfterId);
+        AssertionUtil.assertCollectionContainsOnly(dataSetCodes(result.getComponents()), component1Id.getPermId(), component2Id.getPermId());
+        for (DataSet component : result.getComponents())
+        {
+            assertEquals(component.getExperiment().getPermId(), experimentAfterId);
+        }
+
+        assertDataSetsReindexed(state, containerId.getPermId(), component1Id.getPermId(), component2Id.getPermId());
+    }
+
+    @Test
     public void testUpdateWithExternalDataSet()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
