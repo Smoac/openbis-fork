@@ -8,3 +8,11 @@ ssh hudson
 cd ~/hudson/jobs/integration-tests/workspace/integration-tests/targets/
 ln -s ../../../../../test-data test-data
 
+
+Note: If this happening on stage-jenkins you have to do the following:
+
+ssh stage-jenkins
+cd ~/hudson/tests-16.05/integration-tests/targets/
+ln -s ../../../test-data test-data
+
+
