@@ -24,7 +24,11 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.SetEntityRelationProgress;
 
 /**
  * @author pkupczyk
@@ -35,11 +39,11 @@ public abstract class AbstractSetEntityToOneRelationExecutor<ENTITY_CREATION, EN
 {
 
     @Override
-    public void set(IOperationContext context, Map<ENTITY_CREATION, ENTITY_PE> entitiesMap)
+    public void set(final IOperationContext context, MapBatch<ENTITY_CREATION, ENTITY_PE> batch)
     {
         List<RELATED_ID> relatedIds = new LinkedList<RELATED_ID>();
 
-        for (ENTITY_CREATION creation : entitiesMap.keySet())
+        for (ENTITY_CREATION creation : batch.getObjects().keySet())
         {
             RELATED_ID relatedId = getRelatedId(creation);
 
@@ -49,32 +53,43 @@ public abstract class AbstractSetEntityToOneRelationExecutor<ENTITY_CREATION, EN
             }
         }
 
-        Map<RELATED_ID, RELATED_PE> relatedMap = map(context, relatedIds);
+        final Map<RELATED_ID, RELATED_PE> relatedMap = map(context, relatedIds);
 
-        for (Map.Entry<ENTITY_CREATION, ENTITY_PE> entry : entitiesMap.entrySet())
-        {
-            ENTITY_CREATION creation = entry.getKey();
-            ENTITY_PE entity = entry.getValue();
-            RELATED_ID relatedId = getRelatedId(creation);
-
-            if (relatedId == null)
+        new MapBatchProcessor<ENTITY_CREATION, ENTITY_PE>(context, batch)
             {
-                check(context, entity, null, null);
-                set(context, entity, null);
-            } else
-            {
-                RELATED_PE related = relatedMap.get(relatedId);
-
-                if (related == null)
+                @Override
+                public void process(ENTITY_CREATION creation, ENTITY_PE entity)
                 {
-                    throw new ObjectNotFoundException((IObjectId) relatedId);
+                    RELATED_ID relatedId = getRelatedId(creation);
+
+                    if (relatedId == null)
+                    {
+                        check(context, entity, null, null);
+                        set(context, entity, null);
+                    } else
+                    {
+                        RELATED_PE related = relatedMap.get(relatedId);
+
+                        if (related == null)
+                        {
+                            throw new ObjectNotFoundException((IObjectId) relatedId);
+                        }
+
+                        check(context, entity, relatedId, related);
+                        set(context, entity, related);
+                    }
                 }
 
-                check(context, entity, relatedId, related);
-                set(context, entity, related);
-            }
-        }
+                @Override
+                public IProgress createProgress(ENTITY_CREATION key, ENTITY_PE value, int objectIndex, int totalObjectCount)
+                {
+                    return new SetEntityRelationProgress(key, getRelationName(), objectIndex, totalObjectCount);
+                }
+
+            };
     }
+
+    protected abstract String getRelationName();
 
     protected abstract RELATED_ID getRelatedId(ENTITY_CREATION creation);
 

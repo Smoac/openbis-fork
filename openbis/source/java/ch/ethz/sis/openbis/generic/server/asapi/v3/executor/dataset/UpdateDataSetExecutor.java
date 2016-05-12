@@ -32,6 +32,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessE
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IUpdateTagForEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -104,23 +106,23 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, Collection<DataPE> entities)
+    protected void checkBusinessRules(IOperationContext context, CollectionBatch<DataPE> batch)
     {
-        verifyDataSetExecutor.verify(context, entities);
+        verifyDataSetExecutor.verify(context, batch);
     }
 
     @Override
-    protected void updateBatch(IOperationContext context, Map<DataSetUpdate, DataPE> entitiesMap)
+    protected void updateBatch(IOperationContext context, MapBatch<DataSetUpdate, DataPE> batch)
     {
-        updateDataSetPhysicalDataExecutor.update(context, entitiesMap);
-        updateDataSetLinkedDataExecutor.update(context, entitiesMap);
-        updateDataSetExperimentExecutor.update(context, entitiesMap);
-        updateDataSetSampleExecutor.update(context, entitiesMap);
+        updateDataSetPhysicalDataExecutor.update(context, batch);
+        updateDataSetLinkedDataExecutor.update(context, batch);
+        updateDataSetExperimentExecutor.update(context, batch);
+        updateDataSetSampleExecutor.update(context, batch);
 
         PersonPE person = context.getSession().tryGetPerson();
         Date timeStamp = daoFactory.getTransactionTimestamp();
         Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
-        for (Map.Entry<DataSetUpdate, DataPE> entry : entitiesMap.entrySet())
+        for (Map.Entry<DataSetUpdate, DataPE> entry : batch.getObjects().entrySet())
         {
             DataSetUpdate update = entry.getKey();
             DataPE entity = entry.getValue();
@@ -141,9 +143,9 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
     }
 
     @Override
-    protected void updateAll(IOperationContext context, Map<DataSetUpdate, DataPE> entitiesMap)
+    protected void updateAll(IOperationContext context, MapBatch<DataSetUpdate, DataPE> batch)
     {
-        updateDataSetRelatedDataSetsExecutor.update(context, entitiesMap);
+        updateDataSetRelatedDataSetsExecutor.update(context, batch);
     }
 
     @Override

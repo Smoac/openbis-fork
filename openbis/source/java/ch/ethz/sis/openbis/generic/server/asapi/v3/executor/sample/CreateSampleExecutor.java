@@ -47,6 +47,8 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractCreat
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IMapEntityTypeByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IAddTagToEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
@@ -111,12 +113,12 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
     private ExposablePropertyPlaceholderConfigurer configurer;
 
     @Override
-    protected List<SamplePE> createEntities(IOperationContext context, Collection<SampleCreation> creations)
+    protected List<SamplePE> createEntities(IOperationContext context, CollectionBatch<SampleCreation> batch)
     {
         // Get Types
         Collection<IEntityTypeId> typeIds = new HashSet<IEntityTypeId>();
 
-        for (SampleCreation creation : creations)
+        for (SampleCreation creation : batch.getObjects())
         {
             typeIds.add(creation.getTypeId());
         }
@@ -137,7 +139,7 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
 
         // Validate Sample creations using types
         Map<String, Integer> numCodesByPrefix = new HashMap<String, Integer>();
-        for (SampleCreation creation : creations)
+        for (SampleCreation creation : batch.getObjects())
         {
             SampleTypePE type = (SampleTypePE) types.get(creation.getTypeId());
             checkData(context, creation, type);
@@ -171,7 +173,7 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
         List<SamplePE> samples = new LinkedList<SamplePE>();
         PersonPE person = context.getSession().tryGetPerson();
         Date timeStamp = daoFactory.getTransactionTimestamp();
-        for (SampleCreation creation : creations)
+        for (SampleCreation creation : batch.getObjects())
         {
             SamplePE sample = new SamplePE();
             // Create code if is not present
@@ -233,21 +235,21 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, Collection<SamplePE> entities)
+    protected void checkBusinessRules(IOperationContext context, CollectionBatch<SamplePE> batch)
     {
-        verifySampleExecutor.verify(context, entities);
+        verifySampleExecutor.verify(context, batch);
     }
 
     @Override
-    protected void updateBatch(IOperationContext context, Map<SampleCreation, SamplePE> entitiesMap)
+    protected void updateBatch(IOperationContext context, MapBatch<SampleCreation, SamplePE> batch)
     {
-        setSampleSpaceExecutor.set(context, entitiesMap);
-        setSampleProjectExecutor.set(context, entitiesMap);
-        setSampleExperimentExecutor.set(context, entitiesMap);
-        setSampleTypeExecutor.set(context, entitiesMap);
+        setSampleSpaceExecutor.set(context, batch);
+        setSampleProjectExecutor.set(context, batch);
+        setSampleExperimentExecutor.set(context, batch);
+        setSampleTypeExecutor.set(context, batch);
 
         Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
-        for (Map.Entry<SampleCreation, SamplePE> entry : entitiesMap.entrySet())
+        for (Map.Entry<SampleCreation, SamplePE> entry : batch.getObjects().entrySet())
         {
             propertyMap.put(entry.getValue(), entry.getKey().getProperties());
         }
@@ -255,13 +257,13 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
     }
 
     @Override
-    protected void updateAll(IOperationContext context, Map<SampleCreation, SamplePE> entitiesMap)
+    protected void updateAll(IOperationContext context, MapBatch<SampleCreation, SamplePE> batch)
     {
         Map<AttachmentHolderPE, Collection<? extends AttachmentCreation>> attachmentMap =
                 new HashMap<AttachmentHolderPE, Collection<? extends AttachmentCreation>>();
         Map<IEntityWithMetaprojects, Collection<? extends ITagId>> tagMap = new HashMap<IEntityWithMetaprojects, Collection<? extends ITagId>>();
 
-        for (Map.Entry<SampleCreation, SamplePE> entry : entitiesMap.entrySet())
+        for (Map.Entry<SampleCreation, SamplePE> entry : batch.getObjects().entrySet())
         {
             SampleCreation creation = entry.getKey();
             SamplePE entity = entry.getValue();
@@ -271,7 +273,7 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
 
         createAttachmentExecutor.create(context, attachmentMap);
         addTagToEntityExecutor.add(context, tagMap);
-        setSampleRelatedSamplesExecutor.set(context, entitiesMap);
+        setSampleRelatedSamplesExecutor.set(context, batch);
     }
 
     @Override

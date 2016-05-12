@@ -34,11 +34,16 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifi
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.attachment.ICreateAttachmentExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractCreateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IAddTagToEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CreateEntityProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -82,22 +87,32 @@ public class CreateExperimentExecutor extends AbstractCreateEntityExecutor<Exper
     private IVerifyExperimentExecutor verifyExperimentExecutor;
 
     @Override
-    protected List<ExperimentPE> createEntities(IOperationContext context, Collection<ExperimentCreation> creations)
+    protected List<ExperimentPE> createEntities(IOperationContext context, CollectionBatch<ExperimentCreation> batch)
     {
-        List<ExperimentPE> experiments = new LinkedList<ExperimentPE>();
+        final List<ExperimentPE> experiments = new LinkedList<ExperimentPE>();
+        final PersonPE person = context.getSession().tryGetPerson();
+        final Date timeStamp = daoFactory.getTransactionTimestamp();
 
-        PersonPE person = context.getSession().tryGetPerson();
-        Date timeStamp = daoFactory.getTransactionTimestamp();
-        for (ExperimentCreation creation : creations)
-        {
-            ExperimentPE experiment = new ExperimentPE();
-            experiment.setCode(creation.getCode());
-            String createdPermId = daoFactory.getPermIdDAO().createPermId();
-            experiment.setPermId(createdPermId);
-            experiment.setRegistrator(person);
-            RelationshipUtils.updateModificationDateAndModifier(experiment, person, timeStamp);
-            experiments.add(experiment);
-        }
+        new CollectionBatchProcessor<ExperimentCreation>(context, batch)
+            {
+                @Override
+                public void process(ExperimentCreation object)
+                {
+                    ExperimentPE experiment = new ExperimentPE();
+                    experiment.setCode(object.getCode());
+                    String createdPermId = daoFactory.getPermIdDAO().createPermId();
+                    experiment.setPermId(createdPermId);
+                    experiment.setRegistrator(person);
+                    RelationshipUtils.updateModificationDateAndModifier(experiment, person, timeStamp);
+                    experiments.add(experiment);
+                }
+
+                @Override
+                public IProgress createProgress(ExperimentCreation object, int objectIndex, int totalObjectCount)
+                {
+                    return new CreateEntityProgress(object, objectIndex, totalObjectCount);
+                }
+            };
 
         return experiments;
     }
@@ -129,19 +144,19 @@ public class CreateExperimentExecutor extends AbstractCreateEntityExecutor<Exper
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, Collection<ExperimentPE> entities)
+    protected void checkBusinessRules(IOperationContext context, CollectionBatch<ExperimentPE> batch)
     {
-        verifyExperimentExecutor.verify(context, entities);
+        verifyExperimentExecutor.verify(context, batch);
     }
 
     @Override
-    protected void updateBatch(IOperationContext context, Map<ExperimentCreation, ExperimentPE> entitiesMap)
+    protected void updateBatch(IOperationContext context, MapBatch<ExperimentCreation, ExperimentPE> batch)
     {
-        setExperimentProjectExecutor.set(context, entitiesMap);
-        setExperimentTypeExecutor.set(context, entitiesMap);
+        setExperimentProjectExecutor.set(context, batch);
+        setExperimentTypeExecutor.set(context, batch);
 
         Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
-        for (Map.Entry<ExperimentCreation, ExperimentPE> entry : entitiesMap.entrySet())
+        for (Map.Entry<ExperimentCreation, ExperimentPE> entry : batch.getObjects().entrySet())
         {
             propertyMap.put(entry.getValue(), entry.getKey().getProperties());
         }
@@ -149,13 +164,13 @@ public class CreateExperimentExecutor extends AbstractCreateEntityExecutor<Exper
     }
 
     @Override
-    protected void updateAll(IOperationContext context, Map<ExperimentCreation, ExperimentPE> entitiesMap)
+    protected void updateAll(IOperationContext context, MapBatch<ExperimentCreation, ExperimentPE> batch)
     {
         Map<AttachmentHolderPE, Collection<? extends AttachmentCreation>> attachmentMap =
                 new HashMap<AttachmentHolderPE, Collection<? extends AttachmentCreation>>();
         Map<IEntityWithMetaprojects, Collection<? extends ITagId>> tagMap = new HashMap<IEntityWithMetaprojects, Collection<? extends ITagId>>();
 
-        for (Map.Entry<ExperimentCreation, ExperimentPE> entry : entitiesMap.entrySet())
+        for (Map.Entry<ExperimentCreation, ExperimentPE> entry : batch.getObjects().entrySet())
         {
             ExperimentCreation creation = entry.getKey();
             ExperimentPE entity = entry.getValue();

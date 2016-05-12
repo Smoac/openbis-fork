@@ -63,7 +63,8 @@ public class Context implements IContext
     public void pushProgress(IProgress progress)
     {
         progressStack.push(progress);
-        notifyProgressListeners();
+        // temporarily comment out until SSDM-3543 is finished
+        // notifyProgressListeners();
     }
 
     @Override

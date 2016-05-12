@@ -34,6 +34,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityToOneRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IReindexEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.space.IMapSpaceByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -55,19 +56,25 @@ public class UpdateProjectSpaceExecutor extends AbstractUpdateEntityToOneRelatio
     private IReindexEntityExecutor reindexObjectExecutor;
 
     @Override
-    public void update(IOperationContext context, Map<ProjectUpdate, ProjectPE> entitiesMap)
+    protected String getRelationName()
     {
-        super.update(context, entitiesMap);
-
-        reindex(context, entitiesMap.values());
+        return "project-space";
     }
 
     @Override
-    public void update(IOperationContext context, Map<ProjectUpdate, ProjectPE> entitiesMap, Map<ISpaceId, SpacePE> relatedMap)
+    public void update(IOperationContext context, MapBatch<ProjectUpdate, ProjectPE> batch)
     {
-        super.update(context, entitiesMap, relatedMap);
+        super.update(context, batch);
 
-        reindex(context, entitiesMap.values());
+        reindex(context, batch.getObjects().values());
+    }
+
+    @Override
+    public void update(IOperationContext context, MapBatch<ProjectUpdate, ProjectPE> batch, Map<ISpaceId, SpacePE> relatedMap)
+    {
+        super.update(context, batch, relatedMap);
+
+        reindex(context, batch.getObjects().values());
     }
 
     @Override

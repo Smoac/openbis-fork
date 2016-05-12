@@ -4,8 +4,11 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -77,11 +80,41 @@ public class ListUpdateValue<ADD, REMOVE, SET, ACTION> implements Serializable
     }
 
     @SuppressWarnings("unchecked")
+    @JsonIgnore
+    public Collection<REMOVE> getRemoved()
+    {
+        Collection<Object> items = new LinkedHashSet<Object>();
+        for (ListUpdateAction<ACTION> action : actions)
+        {
+            if (action instanceof ListUpdateActionRemove<?>)
+            {
+                items.addAll(action.getItems());
+            }
+        }
+        return (Collection<REMOVE>) items;
+    }
+
+    @SuppressWarnings("unchecked")
     public void add(ADD... items)
     {
         ListUpdateActionAdd<ADD> action = new ListUpdateActionAdd<ADD>();
         action.setItems(Arrays.asList(items));
         actions.add((ListUpdateAction<ACTION>) action);
+    }
+
+    @SuppressWarnings("unchecked")
+    @JsonIgnore
+    public Collection<ADD> getAdded()
+    {
+        Collection<Object> items = new LinkedHashSet<Object>();
+        for (ListUpdateAction<ACTION> action : actions)
+        {
+            if (action instanceof ListUpdateActionAdd<?>)
+            {
+                items.addAll(action.getItems());
+            }
+        }
+        return (Collection<ADD>) items;
     }
 
     @SuppressWarnings("unchecked")
@@ -96,6 +129,21 @@ public class ListUpdateValue<ADD, REMOVE, SET, ACTION> implements Serializable
             action.setItems(Arrays.asList(items));
         }
         actions.add((ListUpdateAction<ACTION>) action);
+    }
+
+    @SuppressWarnings("unchecked")
+    @JsonIgnore
+    public Collection<SET> getSet()
+    {
+        Collection<Object> items = new LinkedHashSet<Object>();
+        for (ListUpdateAction<ACTION> action : actions)
+        {
+            if (action instanceof ListUpdateActionSet<?>)
+            {
+                items.addAll(action.getItems());
+            }
+        }
+        return (Collection<SET>) items;
     }
 
 }

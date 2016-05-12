@@ -32,6 +32,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessE
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IUpdateTagForEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -96,20 +98,20 @@ public class UpdateExperimentExecutor extends AbstractUpdateEntityExecutor<Exper
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, Collection<ExperimentPE> entities)
+    protected void checkBusinessRules(IOperationContext context, CollectionBatch<ExperimentPE> batch)
     {
-        verifyExperimentExecutor.verify(context, entities);
+        verifyExperimentExecutor.verify(context, batch);
     }
 
     @Override
-    protected void updateBatch(IOperationContext context, Map<ExperimentUpdate, ExperimentPE> entitiesMap)
+    protected void updateBatch(IOperationContext context, MapBatch<ExperimentUpdate, ExperimentPE> batch)
     {
-        updateExperimentProjectExecutor.update(context, entitiesMap);
+        updateExperimentProjectExecutor.update(context, batch);
 
         Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
         PersonPE person = context.getSession().tryGetPerson();
         Date timeStamp = daoFactory.getTransactionTimestamp();
-        for (Map.Entry<ExperimentUpdate, ExperimentPE> entry : entitiesMap.entrySet())
+        for (Map.Entry<ExperimentUpdate, ExperimentPE> entry : batch.getObjects().entrySet())
         {
             ExperimentUpdate update = entry.getKey();
             ExperimentPE entity = entry.getValue();
@@ -135,7 +137,7 @@ public class UpdateExperimentExecutor extends AbstractUpdateEntityExecutor<Exper
     }
 
     @Override
-    protected void updateAll(IOperationContext context, Map<ExperimentUpdate, ExperimentPE> entitiesMap)
+    protected void updateAll(IOperationContext context, MapBatch<ExperimentUpdate, ExperimentPE> batch)
     {
     }
 

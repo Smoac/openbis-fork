@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.LinkedDataCreation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
@@ -39,9 +40,9 @@ public class SetDataSetLinkedDataExecutor implements ISetDataSetLinkedDataExecut
     private ISetDataSetExternalDmsExecutor setDataSetExternalDmsExecutor;
 
     @Override
-    public void set(IOperationContext context, Map<DataSetCreation, DataPE> entitiesMap)
+    public void set(IOperationContext context, MapBatch<DataSetCreation, DataPE> batch)
     {
-        for (Map.Entry<DataSetCreation, DataPE> entry : entitiesMap.entrySet())
+        for (Map.Entry<DataSetCreation, DataPE> entry : batch.getObjects().entrySet())
         {
             DataSetCreation creation = entry.getKey();
             LinkedDataCreation linkedCreation = creation.getLinkedData();
@@ -63,7 +64,7 @@ public class SetDataSetLinkedDataExecutor implements ISetDataSetLinkedDataExecut
             }
         }
 
-        setDataSetExternalDmsExecutor.set(context, entitiesMap);
+        setDataSetExternalDmsExecutor.set(context, batch);
     }
 
     private void set(IOperationContext context, LinkedDataCreation linkedCreation, LinkDataPE dataSet)

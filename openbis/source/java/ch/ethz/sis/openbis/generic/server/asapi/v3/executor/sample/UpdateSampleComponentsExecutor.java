@@ -47,6 +47,12 @@ public class UpdateSampleComponentsExecutor extends AbstractUpdateEntityToManyRe
     private IReindexEntityExecutor reindexObjectExecutor;
 
     @Override
+    protected String getRelationName()
+    {
+        return "sample-components";
+    }
+
+    @Override
     protected Collection<SamplePE> getCurrentlyRelated(SamplePE entity)
     {
         return entity.getContained();

@@ -34,6 +34,12 @@ public class SetTagSamplesWithCacheExecutor extends SetTagEntitiesWithCacheExecu
 {
 
     @Override
+    protected String getRelationName()
+    {
+        return "tag-samples";
+    }
+
+    @Override
     protected Class<SamplePE> getRelatedClass()
     {
         return SamplePE.class;

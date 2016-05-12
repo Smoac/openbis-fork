@@ -43,6 +43,12 @@ public class SetSampleProjectExecutor extends AbstractSetEntityToOneRelationExec
     private IMapProjectByIdExecutor mapProjectByIdExecutor;
 
     @Override
+    protected String getRelationName()
+    {
+        return "sample-project";
+    }
+
+    @Override
     protected IProjectId getRelatedId(SampleCreation creation)
     {
         // TODO: project samples

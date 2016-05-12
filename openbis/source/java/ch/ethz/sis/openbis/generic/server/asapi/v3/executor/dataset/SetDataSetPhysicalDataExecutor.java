@@ -25,6 +25,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.Complete;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.PhysicalDataCreation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -47,9 +48,9 @@ public class SetDataSetPhysicalDataExecutor implements ISetDataSetPhysicalDataEx
     private ISetDataSetLocatorTypeExecutor setDataSetLocatorTypeExecutor;
 
     @Override
-    public void set(IOperationContext context, Map<DataSetCreation, DataPE> entitiesMap)
+    public void set(IOperationContext context, MapBatch<DataSetCreation, DataPE> batch)
     {
-        for (Map.Entry<DataSetCreation, DataPE> entry : entitiesMap.entrySet())
+        for (Map.Entry<DataSetCreation, DataPE> entry : batch.getObjects().entrySet())
         {
             DataSetCreation creation = entry.getKey();
             PhysicalDataCreation physicalCreation = creation.getPhysicalData();
@@ -71,9 +72,9 @@ public class SetDataSetPhysicalDataExecutor implements ISetDataSetPhysicalDataEx
             }
         }
 
-        setDataSetStorageFormatExecutor.set(context, entitiesMap);
-        setDataSetFileFormatTypeExecutor.set(context, entitiesMap);
-        setDataSetLocatorTypeExecutor.set(context, entitiesMap);
+        setDataSetStorageFormatExecutor.set(context, batch);
+        setDataSetFileFormatTypeExecutor.set(context, batch);
+        setDataSetLocatorTypeExecutor.set(context, batch);
     }
 
     private void set(IOperationContext context, PhysicalDataCreation physicalCreation, ExternalDataPE dataSet)

@@ -34,6 +34,12 @@ public class SetSampleExperimentExecutor extends AbstractSetEntityExperimentRela
 {
 
     @Override
+    protected String getRelationName()
+    {
+        return "sample-experiment";
+    }
+
+    @Override
     protected IExperimentId getRelatedId(SampleCreation creation)
     {
         return creation.getExperimentId();

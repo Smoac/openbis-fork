@@ -23,44 +23,58 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.SetEntityRelationProgress;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 
 /**
  * @author pkupczyk
  */
-public abstract class AbstractSetEntityToManyRelationExecutor<ENTITY_CREATION, ENTITY_PE, RELATED_ID, RELATED_PE>
+public abstract class AbstractSetEntityToManyRelationExecutor<ENTITY_CREATION, ENTITY_PE, RELATED_ID extends IObjectId, RELATED_PE>
 {
 
     @Resource(name = ComponentNames.RELATIONSHIP_SERVICE)
     protected IRelationshipService relationshipService;
 
-    public void set(IOperationContext context, Map<ENTITY_CREATION, ENTITY_PE> creationsMap, Map<RELATED_ID, RELATED_PE> relatedMap)
+    public void set(final IOperationContext context, final MapBatch<ENTITY_CREATION, ENTITY_PE> batch, final Map<RELATED_ID, RELATED_PE> relatedMap)
     {
-        Collection<RELATED_PE> allSet = new HashSet<RELATED_PE>();
+        final Collection<RELATED_PE> allSet = new HashSet<RELATED_PE>();
 
-        for (ENTITY_CREATION creation : creationsMap.keySet())
-        {
-            ENTITY_PE entity = creationsMap.get(creation);
-            Collection<? extends RELATED_ID> relatedIds = getRelatedIds(context, creation);
-
-            if (relatedIds != null)
+        new MapBatchProcessor<ENTITY_CREATION, ENTITY_PE>(context, batch)
             {
-                Collection<RELATED_PE> related = new LinkedList<RELATED_PE>();
-
-                for (RELATED_ID relatedId : relatedIds)
+                @Override
+                public void process(ENTITY_CREATION creation, ENTITY_PE entity)
                 {
-                    related.add(relatedMap.get(relatedId));
+                    Collection<? extends RELATED_ID> relatedIds = getRelatedIds(context, creation);
+
+                    if (relatedIds != null)
+                    {
+                        Collection<RELATED_PE> related = new LinkedList<RELATED_PE>();
+
+                        for (RELATED_ID relatedId : relatedIds)
+                        {
+                            related.add(relatedMap.get(relatedId));
+                        }
+
+                        if (false == related.isEmpty())
+                        {
+                            setRelated(context, entity, related);
+                            allSet.addAll(related);
+                        }
+                    }
                 }
 
-                if (false == related.isEmpty())
+                @Override
+                public IProgress createProgress(ENTITY_CREATION key, ENTITY_PE value, int objectIndex, int totalObjectCount)
                 {
-                    setRelated(context, entity, related);
-                    allSet.addAll(related);
+                    return new SetEntityRelationProgress(key, getRelationName(), objectIndex, totalObjectCount);
                 }
-            }
-        }
+            };
 
         postSet(context, allSet);
     }
@@ -69,6 +83,8 @@ public abstract class AbstractSetEntityToManyRelationExecutor<ENTITY_CREATION, E
     {
         // by default do nothing
     }
+
+    protected abstract String getRelationName();
 
     protected abstract Collection<? extends RELATED_ID> getRelatedIds(IOperationContext context, ENTITY_CREATION creation);
 

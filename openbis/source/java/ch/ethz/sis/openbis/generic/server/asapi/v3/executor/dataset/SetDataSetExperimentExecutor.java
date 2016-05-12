@@ -42,6 +42,12 @@ public class SetDataSetExperimentExecutor extends AbstractSetEntityExperimentRel
     private IDAOFactory daoFactory;
 
     @Override
+    protected String getRelationName()
+    {
+        return "dataset-experiment";
+    }
+
+    @Override
     protected IExperimentId getRelatedId(DataSetCreation creation)
     {
         return creation.getExperimentId();

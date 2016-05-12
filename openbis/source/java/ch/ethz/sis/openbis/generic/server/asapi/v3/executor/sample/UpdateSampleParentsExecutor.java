@@ -38,6 +38,12 @@ public class UpdateSampleParentsExecutor extends AbstractUpdateEntityToManyRelat
 {
 
     @Override
+    protected String getRelationName()
+    {
+        return "sample-parents";
+    }
+
+    @Override
     protected Collection<SamplePE> getCurrentlyRelated(SamplePE entity)
     {
         return entity.getParents();

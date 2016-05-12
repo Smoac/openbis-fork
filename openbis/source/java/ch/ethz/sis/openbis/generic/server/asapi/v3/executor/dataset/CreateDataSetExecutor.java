@@ -36,11 +36,16 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractCreateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IMapEntityTypeByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IAddTagToEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CheckDataProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -98,28 +103,38 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
     private IVerifyDataSetExecutor verifyDataSetExecutor;
 
     @Override
-    protected List<DataPE> createEntities(IOperationContext context, Collection<DataSetCreation> creations)
+    protected List<DataPE> createEntities(final IOperationContext context, CollectionBatch<DataSetCreation> batch)
     {
         // Get Types
         Collection<IEntityTypeId> typeIds = new HashSet<IEntityTypeId>();
 
-        for (DataSetCreation creation : creations)
+        for (DataSetCreation creation : batch.getObjects())
         {
             typeIds.add(creation.getTypeId());
         }
 
-        Map<IEntityTypeId, EntityTypePE> types = mapEntityTypeByIdExecutor.map(context, EntityKind.DATA_SET, typeIds);
+        final Map<IEntityTypeId, EntityTypePE> types = mapEntityTypeByIdExecutor.map(context, EntityKind.DATA_SET, typeIds);
 
         // Validate DataSet creations
-        for (DataSetCreation creation : creations)
-        {
-            checkData(context, creation, types.get(creation.getTypeId()));
-        }
+        new CollectionBatchProcessor<DataSetCreation>(context, batch)
+            {
+                @Override
+                public void process(DataSetCreation object)
+                {
+                    checkData(context, object, types.get(object.getTypeId()));
+                }
+
+                @Override
+                public IProgress createProgress(DataSetCreation object, int objectIndex, int totalObjectCount)
+                {
+                    return new CheckDataProgress(object, objectIndex, totalObjectCount);
+                }
+            };
 
         IPermIdDAO codeGenerator = daoFactory.getPermIdDAO();
 
         List<DataPE> dataSets = new LinkedList<DataPE>();
-        for (DataSetCreation creation : creations)
+        for (DataSetCreation creation : batch.getObjects())
         {
             DataSetTypePE type = (DataSetTypePE) types.get(creation.getTypeId());
 
@@ -206,22 +221,22 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, Collection<DataPE> entities)
+    protected void checkBusinessRules(IOperationContext context, CollectionBatch<DataPE> batch)
     {
-        verifyDataSetExecutor.verify(context, entities);
+        verifyDataSetExecutor.verify(context, batch);
     }
 
     @Override
-    protected void updateBatch(IOperationContext context, Map<DataSetCreation, DataPE> entitiesMap)
+    protected void updateBatch(IOperationContext context, MapBatch<DataSetCreation, DataPE> batch)
     {
-        setDataSetPhysicalDataExecutor.set(context, entitiesMap);
-        setDataSetLinkedDataExecutor.set(context, entitiesMap);
-        setDataSetDataStoreExecutor.set(context, entitiesMap);
-        setDataSetSampleExecutor.set(context, entitiesMap);
-        setDataSetExperimentExecutor.set(context, entitiesMap);
+        setDataSetPhysicalDataExecutor.set(context, batch);
+        setDataSetLinkedDataExecutor.set(context, batch);
+        setDataSetDataStoreExecutor.set(context, batch);
+        setDataSetSampleExecutor.set(context, batch);
+        setDataSetExperimentExecutor.set(context, batch);
 
         Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
-        for (Map.Entry<DataSetCreation, DataPE> entry : entitiesMap.entrySet())
+        for (Map.Entry<DataSetCreation, DataPE> entry : batch.getObjects().entrySet())
         {
             propertyMap.put(entry.getValue(), entry.getKey().getProperties());
         }
@@ -229,11 +244,11 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
     }
 
     @Override
-    protected void updateAll(IOperationContext context, Map<DataSetCreation, DataPE> entitiesMap)
+    protected void updateAll(IOperationContext context, MapBatch<DataSetCreation, DataPE> batch)
     {
         Map<IEntityWithMetaprojects, Collection<? extends ITagId>> tagMap = new HashMap<IEntityWithMetaprojects, Collection<? extends ITagId>>();
 
-        for (Map.Entry<DataSetCreation, DataPE> entry : entitiesMap.entrySet())
+        for (Map.Entry<DataSetCreation, DataPE> entry : batch.getObjects().entrySet())
         {
             DataSetCreation creation = entry.getKey();
             DataPE entity = entry.getValue();
@@ -241,7 +256,7 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
         }
 
         addTagToEntityExecutor.add(context, tagMap);
-        setDataSetRelatedDataSetsExecutor.set(context, entitiesMap);
+        setDataSetRelatedDataSetsExecutor.set(context, batch);
     }
 
     @Override

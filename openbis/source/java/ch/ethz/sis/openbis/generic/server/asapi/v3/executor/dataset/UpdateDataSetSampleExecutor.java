@@ -47,6 +47,12 @@ public class UpdateDataSetSampleExecutor extends AbstractUpdateEntityToOneRelati
     private IMapSampleByIdExecutor mapSampleByIdExecutor;
 
     @Override
+    protected String getRelationName()
+    {
+        return "dataset-sample";
+    }
+
+    @Override
     protected ISampleId getRelatedId(SamplePE related)
     {
         return new SampleIdentifier(related.getIdentifier());

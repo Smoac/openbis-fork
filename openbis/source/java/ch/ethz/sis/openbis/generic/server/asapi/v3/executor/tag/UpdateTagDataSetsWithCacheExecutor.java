@@ -37,6 +37,12 @@ public class UpdateTagDataSetsWithCacheExecutor extends UpdateTagEntitiesWithCac
 {
 
     @Override
+    protected String getRelationName()
+    {
+        return "tag-datasets";
+    }
+
+    @Override
     protected Class<DataPE> getRelatedClass()
     {
         return DataPE.class;

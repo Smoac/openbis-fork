@@ -29,6 +29,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessE
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSetEntityMultipleRelationsExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IMapSampleByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -75,9 +76,9 @@ public class SetTagSamplesExecutor extends AbstractSetEntityMultipleRelationsExe
     }
 
     @Override
-    protected void set(IOperationContext context, Map<TagCreation, MetaprojectPE> creationsMap, Map<ISampleId, SamplePE> relatedMap)
+    protected void set(IOperationContext context, MapBatch<TagCreation, MetaprojectPE> batch, Map<ISampleId, SamplePE> relatedMap)
     {
-        setTagSamplesWithCacheExecutor.set(context, creationsMap, relatedMap);
+        setTagSamplesWithCacheExecutor.set(context, batch, relatedMap);
     }
 
 }

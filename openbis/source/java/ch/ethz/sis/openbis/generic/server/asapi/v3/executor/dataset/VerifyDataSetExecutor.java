@@ -16,13 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
-import java.util.Collection;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IVerifyEntityPropertyExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
@@ -45,7 +44,7 @@ public class VerifyDataSetExecutor implements IVerifyDataSetExecutor
     private IVerifyDataSetParentsExecutor verifyDataSetParentsExecutor;
 
     @Override
-    public void verify(IOperationContext context, Collection<DataPE> dataSets)
+    public void verify(IOperationContext context, CollectionBatch<DataPE> dataSets)
     {
         verifyDataSetSampleAndExperimentExecutor.verify(context, dataSets);
         verifyEntityPropertyExecutor.verify(context, dataSets);

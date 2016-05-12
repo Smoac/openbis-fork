@@ -31,14 +31,22 @@ import org.springframework.dao.DataAccessException;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.Batch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CheckAccessProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CheckDataProgress;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
  * @author pkupczyk
  */
-public abstract class AbstractUpdateEntityExecutor<UPDATE, PE extends IIdHolder, ID> implements IUpdateEntityExecutor<UPDATE>
+public abstract class AbstractUpdateEntityExecutor<UPDATE, PE extends IIdHolder, ID extends IObjectId> implements IUpdateEntityExecutor<UPDATE>
 {
 
     @Autowired
@@ -51,20 +59,18 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE, PE extends IIdHolder,
         {
             Map<UPDATE, PE> entitiesAll = new LinkedHashMap<UPDATE, PE>();
 
-            int batchSize = 1000;
-            for (int batchStart = 0; batchStart < updates.size(); batchStart += batchSize)
+            for (CollectionBatch<UPDATE> batch : Batch.createBatches(updates))
             {
-                List<UPDATE> updatesBatch = updates.subList(batchStart, Math.min(batchStart + batchSize, updates.size()));
-                updateEntities(context, updatesBatch, entitiesAll);
+                updateEntities(context, batch, entitiesAll);
             }
 
             reloadEntities(context, entitiesAll);
 
-            updateAll(context, entitiesAll);
+            updateAll(context, new MapBatch<UPDATE, PE>(0, 0, entitiesAll.size(), entitiesAll, entitiesAll.size()));
 
             reloadEntities(context, entitiesAll);
 
-            checkBusinessRules(context, entitiesAll.values());
+            checkBusinessRules(context, new CollectionBatch<PE>(0, 0, entitiesAll.size(), entitiesAll.values(), entitiesAll.size()));
 
         } catch (DataAccessException e)
         {
@@ -72,15 +78,45 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE, PE extends IIdHolder,
         }
     }
 
-    private Map<UPDATE, PE> getEntitiesMap(IOperationContext context, List<UPDATE> updates)
+    private void checkData(final IOperationContext context, CollectionBatch<UPDATE> batch)
     {
+        new CollectionBatchProcessor<UPDATE>(context, batch)
+            {
+                @Override
+                public void process(UPDATE object)
+                {
+                    checkData(context, object);
+                }
 
-        for (UPDATE update : updates)
-        {
-            checkData(context, update);
-        }
+                @Override
+                public IProgress createProgress(UPDATE object, int objectIndex, int totalObjectCount)
+                {
+                    return new CheckDataProgress(object, objectIndex, totalObjectCount);
+                }
+            };
+    }
 
-        Collection<ID> entityIds = CollectionUtils.collect(updates, new Transformer<UPDATE, ID>()
+    private void checkAccess(final IOperationContext context, MapBatch<UPDATE, PE> batch)
+    {
+        new MapBatchProcessor<UPDATE, PE>(context, batch)
+            {
+                @Override
+                public void process(UPDATE key, PE value)
+                {
+                    checkAccess(context, getId(key), value);
+                }
+
+                @Override
+                public IProgress createProgress(UPDATE key, PE value, int objectIndex, int totalObjectCount)
+                {
+                    return new CheckAccessProgress(key, objectIndex, totalObjectCount);
+                }
+            };
+    }
+
+    private Map<UPDATE, PE> getEntitiesMap(IOperationContext context, CollectionBatch<UPDATE> batch)
+    {
+        Collection<ID> entityIds = CollectionUtils.collect(batch.getObjects(), new Transformer<UPDATE, ID>()
             {
                 @Override
                 public ID transform(UPDATE update)
@@ -97,15 +133,13 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE, PE extends IIdHolder,
 
             if (entity == null)
             {
-                throw new ObjectNotFoundException((IObjectId) entityId);
+                throw new ObjectNotFoundException(entityId);
             }
-
-            checkAccess(context, entityId, entity);
         }
 
         Map<UPDATE, PE> result = new HashMap<UPDATE, PE>();
 
-        for (UPDATE update : updates)
+        for (UPDATE update : batch.getObjects())
         {
             ID id = getId(update);
             result.put(update, entityMap.get(id));
@@ -114,16 +148,22 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE, PE extends IIdHolder,
         return result;
     }
 
-    private void updateEntities(IOperationContext context, List<UPDATE> updatesBatch, Map<UPDATE, PE> entitiesAll)
+    private void updateEntities(IOperationContext context, CollectionBatch<UPDATE> batch, Map<UPDATE, PE> entitiesAll)
     {
-        Map<UPDATE, PE> batchMap = getEntitiesMap(context, updatesBatch);
-        entitiesAll.putAll(batchMap);
+        checkData(context, batch);
+
+        Map<UPDATE, PE> updateToEntityMap = getEntitiesMap(context, batch);
+        entitiesAll.putAll(updateToEntityMap);
 
         daoFactory.setBatchUpdateMode(true);
 
-        updateBatch(context, batchMap);
+        MapBatch<UPDATE, PE> mapBatch = new MapBatch<UPDATE, PE>(batch.getBatchIndex(), batch.getFromObjectIndex(), batch.getToObjectIndex(),
+                updateToEntityMap, batch.getTotalObjectCount());
 
-        save(context, new ArrayList<PE>(batchMap.values()), false);
+        checkAccess(context, mapBatch);
+        updateBatch(context, mapBatch);
+
+        save(context, new ArrayList<PE>(updateToEntityMap.values()), false);
 
         daoFactory.setBatchUpdateMode(false);
     }
@@ -158,11 +198,11 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE, PE extends IIdHolder,
 
     protected abstract void checkAccess(IOperationContext context, ID id, PE entity);
 
-    protected abstract void checkBusinessRules(IOperationContext context, Collection<PE> entities);
+    protected abstract void checkBusinessRules(IOperationContext context, CollectionBatch<PE> batch);
 
-    protected abstract void updateBatch(IOperationContext context, Map<UPDATE, PE> entitiesMap);
+    protected abstract void updateBatch(IOperationContext context, MapBatch<UPDATE, PE> batch);
 
-    protected abstract void updateAll(IOperationContext context, Map<UPDATE, PE> entitiesMap);
+    protected abstract void updateAll(IOperationContext context, MapBatch<UPDATE, PE> batch);
 
     protected abstract Map<ID, PE> map(IOperationContext context, Collection<ID> ids);
 

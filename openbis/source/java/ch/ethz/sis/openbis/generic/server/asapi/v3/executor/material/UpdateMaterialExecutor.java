@@ -31,6 +31,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessE
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IUpdateTagForEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -86,16 +88,16 @@ public class UpdateMaterialExecutor extends AbstractUpdateEntityExecutor<Materia
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, Collection<MaterialPE> entities)
+    protected void checkBusinessRules(IOperationContext context, CollectionBatch<MaterialPE> batch)
     {
-        verifyMaterialExecutor.verify(context, entities);
+        verifyMaterialExecutor.verify(context, batch);
     }
 
     @Override
-    protected void updateBatch(IOperationContext context, Map<MaterialUpdate, MaterialPE> entitiesMap)
+    protected void updateBatch(IOperationContext context, MapBatch<MaterialUpdate, MaterialPE> batch)
     {
         Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
-        for (Map.Entry<MaterialUpdate, MaterialPE> entry : entitiesMap.entrySet())
+        for (Map.Entry<MaterialUpdate, MaterialPE> entry : batch.getObjects().entrySet())
         {
             MaterialUpdate update = entry.getKey();
             MaterialPE entity = entry.getValue();
@@ -114,7 +116,7 @@ public class UpdateMaterialExecutor extends AbstractUpdateEntityExecutor<Materia
     }
 
     @Override
-    protected void updateAll(IOperationContext context, Map<MaterialUpdate, MaterialPE> entitiesMap)
+    protected void updateAll(IOperationContext context, MapBatch<MaterialUpdate, MaterialPE> batch)
     {
     }
 

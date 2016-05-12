@@ -44,6 +44,12 @@ public class SetDataSetStorageFormatExecutor extends
     private IMapStorageFormatByIdExecutor mapStorageFormatByIdExecutor;
 
     @Override
+    protected String getRelationName()
+    {
+        return "dataset-storageformat";
+    }
+
+    @Override
     protected IStorageFormatId getRelatedId(DataSetCreation creation)
     {
         return creation.getPhysicalData() != null ? creation.getPhysicalData().getStorageFormatId() : null;

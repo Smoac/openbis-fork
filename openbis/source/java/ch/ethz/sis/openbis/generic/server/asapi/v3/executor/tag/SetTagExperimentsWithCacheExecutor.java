@@ -34,6 +34,12 @@ public class SetTagExperimentsWithCacheExecutor extends SetTagEntitiesWithCacheE
 {
 
     @Override
+    protected String getRelationName()
+    {
+        return "tag-experiments";
+    }
+
+    @Override
     protected Class<ExperimentPE> getRelatedClass()
     {
         return ExperimentPE.class;

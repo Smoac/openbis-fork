@@ -29,6 +29,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.update.TagUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.tag.TagAuthorization;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -86,15 +88,15 @@ public class UpdateTagExecutor extends AbstractUpdateEntityExecutor<TagUpdate, M
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, Collection<MetaprojectPE> entities)
+    protected void checkBusinessRules(IOperationContext context, CollectionBatch<MetaprojectPE> batch)
     {
         // nothing to do
     }
 
     @Override
-    protected void updateBatch(IOperationContext context, Map<TagUpdate, MetaprojectPE> entitiesMap)
+    protected void updateBatch(IOperationContext context, MapBatch<TagUpdate, MetaprojectPE> batch)
     {
-        for (Map.Entry<TagUpdate, MetaprojectPE> entry : entitiesMap.entrySet())
+        for (Map.Entry<TagUpdate, MetaprojectPE> entry : batch.getObjects().entrySet())
         {
             TagUpdate update = entry.getKey();
             MetaprojectPE tag = entry.getValue();
@@ -107,12 +109,12 @@ public class UpdateTagExecutor extends AbstractUpdateEntityExecutor<TagUpdate, M
     }
 
     @Override
-    protected void updateAll(IOperationContext context, Map<TagUpdate, MetaprojectPE> entitiesMap)
+    protected void updateAll(IOperationContext context, MapBatch<TagUpdate, MetaprojectPE> batch)
     {
-        updateTagExperimentsExecutor.update(context, entitiesMap);
-        updateTagSamplesExecutor.update(context, entitiesMap);
-        updateTagDataSetsExecutor.update(context, entitiesMap);
-        updateTagMaterialsExecutor.update(context, entitiesMap);
+        updateTagExperimentsExecutor.update(context, batch);
+        updateTagSamplesExecutor.update(context, batch);
+        updateTagDataSetsExecutor.update(context, batch);
+        updateTagMaterialsExecutor.update(context, batch);
     }
 
     @Override

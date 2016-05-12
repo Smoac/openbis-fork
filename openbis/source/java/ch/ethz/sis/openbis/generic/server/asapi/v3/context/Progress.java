@@ -26,26 +26,35 @@ public class Progress implements IProgress
 
     private String label;
 
-    private Integer totalItemsToProcess;
+    private String details;
 
     private Integer numItemsProcessed;
+
+    private Integer totalItemsToProcess;
 
     public Progress(String label)
     {
         this.label = label;
     }
 
-    public Progress(String label, int totalItemsToProcess, int numItemsProcessed)
+    public Progress(String label, String details, int numItemsProcessed, int totalItemsToProcess)
     {
         this.label = label;
-        this.totalItemsToProcess = totalItemsToProcess;
+        this.details = details;
         this.numItemsProcessed = numItemsProcessed;
+        this.totalItemsToProcess = totalItemsToProcess;
     }
 
     @Override
     public String getLabel()
     {
         return label;
+    }
+
+    @Override
+    public String getDetails()
+    {
+        return details;
     }
 
     @Override
@@ -63,13 +72,22 @@ public class Progress implements IProgress
     @Override
     public String toString()
     {
+        StringBuilder result = new StringBuilder();
+
         if (getTotalItemsToProcess() == null && getNumItemsProcessed() == null)
         {
-            return getLabel();
+            result.append(getLabel());
         } else
         {
-            return getLabel() + " (" + getNumItemsProcessed() + "/" + getTotalItemsToProcess() + ")";
+            result.append(getLabel() + " (" + getNumItemsProcessed() + "/" + getTotalItemsToProcess() + ")");
         }
+
+        if (getDetails() != null)
+        {
+            result.append(" [" + getDetails() + "]");
+        }
+
+        return result.toString();
     }
 
 }

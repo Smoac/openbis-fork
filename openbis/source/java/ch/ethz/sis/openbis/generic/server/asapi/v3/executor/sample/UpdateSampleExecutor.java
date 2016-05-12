@@ -32,6 +32,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessE
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IUpdateTagForEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -104,22 +106,22 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, Collection<SamplePE> entities)
+    protected void checkBusinessRules(IOperationContext context, CollectionBatch<SamplePE> batch)
     {
-        verifySampleExecutor.verify(context, entities);
+        verifySampleExecutor.verify(context, batch);
     }
 
     @Override
-    protected void updateBatch(IOperationContext context, Map<SampleUpdate, SamplePE> entitiesMap)
+    protected void updateBatch(IOperationContext context, MapBatch<SampleUpdate, SamplePE> batch)
     {
-        updateSampleSpaceExecutor.update(context, entitiesMap);
-        updateSampleProjectExecutor.update(context, entitiesMap);
-        updateSampleExperimentExecutor.update(context, entitiesMap);
+        updateSampleSpaceExecutor.update(context, batch);
+        updateSampleProjectExecutor.update(context, batch);
+        updateSampleExperimentExecutor.update(context, batch);
 
         Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
         PersonPE person = context.getSession().tryGetPerson();
         Date timeStamp = daoFactory.getTransactionTimestamp();
-        for (Map.Entry<SampleUpdate, SamplePE> entry : entitiesMap.entrySet())
+        for (Map.Entry<SampleUpdate, SamplePE> entry : batch.getObjects().entrySet())
         {
             SampleUpdate update = entry.getKey();
             SamplePE entity = entry.getValue();
@@ -145,9 +147,9 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
     }
 
     @Override
-    protected void updateAll(IOperationContext context, Map<SampleUpdate, SamplePE> entitiesMap)
+    protected void updateAll(IOperationContext context, MapBatch<SampleUpdate, SamplePE> batch)
     {
-        updateSampleRelatedSamplesExecutor.update(context, entitiesMap);
+        updateSampleRelatedSamplesExecutor.update(context, batch);
     }
 
     @Override

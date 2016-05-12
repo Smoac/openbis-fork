@@ -16,11 +16,10 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
-import java.util.Collection;
-
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleGenericBusinessRules;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -33,9 +32,9 @@ public class VerifySampleContainerExecutor implements IVerifySampleContainerExec
 {
 
     @Override
-    public void verify(IOperationContext context, Collection<SamplePE> samples)
+    public void verify(IOperationContext context, CollectionBatch<SamplePE> batch)
     {
-        for (SamplePE sample : samples)
+        for (SamplePE sample : batch.getObjects())
         {
             SamplePE containerCandidate = sample.getContainer();
 

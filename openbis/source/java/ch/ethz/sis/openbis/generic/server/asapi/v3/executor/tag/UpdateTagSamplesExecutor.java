@@ -28,6 +28,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.update.TagUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityMultipleRelationsExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IMapSampleByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
@@ -58,9 +59,9 @@ public class UpdateTagSamplesExecutor extends AbstractUpdateEntityMultipleRelati
     }
 
     @Override
-    protected void update(IOperationContext context, Map<TagUpdate, MetaprojectPE> entitiesMap, Map<ISampleId, SamplePE> relatedMap)
+    protected void update(IOperationContext context, MapBatch<TagUpdate, MetaprojectPE> batch, Map<ISampleId, SamplePE> relatedMap)
     {
-        updateTagSamplesWithCacheExecutor.update(context, entitiesMap, relatedMap);
+        updateTagSamplesWithCacheExecutor.update(context, batch, relatedMap);
     }
 
 }

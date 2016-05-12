@@ -30,8 +30,8 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 
 /**
  * @author pkupczyk
@@ -42,17 +42,15 @@ public abstract class AbstractSetEntityMultipleRelationsExecutor<ENTITY_CREATION
 {
 
     @Override
-    public void set(IOperationContext context, Map<ENTITY_CREATION, ENTITY_PE> creationsMap)
+    public void set(IOperationContext context, MapBatch<ENTITY_CREATION, ENTITY_PE> batch)
     {
-        Map<RELATED_ID, RELATED_PE> relatedMap = getRelatedMap(context, creationsMap);
+        Map<RELATED_ID, RELATED_PE> relatedMap = getRelatedMap(context, batch.getObjects());
 
-        set(context, creationsMap, relatedMap);
+        set(context, batch, relatedMap);
     }
 
     private Map<RELATED_ID, RELATED_PE> getRelatedMap(IOperationContext context, Map<ENTITY_CREATION, ENTITY_PE> creationsMap)
     {
-        context.pushProgress(new Progress("load related entities"));
-
         Set<RELATED_ID> relatedIds = new HashSet<RELATED_ID>();
         for (Entry<ENTITY_CREATION, ENTITY_PE> entry : creationsMap.entrySet())
         {
@@ -100,8 +98,6 @@ public abstract class AbstractSetEntityMultipleRelationsExecutor<ENTITY_CREATION
             check(context, relatedId, related);
         }
 
-        context.popProgress();
-
         return relatedMap;
     }
 
@@ -137,6 +133,6 @@ public abstract class AbstractSetEntityMultipleRelationsExecutor<ENTITY_CREATION
 
     protected abstract void check(IOperationContext context, RELATED_ID relatedId, RELATED_PE related);
 
-    protected abstract void set(IOperationContext context, Map<ENTITY_CREATION, ENTITY_PE> creationsMap, Map<RELATED_ID, RELATED_PE> relatedMap);
+    protected abstract void set(IOperationContext context, MapBatch<ENTITY_CREATION, ENTITY_PE> batch, Map<RELATED_ID, RELATED_PE> relatedMap);
 
 }

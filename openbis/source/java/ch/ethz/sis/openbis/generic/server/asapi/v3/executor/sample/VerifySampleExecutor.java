@@ -16,13 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
-import java.util.Collection;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IVerifyEntityPropertyExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -35,8 +34,9 @@ public class VerifySampleExecutor implements IVerifySampleExecutor
     @Autowired
     private IVerifyEntityPropertyExecutor verifyEntityPropertyExecutor;
 
-    @Autowired
-    private IVerifySampleProjectExecutor verifySampleProjectExecutor;
+    // TODO: project samples
+    // @Autowired
+    // private IVerifySampleProjectExecutor verifySampleProjectExecutor;
 
     @Autowired
     private IVerifySampleExperimentExecutor verifySampleExperimentExecutor;
@@ -48,14 +48,14 @@ public class VerifySampleExecutor implements IVerifySampleExecutor
     private IVerifySampleParentsExecutor verifySampleParentsExecutor;
 
     @Override
-    public void verify(IOperationContext context, Collection<SamplePE> samples)
+    public void verify(IOperationContext context, CollectionBatch<SamplePE> batch)
     {
-        verifyEntityPropertyExecutor.verify(context, samples);
-        verifySampleExperimentExecutor.verify(context, samples);
+        verifyEntityPropertyExecutor.verify(context, batch);
+        verifySampleExperimentExecutor.verify(context, batch);
         // TODO: project samples
         // verifySampleProjectExecutor.verify(context, samples);
-        verifySampleContainerExecutor.verify(context, samples);
-        verifySampleParentsExecutor.verify(context, samples);
+        verifySampleContainerExecutor.verify(context, batch);
+        verifySampleParentsExecutor.verify(context, batch);
     }
 
 }

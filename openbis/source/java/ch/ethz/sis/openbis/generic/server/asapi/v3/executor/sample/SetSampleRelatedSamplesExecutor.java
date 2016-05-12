@@ -28,6 +28,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSetEntityMultipleRelationsExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
@@ -86,12 +87,12 @@ public class SetSampleRelatedSamplesExecutor extends AbstractSetEntityMultipleRe
     }
 
     @Override
-    protected void set(IOperationContext context, Map<SampleCreation, SamplePE> creationsMap, Map<ISampleId, SamplePE> relatedMap)
+    protected void set(IOperationContext context, MapBatch<SampleCreation, SamplePE> batch, Map<ISampleId, SamplePE> relatedMap)
     {
-        setSampleContainerExecutor.set(context, creationsMap, relatedMap);
-        setSampleComponentsExecutor.set(context, creationsMap, relatedMap);
-        setSampleParentsExecutor.set(context, creationsMap, relatedMap);
-        setSampleChildrenExecutor.set(context, creationsMap, relatedMap);
+        setSampleContainerExecutor.set(context, batch, relatedMap);
+        setSampleComponentsExecutor.set(context, batch, relatedMap);
+        setSampleParentsExecutor.set(context, batch, relatedMap);
+        setSampleChildrenExecutor.set(context, batch, relatedMap);
     }
 
 }

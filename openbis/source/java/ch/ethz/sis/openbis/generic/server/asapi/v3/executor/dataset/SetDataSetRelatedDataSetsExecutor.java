@@ -28,6 +28,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSetEntityMultipleRelationsExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
@@ -86,12 +87,12 @@ public class SetDataSetRelatedDataSetsExecutor extends AbstractSetEntityMultiple
     }
 
     @Override
-    protected void set(IOperationContext context, Map<DataSetCreation, DataPE> creationsMap, Map<IDataSetId, DataPE> relatedMap)
+    protected void set(IOperationContext context, MapBatch<DataSetCreation, DataPE> batch, Map<IDataSetId, DataPE> relatedMap)
     {
-        setDataSetContainerExecutor.set(context, creationsMap, relatedMap);
-        setDataSetComponentsExecutor.set(context, creationsMap, relatedMap);
-        setDataSetParentsExecutor.set(context, creationsMap, relatedMap);
-        setDataSetChildrenExecutor.set(context, creationsMap, relatedMap);
+        setDataSetContainerExecutor.set(context, batch, relatedMap);
+        setDataSetComponentsExecutor.set(context, batch, relatedMap);
+        setDataSetParentsExecutor.set(context, batch, relatedMap);
+        setDataSetChildrenExecutor.set(context, batch, relatedMap);
     }
 
 }

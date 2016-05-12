@@ -27,6 +27,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityMultipleRelationsExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -68,12 +69,12 @@ public class UpdateSampleRelatedSamplesExecutor extends AbstractUpdateEntityMult
     }
 
     @Override
-    protected void update(IOperationContext context, Map<SampleUpdate, SamplePE> entitiesMap, Map<ISampleId, SamplePE> relatedMap)
+    protected void update(IOperationContext context, MapBatch<SampleUpdate, SamplePE> batch, Map<ISampleId, SamplePE> relatedMap)
     {
-        updateSampleContainerExecutor.update(context, entitiesMap, relatedMap);
-        updateSampleComponentsExecutor.update(context, entitiesMap, relatedMap);
-        updateSampleParentsExecutor.update(context, entitiesMap, relatedMap);
-        updateSampleChildrenExecutor.update(context, entitiesMap, relatedMap);
+        updateSampleContainerExecutor.update(context, batch, relatedMap);
+        updateSampleComponentsExecutor.update(context, batch, relatedMap);
+        updateSampleParentsExecutor.update(context, batch, relatedMap);
+        updateSampleChildrenExecutor.update(context, batch, relatedMap);
     }
 
 }

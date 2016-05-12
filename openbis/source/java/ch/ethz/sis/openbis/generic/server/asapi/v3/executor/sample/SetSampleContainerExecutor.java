@@ -24,8 +24,11 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.SetEntityRelationProgress;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -41,22 +44,27 @@ public class SetSampleContainerExecutor implements ISetSampleContainerExecutor
     private IRelationshipService relationshipService;
 
     @Override
-    public void set(IOperationContext context, Map<SampleCreation, SamplePE> creationsMap, Map<ISampleId, SamplePE> sampleMap)
+    public void set(final IOperationContext context, final MapBatch<SampleCreation, SamplePE> batch, final Map<ISampleId, SamplePE> sampleMap)
     {
-        for (SampleCreation creation : creationsMap.keySet())
-        {
-            context.pushProgress(new Progress("set container for sample " + creation.getCode()));
-
-            SamplePE sample = creationsMap.get(creation);
-            ISampleId containerId = creation.getContainerId();
-            if (containerId != null)
+        new MapBatchProcessor<SampleCreation, SamplePE>(context, batch)
             {
-                SamplePE container = sampleMap.get(containerId);
-                relationshipService.assignSampleToContainer(context.getSession(), sample, container);
-            }
+                @Override
+                public void process(SampleCreation creation, SamplePE sample)
+                {
+                    ISampleId containerId = creation.getContainerId();
+                    if (containerId != null)
+                    {
+                        SamplePE container = sampleMap.get(containerId);
+                        relationshipService.assignSampleToContainer(context.getSession(), sample, container);
+                    }
+                }
 
-            context.popProgress();
-        }
+                @Override
+                public IProgress createProgress(SampleCreation key, SamplePE value, int objectIndex, int totalObjectCount)
+                {
+                    return new SetEntityRelationProgress(key, "sample-container", objectIndex, totalObjectCount);
+                }
+            };
     }
 
 }

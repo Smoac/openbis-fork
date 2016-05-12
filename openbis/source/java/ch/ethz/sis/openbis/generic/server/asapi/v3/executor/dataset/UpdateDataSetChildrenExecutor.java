@@ -38,6 +38,12 @@ public class UpdateDataSetChildrenExecutor extends AbstractUpdateEntityToManyRel
 {
 
     @Override
+    protected String getRelationName()
+    {
+        return "dataset-children";
+    }
+
+    @Override
     protected Collection<DataPE> getCurrentlyRelated(DataPE entity)
     {
         return entity.getChildren();

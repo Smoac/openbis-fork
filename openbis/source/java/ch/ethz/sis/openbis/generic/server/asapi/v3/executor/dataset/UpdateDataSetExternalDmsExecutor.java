@@ -47,6 +47,12 @@ public class UpdateDataSetExternalDmsExecutor extends
     private IMapExternalDmsByIdExecutor mapExternalDmsByIdExecutor;
 
     @Override
+    protected String getRelationName()
+    {
+        return "dataset-externaldms";
+    }
+
+    @Override
     protected IExternalDmsId getRelatedId(ExternalDataManagementSystemPE related)
     {
         return new ExternalDmsPermId(related.getCode());

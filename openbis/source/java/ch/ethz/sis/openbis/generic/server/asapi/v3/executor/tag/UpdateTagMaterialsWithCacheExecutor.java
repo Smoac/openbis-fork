@@ -35,6 +35,12 @@ public class UpdateTagMaterialsWithCacheExecutor extends UpdateTagEntitiesWithCa
 {
 
     @Override
+    protected String getRelationName()
+    {
+        return "tag-materials";
+    }
+
+    @Override
     protected Class<MaterialPE> getRelatedClass()
     {
         return MaterialPE.class;

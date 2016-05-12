@@ -39,6 +39,12 @@ public class SetDataSetDataStoreExecutor extends AbstractSetEntityToOneRelationE
         implements ISetDataSetDataStoreExecutor
 {
 
+    @Override
+    protected String getRelationName()
+    {
+        return "dataset-datastore";
+    }
+
     @Autowired
     private IMapDataStoreByIdExecutor mapDataStoreByIdExecutor;
 

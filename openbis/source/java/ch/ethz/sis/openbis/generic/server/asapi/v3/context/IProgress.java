@@ -26,6 +26,8 @@ public interface IProgress extends Serializable
 
     String getLabel();
 
+    String getDetails();
+
     Integer getTotalItemsToProcess();
 
     Integer getNumItemsProcessed();

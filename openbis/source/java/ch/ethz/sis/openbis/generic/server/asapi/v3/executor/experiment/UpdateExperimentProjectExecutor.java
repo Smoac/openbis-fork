@@ -47,6 +47,12 @@ public class UpdateExperimentProjectExecutor extends AbstractUpdateEntityToOneRe
     private IMapProjectByIdExecutor mapProjectByIdExecutor;
 
     @Override
+    protected String getRelationName()
+    {
+        return "experiment-project";
+    }
+
+    @Override
     protected IProjectId getRelatedId(ProjectPE related)
     {
         return new ProjectIdentifier(related.getIdentifier());

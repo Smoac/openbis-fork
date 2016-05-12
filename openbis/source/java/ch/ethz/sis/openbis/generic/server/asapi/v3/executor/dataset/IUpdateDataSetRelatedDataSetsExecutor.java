@@ -16,10 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
-import java.util.Map;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
@@ -28,6 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 public interface IUpdateDataSetRelatedDataSetsExecutor
 {
 
-    public void update(IOperationContext context, Map<DataSetUpdate, DataPE> entitiesMap);
+    public void update(IOperationContext context, MapBatch<DataSetUpdate, DataPE> batch);
 
 }

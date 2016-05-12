@@ -34,6 +34,12 @@ public class SetTagMaterialsWithCacheExecutor extends SetTagEntitiesWithCacheExe
 {
 
     @Override
+    protected String getRelationName()
+    {
+        return "tag-materials";
+    }
+
+    @Override
     protected Class<MaterialPE> getRelatedClass()
     {
         return MaterialPE.class;

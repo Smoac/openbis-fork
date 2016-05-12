@@ -51,7 +51,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 
 import junit.framework.Assert;
@@ -397,7 +396,7 @@ public class UpdateSampleTest extends AbstractSampleTest
     @Test
     public void testUpdateWithExperimentInDifferentSpace()
     {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation creation = new SampleCreation();
         creation.setCode("SAMPLE");
@@ -406,25 +405,24 @@ public class UpdateSampleTest extends AbstractSampleTest
 
         List<SamplePermId> ids = v3api.createSamples(sessionToken, Arrays.asList(creation));
 
-        SampleUpdate update = new SampleUpdate();
+        final SampleUpdate update = new SampleUpdate();
         update.setSampleId(ids.get(0));
         update.setExperimentId(new ExperimentPermId("201206190940555-1032"));
 
-        try
-        {
-            v3api.updateSamples(sessionToken, Arrays.asList(update));
-        } catch (UserFailureException e)
-        {
-            Assert.assertEquals(
-                    "Sample space must be the same as experiment space. Sample: /CISD/SAMPLE, Experiment: /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST (Context: [verify experiment for sample SAMPLE])",
-                    e.getMessage());
-        }
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, "Sample space must be the same as experiment space. Sample: /CISD/SAMPLE, Experiment: /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
     }
 
     @Test
     public void testUpdateWithExperimentForSharedSample()
     {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation creation = new SampleCreation();
         creation.setCode("SAMPLE");
@@ -432,19 +430,18 @@ public class UpdateSampleTest extends AbstractSampleTest
 
         List<SamplePermId> ids = v3api.createSamples(sessionToken, Arrays.asList(creation));
 
-        SampleUpdate update = new SampleUpdate();
+        final SampleUpdate update = new SampleUpdate();
         update.setSampleId(ids.get(0));
         update.setExperimentId(new ExperimentPermId("201206190940555-1032"));
 
-        try
-        {
-            v3api.updateSamples(sessionToken, Arrays.asList(update));
-        } catch (UserFailureException e)
-        {
-            Assert.assertEquals(
-                    "Shared samples cannot be attached to experiments. Sample: /SAMPLE, Experiment: /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST (Context: [verify experiment for sample SAMPLE])",
-                    e.getMessage());
-        }
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, "Shared samples cannot be attached to experiments. Sample: /SAMPLE, Experiment: /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
     }
 
     @Test

@@ -45,6 +45,12 @@ public class SetDataSetExternalDmsExecutor extends
     private IMapExternalDmsByIdExecutor mapExternalDmsByIdExecutor;
 
     @Override
+    protected String getRelationName()
+    {
+        return "dataset-externaldms";
+    }
+
+    @Override
     protected IExternalDmsId getRelatedId(DataSetCreation creation)
     {
         return creation.getLinkedData() != null ? creation.getLinkedData().getExternalDmsId() : null;

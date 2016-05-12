@@ -46,6 +46,12 @@ public class UpdateSampleSpaceExecutor extends AbstractUpdateEntityToOneRelation
     private IMapSpaceByIdExecutor mapSpaceByIdExecutor;
 
     @Override
+    protected String getRelationName()
+    {
+        return "sample-space";
+    }
+
+    @Override
     protected ISpaceId getRelatedId(SpacePE related)
     {
         return new SpacePermId(related.getCode());

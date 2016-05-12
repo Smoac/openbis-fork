@@ -44,6 +44,12 @@ public class SetDataSetFileFormatTypeExecutor extends
     private IMapFileFormatTypeByIdExecutor mapFileFormatTypeByIdExecutor;
 
     @Override
+    protected String getRelationName()
+    {
+        return "dataset-fileformattype";
+    }
+
+    @Override
     protected IFileFormatTypeId getRelatedId(DataSetCreation creation)
     {
         return creation.getPhysicalData() != null ? creation.getPhysicalData().getFileFormatTypeId() : null;

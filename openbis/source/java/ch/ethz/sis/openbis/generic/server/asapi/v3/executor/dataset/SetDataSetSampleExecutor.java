@@ -43,6 +43,12 @@ public class SetDataSetSampleExecutor extends AbstractSetEntitySampleRelationExe
     private IDAOFactory daoFactory;
 
     @Override
+    protected String getRelationName()
+    {
+        return "dataset-sample";
+    }
+
+    @Override
     protected ISampleId getRelatedId(DataSetCreation creation)
     {
         return creation.getSampleId();

@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.LinkedDataUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
 
@@ -38,9 +39,9 @@ public class UpdateDataSetLinkedDataExecutor implements IUpdateDataSetLinkedData
     private IUpdateDataSetExternalDmsExecutor updateDataSetExternalDmsExecutor;
 
     @Override
-    public void update(IOperationContext context, Map<DataSetUpdate, DataPE> entitiesMap)
+    public void update(IOperationContext context, MapBatch<DataSetUpdate, DataPE> batch)
     {
-        for (Map.Entry<DataSetUpdate, DataPE> entry : entitiesMap.entrySet())
+        for (Map.Entry<DataSetUpdate, DataPE> entry : batch.getObjects().entrySet())
         {
             DataSetUpdate update = entry.getKey();
             DataPE entity = entry.getValue();
@@ -51,7 +52,7 @@ public class UpdateDataSetLinkedDataExecutor implements IUpdateDataSetLinkedData
             }
         }
 
-        updateDataSetExternalDmsExecutor.update(context, entitiesMap);
+        updateDataSetExternalDmsExecutor.update(context, batch);
     }
 
     private void update(IOperationContext context, LinkedDataUpdate update, LinkDataPE entity)
