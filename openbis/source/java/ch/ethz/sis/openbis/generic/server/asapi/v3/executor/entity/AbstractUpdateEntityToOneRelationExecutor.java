@@ -118,7 +118,10 @@ public abstract class AbstractUpdateEntityToOneRelationExecutor<ENTITY_UPDATE, E
                         check(context, entity, relatedId, related);
                         update(context, entity, related);
                         allAdded.add(related);
-                        allRemoved.add(currentlyRelated);
+                        if (currentlyRelated != null)
+                        {
+                            allRemoved.add(currentlyRelated);
+                        }
                     }
                 }
 
