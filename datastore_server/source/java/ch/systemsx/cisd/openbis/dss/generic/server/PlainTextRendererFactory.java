@@ -65,9 +65,9 @@ public class PlainTextRendererFactory implements IRendererFactory
         private PrintWriter writer;
 
         @Override
-        public void printDirectory(String name, String relativePath)
+        public void printDirectory(String name, String relativePath, long size)
         {
-            writer.print(name + "\n");
+            writer.format("%s\t%s\n", name, DirectoryRendererUtil.renderFileSize(size));
         }
 
         @Override

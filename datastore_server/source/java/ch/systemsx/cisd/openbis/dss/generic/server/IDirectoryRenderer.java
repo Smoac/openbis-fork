@@ -27,7 +27,7 @@ public interface IDirectoryRenderer extends IWriterInjector
 
     public void printLinkToParentDirectory(String relativePath);
 
-    public void printDirectory(String name, String relativePath);
+    public void printDirectory(String name, String relativePath, long size);
 
     public void printFile(String name, String relativePath, long size, Integer checksumOrNull);
 

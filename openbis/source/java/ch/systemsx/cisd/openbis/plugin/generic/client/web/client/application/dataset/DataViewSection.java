@@ -44,11 +44,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailViewConfiguration;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
 
@@ -264,10 +264,8 @@ public class DataViewSection extends TabContent
             this.dataset = dataset;
             this.hideFileView = hideFileView;
             this.hideSmartView = hideSmartView;
-            if (dataset.isAvailable())
-            {
-                addPostRefreshCallback(createDefaultServiceSelectionAction());
-            } else
+            addPostRefreshCallback(createDefaultServiceSelectionAction());
+            if (!dataset.isAvailable())
             {
                 disable();
             }

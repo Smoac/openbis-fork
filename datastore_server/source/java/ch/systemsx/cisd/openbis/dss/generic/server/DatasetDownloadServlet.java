@@ -466,7 +466,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
                 String normalizedRelativePath = relativePath.replace('\\', '/');
                 if (childNode.isDirectory())
                 {
-                    directoryRenderer.printDirectory(name, normalizedRelativePath);
+                    directoryRenderer.printDirectory(name, normalizedRelativePath, childNode.getFileLength());
                 } else
                 {
                     Integer checksumOrNull =

@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 
 import org.apache.commons.lang.StringUtils;
@@ -99,9 +98,9 @@ final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
     }
 
     @Override
-    public void printDirectory(final String name, final String aRelativePath)
+    public void printDirectory(final String name, final String aRelativePath, final long size)
     {
-        printRow(name, aRelativePath, "", "");
+        printRow(name, aRelativePath, DirectoryRendererUtil.renderFileSize(size), "");
     }
 
     @Override
