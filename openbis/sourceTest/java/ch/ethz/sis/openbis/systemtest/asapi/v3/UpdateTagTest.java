@@ -32,6 +32,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.update.TagUpdate;
+import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
@@ -99,6 +100,8 @@ public class UpdateTagTest extends AbstractTest
     @Test
     public void testUpdateWithExperimentsAdd()
     {
+        ReindexingState state = new ReindexingState();
+
         Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
         assertExperimentIdentifiers(before.getExperiments(), "/CISD/NEMO/EXP11", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
 
@@ -109,11 +112,14 @@ public class UpdateTagTest extends AbstractTest
         Tag after = updateTag(TEST_USER, PASSWORD, update);
 
         assertExperimentIdentifiers(after.getExperiments(), "/CISD/NEMO/EXP10", "/CISD/NEMO/EXP11", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        assertExperimentsReindexed(state, "200811050952663-1029");
     }
 
     @Test
     public void testUpdateWithExperimentsRemove()
     {
+        ReindexingState state = new ReindexingState();
+
         Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
         assertExperimentIdentifiers(before.getExperiments(), "/CISD/NEMO/EXP11", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
 
@@ -124,11 +130,14 @@ public class UpdateTagTest extends AbstractTest
         Tag after = updateTag(TEST_USER, PASSWORD, update);
 
         assertExperimentIdentifiers(after.getExperiments(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        assertExperimentsReindexed(state, "200811050952663-1030");
     }
 
     @Test
     public void testUpdateWithExperimentsSet()
     {
+        ReindexingState state = new ReindexingState();
+
         Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
         assertExperimentIdentifiers(before.getExperiments(), "/CISD/NEMO/EXP11", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
 
@@ -139,6 +148,7 @@ public class UpdateTagTest extends AbstractTest
         Tag after = updateTag(TEST_USER, PASSWORD, update);
 
         assertExperimentIdentifiers(after.getExperiments(), "/CISD/NEMO/EXP10");
+        assertExperimentsReindexed(state, "200811050952663-1029", "200811050952663-1030", "201206190940555-1032");
     }
 
     @Test
@@ -187,6 +197,8 @@ public class UpdateTagTest extends AbstractTest
     @Test
     public void testUpdateWithSamplesAdd()
     {
+        ReindexingState state = new ReindexingState();
+
         Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
         assertSampleIdentifiers(before.getSamples(), "/TEST-SPACE/EV-TEST");
 
@@ -197,11 +209,14 @@ public class UpdateTagTest extends AbstractTest
         Tag after = updateTag(TEST_USER, PASSWORD, update);
 
         assertSampleIdentifiers(after.getSamples(), "/TEST-SPACE/EV-TEST", "/TEST-SPACE/FV-TEST");
+        assertSamplesReindexed(state, "201206191219327-1054");
     }
 
     @Test
     public void testUpdateWithSamplesRemove()
     {
+        ReindexingState state = new ReindexingState();
+
         Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
         assertSampleIdentifiers(before.getSamples(), "/TEST-SPACE/EV-TEST");
 
@@ -212,11 +227,14 @@ public class UpdateTagTest extends AbstractTest
         Tag after = updateTag(TEST_USER, PASSWORD, update);
 
         assertEquals(after.getSamples().size(), 0);
+        assertSamplesReindexed(state, "201206191219327-1055");
     }
 
     @Test
     public void testUpdateWithSamplesSet()
     {
+        ReindexingState state = new ReindexingState();
+
         Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
         assertSampleIdentifiers(before.getSamples(), "/TEST-SPACE/EV-TEST");
 
@@ -227,6 +245,7 @@ public class UpdateTagTest extends AbstractTest
         Tag after = updateTag(TEST_USER, PASSWORD, update);
 
         assertSampleIdentifiers(after.getSamples(), "/TEST-SPACE/FV-TEST");
+        assertSamplesReindexed(state, "201206191219327-1054", "201206191219327-1055");
     }
 
     @Test
@@ -273,6 +292,8 @@ public class UpdateTagTest extends AbstractTest
     @Test
     public void testUpdateWithDataSetsAdd()
     {
+        ReindexingState state = new ReindexingState();
+
         Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
         assertDataSetCodes(before.getDataSets(), "20120619092259000-22");
 
@@ -283,11 +304,14 @@ public class UpdateTagTest extends AbstractTest
         Tag after = updateTag(TEST_USER, PASSWORD, update);
 
         assertDataSetCodes(after.getDataSets(), "20120619092259000-22", "20081105092159111-1");
+        assertDataSetsReindexed(state, "20081105092159111-1");
     }
 
     @Test
     public void testUpdateWithDataSetsRemove()
     {
+        ReindexingState state = new ReindexingState();
+
         Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
         assertDataSetCodes(before.getDataSets(), "20120619092259000-22");
 
@@ -298,11 +322,14 @@ public class UpdateTagTest extends AbstractTest
         Tag after = updateTag(TEST_USER, PASSWORD, update);
 
         assertEquals(after.getDataSets().size(), 0);
+        assertDataSetsReindexed(state, "20120619092259000-22");
     }
 
     @Test
     public void testUpdateWithDataSetsSet()
     {
+        ReindexingState state = new ReindexingState();
+
         Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
         assertDataSetCodes(before.getDataSets(), "20120619092259000-22");
 
@@ -313,6 +340,7 @@ public class UpdateTagTest extends AbstractTest
         Tag after = updateTag(TEST_USER, PASSWORD, update);
 
         assertDataSetCodes(after.getDataSets(), "20081105092159111-1");
+        assertDataSetsReindexed(state, "20120619092259000-22", "20081105092159111-1");
     }
 
     @Test
@@ -362,6 +390,8 @@ public class UpdateTagTest extends AbstractTest
     @Test
     public void testUpdateWithMaterialsAdd()
     {
+        ReindexingState state = new ReindexingState();
+
         Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
         assertMaterialPermIds(before.getMaterials(), new MaterialPermId("AD3", "VIRUS"));
 
@@ -372,11 +402,14 @@ public class UpdateTagTest extends AbstractTest
         Tag after = updateTag(TEST_USER, PASSWORD, update);
 
         assertMaterialPermIds(after.getMaterials(), new MaterialPermId("AD3", "VIRUS"), new MaterialPermId("AD5", "VIRUS"));
+        assertMaterialsReindexed(state, new MaterialPermId("AD5", "VIRUS"));
     }
 
     @Test
     public void testUpdateWithMaterialsRemove()
     {
+        ReindexingState state = new ReindexingState();
+
         Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
         assertMaterialPermIds(before.getMaterials(), new MaterialPermId("AD3", "VIRUS"));
 
@@ -387,11 +420,14 @@ public class UpdateTagTest extends AbstractTest
         Tag after = updateTag(TEST_USER, PASSWORD, update);
 
         assertEquals(after.getMaterials().size(), 0);
+        assertMaterialsReindexed(state, new MaterialPermId("AD3", "VIRUS"));
     }
 
     @Test
     public void testUpdateWithMaterialsSet()
     {
+        ReindexingState state = new ReindexingState();
+
         Tag before = getTag(TEST_USER, PASSWORD, new TagPermId(TEST_USER, "TEST_METAPROJECTS"));
         assertMaterialPermIds(before.getMaterials(), new MaterialPermId("AD3", "VIRUS"));
 
@@ -402,6 +438,7 @@ public class UpdateTagTest extends AbstractTest
         Tag after = updateTag(TEST_USER, PASSWORD, update);
 
         assertMaterialPermIds(after.getMaterials(), new MaterialPermId("AD5", "VIRUS"));
+        assertMaterialsReindexed(state, new MaterialPermId("AD3", "VIRUS"), new MaterialPermId("AD5", "VIRUS"));
     }
 
     @Test

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -28,10 +29,15 @@ import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -45,11 +51,14 @@ final class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEnti
             LogFactory.getLogger(LogCategory.OPERATION, EntityTypeDAO.class);
 
     private final EntityKind entityKind;
-
-    EntityTypeDAO(final EntityKind entityKind, final SessionFactory sessionFactory, EntityHistoryCreator historyCreator)
+    private final IDAOFactory daoFactory;
+    
+    EntityTypeDAO(final EntityKind entityKind, final SessionFactory sessionFactory, 
+            EntityHistoryCreator historyCreator, IDAOFactory daoFactory)
     {
         super(sessionFactory, entityKind.getTypeClass(), historyCreator);
         this.entityKind = entityKind;
+        this.daoFactory = daoFactory;
     }
 
     //
@@ -95,6 +104,15 @@ final class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEnti
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("ADD: entity type '%s'.", entityType));
+        }
+        
+        if (entityType instanceof SampleTypePE)
+        {
+            ISampleDAO sampleDAO = daoFactory.getSampleDAO();
+            List<TechId> sampleIds = sampleDAO.listSampleIdsBySampleTypeIds(Arrays.asList(new TechId(entityType.getId())));
+            scheduleDynamicPropertiesEvaluationForIds(
+                    daoFactory.getPersistencyResources().getDynamicPropertyEvaluationScheduler(),
+                    SamplePE.class, TechId.asLongs(sampleIds));
         }
     }
 

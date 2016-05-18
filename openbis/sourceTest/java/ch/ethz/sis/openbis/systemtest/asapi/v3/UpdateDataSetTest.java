@@ -40,6 +40,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
+import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.AssertionUtil;
@@ -49,6 +50,21 @@ import ch.systemsx.cisd.common.test.AssertionUtil;
  */
 public class UpdateDataSetTest extends AbstractSampleTest
 {
+
+    @Test
+    public void testUpdateWithIndexCheck()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        ReindexingState state = new ReindexingState();
+
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(new DataSetPermId("20081105092159111-1"));
+        update.setProperty("COMMENT", "an updated comment");
+
+        v3api.updateDataSets(sessionToken, Arrays.asList(update));
+
+        assertDataSetsReindexed(state, "20081105092159111-1");
+    }
 
     @Test
     public void testUpdateWithDataSetIdNull()
@@ -316,6 +332,53 @@ public class UpdateDataSetTest extends AbstractSampleTest
         result = map.get(dataSetId);
         assertEquals(result.getExperiment().getPermId().getPermId(), "200902091258949-1034");
         assertEquals(result.getSample().getPermId().getPermId(), "200902091250077-1026");
+    }
+
+    @Test
+    public void testUpdateWithExperimentWhenComponentsExist()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetPermId containerId = new DataSetPermId("CONTAINER_1");
+        DataSetPermId component1Id = new DataSetPermId("COMPONENT_1A");
+        DataSetPermId component2Id = new DataSetPermId("COMPONENT_1B");
+
+        ExperimentPermId experimentBeforeId = new ExperimentPermId("200811050940555-1032");
+        ExperimentPermId experimentAfterId = new ExperimentPermId("200811050951882-1028");
+
+        DataSetFetchOptions fe = new DataSetFetchOptions();
+        fe.withExperiment();
+        fe.withComponents().withExperiment();
+
+        DataSet result = v3api.getDataSets(sessionToken, Collections.singletonList(containerId), fe).get(containerId);
+
+        assertEquals(result.getCode(), containerId.getPermId());
+        assertEquals(result.getExperiment().getPermId(), experimentBeforeId);
+        AssertionUtil.assertCollectionContainsOnly(dataSetCodes(result.getComponents()), component1Id.getPermId(), component2Id.getPermId());
+        for (DataSet component : result.getComponents())
+        {
+            assertEquals(component.getExperiment().getPermId(), experimentBeforeId);
+        }
+
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(containerId);
+        update.setExperimentId(experimentAfterId);
+
+        ReindexingState state = new ReindexingState();
+
+        v3api.updateDataSets(sessionToken, Collections.singletonList(update));
+
+        result = v3api.getDataSets(sessionToken, Collections.singletonList(containerId), fe).get(containerId);
+
+        assertEquals(result.getCode(), containerId.getPermId());
+        assertEquals(result.getExperiment().getPermId(), experimentAfterId);
+        AssertionUtil.assertCollectionContainsOnly(dataSetCodes(result.getComponents()), component1Id.getPermId(), component2Id.getPermId());
+        for (DataSet component : result.getComponents())
+        {
+            assertEquals(component.getExperiment().getPermId(), experimentAfterId);
+        }
+
+        assertDataSetsReindexed(state, containerId.getPermId(), component1Id.getPermId(), component2Id.getPermId());
     }
 
     @Test

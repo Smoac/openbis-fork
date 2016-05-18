@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
 import java.util.Collection;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
@@ -25,6 +26,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSetEntityToManyRelationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IReindexEntityExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -35,10 +37,19 @@ public class SetSampleComponentsExecutor extends AbstractSetEntityToManyRelation
         ISetSampleComponentsExecutor
 {
 
+    @Autowired
+    private IReindexEntityExecutor reindexObjectExecutor;
+
     @Override
     protected Collection<? extends ISampleId> getRelatedIds(IOperationContext context, SampleCreation creation)
     {
         return creation.getComponentIds();
+    }
+
+    @Override
+    protected void postSet(IOperationContext context, Collection<SamplePE> allSet)
+    {
+        reindexObjectExecutor.reindex(context, SamplePE.class, allSet);
     }
 
     @Override

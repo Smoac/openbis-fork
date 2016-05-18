@@ -720,50 +720,41 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     public List<TechId> listSampleIdsByContainerIds(final Collection<TechId> containers)
     {
         final List<Long> longIds = TechId.asLongs(containers);
-        final List<Long> results =
-                DAOUtils.listByCollection(getHibernateTemplate(), new IDetachedCriteriaFactory()
-                    {
-                        @Override
-                        public DetachedCriteria createCriteria()
-                        {
-                            final DetachedCriteria criteria =
-                                    DetachedCriteria.forClass(SamplePE.class);
-                            criteria.setProjection(Projections.id());
-                            return criteria;
-                        }
-                    }, "container.id", longIds);
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.info(String.format("found %s sample components for given containers",
-                    results.size()));
-        }
-        return transformNumbers2TechIdList(results);
+        return listSampleIdsByColumn("container.id", longIds, "sample components for given containers");
     }
 
+    @Override
+    public List<TechId> listSampleIdsBySampleTypeIds(Collection<TechId> sampleTypeIds)
+    {
+        final List<Long> longIds = TechId.asLongs(sampleTypeIds);
+        return listSampleIdsByColumn("sampleType.id", longIds, "samples for given sample types");
+    }
+    
     @Override
     public List<TechId> listSampleIdsByExperimentIds(final Collection<TechId> experiments)
     {
         final List<Long> longIds = TechId.asLongs(experiments);
-        final List<Long> results =
-                DAOUtils.listByCollection(getHibernateTemplate(), new IDetachedCriteriaFactory()
-                    {
-                        @Override
-                        public DetachedCriteria createCriteria()
-                        {
-                            final DetachedCriteria criteria =
-                                    DetachedCriteria.forClass(SamplePE.class);
-                            criteria.setProjection(Projections.id());
-                            return criteria;
-                        }
-                    }, "experimentInternal.id", longIds);
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.info(String.format("found %s samples for given experiments",
-                    results.size()));
-        }
-        return transformNumbers2TechIdList(results);
+        return listSampleIdsByColumn("experimentInternal.id", longIds, "samples for given experiments");
     }
 
+    private List<TechId> listSampleIdsByColumn(String columnName, final List<Long> longIds, String message)
+    {
+        final List<Long> results =
+                DAOUtils.listByCollection(getHibernateTemplate(), new IDetachedCriteriaFactory()
+                {
+                    @Override
+                    public DetachedCriteria createCriteria()
+                    {
+                        final DetachedCriteria criteria =
+                                DetachedCriteria.forClass(SamplePE.class);
+                        criteria.setProjection(Projections.id());
+                        return criteria;
+                    }
+                }, columnName, longIds);
+        operationLog.info(String.format("found %s " + message, results.size()));
+        return transformNumbers2TechIdList(results);
+    }
+    
     @Override
     public void setSampleContainer(final Long sampleId, final Long containerId)
     {

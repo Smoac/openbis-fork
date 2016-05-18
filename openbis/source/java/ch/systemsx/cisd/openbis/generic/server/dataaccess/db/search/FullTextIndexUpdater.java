@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search;
 
 import java.io.File;
+import java.util.Queue;
 
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
@@ -80,6 +81,11 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
     public int getQueueSize()
     {
         return updaterQueue.size();
+    }
+
+    public Queue<IndexUpdateOperation> getQueue()
+    {
+        return updaterQueue;
     }
 
     private static IExtendedBlockingQueue<IndexUpdateOperation> createUpdaterQueue(
@@ -209,4 +215,5 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
             }
         }
     }
+
 }
