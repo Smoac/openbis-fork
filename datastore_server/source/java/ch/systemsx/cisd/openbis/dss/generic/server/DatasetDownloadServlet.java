@@ -66,6 +66,8 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
 
     static final String MAIN_DATA_SET_PATTERN_KEY = "mdsPattern";
 
+    static final String DISABLE_LINKS = "disableLinks";
+
     private static String DOWNLOAD_URL;
 
     static void setDownloadUrl(String downloadUrl)
@@ -109,10 +111,12 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
 
         private final boolean forceAutoResolve;
 
+        private final boolean disableLinks;
+
         public RequestParams(String dataSetCode, String pathInfo, String sessionIdOrNull,
                 String urlPrefixWithDataset, String displayMode, boolean autoResolve,
                 String mainDataSetPathOrNull, String mainDataSetPatternOrNull,
-                boolean forceAutoResolve)
+                boolean forceAutoResolve, boolean disableLinks)
         {
             this.dataSetCode = dataSetCode;
             this.pathInfo = pathInfo;
@@ -123,6 +127,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             this.mainDataSetPathOrNull = mainDataSetPathOrNull;
             this.mainDataSetPatternOrNull = mainDataSetPatternOrNull;
             this.forceAutoResolve = forceAutoResolve;
+            this.disableLinks = disableLinks;
         }
 
         public boolean isAutoResolve()
@@ -169,6 +174,12 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         {
             return mainDataSetPatternOrNull;
         }
+
+        public boolean isDisableLinks()
+        {
+            return disableLinks;
+        }
+
     }
 
     @Override
@@ -298,6 +309,8 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         String mainDataSetPatternOrNull = request.getParameter(MAIN_DATA_SET_PATTERN_KEY);
         boolean shouldSetMainDataSetParamsToNull =
                 autoResolve == false && forceAutoResolve == false;
+        Boolean disableLinks = Boolean.valueOf(request.getParameter(DISABLE_LINKS));
+
         if (shouldSetMainDataSetParamsToNull || StringUtils.isBlank(mainDataSetPathOrNull))
         {
             mainDataSetPathOrNull = null;
@@ -308,7 +321,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         }
         return new RequestParams(dataSetCode, pathInfo, sessionIDOrNull, urlPrefixWithDataset,
                 displayMode, autoResolve, mainDataSetPathOrNull, mainDataSetPatternOrNull,
-                forceAutoResolve);
+                forceAutoResolve, disableLinks);
     }
 
     private static String getDisplayMode(HttpServletRequest request)
@@ -374,7 +387,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
                         requestParams, session, node, true);
             } else
             {
-                createPage(rendererFactory, response, dataSetCode, renderingContext, node);
+                createPage(rendererFactory, response, dataSetCode, renderingContext, node, requestParams.isDisableLinks());
             }
         } else
         {
@@ -397,7 +410,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             String newRelativePath = mainDataSets.get(0).getRelativePath();
             RenderingContext newRenderingContext =
                     new RenderingContext(renderingContext, newRelativePath);
-            autoResolveRedirect(response, newRenderingContext);
+            autoResolveRedirect(response, newRenderingContext, requestParams.isDisableLinks());
         } else if (AutoResolveUtils.continueAutoResolving(requestParams.tryGetMainDataSetPattern(),
                 dirNode))
         {
@@ -408,22 +421,22 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             String newRelativePath = pathPrefix + childName;
             RenderingContext newRenderingContext =
                     new RenderingContext(renderingContext, newRelativePath);
-            autoResolveRedirect(response, newRenderingContext);
+            autoResolveRedirect(response, newRenderingContext, requestParams.isDisableLinks());
         } else
         {
-            createPage(rendererFactory, response, dataSetCode, renderingContext, dirNode);
+            createPage(rendererFactory, response, dataSetCode, renderingContext, dirNode, requestParams.isDisableLinks());
         }
     }
 
     private static void autoResolveRedirect(HttpServletResponse response,
-            RenderingContext newContext) throws IOException
+            RenderingContext newContext, Boolean disableLinks) throws IOException
     {
         String urlPrefix = newContext.getUrlPrefix();
         String relativePath = newContext.getRelativePath();
         String sessionIdOrNull = newContext.getSessionIdOrNull();
         final String newLocation =
                 DOWNLOAD_URL + urlPrefix + "/" + relativePath
-                        + Utils.createUrlParameterForSessionId("?", sessionIdOrNull);
+                        + Utils.createUrlParameterForSessionId("?", sessionIdOrNull) + "&disableLinks=" + disableLinks;
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("Auto resolve redirect: '%s', context: %s",
@@ -433,7 +446,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
     }
 
     private void createPage(IRendererFactory rendererFactory, HttpServletResponse response,
-            String dataSetCode, RenderingContext renderingContext, IHierarchicalContentNode dirNode)
+            String dataSetCode, RenderingContext renderingContext, IHierarchicalContentNode dirNode, Boolean disableLinks)
             throws IOException
     {
         assert dirNode.isDirectory();
@@ -455,7 +468,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             String relativeParentPath = renderingContext.getRelativeParentPath();
             if (relativeParentPath != null)
             {
-                directoryRenderer.printLinkToParentDirectory(relativeParentPath);
+                directoryRenderer.printLinkToParentDirectory(relativeParentPath, disableLinks);
             }
             List<IHierarchicalContentNode> children = dirNode.getChildNodes();
             HierarchicalContentUtils.sortNodes(children);
@@ -466,14 +479,14 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
                 String normalizedRelativePath = relativePath.replace('\\', '/');
                 if (childNode.isDirectory())
                 {
-                    directoryRenderer.printDirectory(name, normalizedRelativePath, childNode.getFileLength());
+                    directoryRenderer.printDirectory(name, normalizedRelativePath, childNode.getFileLength(), disableLinks);
                 } else
                 {
                     Integer checksumOrNull =
                             childNode.isChecksumCRC32Precalculated() ? childNode.getChecksumCRC32()
                                     : null;
                     directoryRenderer.printFile(name, normalizedRelativePath,
-                            childNode.getFileLength(), checksumOrNull);
+                            childNode.getFileLength(), checksumOrNull, disableLinks);
                 }
             }
             directoryRenderer.printFooter();

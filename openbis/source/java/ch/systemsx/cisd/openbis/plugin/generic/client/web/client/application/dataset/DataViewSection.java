@@ -128,10 +128,10 @@ public class DataViewSection extends TabContent
 
                         if (service.getLabel().equals(FILES_SMART_VIEW))
                         {
-                            showDataSetFilesView(true);
+                            showDataSetFilesView(true, !dataset.isAvailable());
                         } else if (service.getLabel().equals(FILES_HOME_VIEW))
                         {
-                            showDataSetFilesView(false);
+                            showDataSetFilesView(false, !dataset.isAvailable());
                         } else
                         {
                             ReportingPluginType reportingPluginTypeOrNull =
@@ -196,10 +196,10 @@ public class DataViewSection extends TabContent
                             service, criteria, action);
                 }
 
-                private void showDataSetFilesView(boolean autoResolve)
+                private void showDataSetFilesView(boolean autoResolve, boolean disableLinks)
                 {
                     showDssUrl(DataSetUtils.createDataViewUrl(dataset, viewContext.getModel(),
-                            "simpleHtml", autoResolve));
+                            "simpleHtml", autoResolve, disableLinks));
                 }
 
                 private void showDssUrl(String url)
