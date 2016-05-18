@@ -2,15 +2,41 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress;
 
 import static org.testng.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.testng.annotations.Test;
 
-public class EntityProgressToStringStyleTest
+public class EntityProgressToStringBuilderTest
 {
+
+    @Test
+    public void testWithTopLevelNull()
+    {
+        assertToStringEquals(null, "null");
+    }
+
+    @Test
+    public void testWithTopLevelMap()
+    {
+        Map<String, Object> map = new LinkedHashMap<String, Object>();
+        map.put("o", new TestClass());
+
+        assertToStringEquals(map, "{o=TestClass[primitive=0]}");
+    }
+
+    @Test
+    public void testWithTopLevelCollection()
+    {
+        Collection<Object> map = new ArrayList<Object>();
+        map.add(new TestClass());
+
+        assertToStringEquals(map, "[TestClass[primitive=0]]");
+    }
+
     @Test
     public void testWithNulls()
     {
@@ -202,8 +228,7 @@ public class EntityProgressToStringStyleTest
 
     private void assertToStringEquals(Object object, String expectedToString)
     {
-        ReflectionToStringBuilder builder = new ReflectionToStringBuilder(object, EntityProgressToStringStyle.ENTITY_PROGRESS_STYLE);
-        assertEquals(builder.toString(), expectedToString);
+        assertEquals(EntityProgressToStringBuilder.toString(object), expectedToString);
     }
 
 }

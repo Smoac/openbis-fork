@@ -46,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifierFactory;
@@ -137,13 +136,7 @@ public class CreateMaterialExecutor extends AbstractCreateEntityExecutor<Materia
     protected void updateBatch(IOperationContext context, MapBatch<MaterialCreation, MaterialPE> batch)
     {
         setMaterialTypeExecutor.set(context, batch);
-
-        Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
-        for (Map.Entry<MaterialCreation, MaterialPE> entry : batch.getObjects().entrySet())
-        {
-            propertyMap.put(entry.getValue(), entry.getKey().getProperties());
-        }
-        updateEntityPropertyExecutor.update(context, propertyMap);
+        updateEntityPropertyExecutor.update(context, batch);
     }
 
     @Override

@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.context.LazyLoadedProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 
 /**
@@ -39,41 +38,12 @@ public abstract class MapBatchProcessor<K, V>
 
         for (Map.Entry<K, V> entry : batch.getObjects().entrySet())
         {
-            IProgress progress = new MapBatchLazyLoadedProgress(entry.getKey(), entry.getValue(), objectIndex, totalObjectCount);
+            IProgress progress = createProgress(entry.getKey(), entry.getValue(), objectIndex, totalObjectCount);
             context.pushProgress(progress);
             process(entry.getKey(), entry.getValue());
             context.popProgress();
             objectIndex++;
         }
-    }
-
-    private class MapBatchLazyLoadedProgress extends LazyLoadedProgress
-    {
-
-        private static final long serialVersionUID = 1L;
-
-        private K key;
-
-        private V value;
-
-        private int objectIndex;
-
-        private int totalObjectCount;
-
-        public MapBatchLazyLoadedProgress(K key, V value, int objectIndex, int totalObjectCount)
-        {
-            this.key = key;
-            this.value = value;
-            this.objectIndex = objectIndex;
-            this.totalObjectCount = totalObjectCount;
-        }
-
-        @Override
-        protected IProgress load()
-        {
-            return createProgress(key, value, objectIndex, totalObjectCount);
-        }
-
     }
 
 }

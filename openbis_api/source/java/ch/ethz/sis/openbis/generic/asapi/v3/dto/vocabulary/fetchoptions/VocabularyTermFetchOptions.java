@@ -102,7 +102,6 @@ public class VocabularyTermFetchOptions extends FetchOptions<VocabularyTerm> imp
     {
         return sort;
     }
-
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

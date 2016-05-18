@@ -59,11 +59,17 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		prototype.setLinkedData = function(linkedData) {
 			this.linkedData.setValue(linkedData);
 		};
-		prototype.setProperty = function(key, value) {
-			this.properties[key] = value;
+		prototype.getProperty = function(propertyName) {
+			return this.properties[propertyName];
+		};
+		prototype.setProperty = function(propertyName, propertyValue) {
+			this.properties[propertyName] = propertyValue;
 		};
 		prototype.getProperties = function() {
 			return this.properties;
+		};
+		prototype.setProperties = function(properties) {
+			this.properties = properties;
 		};
 		prototype.getTagIds = function() {
 			return this.tagIds;

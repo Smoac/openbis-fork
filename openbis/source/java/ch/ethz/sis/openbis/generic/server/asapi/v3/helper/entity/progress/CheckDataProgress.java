@@ -28,7 +28,7 @@ public class CheckDataProgress extends Progress
 
     public CheckDataProgress(Object object, int numItemsProcessed, int totalItemsToProcess)
     {
-        super("checking data", EntityProgressToStringBuilder.toString(object), numItemsProcessed, totalItemsToProcess);
+        super("checking data", object, numItemsProcessed, totalItemsToProcess);
     }
 
 }

@@ -28,7 +28,7 @@ public class SetEntityRelationProgress extends Progress
 
     public SetEntityRelationProgress(Object object, String relationName, int numItemsProcessed, int totalItemsToProcess)
     {
-        super("setting relation " + relationName, EntityProgressToStringBuilder.toString(object), numItemsProcessed, totalItemsToProcess);
+        super("setting relation " + relationName, object, numItemsProcessed, totalItemsToProcess);
     }
 
 }

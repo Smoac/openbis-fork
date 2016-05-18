@@ -24,6 +24,7 @@ import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICreationIdHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.IDataStoreId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
@@ -36,7 +37,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.dataset.create.DataSetCreation")
-public class DataSetCreation implements Serializable, ICreationIdHolder
+public class DataSetCreation implements Serializable, ICreationIdHolder, IPropertiesHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -226,12 +227,25 @@ public class DataSetCreation implements Serializable, ICreationIdHolder
         this.childIds = childIds;
     }
 
-    // NOTE: does this construct work well with JSON?
-    public void setProperty(String key, String value)
+    @Override
+    public void setProperty(String propertyName, String propertyValue)
     {
-        this.properties.put(key, value);
+        this.properties.put(propertyName, propertyValue);
     }
 
+    @Override
+    public String getProperty(String propertyName)
+    {
+        return properties != null ? properties.get(propertyName) : null;
+    }
+
+    @Override
+    public void setProperties(Map<String, String> properties)
+    {
+        this.properties = properties;
+    }
+
+    @Override
     public Map<String, String> getProperties()
     {
         return properties;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ETH Zuerich, CISD
+ * Copyright 2016 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,18 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.context;
 
-import java.util.Map;
-
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import java.util.Iterator;
 
 /**
- * @author Jakub Straszewski
+ * @author pkupczyk
  */
-@JsonObject("as.dto.common.interfaces.IPropertiesHolder")
-public interface IPropertiesHolder
+public interface IProgressStack
 {
 
-    Map<String, String> getProperties();
+    Iterator<IProgress> iterator();
 
-    void setProperties(Map<String, String> properties);
-
-    String getProperty(String propertyName);
-
-    void setProperty(String propertyName, String propertyValue);
+    int size();
 
 }

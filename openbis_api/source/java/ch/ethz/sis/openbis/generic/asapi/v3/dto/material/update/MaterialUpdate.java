@@ -24,6 +24,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue.ListUpdateAction;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
@@ -34,7 +35,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author Jakub Straszewski
  */
 @JsonObject("as.dto.material.update.MaterialUpdate")
-public class MaterialUpdate implements Serializable
+public class MaterialUpdate implements Serializable, IPropertiesHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -59,12 +60,28 @@ public class MaterialUpdate implements Serializable
         this.materialId = materialId;
     }
 
+    @Override
     @JsonIgnore
-    public void setProperty(String key, String value)
+    public void setProperty(String propertyName, String propertyValue)
     {
-        properties.put(key, value);
+        properties.put(propertyName, propertyValue);
     }
 
+    @Override
+    @JsonIgnore
+    public String getProperty(String propertyName)
+    {
+        return properties != null ? properties.get(propertyName) : null;
+    }
+
+    @Override
+    @JsonIgnore
+    public void setProperties(Map<String, String> properties)
+    {
+        this.properties = properties;
+    }
+
+    @Override
     @JsonIgnore
     public Map<String, String> getProperties()
     {

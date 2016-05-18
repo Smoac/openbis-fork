@@ -76,7 +76,6 @@ public class LinkedDataFetchOptions extends FetchOptions<LinkedData> implements 
     {
         return sort;
     }
-
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

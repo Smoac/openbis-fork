@@ -17,7 +17,6 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.context.LazyLoadedProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 
 /**
@@ -37,38 +36,12 @@ public abstract class CollectionBatchProcessor<T>
 
         for (T object : batch.getObjects())
         {
-            IProgress progress = new CollectionBatchLazyLoadedProgress(object, objectIndex, totalObjectCount);
+            IProgress progress = createProgress(object, objectIndex, totalObjectCount);
             context.pushProgress(progress);
             process(object);
             context.popProgress();
             objectIndex++;
         }
-    }
-
-    private class CollectionBatchLazyLoadedProgress extends LazyLoadedProgress
-    {
-
-        private static final long serialVersionUID = 1L;
-
-        private T object;
-
-        private int objectIndex;
-
-        private int totalObjectCount;
-
-        public CollectionBatchLazyLoadedProgress(T object, int objectIndex, int totalObjectCount)
-        {
-            this.object = object;
-            this.objectIndex = objectIndex;
-            this.totalObjectCount = totalObjectCount;
-        }
-
-        @Override
-        protected IProgress load()
-        {
-            return createProgress(object, objectIndex, totalObjectCount);
-        }
-
     }
 
 }

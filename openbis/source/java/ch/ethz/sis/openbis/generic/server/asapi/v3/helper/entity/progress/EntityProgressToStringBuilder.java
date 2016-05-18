@@ -16,8 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-
 /**
  * @author pkupczyk
  */
@@ -26,8 +24,24 @@ public class EntityProgressToStringBuilder
 
     public static String toString(Object object)
     {
-        ReflectionToStringBuilder builder = new ReflectionToStringBuilder(object, EntityProgressToStringStyle.ENTITY_PROGRESS_STYLE);
-        return builder.toString();
+        if (object == null)
+        {
+            return "null";
+        }
+
+        StringBuffer buffer = new StringBuffer();
+
+        new EntityProgressToStringStyle().append(buffer, null, object, true);
+
+        String str = buffer.toString();
+
+        if (str.endsWith(", "))
+        {
+            return str.substring(0, str.length() - 2);
+        } else
+        {
+            return str;
+        }
     }
 
 }

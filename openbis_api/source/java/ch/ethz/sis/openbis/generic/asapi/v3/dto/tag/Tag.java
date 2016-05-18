@@ -42,8 +42,7 @@ import java.util.List;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.tag.Tag")
-public class Tag implements Serializable, ICodeHolder, IDataSetsHolder, IExperimentsHolder, IMaterialsHolder, IOwnerHolder, IPermIdHolder,
-        IRegistrationDateHolder, ISamplesHolder
+public class Tag implements Serializable, ICodeHolder, IDataSetsHolder, IExperimentsHolder, IMaterialsHolder, IOwnerHolder, IPermIdHolder, IRegistrationDateHolder, ISamplesHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -59,7 +58,7 @@ public class Tag implements Serializable, ICodeHolder, IDataSetsHolder, IExperim
     @JsonProperty
     private String description;
 
-    @JsonProperty(value = "private")
+    @JsonProperty(value="private")
     private Boolean isPrivate;
 
     @JsonProperty

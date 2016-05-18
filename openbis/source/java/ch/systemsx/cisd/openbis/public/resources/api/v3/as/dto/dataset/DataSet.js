@@ -227,6 +227,12 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			var properties = this.getProperties();
 			return properties ? properties[propertyName] : null;
 		};
+		prototype.setProperty = function(propertyName, propertyValue) {
+			if (this.properties == null) {
+				this.properties = {};
+			}
+			this.properties[propertyName] = propertyValue;
+		};
 		prototype.getProperties = function() {
 			if (this.getFetchOptions() && this.getFetchOptions().hasProperties()) {
 				return this.properties;
@@ -240,6 +246,12 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.getMaterialProperty = function(propertyName) {
 			var properties = this.getMaterialProperties();
 			return properties ? properties[propertyName] : null;
+		};
+		prototype.setMaterialProperty = function(propertyName, propertyValue) {
+			if (this.materialProperties == null) {
+				this.materialProperties = {};
+			}
+			this.materialProperties[propertyName] = propertyValue;
 		};
 		prototype.getMaterialProperties = function() {
 			if (this.getFetchOptions() && this.getFetchOptions().hasMaterialProperties()) {

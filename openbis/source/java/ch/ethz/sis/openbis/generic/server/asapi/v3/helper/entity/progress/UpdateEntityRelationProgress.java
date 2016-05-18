@@ -28,7 +28,7 @@ public class UpdateEntityRelationProgress extends Progress
 
     public UpdateEntityRelationProgress(Object object, String relationName, int numItemsProcessed, int totalItemsToProcess)
     {
-        super("updating relation " + relationName, EntityProgressToStringBuilder.toString(object), numItemsProcessed, totalItemsToProcess);
+        super("updating relation " + relationName, object, numItemsProcessed, totalItemsToProcess);
     }
 
 }

@@ -26,7 +26,9 @@ import java.util.Set;
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.UpdateEntityPropertyExecutor;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
@@ -81,6 +83,9 @@ public class UpdateEntityPropertyExecutorTest extends AbstractEntityPropertyExec
         context.checking(new Expectations()
             {
                 {
+                    allowing(operationContext).pushProgress(with(any(IProgress.class)));
+                    allowing(operationContext).popProgress();
+
                     allowing(operationContext).getSession();
                     will(returnValue(session));
 
@@ -126,10 +131,37 @@ public class UpdateEntityPropertyExecutorTest extends AbstractEntityPropertyExec
         execute(entityPropertiesHolder, entityType, updatedPropertyValues);
     }
 
-    private void execute(IEntityPropertiesHolder propertiesHolder, EntityTypePE entityType, Map<String, String> properties)
+    private void execute(IEntityPropertiesHolder entity, EntityTypePE entityType, final Map<String, String> propertiesMap)
     {
         UpdateEntityPropertyExecutor executor = new UpdateEntityPropertyExecutor(daoFactory, managedPropertyEvaluatorFactory);
-        executor.update(operationContext, Collections.singletonMap(propertiesHolder, properties));
+        IPropertiesHolder holder = new IPropertiesHolder()
+            {
+                @Override
+                public void setProperty(String propertyName, String propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setProperties(Map<String, String> properties)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public String getProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public Map<String, String> getProperties()
+                {
+                    return propertiesMap;
+                }
+            };
+        MapBatch<IPropertiesHolder, IEntityPropertiesHolder> batch = new MapBatch<>(0, 0, 1, Collections.singletonMap(holder, entity), 1);
+        executor.update(operationContext, batch);
     }
 
 }

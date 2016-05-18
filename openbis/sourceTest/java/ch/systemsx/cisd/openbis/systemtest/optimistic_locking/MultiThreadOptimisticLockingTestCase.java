@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.systemtest.PersistentSystemTestCase;
 @Transactional
 public class MultiThreadOptimisticLockingTestCase extends PersistentSystemTestCase
 {
-    static final String CREATING_ENTITIES = "creating entities";
+    static final String CREATING_ENTITIES = "creating";
 
     protected ToolBox toolBox;
 

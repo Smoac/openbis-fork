@@ -20,11 +20,17 @@ define([ "stjs", "as/dto/common/update/IdListUpdateValue" ], function(stjs, IdLi
 		prototype.setMaterialId = function(materialId) {
 			this.materialId = materialId;
 		};
-		prototype.setProperty = function(key, value) {
-			this.properties[key] = value;
+		prototype.getProperty = function(propertyName) {
+			return this.properties[propertyName];
+		};
+		prototype.setProperty = function(propertyName, propertyValue) {
+			this.properties[propertyName] = propertyValue;
 		};
 		prototype.getProperties = function() {
 			return this.properties;
+		};
+		prototype.setProperties = function(properties) {
+			this.properties = properties;
 		};
 		prototype.getTagIds = function() {
 			return this.tagIds;

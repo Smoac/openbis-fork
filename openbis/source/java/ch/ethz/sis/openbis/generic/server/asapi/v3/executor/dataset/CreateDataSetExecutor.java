@@ -46,6 +46,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.Collectio
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CheckDataProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CreateEntityProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -55,7 +56,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -105,7 +105,69 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
     @Override
     protected List<DataPE> createEntities(final IOperationContext context, CollectionBatch<DataSetCreation> batch)
     {
-        // Get Types
+        final Map<IEntityTypeId, EntityTypePE> types = getTypes(context, batch);
+
+        checkData(context, batch, types);
+
+        final IPermIdDAO codeGenerator = daoFactory.getPermIdDAO();
+        final List<DataPE> dataSets = new LinkedList<DataPE>();
+
+        new CollectionBatchProcessor<DataSetCreation>(context, batch)
+            {
+                @Override
+                public void process(DataSetCreation creation)
+                {
+                    DataSetTypePE type = (DataSetTypePE) types.get(creation.getTypeId());
+
+                    // Create code if is not present
+                    if (StringUtils.isEmpty(creation.getCode()))
+                    {
+                        creation.setCode(codeGenerator.createPermId());
+                    }
+
+                    DataSetKind kind = DataSetKind.valueOf(type.getDataSetKind());
+                    DataPE dataSet = null;
+
+                    if (DataSetKind.PHYSICAL.equals(kind))
+                    {
+                        dataSet = new ExternalDataPE();
+                    } else if (DataSetKind.CONTAINER.equals(kind))
+                    {
+                        dataSet = new DataPE();
+                    } else if (DataSetKind.LINK.equals(kind))
+                    {
+                        dataSet = new LinkDataPE();
+                    } else
+                    {
+                        throw new IllegalArgumentException("Unsupported data set kind: " + kind);
+                    }
+
+                    dataSet.setCode(creation.getCode());
+                    dataSet.setDataSetType(type);
+                    dataSet.setDerived(false == creation.isMeasured());
+                    dataSet.setDataProducerCode(creation.getDataProducer());
+                    dataSet.setProductionDate(creation.getDataProductionDate());
+
+                    PersonPE person = context.getSession().tryGetPerson();
+                    dataSet.setRegistrator(person);
+                    Date timeStamp = daoFactory.getTransactionTimestamp();
+                    RelationshipUtils.updateModificationDateAndModifier(dataSet, person, timeStamp);
+
+                    dataSets.add(dataSet);
+                }
+
+                @Override
+                public IProgress createProgress(DataSetCreation object, int objectIndex, int totalObjectCount)
+                {
+                    return new CreateEntityProgress(object, objectIndex, totalObjectCount);
+                }
+            };
+
+        return dataSets;
+    }
+
+    private Map<IEntityTypeId, EntityTypePE> getTypes(IOperationContext context, CollectionBatch<DataSetCreation> batch)
+    {
         Collection<IEntityTypeId> typeIds = new HashSet<IEntityTypeId>();
 
         for (DataSetCreation creation : batch.getObjects())
@@ -113,15 +175,29 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
             typeIds.add(creation.getTypeId());
         }
 
-        final Map<IEntityTypeId, EntityTypePE> types = mapEntityTypeByIdExecutor.map(context, EntityKind.DATA_SET, typeIds);
+        return mapEntityTypeByIdExecutor.map(context, EntityKind.DATA_SET, typeIds);
+    }
 
-        // Validate DataSet creations
+    private void checkData(final IOperationContext context, final CollectionBatch<DataSetCreation> batch,
+            final Map<IEntityTypeId, EntityTypePE> types)
+    {
         new CollectionBatchProcessor<DataSetCreation>(context, batch)
             {
                 @Override
-                public void process(DataSetCreation object)
+                public void process(DataSetCreation creation)
                 {
-                    checkData(context, object, types.get(object.getTypeId()));
+                    EntityTypePE type = types.get(creation.getTypeId());
+
+                    if (type == null)
+                    {
+                        throw new ObjectNotFoundException(creation.getTypeId());
+                    } else if (StringUtils.isEmpty(creation.getCode()) && false == creation.isAutoGeneratedCode())
+                    {
+                        throw new UserFailureException("Code cannot be empty for a non auto generated code.");
+                    } else if (false == StringUtils.isEmpty(creation.getCode()) && creation.isAutoGeneratedCode())
+                    {
+                        throw new UserFailureException("Code should be empty when auto generated code is selected.");
+                    }
                 }
 
                 @Override
@@ -130,66 +206,6 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
                     return new CheckDataProgress(object, objectIndex, totalObjectCount);
                 }
             };
-
-        IPermIdDAO codeGenerator = daoFactory.getPermIdDAO();
-
-        List<DataPE> dataSets = new LinkedList<DataPE>();
-        for (DataSetCreation creation : batch.getObjects())
-        {
-            DataSetTypePE type = (DataSetTypePE) types.get(creation.getTypeId());
-
-            // Create code if is not present
-            if (StringUtils.isEmpty(creation.getCode()))
-            {
-                creation.setCode(codeGenerator.createPermId());
-            }
-
-            DataSetKind kind = DataSetKind.valueOf(type.getDataSetKind());
-            DataPE dataSet = null;
-
-            if (DataSetKind.PHYSICAL.equals(kind))
-            {
-                dataSet = new ExternalDataPE();
-            } else if (DataSetKind.CONTAINER.equals(kind))
-            {
-                dataSet = new DataPE();
-            } else if (DataSetKind.LINK.equals(kind))
-            {
-                dataSet = new LinkDataPE();
-            } else
-            {
-                throw new IllegalArgumentException("Unsupported data set kind: " + kind);
-            }
-
-            dataSet.setCode(creation.getCode());
-            dataSet.setDataSetType(type);
-            dataSet.setDerived(false == creation.isMeasured());
-            dataSet.setDataProducerCode(creation.getDataProducer());
-            dataSet.setProductionDate(creation.getDataProductionDate());
-
-            PersonPE person = context.getSession().tryGetPerson();
-            dataSet.setRegistrator(person);
-            Date timeStamp = daoFactory.getTransactionTimestamp();
-            RelationshipUtils.updateModificationDateAndModifier(dataSet, person, timeStamp);
-
-            dataSets.add(dataSet);
-        }
-
-        return dataSets;
-    }
-
-    private void checkData(IOperationContext context, DataSetCreation creation, EntityTypePE type)
-    {
-        if (type == null)
-        {
-            throw new ObjectNotFoundException(creation.getTypeId());
-        } else if (StringUtils.isEmpty(creation.getCode()) && false == creation.isAutoGeneratedCode())
-        {
-            throw new UserFailureException("Code cannot be empty for a non auto generated code.");
-        } else if (false == StringUtils.isEmpty(creation.getCode()) && creation.isAutoGeneratedCode())
-        {
-            throw new UserFailureException("Code should be empty when auto generated code is selected.");
-        }
     }
 
     @Override
@@ -234,13 +250,7 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
         setDataSetDataStoreExecutor.set(context, batch);
         setDataSetSampleExecutor.set(context, batch);
         setDataSetExperimentExecutor.set(context, batch);
-
-        Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
-        for (Map.Entry<DataSetCreation, DataPE> entry : batch.getObjects().entrySet())
-        {
-            propertyMap.put(entry.getValue(), entry.getKey().getProperties());
-        }
-        updateEntityPropertyExecutor.update(context, propertyMap);
+        updateEntityPropertyExecutor.update(context, batch);
     }
 
     @Override

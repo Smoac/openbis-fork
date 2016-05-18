@@ -50,7 +50,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTr
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -154,13 +153,7 @@ public class CreateExperimentExecutor extends AbstractCreateEntityExecutor<Exper
     {
         setExperimentProjectExecutor.set(context, batch);
         setExperimentTypeExecutor.set(context, batch);
-
-        Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
-        for (Map.Entry<ExperimentCreation, ExperimentPE> entry : batch.getObjects().entrySet())
-        {
-            propertyMap.put(entry.getValue(), entry.getKey().getProperties());
-        }
-        updateEntityPropertyExecutor.update(context, propertyMap);
+        updateEntityPropertyExecutor.update(context, batch);
     }
 
     @Override

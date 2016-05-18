@@ -128,7 +128,6 @@ public class PhysicalDataFetchOptions extends FetchOptions<PhysicalData> impleme
     {
         return sort;
     }
-
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

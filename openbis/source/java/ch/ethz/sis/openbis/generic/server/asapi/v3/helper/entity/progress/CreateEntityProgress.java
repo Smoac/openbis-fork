@@ -28,7 +28,7 @@ public class CreateEntityProgress extends Progress
 
     public CreateEntityProgress(Object object, int numItemsProcessed, int totalItemsToProcess)
     {
-        super("creating", EntityProgressToStringBuilder.toString(object), numItemsProcessed, totalItemsToProcess);
+        super("creating", object, numItemsProcessed, totalItemsToProcess);
     }
 
 }

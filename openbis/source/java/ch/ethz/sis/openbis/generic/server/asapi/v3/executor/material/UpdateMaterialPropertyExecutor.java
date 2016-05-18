@@ -16,13 +16,13 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IUpdateEntityPropertyExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
@@ -41,9 +41,9 @@ public class UpdateMaterialPropertyExecutor implements IUpdateMaterialPropertyEx
     @Override
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     @Capability("UPDATE_MATERIAL_PROPERTY")
-    public void update(IOperationContext context, Map<IEntityPropertiesHolder, Map<String, String>> entityToPropertiesMap)
+    public void update(IOperationContext context, MapBatch<? extends IPropertiesHolder, ? extends IEntityPropertiesHolder> holderToEntityMap)
     {
-        executor.update(context, entityToPropertiesMap);
+        executor.update(context, holderToEntityMap);
     }
 
 }

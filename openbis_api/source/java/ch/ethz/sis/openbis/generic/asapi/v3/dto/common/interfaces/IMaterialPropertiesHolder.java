@@ -18,21 +18,22 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces;
 
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * @author Jakub Straszewski
+ * @author pkupczyk
  */
-@JsonObject("as.dto.common.interfaces.IPropertiesHolder")
-public interface IPropertiesHolder
+@JsonObject("as.dto.common.interfaces.IMaterialPropertiesHolder")
+public interface IMaterialPropertiesHolder
 {
 
-    Map<String, String> getProperties();
+    Map<String, Material> getMaterialProperties();
+    
+    void setMaterialProperties(Map<String, Material> properties);
 
-    void setProperties(Map<String, String> properties);
+    Material getMaterialProperty(String propertyName);
 
-    String getProperty(String propertyName);
-
-    void setProperty(String propertyName, String propertyValue);
+    void setMaterialProperty(String propertyName, Material propertyValue);
 
 }

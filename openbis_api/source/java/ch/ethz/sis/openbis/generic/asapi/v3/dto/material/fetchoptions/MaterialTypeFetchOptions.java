@@ -76,7 +76,6 @@ public class MaterialTypeFetchOptions extends FetchOptions<MaterialType> impleme
     {
         return sort;
     }
-
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

@@ -50,7 +50,6 @@ public class ExternalDmsFetchOptions extends FetchOptions<ExternalDms> implement
     {
         return sort;
     }
-
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

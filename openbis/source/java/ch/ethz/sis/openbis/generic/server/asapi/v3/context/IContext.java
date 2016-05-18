@@ -16,8 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.context;
 
-import java.util.Stack;
-
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -34,7 +32,7 @@ public interface IContext extends IAuthSessionProvider
 
     public IProgress popProgress();
 
-    public Stack<IProgress> getProgressStack();
+    public IProgressStack getProgressStack();
 
     public void addProgressListener(IProgressListener listener);
 

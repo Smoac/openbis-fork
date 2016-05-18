@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.context;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.EntityProgressToStringBuilder;
+
 /**
  * @author pkupczyk
  */
@@ -25,6 +27,10 @@ public class Progress implements IProgress
     private static final long serialVersionUID = 1L;
 
     private String label;
+
+    private boolean detailsCreated = false;
+
+    private Object detailsObject;
 
     private String details;
 
@@ -37,10 +43,10 @@ public class Progress implements IProgress
         this.label = label;
     }
 
-    public Progress(String label, String details, int numItemsProcessed, int totalItemsToProcess)
+    public Progress(String label, Object detailsObject, int numItemsProcessed, int totalItemsToProcess)
     {
         this.label = label;
-        this.details = details;
+        this.detailsObject = detailsObject;
         this.numItemsProcessed = numItemsProcessed;
         this.totalItemsToProcess = totalItemsToProcess;
     }
@@ -52,9 +58,25 @@ public class Progress implements IProgress
     }
 
     @Override
-    public String getDetails()
+    public final String getDetails()
     {
+        if (false == detailsCreated)
+        {
+            details = createDetails(detailsObject);
+            detailsCreated = true;
+        }
         return details;
+    }
+
+    protected String createDetails(Object object)
+    {
+        if (object != null)
+        {
+            return EntityProgressToStringBuilder.toString(object);
+        } else
+        {
+            return null;
+        }
     }
 
     @Override
@@ -67,27 +89,6 @@ public class Progress implements IProgress
     public Integer getNumItemsProcessed()
     {
         return numItemsProcessed;
-    }
-
-    @Override
-    public String toString()
-    {
-        StringBuilder result = new StringBuilder();
-
-        if (getTotalItemsToProcess() == null && getNumItemsProcessed() == null)
-        {
-            result.append(getLabel());
-        } else
-        {
-            result.append(getLabel() + " (" + getNumItemsProcessed() + "/" + getTotalItemsToProcess() + ")");
-        }
-
-        if (getDetails() != null)
-        {
-            result.append(" [" + getDetails() + "]");
-        }
-
-        return result.toString();
     }
 
 }
