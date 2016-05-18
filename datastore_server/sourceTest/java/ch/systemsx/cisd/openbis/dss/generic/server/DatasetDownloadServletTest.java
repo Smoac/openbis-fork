@@ -220,6 +220,16 @@ public class DatasetDownloadServletTest
 
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
+        
+        String output = writer.toString();
+        
+        String directorySize = null;
+        if(output.contains("4 KB")) {
+            directorySize = "4 KB";
+        } else {
+            directorySize = "68 bytes";
+        }
+        
         assertEquals(
                 "<html><head><style type='text/css'> * { margin: 3px; }html { height: 100%;  }"
                         + "body { height: 100%; font-family: verdana, tahoma, helvetica; "
@@ -240,14 +250,14 @@ public class DatasetDownloadServletTest
                         + OSUtilities.LINE_SEPARATOR
                         + "<tr><td class='td_file'>"
                         + "<a href='/datastore_server/1234-1/" + ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME + "?disableLinks=false&mode=simpleHtml&sessionID=AV76CF'>"
-                        + "+ s % ! # @</td><td>68 bytes</td><td></td></tr>"
+                        + "+ s % ! # @</td><td>" + directorySize + "</td><td></td></tr>"
                         + OSUtilities.LINE_SEPARATOR
                         + "<tr><td class='td_file'>"
                         + "<a href='/datastore_server/1234-1/" + ESCAPED_FILE_NAME_ENCODED + "?disableLinks=false&mode=simpleHtml&sessionID=AV76CF'>"
                         + "read me @home.txt</td><td>12 bytes</td><td></td></tr>"
                         + OSUtilities.LINE_SEPARATOR + "</table> </div> </body></html>"
                         + OSUtilities.LINE_SEPARATOR + "",
-                writer.toString());
+                        output);
 
         String normalizedLogContent = getNormalizedLogContent();
         assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
