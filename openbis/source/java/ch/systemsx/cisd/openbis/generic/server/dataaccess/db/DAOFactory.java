@@ -174,7 +174,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         for (final EntityKind entityKind : entityKinds)
         {
             final EntityTypeDAO dao =
-                    new EntityTypeDAO(entityKind, sessionFactory, historyCreator);
+                    new EntityTypeDAO(entityKind, sessionFactory, historyCreator, this);
             entityTypeDAOs.put(entityKind, dao);
             entityPropertyTypeDAOs.put(entityKind, new EntityPropertyTypeDAO(entityKind,
                     getPersistencyResources()));

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -1329,11 +1330,11 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
         flushWithSqlExceptionHandling(getHibernateTemplate());
         scheduleDynamicPropertiesEvaluation(dataSets);
-
+        
         // if session is not cleared registration of many samples slows down after each batch
         hibernateTemplate.clear();
     }
-
+    
     @Override
     public final void validateAndSaveUpdatedEntity(DataPE entity) throws DataAccessException
     {
@@ -1342,6 +1343,23 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         scheduleDynamicPropertiesEvaluation(Arrays.asList(entity));
     }
 
+    @Override
+    protected void scheduleDynamicPropertiesEvaluation(List<DataPE> dataSets) 
+    {
+        List<DataPE> toUpdate = new ArrayList<DataPE>();
+        addAllDataSetsAndComponentsRecursively(toUpdate, dataSets);
+        super.scheduleDynamicPropertiesEvaluation(toUpdate);
+    }
+    
+    private void addAllDataSetsAndComponentsRecursively(List<DataPE> resultDataSets, List<DataPE> dataSets)
+    {
+        for (DataPE dataSet : dataSets)
+        {
+            resultDataSets.add(dataSet);
+            addAllDataSetsAndComponentsRecursively(resultDataSets, dataSet.getContainedDataSets());
+        }
+    }
+    
     @Override
     public List<TechId> listDataSetIdsBySampleIds(final Collection<TechId> samples)
     {

@@ -16,9 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -46,6 +49,8 @@ public abstract class AbstractUpdateEntityToOneRelationExecutor<ENTITY_UPDATE, E
     @Override
     public void update(IOperationContext context, Map<ENTITY_UPDATE, ENTITY_PE> entitiesMap)
     {
+        Set<RELATED_PE> allAdded = new HashSet<RELATED_PE>();
+        Set<RELATED_PE> allRemoved = new HashSet<RELATED_PE>();
         List<RELATED_ID> relatedIds = new LinkedList<RELATED_ID>();
 
         for (ENTITY_UPDATE update : entitiesMap.keySet())
@@ -59,11 +64,25 @@ public abstract class AbstractUpdateEntityToOneRelationExecutor<ENTITY_UPDATE, E
         }
 
         Map<RELATED_ID, RELATED_PE> relatedMap = map(context, relatedIds);
-        update(context, entitiesMap, relatedMap);
+
+        update(context, entitiesMap, relatedMap, allAdded, allRemoved);
+
+        postUpdate(context, allAdded, allRemoved);
     }
 
     @Override
     public void update(IOperationContext context, Map<ENTITY_UPDATE, ENTITY_PE> entitiesMap, Map<RELATED_ID, RELATED_PE> relatedMap)
+    {
+        Set<RELATED_PE> allAdded = new HashSet<RELATED_PE>();
+        Set<RELATED_PE> allRemoved = new HashSet<RELATED_PE>();
+
+        update(context, entitiesMap, relatedMap, allAdded, allRemoved);
+
+        postUpdate(context, allAdded, allRemoved);
+    }
+
+    private void update(IOperationContext context, Map<ENTITY_UPDATE, ENTITY_PE> entitiesMap, Map<RELATED_ID, RELATED_PE> relatedMap,
+            Set<RELATED_PE> allAdded, Set<RELATED_PE> allRemoved)
     {
         for (Map.Entry<ENTITY_UPDATE, ENTITY_PE> entry : entitiesMap.entrySet())
         {
@@ -83,9 +102,9 @@ public abstract class AbstractUpdateEntityToOneRelationExecutor<ENTITY_UPDATE, E
                     {
                         check(context, entity, getRelatedId(currentlyRelated), currentlyRelated);
                         update(context, entity, null);
+                        allRemoved.add(currentlyRelated);
                     }
-                }
-                else
+                } else
                 {
                     RELATED_PE related = relatedMap.get(relatedId);
 
@@ -98,11 +117,21 @@ public abstract class AbstractUpdateEntityToOneRelationExecutor<ENTITY_UPDATE, E
                     {
                         check(context, entity, relatedId, related);
                         update(context, entity, related);
+                        allAdded.add(related);
+                        if (currentlyRelated != null)
+                        {
+                            allRemoved.add(currentlyRelated);
+                        }
                     }
                 }
 
             }
         }
+    }
+
+    protected void postUpdate(IOperationContext context, Collection<RELATED_PE> allAdded, Collection<RELATED_PE> allRemoved)
+    {
+        // by default do nothing
     }
 
     protected abstract RELATED_ID getRelatedId(RELATED_PE related);

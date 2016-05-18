@@ -15,7 +15,7 @@
  */
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
-import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionContainsOnly;
+import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionContainsOnly; 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.fail;
@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -80,12 +81,24 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPerm
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.ethz.sis.openbis.systemtest.asapi.v3.index.IndexOperation;
+import ch.ethz.sis.openbis.systemtest.asapi.v3.index.IndexState;
+import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
+import ch.ethz.sis.openbis.systemtest.asapi.v3.index.RemoveFromIndexState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Id;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
@@ -116,6 +129,9 @@ public class AbstractTest extends SystemTestCase
 
     @Autowired
     protected IGeneralInformationService generalInformationService;
+
+    @Autowired
+    protected IDAOFactory daoFactory;
 
     @BeforeClass
     public void beforeClass()
@@ -850,6 +866,118 @@ public class AbstractTest extends SystemTestCase
         }
 
         assertCollectionContainsOnly(actualSet, expectedPermIds);
+    }
+
+    protected void assertExperimentsReindexed(ReindexingState previousState, String... permIds)
+    {
+        List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listByPermID(Arrays.asList(permIds));
+        assertEquals(experiments.size(), permIds.length);
+        assertIndexStateChange(previousState, new ReindexingState(), ExperimentPE.class.getName(), experiments.toArray(new ExperimentPE[] {}));
+    }
+
+    protected void assertSamplesReindexed(ReindexingState previousState, String... permIds)
+    {
+        List<SamplePE> samples = daoFactory.getSampleDAO().listByPermID(Arrays.asList(permIds));
+        assertEquals(samples.size(), permIds.length);
+        assertIndexStateChange(previousState, new ReindexingState(), SamplePE.class.getName(), samples.toArray(new SamplePE[] {}));
+    }
+
+    protected void assertDataSetsReindexed(ReindexingState previousState, String... permIds)
+    {
+        List<DataPE> dataSets = daoFactory.getDataDAO().listByCode(new HashSet<String>(Arrays.asList(permIds)));
+        assertEquals(dataSets.size(), permIds.length);
+        assertIndexStateChange(previousState, new ReindexingState(), DataPE.class.getName(), dataSets.toArray(new DataPE[] {}));
+    }
+
+    protected void assertMaterialsReindexed(ReindexingState previousState, MaterialPermId... permIds)
+    {
+        Collection<MaterialIdentifier> identifiers = new HashSet<MaterialIdentifier>();
+        for (MaterialPermId permId : permIds)
+        {
+            identifiers.add(new MaterialIdentifier(permId.getCode(), permId.getTypeCode()));
+        }
+        List<MaterialPE> materials = daoFactory.getMaterialDAO().listMaterialsByMaterialIdentifier(identifiers);
+        assertEquals(materials.size(), permIds.length);
+        assertIndexStateChange(previousState, new ReindexingState(), MaterialPE.class.getName(), materials.toArray(new MaterialPE[] {}));
+    }
+
+    protected void assertExperimentsRemovedFromIndex(RemoveFromIndexState previousState, Long... ids)
+    {
+        assertIndexStateChange(previousState, new RemoveFromIndexState(daoFactory), ExperimentPE.class.getName(), ids);
+    }
+
+    protected void assertSamplesRemovedFromIndex(RemoveFromIndexState previousState, Long... ids)
+    {
+        assertIndexStateChange(previousState, new RemoveFromIndexState(daoFactory), SamplePE.class.getName(), ids);
+    }
+
+    protected void assertDataSetsRemovedFromIndex(RemoveFromIndexState previousState, Long... ids)
+    {
+        assertIndexStateChange(previousState, new RemoveFromIndexState(daoFactory), DataPE.class.getName(), ids);
+    }
+
+    protected void assertMaterialsRemovedFromIndex(RemoveFromIndexState previousState, Long... ids)
+    {
+        assertIndexStateChange(previousState, new RemoveFromIndexState(daoFactory), MaterialPE.class.getName(), ids);
+    }
+
+    protected <S extends IndexState> void assertIndexStateChange(S previousState, S currentState, String expectedClassName,
+            Long... expectedIds)
+    {
+        Id[] idHolders = new Id[expectedIds.length];
+        int index = 0;
+
+        for (Long expectedId : expectedIds)
+        {
+            Id idHolder = new Id();
+            idHolder.setId(expectedId);
+            idHolders[index] = idHolder;
+            index++;
+        }
+
+        assertIndexStateChange(previousState, currentState, expectedClassName, idHolders);
+    }
+
+    protected <S extends IndexState> void assertIndexStateChange(S previousState, S currentState, String expectedClassName,
+            IIdHolder... expectedIdHolders)
+    {
+        Map<Object, IndexOperation> newOperations = new IdentityHashMap<Object, IndexOperation>();
+
+        for (IndexOperation operation : currentState.getOperations())
+        {
+            newOperations.put(operation.getOriginalOperation(), operation);
+        }
+        for (IndexOperation operation : previousState.getOperations())
+        {
+            newOperations.remove(operation.getOriginalOperation());
+        }
+
+        Map<String, Set<Long>> classNameToIdsMap = new HashMap<String, Set<Long>>();
+
+        for (IndexOperation newOperation : newOperations.values())
+        {
+            Set<Long> ids = classNameToIdsMap.get(newOperation.getClassName());
+            if (ids == null)
+            {
+                ids = new HashSet<Long>();
+                classNameToIdsMap.put(newOperation.getClassName(), ids);
+            }
+            ids.addAll(newOperation.getIds());
+        }
+
+        Set<Long> expectedIds = new HashSet<Long>();
+        for (IIdHolder expectedIdHolder : expectedIdHolders)
+        {
+            expectedIds.add(expectedIdHolder.getId());
+        }
+
+        Set<Long> actualIds = classNameToIdsMap.get(expectedClassName);
+        if (actualIds == null)
+        {
+            actualIds = Collections.emptySet();
+        }
+
+        assertCollectionContainsOnly(actualIds, expectedIds.toArray(new Long[] {}));
     }
 
 }

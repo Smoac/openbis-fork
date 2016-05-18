@@ -334,6 +334,9 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
             relationshipService.assignProjectToSpace(session, project, findGroup(groupCode));
         }
         dataChanged = true;
+        
+        //Schedule projects experiments for index update, they require to update the Space on the index at least
+        reindex(ExperimentPE.class, project.getExperiments());
     }
 
     private SpacePE findGroup(String groupCode)
