@@ -124,18 +124,18 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.experime
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetRegistrationCache;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDataSourceManager;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -2973,9 +2973,9 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             Long id = daoFactory.getDataDAO().tryToFindDataSetIdByCode(dataSetCode).getId();
             dataSetIds.add(id);
         }
-        IFullTextIndexUpdateScheduler indexUpdater =
-                daoFactory.getPersistencyResources().getIndexUpdateScheduler();
-        indexUpdater.scheduleUpdate(IndexUpdateOperation.reindex(DataPE.class,
+        IDynamicPropertyEvaluationScheduler indexUpdater =
+                daoFactory.getPersistencyResources().getDynamicPropertyEvaluationScheduler();
+        indexUpdater.scheduleUpdate(DynamicPropertyEvaluationOperation.evaluate(DataPE.class,
                 dataSetIds));
     }
 

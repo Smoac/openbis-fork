@@ -29,9 +29,9 @@ import org.springframework.orm.ObjectRetrievalFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IMetaprojectRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IMetaprojectUpdates;
@@ -74,7 +74,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
 
     private MetaprojectPE metaproject;
 
-    private Map<Class<?>, List<Long>> changedEntitiesIds;
+    private Map<Class<? extends IEntityWithMetaprojects>, List<Long>> changedEntitiesIds;
 
     private List<IEntityWithMetaprojects> entitiesWithMetaproject =
             new ArrayList<IEntityWithMetaprojects>();
@@ -171,13 +171,13 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
             {
                 getMetaprojectDAO().createOrUpdateMetaproject(metaproject, findPerson());
 
-                IFullTextIndexUpdateScheduler indexUpdater =
-                        getPersistencyResources().getIndexUpdateScheduler();
+                IDynamicPropertyEvaluationScheduler indexUpdater =
+                        getPersistencyResources().getDynamicPropertyEvaluationScheduler();
 
-                for (Map.Entry<Class<?>, List<Long>> changedEntry : changedEntitiesIds.entrySet())
+                for (Map.Entry<Class<? extends IEntityWithMetaprojects>, List<Long>> changedEntry : changedEntitiesIds.entrySet())
                 {
-                    indexUpdater.scheduleUpdate(IndexUpdateOperation.reindex(changedEntry.getKey(),
-                            changedEntry.getValue()));
+
+                    indexUpdater.scheduleUpdate(DynamicPropertyEvaluationOperation.evaluate(changedEntry.getKey(), changedEntry.getValue()));
                 }
 
             } catch (final DataAccessException ex)
@@ -370,10 +370,10 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
 
     private void initChangedEntities()
     {
-        changedEntitiesIds = new HashMap<Class<?>, List<Long>>();
+        changedEntitiesIds = new HashMap<Class<? extends IEntityWithMetaprojects>, List<Long>>();
     }
 
-    private void addToChangedEntities(Class<?> entityClass, Long entityId)
+    private void addToChangedEntities(Class<? extends IEntityWithMetaprojects> entityClass, Long entityId)
     {
         List<Long> ids = changedEntitiesIds.get(entityClass);
         if (ids == null)
@@ -384,7 +384,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
         ids.add(entityId);
     }
 
-    private void addToChangedEntities(Class<?> entityClass, Collection<Long> entityIds)
+    private void addToChangedEntities(Class<? extends IEntityWithMetaprojects> entityClass, Collection<Long> entityIds)
     {
         for (Long entityId : entityIds)
         {

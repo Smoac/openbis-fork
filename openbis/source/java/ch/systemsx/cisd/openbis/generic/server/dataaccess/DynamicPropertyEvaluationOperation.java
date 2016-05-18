@@ -39,31 +39,39 @@ public class DynamicPropertyEvaluationOperation implements Serializable
     // null means all
     private final Set<Long> ids;
 
+    private final boolean deletion;
+
     public static DynamicPropertyEvaluationOperation evaluate(
             Class<? extends IEntityInformationWithPropertiesHolder> clazz, Collection<Long> ids)
     {
-        return new DynamicPropertyEvaluationOperation(clazz, ids);
+        return new DynamicPropertyEvaluationOperation(clazz, ids, false);
     }
 
     public static DynamicPropertyEvaluationOperation evaluateAll(
             Class<? extends IEntityInformationWithPropertiesHolder> clazz)
     {
-        return new DynamicPropertyEvaluationOperation(clazz, null);
+        return new DynamicPropertyEvaluationOperation(clazz, null, false);
+    }
+
+    public static DynamicPropertyEvaluationOperation delete(
+            Class<? extends IEntityInformationWithPropertiesHolder> clazz, Collection<Long> ids)
+    {
+        return new DynamicPropertyEvaluationOperation(clazz, ids, true);
     }
 
     private DynamicPropertyEvaluationOperation(
-            Class<? extends IEntityInformationWithPropertiesHolder> clazz, Collection<Long> ids)
+            Class<? extends IEntityInformationWithPropertiesHolder> clazz, Collection<Long> ids, boolean deletion)
     {
         this.className = clazz.getName();
         if (ids == null)
         {
             this.ids = null;
-        }
-        else
+        } else
         {
             this.ids = new HashSet<Long>();
             this.ids.addAll(ids);
         }
+        this.deletion = deletion;
     }
 
     public String getClassName()
@@ -74,6 +82,11 @@ public class DynamicPropertyEvaluationOperation implements Serializable
     public Set<Long> getIds()
     {
         return ids;
+    }
+
+    public boolean isDeletion()
+    {
+        return deletion;
     }
 
     @Override
@@ -89,6 +102,7 @@ public class DynamicPropertyEvaluationOperation implements Serializable
         int result = 1;
         result = prime * result + ((className == null) ? 0 : className.hashCode());
         result = prime * result + ((ids == null) ? 0 : ids.hashCode());
+        result = prime * result + (deletion ? 0 : 1);
         return result;
     }
 
@@ -120,6 +134,12 @@ public class DynamicPropertyEvaluationOperation implements Serializable
         {
             return false;
         }
+
+        if (other.deletion != deletion)
+        {
+            return false;
+        }
+
         return true;
     }
 

@@ -101,17 +101,21 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
                     clazz =
                             (Class<IEntityInformationWithPropertiesHolder>) Class.forName(operation
                                     .getClassName());
-                    session = getSessionFactory().openSession();
+                    if (operation.isDeletion() == false)
+                    {
 
-                    if (operation.getIds() == null)
-                    {
-                        modifiedIds = evaluator.doEvaluateProperties(session, clazz);
-                    } else
-                    {
-                        // new collection is passed because it can be modified inside
-                        modifiedIds =
-                                evaluator.doEvaluateProperties(session, clazz, new ArrayList<Long>(
-                                        operation.getIds()));
+                        session = getSessionFactory().openSession();
+
+                        if (operation.getIds() == null)
+                        {
+                            modifiedIds = evaluator.doEvaluateProperties(session, clazz);
+                        } else
+                        {
+                            // new collection is passed because it can be modified inside
+                            modifiedIds =
+                                    evaluator.doEvaluateProperties(session, clazz, new ArrayList<Long>(
+                                            operation.getIds()));
+                        }
                     }
                     stopWatch.stop();
                 } catch (RuntimeException e)
@@ -135,8 +139,16 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
                                 operation.getIds() == null ? modifiedIds : operation.getIds();
                         if (ids.size() > 0)
                         {
-                            IndexUpdateOperation indexUpdateOperation =
-                                    IndexUpdateOperation.reindex(clazz, new LinkedList<Long>(ids));
+                            IndexUpdateOperation indexUpdateOperation;
+                            if (operation.isDeletion())
+                            {
+                                indexUpdateOperation =
+                                        IndexUpdateOperation.remove(clazz, new LinkedList<Long>(ids));
+                            } else
+                            {
+                                indexUpdateOperation =
+                                        IndexUpdateOperation.reindex(clazz, new LinkedList<Long>(ids));
+                            }
                             fullTextIndexUpdateScheduler.scheduleUpdate(indexUpdateOperation);
                         }
                     }

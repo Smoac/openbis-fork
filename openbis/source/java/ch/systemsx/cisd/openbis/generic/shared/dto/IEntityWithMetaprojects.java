@@ -21,7 +21,7 @@ import java.util.Set;
 /**
  * @author pkupczyk
  */
-public interface IEntityWithMetaprojects extends IEntityInformationHolderDTO
+public interface IEntityWithMetaprojects extends IEntityInformationHolderDTO, IEntityInformationWithPropertiesHolder
 {
 
     public void addMetaproject(MetaprojectPE metaprojectPE);

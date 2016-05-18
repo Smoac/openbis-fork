@@ -40,7 +40,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.AttachmentEntry;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityModification;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
@@ -55,7 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * @author Franz-Josef Elmer
  * @author Tomasz Pylak
  */
-final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> implements IAttachmentDAO
+final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE>implements IAttachmentDAO
 {
 
     private final static Class<AttachmentPE> ATTACHMENT_CLASS = AttachmentPE.class;
@@ -272,7 +271,8 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
         {
             operationLog.debug(String.format("%s found for " + owner.getHolderName()
                     + " '%s' and file name '%s'.", attachment == null ? "No attachment"
-                    : "Attachment '" + attachment + "'", owner, fileName));
+                            : "Attachment '" + attachment + "'",
+                    owner, fileName));
         }
         return attachment;
     }
@@ -280,7 +280,7 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
     @Override
     public final AttachmentPE tryFindAttachmentByOwnerAndFileNameAndVersion(
             final AttachmentHolderPE owner, final String fileName, final int version)
-            throws DataAccessException
+                    throws DataAccessException
     {
         assert owner != null : "Unspecified attachment holder.";
         assert fileName != null : "Unspecified file name.";
@@ -297,7 +297,8 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
         {
             operationLog.debug(String.format("%s found for " + owner.getHolderName()
                     + " '%s', file name '%s' and version %d.", attachment == null ? "No attachment"
-                    : "Attachment '" + attachment + "'", owner, fileName, version));
+                            : "Attachment '" + attachment + "'",
+                    owner, fileName, version));
         }
         return attachment;
     }
@@ -349,12 +350,13 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
 
     protected void scheduleRemoveFromFullTextIndex(final AttachmentHolderPE owner)
     {
-        // removes the index if the attachment owner is a Sample or an Experiment
+        // refresh the owner data in the index if the owner is a Sample or an Experiment
         if (IEntityInformationWithPropertiesHolder.class.isAssignableFrom(owner.getClass()))
         {
             IEntityInformationWithPropertiesHolder entity = (IEntityInformationWithPropertiesHolder) owner;
-            persistencyResources.getIndexUpdateScheduler()
-                    .scheduleUpdate(IndexUpdateOperation.remove(entity.getClass(), Arrays.asList(entity.getId())));
+
+            persistencyResources.getDynamicPropertyEvaluationScheduler()
+                    .scheduleUpdate(DynamicPropertyEvaluationOperation.delete(entity.getClass(), Arrays.asList(entity.getId())));
         }
     }
 }

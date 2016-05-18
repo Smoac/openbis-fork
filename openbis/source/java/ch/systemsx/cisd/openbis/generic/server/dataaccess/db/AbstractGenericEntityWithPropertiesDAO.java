@@ -30,15 +30,14 @@ import ch.systemsx.cisd.common.collection.CollectionStyle;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.IBatchOperation;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -81,9 +80,9 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
         this.persistencyResources = persistencyResources;
     }
 
-    protected IFullTextIndexUpdateScheduler getIndexUpdateScheduler()
+    protected IDynamicPropertyEvaluationScheduler getIndexUpdateScheduler()
     {
-        return persistencyResources.getIndexUpdateScheduler();
+        return persistencyResources.getDynamicPropertyEvaluationScheduler();
     }
 
     protected IDynamicPropertyEvaluationScheduler getDynamicPropertyEvaluatorScheduler()
@@ -105,8 +104,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
 
     protected void scheduleRemoveFromFullTextIndex(List<Long> ids)
     {
-        getIndexUpdateScheduler()
-                .scheduleUpdate(IndexUpdateOperation.remove(getEntityClass(), ids));
+        getIndexUpdateScheduler().scheduleUpdate(DynamicPropertyEvaluationOperation.delete(getEntityClass(), ids));
     }
 
     protected void scheduleDynamicPropertiesEvaluation(List<T> entities)
