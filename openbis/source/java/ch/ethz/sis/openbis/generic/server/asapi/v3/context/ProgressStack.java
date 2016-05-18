@@ -57,6 +57,11 @@ class ProgressStack implements IProgressStack
                     return stack.get(--index);
                 }
 
+                @Override
+                public void remove()
+                {
+                }
+
             };
     }
 
