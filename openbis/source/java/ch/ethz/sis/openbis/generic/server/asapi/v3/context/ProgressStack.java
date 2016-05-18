@@ -60,8 +60,8 @@ class ProgressStack implements IProgressStack
                 @Override
                 public void remove()
                 {
+                    throw new UnsupportedOperationException();
                 }
-
             };
     }
 
