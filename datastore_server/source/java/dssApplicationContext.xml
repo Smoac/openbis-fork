@@ -278,6 +278,11 @@
         <constructor-arg ref="general-information-service"/>
         <constructor-arg ref="adapted-ftp-user-manager"/>
     </bean>
+
+    <!-- 
+        Optionally starts an CIFS server.
+    -->
+    <bean id="cifs-server" class="ch.systemsx.cisd.openbis.dss.generic.server.cifs.CifsServer" destroy-method="stop"/>
         
     <bean id="jython-evaluator" class="ch.systemsx.cisd.common.jython.evaluator.JythonEvaluatorSpringComponent" >
       <constructor-arg ref="propertyConfigurer" /> 
