@@ -49,7 +49,7 @@ public class DeleteSampleTest extends AbstractDeletionTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentPermId experimentPermId =
                 createCisdExperiment(new ProjectIdentifier("/CISD/DEFAULT"), java.util.UUID.randomUUID().toString().toUpperCase());
-        SamplePermId samplePermId = createCisdSample(experimentPermId);
+        SamplePermId samplePermId = createCisdSample(experimentPermId, java.util.UUID.randomUUID().toString().toUpperCase());
         TestTransaction.flagForCommit();
         TestTransaction.end();
 

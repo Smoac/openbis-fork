@@ -101,10 +101,15 @@ public class AbstractDeletionTest extends AbstractTest
 
     protected SamplePermId createCisdSample(IExperimentId experimentId)
     {
+        return createCisdSample(experimentId, "SAMPLE_TO_DELETE");
+    }
+
+    protected SamplePermId createCisdSample(IExperimentId experimentId, String sampleCode)
+    {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation creation = new SampleCreation();
-        creation.setCode("SAMPLE_TO_DELETE");
+        creation.setCode(sampleCode);
         creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
         creation.setSpaceId(new SpacePermId("CISD"));
         creation.setExperimentId(experimentId);
@@ -114,7 +119,7 @@ public class AbstractDeletionTest extends AbstractTest
         List<Sample> samples = new ArrayList<Sample>(map.values());
 
         Assert.assertEquals(1, samples.size());
-        Assert.assertEquals("SAMPLE_TO_DELETE", samples.get(0).getCode());
+        Assert.assertEquals(sampleCode, samples.get(0).getCode());
 
         return permIds.get(0);
     }
