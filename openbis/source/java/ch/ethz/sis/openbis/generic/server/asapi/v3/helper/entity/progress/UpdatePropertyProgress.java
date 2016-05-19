@@ -16,19 +16,33 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
+import java.util.Map;
+
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.ProgressDetails;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 
 /**
  * @author pkupczyk
  */
-public class CreateEntityProgress extends Progress
+public class UpdatePropertyProgress extends EntityProgress
 {
 
     private static final long serialVersionUID = 1L;
 
-    public CreateEntityProgress(Object object, int numItemsProcessed, int totalItemsToProcess)
+    private Map<String, String> properties;
+
+    public UpdatePropertyProgress(IIdentityHolder entity, Map<String, String> properties, int numItemsProcessed,
+            int totalItemsToProcess)
     {
-        super("creating", object, numItemsProcessed, totalItemsToProcess);
+        super("updating properties", entity, numItemsProcessed, totalItemsToProcess);
+        this.properties = properties;
+    }
+
+    @Override
+    protected void updateDetails(ProgressDetails details)
+    {
+        super.updateDetails(details);
+        details.set("properties", properties);
     }
 
 }

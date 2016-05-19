@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
@@ -41,12 +42,13 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchP
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CheckAccessProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CheckDataProgress;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 
 /**
  * @author pkupczyk
  */
-public abstract class AbstractUpdateEntityExecutor<UPDATE, PE extends IIdHolder, ID extends IObjectId> implements IUpdateEntityExecutor<UPDATE>
+public abstract class AbstractUpdateEntityExecutor<UPDATE extends IUpdate, PE extends IIdentityHolder, ID extends IObjectId>
+        implements IUpdateEntityExecutor<UPDATE>
 {
 
     @Autowired
@@ -101,15 +103,15 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE, PE extends IIdHolder,
         new MapBatchProcessor<UPDATE, PE>(context, batch)
             {
                 @Override
-                public void process(UPDATE key, PE value)
+                public void process(UPDATE update, PE entity)
                 {
-                    checkAccess(context, getId(key), value);
+                    checkAccess(context, getId(update), entity);
                 }
 
                 @Override
-                public IProgress createProgress(UPDATE key, PE value, int objectIndex, int totalObjectCount)
+                public IProgress createProgress(UPDATE update, PE entity, int objectIndex, int totalObjectCount)
                 {
-                    return new CheckAccessProgress(key, objectIndex, totalObjectCount);
+                    return new CheckAccessProgress(entity, update, objectIndex, totalObjectCount);
                 }
             };
     }

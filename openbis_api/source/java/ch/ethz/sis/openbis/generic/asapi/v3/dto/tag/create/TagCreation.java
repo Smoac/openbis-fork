@@ -16,9 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create;
 
-import java.io.Serializable;
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
@@ -29,7 +29,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.tag.create.TagCreation")
-public class TagCreation implements Serializable
+public class TagCreation implements ICreation
 {
     private static final long serialVersionUID = 1L;
 

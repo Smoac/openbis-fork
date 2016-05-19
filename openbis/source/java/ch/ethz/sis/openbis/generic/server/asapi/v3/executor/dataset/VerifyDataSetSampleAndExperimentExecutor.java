@@ -23,8 +23,11 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.VerifyProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
@@ -51,12 +54,22 @@ public class VerifyDataSetSampleAndExperimentExecutor implements IVerifyDataSetS
     }
 
     @Override
-    public void verify(IOperationContext context, CollectionBatch<DataPE> batch)
+    public void verify(final IOperationContext context, CollectionBatch<DataPE> batch)
     {
-        for (DataPE dataSet : batch.getObjects())
-        {
-            verify(context, dataSet);
-        }
+        new CollectionBatchProcessor<DataPE>(context, batch)
+            {
+                @Override
+                public void process(DataPE dataSet)
+                {
+                    verify(context, dataSet);
+                }
+
+                @Override
+                public IProgress createProgress(DataPE object, int objectIndex, int totalObjectCount)
+                {
+                    return new VerifyProgress(object, objectIndex, totalObjectCount);
+                }
+            };
     }
 
     private void verify(IOperationContext context, DataPE dataSet)

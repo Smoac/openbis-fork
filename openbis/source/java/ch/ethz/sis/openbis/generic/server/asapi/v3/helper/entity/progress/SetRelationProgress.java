@@ -17,37 +17,23 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.ProgressDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 
 /**
  * @author pkupczyk
  */
-public class CheckAccessProgress extends EntityProgress
+public class SetRelationProgress extends EntityProgress
 {
 
     private static final long serialVersionUID = 1L;
 
     private ICreation creation;
 
-    private IUpdate update;
-
-    public CheckAccessProgress(IIdentityHolder entity, ICreation creation, int numItemsProcessed, int totalItemsToProcess)
+    public SetRelationProgress(IIdentityHolder entity, ICreation creation, String relationName, int numItemsProcessed, int totalItemsToProcess)
     {
-        this(entity, numItemsProcessed, totalItemsToProcess);
+        super("setting relation " + relationName, entity, numItemsProcessed, totalItemsToProcess);
         this.creation = creation;
-    }
-
-    public CheckAccessProgress(IIdentityHolder entity, IUpdate update, int numItemsProcessed, int totalItemsToProcess)
-    {
-        this(entity, numItemsProcessed, totalItemsToProcess);
-        this.update = update;
-    }
-
-    private CheckAccessProgress(IIdentityHolder entity, int numItemsProcessed, int totalItemsToProcess)
-    {
-        super("checking access", entity, numItemsProcessed, totalItemsToProcess);
     }
 
     @Override
@@ -55,7 +41,6 @@ public class CheckAccessProgress extends EntityProgress
     {
         super.updateDetails(details);
         details.set("creation", creation);
-        details.set("update", update);
     }
 
 }

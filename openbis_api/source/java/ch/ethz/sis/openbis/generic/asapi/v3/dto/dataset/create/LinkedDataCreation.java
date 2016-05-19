@@ -16,10 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create;
 
-import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.IExternalDmsId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -27,7 +26,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.dataset.create.LinkedDataCreation")
-public class LinkedDataCreation implements Serializable
+public class LinkedDataCreation implements ICreation
 {
     private static final long serialVersionUID = 1L;
 

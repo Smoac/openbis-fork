@@ -16,8 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create;
 
-import java.io.Serializable;
-
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -26,7 +25,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.vocabulary.create.VocabularyTermCreation")
-public class VocabularyTermCreation implements Serializable
+public class VocabularyTermCreation implements ICreation
 {
     private static final long serialVersionUID = 1L;
 

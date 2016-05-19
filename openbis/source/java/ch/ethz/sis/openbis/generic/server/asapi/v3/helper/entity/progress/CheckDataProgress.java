@@ -16,19 +16,45 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IUpdate;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.ProgressDetails;
 
 /**
  * @author pkupczyk
  */
-public class CheckDataProgress extends Progress
+public class CheckDataProgress extends EntityProgress
 {
 
     private static final long serialVersionUID = 1L;
 
-    public CheckDataProgress(Object object, int numItemsProcessed, int totalItemsToProcess)
+    private ICreation creation;
+
+    private IUpdate update;
+
+    public CheckDataProgress(ICreation creation, int numItemsProcessed, int totalItemsToProcess)
     {
-        super("checking data", object, numItemsProcessed, totalItemsToProcess);
+        this(numItemsProcessed, totalItemsToProcess);
+        this.creation = creation;
+    }
+
+    public CheckDataProgress(IUpdate update, int numItemsProcessed, int totalItemsToProcess)
+    {
+        this(numItemsProcessed, totalItemsToProcess);
+        this.update = update;
+    }
+
+    private CheckDataProgress(int numItemsProcessed, int totalItemsToProcess)
+    {
+        super("checking data", null, numItemsProcessed, totalItemsToProcess);
+    }
+
+    @Override
+    protected void updateDetails(ProgressDetails details)
+    {
+        super.updateDetails(details);
+        details.set("creation", creation);
+        details.set("update", update);
     }
 
 }

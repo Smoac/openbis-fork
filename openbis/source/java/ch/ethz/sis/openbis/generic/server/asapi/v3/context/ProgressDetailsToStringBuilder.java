@@ -19,27 +19,29 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.context;
 /**
  * @author pkupczyk
  */
-public class ProgressFormatter
+public class ProgressDetailsToStringBuilder
 {
 
-    public static String format(IProgress progress)
+    public static String toString(Object object)
     {
-        StringBuilder result = new StringBuilder();
-
-        if (progress.getTotalItemsToProcess() == null && progress.getNumItemsProcessed() == null)
+        if (object == null)
         {
-            result.append(progress.getLabel());
+            return "null";
+        }
+
+        StringBuffer buffer = new StringBuffer();
+
+        new ProgressDetailsToStringStyle().append(buffer, null, object, true);
+
+        String str = buffer.toString();
+
+        if (str.endsWith(", "))
+        {
+            return str.substring(0, str.length() - 2);
         } else
         {
-            result.append(progress.getLabel() + " (" + progress.getNumItemsProcessed() + "/" + progress.getTotalItemsToProcess() + ")");
+            return str;
         }
-
-        if (progress.getDetails() != null)
-        {
-            result.append(" " + progress.getDetails());
-        }
-
-        return result.toString();
     }
 
 }

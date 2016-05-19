@@ -34,7 +34,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IUpdateTagForEnt
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateEntityRelationProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateRelationProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -117,7 +117,7 @@ public class UpdateMaterialExecutor extends AbstractUpdateEntityExecutor<Materia
                 @Override
                 public IProgress createProgress(MaterialUpdate update, MaterialPE entity, int objectIndex, int totalObjectCount)
                 {
-                    return new UpdateEntityRelationProgress(update, "material-tag", objectIndex, totalObjectCount);
+                    return new UpdateRelationProgress(update, entity, "material-tag", objectIndex, totalObjectCount);
                 }
             };
     }

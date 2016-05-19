@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
@@ -78,7 +78,7 @@ public class UpdateEntityPropertyExecutorTest extends AbstractEntityPropertyExec
         afterProperties.add(createEntityProperty("TEST_PROPERTY_2", "value 2"));
         afterProperties.add(createEntityProperty("TEST_PROPERTY_3", "value 3"));
 
-        final IEntityPropertiesHolder entityPropertiesHolder = context.mock(IEntityPropertiesHolder.class);
+        final IEntityInformationWithPropertiesHolder entityPropertiesHolder = context.mock(IEntityInformationWithPropertiesHolder.class);
 
         context.checking(new Expectations()
             {
@@ -131,7 +131,7 @@ public class UpdateEntityPropertyExecutorTest extends AbstractEntityPropertyExec
         execute(entityPropertiesHolder, entityType, updatedPropertyValues);
     }
 
-    private void execute(IEntityPropertiesHolder entity, EntityTypePE entityType, final Map<String, String> propertiesMap)
+    private void execute(IEntityInformationWithPropertiesHolder entity, EntityTypePE entityType, final Map<String, String> propertiesMap)
     {
         UpdateEntityPropertyExecutor executor = new UpdateEntityPropertyExecutor(daoFactory, managedPropertyEvaluatorFactory);
         IPropertiesHolder holder = new IPropertiesHolder()
@@ -160,7 +160,8 @@ public class UpdateEntityPropertyExecutorTest extends AbstractEntityPropertyExec
                     return propertiesMap;
                 }
             };
-        MapBatch<IPropertiesHolder, IEntityPropertiesHolder> batch = new MapBatch<>(0, 0, 1, Collections.singletonMap(holder, entity), 1);
+        MapBatch<IPropertiesHolder, IEntityInformationWithPropertiesHolder> batch =
+                new MapBatch<>(0, 0, 1, Collections.singletonMap(holder, entity), 1);
         executor.update(operationContext, batch);
     }
 

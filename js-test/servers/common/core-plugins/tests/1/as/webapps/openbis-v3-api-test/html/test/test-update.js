@@ -152,8 +152,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 					}
 
 					var fCheckError = function(error, permId) {
-						c.assertEqual(error, "Space id cannot be null (Context: [updating relation project-space (1/1) [ProjectUpdate[projectId=ProjectPermId[permId=" + permId.getPermId() + "]]]])",
-								"Error");
+						c.assertContains(error, "Space id cannot be null", "Error");
 					}
 
 					testUpdate(c, fCreate, fUpdate, c.findProject, null, fCheckError);
@@ -263,8 +262,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			}
 
 			var fCheckError = function(error, permId) {
-				c.assertEqual(error, "Project id cannot be null (Context: [updating relation experiment-project (1/1) [ExperimentUpdate[experimentId=ExperimentPermId[permId=" + permId.getPermId()
-						+ "], properties={}]]])", "Error");
+				c.assertContains(error, "Project id cannot be null", "Error");
 			}
 
 			testUpdate(c, fCreate, fUpdate, c.findExperiment, null, fCheckError);

@@ -52,7 +52,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.Collectio
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CheckDataProgress;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CreateEntityProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CreateProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
@@ -150,7 +150,7 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
                 @Override
                 public IProgress createProgress(SampleCreation object, int objectIndex, int totalObjectCount)
                 {
-                    return new CreateEntityProgress(object, objectIndex, totalObjectCount);
+                    return new CreateProgress(object, objectIndex, totalObjectCount);
                 }
             };
 

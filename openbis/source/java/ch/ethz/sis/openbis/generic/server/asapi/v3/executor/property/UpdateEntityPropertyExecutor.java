@@ -31,12 +31,13 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateEntityPropertyProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdatePropertyProgress;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.EntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -69,9 +70,10 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
 
     @Override
     public void update(final IOperationContext context,
-            final MapBatch<? extends IPropertiesHolder, ? extends IEntityPropertiesHolder> holderToEntityMap)
+            final MapBatch<? extends IPropertiesHolder, ? extends IEntityInformationWithPropertiesHolder> holderToEntityMap)
     {
-        final MapBatch<IEntityPropertiesHolder, Map<String, String>> entityToPropertiesMap = getEntityToPropertiesMap(holderToEntityMap);
+        final MapBatch<IEntityInformationWithPropertiesHolder, Map<String, String>> entityToPropertiesMap =
+                getEntityToPropertiesMap(holderToEntityMap);
 
         if (entityToPropertiesMap == null || entityToPropertiesMap.isEmpty())
         {
@@ -80,10 +82,10 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
 
         final Map<EntityKind, EntityPropertiesConverter> converters = new HashMap<EntityKind, EntityPropertiesConverter>();
 
-        new MapBatchProcessor<IEntityPropertiesHolder, Map<String, String>>(context, entityToPropertiesMap)
+        new MapBatchProcessor<IEntityInformationWithPropertiesHolder, Map<String, String>>(context, entityToPropertiesMap)
             {
                 @Override
-                public void process(IEntityPropertiesHolder propertiesHolder, Map<String, String> properties)
+                public void process(IEntityInformationWithPropertiesHolder propertiesHolder, Map<String, String> properties)
                 {
                     EntityKind entityKind = propertiesHolder.getEntityType().getEntityKind();
 
@@ -98,28 +100,30 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
                 }
 
                 @Override
-                public IProgress createProgress(IEntityPropertiesHolder propertiesHolder, Map<String, String> properties, int objectIndex,
-                        int totalObjectCount)
+                public IProgress createProgress(IEntityInformationWithPropertiesHolder propertiesHolder, Map<String, String> properties,
+                        int objectIndex, int totalObjectCount)
                 {
-                    return new UpdateEntityPropertyProgress(propertiesHolder, properties, objectIndex, totalObjectCount);
+                    return new UpdatePropertyProgress(propertiesHolder, properties, objectIndex, totalObjectCount);
                 }
             };
     }
 
-    private MapBatch<IEntityPropertiesHolder, Map<String, String>> getEntityToPropertiesMap(
-            final MapBatch<? extends IPropertiesHolder, ? extends IEntityPropertiesHolder> holderToEntityMap)
+    private MapBatch<IEntityInformationWithPropertiesHolder, Map<String, String>> getEntityToPropertiesMap(
+            final MapBatch<? extends IPropertiesHolder, ? extends IEntityInformationWithPropertiesHolder> holderToEntityMap)
     {
         if (holderToEntityMap == null || holderToEntityMap.isEmpty())
         {
             return null;
         }
 
-        Map<IEntityPropertiesHolder, Map<String, String>> entityToPropertiesMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
+        Map<IEntityInformationWithPropertiesHolder, Map<String, String>> entityToPropertiesMap =
+                new HashMap<IEntityInformationWithPropertiesHolder, Map<String, String>>();
 
-        for (Map.Entry<? extends IPropertiesHolder, ? extends IEntityPropertiesHolder> entry : holderToEntityMap.getObjects().entrySet())
+        for (Map.Entry<? extends IPropertiesHolder, ? extends IEntityInformationWithPropertiesHolder> entry : holderToEntityMap.getObjects()
+                .entrySet())
         {
             IPropertiesHolder holder = entry.getKey();
-            IEntityPropertiesHolder entity = entry.getValue();
+            IEntityInformationWithPropertiesHolder entity = entry.getValue();
 
             if (holder.getProperties() != null && false == holder.getProperties().isEmpty())
             {
@@ -132,8 +136,9 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
             return null;
         }
 
-        return new MapBatch<IEntityPropertiesHolder, Map<String, String>>(holderToEntityMap.getBatchIndex(), holderToEntityMap.getFromObjectIndex(),
-                holderToEntityMap.getToObjectIndex(), entityToPropertiesMap, holderToEntityMap.getTotalObjectCount());
+        return new MapBatch<IEntityInformationWithPropertiesHolder, Map<String, String>>(holderToEntityMap.getBatchIndex(),
+                holderToEntityMap.getFromObjectIndex(), holderToEntityMap.getToObjectIndex(), entityToPropertiesMap,
+                holderToEntityMap.getTotalObjectCount());
     }
 
     private void update(IOperationContext context, IEntityPropertiesHolder propertiesHolder, Map<String, String> properties,

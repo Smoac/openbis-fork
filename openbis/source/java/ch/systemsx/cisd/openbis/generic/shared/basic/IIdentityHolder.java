@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2016 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.dto;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
+package ch.systemsx.cisd.openbis.generic.shared.basic;
 
 /**
- * @author Piotr Buczek
+ * @author pkupczyk
  */
-public interface IEntityInformationWithPropertiesHolder extends IEntityInformationHolderDTO,
-        IEntityPropertiesHolder, IIdentityHolder
+public interface IIdentityHolder extends IIdHolder, IPermIdHolder, IIdentifierHolder
 {
+
 }

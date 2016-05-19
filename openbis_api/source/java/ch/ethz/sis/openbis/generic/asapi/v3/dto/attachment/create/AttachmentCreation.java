@@ -16,15 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.create;
 
-import java.io.Serializable;
-
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
 @JsonObject("as.dto.attachment.create.AttachmentCreation")
-public class AttachmentCreation implements Serializable
+public class AttachmentCreation implements ICreation
 {
     private static final long serialVersionUID = 1L;
 

@@ -16,19 +16,31 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IUpdate;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.ProgressDetails;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 
 /**
  * @author pkupczyk
  */
-public class SetEntityRelationProgress extends Progress
+public class UpdateRelationProgress extends EntityProgress
 {
 
     private static final long serialVersionUID = 1L;
 
-    public SetEntityRelationProgress(Object object, String relationName, int numItemsProcessed, int totalItemsToProcess)
+    private IUpdate update;
+
+    public UpdateRelationProgress(IUpdate update, IIdentityHolder entity, String relationName, int numItemsProcessed, int totalItemsToProcess)
     {
-        super("setting relation " + relationName, object, numItemsProcessed, totalItemsToProcess);
+        super("updating relation " + relationName, entity, numItemsProcessed, totalItemsToProcess);
+        this.update = update;
+    }
+
+    @Override
+    protected void updateDetails(ProgressDetails details)
+    {
+        super.updateDetails(details);
+        details.set("update", update);
     }
 
 }

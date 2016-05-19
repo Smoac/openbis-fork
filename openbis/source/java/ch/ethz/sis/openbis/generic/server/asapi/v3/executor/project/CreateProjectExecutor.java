@@ -40,7 +40,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractCreat
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CreateEntityProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CreateProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -96,7 +96,7 @@ public class CreateProjectExecutor extends AbstractCreateEntityExecutor<ProjectC
                 @Override
                 public IProgress createProgress(ProjectCreation object, int objectIndex, int totalObjectCount)
                 {
-                    return new CreateEntityProgress(object, objectIndex, totalObjectCount);
+                    return new CreateProgress(object, objectIndex, totalObjectCount);
                 }
             };
 

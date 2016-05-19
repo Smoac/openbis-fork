@@ -16,10 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create;
 
-import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.Complete;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IFileFormatTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.ILocatorTypeId;
@@ -30,7 +29,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.dataset.create.PhysicalDataCreation")
-public class PhysicalDataCreation implements Serializable
+public class PhysicalDataCreation implements ICreation
 {
     private static final long serialVersionUID = 1L;
 

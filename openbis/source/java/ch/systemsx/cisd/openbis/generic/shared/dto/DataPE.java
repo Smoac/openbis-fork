@@ -70,6 +70,7 @@ import ch.systemsx.cisd.common.collection.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.NullBridge;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -84,13 +85,13 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * @author Bernd Rinn
  */
 @Entity
-@Table(name = TableNames.DATA_VIEW, uniqueConstraints = @UniqueConstraint(columnNames = ColumnNames.CODE_COLUMN))
+@Table(name = TableNames.DATA_VIEW, uniqueConstraints = @UniqueConstraint(columnNames = ColumnNames.CODE_COLUMN) )
 @Inheritance(strategy = InheritanceType.JOINED)
 @Indexed(index = "DataPE")
 @ClassBridge(impl = DataGlobalSearchBridge.class)
 public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         IEntityInformationWithPropertiesHolder, IMatchingEntity, IIdentifierHolder, IDeletablePE,
-        IEntityWithMetaprojects, IModifierAndModificationDateBean
+        IEntityWithMetaprojects, IModifierAndModificationDateBean, IIdentityHolder
 {
     private static final long serialVersionUID = IServer.VERSION;
 

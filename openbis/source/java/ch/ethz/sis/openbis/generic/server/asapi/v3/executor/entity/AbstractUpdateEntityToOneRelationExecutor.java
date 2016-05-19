@@ -27,20 +27,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateEntityRelationProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateRelationProgress;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 
 /**
  * @author pkupczyk
  */
-public abstract class AbstractUpdateEntityToOneRelationExecutor<ENTITY_UPDATE, ENTITY_PE, RELATED_ID, RELATED_PE> implements
-        IUpdateEntityRelationsExecutor<ENTITY_UPDATE, ENTITY_PE>,
+public abstract class AbstractUpdateEntityToOneRelationExecutor<ENTITY_UPDATE extends IUpdate, ENTITY_PE extends IIdentityHolder, RELATED_ID, RELATED_PE>
+        implements IUpdateEntityRelationsExecutor<ENTITY_UPDATE, ENTITY_PE>,
         IUpdateEntityRelationsWithCacheExecutor<ENTITY_UPDATE, ENTITY_PE, RELATED_ID, RELATED_PE>
 {
 
@@ -129,7 +131,7 @@ public abstract class AbstractUpdateEntityToOneRelationExecutor<ENTITY_UPDATE, E
                 @Override
                 public IProgress createProgress(ENTITY_UPDATE key, ENTITY_PE value, int objectIndex, int totalObjectCount)
                 {
-                    return new UpdateEntityRelationProgress(key, getRelationName(), objectIndex, totalObjectCount);
+                    return new UpdateRelationProgress(key, value, getRelationName(), objectIndex, totalObjectCount);
                 }
             };
 

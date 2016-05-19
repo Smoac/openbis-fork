@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2016 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.dto;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 
 /**
- * @author Piotr Buczek
+ * @author pkupczyk
  */
-public interface IEntityInformationWithPropertiesHolder extends IEntityInformationHolderDTO,
-        IEntityPropertiesHolder, IIdentityHolder
+public class VerifyProgress extends EntityProgress
 {
+
+    private static final long serialVersionUID = 1L;
+
+    public VerifyProgress(IIdentityHolder entity, int numItemsProcessed, int totalItemsToProcess)
+    {
+        super("verifying", entity, numItemsProcessed, totalItemsToProcess);
+    }
+
 }

@@ -29,6 +29,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
@@ -40,13 +41,13 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchP
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CheckAccessProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CheckDataProgress;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 
 /**
  * @author pkupczyk
  */
-public abstract class AbstractCreateEntityExecutor<CREATION, PE extends IIdHolder, PERM_ID extends IObjectId> implements
-        ICreateEntityExecutor<CREATION, PERM_ID>
+public abstract class AbstractCreateEntityExecutor<CREATION extends ICreation, PE extends IIdentityHolder, PERM_ID extends IObjectId>
+        implements ICreateEntityExecutor<CREATION, PERM_ID>
 {
 
     @Autowired
@@ -106,15 +107,15 @@ public abstract class AbstractCreateEntityExecutor<CREATION, PE extends IIdHolde
         new MapBatchProcessor<CREATION, PE>(context, batch)
             {
                 @Override
-                public void process(CREATION key, PE value)
+                public void process(CREATION creation, PE entity)
                 {
-                    checkAccess(context, value);
+                    checkAccess(context, entity);
                 }
 
                 @Override
-                public IProgress createProgress(CREATION key, PE value, int objectIndex, int totalObjectCount)
+                public IProgress createProgress(CREATION creation, PE entity, int objectIndex, int totalObjectCount)
                 {
-                    return new CheckAccessProgress(key, objectIndex, totalObjectCount);
+                    return new CheckAccessProgress(entity, creation, objectIndex, totalObjectCount);
                 }
             };
     }

@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue.ListUpdateAction;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
@@ -38,7 +38,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.dataset.update.DataSetUpdate")
-public class DataSetUpdate implements Serializable, IPropertiesHolder
+public class DataSetUpdate implements IUpdate, IPropertiesHolder
 {
     private static final long serialVersionUID = 1L;
 

@@ -26,7 +26,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 
 /**
  * @author pkupczyk
@@ -41,7 +41,8 @@ public class UpdateExperimentPropertyExecutor implements IUpdateExperimentProper
     @Override
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_EXPERIMENT_PROPERTY")
-    public void update(IOperationContext context, MapBatch<? extends IPropertiesHolder, ? extends IEntityPropertiesHolder> holderToEntityMap)
+    public void update(IOperationContext context,
+            MapBatch<? extends IPropertiesHolder, ? extends IEntityInformationWithPropertiesHolder> holderToEntityMap)
     {
         executor.update(context, holderToEntityMap);
     }

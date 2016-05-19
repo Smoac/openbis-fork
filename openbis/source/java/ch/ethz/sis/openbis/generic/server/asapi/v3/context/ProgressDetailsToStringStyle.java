@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.context;
 
 import java.util.Collection;
 import java.util.Map;
@@ -28,14 +28,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue;
 /**
  * @author pkupczyk
  */
-public final class EntityProgressToStringStyle extends ToStringStyle
+public final class ProgressDetailsToStringStyle extends ToStringStyle
 {
 
-    public static final ToStringStyle ENTITY_PROGRESS_STYLE = new EntityProgressToStringStyle();
+    public static final ToStringStyle PROGRESS_STYLE = new ProgressDetailsToStringStyle();
 
     private static final long serialVersionUID = 1L;
 
-    EntityProgressToStringStyle()
+    ProgressDetailsToStringStyle()
     {
         super();
         this.setContentStart("[");
@@ -52,7 +52,7 @@ public final class EntityProgressToStringStyle extends ToStringStyle
 
     private Object readResolve()
     {
-        return ENTITY_PROGRESS_STYLE;
+        return PROGRESS_STYLE;
     }
 
     @Override

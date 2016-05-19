@@ -23,19 +23,21 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.SetEntityRelationProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.SetRelationProgress;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 
 /**
  * @author pkupczyk
  */
-public abstract class AbstractSetEntityToManyRelationExecutor<ENTITY_CREATION, ENTITY_PE, RELATED_ID extends IObjectId, RELATED_PE>
+public abstract class AbstractSetEntityToManyRelationExecutor<ENTITY_CREATION extends ICreation, ENTITY_PE extends IIdentityHolder, RELATED_ID extends IObjectId, RELATED_PE>
 {
 
     @Resource(name = ComponentNames.RELATIONSHIP_SERVICE)
@@ -70,9 +72,9 @@ public abstract class AbstractSetEntityToManyRelationExecutor<ENTITY_CREATION, E
                 }
 
                 @Override
-                public IProgress createProgress(ENTITY_CREATION key, ENTITY_PE value, int objectIndex, int totalObjectCount)
+                public IProgress createProgress(ENTITY_CREATION creation, ENTITY_PE entity, int objectIndex, int totalObjectCount)
                 {
-                    return new SetEntityRelationProgress(key, getRelationName(), objectIndex, totalObjectCount);
+                    return new SetRelationProgress(entity, creation, getRelationName(), objectIndex, totalObjectCount);
                 }
             };
 

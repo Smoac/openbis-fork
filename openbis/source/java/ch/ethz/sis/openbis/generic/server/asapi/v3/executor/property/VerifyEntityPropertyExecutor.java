@@ -27,7 +27,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.VerifyEntityProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.VerifyProgress;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.EntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -78,7 +78,7 @@ public class VerifyEntityPropertyExecutor implements IVerifyEntityPropertyExecut
                 @Override
                 public IProgress createProgress(IEntityInformationWithPropertiesHolder object, int objectIndex, int totalObjectCount)
                 {
-                    return new VerifyEntityProgress(objectIndex, totalObjectCount);
+                    return new VerifyProgress(object, objectIndex, totalObjectCount);
                 }
             };
     }

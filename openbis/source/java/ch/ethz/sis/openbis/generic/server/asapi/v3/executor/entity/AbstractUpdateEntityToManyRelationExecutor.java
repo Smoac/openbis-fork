@@ -25,6 +25,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue.ListUpdateAction;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue.ListUpdateActionAdd;
@@ -35,14 +36,16 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateEntityRelationProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateRelationProgress;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 
 /**
  * @author pkupczyk
  */
-public abstract class AbstractUpdateEntityToManyRelationExecutor<ENTITY_UPDATE, ENTITY_PE, RELATED_ID, RELATED_PE> implements
+public abstract class AbstractUpdateEntityToManyRelationExecutor<ENTITY_UPDATE extends IUpdate, ENTITY_PE extends IIdentityHolder, RELATED_ID, RELATED_PE>
+        implements
         IUpdateEntityRelationsWithCacheExecutor<ENTITY_UPDATE, ENTITY_PE, RELATED_ID, RELATED_PE>
 {
 
@@ -107,7 +110,7 @@ public abstract class AbstractUpdateEntityToManyRelationExecutor<ENTITY_UPDATE, 
                 @Override
                 public IProgress createProgress(ENTITY_UPDATE key, ENTITY_PE value, int objectIndex, int totalObjectCount)
                 {
-                    return new UpdateEntityRelationProgress(key, getRelationName(), objectIndex, totalObjectCount);
+                    return new UpdateRelationProgress(key, value, getRelationName(), objectIndex, totalObjectCount);
                 }
             };
 

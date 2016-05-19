@@ -16,12 +16,11 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update;
 
-import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -29,7 +28,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.vocabulary.update.VocabularyTermUpdate")
-public class VocabularyTermUpdate implements Serializable
+public class VocabularyTermUpdate implements IUpdate
 {
     private static final long serialVersionUID = 1L;
 

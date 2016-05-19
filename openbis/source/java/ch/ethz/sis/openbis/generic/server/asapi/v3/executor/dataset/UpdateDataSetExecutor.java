@@ -35,7 +35,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IUpdateTagForEnt
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateEntityRelationProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateRelationProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -147,7 +147,7 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
                 @Override
                 public IProgress createProgress(DataSetUpdate key, DataPE value, int objectIndex, int totalObjectCount)
                 {
-                    return new UpdateEntityRelationProgress(key, "dataset-tag", objectIndex, totalObjectCount);
+                    return new UpdateRelationProgress(key, value, "dataset-tag", objectIndex, totalObjectCount);
                 }
             };
     }

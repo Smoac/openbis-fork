@@ -34,7 +34,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdat
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateEntityRelationProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateRelationProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -131,7 +131,7 @@ public class UpdateProjectExecutor extends AbstractUpdateEntityExecutor<ProjectU
                 @Override
                 public IProgress createProgress(ProjectUpdate update, ProjectPE entity, int objectIndex, int totalObjectCount)
                 {
-                    return new UpdateEntityRelationProgress(update, "project-attachment", objectIndex, totalObjectCount);
+                    return new UpdateRelationProgress(update, entity, "project-attachment", objectIndex, totalObjectCount);
                 }
             };
     }

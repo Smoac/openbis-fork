@@ -28,7 +28,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.SetEntityRelationProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.SetRelationProgress;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -60,9 +60,9 @@ public class SetSampleContainerExecutor implements ISetSampleContainerExecutor
                 }
 
                 @Override
-                public IProgress createProgress(SampleCreation key, SamplePE value, int objectIndex, int totalObjectCount)
+                public IProgress createProgress(SampleCreation creation, SamplePE entity, int objectIndex, int totalObjectCount)
                 {
-                    return new SetEntityRelationProgress(key, "sample-container", objectIndex, totalObjectCount);
+                    return new SetRelationProgress(entity, creation, "sample-container", objectIndex, totalObjectCount);
                 }
             };
     }

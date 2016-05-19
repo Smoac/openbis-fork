@@ -14,34 +14,39 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.context;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author pkupczyk
  */
-public class EntityProgressToStringBuilder
+public class ProgressDetails
 {
 
-    public static String toString(Object object)
+    private Map<String, Object> map = new LinkedHashMap<String, Object>();
+
+    public void set(String name, Object value)
     {
-        if (object == null)
+        if (value != null)
         {
-            return "null";
+            map.put(name, ProgressDetailsToStringBuilder.toString(value));
         }
+    }
 
-        StringBuffer buffer = new StringBuffer();
-
-        new EntityProgressToStringStyle().append(buffer, null, object, true);
-
-        String str = buffer.toString();
-
-        if (str.endsWith(", "))
+    public void set(String name, ProgressDetails details)
+    {
+        if (details != null)
         {
-            return str.substring(0, str.length() - 2);
-        } else
-        {
-            return str;
+            map.put(name, ProgressDetailsToStringBuilder.toString(details.map));
         }
+    }
+
+    @Override
+    public String toString()
+    {
+        return ProgressDetailsToStringBuilder.toString(map);
     }
 
 }

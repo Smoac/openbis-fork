@@ -21,17 +21,19 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IMapSampleByIdExecutor;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author pkupczyk
  */
-public abstract class AbstractSetEntitySampleRelationExecutor<ENTITY_CREATION, ENTITY_PE> extends
+public abstract class AbstractSetEntitySampleRelationExecutor<ENTITY_CREATION extends ICreation, ENTITY_PE extends IIdentityHolder> extends
         AbstractSetEntityToOneRelationExecutor<ENTITY_CREATION, ENTITY_PE, ISampleId, SamplePE>
 {
 

@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
+import java.io.Serializable;
+
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
-public class VerifyEntityProgress extends Progress
+@JsonObject("as.dto.common.create.ICreation")
+public interface ICreation extends Serializable
 {
-
-    private static final long serialVersionUID = 1L;
-
-    public VerifyEntityProgress(int numItemsProcessed, int totalItemsToProcess)
-    {
-        super("verifying entity", null, numItemsProcessed, totalItemsToProcess);
-    }
 
 }

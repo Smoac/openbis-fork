@@ -16,8 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.context;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.EntityProgressToStringBuilder;
-
 /**
  * @author pkupczyk
  */
@@ -30,8 +28,6 @@ public class Progress implements IProgress
 
     private boolean detailsCreated = false;
 
-    private Object detailsObject;
-
     private String details;
 
     private Integer numItemsProcessed;
@@ -43,10 +39,9 @@ public class Progress implements IProgress
         this.label = label;
     }
 
-    public Progress(String label, Object detailsObject, int numItemsProcessed, int totalItemsToProcess)
+    public Progress(String label, int numItemsProcessed, int totalItemsToProcess)
     {
         this.label = label;
-        this.detailsObject = detailsObject;
         this.numItemsProcessed = numItemsProcessed;
         this.totalItemsToProcess = totalItemsToProcess;
     }
@@ -62,21 +57,22 @@ public class Progress implements IProgress
     {
         if (false == detailsCreated)
         {
-            details = createDetails(detailsObject);
+            details = createDetails();
             detailsCreated = true;
         }
         return details;
     }
 
-    protected String createDetails(Object object)
+    protected String createDetails()
     {
-        if (object != null)
-        {
-            return EntityProgressToStringBuilder.toString(object);
-        } else
-        {
-            return null;
-        }
+        ProgressDetails detailsObject = new ProgressDetails();
+        updateDetails(detailsObject);
+        return detailsObject.toString();
+    }
+
+    protected void updateDetails(ProgressDetails detailsObject)
+    {
+
     }
 
     @Override

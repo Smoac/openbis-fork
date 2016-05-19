@@ -16,11 +16,11 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
@@ -31,7 +31,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.material.create.MaterialCreation")
-public class MaterialCreation implements Serializable, IPropertiesHolder
+public class MaterialCreation implements ICreation, IPropertiesHolder
 {
     private static final long serialVersionUID = 1L;
 

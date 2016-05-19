@@ -61,6 +61,7 @@ import ch.systemsx.cisd.common.collection.UnmodifiableListDecorator;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -77,7 +78,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
         @UniqueConstraint(columnNames = { ColumnNames.CODE_COLUMN, ColumnNames.SPACE_COLUMN }) })
 @Friend(toClasses = ExperimentPE.class)
 public final class ProjectPE extends AttachmentHolderPE implements Comparable<ProjectPE>,
-        IIdAndCodeHolder, IModifierAndModificationDateBean, Serializable
+        IIdAndCodeHolder, IModifierAndModificationDateBean, IIdentityHolder, Serializable
 {
     public static final ProjectPE[] EMPTY_ARRAY = new ProjectPE[0];
 

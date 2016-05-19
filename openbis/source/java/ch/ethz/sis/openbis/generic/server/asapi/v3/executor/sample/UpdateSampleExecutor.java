@@ -35,7 +35,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IUpdateTagForEnt
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateEntityRelationProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateRelationProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -147,7 +147,7 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
                 @Override
                 public IProgress createProgress(SampleUpdate update, SamplePE entity, int objectIndex, int totalObjectCount)
                 {
-                    return new UpdateEntityRelationProgress(update, "sample-tag", objectIndex, totalObjectCount);
+                    return new UpdateRelationProgress(update, entity, "sample-tag", objectIndex, totalObjectCount);
                 }
             };
     }
@@ -168,7 +168,7 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
                 @Override
                 public IProgress createProgress(SampleUpdate update, SamplePE entity, int objectIndex, int totalObjectCount)
                 {
-                    return new UpdateEntityRelationProgress(update, "sample-attachment", objectIndex, totalObjectCount);
+                    return new UpdateRelationProgress(update, entity, "sample-attachment", objectIndex, totalObjectCount);
                 }
             };
     }

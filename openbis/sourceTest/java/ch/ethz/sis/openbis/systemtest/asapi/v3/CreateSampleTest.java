@@ -763,7 +763,7 @@ public class CreateSampleTest extends AbstractSampleTest
             Assert.fail("Expected user failure exception");
         } catch (UserFailureException ufe)
         {
-            AssertionUtil.assertContains("cannot be it's own container. (Context: [])", ufe.getMessage());
+            AssertionUtil.assertContains("cannot be it's own container", ufe.getMessage());
         }
     }
 

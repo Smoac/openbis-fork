@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2016 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.dto;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
+import java.io.Serializable;
+
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * @author Piotr Buczek
+ * @author pkupczyk
  */
-public interface IEntityInformationWithPropertiesHolder extends IEntityInformationHolderDTO,
-        IEntityPropertiesHolder, IIdentityHolder
+@JsonObject("as.dto.common.update.IUpdate")
+public interface IUpdate extends Serializable
 {
+
 }

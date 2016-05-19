@@ -63,6 +63,7 @@ import org.hibernate.validator.constraints.Length;
 import ch.systemsx.cisd.common.collection.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
@@ -75,12 +76,12 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 @Entity
 @Table(name = TableNames.MATERIALS_TABLE, uniqueConstraints = @UniqueConstraint(columnNames = { ColumnNames.CODE_COLUMN,
-        ColumnNames.MATERIAL_TYPE_COLUMN }))
+        ColumnNames.MATERIAL_TYPE_COLUMN }) )
 @Indexed(index = "MaterialPE")
 @ClassBridge(impl = MaterialGlobalSearchBridge.class)
 public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
         IEntityInformationWithPropertiesHolder, Serializable, IMatchingEntity,
-        IEntityWithMetaprojects
+        IEntityWithMetaprojects, IIdentityHolder
 {
     private static final long serialVersionUID = IServer.VERSION;
 

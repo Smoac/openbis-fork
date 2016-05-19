@@ -16,12 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.create.AttachmentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
@@ -32,7 +32,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.experiment.create.ExperimentCreation")
-public class ExperimentCreation implements Serializable, IPropertiesHolder
+public class ExperimentCreation implements ICreation, IPropertiesHolder
 {
     private static final long serialVersionUID = 1L;
 

@@ -16,12 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICreationIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
@@ -37,7 +37,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.dataset.create.DataSetCreation")
-public class DataSetCreation implements Serializable, ICreationIdHolder, IPropertiesHolder
+public class DataSetCreation implements ICreation, ICreationIdHolder, IPropertiesHolder
 {
     private static final long serialVersionUID = 1L;
 

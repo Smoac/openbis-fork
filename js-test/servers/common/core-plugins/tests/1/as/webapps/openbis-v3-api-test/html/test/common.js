@@ -482,6 +482,11 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 			this.assertEqual(actual, false, msg);
 		};
 
+		this.assertContains = function(actual, expected, msg) {
+			actual = actual ? actual : "";
+			this.assertTrue(actual.indexOf(expected) >= 0, msg);
+		};
+
 		this.assertEqual = function(actual, expected, msg) {
 			this.assert.equal(actual, expected, msg);
 		};

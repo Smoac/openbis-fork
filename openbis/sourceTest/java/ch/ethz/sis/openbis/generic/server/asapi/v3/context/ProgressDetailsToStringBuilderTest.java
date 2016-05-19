@@ -1,4 +1,4 @@
-package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.context;
 
 import static org.testng.Assert.assertEquals;
 
@@ -10,7 +10,7 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-public class EntityProgressToStringBuilderTest
+public class ProgressDetailsToStringBuilderTest
 {
 
     @Test
@@ -228,7 +228,7 @@ public class EntityProgressToStringBuilderTest
 
     private void assertToStringEquals(Object object, String expectedToString)
     {
-        assertEquals(EntityProgressToStringBuilder.toString(object), expectedToString);
+        assertEquals(ProgressDetailsToStringBuilder.toString(object), expectedToString);
     }
 
 }

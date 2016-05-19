@@ -22,20 +22,22 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.SetEntityRelationProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.SetRelationProgress;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 
 /**
  * @author pkupczyk
  */
 @Component
-public abstract class AbstractSetEntityToOneRelationExecutor<ENTITY_CREATION, ENTITY_PE, RELATED_ID, RELATED_PE> implements
-        ISetEntityRelationsExecutor<ENTITY_CREATION, ENTITY_PE>
+public abstract class AbstractSetEntityToOneRelationExecutor<ENTITY_CREATION extends ICreation, ENTITY_PE extends IIdentityHolder, RELATED_ID, RELATED_PE>
+        implements ISetEntityRelationsExecutor<ENTITY_CREATION, ENTITY_PE>
 {
 
     @Override
@@ -81,9 +83,9 @@ public abstract class AbstractSetEntityToOneRelationExecutor<ENTITY_CREATION, EN
                 }
 
                 @Override
-                public IProgress createProgress(ENTITY_CREATION key, ENTITY_PE value, int objectIndex, int totalObjectCount)
+                public IProgress createProgress(ENTITY_CREATION creation, ENTITY_PE entity, int objectIndex, int totalObjectCount)
                 {
-                    return new SetEntityRelationProgress(key, getRelationName(), objectIndex, totalObjectCount);
+                    return new SetRelationProgress(entity, creation, getRelationName(), objectIndex, totalObjectCount);
                 }
 
             };
