@@ -20,6 +20,8 @@ dependencies {
 			project(':dbmigration'),
 			'apache:ftpserver-core:+',
 			'apache:sshd-core:+',
+			'alfresco:jlan:+',
+			'bouncycastle:bcpg:+',
 			'jfree:jfreechart:+',
 			'cisd:cisd-cifex:+',
 			'shriop:javacsv:+',
