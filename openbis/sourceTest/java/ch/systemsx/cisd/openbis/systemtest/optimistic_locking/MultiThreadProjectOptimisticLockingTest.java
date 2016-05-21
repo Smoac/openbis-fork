@@ -108,11 +108,12 @@ public class MultiThreadProjectOptimisticLockingTest extends MultiThreadOptimist
         List<Experiment> experiments =
                 commonServer.listExperiments(systemSessionToken,
                         new ExperimentTypeBuilder().code(ToolBox.EXPERIMENT_TYPE_CODE)
-                                .getExperimentType(), toolBox
+                                .getExperimentType(),
+                        toolBox
                                 .createProjectIdentifier(toolBox.project1.getIdentifier()));
         assertEquals("[OLT-E1, OLT-E2, OLT-E3]", toolBox.extractCodes(experiments).toString());
         toolBox.checkModifierAndModificationDateOfProject1(timeIntervalChecker);
         assertEquals("authorize 1/2\n" + "authorize 2/2\n" + "createExperiments 1/2\n"
-                + "createExperiments 2/2\n" + "load related entities 0/0\n", stringBuilder.toString());
+                + "createExperiments 2/2\n", stringBuilder.toString());
     }
 }

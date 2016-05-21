@@ -56,6 +56,11 @@ public abstract class AbstractCreateEntityExecutor<CREATION extends ICreation, P
     @Override
     public List<PERM_ID> create(IOperationContext context, List<CREATION> creations)
     {
+        if (creations == null || creations.isEmpty())
+        {
+            return new ArrayList<PERM_ID>();
+        }
+
         try
         {
             List<PERM_ID> permIdsAll = new LinkedList<PERM_ID>();

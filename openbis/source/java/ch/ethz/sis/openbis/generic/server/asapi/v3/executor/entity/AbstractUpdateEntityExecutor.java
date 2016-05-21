@@ -57,6 +57,11 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE extends IUpdate, PE ex
     @Override
     public void update(IOperationContext context, List<UPDATE> updates)
     {
+        if (updates == null || updates.isEmpty())
+        {
+            return;
+        }
+
         try
         {
             Map<UPDATE, PE> entitiesAll = new LinkedHashMap<UPDATE, PE>();
