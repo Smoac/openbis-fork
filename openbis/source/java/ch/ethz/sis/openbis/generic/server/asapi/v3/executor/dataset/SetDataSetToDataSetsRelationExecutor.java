@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ETH Zuerich, CISD
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
 import java.util.Collection;
 import java.util.Map;
@@ -22,11 +22,11 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IMapDataSetByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSetEntityToManyRelationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
@@ -34,29 +34,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
  * @author pkupczyk
  */
 @Component
-public class SetTagDataSetsExecutor extends SetTagEntitiesExecutor<IDataSetId, DataPE>
-        implements ISetTagDataSetsExecutor
+public abstract class SetDataSetToDataSetsRelationExecutor
+        extends AbstractSetEntityToManyRelationExecutor<DataSetCreation, DataPE, IDataSetId, DataPE> implements
+        ISetDataSetChildrenExecutor
 {
 
     @Autowired
     private IMapDataSetByIdExecutor mapDataSetByIdExecutor;
 
     @Override
-    protected String getRelationName()
+    protected IDataSetId getCreationId(IOperationContext context, DataSetCreation creation)
     {
-        return "tag-datasets";
-    }
-
-    @Override
-    protected Class<DataPE> getRelatedClass()
-    {
-        return DataPE.class;
-    }
-
-    @Override
-    protected Collection<? extends IDataSetId> getRelatedIds(IOperationContext context, TagCreation creation)
-    {
-        return creation.getDataSetIds();
+        return creation.getCreationId();
     }
 
     @Override

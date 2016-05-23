@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
  * @author pkupczyk
  */
 @Component
-public abstract class SetTagEntitiesWithCacheExecutor<RELATED_ID extends IObjectId, RELATED_PE extends IEntityWithMetaprojects & IEntityInformationWithPropertiesHolder>
+public abstract class SetTagEntitiesExecutor<RELATED_ID extends IObjectId, RELATED_PE extends IEntityWithMetaprojects & IEntityInformationWithPropertiesHolder>
         extends AbstractSetEntityToManyRelationExecutor<TagCreation, MetaprojectPE, RELATED_ID, RELATED_PE>
 {
 
@@ -42,6 +42,12 @@ public abstract class SetTagEntitiesWithCacheExecutor<RELATED_ID extends IObject
     private IReindexEntityExecutor reindexObjectExecutor;
 
     protected abstract Class<RELATED_PE> getRelatedClass();
+
+    @Override
+    protected RELATED_ID getCreationId(IOperationContext context, TagCreation creation)
+    {
+        return null;
+    }
 
     @Override
     protected void postSet(IOperationContext context, Collection<RELATED_PE> allSet)

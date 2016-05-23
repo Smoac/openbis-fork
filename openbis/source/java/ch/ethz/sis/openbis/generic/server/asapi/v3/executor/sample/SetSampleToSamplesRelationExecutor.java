@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ETH Zuerich, CISD
+ * Copyright 2014 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
 import java.util.Collection;
 import java.util.Map;
@@ -22,11 +22,11 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IMapSampleByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSetEntityToManyRelationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
@@ -34,29 +34,17 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  * @author pkupczyk
  */
 @Component
-public class SetTagSamplesExecutor extends SetTagEntitiesExecutor<ISampleId, SamplePE>
-        implements ISetTagSamplesExecutor
+public abstract class SetSampleToSamplesRelationExecutor
+        extends AbstractSetEntityToManyRelationExecutor<SampleCreation, SamplePE, ISampleId, SamplePE>
 {
 
     @Autowired
     private IMapSampleByIdExecutor mapSampleByIdExecutor;
 
     @Override
-    protected String getRelationName()
+    protected ISampleId getCreationId(IOperationContext context, SampleCreation creation)
     {
-        return "tag-samples";
-    }
-
-    @Override
-    protected Class<SamplePE> getRelatedClass()
-    {
-        return SamplePE.class;
-    }
-
-    @Override
-    protected Collection<? extends ISampleId> getRelatedIds(IOperationContext context, TagCreation creation)
-    {
-        return creation.getSampleIds();
+        return creation.getCreationId();
     }
 
     @Override

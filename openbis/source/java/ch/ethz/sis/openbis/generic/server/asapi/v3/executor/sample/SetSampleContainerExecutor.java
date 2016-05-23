@@ -16,55 +16,45 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
-import java.util.Map;
-
-import javax.annotation.Resource;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.SetRelationProgress;
-import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
-import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SetSampleContainerExecutor implements ISetSampleContainerExecutor
+public class SetSampleContainerExecutor extends SetSampleToSamplesRelationExecutor implements ISetSampleContainerExecutor
 {
 
-    @Resource(name = ComponentNames.RELATIONSHIP_SERVICE)
-    private IRelationshipService relationshipService;
+    @Override
+    protected String getRelationName()
+    {
+        return "sample-container";
+    }
 
     @Override
-    public void set(final IOperationContext context, final MapBatch<SampleCreation, SamplePE> batch, final Map<ISampleId, SamplePE> sampleMap)
+    protected Collection<? extends ISampleId> getRelatedIds(IOperationContext context, SampleCreation creation)
     {
-        new MapBatchProcessor<SampleCreation, SamplePE>(context, batch)
-            {
-                @Override
-                public void process(SampleCreation creation, SamplePE sample)
-                {
-                    ISampleId containerId = creation.getContainerId();
-                    if (containerId != null)
-                    {
-                        SamplePE container = sampleMap.get(containerId);
-                        relationshipService.assignSampleToContainer(context.getSession(), sample, container);
-                    }
-                }
+        if (creation.getContainerId() != null)
+        {
+            return Collections.singletonList(creation.getContainerId());
+        } else
+        {
+            return null;
+        }
+    }
 
-                @Override
-                public IProgress createProgress(SampleCreation creation, SamplePE entity, int objectIndex, int totalObjectCount)
-                {
-                    return new SetRelationProgress(entity, creation, "sample-container", objectIndex, totalObjectCount);
-                }
-            };
+    @Override
+    protected void setRelated(IOperationContext context, SamplePE entity, Collection<SamplePE> related)
+    {
+        relationshipService.assignSampleToContainer(context.getSession(), entity, related.iterator().next());
     }
 
 }

@@ -17,14 +17,13 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.ISetEntityRelationsWithCacheExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.ISetEntityRelationsExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
  * @author pkupczyk
  */
-public interface ISetDataSetComponentsExecutor extends ISetEntityRelationsWithCacheExecutor<DataSetCreation, DataPE, IDataSetId, DataPE>
+public interface ISetDataSetComponentsExecutor extends ISetEntityRelationsExecutor<DataSetCreation, DataPE>
 {
 
 }

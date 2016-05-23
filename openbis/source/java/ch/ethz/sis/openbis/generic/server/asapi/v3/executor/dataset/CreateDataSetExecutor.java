@@ -91,7 +91,16 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
     private ISetDataSetSampleExecutor setDataSetSampleExecutor;
 
     @Autowired
-    private ISetDataSetRelatedDataSetsExecutor setDataSetRelatedDataSetsExecutor;
+    private ISetDataSetContainerExecutor setDataSetContainerExecutor;
+
+    @Autowired
+    private ISetDataSetComponentsExecutor setDataSetComponentsExecutor;
+
+    @Autowired
+    private ISetDataSetParentsExecutor setDataSetParentsExecutor;
+
+    @Autowired
+    private ISetDataSetChildrenExecutor setDataSetChildrenExecutor;
 
     @Autowired
     private IUpdateEntityPropertyExecutor updateEntityPropertyExecutor;
@@ -266,7 +275,11 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
         }
 
         addTagToEntityExecutor.add(context, tagMap);
-        setDataSetRelatedDataSetsExecutor.set(context, batch);
+
+        setDataSetChildrenExecutor.set(context, batch);
+        setDataSetParentsExecutor.set(context, batch);
+        setDataSetComponentsExecutor.set(context, batch);
+        setDataSetContainerExecutor.set(context, batch);
     }
 
     @Override

@@ -98,7 +98,16 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
     private ISetSampleExperimentExecutor setSampleExperimentExecutor;
 
     @Autowired
-    private ISetSampleRelatedSamplesExecutor setSampleRelatedSamplesExecutor;
+    private ISetSampleContainerExecutor setSampleContainerExecutor;
+
+    @Autowired
+    private ISetSampleComponentsExecutor setSampleComponentsExecutor;
+
+    @Autowired
+    private ISetSampleParentsExecutor setSampleParentsExecutor;
+
+    @Autowired
+    private ISetSampleChildrenExecutor setSampleChildrenExecutor;
 
     @Autowired
     private IUpdateEntityPropertyExecutor updateEntityPropertyExecutor;
@@ -312,7 +321,11 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
 
         createAttachmentExecutor.create(context, attachmentMap);
         addTagToEntityExecutor.add(context, tagMap);
-        setSampleRelatedSamplesExecutor.set(context, batch);
+
+        setSampleChildrenExecutor.set(context, batch);
+        setSampleParentsExecutor.set(context, batch);
+        setSampleComponentsExecutor.set(context, batch);
+        setSampleContainerExecutor.set(context, batch);
     }
 
     @Override

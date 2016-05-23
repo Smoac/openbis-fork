@@ -17,14 +17,13 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.ISetEntityRelationsWithCacheExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.ISetEntityRelationsExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author pkupczyk
  */
-public interface ISetSampleParentsExecutor extends ISetEntityRelationsWithCacheExecutor<SampleCreation, SamplePE, ISampleId, SamplePE>
+public interface ISetSampleParentsExecutor extends ISetEntityRelationsExecutor<SampleCreation, SamplePE>
 {
 
 }

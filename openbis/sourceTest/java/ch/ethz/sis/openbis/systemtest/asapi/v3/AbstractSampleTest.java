@@ -1,5 +1,7 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import java.util.regex.Pattern;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
@@ -46,6 +48,18 @@ public class AbstractSampleTest extends AbstractTest
         assignment.setOrdinal(1000L);
 
         commonServer.registerAndAssignPropertyType(sessionToken, propertyType, assignment);
+    }
+
+    protected static String patternContains(String... parts)
+    {
+        StringBuilder pattern = new StringBuilder();
+        pattern.append(".*");
+        for (String part : parts)
+        {
+            pattern.append(Pattern.quote(part));
+            pattern.append(".*");
+        }
+        return pattern.toString();
     }
 
 }
