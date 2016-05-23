@@ -419,6 +419,14 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
     }
 
     @Override
+    public List<SimpleDataSetInformationDTO> listPhysicalDataSetsByArchivingStatus(String sessionToken, String dataStoreCode,
+            DataSetArchivingStatus archivingStatus) throws UserFailureException
+    {
+        logAccess(sessionToken, "listPhysicalDataSetsByArchivingStatus", "DATA_STORE(%s)", dataStoreCode);
+        return null;
+    }
+    
+    @Override
     public List<SimpleDataSetInformationDTO> listPhysicalDataSetsWithUnknownSize(String sessionToken, String dataStoreCode, int chunkSize,
             String dataSetCodeLowerLimit)
     {

@@ -289,6 +289,13 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
             throws UserFailureException;
 
     /**
+     * Returns informations about physical data sets with certain archiving status
+     */
+    @ManagedAuthentication
+    public List<SimpleDataSetInformationDTO> listPhysicalDataSetsByArchivingStatus(DataSetArchivingStatus archivingStatus)
+            throws UserFailureException;
+
+    /**
      * Updates sizes of the specified physical data sets (map key: data set code, map value: data set size).
      */
     @ManagedAuthentication

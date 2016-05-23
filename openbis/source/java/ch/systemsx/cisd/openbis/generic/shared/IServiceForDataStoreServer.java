@@ -427,6 +427,13 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
             String dataStore, int limit) throws UserFailureException;
 
     /**
+     * Returns informations about physical data sets with unknown size that belong to the specified data store server.
+     */
+    @Transactional(readOnly = true)
+    public List<SimpleDataSetInformationDTO> listPhysicalDataSetsByArchivingStatus(String sessionToken, String dataStoreCode,
+            DataSetArchivingStatus archivingStatus);
+    
+    /**
      * Lists the <var>limit</var> oldest physical data sets younger than <var>youngerThan</var> belonging to specified data store.
      * <p>
      * The result is ordered by registration date in ascending order.

@@ -16,11 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,8 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import net.lemnik.eodsql.DataIterator;
 
 import org.apache.commons.lang.time.DateUtils;
 
@@ -90,12 +83,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreTranslator;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import net.lemnik.eodsql.DataIterator;
 
 /**
  * @author Tomasz Pylak
  */
-@Friend(toClasses =
-{ DatasetRecord.class, DatasetRelationRecord.class, DataStoreRecord.class,
+@Friend(toClasses = { DatasetRecord.class, DatasetRelationRecord.class, DataStoreRecord.class,
         DatasetCodeWithShareIdRecord.class, IDatasetListingQuery.class })
 public class DatasetLister extends AbstractLister implements IDatasetLister
 {
@@ -514,7 +511,8 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
                     orderByDate(enrichDatasets(
                             handleDegenerateRegistrationTimestamp(
                                     query.getDatasetsByDataStoreId(dataStoreID, limit * multiplier),
-                                    dataStoreID), datasetFetchOptions));
+                                    dataStoreID),
+                            datasetFetchOptions));
             multiplier = multiplier << 1;
         }
 
@@ -529,7 +527,19 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return orderByDate(enrichDatasets(
                 handleDegenerateRegistrationTimestamp(
                         query.getDatasetsByDataStoreId(dataStoreID, youngerThan, limit),
-                        dataStoreID), datasetFetchOptions));
+                        dataStoreID),
+                datasetFetchOptions));
+    }
+
+    @Override
+    public List<AbstractExternalData> listByArchivingStatus(long dataStoreID, DataSetArchivingStatus archivingStatus,
+            EnumSet<DataSetFetchOption> datasetFetchOptions)
+    {
+        checkFetchOptions(datasetFetchOptions);
+
+        List<DatasetRecord> dataSets = query.getDatasetsByDataStoreIdWithArchivingStatus(dataStoreID, archivingStatus.name());
+
+        return orderByCode(enrichDatasets(dataSets, datasetFetchOptions));
     }
 
     @Override
