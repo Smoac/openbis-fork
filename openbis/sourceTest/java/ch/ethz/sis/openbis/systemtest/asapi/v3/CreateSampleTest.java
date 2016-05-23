@@ -49,9 +49,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.Batch;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+
+import junit.framework.Assert;
 
 /**
  * @author pkupczyk
@@ -1059,6 +1062,56 @@ public class CreateSampleTest extends AbstractSampleTest
             AssertionUtil.assertCollectionContainsString(sample.getParents(), sampleWithoutSpace.getPermId().getPermId());
             AssertionUtil.assertCollectionContainsString(sample.getChildren(), sampleWithSpace2.getPermId().getPermId());
         }
+    }
+
+    @Test
+    private void testWithExceptionContextAndFewerSamplesThanBatchSize()
+    {
+        int sampleCount = 5;
+        int incorrectSampleIndex = 1;
+
+        Assert.assertTrue(sampleCount < Batch.DEFAULT_BATCH_SIZE);
+        Assert.assertTrue(incorrectSampleIndex < sampleCount);
+        Assert.assertTrue(incorrectSampleIndex > 0);
+
+        testWithExceptionContext(sampleCount, incorrectSampleIndex);
+    }
+
+    @Test
+    private void testWithExceptionContextAndMoreSamplesThanBatchSize()
+    {
+        int sampleCount = Batch.DEFAULT_BATCH_SIZE + 5;
+        int incorrectSampleIndex = Batch.DEFAULT_BATCH_SIZE + 1;
+
+        Assert.assertTrue(sampleCount > Batch.DEFAULT_BATCH_SIZE);
+        Assert.assertTrue(incorrectSampleIndex < sampleCount);
+        Assert.assertTrue(incorrectSampleIndex > Batch.DEFAULT_BATCH_SIZE);
+
+        testWithExceptionContext(sampleCount, incorrectSampleIndex);
+    }
+
+    private void testWithExceptionContext(int sampleCount, int incorrectSampleIndex)
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final List<SampleCreation> samples = new ArrayList<SampleCreation>();
+        for (int i = 0; i < sampleCount; i++)
+        {
+            samples.add(sampleCreation("TEST_SAMPLE_" + (i + 1)));
+        }
+
+        samples.get(incorrectSampleIndex).setTypeId(null);
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, samples);
+                }
+            }, "Type id cannot be null",
+                patternContains("checking data (" + (incorrectSampleIndex + 1) + "/" + sampleCount + ")",
+                        "code=TEST_SAMPLE_" + (incorrectSampleIndex + 1)));
     }
 
     private SampleCreation sampleCreation(String code)
