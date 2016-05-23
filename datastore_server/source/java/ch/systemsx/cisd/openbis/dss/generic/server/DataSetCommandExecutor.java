@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -209,6 +210,25 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
             hierarchicalContentProvider = ServiceProvider.getHierarchicalContentProvider();
         }
         return hierarchicalContentProvider;
+    }
+
+    /**
+     * Returns the list of items in the command store of the given <var>store</var> directory.
+     */
+    public static List<IDataSetCommand> getQueuedCommands(File store)
+    {
+        List<IDataSetCommand> commands = new ArrayList<IDataSetCommand>();
+        List<File> commandQueueFiles = listCommandQueueFiles(store);
+        for (File queueFile : commandQueueFiles)
+        {
+            final IExtendedBlockingQueue<IDataSetCommand> commandQueue =
+                    PersistentExtendedBlockingQueueFactory.<IDataSetCommand> createSmartPersist(queueFile);
+            for (final IDataSetCommand cmd : commandQueue)
+            {
+                commands.add(cmd);
+            }
+        }
+        return commands;
     }
 
     /**
