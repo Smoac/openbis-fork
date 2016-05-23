@@ -23,6 +23,8 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.bind.DatatypeConverter;
+
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -327,5 +329,23 @@ public final class StringUtilities
         }
         return newStr;
     }
+    
+    /**
+     * Convert a string of hexadecimal numbers into a byte array.
+     */
+    public static byte[] parseHexString(String hexString)
+    {
+        return DatatypeConverter.parseHexBinary(hexString);
+    }
+    
+    /**
+     * Converts a byte array into a string of hexadecimal numbers.
+     */
+    public static String asHexString(byte[] bytesOrNull)
+    {
+        return bytesOrNull == null ? null : DatatypeConverter.printHexBinary(bytesOrNull);
+    }
+    
+
 
 }
