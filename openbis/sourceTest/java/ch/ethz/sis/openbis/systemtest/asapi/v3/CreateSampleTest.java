@@ -1065,7 +1065,7 @@ public class CreateSampleTest extends AbstractSampleTest
     }
 
     @Test
-    private void testWithExceptionContextAndFewerSamplesThanBatchSize()
+    public void testCreateWithExceptionContextAndFewerSamplesThanBatchSize()
     {
         int sampleCount = 5;
         int incorrectSampleIndex = 1;
@@ -1078,7 +1078,7 @@ public class CreateSampleTest extends AbstractSampleTest
     }
 
     @Test
-    private void testWithExceptionContextAndMoreSamplesThanBatchSize()
+    public void testCreateWithExceptionContextAndMoreSamplesThanBatchSize()
     {
         int sampleCount = Batch.DEFAULT_BATCH_SIZE + 5;
         int incorrectSampleIndex = Batch.DEFAULT_BATCH_SIZE + 1;
