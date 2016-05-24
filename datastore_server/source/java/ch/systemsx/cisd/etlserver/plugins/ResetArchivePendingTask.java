@@ -5,8 +5,11 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.CommandQueueLister;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -19,27 +22,42 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 public class ResetArchivePendingTask implements IMaintenanceTask
 {
 
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, ResetArchivePendingTask.class);
+
     @Override
     public void setUp(String pluginName, Properties properties)
     {
+        operationLog.info("Task " + pluginName + " initialized.");
     }
 
     @Transactional
     @Override
     public void execute()
     {
+        operationLog.info(ResetArchivePendingTask.class.getSimpleName() + " Started");
         // 1. Find datasets with DataSetArchivingStatus.ARCHIVE_PENDING
         IEncapsulatedOpenBISService service = ServiceProvider.getOpenBISService();
         List<SimpleDataSetInformationDTO> inArchivePendings = service.listPhysicalDataSetsByArchivingStatus(DataSetArchivingStatus.ARCHIVE_PENDING);
+        operationLog.info("Found " + inArchivePendings.size() + " datasets in " + DataSetArchivingStatus.ARCHIVE_PENDING.name() + " status.");
 
         // 2. Filter out datasets that are not on the command queue
-        Set<String> inQueue = CommandQueueLister.getDataSetCodesFromCommandQueue();
+        Set<String> inQueue = null;
+        try
+        {
+            inQueue = CommandQueueLister.getDataSetCodesFromCommandQueue();
+        } catch (Exception ex)
+        {
+            operationLog.error("Command queue can't be read, aborting task.", ex);
+            return;
+        }
+
         List<String> toUpdate = new ArrayList<String>();
         for (SimpleDataSetInformationDTO inArchivePending : inArchivePendings)
         {
             if (!inQueue.contains(inArchivePending.getDataSetCode()))
             {
                 toUpdate.add(inArchivePending.getDataSetCode());
+                operationLog.info(inArchivePending.getDataSetCode() + " not found in command queue, scheduled to update.");
             }
         }
 
@@ -47,8 +65,10 @@ public class ResetArchivePendingTask implements IMaintenanceTask
         DataSetArchivingStatus status = DataSetArchivingStatus.AVAILABLE;
         boolean presentInArchive = false;
 
+        operationLog.info("Going to update " + toUpdate.size() + " datasets.");
         DataSetCodesWithStatus codesWithStatus = new DataSetCodesWithStatus(toUpdate, status, presentInArchive);
         QueueingDataSetStatusUpdaterService.update(codesWithStatus);
+        operationLog.info(ResetArchivePendingTask.class.getSimpleName() + " Finished");
     }
 
 }
