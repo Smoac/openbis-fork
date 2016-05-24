@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import org.alfresco.config.ConfigElement;
 import org.alfresco.jlan.server.SrvSession;
+import org.alfresco.jlan.server.auth.ClientInfo;
 import org.alfresco.jlan.server.core.DeviceContext;
 import org.alfresco.jlan.server.core.DeviceContextException;
 import org.alfresco.jlan.server.filesys.DiskDeviceContext;
@@ -65,6 +66,7 @@ public class DataSetCifsView implements DiskInterface
     public DeviceContext createContext(String shareName, ConfigElement args) throws DeviceContextException
     {
         operationLog.info("create context for share " + shareName);
+        System.out.println(Utils.render(args));
         return new DiskDeviceContext(shareName);
     }
 
@@ -85,6 +87,8 @@ public class DataSetCifsView implements DiskInterface
     @Override
     public FileInfo getFileInformation(SrvSession sess, TreeConnection tree, String path) throws IOException
     {
+        String sessionToken = getSessionToken(sess);
+        System.err.println("session token:"+sessionToken);
         String normalizedPath = FileName.buildPath(null, path, null, java.io.File.separatorChar);
         System.out.println("DataSetCifsView.getFileInformation("+path+") "+normalizedPath);
         System.out.println(sess.getClientInformation());
@@ -238,5 +242,16 @@ public class DataSetCifsView implements DiskInterface
         }
         return generalInfoService;
     }
+    
+    private String getSessionToken(SrvSession sess)
+    {
+        ClientInfo client = sess.getClientInformation();
+        if (client instanceof OpenBisClientInfo)
+        {
+            return ((OpenBisClientInfo) client).getSessionToken();
+        }
+        return null;
+    }
+
 
 }

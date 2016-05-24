@@ -3,7 +3,9 @@ evaluationDependsOn(':common')
 apply from: '../gradle/javaproject.gradle'
 
 dependencies {
-	compile project(':common')
-	
+	compile project(':common'),
+      'alfresco:jlan:+',
+      'bouncycastle:bcpg:+'
+      
 	testCompile project(path: ':common', configuration: 'tests')
 } 

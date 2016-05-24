@@ -20,6 +20,7 @@ import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -131,6 +132,8 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
      */
     protected final Map<String, FullSession<T>> sessions =
             new LinkedHashMap<String, FullSession<T>>();
+    
+    private final Map<String, String> passwords = new HashMap<String, String>();
 
     private final IAuthenticationService authenticationService;
 
@@ -530,7 +533,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     public String tryToOpenSession(final String user, final String password)
     {
         checkIfNotBlank(password, "password");
-        return tryToOpenSession(user, new IPrincipalProvider()
+        String sessionToken = tryToOpenSession(user, new IPrincipalProvider()
             {
                 @Override
                 public Principal tryToGetPrincipal(String userID)
@@ -538,6 +541,11 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                     return tryGetAndAuthenticateUser(user, password);
                 }
             });
+        if (CifsAuthenticationUtils.isPasswordInfo(password) == false)
+        {
+            passwords.put(user, password);
+        }
+        return sessionToken;
     }
 
     @Override
@@ -620,6 +628,20 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
     private Principal tryGetAndAuthenticateUser(final String user, final String password)
     {
+        if (CifsAuthenticationUtils.isPasswordInfo(password))
+        {
+            String storedPassword = passwords.get(user);
+            if (storedPassword == null)
+            {
+                operationLog.info("CIFS authentication for user '" + user + "' fails. "
+                        + "Reason: The user hasn't been authenticated itself at openBIS.");
+                return null;
+            }
+            operationLog.info("CIFS authentication for user '" + user + "' using algorithm " 
+                    + CifsAuthenticationUtils.extractAlgorithm(password) + ".");
+            Principal principal = CifsAuthenticationUtils.tryGetAndAuthenticateUser(user, storedPassword, password);
+            return principal;
+        }
         final Principal p = authenticationService.tryGetAndAuthenticateUser(user, password);
         if (p == null && tryEmailAsUserName && user.contains("@")
                 && authenticationService.supportsAuthenticatingByEmail())
@@ -628,5 +650,4 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         }
         return p;
     }
-
 }

@@ -42,7 +42,7 @@ class CifsServerConfig
             + "    <tcpipSMB port='${smb-port}'/>\n"
             + "  </host>\n"
             + "  <authenticator>\n"
-            + "    <class>ch.systemsx.cisd.openbis.dss.generic.server.cifs.CifsServerAuthenticator</class>\n"
+            + "    <class>ch.systemsx.cisd.openbis.dss.generic.server.cifs.OpenBisAuthenticator</class>\n"
             + "    <mode>USER</mode>\n"
             + "  </authenticator>\n"
             + "  <sessionDebug flags='${session-log-flags}'/>"
@@ -50,8 +50,8 @@ class CifsServerConfig
             + "<shares>\n"
             + "  <diskshare name='${share-name}'>\n"
             + "    <driver>\n"
-            + "      <!--class>ch.systemsx.cisd.openbis.dss.generic.server.cifs.DataSetCifsView</class-->\n"
-            + "      <class>org.alfresco.jlan.smb.server.disk.JavaFileDiskDriver</class>\n"
+            + "      <class>ch.systemsx.cisd.openbis.dss.generic.server.cifs.DataSetCifsView</class>\n"
+            + "      <!--class>org.alfresco.jlan.smb.server.disk.JavaFileDiskDriver</class-->\n"
             + "      <LocalPath>/Users/felmer/tmp/playgrounds/unix</LocalPath>\n"
             + "    </driver>\n"
             + "  </diskshare>\n"
@@ -65,26 +65,14 @@ class CifsServerConfig
             + "<security>\n"
             + "    <JCEProvider>org.bouncycastle.jce.provider.BouncyCastleProvider</JCEProvider>\n"
             + "    <authenticator>\n"
-            + "      <class>ch.systemsx.cisd.openbis.dss.generic.server.cifs.CifsServerAuthenticator</class>\n"
+            + "      <class>ch.systemsx.cisd.openbis.dss.generic.server.cifs.OpenBisAuthenticator</class>\n"
             + "      <mode>USER</mode>\n"
-            + "    </authenticator>\n" +
-            "    <users>\n" + 
-            "      <user name=\"jlansrv\">\n" + 
-            "        <password>jlan</password>\n" + 
-            "        <comment>System administrator</comment>\n" + 
-            "        <administrator/>\n" + 
-            "      </user>\n" + 
-            "      <user name=\"felmer\">\n" + 
-            "        <password>felmer</password>\n" + 
-            "      </user>\n" + 
-            "      <user name=\"normal\">\n" + 
-            "        <password>normal</password>\n" + 
-            "      </user>\n" + 
-            "    </users>\n" + 
-            "  </security>\n" + 
-            "</jlanserver>\n" + 
-            "");
+            + "    </authenticator>\n"
+            + "  </security>\n"
+            + "</jlanserver>\n");
+
     private static final String SMB_PORT_KEY = "smb-port";
+
     private static Map<String, String> CONFIG_PARAMS = new MapBuilder<String, String>()
             .entry("host.name", "ETHZ")
             .entry("host.domain", "OPENBIS")
