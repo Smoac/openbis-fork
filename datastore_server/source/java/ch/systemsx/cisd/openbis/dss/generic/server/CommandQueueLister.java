@@ -16,10 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 /**
  * A class that provides a lister for the commands in the command queue of the store.
  * 
@@ -36,18 +32,5 @@ public final class CommandQueueLister
     {
         final ConfigParameters configParams = DataStoreServer.getConfigParameters();
         DataSetCommandExecutor.listQueuedCommands(configParams.getCommandQueueDir());
-    }
-
-    public static Set<String> getDataSetCodesFromCommandQueue()
-    {
-        final ConfigParameters configParams = DataStoreServer.getConfigParameters();
-        List<IDataSetCommand> commands = DataSetCommandExecutor.getQueuedCommands(configParams.getCommandQueueDir());
-
-        Set<String> datasetCodes = new HashSet<String>();
-        for (IDataSetCommand command : commands)
-        {
-            datasetCodes.addAll(command.getDataSetCodes());
-        }
-        return datasetCodes;
     }
 }

@@ -21,8 +21,10 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
@@ -210,6 +212,17 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
             hierarchicalContentProvider = ServiceProvider.getHierarchicalContentProvider();
         }
         return hierarchicalContentProvider;
+    }
+
+    @Override
+    public Set<String> getDataSetCodesFromCommandQueue()
+    {
+        Set<String> dataSetCodes = new HashSet<String>();
+        for (IDataSetCommand command : commandQueue)
+        {
+            dataSetCodes.addAll(command.getDataSetCodes());
+        }
+        return dataSetCodes;
     }
 
     /**
