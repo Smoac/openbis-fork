@@ -23,7 +23,7 @@ check [dss] [etlserver] independentOf [private_openbis]
 # Check dependencies of etlserver to dss
 
 [dss.shared] = ${dss}.generic.shared.*
-[private_dss] = ${dss}.* excluding [dss.shared] ${dss}.BuildAndEnvironmentInfo ${dss}.generic.DataStoreServer ${dss}.generic.server.api.v1.DssServiceRpcGeneric ch.systemsx.cisd.openbis.dss.generic.server.DataStoreService
+[private_dss] = ${dss}.* excluding [dss.shared] ${dss}.generic.server.IDataSetCommandExecutorProvider ${dss}.generic.server.IDataSetCommandExecutor ${dss}.BuildAndEnvironmentInfo ${dss}.generic.DataStoreServer ${dss}.generic.server.api.v1.DssServiceRpcGeneric ch.systemsx.cisd.openbis.dss.generic.server.DataStoreService
 
 [etlserver_registration] = ${etlserver}.registrator.* ${etlserver}.postregistration.* ${etlserver}.DssUniqueFilenameGenerator \
       ${etlserver}.Parameters ${etlserver}.ITopLevelDataSetRegistratorDelegate \
