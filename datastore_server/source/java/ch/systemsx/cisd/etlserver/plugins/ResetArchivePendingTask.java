@@ -1,6 +1,7 @@
 package ch.systemsx.cisd.etlserver.plugins;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -19,6 +20,22 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+
+//
+// This is how it looks on the logs
+// 2016-05-24 13:02:02,551 INFO  [archive-task - Maintenance Plugin] OPERATION.ResetArchivePendingTask - ResetArchivePendingTask Started
+// 2016-05-24 13:02:02,576 INFO  [archive-task - Maintenance Plugin] OPERATION.ResetArchivePendingTask - Found 3 datasets in ARCHIVE_PENDING status.
+// 2016-05-24 13:02:02,576 INFO  [archive-task - Maintenance Plugin] OPERATION.ResetArchivePendingTask - Found 3 datasets in the command queue.
+// 2016-05-24 13:02:02,576 INFO  [archive-task - Maintenance Plugin] OPERATION.ResetArchivePendingTask - Going to update 0 datasets.
+// 2016-05-24 13:02:02,576 INFO  [archive-task - Maintenance Plugin] OPERATION.ResetArchivePendingTask - ResetArchivePendingTask Finished
+//
+// 2016-05-24 13:17:13,422 INFO  [archive-task - Maintenance Plugin] OPERATION.ResetArchivePendingTask - ResetArchivePendingTask Started
+// 2016-05-24 13:17:13,443 INFO  [archive-task - Maintenance Plugin] OPERATION.ResetArchivePendingTask - Found 1 datasets in ARCHIVE_PENDING status.
+// 2016-05-24 13:17:13,443 INFO  [archive-task - Maintenance Plugin] OPERATION.ResetArchivePendingTask - Found 0 datasets in the command queue.
+// 2016-05-24 13:17:13,443 INFO  [archive-task - Maintenance Plugin] OPERATION.ResetArchivePendingTask - 20160523154603635-10 not found in command queue, scheduled to update.
+// 2016-05-24 13:17:13,443 INFO  [archive-task - Maintenance Plugin] OPERATION.ResetArchivePendingTask - Going to update 1 datasets.
+// 2016-05-24 13:17:13,444 INFO  [archive-task - Maintenance Plugin] OPERATION.ResetArchivePendingTask - ResetArchivePendingTask Finished
+//
 
 public class ResetArchivePendingTask implements IMaintenanceTask
 {
@@ -53,23 +70,26 @@ public class ResetArchivePendingTask implements IMaintenanceTask
         Set<String> inQueue = commandExecutor.getDataSetCodesFromCommandQueue();
         operationLog.info("Found " + inQueue.size() + " datasets in the command queue.");
 
-        List<String> toUpdate = new ArrayList<String>();
+        List<SimpleDataSetInformationDTO> dataSetsToUpdate = new ArrayList<SimpleDataSetInformationDTO>();
         for (SimpleDataSetInformationDTO inArchivePending : inArchivePendings)
         {
             if (!inQueue.contains(inArchivePending.getDataSetCode()))
             {
-                toUpdate.add(inArchivePending.getDataSetCode());
+                dataSetsToUpdate.add(inArchivePending);
                 operationLog.info(inArchivePending.getDataSetCode() + " not found in command queue, scheduled to update.");
             }
         }
 
         // 3. Update datasets status to AVAILABLE
-        DataSetArchivingStatus status = DataSetArchivingStatus.AVAILABLE;
-        boolean presentInArchive = false;
-
-        operationLog.info("Going to update " + toUpdate.size() + " datasets.");
-        DataSetCodesWithStatus codesWithStatus = new DataSetCodesWithStatus(toUpdate, status, presentInArchive);
-        QueueingDataSetStatusUpdaterService.update(codesWithStatus);
+        operationLog.info("Going to update " + dataSetsToUpdate.size() + " datasets.");
+        for (SimpleDataSetInformationDTO dataSetToUpdate : dataSetsToUpdate)
+        {
+            DataSetCodesWithStatus codesWithStatus = new DataSetCodesWithStatus(
+                    Arrays.asList(dataSetToUpdate.getDataSetCode()),
+                    DataSetArchivingStatus.AVAILABLE,
+                    dataSetToUpdate.isPresentInArchive());
+            QueueingDataSetStatusUpdaterService.update(codesWithStatus);
+        }
         operationLog.info(ResetArchivePendingTask.class.getSimpleName() + " Finished");
     }
 
