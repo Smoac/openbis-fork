@@ -50,6 +50,10 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HttpRequestUtils;
  */
 public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
 {
+    private static final String PATH_INFO_DB = "path-info-db";
+
+    private static final String DATA_SOURCES = "data-sources";
+
     private static final long serialVersionUID = 1L;
 
     private static final String HTML_MODE_DISPLAY = "html";
@@ -189,8 +193,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         IRendererFactory rendererFactory = null;
         try
         {
-            RequestParams requestParams =
-                    parseRequestURL(request, DATA_STORE_SERVER_WEB_APPLICATION_NAME);
+            RequestParams requestParams = parseRequestURL(request, DATA_STORE_SERVER_WEB_APPLICATION_NAME);
             rendererFactory = createRendererFactory(requestParams.getDisplayMode());
 
             HttpSession session = tryGetOrCreateSession(request, requestParams.tryGetSessionId());
@@ -207,7 +210,17 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             {
                 rendererFactory = new PlainTextRendererFactory();
             }
-            printError(rendererFactory, request, response, e);
+
+            String dataSources = DataStoreServer.getConfigParameters().getProperties().getProperty(DATA_SOURCES);
+            boolean isPathInfoEnabled = dataSources != null && dataSources.contains(PATH_INFO_DB);
+            if (!isPathInfoEnabled)
+            {
+                printEmptyPage(rendererFactory, request, response);
+            } else
+            {
+                printError(rendererFactory, request, response, e);
+            }
+
         }
     }
 
@@ -332,6 +345,15 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             displayMode = HTML_MODE_DISPLAY;
         }
         return displayMode;
+    }
+
+    private void printEmptyPage(IRendererFactory rendererFactory, final HttpServletRequest request,
+            final HttpServletResponse response) throws IOException
+    {
+        response.setContentType(rendererFactory.getContentType());
+        PrintWriter writer = response.getWriter();
+        writer.flush();
+        writer.close();
     }
 
     private void printError(IRendererFactory rendererFactory, final HttpServletRequest request,
