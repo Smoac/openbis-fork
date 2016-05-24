@@ -55,6 +55,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ICreateDataSetExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ListSampleTechIdByIdentifier;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.utils.ExceptionUtils;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.DummyAuthenticationService;
@@ -1419,7 +1420,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
                         DATASET_FETCH_OPTIONS_FILE_DATASETS);
         return SimpleDataSetHelper.filterAndTranslate(dataSets);
     }
-    
+
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public List<SimpleDataSetInformationDTO> listPhysicalDataSetsWithUnknownSize(String sessionToken, String dataStoreCode, int chunkSize,
@@ -2638,8 +2639,15 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             creations.add(creation);
         }
 
-        List<DataSetPermId> ids = createDataSetExecutor.create(context, creations);
-        return ids.size();
+        try
+        {
+            List<DataSetPermId> ids = createDataSetExecutor.create(context, creations);
+            daoFactory.getSessionFactory().getCurrentSession().flush();
+            return ids.size();
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
+        }
     }
 
     private void injectSampleId(DataSetCreation creation, NewExternalData newData)
