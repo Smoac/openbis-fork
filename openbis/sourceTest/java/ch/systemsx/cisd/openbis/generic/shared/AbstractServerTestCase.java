@@ -354,7 +354,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
                     allowing(sessionManager).getSession(SESSION_TOKEN);
                     will(returnValue(session));
                     allowing(daoFactory).getPersistencyResources();
-                    will(returnValue(new PersistencyResources(null, null, null, null)));
+                    will(returnValue(new PersistencyResources(null, null, null)));
 
                 }
             });

@@ -58,7 +58,7 @@ public class DeleteExperimentTest extends AbstractDeletionTest
         List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listByPermID(Arrays.asList(permId.getPermId()));
         assertEquals(experiments.size(), 1);
 
-        RemoveFromIndexState state = new RemoveFromIndexState(daoFactory);
+        RemoveFromIndexState state = new RemoveFromIndexState();
 
         v3api.deleteExperiments(sessionToken, Collections.singletonList(permId), options);
         TestTransaction.flagForCommit();

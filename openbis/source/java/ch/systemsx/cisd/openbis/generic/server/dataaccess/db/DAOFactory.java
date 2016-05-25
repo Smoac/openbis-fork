@@ -61,7 +61,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.UpdateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -84,8 +83,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     private ExposablePropertyPlaceholderConfigurer configurer;
 
     private final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler;
-
-    private final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler;
 
     private final ISampleTypeDAO sampleTypeDAO;
 
@@ -141,15 +138,12 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory, HibernateSearchContext hibernateSearchContext,
-            final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler,
             final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler,
             final EntityHistoryCreator historyCreator)
     {
-        super(context, sessionFactory, fullTextIndexUpdateScheduler,
-                dynamicPropertyEvaluationScheduler, historyCreator);
+        super(context, sessionFactory, dynamicPropertyEvaluationScheduler, historyCreator);
         this.context = context;
         this.dynamicPropertyEvaluationScheduler = dynamicPropertyEvaluationScheduler;
-        this.fullTextIndexUpdateScheduler = fullTextIndexUpdateScheduler;
         historyCreator.setDaoFactory(this);
         sampleTypeDAO = new SampleTypeDAO(sessionFactory, historyCreator);
         hibernateSearchDAO = new HibernateSearchDAO(sessionFactory, hibernateSearchContext);
@@ -314,11 +308,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public IDynamicPropertyEvaluationScheduler getDynamicPropertyEvaluationScheduler()
     {
         return dynamicPropertyEvaluationScheduler;
-    }
-
-    public IFullTextIndexUpdateScheduler getFullTextIndexUpdateScheduler()
-    {
-        return fullTextIndexUpdateScheduler;
     }
 
     @Override

@@ -111,7 +111,6 @@
 		<constructor-arg ref="db-configuration-context" />
 		<constructor-arg ref="hibernate-session-factory" />
 		<constructor-arg ref="hibernate-search-context" />
-		<constructor-arg ref="full-text-index-updater" />
 		<constructor-arg ref="dynamic-property-scheduler" />
 		<constructor-arg ref="entity-history-creator" />
 	</bean>

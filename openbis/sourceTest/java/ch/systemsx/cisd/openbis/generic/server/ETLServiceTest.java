@@ -245,7 +245,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                                                     .getExperiment());
                     will(returnValue(Arrays.asList(ds1.getDataSet())));
                     allowing(daoFactory).getPersistencyResources();
-                    will(returnValue(new PersistencyResources(null, null, null, null)));
+                    will(returnValue(new PersistencyResources(null, null, null)));
 
                 }
             });
@@ -290,7 +290,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     will(returnValue(list));
 
                     allowing(daoFactory).getPersistencyResources();
-                    will(returnValue(new PersistencyResources(null, null, null, null)));
+                    will(returnValue(new PersistencyResources(null, null, null)));
 
                 }
             });
@@ -523,7 +523,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     will(returnValue("permId"));
 
                     allowing(daoFactory).getPersistencyResources();
-                    will(returnValue(new PersistencyResources(null, null, null, null)));
+                    will(returnValue(new PersistencyResources(null, null, null)));
 
                 }
             });
@@ -593,7 +593,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     sample.setCode("S42");
                     will(returnValue(sample));
                     allowing(daoFactory).getPersistencyResources();
-                    will(returnValue(new PersistencyResources(null, null, null, null)));
+                    will(returnValue(new PersistencyResources(null, null, null)));
 
                 }
             });
@@ -622,7 +622,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     sampleTypePE.setSubcodeUnique(Boolean.FALSE);
                     will(returnValue(sampleTypePE));
                     allowing(daoFactory).getPersistencyResources();
-                    will(returnValue(new PersistencyResources(null, null, null, null)));
+                    will(returnValue(new PersistencyResources(null, null, null)));
 
                 }
             });
@@ -879,7 +879,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(personDAO).listPersons();
                     will(returnValue(Arrays.asList(personPE)));
                     allowing(daoFactory).getPersistencyResources();
-                    will(returnValue(new PersistencyResources(null, null, null, null)));
+                    will(returnValue(new PersistencyResources(null, null, null)));
 
                 }
             });
@@ -1016,7 +1016,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     will(returnValue(externalDataPE));
 
                     allowing(daoFactory).getPersistencyResources();
-                    will(returnValue(new PersistencyResources(null, null, null, null)));
+                    will(returnValue(new PersistencyResources(null, null, null)));
 
                     one(metaprojectDAO).listMetaprojectsForEntity(sessionPerson, samplePE);
                 }
@@ -1512,7 +1512,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(sampleBO).tryToGetSample();
                     will(returnValue(sample));
                     allowing(daoFactory).getPersistencyResources();
-                    will(returnValue(new PersistencyResources(null, null, null, null)));
+                    will(returnValue(new PersistencyResources(null, null, null)));
 
                 }
             });

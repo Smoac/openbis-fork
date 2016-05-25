@@ -918,22 +918,22 @@ public class AbstractTest extends SystemTestCase
 
     protected void assertExperimentsRemovedFromIndex(RemoveFromIndexState previousState, Long... ids)
     {
-        assertIndexStateChange(previousState, new RemoveFromIndexState(daoFactory), ExperimentPE.class.getName(), ids);
+        assertIndexStateChange(previousState, new RemoveFromIndexState(), ExperimentPE.class.getName(), ids);
     }
 
     protected void assertSamplesRemovedFromIndex(RemoveFromIndexState previousState, Long... ids)
     {
-        assertIndexStateChange(previousState, new RemoveFromIndexState(daoFactory), SamplePE.class.getName(), ids);
+        assertIndexStateChange(previousState, new RemoveFromIndexState(), SamplePE.class.getName(), ids);
     }
 
     protected void assertDataSetsRemovedFromIndex(RemoveFromIndexState previousState, Long... ids)
     {
-        assertIndexStateChange(previousState, new RemoveFromIndexState(daoFactory), DataPE.class.getName(), ids);
+        assertIndexStateChange(previousState, new RemoveFromIndexState(), DataPE.class.getName(), ids);
     }
 
     protected void assertMaterialsRemovedFromIndex(RemoveFromIndexState previousState, Long... ids)
     {
-        assertIndexStateChange(previousState, new RemoveFromIndexState(daoFactory), MaterialPE.class.getName(), ids);
+        assertIndexStateChange(previousState, new RemoveFromIndexState(), MaterialPE.class.getName(), ids);
     }
 
     protected <S extends IndexState> void assertIndexStateChange(S previousState, S currentState, String expectedClassName,

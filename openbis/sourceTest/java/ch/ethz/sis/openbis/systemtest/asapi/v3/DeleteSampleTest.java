@@ -60,7 +60,7 @@ public class DeleteSampleTest extends AbstractDeletionTest
         List<SamplePE> samples = daoFactory.getSampleDAO().listByPermID(Arrays.asList(samplePermId.getPermId()));
         assertEquals(samples.size(), 1);
 
-        RemoveFromIndexState state = new RemoveFromIndexState(daoFactory);
+        RemoveFromIndexState state = new RemoveFromIndexState();
 
         v3api.deleteSamples(sessionToken, Collections.singletonList(samplePermId), options);
         TestTransaction.flagForCommit();
