@@ -73,7 +73,8 @@ public class ResetArchivePendingTask implements IMaintenanceTask
         List<SimpleDataSetInformationDTO> dataSetsToUpdate = new ArrayList<SimpleDataSetInformationDTO>();
         for (SimpleDataSetInformationDTO inArchivePending : inArchivePendings)
         {
-            if (!inQueue.contains(inArchivePending.getDataSetCode()))
+            if (inQueue.contains(inArchivePending.getDataSetCode()) == false 
+                    && inArchivePending.isPresentInArchive() == false)
             {
                 dataSetsToUpdate.add(inArchivePending);
                 operationLog.info(inArchivePending.getDataSetCode() + " not found in command queue, scheduled to update.");

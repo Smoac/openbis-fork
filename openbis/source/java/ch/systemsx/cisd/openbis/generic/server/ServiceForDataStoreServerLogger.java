@@ -422,7 +422,7 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
     public List<SimpleDataSetInformationDTO> listPhysicalDataSetsByArchivingStatus(String sessionToken, String dataStoreCode,
             DataSetArchivingStatus archivingStatus) throws UserFailureException
     {
-        logAccess(sessionToken, "listPhysicalDataSetsByArchivingStatus", "DATA_STORE(%s)", dataStoreCode);
+        logAccess(sessionToken, "listPhysicalDataSetsByArchivingStatus", "DATA_STORE(%s) STATUS(%s)", dataStoreCode, archivingStatus);
         return null;
     }
     
