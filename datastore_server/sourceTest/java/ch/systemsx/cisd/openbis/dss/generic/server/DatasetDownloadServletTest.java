@@ -365,11 +365,11 @@ public class DatasetDownloadServletTest
 
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
-        assertContains("<html><body><h1>Error</h1>" + OSUtilities.LINE_SEPARATOR
+        AssertionUtil.assertContainsLines("<html><body><h1>Error</h1>" + OSUtilities.LINE_SEPARATOR
                 + "Unknown data set: 1234-1" + OSUtilities.LINE_SEPARATOR + "</body></html>"
                 + OSUtilities.LINE_SEPARATOR, writer.toString());
         String logContent = logRecorder.getLogContent();
-        assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR
+        AssertionUtil.assertContainsLines(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR
                 + CONTENT_PROVIDER_LOG_ERROR + "Data set '1234-1' not found in openBIS server."
                 + OSUtilities.LINE_SEPARATOR + LOG_ERROR + "Unknown data set: 1234-1",
                 logContent);
