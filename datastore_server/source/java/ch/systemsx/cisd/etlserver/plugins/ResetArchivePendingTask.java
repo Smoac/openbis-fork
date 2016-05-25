@@ -73,7 +73,7 @@ public class ResetArchivePendingTask implements IMaintenanceTask
             {
                 inQueue.addAll(executor.getDataSetCodesFromCommandQueue());
             }
-            operationLog.info("Found " + inQueue.size() + " datasets in the command queue.");
+            operationLog.info("Found " + inQueue.size() + " datasets in the " + executors.size() + " command queues.");
             
             List<String> dataSetsToUpdate = new ArrayList<>();
             for (SimpleDataSetInformationDTO inArchivePending : inArchivePendings)
@@ -82,7 +82,8 @@ public class ResetArchivePendingTask implements IMaintenanceTask
                         && inArchivePending.isPresentInArchive() == false)
                 {
                     dataSetsToUpdate.add(inArchivePending.getDataSetCode());
-                    operationLog.info(inArchivePending.getDataSetCode() + " not found in command queue, scheduled to update.");
+                    operationLog.info(inArchivePending.getDataSetCode() 
+                            + " scheduled to update because not present in archive and not found in any command queue.");
                 }
             }
             
