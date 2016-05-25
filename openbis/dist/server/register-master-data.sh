@@ -22,5 +22,6 @@ fi
 LIB=$BASE/../webapps/$APPLICATION_NAME/WEB-INF/lib
 
 $JVM \
+ -Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog \
  -cp $LIB/\* \
  ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationScriptRunnerStandalone "$@"
