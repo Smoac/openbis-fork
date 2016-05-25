@@ -1,7 +1,7 @@
 package ch.systemsx.cisd.etlserver.plugins;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -58,37 +58,38 @@ public class ResetArchivePendingTask implements IMaintenanceTask
         // 1. Find datasets with DataSetArchivingStatus.ARCHIVE_PENDING
         IEncapsulatedOpenBISService service = ServiceProvider.getOpenBISService();
         List<SimpleDataSetInformationDTO> inArchivePendings = service.listPhysicalDataSetsByArchivingStatus(DataSetArchivingStatus.ARCHIVE_PENDING);
-        operationLog.info("Found " + inArchivePendings.size() + " datasets in " + DataSetArchivingStatus.ARCHIVE_PENDING.name() + " status.");
-
-        // 2. Filter out datasets that are not on the command queue
-        IDataSetCommandExecutorProvider commandExecutorProvider =
-                (IDataSetCommandExecutorProvider) ServiceProvider
-                        .getApplicationContext()
-                        .getBean(COMMAND_EXECUTOR_BEAN);
-        IDataSetCommandExecutor commandExecutor = commandExecutorProvider.getDefaultExecutor();
-
-        Set<String> inQueue = commandExecutor.getDataSetCodesFromCommandQueue();
-        operationLog.info("Found " + inQueue.size() + " datasets in the command queue.");
-
-        List<SimpleDataSetInformationDTO> dataSetsToUpdate = new ArrayList<SimpleDataSetInformationDTO>();
-        for (SimpleDataSetInformationDTO inArchivePending : inArchivePendings)
+        if (inArchivePendings.isEmpty() == false)
         {
-            if (inQueue.contains(inArchivePending.getDataSetCode()) == false 
-                    && inArchivePending.isPresentInArchive() == false)
+            operationLog.info("Found " + inArchivePendings.size() + " datasets in " + DataSetArchivingStatus.ARCHIVE_PENDING.name() + " status.");
+            
+            // 2. Filter out datasets that are not on the command queue
+            IDataSetCommandExecutorProvider commandExecutorProvider =
+                    (IDataSetCommandExecutorProvider) ServiceProvider
+                    .getApplicationContext()
+                    .getBean(COMMAND_EXECUTOR_BEAN);
+            Set<String> inQueue = new HashSet<>();
+            List<IDataSetCommandExecutor> executors = commandExecutorProvider.getAllExecutors();
+            for (IDataSetCommandExecutor executor : executors)
             {
-                dataSetsToUpdate.add(inArchivePending);
-                operationLog.info(inArchivePending.getDataSetCode() + " not found in command queue, scheduled to update.");
+                inQueue.addAll(executor.getDataSetCodesFromCommandQueue());
             }
-        }
-
-        // 3. Update datasets status to AVAILABLE
-        operationLog.info("Going to update " + dataSetsToUpdate.size() + " datasets.");
-        for (SimpleDataSetInformationDTO dataSetToUpdate : dataSetsToUpdate)
-        {
-            DataSetCodesWithStatus codesWithStatus = new DataSetCodesWithStatus(
-                    Arrays.asList(dataSetToUpdate.getDataSetCode()),
-                    DataSetArchivingStatus.AVAILABLE,
-                    dataSetToUpdate.isPresentInArchive());
+            operationLog.info("Found " + inQueue.size() + " datasets in the command queue.");
+            
+            List<String> dataSetsToUpdate = new ArrayList<>();
+            for (SimpleDataSetInformationDTO inArchivePending : inArchivePendings)
+            {
+                if (inQueue.contains(inArchivePending.getDataSetCode()) == false 
+                        && inArchivePending.isPresentInArchive() == false)
+                {
+                    dataSetsToUpdate.add(inArchivePending.getDataSetCode());
+                    operationLog.info(inArchivePending.getDataSetCode() + " not found in command queue, scheduled to update.");
+                }
+            }
+            
+            // 3. Update datasets status to AVAILABLE
+            operationLog.info("Going to update " + dataSetsToUpdate.size() + " datasets.");
+            DataSetCodesWithStatus codesWithStatus = new DataSetCodesWithStatus(dataSetsToUpdate,
+                    DataSetArchivingStatus.AVAILABLE, false);
             QueueingDataSetStatusUpdaterService.update(codesWithStatus);
         }
         operationLog.info(ResetArchivePendingTask.class.getSimpleName() + " Finished");
