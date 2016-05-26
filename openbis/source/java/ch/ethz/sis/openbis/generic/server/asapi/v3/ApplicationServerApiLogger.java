@@ -23,6 +23,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.archive.DataSetArchiveOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
@@ -31,6 +32,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.unarchive.DataSetUnarchiveOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
@@ -511,6 +513,18 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     {
         logAccess(sessionToken, "search-globally", "SEARCH_CRITERIA:\n%s\nFETCH_OPTIONS:\n%s\n", searchCriteria, fetchOptions);
         return null;
+    }
+
+    @Override
+    public void archiveDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetArchiveOptions options)
+    {
+        logAccess(sessionToken, "archive-data-sets", "DATA_SET_IDS(%s) ARCHIVE_OPTIONS(%s)", abbreviate(dataSetIds), options);
+    }
+
+    @Override
+    public void unarchiveDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetUnarchiveOptions options)
+    {
+        logAccess(sessionToken, "unarchive-data-sets", "DATA_SET_IDS(%s) UNARCHIVE_OPTIONS(%s)", abbreviate(dataSetIds), options);
     }
 
 }
