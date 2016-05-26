@@ -90,6 +90,8 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 		this.GlobalSearchObjectFetchOptions = dtos.GlobalSearchObjectFetchOptions;
 		this.ObjectKindModificationSearchCriteria = dtos.ObjectKindModificationSearchCriteria;
 		this.ObjectKindModificationFetchOptions = dtos.ObjectKindModificationFetchOptions;
+		this.DataSetArchiveOptions = dtos.DataSetArchiveOptions;
+		this.DataSetUnarchiveOptions = dtos.DataSetUnarchiveOptions;
 
 		this.getDtos = function() {
 			return dtos;
