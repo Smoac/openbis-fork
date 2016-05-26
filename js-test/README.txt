@@ -10,7 +10,7 @@ by
 
 options.suites('source/java/tests-dev.xml') 
 
-Then start up everything by executing in 'gradle'
+Then start up everything by executing inside the gradle/ directory:
 
 ./gradlew js-test:clean js-test:test
 
