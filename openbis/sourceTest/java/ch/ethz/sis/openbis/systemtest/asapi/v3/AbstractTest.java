@@ -36,6 +36,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -994,5 +995,18 @@ public class AbstractTest extends SystemTestCase
 
         assertCollectionContainsOnly(actualIds, expectedIds.toArray(new Long[] {}));
     }
+    
+    protected static String patternContains(String... parts)
+    {
+        StringBuilder pattern = new StringBuilder();
+        pattern.append(".*");
+        for (String part : parts)
+        {
+            pattern.append(Pattern.quote(part));
+            pattern.append(".*");
+        }
+        return pattern.toString();
+    }
+
 
 }
