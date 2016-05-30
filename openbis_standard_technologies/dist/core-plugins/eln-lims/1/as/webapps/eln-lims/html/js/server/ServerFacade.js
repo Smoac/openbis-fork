@@ -183,6 +183,19 @@ function ServerFacade(openbisServer) {
 	}
 	
 	//
+	//
+	//
+	this.exportAll = function(entity, userIds, callbackFunction) {
+//		alert("Exporting:" + JSON.stringify(entity) + " for " + JSON.stringify(users));
+		this.customELNApi({
+			"method" : "exportAll",
+			"entity" : entity,
+			"userIds" : userIds
+		}, callbackFunction, "exports-api");
+//		callbackFunction(true);
+	}
+	
+	//
 	// Metadata Related Functions
 	//
 	this.listSampleTypes = function(callbackFunction) {
@@ -500,8 +513,13 @@ function ServerFacade(openbisServer) {
  			service = "eln-lims-api";
  		}
  		
+ 		if(!parameters) {
+ 			parameters = {};
+ 		}
+ 		parameters["sessionToken"] = this.openbisServer.getSession();
+ 		
  		var dataStoreCode = profile.getDefaultDataStoreCode();
- 		this.createReportFromAggregationService(dataStoreCode, parameters, function(data) {
+ 		this.openbisServer.createReportFromAggregationService(dataStoreCode, service, parameters, function(data) {
  			var error = null;
  			var result = {};
  			if(data.error) { //Error Case 1
@@ -518,7 +536,7 @@ function ServerFacade(openbisServer) {
  				error = "Unknown Error.";
  			}
  			callbackFunction(error, result);
- 		}, service);
+ 		});
 	}
  	
  	this.createReportFromAggregationService = function(dataStoreCode, parameters, callbackFunction, service) {
