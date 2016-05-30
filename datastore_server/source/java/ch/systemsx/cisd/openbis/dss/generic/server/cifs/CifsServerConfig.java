@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.collection.MapBuilder;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.string.Template;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 
 /**
  * 
@@ -83,6 +84,12 @@ class CifsServerConfig
             .entry("log-level", "INFO")
             .entry("share-name", "STORE")
             .getMap();
+    
+    static Properties getServerProperties()
+    {
+        return PropertyParametersUtil.extractSingleSectionProperties(
+                DssPropertyParametersUtil.loadServiceProperties(), SECTION_NAME, false).getProperties();
+    }
     
     private final boolean enabled;
     private final Properties serverProperties;

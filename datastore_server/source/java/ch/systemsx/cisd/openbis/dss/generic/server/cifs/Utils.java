@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.alfresco.config.ConfigElement;
+import org.alfresco.jlan.server.filesys.FileAttribute;
+import org.alfresco.jlan.server.filesys.FileInfo;
+import org.apache.ftpserver.ftplet.FtpFile;
 
 /**
  * 
@@ -52,6 +55,28 @@ class Utils
                 render(indentation + "  ", builder, child);
             }
         }
+    }
+
+    static void populateFileInfo(FileInfo fileInfo, FtpFile file)
+    {
+        fileInfo.setFileName(file.getName());
+        fileInfo.setModifyDateTime(file.getLastModified());
+        fileInfo.setSize(file.getSize());
+        int attr = 0;
+        if (file.isDirectory())
+        {
+            attr |= FileAttribute.Directory;
+        }
+        if (file.isHidden())
+        {
+            attr |= FileAttribute.Hidden;
+        }
+        if (file.isWritable() == false)
+        {
+            attr |= FileAttribute.ReadOnly;
+        }
+        fileInfo.setFileAttributes(attr);
+        fileInfo.setFileId(file.getAbsolutePath().hashCode());
     }
 
 

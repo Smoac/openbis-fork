@@ -23,50 +23,43 @@ import java.util.Properties;
  * 
  * @author Kaloyan Enimanev
  */
-public class FtpServerConfigBuilder
+public class ResolverConfigBuilder
 {
     private Properties props = new Properties();
 
-    public FtpServerConfig getConfig()
+    public FtpPathResolverConfig getConfig()
     {
-        return new FtpServerConfig(props);
+        return new FtpPathResolverConfig(props);
     }
 
-    public FtpServerConfigBuilder()
+    public ResolverConfigBuilder()
     {
-        this(true, false);
     }
 
-    public FtpServerConfigBuilder(boolean enable, boolean useSSL)
+    public ResolverConfigBuilder showParentsAndChildren()
     {
-        props.put(FtpServerConfig.ENABLE_KEY, String.valueOf(enable));
-        props.put(FtpServerConfig.USE_SSL_KEY, String.valueOf(useSSL));
-    }
-
-    public FtpServerConfigBuilder showParentsAndChildren()
-    {
-        props.setProperty(FtpServerConfig.SHOW_PARENTS_AND_CHILDREN_KEY, Boolean.TRUE.toString());
+        props.setProperty(FtpPathResolverConfig.SHOW_PARENTS_AND_CHILDREN_KEY, Boolean.TRUE.toString());
         return this;
 
     }
 
-    public FtpServerConfigBuilder withTemplate(String template)
+    public ResolverConfigBuilder withTemplate(String template)
     {
-        props.setProperty(FtpServerConfig.DATASET_DISPLAY_TEMPLATE_KEY, template);
+        props.setProperty(FtpPathResolverConfig.DATASET_DISPLAY_TEMPLATE_KEY, template);
         return this;
 
     }
 
-    public FtpServerConfigBuilder withFileListFilter(String dataSetType, String filterPattern)
+    public ResolverConfigBuilder withFileListFilter(String dataSetType, String filterPattern)
     {
-        String key = FtpServerConfig.DATASET_FILELIST_FILTER_KEY + dataSetType;
+        String key = FtpPathResolverConfig.DATASET_FILELIST_FILTER_KEY + dataSetType;
         props.setProperty(key, filterPattern);
         return this;
     }
 
-    public FtpServerConfigBuilder withFileListSubPath(String dataSetType, String subPathPattern)
+    public ResolverConfigBuilder withFileListSubPath(String dataSetType, String subPathPattern)
     {
-        String key = FtpServerConfig.DATASET_FILELIST_SUBPATH_KEY + dataSetType;
+        String key = FtpPathResolverConfig.DATASET_FILELIST_SUBPATH_KEY + dataSetType;
         props.setProperty(key, subPathPattern);
         return this;
     }

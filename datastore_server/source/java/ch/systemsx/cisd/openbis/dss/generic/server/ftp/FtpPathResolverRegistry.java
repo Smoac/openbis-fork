@@ -51,13 +51,13 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
     /**
      * initializes the registry with all known {@link IFtpPathResolver}-s.
      */
-    public FtpPathResolverRegistry(FtpServerConfig ftpServerConfig)
+    public FtpPathResolverRegistry(FtpPathResolverConfig config)
     {
         pathResolvers.add(new RootFolderResolver());
         pathResolvers.add(new SpaceFolderResolver());
         pathResolvers.add(new ProjectFolderResolver());
         TemplateBasedDataSetResourceResolver dataSetResolver =
-                new TemplateBasedDataSetResourceResolver(ftpServerConfig);
+                new TemplateBasedDataSetResourceResolver(config);
         pathResolvers.add(new ExperimentFolderResolver(dataSetResolver));
         pathResolvers.add(dataSetResolver);
     }

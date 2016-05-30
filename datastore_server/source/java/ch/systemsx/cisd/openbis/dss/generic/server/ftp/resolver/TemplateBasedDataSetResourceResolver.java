@@ -41,9 +41,9 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpFileFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverConfig;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverRegistry;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpServerConfig;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolver;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.FtpFileEvaluationContext.EvaluatedElement;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
@@ -51,8 +51,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 
 /**
  * Resolves paths like
@@ -200,17 +200,17 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
 
     private IHierarchicalContentProvider contentProvider;
 
-    public TemplateBasedDataSetResourceResolver(FtpServerConfig ftpServerConfig)
+    public TemplateBasedDataSetResourceResolver(FtpPathResolverConfig resolverConfig)
     {
-        this.template = new Template(ftpServerConfig.getDataSetDisplayTemplate());
-        showParentsAndChildren = ftpServerConfig.isShowParentsAndChildren();
+        this.template = new Template(resolverConfig.getDataSetDisplayTemplate());
+        showParentsAndChildren = resolverConfig.isShowParentsAndChildren();
         fileNamePresent = template.getPlaceholderNames().contains(FILE_NAME_VARNAME);
         if (fileNamePresent && showParentsAndChildren)
         {
             throw new ConfigurationFailureException("Template contains file name variable and "
                     + "the flag to show parents/children data sets is set.");
         }
-        this.dataSetTypeConfigs = initializeDataSetTypeConfigs(ftpServerConfig);
+        this.dataSetTypeConfigs = initializeDataSetTypeConfigs(resolverConfig);
         this.defaultDSTypeConfig = new DataSetTypeConfig();
     }
 
@@ -598,11 +598,11 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
     }
 
     private Map<String, DataSetTypeConfig> initializeDataSetTypeConfigs(
-            FtpServerConfig ftpServerConfig)
+            FtpPathResolverConfig resolverConfig)
     {
         Map<String, DataSetTypeConfig> result = new HashMap<String, DataSetTypeConfig>();
-        Map<String, String> fileListSubPaths = ftpServerConfig.getFileListSubPaths();
-        Map<String, String> fileListFilters = ftpServerConfig.getFileListFilters();
+        Map<String, String> fileListSubPaths = resolverConfig.getFileListSubPaths();
+        Map<String, String> fileListFilters = resolverConfig.getFileListFilters();
 
         for (Entry<String, String> subPathEntry : fileListSubPaths.entrySet())
         {

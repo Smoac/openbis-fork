@@ -104,7 +104,7 @@ public class DSSFileSystemView implements FileSystemView
 
     private final IFtpPathResolverRegistry pathResolverRegistry;
 
-    DSSFileSystemView(String sessionToken, final IServiceForDataStoreServer service,
+    public DSSFileSystemView(String sessionToken, final IServiceForDataStoreServer service,
             IGeneralInformationService generalInfoService,
             IFtpPathResolverRegistry pathResolverRegistry) throws FtpException
     {
