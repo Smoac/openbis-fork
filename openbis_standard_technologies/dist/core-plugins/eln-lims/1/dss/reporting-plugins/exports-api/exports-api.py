@@ -15,30 +15,36 @@
 #
 
 from collections import deque
-import re
+import time
 
-#V3 API
-from ch.systemsx.cisd.common.spring import HttpInvokerUtils;
-from ch.ethz.sis.openbis.generic.asapi.v3 import IApplicationServerApi
+from java.io import File
 
 #To obtain the openBIS URL
 from ch.systemsx.cisd.openbis.dss.generic.server import DataStoreServer
 OPENBISURL = DataStoreServer.getConfigParameters().getServerURL() + "/openbis/openbis"
 
+#V3 API
+from ch.systemsx.cisd.common.spring import HttpInvokerUtils;
+from ch.ethz.sis.openbis.generic.asapi.v3 import IApplicationServerApi
+
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search import ProjectSearchCriteria
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search import ExperimentSearchCriteria
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search import SampleSearchCriteria
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search import DataSetSearchCriteria
-
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions import ProjectFetchOptions
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions import ExperimentFetchOptions
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleFetchOptions
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions import DataSetFetchOptions
 
-def username(sessiontoken):
-    m = re.compile('(.*)-[^-]*').match(sessiontoken)
-    if m:
-        return m.group(1)
+def getThreadProperties(tr):
+  threadPropertyDict = {}
+  threadProperties = tr.getGlobalState().getThreadParameters().getThreadProperties()
+  for key in threadProperties:
+    try:
+      threadPropertyDict[key] = threadProperties.getProperty(key)
+    except:
+      pass
+  return threadPropertyDict
 
 def process(tr, params, tableBuilder):
 	method = params.get("method");
@@ -119,4 +125,11 @@ def exportAll(tr, params):
 	return export(tr, params);
 
 def export(tr, params):
+	#The temporal folder should be able to access the store, for that we create it close to it.
+	threadProperties = getThreadProperties(tr);
+	tempDir =  threadProperties[u'incoming-dir'] + "/tmp_eln/" + str(time.time());
+	print "Using " + tempDir + " as temp dir.";
+	tempDirFile = File(tempDir);
+	tempDirFile.mkdirs();
+	
 	return True
