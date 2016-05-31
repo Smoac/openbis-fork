@@ -16,6 +16,7 @@
 
 from collections import deque
 import time
+import jarray
 
 #Java Core
 from java.io import ByteArrayInputStream
@@ -129,8 +130,8 @@ def exportAll(tr, params):
 	params.put("entities", entitiesToExport);
 	return export(tr, params);
 
-def getFileName(rootDir, spaceCode, projCode, expCode, sampCode, dataCode):
-	fileName = rootDir;
+def getFileName(spaceCode, projCode, expCode, sampCode, dataCode):
+	fileName = "";
 	if spaceCode is not None:
 		fileName += "/" + spaceCode;
 	if projCode is not None:
@@ -143,13 +144,12 @@ def getFileName(rootDir, spaceCode, projCode, expCode, sampCode, dataCode):
 		fileName += "/" + dataCode;
 	return fileName;
 
-def addToZipFile(fileName, zos):
-		file = File(fileName);
+def addToZipFile(path, file, zos):
 		fis = FileInputStream(file);
-		zipEntry = ZipEntry(fileName);
+		zipEntry = ZipEntry(path);
 		zos.putNextEntry(zipEntry);
 
-		bytes = byte[1024];
+		bytes = jarray.zeros(1024, "b");
 		length = fis.read(bytes);
 		while length >= 0:
 			zos.write(bytes, 0, length);
@@ -170,6 +170,10 @@ def export(tr, params):
 	rootDirFile.mkdir();
 	rootDir = rootDirFile.getCanonicalPath();
 	
+	#Create Zip File
+	fos = FileOutputStream(rootDir + ".zip");
+	zos = ZipOutputStream(fos);
+			
 	for entity in params.get("entities"):
 		type =  entity["type"];
 		permId = entity["permId"];
@@ -187,7 +191,7 @@ def export(tr, params):
 			fetchOps.withRegistrator();
 			fetchOps.withModifier();
 			entityObj = v3.searchProjects(sessionToken, criteria, fetchOps).getObjects().get(0);
-			entityFilePath = getFileName(rootDir, entityObj.getSpace().getCode(), entityObj.getCode(), None, None, None);
+			entityFilePath = getFileName(entityObj.getSpace().getCode(), entityObj.getCode(), None, None, None);
 		if type == "EXPERIMENT":
 			criteria = ExperimentSearchCriteria();
 			criteria.withPermId().thatEquals(permId);
@@ -199,7 +203,7 @@ def export(tr, params):
 			fetchOps.withProperties();
 			fetchOps.withTags();
 			entityObj = v3.searchExperiments(sessionToken, criteria, fetchOps).getObjects().get(0);
-			entityFilePath = getFileName(rootDir, entityObj.getProject().getSpace().getCode(), entityObj.getProject().getCode(), entityObj.getCode(), None, None);
+			entityFilePath = getFileName(entityObj.getProject().getSpace().getCode(), entityObj.getProject().getCode(), entityObj.getCode(), None, None);
 		if type == "SAMPLE":
 			criteria = SampleSearchCriteria();
 			criteria.withPermId().thatEquals(permId);
@@ -213,7 +217,7 @@ def export(tr, params):
 			fetchOps.withParents();
 			fetchOps.withChildren();
 			entityObj = v3.searchSamples(sessionToken, criteria, fetchOps).getObjects().get(0);
-			entityFilePath = getFileName(rootDir, entityObj.getExperiment().getProject().getSpace().getCode(), entityObj.getExperiment().getProject().getCode(), entityObj.getExperiment().getCode(), entityObj.getCode(), None);
+			entityFilePath = getFileName(entityObj.getExperiment().getProject().getSpace().getCode(), entityObj.getExperiment().getProject().getCode(), entityObj.getExperiment().getCode(), entityObj.getCode(), None);
 		if type == "DATASET":
 			criteria = DataSetSearchCriteria();
 			criteria.withPermId().thatEquals(permId);
@@ -227,13 +231,16 @@ def export(tr, params):
 			fetchOps.withParents();
 			fetchOps.withChildren();
 			entityObj = v3.searchDataSets(sessionToken, criteria, fetchOps).getObjects().get(0);
-			entityFilePath = getFileName(rootDir, entityObj.getSample().getExperiment().getProject().getSpace().getCode(), entityObj.getSample().getExperiment().getProject().getCode(), entityObj.getSample().getExperiment().getCode(), entityObj.getSample().getCode(), entityObj.getCode());
+			entityFilePath = getFileName(entityObj.getSample().getExperiment().getProject().getSpace().getCode(), entityObj.getSample().getExperiment().getProject().getCode(), entityObj.getSample().getExperiment().getCode(), entityObj.getSample().getCode(), entityObj.getCode());
 			
 		if entityObj is not None and entityFilePath is not None:
 			entityJson = String(objectMapper.writeValueAsString(entityObj));
-			jsonEntityFile = File(entityFilePath + ".json");
+			jsonEntityFile = File(rootDir + entityFilePath + ".json");
 			jsonEntityFile.getParentFile().mkdirs();
 			IOUtils.write(entityJson.getBytes(), FileOutputStream(jsonEntityFile));
-	
-	print "Folder found at: " + rootDir
+			addToZipFile(entityFilePath + ".json", jsonEntityFile, zos);
+			
+	zos.close();
+	fos.close();
+	print "Zip file found at: " + rootDir + ".zip"
 	return True
