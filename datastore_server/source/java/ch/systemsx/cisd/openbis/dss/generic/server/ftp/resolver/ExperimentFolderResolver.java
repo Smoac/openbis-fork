@@ -25,11 +25,7 @@ import org.apache.ftpserver.ftplet.FtpFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolver;
-import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
 /**
  * Resolves experiment folders with path "/<space-code>/<project-code>/<experiment-code>" to {@link FtpFile}-s.
@@ -71,21 +67,13 @@ public class ExperimentFolderResolver implements IFtpPathResolver
 
     private List<FtpFile> listChildrenNames(String expIdentifier, FtpPathResolverContext context)
     {
-        IServiceForDataStoreServer service = context.getService();
-        String sessionToken = context.getSessionToken();
-
-        ExperimentIdentifier identifier =
-                new ExperimentIdentifierFactory(expIdentifier).createIdentifier();
-
-        List<Experiment> experiments =
-                service.listExperiments(sessionToken, Collections.singletonList(identifier),
-                        new ExperimentFetchOptions());
-        if (experiments == null || experiments.isEmpty())
+        Experiment experiment = context.getExperiment(expIdentifier);
+        if (experiment == null)
         {
             return Collections.emptyList();
         } else
         {
-            return childLister.listExperimentChildrenPaths(experiments.get(0), expIdentifier,
+            return childLister.listExperimentChildrenPaths(experiment, expIdentifier,
                     context);
         }
     }

@@ -102,7 +102,7 @@ final class CifsFile extends NetworkFile
         {
             throw new IOException("Virtual file '" + file.getAbsolutePath() + "' can not be created.");
         }
-        operationLog.info("open virtual file '" + file.getAbsolutePath() + "'.");
+        operationLog.info("Open virtual file '" + file.getAbsolutePath() + "'.");
         synchronized (file)
         {
             if (randomAccessFile == null && file instanceof FtpFileImpl)
@@ -122,7 +122,7 @@ final class CifsFile extends NetworkFile
     @Override
     public void closeFile() throws IOException
     {
-        operationLog.info("Close virtual file '" + file.getAbsolutePath() + "'.");
+        operationLog.debug("Close virtual file '" + file.getAbsolutePath() + "'.");
         synchronized (file)
         {
             if (randomAccessFile != null)

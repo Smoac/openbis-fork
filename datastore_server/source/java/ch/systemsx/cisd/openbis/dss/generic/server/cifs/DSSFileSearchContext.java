@@ -27,6 +27,7 @@ import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.DSSFileSystemView;
 
 /**
@@ -38,7 +39,7 @@ public class DSSFileSearchContext extends SearchContext
 
     private int index;
 
-    public DSSFileSearchContext(DSSFileSystemView view, String normalizedSearchPath, int fileAttributes)
+    public DSSFileSearchContext(DSSFileSystemView view, String normalizedSearchPath, int fileAttributes, Cache cache)
     {
         String[] pathStr = FileName.splitPath(normalizedSearchPath, java.io.File.separatorChar);
         try
@@ -46,7 +47,7 @@ public class DSSFileSearchContext extends SearchContext
             if (pathStr[1] != null && WildCard.containsWildcards(pathStr[1]))
             {
                 WildCard wildCard = new WildCard(pathStr[1], true);
-                FtpFile directory = view.getFile(pathStr[0]);
+                FtpFile directory = view.getFile(pathStr[0], cache);
                 List<FtpFile> list = directory.listFiles();
                 for (FtpFile file : list)
                 {
@@ -57,7 +58,7 @@ public class DSSFileSearchContext extends SearchContext
                 }
             } else
             {
-                FtpFile file = view.getFile(normalizedSearchPath);
+                FtpFile file = view.getFile(normalizedSearchPath, cache);
                 if (matches(null, fileAttributes, file))
                 {
                     files.add(file);

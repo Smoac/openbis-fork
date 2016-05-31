@@ -42,6 +42,8 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.DSSFileSystemView;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverConfig;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverRegistry;
@@ -59,20 +61,22 @@ public class DataSetCifsView implements DiskInterface
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DataSetCifsView.class);
     
+    private Cache cache;
     private IServiceForDataStoreServer dssService;
     private IGeneralInformationService generalInfoService;
     
     private FtpPathResolverRegistry pathResolverRegistry;
-    
     public DataSetCifsView()
     {
         operationLog.info("CIFS view onto the data store created");
+        cache = new Cache(SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
 
-    DataSetCifsView(IServiceForDataStoreServer openBisService, IGeneralInformationService generalInfoService)
+    DataSetCifsView(IServiceForDataStoreServer openBisService, IGeneralInformationService generalInfoService, Cache cache)
     {
         this.dssService = openBisService;
         this.generalInfoService = generalInfoService;
+        this.cache = cache;
     }
     
     @Override
@@ -111,7 +115,7 @@ public class DataSetCifsView implements DiskInterface
         String normalizedPath = normalizePath(path);
         try
         {
-            FtpFile file = view.getFile(normalizedPath);
+            FtpFile file = view.getFile(normalizedPath, cache);
             FileInfo fileInfo = new FileInfo();
             Utils.populateFileInfo(fileInfo, file);
             operationLog.info("provide file info for virtual file '" + file.getAbsolutePath() + "': " + fileInfo);
@@ -128,7 +132,7 @@ public class DataSetCifsView implements DiskInterface
         String normalizedSearchPath = normalizePath(searchPath);
         if (normalizedSearchPath.startsWith("/"))
         {
-            return new DSSFileSearchContext(createView(sess), normalizedSearchPath, attrib);
+            return new DSSFileSearchContext(createView(sess), normalizedSearchPath, attrib, cache);
         }
         throw new FileNotFoundException("Unknown file: " + searchPath);
     }
@@ -186,7 +190,6 @@ public class DataSetCifsView implements DiskInterface
         {
             networkFile.setFileSize(file.getSize());
         }
-        operationLog.info("Virtual file '" + fullPath + "' opened.");
         return networkFile;
     }
 
@@ -267,7 +270,7 @@ public class DataSetCifsView implements DiskInterface
     {
         try
         {
-            return view.getFile(normalizePath(originalPath));
+            return view.getFile(normalizePath(originalPath), cache);
         } catch (FtpException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -279,7 +282,7 @@ public class DataSetCifsView implements DiskInterface
         try
         {
             String sessionToken = getSessionToken(session);
-            return new DSSFileSystemView(sessionToken, getDssService(), getGeneralInfoService(), pathResolverRegistry);
+            return new DSSFileSystemView(sessionToken, getDssService(), getGeneralInfoService(), pathResolverRegistry, cache);
         } catch (FtpException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);

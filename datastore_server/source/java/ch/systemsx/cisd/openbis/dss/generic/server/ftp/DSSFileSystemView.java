@@ -108,13 +108,20 @@ public class DSSFileSystemView implements FileSystemView
             IGeneralInformationService generalInfoService,
             IFtpPathResolverRegistry pathResolverRegistry) throws FtpException
     {
+        this(sessionToken, service, generalInfoService, pathResolverRegistry, 
+                new Cache(SystemTimeProvider.SYSTEM_TIME_PROVIDER));
+    }
+    public DSSFileSystemView(String sessionToken, final IServiceForDataStoreServer service,
+            IGeneralInformationService generalInfoService,
+            IFtpPathResolverRegistry pathResolverRegistry, Cache cache) throws FtpException
+    {
         this.sessionToken = sessionToken;
         this.service =
                 (IServiceForDataStoreServer) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]
                 { IServiceForDataStoreServer.class }, new ServiceInvocationHandler(service));
         this.generalInfoService = generalInfoService;
         this.pathResolverRegistry = pathResolverRegistry;
-        this.workingDirectory = getHomeDirectory();
+        this.workingDirectory = getFile(FtpConstants.ROOT_DIRECTORY, cache);
     }
 
     @Override
@@ -162,8 +169,8 @@ public class DSSFileSystemView implements FileSystemView
             String message =
                     String.format("Error while resolving FTP path '%s' : %s", path,
                             realThrowable.getMessage());
-            operationLog.error(message);
-            throw new FtpException(message, realThrowable);
+            operationLog.error(message, realThrowable);
+            throw new FtpException(message);
         }
     }
 
@@ -196,6 +203,7 @@ public class DSSFileSystemView implements FileSystemView
             return StringUtils.isBlank(normalizedPath) ? FtpConstants.ROOT_DIRECTORY : normalizedPath;
         } catch (Exception ex)
         {
+            operationLog.error(ex);
             throw new FtpException("Cannot parse path " + fullPath, ex);
         }
     }

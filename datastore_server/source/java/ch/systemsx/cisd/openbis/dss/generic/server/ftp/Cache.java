@@ -17,7 +17,10 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import org.apache.ftpserver.ftplet.FtpFile;
 
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
@@ -45,9 +48,13 @@ public class Cache
             this.timestamp = timestamp;
         }
     }
+    
+    private final Map<String, TimeStampedObject<FtpFile>> filesByPath = new HashMap<>();
 
-    private final Map<String, TimeStampedObject<DataSet>> dataSets = new HashMap<String, Cache.TimeStampedObject<DataSet>>();
+    private final Map<String, TimeStampedObject<DataSet>> dataSetsByCode = new HashMap<String, Cache.TimeStampedObject<DataSet>>();
 
+    private final Map<String, TimeStampedObject<List<AbstractExternalData>>> dataSetsByExperiment = new HashMap<>();
+    
     private final Map<String, TimeStampedObject<AbstractExternalData>> externalData =
             new HashMap<String, Cache.TimeStampedObject<AbstractExternalData>>();
 
@@ -59,15 +66,35 @@ public class Cache
     {
         this.timeProvider = timeProvider;
     }
+    
+    void putFile(FtpFile file, String path)
+    {
+        filesByPath.put(path, timestamp(file));
+    }
+    
+    FtpFile getFile(String path)
+    {
+        return getObject(filesByPath, path);
+    }
+    
+    void putDataSetsForExperiment(List<AbstractExternalData> dataSets, String experimentPermId)
+    {
+        dataSetsByExperiment.put(experimentPermId, timestamp(dataSets));
+    }
+    
+    List<AbstractExternalData> getDataSetsByExperiment(String experimentPermId)
+    {
+        return getObject(dataSetsByExperiment, experimentPermId);
+    }
 
     void putDataSet(DataSet dataSet)
     {
-        dataSets.put(dataSet.getCode(), timestamp(dataSet));
+        dataSetsByCode.put(dataSet.getCode(), timestamp(dataSet));
     }
 
     DataSet getDataSet(String dataSetCode)
     {
-        return getObject(dataSets, dataSetCode);
+        return getObject(dataSetsByCode, dataSetCode);
     }
 
     AbstractExternalData getExternalData(String code)

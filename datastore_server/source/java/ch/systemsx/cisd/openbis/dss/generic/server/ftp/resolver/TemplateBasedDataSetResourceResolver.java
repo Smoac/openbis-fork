@@ -48,9 +48,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolver;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.FtpFileEvaluationContext.EvaluatedElement;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 
@@ -233,8 +231,6 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
     public FtpFile resolve(final String path, final FtpPathResolverContext resolverContext)
     {
         String experimentId = extractExperimentIdFromPath(path);
-        IServiceForDataStoreServer service = resolverContext.getService();
-        String sessionToken = resolverContext.getSessionToken();
 
         Experiment experiment = tryGetExperiment(experimentId, resolverContext);
         if (experiment == null)
@@ -242,8 +238,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
             return FtpPathResolverRegistry.getNonExistingFile(path, "Unknown experiment '"
                     + experimentId + "'.");
         }
-        List<AbstractExternalData> dataSets =
-                service.listDataSetsByExperimentID(sessionToken, new TechId(experiment));
+        List<AbstractExternalData> dataSets = resolverContext.getDataSets(experiment);
         if (fileNamePresent)
         {
             FtpFileEvaluationContext evalContext = evaluateDataSetPaths(resolverContext, dataSets);
@@ -323,6 +318,12 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
     {
         final EvaluatedElement matchingElement =
                 tryFindMatchingEvalElement(path, experimentId, evalContext);
+        if (matchingElement == null)
+        {
+            return FtpPathResolverRegistry.getNonExistingFile(path, "Resource '"
+                    + path + "' for experiment " + experimentId + " does not exist.");
+
+        }
 
         final String pathInDataSet = extractPathInDataSet(path);
         final String hierarchicalNodePath =
@@ -421,11 +422,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
     public List<FtpFile> listExperimentChildrenPaths(Experiment experiment,
             final String parentPath, FtpPathResolverContext context)
     {
-        IServiceForDataStoreServer service = context.getService();
-        String sessionToken = context.getSessionToken();
-
-        List<AbstractExternalData> dataSets =
-                service.listDataSetsByExperimentID(sessionToken, new TechId(experiment));
+        List<AbstractExternalData> dataSets = context.getDataSets(experiment);
 
         FtpFileEvaluationContext evalContext = evaluateDataSetPaths(context, dataSets);
         try

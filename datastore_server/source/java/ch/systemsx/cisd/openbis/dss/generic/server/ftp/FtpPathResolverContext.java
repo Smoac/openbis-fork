@@ -22,14 +22,20 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
@@ -40,6 +46,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  */
 public class FtpPathResolverContext implements ISessionTokenProvider
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            FtpPathResolverContext.class);
 
     private final String sessionToken;
 
@@ -71,6 +79,11 @@ public class FtpPathResolverContext implements ISessionTokenProvider
     public IServiceForDataStoreServer getService()
     {
         return service;
+    }
+
+    public Cache getCache()
+    {
+        return cache;
     }
 
     public DataSet getDataSet(String dataSetCode)
@@ -123,22 +136,41 @@ public class FtpPathResolverContext implements ISessionTokenProvider
         Experiment experiment = cache.getExperiment(experimentId);
         if (experiment == null)
         {
-            ExperimentIdentifier experimentIdentifier =
-                    new ExperimentIdentifierFactory(experimentId).createIdentifier();
-
-            List<Experiment> result =
-                    service.listExperiments(sessionToken,
-                            Collections.singletonList(experimentIdentifier),
-                            new ExperimentFetchOptions());
-            experiment = result.isEmpty() ? null : result.get(0);
-            if (experiment != null)
+            try
             {
-                cache.putExperiment(experiment);
+                ExperimentIdentifier experimentIdentifier =
+                        new ExperimentIdentifierFactory(experimentId).createIdentifier();
+
+                List<Experiment> result =
+                        service.listExperiments(sessionToken,
+                                Collections.singletonList(experimentIdentifier),
+                                new ExperimentFetchOptions());
+                experiment = result.isEmpty() ? null : result.get(0);
+                if (experiment != null)
+                {
+                    cache.putExperiment(experiment);
+                }
+            } catch (UserFailureException ex)
+            {
+                operationLog.info("Error in experiment identifier '" + experimentId + "': " + ex.getMessage());
+                return null;
             }
         }
         return experiment;
     }
 
+    public List<AbstractExternalData> getDataSets(Experiment experiment)
+    {
+        String experimentPermId = experiment.getPermId();
+        List<AbstractExternalData> dataSets = cache.getDataSetsByExperiment(experimentPermId);
+        if (dataSets == null)
+        {
+            dataSets = service.listDataSetsByExperimentID(sessionToken, new TechId(experiment));
+            cache.putDataSetsForExperiment(dataSets, experimentPermId);
+        }
+        return dataSets;
+    }
+    
     public IGeneralInformationService getGeneralInfoService()
     {
         return generalInfoService;

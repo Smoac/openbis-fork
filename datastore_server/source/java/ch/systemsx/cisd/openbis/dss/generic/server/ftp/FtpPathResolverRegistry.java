@@ -75,17 +75,23 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
     @Override
     public FtpFile resolve(String path, FtpPathResolverContext resolverContext)
     {
-        IFtpPathResolver resolver = tryFindResolver(path);
-        if (resolver != null)
+        Cache cache = resolverContext.getCache();
+        FtpFile file = cache.getFile(path);
+        if (file == null)
         {
-            return resolver.resolve(path, resolverContext);
-        } else
-        {
-            String message =
-                    String.format("Cannot find resolver for path '%s'. Wrong user input ?", path);
-            operationLog.warn(message);
-            return getNonExistingFile(path, message);
+            IFtpPathResolver resolver = tryFindResolver(path);
+            if (resolver != null)
+            {
+                file = resolver.resolve(path, resolverContext);
+            } else
+            {
+                String message = "Cannot find resolver for path '" + path + "'. Wrong user input ?";
+                operationLog.warn(message);
+                file = getNonExistingFile(path, message);
+            }
+            cache.putFile(file, path);
         }
+        return file;
     }
 
     /**
