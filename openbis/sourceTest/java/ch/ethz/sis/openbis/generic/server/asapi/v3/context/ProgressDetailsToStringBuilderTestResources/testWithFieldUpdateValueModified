@@ -1,0 +1,11 @@
+{
+  "@type" : "as.test.context.TestClass",
+  "@id" : 1,
+  "primitive" : 0,
+  "fieldUpdateValue" : {
+    "@type" : "as.dto.common.update.FieldUpdateValue",
+    "@id" : 2,
+    "isModified" : true,
+    "value" : "modified"
+  }
+}

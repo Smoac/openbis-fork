@@ -19,6 +19,8 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.context;
 import java.util.Collection;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -35,6 +37,10 @@ public class TestClass
     public Integer integer;
 
     public TestClass object;
+
+    public FieldUpdateValue<String> fieldUpdateValue;
+
+    public ListUpdateValue<String, String, String, String> listUpdateValue;
 
     public int[] primitiveArray;
 

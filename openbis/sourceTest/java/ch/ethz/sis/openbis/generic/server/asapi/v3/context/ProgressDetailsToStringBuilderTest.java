@@ -10,6 +10,8 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.TestResources;
 
@@ -77,6 +79,41 @@ public class ProgressDetailsToStringBuilderTest
         TestClass o = new TestClass();
         o.object = new TestClass();
         assertToStringEquals(o, "testWithObject");
+    }
+
+    @Test
+    public void testWithFieldUpdateValueModified()
+    {
+        TestClass o = new TestClass();
+        o.fieldUpdateValue = new FieldUpdateValue<String>();
+        o.fieldUpdateValue.setValue("modified");
+        assertToStringEquals(o, "testWithFieldUpdateValueModified");
+    }
+
+    @Test
+    public void testWithFieldUpdateValueNotModified()
+    {
+        TestClass o = new TestClass();
+        o.fieldUpdateValue = new FieldUpdateValue<String>();
+        assertToStringEquals(o, "testWithFieldUpdateValueNotModified");
+    }
+
+    @Test
+    public void testWithListUpdateValueModified()
+    {
+        TestClass o = new TestClass();
+        o.listUpdateValue = new ListUpdateValue<String, String, String, String>();
+        o.listUpdateValue.add("added");
+        o.listUpdateValue.remove("removed");
+        assertToStringEquals(o, "testWithListUpdateValueModified");
+    }
+
+    @Test
+    public void testWithListUpdateValueNotModified()
+    {
+        TestClass o = new TestClass();
+        o.listUpdateValue = new ListUpdateValue<String, String, String, String>();
+        assertToStringEquals(o, "testWithListUpdateValueNotModified");
     }
 
     @Test

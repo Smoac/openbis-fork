@@ -1,0 +1,18 @@
+{
+  "@type" : "as.test.context.TestClass",
+  "@id" : 1,
+  "primitive" : 0,
+  "listUpdateValue" : {
+    "@type" : "as.dto.common.update.ListUpdateValue",
+    "@id" : 2,
+    "actions" : [ {
+      "@type" : "as.dto.common.update.ListUpdateActionAdd",
+      "@id" : 3,
+      "items" : [ "added" ]
+    }, {
+      "@type" : "as.dto.common.update.ListUpdateActionRemove",
+      "@id" : 4,
+      "items" : [ "removed" ]
+    } ]
+  }
+}
