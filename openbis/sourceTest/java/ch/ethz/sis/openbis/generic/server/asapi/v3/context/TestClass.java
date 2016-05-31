@@ -19,9 +19,12 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.context;
 import java.util.Collection;
 import java.util.Map;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
 /**
  * @author pkupczyk
  */
+@JsonObject("as.test.context.TestClass")
 public class TestClass
 {
 
@@ -49,9 +52,9 @@ public class TestClass
 
     public Map<String, String> stringMap;
 
-    public Map<Integer, Integer> integerMap;
+    public Map<String, Integer> integerMap;
 
-    public Map<TestClass, TestClass> objectMap;
+    public Map<String, TestClass> objectMap;
 
     @Override
     public String toString()

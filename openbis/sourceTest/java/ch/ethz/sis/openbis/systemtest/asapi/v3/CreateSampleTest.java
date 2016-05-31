@@ -106,7 +106,7 @@ public class CreateSampleTest extends AbstractSampleTest
                     v3api.createSamples(sessionToken, Arrays.asList(sample));
                 }
             }, "Code should be empty when auto generated code is selected",
-                patternContains("checking data (1/1)", "code=SAMPLE_WITH_USER_GIVEN_CODE"));
+                patternContains("checking data (1/1)", toDblQuotes("'code' : 'SAMPLE_WITH_USER_GIVEN_CODE'")));
     }
 
     @Test
@@ -153,7 +153,7 @@ public class CreateSampleTest extends AbstractSampleTest
                 {
                     v3api.createSamples(sessionToken, Arrays.asList(sample));
                 }
-            }, "The code '?!*' contains illegal characters", patternContains("checking data (1/1)", "code=?!*"));
+            }, "The code '?!*' contains illegal characters", patternContains("checking data (1/1)", toDblQuotes("'code' : '?!*'")));
     }
 
     @Test
@@ -172,7 +172,7 @@ public class CreateSampleTest extends AbstractSampleTest
                 {
                     v3api.createSamples(sessionToken, Arrays.asList(sample));
                 }
-            }, "Type id cannot be null", patternContains("checking data (1/1)", "code=SAMPLE_WITHOUT_TYPE"));
+            }, "Type id cannot be null", patternContains("checking data (1/1)", toDblQuotes("'code' : 'SAMPLE_WITHOUT_TYPE'")));
     }
 
     @Test
@@ -193,7 +193,7 @@ public class CreateSampleTest extends AbstractSampleTest
                 {
                     v3api.createSamples(sessionToken, Arrays.asList(sample));
                 }
-            }, typeId, patternContains("checking data (1/1)", "code=SAMPLE_WITH_NONEXISTENT_TYPE"));
+            }, typeId, patternContains("checking data (1/1)", toDblQuotes("'code' : 'SAMPLE_WITH_NONEXISTENT_TYPE'")));
     }
 
     @Test
@@ -215,8 +215,7 @@ public class CreateSampleTest extends AbstractSampleTest
                     v3api.createSamples(sessionToken, Arrays.asList(creation));
                 }
             }, "Property type with code 'NONEXISTENT_PROPERTY_CODE' does not exist",
-                patternContains("updating properties (1/1)", "identifier=/CISD/SAMPLE_WITH_NONEXISTENT_PROPERTY_CODE",
-                        "properties={NONEXISTENT_PROPERTY_CODE=any value}"));
+                patternContains("updating properties (1/1)", toDblQuotes("'identifier' : '/CISD/SAMPLE_WITH_NONEXISTENT_PROPERTY_CODE'")));
     }
 
     @Test
@@ -238,8 +237,7 @@ public class CreateSampleTest extends AbstractSampleTest
                     v3api.createSamples(sessionToken, Arrays.asList(creation));
                 }
             }, "Vocabulary value 'NON_EXISTENT_ORGANISM' is not valid. It must exist in 'ORGANISM' controlled vocabulary",
-                patternContains("updating properties (1/1)", "identifier=/CISD/SAMPLE_WITH_INCORRECT_PROPERTY_VALUE",
-                        "properties={ORGANISM=NON_EXISTENT_ORGANISM}"));
+                patternContains("updating properties (1/1)", toDblQuotes("'identifier' : '/CISD/SAMPLE_WITH_INCORRECT_PROPERTY_VALUE'")));
     }
 
     @Test
@@ -260,7 +258,7 @@ public class CreateSampleTest extends AbstractSampleTest
                     v3api.createSamples(sessionToken, Arrays.asList(creation));
                 }
             }, "Value of mandatory property '$PLATE_GEOMETRY' not specified",
-                patternContains("verifying (1/1)", "identifier=/CISD/SAMPLE_WITH_EMPTY_MANDATORY_PROPERTY"));
+                patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/SAMPLE_WITH_EMPTY_MANDATORY_PROPERTY'")));
     }
 
     @Test
@@ -280,7 +278,8 @@ public class CreateSampleTest extends AbstractSampleTest
                 {
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
-            }, "Shared samples cannot be attached to experiments", patternContains("verifying (1/1)", "identifier=/SHARED_SAMPLE_TEST"));
+            }, "Shared samples cannot be attached to experiments",
+                patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/SHARED_SAMPLE_TEST'")));
     }
 
     @Test
@@ -343,7 +342,8 @@ public class CreateSampleTest extends AbstractSampleTest
                 {
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
-            }, new SampleIdentifier("/SHARED_SAMPLE_TEST"), patternContains("checking access (1/1)", "identifier=/SHARED_SAMPLE_TEST"));
+            }, new SampleIdentifier("/SHARED_SAMPLE_TEST"),
+                patternContains("checking access (1/1)", toDblQuotes("'identifier' : '/SHARED_SAMPLE_TEST'")));
     }
 
     @Test
@@ -365,7 +365,7 @@ public class CreateSampleTest extends AbstractSampleTest
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
             }, spaceId,
-                patternContains("setting relation sample-space (1/1)", "identifier=/UNAUTHORIZED_SPACE"));
+                patternContains("setting relation sample-space (1/1)", toDblQuotes("'identifier' : '/UNAUTHORIZED_SPACE'")));
     }
 
     @Test
@@ -386,7 +386,7 @@ public class CreateSampleTest extends AbstractSampleTest
                 {
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
-            }, spaceId, patternContains("setting relation sample-space (1/1)", "identifier=/NONEXISTENT_SPACE"));
+            }, spaceId, patternContains("setting relation sample-space (1/1)", toDblQuotes("'identifier' : '/NONEXISTENT_SPACE'")));
     }
 
     @Test
@@ -408,7 +408,7 @@ public class CreateSampleTest extends AbstractSampleTest
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
             }, "Sample space must be the same as experiment space",
-                patternContains("verifying (1/1)", "identifier=/TEST-SPACE/SAMPLE_WITH_INCONSISTENT_SPACE"));
+                patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/SAMPLE_WITH_INCONSISTENT_SPACE'")));
     }
 
     @Test
@@ -430,7 +430,8 @@ public class CreateSampleTest extends AbstractSampleTest
                 {
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
-            }, experimentId, patternContains("setting relation sample-experiment (1/1)", "identifier=/TEST-SPACE/UNAUTHORIZED_EXPERIMENT"));
+            }, experimentId,
+                patternContains("setting relation sample-experiment (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/UNAUTHORIZED_EXPERIMENT'")));
     }
 
     @Test
@@ -452,7 +453,8 @@ public class CreateSampleTest extends AbstractSampleTest
                 {
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
-            }, experimentId, patternContains("setting relation sample-experiment (1/1)", "identifier=/TEST-SPACE/NONEXISTENT_EXPERIMENT"));
+            }, experimentId,
+                patternContains("setting relation sample-experiment (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/NONEXISTENT_EXPERIMENT'")));
     }
 
     @Test(dataProvider = "tf-ft-tt")
@@ -504,6 +506,7 @@ public class CreateSampleTest extends AbstractSampleTest
         AssertionUtil.assertCollectionSize(parent.getChildren(), 1);
     }
 
+    @Test
     public void testCreateWithParentChildCircularDependency()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -537,7 +540,7 @@ public class CreateSampleTest extends AbstractSampleTest
                 {
                     v3api.createSamples(sessionToken, Arrays.asList(sampleChild, sampleGrandChild));
                 }
-            }, "dependency", "todo");
+            }, "Circular dependency found");
     }
 
     @Test
@@ -565,7 +568,7 @@ public class CreateSampleTest extends AbstractSampleTest
                     v3api.createSamples(sessionToken, Arrays.asList(sampleParent, sampleChild));
                 }
             }, "can not be a space sample because of a child database instance sample",
-                patternContains("verifying (1/2)", "identifier=/CISD/SAMPLE_PARENT"));
+                patternContains("verifying (1/2)", toDblQuotes("'identifier' : '/CISD/SAMPLE_PARENT'")));
     }
 
     @Test
@@ -584,7 +587,8 @@ public class CreateSampleTest extends AbstractSampleTest
                 {
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
-            }, parentId, patternContains("setting relation sample-parents (1/1)", "identifier=/TEST-SPACE/HAS_UNAUTHORIZED_PARENT"));
+            }, parentId,
+                patternContains("setting relation sample-parents (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/HAS_UNAUTHORIZED_PARENT'")));
     }
 
     @Test
@@ -603,7 +607,8 @@ public class CreateSampleTest extends AbstractSampleTest
                 {
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
-            }, parentId, patternContains("setting relation sample-parents (1/1)", "identifier=/TEST-SPACE/HAS_NONEXISTENT_PARENT"));
+            }, parentId,
+                patternContains("setting relation sample-parents (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/HAS_NONEXISTENT_PARENT'")));
     }
 
     @Test
@@ -622,7 +627,8 @@ public class CreateSampleTest extends AbstractSampleTest
                 {
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
-            }, childId, patternContains("setting relation sample-children (1/1)", "identifier=/TEST-SPACE/HAS_UNAUTHORIZED_CHILD"));
+            }, childId,
+                patternContains("setting relation sample-children (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/HAS_UNAUTHORIZED_CHILD'")));
     }
 
     @Test
@@ -641,7 +647,7 @@ public class CreateSampleTest extends AbstractSampleTest
                 {
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
-            }, childId, patternContains("setting relation sample-children (1/1)", "identifier=/TEST-SPACE/HAS_NONEXISTENT_CHILD"));
+            }, childId, patternContains("setting relation sample-children (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/HAS_NONEXISTENT_CHILD'")));
     }
 
     @Test
@@ -663,7 +669,7 @@ public class CreateSampleTest extends AbstractSampleTest
                     v3api.createSamples(sessionToken, Arrays.asList(sampleChild));
                 }
             }, "The database instance sample '/SAMPLE_CHILDREN' can not be child of the space sample '/CISD/MP002-1'",
-                patternContains("verifying (1/1)", "identifier=/SAMPLE_CHILDREN"));
+                patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/SAMPLE_CHILDREN'")));
     }
 
     @Test
@@ -682,7 +688,8 @@ public class CreateSampleTest extends AbstractSampleTest
                 {
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
-            }, containerId, patternContains("setting relation sample-container (1/1)", "identifier=/TEST-SPACE/HAS_UNAUTHORIZED_CONTAINER"));
+            }, containerId,
+                patternContains("setting relation sample-container (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/HAS_UNAUTHORIZED_CONTAINER'")));
     }
 
     @Test
@@ -701,7 +708,8 @@ public class CreateSampleTest extends AbstractSampleTest
                 {
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
-            }, containerId, patternContains("setting relation sample-container (1/1)", "identifier=/TEST-SPACE/HAS_NONEXISTENT_CONTAINER"));
+            }, containerId,
+                patternContains("setting relation sample-container (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/HAS_NONEXISTENT_CONTAINER'")));
     }
 
     @Test(dataProvider = "tf-ft-tt")
@@ -772,7 +780,7 @@ public class CreateSampleTest extends AbstractSampleTest
                 {
                     v3api.createSamples(sessionToken, Arrays.asList(sample1, sample2, sample3));
                 }
-            }, "cannot be it's own container", patternContains("verifying (1/3)", "identifier=/CISD/SAMPLE_3:SAMPLE_1"));
+            }, "cannot be it's own container", patternContains("verifying (1/3)", toDblQuotes("'identifier' : '/CISD/SAMPLE_3:SAMPLE_1'")));
     }
 
     @Test(dataProvider = "tf-ft-tt", enabled = false)
@@ -817,7 +825,7 @@ public class CreateSampleTest extends AbstractSampleTest
                 {
                     v3api.createSamples(sessionToken, Arrays.asList(container1, container2, subSample));
                 }
-            }, "Inconsistent container", "todo");
+            }, "Inconsistent container");
     }
 
     @Test
@@ -906,7 +914,8 @@ public class CreateSampleTest extends AbstractSampleTest
                 {
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
-            }, componentId, patternContains("setting relation sample-components (1/1)", "identifier=/TEST-SPACE/HAS_UNAUTHORIZED_COMPONENT"));
+            }, componentId,
+                patternContains("setting relation sample-components (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/HAS_UNAUTHORIZED_COMPONENT'")));
     }
 
     @Test
@@ -925,7 +934,8 @@ public class CreateSampleTest extends AbstractSampleTest
                 {
                     v3api.createSamples(sessionToken, Collections.singletonList(creation));
                 }
-            }, componentId, patternContains("setting relation sample-components (1/1)", "identifier=/TEST-SPACE/HAS_NONEXISTENT_COMPONENT"));
+            }, componentId,
+                patternContains("setting relation sample-components (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/HAS_NONEXISTENT_COMPONENT'")));
     }
 
     @Test
@@ -1111,7 +1121,7 @@ public class CreateSampleTest extends AbstractSampleTest
                 }
             }, "Type id cannot be null",
                 patternContains("checking data (" + (incorrectSampleIndex + 1) + "/" + sampleCount + ")",
-                        "code=TEST_SAMPLE_" + (incorrectSampleIndex + 1)));
+                        toDblQuotes("'code' : 'TEST_SAMPLE_" + (incorrectSampleIndex + 1) + "'")));
     }
 
     private SampleCreation sampleCreation(String code)

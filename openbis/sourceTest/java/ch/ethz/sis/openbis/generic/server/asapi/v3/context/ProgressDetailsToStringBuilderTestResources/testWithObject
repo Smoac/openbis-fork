@@ -1,0 +1,10 @@
+{
+  "@type" : "as.test.context.TestClass",
+  "@id" : 1,
+  "primitive" : 0,
+  "object" : {
+    "@type" : "as.test.context.TestClass",
+    "@id" : 2,
+    "primitive" : 0
+  }
+}

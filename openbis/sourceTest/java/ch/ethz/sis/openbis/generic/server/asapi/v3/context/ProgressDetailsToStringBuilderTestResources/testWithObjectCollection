@@ -1,0 +1,14 @@
+{
+  "@type" : "as.test.context.TestClass",
+  "@id" : 1,
+  "primitive" : 0,
+  "objectCollection" : [ {
+    "@type" : "as.test.context.TestClass",
+    "@id" : 2,
+    "primitive" : 1
+  }, {
+    "@type" : "as.test.context.TestClass",
+    "@id" : 3,
+    "primitive" : 2
+  } ]
+}

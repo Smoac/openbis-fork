@@ -642,9 +642,10 @@ public class AbstractTest extends SystemTestCase
 
             if (contextStartIndex >= 0 && contextEndIndex >= 0)
             {
+                String expectedMultilineContextPattern = "(?s)" + expectedContextPattern;
                 String actualContext = e.getMessage().substring(contextStartIndex, contextEndIndex);
-                Assert.assertTrue("Actual context: " + actualContext + ", Expected context: " + expectedContextPattern,
-                        actualContext.matches(expectedContextPattern));
+                Assert.assertTrue("Actual context: " + actualContext + ", Expected context: " + expectedMultilineContextPattern,
+                        actualContext.matches(expectedMultilineContextPattern));
             } else
             {
                 Assert.fail("No context found in exception message: " + e.getMessage());
@@ -995,7 +996,7 @@ public class AbstractTest extends SystemTestCase
 
         assertCollectionContainsOnly(actualIds, expectedIds.toArray(new Long[] {}));
     }
-    
+
     protected static String patternContains(String... parts)
     {
         StringBuilder pattern = new StringBuilder();
@@ -1008,5 +1009,9 @@ public class AbstractTest extends SystemTestCase
         return pattern.toString();
     }
 
+    protected static String toDblQuotes(String str)
+    {
+        return str.replaceAll("'", "\"");
+    }
 
 }

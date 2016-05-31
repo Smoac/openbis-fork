@@ -31,7 +31,7 @@ public class ProgressDetails
     {
         if (value != null)
         {
-            map.put(name, ProgressDetailsToStringBuilder.toString(value));
+            map.put(name, value);
         }
     }
 
@@ -39,14 +39,14 @@ public class ProgressDetails
     {
         if (details != null)
         {
-            map.put(name, ProgressDetailsToStringBuilder.toString(details.map));
+            map.put(name, details.map);
         }
     }
 
     @Override
     public String toString()
     {
-        return ProgressDetailsToStringBuilder.toString(map);
+        return ProgressDetailsToStringBuilder.getInstance().toString(map);
     }
 
 }

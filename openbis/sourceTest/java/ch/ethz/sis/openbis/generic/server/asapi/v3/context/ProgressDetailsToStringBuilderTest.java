@@ -10,13 +10,16 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.utilities.TestResources;
+
 public class ProgressDetailsToStringBuilderTest
 {
 
     @Test
     public void testWithTopLevelNull()
     {
-        assertToStringEquals(null, "null");
+        assertToStringEquals(null, "testWithTopLevelNull");
     }
 
     @Test
@@ -25,7 +28,7 @@ public class ProgressDetailsToStringBuilderTest
         Map<String, Object> map = new LinkedHashMap<String, Object>();
         map.put("o", new TestClass());
 
-        assertToStringEquals(map, "{o=TestClass[primitive=0]}");
+        assertToStringEquals(map, "testWithTopLevelMap");
     }
 
     @Test
@@ -34,14 +37,14 @@ public class ProgressDetailsToStringBuilderTest
         Collection<Object> map = new ArrayList<Object>();
         map.add(new TestClass());
 
-        assertToStringEquals(map, "[TestClass[primitive=0]]");
+        assertToStringEquals(map, "testWithTopLevelCollection");
     }
 
     @Test
     public void testWithNulls()
     {
         TestClass o = new TestClass();
-        assertToStringEquals(o, "TestClass[primitive=0]");
+        assertToStringEquals(o, "testWithNulls");
     }
 
     @Test
@@ -49,7 +52,7 @@ public class ProgressDetailsToStringBuilderTest
     {
         TestClass o = new TestClass();
         o.primitive = 1;
-        assertToStringEquals(o, "TestClass[primitive=1]");
+        assertToStringEquals(o, "testWithPrimitive");
     }
 
     @Test
@@ -57,7 +60,7 @@ public class ProgressDetailsToStringBuilderTest
     {
         TestClass o = new TestClass();
         o.string = "abc";
-        assertToStringEquals(o, "TestClass[primitive=0, string=abc]");
+        assertToStringEquals(o, "testWithString");
     }
 
     @Test
@@ -65,7 +68,7 @@ public class ProgressDetailsToStringBuilderTest
     {
         TestClass o = new TestClass();
         o.integer = 1;
-        assertToStringEquals(o, "TestClass[primitive=0, integer=1]");
+        assertToStringEquals(o, "testWithInteger");
     }
 
     @Test
@@ -73,7 +76,7 @@ public class ProgressDetailsToStringBuilderTest
     {
         TestClass o = new TestClass();
         o.object = new TestClass();
-        assertToStringEquals(o, "TestClass[primitive=0, object=TestClass[primitive=0]]");
+        assertToStringEquals(o, "testWithObject");
     }
 
     @Test
@@ -81,7 +84,7 @@ public class ProgressDetailsToStringBuilderTest
     {
         TestClass o = new TestClass();
         o.primitiveArray = new int[] { 0, 1, 2 };
-        assertToStringEquals(o, "TestClass[primitive=0, primitiveArray=[0, 1, 2]]");
+        assertToStringEquals(o, "testWithPrimitiveArray");
     }
 
     @Test
@@ -89,7 +92,7 @@ public class ProgressDetailsToStringBuilderTest
     {
         TestClass o = new TestClass();
         o.stringArray = new String[] { "abc", "def", "ghi" };
-        assertToStringEquals(o, "TestClass[primitive=0, stringArray=[abc, def, ghi]]");
+        assertToStringEquals(o, "testWithStringArray");
     }
 
     @Test
@@ -97,7 +100,7 @@ public class ProgressDetailsToStringBuilderTest
     {
         TestClass o = new TestClass();
         o.integerArray = new Integer[] { 1, 2, 3 };
-        assertToStringEquals(o, "TestClass[primitive=0, integerArray=[1, 2, 3]]");
+        assertToStringEquals(o, "testWithIntegerArray");
     }
 
     @Test
@@ -111,7 +114,7 @@ public class ProgressDetailsToStringBuilderTest
         TestClass o = new TestClass();
         o.objectArray = new TestClass[] { nested1, nested2 };
 
-        assertToStringEquals(o, "TestClass[primitive=0, objectArray=[TestClass[primitive=1], TestClass[primitive=2]]]");
+        assertToStringEquals(o, "testWithObjectArray");
     }
 
     @Test
@@ -119,7 +122,7 @@ public class ProgressDetailsToStringBuilderTest
     {
         TestClass o = new TestClass();
         o.stringCollection = Arrays.asList("abc", null, "ghi");
-        assertToStringEquals(o, "TestClass[primitive=0, stringCollection=[abc, null, ghi]]");
+        assertToStringEquals(o, "testWithNullCollectionItem");
     }
 
     @Test
@@ -127,7 +130,7 @@ public class ProgressDetailsToStringBuilderTest
     {
         TestClass o = new TestClass();
         o.stringCollection = Arrays.asList("abc", "def", "ghi");
-        assertToStringEquals(o, "TestClass[primitive=0, stringCollection=[abc, def, ghi]]");
+        assertToStringEquals(o, "testWithStringCollection");
     }
 
     @Test
@@ -135,7 +138,7 @@ public class ProgressDetailsToStringBuilderTest
     {
         TestClass o = new TestClass();
         o.integerCollection = Arrays.asList(1, 2, 3);
-        assertToStringEquals(o, "TestClass[primitive=0, integerCollection=[1, 2, 3]]");
+        assertToStringEquals(o, "testWithIntegerCollection");
     }
 
     @Test
@@ -149,7 +152,7 @@ public class ProgressDetailsToStringBuilderTest
         TestClass o = new TestClass();
         o.objectCollection = Arrays.asList(nested1, nested2);
 
-        assertToStringEquals(o, "TestClass[primitive=0, objectCollection=[TestClass[primitive=1], TestClass[primitive=2]]]");
+        assertToStringEquals(o, "testWithObjectCollection");
     }
 
     @Test
@@ -162,7 +165,7 @@ public class ProgressDetailsToStringBuilderTest
         TestClass o = new TestClass();
         o.stringMap = map;
 
-        assertToStringEquals(o, "TestClass[primitive=0, stringMap={k1=v1, null=null}]");
+        assertToStringEquals(o, "testWithNullMapKeyAndValue");
     }
 
     @Test
@@ -175,20 +178,20 @@ public class ProgressDetailsToStringBuilderTest
         TestClass o = new TestClass();
         o.stringMap = map;
 
-        assertToStringEquals(o, "TestClass[primitive=0, stringMap={k1=v1, k2=v2}]");
+        assertToStringEquals(o, "testWithStringMap");
     }
 
     @Test
     public void testWithIntegerMap()
     {
-        Map<Integer, Integer> map = new LinkedHashMap<Integer, Integer>();
-        map.put(1, 11);
-        map.put(2, 22);
+        Map<String, Integer> map = new LinkedHashMap<String, Integer>();
+        map.put("1", 11);
+        map.put("2", 22);
 
         TestClass o = new TestClass();
         o.integerMap = map;
 
-        assertToStringEquals(o, "TestClass[primitive=0, integerMap={1=11, 2=22}]");
+        assertToStringEquals(o, "testWithIntegerMap");
     }
 
     @Test
@@ -199,15 +202,14 @@ public class ProgressDetailsToStringBuilderTest
         TestClass nested2 = new TestClass();
         nested2.primitive = 2;
 
-        Map<TestClass, TestClass> map = new LinkedHashMap<TestClass, TestClass>();
-        map.put(nested1, nested1);
-        map.put(nested2, nested2);
+        Map<String, TestClass> map = new LinkedHashMap<String, TestClass>();
+        map.put("1", nested1);
+        map.put("2", nested2);
 
         TestClass o = new TestClass();
         o.objectMap = map;
 
-        assertToStringEquals(o,
-                "TestClass[primitive=0, objectMap={TestClass[primitive=1]=TestClass[primitive=1], TestClass[primitive=2]=TestClass[primitive=2]}]");
+        assertToStringEquals(o, "testWithObjectMap");
     }
 
     @Test
@@ -221,14 +223,14 @@ public class ProgressDetailsToStringBuilderTest
         o1.object = o2;
         o2.object = o1;
 
-        assertToStringEquals(o1,
-                "TestClass[primitive=1, object=TestClass[primitive=2, object=" + o1.getClass().getName() + "@"
-                        + Integer.toHexString(System.identityHashCode(o1)) + "]]");
+        assertToStringEquals(o1, "testWithCircularReferences");
     }
 
-    private void assertToStringEquals(Object object, String expectedToString)
+    private void assertToStringEquals(Object object, String expectedFileName)
     {
-        assertEquals(ProgressDetailsToStringBuilder.toString(object), expectedToString);
+        TestResources resources = new TestResources(getClass());
+        String json = FileUtilities.loadToString(resources.getResourceFile(expectedFileName));
+        assertEquals(ProgressDetailsToStringBuilder.getInstance().toString(object), json.trim());
     }
 
 }

@@ -43,7 +43,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 public class UpdateTagTest extends AbstractTest
 {
 
-    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Tag id cannot be null.*")
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Tag id cannot be null.*")
     public void testUpdateWithTagIdNull()
     {
         TagUpdate update = new TagUpdate();
