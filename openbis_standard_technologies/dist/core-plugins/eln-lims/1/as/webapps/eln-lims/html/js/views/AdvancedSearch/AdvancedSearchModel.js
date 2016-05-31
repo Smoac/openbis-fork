@@ -24,6 +24,20 @@ function AdvancedSearchModel(forceFreeTextSearch) {
 		rules : { } // { "UUIDv4" : { type : "PROPERTY", name : "GENE", value : "aa" } }
 	}
 	
+	this.isAllRules = function() {
+		for(ruleUUID in this.criteria.rules) {
+			var rule = this.criteria.rules[ruleUUID];
+			if(rule.type !== "All") {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	this.setEntityKind = function(entityKind) {
+		this.criteria.entityKind = entityKind;
+	}
+	
 	this.resetModel = function(entityKind) {
 		this.criteria.entityKind = entityKind;
 		this.criteria.rules = {};
