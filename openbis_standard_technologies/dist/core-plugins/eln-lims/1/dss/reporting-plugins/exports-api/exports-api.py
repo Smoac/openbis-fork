@@ -19,15 +19,20 @@ import time
 
 #Java Core
 from java.io import ByteArrayInputStream
+from org.apache.commons.io import IOUtils
 from java.lang import String
+
+#Zip Format
+from java.io import File;
+from java.io import FileInputStream;
+from java.io import FileNotFoundException;
+from java.io import FileOutputStream;
+from java.util.zip import ZipEntry;
+from java.util.zip import ZipOutputStream;
 
 #To obtain the openBIS URL
 from ch.systemsx.cisd.openbis.dss.generic.server import DataStoreServer
-from __builtin__ import None
 OPENBISURL = DataStoreServer.getConfigParameters().getServerURL() + "/openbis/openbis"
-
-#V1 API - To manage session workspace
-from ch.systemsx.cisd.openbis.dss.client.api.v1 import DssComponentFactory
 
 #V3 API
 from ch.systemsx.cisd.common.spring import HttpInvokerUtils;
@@ -139,13 +144,32 @@ def getFileName(rootDir, spaceCode, projCode, expCode, sampCode, dataCode, ext):
 	fileName += "." + ext;
 	return fileName;
 
+def addToZipFile(fileName, zos):
+		file = File(fileName);
+		fis = FileInputStream(file);
+		zipEntry = ZipEntry(fileName);
+		zos.putNextEntry(zipEntry);
+
+		bytes = byte[1024];
+		length = fis.read(bytes);
+		while length >= 0:
+			zos.write(bytes, 0, length);
+			length = fis.read(bytes);
+		
+		zos.closeEntry();
+		fis.close();
+
 def export(tr, params):
 	sessionToken = params.get("sessionToken");
 	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi, OPENBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
 	objectMapper = GenericObjectMapper();
 	objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-	dss_component = DssComponentFactory.tryCreate(params.get("sessionToken"), OPENBISURL);
-	rootDir = str(time.time());
+	
+	#Create temporal folder
+	rootDirFile = File.createTempFile(str(time.time()), None);
+	rootDirFile.delete();
+	rootDirFile.mkdir();
+	rootDir = rootDirFile.getCanonicalPath();
 	
 	for entity in params.get("entities"):
 		type =  entity["type"];
@@ -208,7 +232,9 @@ def export(tr, params):
 			
 		if entityObj is not None and entityFilePath is not None:
 			entityJson = String(objectMapper.writeValueAsString(entityObj));
-			dss_component.putFileToSessionWorkspace(entityFilePath, ByteArrayInputStream(entityJson.getBytes()));
-			print entityJson;
-			
+			entityFile = File(entityFilePath);
+			entityFile.getParentFile().mkdirs();
+			IOUtils.write(entityJson.getBytes(), FileOutputStream(entityFile));
+	
+	print "Folder found at: " + rootDir
 	return True
