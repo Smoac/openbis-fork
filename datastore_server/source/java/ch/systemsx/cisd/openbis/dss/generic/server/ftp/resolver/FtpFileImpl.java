@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.apache.ftpserver.ftplet.FtpFile;
 
+import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.HierarchicalContentUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentNodeFilter;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
@@ -65,6 +66,19 @@ public class FtpFileImpl extends AbstractFtpFile
         this.lastModified = lastModified;
         this.content = content;
         this.childrenFilter = childrenFilter;
+    }
+    
+    public IRandomAccessFile getFileContent()
+    {
+        try
+        {
+            IHierarchicalContentNode contentNode = getContentNodeForThisFile();
+            return contentNode.getFileContent();
+        } catch (RuntimeException re)
+        {
+            content.close();
+            throw re;
+        }
     }
 
     @Override

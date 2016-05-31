@@ -113,7 +113,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
         this.generalInfoService = generalInfoService;
         this.userManager = userManager;
         Properties ftpProperties = PropertyParametersUtil.extractSingleSectionProperties(
-                DssPropertyParametersUtil.loadServiceProperties(), "ftp.server", false).getProperties();
+                DssPropertyParametersUtil.loadServiceProperties(), "ftp.server", true).getProperties();
         this.config = new FtpServerConfig(ftpProperties);
         FtpPathResolverConfig resolverConfig = new FtpPathResolverConfig(ftpProperties);
         this.pathResolverRegistry = new FtpPathResolverRegistry(resolverConfig);

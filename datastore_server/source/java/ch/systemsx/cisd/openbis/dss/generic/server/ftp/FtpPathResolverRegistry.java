@@ -16,14 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.ftpserver.ftplet.FtpFile;
 import org.apache.log4j.Logger;
 
@@ -98,148 +93,7 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
      */
     public static final FtpFile getNonExistingFile(final String path, final String errorMsgOrNull)
     {
-        return new FtpFile()
-            {
-                @Override
-                public String getAbsolutePath()
-                {
-                    return path;
-                }
-
-                @Override
-                public String getName()
-                {
-                    return FilenameUtils.getName(path);
-                }
-
-                @Override
-                public boolean isHidden()
-                {
-                    return false;
-                }
-
-                @Override
-                public boolean isDirectory()
-                {
-                    return false;
-                }
-
-                @Override
-                public boolean isFile()
-                {
-                    return false;
-                }
-
-                @Override
-                public boolean doesExist()
-                {
-                    return false;
-                }
-
-                @Override
-                public boolean isReadable()
-                {
-                    return false;
-                }
-
-                @Override
-                public boolean isWritable()
-                {
-                    return false;
-                }
-
-                @Override
-                public boolean isRemovable()
-                {
-                    return false;
-                }
-
-                @Override
-                public String getOwnerName()
-                {
-                    return "UNKNOWN";
-                }
-
-                @Override
-                public String getGroupName()
-                {
-                    return "UNKNOWN";
-                }
-
-                @Override
-                public int getLinkCount()
-                {
-                    return 0;
-                }
-
-                @Override
-                public long getLastModified()
-                {
-                    return 0;
-                }
-
-                @Override
-                public boolean setLastModified(long time)
-                {
-                    return false;
-                }
-
-                @Override
-                public long getSize()
-                {
-                    return 0;
-                }
-
-                @Override
-                public boolean mkdir()
-                {
-                    return false;
-                }
-
-                @Override
-                public boolean delete()
-                {
-                    return false;
-                }
-
-                @Override
-                public boolean move(FtpFile destination)
-                {
-                    return false;
-                }
-
-                @Override
-                public List<FtpFile> listFiles()
-                {
-                    return Collections.emptyList();
-                }
-
-                @Override
-                public OutputStream createOutputStream(long offset) throws IOException
-                {
-                    if (errorMsgOrNull != null)
-                    {
-                        throw new IOException("File '" + path + "' does not exist ("
-                                + errorMsgOrNull + ".");
-                    } else
-                    {
-                        throw new IOException("File '" + path + "' does not exist.");
-                    }
-                }
-
-                @Override
-                public InputStream createInputStream(long offset) throws IOException
-                {
-                    if (errorMsgOrNull != null)
-                    {
-                        throw new IOException("File '" + path + "' does not exist ("
-                                + errorMsgOrNull + ".");
-                    } else
-                    {
-                        throw new IOException("File '" + path + "' does not exist.");
-                    }
-                }
-            };
+        return new NonExistingFtpFile(path, errorMsgOrNull);
     }
 
 }

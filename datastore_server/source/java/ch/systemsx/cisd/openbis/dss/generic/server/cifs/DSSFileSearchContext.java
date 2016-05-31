@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.dss.generic.server.cifs;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.alfresco.jlan.server.filesys.FileAttribute;
 import org.alfresco.jlan.server.filesys.FileInfo;
 import org.alfresco.jlan.server.filesys.FileName;
 import org.alfresco.jlan.server.filesys.SearchContext;
@@ -48,7 +47,8 @@ public class DSSFileSearchContext extends SearchContext
             {
                 WildCard wildCard = new WildCard(pathStr[1], true);
                 FtpFile directory = view.getFile(pathStr[0]);
-                for (FtpFile file : directory.listFiles())
+                List<FtpFile> list = directory.listFiles();
+                for (FtpFile file : list)
                 {
                     if (matches(wildCard, fileAttributes, file))
                     {
@@ -71,11 +71,7 @@ public class DSSFileSearchContext extends SearchContext
 
     private boolean matches(WildCard wildcardOrNull, int fileAttributes, FtpFile file)
     {
-        if (wildcardOrNull != null && wildcardOrNull.matchesPattern(file.getName()) == false)
-        {
-            return false;
-        }
-        return FileAttribute.isDirectory(fileAttributes) && file.isDirectory();
+        return wildcardOrNull == null || wildcardOrNull.matchesPattern(file.getName());
     }
 
     @Override
@@ -104,6 +100,7 @@ public class DSSFileSearchContext extends SearchContext
     @Override
     public String nextFileName()
     {
+        System.out.println("DSSFileSearchContext.nextFileName()");
         // TODO Auto-generated method stub
         return null;
     }
@@ -111,13 +108,18 @@ public class DSSFileSearchContext extends SearchContext
     @Override
     public boolean restartAt(int resumeId)
     {
-        // TODO Auto-generated method stub
-        return false;
+        if (resumeId < 0 || resumeId >= files.size())
+        {
+            return false;
+        }
+        index = resumeId;
+        return true;
     }
 
     @Override
     public boolean restartAt(FileInfo info)
     {
+        System.out.println("DSSFileSearchContext.restartAt() "+info);
         // TODO Auto-generated method stub
         return false;
     }

@@ -24,6 +24,7 @@ import org.alfresco.jlan.server.SrvSession;
 import org.alfresco.jlan.server.auth.ClientInfo;
 import org.alfresco.jlan.server.core.DeviceContext;
 import org.alfresco.jlan.server.core.DeviceContextException;
+import org.alfresco.jlan.server.filesys.AccessDeniedException;
 import org.alfresco.jlan.server.filesys.DiskDeviceContext;
 import org.alfresco.jlan.server.filesys.DiskInterface;
 import org.alfresco.jlan.server.filesys.FileAttribute;
@@ -44,7 +45,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.DSSFileSystemView;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverConfig;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverRegistry;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.NonExistingFtpFile;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
@@ -61,13 +62,11 @@ public class DataSetCifsView implements DiskInterface
     private IServiceForDataStoreServer dssService;
     private IGeneralInformationService generalInfoService;
     
-    private IEncapsulatedOpenBISService openBISService;
-
     private FtpPathResolverRegistry pathResolverRegistry;
     
     public DataSetCifsView()
     {
-        System.err.println("create a new CIFS view instance");
+        operationLog.info("CIFS view onto the data store created");
     }
 
     DataSetCifsView(IServiceForDataStoreServer openBisService, IGeneralInformationService generalInfoService)
@@ -82,6 +81,7 @@ public class DataSetCifsView implements DiskInterface
         operationLog.info("create context for share " + shareName);
         System.out.println(Utils.render(args));
         FtpPathResolverConfig resolverConfig = new FtpPathResolverConfig(CifsServerConfig.getServerProperties());
+        resolverConfig.logStartupInfo("CIFS");
         pathResolverRegistry = new FtpPathResolverRegistry(resolverConfig);
         return new DiskDeviceContext(shareName);
     }
@@ -89,14 +89,18 @@ public class DataSetCifsView implements DiskInterface
     @Override
     public void treeOpened(SrvSession sess, TreeConnection tree)
     {
-        operationLog.info("DataSetCifsView.treeOpened()");
+        operationLog.info("tree " + tree + " opened");
     }
     
+    @Override
+    public void treeClosed(SrvSession sess, TreeConnection tree)
+    {
+        operationLog.info("tree " + tree + " closed");
+    }
 
     @Override
     public boolean isReadOnly(SrvSession sess, DeviceContext ctx) throws IOException
     {
-        System.out.println("DataSetCifsView.isReadOnly() " + ctx);
         return true;
     }
 
@@ -110,91 +114,50 @@ public class DataSetCifsView implements DiskInterface
             FtpFile file = view.getFile(normalizedPath);
             FileInfo fileInfo = new FileInfo();
             Utils.populateFileInfo(fileInfo, file);
-            System.out.println("fileInfo:" + fileInfo+" file:"+file.getAbsolutePath());
+            operationLog.info("provide file info for virtual file '" + file.getAbsolutePath() + "': " + fileInfo);
             return fileInfo;
         } catch (FtpException ex)
         {
             throw new IOException(ex);
         }
     }
-    
+
     @Override
     public SearchContext startSearch(SrvSession sess, TreeConnection tree, String searchPath, int attrib) throws FileNotFoundException
     {
-        return new DSSFileSearchContext(createView(sess), normalizePath(searchPath), attrib);
-    }
-
-    @Override
-    public void treeClosed(SrvSession sess, TreeConnection tree)
-    {
-        operationLog.info("DataSetCifsView.treeClosed()");
+        String normalizedSearchPath = normalizePath(searchPath);
+        if (normalizedSearchPath.startsWith("/"))
+        {
+            return new DSSFileSearchContext(createView(sess), normalizedSearchPath, attrib);
+        }
+        throw new FileNotFoundException("Unknown file: " + searchPath);
     }
 
     @Override
     public void closeFile(SrvSession sess, TreeConnection tree, NetworkFile param) throws IOException
     {
-        System.out.println("DataSetCifsView.closeFile()");
-    }
-
-    @Override
-    public void createDirectory(SrvSession sess, TreeConnection tree, FileOpenParams params) throws IOException
-    {
-        System.out.println("DataSetCifsView.createDirectory()");
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public NetworkFile createFile(SrvSession sess, TreeConnection tree, FileOpenParams params) throws IOException
-    {
-        System.out.println("DataSetCifsView.createFile()");
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void deleteDirectory(SrvSession sess, TreeConnection tree, String dir) throws IOException
-    {
-        System.out.println("DataSetCifsView.deleteDirectory()");
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void deleteFile(SrvSession sess, TreeConnection tree, String name) throws IOException
-    {
-        System.out.println("DataSetCifsView.deleteFile()");
-        // TODO Auto-generated method stub
-
+        operationLog.debug("Close virtual file '" + param.getFullName() + "'");
+        param.close();
     }
 
     @Override
     public int fileExists(SrvSession sess, TreeConnection tree, String name)
     {
-        FtpFile file;
-        try
+        FtpFile file = getFile(createView(sess), name);
+        if (file == null)
         {
-            file = createView(sess).getFile(normalizePath(name));
-            if (file == null)
-            {
-                return FileStatus.NotExist;
-            } else if (file.isDirectory())
-            {
-                return FileStatus.DirectoryExists;
-            }
-            return FileStatus.FileExists;
-        } catch (FtpException ex)
+            return FileStatus.NotExist;
+        } else if (file.isDirectory())
         {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            return FileStatus.DirectoryExists;
         }
+        return FileStatus.FileExists;
     }
 
     @Override
     public void flushFile(SrvSession sess, TreeConnection tree, NetworkFile file) throws IOException
     {
-        System.out.println("DataSetCifsView.flushFile()");
-        // TODO Auto-generated method stub
-
+        operationLog.debug("Flush virtual file '" + file.getFullName() + "'");
     }
 
     @Override
@@ -202,139 +165,113 @@ public class DataSetCifsView implements DiskInterface
     {
         final String fullPath = normalizePath(params.getFullPath());
         String path = normalizePath(params.getPath());
-        System.out.println("DataSetCifsView.openFile() "+params+" path:"+path+" fullPath:"+fullPath);
-        NetworkFile networkFile = new NetworkFile(path)
-            {
-                
-                @Override
-                public void writeFile(byte[] buf, int len, int pos, long fileOff) throws IOException
-                {
-                    System.out.println("DataSetCifsView..openFile("+fullPath+").new NetworkFile() {...}.writeFile()");
-                    // TODO Auto-generated method stub
-                    
-                }
-                
-                @Override
-                public void truncateFile(long siz) throws IOException
-                {
-                    System.out.println("DataSetCifsView..openFile("+fullPath+").new NetworkFile() {...}.truncateFile()");
-                    // TODO Auto-generated method stub
-                    
-                }
-                
-                @Override
-                public long seekFile(long pos, int typ) throws IOException
-                {
-                    System.out.println("DataSetCifsView..openFile("+fullPath+").new NetworkFile() {...}.seekFile()");
-                    // TODO Auto-generated method stub
-                    return 0;
-                }
-                
-                @Override
-                public int readFile(byte[] buf, int len, int pos, long fileOff) throws IOException
-                {
-                    System.out.println("DataSetCifsView..openFile("+fullPath+").new NetworkFile() {...}.readFile()");
-                    // TODO Auto-generated method stub
-                    return 0;
-                }
-                
-                @Override
-                public void openFile(boolean createFlag) throws IOException
-                {
-                    System.out.println("DataSetCifsView..openFile("+fullPath+").new NetworkFile() {...}.openFile()");
-                    // TODO Auto-generated method stub
-                    
-                }
-                
-                @Override
-                public void flushFile() throws IOException
-                {
-                    System.out.println("DataSetCifsView..openFile("+fullPath+").new NetworkFile() {...}.flushFile()");
-                    // TODO Auto-generated method stub
-                    
-                }
-                
-                @Override
-                public void closeFile() throws IOException
-                {
-                    System.out.println("DataSetCifsView..openFile("+fullPath+").new NetworkFile() {...}.closeFile()");
-                    // TODO Auto-generated method stub
-                    
-                }
-
-                @Override
-                public String getName()
-                {
-                    System.out.println("DataSetCifsView..openFile("+fullPath+").new NetworkFile() {...}.getName()");
-                    return super.getName();
-                }
-
-                @Override
-                public boolean hasModifyDate()
-                {
-                    System.out.println("DataSetCifsView..openFile("+fullPath+").new NetworkFile() {...}.hasModifyDate()");
-                    return true;
-                }
-
-                @Override
-                public void close() throws IOException
-                {
-                    System.out.println("DataSetCifsView..openFile("+fullPath+").new NetworkFile() {...}.close()");
-                    // TODO Auto-generated method stub
-                    super.close();
-                }
-                
-            };
-        networkFile.setAttributes(FileAttribute.Directory | FileAttribute.ReadOnly);
+        DSSFileSystemView view = createView(sess);
+        FtpFile file = getFile(view, fullPath);
+        if (file instanceof NonExistingFtpFile)
+        {
+            NonExistingFtpFile nonExistingFtpFile = (NonExistingFtpFile) file;
+            throw new FileNotFoundException(path + " does not exist. Reason: " + nonExistingFtpFile.getErrorMessage());
+        }
+        NetworkFile networkFile = new CifsFile(file);
+        
+        networkFile.setAttributes(FileAttribute.ReadOnly);
+        networkFile.setCreationDate(file.getLastModified());
+        networkFile.setModifyDate(file.getLastModified());
+        networkFile.setFullName(params.getPath());
+        networkFile.setFileId(fullPath.hashCode());
+        if (file.isDirectory())
+        {
+            networkFile.setAttributes(FileAttribute.Directory| FileAttribute.ReadOnly);
+        } else
+        {
+            networkFile.setFileSize(file.getSize());
+        }
+        operationLog.info("Virtual file '" + fullPath + "' opened.");
         return networkFile;
     }
 
     @Override
-    public int readFile(SrvSession sess, TreeConnection tree, NetworkFile file, byte[] buf, int bufPos, int siz, long filePos) throws IOException
+    public int readFile(SrvSession sess, TreeConnection tree, NetworkFile file, byte[] buf, int bufPos, 
+            int size, long filePos) throws IOException
     {
-        System.out.println("DataSetCifsView.readFile()");
-        // TODO Auto-generated method stub
-        return 0;
+        if (file.isDirectory())
+        {
+            throw new AccessDeniedException();
+        }
+        operationLog.debug("Read from virtual file '" + file.getFullName() + "' at position " + filePos + " "
+                + size + " bytes into the buffer of size " + buf.length + " at position " + bufPos + ".");
+        int rdlen = file.readFile(buf, size, bufPos, filePos);
+        if (rdlen == -1)
+        {
+            rdlen = 0;
+        }
+        return rdlen;
+    }
+
+    @Override
+    public long seekFile(SrvSession sess, TreeConnection tree, NetworkFile file, long pos, int type) throws IOException
+    {
+        operationLog.debug("Seek in virtual file '" + file.getFullName() + "' to position " + pos + " (seek type: " + type + ").");
+        return file.seekFile(pos, type);
+    }
+
+    @Override
+    public void createDirectory(SrvSession sess, TreeConnection tree, FileOpenParams params) throws IOException
+    {
+        throw new IOException("Can not create a new directory because the virtual file system is read only.");
+    }
+
+    @Override
+    public NetworkFile createFile(SrvSession sess, TreeConnection tree, FileOpenParams params) throws IOException
+    {
+        throw new IOException("Can not create a new file because the virtual file system is read only.");
+    }
+
+    @Override
+    public void deleteDirectory(SrvSession sess, TreeConnection tree, String dir) throws IOException
+    {
+        throw new IOException("Can not delete a directory because the virtual file system is read only.");
+    }
+
+    @Override
+    public void deleteFile(SrvSession sess, TreeConnection tree, String name) throws IOException
+    {
+        throw new IOException("Can not delete a file because the virtual file system is read only.");
     }
 
     @Override
     public void renameFile(SrvSession sess, TreeConnection tree, String oldName, String newName) throws IOException
     {
-        System.out.println("DataSetCifsView.renameFile()");
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public long seekFile(SrvSession sess, TreeConnection tree, NetworkFile file, long pos, int typ) throws IOException
-    {
-        System.out.println("DataSetCifsView.seekFile()");
-        // TODO Auto-generated method stub
-        return 0;
+        throw new IOException("Can not rename a file because the virtual file system is read only.");
     }
 
     @Override
     public void setFileInformation(SrvSession sess, TreeConnection tree, String name, FileInfo info) throws IOException
     {
-        System.out.println("DataSetCifsView.setFileInformation()");
-        // TODO Auto-generated method stub
-
+        throw new IOException("Can not set file information because the virtual file system is read only.");
     }
 
     @Override
     public void truncateFile(SrvSession sess, TreeConnection tree, NetworkFile file, long siz) throws IOException
     {
-        System.out.println("DataSetCifsView.truncateFile()");
-        // TODO Auto-generated method stub
-
+        throw new IOException("Can not truncate file because the virtual file system is read only.");
     }
 
     @Override
     public int writeFile(SrvSession sess, TreeConnection tree, NetworkFile file, byte[] buf, int bufoff, int siz, long fileoff) throws IOException
     {
-        System.out.println("DataSetCifsView.writeFile()");
-        // TODO Auto-generated method stub
-        return 0;
+        throw new IOException("Can not write into a file because the virtual file system is read only.");
+    }
+
+    private FtpFile getFile(DSSFileSystemView view, String originalPath)
+    {
+        try
+        {
+            return view.getFile(normalizePath(originalPath));
+        } catch (FtpException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
     }
 
     private DSSFileSystemView createView(SrvSession session)

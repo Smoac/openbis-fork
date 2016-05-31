@@ -27,7 +27,7 @@ import ch.systemsx.cisd.common.string.Template;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 
 /**
- * 
+ * Configuration helper class for {@link CifsServer}
  *
  * @author Franz-Josef Elmer
  */
@@ -52,8 +52,6 @@ class CifsServerConfig
             + "  <diskshare name='${share-name}'>\n"
             + "    <driver>\n"
             + "      <class>ch.systemsx.cisd.openbis.dss.generic.server.cifs.DataSetCifsView</class>\n"
-            + "      <!--class>org.alfresco.jlan.smb.server.disk.JavaFileDiskDriver</class-->\n"
-            + "      <LocalPath>/Users/felmer/tmp/playgrounds/unix</LocalPath>\n"
             + "    </driver>\n"
             + "  </diskshare>\n"
             + "</shares>\n"
