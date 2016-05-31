@@ -683,7 +683,7 @@ public class EntityOperationTest extends SystemTestCase
         {
             AssertionUtil.assertContains("Object with SampleIdentifier = [/CISD/A01] has not been found.", ex.getMessage());
             AssertionUtil.assertContains("setting relation dataset-sample (1/1)", ex.getMessage());
-            AssertionUtil.assertContains("permId=DS-1", ex.getMessage());
+            AssertionUtil.assertContains("\"permId\" : \"DS-1\"", ex.getMessage());
         }
     }
 
