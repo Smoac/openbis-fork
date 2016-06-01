@@ -192,8 +192,10 @@ def addToZipFile(path, file, zos):
 		fis.close();
 
 def export(sessionToken, entities):
+	#Services used during the export process
 	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi, OPENBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
 	v3d = ServiceProvider.getApplicationContext().getBean(V3_DSS_BEAN);
+	dssComponent = DssComponentFactory.tryCreate(sessionToken, OPENBISURL);
 	
 	objectCache = {};
 	objectMapper = GenericObjectMapper();
@@ -205,10 +207,10 @@ def export(sessionToken, entities):
 	tempDirPathFile.delete();
 	tempDirPathFile.mkdir();
 	tempDirPath = tempDirPathFile.getCanonicalPath();
-	tempZipFileName = tempDirName + ".zip";
-	tempZipFilePath = tempDirPath + ".zip";
 	
 	#Create Zip File
+	tempZipFileName = tempDirName + ".zip";
+	tempZipFilePath = tempDirPath + ".zip";
 	fos = FileOutputStream(tempZipFilePath);
 	zos = ZipOutputStream(fos);
 			
@@ -294,7 +296,10 @@ def export(sessionToken, entities):
 	fos.close();
 	
 	#Store on workspace to be able to generate a download link
-	dssComponent = DssComponentFactory.tryCreate(sessionToken, OPENBISURL);
+	print "Zip file can be found on the temperal directory: " + tempZipFilePath;
 	dssComponent.putFileToSessionWorkspace(tempZipFileName, FileInputStream(File(tempZipFilePath)));
-	print "Zip file found at: " + tempZipFilePath;
+	tempZipFileNameWorkspaceURL = DataStoreServer.getConfigParameters().getDownloadURL() + "/datastore_server/session_workspace_file_download?sessionID=" + sessionToken + "&filePath=" + tempZipFileName;
+	print "Zip file can be downloaded from the workspace: " + tempZipFileNameWorkspaceURL;
+	#Send Email
+	#Remove temporal folder and zip
 	return True
