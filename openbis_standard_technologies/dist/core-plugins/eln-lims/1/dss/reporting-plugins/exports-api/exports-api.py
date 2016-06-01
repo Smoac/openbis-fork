@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import deque
 import time
 import jarray
@@ -31,6 +30,7 @@ from java.io import FileNotFoundException;
 from java.io import FileOutputStream;
 from java.util.zip import ZipEntry;
 from java.util.zip import ZipOutputStream;
+from ch.systemsx.cisd.common.mail import EMailAddress;
 
 #To obtain the openBIS URL
 from ch.systemsx.cisd.openbis.dss.generic.server import DataStoreServer;
@@ -94,11 +94,15 @@ def process(tr, params, tableBuilder):
 		
 
 def exportAll(tr, params):
+	#Services used during the export process
+	# TO-DO Login on the services as ETL server but on behalf of the user that makes the call
 	sessionToken = params.get("sessionToken");
 	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi, OPENBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
 	v3d = ServiceProvider.getApplicationContext().getBean(V3_DSS_BEAN);
+	mailClient = tr.getGlobalState().getMailClient();
 	
 	entity = params.get("entity");
+	userEmail = params.get("userEmail");
 	entityAsPythonMap = { "type" : entity.get("type"), "permId" : entity.get("permId") };
 	entitiesToExport = [entityAsPythonMap];
 	entitiesToExpand = deque([entityAsPythonMap]);
@@ -157,42 +161,15 @@ def exportAll(tr, params):
 	print "Found " + str(len(entitiesToExport)) + " entities to export.";
 	params.put("entities", entitiesToExport);
 	
-	thread = threading.Thread(target=export, args=(sessionToken, entitiesToExport));
+	thread = threading.Thread(target=export, args=(sessionToken, entitiesToExport, userEmail, mailClient));
 	thread.daemon = True;
 	thread.start();
     
 	return True;
 
-def getFileName(spaceCode, projCode, expCode, sampCode, dataCode):
-	fileName = "";
-	if spaceCode is not None:
-		fileName += "/" + spaceCode;
-	if projCode is not None:
-		fileName += "/" + projCode;
-	if expCode is not None:
-		fileName += "/" + expCode;
-	if sampCode is not None:
-		fileName += "/" + sampCode;
-	if dataCode is not None:
-		fileName += "/" + dataCode;
-	return fileName;
-
-def addToZipFile(path, file, zos):
-		fis = FileInputStream(file);
-		zipEntry = ZipEntry(path);
-		zos.putNextEntry(zipEntry);
-
-		bytes = jarray.zeros(1024, "b");
-		length = fis.read(bytes);
-		while length >= 0:
-			zos.write(bytes, 0, length);
-			length = fis.read(bytes);
-		
-		zos.closeEntry();
-		fis.close();
-
-def export(sessionToken, entities):
+def export(sessionToken, entities, userEmail, mailClient):
 	#Services used during the export process
+	# TO-DO Login on the services as ETL server but on behalf of the user that makes the call
 	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi, OPENBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
 	v3d = ServiceProvider.getApplicationContext().getBean(V3_DSS_BEAN);
 	dssComponent = DssComponentFactory.tryCreate(sessionToken, OPENBISURL);
@@ -231,7 +208,7 @@ def export(sessionToken, entities):
 			fetchOps.withRegistrator();
 			fetchOps.withModifier();
 			entityObj = v3.searchProjects(sessionToken, criteria, fetchOps).getObjects().get(0);
-			entityFilePath = getFileName(entityObj.getSpace().getCode(), entityObj.getCode(), None, None, None);
+			entityFilePath = getFilePath(entityObj.getSpace().getCode(), entityObj.getCode(), None, None, None);
 		if type == "EXPERIMENT":
 			criteria = ExperimentSearchCriteria();
 			criteria.withPermId().thatEquals(permId);
@@ -243,7 +220,7 @@ def export(sessionToken, entities):
 			fetchOps.withProperties();
 			fetchOps.withTags();
 			entityObj = v3.searchExperiments(sessionToken, criteria, fetchOps).getObjects().get(0);
-			entityFilePath = getFileName(entityObj.getProject().getSpace().getCode(), entityObj.getProject().getCode(), entityObj.getCode(), None, None);
+			entityFilePath = getFilePath(entityObj.getProject().getSpace().getCode(), entityObj.getProject().getCode(), entityObj.getCode(), None, None);
 		if type == "SAMPLE":
 			criteria = SampleSearchCriteria();
 			criteria.withPermId().thatEquals(permId);
@@ -257,7 +234,7 @@ def export(sessionToken, entities):
 			fetchOps.withParents();
 			fetchOps.withChildren();
 			entityObj = v3.searchSamples(sessionToken, criteria, fetchOps).getObjects().get(0);
-			entityFilePath = getFileName(entityObj.getExperiment().getProject().getSpace().getCode(), entityObj.getExperiment().getProject().getCode(), entityObj.getExperiment().getCode(), entityObj.getCode(), None);
+			entityFilePath = getFilePath(entityObj.getExperiment().getProject().getSpace().getCode(), entityObj.getExperiment().getProject().getCode(), entityObj.getExperiment().getCode(), entityObj.getCode(), None);
 		if type == "DATASET":
 			criteria = DataSetSearchCriteria();
 			criteria.withPermId().thatEquals(permId);
@@ -271,10 +248,10 @@ def export(sessionToken, entities):
 			fetchOps.withParents();
 			fetchOps.withChildren();
 			entityObj = v3.searchDataSets(sessionToken, criteria, fetchOps).getObjects().get(0);
-			entityFilePath = getFileName(entityObj.getSample().getExperiment().getProject().getSpace().getCode(), entityObj.getSample().getExperiment().getProject().getCode(), entityObj.getSample().getExperiment().getCode(), entityObj.getSample().getCode(), entityObj.getCode());
+			entityFilePath = getFilePath(entityObj.getSample().getExperiment().getProject().getSpace().getCode(), entityObj.getSample().getExperiment().getProject().getCode(), entityObj.getSample().getExperiment().getCode(), entityObj.getSample().getCode(), entityObj.getCode());
 		if type == "FILE" and not entity["isDirectory"]:
 			datasetEntityObj = objectCache[entity["permId"]];
-			datasetEntityFilePath = getFileName(datasetEntityObj.getSample().getExperiment().getProject().getSpace().getCode(), datasetEntityObj.getSample().getExperiment().getProject().getCode(), datasetEntityObj.getSample().getExperiment().getCode(), datasetEntityObj.getSample().getCode(), datasetEntityObj.getCode());
+			datasetEntityFilePath = getFilePath(datasetEntityObj.getSample().getExperiment().getProject().getSpace().getCode(), datasetEntityObj.getSample().getExperiment().getProject().getCode(), datasetEntityObj.getSample().getExperiment().getCode(), datasetEntityObj.getSample().getCode(), datasetEntityObj.getCode());
 			filePath = datasetEntityFilePath + "/" + entity["path"];
 			rawFileInputStream = v3d.downloadFiles(sessionToken, [DataSetFilePermId(DataSetPermId(permId), entity["path"])], DataSetFileDownloadOptions());
 			rawFile = File(tempDirPath + filePath + ".json");
@@ -298,8 +275,50 @@ def export(sessionToken, entities):
 	#Store on workspace to be able to generate a download link
 	print "Zip file can be found on the temperal directory: " + tempZipFilePath;
 	dssComponent.putFileToSessionWorkspace(tempZipFileName, FileInputStream(File(tempZipFilePath)));
-	tempZipFileNameWorkspaceURL = DataStoreServer.getConfigParameters().getDownloadURL() + "/datastore_server/session_workspace_file_download?sessionID=" + sessionToken + "&filePath=" + tempZipFileName;
-	print "Zip file can be downloaded from the workspace: " + tempZipFileNameWorkspaceURL;
+	tempZipFileWorkspaceURL = DataStoreServer.getConfigParameters().getDownloadURL() + "/datastore_server/session_workspace_file_download?sessionID=" + sessionToken + "&filePath=" + tempZipFileName;
+	print "Zip file can be downloaded from the workspace: " + tempZipFileWorkspaceURL;
 	#Send Email
+	sendMail(mailClient, userEmail, tempZipFileWorkspaceURL);
 	#Remove temporal folder and zip
 	return True
+
+def getFilePath(spaceCode, projCode, expCode, sampCode, dataCode):
+	fileName = "";
+	if spaceCode is not None:
+		fileName += "/" + spaceCode;
+	if projCode is not None:
+		fileName += "/" + projCode;
+	if expCode is not None:
+		fileName += "/" + expCode;
+	if sampCode is not None:
+		fileName += "/" + sampCode;
+	if dataCode is not None:
+		fileName += "/" + dataCode;
+	return fileName;
+
+def addToZipFile(path, file, zos):
+		fis = FileInputStream(file);
+		zipEntry = ZipEntry(path);
+		zos.putNextEntry(zipEntry);
+
+		bytes = jarray.zeros(1024, "b");
+		length = fis.read(bytes);
+		while length >= 0:
+			zos.write(bytes, 0, length);
+			length = fis.read(bytes);
+		
+		zos.closeEntry();
+		fis.close();
+		
+def sendMail(mailClient, userEmail, downloadURL):
+    replyTo = None;
+    fromAddress = None;
+    recipient1 = EMailAddress(userEmail);
+    topic = "Export Ready";
+    message = "Download a zip file with your exported data at: " + downloadURL;
+    mailClient.sendEmailMessage(topic, message, replyTo, fromAddress, recipient1);
+    print("--- MAIL ---");
+    print("recipient1: "+userEmail);
+    print("Topic: "+topic);
+    print(message);
+    print("------------");
