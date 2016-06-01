@@ -26,6 +26,8 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolver;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Resolves experiment folders with path "/<space-code>" to {@link FtpFile}-s.
@@ -47,21 +49,21 @@ public class SpaceFolderResolver implements IFtpPathResolver
     @Override
     public FtpFile resolve(final String path, final FtpPathResolverContext resolverContext)
     {
-        return new AbstractFtpFolder(path)
+        final String spaceCode = removeStartingSlash(path);
+        AbstractFtpFolder file = new AbstractFtpFolder(path)
             {
                 @Override
                 public List<FtpFile> unsafeListFiles()
                 {
                     List<Project> projects = listProjects(resolverContext);
 
-                    String pathSpaceCode = removeStartingSlash(path);
                     List<FtpFile> result = new ArrayList<FtpFile>();
                     List<String> childProjects = new ArrayList<String>();
 
                     for (Project project : projects)
                     {
                         String projectSpaceCode = project.getSpace().getCode();
-                        if (projectSpaceCode.equals(pathSpaceCode))
+                        if (projectSpaceCode.equals(spaceCode))
                         {
                             childProjects.add(project.getCode());
                         }
@@ -78,8 +80,15 @@ public class SpaceFolderResolver implements IFtpPathResolver
 
                     return result;
                 }
-
             };
+        String sessionToken = resolverContext.getSessionToken();
+        IServiceForDataStoreServer service = resolverContext.getService();
+        Space space = service.tryGetSpace(sessionToken, new SpaceIdentifier(spaceCode));
+        if (space != null)
+        {
+            file.setLastModified(space.getModificationDate().getTime());
+        }
+        return file;
     }
 
     private List<Project> listProjects(FtpPathResolverContext context)

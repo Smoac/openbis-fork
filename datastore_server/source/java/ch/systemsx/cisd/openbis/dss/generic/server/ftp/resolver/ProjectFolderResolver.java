@@ -23,12 +23,15 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ftpserver.ftplet.FtpFile;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolver;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolverRegistry;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 
@@ -53,37 +56,60 @@ public class ProjectFolderResolver implements IFtpPathResolver
     @Override
     public FtpFile resolve(final String path, final FtpPathResolverContext resolverContext)
     {
-        return new AbstractFtpFolder(path)
+        AbstractFtpFolder file = new AbstractFtpFolder(path)
             {
                 @Override
                 public List<FtpFile> unsafeListFiles()
                 {
                     List<Experiment> experiments = listExperiments(path, resolverContext);
                     List<FtpFile> result = new ArrayList<FtpFile>();
-
                     for (Experiment experiment : experiments)
                     {
-                        String childPath =
-                                path + FtpConstants.FILE_SEPARATOR + experiment.getCode();
-                        FtpFile childFile =
-                                resolverContext.getResolverRegistry().resolve(childPath,
-                                        resolverContext);
+                        String childPath = path + FtpConstants.FILE_SEPARATOR + experiment.getCode();
+                        IFtpPathResolverRegistry resolverRegistry = resolverContext.getResolverRegistry();
+                        FtpFile childFile = resolverRegistry.resolve(childPath, resolverContext);
                         result.add(childFile);
                     }
-
                     return result;
                 }
             };
+        ProjectIdentifier identifier = parseProjectIdentifier(path);
+        if (identifier != null)
+        {
+            IServiceForDataStoreServer service = resolverContext.getService();
+            String sessionToken = resolverContext.getSessionToken();
+            Project project = service.tryGetProject(sessionToken, identifier);
+            if (project != null)
+            {
+                file.setLastModified(project.getModificationDate().getTime());
+            }
+        }
+        return file;
     }
 
     private List<Experiment> listExperiments(String projectIdentifier,
             FtpPathResolverContext context)
     {
+        ProjectIdentifier identifier = parseProjectIdentifier(projectIdentifier);
+        if (identifier == null)
+        {
+            return Collections.emptyList();
+        }
         IServiceForDataStoreServer service = context.getService();
         String sessionToken = context.getSessionToken();
-        ProjectIdentifier identifier =
-                new ProjectIdentifierFactory(projectIdentifier).createIdentifier();
         return service.listExperimentsForProjects(sessionToken,
                 Collections.singletonList(identifier), new ExperimentFetchOptions());
     }
+    
+    private ProjectIdentifier parseProjectIdentifier(String projectIdentifier)
+    {
+        try
+        {
+            return new ProjectIdentifierFactory(projectIdentifier).createIdentifier();
+        } catch (UserFailureException ex)
+        {
+            return null;
+        }
+    }
+    
 }

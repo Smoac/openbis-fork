@@ -100,6 +100,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
             super(absolutePath);
             this.dataSet = dataSet;
             this.resolverContext = resolverContext;
+            setLastModified(dataSet.getModificationDate().getTime());
         }
 
         @Override

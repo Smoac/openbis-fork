@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.server.ISessionTokenProvider;
@@ -150,9 +149,9 @@ public class FtpPathResolverContext implements ISessionTokenProvider
                 {
                     cache.putExperiment(experiment);
                 }
-            } catch (UserFailureException ex)
+            } catch (Exception ex)
             {
-                operationLog.info("Error in experiment identifier '" + experimentId + "': " + ex.getMessage());
+                operationLog.info("Error in experiment identifier '" + experimentId + "': " + ex);
                 return null;
             }
         }
@@ -165,10 +164,24 @@ public class FtpPathResolverContext implements ISessionTokenProvider
         List<AbstractExternalData> dataSets = cache.getDataSetsByExperiment(experimentPermId);
         if (dataSets == null)
         {
-            dataSets = service.listDataSetsByExperimentID(sessionToken, new TechId(experiment));
+            dataSets = getAvailableDataSets(experiment);
             cache.putDataSetsForExperiment(dataSets, experimentPermId);
         }
         return dataSets;
+    }
+
+    private List<AbstractExternalData> getAvailableDataSets(Experiment experiment)
+    {
+        List<AbstractExternalData> availableDataSets = new ArrayList<>();
+        List<AbstractExternalData> dataSets = service.listDataSetsByExperimentID(sessionToken, new TechId(experiment));
+        for (AbstractExternalData dataSet : dataSets)
+        {
+            if (dataSet.isAvailable())
+            {
+                availableDataSets.add(dataSet);
+            }
+        }
+        return availableDataSets;
     }
     
     public IGeneralInformationService getGeneralInfoService()

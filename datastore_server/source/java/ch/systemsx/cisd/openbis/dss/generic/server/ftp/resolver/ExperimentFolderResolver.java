@@ -54,27 +54,25 @@ public class ExperimentFolderResolver implements IFtpPathResolver
     @Override
     public FtpFile resolve(final String path, final FtpPathResolverContext resolverContext)
     {
-        return new AbstractFtpFolder(path)
+        final Experiment experiment = resolverContext.getExperiment(path);
+        AbstractFtpFolder file = new AbstractFtpFolder(path)
             {
                 @Override
                 public List<FtpFile> unsafeListFiles()
                 {
-                    return listChildrenNames(path, resolverContext);
+                    if (experiment == null)
+                    {
+                        return Collections.emptyList();
+                    } else
+                    {
+                        return childLister.listExperimentChildrenPaths(experiment, path, resolverContext);
+                    }
                 }
-
             };
-    }
-
-    private List<FtpFile> listChildrenNames(String expIdentifier, FtpPathResolverContext context)
-    {
-        Experiment experiment = context.getExperiment(expIdentifier);
-        if (experiment == null)
+        if (experiment != null)
         {
-            return Collections.emptyList();
-        } else
-        {
-            return childLister.listExperimentChildrenPaths(experiment, expIdentifier,
-                    context);
+            file.setLastModified(experiment.getModificationDate().getTime());
         }
+        return file;
     }
 }

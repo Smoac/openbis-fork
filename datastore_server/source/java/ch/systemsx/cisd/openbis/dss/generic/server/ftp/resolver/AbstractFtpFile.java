@@ -40,6 +40,8 @@ public abstract class AbstractFtpFile implements FtpFile
             AbstractFtpFile.class);
 
     protected final String absolutePath;
+    
+    private long lastModified;
 
     public AbstractFtpFile(String absolutePath)
     {
@@ -122,6 +124,19 @@ public abstract class AbstractFtpFile implements FtpFile
         return false;
     }
 
+    @Override
+    public boolean setLastModified(long arg0)
+    {
+        lastModified = arg0;
+        return true;
+    }
+
+    @Override
+    public long getLastModified()
+    {
+        return lastModified;
+    }
+    
     // =================================
     // Unsupported operations
     // =================================
@@ -146,12 +161,6 @@ public abstract class AbstractFtpFile implements FtpFile
 
     @Override
     public boolean move(FtpFile arg0)
-    {
-        return false;
-    }
-
-    @Override
-    public boolean setLastModified(long arg0)
     {
         return false;
     }

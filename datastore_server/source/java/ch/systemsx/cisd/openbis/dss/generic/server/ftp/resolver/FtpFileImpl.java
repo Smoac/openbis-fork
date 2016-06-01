@@ -48,8 +48,6 @@ public class FtpFileImpl extends AbstractFtpFile
 
     private final long size;
 
-    private final long lastModified;
-
     private final IHierarchicalContentNodeFilter childrenFilter;
 
     private IHierarchicalContent content;
@@ -63,7 +61,7 @@ public class FtpFileImpl extends AbstractFtpFile
         this.pathInDataSet = pathInDataSet;
         this.isDirectory = isDirectory;
         this.size = size;
-        this.lastModified = lastModified;
+        setLastModified(lastModified);
         this.content = content;
         this.childrenFilter = childrenFilter;
     }
@@ -104,12 +102,6 @@ public class FtpFileImpl extends AbstractFtpFile
             content.close();
             throw re;
         }
-    }
-
-    @Override
-    public long getLastModified()
-    {
-        return lastModified;
     }
 
     @Override
