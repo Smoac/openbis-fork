@@ -32,21 +32,31 @@ from java.util.zip import ZipEntry;
 from java.util.zip import ZipOutputStream;
 
 #To obtain the openBIS URL
-from ch.systemsx.cisd.openbis.dss.generic.server import DataStoreServer
-OPENBISURL = DataStoreServer.getConfigParameters().getServerURL() + "/openbis/openbis"
+from ch.systemsx.cisd.openbis.dss.generic.server import DataStoreServer;
+OPENBISURL = DataStoreServer.getConfigParameters().getServerURL() + "/openbis/openbis";
+V3_DSS_BEAN = "data-store-server_INTERNAL";
 
-#V3 API
+#V3 API - Metadata
 from ch.systemsx.cisd.common.spring import HttpInvokerUtils;
-from ch.ethz.sis.openbis.generic.asapi.v3 import IApplicationServerApi
+from ch.ethz.sis.openbis.generic.asapi.v3 import IApplicationServerApi;
 
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search import ProjectSearchCriteria
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search import ExperimentSearchCriteria
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search import SampleSearchCriteria
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search import DataSetSearchCriteria
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions import ProjectFetchOptions
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions import ExperimentFetchOptions
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleFetchOptions
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions import DataSetFetchOptions
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search import ProjectSearchCriteria;
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search import ExperimentSearchCriteria;
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search import SampleSearchCriteria;
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search import DataSetSearchCriteria;
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions import ProjectFetchOptions;
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions import ExperimentFetchOptions;
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleFetchOptions;
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions import DataSetFetchOptions;
+
+#V3 API - Files
+from ch.ethz.sis.openbis.generic.dssapi.v3 import IDataStoreServerApi;
+from ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search import DataSetFileSearchCriteria;
+from ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions import DataSetFileFetchOptions;
+from ch.systemsx.cisd.openbis.dss.generic.shared import ServiceProvider;
+from ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id import DataSetFilePermId;
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id import DataSetPermId;
+from ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download import DataSetFileDownloadOptions;
 
 #JSON
 from ch.ethz.sis.openbis.generic.server.sharedapi.v3.json import GenericObjectMapper;
@@ -82,6 +92,8 @@ def process(tr, params, tableBuilder):
 def exportAll(tr, params):
 	sessionToken = params.get("sessionToken");
 	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi, OPENBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
+	v3d = ServiceProvider.getApplicationContext().getBean(V3_DSS_BEAN);
+	
 	entity = params.get("entity");
 	entityAsPythonMap = { "type" : entity.get("type"), "permId" : entity.get("permId") };
 	entitiesToExport = [entityAsPythonMap];
@@ -99,33 +111,45 @@ def exportAll(tr, params):
 			results = v3.searchProjects(sessionToken, criteria, ProjectFetchOptions());
 			print "Found: " + str(results.getTotalCount()) + " projects";
 			for project in results.getObjects():
-				entitiesToExport.append({ "type" : "PROJECT", "permId" : project.getPermId().getPermId() });
-				entitiesToExpand.append({ "type" : "PROJECT", "permId" : project.getPermId().getPermId() });
+				entityFound = { "type" : "PROJECT", "permId" : project.getPermId().getPermId() };
+				entitiesToExport.append(entityFound);
+				entitiesToExpand.append(entityFound);
 		if type == "PROJECT":
 			criteria = ExperimentSearchCriteria();
 			criteria.withProject().withPermId().thatEquals(permId);
 			results = v3.searchExperiments(sessionToken, criteria, ExperimentFetchOptions());
 			print "Found: " + str(results.getTotalCount()) + " experiments";
 			for experiment in results.getObjects():
-				entitiesToExport.append({ "type" : "EXPERIMENT", "permId" : experiment.getPermId().getPermId() });
-				entitiesToExpand.append({ "type" : "EXPERIMENT", "permId" : experiment.getPermId().getPermId() });
+				entityFound = { "type" : "EXPERIMENT", "permId" : experiment.getPermId().getPermId() };
+				entitiesToExport.append(entityFound);
+				entitiesToExpand.append(entityFound);
 		if type == "EXPERIMENT":
 			criteria = SampleSearchCriteria();
 			criteria.withExperiment().withPermId().thatEquals(permId);
 			results = v3.searchSamples(sessionToken, criteria, SampleFetchOptions());
 			print "Found: " + str(results.getTotalCount()) + " samples";
 			for sample in results.getObjects():
-				entitiesToExport.append({ "type" : "SAMPLE", "permId" : sample.getPermId().getPermId() });
-				entitiesToExpand.append({ "type" : "SAMPLE", "permId" : sample.getPermId().getPermId() });
+				entityFound = { "type" : "SAMPLE", "permId" : sample.getPermId().getPermId() };
+				entitiesToExport.append(entityFound);
+				entitiesToExpand.append(entityFound);
 		if type == "SAMPLE":
 			criteria = DataSetSearchCriteria();
 			criteria.withSample().withPermId().thatEquals(permId);
 			results = v3.searchDataSets(sessionToken, criteria, DataSetFetchOptions());
 			print "Found: " + str(results.getTotalCount()) + " datasets";
 			for dataset in results.getObjects():
-				entitiesToExport.append({ "type" : "DATASET", "permId" : dataset.getPermId().getPermId() });
-				entitiesToExpand.append({ "type" : "DATASET", "permId" : dataset.getPermId().getPermId() });
-	
+				entityFound = { "type" : "DATASET", "permId" : dataset.getPermId().getPermId() };
+				entitiesToExport.append(entityFound);
+				entitiesToExpand.append(entityFound);
+		if type == "DATASET":
+			criteria = DataSetFileSearchCriteria();
+			criteria.withDataSet().withPermId().thatEquals(permId);
+			results = v3d.searchFiles(sessionToken, criteria, DataSetFileFetchOptions());
+			print "Found: " + str(results.getTotalCount()) + " files";
+			for file in results.getObjects():
+				entityFound = { "type" : "FILE", "permId" : permId, "path" : file.getPath(), "isDirectory" : file.isDirectory() };
+				entitiesToExport.append(entityFound);
+				entitiesToExpand.append(entityFound);
 	print "Found " + str(len(entitiesToExport)) + " entities to export.";
 	params.put("entities", entitiesToExport);
 	return export(tr, params);
@@ -161,6 +185,8 @@ def addToZipFile(path, file, zos):
 def export(tr, params):
 	sessionToken = params.get("sessionToken");
 	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi, OPENBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
+	v3d = ServiceProvider.getApplicationContext().getBean(V3_DSS_BEAN);
+	objectCache = {};
 	objectMapper = GenericObjectMapper();
 	objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 	
@@ -232,7 +258,19 @@ def export(tr, params):
 			fetchOps.withChildren();
 			entityObj = v3.searchDataSets(sessionToken, criteria, fetchOps).getObjects().get(0);
 			entityFilePath = getFileName(entityObj.getSample().getExperiment().getProject().getSpace().getCode(), entityObj.getSample().getExperiment().getProject().getCode(), entityObj.getSample().getExperiment().getCode(), entityObj.getSample().getCode(), entityObj.getCode());
+		if type == "FILE" and not entity["isDirectory"]:
+			datasetEntityObj = objectCache[entity["permId"]];
+			datasetEntityFilePath = getFileName(datasetEntityObj.getSample().getExperiment().getProject().getSpace().getCode(), datasetEntityObj.getSample().getExperiment().getProject().getCode(), datasetEntityObj.getSample().getExperiment().getCode(), datasetEntityObj.getSample().getCode(), datasetEntityObj.getCode());
+			filePath = datasetEntityFilePath + "/" + entity["path"];
+			rawFileInputStream = v3d.downloadFiles(sessionToken, [DataSetFilePermId(DataSetPermId(permId), entity["path"])], DataSetFileDownloadOptions());
+			rawFile = File(rootDir + filePath + ".json");
+			rawFile.getParentFile().mkdirs();
+			IOUtils.copyLarge(rawFileInputStream, FileOutputStream(rawFile));
+			addToZipFile(filePath, rawFile, zos);
 			
+		if entityObj is not None:
+			objectCache[permId] = entityObj;
+		
 		if entityObj is not None and entityFilePath is not None:
 			entityJson = String(objectMapper.writeValueAsString(entityObj));
 			jsonEntityFile = File(rootDir + entityFilePath + ".json");
