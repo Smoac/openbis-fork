@@ -90,6 +90,8 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 		this.GlobalSearchObjectFetchOptions = dtos.GlobalSearchObjectFetchOptions;
 		this.ObjectKindModificationSearchCriteria = dtos.ObjectKindModificationSearchCriteria;
 		this.ObjectKindModificationFetchOptions = dtos.ObjectKindModificationFetchOptions;
+		this.DataSetArchiveOptions = dtos.DataSetArchiveOptions;
+		this.DataSetUnarchiveOptions = dtos.DataSetUnarchiveOptions;
 
 		this.getDtos = function() {
 			return dtos;
@@ -480,6 +482,11 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 
 		this.assertFalse = function(actual, msg) {
 			this.assertEqual(actual, false, msg);
+		};
+
+		this.assertContains = function(actual, expected, msg) {
+			actual = actual ? actual : "";
+			this.assertTrue(actual.indexOf(expected) >= 0, msg);
 		};
 
 		this.assertEqual = function(actual, expected, msg) {

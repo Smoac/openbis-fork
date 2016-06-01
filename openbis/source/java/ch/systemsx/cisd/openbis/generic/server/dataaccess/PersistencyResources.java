@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 import org.hibernate.SessionFactory;
 
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 
 /**
  * Resources needed to create DAO's.
@@ -32,17 +31,13 @@ public final class PersistencyResources
 
     private final SessionFactory sessionFactory;
 
-    private final IFullTextIndexUpdateScheduler indexUpdateScheduler;
-
     private final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler;
 
-    public PersistencyResources(DatabaseConfigurationContext context,
-            SessionFactory sessionFactory, IFullTextIndexUpdateScheduler indexUpdateScheduler,
+    public PersistencyResources(DatabaseConfigurationContext context, SessionFactory sessionFactory, 
             IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler)
     {
         this.context = context;
         this.sessionFactory = sessionFactory;
-        this.indexUpdateScheduler = indexUpdateScheduler;
         this.dynamicPropertyEvaluationScheduler = dynamicPropertyEvaluationScheduler;
     }
 
@@ -54,11 +49,6 @@ public final class PersistencyResources
     public final SessionFactory getSessionFactory()
     {
         return sessionFactory;
-    }
-
-    public IFullTextIndexUpdateScheduler getIndexUpdateScheduler()
-    {
-        return indexUpdateScheduler;
     }
 
     public IDynamicPropertyEvaluationScheduler getDynamicPropertyEvaluationScheduler()

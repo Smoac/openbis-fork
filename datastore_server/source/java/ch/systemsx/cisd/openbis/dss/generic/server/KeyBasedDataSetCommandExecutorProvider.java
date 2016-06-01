@@ -159,6 +159,13 @@ public class KeyBasedDataSetCommandExecutorProvider implements IDataSetCommandEx
         }
         return defaultExecutor;
     }
+    
+
+    @Override
+    public List<IDataSetCommandExecutor> getAllExecutors()
+    {
+        return new ArrayList<>(executorsByName.values());
+    }
 
     @Override
     public IDataSetCommandExecutor getExecutor(IProcessingPluginTask processingTask, String processingTaskKey)

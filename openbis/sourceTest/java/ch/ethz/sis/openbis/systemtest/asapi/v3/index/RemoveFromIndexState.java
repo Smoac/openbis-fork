@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.FullTextIndexUpdater;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation.IndexUpdateOperationKind;
@@ -31,14 +31,14 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateO
 public class RemoveFromIndexState extends IndexState
 {
 
-    public RemoveFromIndexState(IDAOFactory daoFactory)
+    public RemoveFromIndexState()
     {
-        super(createOperations(daoFactory));
+        super(createOperations());
     }
 
-    private static Collection<RemoveFromIndexOperation> createOperations(IDAOFactory daoFactory)
+    private static Collection<RemoveFromIndexOperation> createOperations()
     {
-        FullTextIndexUpdater indexUpdater = (FullTextIndexUpdater) daoFactory.getPersistencyResources().getIndexUpdateScheduler();
+        FullTextIndexUpdater indexUpdater = (FullTextIndexUpdater) CommonServiceProvider.tryToGetBean("full-text-index-updater");
         Collection<IndexUpdateOperation> updateOperations = indexUpdater.getQueue();
         List<RemoveFromIndexOperation> removeOperations = new ArrayList<RemoveFromIndexOperation>();
 

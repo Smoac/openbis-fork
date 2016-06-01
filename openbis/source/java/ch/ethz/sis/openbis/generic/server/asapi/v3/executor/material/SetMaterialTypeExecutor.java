@@ -46,6 +46,12 @@ public class SetMaterialTypeExecutor extends AbstractSetEntityToOneRelationExecu
     private IMapEntityTypeByIdExecutor mapEntityTypeByIdExecutor;
 
     @Override
+    protected String getRelationName()
+    {
+        return "material-type";
+    }
+
+    @Override
     protected IEntityTypeId getRelatedId(MaterialCreation creation)
     {
         return creation.getTypeId();

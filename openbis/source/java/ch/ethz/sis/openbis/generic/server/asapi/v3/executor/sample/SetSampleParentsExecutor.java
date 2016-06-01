@@ -24,18 +24,22 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSetEntityToManyRelationExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SetSampleParentsExecutor extends AbstractSetEntityToManyRelationExecutor<SampleCreation, SamplePE, ISampleId, SamplePE> implements
+public class SetSampleParentsExecutor extends SetSampleToSamplesRelationExecutor implements
         ISetSampleParentsExecutor
 {
+
+    @Override
+    protected String getRelationName()
+    {
+        return "sample-parents";
+    }
 
     @Override
     protected Collection<? extends ISampleId> getRelatedIds(IOperationContext context, SampleCreation creation)
@@ -48,8 +52,6 @@ public class SetSampleParentsExecutor extends AbstractSetEntityToManyRelationExe
     {
         Set<SamplePE> existingParents = new HashSet<SamplePE>(child.getParents());
 
-        context.pushProgress(new Progress("set parents for sample " + child.getCode()));
-
         for (SamplePE parent : parents)
         {
             if (false == existingParents.contains(parent))
@@ -58,7 +60,5 @@ public class SetSampleParentsExecutor extends AbstractSetEntityToManyRelationExe
                 existingParents.add(parent);
             }
         }
-
-        context.popProgress();
     }
 }

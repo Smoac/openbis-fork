@@ -80,14 +80,6 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
                 @Override
                 public void execute()
                 {
-                    dirNode.getFileLength();
-                }
-            });
-        assertUnsupportedFileOperationOnAction(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
                     dirNode.getChecksumCRC32();
                 }
             });

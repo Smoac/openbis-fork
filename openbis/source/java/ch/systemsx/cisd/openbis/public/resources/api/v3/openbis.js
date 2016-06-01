@@ -776,6 +776,29 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 				}
 			});
 		}
+
+		this.archiveDataSets = function(ids, options) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "archiveDataSets",
+					"params" : [ thisFacade._private.sessionToken, ids, options ]
+				}
+			});
+		}
+
+		this.unarchiveDataSets = function(ids, options) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "unarchiveDataSets",
+					"params" : [ thisFacade._private.sessionToken, ids, options ]
+				}
+			});
+		}
+
 	}
 
 	return facade;

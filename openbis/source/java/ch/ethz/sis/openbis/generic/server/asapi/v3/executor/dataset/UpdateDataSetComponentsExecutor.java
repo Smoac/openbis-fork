@@ -39,6 +39,12 @@ public class UpdateDataSetComponentsExecutor extends AbstractUpdateEntityToManyR
 {
 
     @Override
+    protected String getRelationName()
+    {
+        return "dataset-components";
+    }
+
+    @Override
     protected Collection<DataPE> getCurrentlyRelated(DataPE entity)
     {
         return entity.getContainedDataSets();

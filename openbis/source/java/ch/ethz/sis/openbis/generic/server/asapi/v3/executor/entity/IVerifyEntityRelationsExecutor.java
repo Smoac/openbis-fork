@@ -16,9 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity;
 
-import java.util.Collection;
-
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 
 /**
  * @author pkupczyk
@@ -26,6 +25,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 public interface IVerifyEntityRelationsExecutor<ENTITY_PE>
 {
 
-    public void verify(IOperationContext context, Collection<ENTITY_PE> entities);
+    public void verify(IOperationContext context, CollectionBatch<ENTITY_PE> batch);
 
 }

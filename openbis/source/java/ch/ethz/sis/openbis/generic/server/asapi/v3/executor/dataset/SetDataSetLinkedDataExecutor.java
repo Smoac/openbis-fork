@@ -16,14 +16,16 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.LinkedDataCreation;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.SetRelationProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
@@ -39,31 +41,39 @@ public class SetDataSetLinkedDataExecutor implements ISetDataSetLinkedDataExecut
     private ISetDataSetExternalDmsExecutor setDataSetExternalDmsExecutor;
 
     @Override
-    public void set(IOperationContext context, Map<DataSetCreation, DataPE> entitiesMap)
+    public void set(final IOperationContext context, final MapBatch<DataSetCreation, DataPE> batch)
     {
-        for (Map.Entry<DataSetCreation, DataPE> entry : entitiesMap.entrySet())
-        {
-            DataSetCreation creation = entry.getKey();
-            LinkedDataCreation linkedCreation = creation.getLinkedData();
-            DataPE entity = entry.getValue();
-
-            if (entity instanceof LinkDataPE)
+        new MapBatchProcessor<DataSetCreation, DataPE>(context, batch)
             {
-                if (linkedCreation == null)
+                @Override
+                public void process(DataSetCreation creation, DataPE entity)
                 {
-                    throw new UserFailureException("Linked data cannot be null for a link data set.");
-                }
-                set(context, linkedCreation, (LinkDataPE) entity);
-            } else
-            {
-                if (linkedCreation != null)
-                {
-                    throw new UserFailureException("Linked data cannot be set for a non-link data set.");
-                }
-            }
-        }
+                    LinkedDataCreation linkedCreation = creation.getLinkedData();
 
-        setDataSetExternalDmsExecutor.set(context, entitiesMap);
+                    if (entity instanceof LinkDataPE)
+                    {
+                        if (linkedCreation == null)
+                        {
+                            throw new UserFailureException("Linked data cannot be null for a link data set.");
+                        }
+                        set(context, linkedCreation, (LinkDataPE) entity);
+                    } else
+                    {
+                        if (linkedCreation != null)
+                        {
+                            throw new UserFailureException("Linked data cannot be set for a non-link data set.");
+                        }
+                    }
+                }
+
+                @Override
+                public IProgress createProgress(DataSetCreation creation, DataPE entity, int objectIndex, int totalObjectCount)
+                {
+                    return new SetRelationProgress(entity, creation, "dataset-linkeddata", objectIndex, totalObjectCount);
+                }
+            };
+
+        setDataSetExternalDmsExecutor.set(context, batch);
     }
 
     private void set(IOperationContext context, LinkedDataCreation linkedCreation, LinkDataPE dataSet)

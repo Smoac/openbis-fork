@@ -35,14 +35,17 @@ public class DataSetUtils
 
     private static final String MODE = "mode";
 
+    private static final String DISABLE_LINKS = "disableLinks";
+
     public static String createDataViewUrl(AbstractExternalData dataSet, GenericViewModel model,
-            String modeOrNull, boolean autoResolve)
+            String modeOrNull, boolean autoResolve, boolean disableLinks)
     {
         URLMethodWithParameters methodWithParameters =
                 new URLMethodWithParameters(dataSet.getDataStore().getDownloadUrl() + "/"
                         + dataSet.getCode());
         String sessionID = model.getSessionContext().getSessionID();
         methodWithParameters.addParameter(GenericSharedConstants.SESSION_ID_PARAMETER, sessionID);
+        methodWithParameters.addParameter(DISABLE_LINKS, disableLinks);
         if (modeOrNull != null)
         {
             methodWithParameters.addParameter(MODE, modeOrNull);

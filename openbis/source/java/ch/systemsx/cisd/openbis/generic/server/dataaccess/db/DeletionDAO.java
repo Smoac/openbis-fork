@@ -37,12 +37,11 @@ import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
@@ -59,7 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * 
  * @author Christian Ribeaud
  */
-final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements IDeletionDAO
+final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE>implements IDeletionDAO
 {
 
     private static final String ID = "id";
@@ -72,7 +71,8 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
 
     /**
      * This logger does not output any SQL statement. If you want to do so, you had better set an appropriate debugging level for class
-     * {@link JdbcAccessor}. </p>
+     * {@link JdbcAccessor}.
+     * </p>
      */
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DeletionDAO.class);
@@ -501,9 +501,9 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         return result;
     }
 
-    protected IFullTextIndexUpdateScheduler getIndexUpdateScheduler()
+    protected IDynamicPropertyEvaluationScheduler getIndexUpdateScheduler()
     {
-        return persistencyResources.getIndexUpdateScheduler();
+        return persistencyResources.getDynamicPropertyEvaluationScheduler();
     }
 
     protected IDynamicPropertyEvaluationScheduler getDynamicPropertyEvaluatorScheduler()
@@ -513,8 +513,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
 
     protected void scheduleRemoveFromFullTextIndex(List<Long> ids, EntityKind entityKind)
     {
-        getIndexUpdateScheduler().scheduleUpdate(
-                IndexUpdateOperation.remove(entityKind.getEntityClass(), ids));
+        getIndexUpdateScheduler().scheduleUpdate(DynamicPropertyEvaluationOperation.delete(entityKind.getEntityClass(), ids));
     }
 
     protected void scheduleDynamicPropertiesEvaluationByIds(List<Long> ids, EntityKind entityKind)

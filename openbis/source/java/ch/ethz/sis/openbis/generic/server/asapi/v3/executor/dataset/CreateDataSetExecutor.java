@@ -36,11 +36,17 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractCreateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IMapEntityTypeByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IAddTagToEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CheckDataProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CreateProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -50,7 +56,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -86,7 +91,16 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
     private ISetDataSetSampleExecutor setDataSetSampleExecutor;
 
     @Autowired
-    private ISetDataSetRelatedDataSetsExecutor setDataSetRelatedDataSetsExecutor;
+    private ISetDataSetContainerExecutor setDataSetContainerExecutor;
+
+    @Autowired
+    private ISetDataSetComponentsExecutor setDataSetComponentsExecutor;
+
+    @Autowired
+    private ISetDataSetParentsExecutor setDataSetParentsExecutor;
+
+    @Autowired
+    private ISetDataSetChildrenExecutor setDataSetChildrenExecutor;
 
     @Autowired
     private IUpdateEntityPropertyExecutor updateEntityPropertyExecutor;
@@ -98,83 +112,109 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
     private IVerifyDataSetExecutor verifyDataSetExecutor;
 
     @Override
-    protected List<DataPE> createEntities(IOperationContext context, Collection<DataSetCreation> creations)
+    protected List<DataPE> createEntities(final IOperationContext context, CollectionBatch<DataSetCreation> batch)
     {
-        // Get Types
-        Collection<IEntityTypeId> typeIds = new HashSet<IEntityTypeId>();
+        final Map<IEntityTypeId, EntityTypePE> types = getTypes(context, batch);
 
-        for (DataSetCreation creation : creations)
-        {
-            typeIds.add(creation.getTypeId());
-        }
+        checkData(context, batch, types);
 
-        Map<IEntityTypeId, EntityTypePE> types = mapEntityTypeByIdExecutor.map(context, EntityKind.DATA_SET, typeIds);
+        final IPermIdDAO codeGenerator = daoFactory.getPermIdDAO();
+        final List<DataPE> dataSets = new LinkedList<DataPE>();
 
-        // Validate DataSet creations
-        for (DataSetCreation creation : creations)
-        {
-            checkData(context, creation, types.get(creation.getTypeId()));
-        }
-
-        IPermIdDAO codeGenerator = daoFactory.getPermIdDAO();
-
-        List<DataPE> dataSets = new LinkedList<DataPE>();
-        for (DataSetCreation creation : creations)
-        {
-            DataSetTypePE type = (DataSetTypePE) types.get(creation.getTypeId());
-
-            // Create code if is not present
-            if (StringUtils.isEmpty(creation.getCode()))
+        new CollectionBatchProcessor<DataSetCreation>(context, batch)
             {
-                creation.setCode(codeGenerator.createPermId());
-            }
+                @Override
+                public void process(DataSetCreation creation)
+                {
+                    DataSetTypePE type = (DataSetTypePE) types.get(creation.getTypeId());
 
-            DataSetKind kind = DataSetKind.valueOf(type.getDataSetKind());
-            DataPE dataSet = null;
+                    // Create code if is not present
+                    if (StringUtils.isEmpty(creation.getCode()))
+                    {
+                        creation.setCode(codeGenerator.createPermId());
+                    }
 
-            if (DataSetKind.PHYSICAL.equals(kind))
-            {
-                dataSet = new ExternalDataPE();
-            } else if (DataSetKind.CONTAINER.equals(kind))
-            {
-                dataSet = new DataPE();
-            } else if (DataSetKind.LINK.equals(kind))
-            {
-                dataSet = new LinkDataPE();
-            } else
-            {
-                throw new IllegalArgumentException("Unsupported data set kind: " + kind);
-            }
+                    DataSetKind kind = DataSetKind.valueOf(type.getDataSetKind());
+                    DataPE dataSet = null;
 
-            dataSet.setCode(creation.getCode());
-            dataSet.setDataSetType(type);
-            dataSet.setDerived(false == creation.isMeasured());
-            dataSet.setDataProducerCode(creation.getDataProducer());
-            dataSet.setProductionDate(creation.getDataProductionDate());
+                    if (DataSetKind.PHYSICAL.equals(kind))
+                    {
+                        dataSet = new ExternalDataPE();
+                    } else if (DataSetKind.CONTAINER.equals(kind))
+                    {
+                        dataSet = new DataPE();
+                    } else if (DataSetKind.LINK.equals(kind))
+                    {
+                        dataSet = new LinkDataPE();
+                    } else
+                    {
+                        throw new IllegalArgumentException("Unsupported data set kind: " + kind);
+                    }
 
-            PersonPE person = context.getSession().tryGetPerson();
-            dataSet.setRegistrator(person);
-            Date timeStamp = daoFactory.getTransactionTimestamp();
-            RelationshipUtils.updateModificationDateAndModifier(dataSet, person, timeStamp);
+                    dataSet.setCode(creation.getCode());
+                    dataSet.setDataSetType(type);
+                    dataSet.setDerived(false == creation.isMeasured());
+                    dataSet.setDataProducerCode(creation.getDataProducer());
+                    dataSet.setProductionDate(creation.getDataProductionDate());
 
-            dataSets.add(dataSet);
-        }
+                    PersonPE person = context.getSession().tryGetPerson();
+                    dataSet.setRegistrator(person);
+                    Date timeStamp = daoFactory.getTransactionTimestamp();
+                    RelationshipUtils.updateModificationDateAndModifier(dataSet, person, timeStamp);
+
+                    dataSets.add(dataSet);
+                }
+
+                @Override
+                public IProgress createProgress(DataSetCreation object, int objectIndex, int totalObjectCount)
+                {
+                    return new CreateProgress(object, objectIndex, totalObjectCount);
+                }
+            };
 
         return dataSets;
     }
 
-    private void checkData(IOperationContext context, DataSetCreation creation, EntityTypePE type)
+    private Map<IEntityTypeId, EntityTypePE> getTypes(IOperationContext context, CollectionBatch<DataSetCreation> batch)
     {
-        if (type == null)
+        Collection<IEntityTypeId> typeIds = new HashSet<IEntityTypeId>();
+
+        for (DataSetCreation creation : batch.getObjects())
         {
-            throw new ObjectNotFoundException(creation.getTypeId());
-        } else if (StringUtils.isEmpty(creation.getCode()) && false == creation.isAutoGeneratedCode())
-        {
-            throw new UserFailureException("Code cannot be empty for a non auto generated code.");
-        } else if (false == StringUtils.isEmpty(creation.getCode()) && creation.isAutoGeneratedCode())
-        {
-            throw new UserFailureException("Code should be empty when auto generated code is selected.");
+            typeIds.add(creation.getTypeId());
         }
+
+        return mapEntityTypeByIdExecutor.map(context, EntityKind.DATA_SET, typeIds);
+    }
+
+    private void checkData(final IOperationContext context, final CollectionBatch<DataSetCreation> batch,
+            final Map<IEntityTypeId, EntityTypePE> types)
+    {
+        new CollectionBatchProcessor<DataSetCreation>(context, batch)
+            {
+                @Override
+                public void process(DataSetCreation creation)
+                {
+                    EntityTypePE type = types.get(creation.getTypeId());
+
+                    if (type == null)
+                    {
+                        throw new ObjectNotFoundException(creation.getTypeId());
+                    } else if (StringUtils.isEmpty(creation.getCode()) && false == creation.isAutoGeneratedCode())
+                    {
+                        throw new UserFailureException("Code cannot be empty for a non auto generated code.");
+                    } else if (false == StringUtils.isEmpty(creation.getCode()) && creation.isAutoGeneratedCode())
+                    {
+                        throw new UserFailureException("Code should be empty when auto generated code is selected.");
+                    }
+                }
+
+                @Override
+                public IProgress createProgress(DataSetCreation object, int objectIndex, int totalObjectCount)
+                {
+                    return new CheckDataProgress(object, objectIndex, totalObjectCount);
+                }
+            };
     }
 
     @Override
@@ -206,34 +246,28 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, Collection<DataPE> entities)
+    protected void checkBusinessRules(IOperationContext context, CollectionBatch<DataPE> batch)
     {
-        verifyDataSetExecutor.verify(context, entities);
+        verifyDataSetExecutor.verify(context, batch);
     }
 
     @Override
-    protected void updateBatch(IOperationContext context, Map<DataSetCreation, DataPE> entitiesMap)
+    protected void updateBatch(IOperationContext context, MapBatch<DataSetCreation, DataPE> batch)
     {
-        setDataSetPhysicalDataExecutor.set(context, entitiesMap);
-        setDataSetLinkedDataExecutor.set(context, entitiesMap);
-        setDataSetDataStoreExecutor.set(context, entitiesMap);
-        setDataSetSampleExecutor.set(context, entitiesMap);
-        setDataSetExperimentExecutor.set(context, entitiesMap);
-
-        Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
-        for (Map.Entry<DataSetCreation, DataPE> entry : entitiesMap.entrySet())
-        {
-            propertyMap.put(entry.getValue(), entry.getKey().getProperties());
-        }
-        updateEntityPropertyExecutor.update(context, propertyMap);
+        setDataSetPhysicalDataExecutor.set(context, batch);
+        setDataSetLinkedDataExecutor.set(context, batch);
+        setDataSetDataStoreExecutor.set(context, batch);
+        setDataSetSampleExecutor.set(context, batch);
+        setDataSetExperimentExecutor.set(context, batch);
+        updateEntityPropertyExecutor.update(context, batch);
     }
 
     @Override
-    protected void updateAll(IOperationContext context, Map<DataSetCreation, DataPE> entitiesMap)
+    protected void updateAll(IOperationContext context, MapBatch<DataSetCreation, DataPE> batch)
     {
         Map<IEntityWithMetaprojects, Collection<? extends ITagId>> tagMap = new HashMap<IEntityWithMetaprojects, Collection<? extends ITagId>>();
 
-        for (Map.Entry<DataSetCreation, DataPE> entry : entitiesMap.entrySet())
+        for (Map.Entry<DataSetCreation, DataPE> entry : batch.getObjects().entrySet())
         {
             DataSetCreation creation = entry.getKey();
             DataPE entity = entry.getValue();
@@ -241,7 +275,11 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
         }
 
         addTagToEntityExecutor.add(context, tagMap);
-        setDataSetRelatedDataSetsExecutor.set(context, entitiesMap);
+
+        setDataSetChildrenExecutor.set(context, batch);
+        setDataSetParentsExecutor.set(context, batch);
+        setDataSetComponentsExecutor.set(context, batch);
+        setDataSetContainerExecutor.set(context, batch);
     }
 
     @Override

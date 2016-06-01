@@ -41,12 +41,18 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.attachment.ICreateAttachmentExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractCreateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IMapEntityTypeByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IAddTagToEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CheckDataProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CreateProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
@@ -58,7 +64,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -93,7 +98,16 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
     private ISetSampleExperimentExecutor setSampleExperimentExecutor;
 
     @Autowired
-    private ISetSampleRelatedSamplesExecutor setSampleRelatedSamplesExecutor;
+    private ISetSampleContainerExecutor setSampleContainerExecutor;
+
+    @Autowired
+    private ISetSampleComponentsExecutor setSampleComponentsExecutor;
+
+    @Autowired
+    private ISetSampleParentsExecutor setSampleParentsExecutor;
+
+    @Autowired
+    private ISetSampleChildrenExecutor setSampleChildrenExecutor;
 
     @Autowired
     private IUpdateEntityPropertyExecutor updateEntityPropertyExecutor;
@@ -111,36 +125,107 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
     private ExposablePropertyPlaceholderConfigurer configurer;
 
     @Override
-    protected List<SamplePE> createEntities(IOperationContext context, Collection<SampleCreation> creations)
+    protected List<SamplePE> createEntities(final IOperationContext context, CollectionBatch<SampleCreation> batch)
     {
-        // Get Types
+        final Map<IEntityTypeId, EntityTypePE> types = getTypes(context, batch);
+
+        checkData(context, batch, types);
+
+        final Map<String, Deque<String>> codesByPrefix = generateCodes(context, batch, types);
+        final List<SamplePE> samples = new LinkedList<SamplePE>();
+        final PersonPE person = context.getSession().tryGetPerson();
+        final Date timeStamp = daoFactory.getTransactionTimestamp();
+
+        new CollectionBatchProcessor<SampleCreation>(context, batch)
+            {
+                @Override
+                public void process(SampleCreation creation)
+                {
+                    SamplePE sample = new SamplePE();
+                    // Create code if is not present
+                    if (StringUtils.isEmpty(creation.getCode()))
+                    {
+                        SampleTypePE type = (SampleTypePE) types.get(creation.getTypeId());
+                        creation.setCode(codesByPrefix.get(type.getGeneratedCodePrefix()).removeFirst());
+                    }
+                    sample.setCode(creation.getCode());
+                    String createdPermId = daoFactory.getPermIdDAO().createPermId();
+                    sample.setPermId(createdPermId);
+                    sample.setRegistrator(person);
+                    RelationshipUtils.updateModificationDateAndModifier(sample, person, timeStamp);
+                    samples.add(sample);
+                }
+
+                @Override
+                public IProgress createProgress(SampleCreation object, int objectIndex, int totalObjectCount)
+                {
+                    return new CreateProgress(object, objectIndex, totalObjectCount);
+                }
+            };
+
+        return samples;
+    }
+
+    private Map<IEntityTypeId, EntityTypePE> getTypes(IOperationContext context, CollectionBatch<SampleCreation> batch)
+    {
         Collection<IEntityTypeId> typeIds = new HashSet<IEntityTypeId>();
 
-        for (SampleCreation creation : creations)
+        for (SampleCreation creation : batch.getObjects())
         {
             typeIds.add(creation.getTypeId());
         }
 
-        Map<IEntityTypeId, EntityTypePE> types = mapEntityTypeByIdExecutor.map(context, EntityKind.SAMPLE, typeIds);
+        return mapEntityTypeByIdExecutor.map(context, EntityKind.SAMPLE, typeIds);
+    }
 
+    private void checkData(final IOperationContext context, final CollectionBatch<SampleCreation> batch, final Map<IEntityTypeId, EntityTypePE> types)
+    {
+        new CollectionBatchProcessor<SampleCreation>(context, batch)
+            {
+                @Override
+                public void process(SampleCreation creation)
+                {
+                    SampleTypePE type = (SampleTypePE) types.get(creation.getTypeId());
+
+                    if (creation.getTypeId() == null)
+                    {
+                        throw new UserFailureException("Type id cannot be null.");
+                    } else if (type == null)
+                    {
+                        throw new ObjectNotFoundException(creation.getTypeId());
+                    } else if (false == StringUtils.isEmpty(creation.getCode()) && (type.isAutoGeneratedCode() || creation.isAutoGeneratedCode()))
+                    {
+                        throw new UserFailureException("Code should be empty when auto generated code is selected.");
+                    } else if (StringUtils.isEmpty(creation.getCode()) && false == type.isAutoGeneratedCode()
+                            && false == creation.isAutoGeneratedCode())
+                    {
+                        throw new UserFailureException("Code cannot be empty for a non auto generated code.");
+                    } else
+                    {
+                        SampleIdentifierFactory.assertValidCode(creation.getCode());
+                    }
+                }
+
+                @Override
+                public IProgress createProgress(SampleCreation object, int objectIndex, int totalObjectCount)
+                {
+                    return new CheckDataProgress(object, objectIndex, totalObjectCount);
+                }
+            };
+    }
+
+    private Map<String, Deque<String>> generateCodes(IOperationContext context, CollectionBatch<SampleCreation> batch,
+            Map<IEntityTypeId, EntityTypePE> types)
+    {
         Properties serviceProperties = configurer.getResolvedProps();
         boolean createContinuousSampleCodes = PropertyUtils.getBoolean(serviceProperties, Constants.CREATE_CONTINUOUS_SAMPLES_CODES_KEY, false);
-
-        EntityCodeGenerator codeGenerator;
-        if (createContinuousSampleCodes)
-        {
-            codeGenerator = new SampleCodeGeneratorByType(daoFactory);
-        } else
-        {
-            codeGenerator = new EntityCodeGenerator(daoFactory);
-        }
-
-        // Validate Sample creations using types
         Map<String, Integer> numCodesByPrefix = new HashMap<String, Integer>();
-        for (SampleCreation creation : creations)
+
+        // Count how many codes should be generated with each prefix
+        for (SampleCreation creation : batch.getObjects())
         {
             SampleTypePE type = (SampleTypePE) types.get(creation.getTypeId());
-            checkData(context, creation, type);
+
             if (StringUtils.isEmpty(creation.getCode()) && (type.isAutoGeneratedCode() || creation.isAutoGeneratedCode()))
             {
                 Integer codesForPrefix = numCodesByPrefix.get(type.getGeneratedCodePrefix());
@@ -155,8 +240,20 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
             }
         }
 
+        // Create a code generator
+        EntityCodeGenerator codeGenerator;
+
+        if (createContinuousSampleCodes)
+        {
+            codeGenerator = new SampleCodeGeneratorByType(daoFactory);
+        } else
+        {
+            codeGenerator = new EntityCodeGenerator(daoFactory);
+        }
+
         // Generate Codes for prefixes (Works in case of codes by prefix and standard)
-        Map<String, Deque<String>> codesByPrefix = new HashMap<String, Deque<String>>();
+        final Map<String, Deque<String>> codesByPrefix = new HashMap<String, Deque<String>>();
+
         for (String prefix : numCodesByPrefix.keySet())
         {
             int numOfCodesForPrefix = numCodesByPrefix.get(prefix);
@@ -167,48 +264,7 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
             codesByPrefix.put(prefix, newCodesQueue);
         }
 
-        // Create SamplePE objects
-        List<SamplePE> samples = new LinkedList<SamplePE>();
-        PersonPE person = context.getSession().tryGetPerson();
-        Date timeStamp = daoFactory.getTransactionTimestamp();
-        for (SampleCreation creation : creations)
-        {
-            SamplePE sample = new SamplePE();
-            // Create code if is not present
-            if (StringUtils.isEmpty(creation.getCode()))
-            {
-                SampleTypePE type = (SampleTypePE) types.get(creation.getTypeId());
-                creation.setCode(codesByPrefix.get(type.getGeneratedCodePrefix()).removeFirst());
-            }
-            sample.setCode(creation.getCode());
-            String createdPermId = daoFactory.getPermIdDAO().createPermId();
-            sample.setPermId(createdPermId);
-            sample.setRegistrator(person);
-            RelationshipUtils.updateModificationDateAndModifier(sample, person, timeStamp);
-            samples.add(sample);
-        }
-
-        return samples;
-    }
-
-    private void checkData(IOperationContext context, SampleCreation creation, SampleTypePE type)
-    {
-        if (creation.getTypeId() == null)
-        {
-            throw new UserFailureException("Type id cannot be null.");
-        } else if (type == null)
-        {
-            throw new ObjectNotFoundException(creation.getTypeId());
-        } else if (false == StringUtils.isEmpty(creation.getCode()) && (type.isAutoGeneratedCode() || creation.isAutoGeneratedCode()))
-        {
-            throw new UserFailureException("Code should be empty when auto generated code is selected.");
-        } else if (StringUtils.isEmpty(creation.getCode()) && false == type.isAutoGeneratedCode() && false == creation.isAutoGeneratedCode())
-        {
-            throw new UserFailureException("Code cannot be empty for a non auto generated code.");
-        } else
-        {
-            SampleIdentifierFactory.assertValidCode(creation.getCode());
-        }
+        return codesByPrefix;
     }
 
     @Override
@@ -233,35 +289,29 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, Collection<SamplePE> entities)
+    protected void checkBusinessRules(IOperationContext context, CollectionBatch<SamplePE> batch)
     {
-        verifySampleExecutor.verify(context, entities);
+        verifySampleExecutor.verify(context, batch);
     }
 
     @Override
-    protected void updateBatch(IOperationContext context, Map<SampleCreation, SamplePE> entitiesMap)
+    protected void updateBatch(IOperationContext context, MapBatch<SampleCreation, SamplePE> batch)
     {
-        setSampleSpaceExecutor.set(context, entitiesMap);
-        setSampleProjectExecutor.set(context, entitiesMap);
-        setSampleExperimentExecutor.set(context, entitiesMap);
-        setSampleTypeExecutor.set(context, entitiesMap);
-
-        Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
-        for (Map.Entry<SampleCreation, SamplePE> entry : entitiesMap.entrySet())
-        {
-            propertyMap.put(entry.getValue(), entry.getKey().getProperties());
-        }
-        updateEntityPropertyExecutor.update(context, propertyMap);
+        setSampleSpaceExecutor.set(context, batch);
+        setSampleProjectExecutor.set(context, batch);
+        setSampleExperimentExecutor.set(context, batch);
+        setSampleTypeExecutor.set(context, batch);
+        updateEntityPropertyExecutor.update(context, batch);
     }
 
     @Override
-    protected void updateAll(IOperationContext context, Map<SampleCreation, SamplePE> entitiesMap)
+    protected void updateAll(IOperationContext context, MapBatch<SampleCreation, SamplePE> batch)
     {
         Map<AttachmentHolderPE, Collection<? extends AttachmentCreation>> attachmentMap =
                 new HashMap<AttachmentHolderPE, Collection<? extends AttachmentCreation>>();
         Map<IEntityWithMetaprojects, Collection<? extends ITagId>> tagMap = new HashMap<IEntityWithMetaprojects, Collection<? extends ITagId>>();
 
-        for (Map.Entry<SampleCreation, SamplePE> entry : entitiesMap.entrySet())
+        for (Map.Entry<SampleCreation, SamplePE> entry : batch.getObjects().entrySet())
         {
             SampleCreation creation = entry.getKey();
             SamplePE entity = entry.getValue();
@@ -271,7 +321,11 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
 
         createAttachmentExecutor.create(context, attachmentMap);
         addTagToEntityExecutor.add(context, tagMap);
-        setSampleRelatedSamplesExecutor.set(context, entitiesMap);
+
+        setSampleChildrenExecutor.set(context, batch);
+        setSampleParentsExecutor.set(context, batch);
+        setSampleComponentsExecutor.set(context, batch);
+        setSampleContainerExecutor.set(context, batch);
     }
 
     @Override

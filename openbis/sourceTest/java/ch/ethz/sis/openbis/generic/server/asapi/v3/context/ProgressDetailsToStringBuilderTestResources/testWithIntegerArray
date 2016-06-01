@@ -1,0 +1,6 @@
+{
+  "@type" : "as.test.context.TestClass",
+  "@id" : 1,
+  "primitive" : 0,
+  "integerArray" : [ 1, 2, 3 ]
+}

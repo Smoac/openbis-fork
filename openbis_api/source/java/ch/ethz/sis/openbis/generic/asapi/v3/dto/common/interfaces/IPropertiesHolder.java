@@ -18,7 +18,6 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces;
 
 import java.util.Map;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -30,10 +29,10 @@ public interface IPropertiesHolder
 
     Map<String, String> getProperties();
 
+    void setProperties(Map<String, String> properties);
+
     String getProperty(String propertyName);
 
-    Map<String, Material> getMaterialProperties();
-
-    Material getMaterialProperty(String propertyName);
+    void setProperty(String propertyName, String propertyValue);
 
 }

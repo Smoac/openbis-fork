@@ -230,7 +230,6 @@ public class ProjectFetchOptions extends FetchOptions<Project> implements Serial
     {
         return sort;
     }
-
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

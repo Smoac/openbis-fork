@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
@@ -19,10 +20,18 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 public class DownloadFileTest extends AbstractFileTest
 {
 
+    @Override
+    @BeforeClass
+    protected void beforeClass() throws Exception
+    {
+        super.beforeClass();
+        registerDataSet();
+    }
+
     @Test
     public void testDownloadUnauthorized()
     {
-        String spaceSessionToken = gis.tryToAuthenticateForAllServices("test_space", "password");
+        String spaceSessionToken = gis.tryToAuthenticateForAllServices(TEST_SPACE_USER, PASSWORD);
 
         InputStream stream = dss.downloadFiles(spaceSessionToken, Arrays.asList(new DataSetFilePermId(new DataSetPermId(dataSetCode))),
                 new DataSetFileDownloadOptions());
@@ -95,6 +104,7 @@ public class DownloadFileTest extends AbstractFileTest
         IDataSetFileId file2 = new DataSetFilePermId(new DataSetPermId(dataSetCode), getPath("file2.txt"));
         DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
 
+        String sessionToken = gis.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
         InputStream stream = dss.downloadFiles(sessionToken, Arrays.asList(file1, file2), options);
         DataSetFileDownloadReader reader = new DataSetFileDownloadReader(stream);
 
@@ -113,6 +123,7 @@ public class DownloadFileTest extends AbstractFileTest
 
         DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
 
+        String sessionToken = gis.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
         InputStream stream = dss.downloadFiles(sessionToken, Arrays.asList(file1, file2, file3), options);
         DataSetFileDownloadReader reader = new DataSetFileDownloadReader(stream);
 
@@ -131,6 +142,7 @@ public class DownloadFileTest extends AbstractFileTest
 
         DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
 
+        String sessionToken = gis.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
         InputStream stream = dss.downloadFiles(sessionToken, Arrays.asList(file1, file2), options);
         DataSetFileDownloadReader reader = new DataSetFileDownloadReader(stream);
 
@@ -145,6 +157,8 @@ public class DownloadFileTest extends AbstractFileTest
     {
         try
         {
+            String sessionToken = gis.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
+
             InputStream stream = dss.downloadFiles(sessionToken, files, options);
             DataSetFileDownloadReader reader = new DataSetFileDownloadReader(stream);
 

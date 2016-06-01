@@ -27,6 +27,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.archive.DataSetArchiveOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
@@ -35,6 +36,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.unarchive.DataSetUnarchiveOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
@@ -116,6 +118,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyTermUpdate;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IArchiveDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IConfirmDeletionMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ICreateExperimentMethodExecutor;
@@ -159,6 +162,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchSample
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchSpaceMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchTagMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.ISearchVocabularyTermMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUnarchiveDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateDataSetMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateExperimentMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IUpdateMaterialMethodExecutor;
@@ -347,6 +351,12 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private IGlobalSearchMethodExecutor globalSearchExecutor;
+
+    @Autowired
+    private IArchiveDataSetMethodExecutor archiveDataSetExecutor;
+
+    @Autowired
+    private IUnarchiveDataSetMethodExecutor unarchiveDataSetExecutor;
 
     // Default constructor needed by Spring
     public ApplicationServerApi()
@@ -862,6 +872,24 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             GlobalSearchObjectFetchOptions fetchOptions)
     {
         return globalSearchExecutor.search(sessionToken, searchCriteria, fetchOptions);
+    }
+
+    @Override
+    @Transactional
+    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("ARCHIVE_DATASET")
+    public void archiveDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetArchiveOptions options)
+    {
+        archiveDataSetExecutor.archive(sessionToken, dataSetIds, options);
+    }
+
+    @Override
+    @Transactional
+    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("UNARCHIVE_DATASET")
+    public void unarchiveDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetUnarchiveOptions options)
+    {
+        unarchiveDataSetExecutor.unarchive(sessionToken, dataSetIds, options);
     }
 
     @Override

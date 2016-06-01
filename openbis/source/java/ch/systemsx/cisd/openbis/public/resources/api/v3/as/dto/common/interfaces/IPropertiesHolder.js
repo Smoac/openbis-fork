@@ -5,13 +5,13 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.getProperty = function() {
 			throw new exceptions.RuntimeException("Interface method.");
 		};
+		prototype.setProperty = function() {
+			throw new exceptions.RuntimeException("Interface method.");
+		};
 		prototype.getProperties = function() {
 			throw new exceptions.RuntimeException("Interface method.");
 		};
-		prototype.getMaterialProperties = function() {
-			throw new exceptions.RuntimeException("Interface method.");
-		};
-		prototype.getMaterialProperty = function() {
+		prototype.setProperties = function() {
 			throw new exceptions.RuntimeException("Interface method.");
 		};
 	}, {});

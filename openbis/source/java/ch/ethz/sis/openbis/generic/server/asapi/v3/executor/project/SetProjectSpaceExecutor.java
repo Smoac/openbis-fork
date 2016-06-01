@@ -45,6 +45,12 @@ public class SetProjectSpaceExecutor extends AbstractSetEntityToOneRelationExecu
     private IMapSpaceByIdExecutor mapSpaceByIdExecutor;
 
     @Override
+    protected String getRelationName()
+    {
+        return "project-space";
+    }
+
+    @Override
     protected ISpaceId getRelatedId(ProjectCreation creation)
     {
         return creation.getSpaceId();

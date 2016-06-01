@@ -16,13 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment;
 
-import java.util.Collection;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IVerifyEntityPropertyExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
 /**
@@ -46,12 +45,9 @@ public class VerifyExperimentExecutor implements IVerifyExperimentExecutor
     }
 
     @Override
-    public void verify(IOperationContext context, Collection<ExperimentPE> experiments)
+    public void verify(IOperationContext context, CollectionBatch<ExperimentPE> batch)
     {
-        if (experiments != null && false == experiments.isEmpty())
-        {
-            verifyEntityPropertyExecutor.verify(context, experiments);
-        }
+        verifyEntityPropertyExecutor.verify(context, batch);
     }
 
 }

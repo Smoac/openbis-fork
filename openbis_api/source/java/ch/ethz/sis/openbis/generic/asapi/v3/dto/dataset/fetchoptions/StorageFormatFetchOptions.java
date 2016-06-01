@@ -50,7 +50,6 @@ public class StorageFormatFetchOptions extends FetchOptions<StorageFormat> imple
     {
         return sort;
     }
-
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

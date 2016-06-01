@@ -106,6 +106,8 @@ public abstract class SystemTestCase extends AssertJUnit
 
     protected File store;
 
+    protected File archive;
+
     protected BufferedAppender logAppender;
 
     static
@@ -118,6 +120,8 @@ public abstract class SystemTestCase extends AssertJUnit
         rootDir = new File(workingDirectory, "dss-root");
         store = new File(rootDir, "store");
         store.mkdirs();
+        archive = new File(rootDir, "archive");
+        archive.mkdirs();
     }
 
     private static void createWorkingDirectory()
@@ -201,7 +205,7 @@ public abstract class SystemTestCase extends AssertJUnit
                 rootDir.getAbsolutePath());
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
                 + DssPropertyParametersUtil.DSS_REGISTRATION_LOG_DIR_PATH, getRegistrationLogDir()
-                .getAbsolutePath());
+                        .getAbsolutePath());
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "dss-rpc.put-default", "test");
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + SERVER_URL_KEY,
                 TestInstanceHostUtils.getOpenBISUrl());
@@ -212,6 +216,7 @@ public abstract class SystemTestCase extends AssertJUnit
         System.setProperty(SERVER_URL_KEY, TestInstanceHostUtils.getOpenBISUrl());
         System.setProperty("port", Integer.toString(TestInstanceHostUtils.getDSSPort()));
         System.setProperty(DOWNLOAD_URL_KEY, TestInstanceHostUtils.getDSSUrl());
+        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "archiver.destination", archive.getAbsolutePath());
 
         QueueingPathRemoverService.start(rootDir, ETLDaemon.shredderQueueFile);
         DataStoreServer.main(new String[0]);

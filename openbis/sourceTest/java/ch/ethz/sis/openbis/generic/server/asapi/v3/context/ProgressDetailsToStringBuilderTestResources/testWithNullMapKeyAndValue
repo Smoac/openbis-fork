@@ -1,0 +1,9 @@
+{
+  "@type" : "as.test.context.TestClass",
+  "@id" : 1,
+  "primitive" : 0,
+  "stringMap" : {
+    "k1" : "v1",
+    "null" : null
+  }
+}

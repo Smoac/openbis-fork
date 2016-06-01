@@ -4,12 +4,15 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+
+import org.springframework.beans.BeanUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -97,7 +100,7 @@ public class DtoGenerator
 
         boolean plural;
 
-        boolean interfaceMethod;
+        Class<?> interfaceClass;
 
         private DTOField(String fieldName, Class<?> fieldClass, String description, Class<?> fetchOptions, boolean plural)
         {
@@ -135,13 +138,13 @@ public class DtoGenerator
         void withInterface(Class<?> i)
         {
             addImplementedInterface(i);
-            interfaceMethod = true;
+            interfaceClass = i;
         }
 
         void withInterfaceReflexive(Class<?> i)
         {
             addImplementedInterfaceGeneric(i);
-            interfaceMethod = true;
+            interfaceClass = i;
         }
     }
 
@@ -490,6 +493,7 @@ public class DtoGenerator
     private void printBasicSetter(DTOField field)
     {
         printMethodJavaDoc();
+        printSetterAnnotation(field);
         print("public void set%s(%s %s)",
                 field.getCapitalizedName(),
                 field.definitionClassName,
@@ -511,10 +515,33 @@ public class DtoGenerator
         print("");
     }
 
+    private void printSetterAnnotation(DTOField field)
+    {
+        Method interfaceMethod = null;
+
+        if (field.interfaceClass != null)
+        {
+            interfaceMethod = BeanUtils.findMethodWithMinimalParameters(field.interfaceClass, "set" + field.getCapitalizedName());
+        }
+
+        if (interfaceMethod != null)
+        {
+            print("@Override");
+        }
+    }
+
     private void printGetterAnnotation(DTOField field)
     {
         print("@JsonIgnore");
-        if (field.interfaceMethod)
+
+        Method interfaceMethod = null;
+
+        if (field.interfaceClass != null)
+        {
+            interfaceMethod = BeanUtils.findMethodWithMinimalParameters(field.interfaceClass, "get" + field.getCapitalizedName());
+        }
+
+        if (interfaceMethod != null)
         {
             print("@Override");
         }

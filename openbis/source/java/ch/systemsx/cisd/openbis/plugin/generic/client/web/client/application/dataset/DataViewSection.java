@@ -44,11 +44,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailViewConfiguration;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
 
@@ -128,10 +128,10 @@ public class DataViewSection extends TabContent
 
                         if (service.getLabel().equals(FILES_SMART_VIEW))
                         {
-                            showDataSetFilesView(true);
+                            showDataSetFilesView(true, !dataset.isAvailable());
                         } else if (service.getLabel().equals(FILES_HOME_VIEW))
                         {
-                            showDataSetFilesView(false);
+                            showDataSetFilesView(false, !dataset.isAvailable());
                         } else
                         {
                             ReportingPluginType reportingPluginTypeOrNull =
@@ -196,10 +196,10 @@ public class DataViewSection extends TabContent
                             service, criteria, action);
                 }
 
-                private void showDataSetFilesView(boolean autoResolve)
+                private void showDataSetFilesView(boolean autoResolve, boolean disableLinks)
                 {
                     showDssUrl(DataSetUtils.createDataViewUrl(dataset, viewContext.getModel(),
-                            "simpleHtml", autoResolve));
+                            "simpleHtml", autoResolve, disableLinks));
                 }
 
                 private void showDssUrl(String url)
@@ -264,10 +264,8 @@ public class DataViewSection extends TabContent
             this.dataset = dataset;
             this.hideFileView = hideFileView;
             this.hideSmartView = hideSmartView;
-            if (dataset.isAvailable())
-            {
-                addPostRefreshCallback(createDefaultServiceSelectionAction());
-            } else
+            addPostRefreshCallback(createDefaultServiceSelectionAction());
+            if (!dataset.isAvailable())
             {
                 disable();
             }

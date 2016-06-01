@@ -52,6 +52,12 @@ public class UpdateSampleExperimentExecutor extends
     private IVerifySampleDataSetsExecutor verifySampleDataSetsExecutor;
 
     @Override
+    protected String getRelationName()
+    {
+        return "sample-experiment";
+    }
+
+    @Override
     protected IExperimentId getRelatedId(ExperimentPE related)
     {
         return new ExperimentIdentifier(related.getIdentifier());

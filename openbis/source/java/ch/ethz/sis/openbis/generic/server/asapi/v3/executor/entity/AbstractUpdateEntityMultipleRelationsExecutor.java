@@ -27,6 +27,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue.ListUpdateAction;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 
 /**
  * @author pkupczyk
@@ -37,10 +38,10 @@ public abstract class AbstractUpdateEntityMultipleRelationsExecutor<ENTITY_UPDAT
 {
 
     @Override
-    public void update(IOperationContext context, Map<ENTITY_UPDATE, ENTITY_PE> entitiesMap)
+    public void update(IOperationContext context, MapBatch<ENTITY_UPDATE, ENTITY_PE> batch)
     {
-        Map<RELATED_ID, RELATED_PE> relatedMap = getRelatedMap(context, entitiesMap.keySet());
-        update(context, entitiesMap, relatedMap);
+        Map<RELATED_ID, RELATED_PE> relatedMap = getRelatedMap(context, batch.getObjects().keySet());
+        update(context, batch, relatedMap);
     }
 
     private Map<RELATED_ID, RELATED_PE> getRelatedMap(IOperationContext context, Collection<ENTITY_UPDATE> updates)
@@ -78,6 +79,6 @@ public abstract class AbstractUpdateEntityMultipleRelationsExecutor<ENTITY_UPDAT
 
     protected abstract Map<RELATED_ID, RELATED_PE> map(IOperationContext context, Collection<RELATED_ID> relatedIds);
 
-    protected abstract void update(IOperationContext context, Map<ENTITY_UPDATE, ENTITY_PE> entitiesMap, Map<RELATED_ID, RELATED_PE> relatedMap);
+    protected abstract void update(IOperationContext context, MapBatch<ENTITY_UPDATE, ENTITY_PE> batch, Map<RELATED_ID, RELATED_PE> relatedMap);
 
 }

@@ -25,11 +25,17 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		prototype.setExperimentId = function(experimentId) {
 			this.experimentId = experimentId;
 		};
-		prototype.setProperty = function(key, value) {
-			this.properties[key] = value;
+		prototype.getProperty = function(propertyName) {
+			return this.properties[propertyName];
+		};
+		prototype.setProperty = function(propertyName, propertyValue) {
+			this.properties[propertyName] = propertyValue;
 		};
 		prototype.getProperties = function() {
 			return this.properties;
+		};
+		prototype.setProperties = function(properties) {
+			this.properties = properties;
 		};
 		prototype.setProjectId = function(projectId) {
 			this.projectId.setValue(projectId);

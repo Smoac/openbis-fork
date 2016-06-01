@@ -98,7 +98,6 @@ public abstract class AbstractHierarchicalContentNode implements IHierarchicalCo
     @Override
     public final long getFileLength() throws UnsupportedOperationException
     {
-        requirePhysicalFile();
         return doGetFileLength();
     }
 

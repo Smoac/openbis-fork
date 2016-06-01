@@ -148,7 +148,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
         assertEquals(result.getExperiment().getCode(), "EXP-SPACE-TEST");
     }
 
-    @Test(expectedExceptions = { UserFailureException.class }, expectedExceptionsMessageRegExp = "Access denied.*")
+    @Test(expectedExceptions = { UserFailureException.class }, expectedExceptionsMessageRegExp = "(?s).*Access denied.*")
     public void testUpdateWithSampleNotAllowed()
     {
         String sessionToken = v3api.login(TEST_POWER_USER_CISD, PASSWORD);

@@ -22,17 +22,18 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.test.context.transaction.TestTransaction;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.index.RemoveFromIndexState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-
 import junit.framework.Assert;
 
 /**
@@ -42,20 +43,27 @@ public class DeleteExperimentTest extends AbstractDeletionTest
 {
 
     @Test
-    public void testDeleteWithIndexCheck()
+    public void testDeleteWithIndexCheck() throws Exception
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        ExperimentPermId permId = createCisdExperiment();
+        ExperimentPermId permId = createCisdExperiment(new ProjectIdentifier("/CISD/DEFAULT"), java.util.UUID.randomUUID().toString().toUpperCase());
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+
         ExperimentDeletionOptions options = new ExperimentDeletionOptions();
         options.setReason("It is just a test");
 
+        TestTransaction.start();
         List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listByPermID(Arrays.asList(permId.getPermId()));
         assertEquals(experiments.size(), 1);
 
-        RemoveFromIndexState state = new RemoveFromIndexState(daoFactory);
+        RemoveFromIndexState state = new RemoveFromIndexState();
 
         v3api.deleteExperiments(sessionToken, Collections.singletonList(permId), options);
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+        Thread.sleep(2000);
 
         assertExperimentsRemovedFromIndex(state, experiments.get(0).getId());
     }

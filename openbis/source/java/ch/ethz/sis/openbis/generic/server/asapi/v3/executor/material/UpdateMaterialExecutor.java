@@ -17,7 +17,6 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,15 +26,17 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.update.MaterialUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IUpdateTagForEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateRelationProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -79,42 +80,45 @@ public class UpdateMaterialExecutor extends AbstractUpdateEntityExecutor<Materia
     @Override
     protected void checkAccess(IOperationContext context, IMaterialId id, MaterialPE entity)
     {
-        if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), entity))
-        {
-            throw new UnauthorizedObjectAccessException(id);
-        }
+        // nothing to do
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, Collection<MaterialPE> entities)
+    protected void checkBusinessRules(IOperationContext context, CollectionBatch<MaterialPE> batch)
     {
-        verifyMaterialExecutor.verify(context, entities);
+        verifyMaterialExecutor.verify(context, batch);
     }
 
     @Override
-    protected void updateBatch(IOperationContext context, Map<MaterialUpdate, MaterialPE> entitiesMap)
+    protected void updateBatch(IOperationContext context, MapBatch<MaterialUpdate, MaterialPE> batch)
     {
-        Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
-        for (Map.Entry<MaterialUpdate, MaterialPE> entry : entitiesMap.entrySet())
-        {
-            MaterialUpdate update = entry.getKey();
-            MaterialPE entity = entry.getValue();
-            updateTagForEntityExecutor.update(context, entity, update.getTagIds());
+        updateTags(context, batch);
+        updateMaterialPropertyExecutor.update(context, batch);
+    }
 
-            if (update.getProperties() != null && false == update.getProperties().isEmpty())
+    private void updateTags(final IOperationContext context, final MapBatch<MaterialUpdate, MaterialPE> batch)
+    {
+        new MapBatchProcessor<MaterialUpdate, MaterialPE>(context, batch)
             {
-                propertyMap.put(entity, update.getProperties());
-            }
-        }
+                @Override
+                public void process(MaterialUpdate update, MaterialPE entity)
+                {
+                    if (update.getTagIds() != null && update.getTagIds().hasActions())
+                    {
+                        updateTagForEntityExecutor.update(context, entity, update.getTagIds());
+                    }
+                }
 
-        if (false == propertyMap.isEmpty())
-        {
-            updateMaterialPropertyExecutor.update(context, propertyMap);
-        }
+                @Override
+                public IProgress createProgress(MaterialUpdate update, MaterialPE entity, int objectIndex, int totalObjectCount)
+                {
+                    return new UpdateRelationProgress(update, entity, "material-tag", objectIndex, totalObjectCount);
+                }
+            };
     }
 
     @Override
-    protected void updateAll(IOperationContext context, Map<MaterialUpdate, MaterialPE> entitiesMap)
+    protected void updateAll(IOperationContext context, MapBatch<MaterialUpdate, MaterialPE> batch)
     {
     }
 

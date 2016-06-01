@@ -25,20 +25,27 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue.ListUpdateAction;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue.ListUpdateActionAdd;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue.ListUpdateActionRemove;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue.ListUpdateActionSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateRelationProgress;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 
 /**
  * @author pkupczyk
  */
-public abstract class AbstractUpdateEntityToManyRelationExecutor<ENTITY_UPDATE, ENTITY_PE, RELATED_ID, RELATED_PE> implements
+public abstract class AbstractUpdateEntityToManyRelationExecutor<ENTITY_UPDATE extends IUpdate, ENTITY_PE extends IIdentityHolder, RELATED_ID, RELATED_PE>
+        implements
         IUpdateEntityRelationsWithCacheExecutor<ENTITY_UPDATE, ENTITY_PE, RELATED_ID, RELATED_PE>
 {
 
@@ -46,61 +53,68 @@ public abstract class AbstractUpdateEntityToManyRelationExecutor<ENTITY_UPDATE, 
     protected IRelationshipService relationshipService;
 
     @Override
-    public void update(IOperationContext context, Map<ENTITY_UPDATE, ENTITY_PE> entitiesMap, Map<RELATED_ID, RELATED_PE> relatedMap)
+    public void update(final IOperationContext context, final MapBatch<ENTITY_UPDATE, ENTITY_PE> batch, final Map<RELATED_ID, RELATED_PE> relatedMap)
     {
-        Collection<RELATED_PE> allAdded = new HashSet<RELATED_PE>();
-        Collection<RELATED_PE> allRemoved = new HashSet<RELATED_PE>();
+        final Collection<RELATED_PE> allAdded = new HashSet<RELATED_PE>();
+        final Collection<RELATED_PE> allRemoved = new HashSet<RELATED_PE>();
 
-        for (ENTITY_UPDATE update : entitiesMap.keySet())
-        {
-            IdListUpdateValue<? extends RELATED_ID> listUpdate = getRelatedUpdate(context, update);
-
-            if (listUpdate != null && listUpdate.hasActions())
+        new MapBatchProcessor<ENTITY_UPDATE, ENTITY_PE>(context, batch)
             {
-                ENTITY_PE entity = entitiesMap.get(update);
-
-                for (ListUpdateAction<? extends RELATED_ID> action : listUpdate.getActions())
+                @Override
+                public void process(ENTITY_UPDATE update, ENTITY_PE entity)
                 {
-                    Collection<RELATED_PE> relatedCollection = new LinkedList<RELATED_PE>();
+                    IdListUpdateValue<? extends RELATED_ID> listUpdate = getRelatedUpdate(context, update);
 
-                    if (action instanceof ListUpdateActionSet<?> || action instanceof ListUpdateActionAdd<?>)
+                    if (listUpdate != null && listUpdate.hasActions())
                     {
-                        for (RELATED_ID relatedId : action.getItems())
+                        for (ListUpdateAction<? extends RELATED_ID> action : listUpdate.getActions())
                         {
-                            RELATED_PE related = relatedMap.get(relatedId);
-                            if (related == null)
+                            Collection<RELATED_PE> relatedCollection = new LinkedList<RELATED_PE>();
+
+                            if (action instanceof ListUpdateActionSet<?> || action instanceof ListUpdateActionAdd<?>)
                             {
-                                throw new ObjectNotFoundException((IObjectId) relatedId);
-                            }
-                            check(context, entity, relatedId, related);
-                            relatedCollection.add(related);
-                        }
-                        if (action instanceof ListUpdateActionSet<?>)
-                        {
-                            set(context, entity, relatedCollection, allAdded, allRemoved);
-                        } else
-                        {
-                            add(context, entity, relatedCollection, allAdded);
-                        }
-                    } else if (action instanceof ListUpdateActionRemove<?>)
-                    {
-                        for (RELATED_ID relatedId : action.getItems())
-                        {
-                            RELATED_PE related = relatedMap.get(relatedId);
-                            if (related != null)
+                                for (RELATED_ID relatedId : action.getItems())
+                                {
+                                    RELATED_PE related = relatedMap.get(relatedId);
+                                    if (related == null)
+                                    {
+                                        throw new ObjectNotFoundException((IObjectId) relatedId);
+                                    }
+                                    check(context, entity, relatedId, related);
+                                    relatedCollection.add(related);
+                                }
+                                if (action instanceof ListUpdateActionSet<?>)
+                                {
+                                    set(context, entity, relatedCollection, allAdded, allRemoved);
+                                } else
+                                {
+                                    add(context, entity, relatedCollection, allAdded);
+                                }
+                            } else if (action instanceof ListUpdateActionRemove<?>)
                             {
-                                relatedCollection.add(related);
-                                check(context, entity, relatedId, related);
+                                for (RELATED_ID relatedId : action.getItems())
+                                {
+                                    RELATED_PE related = relatedMap.get(relatedId);
+                                    if (related != null)
+                                    {
+                                        relatedCollection.add(related);
+                                        check(context, entity, relatedId, related);
+                                    }
+                                }
+                                remove(context, entity, relatedCollection, allRemoved);
                             }
                         }
-                        remove(context, entity, relatedCollection, allRemoved);
                     }
                 }
-            }
-        }
+
+                @Override
+                public IProgress createProgress(ENTITY_UPDATE key, ENTITY_PE value, int objectIndex, int totalObjectCount)
+                {
+                    return new UpdateRelationProgress(key, value, getRelationName(), objectIndex, totalObjectCount);
+                }
+            };
 
         postUpdate(context, allAdded, allRemoved);
-
     }
 
     protected void postUpdate(IOperationContext context, Collection<RELATED_PE> allAdded, Collection<RELATED_PE> allRemoved)
@@ -160,6 +174,8 @@ public abstract class AbstractUpdateEntityToManyRelationExecutor<ENTITY_UPDATE, 
             }
         }
     }
+
+    protected abstract String getRelationName();
 
     protected abstract Collection<RELATED_PE> getCurrentlyRelated(ENTITY_PE entity);
 

@@ -18,13 +18,14 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDeleter;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -40,6 +41,11 @@ public interface IDataSetCommandExecutor extends IDataSetDeleter
      * Starts up executor.
      */
     void start();
+
+    /**
+     * Returns the codes of the DataSets currently in the queue.
+     */
+    Set<String> getDataSetCodesFromCommandQueue();
 
     /**
      * Schedules uploading of all data sets to CIFEX using the specified upload context.

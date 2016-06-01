@@ -16,11 +16,13 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
-import java.util.Collection;
-
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.VerifyProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleGenericBusinessRules;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -33,25 +35,35 @@ public class VerifySampleContainerExecutor implements IVerifySampleContainerExec
 {
 
     @Override
-    public void verify(IOperationContext context, Collection<SamplePE> samples)
+    public void verify(IOperationContext context, CollectionBatch<SamplePE> batch)
     {
-        for (SamplePE sample : samples)
-        {
-            SamplePE containerCandidate = sample.getContainer();
-
-            while (containerCandidate != null)
+        new CollectionBatchProcessor<SamplePE>(context, batch)
             {
-                if (sample.equals(containerCandidate))
+                @Override
+                public void process(SamplePE sample)
                 {
-                    throw UserFailureException.fromTemplate("'%s' cannot be it's own container.",
-                            sample.getIdentifier());
-                }
-                containerCandidate = containerCandidate.getContainer();
-            }
+                    SamplePE containerCandidate = sample.getContainer();
 
-            SampleGenericBusinessRules.assertValidContainer(sample);
-            SampleGenericBusinessRules.assertValidComponents(sample);
-        }
+                    while (containerCandidate != null)
+                    {
+                        if (sample.equals(containerCandidate))
+                        {
+                            throw UserFailureException.fromTemplate("'%s' cannot be it's own container.",
+                                    sample.getIdentifier());
+                        }
+                        containerCandidate = containerCandidate.getContainer();
+                    }
+
+                    SampleGenericBusinessRules.assertValidContainer(sample);
+                    SampleGenericBusinessRules.assertValidComponents(sample);
+                }
+
+                @Override
+                public IProgress createProgress(SamplePE object, int objectIndex, int totalObjectCount)
+                {
+                    return new VerifyProgress(object, objectIndex, totalObjectCount);
+                }
+            };
     }
 
 }

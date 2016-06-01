@@ -16,14 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.context;
 
-import java.util.Stack;
-
 /**
  * @author pkupczyk
  */
 public interface IProgressListener
 {
 
-    public void onProgress(Stack<IProgress> progressStack);
+    public void onProgress(IProgressStack progressStack);
 
 }

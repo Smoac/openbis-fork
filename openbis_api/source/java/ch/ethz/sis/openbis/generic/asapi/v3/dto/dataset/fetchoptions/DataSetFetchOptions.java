@@ -462,7 +462,6 @@ public class DataSetFetchOptions extends FetchOptions<DataSet> implements Serial
     {
         return sort;
     }
-
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

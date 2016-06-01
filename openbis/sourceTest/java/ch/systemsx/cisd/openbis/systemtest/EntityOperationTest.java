@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
@@ -680,7 +681,9 @@ public class EntityOperationTest extends SystemTestCase
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("Object with SampleIdentifier = [/CISD/A01] has not been found.", ex.getMessage());
+            AssertionUtil.assertContains("Object with SampleIdentifier = [/CISD/A01] has not been found.", ex.getMessage());
+            AssertionUtil.assertContains("setting relation dataset-sample (1/1)", ex.getMessage());
+            AssertionUtil.assertContains("\"permId\" : \"DS-1\"", ex.getMessage());
         }
     }
 

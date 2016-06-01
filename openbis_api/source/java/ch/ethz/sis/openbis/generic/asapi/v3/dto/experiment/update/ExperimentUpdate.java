@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +24,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.update.AttachmentListUpdateValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue.ListUpdateAction;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
@@ -37,7 +38,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.experiment.update.ExperimentUpdate")
-public class ExperimentUpdate implements Serializable
+public class ExperimentUpdate implements IUpdate, IPropertiesHolder
 {
 
     private static final long serialVersionUID = 1L;
@@ -69,12 +70,28 @@ public class ExperimentUpdate implements Serializable
         this.experimentId = experimentId;
     }
 
+    @Override
     @JsonIgnore
-    public void setProperty(String key, String value)
+    public void setProperty(String propertyName, String propertyValue)
     {
-        properties.put(key, value);
+        properties.put(propertyName, propertyValue);
     }
 
+    @Override
+    @JsonIgnore
+    public String getProperty(String propertyName)
+    {
+        return properties != null ? properties.get(propertyName) : null;
+    }
+
+    @Override
+    @JsonIgnore
+    public void setProperties(Map<String, String> properties)
+    {
+        this.properties = properties;
+    }
+
+    @Override
     @JsonIgnore
     public Map<String, String> getProperties()
     {

@@ -22,11 +22,15 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
 public class AbstractFileTest extends SystemTestCase
 {
 
+    public static final String TEST_USER = "test";
+    
+    public static final String TEST_SPACE_USER = "test_space";
+
+    public static final String PASSWORD = "password";
+
     protected IGeneralInformationService gis;
 
     protected IDataStoreServerApi dss;
-
-    protected String sessionToken;
 
     protected String dataSetCode;
 
@@ -53,9 +57,10 @@ public class AbstractFileTest extends SystemTestCase
     {
         gis = ServiceProvider.getGeneralInformationService();
         dss = (IDataStoreServerApi) ServiceProvider.getDssServiceV3().getService();
+    }
 
-        sessionToken = gis.tryToAuthenticateForAllServices("test", "test");
-
+    protected String registerDataSet() throws Exception
+    {
         dataSetCode = UUID.randomUUID().toString().toUpperCase();
 
         File dataSetDir = new File(workingDirectory, dataSetCode);
@@ -76,6 +81,8 @@ public class AbstractFileTest extends SystemTestCase
         waitUntilDataSetImported();
         waitUntilIndexUpdaterIsIdle();
         waitUntilDataSetPostRegistrationCompleted(dataSetCode);
+
+        return dataSetCode;
     }
 
     private void createDirectories(File dataSetDir, @SuppressWarnings("hiding") Set<String> directories)

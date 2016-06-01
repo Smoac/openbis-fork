@@ -37,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -78,12 +77,11 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
 
     public AuthorizationDAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory,
-            final IFullTextIndexUpdateScheduler indexUpdateScheduler,
             final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler,
             final EntityHistoryCreator historyCreator)
     {
         persistencyResources =
-                new PersistencyResources(context, sessionFactory, indexUpdateScheduler,
+                new PersistencyResources(context, sessionFactory, 
                         dynamicPropertyEvaluationScheduler);
         personDAO = new PersonDAO(sessionFactory, historyCreator);
         groupDAO = new SpaceDAO(sessionFactory, historyCreator);

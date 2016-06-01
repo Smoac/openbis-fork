@@ -20,8 +20,10 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
@@ -191,6 +193,7 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
             operationLog.debug("Scheduling " + command);
         }
         commandQueue.add(command);
+        operationLog.info("Scheduled: " + command.getDescription());
     }
 
     private IShareIdManager getShareIdManager()
@@ -209,6 +212,18 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
             hierarchicalContentProvider = ServiceProvider.getHierarchicalContentProvider();
         }
         return hierarchicalContentProvider;
+    }
+
+    @Override
+    public Set<String> getDataSetCodesFromCommandQueue()
+    {
+        Set<String> dataSetCodes = new HashSet<String>();
+        for (IDataSetCommand command : commandQueue)
+        {
+            dataSetCodes.addAll(command.getDataSetCodes());
+            operationLog.info("Gather data set codes from command [" + command.getDescription() + "]");
+        }
+        return dataSetCodes;
     }
 
     /**

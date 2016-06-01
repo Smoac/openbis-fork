@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Stack;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -30,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 public class Context implements IContext
 {
 
-    private final Stack<IProgress> progressStack = new Stack<IProgress>();
+    private final ProgressStack progressStack = new ProgressStack();
 
     private final Collection<IProgressListener> progressListeners = new ArrayList<IProgressListener>();
 
@@ -53,9 +52,7 @@ public class Context implements IContext
     {
         for (IProgressListener progressListener : progressListeners)
         {
-            Stack<IProgress> copy = new Stack<IProgress>();
-            copy.addAll(progressStack);
-            progressListener.onProgress(copy);
+            progressListener.onProgress(progressStack);
         }
     }
 
@@ -73,7 +70,7 @@ public class Context implements IContext
     }
 
     @Override
-    public Stack<IProgress> getProgressStack()
+    public IProgressStack getProgressStack()
     {
         return progressStack;
     }

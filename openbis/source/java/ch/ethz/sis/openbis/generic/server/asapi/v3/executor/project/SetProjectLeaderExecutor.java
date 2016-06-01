@@ -42,6 +42,12 @@ public class SetProjectLeaderExecutor extends AbstractSetEntityToOneRelationExec
     private IMapPersonByIdExecutor mapPersonByIdExecutor;
 
     @Override
+    protected String getRelationName()
+    {
+        return "project-leader";
+    }
+
+    @Override
     protected IPersonId getRelatedId(ProjectCreation creation)
     {
         return creation.getLeaderId();

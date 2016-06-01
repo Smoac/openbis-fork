@@ -15,7 +15,7 @@
  */
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
-import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionContainsOnly; 
+import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionContainsOnly;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.fail;
@@ -36,6 +36,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -101,6 +102,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
+
+import junit.framework.Assert;
 
 /**
  * @author Jakub Straszewski
@@ -526,7 +529,7 @@ public class AbstractTest extends SystemTestCase
         assertRuntimeException(action, expectedMessage, null);
     }
 
-    protected void assertRuntimeException(IDelegatedAction action, String expectedMessage, String expectedContextDescription)
+    protected void assertRuntimeException(IDelegatedAction action, String expectedMessage, String expectedContextPattern)
     {
         try
         {
@@ -536,10 +539,7 @@ public class AbstractTest extends SystemTestCase
         {
             assertEquals(e.getClass(), RuntimeException.class);
             AssertionUtil.assertContains(expectedMessage, e.getMessage());
-            if (expectedContextDescription != null)
-            {
-                AssertionUtil.assertContains("(Context: [" + expectedContextDescription + "])", e.getMessage());
-            }
+            assertExceptionContext(e, expectedContextPattern);
         }
     }
 
@@ -548,7 +548,7 @@ public class AbstractTest extends SystemTestCase
         assertUserFailureException(action, expectedMessage, null);
     }
 
-    protected void assertUserFailureException(IDelegatedAction action, String expectedMessage, String expectedContextDescription)
+    protected void assertUserFailureException(IDelegatedAction action, String expectedMessage, String expectedContextPattern)
     {
         try
         {
@@ -558,10 +558,7 @@ public class AbstractTest extends SystemTestCase
         {
             assertEquals(e.getClass(), UserFailureException.class);
             AssertionUtil.assertContains(expectedMessage, e.getMessage());
-            if (expectedContextDescription != null)
-            {
-                AssertionUtil.assertContains("(Context: [" + expectedContextDescription + "])", e.getMessage());
-            }
+            assertExceptionContext(e, expectedContextPattern);
         }
     }
 
@@ -570,7 +567,7 @@ public class AbstractTest extends SystemTestCase
         assertAuthorizationFailureException(action, null);
     }
 
-    protected void assertAuthorizationFailureException(IDelegatedAction action, String expectedContextDescription)
+    protected void assertAuthorizationFailureException(IDelegatedAction action, String expectedContextPattern)
     {
         try
         {
@@ -583,10 +580,7 @@ public class AbstractTest extends SystemTestCase
                 assertNotNull(e.getCause());
                 assertEquals(e.getCause().getClass(), AuthorizationFailureException.class);
             }
-            if (expectedContextDescription != null)
-            {
-                AssertionUtil.assertContains("(Context: [" + expectedContextDescription + "])", e.getMessage());
-            }
+            assertExceptionContext(e, expectedContextPattern);
         }
     }
 
@@ -595,7 +589,7 @@ public class AbstractTest extends SystemTestCase
         assertUnauthorizedObjectAccessException(action, expectedObjectId, null);
     }
 
-    protected void assertUnauthorizedObjectAccessException(IDelegatedAction action, IObjectId expectedObjectId, String expectedContextDescription)
+    protected void assertUnauthorizedObjectAccessException(IDelegatedAction action, IObjectId expectedObjectId, String expectedContextPattern)
     {
         try
         {
@@ -606,10 +600,7 @@ public class AbstractTest extends SystemTestCase
             assertNotNull(e.getCause());
             assertEquals(e.getCause().getClass(), UnauthorizedObjectAccessException.class);
             assertEquals(((UnauthorizedObjectAccessException) e.getCause()).getObjectId(), expectedObjectId);
-            if (expectedContextDescription != null)
-            {
-                AssertionUtil.assertContains("(Context: [" + expectedContextDescription + "])", e.getMessage());
-            }
+            assertExceptionContext(e, expectedContextPattern);
         }
     }
 
@@ -618,7 +609,7 @@ public class AbstractTest extends SystemTestCase
         assertObjectNotFoundException(action, expectedObjectId, null);
     }
 
-    protected void assertObjectNotFoundException(IDelegatedAction action, IObjectId expectedObjectId, String expectedContextDescription)
+    protected void assertObjectNotFoundException(IDelegatedAction action, IObjectId expectedObjectId, String expectedContextPattern)
     {
         try
         {
@@ -629,9 +620,35 @@ public class AbstractTest extends SystemTestCase
             assertNotNull(e.getCause());
             assertEquals(e.getCause().getClass(), ObjectNotFoundException.class);
             assertEquals(((ObjectNotFoundException) e.getCause()).getObjectId(), expectedObjectId);
-            if (expectedContextDescription != null)
+            assertExceptionContext(e, expectedContextPattern);
+        }
+    }
+
+    protected void assertExceptionContext(Exception e, String expectedContextPattern)
+    {
+        if (expectedContextPattern != null)
+        {
+            final String contextStart = "(Context: [";
+            final String contextEnd = "])";
+
+            int contextStartIndex = -1;
+            int contextEndIndex = -1;
+
+            if (e.getMessage() != null && e.getMessage().indexOf(contextStart) >= 0)
             {
-                AssertionUtil.assertContains("(Context: [" + expectedContextDescription + "])", e.getMessage());
+                contextStartIndex = e.getMessage().indexOf(contextStart) + contextStart.length();
+                contextEndIndex = e.getMessage().indexOf(contextEnd, contextStartIndex);
+            }
+
+            if (contextStartIndex >= 0 && contextEndIndex >= 0)
+            {
+                String expectedMultilineContextPattern = "(?s)" + expectedContextPattern;
+                String actualContext = e.getMessage().substring(contextStartIndex, contextEndIndex);
+                Assert.assertTrue("Actual context: " + actualContext + ", Expected context: " + expectedMultilineContextPattern,
+                        actualContext.matches(expectedMultilineContextPattern));
+            } else
+            {
+                Assert.fail("No context found in exception message: " + e.getMessage());
             }
         }
     }
@@ -727,7 +744,7 @@ public class AbstractTest extends SystemTestCase
         }
         return codes;
     }
-    
+
     protected List<String> extractVocabularyCodes(List<PropertyAssignment> propertyAssignments)
     {
         List<String> codes = new ArrayList<>();
@@ -903,22 +920,22 @@ public class AbstractTest extends SystemTestCase
 
     protected void assertExperimentsRemovedFromIndex(RemoveFromIndexState previousState, Long... ids)
     {
-        assertIndexStateChange(previousState, new RemoveFromIndexState(daoFactory), ExperimentPE.class.getName(), ids);
+        assertIndexStateChange(previousState, new RemoveFromIndexState(), ExperimentPE.class.getName(), ids);
     }
 
     protected void assertSamplesRemovedFromIndex(RemoveFromIndexState previousState, Long... ids)
     {
-        assertIndexStateChange(previousState, new RemoveFromIndexState(daoFactory), SamplePE.class.getName(), ids);
+        assertIndexStateChange(previousState, new RemoveFromIndexState(), SamplePE.class.getName(), ids);
     }
 
     protected void assertDataSetsRemovedFromIndex(RemoveFromIndexState previousState, Long... ids)
     {
-        assertIndexStateChange(previousState, new RemoveFromIndexState(daoFactory), DataPE.class.getName(), ids);
+        assertIndexStateChange(previousState, new RemoveFromIndexState(), DataPE.class.getName(), ids);
     }
 
     protected void assertMaterialsRemovedFromIndex(RemoveFromIndexState previousState, Long... ids)
     {
-        assertIndexStateChange(previousState, new RemoveFromIndexState(daoFactory), MaterialPE.class.getName(), ids);
+        assertIndexStateChange(previousState, new RemoveFromIndexState(), MaterialPE.class.getName(), ids);
     }
 
     protected <S extends IndexState> void assertIndexStateChange(S previousState, S currentState, String expectedClassName,
@@ -978,6 +995,23 @@ public class AbstractTest extends SystemTestCase
         }
 
         assertCollectionContainsOnly(actualIds, expectedIds.toArray(new Long[] {}));
+    }
+
+    protected static String patternContains(String... parts)
+    {
+        StringBuilder pattern = new StringBuilder();
+        pattern.append(".*");
+        for (String part : parts)
+        {
+            pattern.append(Pattern.quote(part));
+            pattern.append(".*");
+        }
+        return pattern.toString();
+    }
+
+    protected static String toDblQuotes(String str)
+    {
+        return str.replaceAll("'", "\"");
     }
 
 }

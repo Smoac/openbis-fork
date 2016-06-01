@@ -16,10 +16,10 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create;
 
-import java.io.Serializable;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.create.AttachmentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.IPersonId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -28,7 +28,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.project.create.ProjectCreation")
-public class ProjectCreation implements Serializable
+public class ProjectCreation implements ICreation
 {
     private static final long serialVersionUID = 1L;
 

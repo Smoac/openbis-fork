@@ -40,6 +40,12 @@ public class UpdateSampleContainerExecutor extends AbstractUpdateEntityToOneRela
 {
 
     @Override
+    protected String getRelationName()
+    {
+        return "sample-containers";
+    }
+
+    @Override
     protected ISampleId getRelatedId(SamplePE related)
     {
         return new SampleIdentifier(related.getIdentifier());

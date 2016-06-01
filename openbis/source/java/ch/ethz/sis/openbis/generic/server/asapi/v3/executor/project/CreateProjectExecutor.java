@@ -33,9 +33,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.attachment.ICreateAttachmentExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractCreateEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CreateProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -67,23 +72,33 @@ public class CreateProjectExecutor extends AbstractCreateEntityExecutor<ProjectC
     private ICreateAttachmentExecutor createAttachmentExecutor;
 
     @Override
-    protected List<ProjectPE> createEntities(IOperationContext context, Collection<ProjectCreation> creations)
+    protected List<ProjectPE> createEntities(IOperationContext context, CollectionBatch<ProjectCreation> batch)
     {
-        List<ProjectPE> projects = new LinkedList<ProjectPE>();
+        final List<ProjectPE> projects = new LinkedList<ProjectPE>();
+        final PersonPE person = context.getSession().tryGetPerson();
+        final Date timeStamp = daoFactory.getTransactionTimestamp();
 
-        PersonPE person = context.getSession().tryGetPerson();
-        Date timeStamp = daoFactory.getTransactionTimestamp();
-        for (ProjectCreation creation : creations)
-        {
-            ProjectPE project = new ProjectPE();
-            project.setCode(creation.getCode());
-            String createdPermId = daoFactory.getPermIdDAO().createPermId();
-            project.setPermId(createdPermId);
-            project.setDescription(creation.getDescription());
-            project.setRegistrator(person);
-            RelationshipUtils.updateModificationDateAndModifier(project, person, timeStamp);
-            projects.add(project);
-        }
+        new CollectionBatchProcessor<ProjectCreation>(context, batch)
+            {
+                @Override
+                public void process(ProjectCreation object)
+                {
+                    ProjectPE project = new ProjectPE();
+                    project.setCode(object.getCode());
+                    String createdPermId = daoFactory.getPermIdDAO().createPermId();
+                    project.setPermId(createdPermId);
+                    project.setDescription(object.getDescription());
+                    project.setRegistrator(person);
+                    RelationshipUtils.updateModificationDateAndModifier(project, person, timeStamp);
+                    projects.add(project);
+                }
+
+                @Override
+                public IProgress createProgress(ProjectCreation object, int objectIndex, int totalObjectCount)
+                {
+                    return new CreateProgress(object, objectIndex, totalObjectCount);
+                }
+            };
 
         return projects;
     }
@@ -115,25 +130,25 @@ public class CreateProjectExecutor extends AbstractCreateEntityExecutor<ProjectC
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, Collection<ProjectPE> entities)
+    protected void checkBusinessRules(IOperationContext context, CollectionBatch<ProjectPE> batch)
     {
         // nothing to do
     }
 
     @Override
-    protected void updateBatch(IOperationContext context, Map<ProjectCreation, ProjectPE> entitiesMap)
+    protected void updateBatch(IOperationContext context, MapBatch<ProjectCreation, ProjectPE> batch)
     {
-        setProjectSpaceExecutor.set(context, entitiesMap);
-        setProjectLeaderExecutor.set(context, entitiesMap);
+        setProjectSpaceExecutor.set(context, batch);
+        setProjectLeaderExecutor.set(context, batch);
     }
 
     @Override
-    protected void updateAll(IOperationContext context, Map<ProjectCreation, ProjectPE> entitiesMap)
+    protected void updateAll(IOperationContext context, MapBatch<ProjectCreation, ProjectPE> batch)
     {
         Map<AttachmentHolderPE, Collection<? extends AttachmentCreation>> attachmentMap =
                 new HashMap<AttachmentHolderPE, Collection<? extends AttachmentCreation>>();
 
-        for (Map.Entry<ProjectCreation, ProjectPE> entry : entitiesMap.entrySet())
+        for (Map.Entry<ProjectCreation, ProjectPE> entry : batch.getObjects().entrySet())
         {
             ProjectCreation creation = entry.getKey();
             ProjectPE entity = entry.getValue();

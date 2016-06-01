@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.systemsx.cisd.common.collection.CycleFoundException;
 import ch.systemsx.cisd.common.collection.GroupingDAG;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -42,9 +43,9 @@ public abstract class AbstractVerifyEntityCyclesExecutor<ENTITY_PE> implements I
     protected IDAOFactory daoFactory;
 
     @Override
-    public void verify(IOperationContext context, Collection<ENTITY_PE> entities)
+    public void verify(IOperationContext context, CollectionBatch<ENTITY_PE> batch)
     {
-        Map<Long, Collection<Long>> graph = getGraph(context, entities);
+        Map<Long, Collection<Long>> graph = getGraph(context, batch.getObjects());
 
         checkCycles(graph);
     }

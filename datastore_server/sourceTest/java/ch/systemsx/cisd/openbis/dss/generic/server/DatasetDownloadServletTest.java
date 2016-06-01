@@ -220,6 +220,16 @@ public class DatasetDownloadServletTest
 
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
+        
+        String output = writer.toString();
+        
+        String directorySize = null;
+        if(output.contains("4 KB")) {
+            directorySize = "4 KB";
+        } else {
+            directorySize = "68 bytes";
+        }
+        
         assertEquals(
                 "<html><head><style type='text/css'> * { margin: 3px; }html { height: 100%;  }"
                         + "body { height: 100%; font-family: verdana, tahoma, helvetica; "
@@ -239,14 +249,15 @@ public class DatasetDownloadServletTest
                         + "<body><table> "
                         + OSUtilities.LINE_SEPARATOR
                         + "<tr><td class='td_file'>"
-                        + "<a href='/datastore_server/1234-1/" + ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME + "?mode=simpleHtml&sessionID=AV76CF'>"
-                        + "+ s % ! # @</td><td></td><td></td></tr>"
+                        + "<a href='/datastore_server/1234-1/" + ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME + "?disableLinks=false&mode=simpleHtml&sessionID=AV76CF'>"
+                        + "+ s % ! # @</td><td>" + directorySize + "</td><td></td></tr>"
                         + OSUtilities.LINE_SEPARATOR
                         + "<tr><td class='td_file'>"
-                        + "<a href='/datastore_server/1234-1/" + ESCAPED_FILE_NAME_ENCODED + "?mode=simpleHtml&sessionID=AV76CF'>"
+                        + "<a href='/datastore_server/1234-1/" + ESCAPED_FILE_NAME_ENCODED + "?disableLinks=false&mode=simpleHtml&sessionID=AV76CF'>"
                         + "read me @home.txt</td><td>12 bytes</td><td></td></tr>"
                         + OSUtilities.LINE_SEPARATOR + "</table> </div> </body></html>"
-                        + OSUtilities.LINE_SEPARATOR + "", writer.toString());
+                        + OSUtilities.LINE_SEPARATOR + "",
+                        output);
 
         String normalizedLogContent = getNormalizedLogContent();
         assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
@@ -276,6 +287,9 @@ public class DatasetDownloadServletTest
                     will(returnValue(null));
 
                     one(request).getParameter(DatasetDownloadServlet.MAIN_DATA_SET_PATTERN_KEY);
+                    will(returnValue(null));
+
+                    one(request).getParameter(DatasetDownloadServlet.DISABLE_LINKS);
                     will(returnValue(null));
                 }
             });
@@ -351,11 +365,11 @@ public class DatasetDownloadServletTest
 
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
-        assertContains("<html><body><h1>Error</h1>" + OSUtilities.LINE_SEPARATOR
+        AssertionUtil.assertContainsLines("<html><body><h1>Error</h1>" + OSUtilities.LINE_SEPARATOR
                 + "Unknown data set: 1234-1" + OSUtilities.LINE_SEPARATOR + "</body></html>"
                 + OSUtilities.LINE_SEPARATOR, writer.toString());
         String logContent = logRecorder.getLogContent();
-        assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR
+        AssertionUtil.assertContainsLines(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR
                 + CONTENT_PROVIDER_LOG_ERROR + "Data set '1234-1' not found in openBIS server."
                 + OSUtilities.LINE_SEPARATOR + LOG_ERROR + "Unknown data set: 1234-1",
                 logContent);
@@ -394,10 +408,11 @@ public class DatasetDownloadServletTest
         assertEquals(
                 "<html><head><style type='text/css'> * { margin: 3px; }html { height: 100%;  }body { height: 100%; font-family: verdana, tahoma, helvetica; font-size: 11px; text-align:left; }h1 { text-align: center; padding: 1em; color: #1E4E8F;}.td_hd { border: 1px solid #FFFFFF; padding 3px; background-color: #DDDDDD; height: 1.5em; }.div_hd { background-color: #1E4E8F; color: white; font-weight: bold; padding: 3px; }table { border-collapse: collapse; padding: 1em; }tr, td { font-family: verdana, tahoma, helvetica; font-size: 11px; }.td_file { font-family: verdana, tahoma, helvetica; font-size: 11px; height: 1.5em }.wrapper { min-height: 100%; height: auto !important; height: 100%; margin: 0em auto -4em; }.footer { height: 4em; text-align: center; }</style></head><body><table> <tr><td class='td_hd'>Folder:</td><td>+ s % ! # @</td></tr>"
                         + OSUtilities.LINE_SEPARATOR
-                        + "<tr><td class='td_file'><a href='/datastore_server/1234-1/?mode=simpleHtml&sessionID=AV76CF'>..</td><td></td><td></td></tr>"
+                        + "<tr><td class='td_file'><a href='/datastore_server/1234-1/?disableLinks=false&mode=simpleHtml&sessionID=AV76CF'>..</td><td></td><td></td></tr>"
                         + OSUtilities.LINE_SEPARATOR
                         + "</table> </div> </body></html>"
-                        + OSUtilities.LINE_SEPARATOR, writer.toString());
+                        + OSUtilities.LINE_SEPARATOR,
+                writer.toString());
         assertContains(LOG_INFO + "For data set '1234-1' show directory '"
                 + EXAMPLE_DATA_SET_SUB_FOLDER_NAME + "'", getNormalizedLogContent());
 
@@ -603,7 +618,8 @@ public class DatasetDownloadServletTest
                 LOG_ERROR
                         + "Could not create a servlet session since no existing servlet session is available, "
                         + "and the openBIS session ID was not provided as a parameter: [mode=html] "
-                        + "Session Timeout: 120 sec", getNormalizedLogContent());
+                        + "Session Timeout: 120 sec",
+                getNormalizedLogContent());
 
         context.assertIsSatisfied();
     }
@@ -632,7 +648,7 @@ public class DatasetDownloadServletTest
         String logContent = getNormalizedLogContent();
         final String expected =
                 LOG_ERROR + "Request URI 'blabla' expected to start with '/datastore_server/'.";
-        assertEquals(expected, logContent.substring(0, expected.length()));
+        AssertionUtil.assertContains(expected, logContent);
 
         context.assertIsSatisfied();
     }
@@ -693,6 +709,8 @@ public class DatasetDownloadServletTest
         exp.will(Expectations.returnValue(null));
         exp.one(request).getParameter(DatasetDownloadServlet.MAIN_DATA_SET_PATTERN_KEY);
         exp.will(Expectations.returnValue(null));
+        exp.one(request).getParameter(DatasetDownloadServlet.DISABLE_LINKS);
+        exp.will(Expectations.returnValue(null));
 
         // For the logging of problem requests
         Vector<String> parameterNames = new Vector<String>();
@@ -722,6 +740,9 @@ public class DatasetDownloadServletTest
                     will(returnValue(null));
 
                     one(request).getParameter(DatasetDownloadServlet.MAIN_DATA_SET_PATTERN_KEY);
+                    will(returnValue(null));
+
+                    one(request).getParameter(DatasetDownloadServlet.DISABLE_LINKS);
                     will(returnValue(null));
                 }
             });

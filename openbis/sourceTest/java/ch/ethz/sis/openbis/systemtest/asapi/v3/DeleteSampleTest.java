@@ -22,17 +22,19 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.test.context.transaction.TestTransaction;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.index.RemoveFromIndexState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-
 import junit.framework.Assert;
 
 /**
@@ -42,24 +44,36 @@ public class DeleteSampleTest extends AbstractDeletionTest
 {
 
     @Test
-    public void testDeleteWithIndexCheck()
+    public void testDeleteWithIndexCheck() throws Exception
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        ExperimentPermId experimentPermId = createCisdExperiment();
-        SamplePermId samplePermId = createCisdSample(experimentPermId);
+        ExperimentPermId experimentPermId =
+                createCisdExperiment(new ProjectIdentifier("/CISD/DEFAULT"), java.util.UUID.randomUUID().toString().toUpperCase());
+        SamplePermId samplePermId = createCisdSample(experimentPermId, java.util.UUID.randomUUID().toString().toUpperCase());
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
 
         SampleDeletionOptions options = new SampleDeletionOptions();
         options.setReason("It is just a test");
 
+        TestTransaction.start();
         List<SamplePE> samples = daoFactory.getSampleDAO().listByPermID(Arrays.asList(samplePermId.getPermId()));
         assertEquals(samples.size(), 1);
 
-        RemoveFromIndexState state = new RemoveFromIndexState(daoFactory);
+        RemoveFromIndexState state = new RemoveFromIndexState();
 
         v3api.deleteSamples(sessionToken, Collections.singletonList(samplePermId), options);
-
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+        Thread.sleep(2000);
         assertSamplesRemovedFromIndex(state, samples.get(0).getId());
+
+        TestTransaction.start();
+        ExperimentDeletionOptions experimentDeletionOptions = new ExperimentDeletionOptions();
+        experimentDeletionOptions.setReason("It is just a test");
+        v3api.deleteExperiments(sessionToken, Collections.singletonList(experimentPermId), experimentDeletionOptions);
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
     }
 
     @Test

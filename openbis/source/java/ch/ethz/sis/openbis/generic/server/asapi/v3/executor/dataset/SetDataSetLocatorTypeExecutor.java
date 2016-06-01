@@ -45,6 +45,12 @@ public class SetDataSetLocatorTypeExecutor extends
     private IMapLocatorTypeByIdExecutor mapLocatorTypeByIdExecutor;
 
     @Override
+    protected String getRelationName()
+    {
+        return "dataset-locatortype";
+    }
+
+    @Override
     protected ILocatorTypeId getRelatedId(DataSetCreation creation)
     {
         if (creation.getPhysicalData() != null)

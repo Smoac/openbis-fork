@@ -23,9 +23,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSetEntityToManyRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IReindexEntityExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
@@ -33,12 +31,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  * @author pkupczyk
  */
 @Component
-public class SetSampleComponentsExecutor extends AbstractSetEntityToManyRelationExecutor<SampleCreation, SamplePE, ISampleId, SamplePE> implements
+public class SetSampleComponentsExecutor extends SetSampleToSamplesRelationExecutor implements
         ISetSampleComponentsExecutor
 {
 
     @Autowired
     private IReindexEntityExecutor reindexObjectExecutor;
+
+    @Override
+    protected String getRelationName()
+    {
+        return "sample-components";
+    }
 
     @Override
     protected Collection<? extends ISampleId> getRelatedIds(IOperationContext context, SampleCreation creation)
@@ -55,14 +59,10 @@ public class SetSampleComponentsExecutor extends AbstractSetEntityToManyRelation
     @Override
     protected void setRelated(IOperationContext context, SamplePE container, Collection<SamplePE> components)
     {
-        context.pushProgress(new Progress("set components for sample " + container.getCode()));
-
         for (SamplePE component : components)
         {
             relationshipService.assignSampleToContainer(context.getSession(), component, container);
         }
-
-        context.popProgress();
     }
 
 }

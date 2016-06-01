@@ -101,7 +101,7 @@ public class ObjectKindModification implements Serializable
     @Override
     public String toString()
     {
-        return "Last " + operationKind + " operation of an object of kind " + objectKind + " occured at " + lastModificationTimeStamp;
+        return "Last " + operationKind + " operation of an object of kind " + objectKind + " occured at " +  lastModificationTimeStamp;
     }
 
 }

@@ -21,8 +21,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.Assert;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.Deletion;
@@ -50,6 +48,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import junit.framework.Assert;
 
 /**
  * @author pkupczyk
@@ -77,10 +76,15 @@ public class AbstractDeletionTest extends AbstractTest
 
     protected ExperimentPermId createCisdExperiment(IProjectId projectId)
     {
+        return createCisdExperiment(projectId, "EXPERIMENT_TO_DELETE");
+    }
+
+    protected ExperimentPermId createCisdExperiment(IProjectId projectId, String code)
+    {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         ExperimentCreation creation = new ExperimentCreation();
-        creation.setCode("EXPERIMENT_TO_DELETE");
+        creation.setCode(code);
         creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
         creation.setProjectId(projectId);
         creation.setProperty("DESCRIPTION", "a description");
@@ -90,17 +94,22 @@ public class AbstractDeletionTest extends AbstractTest
         List<Experiment> experiments = new ArrayList<Experiment>(map.values());
 
         Assert.assertEquals(1, experiments.size());
-        Assert.assertEquals("EXPERIMENT_TO_DELETE", experiments.get(0).getCode());
+        Assert.assertEquals(code, experiments.get(0).getCode());
 
         return permIds.get(0);
     }
 
     protected SamplePermId createCisdSample(IExperimentId experimentId)
     {
+        return createCisdSample(experimentId, "SAMPLE_TO_DELETE");
+    }
+
+    protected SamplePermId createCisdSample(IExperimentId experimentId, String sampleCode)
+    {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation creation = new SampleCreation();
-        creation.setCode("SAMPLE_TO_DELETE");
+        creation.setCode(sampleCode);
         creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
         creation.setSpaceId(new SpacePermId("CISD"));
         creation.setExperimentId(experimentId);
@@ -110,7 +119,7 @@ public class AbstractDeletionTest extends AbstractTest
         List<Sample> samples = new ArrayList<Sample>(map.values());
 
         Assert.assertEquals(1, samples.size());
-        Assert.assertEquals("SAMPLE_TO_DELETE", samples.get(0).getCode());
+        Assert.assertEquals(sampleCode, samples.get(0).getCode());
 
         return permIds.get(0);
     }
