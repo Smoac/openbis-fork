@@ -648,7 +648,7 @@ public class DatasetDownloadServletTest
         String logContent = getNormalizedLogContent();
         final String expected =
                 LOG_ERROR + "Request URI 'blabla' expected to start with '/datastore_server/'.";
-        assertEquals(expected, logContent.substring(0, expected.length()));
+        AssertionUtil.assertContains(expected, logContent);
 
         context.assertIsSatisfied();
     }
