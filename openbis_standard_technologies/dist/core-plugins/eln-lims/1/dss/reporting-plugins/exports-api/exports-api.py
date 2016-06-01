@@ -17,6 +17,7 @@
 from collections import deque
 import time
 import jarray
+import threading
 
 #Java Core
 from java.io import ByteArrayInputStream
@@ -61,6 +62,9 @@ from ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download import DataS
 #JSON
 from ch.ethz.sis.openbis.generic.server.sharedapi.v3.json import GenericObjectMapper;
 from com.fasterxml.jackson.databind import SerializationFeature
+
+#Session Workspace
+from ch.systemsx.cisd.openbis.dss.client.api.v1 import DssComponentFactory
 
 def process(tr, params, tableBuilder):
 	method = params.get("method");
@@ -152,7 +156,12 @@ def exportAll(tr, params):
 				entitiesToExpand.append(entityFound);
 	print "Found " + str(len(entitiesToExport)) + " entities to export.";
 	params.put("entities", entitiesToExport);
-	return export(tr, params);
+	
+	thread = threading.Thread(target=export, args=(sessionToken, entitiesToExport));
+	thread.daemon = True;
+	thread.start();
+    
+	return True;
 
 def getFileName(spaceCode, projCode, expCode, sampCode, dataCode):
 	fileName = "";
@@ -182,25 +191,28 @@ def addToZipFile(path, file, zos):
 		zos.closeEntry();
 		fis.close();
 
-def export(tr, params):
-	sessionToken = params.get("sessionToken");
+def export(sessionToken, entities):
 	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi, OPENBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
 	v3d = ServiceProvider.getApplicationContext().getBean(V3_DSS_BEAN);
+	
 	objectCache = {};
 	objectMapper = GenericObjectMapper();
 	objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 	
 	#Create temporal folder
-	rootDirFile = File.createTempFile(str(time.time()), None);
-	rootDirFile.delete();
-	rootDirFile.mkdir();
-	rootDir = rootDirFile.getCanonicalPath();
+	tempDirName = "export_" + str(time.time());
+	tempDirPathFile = File.createTempFile(tempDirName, None);
+	tempDirPathFile.delete();
+	tempDirPathFile.mkdir();
+	tempDirPath = tempDirPathFile.getCanonicalPath();
+	tempZipFileName = tempDirName + ".zip";
+	tempZipFilePath = tempDirPath + ".zip";
 	
 	#Create Zip File
-	fos = FileOutputStream(rootDir + ".zip");
+	fos = FileOutputStream(tempZipFilePath);
 	zos = ZipOutputStream(fos);
 			
-	for entity in params.get("entities"):
+	for entity in entities:
 		type =  entity["type"];
 		permId = entity["permId"];
 		print "exporting type: " + str(type) + " permId: " + str(permId);
@@ -263,7 +275,7 @@ def export(tr, params):
 			datasetEntityFilePath = getFileName(datasetEntityObj.getSample().getExperiment().getProject().getSpace().getCode(), datasetEntityObj.getSample().getExperiment().getProject().getCode(), datasetEntityObj.getSample().getExperiment().getCode(), datasetEntityObj.getSample().getCode(), datasetEntityObj.getCode());
 			filePath = datasetEntityFilePath + "/" + entity["path"];
 			rawFileInputStream = v3d.downloadFiles(sessionToken, [DataSetFilePermId(DataSetPermId(permId), entity["path"])], DataSetFileDownloadOptions());
-			rawFile = File(rootDir + filePath + ".json");
+			rawFile = File(tempDirPath + filePath + ".json");
 			rawFile.getParentFile().mkdirs();
 			IOUtils.copyLarge(rawFileInputStream, FileOutputStream(rawFile));
 			addToZipFile(filePath, rawFile, zos);
@@ -273,12 +285,16 @@ def export(tr, params):
 		
 		if entityObj is not None and entityFilePath is not None:
 			entityJson = String(objectMapper.writeValueAsString(entityObj));
-			jsonEntityFile = File(rootDir + entityFilePath + ".json");
+			jsonEntityFile = File(tempDirPath + entityFilePath + ".json");
 			jsonEntityFile.getParentFile().mkdirs();
 			IOUtils.write(entityJson.getBytes(), FileOutputStream(jsonEntityFile));
 			addToZipFile(entityFilePath + ".json", jsonEntityFile, zos);
 			
 	zos.close();
 	fos.close();
-	print "Zip file found at: " + rootDir + ".zip"
+	
+	#Store on workspace to be able to generate a download link
+	dssComponent = DssComponentFactory.tryCreate(sessionToken, OPENBISURL);
+	dssComponent.putFileToSessionWorkspace(tempZipFileName, FileInputStream(File(tempZipFilePath)));
+	print "Zip file found at: " + tempZipFilePath;
 	return True
