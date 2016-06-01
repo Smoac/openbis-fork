@@ -18,6 +18,9 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.archive;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -29,13 +32,16 @@ public class DataSetArchiveOptions implements Serializable
 
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
     private boolean removeFromDataStore = true;
 
+    @JsonIgnore
     public void setRemoveFromDataStore(boolean removeFromDataStore)
     {
         this.removeFromDataStore = removeFromDataStore;
     }
 
+    @JsonIgnore
     public boolean isRemoveFromDataStore()
     {
         return removeFromDataStore;
