@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
+
 /**
  * @author Piotr Buczek
  */
 public interface IEntityInformationWithPropertiesHolder extends IEntityInformationHolderDTO,
-        IEntityPropertiesHolder
+        IEntityPropertiesHolder, IIdentityHolder
 {
 }

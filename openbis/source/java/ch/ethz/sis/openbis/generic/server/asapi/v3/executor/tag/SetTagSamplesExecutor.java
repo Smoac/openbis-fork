@@ -16,9 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,42 +26,43 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSetEntityMultipleRelationsExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IMapSampleByIdExecutor;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SetTagSamplesExecutor extends AbstractSetEntityMultipleRelationsExecutor<TagCreation, MetaprojectPE, ISampleId, SamplePE>
+public class SetTagSamplesExecutor extends SetTagEntitiesExecutor<ISampleId, SamplePE>
         implements ISetTagSamplesExecutor
 {
 
     @Autowired
-    private IMapSampleByIdExecutor mapSampleExecutor;
-
-    @Autowired
-    private ISetTagSamplesWithCacheExecutor setTagSamplesWithCacheExecutor;
+    private IMapSampleByIdExecutor mapSampleByIdExecutor;
 
     @Override
-    protected void addRelatedIds(Set<ISampleId> relatedIds, TagCreation creation, MetaprojectPE entity)
+    protected String getRelationName()
     {
-        addRelatedIds(relatedIds, creation.getSampleIds());
+        return "tag-samples";
     }
 
     @Override
-    protected void addRelated(Map<ISampleId, SamplePE> relatedMap, TagCreation creation, MetaprojectPE entity)
+    protected Class<SamplePE> getRelatedClass()
     {
-        // nothing to do here
+        return SamplePE.class;
     }
 
     @Override
-    protected Map<ISampleId, SamplePE> map(IOperationContext context, List<ISampleId> relatedIds)
+    protected Collection<? extends ISampleId> getRelatedIds(IOperationContext context, TagCreation creation)
     {
-        return mapSampleExecutor.map(context, relatedIds);
+        return creation.getSampleIds();
+    }
+
+    @Override
+    protected Map<ISampleId, SamplePE> map(IOperationContext context, Collection<? extends ISampleId> relatedIds)
+    {
+        return mapSampleByIdExecutor.map(context, relatedIds);
     }
 
     @Override
@@ -72,12 +72,6 @@ public class SetTagSamplesExecutor extends AbstractSetEntityMultipleRelationsExe
         {
             throw new UnauthorizedObjectAccessException(relatedId);
         }
-    }
-
-    @Override
-    protected void set(IOperationContext context, Map<TagCreation, MetaprojectPE> creationsMap, Map<ISampleId, SamplePE> relatedMap)
-    {
-        setTagSamplesWithCacheExecutor.set(context, creationsMap, relatedMap);
     }
 
 }

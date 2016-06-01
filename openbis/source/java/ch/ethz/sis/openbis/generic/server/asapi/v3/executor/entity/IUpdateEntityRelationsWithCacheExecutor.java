@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 
 /**
  * @author pkupczyk
@@ -26,6 +27,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 public interface IUpdateEntityRelationsWithCacheExecutor<ENTITY_UPDATE, ENTITY_PE, RELATED_ID, RELATED_PE>
 {
 
-    public void update(IOperationContext context, Map<ENTITY_UPDATE, ENTITY_PE> entitiesMap, Map<RELATED_ID, RELATED_PE> relatedMap);
+    public void update(IOperationContext context, MapBatch<ENTITY_UPDATE, ENTITY_PE> batch, Map<RELATED_ID, RELATED_PE> relatedMap);
 
 }

@@ -15,12 +15,12 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.utils;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 public class ExceptionUtils
 {
-    public static RuntimeException create(OperationContext context, Throwable t)
+    public static RuntimeException create(IOperationContext context, Throwable t)
     {
         if (t instanceof UserFailureException)
         {
@@ -29,7 +29,7 @@ public class ExceptionUtils
         return new RuntimeException(createMessage(context, t), t);
     }
 
-    private static String createMessage(OperationContext context, Throwable t)
+    private static String createMessage(IOperationContext context, Throwable t)
     {
         String message = t.getMessage() == null ? t.toString() : t.getMessage();
         return message + " (Context: " + context.getProgressStack().toString() + ")";

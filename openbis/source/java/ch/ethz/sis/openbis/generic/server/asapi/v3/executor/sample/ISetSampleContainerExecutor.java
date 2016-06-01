@@ -16,11 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
-import java.util.Map;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -29,6 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public interface ISetSampleContainerExecutor
 {
 
-    public void set(IOperationContext context, Map<SampleCreation, SamplePE> creationsMap, Map<ISampleId, SamplePE> sampleMap);
+    public void set(IOperationContext context, MapBatch<SampleCreation, SamplePE> batch);
 
 }

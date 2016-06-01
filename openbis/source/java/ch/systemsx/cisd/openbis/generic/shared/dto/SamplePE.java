@@ -71,6 +71,7 @@ import ch.systemsx.cisd.common.collection.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.NullBridge;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
@@ -92,7 +93,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 @ClassBridge(impl = SampleGlobalSearchBridge.class)
 public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Comparable<SamplePE>,
         IEntityInformationWithPropertiesHolder, IMatchingEntity, IDeletablePE,
-        IEntityWithMetaprojects, IModifierAndModificationDateBean, Serializable
+        IEntityWithMetaprojects, IModifierAndModificationDateBean, IIdentityHolder, Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
 

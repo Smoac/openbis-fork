@@ -1057,7 +1057,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
                 {
                     createDataSet(sessionToken, creation, new DataSetFetchOptions());
                 }
-            }, "Linked data cannot be set for a non-link data set.");
+            }, "Linked data cannot be set for a non-link data set.", patternContains("setting relation dataset-linkeddata (1/1)"));
     }
 
     @Test
@@ -1075,7 +1075,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
                 {
                     createDataSet(sessionToken, creation, new DataSetFetchOptions());
                 }
-            }, "Physical data cannot be null for a physical data set.");
+            }, "Physical data cannot be null for a physical data set.", patternContains("setting relation dataset-physicaldata (1/1)"));
     }
 
     @Test

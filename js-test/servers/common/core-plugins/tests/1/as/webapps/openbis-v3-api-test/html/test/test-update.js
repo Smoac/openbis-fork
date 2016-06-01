@@ -29,7 +29,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				c.finish();
 			}).fail(function(error) {
 				if (fCheckError) {
-					fCheckError(error.message);
+					fCheckError(error.message, ctx.permIds[0]);
 				} else {
 					c.fail(error.message);
 				}
@@ -131,31 +131,32 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 			testUpdate(c, fCreate, fUpdate, c.findProject, fCheck);
 		});
 
-		QUnit.test("updateProjects() removed space", function(assert) {
-			var c = new common(assert);
-			var code = c.generateId("PROJECT");
+		QUnit.test("updateProjects() removed space",
+				function(assert) {
+					var c = new common(assert);
+					var code = c.generateId("PROJECT");
 
-			var fCreate = function(facade) {
-				var projectCreation = new c.ProjectCreation();
-				projectCreation.setSpaceId(new c.SpacePermId("TEST"));
-				projectCreation.setCode(code);
-				projectCreation.setDescription("JS test project");
-				return facade.createProjects([ projectCreation ]);
-			}
+					var fCreate = function(facade) {
+						var projectCreation = new c.ProjectCreation();
+						projectCreation.setSpaceId(new c.SpacePermId("TEST"));
+						projectCreation.setCode(code);
+						projectCreation.setDescription("JS test project");
+						return facade.createProjects([ projectCreation ]);
+					}
 
-			var fUpdate = function(facade, permId) {
-				var projectUpdate = new c.ProjectUpdate();
-				projectUpdate.setProjectId(permId);
-				projectUpdate.setSpaceId(null);
-				return facade.updateProjects([ projectUpdate ]);
-			}
+					var fUpdate = function(facade, permId) {
+						var projectUpdate = new c.ProjectUpdate();
+						projectUpdate.setProjectId(permId);
+						projectUpdate.setSpaceId(null);
+						return facade.updateProjects([ projectUpdate ]);
+					}
 
-			var fCheckError = function(error) {
-				c.assertEqual(error, "Space id cannot be null (Context: [])", "Error");
-			}
+					var fCheckError = function(error, permId) {
+						c.assertContains(error, "Space id cannot be null", "Error");
+					}
 
-			testUpdate(c, fCreate, fUpdate, c.findProject, null, fCheckError);
-		});
+					testUpdate(c, fCreate, fUpdate, c.findProject, null, fCheckError);
+				});
 
 		QUnit.test("updateExperiments() changed attributes + added tag + added attachment", function(assert) {
 			var c = new common(assert);
@@ -260,8 +261,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				return facade.updateExperiments([ experimentUpdate ]);
 			}
 
-			var fCheckError = function(error) {
-				c.assertEqual(error, "Project id cannot be null (Context: [])", "Error");
+			var fCheckError = function(error, permId) {
+				c.assertContains(error, "Project id cannot be null", "Error");
 			}
 
 			testUpdate(c, fCreate, fUpdate, c.findExperiment, null, fCheckError);

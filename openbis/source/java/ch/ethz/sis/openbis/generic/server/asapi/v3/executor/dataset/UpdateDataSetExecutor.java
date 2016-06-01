@@ -18,7 +18,6 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,15 +28,19 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IUpdateTagForEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateRelationProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
@@ -104,46 +107,55 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, Collection<DataPE> entities)
+    protected void checkBusinessRules(IOperationContext context, CollectionBatch<DataPE> batch)
     {
-        verifyDataSetExecutor.verify(context, entities);
+        verifyDataSetExecutor.verify(context, batch);
     }
 
     @Override
-    protected void updateBatch(IOperationContext context, Map<DataSetUpdate, DataPE> entitiesMap)
+    protected void updateBatch(final IOperationContext context, final MapBatch<DataSetUpdate, DataPE> batch)
     {
-        updateDataSetPhysicalDataExecutor.update(context, entitiesMap);
-        updateDataSetLinkedDataExecutor.update(context, entitiesMap);
-        updateDataSetExperimentExecutor.update(context, entitiesMap);
-        updateDataSetSampleExecutor.update(context, entitiesMap);
+        updateDataSetPhysicalDataExecutor.update(context, batch);
+        updateDataSetLinkedDataExecutor.update(context, batch);
+        updateDataSetExperimentExecutor.update(context, batch);
+        updateDataSetSampleExecutor.update(context, batch);
+        updateDataSetPropertyExecutor.update(context, batch);
+        updateTags(context, batch);
 
         PersonPE person = context.getSession().tryGetPerson();
         Date timeStamp = daoFactory.getTransactionTimestamp();
-        Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
-        for (Map.Entry<DataSetUpdate, DataPE> entry : entitiesMap.entrySet())
-        {
-            DataSetUpdate update = entry.getKey();
-            DataPE entity = entry.getValue();
 
+        for (DataPE entity : batch.getObjects().values())
+        {
             RelationshipUtils.updateModificationDateAndModifier(entity, person, timeStamp);
-            updateTagForEntityExecutor.update(context, entity, update.getTagIds());
-
-            if (update.getProperties() != null && false == update.getProperties().isEmpty())
-            {
-                propertyMap.put(entity, update.getProperties());
-            }
-        }
-
-        if (false == propertyMap.isEmpty())
-        {
-            updateDataSetPropertyExecutor.update(context, propertyMap);
         }
     }
 
-    @Override
-    protected void updateAll(IOperationContext context, Map<DataSetUpdate, DataPE> entitiesMap)
+    private void updateTags(final IOperationContext context, final MapBatch<DataSetUpdate, DataPE> batch)
     {
-        updateDataSetRelatedDataSetsExecutor.update(context, entitiesMap);
+        new MapBatchProcessor<DataSetUpdate, DataPE>(context, batch)
+            {
+                @Override
+                public void process(DataSetUpdate update, DataPE entity)
+                {
+                    if (update.getTagIds() != null && update.getTagIds().hasActions())
+                    {
+                        updateTagForEntityExecutor.update(context, entity, update.getTagIds());
+                    }
+                }
+
+                @Override
+                public IProgress createProgress(DataSetUpdate key, DataPE value, int objectIndex, int totalObjectCount)
+                {
+                    return new UpdateRelationProgress(key, value, "dataset-tag", objectIndex, totalObjectCount);
+                }
+            };
+    }
+
+    @Override
+    protected void updateAll(IOperationContext context, MapBatch<DataSetUpdate, DataPE> batch)
+    {
+        updateDataSetRelatedDataSetsExecutor.update(context, batch);
     }
 
     @Override

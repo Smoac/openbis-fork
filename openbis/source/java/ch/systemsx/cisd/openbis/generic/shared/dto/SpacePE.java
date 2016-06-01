@@ -47,7 +47,9 @@ import org.hibernate.validator.constraints.Length;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * A <i>Persistence Entity</i> which represents a group.
@@ -55,10 +57,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
  * @author Christian Ribeaud
  */
 @Entity
-@Table(name = TableNames.SPACES_TABLE, uniqueConstraints =
-{ @UniqueConstraint(columnNames =
-{ ColumnNames.CODE_COLUMN }) })
-public final class SpacePE extends HibernateAbstractRegistrationHolder implements IIdAndCodeHolder,
+@Table(name = TableNames.SPACES_TABLE, uniqueConstraints = { @UniqueConstraint(columnNames = { ColumnNames.CODE_COLUMN }) })
+public final class SpacePE extends HibernateAbstractRegistrationHolder implements IIdAndCodeHolder, IIdentityHolder,
         Comparable<SpacePE>, Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
@@ -96,6 +96,20 @@ public final class SpacePE extends HibernateAbstractRegistrationHolder implement
     public final void setId(final Long id)
     {
         this.id = id;
+    }
+
+    @Override
+    @Transient
+    public String getPermId()
+    {
+        return code;
+    }
+
+    @Override
+    @Transient
+    public String getIdentifier()
+    {
+        return new SpaceIdentifier(code).toString();
     }
 
     @Transient
@@ -229,4 +243,5 @@ public final class SpacePE extends HibernateAbstractRegistrationHolder implement
     {
         this.samples = samples;
     }
+
 }

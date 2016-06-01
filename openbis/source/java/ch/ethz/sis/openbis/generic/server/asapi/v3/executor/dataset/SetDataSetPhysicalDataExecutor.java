@@ -16,15 +16,17 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.Complete;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.PhysicalDataCreation;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.SetRelationProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -47,33 +49,41 @@ public class SetDataSetPhysicalDataExecutor implements ISetDataSetPhysicalDataEx
     private ISetDataSetLocatorTypeExecutor setDataSetLocatorTypeExecutor;
 
     @Override
-    public void set(IOperationContext context, Map<DataSetCreation, DataPE> entitiesMap)
+    public void set(final IOperationContext context, final MapBatch<DataSetCreation, DataPE> batch)
     {
-        for (Map.Entry<DataSetCreation, DataPE> entry : entitiesMap.entrySet())
-        {
-            DataSetCreation creation = entry.getKey();
-            PhysicalDataCreation physicalCreation = creation.getPhysicalData();
-            DataPE entity = entry.getValue();
-
-            if (entity instanceof ExternalDataPE)
+        new MapBatchProcessor<DataSetCreation, DataPE>(context, batch)
             {
-                if (physicalCreation == null)
+                @Override
+                public void process(DataSetCreation creation, DataPE entity)
                 {
-                    throw new UserFailureException("Physical data cannot be null for a physical data set.");
-                }
-                set(context, physicalCreation, (ExternalDataPE) entity);
-            } else
-            {
-                if (physicalCreation != null)
-                {
-                    throw new UserFailureException("Physical data cannot be set for a non-physical data set.");
-                }
-            }
-        }
+                    PhysicalDataCreation physicalCreation = creation.getPhysicalData();
 
-        setDataSetStorageFormatExecutor.set(context, entitiesMap);
-        setDataSetFileFormatTypeExecutor.set(context, entitiesMap);
-        setDataSetLocatorTypeExecutor.set(context, entitiesMap);
+                    if (entity instanceof ExternalDataPE)
+                    {
+                        if (physicalCreation == null)
+                        {
+                            throw new UserFailureException("Physical data cannot be null for a physical data set.");
+                        }
+                        set(context, physicalCreation, (ExternalDataPE) entity);
+                    } else
+                    {
+                        if (physicalCreation != null)
+                        {
+                            throw new UserFailureException("Physical data cannot be set for a non-physical data set.");
+                        }
+                    }
+                }
+
+                @Override
+                public IProgress createProgress(DataSetCreation creation, DataPE entity, int objectIndex, int totalObjectCount)
+                {
+                    return new SetRelationProgress(entity, creation, "dataset-physicaldata", objectIndex, totalObjectCount);
+                }
+            };
+
+        setDataSetStorageFormatExecutor.set(context, batch);
+        setDataSetFileFormatTypeExecutor.set(context, batch);
+        setDataSetLocatorTypeExecutor.set(context, batch);
     }
 
     private void set(IOperationContext context, PhysicalDataCreation physicalCreation, ExternalDataPE dataSet)

@@ -45,6 +45,12 @@ public class SetSampleTypeExecutor extends AbstractSetEntityToOneRelationExecuto
     private IMapEntityTypeByIdExecutor mapEntityTypeByIdExecutor;
 
     @Override
+    protected String getRelationName()
+    {
+        return "sample-type";
+    }
+
+    @Override
     protected IEntityTypeId getRelatedId(SampleCreation creation)
     {
         return creation.getTypeId();

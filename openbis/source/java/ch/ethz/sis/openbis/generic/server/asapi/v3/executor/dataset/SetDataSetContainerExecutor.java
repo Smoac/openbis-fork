@@ -22,9 +22,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSetEntityToManyRelationExecutor;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
@@ -32,9 +30,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
  * @author pkupczyk
  */
 @Component
-public class SetDataSetContainerExecutor extends AbstractSetEntityToManyRelationExecutor<DataSetCreation, DataPE, IDataSetId, DataPE> implements
+public class SetDataSetContainerExecutor extends SetDataSetToDataSetsRelationExecutor implements
         ISetDataSetContainerExecutor
 {
+
+    @Override
+    protected String getRelationName()
+    {
+        return "dataset-containers";
+    }
 
     @Override
     protected Collection<? extends IDataSetId> getRelatedIds(IOperationContext context, DataSetCreation creation)
@@ -45,8 +49,6 @@ public class SetDataSetContainerExecutor extends AbstractSetEntityToManyRelation
     @Override
     protected void setRelated(IOperationContext context, DataPE component, Collection<DataPE> containers)
     {
-        context.pushProgress(new Progress("set containers for dataset " + component.getCode()));
-
         for (DataPE container : containers)
         {
             if (false == container.isContainer())
@@ -56,8 +58,6 @@ public class SetDataSetContainerExecutor extends AbstractSetEntityToManyRelation
             }
             relationshipService.assignDataSetToContainer(context.getSession(), component, container);
         }
-
-        context.popProgress();
     }
 
 }

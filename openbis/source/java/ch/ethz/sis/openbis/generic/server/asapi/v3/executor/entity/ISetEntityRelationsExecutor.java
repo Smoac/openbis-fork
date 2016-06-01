@@ -16,9 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity;
 
-import java.util.Map;
-
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 
 /**
  * @author pkupczyk
@@ -26,6 +25,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 public interface ISetEntityRelationsExecutor<ENTITY_CREATION, ENTITY_PE>
 {
 
-    public void set(IOperationContext context, Map<ENTITY_CREATION, ENTITY_PE> entitiesMap);
+    public void set(IOperationContext context, MapBatch<ENTITY_CREATION, ENTITY_PE> batch);
 
 }

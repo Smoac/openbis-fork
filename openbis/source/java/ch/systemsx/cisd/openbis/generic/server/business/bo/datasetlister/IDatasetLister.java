@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
@@ -136,6 +137,12 @@ public interface IDatasetLister
      * Lists physical datasets with unknown size of the specified data store.
      */
     List<AbstractExternalData> listByDataStoreWithUnknownSize(long dataStoreID, int limit, String dataSetCodeLowerLimit,
+            EnumSet<DataSetFetchOption> datasetFetchOptions);
+
+    /**
+     * Lists physical datasets by archiving status of the specified data store.
+     */
+    List<AbstractExternalData> listByArchivingStatus(long dataStoreID, DataSetArchivingStatus archivingStatus,
             EnumSet<DataSetFetchOption> datasetFetchOptions);
 
     /**

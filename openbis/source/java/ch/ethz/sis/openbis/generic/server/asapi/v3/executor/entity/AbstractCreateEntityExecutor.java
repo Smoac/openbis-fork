@@ -29,16 +29,25 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.Batch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CheckAccessProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CheckDataProgress;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 
 /**
  * @author pkupczyk
  */
-public abstract class AbstractCreateEntityExecutor<CREATION, PE extends IIdHolder, PERM_ID> implements
-        ICreateEntityExecutor<CREATION, PERM_ID>
+public abstract class AbstractCreateEntityExecutor<CREATION extends ICreation, PE extends IIdentityHolder, PERM_ID extends IObjectId>
+        implements ICreateEntityExecutor<CREATION, PERM_ID>
 {
 
     @Autowired
@@ -47,31 +56,30 @@ public abstract class AbstractCreateEntityExecutor<CREATION, PE extends IIdHolde
     @Override
     public List<PERM_ID> create(IOperationContext context, List<CREATION> creations)
     {
+        if (creations == null || creations.isEmpty())
+        {
+            return new ArrayList<PERM_ID>();
+        }
 
         try
         {
             List<PERM_ID> permIdsAll = new LinkedList<PERM_ID>();
             Map<CREATION, PE> entitiesAll = new LinkedHashMap<CREATION, PE>();
 
-            int batchSize = 1000;
-            for (int batchStart = 0; batchStart < creations.size(); batchStart += batchSize)
+            for (CollectionBatch<CREATION> batch : Batch.createBatches(creations))
             {
-                int batchEnd = Math.min(batchStart + batchSize, creations.size());
-                List<CREATION> creationsBatch = creations.subList(batchStart, batchEnd);
-                context.pushProgress(new Progress("creating entities", batchEnd, creations.size()));
-                createEntities(context, creationsBatch, permIdsAll, entitiesAll);
-                context.popProgress();
+                createEntities(context, batch, permIdsAll, entitiesAll);
             }
 
             daoFactory.getSessionFactory().getCurrentSession().flush();
             reloadEntities(context, entitiesAll);
 
-            updateAll(context, entitiesAll);
+            updateAll(context, new MapBatch<CREATION, PE>(0, 0, entitiesAll.size(), entitiesAll, entitiesAll.size()));
 
             daoFactory.getSessionFactory().getCurrentSession().flush();
             reloadEntities(context, entitiesAll);
 
-            checkBusinessRules(context, entitiesAll.values());
+            checkBusinessRules(context, new CollectionBatch<PE>(0, 0, entitiesAll.size(), entitiesAll.values(), entitiesAll.size()));
 
             return permIdsAll;
         } catch (DataAccessException e)
@@ -81,20 +89,53 @@ public abstract class AbstractCreateEntityExecutor<CREATION, PE extends IIdHolde
         }
     }
 
-    private void createEntities(IOperationContext context, List<CREATION> creationsBatch,
+    private void checkData(final IOperationContext context, CollectionBatch<CREATION> batch)
+    {
+        new CollectionBatchProcessor<CREATION>(context, batch)
+            {
+                @Override
+                public void process(CREATION object)
+                {
+                    checkData(context, object);
+                }
+
+                @Override
+                public IProgress createProgress(CREATION object, int objectIndex, int totalObjectCount)
+                {
+                    return new CheckDataProgress(object, objectIndex, totalObjectCount);
+                }
+            };
+    }
+
+    private void checkAccess(final IOperationContext context, MapBatch<CREATION, PE> batch)
+    {
+        new MapBatchProcessor<CREATION, PE>(context, batch)
+            {
+                @Override
+                public void process(CREATION creation, PE entity)
+                {
+                    checkAccess(context, entity);
+                }
+
+                @Override
+                public IProgress createProgress(CREATION creation, PE entity, int objectIndex, int totalObjectCount)
+                {
+                    return new CheckAccessProgress(entity, creation, objectIndex, totalObjectCount);
+                }
+            };
+    }
+
+    private void createEntities(final IOperationContext context, CollectionBatch<CREATION> batch,
             List<PERM_ID> permIdsAll, Map<CREATION, PE> entitiesAll)
     {
-        Map<CREATION, PE> batchMap = new LinkedHashMap<CREATION, PE>();
+        Map<CREATION, PE> creationToEntityMap = new LinkedHashMap<CREATION, PE>();
 
         daoFactory.setBatchUpdateMode(true);
 
-        for (CREATION creation : creationsBatch)
-        {
-            checkData(context, creation);
-        }
+        checkData(context, batch);
 
-        List<PE> entities = createEntities(context, creationsBatch);
-        Iterator<CREATION> iterCreations = creationsBatch.iterator();
+        List<PE> entities = createEntities(context, batch);
+        Iterator<CREATION> iterCreations = batch.getObjects().iterator();
         Iterator<PE> iterEntities = entities.iterator();
 
         while (iterCreations.hasNext() && iterEntities.hasNext())
@@ -102,19 +143,18 @@ public abstract class AbstractCreateEntityExecutor<CREATION, PE extends IIdHolde
             CREATION creation = iterCreations.next();
             PE entity = iterEntities.next();
             entitiesAll.put(creation, entity);
-            batchMap.put(creation, entity);
+            creationToEntityMap.put(creation, entity);
         }
 
-        updateBatch(context, batchMap);
+        MapBatch<CREATION, PE> mapBatch = new MapBatch<CREATION, PE>(batch.getBatchIndex(), batch.getFromObjectIndex(), batch.getToObjectIndex(),
+                creationToEntityMap, batch.getTotalObjectCount());
 
-        for (PE entity : batchMap.values())
-        {
-            checkAccess(context, entity);
-        }
+        updateBatch(context, mapBatch);
+        checkAccess(context, mapBatch);
 
-        save(context, new ArrayList<PE>(batchMap.values()), false);
+        save(context, new ArrayList<PE>(creationToEntityMap.values()), false);
 
-        for (PE entity : batchMap.values())
+        for (PE entity : creationToEntityMap.values())
         {
             PERM_ID permId = createPermId(context, entity);
             permIdsAll.add(permId);
@@ -149,17 +189,17 @@ public abstract class AbstractCreateEntityExecutor<CREATION, PE extends IIdHolde
 
     protected abstract void checkData(IOperationContext context, CREATION creation);
 
-    protected abstract List<PE> createEntities(IOperationContext context, Collection<CREATION> creations);
+    protected abstract void checkAccess(IOperationContext context, PE entity);
+
+    protected abstract void checkBusinessRules(IOperationContext context, CollectionBatch<PE> batch);
+
+    protected abstract List<PE> createEntities(IOperationContext context, CollectionBatch<CREATION> batch);
 
     protected abstract PERM_ID createPermId(IOperationContext context, PE entity);
 
-    protected abstract void checkAccess(IOperationContext context, PE entity);
+    protected abstract void updateBatch(IOperationContext context, MapBatch<CREATION, PE> batch);
 
-    protected abstract void checkBusinessRules(IOperationContext context, Collection<PE> entities);
-
-    protected abstract void updateBatch(IOperationContext context, Map<CREATION, PE> entitiesMap);
-
-    protected abstract void updateAll(IOperationContext context, Map<CREATION, PE> entitiesMap);
+    protected abstract void updateAll(IOperationContext context, MapBatch<CREATION, PE> batch);
 
     protected abstract List<PE> list(IOperationContext context, Collection<Long> ids);
 

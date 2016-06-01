@@ -22,18 +22,21 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSetEntityToManyRelationExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SetDataSetChildrenExecutor extends AbstractSetEntityToManyRelationExecutor<DataSetCreation, DataPE, IDataSetId, DataPE> implements
-        ISetDataSetChildrenExecutor
+public class SetDataSetChildrenExecutor extends SetDataSetToDataSetsRelationExecutor implements ISetDataSetChildrenExecutor
 {
+
+    @Override
+    protected String getRelationName()
+    {
+        return "dataset-children";
+    }
 
     @Override
     protected Collection<? extends IDataSetId> getRelatedIds(IOperationContext context, DataSetCreation creation)
@@ -44,14 +47,10 @@ public class SetDataSetChildrenExecutor extends AbstractSetEntityToManyRelationE
     @Override
     protected void setRelated(IOperationContext context, DataPE parent, Collection<DataPE> children)
     {
-        context.pushProgress(new Progress("set children for dataset " + parent.getCode()));
-
         for (DataPE child : children)
         {
             relationshipService.addParentToDataSet(context.getSession(), child, parent);
         }
-
-        context.popProgress();
     }
 
 }

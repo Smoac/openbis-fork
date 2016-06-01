@@ -27,6 +27,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityMultipleRelationsExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
@@ -68,12 +69,12 @@ public class UpdateDataSetRelatedDataSetsExecutor extends AbstractUpdateEntityMu
     }
 
     @Override
-    protected void update(IOperationContext context, Map<DataSetUpdate, DataPE> entitiesMap, Map<IDataSetId, DataPE> relatedMap)
+    protected void update(IOperationContext context, MapBatch<DataSetUpdate, DataPE> batch, Map<IDataSetId, DataPE> relatedMap)
     {
-        updateDataSetContainersExecutor.update(context, entitiesMap, relatedMap);
-        updateDataSetComponentsExecutor.update(context, entitiesMap, relatedMap);
-        updateDataSetParentsExecutor.update(context, entitiesMap, relatedMap);
-        updateDataSetChildrenExecutor.update(context, entitiesMap, relatedMap);
+        updateDataSetContainersExecutor.update(context, batch, relatedMap);
+        updateDataSetComponentsExecutor.update(context, batch, relatedMap);
+        updateDataSetParentsExecutor.update(context, batch, relatedMap);
+        updateDataSetChildrenExecutor.update(context, batch, relatedMap);
     }
 
 }

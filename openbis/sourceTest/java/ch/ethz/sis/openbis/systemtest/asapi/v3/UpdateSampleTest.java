@@ -51,7 +51,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.index.ReindexingState;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 
 import junit.framework.Assert;
@@ -149,7 +148,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, sampleId);
+            }, sampleId, patternContains("checking access (1/1)", toDblQuotes("'identifier' : '/CISD/CP-TEST-1'")));
     }
 
     @Test
@@ -198,7 +197,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, spaceId);
+            }, spaceId, patternContains("updating relation sample-space (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
     }
 
     @Test
@@ -218,7 +217,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, spaceId);
+            }, spaceId, patternContains("updating relation sample-space (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
     }
 
     @Test
@@ -282,7 +281,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            });
+            }, patternContains("updating relation sample-space (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/SAMPLE'")));
     }
 
     @Test
@@ -301,7 +300,8 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, "Cannot detach the sample '/CISD/CP-TEST-1' from the space because there are already datasets attached to the sample");
+            }, "Cannot detach the sample '/CISD/CP-TEST-1' from the space because there are already datasets attached to the sample",
+                patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/CP-TEST-1'")));
     }
 
     @Test
@@ -361,7 +361,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                     String sessionToken2 = v3api.login(TEST_SPACE_USER, PASSWORD);
                     v3api.updateSamples(sessionToken2, Arrays.asList(update));
                 }
-            }, ids.get(0));
+            }, ids.get(0), patternContains("checking access (1/1)", toDblQuotes("'identifier' : '/SAMPLE'")));
     }
 
     @Test
@@ -397,7 +397,7 @@ public class UpdateSampleTest extends AbstractSampleTest
     @Test
     public void testUpdateWithExperimentInDifferentSpace()
     {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation creation = new SampleCreation();
         creation.setCode("SAMPLE");
@@ -406,25 +406,25 @@ public class UpdateSampleTest extends AbstractSampleTest
 
         List<SamplePermId> ids = v3api.createSamples(sessionToken, Arrays.asList(creation));
 
-        SampleUpdate update = new SampleUpdate();
+        final SampleUpdate update = new SampleUpdate();
         update.setSampleId(ids.get(0));
         update.setExperimentId(new ExperimentPermId("201206190940555-1032"));
 
-        try
-        {
-            v3api.updateSamples(sessionToken, Arrays.asList(update));
-        } catch (UserFailureException e)
-        {
-            Assert.assertEquals(
-                    "Sample space must be the same as experiment space. Sample: /CISD/SAMPLE, Experiment: /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST (Context: [verify experiment for sample SAMPLE])",
-                    e.getMessage());
-        }
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, "Sample space must be the same as experiment space. Sample: /CISD/SAMPLE, Experiment: /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST",
+                patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/SAMPLE'")));
     }
 
     @Test
     public void testUpdateWithExperimentForSharedSample()
     {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation creation = new SampleCreation();
         creation.setCode("SAMPLE");
@@ -432,19 +432,19 @@ public class UpdateSampleTest extends AbstractSampleTest
 
         List<SamplePermId> ids = v3api.createSamples(sessionToken, Arrays.asList(creation));
 
-        SampleUpdate update = new SampleUpdate();
+        final SampleUpdate update = new SampleUpdate();
         update.setSampleId(ids.get(0));
         update.setExperimentId(new ExperimentPermId("201206190940555-1032"));
 
-        try
-        {
-            v3api.updateSamples(sessionToken, Arrays.asList(update));
-        } catch (UserFailureException e)
-        {
-            Assert.assertEquals(
-                    "Shared samples cannot be attached to experiments. Sample: /SAMPLE, Experiment: /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST (Context: [verify experiment for sample SAMPLE])",
-                    e.getMessage());
-        }
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, "Shared samples cannot be attached to experiments. Sample: /SAMPLE, Experiment: /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST",
+                patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/SAMPLE'")));
     }
 
     @Test
@@ -523,7 +523,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, experimentId);
+            }, experimentId, patternContains("updating relation sample-experiment (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
     }
 
     @Test
@@ -543,7 +543,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, experimentId);
+            }, experimentId, patternContains("updating relation sample-experiment (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
     }
 
     @Test
@@ -687,7 +687,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, containerId);
+            }, containerId, patternContains("updating relation sample-containers (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
     }
 
     @Test
@@ -707,7 +707,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, containerId);
+            }, containerId, patternContains("updating relation sample-containers (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
     }
 
     @Test
@@ -726,7 +726,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, "'/CISD/A01:CL1' cannot be it's own container");
+            }, "'/CISD/A01:CL1' cannot be it's own container", patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/A01:CL1'")));
     }
 
     @Test
@@ -745,7 +745,8 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, "The database instance sample '/3V-125:MP' can not be component in the space sample '/CISD/3V-125");
+            }, "The database instance sample '/3V-125:MP' can not be component in the space sample '/CISD/3V-125",
+                patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/3V-125:MP'")));
     }
 
     @Test
@@ -862,7 +863,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, componentId);
+            }, componentId, patternContains("updating relation sample-components (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
     }
 
     @Test
@@ -882,7 +883,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, componentId);
+            }, componentId, patternContains("updating relation sample-components (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
     }
 
     @Test
@@ -901,7 +902,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, "'/CISD/CL1:A01' cannot be it's own container");
+            }, "'/CISD/CL1:A01' cannot be it's own container", patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/CL1:A01'")));
     }
 
     @Test
@@ -920,7 +921,8 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, "Sample '/CISD/3V-125' can not be a space sample because of a component database instance sample '/3V-125:MP");
+            }, "Sample '/CISD/3V-125' can not be a space sample because of a component database instance sample '/3V-125:MP",
+                patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/3V-125'")));
     }
 
     @Test
@@ -1012,7 +1014,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, parentId);
+            }, parentId, patternContains("updating relation sample-parents (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
     }
 
     @Test
@@ -1032,7 +1034,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, parentId);
+            }, parentId, patternContains("updating relation sample-parents (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
     }
 
     @Test
@@ -1070,7 +1072,8 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, "The database instance sample '/MP' can not be child of the space sample '/CISD/3V-125'");
+            }, "The database instance sample '/MP' can not be child of the space sample '/CISD/3V-125'",
+                patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/MP'")));
     }
 
     @Test
@@ -1162,7 +1165,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, childId);
+            }, childId, patternContains("updating relation sample-children (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
     }
 
     @Test
@@ -1182,7 +1185,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, childId);
+            }, childId, patternContains("updating relation sample-children (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
     }
 
     @Test
@@ -1220,7 +1223,8 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, "Sample '/CISD/3V-125' can not be a space sample because of a child database instance sample '/MP'");
+            }, "Sample '/CISD/3V-125' can not be a space sample because of a child database instance sample '/MP'",
+                patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/3V-125'")));
     }
 
     @Test

@@ -39,6 +39,12 @@ public class UpdateDataSetContainersExecutor extends AbstractUpdateEntityToManyR
 {
 
     @Override
+    protected String getRelationName()
+    {
+        return "dataset-containers";
+    }
+
+    @Override
     protected Collection<DataPE> getCurrentlyRelated(DataPE entity)
     {
         return entity.getContainers();

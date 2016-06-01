@@ -44,6 +44,12 @@ public class SetSampleSpaceExecutor extends AbstractSetEntityToOneRelationExecut
     private IMapSpaceByIdExecutor mapSpaceByIdExecutor;
 
     @Override
+    protected String getRelationName()
+    {
+        return "sample-space";
+    }
+
+    @Override
     protected ISpaceId getRelatedId(SampleCreation creation)
     {
         return creation.getSpaceId();

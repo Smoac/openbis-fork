@@ -436,7 +436,6 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
     {
         return sort;
     }
-
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {

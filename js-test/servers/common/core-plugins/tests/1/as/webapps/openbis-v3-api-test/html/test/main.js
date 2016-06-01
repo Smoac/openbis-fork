@@ -8,7 +8,8 @@ define([
 
 //         'test/test-dto', 
          'test/test-dto-roundtrip', 
-         'test/test-custom-services' 
+         'test/test-custom-services',
+         'test/test-archive-unarchive'
          ], function() {
 	var testSuites = arguments;
 	return function() {

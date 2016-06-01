@@ -26,12 +26,18 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdatePropertyProgress;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.EntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -63,30 +69,76 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
     }
 
     @Override
-    public void update(IOperationContext context, Map<IEntityPropertiesHolder, Map<String, String>> entityToPropertiesMap)
+    public void update(final IOperationContext context,
+            final MapBatch<? extends IPropertiesHolder, ? extends IEntityInformationWithPropertiesHolder> holderToEntityMap)
     {
+        final MapBatch<IEntityInformationWithPropertiesHolder, Map<String, String>> entityToPropertiesMap =
+                getEntityToPropertiesMap(holderToEntityMap);
+
         if (entityToPropertiesMap == null || entityToPropertiesMap.isEmpty())
         {
             return;
         }
 
-        Map<EntityKind, EntityPropertiesConverter> converters = new HashMap<EntityKind, EntityPropertiesConverter>();
+        final Map<EntityKind, EntityPropertiesConverter> converters = new HashMap<EntityKind, EntityPropertiesConverter>();
 
-        for (Map.Entry<IEntityPropertiesHolder, Map<String, String>> entry : entityToPropertiesMap.entrySet())
-        {
-            IEntityPropertiesHolder propertiesHolder = entry.getKey();
-            Map<String, String> properties = entry.getValue();
-            EntityKind entityKind = propertiesHolder.getEntityType().getEntityKind();
-
-            if (converters.get(entityKind) == null)
+        new MapBatchProcessor<IEntityInformationWithPropertiesHolder, Map<String, String>>(context, entityToPropertiesMap)
             {
-                EntityPropertiesConverter converter =
-                        new EntityPropertiesConverter(entityKind, daoFactory, managedPropertyEvaluatorFactory);
-                converters.put(entityKind, converter);
-            }
+                @Override
+                public void process(IEntityInformationWithPropertiesHolder propertiesHolder, Map<String, String> properties)
+                {
+                    EntityKind entityKind = propertiesHolder.getEntityType().getEntityKind();
 
-            update(context, propertiesHolder, properties, converters.get(entityKind));
+                    if (converters.get(entityKind) == null)
+                    {
+                        EntityPropertiesConverter converter =
+                                new EntityPropertiesConverter(entityKind, daoFactory, managedPropertyEvaluatorFactory);
+                        converters.put(entityKind, converter);
+                    }
+
+                    update(context, propertiesHolder, properties, converters.get(entityKind));
+                }
+
+                @Override
+                public IProgress createProgress(IEntityInformationWithPropertiesHolder propertiesHolder, Map<String, String> properties,
+                        int objectIndex, int totalObjectCount)
+                {
+                    return new UpdatePropertyProgress(propertiesHolder, properties, objectIndex, totalObjectCount);
+                }
+            };
+    }
+
+    private MapBatch<IEntityInformationWithPropertiesHolder, Map<String, String>> getEntityToPropertiesMap(
+            final MapBatch<? extends IPropertiesHolder, ? extends IEntityInformationWithPropertiesHolder> holderToEntityMap)
+    {
+        if (holderToEntityMap == null || holderToEntityMap.isEmpty())
+        {
+            return null;
         }
+
+        Map<IEntityInformationWithPropertiesHolder, Map<String, String>> entityToPropertiesMap =
+                new HashMap<IEntityInformationWithPropertiesHolder, Map<String, String>>();
+
+        for (Map.Entry<? extends IPropertiesHolder, ? extends IEntityInformationWithPropertiesHolder> entry : holderToEntityMap.getObjects()
+                .entrySet())
+        {
+            IPropertiesHolder holder = entry.getKey();
+            IEntityInformationWithPropertiesHolder entity = entry.getValue();
+
+            if (holder.getProperties() != null && false == holder.getProperties().isEmpty())
+            {
+                entityToPropertiesMap.put(entity, holder.getProperties());
+            }
+        }
+
+        if (entityToPropertiesMap.isEmpty())
+        {
+            return null;
+        }
+
+        return new MapBatch<IEntityInformationWithPropertiesHolder, Map<String, String>>(holderToEntityMap.getBatchIndex(),
+                holderToEntityMap.getFromObjectIndex(), holderToEntityMap.getToObjectIndex(), entityToPropertiesMap,
+                holderToEntityMap.getTotalObjectCount());
     }
 
     private void update(IOperationContext context, IEntityPropertiesHolder propertiesHolder, Map<String, String> properties,

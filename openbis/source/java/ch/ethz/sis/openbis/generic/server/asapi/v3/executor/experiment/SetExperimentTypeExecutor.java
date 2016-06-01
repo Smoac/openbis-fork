@@ -45,6 +45,12 @@ public class SetExperimentTypeExecutor extends AbstractSetEntityToOneRelationExe
     private IMapEntityTypeByIdExecutor mapEntityTypeByIdExecutor;
 
     @Override
+    protected String getRelationName()
+    {
+        return "experiment-type";
+    }
+
+    @Override
     protected IEntityTypeId getRelatedId(ExperimentCreation creation)
     {
         return creation.getTypeId();

@@ -53,6 +53,7 @@ import org.hibernate.search.annotations.Store;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.search.IgnoreCaseAnalyzer;
@@ -62,11 +63,11 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
  * @author Pawel Glyzewski
  */
 @Entity
-@Table(name = TableNames.METAPROJECTS_TABLE, uniqueConstraints = @UniqueConstraint(columnNames = { ColumnNames.NAME_COLUMN, ColumnNames.OWNER }))
-public class MetaprojectPE implements Serializable, IIdHolder, ICodeHolder
+@Table(name = TableNames.METAPROJECTS_TABLE, uniqueConstraints = @UniqueConstraint(columnNames = { ColumnNames.NAME_COLUMN, ColumnNames.OWNER }) )
+public class MetaprojectPE implements Serializable, IIdHolder, ICodeHolder, IIdentityHolder
 {
     private static final long serialVersionUID = IServer.VERSION;
-
+    
     private transient Long id;
 
     private String name;
@@ -115,6 +116,7 @@ public class MetaprojectPE implements Serializable, IIdHolder, ICodeHolder
         return getName();
     }
 
+    @Override
     @Transient
     @Field(index = Index.YES, name = SearchFieldConstants.IDENTIFIER, store = Store.YES)
     @Analyzer(impl = IgnoreCaseAnalyzer.class)
@@ -122,6 +124,13 @@ public class MetaprojectPE implements Serializable, IIdHolder, ICodeHolder
     {
         return new MetaprojectIdentifier(getOwner() != null ? getOwner().getUserId() : null,
                 getName()).format();
+    }
+    
+    @Override
+    @Transient
+    public String getPermId()
+    {
+        return null;
     }
 
     @Column(name = ColumnNames.DESCRIPTION_COLUMN)

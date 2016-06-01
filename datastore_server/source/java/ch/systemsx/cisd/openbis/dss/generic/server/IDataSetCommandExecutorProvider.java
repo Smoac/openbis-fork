@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
+import java.util.List;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.IProcessingPluginTask;
 
@@ -30,6 +31,8 @@ public interface IDataSetCommandExecutorProvider
     public void init(File storeRoot);
 
     public IDataSetCommandExecutor getDefaultExecutor();
-
+    
+    public List<IDataSetCommandExecutor> getAllExecutors();
+    
     public IDataSetCommandExecutor getExecutor(IProcessingPluginTask processingTask, String processingTaskKey);
 }

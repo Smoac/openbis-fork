@@ -25,11 +25,11 @@ public interface IDirectoryRenderer extends IWriterInjector
 {
     public void printHeader();
 
-    public void printLinkToParentDirectory(String relativePath);
+    public void printLinkToParentDirectory(String relativePath, Boolean disableLinks);
 
-    public void printDirectory(String name, String relativePath);
+    public void printDirectory(String name, String relativePath, long size, Boolean disableLinks);
 
-    public void printFile(String name, String relativePath, long size, Integer checksumOrNull);
+    public void printFile(String name, String relativePath, long size, Integer checksumOrNull, Boolean disableLinks);
 
     public void printFooter();
 

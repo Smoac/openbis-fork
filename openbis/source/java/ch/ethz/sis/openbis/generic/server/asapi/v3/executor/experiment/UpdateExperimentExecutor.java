@@ -18,7 +18,6 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,15 +28,19 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IUpdateTagForEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateRelationProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
@@ -96,46 +99,72 @@ public class UpdateExperimentExecutor extends AbstractUpdateEntityExecutor<Exper
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, Collection<ExperimentPE> entities)
+    protected void checkBusinessRules(IOperationContext context, CollectionBatch<ExperimentPE> batch)
     {
-        verifyExperimentExecutor.verify(context, entities);
+        verifyExperimentExecutor.verify(context, batch);
     }
 
     @Override
-    protected void updateBatch(IOperationContext context, Map<ExperimentUpdate, ExperimentPE> entitiesMap)
+    protected void updateBatch(final IOperationContext context, final MapBatch<ExperimentUpdate, ExperimentPE> batch)
     {
-        updateExperimentProjectExecutor.update(context, entitiesMap);
+        updateExperimentProjectExecutor.update(context, batch);
+        updateExperimentPropertyExecutor.update(context, batch);
+        updateTags(context, batch);
+        updateAttachments(context, batch);
 
-        Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
         PersonPE person = context.getSession().tryGetPerson();
         Date timeStamp = daoFactory.getTransactionTimestamp();
-        for (Map.Entry<ExperimentUpdate, ExperimentPE> entry : entitiesMap.entrySet())
-        {
-            ExperimentUpdate update = entry.getKey();
-            ExperimentPE entity = entry.getValue();
 
+        for (ExperimentPE entity : batch.getObjects().values())
+        {
             RelationshipUtils.updateModificationDateAndModifier(entity, person, timeStamp);
-            updateTagForEntityExecutor.update(context, entity, update.getTagIds());
-
-            if (update.getAttachments() != null && update.getAttachments().hasActions())
-            {
-                updateExperimentAttachmentExecutor.update(context, entity, update.getAttachments());
-            }
-
-            if (update.getProperties() != null && false == update.getProperties().isEmpty())
-            {
-                propertyMap.put(entity, update.getProperties());
-            }
-        }
-
-        if (false == propertyMap.isEmpty())
-        {
-            updateExperimentPropertyExecutor.update(context, propertyMap);
         }
     }
 
+    private void updateTags(final IOperationContext context, final MapBatch<ExperimentUpdate, ExperimentPE> batch)
+    {
+        new MapBatchProcessor<ExperimentUpdate, ExperimentPE>(context, batch)
+            {
+                @Override
+                public void process(ExperimentUpdate update, ExperimentPE entity)
+                {
+                    if (update.getTagIds() != null && update.getTagIds().hasActions())
+                    {
+                        updateTagForEntityExecutor.update(context, entity, update.getTagIds());
+                    }
+                }
+
+                @Override
+                public IProgress createProgress(ExperimentUpdate update, ExperimentPE entity, int objectIndex, int totalObjectCount)
+                {
+                    return new UpdateRelationProgress(update, entity, "experiment-tag", objectIndex, totalObjectCount);
+                }
+            };
+    }
+
+    private void updateAttachments(final IOperationContext context, final MapBatch<ExperimentUpdate, ExperimentPE> batch)
+    {
+        new MapBatchProcessor<ExperimentUpdate, ExperimentPE>(context, batch)
+            {
+                @Override
+                public void process(ExperimentUpdate update, ExperimentPE entity)
+                {
+                    if (update.getAttachments() != null && update.getAttachments().hasActions())
+                    {
+                        updateExperimentAttachmentExecutor.update(context, entity, update.getAttachments());
+                    }
+                }
+
+                @Override
+                public IProgress createProgress(ExperimentUpdate update, ExperimentPE entity, int objectIndex, int totalObjectCount)
+                {
+                    return new UpdateRelationProgress(update, entity, "experiment-attachment", objectIndex, totalObjectCount);
+                }
+            };
+    }
+
     @Override
-    protected void updateAll(IOperationContext context, Map<ExperimentUpdate, ExperimentPE> entitiesMap)
+    protected void updateAll(IOperationContext context, MapBatch<ExperimentUpdate, ExperimentPE> batch)
     {
     }
 

@@ -44,8 +44,7 @@ import java.util.List;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.project.Project")
-public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, IExperimentsHolder, IModificationDateHolder, IModifierHolder,
-        IPermIdHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder
+public class Project implements Serializable, IAttachmentsHolder, ICodeHolder, IExperimentsHolder, IModificationDateHolder, IModifierHolder, IPermIdHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder
 {
     private static final long serialVersionUID = 1L;
 

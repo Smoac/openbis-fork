@@ -26,26 +26,53 @@ public class Progress implements IProgress
 
     private String label;
 
-    private Integer totalItemsToProcess;
+    private boolean detailsCreated = false;
+
+    private String details;
 
     private Integer numItemsProcessed;
+
+    private Integer totalItemsToProcess;
 
     public Progress(String label)
     {
         this.label = label;
     }
 
-    public Progress(String label, int totalItemsToProcess, int numItemsProcessed)
+    public Progress(String label, int numItemsProcessed, int totalItemsToProcess)
     {
         this.label = label;
-        this.totalItemsToProcess = totalItemsToProcess;
         this.numItemsProcessed = numItemsProcessed;
+        this.totalItemsToProcess = totalItemsToProcess;
     }
 
     @Override
     public String getLabel()
     {
         return label;
+    }
+
+    @Override
+    public final String getDetails()
+    {
+        if (false == detailsCreated)
+        {
+            details = createDetails();
+            detailsCreated = true;
+        }
+        return details;
+    }
+
+    protected String createDetails()
+    {
+        ProgressDetails detailsObject = new ProgressDetails();
+        updateDetails(detailsObject);
+        return detailsObject.toString();
+    }
+
+    protected void updateDetails(ProgressDetails detailsObject)
+    {
+
     }
 
     @Override
@@ -58,18 +85,6 @@ public class Progress implements IProgress
     public Integer getNumItemsProcessed()
     {
         return numItemsProcessed;
-    }
-
-    @Override
-    public String toString()
-    {
-        if (getTotalItemsToProcess() == null && getNumItemsProcessed() == null)
-        {
-            return getLabel();
-        } else
-        {
-            return getLabel() + " (" + getNumItemsProcessed() + "/" + getTotalItemsToProcess() + ")";
-        }
     }
 
 }

@@ -1,0 +1,9 @@
+{
+  "@type" : "as.test.context.TestClass",
+  "@id" : 1,
+  "primitive" : 0,
+  "integerMap" : {
+    "1" : 11,
+    "2" : 22
+  }
+}

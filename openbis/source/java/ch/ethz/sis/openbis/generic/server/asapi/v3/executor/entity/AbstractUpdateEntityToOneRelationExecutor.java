@@ -27,16 +27,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateRelationProgress;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 
 /**
  * @author pkupczyk
  */
-public abstract class AbstractUpdateEntityToOneRelationExecutor<ENTITY_UPDATE, ENTITY_PE, RELATED_ID, RELATED_PE> implements
-        IUpdateEntityRelationsExecutor<ENTITY_UPDATE, ENTITY_PE>,
+public abstract class AbstractUpdateEntityToOneRelationExecutor<ENTITY_UPDATE extends IUpdate, ENTITY_PE extends IIdentityHolder, RELATED_ID, RELATED_PE>
+        implements IUpdateEntityRelationsExecutor<ENTITY_UPDATE, ENTITY_PE>,
         IUpdateEntityRelationsWithCacheExecutor<ENTITY_UPDATE, ENTITY_PE, RELATED_ID, RELATED_PE>
 {
 
@@ -47,13 +53,11 @@ public abstract class AbstractUpdateEntityToOneRelationExecutor<ENTITY_UPDATE, E
     protected ICommonBusinessObjectFactory boFactory;
 
     @Override
-    public void update(IOperationContext context, Map<ENTITY_UPDATE, ENTITY_PE> entitiesMap)
+    public void update(IOperationContext context, MapBatch<ENTITY_UPDATE, ENTITY_PE> batch)
     {
-        Set<RELATED_PE> allAdded = new HashSet<RELATED_PE>();
-        Set<RELATED_PE> allRemoved = new HashSet<RELATED_PE>();
         List<RELATED_ID> relatedIds = new LinkedList<RELATED_ID>();
 
-        for (ENTITY_UPDATE update : entitiesMap.keySet())
+        for (ENTITY_UPDATE update : batch.getObjects().keySet())
         {
             FieldUpdateValue<RELATED_ID> relatedUpdate = getRelatedUpdate(update);
 
@@ -65,74 +69,81 @@ public abstract class AbstractUpdateEntityToOneRelationExecutor<ENTITY_UPDATE, E
 
         Map<RELATED_ID, RELATED_PE> relatedMap = map(context, relatedIds);
 
-        update(context, entitiesMap, relatedMap, allAdded, allRemoved);
-
-        postUpdate(context, allAdded, allRemoved);
+        updateCommon(context, batch, relatedMap);
     }
 
     @Override
-    public void update(IOperationContext context, Map<ENTITY_UPDATE, ENTITY_PE> entitiesMap, Map<RELATED_ID, RELATED_PE> relatedMap)
+    public void update(IOperationContext context, MapBatch<ENTITY_UPDATE, ENTITY_PE> batch, Map<RELATED_ID, RELATED_PE> relatedMap)
     {
-        Set<RELATED_PE> allAdded = new HashSet<RELATED_PE>();
-        Set<RELATED_PE> allRemoved = new HashSet<RELATED_PE>();
-
-        update(context, entitiesMap, relatedMap, allAdded, allRemoved);
-
-        postUpdate(context, allAdded, allRemoved);
+        updateCommon(context, batch, relatedMap);
     }
 
-    private void update(IOperationContext context, Map<ENTITY_UPDATE, ENTITY_PE> entitiesMap, Map<RELATED_ID, RELATED_PE> relatedMap,
-            Set<RELATED_PE> allAdded, Set<RELATED_PE> allRemoved)
+    private void updateCommon(final IOperationContext context, final MapBatch<ENTITY_UPDATE, ENTITY_PE> batch,
+            final Map<RELATED_ID, RELATED_PE> relatedMap)
     {
-        for (Map.Entry<ENTITY_UPDATE, ENTITY_PE> entry : entitiesMap.entrySet())
-        {
-            ENTITY_UPDATE update = entry.getKey();
-            ENTITY_PE entity = entry.getValue();
+        final Set<RELATED_PE> allAdded = new HashSet<RELATED_PE>();
+        final Set<RELATED_PE> allRemoved = new HashSet<RELATED_PE>();
 
-            FieldUpdateValue<RELATED_ID> relatedUpdate = getRelatedUpdate(update);
-            RELATED_PE currentlyRelated = getCurrentlyRelated(entity);
-
-            if (relatedUpdate != null && relatedUpdate.isModified())
+        new MapBatchProcessor<ENTITY_UPDATE, ENTITY_PE>(context, batch)
             {
-                RELATED_ID relatedId = relatedUpdate.getValue();
-
-                if (relatedId == null)
+                @Override
+                public void process(ENTITY_UPDATE update, ENTITY_PE entity)
                 {
-                    if (currentlyRelated != null)
-                    {
-                        check(context, entity, getRelatedId(currentlyRelated), currentlyRelated);
-                        update(context, entity, null);
-                        allRemoved.add(currentlyRelated);
-                    }
-                } else
-                {
-                    RELATED_PE related = relatedMap.get(relatedId);
+                    FieldUpdateValue<RELATED_ID> relatedUpdate = getRelatedUpdate(update);
+                    RELATED_PE currentlyRelated = getCurrentlyRelated(entity);
 
-                    if (related == null)
+                    if (relatedUpdate != null && relatedUpdate.isModified())
                     {
-                        throw new ObjectNotFoundException((IObjectId) relatedId);
-                    }
+                        RELATED_ID relatedId = relatedUpdate.getValue();
 
-                    if (false == related.equals(currentlyRelated))
-                    {
-                        check(context, entity, relatedId, related);
-                        update(context, entity, related);
-                        allAdded.add(related);
-                        if (currentlyRelated != null)
+                        if (relatedId == null)
                         {
-                            allRemoved.add(currentlyRelated);
+                            if (currentlyRelated != null)
+                            {
+                                check(context, entity, getRelatedId(currentlyRelated), currentlyRelated);
+                                update(context, entity, null);
+                                allRemoved.add(currentlyRelated);
+                            }
+                        } else
+                        {
+                            RELATED_PE related = relatedMap.get(relatedId);
+
+                            if (related == null)
+                            {
+                                throw new ObjectNotFoundException((IObjectId) relatedId);
+                            }
+
+                            if (false == related.equals(currentlyRelated))
+                            {
+                                check(context, entity, relatedId, related);
+                                update(context, entity, related);
+                                allAdded.add(related);
+                                if (currentlyRelated != null)
+                                {
+                                    allRemoved.add(currentlyRelated);
+                                }
+                            }
                         }
+
                     }
                 }
 
-            }
-        }
+                @Override
+                public IProgress createProgress(ENTITY_UPDATE key, ENTITY_PE value, int objectIndex, int totalObjectCount)
+                {
+                    return new UpdateRelationProgress(key, value, getRelationName(), objectIndex, totalObjectCount);
+                }
+            };
+
+        postUpdate(context, allAdded, allRemoved);
     }
 
     protected void postUpdate(IOperationContext context, Collection<RELATED_PE> allAdded, Collection<RELATED_PE> allRemoved)
     {
         // by default do nothing
     }
+
+    protected abstract String getRelationName();
 
     protected abstract RELATED_ID getRelatedId(RELATED_PE related);
 

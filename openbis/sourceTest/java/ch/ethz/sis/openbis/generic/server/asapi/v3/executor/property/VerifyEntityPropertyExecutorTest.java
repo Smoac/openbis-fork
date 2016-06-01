@@ -24,7 +24,8 @@ import java.util.Set;
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.VerifyEntityPropertyExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
@@ -83,6 +84,9 @@ public class VerifyEntityPropertyExecutorTest extends AbstractEntityPropertyExec
         context.checking(new Expectations()
             {
                 {
+                    allowing(operationContext).pushProgress(with(any(IProgress.class)));
+                    allowing(operationContext).popProgress();
+
                     allowing(daoFactory).getEntityPropertyTypeDAO(EntityKind.SAMPLE);
                     will(returnValue(entityPropertyTypeDAO));
 
@@ -103,10 +107,14 @@ public class VerifyEntityPropertyExecutorTest extends AbstractEntityPropertyExec
         execute(Arrays.asList(propertyHolder));
     }
 
-    public void execute(Collection<? extends IEntityInformationWithPropertiesHolder> propertyHolders)
+    public void execute(Collection<IEntityInformationWithPropertiesHolder> propertyHolders)
     {
+        CollectionBatch<? extends IEntityInformationWithPropertiesHolder> batch =
+                new CollectionBatch<IEntityInformationWithPropertiesHolder>(0, 0, propertyHolders.size(), propertyHolders,
+                        propertyHolders.size());
+
         VerifyEntityPropertyExecutor executor = new VerifyEntityPropertyExecutor(daoFactory, managedPropertyEvaluatorFactory);
-        executor.verify(operationContext, propertyHolders);
+        executor.verify(operationContext, batch);
     }
 
 }

@@ -27,7 +27,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -51,10 +50,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgressListener;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgressStack;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ICreateDataSetExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ListSampleTechIdByIdentifier;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.utils.ExceptionUtils;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.DummyAuthenticationService;
@@ -124,18 +125,18 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.experime
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetRegistrationCache;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDataSourceManager;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -604,7 +605,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public Experiment tryGetExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = ExistingSpaceIdentifierPredicate.class) ExperimentIdentifier experimentIdentifier)
-            throws UserFailureException
+                    throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         assert experimentIdentifier != null : "Unspecified experiment identifier.";
@@ -649,7 +650,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @ReturnValueFilter(validatorClass = SampleValidator.class)
     public List<Sample> listSamples(final String sessionToken,
             @AuthorizationGuard(guardClass = ListSampleCriteriaPredicate.class)
-            final ListSampleCriteria criteria)
+    final ListSampleCriteria criteria)
     {
         final Session session = getSession(sessionToken);
         final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
@@ -660,7 +661,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public Sample tryGetSampleWithExperiment(final String sessionToken,
             @AuthorizationGuard(guardClass = ExistingSampleOwnerIdentifierPredicate.class)
-            final SampleIdentifier sampleIdentifier) throws UserFailureException
+    final SampleIdentifier sampleIdentifier) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         assert sampleIdentifier != null : "Unspecified sample identifier.";
@@ -859,7 +860,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<AbstractExternalData> listDataSetsByExperimentID(final String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            final TechId experimentID) throws UserFailureException
+    final TechId experimentID) throws UserFailureException
     {
         Session session = getSession(sessionToken);
         IDatasetLister datasetLister = createDatasetLister(session);
@@ -873,7 +874,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<AbstractExternalData> listDataSetsBySampleID(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
-            final TechId sampleId, final boolean showOnlyDirectlyConnected)
+    final TechId sampleId, final boolean showOnlyDirectlyConnected)
             throws UserFailureException
     {
         final Session session = getSession(sessionToken);
@@ -934,7 +935,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public IEntityProperty[] tryGetPropertiesOfTopSample(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            final SampleIdentifier sampleIdentifier) throws UserFailureException
+    final SampleIdentifier sampleIdentifier) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         assert sampleIdentifier != null : "Unspecified sample identifier.";
@@ -1019,7 +1020,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public void registerSamples(final String sessionToken,
             @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class)
-            final List<NewSamplesWithTypes> newSamplesWithType, String userIDOrNull)
+    final List<NewSamplesWithTypes> newSamplesWithType, String userIDOrNull)
             throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
@@ -1036,7 +1037,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public long registerSample(final String sessionToken,
             @AuthorizationGuard(guardClass = NewSamplePredicate.class)
-            final NewSample newSample, String userIDOrNull) throws UserFailureException
+    final NewSample newSample, String userIDOrNull) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         assert newSample != null : "Unspecified new sample.";
@@ -1070,7 +1071,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public void registerDataSet(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            final SampleIdentifier sampleIdentifier, final NewExternalData externalData)
+    final SampleIdentifier sampleIdentifier, final NewExternalData externalData)
             throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
@@ -1084,7 +1085,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public void registerDataSet(final String sessionToken,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            final ExperimentIdentifier experimentIdentifier, final NewExternalData externalData)
+    final ExperimentIdentifier experimentIdentifier, final NewExternalData externalData)
             throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
@@ -1098,7 +1099,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public void addPropertiesToDataSet(String sessionToken, List<NewProperty> properties,
             String dataSetCode, @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            final SpaceIdentifier identifier) throws UserFailureException
+    final SpaceIdentifier identifier) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         final Session session = getSession(sessionToken);
@@ -1333,7 +1334,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<Sample> listSamplesByCriteria(final String sessionToken,
             @AuthorizationGuard(guardClass = ListSamplesByPropertyPredicate.class)
-            final ListSamplesByPropertyCriteria criteria) throws UserFailureException
+    final ListSamplesByPropertyCriteria criteria) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         assert criteria != null : "Unspecified criteria.";
@@ -1402,6 +1403,20 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
         final List<AbstractExternalData> dataSets =
                 datasetLister.listByDataStore(dataStore.getId(), youngerThan, limit,
+                        DATASET_FETCH_OPTIONS_FILE_DATASETS);
+        return SimpleDataSetHelper.filterAndTranslate(dataSets);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public List<SimpleDataSetInformationDTO> listPhysicalDataSetsByArchivingStatus(String sessionToken, String dataStoreCode,
+            DataSetArchivingStatus archivingStatus)
+    {
+        final Session session = getSession(sessionToken);
+        final DataStorePE dataStore = loadDataStore(session, dataStoreCode);
+        final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
+        final List<AbstractExternalData> dataSets =
+                datasetLister.listByArchivingStatus(dataStore.getId(), archivingStatus,
                         DATASET_FETCH_OPTIONS_FILE_DATASETS);
         return SimpleDataSetHelper.filterAndTranslate(dataSets);
     }
@@ -1585,7 +1600,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public Sample registerSampleAndDataSet(final String sessionToken,
             @AuthorizationGuard(guardClass = NewSamplePredicate.class)
-            final NewSample newSample, final NewExternalData externalData, String userIdOrNull)
+    final NewSample newSample, final NewExternalData externalData, String userIdOrNull)
             throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
@@ -2476,11 +2491,11 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         context.addProgressListener(new IProgressListener()
             {
                 @Override
-                public void onProgress(Stack<IProgress> progressStack)
+                public void onProgress(IProgressStack progressStack)
                 {
-                    if (progressStack.isEmpty() == false)
+                    if (progressStack.size() > 0)
                     {
-                        IProgress progress = progressStack.peek();
+                        IProgress progress = progressStack.iterator().next();
                         int totalItemsToProcess = progress.getTotalItemsToProcess() != null ? progress.getTotalItemsToProcess() : 0;
                         int numItemsProcessed = progress.getNumItemsProcessed() != null ? progress.getNumItemsProcessed() : 0;
                         conversationProgress.update(progress.getLabel(), totalItemsToProcess, numItemsProcessed);
@@ -2624,8 +2639,15 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             creations.add(creation);
         }
 
-        List<DataSetPermId> ids = createDataSetExecutor.create(context, creations);
-        return ids.size();
+        try
+        {
+            List<DataSetPermId> ids = createDataSetExecutor.create(context, creations);
+            daoFactory.getSessionFactory().getCurrentSession().flush();
+            return ids.size();
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
+        }
     }
 
     private void injectSampleId(DataSetCreation creation, NewExternalData newData)
@@ -2887,8 +2909,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed(value =
-    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed(value = { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<Material> listMaterials(String sessionToken, ListMaterialCriteria criteria,
             boolean withProperties)
     {
@@ -2974,9 +2995,9 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             Long id = daoFactory.getDataDAO().tryToFindDataSetIdByCode(dataSetCode).getId();
             dataSetIds.add(id);
         }
-        IFullTextIndexUpdateScheduler indexUpdater =
-                daoFactory.getPersistencyResources().getIndexUpdateScheduler();
-        indexUpdater.scheduleUpdate(IndexUpdateOperation.reindex(DataPE.class,
+        IDynamicPropertyEvaluationScheduler indexUpdater =
+                daoFactory.getPersistencyResources().getDynamicPropertyEvaluationScheduler();
+        indexUpdater.scheduleUpdate(DynamicPropertyEvaluationOperation.evaluate(DataPE.class,
                 dataSetIds));
     }
 
@@ -3069,8 +3090,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed(
-    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<? extends EntityTypePropertyType<?>> listPropertyDefinitionsForType(
             String sessionToken, String code, EntityKind entityKind)
     {

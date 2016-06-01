@@ -16,12 +16,13 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.ICreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -30,7 +31,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.material.create.MaterialCreation")
-public class MaterialCreation implements Serializable
+public class MaterialCreation implements ICreation, IPropertiesHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -86,20 +87,28 @@ public class MaterialCreation implements Serializable
         this.tagIds = tagIds;
     }
 
-    public Map<String, String> getProperties()
+    @Override
+    public void setProperty(String propertyName, String propertyValue)
     {
-        return properties;
+        this.properties.put(propertyName, propertyValue);
     }
 
-    // NOTE: does this construct work well with JSON?
-    public void setProperty(String key, String value)
+    @Override
+    public String getProperty(String propertyName)
     {
-        this.properties.put(key, value);
+        return properties != null ? properties.get(propertyName) : null;
     }
 
+    @Override
     public void setProperties(Map<String, String> properties)
     {
         this.properties = properties;
+    }
+
+    @Override
+    public Map<String, String> getProperties()
+    {
+        return properties;
     }
 
     public IEntityTypeId getTypeId()

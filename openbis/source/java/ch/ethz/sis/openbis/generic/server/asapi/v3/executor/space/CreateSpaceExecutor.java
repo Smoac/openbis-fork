@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.space;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -30,8 +29,13 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractCreateEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CreateProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationServiceUtils;
@@ -63,18 +67,28 @@ public class CreateSpaceExecutor extends AbstractCreateEntityExecutor<SpaceCreat
     private IDAOFactory daoFactory;
 
     @Override
-    protected List<SpacePE> createEntities(IOperationContext context, Collection<SpaceCreation> creations)
+    protected List<SpacePE> createEntities(final IOperationContext context, CollectionBatch<SpaceCreation> batch)
     {
-        List<SpacePE> spaces = new LinkedList<SpacePE>();
+        final List<SpacePE> spaces = new LinkedList<SpacePE>();
 
-        for (SpaceCreation creation : creations)
-        {
-            SpacePE space = new SpacePE();
-            space.setCode(creation.getCode());
-            space.setDescription(creation.getDescription());
-            space.setRegistrator(context.getSession().tryGetPerson());
-            spaces.add(space);
-        }
+        new CollectionBatchProcessor<SpaceCreation>(context, batch)
+            {
+                @Override
+                public void process(SpaceCreation object)
+                {
+                    SpacePE space = new SpacePE();
+                    space.setCode(object.getCode());
+                    space.setDescription(object.getDescription());
+                    space.setRegistrator(context.getSession().tryGetPerson());
+                    spaces.add(space);
+                }
+
+                @Override
+                public IProgress createProgress(SpaceCreation object, int objectIndex, int totalObjectCount)
+                {
+                    return new CreateProgress(object, objectIndex, totalObjectCount);
+                }
+            };
 
         return spaces;
     }
@@ -103,19 +117,19 @@ public class CreateSpaceExecutor extends AbstractCreateEntityExecutor<SpaceCreat
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, Collection<SpacePE> entities)
+    protected void checkBusinessRules(IOperationContext context, CollectionBatch<SpacePE> batch)
     {
         // nothing to do
     }
 
     @Override
-    protected void updateBatch(IOperationContext context, Map<SpaceCreation, SpacePE> entitiesMap)
+    protected void updateBatch(IOperationContext context, MapBatch<SpaceCreation, SpacePE> batch)
     {
         // nothing to do
     }
 
     @Override
-    protected void updateAll(IOperationContext context, Map<SpaceCreation, SpacePE> entitiesMap)
+    protected void updateAll(IOperationContext context, MapBatch<SpaceCreation, SpacePE> batch)
     {
         // nothing to do
     }

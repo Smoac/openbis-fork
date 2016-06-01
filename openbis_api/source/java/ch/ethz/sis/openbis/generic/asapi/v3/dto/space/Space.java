@@ -39,8 +39,7 @@ import java.util.List;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.space.Space")
-public class Space implements Serializable, ICodeHolder, IModificationDateHolder, IPermIdHolder, IProjectsHolder, IRegistrationDateHolder,
-        IRegistratorHolder, ISamplesHolder
+public class Space implements Serializable, ICodeHolder, IModificationDateHolder, IPermIdHolder, IProjectsHolder, IRegistrationDateHolder, IRegistratorHolder, ISamplesHolder
 {
     private static final long serialVersionUID = 1L;
 

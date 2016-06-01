@@ -29,6 +29,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.update.SpaceUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -74,15 +76,15 @@ public class UpdateSpaceExecutor extends AbstractUpdateEntityExecutor<SpaceUpdat
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, Collection<SpacePE> entities)
+    protected void checkBusinessRules(IOperationContext context, CollectionBatch<SpacePE> batch)
     {
         // nothing to do
     }
 
     @Override
-    protected void updateBatch(IOperationContext context, Map<SpaceUpdate, SpacePE> entitiesMap)
+    protected void updateBatch(IOperationContext context, MapBatch<SpaceUpdate, SpacePE> batch)
     {
-        for (Map.Entry<SpaceUpdate, SpacePE> entry : entitiesMap.entrySet())
+        for (Map.Entry<SpaceUpdate, SpacePE> entry : batch.getObjects().entrySet())
         {
             SpaceUpdate update = entry.getKey();
             SpacePE space = entry.getValue();
@@ -95,7 +97,7 @@ public class UpdateSpaceExecutor extends AbstractUpdateEntityExecutor<SpaceUpdat
     }
 
     @Override
-    protected void updateAll(IOperationContext context, Map<SpaceUpdate, SpacePE> entitiesMap)
+    protected void updateAll(IOperationContext context, MapBatch<SpaceUpdate, SpacePE> batch)
     {
         // nothing to do
     }

@@ -16,9 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property;
 
-import java.util.Collection;
-
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 
 /**
@@ -27,6 +26,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropert
 public interface IVerifyEntityPropertyExecutor
 {
 
-    public void verify(IOperationContext context, Collection<? extends IEntityInformationWithPropertiesHolder> entities);
+    public void verify(IOperationContext context, CollectionBatch<? extends IEntityInformationWithPropertiesHolder> batch);
 
 }

@@ -46,6 +46,12 @@ public class SetExperimentProjectExecutor extends AbstractSetEntityToOneRelation
     private IMapProjectByIdExecutor mapProjectByIdExecutor;
 
     @Override
+    protected String getRelationName()
+    {
+        return "experiment-project";
+    }
+
+    @Override
     protected IProjectId getRelatedId(ExperimentCreation creation)
     {
         return creation.getProjectId();

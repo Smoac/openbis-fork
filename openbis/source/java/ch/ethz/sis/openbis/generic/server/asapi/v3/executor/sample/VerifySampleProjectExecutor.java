@@ -16,12 +16,13 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
-import java.util.Collection;
-
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.VerifyProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -34,24 +35,32 @@ public class VerifySampleProjectExecutor implements IVerifySampleProjectExecutor
 {
 
     @Override
-    public void verify(IOperationContext context, Collection<SamplePE> samples)
+    public void verify(final IOperationContext context, final CollectionBatch<SamplePE> batch)
     {
-        for (SamplePE sample : samples)
-        {
-            context.pushProgress(new Progress("verify project for sample " + sample.getCode()));
-            ProjectPE project = sample.getProject();
-            if (project != null && sample.getSpace() == null)
+        new CollectionBatchProcessor<SamplePE>(context, batch)
             {
-                throw new UserFailureException("Shared samples cannot be attached to projects. Sample: "
-                        + sample.getIdentifier() + ", Project: " + project.getIdentifier());
-            }
-            if (project != null && project.getSpace().equals(sample.getSpace()) == false)
-            {
-                throw new UserFailureException("Sample space must be the same as project space. Sample: "
-                        + sample.getIdentifier() + ", Project: " + project.getIdentifier());
-            }
-            context.popProgress();
-        }
+                @Override
+                public void process(SamplePE sample)
+                {
+                    ProjectPE project = sample.getProject();
+                    if (project != null && sample.getSpace() == null)
+                    {
+                        throw new UserFailureException("Shared samples cannot be attached to projects. Sample: "
+                                + sample.getIdentifier() + ", Project: " + project.getIdentifier());
+                    }
+                    if (project != null && project.getSpace().equals(sample.getSpace()) == false)
+                    {
+                        throw new UserFailureException("Sample space must be the same as project space. Sample: "
+                                + sample.getIdentifier() + ", Project: " + project.getIdentifier());
+                    }
+                }
+
+                @Override
+                public IProgress createProgress(SamplePE object, int objectIndex, int totalObjectCount)
+                {
+                    return new VerifyProgress(object, objectIndex, totalObjectCount);
+                }
+            };
     }
 
 }

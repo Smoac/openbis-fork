@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 
 import org.apache.commons.lang.StringUtils;
@@ -48,7 +47,11 @@ final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
 
     private static final Template ROW_TEMPLATE =
             new Template(
-                    "<tr><td class='td_file'><a href='${path}?mode=simpleHtml${sessionId}'>${name}</td><td>${size}</td><td>${checksum}</td></tr>");
+                    "<tr><td class='td_file'><a href='${path}?disableLinks=${disableLinks}&mode=simpleHtml${sessionId}'>${name}</td><td>${size}</td><td>${checksum}</td></tr>");
+
+    private static final Template ROW_TEMPLATE_NO_LINK =
+            new Template(
+                    "<tr><td class='td_file'>${name}</td><td>${size}</td><td>${checksum}</td></tr>");
 
     private static final Template HEADER_TEMPLATE = new Template("<html><head>" + CSS
             + "</head><body>" + "<table> " + "${folder}" + "");
@@ -93,34 +96,44 @@ final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
     }
 
     @Override
-    public void printLinkToParentDirectory(final String aRelativePath)
+    public void printLinkToParentDirectory(final String aRelativePath, final Boolean disableLinks)
     {
-        printRow("..", aRelativePath, "", "");
+        printRow("..", aRelativePath, "", "", true, disableLinks);
     }
 
     @Override
-    public void printDirectory(final String name, final String aRelativePath)
+    public void printDirectory(final String name, final String aRelativePath, final long size, final Boolean disableLinks)
     {
-        printRow(name, aRelativePath, "", "");
+        printRow(name, aRelativePath, DirectoryRendererUtil.renderFileSize(size), "", true, disableLinks);
     }
 
     @Override
     public void printFile(final String name, final String aRelativePath, final long size,
-            final Integer checksumOrNull)
+            final Integer checksumOrNull, final Boolean disableLinks)
     {
         printRow(name, aRelativePath, DirectoryRendererUtil.renderFileSize(size),
-                DirectoryRendererUtil.renderCRC32Checksum(checksumOrNull));
+                DirectoryRendererUtil.renderCRC32Checksum(checksumOrNull), false, disableLinks);
     }
 
     private void printRow(final String name, final String aRelativePath, final String fileSize,
-            final String checksum)
+            final String checksum, final Boolean isDirectory, final Boolean disableLinks)
     {
-        final Template template = ROW_TEMPLATE.createFreshCopy();
-        template.bind("path", urlPrefix + encodeURL(aRelativePath));
+        Template template = null;
+        if (!isDirectory && disableLinks)
+        {
+            template = ROW_TEMPLATE_NO_LINK.createFreshCopy();
+        } else
+        {
+            template = ROW_TEMPLATE.createFreshCopy();
+            template.bind("path", urlPrefix + encodeURL(aRelativePath));
+            template.bind("sessionId", Utils.createUrlParameterForSessionId("&", sessionIdOrNull));
+            template.bind("disableLinks", disableLinks.toString());
+        }
+
         template.bind("name", name);
         template.bind("size", fileSize);
         template.bind("checksum", checksum);
-        template.bind("sessionId", Utils.createUrlParameterForSessionId("&", sessionIdOrNull));
+
         writer.println(template.createText());
     }
 

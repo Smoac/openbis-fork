@@ -16,9 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,41 +27,42 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IMapDataSetByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSetEntityMultipleRelationsExecutor;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPEByExperimentOrSampleIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SetTagDataSetsExecutor extends AbstractSetEntityMultipleRelationsExecutor<TagCreation, MetaprojectPE, IDataSetId, DataPE>
+public class SetTagDataSetsExecutor extends SetTagEntitiesExecutor<IDataSetId, DataPE>
         implements ISetTagDataSetsExecutor
 {
 
     @Autowired
-    private IMapDataSetByIdExecutor mapDataSetExecutor;
-
-    @Autowired
-    private ISetTagDataSetsWithCacheExecutor setTagDataSetsWithCacheExecutor;
+    private IMapDataSetByIdExecutor mapDataSetByIdExecutor;
 
     @Override
-    protected void addRelatedIds(Set<IDataSetId> relatedIds, TagCreation creation, MetaprojectPE entity)
+    protected String getRelationName()
     {
-        addRelatedIds(relatedIds, creation.getDataSetIds());
+        return "tag-datasets";
     }
 
     @Override
-    protected void addRelated(Map<IDataSetId, DataPE> relatedMap, TagCreation creation, MetaprojectPE entity)
+    protected Class<DataPE> getRelatedClass()
     {
-        // nothing to do here
+        return DataPE.class;
     }
 
     @Override
-    protected Map<IDataSetId, DataPE> map(IOperationContext context, List<IDataSetId> relatedIds)
+    protected Collection<? extends IDataSetId> getRelatedIds(IOperationContext context, TagCreation creation)
     {
-        return mapDataSetExecutor.map(context, relatedIds);
+        return creation.getDataSetIds();
+    }
+
+    @Override
+    protected Map<IDataSetId, DataPE> map(IOperationContext context, Collection<? extends IDataSetId> relatedIds)
+    {
+        return mapDataSetByIdExecutor.map(context, relatedIds);
     }
 
     @Override
@@ -72,13 +72,6 @@ public class SetTagDataSetsExecutor extends AbstractSetEntityMultipleRelationsEx
         {
             throw new UnauthorizedObjectAccessException(relatedId);
         }
-
-    }
-
-    @Override
-    protected void set(IOperationContext context, Map<TagCreation, MetaprojectPE> creationsMap, Map<IDataSetId, DataPE> relatedMap)
-    {
-        setTagDataSetsWithCacheExecutor.set(context, creationsMap, relatedMap);
     }
 
 }

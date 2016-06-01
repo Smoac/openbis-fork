@@ -16,14 +16,16 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
-import java.util.Collection;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Progress;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.VerifyProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
@@ -54,52 +56,58 @@ public class VerifySampleExperimentExecutor implements IVerifySampleExperimentEx
     }
 
     @Override
-    public void verify(IOperationContext context, Collection<SamplePE> samples)
+    public void verify(final IOperationContext context, final CollectionBatch<SamplePE> batch)
     {
         IDataDAO dataDAO = daoFactory.getDataDAO();
 
-        Map<SamplePE, Boolean> haveDatasetsMap = dataDAO.haveDataSets(samples);
+        final Map<SamplePE, Boolean> haveDatasetsMap = dataDAO.haveDataSets(batch.getObjects());
 
-        for (SamplePE sample : samples)
-        {
-            context.pushProgress(new Progress("verify experiment for sample " + sample.getCode()));
-
-            boolean hasDatasets = haveDatasetsMap.get(sample);
-            ExperimentPE experiment = sample.getExperiment();
-
-            if (experiment == null)
+        new CollectionBatchProcessor<SamplePE>(context, batch)
             {
-                verifySampleDataSetsExecutor.checkDataSetsDoNotNeedAnExperiment(context, sample);
-            }
+                @Override
+                public void process(SamplePE sample)
+                {
+                    boolean hasDatasets = haveDatasetsMap.get(sample);
+                    ExperimentPE experiment = sample.getExperiment();
 
-            if (hasDatasets && sample.getSpace() == null)
-            {
-                throw UserFailureException.fromTemplate("Cannot detach the sample '%s' from the space "
-                        + "because there are already datasets attached to the sample.",
-                        sample.getIdentifier());
-            }
+                    if (experiment == null)
+                    {
+                        verifySampleDataSetsExecutor.checkDataSetsDoNotNeedAnExperiment(context, sample);
+                    }
 
-            if (experiment != null && sample.getSpace() == null)
-            {
-                throw new UserFailureException("Shared samples cannot be attached to experiments. Sample: "
-                        + sample.getIdentifier() + ", Experiment: " + experiment.getIdentifier());
-            }
+                    if (hasDatasets && sample.getSpace() == null)
+                    {
+                        throw UserFailureException.fromTemplate("Cannot detach the sample '%s' from the space "
+                                + "because there are already datasets attached to the sample.",
+                                sample.getIdentifier());
+                    }
 
-            if (experiment != null && experiment.getProject().getSpace().equals(sample.getSpace()) == false)
-            {
-                throw new UserFailureException("Sample space must be the same as experiment space. "
-                        + "Sample: " + sample.getIdentifier() + ", Experiment: " + experiment.getIdentifier());
-            }
-            if (experiment != null && sample.getProject() != null
-                    && experiment.getProject().equals(sample.getProject()) == false)
-            {
-                throw new UserFailureException("Sample project must be the same as experiment project. "
-                        + "Sample: " + sample.getIdentifier() + ", Project: " + sample.getProject().getIdentifier()
-                        + ", Experiment: " + experiment.getIdentifier());
-            }
+                    if (experiment != null && sample.getSpace() == null)
+                    {
+                        throw new UserFailureException("Shared samples cannot be attached to experiments. Sample: "
+                                + sample.getIdentifier() + ", Experiment: " + experiment.getIdentifier());
+                    }
 
-            context.popProgress();
-        }
+                    if (experiment != null && experiment.getProject().getSpace().equals(sample.getSpace()) == false)
+                    {
+                        throw new UserFailureException("Sample space must be the same as experiment space. "
+                                + "Sample: " + sample.getIdentifier() + ", Experiment: " + experiment.getIdentifier());
+                    }
+                    if (experiment != null && sample.getProject() != null
+                            && experiment.getProject().equals(sample.getProject()) == false)
+                    {
+                        throw new UserFailureException("Sample project must be the same as experiment project. "
+                                + "Sample: " + sample.getIdentifier() + ", Project: " + sample.getProject().getIdentifier()
+                                + ", Experiment: " + experiment.getIdentifier());
+                    }
+                }
+
+                @Override
+                public IProgress createProgress(SamplePE object, int objectIndex, int totalObjectCount)
+                {
+                    return new VerifyProgress(object, objectIndex, totalObjectCount);
+                }
+            };
     }
 
 }

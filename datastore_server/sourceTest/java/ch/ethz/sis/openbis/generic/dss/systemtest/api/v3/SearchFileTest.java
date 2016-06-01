@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.is;
 
 import java.util.List;
 
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
@@ -15,12 +16,21 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileS
 public class SearchFileTest extends AbstractFileTest
 {
 
+    @Override
+    @BeforeClass
+    protected void beforeClass() throws Exception
+    {
+        super.beforeClass();
+        registerDataSet();
+    }
+
     @Test
     public void allFilesOfGivenDatasetsAreReturned() throws Exception
     {
         DataSetFileSearchCriteria sc = new DataSetFileSearchCriteria();
         sc.withDataSet().withPermId().thatEquals(dataSetCode);
 
+        String sessionToken = gis.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
         SearchResult<DataSetFile> searchResult = dss.searchFiles(sessionToken, sc, new DataSetFileFetchOptions());
         List<DataSetFile> searchFiles = searchResult.getObjects();
 

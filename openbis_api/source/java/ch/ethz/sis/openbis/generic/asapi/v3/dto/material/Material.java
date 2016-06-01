@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.material;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IMaterialPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
@@ -35,6 +36,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,8 +45,7 @@ import java.util.Set;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.material.Material")
-public class Material implements Serializable, ICodeHolder, IModificationDateHolder, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder,
-        IRegistratorHolder, ITagsHolder
+public class Material implements Serializable, ICodeHolder, IMaterialPropertiesHolder, IModificationDateHolder, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ITagsHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -227,6 +228,7 @@ public class Material implements Serializable, ICodeHolder, IModificationDateHol
     }
 
     // Method automatically generated with DtoGenerator
+    @Override
     public void setProperties(Map<String, String> properties)
     {
         this.properties = properties;
@@ -248,6 +250,7 @@ public class Material implements Serializable, ICodeHolder, IModificationDateHol
     }
 
     // Method automatically generated with DtoGenerator
+    @Override
     public void setMaterialProperties(Map<String, Material> materialProperties)
     {
         this.materialProperties = materialProperties;
@@ -281,9 +284,29 @@ public class Material implements Serializable, ICodeHolder, IModificationDateHol
     }
 
     @Override
+    public void setProperty(String propertyName, String propertyValue)
+    {
+        if (properties == null)
+        {
+            properties = new HashMap<String, String>();
+        }
+        properties.put(propertyName, propertyValue);
+    }
+
+    @Override
     public Material getMaterialProperty(String propertyName)
     {
         return getMaterialProperties() != null ? getMaterialProperties().get(propertyName) : null;
+    }
+
+    @Override
+    public void setMaterialProperty(String propertyName, Material propertyValue)
+    {
+        if (materialProperties == null)
+        {
+            materialProperties = new HashMap<String, Material>();
+        }
+        materialProperties.put(propertyName, propertyValue);
     }
 
     // Method automatically generated with DtoGenerator

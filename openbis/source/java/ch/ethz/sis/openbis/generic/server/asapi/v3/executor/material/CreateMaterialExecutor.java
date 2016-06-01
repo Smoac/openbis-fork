@@ -32,16 +32,20 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractCreateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IAddTagToEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CreateProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifierFactory;
@@ -74,16 +78,28 @@ public class CreateMaterialExecutor extends AbstractCreateEntityExecutor<Materia
     private IVerifyMaterialExecutor verifyMaterialExecutor;
 
     @Override
-    protected List<MaterialPE> createEntities(IOperationContext context, Collection<MaterialCreation> creations)
+    protected List<MaterialPE> createEntities(final IOperationContext context, CollectionBatch<MaterialCreation> batch)
     {
-        List<MaterialPE> materials = new LinkedList<MaterialPE>();
-        for (MaterialCreation creation : creations)
-        {
-            MaterialPE material = new MaterialPE();
-            material.setCode(creation.getCode());
-            material.setRegistrator(context.getSession().tryGetPerson());
-            materials.add(material);
-        }
+        final List<MaterialPE> materials = new LinkedList<MaterialPE>();
+
+        new CollectionBatchProcessor<MaterialCreation>(context, batch)
+            {
+                @Override
+                public void process(MaterialCreation object)
+                {
+                    MaterialPE material = new MaterialPE();
+                    material.setCode(object.getCode());
+                    material.setRegistrator(context.getSession().tryGetPerson());
+                    materials.add(material);
+                }
+
+                @Override
+                public IProgress createProgress(MaterialCreation object, int objectIndex, int totalObjectCount)
+                {
+                    return new CreateProgress(object, objectIndex, totalObjectCount);
+                }
+            };
+
         return materials;
     }
 
@@ -111,30 +127,24 @@ public class CreateMaterialExecutor extends AbstractCreateEntityExecutor<Materia
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, Collection<MaterialPE> entities)
+    protected void checkBusinessRules(IOperationContext context, CollectionBatch<MaterialPE> batch)
     {
-        verifyMaterialExecutor.verify(context, entities);
+        verifyMaterialExecutor.verify(context, batch);
     }
 
     @Override
-    protected void updateBatch(IOperationContext context, Map<MaterialCreation, MaterialPE> entitiesMap)
+    protected void updateBatch(IOperationContext context, MapBatch<MaterialCreation, MaterialPE> batch)
     {
-        setMaterialTypeExecutor.set(context, entitiesMap);
-
-        Map<IEntityPropertiesHolder, Map<String, String>> propertyMap = new HashMap<IEntityPropertiesHolder, Map<String, String>>();
-        for (Map.Entry<MaterialCreation, MaterialPE> entry : entitiesMap.entrySet())
-        {
-            propertyMap.put(entry.getValue(), entry.getKey().getProperties());
-        }
-        updateEntityPropertyExecutor.update(context, propertyMap);
+        setMaterialTypeExecutor.set(context, batch);
+        updateEntityPropertyExecutor.update(context, batch);
     }
 
     @Override
-    protected void updateAll(IOperationContext context, Map<MaterialCreation, MaterialPE> entitiesMap)
+    protected void updateAll(IOperationContext context, MapBatch<MaterialCreation, MaterialPE> batch)
     {
         Map<IEntityWithMetaprojects, Collection<? extends ITagId>> tagMap = new HashMap<IEntityWithMetaprojects, Collection<? extends ITagId>>();
 
-        for (Map.Entry<MaterialCreation, MaterialPE> entry : entitiesMap.entrySet())
+        for (Map.Entry<MaterialCreation, MaterialPE> entry : batch.getObjects().entrySet())
         {
             MaterialCreation creation = entry.getKey();
             MaterialPE entity = entry.getValue();

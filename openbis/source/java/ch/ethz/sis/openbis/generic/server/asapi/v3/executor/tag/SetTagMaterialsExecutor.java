@@ -16,9 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,53 +25,48 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractSetEntityMultipleRelationsExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.IMapMaterialByIdExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class SetTagMaterialsExecutor extends AbstractSetEntityMultipleRelationsExecutor<TagCreation, MetaprojectPE, IMaterialId, MaterialPE>
+public class SetTagMaterialsExecutor extends SetTagEntitiesExecutor<IMaterialId, MaterialPE>
         implements ISetTagMaterialsExecutor
 {
 
     @Autowired
-    private IMapMaterialByIdExecutor mapMaterialExecutor;
-
-    @Autowired
-    private ISetTagMaterialsWithCacheExecutor setTagMaterialsWithCacheExecutor;
+    private IMapMaterialByIdExecutor mapMaterialByIdExecutor;
 
     @Override
-    protected void addRelatedIds(Set<IMaterialId> relatedIds, TagCreation creation, MetaprojectPE entity)
+    protected String getRelationName()
     {
-        addRelatedIds(relatedIds, creation.getMaterialIds());
+        return "tag-materials";
     }
 
     @Override
-    protected void addRelated(Map<IMaterialId, MaterialPE> relatedMap, TagCreation creation, MetaprojectPE entity)
+    protected Class<MaterialPE> getRelatedClass()
     {
-        // nothing to do here
+        return MaterialPE.class;
     }
 
     @Override
-    protected Map<IMaterialId, MaterialPE> map(IOperationContext context, List<IMaterialId> relatedIds)
+    protected Collection<? extends IMaterialId> getRelatedIds(IOperationContext context, TagCreation creation)
     {
-        return mapMaterialExecutor.map(context, relatedIds);
+        return creation.getMaterialIds();
+    }
+
+    @Override
+    protected Map<IMaterialId, MaterialPE> map(IOperationContext context, Collection<? extends IMaterialId> relatedIds)
+    {
+        return mapMaterialByIdExecutor.map(context, relatedIds);
     }
 
     @Override
     protected void check(IOperationContext context, IMaterialId relatedId, MaterialPE related)
     {
-        // nothing to do here
-    }
-
-    @Override
-    protected void set(IOperationContext context, Map<TagCreation, MetaprojectPE> creationsMap, Map<IMaterialId, MaterialPE> relatedMap)
-    {
-        setTagMaterialsWithCacheExecutor.set(context, creationsMap, relatedMap);
+        // nothing to do
     }
 
 }

@@ -16,10 +16,10 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property;
 
-import java.util.Map;
-
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 
 /**
  * @author pkupczyk
@@ -27,6 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 public interface IAbstractUpdateEntityPropertyExecutor
 {
 
-    public void update(IOperationContext context, Map<IEntityPropertiesHolder, Map<String, String>> entityToPropertiesMap);
+    public void update(IOperationContext context, MapBatch<? extends IPropertiesHolder, ? extends IEntityInformationWithPropertiesHolder> holderToEntityMap);
 
 }

@@ -138,6 +138,8 @@ var sources = [
 	'as/dto/common/update/ListUpdateValue',
 	'as/dto/dataset/DataSet',
 	'as/dto/dataset/DataSetType',
+	'as/dto/dataset/archive/DataSetArchiveOptions',
+	'as/dto/dataset/unarchive/DataSetUnarchiveOptions',
 	'as/dto/dataset/delete/DataSetDeletionOptions',
 	'as/dto/dataset/fetchoptions/DataSetFetchOptions',
 	'as/dto/dataset/fetchoptions/DataSetSortOptions',

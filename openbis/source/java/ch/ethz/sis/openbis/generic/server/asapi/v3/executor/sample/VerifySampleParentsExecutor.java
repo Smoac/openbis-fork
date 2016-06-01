@@ -16,17 +16,20 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractVerifyEntityCyclesExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.relationship.IGetRelationshipIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.relationship.IGetRelationshipIdExecutor.RelationshipType;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.VerifyProgress;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleGenericBusinessRules;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -42,15 +45,25 @@ public class VerifySampleParentsExecutor extends AbstractVerifyEntityCyclesExecu
     private IGetRelationshipIdExecutor getRelationshipIdExecutor;
 
     @Override
-    public void verify(IOperationContext context, Collection<SamplePE> entities)
+    public void verify(IOperationContext context, CollectionBatch<SamplePE> batch)
     {
-        super.verify(context, entities);
+        super.verify(context, batch);
 
-        for (SamplePE sample : entities)
-        {
-            SampleGenericBusinessRules.assertValidParents(sample);
-            SampleGenericBusinessRules.assertValidChildren(sample);
-        }
+        new CollectionBatchProcessor<SamplePE>(context, batch)
+            {
+                @Override
+                public void process(SamplePE sample)
+                {
+                    SampleGenericBusinessRules.assertValidParents(sample);
+                    SampleGenericBusinessRules.assertValidChildren(sample);
+                }
+
+                @Override
+                public IProgress createProgress(SamplePE object, int objectIndex, int totalObjectCount)
+                {
+                    return new VerifyProgress(object, objectIndex, totalObjectCount);
+                }
+            };
     }
 
     @Override

@@ -28,8 +28,13 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.update.ProjectUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateRelationProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -83,19 +88,20 @@ public class UpdateProjectExecutor extends AbstractUpdateEntityExecutor<ProjectU
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, Collection<ProjectPE> entities)
+    protected void checkBusinessRules(IOperationContext context, CollectionBatch<ProjectPE> batch)
     {
         // nothing to do
     }
 
     @Override
-    protected void updateBatch(IOperationContext context, Map<ProjectUpdate, ProjectPE> entitiesMap)
+    protected void updateBatch(IOperationContext context, MapBatch<ProjectUpdate, ProjectPE> batch)
     {
-        updateProjectSpaceExecutor.update(context, entitiesMap);
+        updateProjectSpaceExecutor.update(context, batch);
+        updateAttachments(context, batch);
 
         PersonPE person = context.getSession().tryGetPerson();
         Date timeStamp = daoFactory.getTransactionTimestamp();
-        for (Map.Entry<ProjectUpdate, ProjectPE> entry : entitiesMap.entrySet())
+        for (Map.Entry<ProjectUpdate, ProjectPE> entry : batch.getObjects().entrySet())
         {
             ProjectUpdate update = entry.getKey();
             ProjectPE project = entry.getValue();
@@ -106,16 +112,32 @@ public class UpdateProjectExecutor extends AbstractUpdateEntityExecutor<ProjectU
             {
                 project.setDescription(update.getDescription().getValue());
             }
-
-            if (update.getAttachments() != null && update.getAttachments().hasActions())
-            {
-                updateProjectAttachmentExecutor.update(context, project, update.getAttachments());
-            }
         }
     }
 
+    private void updateAttachments(final IOperationContext context, final MapBatch<ProjectUpdate, ProjectPE> batch)
+    {
+        new MapBatchProcessor<ProjectUpdate, ProjectPE>(context, batch)
+            {
+                @Override
+                public void process(ProjectUpdate update, ProjectPE entity)
+                {
+                    if (update.getAttachments() != null && update.getAttachments().hasActions())
+                    {
+                        updateProjectAttachmentExecutor.update(context, entity, update.getAttachments());
+                    }
+                }
+
+                @Override
+                public IProgress createProgress(ProjectUpdate update, ProjectPE entity, int objectIndex, int totalObjectCount)
+                {
+                    return new UpdateRelationProgress(update, entity, "project-attachment", objectIndex, totalObjectCount);
+                }
+            };
+    }
+
     @Override
-    protected void updateAll(IOperationContext context, Map<ProjectUpdate, ProjectPE> entitiesMap)
+    protected void updateAll(IOperationContext context, MapBatch<ProjectUpdate, ProjectPE> batch)
     {
         // nothing to do
     }

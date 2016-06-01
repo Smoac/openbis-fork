@@ -86,11 +86,17 @@ define([ "stjs" ], function(stjs) {
 		prototype.setAttachments = function(attachments) {
 			this.attachments = attachments;
 		};
-		prototype.setProperty = function(key, value) {
-			this.properties[key] = value;
+		prototype.getProperty = function(propertyName) {
+			return this.properties[propertyName];
+		};
+		prototype.setProperty = function(propertyName, propertyValue) {
+			this.properties[propertyName] = propertyValue;
 		};
 		prototype.getProperties = function() {
 			return this.properties;
+		};
+		prototype.setProperties = function(properties) {
+			this.properties = properties;
 		};
 		prototype.getCreationId = function() {
 			return this.creationId;

@@ -65,13 +65,13 @@ public class PlainTextRendererFactory implements IRendererFactory
         private PrintWriter writer;
 
         @Override
-        public void printDirectory(String name, String relativePath)
+        public void printDirectory(String name, String relativePath, long size, Boolean disableLinks)
         {
-            writer.print(name + "\n");
+            writer.format("%s\t%s\n", name, DirectoryRendererUtil.renderFileSize(size));
         }
 
         @Override
-        public void printFile(String name, String relativePath, long size, Integer checksumOrNull)
+        public void printFile(String name, String relativePath, long size, Integer checksumOrNull, final Boolean disableLinks)
         {
             writer.format("%s\t%s\t%s\n", name, DirectoryRendererUtil.renderFileSize(size),
                     DirectoryRendererUtil.renderCRC32Checksum(checksumOrNull));
@@ -89,7 +89,7 @@ public class PlainTextRendererFactory implements IRendererFactory
         }
 
         @Override
-        public void printLinkToParentDirectory(String relativePath)
+        public void printLinkToParentDirectory(String relativePath, Boolean disableLinks)
         {
         }
 

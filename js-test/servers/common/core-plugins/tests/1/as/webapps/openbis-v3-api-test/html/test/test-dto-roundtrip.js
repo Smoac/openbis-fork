@@ -77,12 +77,12 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 								var val = dto[key];
 								var isSetValue = false;
 
-								if (val && _.isFunction(val.getValue)) {
+								if (val != null && _.isFunction(val.getValue)) {
 									val = val.getValue();
 									isSetValue = true;
 								}
 
-								if (val && !_.isFunction(val)) {
+								if (val != null && !_.isFunction(val)) {
 									if (isSetValue) {
 										if (_.isFunction(dto[key].setValue) && subj[key] && _.isFunction(subj[key].setValue)) {
 											subj[key].setValue(val);

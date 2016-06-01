@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +27,13 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractCreateEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CreateProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.tag.TagAuthorization;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -59,19 +63,29 @@ public class CreateTagExecutor extends AbstractCreateEntityExecutor<TagCreation,
     private ISetTagMaterialsExecutor setTagMaterialsExecutor;
 
     @Override
-    protected List<MetaprojectPE> createEntities(IOperationContext context, Collection<TagCreation> creations)
+    protected List<MetaprojectPE> createEntities(final IOperationContext context, CollectionBatch<TagCreation> batch)
     {
-        List<MetaprojectPE> tags = new LinkedList<MetaprojectPE>();
+        final List<MetaprojectPE> tags = new LinkedList<MetaprojectPE>();
 
-        for (TagCreation creation : creations)
-        {
-            MetaprojectPE tag = new MetaprojectPE();
-            tag.setName(creation.getCode());
-            tag.setDescription(creation.getDescription());
-            tag.setOwner(context.getSession().tryGetPerson());
-            tag.setPrivate(true);
-            tags.add(tag);
-        }
+        new CollectionBatchProcessor<TagCreation>(context, batch)
+            {
+                @Override
+                public void process(TagCreation object)
+                {
+                    MetaprojectPE tag = new MetaprojectPE();
+                    tag.setName(object.getCode());
+                    tag.setDescription(object.getDescription());
+                    tag.setOwner(context.getSession().tryGetPerson());
+                    tag.setPrivate(true);
+                    tags.add(tag);
+                }
+
+                @Override
+                public IProgress createProgress(TagCreation object, int objectIndex, int totalObjectCount)
+                {
+                    return new CreateProgress(object, objectIndex, totalObjectCount);
+                }
+            };
 
         return tags;
     }
@@ -98,24 +112,24 @@ public class CreateTagExecutor extends AbstractCreateEntityExecutor<TagCreation,
     }
 
     @Override
-    protected void checkBusinessRules(IOperationContext context, Collection<MetaprojectPE> entities)
+    protected void checkBusinessRules(IOperationContext context, CollectionBatch<MetaprojectPE> batch)
     {
         // nothing to do
     }
 
     @Override
-    protected void updateBatch(IOperationContext context, Map<TagCreation, MetaprojectPE> entitiesMap)
+    protected void updateBatch(IOperationContext context, MapBatch<TagCreation, MetaprojectPE> batch)
     {
         // nothing to do
     }
 
     @Override
-    protected void updateAll(IOperationContext context, Map<TagCreation, MetaprojectPE> entitiesMap)
+    protected void updateAll(IOperationContext context, MapBatch<TagCreation, MetaprojectPE> batch)
     {
-        setTagExperimentsExecutor.set(context, entitiesMap);
-        setTagSamplesExecutor.set(context, entitiesMap);
-        setTagDataSetsExecutor.set(context, entitiesMap);
-        setTagMaterialsExecutor.set(context, entitiesMap);
+        setTagExperimentsExecutor.set(context, batch);
+        setTagSamplesExecutor.set(context, batch);
+        setTagDataSetsExecutor.set(context, batch);
+        setTagMaterialsExecutor.set(context, batch);
     }
 
     @Override

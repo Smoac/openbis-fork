@@ -22,10 +22,9 @@ import static org.testng.Assert.fail;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.text.DecimalFormatSymbols;
 import java.util.Arrays;
 import java.util.UUID;
-
-import net.sf.ehcache.CacheManager;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Level;
@@ -34,14 +33,13 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.cache.SearchCache;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.cache.SearchCacheEntry;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.cache.SearchCacheKey;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.util.RuntimeCache;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
+
+import net.sf.ehcache.CacheManager;
 
 /**
  * @author pkupczyk
@@ -74,8 +72,8 @@ public class SearchCacheTest
                 .assertContainsLines(
                         "INFO  OPERATION.RuntimeCache - Cache size has been set to its default value."
                                 + " The default value is 25% (256m) of the memory available to the JVM (1g)."
-                                + " If you would like to change this value, then please set 'ch.ethz.sis.openbis.v3.searchcache.size' system property in openbis.conf file."
-                        , logRecorder.getLogContent());
+                                + " If you would like to change this value, then please set 'ch.ethz.sis.openbis.v3.searchcache.size' system property in openbis.conf file.",
+                        logRecorder.getLogContent());
     }
 
     @Test
@@ -94,10 +92,13 @@ public class SearchCacheTest
     {
         createCache(FileUtils.ONE_GB, "10%");
 
+        char decimalSeparator = DecimalFormatSymbols.getInstance().getDecimalSeparator();
+
         AssertionUtil
                 .assertContainsLines(
                         "INFO  OPERATION.RuntimeCache - Cache size was set to '10%' in 'ch.ethz.sis.openbis.v3.searchcache.size' system property."
-                                + " The memory available to the JVM is 1g which gives a cache size of 102.4m", logRecorder.getLogContent());
+                                + " The memory available to the JVM is 1g which gives a cache size of 102" + decimalSeparator + "4m",
+                        logRecorder.getLogContent());
     }
 
     @Test

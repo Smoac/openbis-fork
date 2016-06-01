@@ -43,6 +43,12 @@ public class UpdateDataSetExperimentExecutor extends
         implements IUpdateDataSetExperimentExecutor
 {
 
+    @Override
+    protected String getRelationName()
+    {
+        return "dataset-experiment";
+    }
+
     @Autowired
     private IMapExperimentByIdExecutor mapExperimentByIdExecutor;
 

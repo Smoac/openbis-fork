@@ -33,5 +33,4 @@ public final class CommandQueueLister
         final ConfigParameters configParams = DataStoreServer.getConfigParameters();
         DataSetCommandExecutor.listQueuedCommands(configParams.getCommandQueueDir());
     }
-
 }

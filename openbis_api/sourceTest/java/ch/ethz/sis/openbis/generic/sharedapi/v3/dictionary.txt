@@ -1142,6 +1142,18 @@ is Listable
 Sample Type Search Criteria
 with Listable
 set Listable
-
 get Vocabulary Fetch Options
 set Vocabulary Fetch Options
+get Added
+get Removed
+get Set
+I Material Properties Holder
+set Material Property
+I Creation
+I Update
+archive Data Sets
+Data Set Archive Options
+Data Set Unarchive Options
+is Remove From Data Store
+set Remove From Data Store
+unarchive Data Sets

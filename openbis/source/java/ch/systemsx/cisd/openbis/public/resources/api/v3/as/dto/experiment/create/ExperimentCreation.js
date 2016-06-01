@@ -38,11 +38,17 @@ define([ "stjs" ], function(stjs) {
 		prototype.setTagIds = function(tagIds) {
 			this.tagIds = tagIds;
 		};
-		prototype.setProperty = function(key, value) {
-			this.properties[key] = value;
+		prototype.getProperty = function(propertyName) {
+			return this.properties[propertyName];
+		};
+		prototype.setProperty = function(propertyName, propertyValue) {
+			this.properties[propertyName] = propertyValue;
 		};
 		prototype.getProperties = function() {
 			return this.properties;
+		};
+		prototype.setProperties = function(properties) {
+			this.properties = properties;
 		};
 		prototype.getAttachments = function() {
 			return this.attachments;

@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +23,11 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.CollectionBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.VerifyProgress;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.EntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -58,16 +61,26 @@ public class VerifyEntityPropertyExecutor implements IVerifyEntityPropertyExecut
     }
 
     @Override
-    public void verify(IOperationContext context, Collection<? extends IEntityInformationWithPropertiesHolder> entities)
+    public void verify(IOperationContext context, CollectionBatch<? extends IEntityInformationWithPropertiesHolder> batch)
     {
         final Map<EntityTypePE, List<EntityTypePropertyTypePE>> cache =
                 new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
 
-        for (IEntityInformationWithPropertiesHolder entity : entities)
-        {
-            EntityPropertiesConverter converter = getEntityPropertiesConverter(entity.getEntityKind());
-            converter.checkMandatoryProperties(entity.getProperties(), entity.getEntityType(), cache);
-        }
+        new CollectionBatchProcessor<IEntityInformationWithPropertiesHolder>(context, batch)
+            {
+                @Override
+                public void process(IEntityInformationWithPropertiesHolder entity)
+                {
+                    EntityPropertiesConverter converter = getEntityPropertiesConverter(entity.getEntityKind());
+                    converter.checkMandatoryProperties(entity.getProperties(), entity.getEntityType(), cache);
+                }
+
+                @Override
+                public IProgress createProgress(IEntityInformationWithPropertiesHolder object, int objectIndex, int totalObjectCount)
+                {
+                    return new VerifyProgress(object, objectIndex, totalObjectCount);
+                }
+            };
     }
 
     private EntityPropertiesConverter getEntityPropertiesConverter(EntityKind entityKindOrNull)

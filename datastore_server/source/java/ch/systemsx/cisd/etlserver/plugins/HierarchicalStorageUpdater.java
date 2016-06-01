@@ -338,7 +338,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
 
     private void deleteWithSymbolicLinks(File toDelete)
     {
-        if (toDelete.isDirectory())
+        if (FileUtilities.isSymbolicLink(toDelete) == false && toDelete.isDirectory())
         {
             for (File file : toDelete.listFiles())
             {

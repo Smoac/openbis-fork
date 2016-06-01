@@ -46,6 +46,12 @@ public class UpdateDataSetFileFormatTypeExecutor extends
     private IMapFileFormatTypeByIdExecutor mapFileFormatTypeByIdExecutor;
 
     @Override
+    protected String getRelationName()
+    {
+        return "dataset-fileformattype";
+    }
+
+    @Override
     protected IFileFormatTypeId getRelatedId(FileFormatTypePE related)
     {
         return new FileFormatTypePermId(related.getCode());
