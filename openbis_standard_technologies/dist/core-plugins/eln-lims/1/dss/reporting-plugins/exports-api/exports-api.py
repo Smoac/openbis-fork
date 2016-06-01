@@ -73,7 +73,6 @@ def process(tr, params, tableBuilder):
 	
 	# Set user using the Dropbox
 	tr.setUserId(userId);
-	
 	if method == "exportAll":
 		isOk = exportAll(tr, params);
 
@@ -103,9 +102,11 @@ def exportAll(tr, params):
 	
 	entity = params.get("entity");
 	userEmail = params.get("userEmail");
-	entityAsPythonMap = { "type" : entity.get("type"), "permId" : entity.get("permId") };
+	entityAsPythonMap = { "type" : entity.get("type"), "permId" : entity.get("permId"), "expand" : entity.get("expand") };
 	entitiesToExport = [entityAsPythonMap];
-	entitiesToExpand = deque([entityAsPythonMap]);
+	entitiesToExpand = deque([]);
+	if entity.get("expand"):
+		entitiesToExpand.append(entityAsPythonMap);
 	
 	while entitiesToExpand:
 		entityToExpand = entitiesToExpand.popleft();

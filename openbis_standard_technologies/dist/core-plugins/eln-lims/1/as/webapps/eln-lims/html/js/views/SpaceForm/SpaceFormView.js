@@ -40,8 +40,12 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 		var $export = FormUtil.getButtonWithIcon("glyphicon-export", function() {
 			Util.blockUI();
 			var facade = mainController.serverFacade;
-			facade.exportAll({ type: "SPACE", permId : _this._spaceFormModel.space.code }, facade.getUserId(), function(error, result) {
-				Util.showSuccess("Export is being processed, you will receibe an email when is ready.", function() { Util.unblockUI(); });
+			facade.exportAll({ type: "SPACE", permId : _this._spaceFormModel.space.code, expand : true }, facade.getUserId(), function(error, result) {
+				if(error) {
+					Util.showError(error);
+				} else {
+					Util.showSuccess("Export is being processed, you will receibe an email when is ready.", function() { Util.unblockUI(); });
+				}
 			});
 		});
 		
