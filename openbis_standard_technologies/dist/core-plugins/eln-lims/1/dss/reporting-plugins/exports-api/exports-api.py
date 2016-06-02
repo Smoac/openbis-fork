@@ -78,7 +78,8 @@ def process(tr, params, tableBuilder):
 	isOk = False;
 	result = None;
 	
-	# Set user using the Dropbox
+	# Set user using the service
+	
 	tr.setUserId(userId);
 	if method == "exportAll":
 		isOk = expandAndexport(tr, params);
@@ -102,7 +103,6 @@ def process(tr, params, tableBuilder):
 def expandAndexport(tr, params):
 	#Services used during the export process
 	# TO-DO Login on the services as ETL server but on behalf of the user that makes the call
-	# serviceSessionToken = tr.getOpenBisServiceSessionToken();
 	sessionToken = params.get("sessionToken");
 	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi, OPENBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
 	v3d = ServiceProvider.getApplicationContext().getBean(V3_DSS_BEAN);
@@ -180,7 +180,6 @@ def expandAndexport(tr, params):
 
 def export(sessionToken, entities, userEmail, mailClient):
 	#Services used during the export process
-	# TO-DO Login on the services as ETL server but on behalf of the user that makes the call
 	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi, OPENBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
 	v3d = ServiceProvider.getApplicationContext().getBean(V3_DSS_BEAN);
 	dssComponent = DssComponentFactory.tryCreate(sessionToken, OPENBISURL);
