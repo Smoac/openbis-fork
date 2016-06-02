@@ -338,7 +338,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         if (contentNodeOrNull != null && fileFilter.accept(contentNodeOrNull))
         {
             return FtpFileFactory.createFtpFile(dataSet.getCode(), path, contentNodeOrNull,
-                    content, fileFilter, cache);
+                    content, fileFilter, dataSet.getModificationDate().getTime(), cache);
         } else
         {
             return FtpPathResolverRegistry.getNonExistingFile(path, "Resource '"
@@ -442,16 +442,17 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         Cache cache = context.getCache();
         for (EvaluatedElement evalElement : evalResult.getEvalElements())
         {
-            IHierarchicalContentNodeFilter fileFilter = getFileFilter(evalElement.dataSet);
+            AbstractExternalData dataSet = evalElement.dataSet;
+            IHierarchicalContentNodeFilter fileFilter = getFileFilter(dataSet);
             if (fileFilter.accept(evalElement.contentNode))
             {
                 String childPath =
                         parentPath + FtpConstants.FILE_SEPARATOR + evalElement.evaluatedTemplate;
-                String dataSetCode = evalElement.dataSet.getCode();
-                IHierarchicalContent content = evalResult.getHierarchicalContent(evalElement.dataSet);
+                String dataSetCode = dataSet.getCode();
+                IHierarchicalContent content = evalResult.getHierarchicalContent(dataSet);
                 FtpFile childFtpFile =
                         FtpFileFactory.createFtpFile(dataSetCode, childPath, evalElement.contentNode,
-                                content, fileFilter, cache);
+                                content, fileFilter, dataSet.getModificationDate().getTime(), cache);
                 result.add(childFtpFile);
             }
         }
