@@ -74,7 +74,7 @@ def process(tr, params, tableBuilder):
 	# Set user using the Dropbox
 	tr.setUserId(userId);
 	if method == "exportAll":
-		isOk = exportAll(tr, params);
+		isOk = expandAndexport(tr, params);
 
 	if isOk:
 		tableBuilder.addHeader("STATUS");
@@ -92,7 +92,7 @@ def process(tr, params, tableBuilder):
 		row.setCell("MESSAGE", "Operation Failed");
 		
 
-def exportAll(tr, params):
+def expandAndexport(tr, params):
 	#Services used during the export process
 	# TO-DO Login on the services as ETL server but on behalf of the user that makes the call
 	sessionToken = params.get("sessionToken");
@@ -100,13 +100,16 @@ def exportAll(tr, params):
 	v3d = ServiceProvider.getApplicationContext().getBean(V3_DSS_BEAN);
 	mailClient = tr.getGlobalState().getMailClient();
 	
-	entity = params.get("entity");
-	userEmail = params.get("userEmail");
-	entityAsPythonMap = { "type" : entity.get("type"), "permId" : entity.get("permId"), "expand" : entity.get("expand") };
-	entitiesToExport = [entityAsPythonMap];
+	entitiesToExport = [];
 	entitiesToExpand = deque([]);
-	if entity.get("expand"):
-		entitiesToExpand.append(entityAsPythonMap);
+		
+	entities = params.get("entities");
+	userEmail = params.get("userEmail");
+	for entity in entities:
+		entityAsPythonMap = { "type" : entity.get("type"), "permId" : entity.get("permId"), "expand" : entity.get("expand") };
+		entitiesToExport.append(entityAsPythonMap);
+		if entity.get("expand"):
+			entitiesToExpand.append(entityAsPythonMap);
 	
 	while entitiesToExpand:
 		entityToExpand = entitiesToExpand.popleft();
