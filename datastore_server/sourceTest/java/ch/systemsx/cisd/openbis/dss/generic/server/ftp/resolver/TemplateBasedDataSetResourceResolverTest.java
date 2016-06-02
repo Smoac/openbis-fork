@@ -60,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
@@ -126,6 +127,8 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
 
     private static final String RENDERED_REGISTRATION_DATE = TemplateBasedDataSetResourceResolver
             .extractDateValue(REGISTRATION_DATE);
+
+    private static final Date MODIFICATION_DATE = new Date(1234567890);
 
     private static final String SESSION_TOKEN = "token";
 
@@ -211,16 +214,16 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
             });
 
         ds1 =
-                new DataSetBuilder().experiment(experiment).code("ds1").type(DS_TYPE1)
-                        .registrationDate(REGISTRATION_DATE).getDataSet();
+                new DataSetBuilder().experiment(experiment).code("ds1").type(DS_TYPE1).modificationDate(MODIFICATION_DATE)
+                        .registrationDate(REGISTRATION_DATE).status(DataSetArchivingStatus.AVAILABLE).getDataSet();
         File ds1Root = new File(root, ds1.getCode());
         File ds1Original = new File(ds1Root, "original");
         ds1Original.mkdirs();
         FileUtilities.writeToFile(new File(ds1Original, "abc.txt"), "abcdefghijklmnopqrstuvwxyz");
         FileUtilities.writeToFile(new File(ds1Original, "some.properties"), "a = alpha\nb = bets");
         ds2 =
-                new DataSetBuilder().experiment(experiment).code("ds2").type(DS_TYPE2)
-                        .registrationDate(REGISTRATION_DATE).getDataSet();
+                new DataSetBuilder().experiment(experiment).code("ds2").type(DS_TYPE2).modificationDate(MODIFICATION_DATE)
+                        .registrationDate(REGISTRATION_DATE).status(DataSetArchivingStatus.AVAILABLE).getDataSet();
         File ds2Root = new File(root, ds2.getCode());
         File ds2Original = new File(ds2Root, "original2");
         ds2Original.mkdirs();
@@ -229,8 +232,8 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         dataFolder.mkdirs();
         FileUtilities.writeToFile(new File(dataFolder, "a1.tsv"), "t\tlevel\n1.34\t2\n");
         ds3 =
-                new DataSetBuilder().experiment(experiment).code("ds3").type(DS_TYPE3)
-                        .registrationDate(REGISTRATION_DATE).getDataSet();
+                new DataSetBuilder().experiment(experiment).code("ds3").type(DS_TYPE3).modificationDate(MODIFICATION_DATE)
+                        .registrationDate(REGISTRATION_DATE).status(DataSetArchivingStatus.AVAILABLE).getDataSet();
     }
 
     @AfterMethod(alwaysRun = true)
