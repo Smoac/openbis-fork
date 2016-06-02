@@ -20,7 +20,7 @@ public class SortableNumberBridgeUtils
                 return getNumberForLucene(Double.parseDouble(number));
             } catch (Exception ex2)
             {
-                return number;
+                return "\"" + number + "\"";
             }
         }
     }
