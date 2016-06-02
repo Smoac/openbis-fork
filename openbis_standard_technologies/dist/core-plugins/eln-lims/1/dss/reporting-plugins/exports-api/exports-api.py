@@ -60,7 +60,7 @@ from ch.systemsx.cisd.openbis.dss.generic.shared import ServiceProvider;
 from ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id import DataSetFilePermId;
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id import DataSetPermId;
 from ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download import DataSetFileDownloadOptions;
-
+from ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download import DataSetFileDownloadReader
 #JSON
 from ch.ethz.sis.openbis.generic.server.sharedapi.v3.json import GenericObjectMapper;
 from com.fasterxml.jackson.databind import SerializationFeature
@@ -102,6 +102,7 @@ def process(tr, params, tableBuilder):
 def expandAndexport(tr, params):
 	#Services used during the export process
 	# TO-DO Login on the services as ETL server but on behalf of the user that makes the call
+	# serviceSessionToken = tr.getOpenBisServiceSessionToken();
 	sessionToken = params.get("sessionToken");
 	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi, OPENBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
 	v3d = ServiceProvider.getApplicationContext().getBean(V3_DSS_BEAN);
@@ -263,7 +264,7 @@ def export(sessionToken, entities, userEmail, mailClient):
 			datasetEntityObj = objectCache[entity["permId"]];
 			datasetEntityFilePath = getFilePath(datasetEntityObj.getSample().getExperiment().getProject().getSpace().getCode(), datasetEntityObj.getSample().getExperiment().getProject().getCode(), datasetEntityObj.getSample().getExperiment().getCode(), datasetEntityObj.getSample().getCode(), datasetEntityObj.getCode());
 			filePath = datasetEntityFilePath + "/" + entity["path"];
-			rawFileInputStream = v3d.downloadFiles(sessionToken, [DataSetFilePermId(DataSetPermId(permId), entity["path"])], DataSetFileDownloadOptions());
+			rawFileInputStream = DataSetFileDownloadReader(v3d.downloadFiles(sessionToken, [DataSetFilePermId(DataSetPermId(permId), entity["path"])], DataSetFileDownloadOptions())).read().getInputStream();
 			rawFile = File(tempDirPath + filePath + ".json");
 			rawFile.getParentFile().mkdirs();
 			IOUtils.copyLarge(rawFileInputStream, FileOutputStream(rawFile));
