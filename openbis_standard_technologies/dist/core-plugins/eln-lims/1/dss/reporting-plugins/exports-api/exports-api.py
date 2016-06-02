@@ -21,6 +21,8 @@ import threading
 #Java Core
 from java.io import ByteArrayInputStream
 from org.apache.commons.io import IOUtils
+from org.apache.commons.io import FileUtils
+
 from java.lang import String
 
 #Zip Format
@@ -288,6 +290,8 @@ def export(sessionToken, entities, userEmail, mailClient):
 	#Send Email
 	sendMail(mailClient, userEmail, tempZipFileWorkspaceURL);
 	#Remove temporal folder and zip
+	FileUtils.forceDelete(File(tempDirPath));
+	FileUtils.forceDelete(File(tempZipFilePath));
 	return True
 
 def getFilePath(spaceCode, projCode, expCode, sampCode, dataCode):
