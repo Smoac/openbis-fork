@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -56,6 +57,14 @@ public class ProjectFolderResolver implements IFtpPathResolver
     @Override
     public FtpFile resolve(final String path, final FtpPathResolverContext resolverContext)
     {
+        ProjectIdentifier identifier = parseProjectIdentifier(path);
+        IServiceForDataStoreServer service = resolverContext.getService();
+        String sessionToken = resolverContext.getSessionToken();
+        Project project = service.tryGetProject(sessionToken, identifier);
+        if (project == null)
+        {
+            throw new UserFailureException("Unknown project '" + identifier + "'.");
+        }
         AbstractFtpFolder file = new AbstractFtpFolder(path)
             {
                 @Override
@@ -73,28 +82,13 @@ public class ProjectFolderResolver implements IFtpPathResolver
                     return result;
                 }
             };
-        ProjectIdentifier identifier = parseProjectIdentifier(path);
-        if (identifier != null)
-        {
-            IServiceForDataStoreServer service = resolverContext.getService();
-            String sessionToken = resolverContext.getSessionToken();
-            Project project = service.tryGetProject(sessionToken, identifier);
-            if (project != null)
-            {
-                file.setLastModified(project.getModificationDate().getTime());
-            }
-        }
+        file.setLastModified(project.getModificationDate().getTime());
         return file;
     }
 
-    private List<Experiment> listExperiments(String projectIdentifier,
-            FtpPathResolverContext context)
+    private List<Experiment> listExperiments(String projectIdentifier, FtpPathResolverContext context)
     {
         ProjectIdentifier identifier = parseProjectIdentifier(projectIdentifier);
-        if (identifier == null)
-        {
-            return Collections.emptyList();
-        }
         IServiceForDataStoreServer service = context.getService();
         String sessionToken = context.getSessionToken();
         return service.listExperimentsForProjects(sessionToken,
@@ -103,13 +97,7 @@ public class ProjectFolderResolver implements IFtpPathResolver
     
     private ProjectIdentifier parseProjectIdentifier(String projectIdentifier)
     {
-        try
-        {
-            return new ProjectIdentifierFactory(projectIdentifier).createIdentifier();
-        } catch (UserFailureException ex)
-        {
-            return null;
-        }
+        return new ProjectIdentifierFactory(projectIdentifier).createIdentifier();
     }
     
 }

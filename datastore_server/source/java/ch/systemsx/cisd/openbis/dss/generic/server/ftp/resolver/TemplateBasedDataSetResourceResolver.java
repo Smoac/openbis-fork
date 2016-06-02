@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.string.Template;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentNodeFilter;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpFileFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverConfig;
@@ -121,6 +122,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
                 IHierarchicalContentNode rootNode =
                         getDataSetFileListRoot(dataSet, hierarchicalContent);
                 List<IHierarchicalContentNode> childNodes = rootNode.getChildNodes();
+                Cache cache = resolverContext.getCache();
                 for (IHierarchicalContentNode childNode : childNodes)
                 {
                     IHierarchicalContentNodeFilter fileFilter = getFileFilter(dataSet);
@@ -128,7 +130,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
                     {
                         result.add(FtpFileFactory.createFtpFile(dataSet.getCode(), absolutePath
                                 + FtpConstants.FILE_SEPARATOR + childNode.getName(), childNode,
-                                hierarchicalContent, fileFilter));
+                                hierarchicalContent, fileFilter, cache));
                     }
                 }
             } finally
@@ -243,10 +245,9 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         if (fileNamePresent)
         {
             FtpFileEvaluationContext evalContext = evaluateDataSetPaths(resolverContext, dataSets);
-
             try
             {
-                return extractMatchingFile(path, experimentId, evalContext);
+                return extractMatchingFile(path, experimentId, resolverContext.getCache(), evalContext);
             } finally
             {
                 evalContext.close();
@@ -314,7 +315,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         return null;
     }
 
-    private FtpFile extractMatchingFile(String path, String experimentId,
+    private FtpFile extractMatchingFile(String path, String experimentId, Cache cache, 
             FtpFileEvaluationContext evalContext)
     {
         final EvaluatedElement matchingElement =
@@ -337,8 +338,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         if (contentNodeOrNull != null && fileFilter.accept(contentNodeOrNull))
         {
             return FtpFileFactory.createFtpFile(dataSet.getCode(), path, contentNodeOrNull,
-                    content,
-                    fileFilter);
+                    content, fileFilter, cache);
         } else
         {
             return FtpPathResolverRegistry.getNonExistingFile(path, "Resource '"
@@ -435,11 +435,11 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         }
     }
 
-    private List<FtpFile> createFtpFilesFromEvaluationResult(
-            ISessionTokenProvider sessionTokenProvider,
+    private List<FtpFile> createFtpFilesFromEvaluationResult(FtpPathResolverContext context,
             final String parentPath, FtpFileEvaluationContext evalResult)
     {
         ArrayList<FtpFile> result = new ArrayList<FtpFile>();
+        Cache cache = context.getCache();
         for (EvaluatedElement evalElement : evalResult.getEvalElements())
         {
             IHierarchicalContentNodeFilter fileFilter = getFileFilter(evalElement.dataSet);
@@ -448,13 +448,10 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
                 String childPath =
                         parentPath + FtpConstants.FILE_SEPARATOR + evalElement.evaluatedTemplate;
                 String dataSetCode = evalElement.dataSet.getCode();
-                IHierarchicalContentProvider getContentProvider =
-                        getContentProvider(sessionTokenProvider);
-
+                IHierarchicalContent content = evalResult.getHierarchicalContent(evalElement.dataSet);
                 FtpFile childFtpFile =
-                        FtpFileFactory.createFtpFile(dataSetCode, childPath,
-                                evalElement.contentNode,
-                                getContentProvider.asContent(evalElement.dataSet), fileFilter);
+                        FtpFileFactory.createFtpFile(dataSetCode, childPath, evalElement.contentNode,
+                                content, fileFilter, cache);
                 result.add(childFtpFile);
             }
         }

@@ -82,8 +82,7 @@ public class DataSetCifsView implements DiskInterface
     @Override
     public DeviceContext createContext(String shareName, ConfigElement args) throws DeviceContextException
     {
-        operationLog.info("create context for share " + shareName);
-        System.out.println(Utils.render(args));
+        operationLog.info("create context for share " + shareName + ": " + Utils.render(args));
         FtpPathResolverConfig resolverConfig = new FtpPathResolverConfig(CifsServerConfig.getServerProperties());
         resolverConfig.logStartupInfo("CIFS");
         pathResolverRegistry = new FtpPathResolverRegistry(resolverConfig);
@@ -147,15 +146,22 @@ public class DataSetCifsView implements DiskInterface
     @Override
     public int fileExists(SrvSession sess, TreeConnection tree, String name)
     {
-        FtpFile file = getFile(createView(sess), name);
-        if (file == null)
+        try
         {
+            FtpFile file = getFile(createView(sess), name);
+            if (file == null || file instanceof NonExistingFtpFile)
+            {
+                return FileStatus.NotExist;
+            } else if (file.isDirectory())
+            {
+                return FileStatus.DirectoryExists;
+            }
+            return FileStatus.FileExists;
+        } catch (Exception ex)
+        {
+            operationLog.debug("File doesn't exist. Reason: " + ex);
             return FileStatus.NotExist;
-        } else if (file.isDirectory())
-        {
-            return FileStatus.DirectoryExists;
         }
-        return FileStatus.FileExists;
     }
 
     @Override
@@ -167,30 +173,37 @@ public class DataSetCifsView implements DiskInterface
     @Override
     public NetworkFile openFile(SrvSession sess, TreeConnection tree, FileOpenParams params) throws IOException
     {
-        final String fullPath = normalizePath(params.getFullPath());
         String path = normalizePath(params.getPath());
         DSSFileSystemView view = createView(sess);
-        FtpFile file = getFile(view, fullPath);
-        if (file instanceof NonExistingFtpFile)
+        try
         {
-            NonExistingFtpFile nonExistingFtpFile = (NonExistingFtpFile) file;
-            throw new FileNotFoundException(path + " does not exist. Reason: " + nonExistingFtpFile.getErrorMessage());
+            FtpFile file = getFile(view, path);
+            if (file instanceof NonExistingFtpFile)
+            {
+                NonExistingFtpFile nonExistingFtpFile = (NonExistingFtpFile) file;
+                throw new FileNotFoundException(path + " does not exist. Reason: " + nonExistingFtpFile.getErrorMessage());
+            }
+            operationLog.info("Open file '" + path + "'.");
+            NetworkFile networkFile = new CifsFile(file);
+            
+            networkFile.setAttributes(FileAttribute.ReadOnly);
+            networkFile.setCreationDate(file.getLastModified());
+            networkFile.setModifyDate(file.getLastModified());
+            networkFile.setFullName(params.getPath());
+            networkFile.setFileId(path.hashCode());
+            if (file.isDirectory())
+            {
+                networkFile.setAttributes(FileAttribute.Directory | FileAttribute.ReadOnly);
+            } else
+            {
+                networkFile.setFileSize(file.getSize());
+            }
+            return networkFile;
+        } catch (Exception ex)
+        {
+            operationLog.debug("Can not open file '" + path + "'. Reason: " + ex);
+            throw new IOException("Can not open file '" + path + "'. Reason: " + ex, ex);
         }
-        NetworkFile networkFile = new CifsFile(file);
-        
-        networkFile.setAttributes(FileAttribute.ReadOnly);
-        networkFile.setCreationDate(file.getLastModified());
-        networkFile.setModifyDate(file.getLastModified());
-        networkFile.setFullName(params.getPath());
-        networkFile.setFileId(fullPath.hashCode());
-        if (file.isDirectory())
-        {
-            networkFile.setAttributes(FileAttribute.Directory| FileAttribute.ReadOnly);
-        } else
-        {
-            networkFile.setFileSize(file.getSize());
-        }
-        return networkFile;
     }
 
     @Override

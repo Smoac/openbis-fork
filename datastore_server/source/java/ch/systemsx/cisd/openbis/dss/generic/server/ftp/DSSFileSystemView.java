@@ -34,6 +34,7 @@ import org.apache.ftpserver.ftplet.FtpFile;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
@@ -169,7 +170,10 @@ public class DSSFileSystemView implements FileSystemView
             String message =
                     String.format("Error while resolving FTP path '%s' : %s", path,
                             realThrowable.getMessage());
-            operationLog.error(message, realThrowable);
+            if (realThrowable instanceof UserFailureException == false)
+            {
+                operationLog.error(message, realThrowable);
+            }
             throw new FtpException(message);
         }
     }

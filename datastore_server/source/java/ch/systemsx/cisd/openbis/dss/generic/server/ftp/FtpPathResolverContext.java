@@ -22,10 +22,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
@@ -45,9 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  */
 public class FtpPathResolverContext implements ISessionTokenProvider
 {
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            FtpPathResolverContext.class);
-
     private final String sessionToken;
 
     private final IServiceForDataStoreServer service;
@@ -135,25 +129,18 @@ public class FtpPathResolverContext implements ISessionTokenProvider
         Experiment experiment = cache.getExperiment(experimentId);
         if (experiment == null)
         {
-            try
+            ExperimentIdentifier experimentIdentifier =
+                    new ExperimentIdentifierFactory(experimentId).createIdentifier();
+            List<Experiment> result =
+                    service.listExperiments(sessionToken,
+                            Collections.singletonList(experimentIdentifier),
+                            new ExperimentFetchOptions());
+            if (result.isEmpty())
             {
-                ExperimentIdentifier experimentIdentifier =
-                        new ExperimentIdentifierFactory(experimentId).createIdentifier();
-
-                List<Experiment> result =
-                        service.listExperiments(sessionToken,
-                                Collections.singletonList(experimentIdentifier),
-                                new ExperimentFetchOptions());
-                experiment = result.isEmpty() ? null : result.get(0);
-                if (experiment != null)
-                {
-                    cache.putExperiment(experiment);
-                }
-            } catch (Exception ex)
-            {
-                operationLog.info("Error in experiment identifier '" + experimentId + "': " + ex);
-                return null;
+                throw new UserFailureException("Unknown experiment '" + experimentIdentifier + "'.");
             }
+            experiment = result.get(0);
+            cache.putExperiment(experiment);
         }
         return experiment;
     }

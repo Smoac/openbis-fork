@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.ftpserver.ftplet.FtpFile;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolver;
@@ -50,6 +51,13 @@ public class SpaceFolderResolver implements IFtpPathResolver
     public FtpFile resolve(final String path, final FtpPathResolverContext resolverContext)
     {
         final String spaceCode = removeStartingSlash(path);
+        String sessionToken = resolverContext.getSessionToken();
+        IServiceForDataStoreServer service = resolverContext.getService();
+        Space space = service.tryGetSpace(sessionToken, new SpaceIdentifier(spaceCode));
+        if (space == null)
+        {
+            throw new UserFailureException("Unknown space '" + spaceCode + "'.");
+        }
         AbstractFtpFolder file = new AbstractFtpFolder(path)
             {
                 @Override
@@ -81,13 +89,7 @@ public class SpaceFolderResolver implements IFtpPathResolver
                     return result;
                 }
             };
-        String sessionToken = resolverContext.getSessionToken();
-        IServiceForDataStoreServer service = resolverContext.getService();
-        Space space = service.tryGetSpace(sessionToken, new SpaceIdentifier(spaceCode));
-        if (space != null)
-        {
-            file.setLastModified(space.getModificationDate().getTime());
-        }
+        file.setLastModified(space.getModificationDate().getTime());
         return file;
     }
 

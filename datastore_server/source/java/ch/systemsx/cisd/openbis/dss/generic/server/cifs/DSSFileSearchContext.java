@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.cifs;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,9 +27,9 @@ import org.alfresco.jlan.util.WildCard;
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.DSSFileSystemView;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.NonExistingFtpFile;
 
 /**
  * @author Franz-Josef Elmer
@@ -39,7 +40,8 @@ public class DSSFileSearchContext extends SearchContext
 
     private int index;
 
-    public DSSFileSearchContext(DSSFileSystemView view, String normalizedSearchPath, int fileAttributes, Cache cache)
+    public DSSFileSearchContext(DSSFileSystemView view, String normalizedSearchPath, int fileAttributes, 
+            Cache cache) throws FileNotFoundException
     {
         String[] pathStr = FileName.splitPath(normalizedSearchPath, java.io.File.separatorChar);
         try
@@ -47,7 +49,7 @@ public class DSSFileSearchContext extends SearchContext
             if (pathStr[1] != null && WildCard.containsWildcards(pathStr[1]))
             {
                 WildCard wildCard = new WildCard(pathStr[1], true);
-                FtpFile directory = view.getFile(pathStr[0], cache);
+                FtpFile directory = getFile(view, pathStr[0], cache);
                 List<FtpFile> list = directory.listFiles();
                 for (FtpFile file : list)
                 {
@@ -58,7 +60,7 @@ public class DSSFileSearchContext extends SearchContext
                 }
             } else
             {
-                FtpFile file = view.getFile(normalizedSearchPath, cache);
+                FtpFile file = getFile(view, normalizedSearchPath, cache);
                 if (matches(null, fileAttributes, file))
                 {
                     files.add(file);
@@ -66,8 +68,19 @@ public class DSSFileSearchContext extends SearchContext
             }
         } catch (FtpException ex)
         {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            throw new FileNotFoundException("Invalid search path '" + normalizedSearchPath + "'. Reason: " + ex);
         }
+    }
+
+    private FtpFile getFile(DSSFileSystemView view, String path, Cache cache) throws FtpException
+    {
+        FtpFile file = view.getFile(path, cache);
+        if (file instanceof NonExistingFtpFile)
+        {
+            throw new FtpException(file.getAbsolutePath() + " doesn't exist. Reason: " 
+                    + ((NonExistingFtpFile) file).getErrorMessage());
+        }
+        return file;
     }
 
     private boolean matches(WildCard wildcardOrNull, int fileAttributes, FtpFile file)

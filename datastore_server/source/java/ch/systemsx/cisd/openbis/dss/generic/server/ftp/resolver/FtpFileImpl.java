@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.HierarchicalConte
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentNodeFilter;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpFileFactory;
 
@@ -52,15 +54,18 @@ public class FtpFileImpl extends AbstractFtpFile
 
     private IHierarchicalContent content;
 
+    private final Cache cache;
+    
     public FtpFileImpl(String dataSetCode, String path, String pathInDataSet, boolean isDirectory,
             long size, long lastModified, IHierarchicalContent content,
-            IHierarchicalContentNodeFilter childrenFilter)
+            IHierarchicalContentNodeFilter childrenFilter, Cache cache)
     {
         super(path);
         this.dataSetCode = dataSetCode;
         this.pathInDataSet = pathInDataSet;
         this.isDirectory = isDirectory;
         this.size = size;
+        this.cache = cache;
         setLastModified(lastModified);
         this.content = content;
         this.childrenFilter = childrenFilter;
@@ -149,7 +154,7 @@ public class FtpFileImpl extends AbstractFtpFile
                             absolutePath + FtpConstants.FILE_SEPARATOR + childNode.getName();
                     FtpFile childFile =
                             FtpFileFactory.createFtpFile(dataSetCode, childPath, childNode,
-                                    content, childrenFilter);
+                                    content, childrenFilter, cache);
                     result.add(childFile);
                 }
             }
