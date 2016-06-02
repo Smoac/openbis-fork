@@ -44,7 +44,7 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 				if(error) {
 					Util.showError(error);
 				} else {
-					Util.showSuccess("Export is being processed, you will receibe an email when is ready.", function() { Util.unblockUI(); });
+					Util.showSuccess("Export is being processed, you will receibe an email when is ready, if you logout the process will stop.", function() { Util.unblockUI(); });
 				}
 			});
 		});
