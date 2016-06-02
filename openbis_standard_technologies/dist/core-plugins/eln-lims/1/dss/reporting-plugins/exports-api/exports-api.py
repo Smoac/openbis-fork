@@ -66,6 +66,11 @@ from com.fasterxml.jackson.databind import SerializationFeature
 #Session Workspace
 from ch.systemsx.cisd.openbis.dss.client.api.v1 import DssComponentFactory
 
+#Logging
+from ch.systemsx.cisd.common.logging import LogCategory;
+from org.apache.log4j import Logger;
+operationLog = Logger.getLogger(str(LogCategory.OPERATION) + ".exports-api.py");
+				
 def process(tr, params, tableBuilder):
 	method = params.get("method");
 	isOk = False;
@@ -115,13 +120,13 @@ def expandAndexport(tr, params):
 		entityToExpand = entitiesToExpand.popleft();
 		type =  entityToExpand["type"];
 		permId = entityToExpand["permId"];
-		print "Expanding type: " + str(type) + " permId: " + str(permId);
+		operationLog.info("Expanding type: " + str(type) + " permId: " + str(permId));
 		
 		if type == "SPACE":
 			criteria = ProjectSearchCriteria();
 			criteria.withSpace().withCode().thatEquals(permId);
 			results = v3.searchProjects(sessionToken, criteria, ProjectFetchOptions());
-			print "Found: " + str(results.getTotalCount()) + " projects";
+			operationLog.info("Found: " + str(results.getTotalCount()) + " projects");
 			for project in results.getObjects():
 				entityFound = { "type" : "PROJECT", "permId" : project.getPermId().getPermId() };
 				entitiesToExport.append(entityFound);
@@ -130,7 +135,7 @@ def expandAndexport(tr, params):
 			criteria = ExperimentSearchCriteria();
 			criteria.withProject().withPermId().thatEquals(permId);
 			results = v3.searchExperiments(sessionToken, criteria, ExperimentFetchOptions());
-			print "Found: " + str(results.getTotalCount()) + " experiments";
+			operationLog.info("Found: " + str(results.getTotalCount()) + " experiments");
 			for experiment in results.getObjects():
 				entityFound = { "type" : "EXPERIMENT", "permId" : experiment.getPermId().getPermId() };
 				entitiesToExport.append(entityFound);
@@ -139,7 +144,7 @@ def expandAndexport(tr, params):
 			criteria = SampleSearchCriteria();
 			criteria.withExperiment().withPermId().thatEquals(permId);
 			results = v3.searchSamples(sessionToken, criteria, SampleFetchOptions());
-			print "Found: " + str(results.getTotalCount()) + " samples";
+			operationLog.info("Found: " + str(results.getTotalCount()) + " samples");
 			for sample in results.getObjects():
 				entityFound = { "type" : "SAMPLE", "permId" : sample.getPermId().getPermId() };
 				entitiesToExport.append(entityFound);
@@ -148,7 +153,7 @@ def expandAndexport(tr, params):
 			criteria = DataSetSearchCriteria();
 			criteria.withSample().withPermId().thatEquals(permId);
 			results = v3.searchDataSets(sessionToken, criteria, DataSetFetchOptions());
-			print "Found: " + str(results.getTotalCount()) + " datasets";
+			operationLog.info("Found: " + str(results.getTotalCount()) + " datasets");
 			for dataset in results.getObjects():
 				entityFound = { "type" : "DATASET", "permId" : dataset.getPermId().getPermId() };
 				entitiesToExport.append(entityFound);
@@ -157,14 +162,13 @@ def expandAndexport(tr, params):
 			criteria = DataSetFileSearchCriteria();
 			criteria.withDataSet().withPermId().thatEquals(permId);
 			results = v3d.searchFiles(sessionToken, criteria, DataSetFileFetchOptions());
-			print "Found: " + str(results.getTotalCount()) + " files";
+			operationLog.info("Found: " + str(results.getTotalCount()) + " files");
 			for file in results.getObjects():
 				entityFound = { "type" : "FILE", "permId" : permId, "path" : file.getPath(), "isDirectory" : file.isDirectory() };
 				entitiesToExport.append(entityFound);
 				entitiesToExpand.append(entityFound);
-	print "Found " + str(len(entitiesToExport)) + " entities to export.";
-	params.put("entities", entitiesToExport);
 	
+	operationLog.info("Found " + str(len(entitiesToExport)) + " entities to export, export thread will start");
 	thread = threading.Thread(target=export, args=(sessionToken, entitiesToExport, userEmail, mailClient));
 	thread.daemon = True;
 	thread.start();
@@ -198,7 +202,7 @@ def export(sessionToken, entities, userEmail, mailClient):
 	for entity in entities:
 		type =  entity["type"];
 		permId = entity["permId"];
-		print "exporting type: " + str(type) + " permId: " + str(permId);
+		operationLog.info("exporting type: " + str(type) + " permId: " + str(permId));
 		entityObj = None;
 		entityFilePath = None;
 		
@@ -277,10 +281,10 @@ def export(sessionToken, entities, userEmail, mailClient):
 	fos.close();
 	
 	#Store on workspace to be able to generate a download link
-	print "Zip file can be found on the temperal directory: " + tempZipFilePath;
+	operationLog.info("Zip file can be found on the temperal directory: " + tempZipFilePath);
 	dssComponent.putFileToSessionWorkspace(tempZipFileName, FileInputStream(File(tempZipFilePath)));
 	tempZipFileWorkspaceURL = DataStoreServer.getConfigParameters().getDownloadURL() + "/datastore_server/session_workspace_file_download?sessionID=" + sessionToken + "&filePath=" + tempZipFileName;
-	print "Zip file can be downloaded from the workspace: " + tempZipFileWorkspaceURL;
+	operationLog.info("Zip file can be downloaded from the workspace: " + tempZipFileWorkspaceURL);
 	#Send Email
 	sendMail(mailClient, userEmail, tempZipFileWorkspaceURL);
 	#Remove temporal folder and zip
@@ -321,8 +325,4 @@ def sendMail(mailClient, userEmail, downloadURL):
     topic = "Export Ready";
     message = "Download a zip file with your exported data at: " + downloadURL;
     mailClient.sendEmailMessage(topic, message, replyTo, fromAddress, recipient1);
-    print("--- MAIL ---");
-    print("recipient1: "+userEmail);
-    print("Topic: "+topic);
-    print(message);
-    print("------------");
+    operationLog.info("--- MAIL ---" + " Recipient: " + userEmail + " Topic: " + topic + " Message: " + message);
