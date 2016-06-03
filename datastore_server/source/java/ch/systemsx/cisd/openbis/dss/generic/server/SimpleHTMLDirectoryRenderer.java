@@ -51,7 +51,7 @@ final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
 
     private static final Template ROW_TEMPLATE_NO_LINK =
             new Template(
-                    "<tr><td class='td_file'>${name}</td><td>${size}</td><td>${checksum}</td></tr>");
+                    "<tr><td class='td_file'><span>${name}</span></td><td>${size}</td><td>${checksum}</td></tr>");
 
     private static final Template HEADER_TEMPLATE = new Template("<html><head>" + CSS
             + "</head><body>" + "<table> " + "${folder}" + "");
@@ -104,7 +104,7 @@ final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
     @Override
     public void printDirectory(final String name, final String aRelativePath, final long size, final Boolean disableLinks)
     {
-        printRow(name, aRelativePath, DirectoryRendererUtil.renderFileSize(size), "", true, disableLinks);
+        printRow(name + "/", aRelativePath, DirectoryRendererUtil.renderFileSize(size), "", true, disableLinks);
     }
 
     @Override

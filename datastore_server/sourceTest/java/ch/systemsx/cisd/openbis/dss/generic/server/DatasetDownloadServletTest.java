@@ -250,7 +250,7 @@ public class DatasetDownloadServletTest
                         + OSUtilities.LINE_SEPARATOR
                         + "<tr><td class='td_file'>"
                         + "<a href='/datastore_server/1234-1/" + ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME + "?disableLinks=false&mode=simpleHtml&sessionID=AV76CF'>"
-                        + "+ s % ! # @</td><td>" + directorySize + "</td><td></td></tr>"
+                        + "+ s % ! # @/</td><td>" + directorySize + "</td><td></td></tr>"
                         + OSUtilities.LINE_SEPARATOR
                         + "<tr><td class='td_file'>"
                         + "<a href='/datastore_server/1234-1/" + ESCAPED_FILE_NAME_ENCODED + "?disableLinks=false&mode=simpleHtml&sessionID=AV76CF'>"

@@ -48,6 +48,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDat
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.SAMPLE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.SAMPLE_TYPE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.SHOW_DETAILS_LINK;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.SIZE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.SOURCE_TYPE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.STORAGE_CONFIRMATION;
 
@@ -113,6 +114,7 @@ public abstract class AbstractExternalDataProvider extends
         builder.addColumn(SOURCE_TYPE).hideByDefault();
         builder.addColumn(IS_COMPLETE).hideByDefault();
         builder.addColumn(LOCATION).hideByDefault();
+        builder.addColumn(SIZE).hideByDefault();
         builder.addColumn(ARCHIVING_STATUS).withDefaultWidth(200).hideByDefault();
         builder.addColumn(FILE_FORMAT_TYPE).hideByDefault();
         builder.addColumn(PRODUCTION_DATE).withDefaultWidth(200).hideByDefault();
@@ -199,6 +201,7 @@ public abstract class AbstractExternalDataProvider extends
                     builder.column(IS_COMPLETE).addString(
                             complete == null ? "?" : SimpleYesNoRenderer.render(complete));
                     builder.column(LOCATION).addString(realDataSet.getFullLocation());
+                    builder.column(SIZE).addInteger(realDataSet.getSize());
                     builder.column(ARCHIVING_STATUS).addString(
                             realDataSet.getStatus().getDescription());
                     builder.column(PRESENT_IN_ARCHIVE).addString(
