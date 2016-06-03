@@ -110,8 +110,8 @@ h1, h2, legend {
 }
 
 .loginForm {
-	width: 410px;
-	height: 410px;
+	width: 450px;
+	height: 450px;
 	padding: 30px;
 	display: block;
 	
@@ -177,7 +177,7 @@ h1, h2, legend {
 
 .loginForm .btn {
 	font-family: "Helvetica Neue",sans-serif;
-	left: 305px;
+	left: 345px;
     position: absolute;
     top: 55px;
 }
