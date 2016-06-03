@@ -37,6 +37,9 @@ public interface IMultiDataSetArchiverReadonlyQueryDAO extends BaseQuery
     @Select(sql = SELECT_CONTAINER + "WHERE id = ?{1}")
     public MultiDataSetArchiverContainerDTO getContainerForId(long containerId);
 
+    @Select(sql = SELECT_CONTAINER)
+    public List<MultiDataSetArchiverContainerDTO> listContainers();
+
     @Select(sql = SELECT_CONTAINER + "WHERE unarchiving_requested = 't'")
     public List<MultiDataSetArchiverContainerDTO> listContainersForUnarchiving();
 

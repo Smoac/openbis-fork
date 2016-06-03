@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiver.MAXIMUM_CONTAINER_SIZE_IN_BYTES;
-import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiver.MINIMUM_CONTAINER_SIZE_IN_BYTES;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiver.MAXIMUM_UNARCHIVING_CAPACITY_IN_MEGABYTES;
+import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiver.MINIMUM_CONTAINER_SIZE_IN_BYTES;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetFileOperationsManager.HDF5_FILES_IN_DATA_SET;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY;
@@ -258,6 +258,12 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         }
 
         @Override
+        public List<MultiDataSetArchiverContainerDTO> listContainers()
+        {
+            return containers;
+        }
+
+        @Override
         public List<MultiDataSetArchiverContainerDTO> listContainersForUnarchiving()
         {
             List<MultiDataSetArchiverContainerDTO> result = new ArrayList<MultiDataSetArchiverContainerDTO>();
@@ -350,7 +356,6 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         {
             return 2 * FileUtils.ONE_MB;
         }
-
     }
 
     private static final class MockMultiDataSetArchiver extends MultiDataSetArchiver
