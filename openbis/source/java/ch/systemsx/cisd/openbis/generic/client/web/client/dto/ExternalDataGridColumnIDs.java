@@ -65,6 +65,8 @@ public class ExternalDataGridColumnIDs
     public static final String IS_COMPLETE = "IS_COMPLETE";
 
     public static final String LOCATION = "LOCATION";
+    
+    public static final String SIZE = "SIZE";
 
     public static final String ARCHIVING_STATUS = "ARCHIVING_STATUS";
 

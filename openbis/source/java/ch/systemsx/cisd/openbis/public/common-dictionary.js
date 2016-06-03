@@ -810,6 +810,7 @@ var common = {
  // Data Set Browser
  //
  location: "Location",
+ size: "Size",
  external_data_sample_identifier: "Sample Identifier",
  external_data_experiment_identifier: "Experiment Identifier",
  source_type: "Source Type",
