@@ -52,7 +52,7 @@ public class MultiDataSetArchiverOrphanFinderTask implements IMaintenanceTask
     {
         operationLog.info(MultiDataSetArchiverOrphanFinderTask.class.getSimpleName() + " Started");
 
-        // 1.Directories
+        // 1.Directories.
         operationLog.info("1.Directories, obtain archiver directory.");
         String destination = DataStoreServer.getConfigParameters().getProperties().getProperty("archiver.final-destination", null);
         if (destination == null)
@@ -66,32 +66,40 @@ public class MultiDataSetArchiverOrphanFinderTask implements IMaintenanceTask
             return;
         }
 
-        // 2.Database
+        // 2.1 Database.
         operationLog.info("2.1 Database, obtain a list of the multi dataset containers on the database.");
         IMultiDataSetArchiverReadonlyQueryDAO readonlyQuery = MultiDataSetArchiverDataSourceUtil.getReadonlyQueryDAO();
         List<MultiDataSetArchiverContainerDTO> containerDTOs = readonlyQuery.listContainers();
         Set<String> multiDatasetsContainersOnDB = new HashSet<String>();
-        for (MultiDataSetArchiverContainerDTO containerDTO : containerDTOs)
+        if (containerDTOs != null)
         {
-            multiDatasetsContainersOnDB.add(containerDTO.getPath());
+            for (MultiDataSetArchiverContainerDTO containerDTO : containerDTOs)
+            {
+                multiDatasetsContainersOnDB.add(containerDTO.getPath().toLowerCase());
+            }
         }
 
         operationLog.info("2.2 Database, obtain a list of the archived datasets on the database.");
         IEncapsulatedOpenBISService service = ServiceProvider.getOpenBISService();
         List<SimpleDataSetInformationDTO> presentDTOs = service.listPhysicalDataSetsByArchivingStatus(null, Boolean.TRUE);
         Set<String> presentInArchiveOnDB = new HashSet<String>();
-        for (SimpleDataSetInformationDTO presentDTO : presentDTOs)
+        if (presentDTOs != null)
         {
-            presentInArchiveOnDB.add(presentDTO.getDataSetCode());
+            for (SimpleDataSetInformationDTO presentDTO : presentDTOs)
+            {
+                presentInArchiveOnDB.add(presentDTO.getDataSetCode().toLowerCase());
+            }
         }
 
-        // 3.Verify if the files on destination are on multi dataset archiver containers or a normal archived dataset
+        // 3.Verify if the files on destination are on multi dataset archiver containers or a normal archived dataset.
         operationLog.info("3.Verify if the files on destination are on multi dataset archiver containers or a normal archived dataset.");
         File[] filesOnDisk = new File(destination).listFiles();
-        List<File> notFounds = new ArrayList<File>();
+        Set<String> presentInArchiveFS = new HashSet<String>();
+        List<File> onFSandNotDB = new ArrayList<File>();
         for (File file : filesOnDisk)
         {
-            if (multiDatasetsContainersOnDB.contains(file.getName()))
+            presentInArchiveFS.add(file.getName().toLowerCase()); // To be used in step 4
+            if (multiDatasetsContainersOnDB.contains(file.getName().toLowerCase()))
             {
                 operationLog.info("Found multi dataset archiver container: " + file.getName());
             } else if ((file.getName().toLowerCase().endsWith(".tar") ||
@@ -101,20 +109,53 @@ public class MultiDataSetArchiverOrphanFinderTask implements IMaintenanceTask
                 operationLog.info("Found archived dataset: " + file.getName());
             } else
             {
-                notFounds.add(file);
-                operationLog.info("Not Found file: " + file.getName());
+                onFSandNotDB.add(file);
+                operationLog.info("Not Found on DB for FS: " + file.getName());
+            }
+        }
+
+        // 4.Verify if the datasets archived on the database are on the file system.
+        operationLog.info("4.Verify if the datasets archived on the database are on the file system.");
+        List<String> multiOnDBandNotFS = new ArrayList<String>();
+        for (String multiDatasetsContainerOnDB : multiDatasetsContainersOnDB)
+        {
+            if (!presentInArchiveFS.contains(multiDatasetsContainerOnDB))
+            {
+                operationLog.info("Multi - Not Found in FS for DB: " + multiDatasetsContainerOnDB);
+                multiOnDBandNotFS.add(multiDatasetsContainerOnDB);
+            }
+        }
+
+        List<String> singleOnDBandNotFS = new ArrayList<String>();
+        for (String presentOnDB : presentInArchiveOnDB)
+        {
+            String fileNameTar = presentOnDB + ".tar";
+            String fileNameZip = presentOnDB + ".zip";
+
+            if (!presentInArchiveFS.contains(fileNameTar) && !presentInArchiveFS.contains(fileNameZip))
+            {
+                operationLog.info("Single - Not Found in FS for DB: " + presentOnDB);
+                singleOnDBandNotFS.add(presentOnDB);
             }
         }
 
         // 4.Send email with not found files.
-        operationLog.info("4.Send email with not found files.");
-        if (notFounds.size() > 0)
+        operationLog.info("5.Send email with not found files.");
+        if (onFSandNotDB.size() > 0)
         {
             String subject = "openBIS MultiDataSetArchiverOrphanFinderTask found files";
-            String content = "Found " + notFounds.size() + " files by MultiDataSetArchiverOrphanFinderTask:\n";
-            for (File notFound : notFounds)
+            String content = "";
+            for (File notFound : onFSandNotDB)
             {
-                content += notFound.getName() + "\t" + notFound.length() + "\n";
+                content += "Found on FS not in DB:" + notFound.getName() + "\t" + notFound.length() + "\n";
+            }
+            for (String notFound : multiOnDBandNotFS)
+            {
+                content += "Found on DB not in FS - Multi dataset archiver:" + notFound + "\n";
+            }
+            for (String notFound : singleOnDBandNotFS)
+            {
+                content += "Found on DB not in FS - dataset archiver:" + notFound + "\n";
             }
             for (EMailAddress recipient : emailAddresses)
             {
