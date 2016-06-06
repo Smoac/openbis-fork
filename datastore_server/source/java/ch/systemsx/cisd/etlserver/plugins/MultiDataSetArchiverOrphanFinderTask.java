@@ -17,8 +17,6 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverReadonlyQueryDAO;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverContainerDTO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDataSourceUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -67,14 +65,13 @@ public class MultiDataSetArchiverOrphanFinderTask implements IMaintenanceTask
 
         // 2.1 Database.
         operationLog.info("2.1 Database, obtain a list of the multi dataset containers on the database.");
-        IMultiDataSetArchiverReadonlyQueryDAO readonlyQuery = MultiDataSetArchiverDataSourceUtil.getReadonlyQueryDAO();
-        List<MultiDataSetArchiverContainerDTO> containerDTOs = readonlyQuery.listContainers();
+        List<String> containers = MultiDataSetArchiverDataSourceUtil.getContainerList();
         Set<String> multiDatasetsContainersOnDB = new HashSet<String>();
-        if (containerDTOs != null)
+        if (containers != null)
         {
-            for (MultiDataSetArchiverContainerDTO containerDTO : containerDTOs)
+            for (String container : containers)
             {
-                multiDatasetsContainersOnDB.add(containerDTO.getPath().toLowerCase());
+                multiDatasetsContainersOnDB.add(container.toLowerCase());
             }
         }
 
