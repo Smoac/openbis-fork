@@ -420,9 +420,9 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
 
     @Override
     public List<SimpleDataSetInformationDTO> listPhysicalDataSetsByArchivingStatus(String sessionToken, String dataStoreCode,
-            DataSetArchivingStatus archivingStatus) throws UserFailureException
+            DataSetArchivingStatus archivingStatus, Boolean presentInArchive) throws UserFailureException
     {
-        logAccess(sessionToken, "listPhysicalDataSetsByArchivingStatus", "DATA_STORE(%s) STATUS(%s)", dataStoreCode, archivingStatus);
+        logAccess(sessionToken, "listPhysicalDataSetsByArchivingStatus", "DATA_STORE(%s) STATUS(%s) PRESENT(%s)", dataStoreCode, archivingStatus, presentInArchive);
         return null;
     }
     

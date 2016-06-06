@@ -21,6 +21,9 @@ import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverContainerDTO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDataSourceUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 public class MultiDataSetArchiverOrphanFinderTask implements IMaintenanceTask
 {
@@ -49,64 +52,69 @@ public class MultiDataSetArchiverOrphanFinderTask implements IMaintenanceTask
     {
         operationLog.info(MultiDataSetArchiverOrphanFinderTask.class.getSimpleName() + " Started");
 
-        // 1.Database, obtain a list of the containers on the database.
-        operationLog.info("1.Database, obtain a list of the containers on the database.");
-        IMultiDataSetArchiverReadonlyQueryDAO readonlyQuery = MultiDataSetArchiverDataSourceUtil.getReadonlyQueryDAO();
-        List<MultiDataSetArchiverContainerDTO> containerDTOs = readonlyQuery.listContainers();
-        Set<String> containersOnDB = new HashSet<String>();
-        for (MultiDataSetArchiverContainerDTO containerDTO : containerDTOs)
+        // 1.Directories
+        operationLog.info("1.Directories, obtain archiver directory.");
+        String destination = DataStoreServer.getConfigParameters().getProperties().getProperty("archiver.final-destination", null);
+        if (destination == null)
         {
-            containersOnDB.add(containerDTO.getPath());
+            destination = DataStoreServer.getConfigParameters().getProperties().getProperty("archiver.destination", null);
         }
 
-        // 2.Directories, obtain a list of the files into the directory.
-        operationLog.info("2.Directories, obtain a list of the files into the directory.");
-        // String tempFolder = DataStoreServer.getConfigParameters().getProperties().getProperty("archiver.temp-folder", null);
-        String finalDestination = DataStoreServer.getConfigParameters().getProperties().getProperty("archiver.final-destination", null);
-        // String replicatedDestination = DataStoreServer.getConfigParameters().getProperties().getProperty("archiver.replicated-destination", null);
-        File[] containersOnDisk = new File(finalDestination).listFiles();
-
-        // 3.Verify if the files are on the database containers
-        operationLog.info("3.Verify if the files are on the database containers.");
-        List<File> notFound = new ArrayList<File>();
-        for (File file : containersOnDisk)
+        if (destination == null)
         {
-            if (containersOnDB.contains(file.getName()))
+            operationLog.info("No destination directory found, this task can't execute.");
+            return;
+        }
+
+        // 2.Database
+        operationLog.info("2.1 Database, obtain a list of the multi dataset containers on the database.");
+        IMultiDataSetArchiverReadonlyQueryDAO readonlyQuery = MultiDataSetArchiverDataSourceUtil.getReadonlyQueryDAO();
+        List<MultiDataSetArchiverContainerDTO> containerDTOs = readonlyQuery.listContainers();
+        Set<String> multiDatasetsContainersOnDB = new HashSet<String>();
+        for (MultiDataSetArchiverContainerDTO containerDTO : containerDTOs)
+        {
+            multiDatasetsContainersOnDB.add(containerDTO.getPath());
+        }
+
+        operationLog.info("2.2 Database, obtain a list of the archived datasets on the database.");
+        IEncapsulatedOpenBISService service = ServiceProvider.getOpenBISService();
+        List<SimpleDataSetInformationDTO> presentDTOs = service.listPhysicalDataSetsByArchivingStatus(null, Boolean.TRUE);
+        Set<String> presentInArchiveOnDB = new HashSet<String>();
+        for (SimpleDataSetInformationDTO presentDTO : presentDTOs)
+        {
+            presentInArchiveOnDB.add(presentDTO.getDataSetCode());
+        }
+
+        // 3.Verify if the files on destination are on multi dataset archiver containers or a normal archived dataset
+        operationLog.info("3.Verify if the files on destination are on multi dataset archiver containers or a normal archived dataset.");
+        File[] filesOnDisk = new File(destination).listFiles();
+        List<File> notFounds = new ArrayList<File>();
+        for (File file : filesOnDisk)
+        {
+            if (multiDatasetsContainersOnDB.contains(file.getName()))
             {
-                operationLog.info("Found container: " + file.getName());
+                operationLog.info("Found multi dataset archiver container: " + file.getName());
+            } else if ((file.getName().toLowerCase().endsWith(".tar") ||
+                    file.getName().toLowerCase().endsWith(".zip"))
+                    && presentInArchiveOnDB.contains(file.getName().substring(0, file.getName().length() - 4)))
+            {
+                operationLog.info("Found archived dataset: " + file.getName());
             } else
             {
-                notFound.add(file);
+                notFounds.add(file);
                 operationLog.info("Not Found file: " + file.getName());
             }
         }
 
-        // 4.Verify if the non found files follow the format needed to qualify as Multi DataSet Archiver containers.
-        operationLog.info("4.Verify if the non found files follow the format needed to qualify as Multi DataSet Archiver containers.");
-        List<File> notFoundFilesAndMDAFormat = new ArrayList<File>();
-        for (File file : notFound)
-        {
-            String name = file.getName();
-            String[] nameParts = name.split("-");
-            if (nameParts.length == 4 && name.endsWith(".tar"))
-            {
-                notFoundFilesAndMDAFormat.add(file);
-                operationLog.info("Not Found file, MDA format: " + file.getName());
-            } else
-            {
-                operationLog.info("Not Found file, not MDA format: " + file.getName());
-            }
-        }
-
-        // 5.Send email with not found files with MDA format.
-        operationLog.info("Send email with not found files with MDA format.");
-        if (notFoundFilesAndMDAFormat.size() > 0)
+        // 4.Send email with not found files.
+        operationLog.info("4.Send email with not found files.");
+        if (notFounds.size() > 0)
         {
             String subject = "openBIS MultiDataSetArchiverOrphanFinderTask found files";
-            String content = "Found " + notFoundFilesAndMDAFormat.size() + " files by MultiDataSetArchiverOrphanFinderTask:\n";
-            for (File notFoundFileAndMDAFormat : notFoundFilesAndMDAFormat)
+            String content = "Found " + notFounds.size() + " files by MultiDataSetArchiverOrphanFinderTask:\n";
+            for (File notFound : notFounds)
             {
-                content += notFoundFileAndMDAFormat.getName() + "\t" + notFoundFileAndMDAFormat.length() + "\n";
+                content += notFound.getName() + "\t" + notFound.length() + "\n";
             }
             for (EMailAddress recipient : emailAddresses)
             {

@@ -57,7 +57,7 @@ public class ResetArchivePendingTask implements IMaintenanceTask
         operationLog.info(ResetArchivePendingTask.class.getSimpleName() + " Started");
         // 1. Find datasets with DataSetArchivingStatus.ARCHIVE_PENDING
         IEncapsulatedOpenBISService service = ServiceProvider.getOpenBISService();
-        List<SimpleDataSetInformationDTO> inArchivePendings = service.listPhysicalDataSetsByArchivingStatus(DataSetArchivingStatus.ARCHIVE_PENDING);
+        List<SimpleDataSetInformationDTO> inArchivePendings = service.listPhysicalDataSetsByArchivingStatus(DataSetArchivingStatus.ARCHIVE_PENDING, null);
         if (inArchivePendings.isEmpty() == false)
         {
             operationLog.info("Found " + inArchivePendings.size() + " datasets in " + DataSetArchivingStatus.ARCHIVE_PENDING.name() + " status.");

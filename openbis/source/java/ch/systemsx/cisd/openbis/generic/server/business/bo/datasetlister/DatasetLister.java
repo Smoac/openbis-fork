@@ -532,12 +532,23 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     }
 
     @Override
-    public List<AbstractExternalData> listByArchivingStatus(long dataStoreID, DataSetArchivingStatus archivingStatus,
+    public List<AbstractExternalData> listByArchivingStatus(long dataStoreID, DataSetArchivingStatus archivingStatus, Boolean presentInArchive,
             EnumSet<DataSetFetchOption> datasetFetchOptions)
     {
         checkFetchOptions(datasetFetchOptions);
 
-        List<DatasetRecord> dataSets = query.getDatasetsByDataStoreIdWithArchivingStatus(dataStoreID, archivingStatus.name());
+        List<DatasetRecord> dataSets = null;
+
+        if (archivingStatus != null && presentInArchive != null)
+        {
+            dataSets = query.getDatasetsByDataStoreIdWithArchivingStatusAndPressentInArchive(dataStoreID, archivingStatus.name(), presentInArchive);
+        } else if (archivingStatus == null)
+        {
+            dataSets = query.getDatasetsByDataStoreIdWithPressentInArchive(dataStoreID, presentInArchive);
+        } else if (presentInArchive == null)
+        {
+            dataSets = query.getDatasetsByDataStoreIdWithArchivingStatus(dataStoreID, archivingStatus.name());
+        }
 
         return orderByCode(enrichDatasets(dataSets, datasetFetchOptions));
     }

@@ -270,9 +270,15 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
             + " where data.dast_id = ?{1} and size is null and data.code > ?{3}"
             + " order by data.code limit ?{2}", fetchSize = FETCH_SIZE)
     public List<DatasetRecord> getDatasetsByDataStoreIdWithUnknownSize(long dataStoreID, int limit, String dataSetCodeLowerLimit);
-
+    
     @Select(sql = SELECT_ALL_EXTERNAL_DATAS + " where data.dast_id = ?{1} and external_data.status = ?{2}", fetchSize = FETCH_SIZE)
     public List<DatasetRecord> getDatasetsByDataStoreIdWithArchivingStatus(long dataStoreID, String archivingStatus);
+    
+    @Select(sql = SELECT_ALL_EXTERNAL_DATAS + " where data.dast_id = ?{1} and external_data.present_in_archive = ?{2}", fetchSize = FETCH_SIZE)
+    public List<DatasetRecord> getDatasetsByDataStoreIdWithPressentInArchive(long dataStoreID, Boolean presentInArchive);
+    
+    @Select(sql = SELECT_ALL_EXTERNAL_DATAS + " where data.dast_id = ?{1} and external_data.status = ?{2} and external_data.present_in_archive = ?{3}", fetchSize = FETCH_SIZE)
+    public List<DatasetRecord> getDatasetsByDataStoreIdWithArchivingStatusAndPressentInArchive(long dataStoreID, String archivingStatus, Boolean presentInArchive);
 
     // NOTE: we list ALL data sets (even those in trash) using data_all table here
     @Select(sql = "SELECT code, share_id FROM data_all LEFT OUTER JOIN external_data "
