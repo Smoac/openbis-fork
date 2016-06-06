@@ -14,7 +14,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
@@ -43,7 +42,7 @@ public class MultiDataSetArchiverOrphanFinderTask implements IMaintenanceTask
     {
         operationLog.info("Task " + pluginName + " initialized.");
         emailAddresses = getEMailAddresses(properties);
-        mailClient = new MailClient(DataStoreServer.getConfigParameters().getProperties());
+        mailClient = DataStoreServer.getMailClient();
     }
 
     @Transactional
@@ -54,10 +53,10 @@ public class MultiDataSetArchiverOrphanFinderTask implements IMaintenanceTask
 
         // 1.Directories.
         operationLog.info("1.Directories, obtain archiver directory.");
-        String destination = DataStoreServer.getConfigParameters().getProperties().getProperty("archiver.final-destination", null);
+        String destination = DataStoreServer.getConfigParameter("archiver.final-destination", null);
         if (destination == null)
         {
-            destination = DataStoreServer.getConfigParameters().getProperties().getProperty("archiver.destination", null);
+            destination = DataStoreServer.getConfigParameter("archiver.destination", null);
         }
 
         if (destination == null)
