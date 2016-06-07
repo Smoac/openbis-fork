@@ -567,11 +567,6 @@ public class DataStoreServer
         return configParameters;
     }
 
-    public static MailClient getMailClient()
-    {
-        return new MailClient(getConfigParameters().getProperties());
-    }
-
     public static String getConfigParameter(String key, String defaultValue)
     {
         return getConfigParameters().getProperties().getProperty(key, defaultValue);

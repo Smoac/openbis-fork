@@ -34,13 +34,23 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
     private List<EMailAddress> emailAddresses;
 
     private IMailClient mailClient;
+    
+    public DataSetArchiverOrphanFinderTask()
+    {
+        this(ServiceProvider.getDataStoreService().createEMailClient());
+    }
+    
+    DataSetArchiverOrphanFinderTask(IMailClient mailClient)
+    {
+        this.mailClient = mailClient;
+        
+    }
 
     @Override
     public void setUp(String pluginName, Properties properties)
     {
         operationLog.info("Task " + pluginName + " initialized.");
         emailAddresses = getEMailAddresses(properties);
-        mailClient = DataStoreServer.getMailClient();
     }
 
     @Transactional
@@ -50,7 +60,7 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
         operationLog.info(DataSetArchiverOrphanFinderTask.class.getSimpleName() + " Started");
 
         // 1.Directories.
-        operationLog.info("1.Directories, obtain archiver directory.");
+        operationLog.info("1. Directories, obtain archiver directory.");
         String destination = DataStoreServer.getConfigParameter("archiver.final-destination", null);
         if (destination == null)
         {
@@ -88,36 +98,40 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
         }
 
         // 3.Verify if the files on destination are on multi dataset archiver containers or a normal archived dataset.
-        operationLog.info("3.Verify if the files on destination are on multi dataset archiver containers or a normal archived dataset.");
+        operationLog.info("3. Verify if the files on destination are on multi dataset archiver containers or a normal archived dataset.");
         File[] filesOnDisk = new File(destination).listFiles();
         Set<String> presentInArchiveFS = new HashSet<String>();
         List<File> onFSandNotDB = new ArrayList<File>();
         for (File file : filesOnDisk)
         {
-            presentInArchiveFS.add(file.getName().toLowerCase()); // To be used in step 4
-            if (multiDatasetsContainersOnDB.contains(file.getName().toLowerCase()))
+            String fileName = file.getName().toLowerCase();
+            presentInArchiveFS.add(fileName); // To be used in step 4
+            if (multiDatasetsContainersOnDB.contains(fileName))
             {
-                operationLog.info("Found multi dataset archiver container: " + file.getName());
-            } else if ((file.getName().toLowerCase().endsWith(".tar") ||
-                    file.getName().toLowerCase().endsWith(".zip"))
-                    && presentInArchiveOnDB.contains(file.getName().substring(0, file.getName().length() - 4)))
-            {
-                operationLog.info("Found archived dataset: " + file.getName());
+                operationLog.debug("Found multi dataset archiver container: " + file.getName());
             } else
             {
-                onFSandNotDB.add(file);
-                operationLog.info("Not Found on DB for FS: " + file.getName());
+                String dataSetCode = file.getName().substring(0, file.getName().length() - 4);
+                if ((fileName.endsWith(".tar") || fileName.endsWith(".zip"))
+                        && presentInArchiveOnDB.contains(dataSetCode))
+                {
+                    operationLog.debug("Found archived dataset: " + file.getName());
+                } else
+                {
+                    onFSandNotDB.add(file);
+                    operationLog.debug("Not found on DB for FS: " + file.getName());
+                }
             }
         }
 
         // 4.Verify if the datasets archived on the database are on the file system.
-        operationLog.info("4.Verify if the datasets archived on the database are on the file system.");
+        operationLog.info("4. Verify if the datasets archived on the database are on the file system.");
         List<String> multiOnDBandNotFS = new ArrayList<String>();
         for (String multiDatasetsContainerOnDB : multiDatasetsContainersOnDB)
         {
-            if (!presentInArchiveFS.contains(multiDatasetsContainerOnDB))
+            if (presentInArchiveFS.contains(multiDatasetsContainerOnDB) == false)
             {
-                operationLog.info("Multi - Not Found in FS for DB: " + multiDatasetsContainerOnDB);
+                operationLog.debug("Multi - Not found in FS for DB: " + multiDatasetsContainerOnDB);
                 multiOnDBandNotFS.add(multiDatasetsContainerOnDB);
             }
         }
@@ -130,28 +144,28 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
 
             if (!presentInArchiveFS.contains(fileNameTar) && !presentInArchiveFS.contains(fileNameZip))
             {
-                operationLog.info("Single - Not Found in FS for DB: " + presentOnDB);
+                operationLog.debug("Single - Not found in FS for DB: " + presentOnDB);
                 singleOnDBandNotFS.add(presentOnDB);
             }
         }
 
-        // 4.Send email with not found files.
-        operationLog.info("5.Send email with not found files.");
+        // 5. Send email with not found files.
         if (onFSandNotDB.size() > 0)
         {
-            String subject = "openBIS MultiDataSetArchiverOrphanFinderTask found files";
+            operationLog.info("5. Send email with not found files.");
+            String subject = "openBIS Data Set Archiv Orphan Finder found files";
             String content = "";
             for (File notFound : onFSandNotDB)
             {
-                content += "Found on FS not in DB:" + notFound.getName() + "\t" + notFound.length() + "\n";
+                content += "Found in the archive but not in the database: " + notFound.getName() + "\t" + notFound.length() + "\n";
             }
             for (String notFound : multiOnDBandNotFS)
             {
-                content += "Found on DB not in FS - Multi dataset archiver:" + notFound + "\n";
+                content += "Found in the database but not in the multi data set archive: " + notFound + "\n";
             }
             for (String notFound : singleOnDBandNotFS)
             {
-                content += "Found on DB not in FS - dataset archiver:" + notFound + "\n";
+                content += "Found in the database but not in the archive: " + notFound + "\n";
             }
             for (EMailAddress recipient : emailAddresses)
             {
