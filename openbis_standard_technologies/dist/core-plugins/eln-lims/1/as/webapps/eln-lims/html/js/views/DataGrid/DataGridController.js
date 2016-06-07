@@ -24,7 +24,7 @@ function DataGridController(title, columns, data, rowClickEventHandler, showAllC
 		window.alert("[TO-DELETE] Empty configKey during the table init, this should never happen, tell the developers.");
 	}
 	
-	this.init = function($container) {
+	this.init = function($container, extraOptions) {
 		var webAppId = "ELN-LIMS";
 		mainController.serverFacade.openbisServer.getWebAppSettings(webAppId, function(response) {
 			var settings = response.result.settings;
@@ -53,9 +53,12 @@ function DataGridController(title, columns, data, rowClickEventHandler, showAllC
 			if(rowClickEventHandler) {
 				_this._grid.addRowClickListener(rowClickEventHandler);
 			}
+			if(extraOptions) {
+				_this._grid.addExtraOptions(extraOptions);
+			}
+			
 			_this._dataGridModel = new DataGridModel(title, columns, data, rowClickEventHandler, _this._grid.render(), isMultiselectable);
 			_this._dataGridView = new DataGridView(this, _this._dataGridModel);
-			
 			_this._dataGridView.repaint($container);
 		});	
 	}

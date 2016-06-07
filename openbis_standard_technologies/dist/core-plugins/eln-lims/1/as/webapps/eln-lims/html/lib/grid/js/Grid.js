@@ -78,7 +78,10 @@ $.extend(Grid.prototype, {
 								}
 							}
 						}
-					});		
+					});
+					$checkbox.click(function(e) {
+						e.stopPropagation();
+					});
 					return $checkbox;
 				}
 		});
@@ -195,6 +198,10 @@ $.extend(Grid.prototype, {
 		return this.columns;
 	},
 
+	addExtraOptions : function(extraOptions) {
+		this.extraOptions = extraOptions;
+	},
+	
 	renderDropDownOptions: function() {
 		var thisGrid = this;
 		var columnList = thisGrid.panel.find(".optionsDropdown").find("ul");
@@ -263,6 +270,29 @@ $.extend(Grid.prototype, {
 		
 		columnList.append(itemARAC);
 		
+		if(this.extraOptions) {
+			for(var oIdx = 0; oIdx < this.extraOptions.length; oIdx++) {
+				var option = this.extraOptions[oIdx];
+				var extraLabel = $("<label>", { style : 'white-space: nowrap; cursor:pointer;' })
+									.attr("role", "menuitem")
+									.append(option.name);
+
+				var extraItem = $("<li>")
+							.attr("role", "presentation")
+							.attr("style", "margin-left: 5px; margin-right: 5px;")
+							.append(extraLabel);
+				
+				var getClick = function(option) {
+					return function() {
+						option.action(thisGrid.getSelected());
+					}
+				}
+				
+				extraItem.click(getClick(option));
+				
+				columnList.append(extraItem);
+			}
+		}
 	},
 	
 	exportTSV : function(isAllRowsOrVisible, isAllColumnsOrVisible) {
