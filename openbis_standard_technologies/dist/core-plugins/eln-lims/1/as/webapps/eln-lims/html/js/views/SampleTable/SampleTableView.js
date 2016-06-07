@@ -128,6 +128,36 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			_this.updateSamples(_this._sampleTableModel.experimentIdentifier);
 		});
 		$list.append($batchUpdateOption);
+		
+		var $batchDeleteOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Delete Samples'}).append("Delete Samples"));
+		$batchDeleteOption.click(function() {
+			var grid = _this._dataGridController._grid;
+			var selected = grid.getSelected();
+			if(selected != undefined && selected.length == 0){
+				alert("Please select at least one sample to delete!");
+			}else{
+				var warningText = "The next samples will be deleted: ";
+				var sampleTechIds = [];
+				for(var sIdx = 0; sIdx < selected.length; sIdx++) {
+					sampleTechIds.push(selected[sIdx].id);
+					warningText += selected[sIdx].identifier + " ";
+				}
+				
+				var modalView = new DeleteEntityController(function(reason) {
+					mainController.serverFacade.deleteSamples(sampleTechIds, reason, function(data) {
+						if(data.error) {
+							Util.showError(data.error.message);
+						} else {
+							Util.showSuccess("Sample/s Deleted");
+							mainController.refreshView();
+						}
+					});
+				}, true, warningText);
+				modalView.init();
+			} 
+		});
+		$list.append($batchDeleteOption);
+		
 			
 		return $dropDownMenu;
 	}
