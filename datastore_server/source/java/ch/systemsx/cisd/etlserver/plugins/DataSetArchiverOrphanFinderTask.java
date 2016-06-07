@@ -22,10 +22,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
-public class MultiDataSetArchiverOrphanFinderTask implements IMaintenanceTask
+public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
 {
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, MultiDataSetArchiverOrphanFinderTask.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DataSetArchiverOrphanFinderTask.class);
 
     public static final String EMAIL_ADDRESSES_KEY = "email-addresses";
 
@@ -47,7 +47,7 @@ public class MultiDataSetArchiverOrphanFinderTask implements IMaintenanceTask
     @Override
     public void execute()
     {
-        operationLog.info(MultiDataSetArchiverOrphanFinderTask.class.getSimpleName() + " Started");
+        operationLog.info(DataSetArchiverOrphanFinderTask.class.getSimpleName() + " Started");
 
         // 1.Directories.
         operationLog.info("1.Directories, obtain archiver directory.");
@@ -160,7 +160,7 @@ public class MultiDataSetArchiverOrphanFinderTask implements IMaintenanceTask
             }
         }
 
-        operationLog.info(MultiDataSetArchiverOrphanFinderTask.class.getSimpleName() + " Finished");
+        operationLog.info(DataSetArchiverOrphanFinderTask.class.getSimpleName() + " Finished");
     }
 
     private List<EMailAddress> getEMailAddresses(Properties properties)
