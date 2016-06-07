@@ -34,16 +34,16 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
     private List<EMailAddress> emailAddresses;
 
     private IMailClient mailClient;
-    
+
     public DataSetArchiverOrphanFinderTask()
     {
         this(ServiceProvider.getDataStoreService().createEMailClient());
     }
-    
+
     DataSetArchiverOrphanFinderTask(IMailClient mailClient)
     {
         this.mailClient = mailClient;
-        
+
     }
 
     @Override
@@ -76,6 +76,7 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
         // 2.1 Database.
         operationLog.info("2.1 Database, obtain a list of the multi dataset containers on the database.");
         List<String> containers = MultiDataSetArchiverDataSourceUtil.getContainerList();
+
         Set<String> multiDatasetsContainersOnDB = new HashSet<String>();
         if (containers != null)
         {
@@ -142,7 +143,9 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
             String fileNameTar = presentOnDB + ".tar";
             String fileNameZip = presentOnDB + ".zip";
 
-            if (!presentInArchiveFS.contains(fileNameTar) && !presentInArchiveFS.contains(fileNameZip))
+            if (presentInArchiveFS.contains(fileNameTar) == false &&
+                    presentInArchiveFS.contains(fileNameZip) == false &&
+                    MultiDataSetArchiverDataSourceUtil.isDataSetInContainer(presentOnDB.toUpperCase()) == false)
             {
                 operationLog.debug("Single - Not found in FS for DB: " + presentOnDB);
                 singleOnDBandNotFS.add(presentOnDB);
@@ -150,7 +153,7 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
         }
 
         // 5. Send email with not found files.
-        if (onFSandNotDB.size() > 0)
+        if (onFSandNotDB.isEmpty() == false || multiOnDBandNotFS.isEmpty() == false || singleOnDBandNotFS.isEmpty() == false)
         {
             operationLog.info("5. Send email with not found files.");
             String subject = "openBIS Data Set Archiv Orphan Finder found files";
