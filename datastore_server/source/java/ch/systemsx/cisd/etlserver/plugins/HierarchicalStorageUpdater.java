@@ -18,9 +18,15 @@ package ch.systemsx.cisd.etlserver.plugins;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -39,9 +45,11 @@ import ch.systemsx.cisd.common.maintenance.IDataStoreLockingMaintenanceTask;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
+import ch.systemsx.cisd.openbis.dss.generic.server.MetaDataBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
@@ -61,6 +69,16 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
     public static final String LINK_SOURCE_SUBFOLDER = "link-source-subpath";
 
     public static final String LINK_FROM_FIRST_CHILD = "link-from-first-child";
+
+    /**
+     * Property indicating if only links should be created, rather then directory with link and meta-data file.
+     */
+    public static final String LINKS_ONLY = "links-only";
+
+    /**
+     * Name of the link to create in a directory in links-only is set to false
+     */
+    public static final String LINK_DIRECTORY = "data";
 
     private static final String REBUILDING_HIERARCHICAL_STORAGE = "Rebuilding hierarchical storage";
 
@@ -98,6 +116,8 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
 
     private File hierarchyRoot;
 
+    private boolean storeLinksOnly;
+
     private Map<String /* data set type */, LinkSourceDescriptor> linkSourceDescriptors;
 
     @Override
@@ -117,6 +137,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
         storeRoot = new File(storeRootFileName);
         hierarchyRoot = new File(hierarchyRootFileName);
         linkSourceDescriptors = initializeLinkSourceDescriptors(pluginProperties);
+        storeLinksOnly = pluginProperties.getProperty(LINKS_ONLY, hierarchyRootFileName).equals("true");
 
         operationLog.info("Plugin initialized with: store root = " + storeRootFileName
                 + ", hierarchy root = " + hierarchyRootFileName);
@@ -189,35 +210,167 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
     private void rebuildHierarchy()
     {
         operationLog.info(REBUILDING_HIERARCHICAL_STORAGE);
-        Map<String, String> newLinkMappings = convertDataToLinkMappings();
-        Set<String> toCreate = new HashSet<String>(newLinkMappings.keySet());
-        Set<String> toDelete = linkNamingStrategy.extractPaths(hierarchyRoot);
-        Set<String> dontTouch = intersection(toCreate, toDelete);
-        toCreate.removeAll(dontTouch);
-        toDelete.removeAll(dontTouch);
-        removeUnnecessaryMappings(newLinkMappings, toCreate);
-        deleteObsoleteLinks(toDelete);
-        createLinksForChangedData(newLinkMappings);
+        List<DataSetInformation> newLinkMappings = collectDataSet();
+
+        Set<String> existingPaths = linkNamingStrategy.extractPaths(hierarchyRoot);
+
+        for (DataSetInformation dataSetInformation : newLinkMappings)
+        {
+            String targetPath = dataSetInformation.targetFile.getAbsolutePath();
+            if (existingPaths.contains(targetPath))
+            {
+                existingPaths.remove(targetPath);
+                handleExistingEntry(dataSetInformation);
+            } else
+            {
+                handleNonExistingEntry(dataSetInformation);
+            }
+        }
+
+        // by this time - only paths which should be deleted are left in the existingPaths
+        deleteObsoleteLinks(existingPaths);
+    }
+
+    private void handleNonExistingEntry(DataSetInformation info)
+    {
+        if (storeLinksOnly)
+        {
+            createLink(info.targetFile, info.linkSource);
+        } else
+        {
+            createDataSetFolder(info);
+        }
     }
 
     /**
-     * Extracts a {@link Map}: (target,source) from a collection of data sets.
+     * Handle a case when the data set directory already exists in the hierarchical store. In this case we should check if the metadata file is up to
+     * date and recreate it if necessary
      */
-    private Map<String, String> convertDataToLinkMappings()
+    private void handleExistingEntry(DataSetInformation info)
     {
-        Collection<SimpleDataSetInformationDTO> dataSets = openBISService.listPhysicalDataSets();
-        Map<String, String> linkMappings = new HashMap<String, String>();
+        String errorMsgLinksOnlyModeChanged = "The state of hierarchical store is corrupted or property '" + LINKS_ONLY
+                + "' has been modified after hierarchical store has been built. In this case please the hierarchical store directory and it will be recreated.";
+        if (storeLinksOnly)
+        {
+            if (FileUtilities.isSymbolicLink(info.targetFile))
+            {
+                // nothing to do as the link is already in place
+                return;
+            } else
+            {
+                throw new IllegalStateException(errorMsgLinksOnlyModeChanged);
+            }
+        } else
+        {
+            if (info.targetFile.isDirectory())
+            {
+                Date storedModificationDate = getModificationDateFromFile(info);
+                if (storedModificationDate == null || storedModificationDate.before(info.dto.getModificationDate()))
+                {
+                    createDataSetFolder(info);
+                }
+            } else
+            {
+                throw new IllegalStateException(errorMsgLinksOnlyModeChanged);
+            }
+        }
+    }
+
+    private final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US);
+
+    private void createDataSetFolder(DataSetInformation info)
+    {
+        createLink(new File(info.targetFile, LINK_DIRECTORY), info.linkSource);
+        createModificationDateFile(info);
+        createMetaDataFile(info);
+    }
+
+    private void createMetaDataFile(DataSetInformation info)
+    {
+        File file = new File(info.targetFile, "meta-data.tsv");
+        String content = MetaDataBuilder.createMetaData(info.dto);
+        FileUtilities.writeToFile(file, content);
+    }
+
+    private void createModificationDateFile(DataSetInformation info)
+    {
+        File file = new File(info.targetFile, "modification_timestamp");
+        FileUtilities.writeToFile(file, dateFormat.format(info.dto.getModificationDate()));
+    }
+
+    private Date getModificationDateFromFile(DataSetInformation info)
+    {
+        File file = new File(info.targetFile, "modification_timestamp");
+        if (file.exists() == false)
+            return null;
+        String content = FileUtilities.loadToString(file);
+        try
+        {
+            return dateFormat.parse(content);
+        } catch (ParseException pe)
+        {
+            operationLog.error("Modificaction date of dataset stored in Hierarchical store in file " + file.getAbsolutePath() + " is corrupted");
+            return null;
+        }
+    }
+
+    private class DataSetInformation
+    {
+        /**
+         * The DTO object that should be linked
+         */
+        AbstractExternalData dto;
+
+        /**
+         * Path where the dataset metadata and link to store should be placed
+         */
+        File targetFile;
+
+        /**
+         * The location in dss store that should be linked
+         */
+        File linkSource;
+    }
+
+    private HashMap<String, AbstractExternalData> getAbstractExternalDataByCode(Collection<SimpleDataSetInformationDTO> dataSets)
+    {
+        List<String> codes = new ArrayList<>();
         for (SimpleDataSetInformationDTO dataSet : dataSets)
         {
+            codes.add(dataSet.getDataSetCode());
+        }
+        List<AbstractExternalData> listDataSetsByCode = openBISService.listDataSetsByCode(codes);
+        HashMap<String, AbstractExternalData> dataSetsByCode = new HashMap<>();
+        for (AbstractExternalData abstractExternalData : listDataSetsByCode)
+        {
+            dataSetsByCode.put(abstractExternalData.getCode(), abstractExternalData);
+        }
+        return dataSetsByCode;
+    }
+
+    /**
+     * Extracts a {@link Map}: (target,source) from a collection of data sets
+     */
+    private List<DataSetInformation> collectDataSet()
+    {
+        Collection<SimpleDataSetInformationDTO> dataSets = openBISService.listPhysicalDataSets();
+        HashMap<String, AbstractExternalData> dataSetsByCode = getAbstractExternalDataByCode(dataSets);
+        ArrayList<DataSetInformation> linkMappings = new ArrayList<DataSetInformation>();
+        for (SimpleDataSetInformationDTO dataSet : dataSets)
+        {
+            AbstractExternalData abstractData = dataSetsByCode.get(dataSet.getDataSetCode());
             File targetFile =
                     new File(hierarchyRoot, linkNamingStrategy.createHierarchicalPath(dataSet));
             File share = new File(storeRoot, dataSet.getDataSetShareId());
             File dataSetLocationRoot = new File(share, dataSet.getDataSetLocation());
             File linkSource = determineLinkSource(dataSetLocationRoot, dataSet.getDataSetType());
-            if (linkSource != null)
-            {
-                linkMappings.put(targetFile.getAbsolutePath(), linkSource.getAbsolutePath());
-            } else
+
+            DataSetInformation info = new DataSetInformation();
+            info.dto = abstractData;
+            info.linkSource = linkSource;
+            info.targetFile = targetFile;
+
+            if (linkSource == null)
             {
 
                 String logMessage =
@@ -225,6 +378,9 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
                                 + "dataSetType='%s'. Link creation will be skipped.",
                                 dataSetLocationRoot, dataSet.getDataSetType());
                 operationLog.warn(logMessage);
+            } else
+            {
+                linkMappings.add(info);
             }
         }
         return linkMappings;
@@ -273,31 +429,6 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
     private LinkSourceDescriptor getLinkSourceDescriptor(String dataSetType)
     {
         return linkSourceDescriptors.get(dataSetType);
-    }
-
-    /**
-     * Removes from the <code>linkMappings</code> map all the elements with keys not belonging to <code>keep</code> set.
-     */
-    private void removeUnnecessaryMappings(Map<String, String> linkMappings, Set<String> keep)
-    {
-        Set<String> keys = new HashSet<String>(linkMappings.keySet());
-        for (String path : keys)
-        {
-            if (keep.contains(path) == false)
-            {
-                linkMappings.remove(path);
-            }
-        }
-    }
-
-    /**
-     * Creates a new {@link Set} containing the elements that belong to both {@link Set}s.
-     */
-    private Set<String> intersection(Set<String> setA, Set<String> setB)
-    {
-        Set<String> toBeUntouched = new HashSet<String>(setA);
-        toBeUntouched.retainAll(setB);
-        return toBeUntouched;
     }
 
     /**
@@ -373,7 +504,11 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
     {
         if (isUnderHierarchyRoot(file))
         {
-            return FileUtilities.isSymbolicLink(file) || file.isDirectory();
+            // we try to be safe and delete only links and files that we know we created
+            return FileUtilities.isSymbolicLink(file) ||
+                    file.isDirectory() ||
+                    file.getName().equals("modification_timestamp") ||
+                    file.getName().equals("meta-data.tsv");
         } else
         {
             operationLog.warn("Aborting an attempt to delete content outside of hierarchy root : "
@@ -391,17 +526,19 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
     }
 
     /**
-     * Creates the soft links for files with paths defined in <code>linkMappings</code> {@link Map}.
+     * Creates the soft links defined files. If the link already exists it is being deleted and recreated. If the source file is null or doesn't exist
+     * then a link is not created.
      */
-    private void createLinksForChangedData(Map<String, String> linkMappings)
+    private void createLink(File targetFile, File sourceFile)
     {
-        for (String targetPath : linkMappings.keySet())
+        if (targetFile.exists())
         {
-            File targetDir = new File(targetPath);
-            String sourcePath = linkMappings.get(targetPath);
-            File sourceFile = new File(sourcePath);
-            targetDir.getParentFile().mkdirs();
-            SoftLinkMaker.createSymbolicLink(sourceFile, targetDir);
+            targetFile.delete();
+        }
+        targetFile.getParentFile().mkdirs();
+        if (sourceFile != null && sourceFile.exists())
+        {
+            SoftLinkMaker.createSymbolicLink(sourceFile.getAbsoluteFile(), targetFile.getAbsoluteFile());
         }
     }
 
