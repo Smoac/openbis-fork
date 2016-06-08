@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server;
+package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

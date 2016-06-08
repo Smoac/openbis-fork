@@ -45,10 +45,10 @@ import ch.systemsx.cisd.common.maintenance.IDataStoreLockingMaintenanceTask;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
-import ch.systemsx.cisd.openbis.dss.generic.server.MetaDataBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.MetaDataBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
