@@ -56,7 +56,7 @@ public class MultiDataSetArchiverDataSourceUtil
             containerDTOs = getReadonlyQueryDAO().listContainers();
         } catch (Exception ex)
         {
-            operationLog.info("Multi data set archiver unavailable");
+            operationLog.debug("Multi data set archiver unavailable");
         }
 
         List<String> containers = new ArrayList<String>();
@@ -78,7 +78,7 @@ public class MultiDataSetArchiverDataSourceUtil
             dataSetDTO = getReadonlyQueryDAO().getDataSetForCode(dataSetCode);
         } catch (Exception ex)
         {
-            operationLog.info("Multi data set archiver unavailable");
+            operationLog.debug("Multi data set archiver unavailable");
         }
         return dataSetDTO != null && dataSetDTO.getContainerId() > 0;
     }

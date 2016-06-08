@@ -2,6 +2,7 @@ package ch.systemsx.cisd.etlserver.plugins;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -59,7 +60,6 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
     {
         operationLog.info(DataSetArchiverOrphanFinderTask.class.getSimpleName() + " Started");
 
-        // 1.Directories.
         operationLog.info("1. Directories, obtain archiver directory.");
         String destination = DataStoreServer.getConfigParameter("archiver.final-destination", null);
         if (destination == null)
@@ -73,7 +73,6 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
             return;
         }
 
-        // 2.1 Database.
         operationLog.info("2.1 Database, obtain a list of the multi dataset containers on the database.");
         List<String> containers = MultiDataSetArchiverDataSourceUtil.getContainerList();
 
@@ -98,9 +97,9 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
             }
         }
 
-        // 3.Verify if the files on destination are on multi dataset archiver containers or a normal archived dataset.
-        operationLog.info("3. Verify if the files on destination are on multi dataset archiver containers or a normal archived dataset.");
         File[] filesOnDisk = new File(destination).listFiles();
+        operationLog.info("3. Verify if the " + filesOnDisk.length
+                + " files on destination are on multi dataset archiver containers or a normal archived dataset.");
         Set<String> presentInArchiveFS = new HashSet<String>();
         List<File> onFSandNotDB = new ArrayList<File>();
         for (File file : filesOnDisk)
@@ -125,8 +124,8 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
             }
         }
 
-        // 4.Verify if the datasets archived on the database are on the file system.
-        operationLog.info("4. Verify if the datasets archived on the database are on the file system.");
+        operationLog.info("4. Verify if the " + multiDatasetsContainersOnDB.size() 
+            + " containers of the multi data set mapping database are on the file system.");
         List<String> multiOnDBandNotFS = new ArrayList<String>();
         for (String multiDatasetsContainerOnDB : multiDatasetsContainersOnDB)
         {
@@ -152,20 +151,22 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
             }
         }
 
-        // 5. Send email with not found files.
         if (onFSandNotDB.isEmpty() == false || multiOnDBandNotFS.isEmpty() == false || singleOnDBandNotFS.isEmpty() == false)
         {
             operationLog.info("5. Send email with not found files.");
-            String subject = "openBIS Data Set Archiv Orphan Finder found files";
+            String subject = "openBIS Data Set Archiv Orphan Finder report";
             String content = "";
+            Collections.sort(onFSandNotDB);
             for (File notFound : onFSandNotDB)
             {
-                content += "Found in the archive but not in the database: " + notFound.getName() + "\t" + notFound.length() + "\n";
+                content += "Found in the archive but not in the database: " + notFound.getName() + "\n";
             }
+            Collections.sort(multiOnDBandNotFS);
             for (String notFound : multiOnDBandNotFS)
             {
                 content += "Found in the database but not in the multi data set archive: " + notFound + "\n";
             }
+            Collections.sort(singleOnDBandNotFS);
             for (String notFound : singleOnDBandNotFS)
             {
                 content += "Found in the database but not in the archive: " + notFound + "\n";
