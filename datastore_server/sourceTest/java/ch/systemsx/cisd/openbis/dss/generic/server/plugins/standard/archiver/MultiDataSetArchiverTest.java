@@ -631,8 +631,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "Archiving of the following datasets has been requested: [Dataset 'ds2']\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in "
                 + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar\n"
-                + "INFO  OPERATION.TarDataSetPackager - Reading statistics for input stream: 370 bytes in 2 chunks took < 1sec.\n"
-                + "INFO  OPERATION.TarDataSetPackager - Writing statistics for output stream: 370 bytes in 2 chunks took < 1sec.\n"
+                + "INFO  OPERATION.TarDataSetPackager - Reading statistics for input stream: 407 bytes in 2 chunks took < 1sec.\n"
+                + "INFO  OPERATION.TarDataSetPackager - Writing statistics for output stream: 407 bytes in 2 chunks took < 1sec.\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds2-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Condition still not fulfilled after 1sec, condition: "
                 + "Free space: 600.00 MB, needed space: 1.00 GB\n"
@@ -646,8 +646,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath() + "\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copying archive container took 0:??:??.???\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds2']\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Reading statistics for input stream: 370 bytes in 2 chunks took < 1sec.\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Writing statistics for output stream: 370 bytes in 2 chunks took < 1sec.\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Reading statistics for input stream: 407 bytes in 2 chunks took < 1sec.\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Writing statistics for output stream: 407 bytes in 2 chunks took < 1sec.\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Sanity check finished.",
                 getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
@@ -663,6 +663,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "      >data_set\tdata_set_type\tMDT\n"
                 + "      >data_set\tis_measured\tTRUE\n"
                 + "      >data_set\tis_complete\tFALSE\n"
+                + "      >data_set\tis_present_in_archive\tFALSE\n"
                 + "      >data_set\tparent_codes\t\n"
                 + "      >experiment\tspace_code\tS\n"
                 + "      >experiment\tproject_code\tP\n"
@@ -709,8 +710,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "Archiving of the following datasets has been requested: [Dataset 'ds2']\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in "
                 + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar\n"
-                + "INFO  OPERATION.TarDataSetPackager - Reading statistics for input stream: 370 bytes in 2 chunks took < 1sec.\n"
-                + "INFO  OPERATION.TarDataSetPackager - Writing statistics for output stream: 370 bytes in 2 chunks took < 1sec.\n"
+                + "INFO  OPERATION.TarDataSetPackager - Reading statistics for input stream: 407 bytes in 2 chunks took < 1sec.\n"
+                + "INFO  OPERATION.TarDataSetPackager - Writing statistics for output stream: 407 bytes in 2 chunks took < 1sec.\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds2-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Condition fulfilled after 1sec, condition: "
                 + "Free space: 3.00 GB, needed space: 1.00 GB\n"
@@ -718,8 +719,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath() + "\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copying archive container took 0:??:??.???\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds2']\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Reading statistics for input stream: 370 bytes in 2 chunks took < 1sec.\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Writing statistics for output stream: 370 bytes in 2 chunks took < 1sec.\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Reading statistics for input stream: 407 bytes in 2 chunks took < 1sec.\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Writing statistics for output stream: 407 bytes in 2 chunks took < 1sec.\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Sanity check finished.",
                 getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
@@ -735,6 +736,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "      >data_set\tdata_set_type\tMDT\n"
                 + "      >data_set\tis_measured\tTRUE\n"
                 + "      >data_set\tis_complete\tFALSE\n"
+                + "      >data_set\tis_present_in_archive\tFALSE\n"
                 + "      >data_set\tparent_codes\t\n"
                 + "      >experiment\tspace_code\tS\n"
                 + "      >experiment\tproject_code\tP\n"
@@ -790,8 +792,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in "
                 + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar\n"
-                + "INFO  OPERATION.TarDataSetPackager - Reading statistics for input stream: 370 bytes in 2 chunks took < 1sec.\n"
-                + "INFO  OPERATION.TarDataSetPackager - Writing statistics for output stream: 370 bytes in 2 chunks took < 1sec.\n"
+                + "INFO  OPERATION.TarDataSetPackager - Reading statistics for input stream: 407 bytes in 2 chunks took < 1sec.\n"
+                + "INFO  OPERATION.TarDataSetPackager - Writing statistics for output stream: 407 bytes in 2 chunks took < 1sec.\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds2-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Condition fulfilled after 1sec, condition: "
                 + "Free space: 3.00 GB, needed space: 1.00 GB\n"
@@ -799,8 +801,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath() + "\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copying archive container took 0:??:??.???\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds2']\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Reading statistics for input stream: 370 bytes in 2 chunks took < 1sec.\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Writing statistics for output stream: 370 bytes in 2 chunks took < 1sec.\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Reading statistics for input stream: 407 bytes in 2 chunks took < 1sec.\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Writing statistics for output stream: 407 bytes in 2 chunks took < 1sec.\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Sanity check finished.",
                 getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
@@ -816,6 +818,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "      >data_set\tdata_set_type\tMDT\n"
                 + "      >data_set\tis_measured\tTRUE\n"
                 + "      >data_set\tis_complete\tFALSE\n"
+                + "      >data_set\tis_present_in_archive\tFALSE\n"
                 + "      >data_set\tparent_codes\t\n"
                 + "      >experiment\tspace_code\tS\n"
                 + "      >experiment\tproject_code\tP\n"
@@ -884,12 +887,12 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + archive.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in "
                 + archive.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar\n"
-                + "INFO  OPERATION.TarDataSetPackager - Reading statistics for input stream: 730 bytes in 4 chunks took < 1sec.\n"
-                + "INFO  OPERATION.TarDataSetPackager - Writing statistics for output stream: 730 bytes in 4 chunks took < 1sec.\n"
+                + "INFO  OPERATION.TarDataSetPackager - Reading statistics for input stream: 804 bytes in 4 chunks took < 1sec.\n"
+                + "INFO  OPERATION.TarDataSetPackager - Writing statistics for output stream: 804 bytes in 4 chunks took < 1sec.\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds1-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds1', Dataset 'ds2']\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Reading statistics for input stream: 730 bytes in 4 chunks took < 1sec.\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Writing statistics for output stream: 730 bytes in 4 chunks took < 1sec.\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Reading statistics for input stream: 804 bytes in 4 chunks took < 1sec.\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Writing statistics for output stream: 804 bytes in 4 chunks took < 1sec.\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Sanity check finished.",
                 getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
@@ -906,6 +909,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "      >data_set\tdata_set_type\tMDT\n"
                 + "      >data_set\tis_measured\tTRUE\n"
                 + "      >data_set\tis_complete\tFALSE\n"
+                + "      >data_set\tis_present_in_archive\tFALSE\n"
                 + "      >data_set\tparent_codes\t\n"
                 + "      >experiment\tspace_code\tS\n"
                 + "      >experiment\tproject_code\tP\n"
@@ -923,6 +927,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "      >data_set\tdata_set_type\tMDT\n"
                 + "      >data_set\tis_measured\tTRUE\n"
                 + "      >data_set\tis_complete\tFALSE\n"
+                + "      >data_set\tis_present_in_archive\tFALSE\n"
                 + "      >data_set\tparent_codes\t\n"
                 + "      >experiment\tspace_code\tS\n"
                 + "      >experiment\tproject_code\tP\n"
@@ -986,8 +991,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds1 in "
                 + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar\n"
-                + "INFO  OPERATION.TarDataSetPackager - Reading statistics for input stream: 360 bytes in 2 chunks took < 1sec.\n"
-                + "INFO  OPERATION.TarDataSetPackager - Writing statistics for output stream: 360 bytes in 2 chunks took < 1sec.\n"
+                + "INFO  OPERATION.TarDataSetPackager - Reading statistics for input stream: 397 bytes in 2 chunks took < 1sec.\n"
+                + "INFO  OPERATION.TarDataSetPackager - Writing statistics for output stream: 397 bytes in 2 chunks took < 1sec.\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds1-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Condition fulfilled after 1sec, condition: "
                 + "Free space: 20.00 GB, needed space: 1.00 GB\n"
@@ -995,8 +1000,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath() + "\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copying archive container took 0:??:??.???\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds1']\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Reading statistics for input stream: 360 bytes in 2 chunks took < 1sec.\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Writing statistics for output stream: 360 bytes in 2 chunks took < 1sec.\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Reading statistics for input stream: 397 bytes in 2 chunks took < 1sec.\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Writing statistics for output stream: 397 bytes in 2 chunks took < 1sec.\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Sanity check finished.",
                 getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
@@ -1014,6 +1019,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "      >data_set\tdata_set_type\tMDT\n"
                 + "      >data_set\tis_measured\tTRUE\n"
                 + "      >data_set\tis_complete\tFALSE\n"
+                + "      >data_set\tis_present_in_archive\tFALSE\n"
                 + "      >data_set\tparent_codes\t\n"
                 + "      >experiment\tspace_code\tS\n"
                 + "      >experiment\tproject_code\tP\n"
@@ -1109,8 +1115,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in "
                 + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar\n"
-                + "INFO  OPERATION.TarDataSetPackager - Reading statistics for input stream: 730 bytes in 4 chunks took < 1sec.\n"
-                + "INFO  OPERATION.TarDataSetPackager - Writing statistics for output stream: 730 bytes in 4 chunks took < 1sec.\n"
+                + "INFO  OPERATION.TarDataSetPackager - Reading statistics for input stream: 804 bytes in 4 chunks took < 1sec.\n"
+                + "INFO  OPERATION.TarDataSetPackager - Writing statistics for output stream: 804 bytes in 4 chunks took < 1sec.\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds1-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Condition fulfilled after 1sec, condition: "
                 + "Free space: 35.00 GB, needed space: 1.00 GB\n"
@@ -1118,8 +1124,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath() + "\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copying archive container took 0:??:??.???\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds1', Dataset 'ds2']\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Reading statistics for input stream: 730 bytes in 4 chunks took < 1sec.\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Writing statistics for output stream: 730 bytes in 4 chunks took < 1sec.\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Reading statistics for input stream: 804 bytes in 4 chunks took < 1sec.\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Writing statistics for output stream: 804 bytes in 4 chunks took < 1sec.\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Sanity check finished.",
                 getLogContent());
         logRecorder.resetLogContent();
@@ -1187,8 +1193,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds1 in "
                 + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar\n"
-                + "INFO  OPERATION.TarDataSetPackager - Reading statistics for input stream: 360 bytes in 2 chunks took < 1sec.\n"
-                + "INFO  OPERATION.TarDataSetPackager - Writing statistics for output stream: 360 bytes in 2 chunks took < 1sec.\n"
+                + "INFO  OPERATION.TarDataSetPackager - Reading statistics for input stream: 397 bytes in 2 chunks took < 1sec.\n"
+                + "INFO  OPERATION.TarDataSetPackager - Writing statistics for output stream: 397 bytes in 2 chunks took < 1sec.\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds1-yyyyMMdd-HHmmss.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Condition fulfilled after 1sec, condition: "
                 + "Free space: 35.00 GB, needed space: 1.00 GB\n"
@@ -1196,8 +1202,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + staging.getAbsolutePath() + "/ds1-yyyyMMdd-HHmmss.tar' to '" + archive.getAbsolutePath() + "\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copying archive container took 0:??:??.???\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds1']\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Reading statistics for input stream: 360 bytes in 2 chunks took < 1sec.\n"
-                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Writing statistics for output stream: 360 bytes in 2 chunks took < 1sec.\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Reading statistics for input stream: 397 bytes in 2 chunks took < 1sec.\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Writing statistics for output stream: 397 bytes in 2 chunks took < 1sec.\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Sanity check finished.",
                 getLogContent());
         logRecorder.resetLogContent();
