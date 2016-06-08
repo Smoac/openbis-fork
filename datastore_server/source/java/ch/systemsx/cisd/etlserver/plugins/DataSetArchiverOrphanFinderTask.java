@@ -18,6 +18,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiver;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDataSourceUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -36,15 +37,18 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
 
     private IMailClient mailClient;
 
+    private boolean isMultiDatasetArchiver;
+
     public DataSetArchiverOrphanFinderTask()
     {
-        this(ServiceProvider.getDataStoreService().createEMailClient());
+        this(ServiceProvider.getDataStoreService().createEMailClient(),
+                ServiceProvider.getDataStoreService().getArchiverPlugin() instanceof MultiDataSetArchiver);
     }
 
-    DataSetArchiverOrphanFinderTask(IMailClient mailClient)
+    DataSetArchiverOrphanFinderTask(IMailClient mailClient, boolean isMultiDatasetArchiver)
     {
         this.mailClient = mailClient;
-
+        this.isMultiDatasetArchiver = isMultiDatasetArchiver;
     }
 
     @Override
@@ -61,8 +65,12 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
         operationLog.info(DataSetArchiverOrphanFinderTask.class.getSimpleName() + " Started");
 
         operationLog.info("1. Directories, obtain archiver directory.");
-        String destination = DataStoreServer.getConfigParameter("archiver.final-destination", null);
-        if (destination == null)
+
+        String destination = null;
+        if (isMultiDatasetArchiver)
+        {
+            destination = DataStoreServer.getConfigParameter("archiver.final-destination", null);
+        } else
         {
             destination = DataStoreServer.getConfigParameter("archiver.destination", null);
         }
@@ -74,12 +82,16 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
         }
 
         operationLog.info("2.1 Database, obtain a list of the multi dataset containers on the database.");
-        List<String> containers = MultiDataSetArchiverDataSourceUtil.getContainerList();
+        List<String> multiDataSetContrainers = null;
+        if (isMultiDatasetArchiver)
+        {
+            multiDataSetContrainers = MultiDataSetArchiverDataSourceUtil.getContainerList();
+        }
 
         Set<String> multiDatasetsContainersOnDB = new HashSet<String>();
-        if (containers != null)
+        if (multiDataSetContrainers != null)
         {
-            for (String container : containers)
+            for (String container : multiDataSetContrainers)
             {
                 multiDatasetsContainersOnDB.add(container.toLowerCase());
             }
@@ -144,7 +156,9 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
 
             if (presentInArchiveFS.contains(fileNameTar) == false &&
                     presentInArchiveFS.contains(fileNameZip) == false &&
-                    MultiDataSetArchiverDataSourceUtil.isDataSetInContainer(presentOnDB.toUpperCase()) == false)
+                    (isMultiDatasetArchiver == false ||
+                            (isMultiDatasetArchiver &&
+                                    MultiDataSetArchiverDataSourceUtil.isDataSetInContainer(presentOnDB.toUpperCase()) == false)))
             {
                 operationLog.debug("Single - Not found in FS for DB: " + presentOnDB);
                 singleOnDBandNotFS.add(presentOnDB);

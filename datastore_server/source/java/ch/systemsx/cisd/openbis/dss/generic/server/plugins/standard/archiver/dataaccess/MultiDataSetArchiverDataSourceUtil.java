@@ -21,11 +21,6 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
-
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.etlserver.plugins.DataSetArchiverOrphanFinderTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import net.lemnik.eodsql.QueryTool;
 
@@ -34,8 +29,6 @@ import net.lemnik.eodsql.QueryTool;
  */
 public class MultiDataSetArchiverDataSourceUtil
 {
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DataSetArchiverOrphanFinderTask.class);
-
     private static DataSource dataSource = ServiceProvider.getDataSourceProvider().getDataSource("multi-dataset-archiver-db");
 
     static IMultiDataSetArchiverQueryDAO getTransactionalQuery()
@@ -50,15 +43,7 @@ public class MultiDataSetArchiverDataSourceUtil
 
     public static List<String> getContainerList()
     {
-        List<MultiDataSetArchiverContainerDTO> containerDTOs = null;
-        try
-        {
-            containerDTOs = getReadonlyQueryDAO().listContainers();
-        } catch (Exception ex)
-        {
-            operationLog.debug("Multi data set archiver unavailable");
-        }
-
+        List<MultiDataSetArchiverContainerDTO> containerDTOs = getReadonlyQueryDAO().listContainers();
         List<String> containers = new ArrayList<String>();
         if (containerDTOs != null)
         {
@@ -72,14 +57,7 @@ public class MultiDataSetArchiverDataSourceUtil
 
     public static Boolean isDataSetInContainer(String dataSetCode)
     {
-        MultiDataSetArchiverDataSetDTO dataSetDTO = null;
-        try
-        {
-            dataSetDTO = getReadonlyQueryDAO().getDataSetForCode(dataSetCode);
-        } catch (Exception ex)
-        {
-            operationLog.debug("Multi data set archiver unavailable");
-        }
+        MultiDataSetArchiverDataSetDTO dataSetDTO = getReadonlyQueryDAO().getDataSetForCode(dataSetCode);
         return dataSetDTO != null && dataSetDTO.getContainerId() > 0;
     }
 
