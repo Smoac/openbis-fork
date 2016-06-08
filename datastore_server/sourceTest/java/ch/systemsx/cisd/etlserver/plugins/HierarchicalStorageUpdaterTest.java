@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -144,22 +145,36 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
         File dataSetSource = new File(shareRoot, "ds2");
         assertTrue(dataSetSource.isDirectory());
 
-        File symbolicLink =
+        File locationInHierarchicalStore =
                 new File(getHierarchyRoot().getAbsolutePath()
                         + "/space/project/experiment/dataset-type+sample+ds2");
+
+        File symlinkInside = new File(locationInHierarchicalStore, "data");
+        File metaDataFileInside = new File(locationInHierarchicalStore, "meta-data.tsv");
+
         if (linksOnly)
         {
-            assertTrue("Symbolic link should be created", FileUtilities.isSymbolicLink(symbolicLink));
+            assertTrue("Symbolic link should be created", FileUtilities.isSymbolicLink(locationInHierarchicalStore));
         } else
         {
-            assertTrue("Directory should be created", symbolicLink.isDirectory());
+            assertTrue("Directory should be created", locationInHierarchicalStore.isDirectory());
+            assertTrue("Meta data file should be created", metaDataFileInside.isFile());
+            assertTrue("Symlink should be created ", FileUtilities.isSymbolicLink(symlinkInside));
         }
 
         FileUtilities.deleteRecursively(dataSetSource);
 
         storageUpdater.execute();
 
-        assertTrue("Broken symlinks should be deleted", false == symbolicLink.exists());
+        if (linksOnly)
+        {
+            assertTrue("Broken symlinks should be deleted", false == locationInHierarchicalStore.exists());
+        } else
+        {
+            assertTrue("Directory should be kept", locationInHierarchicalStore.isDirectory());
+            assertTrue("Meta data file should be kept", metaDataFileInside.isFile());
+            assertTrue("Symlink should be deleted", false == symlinkInside.exists());
+        }
     }
 
     @Test
@@ -278,6 +293,9 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
             dataset.setCode(directory.getName());
             dataset.setLocation(directory.getName());
             dataset.setShareId(SHARE_ID);
+
+            dataset.setPresentInArchive(false);
+            dataset.setStatus(DataSetArchivingStatus.AVAILABLE);
 
             Space space = new Space();
             space.setCode("space");

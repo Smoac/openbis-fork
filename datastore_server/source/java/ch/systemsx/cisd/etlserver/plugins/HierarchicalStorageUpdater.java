@@ -355,7 +355,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
     {
         Collection<SimpleDataSetInformationDTO> dataSets = openBISService.listPhysicalDataSets();
         HashMap<String, AbstractExternalData> dataSetsByCode = getAbstractExternalDataByCode(dataSets);
-        ArrayList<DataSetInformation> linkMappings = new ArrayList<DataSetInformation>();
+        ArrayList<DataSetInformation> result = new ArrayList<DataSetInformation>();
         for (SimpleDataSetInformationDTO dataSet : dataSets)
         {
             AbstractExternalData abstractData = dataSetsByCode.get(dataSet.getDataSetCode());
@@ -378,12 +378,13 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
                                 + "dataSetType='%s'. Link creation will be skipped.",
                                 dataSetLocationRoot, dataSet.getDataSetType());
                 operationLog.warn(logMessage);
-            } else
+            }
+            if (storeLinksOnly == false || linkSource != null)
             {
-                linkMappings.add(info);
+                result.add(info);
             }
         }
-        return linkMappings;
+        return result;
     }
 
     private File determineLinkSource(File dataSetLocationRoot, String dataSetType)
