@@ -582,6 +582,17 @@ $.extend(Grid.prototype, {
 					var $dropdownTD = $(optionsDropdowns[i]).parent();
 					$dropdownTD.css({ "overflow" : "visible" });
 				}
+				
+				if(thisGrid.isMultiselectable) {
+					var allCheckboxes = thisGrid.panel.find(".multi-selectable-checkbox");
+					for(var cIdx = 0; cIdx < allCheckboxes.length; cIdx++) {
+						var $parent = $($(allCheckboxes[cIdx]).parent());
+						$parent.click(function(e) {
+							e.stopPropagation();
+						});
+						$parent.css("cursor", "initial");
+					}
+				}
 			}, 1);
 		});
 	},
