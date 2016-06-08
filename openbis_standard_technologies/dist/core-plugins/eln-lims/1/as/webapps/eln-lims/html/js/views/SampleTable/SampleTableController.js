@@ -91,7 +91,7 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 				var grid = dataGridController._grid;
 				var selected = grid.getSelected();
 				if(selected != undefined && selected.length == 0){
-					alert("Please select at least one sample to delete!");
+					Util.showError("Please select at least one sample to delete!");
 				} else {
 					var warningText = "The next samples will be deleted: ";
 					var sampleTechIds = [];
