@@ -101,7 +101,10 @@ public class MetaDataBuilder
             final Boolean completeFlag = dataSet.tryGetAsDataSet().getComplete();
             builder.dataSet("is_complete", BooleanOrUnknown.T.equals(completeFlag));
             builder.dataSet("is_present_in_archive", dataSet.tryGetAsDataSet().isPresentInArchive());
-            builder.dataSet("archiving_status", dataSet.tryGetAsDataSet().getStatus().toString());
+            if (dataSet.tryGetAsDataSet().getStatus() != null)
+            {
+                builder.dataSet("archiving_status", dataSet.tryGetAsDataSet().getStatus().toString());
+            }
         }
         builder.dataSetProperties(dataSet.getProperties());
 
