@@ -137,7 +137,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
         storeRoot = new File(storeRootFileName);
         hierarchyRoot = new File(hierarchyRootFileName);
         linkSourceDescriptors = initializeLinkSourceDescriptors(pluginProperties);
-        storeLinksOnly = pluginProperties.getProperty(LINKS_ONLY, hierarchyRootFileName).equals("true");
+        storeLinksOnly = PropertyUtils.getBoolean(pluginProperties, LINKS_ONLY, true);
 
         operationLog.info("Plugin initialized with: store root = " + storeRootFileName
                 + ", hierarchy root = " + hierarchyRootFileName);
@@ -249,7 +249,8 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
     private void handleExistingEntry(DataSetInformation info)
     {
         String errorMsgLinksOnlyModeChanged = "The state of hierarchical store is corrupted or property '" + LINKS_ONLY
-                + "' has been modified after hierarchical store has been built. In this case please the hierarchical store directory and it will be recreated.";
+                + "' has been modified after hierarchical store has been built. In this case the hierarchical store directory "
+                + "should be deleted manually. It will be recreated after DSS start up.";
         if (storeLinksOnly)
         {
             if (FileUtilities.isSymbolicLink(info.targetFile))
