@@ -356,7 +356,7 @@ function LinksView(linksController, linksModel) {
 			}
 			
 			var extraOptions = [];
-			extraOptions.push({ name : "Add all", action : function(selected) {
+			extraOptions.push({ name : "Add selected", action : function(selected) {
 				for(var sIdx = 0; sIdx < selected.length; sIdx++) {
 					linksController.addSample(selected[sIdx]);
 				}
