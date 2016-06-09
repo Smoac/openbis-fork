@@ -71,9 +71,9 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
     public static final String LINK_FROM_FIRST_CHILD = "link-from-first-child";
 
     /**
-     * Property indicating if only links should be created, rather then directory with link and meta-data file.
+     * Property indicating if directory with link and meta-data file or only links should be created.
      */
-    public static final String LINKS_ONLY = "links-only";
+    public static final String WITH_META_DATA = "with-meta-data";
 
     /**
      * Name of the link to create in a directory in links-only is set to false
@@ -116,7 +116,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
 
     private File hierarchyRoot;
 
-    private boolean storeLinksOnly;
+    private boolean withMetaData;
 
     private Map<String /* data set type */, LinkSourceDescriptor> linkSourceDescriptors;
 
@@ -137,7 +137,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
         storeRoot = new File(storeRootFileName);
         hierarchyRoot = new File(hierarchyRootFileName);
         linkSourceDescriptors = initializeLinkSourceDescriptors(pluginProperties);
-        storeLinksOnly = PropertyUtils.getBoolean(pluginProperties, LINKS_ONLY, true);
+        withMetaData = PropertyUtils.getBoolean(pluginProperties, WITH_META_DATA, true);
 
         operationLog.info("Plugin initialized with: store root = " + storeRootFileName
                 + ", hierarchy root = " + hierarchyRootFileName);
@@ -233,12 +233,12 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
 
     private void handleNonExistingEntry(DataSetInformation info)
     {
-        if (storeLinksOnly)
-        {
-            createLink(info.targetFile, info.linkSource);
-        } else
+        if (withMetaData)
         {
             createDataSetFolder(info);
+        } else
+        {
+            createLink(info.targetFile, info.linkSource);
         }
     }
 
@@ -248,21 +248,15 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
      */
     private void handleExistingEntry(DataSetInformation info)
     {
-        String errorMsgLinksOnlyModeChanged = "The state of hierarchical store is corrupted or property '" + LINKS_ONLY
+        String errorMsgLinksOnlyModeChanged = "The state of hierarchical store is corrupted or property '" + WITH_META_DATA
                 + "' has been modified after hierarchical store has been built. In this case the hierarchical store directory "
                 + "should be deleted manually. It will be recreated after DSS start up.";
-        if (storeLinksOnly)
+        if (withMetaData)
         {
             if (FileUtilities.isSymbolicLink(info.targetFile))
             {
-                // nothing to do as the link is already in place
-                return;
-            } else
-            {
                 throw new IllegalStateException(errorMsgLinksOnlyModeChanged);
             }
-        } else
-        {
             if (info.targetFile.isDirectory())
             {
                 Date storedModificationDate = getModificationDateFromFile(info);
@@ -274,7 +268,18 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
             {
                 throw new IllegalStateException(errorMsgLinksOnlyModeChanged);
             }
+        } else
+        {
+            if (FileUtilities.isSymbolicLink(info.targetFile))
+            {
+                // nothing to do as the link is already in place
+                return;
+            } else
+            {
+                throw new IllegalStateException(errorMsgLinksOnlyModeChanged);
+            }
         }
+
     }
 
     private final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US);
@@ -380,7 +385,9 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
                                 dataSetLocationRoot, dataSet.getDataSetType());
                 operationLog.warn(logMessage);
             }
-            if (storeLinksOnly == false || linkSource != null)
+            // we still want a directory with metadata if metadata option is specified
+            // if only links should be created we don't want to create broken links
+            if (withMetaData || linkSource != null)
             {
                 result.add(info);
             }

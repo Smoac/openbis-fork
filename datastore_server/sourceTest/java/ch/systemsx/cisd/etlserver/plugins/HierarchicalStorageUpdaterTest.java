@@ -254,7 +254,7 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
                     "" + true);
         }
 
-        properties.put(HierarchicalStorageUpdater.LINKS_ONLY, onlyLinks ? "true" : "false");
+        properties.put(HierarchicalStorageUpdater.WITH_META_DATA, onlyLinks ? "false" : "true");
 
         HierarchicalStorageUpdater updater = new HierarchicalStorageUpdater();
         updater.setUp(pluginName, properties);
