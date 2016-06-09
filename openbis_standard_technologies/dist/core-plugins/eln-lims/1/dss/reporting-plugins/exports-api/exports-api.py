@@ -283,7 +283,7 @@ def export(sessionToken, entities, userEmail, mailClient):
 	fos.close();
 	
 	#Store on workspace to be able to generate a download link
-	operationLog.info("Zip file can be found on the temperal directory: " + tempZipFilePath);
+	operationLog.info("Zip file can be found on the temporal directory: " + tempZipFilePath);
 	dssComponent.putFileToSessionWorkspace(tempZipFileName, FileInputStream(File(tempZipFilePath)));
 	tempZipFileWorkspaceURL = DataStoreServer.getConfigParameters().getDownloadURL() + "/datastore_server/session_workspace_file_download?sessionID=" + sessionToken + "&filePath=" + tempZipFileName;
 	operationLog.info("Zip file can be downloaded from the workspace: " + tempZipFileWorkspaceURL);
