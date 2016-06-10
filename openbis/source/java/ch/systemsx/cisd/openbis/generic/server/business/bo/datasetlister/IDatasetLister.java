@@ -142,7 +142,7 @@ public interface IDatasetLister
     /**
      * Lists physical datasets by archiving status of the specified data store.
      */
-    List<AbstractExternalData> listByArchivingStatus(long dataStoreID, DataSetArchivingStatus archivingStatus,
+    List<AbstractExternalData> listByArchivingStatus(long dataStoreID, DataSetArchivingStatus archivingStatus, Boolean presentInArchive,
             EnumSet<DataSetFetchOption> datasetFetchOptions);
 
     /**

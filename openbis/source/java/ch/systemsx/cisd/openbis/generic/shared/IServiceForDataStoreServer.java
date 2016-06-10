@@ -256,8 +256,7 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
      * Registers/updates various entities in one transaction.
      */
     @Transactional
-    @DatabaseCreateOrDeleteModification(value =
-    { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     public void registerEntities(String sessionToken, EntityCollectionForCreationOrUpdate collection)
             throws UserFailureException;
 
@@ -431,8 +430,8 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
      */
     @Transactional(readOnly = true)
     public List<SimpleDataSetInformationDTO> listPhysicalDataSetsByArchivingStatus(String sessionToken, String dataStoreCode,
-            DataSetArchivingStatus archivingStatus);
-    
+            DataSetArchivingStatus archivingStatus, Boolean presentInArchive);
+
     /**
      * Lists the <var>limit</var> oldest physical data sets younger than <var>youngerThan</var> belonging to specified data store.
      * <p>
@@ -618,8 +617,7 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
      * @throws UserFailureException if given data set code could not be found in the persistence layer.
      */
     @Transactional
-    @DatabaseCreateOrDeleteModification(value =
-    { ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     public Sample registerSampleAndDataSet(final String sessionToken, final NewSample newSample,
             final NewExternalData externalData, String userIdOrNull) throws UserFailureException;
 
@@ -647,10 +645,8 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
      */
     @Transactional
     @Conversational(progress = Progress.MANUAL)
-    @DatabaseUpdateModification(value =
-    { ObjectKind.SAMPLE, ObjectKind.EXPERIMENT, ObjectKind.DATA_SET })
-    @DatabaseCreateOrDeleteModification(value =
-    { ObjectKind.SPACE, ObjectKind.PROJECT, ObjectKind.SAMPLE, ObjectKind.EXPERIMENT,
+    @DatabaseUpdateModification(value = { ObjectKind.SAMPLE, ObjectKind.EXPERIMENT, ObjectKind.DATA_SET })
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.SPACE, ObjectKind.PROJECT, ObjectKind.SAMPLE, ObjectKind.EXPERIMENT,
             ObjectKind.DATA_SET })
     public AtomicEntityOperationResult performEntityOperations(String sessionToken,
             AtomicEntityOperationDetails operationDetails);
@@ -702,10 +698,8 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
      * permanently deletes a list of data sets.
      */
     @Transactional
-    @DatabaseUpdateModification(value =
-    { ObjectKind.SAMPLE, ObjectKind.EXPERIMENT })
-    @DatabaseCreateOrDeleteModification(value =
-    { ObjectKind.DATA_SET })
+    @DatabaseUpdateModification(value = { ObjectKind.SAMPLE, ObjectKind.EXPERIMENT })
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.DATA_SET })
     public void removeDataSetsPermanently(String sessionToken, List<String> dataSetCodes,
             String reason);
 
@@ -713,8 +707,7 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
      * updates a data set.
      */
     @Transactional
-    @DatabaseUpdateModification(value =
-    { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    @DatabaseUpdateModification(value = { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     public void updateDataSet(String sessionToken, DataSetUpdatesDTO dataSetUpdates);
 
     /**

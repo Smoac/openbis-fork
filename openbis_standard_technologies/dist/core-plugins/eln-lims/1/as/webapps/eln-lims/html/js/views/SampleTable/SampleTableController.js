@@ -83,8 +83,38 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 			}
 			
 			//Create and display table
-			var dataGridController = SampleDataGridUtil.getSampleDataGrid(selectedSampleTypeCode, samples, null);
-			dataGridController.init(this._sampleTableView.getTableContainer());
+			var dataGridController = SampleDataGridUtil.getSampleDataGrid(selectedSampleTypeCode, samples, null, null, null, null, null, null, true);
+			
+			
+			var extraOptions = [];
+			extraOptions.push({ name : "Delete selected", action : function(selected) {
+				var grid = dataGridController._grid;
+				var selected = grid.getSelected();
+				if(selected != undefined && selected.length == 0){
+					Util.showError("Please select at least one sample to delete!");
+				} else {
+					var warningText = "The next samples will be deleted: ";
+					var sampleTechIds = [];
+					for(var sIdx = 0; sIdx < selected.length; sIdx++) {
+						sampleTechIds.push(selected[sIdx].id);
+						warningText += selected[sIdx].identifier + " ";
+					}
+					
+					var modalView = new DeleteEntityController(function(reason) {
+						mainController.serverFacade.deleteSamples(sampleTechIds, reason, function(data) {
+							if(data.error) {
+								Util.showError(data.error.message);
+							} else {
+								Util.showSuccess("Sample/s Deleted");
+								mainController.refreshView();
+							}
+						});
+					}, true, warningText);
+					modalView.init();
+				}
+			}});
+			
+			dataGridController.init(this._sampleTableView.getTableContainer(), extraOptions);
 		}
 	}
 }

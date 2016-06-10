@@ -16,11 +16,13 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.sql.DataSource;
 
-import net.lemnik.eodsql.QueryTool;
-
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import net.lemnik.eodsql.QueryTool;
 
 /**
  * @author Jakub Straszewski
@@ -38,4 +40,25 @@ public class MultiDataSetArchiverDataSourceUtil
     {
         return QueryTool.getQuery(dataSource, IMultiDataSetArchiverReadonlyQueryDAO.class);
     }
+
+    public static List<String> getContainerList()
+    {
+        List<MultiDataSetArchiverContainerDTO> containerDTOs = getReadonlyQueryDAO().listContainers();
+        List<String> containers = new ArrayList<String>();
+        if (containerDTOs != null)
+        {
+            for (MultiDataSetArchiverContainerDTO containerDTO : containerDTOs)
+            {
+                containers.add(containerDTO.getPath());
+            }
+        }
+        return containers;
+    }
+
+    public static Boolean isDataSetInContainer(String dataSetCode)
+    {
+        MultiDataSetArchiverDataSetDTO dataSetDTO = getReadonlyQueryDAO().getDataSetForCode(dataSetCode);
+        return dataSetDTO != null && dataSetDTO.getContainerId() > 0;
+    }
+
 }

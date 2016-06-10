@@ -83,6 +83,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreTranslator;
+
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -532,12 +533,31 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     }
 
     @Override
-    public List<AbstractExternalData> listByArchivingStatus(long dataStoreID, DataSetArchivingStatus archivingStatus,
+    public List<AbstractExternalData> listByArchivingStatus(long dataStoreID, DataSetArchivingStatus archivingStatus, Boolean presentInArchive,
             EnumSet<DataSetFetchOption> datasetFetchOptions)
     {
         checkFetchOptions(datasetFetchOptions);
 
-        List<DatasetRecord> dataSets = query.getDatasetsByDataStoreIdWithArchivingStatus(dataStoreID, archivingStatus.name());
+        List<DatasetRecord> dataSets = null;
+
+        if (archivingStatus != null)
+        {
+            String statusAsString = archivingStatus.name();
+            if (presentInArchive != null)
+            {
+                dataSets = query.getDatasetsByDataStoreIdWithArchivingStatusAndPressentInArchive(dataStoreID, 
+                        statusAsString, presentInArchive);
+            } else
+            {
+                dataSets = query.getDatasetsByDataStoreIdWithArchivingStatus(dataStoreID, statusAsString);
+            }
+        } else if (presentInArchive != null)
+        {
+            dataSets = query.getDatasetsByDataStoreIdWithPressentInArchive(dataStoreID, presentInArchive);
+        } else
+        {
+            throw new UserFailureException("Neither archiving status nor present in archive flag are specified.");
+        }
 
         return orderByCode(enrichDatasets(dataSets, datasetFetchOptions));
     }

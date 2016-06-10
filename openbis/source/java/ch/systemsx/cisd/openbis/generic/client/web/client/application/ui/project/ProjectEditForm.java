@@ -21,6 +21,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
@@ -55,6 +56,7 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
         super(viewContext, projectId);
         setRevertButtonVisible(true);
         this.projectId = projectId;
+        projectDescriptionField.setMaxLength(GenericConstants.DESCRIPTION_500000);
     }
 
     @Override
