@@ -685,6 +685,7 @@ var FormUtil = new function() {
 	// Rich Text Editor Support - (Summernote)
 	//
 	this.activateRichTextProperties = function($component, componentOnChange) {
+		var _this = this;
 		$("body").append($component);
 		
 		$component.summernote({
@@ -693,7 +694,22 @@ var FormUtil = new function() {
 		['Paragraph style ', ['style', 'ol', 'ul', 'paragraph', 'height']],
 		['Insert', ['link', 'table', 'hr', 'specialCharacter']],
 		['Misc', ['fullscreen', 'undo', 'redo', 'help']],],
-		disableDragAndDrop: true});
+		disableDragAndDrop: true,
+		callbacks: {
+	        onPaste: function (e) {
+	        	if(profile.copyPastePlainText) {
+	        		var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData("text/plain");
+		        	e.preventDefault();
+		            setTimeout( function(){
+		                document.execCommand( 'insertText', false, bufferText );
+		            }, 10 );
+	        	} else {
+//	        		var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData("text/html");
+//	        		bufferText = _this.sanitizeRichHTMLText(bufferText);
+//	        		((e.originalEvent || e).clipboardData || window.clipboardData).setData("text/html", bufferText);
+	        	}
+	        }
+	    }});
 		
 		$component.on("summernote.change", componentOnChange);
 		

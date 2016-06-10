@@ -59,7 +59,7 @@ $.extend(DefaultProfile.prototype, {
 		
 		this.directLinkEnabled = true;
 		this.directLinkURL = null; //To be set during initialization using info retrieved from the DSS configuration by the reporting plugin
-		
+		this.copyPastePlainText = false;
 		this.hideCodes = true;
 		this.hideTypes = {
 				"sampleTypeCodes" : [],
