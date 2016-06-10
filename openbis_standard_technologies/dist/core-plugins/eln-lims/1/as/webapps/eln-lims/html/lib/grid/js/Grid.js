@@ -1,22 +1,113 @@
-function Grid(columns, getDataList, showAllColumns, columnsToShow, onColumnsChange) {
-	this.init(columns, getDataList, showAllColumns, columnsToShow, onColumnsChange);
+function Grid(columns, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable) {
+	this.init(columns, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable);
 }
 
 $.extend(Grid.prototype, {
-	init : function(columns, getDataList, showAllColumns, columnsToShow, onColumnsChange) {
+	init : function(columns, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable) {
 		this.columns = columns;
 		this.getDataList = getDataList;
 		this.showAllColumns = showAllColumns;
-		this.columnsToShow = columnsToShow;
-		this.onColumnsChange = onColumnsChange;
+		this.tableSettings = tableSettings;
+		if(!this.tableSettings) {
+			this.tableSettings = {
+					columns : null,
+					pageSize : null,
+					sort : {
+							sortProperty : null,
+							sortDirection : null
+					}
+			}
+		}
+		this.onChangeState = onChangeState;
+		
+		this.isMultiselectable = isMultiselectable;
+		this.selectedItems = [];
+		if(isMultiselectable) {
+			this.addMultiSelect(columns);
+		}
 	},
-
+	addMultiSelect : function(columns) {
+		var _this = this;
+		columns.unshift({
+				showByDefault: true,
+				label : function() {
+					var $selectall = $("<input>", { type : 'checkbox' });
+					$selectall.change(function(){
+						var allCheckboxes = _this.panel.find(".multi-selectable-checkbox");
+						var isChecked = $(this).is(":checked");
+						//check / uncheck all
+						allCheckboxes.each(function() { 
+			                this.checked = isChecked;
+			            });
+						//If check, add to the selectedItems list
+						_this.selectedItems = [];
+						if(isChecked) { //select all
+							_this.getDataList(function(dataList) {
+								for(var dIdx = 0; dIdx < dataList.length; dIdx++) {
+									_this.selectedItems.push(dataList[dIdx].$object);
+								}
+							});
+						}
+					});
+					
+					return $selectall;
+				},
+				property : '$selected',
+				isExportable: false,
+				sortable : false,
+				render : function(data) {
+					var $checkbox = $("<input>", { type : 'checkbox' , class: "repeater-checkbox multi-selectable-checkbox"});
+					$checkbox.change(function() {
+						var isChecked = $(this).is(":checked");
+						if(isChecked){ //add data to selectedItems
+							_this.selectedItems.push(data.$object);
+						} else { //remove data from selectedItems
+							var toRemoveId = null;
+							if(data.$object.permId) {
+								toRemoveId = data.$object.permId;
+							}
+							if(toRemoveId) {
+								for(var idx = 0; idx < _this.selectedItems.length; idx++) {
+									var foundId = null;
+									if(_this.selectedItems[idx].permId) {
+										foundId = _this.selectedItems[idx].permId;
+									}
+									if(toRemoveId === foundId) {
+										_this.selectedItems.splice(idx, 1);
+									}
+								}
+							}
+						}
+					});
+					$checkbox.click(function(e) {
+						e.stopPropagation();
+					});
+					return $checkbox;
+				}
+		});
+	},
+	getSelected : function() {
+		return this.selectedItems;
+	},
 	render : function() {
 		var thisGrid = this;
 
 		thisGrid.panel = $("<div>").addClass("fuelux");
 
 		$.get("./lib/grid/js/Grid.html", function(template) {
+			
+			//Set default pageSize on template - there is no programming API and we don't want to modify the library
+			var templateToReplace = null;
+			var templateToReplaceFor = null;
+			if(thisGrid.onChangeState && thisGrid.tableSettings && thisGrid.tableSettings.pageSize) {
+				templateToReplace = "<li data-value=\"" + thisGrid.tableSettings.pageSize + "\">";
+				templateToReplaceFor = "<li data-value=\"" + thisGrid.tableSettings.pageSize + "\" data-selected=\"true\">";
+			} else {
+				templateToReplace = "<li data-value=\"10\">";
+				templateToReplaceFor = "<li data-value=\"10\" data-selected=\"true\">";
+			}
+			template = template.replace(templateToReplace, templateToReplaceFor);
+			//
 			thisGrid.panel.html(template);
 			thisGrid.renderColumnDropdown();
 			thisGrid.renderDropDownOptions();
@@ -28,7 +119,23 @@ $.extend(Grid.prototype, {
 			thisGrid.panel.repeater({
 				defaultView : "list",
 				dataSource : function(options, callback) {
+					//Set default sort
+					if(	thisGrid.onChangeState && //If settings are stored
+						thisGrid.tableSettings && //And settings are available
+						thisGrid.tableSettings.sort && thisGrid.tableSettings.sort.sortProperty && thisGrid.tableSettings.sort.sortDirection && //And sort settings are available
+						!options.sortProperty && !options.sortDirection //And no sort options are available by default because the table just loaded
+					) { //Set stored sort options to default
+						options.sortProperty = thisGrid.tableSettings.sort.sortProperty;
+						options.sortDirection = thisGrid.tableSettings.sort.sortDirection;
+					}
+					//
 					if (options.view == "list") {
+						//Save default pageSize
+						if(thisGrid.onChangeState && thisGrid.tableSettings) {
+							thisGrid.tableSettings.pageSize = options.pageSize;
+							thisGrid.onChangeState(thisGrid.tableSettings);
+						}
+						//
 						thisGrid.list(options, callback);
 					}
 				},
@@ -63,27 +170,27 @@ $.extend(Grid.prototype, {
 		var defaultNumColumns = 5; //Including last always
 		
 		thisGrid.columns.forEach(function(column, columnIndex) {
-			checkbox = $("<input>")
+			if(!column.showByDefault) {
+				var checkbox = $("<input>")
 				.attr("type", "checkbox")
 				.attr("value", column.property)
 				.attr("style", "margin-left: 5px;");
 			
-			if(column.showByDefault) {
-				checkbox.attr("checked", "checked");
-			} else if(thisGrid.columnsToShow && Object.keys(thisGrid.columnsToShow).length !== 0) {
-				if((thisGrid.columnsToShow[column.property] === true)) { //If settings are present
+				if(thisGrid.tableSettings && thisGrid.tableSettings.columns && Object.keys(thisGrid.tableSettings.columns).length !== 0) {
+					if((thisGrid.tableSettings.columns[column.property] === true)) { //If settings are present
+						checkbox.attr("checked", "checked");
+					}
+				} else if(thisGrid.showAllColumns || columnIndex < (defaultNumColumns - 1) || (columnIndex+1 === thisGrid.columns.length)) { //Defaults
 					checkbox.attr("checked", "checked");
 				}
-			} else if(thisGrid.showAllColumns || columnIndex < (defaultNumColumns - 1) || (columnIndex+1 === thisGrid.columns.length)) { //Defaults
-				checkbox.attr("checked", "checked");
+				
+				checkbox.change(function() {
+					thisGrid.panel.repeater('render');
+				});
+				var label = $("<label>", { style : 'white-space: nowrap;' }).attr("role", "menuitem").append(checkbox).append("&nbsp;").append(column.label);
+				var item = $("<li>").attr("role", "presentation").append(label);
+				columnList.append(item);
 			}
-			
-			checkbox.change(function() {
-				thisGrid.panel.repeater('render');
-			});
-			var label = $("<label>", { style : 'white-space: nowrap;' }).attr("role", "menuitem").append(checkbox).append("&nbsp;").append(column.label);
-			var item = $("<li>").attr("role", "presentation").append(label);
-			columnList.append(item);
 		});
 	},
 
@@ -91,6 +198,10 @@ $.extend(Grid.prototype, {
 		return this.columns;
 	},
 
+	addExtraOptions : function(extraOptions) {
+		this.extraOptions = extraOptions;
+	},
+	
 	renderDropDownOptions: function() {
 		var thisGrid = this;
 		var columnList = thisGrid.panel.find(".optionsDropdown").find("ul");
@@ -159,6 +270,29 @@ $.extend(Grid.prototype, {
 		
 		columnList.append(itemARAC);
 		
+		if(this.extraOptions) {
+			for(var oIdx = 0; oIdx < this.extraOptions.length; oIdx++) {
+				var option = this.extraOptions[oIdx];
+				var extraLabel = $("<label>", { style : 'white-space: nowrap; cursor:pointer;' })
+									.attr("role", "menuitem")
+									.append(option.name);
+
+				var extraItem = $("<li>")
+							.attr("role", "presentation")
+							.attr("style", "margin-left: 5px; margin-right: 5px;")
+							.append(extraLabel);
+				
+				var getClick = function(option) {
+					return function() {
+						option.action(thisGrid.getSelected());
+					}
+				}
+				
+				extraItem.click(getClick(option));
+				
+				columnList.append(extraItem);
+			}
+		}
 	},
 	
 	exportTSV : function(isAllRowsOrVisible, isAllColumnsOrVisible) {
@@ -243,24 +377,23 @@ $.extend(Grid.prototype, {
 	},
 	
 	getVisibleColumns : function() {
-		var thisGrid = this;
+		var _this = this;
 		var columns = [];
 
 		var columnsModel = {};
 		
-		thisGrid.panel.find(".columnDropdown").find("input:checked").each(function(index, element) {
-			
-			thisGrid.getAllColumns().forEach(function(column) {
-				var checkbox = $(element);
-				if (column.property == checkbox.val()) {
-					columns.push(column);
-					columnsModel[column.property] = true;
-				}
-			});
+		_this.getAllColumns().forEach(function(column) {
+			var checkBoxForColumn = _this.panel.find(".columnDropdown").find("[value='" + column.property + "']");
+			var isChecked = (checkBoxForColumn.length === 1 && checkBoxForColumn[0] && checkBoxForColumn[0].checked)?true:false;
+			if(column.showByDefault || isChecked) {
+				columns.push(column);
+				columnsModel[column.property] = true;
+			}
 		});
 
-		if(thisGrid.onColumnsChange) {
-			thisGrid.onColumnsChange(columnsModel);
+		if(this.onChangeState) {
+			this.tableSettings.columns = columnsModel;
+			this.onChangeState(this.tableSettings);
 		}
 		
 		// HACK: Add a dummy empty column (repeater does not properly handle visibility of the last column)
@@ -310,6 +443,16 @@ $.extend(Grid.prototype, {
 		var thisGrid = this;
 
 		if (sortProperty && sortDirection) {
+			//Save sort configuration
+			if(thisGrid.onChangeState && thisGrid.tableSettings) {
+				thisGrid.tableSettings.sort = {
+						sortProperty : sortProperty,
+						sortDirection : sortDirection
+				};
+				thisGrid.onChangeState(thisGrid.tableSettings);
+			}
+			//
+			
 			var sortColumn = null;
 			thisGrid.columns.forEach(function(column) {
 				if (column.property == sortProperty) {
@@ -384,9 +527,8 @@ $.extend(Grid.prototype, {
 
 	list : function(options, callback) {
 		var thisGrid = this;
-
 		thisGrid.getDataList(function(dataList) {
-
+			
 			dataList = thisGrid.filterData(dataList, options.search);
 			dataList = thisGrid.sortData(dataList, options.sortProperty, options.sortDirection);
 
@@ -439,6 +581,17 @@ $.extend(Grid.prototype, {
 				for(var i = 0; i < optionsDropdowns.length; i++) {
 					var $dropdownTD = $(optionsDropdowns[i]).parent();
 					$dropdownTD.css({ "overflow" : "visible" });
+				}
+				
+				if(thisGrid.isMultiselectable) {
+					var allCheckboxes = thisGrid.panel.find(".multi-selectable-checkbox");
+					for(var cIdx = 0; cIdx < allCheckboxes.length; cIdx++) {
+						var $parent = $($(allCheckboxes[cIdx]).parent());
+						$parent.click(function(e) {
+							e.stopPropagation();
+						});
+						$parent.css("cursor", "initial");
+					}
 				}
 			}, 1);
 		});

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-function DataGridController(title, columns, data, rowClickEventHandler, showAllColumns,configKey) {
+function DataGridController(title, columns, data, rowClickEventHandler, showAllColumns,configKey, isMultiselectable) {
 	this._grid = null;
 	this._dataGridModel = null;
 	this._dataGridView = null;
@@ -24,15 +24,15 @@ function DataGridController(title, columns, data, rowClickEventHandler, showAllC
 		window.alert("[TO-DELETE] Empty configKey during the table init, this should never happen, tell the developers.");
 	}
 	
-	this.init = function($container) {
+	this.init = function($container, extraOptions) {
 		var webAppId = "ELN-LIMS";
 		mainController.serverFacade.openbisServer.getWebAppSettings(webAppId, function(response) {
 			var settings = response.result.settings;
-			var onColumnsChange = function(columnsModel) {
+			var onColumnsChange = function(tableState) {
 				if(!settings) {
 					settings = {};
 				}
-				settings[configKey] = JSON.stringify(columnsModel);
+				settings[configKey] = JSON.stringify(tableState);
 				
 				var webAppSettings = {
 						"@type" : "WebAppSettings",
@@ -45,14 +45,20 @@ function DataGridController(title, columns, data, rowClickEventHandler, showAllC
 			var tableSettings = null;
 			if(configKey && settings[configKey]) {
 				tableSettings = JSON.parse(settings[configKey]);
+				if(Object.keys(tableSettings).length > 3) { //Clean old settings
+					tableSettings = null;
+				}
 			}
-			_this._grid = new Grid(columns, data, showAllColumns, tableSettings, onColumnsChange);
+			_this._grid = new Grid(columns, data, showAllColumns, tableSettings, onColumnsChange, isMultiselectable);
 			if(rowClickEventHandler) {
 				_this._grid.addRowClickListener(rowClickEventHandler);
 			}
-			_this._dataGridModel = new DataGridModel(title, columns, data, rowClickEventHandler, _this._grid.render());
-			_this._dataGridView = new DataGridView(this, _this._dataGridModel);
+			if(extraOptions) {
+				_this._grid.addExtraOptions(extraOptions);
+			}
 			
+			_this._dataGridModel = new DataGridModel(title, columns, data, rowClickEventHandler, _this._grid.render(), isMultiselectable);
+			_this._dataGridView = new DataGridView(this, _this._dataGridModel);
 			_this._dataGridView.repaint($container);
 		});	
 	}

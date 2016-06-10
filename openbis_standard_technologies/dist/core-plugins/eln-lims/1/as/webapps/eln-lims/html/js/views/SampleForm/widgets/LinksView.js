@@ -355,8 +355,16 @@ function LinksView(linksController, linksModel) {
 				$container.empty().hide();
 			}
 			
-			var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, samples, rowClick, null, null, null, true, true);
-			dataGrid.init($gridContainer);
+			var extraOptions = [];
+			extraOptions.push({ name : "Add selected", action : function(selected) {
+				for(var sIdx = 0; sIdx < selected.length; sIdx++) {
+					linksController.addSample(selected[sIdx]);
+				}
+				$container.empty().hide();
+			}});
+			
+			var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, samples, rowClick, null, null, null, true, true, true);
+			dataGrid.init($gridContainer, extraOptions);
 		}
 		
 		//Check Cache and Show Table

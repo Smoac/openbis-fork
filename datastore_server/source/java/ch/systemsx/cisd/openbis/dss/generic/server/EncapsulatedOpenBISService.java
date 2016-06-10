@@ -692,11 +692,11 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public List<SimpleDataSetInformationDTO> listPhysicalDataSetsByArchivingStatus(DataSetArchivingStatus archivingStatus)
+    public List<SimpleDataSetInformationDTO> listPhysicalDataSetsByArchivingStatus(DataSetArchivingStatus archivingStatus, Boolean presentInArchive)
             throws UserFailureException
     {
         List<SimpleDataSetInformationDTO> dataSets = service.listPhysicalDataSetsByArchivingStatus(session.getSessionToken(),
-                session.getDataStoreCode(), archivingStatus);
+                session.getDataStoreCode(), archivingStatus, presentInArchive);
         return injectDefaultShareIdIfMissing(dataSets);
     }
 

@@ -223,7 +223,7 @@ def initELNMasterData():
 										[
 											["BLA", "bla", "Confers resistance to beta-lactam antibiotics like ampicillin, carbenicillin, etc."],
 											["KAN", "kan", "Confers resistance to geneticin"],
-											["CAT", "cat", "Confers resistance to chloramphenicol"]
+											["CAM", "cam", "Confers resistance to chloramphenicol"]
 										]);
 	
 	createVocabularyWithTerms("MARKER", "Marker to select the strain/cell line after transformation/transfection",

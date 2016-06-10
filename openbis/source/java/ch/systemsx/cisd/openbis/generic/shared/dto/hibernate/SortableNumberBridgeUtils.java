@@ -8,6 +8,11 @@ public class SortableNumberBridgeUtils
     private static int LUCENE_INTEGER_PADDING = 19; // On the UI a integer field can't have more than 18 characters, a long can have 19 taking out the
                                                     // minus sign
 
+    public static boolean isValidNumber(String number)
+    {
+        return getNumberForLucene(number) != null;
+    }
+
     public static String getNumberForLucene(String number)
     {
         try
@@ -20,7 +25,7 @@ public class SortableNumberBridgeUtils
                 return getNumberForLucene(Double.parseDouble(number));
             } catch (Exception ex2)
             {
-                return number;
+                return null;
             }
         }
     }

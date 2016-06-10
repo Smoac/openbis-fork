@@ -72,15 +72,15 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		var tableToolbarModel = [];
 		if(this._sampleTableModel.experimentIdentifier) {
 			var $sampleTypes = this._getLoadedSampleTypesDropdown();
-			tableToolbarModel.push({ component : $sampleTypes, tooltip: "Select a sample type to visualize on the table" });
+			tableToolbarModel.push({ component : $sampleTypes, tooltip: null });
 			var $options = this._getOptionsMenu();
 			toolbarModel.push({ component : $options, tooltip: null });
 		} else if(this._sampleTableModel.projectPermId) {
 			var $sampleTypes = this._getLoadedSampleTypesDropdown();
-			tableToolbarModel.push({ component : $sampleTypes, tooltip: "Select a sample type to visualize on the table" });
+			tableToolbarModel.push({ component : $sampleTypes, tooltip: null });
 		} else {
 			var $allSampleTypes = this._getAllSampleTypesDropdown();
-			tableToolbarModel.push({ component : $allSampleTypes, tooltip: "Select a sample type to visualize on the table" });
+			tableToolbarModel.push({ component : $allSampleTypes, tooltip: null });
 		}
 		
 		$container.append(FormUtil.getToolbar(toolbarModel));
@@ -128,7 +128,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			_this.updateSamples(_this._sampleTableModel.experimentIdentifier);
 		});
 		$list.append($batchUpdateOption);
-			
+		
 		return $dropDownMenu;
 	}
 	

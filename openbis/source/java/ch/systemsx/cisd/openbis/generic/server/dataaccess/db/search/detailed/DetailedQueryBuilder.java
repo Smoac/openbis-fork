@@ -121,7 +121,7 @@ public class DetailedQueryBuilder
                         fieldPattern = LuceneQueryBuilder.adaptQuery(fieldUserQuery,
                                 useWildcardSearchMode, false);
                         fieldAnalyzer = new IgnoreCaseAnalyzer();
-                    } else if (isNumeric && criterion.getType() != null)
+                    } else if (isNumeric && criterion.getType() != null && SortableNumberBridgeUtils.isValidNumber(criterion.getValue()))
                     {
                         fieldPattern = getRangeNumberQuery(criterion, fieldPattern);
                         fieldAnalyzer = PassThroughAnalyzer.INSTANCE;

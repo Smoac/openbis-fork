@@ -336,9 +336,23 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		this._advancedSearchModel.resetModel('ALL');
 		var $dropdown = FormUtil.getDropdown(model, 'Select Entity Type to search for');
 		
-		$dropdown.change(function() {
-			_this._advancedSearchModel.resetModel($(this).val()); //Restart model
-			_this._paintCriteriaPanel(_this._$searchCriteriaPanelContainer); //Restart view
+		$dropdown.change(function() {			
+			if(_this._advancedSearchModel.isAllRules()) {
+				//1. update the entity type only in the model
+				_this._advancedSearchModel.setEntityKind($(this).val());
+				//2. change the field type dropdowns in the view
+				var rows = _this._$tbody.children();
+				for(var rIdx = 0; rIdx < rows.length; rIdx++) {
+					var $row = $(rows[rIdx]);
+					var tds = $row.children();
+					var $newFieldTypeComponent = _this._getNewFieldTypeDropdownComponent($(tds[1]), _this._advancedSearchModel.criteria.entityKind, $row.attr("id"));
+					$(tds[0]).empty();
+					$(tds[0]).append($newFieldTypeComponent);
+				}				
+			} else {
+				_this._advancedSearchModel.resetModel($(this).val()); //Restart model
+				_this._paintCriteriaPanel(_this._$searchCriteriaPanelContainer); //Restart view	
+			}
 		});
 		
 		return $dropdown;

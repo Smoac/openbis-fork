@@ -55,9 +55,10 @@ public class ResetArchivePendingTask implements IMaintenanceTask
     public void execute()
     {
         operationLog.info(ResetArchivePendingTask.class.getSimpleName() + " Started");
-        // 1. Find datasets with DataSetArchivingStatus.ARCHIVE_PENDING
+        // 1. Find datasets with DataSetArchivingStatus.ARCHIVE_PENDING and not present in archive
         IEncapsulatedOpenBISService service = ServiceProvider.getOpenBISService();
-        List<SimpleDataSetInformationDTO> inArchivePendings = service.listPhysicalDataSetsByArchivingStatus(DataSetArchivingStatus.ARCHIVE_PENDING);
+        List<SimpleDataSetInformationDTO> inArchivePendings 
+                = service.listPhysicalDataSetsByArchivingStatus(DataSetArchivingStatus.ARCHIVE_PENDING, false);
         if (inArchivePendings.isEmpty() == false)
         {
             operationLog.info("Found " + inArchivePendings.size() + " datasets in " + DataSetArchivingStatus.ARCHIVE_PENDING.name() + " status.");
@@ -78,8 +79,7 @@ public class ResetArchivePendingTask implements IMaintenanceTask
             List<String> dataSetsToUpdate = new ArrayList<>();
             for (SimpleDataSetInformationDTO inArchivePending : inArchivePendings)
             {
-                if (inQueue.contains(inArchivePending.getDataSetCode()) == false 
-                        && inArchivePending.isPresentInArchive() == false)
+                if (inQueue.contains(inArchivePending.getDataSetCode()) == false)
                 {
                     dataSetsToUpdate.add(inArchivePending.getDataSetCode());
                     operationLog.info(inArchivePending.getDataSetCode() 

@@ -68,6 +68,7 @@ import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.resource.IInitializable;
 import ch.systemsx.cisd.common.servlet.InitializeRequestContextHolderFilter;
@@ -160,7 +161,7 @@ public class DataStoreServer
                         ServiceProvider.getHierarchicalContentProvider(), configParams);
         DssSessionAuthorizationHolder.setAuthorizer(new DatasetSessionAuthorizer(configParams
                 .getAuthCacheExpirationTimeMins(), configParams
-                .getAuthCacheCleanupTimerPeriodMins()));
+                        .getAuthCacheCleanupTimerPeriodMins()));
         configParams.log();
         server = createServer(applicationContext);
         try
@@ -297,7 +298,8 @@ public class DataStoreServer
                         .getUrlForRpcService(IServiceConversationClientManagerRemote.PATH);
         context.addServlet(
                 new ServletHolder(new HttpInvokerServlet(ServiceProvider
-                        .getServiceConversationClientManagerServer(), clientPath)), clientPath);
+                        .getServiceConversationClientManagerServer(), clientPath)),
+                clientPath);
 
         // Export service conversation server manager
         String serverPath =
@@ -305,7 +307,8 @@ public class DataStoreServer
                         .getUrlForRpcService(IServiceConversationServerManagerRemote.PATH);
         context.addServlet(
                 new ServletHolder(new HttpInvokerServlet(ServiceProvider
-                        .getServiceConversationServerManagerServer(), serverPath)), serverPath);
+                        .getServiceConversationServerManagerServer(), serverPath)),
+                serverPath);
 
         //
         // export the API via JSON
@@ -392,7 +395,8 @@ public class DataStoreServer
             {
                 throw EnvironmentFailureException.fromTemplate(
                         "Error while loading servlet plugin class '%s': %s. "
-                                + "Servlet implementation expected.", pluginServlet.getClass(),
+                                + "Servlet implementation expected.",
+                        pluginServlet.getClass(),
                         ex.getMessage());
             }
             ServletHolder holder =
@@ -561,5 +565,10 @@ public class DataStoreServer
             configParameters = new ConfigParameters(ExtendedProperties.createWith(properties));
         }
         return configParameters;
+    }
+
+    public static String getConfigParameter(String key, String defaultValue)
+    {
+        return getConfigParameters().getProperties().getProperty(key, defaultValue);
     }
 }
