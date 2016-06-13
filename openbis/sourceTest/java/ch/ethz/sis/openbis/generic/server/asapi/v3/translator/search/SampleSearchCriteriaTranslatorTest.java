@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search.ProjectSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.EntityAttributeProviderFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.ObjectAttributeProviderFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.SampleSearchCriteriaTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.SearchTranslationContext;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.SearchCriteriaToDetailedSearchCriteriaTranslator;
@@ -299,7 +299,7 @@ public class SampleSearchCriteriaTranslatorTest extends AbstractSearchCriteriaTr
 
     private DetailedSearchCriteria translate(SampleSearchCriteria criteria)
     {
-        SampleSearchCriteriaTranslator translator = new SampleSearchCriteriaTranslator(daoFactory, new EntityAttributeProviderFactory());
+        SampleSearchCriteriaTranslator translator = new SampleSearchCriteriaTranslator(daoFactory, new ObjectAttributeProviderFactory());
         DetailedSearchCriteria result = translator.translate(new SearchTranslationContext(null), criteria).getCriteria();
         System.out.println("From NEW:\n" + result);
         return result;

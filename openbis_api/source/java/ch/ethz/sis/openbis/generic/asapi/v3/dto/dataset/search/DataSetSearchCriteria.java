@@ -52,6 +52,16 @@ public class DataSetSearchCriteria extends AbstractEntitySearchCriteria<IDataSet
         return with(new DataSetTypeSearchCriteria());
     }
 
+    public PhysicalDataSearchCriteria withPhysicalData()
+    {
+        return with(new PhysicalDataSearchCriteria());
+    }
+
+    public LinkedDataSearchCriteria withLinkedData()
+    {
+        return with(new LinkedDataSearchCriteria());
+    }
+
     public DataSetSearchCriteria withParents()
     {
         return with(new DataSetParentsSearchCriteria());

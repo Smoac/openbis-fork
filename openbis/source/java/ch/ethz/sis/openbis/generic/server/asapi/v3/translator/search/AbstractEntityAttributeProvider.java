@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKi
 /**
  * @author pkupczyk
  */
-public abstract class AbstractEntityAttributeProvider implements IEntityAttributeProvider
+public abstract class AbstractEntityAttributeProvider implements IObjectAttributeProvider
 {
 
     protected IAttributeSearchFieldKind getDateAttribute(IDate date, IAttributeSearchFieldKind equal, IAttributeSearchFieldKind earlier,

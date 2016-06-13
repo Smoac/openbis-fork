@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search;
 import java.util.Stack;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.Context;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
@@ -28,31 +27,31 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 public class SearchTranslationContext extends Context
 {
 
-    private final Stack<EntityKind> entityKinds = new Stack<EntityKind>();
+    private final Stack<SearchObjectKind> objectKinds = new Stack<SearchObjectKind>();
 
     public SearchTranslationContext(Session session)
     {
         super(session);
     }
 
-    public void pushEntityKind(EntityKind entityKind)
+    public void pushObjectKind(SearchObjectKind objectKind)
     {
-        entityKinds.push(entityKind);
+        objectKinds.push(objectKind);
     }
 
-    public EntityKind popEntityKind()
+    public SearchObjectKind popObjectKind()
     {
-        return entityKinds.pop();
+        return objectKinds.pop();
     }
 
-    public EntityKind peekEntityKind()
+    public SearchObjectKind peekObjectKind()
     {
-        if (entityKinds.isEmpty())
+        if (objectKinds.isEmpty())
         {
             return null;
         } else
         {
-            return entityKinds.peek();
+            return objectKinds.peek();
         }
     }
 

@@ -30,7 +30,7 @@ public class SortableNumberBridgeUtils
         }
     }
 
-    private static String getNumberForLucene(Number number)
+    public static String getNumberForLucene(Number number)
     {
         if (number instanceof Integer || number instanceof Long)
         {
@@ -56,10 +56,10 @@ public class SortableNumberBridgeUtils
         if (rawInteger.startsWith("-"))
         {
             rawInteger = rawInteger.substring(1, rawInteger.length());
-            paddedInteger.append('-');
+            paddedInteger.append('0');
         } else
         {
-            paddedInteger.append('+');
+            paddedInteger.append('1');
         }
 
         if (rawInteger.length() > LUCENE_INTEGER_PADDING)

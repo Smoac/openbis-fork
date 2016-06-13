@@ -24,7 +24,7 @@ public abstract class NumberFieldSearchCriteria extends AbstractFieldSearchCrite
 
     private static final long serialVersionUID = 1L;
 
-    NumberFieldSearchCriteria(String fieldName, SearchFieldType fieldType)
+    protected NumberFieldSearchCriteria(String fieldName, SearchFieldType fieldType)
     {
         super(fieldName, fieldType);
     }

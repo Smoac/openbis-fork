@@ -26,9 +26,15 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.search.annotations.ClassBridge;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.Store;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
  * @author Pawel Glyzewski
@@ -37,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 @Table(name = TableNames.LINK_DATA_TABLE)
 @PrimaryKeyJoinColumn(name = ColumnNames.DATA_ID_COLUMN)
 @Indexed(index = "DataPE")
+@ClassBridge(impl = LinkDataGlobalSearchBridge.class)
 public class LinkDataPE extends DataPE
 {
     private static final long serialVersionUID = IServer.VERSION;
@@ -49,6 +56,7 @@ public class LinkDataPE extends DataPE
     @ManyToOne(fetch = FetchType.EAGER)
     @NotNull(message = ValidationMessages.EXTERNAL_DATA_MANAGEMENT_SYSTEM_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.EXTERNAL_DATA_MANAGEMENT_SYSTEM_ID_COLUMN, updatable = true)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_EXTERNAL_DMS)
     public ExternalDataManagementSystemPE getExternalDataManagementSystem()
     {
         return externalDataManagementSystem;
@@ -63,6 +71,7 @@ public class LinkDataPE extends DataPE
 
     @NotNull(message = ValidationMessages.EXTERNAL_CODE_NOT_NULL_MESSAGE)
     @Column(name = ColumnNames.EXTERNAL_CODE_COLUMN)
+    @Field(name = SearchFieldConstants.EXTERNAL_CODE, index = Index.YES, store = Store.YES)
     public String getExternalCode()
     {
         return externalCode;

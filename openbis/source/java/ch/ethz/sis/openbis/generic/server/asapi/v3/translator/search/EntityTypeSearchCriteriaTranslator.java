@@ -18,11 +18,9 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.search.AbstractEntityTypeSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearchFieldKind;
 
@@ -32,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearch
 public class EntityTypeSearchCriteriaTranslator extends AbstractFieldFromCompositeSearchCriteriaTranslator
 {
 
-    public EntityTypeSearchCriteriaTranslator(IDAOFactory daoFactory, IEntityAttributeProviderFactory entityAttributeProviderFactory)
+    public EntityTypeSearchCriteriaTranslator(IDAOFactory daoFactory, IObjectAttributeProviderFactory entityAttributeProviderFactory)
     {
         super(daoFactory, entityAttributeProviderFactory);
     }
@@ -40,28 +38,27 @@ public class EntityTypeSearchCriteriaTranslator extends AbstractFieldFromComposi
     @Override
     protected boolean doAccepts(ISearchCriteria criteria)
     {
-        return criteria instanceof AbstractEntityTypeSearchCriteria
-                && false == (criteria instanceof SampleTypeSearchCriteria);
+        return criteria instanceof AbstractEntityTypeSearchCriteria;
     }
 
     @Override
     protected DetailedSearchField doTranslateSearchField(SearchTranslationContext context, ISearchCriteria criteria, ISearchCriteria subCriteria)
     {
-        EntityKind entityKind = context.peekEntityKind();
+        SearchObjectKind objectKind = context.peekObjectKind();
 
-        if (EntityKind.EXPERIMENT.equals(entityKind))
+        if (SearchObjectKind.EXPERIMENT.equals(objectKind))
         {
             return DetailedSearchField.createAttributeField(ExperimentAttributeSearchFieldKind.EXPERIMENT_TYPE);
 
-        } else if (EntityKind.DATA_SET.equals(entityKind))
+        } else if (SearchObjectKind.DATA_SET.equals(objectKind))
         {
             return DetailedSearchField.createAttributeField(DataSetAttributeSearchFieldKind.DATA_SET_TYPE);
-        } else if (EntityKind.MATERIAL.equals(entityKind))
+        } else if (SearchObjectKind.MATERIAL.equals(objectKind))
         {
             return DetailedSearchField.createAttributeField(MaterialAttributeSearchFieldKind.MATERIAL_TYPE);
         } else
         {
-            throw new IllegalArgumentException("Unknown entity kind: " + entityKind);
+            throw new IllegalArgumentException("Unknown object kind: " + objectKind);
         }
     }
 

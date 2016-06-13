@@ -22,7 +22,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
 
@@ -32,9 +31,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFi
 public class SpaceSearchCriteriaTranslator extends AbstractFieldFromCompositeSearchCriteriaTranslator
 {
 
-    private static final EnumSet<EntityKind> ENTITY_KINDS_WITH_SPACE = EnumSet.of(EntityKind.EXPERIMENT, EntityKind.SAMPLE);
+    private static final EnumSet<SearchObjectKind> ENTITY_KINDS_WITH_SPACE = EnumSet.of(SearchObjectKind.EXPERIMENT, SearchObjectKind.SAMPLE);
 
-    public SpaceSearchCriteriaTranslator(IDAOFactory daoFactory, IEntityAttributeProviderFactory entityAttributeProviderFactory)
+    public SpaceSearchCriteriaTranslator(IDAOFactory daoFactory, IObjectAttributeProviderFactory entityAttributeProviderFactory)
     {
         super(daoFactory, entityAttributeProviderFactory);
     }
@@ -48,10 +47,10 @@ public class SpaceSearchCriteriaTranslator extends AbstractFieldFromCompositeSea
     @Override
     protected SearchCriteriaTranslationResult doTranslate(SearchTranslationContext context, ISearchCriteria criteria)
     {
-        if (ENTITY_KINDS_WITH_SPACE.contains(context.peekEntityKind()) == false)
+        if (ENTITY_KINDS_WITH_SPACE.contains(context.peekObjectKind()) == false)
         {
             throw new IllegalArgumentException("Space criteria can be used only in experiment and sample criteria, "
-                    + "but was used in: " + context.peekEntityKind() + " context.");
+                    + "but was used in: " + context.peekObjectKind() + " context.");
         }
         return super.doTranslate(context, criteria);
     }
@@ -59,17 +58,17 @@ public class SpaceSearchCriteriaTranslator extends AbstractFieldFromCompositeSea
     @Override
     protected DetailedSearchField doTranslateSearchField(SearchTranslationContext context, ISearchCriteria criteria, ISearchCriteria subCriteria)
     {
-        EntityKind entityKind = context.peekEntityKind();
+        SearchObjectKind objectKind = context.peekObjectKind();
 
-        if (EntityKind.EXPERIMENT.equals(entityKind))
+        if (SearchObjectKind.EXPERIMENT.equals(objectKind))
         {
             return DetailedSearchField.createAttributeField(ExperimentAttributeSearchFieldKind.PROJECT_SPACE);
-        } else if (EntityKind.SAMPLE.equals(entityKind))
+        } else if (SearchObjectKind.SAMPLE.equals(objectKind))
         {
             return DetailedSearchField.createAttributeField(SampleAttributeSearchFieldKind.SPACE);
         } else
         {
-            throw new IllegalArgumentException("Unknown entity kind: " + entityKind);
+            throw new IllegalArgumentException("Unknown object kind: " + objectKind);
         }
     }
 

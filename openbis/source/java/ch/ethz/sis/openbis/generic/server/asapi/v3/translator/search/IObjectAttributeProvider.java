@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKi
 /**
  * @author pkupczyk
  */
-public interface IEntityAttributeProvider
+public interface IObjectAttributeProvider
 {
 
     public IAttributeSearchFieldKind getAttribute(ISearchCriteria criteria);

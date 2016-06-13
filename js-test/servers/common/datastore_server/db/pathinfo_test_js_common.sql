@@ -2,11 +2,16 @@
 -- PostgreSQL database dump
 --
 
+-- Dumped from database version 9.5.0
+-- Dumped by pg_dump version 9.5.0
+
 SET statement_timeout = 0;
+SET lock_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
+SET row_security = off;
 
 --
 -- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: -
@@ -35,7 +40,7 @@ CREATE DOMAIN boolean_char AS boolean DEFAULT false;
 -- Name: code; Type: DOMAIN; Schema: public; Owner: -
 --
 
-CREATE DOMAIN code AS character varying(40);
+CREATE DOMAIN code AS character varying(60);
 
 
 --
@@ -64,7 +69,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: data_set_files; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: data_set_files; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE data_set_files (
@@ -100,14 +105,7 @@ ALTER SEQUENCE data_set_files_id_seq OWNED BY data_set_files.id;
 
 
 --
--- Name: data_set_files_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('data_set_files_id_seq', 13022, true);
-
-
---
--- Name: data_sets; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: data_sets; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE data_sets (
@@ -137,14 +135,7 @@ ALTER SEQUENCE data_sets_id_seq OWNED BY data_sets.id;
 
 
 --
--- Name: data_sets_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('data_sets_id_seq', 12, true);
-
-
---
--- Name: database_version_logs; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: database_version_logs; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE database_version_logs (
@@ -158,7 +149,7 @@ CREATE TABLE database_version_logs (
 
 
 --
--- Name: events; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: events; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE events (
@@ -167,7 +158,7 @@ CREATE TABLE events (
 
 
 --
--- Name: last_feeding_event; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: last_feeding_event; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE last_feeding_event (
@@ -179,14 +170,14 @@ CREATE TABLE last_feeding_event (
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE data_set_files ALTER COLUMN id SET DEFAULT nextval('data_set_files_id_seq'::regclass);
+ALTER TABLE ONLY data_set_files ALTER COLUMN id SET DEFAULT nextval('data_set_files_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE data_sets ALTER COLUMN id SET DEFAULT nextval('data_sets_id_seq'::regclass);
+ALTER TABLE ONLY data_sets ALTER COLUMN id SET DEFAULT nextval('data_sets_id_seq'::regclass);
 
 
 --
@@ -13184,6 +13175,13 @@ COPY data_set_files (id, dase_id, parent_id, relative_path, file_name, size_in_b
 
 
 --
+-- Name: data_set_files_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('data_set_files_id_seq', 13022, true);
+
+
+--
 -- Data for Name: data_sets; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -13202,11 +13200,20 @@ COPY data_sets (id, code, location) FROM stdin;
 
 
 --
+-- Name: data_sets_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('data_sets_id_seq', 12, true);
+
+
+--
 -- Data for Name: database_version_logs; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY database_version_logs (db_version, module_name, run_status, run_status_timestamp, module_code, run_exception) FROM stdin;
 006	datastore_server/sql/postgresql/006/schema-006.sql	SUCCESS	2013-04-12 10:06:04.38	\\x0a2f2a202d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d202a2f0a2f2a20446f6d61696e73202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202a2f0a2f2a202d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d202a2f0a0a43524541544520444f4d41494e20544543485f494420415320424947494e543b0a0a43524541544520444f4d41494e20434f44452041532056415243484152283430293b0a0a43524541544520444f4d41494e2046494c455f5041544820415320564152434841522831303030293b0a0a43524541544520444f4d41494e20424f4f4c45414e5f4348415220415320424f4f4c45414e2044454641554c542046414c53453b0a0a43524541544520444f4d41494e2054494d455f5354414d502041532054494d455354414d5020574954482054494d45205a4f4e453b0a0a0a2f2a202d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d202a2f0a2f2a205461626c657320202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202a2f0a2f2a202d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d202a2f0a0a435245415445205441424c4520444154415f5345545320280a202049442042494753455249414c204e4f54204e554c4c2c0a2020434f444520434f4445204e4f54204e554c4c2c0a20204c4f434154494f4e2046494c455f50415448204e4f54204e554c4c2c0a0a20205052494d415259204b455920284944292c0a2020554e495155452028434f4445290a293b0a0a43524541544520494e44455820444154415f534554535f434f44455f494458204f4e20444154415f534554532028434f4445293b0a0a435245415445205441424c4520444154415f5345545f46494c455320280a202049442042494753455249414c204e4f54204e554c4c2c0a2020444153455f494420544543485f4944204e4f54204e554c4c2c0a2020504152454e545f494420544543485f49442c0a202052454c41544956455f504154482046494c455f50415448204e4f54204e554c4c2c0a202046494c455f4e414d452046494c455f50415448204e4f54204e554c4c2c0a202053495a455f494e5f425954455320424947494e54204e4f54204e554c4c2c0a2020434845434b53554d5f435243333220494e54454745522c0a202049535f4449524543544f525920424f4f4c45414e5f43484152204e4f54204e554c4c2c0a20204c4153545f4d4f4449464945442054494d455f5354414d50204e4f54204e554c4c2044454641554c54204e4f5728292c0a0a20205052494d415259204b455920284944292c0a2020434f4e53545241494e5420464b5f444154415f5345545f46494c45535f444154415f5345545320464f524549474e204b45592028444153455f494429205245464552454e43455320444154415f534554532028494429204f4e2044454c4554452043415343414445204f4e2055504441544520434153434144452c0a2020434f4e53545241494e5420464b5f444154415f5345545f46494c45535f444154415f5345545f46494c455320464f524549474e204b45592028504152454e545f494429205245464552454e43455320444154415f5345545f46494c45532028494429204f4e2044454c4554452043415343414445204f4e2055504441544520434153434144450a293b0a0a43524541544520494e44455820444154415f5345545f46494c45535f444153455f49445f494458204f4e20444154415f5345545f46494c45532028444153455f4944293b0a43524541544520494e44455820444154415f5345545f46494c45535f444153455f49445f504152454e545f49445f494458204f4e20444154415f5345545f46494c45532028444153455f49442c20504152454e545f4944293b0a43524541544520494e44455820444154415f5345545f46494c45535f444153455f49445f52454c41544956455f504154485f494458204f4e20444154415f5345545f46494c45532028444153455f49442c2052454c41544956455f50415448293b0a43524541544520494e44455820444154415f5345545f46494c45535f444153455f49445f46494c455f4e414d455f494458204f4e20444154415f5345545f46494c45532028444153455f49442c2046494c455f4e414d45293b0a0a435245415445205441424c45204556454e545320280a20204c4153545f5345454e5f44454c4554494f4e5f4556454e545f494420544543485f4944204e4f54204e554c4c0a293b0a0a435245415445205441424c45204c4153545f46454544494e475f4556454e5420280a2020524547495354524154494f4e5f54494d455354414d502054494d455f5354414d50204e4f54204e554c4c0a293b0a0a	\N
+007	../../../../datastore_server/source/sql/postgresql/migration/migration-006-007.sql	SUCCESS	2016-06-13 19:47:17.156	\\x2d2d206368616e676520434f444520646f6d61696e20746f2056415243484152283630292c20756e666f7274756e6174656c79206120747970652063616e6e6f7420626520616c746572656420666f7220616e206578697374696e6720646f6d61696e0a0a414c544552205441424c4520444154415f5345545320414c54455220434f4c554d4e20434f444520545950452056415243484152283630293b0a0a44524f5020444f4d41494e20434f44453b0a43524541544520444f4d41494e20434f44452041532056415243484152283630293b0a0a414c544552205441424c4520444154415f5345545320414c54455220434f4c554d4e20434f4445205459504520434f44453b0a	\N
+008	../../../../datastore_server/source/sql/postgresql/migration/migration-007-008.sql	SUCCESS	2016-06-13 19:47:17.179	\\x616c746572207461626c6520646174615f7365745f66696c65732064726f7020636f6e73747261696e742069662065786973747320666b5f646174615f7365745f66696c65735f646174615f7365745f66696c65733b0a	\N
 \.
 
 
@@ -13228,7 +13235,7 @@ COPY last_feeding_event (registration_timestamp) FROM stdin;
 
 
 --
--- Name: data_set_files_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: data_set_files_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY data_set_files
@@ -13236,7 +13243,7 @@ ALTER TABLE ONLY data_set_files
 
 
 --
--- Name: data_sets_code_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: data_sets_code_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY data_sets
@@ -13244,7 +13251,7 @@ ALTER TABLE ONLY data_sets
 
 
 --
--- Name: data_sets_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: data_sets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY data_sets
@@ -13252,46 +13259,38 @@ ALTER TABLE ONLY data_sets
 
 
 --
--- Name: data_set_files_dase_id_file_name_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: data_set_files_dase_id_file_name_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX data_set_files_dase_id_file_name_idx ON data_set_files USING btree (dase_id, file_name);
 
 
 --
--- Name: data_set_files_dase_id_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: data_set_files_dase_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX data_set_files_dase_id_idx ON data_set_files USING btree (dase_id);
 
 
 --
--- Name: data_set_files_dase_id_parent_id_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: data_set_files_dase_id_parent_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX data_set_files_dase_id_parent_id_idx ON data_set_files USING btree (dase_id, parent_id);
 
 
 --
--- Name: data_set_files_dase_id_relative_path_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: data_set_files_dase_id_relative_path_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX data_set_files_dase_id_relative_path_idx ON data_set_files USING btree (dase_id, relative_path);
 
 
 --
--- Name: data_sets_code_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: data_sets_code_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX data_sets_code_idx ON data_sets USING btree (code);
-
-
---
--- Name: fk_data_set_files_data_set_files; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY data_set_files
-    ADD CONSTRAINT fk_data_set_files_data_set_files FOREIGN KEY (parent_id) REFERENCES data_set_files(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -13307,7 +13306,8 @@ ALTER TABLE ONLY data_set_files
 --
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM postgres;
+REVOKE ALL ON SCHEMA public FROM pkupczyk;
+GRANT ALL ON SCHEMA public TO pkupczyk;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 

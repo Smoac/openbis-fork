@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
-import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * @author pkupczyk
@@ -32,9 +32,9 @@ public abstract class AbstractFieldSearchCriteriaTranslator extends AbstractSear
 
     private IDAOFactory daoFactory;
 
-    private IEntityAttributeProviderFactory entityAttributeProviderFactory;
+    private IObjectAttributeProviderFactory entityAttributeProviderFactory;
 
-    public AbstractFieldSearchCriteriaTranslator(IDAOFactory daoFactory, IEntityAttributeProviderFactory entityAttributeProviderFactory)
+    public AbstractFieldSearchCriteriaTranslator(IDAOFactory daoFactory, IObjectAttributeProviderFactory entityAttributeProviderFactory)
     {
         this.daoFactory = daoFactory;
         this.entityAttributeProviderFactory = entityAttributeProviderFactory;
@@ -65,14 +65,15 @@ public abstract class AbstractFieldSearchCriteriaTranslator extends AbstractSear
         return field;
     }
 
-    protected IEntityAttributeProvider getEntityAttributeProvider(SearchTranslationContext context)
+    protected IObjectAttributeProvider getEntityAttributeProvider(SearchTranslationContext context)
     {
-        return getEntityAttributeProviderFactory().getProvider(context.peekEntityKind());
+        return getEntityAttributeProviderFactory().getProvider(context.peekObjectKind());
     }
 
     protected IEntityPropertyTypeDAO getEntityPropertyTypeDAO(SearchTranslationContext context)
     {
-        return getDaoFactory().getEntityPropertyTypeDAO(DtoConverters.convertEntityKind(context.peekEntityKind()));
+        EntityKind entityKind = getEntityPropertyKind(context.peekObjectKind());
+        return getDaoFactory().getEntityPropertyTypeDAO(entityKind);
     }
 
     protected IDAOFactory getDaoFactory()
@@ -80,9 +81,26 @@ public abstract class AbstractFieldSearchCriteriaTranslator extends AbstractSear
         return daoFactory;
     }
 
-    protected IEntityAttributeProviderFactory getEntityAttributeProviderFactory()
+    protected IObjectAttributeProviderFactory getEntityAttributeProviderFactory()
     {
         return entityAttributeProviderFactory;
+    }
+
+    private EntityKind getEntityPropertyKind(SearchObjectKind objectKind)
+    {
+        switch (objectKind)
+        {
+            case EXPERIMENT:
+                return EntityKind.EXPERIMENT;
+            case SAMPLE:
+                return EntityKind.SAMPLE;
+            case DATA_SET:
+                return EntityKind.DATA_SET;
+            case MATERIAL:
+                return EntityKind.MATERIAL;
+            default:
+                throw new IllegalArgumentException("Unknown object kind: " + objectKind);
+        }
     }
 
 }

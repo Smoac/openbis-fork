@@ -59,7 +59,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IMapProjectB
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.IMapSampleByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.space.IMapSpaceByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IMapTagByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.EntityAttributeProviderFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.ObjectAttributeProviderFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.ISearchCriteriaTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.SearchCriteriaTranslationResult;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search.SearchCriteriaTranslatorFactory;
@@ -132,7 +132,7 @@ public abstract class AbstractSearchObjectExecutor<CRITERIA extends AbstractObje
         replaceCriteria(context, critera);
 
         ISearchCriteriaTranslator translator =
-                new SearchCriteriaTranslatorFactory(daoFactory, new EntityAttributeProviderFactory()).getTranslator(critera);
+                new SearchCriteriaTranslatorFactory(daoFactory, new ObjectAttributeProviderFactory()).getTranslator(critera);
         SearchCriteriaTranslationResult translationResult = translator.translate(new SearchTranslationContext(context.getSession()), critera);
 
         return doSearch(context, translationResult.getCriteria());

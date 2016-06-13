@@ -22,7 +22,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.NoExperimentSe
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
  * @author pkupczyk
@@ -30,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 public class ExperimentSearchCriteriaTranslator extends AbstractCompositeSearchCriteriaTranslator
 {
 
-    protected ExperimentSearchCriteriaTranslator(IDAOFactory idaoFactory, IEntityAttributeProviderFactory entityAttributeProviderFactory)
+    protected ExperimentSearchCriteriaTranslator(IDAOFactory idaoFactory, IObjectAttributeProviderFactory entityAttributeProviderFactory)
     {
         super(idaoFactory, entityAttributeProviderFactory);
     }
@@ -49,11 +48,11 @@ public class ExperimentSearchCriteriaTranslator extends AbstractCompositeSearchC
             return new SearchCriteriaTranslationResult(new DetailedSearchSubCriteria(AssociatedEntityKind.EXPERIMENT, null));
         } else
         {
-            context.pushEntityKind(EntityKind.EXPERIMENT);
+            context.pushObjectKind(SearchObjectKind.EXPERIMENT);
             SearchCriteriaTranslationResult translationResult = super.doTranslate(context, criteria);
-            context.popEntityKind();
+            context.popObjectKind();
 
-            if (context.peekEntityKind() == null)
+            if (context.peekObjectKind() == null)
             {
                 return translationResult;
             } else

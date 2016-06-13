@@ -39,8 +39,6 @@ public final class SearchFieldConstants
 
     public static final String PREFIX_ENTITY_TYPE = "type" + SEPARATOR;
 
-    public static final String PREFIX_FILE_FORMAT_TYPE = "file format type" + SEPARATOR;
-
     public static final String PREFIX_PROJECT = "project" + SEPARATOR;
 
     public static final String PREFIX_SPACE = "space" + SEPARATOR;
@@ -55,11 +53,19 @@ public final class SearchFieldConstants
 
     public static final String PREFIX_METAPROJECT = "metaproject" + SEPARATOR;
 
+    public static final String PREFIX_FILE_FORMAT_TYPE = "file format type" + SEPARATOR;
+
+    public static final String PREFIX_LOCATOR_TYPE = "locator type" + SEPARATOR;
+
+    public static final String PREFIX_STORAGE_FORMAT = "storage format" + SEPARATOR;
+
+    public static final String PREFIX_EXTERNAL_DMS = "external dms" + SEPARATOR;
+
     public static final String[] PREFIXES =
-    { PREFIX_PROPERTIES, PREFIX_EXPERIMENT, PREFIX_SAMPLE, PREFIX_ENTITY_TYPE,
-            PREFIX_FILE_FORMAT_TYPE, PREFIX_FILE_FORMAT_TYPE, PREFIX_PROJECT, PREFIX_SPACE,
-            PREFIX_REGISTRATOR, PREFIX_ATTACHMENT, PREFIX_PROPERTIES + PREFIX_VOCABULARY_TERM,
-            PREFIX_METAPROJECT };
+            { PREFIX_PROPERTIES, PREFIX_EXPERIMENT, PREFIX_SAMPLE, PREFIX_ENTITY_TYPE,
+                    PREFIX_FILE_FORMAT_TYPE, PREFIX_FILE_FORMAT_TYPE, PREFIX_PROJECT, PREFIX_SPACE,
+                    PREFIX_REGISTRATOR, PREFIX_ATTACHMENT, PREFIX_PROPERTIES + PREFIX_VOCABULARY_TERM,
+                    PREFIX_METAPROJECT };
 
     public static final String ID = "id";
 
@@ -96,6 +102,22 @@ public final class SearchFieldConstants
     public static final String FILE_DESCRIPTION = "description";
 
     public static final String STORAGE_CONFIRMATION = "storage_confirmed";
+
+    public static final String SHARE_ID = "share_id";
+
+    public static final String LOCATION = "location";
+
+    public static final String SIZE = "size";
+
+    public static final String COMPLETE = "complete";
+
+    public static final String STATUS = "status";
+
+    public static final String PRESENT_IN_ARCHIVE = "present_in_archive";
+
+    public static final String SPEED_HINT = "speed_hint";
+
+    public static final String EXTERNAL_CODE = "external_code";
 
     public static final String REGISTRATION_DATE = "registration_date";
 

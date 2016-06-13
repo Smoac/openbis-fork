@@ -127,14 +127,12 @@ class IndexFieldNameHelper
     {
         switch (attributeKind)
         {
+            // common fields
+
             case CODE:
                 return CODE;
             case DATA_SET_TYPE:
                 return SearchFieldConstants.PREFIX_ENTITY_TYPE + CODE;
-            case FILE_TYPE:
-                return SearchFieldConstants.PREFIX_FILE_FORMAT_TYPE + CODE;
-            case STORAGE_CONFIRMATION:
-                return SearchFieldConstants.STORAGE_CONFIRMATION;
             case METAPROJECT:
                 return SearchFieldConstants.PREFIX_METAPROJECT + SearchFieldConstants.IDENTIFIER;
             case REGISTRATION_DATE:
@@ -145,6 +143,38 @@ class IndexFieldNameHelper
             case MODIFICATION_DATE_FROM:
             case MODIFICATION_DATE_UNTIL:
                 return SearchFieldConstants.MODIFICATION_DATE;
+
+            // physical data set fields
+
+            case LOCATOR_TYPE:
+                return SearchFieldConstants.PREFIX_LOCATOR_TYPE + CODE;
+            case LOCATION:
+                return SearchFieldConstants.LOCATION;
+            case SHARE_ID:
+                return SearchFieldConstants.SHARE_ID;
+            case SIZE:
+                return SearchFieldConstants.SIZE;
+            case STORAGE_FORMAT:
+                return SearchFieldConstants.PREFIX_STORAGE_FORMAT + CODE;
+            case FILE_TYPE:
+                return SearchFieldConstants.PREFIX_FILE_FORMAT_TYPE + CODE;
+            case COMPLETE:
+                return SearchFieldConstants.COMPLETE;
+            case STATUS:
+                return SearchFieldConstants.STATUS;
+            case PRESENT_IN_ARCHIVE:
+                return SearchFieldConstants.PRESENT_IN_ARCHIVE;
+            case STORAGE_CONFIRMATION:
+                return SearchFieldConstants.STORAGE_CONFIRMATION;
+            case SPEED_HINT:
+                return SearchFieldConstants.SPEED_HINT;
+
+            // link data set fields
+
+            case EXTERNAL_CODE:
+                return SearchFieldConstants.EXTERNAL_CODE;
+            case EXTERNAL_DMS:
+                return SearchFieldConstants.PREFIX_EXTERNAL_DMS + CODE;
         }
         throw new IllegalArgumentException(attributeKind.toString());
     }

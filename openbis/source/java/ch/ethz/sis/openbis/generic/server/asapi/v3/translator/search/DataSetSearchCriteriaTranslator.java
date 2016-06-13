@@ -24,7 +24,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCrit
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
  * @author pkupczyk
@@ -32,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 public class DataSetSearchCriteriaTranslator extends AbstractCompositeSearchCriteriaTranslator
 {
 
-    protected DataSetSearchCriteriaTranslator(IDAOFactory idaoFactory, IEntityAttributeProviderFactory entityAttributeProviderFactory)
+    protected DataSetSearchCriteriaTranslator(IDAOFactory idaoFactory, IObjectAttributeProviderFactory entityAttributeProviderFactory)
     {
         super(idaoFactory, entityAttributeProviderFactory);
     }
@@ -46,11 +45,11 @@ public class DataSetSearchCriteriaTranslator extends AbstractCompositeSearchCrit
     @Override
     protected SearchCriteriaTranslationResult doTranslate(SearchTranslationContext context, ISearchCriteria criteria)
     {
-        context.pushEntityKind(EntityKind.DATA_SET);
+        context.pushObjectKind(SearchObjectKind.DATA_SET);
         SearchCriteriaTranslationResult translationResult = super.doTranslate(context, criteria);
-        context.popEntityKind();
+        context.popObjectKind();
 
-        if (criteria instanceof DataSetSearchCriteria && context.peekEntityKind() == null)
+        if (criteria instanceof DataSetSearchCriteria && context.peekObjectKind() == null)
         {
             return translationResult;
         }

@@ -16,14 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-
 /**
  * @author pkupczyk
  */
-public interface IEntityAttributeProviderFactory
+public interface IObjectAttributeProviderFactory
 {
 
-    public IEntityAttributeProvider getProvider(EntityKind entityKind);
+    public IObjectAttributeProvider getProvider(SearchObjectKind objectKind);
 
 }

@@ -2,11 +2,16 @@
 -- PostgreSQL database dump
 --
 
+-- Dumped from database version 9.5.0
+-- Dumped by pg_dump version 9.5.0
+
 SET statement_timeout = 0;
+SET lock_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
+SET row_security = off;
 
 --
 -- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: -
@@ -191,7 +196,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: acquired_images; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: acquired_images; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE acquired_images (
@@ -224,14 +229,7 @@ ALTER SEQUENCE acquired_images_id_seq OWNED BY acquired_images.id;
 
 
 --
--- Name: acquired_images_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('acquired_images_id_seq', 9684, true);
-
-
---
--- Name: analysis_data_sets; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: analysis_data_sets; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE analysis_data_sets (
@@ -261,14 +259,7 @@ ALTER SEQUENCE analysis_data_sets_id_seq OWNED BY analysis_data_sets.id;
 
 
 --
--- Name: analysis_data_sets_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('analysis_data_sets_id_seq', 3, true);
-
-
---
--- Name: channel_stacks; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: channel_stacks; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE channel_stacks (
@@ -304,14 +295,7 @@ ALTER SEQUENCE channel_stacks_id_seq OWNED BY channel_stacks.id;
 
 
 --
--- Name: channel_stacks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('channel_stacks_id_seq', 4500, true);
-
-
---
--- Name: channels; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: channels; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE channels (
@@ -349,14 +333,7 @@ ALTER SEQUENCE channels_id_seq OWNED BY channels.id;
 
 
 --
--- Name: channels_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('channels_id_seq', 17, true);
-
-
---
--- Name: containers; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: containers; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE containers (
@@ -388,14 +365,7 @@ ALTER SEQUENCE containers_id_seq OWNED BY containers.id;
 
 
 --
--- Name: containers_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('containers_id_seq', 2, true);
-
-
---
--- Name: database_version_logs; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: database_version_logs; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE database_version_logs (
@@ -409,7 +379,7 @@ CREATE TABLE database_version_logs (
 
 
 --
--- Name: events; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: events; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE events (
@@ -418,7 +388,7 @@ CREATE TABLE events (
 
 
 --
--- Name: experiments; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: experiments; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE experiments (
@@ -448,14 +418,7 @@ ALTER SEQUENCE experiments_id_seq OWNED BY experiments.id;
 
 
 --
--- Name: experiments_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('experiments_id_seq', 2, true);
-
-
---
--- Name: feature_defs; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: feature_defs; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE feature_defs (
@@ -487,14 +450,7 @@ ALTER SEQUENCE feature_defs_id_seq OWNED BY feature_defs.id;
 
 
 --
--- Name: feature_defs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('feature_defs_id_seq', 12, true);
-
-
---
--- Name: feature_values; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: feature_values; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE feature_values (
@@ -526,14 +482,7 @@ ALTER SEQUENCE feature_values_id_seq OWNED BY feature_values.id;
 
 
 --
--- Name: feature_values_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('feature_values_id_seq', 12, true);
-
-
---
--- Name: feature_vocabulary_terms; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: feature_vocabulary_terms; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE feature_vocabulary_terms (
@@ -564,14 +513,7 @@ ALTER SEQUENCE feature_vocabulary_terms_id_seq OWNED BY feature_vocabulary_terms
 
 
 --
--- Name: feature_vocabulary_terms_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('feature_vocabulary_terms_id_seq', 6, true);
-
-
---
--- Name: image_data_sets; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: image_data_sets; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE image_data_sets (
@@ -607,14 +549,7 @@ ALTER SEQUENCE image_data_sets_id_seq OWNED BY image_data_sets.id;
 
 
 --
--- Name: image_data_sets_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('image_data_sets_id_seq', 11, true);
-
-
---
--- Name: image_transformations; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: image_transformations; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE image_transformations (
@@ -649,14 +584,7 @@ ALTER SEQUENCE image_transformations_id_seq OWNED BY image_transformations.id;
 
 
 --
--- Name: image_transformations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('image_transformations_id_seq', 72, true);
-
-
---
--- Name: image_zoom_level_transformations; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: image_zoom_level_transformations; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE image_zoom_level_transformations (
@@ -687,14 +615,7 @@ ALTER SEQUENCE image_zoom_level_transformations_id_seq OWNED BY image_zoom_level
 
 
 --
--- Name: image_zoom_level_transformations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('image_zoom_level_transformations_id_seq', 15, true);
-
-
---
--- Name: image_zoom_levels; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: image_zoom_levels; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE image_zoom_levels (
@@ -730,14 +651,7 @@ ALTER SEQUENCE image_zoom_levels_id_seq OWNED BY image_zoom_levels.id;
 
 
 --
--- Name: image_zoom_levels_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('image_zoom_levels_id_seq', 21, true);
-
-
---
--- Name: images; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: images; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE images (
@@ -768,14 +682,7 @@ ALTER SEQUENCE images_id_seq OWNED BY images.id;
 
 
 --
--- Name: images_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('images_id_seq', 17550, true);
-
-
---
--- Name: spots; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: spots; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE spots (
@@ -806,115 +713,108 @@ ALTER SEQUENCE spots_id_seq OWNED BY spots.id;
 
 
 --
--- Name: spots_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('spots_id_seq', 288, true);
+ALTER TABLE ONLY acquired_images ALTER COLUMN id SET DEFAULT nextval('acquired_images_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE acquired_images ALTER COLUMN id SET DEFAULT nextval('acquired_images_id_seq'::regclass);
+ALTER TABLE ONLY analysis_data_sets ALTER COLUMN id SET DEFAULT nextval('analysis_data_sets_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE analysis_data_sets ALTER COLUMN id SET DEFAULT nextval('analysis_data_sets_id_seq'::regclass);
+ALTER TABLE ONLY channel_stacks ALTER COLUMN id SET DEFAULT nextval('channel_stacks_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE channel_stacks ALTER COLUMN id SET DEFAULT nextval('channel_stacks_id_seq'::regclass);
+ALTER TABLE ONLY channels ALTER COLUMN id SET DEFAULT nextval('channels_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE channels ALTER COLUMN id SET DEFAULT nextval('channels_id_seq'::regclass);
+ALTER TABLE ONLY containers ALTER COLUMN id SET DEFAULT nextval('containers_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE containers ALTER COLUMN id SET DEFAULT nextval('containers_id_seq'::regclass);
+ALTER TABLE ONLY experiments ALTER COLUMN id SET DEFAULT nextval('experiments_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE experiments ALTER COLUMN id SET DEFAULT nextval('experiments_id_seq'::regclass);
+ALTER TABLE ONLY feature_defs ALTER COLUMN id SET DEFAULT nextval('feature_defs_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE feature_defs ALTER COLUMN id SET DEFAULT nextval('feature_defs_id_seq'::regclass);
+ALTER TABLE ONLY feature_values ALTER COLUMN id SET DEFAULT nextval('feature_values_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE feature_values ALTER COLUMN id SET DEFAULT nextval('feature_values_id_seq'::regclass);
+ALTER TABLE ONLY feature_vocabulary_terms ALTER COLUMN id SET DEFAULT nextval('feature_vocabulary_terms_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE feature_vocabulary_terms ALTER COLUMN id SET DEFAULT nextval('feature_vocabulary_terms_id_seq'::regclass);
+ALTER TABLE ONLY image_data_sets ALTER COLUMN id SET DEFAULT nextval('image_data_sets_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE image_data_sets ALTER COLUMN id SET DEFAULT nextval('image_data_sets_id_seq'::regclass);
+ALTER TABLE ONLY image_transformations ALTER COLUMN id SET DEFAULT nextval('image_transformations_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE image_transformations ALTER COLUMN id SET DEFAULT nextval('image_transformations_id_seq'::regclass);
+ALTER TABLE ONLY image_zoom_level_transformations ALTER COLUMN id SET DEFAULT nextval('image_zoom_level_transformations_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE image_zoom_level_transformations ALTER COLUMN id SET DEFAULT nextval('image_zoom_level_transformations_id_seq'::regclass);
+ALTER TABLE ONLY image_zoom_levels ALTER COLUMN id SET DEFAULT nextval('image_zoom_levels_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE image_zoom_levels ALTER COLUMN id SET DEFAULT nextval('image_zoom_levels_id_seq'::regclass);
+ALTER TABLE ONLY images ALTER COLUMN id SET DEFAULT nextval('images_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE images ALTER COLUMN id SET DEFAULT nextval('images_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE spots ALTER COLUMN id SET DEFAULT nextval('spots_id_seq'::regclass);
+ALTER TABLE ONLY spots ALTER COLUMN id SET DEFAULT nextval('spots_id_seq'::regclass);
 
 
 --
@@ -6974,12 +6874,26 @@ COPY acquired_images (id, img_id, thumbnail_id, image_transformer_factory, chann
 
 
 --
+-- Name: acquired_images_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('acquired_images_id_seq', 9684, true);
+
+
+--
 -- Data for Name: analysis_data_sets; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY analysis_data_sets (id, perm_id, cont_id) FROM stdin;
 3	20130412153659945-390	1
 \.
+
+
+--
+-- Name: analysis_data_sets_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('analysis_data_sets_id_seq', 3, true);
 
 
 --
@@ -9583,6 +9497,13 @@ COPY channel_stacks (id, x, y, z_in_m, t_in_sec, series_number, is_representativ
 
 
 --
+-- Name: channel_stacks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('channel_stacks_id_seq', 4500, true);
+
+
+--
 -- Data for Name: channels; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -9598,6 +9519,13 @@ COPY channels (id, code, label, description, wavelength, red_cc, green_cc, blue_
 
 
 --
+-- Name: channels_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('channels_id_seq', 17, true);
+
+
+--
 -- Data for Name: containers; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -9605,6 +9533,13 @@ COPY containers (id, perm_id, spots_width, spots_height, expe_id) FROM stdin;
 1	20130412140147735-20	12	8	1
 2	20130412150557128-205	12	8	2
 \.
+
+
+--
+-- Name: containers_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('containers_id_seq', 2, true);
 
 
 --
@@ -9636,6 +9571,13 @@ COPY experiments (id, perm_id, image_transformer_factory) FROM stdin;
 
 
 --
+-- Name: experiments_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('experiments_id_seq', 2, true);
+
+
+--
 -- Data for Name: feature_defs; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -9645,6 +9587,13 @@ COPY feature_defs (id, code, label, description, ds_id) FROM stdin;
 11	TPU	TPU	TPU	3
 12	STATE	STATE	STATE	3
 \.
+
+
+--
+-- Name: feature_defs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('feature_defs_id_seq', 12, true);
 
 
 --
@@ -9660,6 +9609,13 @@ COPY feature_values (id, z_in_m, t_in_sec, "values", fd_id) FROM stdin;
 
 
 --
+-- Name: feature_values_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('feature_values_id_seq', 12, true);
+
+
+--
 -- Data for Name: feature_vocabulary_terms; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -9667,6 +9623,13 @@ COPY feature_vocabulary_terms (id, code, sequence_number, fd_id) FROM stdin;
 5	UNSTABLE	0	12
 6	STABLE	1	12
 \.
+
+
+--
+-- Name: feature_vocabulary_terms_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('feature_vocabulary_terms_id_seq', 6, true);
 
 
 --
@@ -9678,6 +9641,13 @@ COPY image_data_sets (id, perm_id, fields_width, fields_height, image_transforme
 3	20130412152038345-381	3	3	\N	f	\N	\N	2
 5	20130412153119864-385	3	3	\N	f	\N	\N	1
 \.
+
+
+--
+-- Name: image_data_sets_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('image_data_sets_id_seq', 11, true);
 
 
 --
@@ -9737,6 +9707,13 @@ COPY image_transformations (id, code, label, description, image_transformer_fact
 
 
 --
+-- Name: image_transformations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('image_transformations_id_seq', 72, true);
+
+
+--
 -- Data for Name: image_zoom_level_transformations; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -9754,6 +9731,13 @@ COPY image_zoom_level_transformations (id, zoom_level_id, channel_id, image_tran
 
 
 --
+-- Name: image_zoom_level_transformations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('image_zoom_level_transformations_id_seq', 15, true);
+
+
+--
 -- Data for Name: image_zoom_levels; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -9766,6 +9750,13 @@ COPY image_zoom_levels (id, is_original, container_dataset_id, physical_dataset_
 10	f	3	20130412151710024-379	thumbnails_64x64__CONVERT_2.h5ar	64	64	32	jpg
 12	t	5	20130412153118625-384		512	512	32	\N
 \.
+
+
+--
+-- Name: image_zoom_levels_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('image_zoom_levels_id_seq', 21, true);
 
 
 --
@@ -21009,6 +21000,13 @@ COPY images (id, path, image_id, color) FROM stdin;
 
 
 --
+-- Name: images_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('images_id_seq', 17550, true);
+
+
+--
 -- Data for Name: spots; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -21209,7 +21207,14 @@ COPY spots (id, x, y, cont_id) FROM stdin;
 
 
 --
--- Name: acquired_images_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: spots_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('spots_id_seq', 288, true);
+
+
+--
+-- Name: acquired_images_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY acquired_images
@@ -21217,7 +21222,7 @@ ALTER TABLE ONLY acquired_images
 
 
 --
--- Name: analysis_data_sets_perm_id_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: analysis_data_sets_perm_id_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY analysis_data_sets
@@ -21225,7 +21230,7 @@ ALTER TABLE ONLY analysis_data_sets
 
 
 --
--- Name: analysis_data_sets_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: analysis_data_sets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY analysis_data_sets
@@ -21233,7 +21238,7 @@ ALTER TABLE ONLY analysis_data_sets
 
 
 --
--- Name: channel_stacks_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: channel_stacks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY channel_stacks
@@ -21241,7 +21246,7 @@ ALTER TABLE ONLY channel_stacks
 
 
 --
--- Name: channels_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: channels_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY channels
@@ -21249,7 +21254,7 @@ ALTER TABLE ONLY channels
 
 
 --
--- Name: channels_uk_1; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: channels_uk_1; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY channels
@@ -21257,7 +21262,7 @@ ALTER TABLE ONLY channels
 
 
 --
--- Name: channels_uk_2; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: channels_uk_2; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY channels
@@ -21265,7 +21270,7 @@ ALTER TABLE ONLY channels
 
 
 --
--- Name: containers_perm_id_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: containers_perm_id_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY containers
@@ -21273,7 +21278,7 @@ ALTER TABLE ONLY containers
 
 
 --
--- Name: containers_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: containers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY containers
@@ -21281,7 +21286,7 @@ ALTER TABLE ONLY containers
 
 
 --
--- Name: experiments_perm_id_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: experiments_perm_id_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY experiments
@@ -21289,7 +21294,7 @@ ALTER TABLE ONLY experiments
 
 
 --
--- Name: experiments_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: experiments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY experiments
@@ -21297,7 +21302,7 @@ ALTER TABLE ONLY experiments
 
 
 --
--- Name: feature_defs_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: feature_defs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY feature_defs
@@ -21305,7 +21310,7 @@ ALTER TABLE ONLY feature_defs
 
 
 --
--- Name: feature_defs_uk_1; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: feature_defs_uk_1; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY feature_defs
@@ -21313,7 +21318,7 @@ ALTER TABLE ONLY feature_defs
 
 
 --
--- Name: feature_values_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: feature_values_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY feature_values
@@ -21321,7 +21326,7 @@ ALTER TABLE ONLY feature_values
 
 
 --
--- Name: feature_vocabulary_terms_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: feature_vocabulary_terms_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY feature_vocabulary_terms
@@ -21329,7 +21334,7 @@ ALTER TABLE ONLY feature_vocabulary_terms
 
 
 --
--- Name: image_data_sets_perm_id_key; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: image_data_sets_perm_id_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY image_data_sets
@@ -21337,7 +21342,7 @@ ALTER TABLE ONLY image_data_sets
 
 
 --
--- Name: image_data_sets_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: image_data_sets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY image_data_sets
@@ -21345,7 +21350,7 @@ ALTER TABLE ONLY image_data_sets
 
 
 --
--- Name: image_transformations_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: image_transformations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY image_transformations
@@ -21353,7 +21358,7 @@ ALTER TABLE ONLY image_transformations
 
 
 --
--- Name: image_transformations_uk_1; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: image_transformations_uk_1; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY image_transformations
@@ -21361,7 +21366,7 @@ ALTER TABLE ONLY image_transformations
 
 
 --
--- Name: image_zoom_level_transformations_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: image_zoom_level_transformations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY image_zoom_level_transformations
@@ -21369,7 +21374,7 @@ ALTER TABLE ONLY image_zoom_level_transformations
 
 
 --
--- Name: image_zoom_levels_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: image_zoom_levels_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY image_zoom_levels
@@ -21377,7 +21382,7 @@ ALTER TABLE ONLY image_zoom_levels
 
 
 --
--- Name: images_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: images_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY images
@@ -21385,7 +21390,7 @@ ALTER TABLE ONLY images
 
 
 --
--- Name: spots_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: spots_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY spots
@@ -21393,147 +21398,147 @@ ALTER TABLE ONLY spots
 
 
 --
--- Name: analysis_data_sets_cont_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: analysis_data_sets_cont_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX analysis_data_sets_cont_idx ON analysis_data_sets USING btree (cont_id);
 
 
 --
--- Name: channel_stacks_dim_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: channel_stacks_dim_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX channel_stacks_dim_idx ON channel_stacks USING btree (x, y, z_in_m, t_in_sec);
 
 
 --
--- Name: channel_stacks_ds_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: channel_stacks_ds_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX channel_stacks_ds_idx ON channel_stacks USING btree (ds_id);
 
 
 --
--- Name: channel_stacks_spot_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: channel_stacks_spot_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX channel_stacks_spot_idx ON channel_stacks USING btree (spot_id);
 
 
 --
--- Name: channels_ds_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: channels_ds_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX channels_ds_idx ON channels USING btree (ds_id);
 
 
 --
--- Name: containers_expe_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: containers_expe_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX containers_expe_idx ON containers USING btree (expe_id);
 
 
 --
--- Name: feature_defs_ds_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: feature_defs_ds_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX feature_defs_ds_idx ON feature_defs USING btree (ds_id);
 
 
 --
--- Name: feature_values_fd_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: feature_values_fd_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX feature_values_fd_idx ON feature_values USING btree (fd_id);
 
 
 --
--- Name: feature_values_z_and_t_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: feature_values_z_and_t_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX feature_values_z_and_t_idx ON feature_values USING btree (z_in_m, t_in_sec);
 
 
 --
--- Name: feature_vocabulary_terms_fd_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: feature_vocabulary_terms_fd_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX feature_vocabulary_terms_fd_idx ON feature_vocabulary_terms USING btree (fd_id);
 
 
 --
--- Name: image_data_sets_cont_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: image_data_sets_cont_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX image_data_sets_cont_idx ON image_data_sets USING btree (cont_id);
 
 
 --
--- Name: image_transformations_channels_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: image_transformations_channels_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX image_transformations_channels_idx ON image_transformations USING btree (channel_id);
 
 
 --
--- Name: image_zoom_level_transformations_zlid_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: image_zoom_level_transformations_zlid_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX image_zoom_level_transformations_zlid_idx ON image_zoom_level_transformations USING btree (zoom_level_id);
 
 
 --
--- Name: image_zoom_levels_cont_fk_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: image_zoom_levels_cont_fk_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX image_zoom_levels_cont_fk_idx ON image_zoom_levels USING btree (container_dataset_id);
 
 
 --
--- Name: image_zoom_levels_phys_ds_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: image_zoom_levels_phys_ds_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX image_zoom_levels_phys_ds_idx ON image_zoom_levels USING btree (physical_dataset_perm_id);
 
 
 --
--- Name: images_channel_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: images_channel_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX images_channel_idx ON acquired_images USING btree (channel_id);
 
 
 --
--- Name: images_channel_stack_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: images_channel_stack_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX images_channel_stack_idx ON acquired_images USING btree (channel_stack_id);
 
 
 --
--- Name: images_img_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: images_img_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX images_img_idx ON acquired_images USING btree (img_id);
 
 
 --
--- Name: images_thumbnail_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: images_thumbnail_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX images_thumbnail_idx ON acquired_images USING btree (thumbnail_id);
 
 
 --
--- Name: spots_cont_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: spots_cont_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX spots_cont_idx ON spots USING btree (cont_id);
 
 
 --
--- Name: spots_coords_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: spots_coords_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX spots_coords_idx ON spots USING btree (cont_id, x, y);
@@ -21731,7 +21736,8 @@ ALTER TABLE ONLY spots
 --
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM postgres;
+REVOKE ALL ON SCHEMA public FROM pkupczyk;
+GRANT ALL ON SCHEMA public TO pkupczyk;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 

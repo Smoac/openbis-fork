@@ -420,6 +420,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 			fo.withPhysicalData().withFileFormatType();
 			fo.withPhysicalData().withLocatorType();
 			fo.withPhysicalData().withStorageFormat();
+			fo.withLinkedData().withExternalDms();
 			fo.withHistory();
 			fo.withTags();
 			fo.withRegistrator();
