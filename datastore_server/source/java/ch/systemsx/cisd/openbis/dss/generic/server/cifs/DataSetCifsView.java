@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.dss.generic.server.cifs;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.alfresco.config.ConfigElement;
 import org.alfresco.jlan.server.SrvSession;
 import org.alfresco.jlan.server.auth.ClientInfo;
 import org.alfresco.jlan.server.core.DeviceContext;
@@ -38,6 +37,7 @@ import org.alfresco.jlan.server.filesys.TreeConnection;
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
 import org.apache.log4j.Logger;
+import org.springframework.extensions.config.ConfigElement;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;

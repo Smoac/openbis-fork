@@ -19,10 +19,10 @@ package ch.systemsx.cisd.openbis.dss.generic.server.cifs;
 import java.util.List;
 import java.util.Map;
 
-import org.alfresco.config.ConfigElement;
 import org.alfresco.jlan.server.filesys.FileAttribute;
 import org.alfresco.jlan.server.filesys.FileInfo;
 import org.apache.ftpserver.ftplet.FtpFile;
+import org.springframework.extensions.config.ConfigElement;
 
 /**
  * 

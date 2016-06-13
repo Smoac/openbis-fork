@@ -40,7 +40,7 @@ class CifsServerConfig
             + "  <host name='${host.name}' domain='${host.domain}'>\n"
             + "    <broadcast>${broadcast-mask}</broadcast>\n"
             + "    <smbdialects>${smb-dialects}</smbdialects>\n"
-            + "    <tcpipSMB port='${smb-port}'/>\n"
+            + "    <tcpipSMB port='${smb-port}' platforms='linux,macosx,solaris'/>\n"
             + "  </host>\n"
             + "  <authenticator>\n"
             + "    <class>ch.systemsx.cisd.openbis.dss.generic.server.cifs.OpenBisAuthenticator</class>\n"
@@ -62,12 +62,12 @@ class CifsServerConfig
             + "  </output>\n"
             + "</debug>\n"
             + "<security>\n"
-            + "    <JCEProvider>org.bouncycastle.jce.provider.BouncyCastleProvider</JCEProvider>\n"
-            + "    <authenticator>\n"
-            + "      <class>ch.systemsx.cisd.openbis.dss.generic.server.cifs.OpenBisAuthenticator</class>\n"
-            + "      <mode>USER</mode>\n"
-            + "    </authenticator>\n"
-            + "  </security>\n"
+            + "  <JCEProvider>org.bouncycastle.jce.provider.BouncyCastleProvider</JCEProvider>\n"
+            + "  <authenticator>\n"
+            + "    <class>ch.systemsx.cisd.openbis.dss.generic.server.cifs.OpenBisAuthenticator</class>\n"
+            + "    <mode>USER</mode>\n"
+            + "  </authenticator>\n"
+            + "</security>\n"
             + "</jlanserver>\n");
 
     private static final String SMB_PORT_KEY = "smb-port";

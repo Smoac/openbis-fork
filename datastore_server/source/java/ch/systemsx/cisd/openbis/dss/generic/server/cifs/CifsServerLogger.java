@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.cifs;
 
-import org.alfresco.config.ConfigElement;
+import org.alfresco.jlan.debug.Debug;
 import org.alfresco.jlan.debug.DebugInterface;
+import org.alfresco.jlan.server.config.ServerConfiguration;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.springframework.extensions.config.ConfigElement;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -38,7 +40,7 @@ public class CifsServerLogger implements DebugInterface
     private ThreadLocal<StringBuilder> messageBuilder = new ThreadLocal<>();
 
     @Override
-    public void initialize(ConfigElement params) throws Exception
+    public void initialize(ConfigElement params, ServerConfiguration config) throws Exception
     {
         operationLog.info("init CIFS server logger:\n" + Utils.render(params));
         ConfigElement logLevel = params.getChild("log-level");
@@ -50,7 +52,19 @@ public class CifsServerLogger implements DebugInterface
     }
 
     @Override
+    public int getLogLevel()
+    {
+        return Debug.Debug;
+    }
+
+    @Override
     public void debugPrint(String str)
+    {
+        debugPrint(str, Debug.Debug);
+    }
+
+    @Override
+    public void debugPrint(String str, int l)
     {
         StringBuilder builder = messageBuilder.get();
         if (builder == null)
@@ -60,9 +74,15 @@ public class CifsServerLogger implements DebugInterface
         }
         builder.append(str);
     }
-
+    
     @Override
     public void debugPrintln(String str)
+    {
+        debugPrintln(str, Debug.Debug);
+    }
+    
+    @Override
+    public void debugPrintln(String str, int l)
     {
         StringBuilder builder = messageBuilder.get();
         if (builder == null)
@@ -73,6 +93,12 @@ public class CifsServerLogger implements DebugInterface
             operationLog.log(level, builder.append(str).toString());
             builder.setLength(0);
         }
+    }
+    @Override
+    public void debugPrintln(Exception ex, int l)
+    {
+        operationLog.log(level, "", ex);
+        
     }
     
     @Override
