@@ -65,6 +65,14 @@ function StorageModel(configOverride) {
 		}
 	}
 	
+	this.setDefaultBoxName = function() {
+		if(this.sample) {
+			var defaultBoxName = this.sample.code;
+			this.sample.properties[this.storagePropertyGroup.boxProperty] = defaultBoxName;
+			this.boxName = defaultBoxName;
+		}
+	}
+	
 	this.resetBoxInfo = function(row, column, boxName, boxSize, boxContents, boxPosition) {
 		this.row = row; //Selected Row
 		this.column = column; //Selected Column
