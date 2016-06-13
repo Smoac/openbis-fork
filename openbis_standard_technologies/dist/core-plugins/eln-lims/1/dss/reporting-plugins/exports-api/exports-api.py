@@ -24,6 +24,7 @@ from org.apache.commons.io import IOUtils
 from org.apache.commons.io import FileUtils
 
 from java.lang import String
+from ch.systemsx.cisd.openbis.generic.client.web.client.exception import UserFailureException
 
 #Zip Format
 from java.io import File;
@@ -167,9 +168,31 @@ def expandAndexport(tr, params):
 			results = v3d.searchFiles(sessionToken, criteria, DataSetFileFetchOptions());
 			operationLog.info("Found: " + str(results.getTotalCount()) + " files");
 			for file in results.getObjects():
-				entityFound = { "type" : "FILE", "permId" : permId, "path" : file.getPath(), "isDirectory" : file.isDirectory() };
-				entitiesToExport.append(entityFound);
-				entitiesToExpand.append(entityFound);
+				entityFound = { "type" : "FILE", "permId" : permId, "path" : file.getPath(), "isDirectory" : file.isDirectory(), "length" : file.getFileLength() };
+				if entityFound["isDirectory"]:
+					entitiesToExpand.append(entityFound);
+				else:
+					entitiesToExport.append(entityFound);
+					
+	
+	limitDataSizeInMegabytes = getConfigurationProperty(tr, 'limit-data-size-megabytes');
+	if limitDataSizeInMegabytes is None:
+		limitDataSizeInMegabytes = 500;
+	else:
+		limitDataSizeInMegabytes = int(limitDataSizeInMegabytes);
+	
+	limitDataSizeInBytes = 1000000 * limitDataSizeInMegabytes;
+	estimatedSizeInBytes = 0;
+	for entityToExport in entitiesToExport:
+		if entityToExport["type"] == "FILE" and entityToExport["isDirectory"] == False:
+			estimatedSizeInBytes += entityToExport["length"];
+		elif entityToExport["type"] != "FILE":
+			estimatedSizeInBytes += 12000; #AVG File Metadata size
+	estimatedSizeInMegabytes = estimatedSizeInBytes / 1000000;
+	
+	operationLog.info("Size Limit check - limitDataSizeInBytes: " + str(limitDataSizeInBytes) + " > " + " estimatedSizeInBytes: " + str(estimatedSizeInBytes));
+	if estimatedSizeInBytes > limitDataSizeInBytes:
+		raise UserFailureException("The selected data is " + str(estimatedSizeInMegabytes) + " MB that is bigger than the configured limit of " + str(limitDataSizeInMegabytes) + " MB");
 	
 	operationLog.info("Found " + str(len(entitiesToExport)) + " entities to export, export thread will start");
 	thread = threading.Thread(target=export, args=(sessionToken, entitiesToExport, userEmail, mailClient));
@@ -330,3 +353,10 @@ def sendMail(mailClient, userEmail, downloadURL):
     message = "Download a zip file with your exported data at: " + downloadURL;
     mailClient.sendEmailMessage(topic, message, replyTo, fromAddress, recipient1);
     operationLog.info("--- MAIL ---" + " Recipient: " + userEmail + " Topic: " + topic + " Message: " + message);
+    
+def getConfigurationProperty(transaction, propertyName):
+	threadProperties = transaction.getGlobalState().getThreadParameters().getThreadProperties();
+	try:
+		return threadProperties.getProperty(propertyName);
+	except:
+		return None
