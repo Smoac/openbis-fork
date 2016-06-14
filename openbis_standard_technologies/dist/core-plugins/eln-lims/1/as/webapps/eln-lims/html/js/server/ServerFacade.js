@@ -185,7 +185,7 @@ function ServerFacade(openbisServer) {
 	//
 	//
 	//
-	this.exportAll = function(entities, userId, callbackFunction) {
+	this.exportAll = function(entities, userId, includeRoot, callbackFunction) {
 		var _this = this;
 		this.openbisServer.listPersons(function(data) {
 			var userEmail = null;
@@ -204,6 +204,7 @@ function ServerFacade(openbisServer) {
 			} else {
 				_this.customELNApi({
 					"method" : "exportAll",
+					"includeRoot" : includeRoot,
 					"entities" : entities,
 					"userEmail" : userEmail
 				}, callbackFunction, "exports-api");

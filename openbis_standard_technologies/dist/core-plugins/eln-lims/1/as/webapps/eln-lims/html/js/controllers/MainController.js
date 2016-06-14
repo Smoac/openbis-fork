@@ -212,6 +212,13 @@ function MainController(profile) {
 		
 		try {
 			switch (newViewChange) {
+				case "showLabNotebook":
+					document.title = "Lab Notebook";
+					var newView = new LabNotebookController(this);
+					newView.init($("#mainContainer"));
+					this.currentView = newView;
+					window.scrollTo(0,0);
+					break;
 				case "showAdvancedSearchPage":
 					document.title = "Advanced Search";
 					var freeTextForGlobalSearch = arg;

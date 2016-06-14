@@ -113,6 +113,7 @@ def expandAndexport(tr, params):
 	entitiesToExpand = deque([]);
 		
 	entities = params.get("entities");
+	includeRoot = params.get("includeRoot");
 	userEmail = params.get("userEmail");
 	for entity in entities:
 		entityAsPythonMap = { "type" : entity.get("type"), "permId" : entity.get("permId"), "expand" : entity.get("expand") };
@@ -195,13 +196,13 @@ def expandAndexport(tr, params):
 		raise UserFailureException("The selected data is " + str(estimatedSizeInMegabytes) + " MB that is bigger than the configured limit of " + str(limitDataSizeInMegabytes) + " MB");
 	
 	operationLog.info("Found " + str(len(entitiesToExport)) + " entities to export, export thread will start");
-	thread = threading.Thread(target=export, args=(sessionToken, entitiesToExport, userEmail, mailClient));
+	thread = threading.Thread(target=export, args=(sessionToken, entitiesToExport, includeRoot, userEmail, mailClient));
 	thread.daemon = True;
 	thread.start();
     
 	return True;
 
-def export(sessionToken, entities, userEmail, mailClient):
+def export(sessionToken, entities, includeRoot, userEmail, mailClient):
 	#Services used during the export process
 	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi, OPENBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
 	v3d = ServiceProvider.getApplicationContext().getBean(V3_DSS_BEAN);
@@ -288,7 +289,10 @@ def export(sessionToken, entities, userEmail, mailClient):
 			datasetEntityObj = objectCache[entity["permId"]];
 			datasetEntityFilePath = getFilePath(datasetEntityObj.getSample().getExperiment().getProject().getSpace().getCode(), datasetEntityObj.getSample().getExperiment().getProject().getCode(), datasetEntityObj.getSample().getExperiment().getCode(), datasetEntityObj.getSample().getCode(), datasetEntityObj.getCode());
 			filePath = datasetEntityFilePath + "/" + entity["path"];
-			filePath = filePath[len(baseDirToCut):] #To avoid empty directories on the zip file, it makes the first found entity the base directory
+			
+			if not includeRoot:
+				filePath = filePath[len(baseDirToCut):] #To avoid empty directories on the zip file, it makes the first found entity the base directory
+			
 			rawFileInputStream = DataSetFileDownloadReader(v3d.downloadFiles(sessionToken, [DataSetFilePermId(DataSetPermId(permId), entity["path"])], DataSetFileDownloadOptions())).read().getInputStream();
 			rawFile = File(tempDirPath + filePath + ".json");
 			rawFile.getParentFile().mkdirs();
@@ -296,10 +300,11 @@ def export(sessionToken, entities, userEmail, mailClient):
 			addToZipFile(filePath, rawFile, zos);
 		
 		#To avoid empty directories on the zip file, it makes the first found entity the base directory
-		if baseDirToCut is None and entityFilePath is not None:
-			baseDirToCut = entityFilePath[:entityFilePath.rfind('/')];
-		if entityFilePath is not None:
-			entityFilePath = entityFilePath[len(baseDirToCut):]
+		if not includeRoot:
+			if baseDirToCut is None and entityFilePath is not None:
+				baseDirToCut = entityFilePath[:entityFilePath.rfind('/')];
+			if entityFilePath is not None:
+				entityFilePath = entityFilePath[len(baseDirToCut):]
 		#
 		
 		if entityObj is not None:

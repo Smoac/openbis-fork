@@ -205,7 +205,7 @@ function SideMenuWidgetController(mainController) {
     	this._sideMenuWidgetModel.$container = $container;
         var _this = this;
         
-        var labNotebookNode = new SideMenuWidgetComponent(true, true, "LAB NOTEBOOK", "LAB_NOTEBOOK", this._sideMenuWidgetModel.menuStructure, { children: [] }, null, null, "");
+        var labNotebookNode = new SideMenuWidgetComponent(true, true, "LAB NOTEBOOK", "LAB_NOTEBOOK", this._sideMenuWidgetModel.menuStructure, { children: [] }, 'showLabNotebook', null, "");
         this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(labNotebookNode);
 
         mainController.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(dataWithSpacesAndProjects) {

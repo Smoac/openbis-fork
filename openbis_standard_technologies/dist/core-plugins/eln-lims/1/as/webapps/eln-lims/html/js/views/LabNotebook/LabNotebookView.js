@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright 2016 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-function SpaceFormView(spaceFormController, spaceFormModel) {
-	this._spaceFormController = spaceFormController;
-	this._spaceFormModel = spaceFormModel;
+function LabNotebookView(labNotebookController, labNotebookView) {
+	var labNotebookController = labNotebookController;
+	var labNotebookView = labNotebookView;
 	
 	this.repaint = function($container) {
-		var _this = this;
 		$container.empty();
 		
 		var $form = $("<div>", { "class" : "form-horizontal row"});
@@ -27,30 +26,40 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 			
 		$form.append($formColumn);
 		
-		var $formTitle = $("<h2>").append("Space " + this._spaceFormModel.space.code);
+		var $formTitle = $("<h2>").append("Lab Notebook");
 		
 		//
 		// Toolbar
 		//
 		var toolbarModel = [];
-		var $createProj = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
-			_this._spaceFormController.createProject();
-		});
 		
 		var $export = FormUtil.getButtonWithIcon("glyphicon-export", function() {
 			Util.blockUI();
 			var facade = mainController.serverFacade;
-			facade.exportAll([{ type: "SPACE", permId : _this._spaceFormModel.space.code, expand : true }], facade.getUserId(), false, function(error, result) {
-				if(error) {
-					Util.showError(error);
-				} else {
-					Util.showSuccess("Export is being processed, you will receibe an email when is ready, if you logout the process will stop.", function() { Util.unblockUI(); });
-				}
+			facade.listSpacesWithProjectsAndRoleAssignments(null, function(dataWithSpacesAndProjects) {
+				var spaces = dataWithSpacesAndProjects.result;
+	            var labSpaces = [];
+				for (var i = 0; i < spaces.length; i++) {
+	                var space = spaces[i];
+	                if(!profile.isInventorySpace(space.code)) {
+	                	labSpaces.push({ type: "SPACE", permId : space.code, expand : true });
+	                }
+	            }
+	            
+				facade.exportAll(labSpaces, facade.getUserId(), true, function(error, result) {
+					if(error) {
+						Util.showError(error);
+					} else {
+						Util.showSuccess("Export is being processed, you will receibe an email when is ready, if you logout the process will stop.", function() { Util.unblockUI(); });
+					}
+				});
+				
 			});
 		});
 		
-		toolbarModel.push({ component : $createProj, tooltip: "Create Project" });
 		toolbarModel.push({ component : $export, tooltip: "Export" });
+		
+		
 		
 		$formColumn.append($formTitle);
 		$formColumn.append(FormUtil.getToolbar(toolbarModel));

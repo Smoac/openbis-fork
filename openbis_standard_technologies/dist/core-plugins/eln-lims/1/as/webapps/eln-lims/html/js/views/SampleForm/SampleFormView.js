@@ -208,7 +208,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			var $export = FormUtil.getButtonWithIcon("glyphicon-export", function() {
 				Util.blockUI();
 				var facade = mainController.serverFacade;
-				facade.exportAll([{ type: "SAMPLE", permId : _this._sampleFormModel.sample.permId, expand : true }], facade.getUserId(), function(error, result) {
+				facade.exportAll([{ type: "SAMPLE", permId : _this._sampleFormModel.sample.permId, expand : true }], facade.getUserId(), false, function(error, result) {
 					if(error) {
 						Util.showError(error);
 					} else {
