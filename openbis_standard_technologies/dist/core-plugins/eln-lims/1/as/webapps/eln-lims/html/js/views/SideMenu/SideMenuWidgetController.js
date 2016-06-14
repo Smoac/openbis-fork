@@ -205,7 +205,7 @@ function SideMenuWidgetController(mainController) {
     	this._sideMenuWidgetModel.$container = $container;
         var _this = this;
         
-        var labNotebookNode = new SideMenuWidgetComponent(true, true, "LAB NOTEBOOK", "LAB_NOTEBOOK", this._sideMenuWidgetModel.menuStructure, { children: [] }, 'showLabNotebook', null, "");
+        var labNotebookNode = new SideMenuWidgetComponent(true, true, "LAB NOTEBOOK", "LAB_NOTEBOOK", this._sideMenuWidgetModel.menuStructure, { children: [] }, 'showLabNotebookPage', null, "");
         this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(labNotebookNode);
 
         mainController.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(dataWithSpacesAndProjects) {
@@ -319,7 +319,7 @@ function SideMenuWidgetController(mainController) {
 
                     
                     //Fill Inventory
-                    var inventoryNode = new SideMenuWidgetComponent(true, true, "INVENTORY", "INVENTORY", _this._sideMenuWidgetModel.menuStructure, { children: [] }, null, null, "");
+                    var inventoryNode = new SideMenuWidgetComponent(true, true, "INVENTORY", "INVENTORY", _this._sideMenuWidgetModel.menuStructure, { children: [] }, 'showInventoryPage', null, "");
                     _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(inventoryNode);
 
                     //Fill Spaces

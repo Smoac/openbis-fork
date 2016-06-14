@@ -212,9 +212,16 @@ function MainController(profile) {
 		
 		try {
 			switch (newViewChange) {
-				case "showLabNotebook":
+				case "showLabNotebookPage":
 					document.title = "Lab Notebook";
 					var newView = new LabNotebookController(this);
+					newView.init($("#mainContainer"));
+					this.currentView = newView;
+					window.scrollTo(0,0);
+					break;
+				case "showInventoryPage":
+					document.title = "Inventory";
+					var newView = new InventoryController(this);
 					newView.init($("#mainContainer"));
 					this.currentView = newView;
 					window.scrollTo(0,0);
