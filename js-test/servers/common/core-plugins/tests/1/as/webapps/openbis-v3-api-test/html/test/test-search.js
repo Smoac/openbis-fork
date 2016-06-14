@@ -719,7 +719,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 				c.assertEqual(objectDataSet.getObjectKind(), "DATA_SET", "ObjectKind");
 				c.assertEqual(objectDataSet.getObjectPermId().getPermId(), "20130417094936021-428", "ObjectPermId");
 				c.assertEqual(objectDataSet.getObjectIdentifier().getPermId(), "20130417094936021-428", "ObjectIdentifier");
-				c.assertEqual(objectDataSet.getMatch(), "Perm ID: 20130417094936021-428\nLocation: 1FD3FF61-1576-4908-AE3D-296E60B4CE06/67/85/36/20130417094936021-428", "Match");
+				c.assertContains(objectDataSet.getMatch(), "Perm ID: 20130417094936021-428", "Match");
+				c.assertContains(objectDataSet.getMatch(), "Location: 1FD3FF61-1576-4908-AE3D-296E60B4CE06/67/85/36/20130417094936021-428", "Match");
 				c.assertNotNull(objectDataSet.getScore(), "Score");
 				c.assertNull(objectDataSet.getExperiment(), "Experiment");
 				c.assertNull(objectDataSet.getSample(), "Sample");
