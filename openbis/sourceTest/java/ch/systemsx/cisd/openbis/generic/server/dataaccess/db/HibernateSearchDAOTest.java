@@ -430,8 +430,8 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     {
         DetailedSearchCriterion criterion = createAnyFieldCriterion("*-1*");
         DetailedSearchCriteria criteria = createAndDatasetQuery(criterion);
-        assertAtLeastDatasetsFound(criteria, 6, DSLoc.A_1, DSLoc.XML_RESULT_11, DSLoc.CONTAINED_1,
-                DSLoc.CONTAINED_2, DSLoc.XML_RESULT_18);
+        assertAtLeastDatasetsFound(criteria, 8, DSLoc.A_1, DSLoc.A_4, DSLoc.XML_RESULT_10, DSLoc.XML_RESULT_11, DSLoc.XML_RESULT_12,
+                DSLoc.XML_RESULT_18, DSLoc.CONTAINED_1, DSLoc.CONTAINED_2);
     }
 
     @Test
@@ -469,8 +469,8 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         DetailedSearchCriterion criterion1 = createAnyFieldCriterion("*-1*");
         DetailedSearchCriterion criterion2 = createFieldTypeCriterion(FILE_TYPE_XML);
         DetailedSearchCriteria criteria = createAndDatasetQuery(criterion1, criterion2);
-        assertAtLeastDatasetsFound(criteria, 4, DSLoc.XML_RESULT_11, DSLoc.CONTAINED_1,
-                DSLoc.CONTAINED_2, DSLoc.XML_RESULT_18);
+        assertAtLeastDatasetsFound(criteria, 6, DSLoc.XML_RESULT_10, DSLoc.XML_RESULT_11, DSLoc.XML_RESULT_12, DSLoc.XML_RESULT_18, DSLoc.CONTAINED_1,
+                DSLoc.CONTAINED_2);
     }
 
     @Test
