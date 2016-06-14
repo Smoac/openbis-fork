@@ -217,6 +217,8 @@ def export(sessionToken, entities, userEmail, mailClient):
 	tempDirPathFile.delete();
 	tempDirPathFile.mkdir();
 	tempDirPath = tempDirPathFile.getCanonicalPath();
+	#To avoid empty directories on the zip file, it makes the first found entity the base directory
+	baseDirToCut = None;
 	
 	#Create Zip File
 	tempZipFileName = tempDirName + ".zip";
@@ -286,12 +288,20 @@ def export(sessionToken, entities, userEmail, mailClient):
 			datasetEntityObj = objectCache[entity["permId"]];
 			datasetEntityFilePath = getFilePath(datasetEntityObj.getSample().getExperiment().getProject().getSpace().getCode(), datasetEntityObj.getSample().getExperiment().getProject().getCode(), datasetEntityObj.getSample().getExperiment().getCode(), datasetEntityObj.getSample().getCode(), datasetEntityObj.getCode());
 			filePath = datasetEntityFilePath + "/" + entity["path"];
+			filePath = filePath[len(baseDirToCut):] #To avoid empty directories on the zip file, it makes the first found entity the base directory
 			rawFileInputStream = DataSetFileDownloadReader(v3d.downloadFiles(sessionToken, [DataSetFilePermId(DataSetPermId(permId), entity["path"])], DataSetFileDownloadOptions())).read().getInputStream();
 			rawFile = File(tempDirPath + filePath + ".json");
 			rawFile.getParentFile().mkdirs();
 			IOUtils.copyLarge(rawFileInputStream, FileOutputStream(rawFile));
 			addToZipFile(filePath, rawFile, zos);
-			
+		
+		#To avoid empty directories on the zip file, it makes the first found entity the base directory
+		if baseDirToCut is None and entityFilePath is not None:
+			baseDirToCut = entityFilePath[:entityFilePath.rfind('/')];
+		if entityFilePath is not None:
+			entityFilePath = entityFilePath[len(baseDirToCut):]
+		#
+		
 		if entityObj is not None:
 			objectCache[permId] = entityObj;
 		
