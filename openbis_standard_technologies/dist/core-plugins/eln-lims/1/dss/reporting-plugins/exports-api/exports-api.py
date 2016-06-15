@@ -315,10 +315,10 @@ def export(sessionToken, entities, includeRoot, userEmail, mailClient):
 		if entityObj is not None and entityFilePath is not None:
 			#JSON
 			entityJson = String(objectMapper.writeValueAsString(entityObj));
-			addFile(tempDirPath + entityFilePath + ".json", entityJson.getBytes(), entityFilePath + ".json", zos);
+			addFile(tempDirPath, entityFilePath, "json", entityJson.getBytes(), zos);
 			#TEXT
  			entityTXT = String(getTXT(entityObj));
-			addFile(tempDirPath + entityFilePath + ".txt", entityTXT.getBytes(), entityFilePath + ".txt", zos);
+ 			addFile(tempDirPath, entityFilePath, "txt", entityTXT.getBytes(), zos);
 			
 			
 	zos.close();
@@ -341,11 +341,11 @@ def getTXT(entityObj):
 	txtBuilder.append("TXT FILE")
 	return txtBuilder.toString();
 	
-def addFile(filePath, fileContent, zipEntryName, zos):
-	entityFile = File(filePath);
+def addFile(tempDirPath, entityFilePath, extension, fileContent, zos):
+	entityFile = File(tempDirPath + entityFilePath + "." + extension);
 	entityFile.getParentFile().mkdirs();
 	IOUtils.write(fileContent, FileOutputStream(entityFile));
-	addToZipFile(zipEntryName, entityFile, zos);
+	addToZipFile(entityFilePath + "." + extension, entityFile, zos);
 	FileUtils.forceDelete(entityFile);
 			
 def getFilePath(spaceCode, projCode, expCode, sampCode, dataCode):
