@@ -24,6 +24,8 @@ from org.apache.commons.io import IOUtils
 from org.apache.commons.io import FileUtils
 
 from java.lang import String
+from java.lang import StringBuilder
+
 from ch.systemsx.cisd.openbis.generic.client.web.client.exception import UserFailureException
 
 #Zip Format
@@ -311,11 +313,13 @@ def export(sessionToken, entities, includeRoot, userEmail, mailClient):
 			objectCache[permId] = entityObj;
 		
 		if entityObj is not None and entityFilePath is not None:
+			#JSON
 			entityJson = String(objectMapper.writeValueAsString(entityObj));
-			jsonEntityFile = File(tempDirPath + entityFilePath + ".json");
-			jsonEntityFile.getParentFile().mkdirs();
-			IOUtils.write(entityJson.getBytes(), FileOutputStream(jsonEntityFile));
-			addToZipFile(entityFilePath + ".json", jsonEntityFile, zos);
+			addFile(tempDirPath + entityFilePath + ".json", entityJson.getBytes(), entityFilePath + ".json", zos);
+			#TEXT
+ 			entityTXT = String(getTXT(entityObj));
+			addFile(tempDirPath + entityFilePath + ".txt", entityTXT.getBytes(), entityFilePath + ".txt", zos);
+			
 			
 	zos.close();
 	fos.close();
@@ -331,7 +335,19 @@ def export(sessionToken, entities, includeRoot, userEmail, mailClient):
 	FileUtils.forceDelete(File(tempDirPath));
 	FileUtils.forceDelete(File(tempZipFilePath));
 	return True
-
+	
+def getTXT(entityObj):
+	txtBuilder = StringBuilder();
+	txtBuilder.append("TXT FILE")
+	return txtBuilder.toString();
+	
+def addFile(filePath, fileContent, zipEntryName, zos):
+	entityFile = File(filePath);
+	entityFile.getParentFile().mkdirs();
+	IOUtils.write(fileContent, FileOutputStream(entityFile));
+	addToZipFile(zipEntryName, entityFile, zos);
+	FileUtils.forceDelete(entityFile);
+			
 def getFilePath(spaceCode, projCode, expCode, sampCode, dataCode):
 	fileName = "";
 	if spaceCode is not None:
