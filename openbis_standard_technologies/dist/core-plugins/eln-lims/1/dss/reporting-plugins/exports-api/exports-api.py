@@ -105,7 +105,7 @@ def expandAndexport(tr, params):
 	#Services used during the export process
 	# TO-DO Login on the services as ETL server but on behalf of the user that makes the call
 	sessionToken = params.get("sessionToken");
-	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi, OPENBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
+	v3 = ServiceProvider.getV3ApplicationService();
 	v3d = ServiceProvider.getApplicationContext().getBean(V3_DSS_BEAN);
 	mailClient = tr.getGlobalState().getMailClient();
 	
@@ -114,7 +114,7 @@ def expandAndexport(tr, params):
 		
 	entities = params.get("entities");
 	includeRoot = params.get("includeRoot");
-	userEmail = params.get("userEmail");
+	userEmail = v3.getSessionInformation(sessionToken).getPerson().getEmail();
 	for entity in entities:
 		entityAsPythonMap = { "type" : entity.get("type"), "permId" : entity.get("permId"), "expand" : entity.get("expand") };
 		entitiesToExport.append(entityAsPythonMap);
@@ -204,7 +204,7 @@ def expandAndexport(tr, params):
 
 def export(sessionToken, entities, includeRoot, userEmail, mailClient):
 	#Services used during the export process
-	v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi, OPENBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
+	v3 = ServiceProvider.getV3ApplicationService();
 	v3d = ServiceProvider.getApplicationContext().getBean(V3_DSS_BEAN);
 	dssComponent = DssComponentFactory.tryCreate(sessionToken, OPENBISURL);
 	
