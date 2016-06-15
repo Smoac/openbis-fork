@@ -39,6 +39,8 @@ from ch.systemsx.cisd.common.mail import EMailAddress;
 
 #To obtain the openBIS URL
 from ch.systemsx.cisd.openbis.dss.generic.server import DataStoreServer;
+from ch.systemsx.cisd.openbis.dss.generic.server import SessionTokenManager
+from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 OPENBISURL = DataStoreServer.getConfigParameters().getServerURL() + "/openbis/openbis";
 V3_DSS_BEAN = "data-store-server_INTERNAL";
 
@@ -50,10 +52,20 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search import ProjectSearc
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search import ExperimentSearchCriteria;
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search import SampleSearchCriteria;
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search import DataSetSearchCriteria;
+
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions import ProjectFetchOptions;
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions import ExperimentFetchOptions;
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleFetchOptions;
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions import DataSetFetchOptions;
+
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search import ExperimentTypeSearchCriteria;
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions import ExperimentTypeFetchOptions;
+
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search import SampleTypeSearchCriteria;
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleTypeFetchOptions;
+
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search import DataSetTypeSearchCriteria;
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions import DataSetTypeFetchOptions;
 
 #V3 API - Files
 from ch.ethz.sis.openbis.generic.dssapi.v3 import IDataStoreServerApi;
@@ -323,7 +335,7 @@ def export(sessionToken, entities, includeRoot, userEmail, mailClient):
 			entityJson = String(objectMapper.writeValueAsString(entityObj));
 			addFile(tempDirPath, entityFilePath, "json", entityJson.getBytes(), zos);
 			#TEXT
- 			entityTXT = String(getTXT(entityObj));
+ 			entityTXT = String(getTXT(entityObj, v3, sessionToken));
  			addFile(tempDirPath, entityFilePath, "txt", entityTXT.getBytes(), zos);
 			
 			
@@ -342,20 +354,38 @@ def export(sessionToken, entities, includeRoot, userEmail, mailClient):
 	FileUtils.forceDelete(File(tempZipFilePath));
 	return True
 	
-def getTXT(entityObj):
+def getTXT(entityObj, v3, sessionToken):
 	txtBuilder = StringBuilder();
 	txtBuilder.append(entityObj.getCode()).append("\n");
 	txtBuilder.append("# Identification Info:").append("\n");
 	
+	typeObj = None
 	if isinstance(entityObj, Project):
 		txtBuilder.append("Kind: Project").append("\n");
 	if isinstance(entityObj, Experiment):
 		txtBuilder.append("Kind: Experiment").append("\n");
+		searchCriteria = ExperimentTypeSearchCriteria();
+		searchCriteria.withCode().thatEquals(entityObj.getType().getCode());
+		fetchOptions = ExperimentTypeFetchOptions();
+		fetchOptions.withPropertyAssignments();
+		results = v3.searchExperimentTypes(sessionToken, searchCriteria, fetchOptions);
+		typeObj = results.getObjects().get(0);
 	if isinstance(entityObj, Sample):
 		txtBuilder.append("Kind: Sample").append("\n");
+		searchCriteria = SampleTypeSearchCriteria();
+		searchCriteria.withCode().thatEquals(entityObj.getType().getCode());
+		fetchOptions = SampleTypeFetchOptions();
+		fetchOptions.withPropertyAssignments();
+		results = v3.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
+		typeObj = results.getObjects().get(0);
 	if isinstance(entityObj, DataSet):
 		txtBuilder.append("Kind: DataSet").append("\n");
-	
+		searchCriteria = DataSetTypeSearchCriteria();
+		searchCriteria.withCode().thatEquals(entityObj.getType().getCode());
+		fetchOptions = DataSetTypeFetchOptions();
+		fetchOptions.withPropertyAssignments();
+		results = v3.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
+		typeObj = results.getObjects().get(0);
 	
 	if not isinstance(entityObj, Project):
 		txtBuilder.append("Type: " + entityObj.getType().getCode()).append("\n");
@@ -383,10 +413,14 @@ def getTXT(entityObj):
 	
 	if not isinstance(entityObj, Project):
 		txtBuilder.append("# Properties:").append("\n");
+		propertyAssigments = typeObj.getPropertyAssignments();
 		properties = entityObj.getProperties();
-		for propertyCode in properties:
-			txtBuilder.append(propertyCode).append(": ").append(properties[propertyCode]).append("\n");
+		for propertyAssigment in propertyAssigments:
+			propertyType = propertyAssigment.getPropertyType();
+			if propertyType.getCode() in properties:
+				txtBuilder.append(propertyType.getLabel()).append(": ").append(properties[propertyType.getCode()]).append("\n");
 	
+	print txtBuilder.toString();
 	return txtBuilder.toString();
 	
 def addFile(tempDirPath, entityFilePath, extension, fileContent, zos):
