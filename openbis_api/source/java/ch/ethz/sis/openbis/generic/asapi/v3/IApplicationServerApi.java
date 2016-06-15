@@ -89,6 +89,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecution
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.CustomASServiceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ICustomASServiceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.CustomASServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.delete.SpaceDeletionOptions;
@@ -139,6 +140,8 @@ public interface IApplicationServerApi extends IRpcService
     public String loginAsAnonymousUser();
 
     public void logout(String sessionToken);
+
+    public SessionInformation getSessionInformation(String sessionToken);
 
     public List<SpacePermId> createSpaces(String sessionToken, List<SpaceCreation> newSpaces);
 
