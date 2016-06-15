@@ -149,6 +149,13 @@ public abstract class GlobalSearchBridge<T extends IEntityWithMetaprojects> impl
     @Override
     public void set(String name, Object value, Document document, LuceneOptions luceneOptions)
     {
+
+        // Prevent double-indexing (SSDM-3760)
+        if (this.getClass().equals(DataGlobalSearchBridge.class) && value instanceof ExternalDataPE)
+        {
+            return;
+        }
+
         try
         {
             @SuppressWarnings("unchecked")
