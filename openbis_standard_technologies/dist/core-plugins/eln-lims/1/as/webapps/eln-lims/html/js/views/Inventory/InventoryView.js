@@ -46,7 +46,7 @@ function InventoryView(inventoryController, inventoryView) {
 	                }
 	            }
 	            
-				facade.exportAll(labSpaces, facade.getUserId(), true, function(error, result) {
+				facade.exportAll(labSpaces, true, function(error, result) {
 					if(error) {
 						Util.showError(error);
 					} else {

@@ -185,32 +185,12 @@ function ServerFacade(openbisServer) {
 	//
 	//
 	//
-	this.exportAll = function(entities, userId, includeRoot, callbackFunction) {
-		var _this = this;
-		this.openbisServer.listPersons(function(data) {
-			var userEmail = null;
-			
-			if(data.result) {
-				result = data.result;
-				for(var rIdx = 0; rIdx < result.length; rIdx++) {
-					if(result[rIdx].userId === userId) {
-						userEmail = result[rIdx].email;
-					}
-				}
-			}
-			
-			if(!userEmail) {
-				Util.showError("The current user needs to configure it's email to make exports since these ones are received asynchronously.");
-			} else {
-				_this.customELNApi({
-					"method" : "exportAll",
-					"includeRoot" : includeRoot,
-					"entities" : entities,
-					"userEmail" : userEmail
-				}, callbackFunction, "exports-api");
-			}
-			
-		});
+	this.exportAll = function(entities, includeRoot, callbackFunction) {
+		this.customELNApi({
+			"method" : "exportAll",
+			"includeRoot" : includeRoot,
+			"entities" : entities,
+		}, callbackFunction, "exports-api");
 	}
 	
 	//

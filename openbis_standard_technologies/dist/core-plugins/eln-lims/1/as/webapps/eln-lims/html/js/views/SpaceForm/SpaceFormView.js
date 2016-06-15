@@ -40,7 +40,7 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 		var $export = FormUtil.getButtonWithIcon("glyphicon-export", function() {
 			Util.blockUI();
 			var facade = mainController.serverFacade;
-			facade.exportAll([{ type: "SPACE", permId : _this._spaceFormModel.space.code, expand : true }], facade.getUserId(), false, function(error, result) {
+			facade.exportAll([{ type: "SPACE", permId : _this._spaceFormModel.space.code, expand : true }], false, function(error, result) {
 				if(error) {
 					Util.showError(error);
 				} else {

@@ -88,7 +88,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			var $export = FormUtil.getButtonWithIcon("glyphicon-export", function() {
 				Util.blockUI();
 				var facade = mainController.serverFacade;
-				facade.exportAll([{ type: "DATASET", permId : _this._dataSetFormModel.dataSet.code, expand : true }], facade.getUserId(), false, function(error, result) {
+				facade.exportAll([{ type: "DATASET", permId : _this._dataSetFormModel.dataSet.code, expand : true }], false, function(error, result) {
 					if(error) {
 						Util.showError(error);
 					} else {
