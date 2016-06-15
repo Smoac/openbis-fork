@@ -75,7 +75,13 @@ from ch.systemsx.cisd.openbis.dss.client.api.v1 import DssComponentFactory
 from ch.systemsx.cisd.common.logging import LogCategory;
 from org.apache.log4j import Logger;
 operationLog = Logger.getLogger(str(LogCategory.OPERATION) + ".exports-api.py");
-				
+
+#AVI API - DTO
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.project import Project
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment import Experiment
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample import Sample
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset import DataSet
+
 def process(tr, params, tableBuilder):
 	method = params.get("method");
 	isOk = False;
@@ -338,7 +344,49 @@ def export(sessionToken, entities, includeRoot, userEmail, mailClient):
 	
 def getTXT(entityObj):
 	txtBuilder = StringBuilder();
-	txtBuilder.append("TXT FILE")
+	txtBuilder.append(entityObj.getCode()).append("\n");
+	txtBuilder.append("# Identification Info:").append("\n");
+	
+	if isinstance(entityObj, Project):
+		txtBuilder.append("Kind: Project").append("\n");
+	if isinstance(entityObj, Experiment):
+		txtBuilder.append("Kind: Experiment").append("\n");
+	if isinstance(entityObj, Sample):
+		txtBuilder.append("Kind: Sample").append("\n");
+	if isinstance(entityObj, DataSet):
+		txtBuilder.append("Kind: DataSet").append("\n");
+	
+	
+	if not isinstance(entityObj, Project):
+		txtBuilder.append("Type: " + entityObj.getType().getCode()).append("\n");
+	
+	txtBuilder.append("Registrator: ").append(entityObj.getRegistrator().getUserId()).append("\n");
+	txtBuilder.append("Registration Date: ").append(str(entityObj.getRegistrationDate())).append("\n");
+	if entityObj.getModifier() is not None:
+		txtBuilder.append("Modifier: ").append(entityObj.getModifier().getUserId()).append("\n");
+		txtBuilder.append("Modification Date: ").append(str(entityObj.getModificationDate())).append("\n");
+	
+	
+	if isinstance(entityObj, Project):
+		txtBuilder.append("# Description:").append("\n");
+		txtBuilder.append(entityObj.getDescription()).append("\n");
+	
+	if isinstance(entityObj, Sample) or isinstance(entityObj, DataSet):
+		txtBuilder.append("# Parents:").append("\n");
+		parents = entityObj.getParents();
+		for parent in parents:
+			txtBuilder.append(parent.getCode()).append("\n");
+		txtBuilder.append("# Children:").append("\n");
+		children = entityObj.getChildren();
+		for child in children:
+			txtBuilder.append(child.getCode()).append("\n");
+	
+	if not isinstance(entityObj, Project):
+		txtBuilder.append("# Properties:").append("\n");
+		properties = entityObj.getProperties();
+		for propertyCode in properties:
+			txtBuilder.append(propertyCode).append(": ").append(properties[propertyCode]).append("\n");
+	
 	return txtBuilder.toString();
 	
 def addFile(tempDirPath, entityFilePath, extension, fileContent, zos):
