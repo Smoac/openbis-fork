@@ -420,7 +420,6 @@ def getTXT(entityObj, v3, sessionToken):
 			if propertyType.getCode() in properties:
 				txtBuilder.append(propertyType.getLabel()).append(": ").append(properties[propertyType.getCode()]).append("\n");
 	
-	print txtBuilder.toString();
 	return txtBuilder.toString();
 	
 def addFile(tempDirPath, entityFilePath, extension, fileContent, zos):
