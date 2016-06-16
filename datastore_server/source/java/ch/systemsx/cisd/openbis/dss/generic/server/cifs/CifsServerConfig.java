@@ -72,7 +72,7 @@ class CifsServerConfig
     private static final String SMB_PORT_KEY = "smb-port";
 
     private static Map<String, String> CONFIG_PARAMS = new MapBuilder<String, String>()
-            .entry("host.name", "ETHZ")
+            .entry("host.name", "UNKNOWN")
             .entry("host.domain", "OPENBIS")
             .entry("broadcast-mask", "255.255.255.255")
             .entry("smb-dialects", "LanMan,NT")

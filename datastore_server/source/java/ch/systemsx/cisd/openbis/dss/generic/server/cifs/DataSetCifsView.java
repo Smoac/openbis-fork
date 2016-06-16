@@ -32,6 +32,7 @@ import org.alfresco.jlan.server.filesys.FileName;
 import org.alfresco.jlan.server.filesys.FileOpenParams;
 import org.alfresco.jlan.server.filesys.FileStatus;
 import org.alfresco.jlan.server.filesys.NetworkFile;
+import org.alfresco.jlan.server.filesys.PathNotFoundException;
 import org.alfresco.jlan.server.filesys.SearchContext;
 import org.alfresco.jlan.server.filesys.TreeConnection;
 import org.apache.ftpserver.ftplet.FtpException;
@@ -121,7 +122,7 @@ public class DataSetCifsView implements DiskInterface
             return fileInfo;
         } catch (FtpException ex)
         {
-            throw new IOException(ex);
+            throw new PathNotFoundException(ex.getMessage());
         }
     }
 
