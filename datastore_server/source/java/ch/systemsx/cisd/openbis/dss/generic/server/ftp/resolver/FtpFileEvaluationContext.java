@@ -106,7 +106,6 @@ public class FtpFileEvaluationContext
 
     private IHierarchicalContent createHierarchicalContent(AbstractExternalData dataSet)
     {
-        System.err.println("create content for " + dataSet.getCode());
         return contentProvider.asContent(dataSet);
     }
 

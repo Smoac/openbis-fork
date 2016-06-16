@@ -24,7 +24,11 @@ import org.alfresco.jlan.server.auth.ClientInfo;
 import org.alfresco.jlan.server.auth.ClientInfoFactory;
 import org.alfresco.jlan.server.auth.DefaultClientInfoFactory;
 import org.alfresco.jlan.server.auth.NTLanManAuthContext;
+import org.alfresco.jlan.server.auth.PasswordEncryptor;
 import org.alfresco.jlan.server.auth.UserAccount;
+import org.alfresco.jlan.server.auth.ntlm.NTLMv2Blob;
+import org.alfresco.jlan.smb.SMBStatus;
+import org.alfresco.jlan.smb.server.SMBSrvException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -55,9 +59,9 @@ public class CifsAuthenticationUtils
         return tryExtractPasswordInfo(passwordInfo) != null;
     }
     
-    public static String createPasswordInfo(byte[] password, int algorithm, byte[] challenge)
+    public static String createPasswordInfo(String domain, byte[] password, int algorithm, byte[] challenge)
     {
-        return createPasswordInfo(StringUtilities.asHexString(password), Algorithm.values()[algorithm], challenge);
+        return createPasswordInfo(domain, StringUtilities.asHexString(password), Algorithm.values()[algorithm], challenge);
     }
     
     public static String extractAlgorithm(String passwordInfo)
@@ -66,14 +70,63 @@ public class CifsAuthenticationUtils
         return info == null ? "unknown" : info.algorithm.toString(); 
     }
     
-    static String createPasswordInfo(String password, Algorithm algorithm, byte[] challenge)
+    public static void validateUserByNTLMv2(ClientInfo client, UserAccount user, PasswordEncryptor encryptor, byte[] challenge)
     {
-        return CIFS_PREFIX + password + ":" + StringUtilities.asHexString(challenge) + ":" + algorithm;
+        try
+        {
+            // Calculate the MD4 of the user password
+
+            byte[] md4Pwd = null;
+            if (user.hasMD4Password())
+            {
+                md4Pwd = user.getMD4Password();
+            } else
+            {
+                md4Pwd = encryptor.generateEncryptedPassword(user.getPassword(), challenge, PasswordEncryptor.MD4,
+                        null, null);
+                user.setMD4Password(md4Pwd);
+            }
+
+            // Create the NTLMv2 blob from the received hashed password bytes
+
+            NTLMv2Blob v2blob = new NTLMv2Blob(client.getPassword());
+
+            // Generate the v2 hash using the challenge that was sent to the client
+
+            byte[] v2hash = encryptor.doNTLM2Encryption(md4Pwd, client.getUserName(), client.getDomain());
+
+            // Calculate the HMAC of the received blob and compare
+
+            byte[] srvHmac = v2blob.calculateHMAC(challenge, v2hash);
+            byte[] clientHmac = v2blob.getHMAC();
+
+            if (clientHmac != null && srvHmac != null && clientHmac.length == srvHmac.length)
+            {
+                int i = 0;
+                while (i < clientHmac.length && clientHmac[i] == srvHmac[i])
+                {
+                    i++;
+                }
+                if (i != clientHmac.length)
+                {
+                    throw new SMBSrvException(SMBStatus.NTLogonFailure, SMBStatus.ErrDos, SMBStatus.DOSAccessDenied);
+                }
+            }
+        } catch (Exception ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
+    
+    static String createPasswordInfo(String domain, String password, Algorithm algorithm, byte[] challenge)
+    {
+        return CIFS_PREFIX + domain + ":" + password + ":" + StringUtilities.asHexString(challenge) + ":" + algorithm;
     }
     
-    static String generatePassword(String user, Algorithm algorithm, byte[] challenge, String plainPassword)
+    static String generatePassword(String domain, String user, Algorithm algorithm, byte[] challenge, String plainPassword)
     {
-        byte[] password = AUTHENTICATION_HELPER.generatePassword(user, plainPassword, algorithm, challenge);
+        byte[] password = AUTHENTICATION_HELPER.generatePassword(domain, user, plainPassword, algorithm, challenge);
         return StringUtilities.asHexString(password);
     }
 
@@ -109,18 +162,19 @@ public class CifsAuthenticationUtils
             return null;
         }
         String[] splittedInfo = passwordInfo.substring(CifsAuthenticationUtils.CIFS_PREFIX.length()).split(":");
-        if (splittedInfo.length != 3)
+        if (splittedInfo.length != 4)
         {
             return null;
         }
-        byte[] password = tryConvertHexString(splittedInfo[0]);
-        byte[] challenge = tryConvertHexString(splittedInfo[1]);
-        Algorithm algorithm = tryConvert(splittedInfo[2]);
+        String domain = splittedInfo[0];
+        byte[] password = tryConvertHexString(splittedInfo[1]);
+        byte[] challenge = tryConvertHexString(splittedInfo[2]);
+        Algorithm algorithm = tryConvert(splittedInfo[3]);
         if (password == null || algorithm == null || challenge == null)
         {
             return null;
         }
-        return new PasswordInfo(password, algorithm, challenge);
+        return new PasswordInfo(domain, password, algorithm, challenge);
     }
     
     private static Algorithm tryConvert(String algorithm)
@@ -130,16 +184,17 @@ public class CifsAuthenticationUtils
     
     private static final class PasswordInfo
     {
+        private String domain;
         private byte[] password;
         private Algorithm algorithm;
         private byte[] challenge;
 
-        PasswordInfo(byte[] password, Algorithm algorithm, byte[] challenge)
+        PasswordInfo(String domain, byte[] password, Algorithm algorithm, byte[] challenge)
         {
+            this.domain = domain;
             this.password = password;
             this.algorithm = algorithm;
             this.challenge = challenge;
-            
         }
     }
     
@@ -153,17 +208,34 @@ public class CifsAuthenticationUtils
             byte[] challenge = passwordInfo.challenge;
             ClientInfo clientInfo = CLIENT_INFO_FACTORY.createInfo(user, passwordInfo.password);
             clientInfo.setANSIPassword(clientInfo.getPassword());
-            clientInfo.setDomain("");
+            clientInfo.setDomain(passwordInfo.domain);
+            UserAccount userAccount = new UserAccount(user, storedPassword);
+            if (algorithm == Algorithm.NTLMV2)
+            {
+                try
+                {
+                    validateUserByNTLMv2(clientInfo, userAccount, getEncryptor(), challenge);
+                    return true;
+                } catch (RuntimeException ex)
+                {
+                    Exception unwrapedExpection = CheckedExceptionTunnel.unwrapIfNecessary(ex);
+                    if (unwrapedExpection instanceof SMBSrvException)
+                    {
+                        return false;
+                    }
+                    throw ex;
+                }
+            }
             AuthContext authCtx = challenge.length == 0 ? null : new NTLanManAuthContext(challenge);
-            return validatePassword(new UserAccount(user, storedPassword), clientInfo, authCtx, algorithm.ordinal());
+            return validatePassword(userAccount, clientInfo, authCtx, algorithm.ordinal());
         }
         
-        byte[] generatePassword(String user, String plainPassword, Algorithm algorithm, byte[] challenge)
+        byte[] generatePassword(String domain, String user, String plainPassword, Algorithm algorithm, byte[] challenge)
         {
             try
             {
                 return getEncryptor().generateEncryptedPassword(plainPassword, challenge, 
-                        algorithm.ordinal(), plainPassword, "");
+                        algorithm.ordinal(), user, domain);
             } catch (Exception ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);

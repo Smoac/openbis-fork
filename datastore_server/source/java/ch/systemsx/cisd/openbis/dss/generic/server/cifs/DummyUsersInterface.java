@@ -16,38 +16,30 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.cifs;
 
-import org.alfresco.jlan.server.auth.ClientInfo;
+import org.alfresco.jlan.server.auth.UserAccount;
+import org.alfresco.jlan.server.auth.UsersInterface;
+import org.alfresco.jlan.server.config.InvalidConfigurationException;
+import org.alfresco.jlan.server.config.ServerConfiguration;
+import org.springframework.extensions.config.ConfigElement;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class OpenBisClientInfo extends ClientInfo
+public class DummyUsersInterface implements UsersInterface
 {
-    private String sessionToken;
 
-    OpenBisClientInfo(String user, byte[] pwd)
+    @Override
+    public void initializeUsers(ServerConfiguration config, ConfigElement params) throws InvalidConfigurationException
     {
-        super(user, pwd);
-        
-    }
-
-    public String getSessionToken()
-    {
-        return sessionToken;
-    }
-
-    void setSessionToken(String sessionToken)
-    {
-        this.sessionToken = sessionToken;
     }
 
     @Override
-    public String toString()
+    public UserAccount getUserAccount(String userName)
     {
-        return super.toString() + ", sessionToken: " + sessionToken;
+        System.out.println("DummyUsersInterface.getUserAccount() "+userName);
+        return new UserAccount(userName, null);
     }
 
-    
 }

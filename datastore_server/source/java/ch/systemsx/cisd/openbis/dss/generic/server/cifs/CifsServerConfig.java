@@ -63,10 +63,9 @@ class CifsServerConfig
             + "</debug>\n"
             + "<security>\n"
             + "  <JCEProvider>org.bouncycastle.jce.provider.BouncyCastleProvider</JCEProvider>\n"
-            + "  <authenticator>\n"
-            + "    <class>ch.systemsx.cisd.openbis.dss.generic.server.cifs.OpenBisAuthenticator</class>\n"
-            + "    <mode>USER</mode>\n"
-            + "  </authenticator>\n"
+            + "  <usersInterface>\n" 
+            + "    <class>ch.systemsx.cisd.openbis.dss.generic.server.cifs.DummyUsersInterface</class>\n" 
+            + "  </usersInterface>\n"  
             + "</security>\n"
             + "</jlanserver>\n");
 

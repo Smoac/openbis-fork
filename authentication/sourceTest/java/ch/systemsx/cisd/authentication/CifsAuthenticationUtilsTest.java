@@ -30,7 +30,8 @@ import ch.systemsx.cisd.authentication.CifsAuthenticationUtils.Algorithm;
  */
 public class CifsAuthenticationUtilsTest
 {
-    private static final byte[] CHALLENGE = new byte[] {12, 122, 42, -78};
+    private static final String DOMAIN = "MY-DOMAIN";
+    private static final byte[] CHALLENGE = new byte[] {12, 122, 42, -78, 88, -22, 77, 21};
     private static final String USER = "my-id";
     private static final String PASSWORD = "my-password123456789";
     
@@ -43,14 +44,14 @@ public class CifsAuthenticationUtilsTest
     @Test
     public void testTryGetAndAuthenticateUserForNotLoggedIn()
     {
-        String passwordInfo = CifsAuthenticationUtils.createPasswordInfo("abcd", Algorithm.LANMAN, new byte[0]);
+        String passwordInfo = CifsAuthenticationUtils.createPasswordInfo(DOMAIN, "abcd", Algorithm.LANMAN, new byte[0]);
         assertNull(CifsAuthenticationUtils.tryGetAndAuthenticateUser("abc", null, passwordInfo));
     }
     
     @Test
     public void testTryGetAndAuthenticateUserForMissingChallenge()
     {
-        String passwordInfo = CifsAuthenticationUtils.createPasswordInfo(PASSWORD, Algorithm.LANMAN, new byte[0]);
+        String passwordInfo = CifsAuthenticationUtils.createPasswordInfo(DOMAIN, PASSWORD, Algorithm.LANMAN, new byte[0]);
         assertNull(CifsAuthenticationUtils.tryGetAndAuthenticateUser(USER, PASSWORD, passwordInfo));
     }
     
@@ -80,8 +81,8 @@ public class CifsAuthenticationUtilsTest
     
     private void checkForAlgorithm(Algorithm algorithm)
     {
-        String pwd = CifsAuthenticationUtils.generatePassword(USER, algorithm, CHALLENGE, PASSWORD);
-        String passwordInfo = CifsAuthenticationUtils.createPasswordInfo(pwd, algorithm, CHALLENGE);
+        String pwd = CifsAuthenticationUtils.generatePassword(DOMAIN, USER, algorithm, CHALLENGE, PASSWORD);
+        String passwordInfo = CifsAuthenticationUtils.createPasswordInfo(DOMAIN, pwd, algorithm, CHALLENGE);
         Principal principal = CifsAuthenticationUtils.tryGetAndAuthenticateUser(USER, PASSWORD, passwordInfo);
         assertEquals(USER, principal.getUserId());
         assertEquals(true, principal.isAuthenticated());
