@@ -212,6 +212,13 @@ function MainController(profile) {
 		
 		try {
 			switch (newViewChange) {
+				case "showExportTreePage":
+					document.title = "Export";
+					var newView = new ExportTreeController(this);
+					newView.init($("#mainContainer"));
+					this.currentView = newView;
+					window.scrollTo(0,0);
+					break;
 				case "showLabNotebookPage":
 					document.title = "Lab Notebook";
 					var newView = new LabNotebookController(this);

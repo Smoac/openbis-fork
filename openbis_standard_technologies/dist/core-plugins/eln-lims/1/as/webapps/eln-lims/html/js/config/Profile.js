@@ -41,6 +41,7 @@ $.extend(DefaultProfile.prototype, {
 				showInventory : true,
 				showDrawingBoard : false,
 				showSampleBrowser : true,
+				showExports : true,
 				showStorageManager : true,
 				showAdvancedSearch : true,
 				showTrashcan : true,

@@ -412,6 +412,12 @@ function SideMenuWidgetController(mainController) {
                                      new SideMenuWidgetComponent(true, false, "SAMPLE BROWSER", "SAMPLE_BROWSER", utilities, null, "showSamplesPage", null, "")
                                      );
                         }
+                        
+                        if(profile.mainMenu.showExports) {
+                       	 utilities.newMenuIfSelected.children.push(
+                                    new SideMenuWidgetComponent(true, false, "EXPORTS", "EXPORTS", utilities, null, "showExportTreePage", null, "")
+                                    );
+                        }
                        
                         if(profile.mainMenu.showStorageManager && profile.storagesConfiguration["isEnabled"]) {
                         	utilities.newMenuIfSelected.children.push(
