@@ -41,7 +41,8 @@ function ExportTreeView(exportTreeController, exportTreeModel) {
 			"If you select a node, and you expand it, it means you want to export only that entity because the entities under it will be unselected by default."
 		]));
 		var $tree = $("<div>", { "id" : "exportsTree" });
-		$formColumn.append($tree);
+		$formColumn.append($("<br>"));
+		$formColumn.append(FormUtil.getBox().append($tree));
 		
 		$container.append($form);
 		
