@@ -32,11 +32,14 @@ function ExportTreeView(exportTreeController, exportTreeModel) {
 			
 		$form.append($formColumn);
 		
-		var $formTitle = $("<h2>").append("Select Entities to Export");
+		var $formTitle = $("<h2>").append("Export Builder");
 		
 		$formColumn.append($formTitle);
-		$formColumn.append("<br>");
-		
+		$formColumn.append(FormUtil.getInfoBox("Usage explanation:", [
+			"You can select any parts of the accesible openBIS structure to export.",
+			"If you select a node, and you don't expand it, it means you also want to export everything under it.",
+			"If you select a node, and you expand it, it means you want to export only that entity because the entities under it will be unselected by default."
+		]));
 		var $tree = $("<div>", { "id" : "exportsTree" });
 		$formColumn.append($tree);
 		

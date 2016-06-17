@@ -798,4 +798,15 @@ var FormUtil = new function() {
 		link.click(click);
 		return link;
 	}
+	
+	this.getInfoBox = function(title, lines) {
+		var $infoBox = $("<div>", { style : "background-color:#f8f8f8; margin:10px; padding:10px; border-color: #e7e7e7; border-style: solid; border-width: 1px;"});
+		
+		$infoBox.append($("<span>", { class : 'glyphicon glyphicon-info-sign' })).append(" " + title);
+		for(var lIdx = 0; lIdx < lines.length; lIdx++) {
+			$infoBox.append($("<br>"));
+			$infoBox.append(lines[lIdx]);
+		}
+		return $infoBox;
+	}
 }
