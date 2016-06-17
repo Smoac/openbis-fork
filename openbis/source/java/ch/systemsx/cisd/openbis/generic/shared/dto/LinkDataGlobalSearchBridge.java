@@ -2,6 +2,9 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.util.Map;
 
+import org.apache.lucene.document.Document;
+import org.hibernate.search.bridge.LuceneOptions;
+
 public class LinkDataGlobalSearchBridge extends GlobalSearchBridge<LinkDataPE>
 {
 
@@ -16,5 +19,11 @@ public class LinkDataGlobalSearchBridge extends GlobalSearchBridge<LinkDataPE>
             put(values, "External dms", data.getExternalDataManagementSystem().getCode());
         }
         return values;
+    }
+
+    @Override
+    protected boolean shouldIndex(String name, Object value, Document document, LuceneOptions luceneOptions)
+    {
+        return true;
     }
 }

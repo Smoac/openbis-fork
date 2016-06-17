@@ -146,12 +146,12 @@ public abstract class GlobalSearchBridge<T extends IEntityWithMetaprojects> impl
         }
     }
 
+    protected abstract boolean shouldIndex(String name, Object value, Document document, LuceneOptions luceneOptions);
+
     @Override
     public void set(String name, Object value, Document document, LuceneOptions luceneOptions)
     {
-
-        // Prevent double-indexing (SSDM-3760)
-        if (this.getClass().equals(DataGlobalSearchBridge.class) && value instanceof ExternalDataPE)
+        if (shouldIndex(name, value, document, luceneOptions) == false)
         {
             return;
         }

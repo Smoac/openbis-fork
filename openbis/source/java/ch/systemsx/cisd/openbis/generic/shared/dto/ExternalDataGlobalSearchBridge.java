@@ -2,6 +2,9 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.util.Map;
 
+import org.apache.lucene.document.Document;
+import org.hibernate.search.bridge.LuceneOptions;
+
 public class ExternalDataGlobalSearchBridge extends GlobalSearchBridge<ExternalDataPE>
 {
 
@@ -41,5 +44,11 @@ public class ExternalDataGlobalSearchBridge extends GlobalSearchBridge<ExternalD
         put(values, "Storage confirmation", Boolean.toString(data.isStorageConfirmation()));
         put(values, "Speed hint", Integer.toString(data.getSpeedHint()));
         return values;
+    }
+
+    @Override
+    protected boolean shouldIndex(String name, Object value, Document document, LuceneOptions luceneOptions)
+    {
+        return true;
     }
 }
