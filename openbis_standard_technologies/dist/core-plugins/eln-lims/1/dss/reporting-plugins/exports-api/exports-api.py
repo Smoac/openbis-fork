@@ -48,11 +48,13 @@ V3_DSS_BEAN = "data-store-server_INTERNAL";
 from ch.systemsx.cisd.common.spring import HttpInvokerUtils;
 from ch.ethz.sis.openbis.generic.asapi.v3 import IApplicationServerApi;
 
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search import SpaceSearchCriteria;
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search import ProjectSearchCriteria;
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search import ExperimentSearchCriteria;
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search import SampleSearchCriteria;
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search import DataSetSearchCriteria;
 
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions import SpaceFetchOptions;
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions import ProjectFetchOptions;
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions import ExperimentFetchOptions;
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleFetchOptions;
@@ -156,6 +158,14 @@ def expandAndexport(tr, params):
 		permId = entityToExpand["permId"];
 		operationLog.info("Expanding type: " + str(type) + " permId: " + str(permId));
 		
+		if type == "ROOT":
+			criteria = SpaceSearchCriteria();
+			results = v3.searchSpaces(sessionToken, criteria, SpaceFetchOptions());
+			operationLog.info("Found: " + str(results.getTotalCount()) + " spaces");
+			for space in results.getObjects():
+				entityFound = { "type" : "SPACE", "permId" : space.getCode() };
+				addToExportWithoutRepeating(entitiesToExport, entityFound);
+				entitiesToExpand.append(entityFound);
 		if type == "SPACE":
 			criteria = ProjectSearchCriteria();
 			criteria.withSpace().withCode().thatEquals(permId);
