@@ -24,6 +24,27 @@ function ExportTreeController(parentController) {
 	}
 	
 	this.exportSelected = function() {
-		alert("JA JA JA");
+		var selectedNodes = $(exportTreeModel.tree).fancytree('getTree').getSelectedNodes();
+		
+		var toExport = [];
+		for(var eIdx = 0; eIdx < selectedNodes.length; eIdx++) {
+			var node = selectedNodes[eIdx];
+			toExport.push({ type: node.data.entityType, permId : node.key, expand : !node.expand });
+		}
+		
+		if(toExport.length === 0) {
+			Util.showInfo("First select something to export.");
+		}
+		
+		Util.blockUI();
+		mainController.serverFacade.exportAll(toExport, true, function(error, result) {
+			if(error) {
+				Util.showError(error);
+			} else {
+				Util.showSuccess("Export is being processed, you will receibe an email when is ready, if you logout the process will stop.", function() { Util.unblockUI(); });
+				mainController.refreshView();
+			}
+		});
+		
 	}
 }

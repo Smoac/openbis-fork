@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-function ExportTreeView(exportTreeController, exportTreeView) {
+function ExportTreeView(exportTreeController, exportTreeModel) {
 	var exportTreeController = exportTreeController;
-	var exportTreeView = exportTreeView;
+	var exportTreeModel = exportTreeModel;
 	
 	this.repaint = function($container) {
 		$container.empty();
@@ -37,7 +37,7 @@ function ExportTreeView(exportTreeController, exportTreeView) {
 		$formColumn.append($formTitle);
 		$formColumn.append("<br>");
 		
-		var $tree = $("<div>", { "id" : "tree" });
+		var $tree = $("<div>", { "id" : "exportsTree" });
 		$formColumn.append($tree);
 		
 		$container.append($form);
@@ -139,7 +139,7 @@ function ExportTreeView(exportTreeController, exportTreeView) {
     	    }
     	};
     	
-    	$tree.fancytree({
+    	exportTreeModel.tree = $tree.fancytree({
         	extensions: ["dnd", "edit", "glyph"], //, "wide"
         	checkbox: true,
         	selectMode: 3, // 1:single, 2:multi, 3:multi-hier

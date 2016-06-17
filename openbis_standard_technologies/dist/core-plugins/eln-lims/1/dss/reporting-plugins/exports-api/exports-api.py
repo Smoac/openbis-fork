@@ -121,6 +121,15 @@ def process(tr, params, tableBuilder):
 		row.setCell("MESSAGE", "Operation Failed");
 		
 
+def addToExportWithoutRepeating(entitiesToExport, entityFound):
+	found = False;
+	for entityToExport in entitiesToExport:
+		if entityToExport["permId"] == entityFound["permId"] and entityToExport["type"] == entityFound["type"]:
+			found = True;
+			break;
+	if not found:
+		entitiesToExport.append(entityFound);
+
 def expandAndexport(tr, params):
 	#Services used during the export process
 	# TO-DO Login on the services as ETL server but on behalf of the user that makes the call
@@ -137,7 +146,7 @@ def expandAndexport(tr, params):
 	userEmail = v3.getSessionInformation(sessionToken).getPerson().getEmail();
 	for entity in entities:
 		entityAsPythonMap = { "type" : entity.get("type"), "permId" : entity.get("permId"), "expand" : entity.get("expand") };
-		entitiesToExport.append(entityAsPythonMap);
+		addToExportWithoutRepeating(entitiesToExport, entityAsPythonMap);
 		if entity.get("expand"):
 			entitiesToExpand.append(entityAsPythonMap);
 	
@@ -154,7 +163,7 @@ def expandAndexport(tr, params):
 			operationLog.info("Found: " + str(results.getTotalCount()) + " projects");
 			for project in results.getObjects():
 				entityFound = { "type" : "PROJECT", "permId" : project.getPermId().getPermId() };
-				entitiesToExport.append(entityFound);
+				addToExportWithoutRepeating(entitiesToExport, entityFound);
 				entitiesToExpand.append(entityFound);
 		if type == "PROJECT":
 			criteria = ExperimentSearchCriteria();
@@ -163,7 +172,7 @@ def expandAndexport(tr, params):
 			operationLog.info("Found: " + str(results.getTotalCount()) + " experiments");
 			for experiment in results.getObjects():
 				entityFound = { "type" : "EXPERIMENT", "permId" : experiment.getPermId().getPermId() };
-				entitiesToExport.append(entityFound);
+				addToExportWithoutRepeating(entitiesToExport, entityFound);
 				entitiesToExpand.append(entityFound);
 		if type == "EXPERIMENT":
 			criteria = SampleSearchCriteria();
@@ -172,7 +181,7 @@ def expandAndexport(tr, params):
 			operationLog.info("Found: " + str(results.getTotalCount()) + " samples");
 			for sample in results.getObjects():
 				entityFound = { "type" : "SAMPLE", "permId" : sample.getPermId().getPermId() };
-				entitiesToExport.append(entityFound);
+				addToExportWithoutRepeating(entitiesToExport, entityFound);
 				entitiesToExpand.append(entityFound);
 		if type == "SAMPLE":
 			criteria = DataSetSearchCriteria();
@@ -181,7 +190,7 @@ def expandAndexport(tr, params):
 			operationLog.info("Found: " + str(results.getTotalCount()) + " datasets");
 			for dataset in results.getObjects():
 				entityFound = { "type" : "DATASET", "permId" : dataset.getPermId().getPermId() };
-				entitiesToExport.append(entityFound);
+				addToExportWithoutRepeating(entitiesToExport, entityFound);
 				entitiesToExpand.append(entityFound);
 		if type == "DATASET":
 			criteria = DataSetFileSearchCriteria();
@@ -193,7 +202,7 @@ def expandAndexport(tr, params):
 				if entityFound["isDirectory"]:
 					entitiesToExpand.append(entityFound);
 				else:
-					entitiesToExport.append(entityFound);
+					addToExportWithoutRepeating(entitiesToExport, entityFound);
 					
 	
 	limitDataSizeInMegabytes = getConfigurationProperty(tr, 'limit-data-size-megabytes');
