@@ -4,13 +4,13 @@
  * Remove or highlight tree nodes, based on a filter.
  * (Extension module for jquery.fancytree.js: https://github.com/mar10/fancytree/)
  *
- * Copyright (c) 2008-2015, Martin Wendt (http://wwWendt.de)
+ * Copyright (c) 2008-2016, Martin Wendt (http://wwWendt.de)
  *
  * Released under the MIT license
  * https://github.com/mar10/fancytree/wiki/LicenseInfo
  *
- * @version 2.13.0
- * @date 2015-11-16T07:33
+ * @version 2.18.0
+ * @date 2016-05-02T19:34
  */
 
 ;(function($, window, document, undefined) {
@@ -22,15 +22,27 @@
  * Private functions and variables
  */
 
+var KeyNoData = "__not_found__",
+	escapeHtml = $.ui.fancytree.escapeHtml;
+
 function _escapeRegex(str){
 	/*jshint regexdash:true */
 	return (str + "").replace(/([.?*+\^\$\[\]\\(){}|-])/g, "\\$1");
 }
 
+function extractHtmlText(s){
+	if( s.indexOf(">") >= 0 ) {
+		return $("<div/>").html(s).text();
+	}
+	return s;
+}
+
 $.ui.fancytree._FancytreeClass.prototype._applyFilterImpl = function(filter, branchMode, opts){
-	var leavesOnly, match, re, re2,
+	var leavesOnly, match, statusNode, re, re2,
 		count = 0,
-		filterOpts = this.options.filter,
+		treeOpts = this.options,
+		escapeTitles = treeOpts.escapeTitles,
+		filterOpts = treeOpts.filter,
 		hideMode = filterOpts.mode === "hide";
 
 	opts = opts || {};
@@ -52,14 +64,16 @@ $.ui.fancytree._FancytreeClass.prototype._applyFilterImpl = function(filter, bra
 		re = new RegExp(".*" + match + ".*", "i");
 		re2 = new RegExp(filter, "gi");
 		filter = function(node){
-			var res = !!re.test(node.title);
-			// node.debug("filter res", res, filterOpts.highlight)
+			var display,
+				text = escapeTitles ? node.title : extractHtmlText(node.title),
+				res = !!re.test(text);
+
 			if( res && filterOpts.highlight ) {
-				node.titleWithHighlight = node.title.replace(re2, function(s){
+				display = escapeTitles ? escapeHtml(node.title) : text;
+				node.titleWithHighlight = display.replace(re2, function(s){
 					return "<mark>" + s + "</mark>";
 				});
-			// } else {
-			// 	delete node.titleWithHighlight;
+				// node.debug("filter", escapeTitles, text, node.titleWithHighlight);
 			}
 			return res;
 		};
@@ -80,9 +94,23 @@ $.ui.fancytree._FancytreeClass.prototype._applyFilterImpl = function(filter, bra
 		delete node.titleWithHighlight;
 		node.subMatchCount = 0;
 	});
+	statusNode = this.getRootNode()._findDirectChild(KeyNoData);
+	if( statusNode ) {
+		statusNode.remove();
+	}
+
 	// Adjust node.hide, .match, and .subMatchCount properties
 	this.visit(function(node){
-		if ((!leavesOnly || node.children == null) && filter(node)) {
+		if ( leavesOnly && node.children != null ) {
+			return;
+		}
+		var res = filter(node);
+		if( res === "skip" ) {
+			node.visit(function(c){
+				c.match = false;
+			}, true);
+			return "skip";
+		} else if( res ) {
 			count++;
 			node.match = true;
 			node.visitParents(function(p){
@@ -92,14 +120,36 @@ $.ui.fancytree._FancytreeClass.prototype._applyFilterImpl = function(filter, bra
 					p._filterAutoExpanded = true;
 				}
 			});
-			if( branchMode ) {
-				node.visit(function(p){
-					p.match = true;
+			if( branchMode || res === "branch" ) {
+				node.visit(function(c){
+					c.match = true;
 				});
+				if( opts.autoExpand && !node.expanded ) {
+					node.setExpanded(true, {noAnimation: true, noEvents: true, scrollIntoView: false});
+					node._filterAutoExpanded = true;
+				}
 				return "skip";
 			}
 		}
 	});
+	if( count === 0 && filterOpts.nodata ) {
+		statusNode = filterOpts.nodata;
+		if( $.isFunction(statusNode) ) {
+			statusNode = statusNode();
+		}
+		if( statusNode === true ) {
+			statusNode = {};
+		} else if( typeof statusNode === "string" ) {
+			statusNode = { title: statusNode };
+		}
+		statusNode = $.extend({
+			statusNodeType: "nodata",
+			key: KeyNoData,
+			title: this.options.strings.noData
+		}, statusNode);
+
+		this.getRootNode().addNode(statusNode).match = true;
+	}
 	// Redraw whole tree
 	this.render();
 	return count;
@@ -151,9 +201,25 @@ $.ui.fancytree._FancytreeClass.prototype.filterBranches = function(filter, opts)
  * @requires jquery.fancytree.filter.js
  */
 $.ui.fancytree._FancytreeClass.prototype.clearFilter = function(){
+	var $title,
+		statusNode = this.getRootNode()._findDirectChild(KeyNoData),
+		escapeTitles = this.options.escapeTitles,
+		enhanceTitle = this.options.enhanceTitle;
+
+	if( statusNode ) {
+		statusNode.remove();
+	}
 	this.visit(function(node){
 		if( node.match ) {  // #491
-			$(">span.fancytree-title", node.span).html(node.title);
+			$title = $(">span.fancytree-title", node.span);
+			if( escapeTitles ) {
+				$title.text(node.title);
+			} else {
+				$title.html(node.title);
+			}
+			if( enhanceTitle ) {
+				enhanceTitle({type: "enhanceTitle"}, {node: node, $title: $title});
+			}
 		}
 		delete node.match;
 		delete node.subMatchCount;
@@ -213,22 +279,11 @@ $.ui.fancytree.registerExtension({
 		fuzzy: false,  // Match single characters in order, e.g. 'fb' will match 'FooBar'
 		hideExpandedCounter: true,  // Hide counter badge, when parent is expanded
 		highlight: true,  // Highlight matches by wrapping inside <mark> tags
-		mode: "dimm"  // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
+		nodata: true,  // Display a 'no data' status node if result is empty
+		mode: "dimm",  // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
+		// events
+		enhanceTitle: null
 	},
-	// treeCreate: function(ctx){
-	// 	this._superApply(arguments);
-	// 	console.log("create")
-	// 	ctx.tree.options.renderTitle = function(event, data) {
-	// 		var node = data.node;
-	// 		console.log("create n", node.titleWithHighlight, data.tree.enableFilter)
-	// 		if( node.titleWithHighlight && node.tree.enableFilter ) {
-	// 			return node.titleWithHighlight;
-	// 		}
-	// 	}
-	// },
-	// treeInit: function(ctx){
-	// 	this._superApply(arguments);
-	// },
 	nodeLoadChildren: function(ctx, source) {
 		return this._superApply(arguments).done(function() {
 			if( ctx.tree.enableFilter && ctx.tree.lastFilterArgs && ctx.options.filter.autoApply ) {
@@ -250,7 +305,10 @@ $.ui.fancytree.registerExtension({
 			node = ctx.node,
 			tree = ctx.tree,
 			opts = ctx.options.filter,
-			$span = $(node[tree.statusClassPropName]);
+			$title = $("span.fancytree-title", node.span),
+			$span = $(node[tree.statusClassPropName]),
+			enhanceTitle = ctx.options.enhanceTitle,
+			escapeTitles = ctx.options.escapeTitles;
 
 		res = this._superApply(arguments);
 		// nothing to do, if node was not yet rendered
@@ -265,7 +323,7 @@ $.ui.fancytree.registerExtension({
 		if( opts.counter && node.subMatchCount && (!node.isExpanded() || !opts.hideExpandedCounter) ) {
 			if( !node.$subMatchBadge ) {
 				node.$subMatchBadge = $("<span class='fancytree-childcounter'/>");
-				$("span.fancytree-icon", node.span).append(node.$subMatchBadge);
+				$("span.fancytree-icon, span.fancytree-custom-icon", node.span).append(node.$subMatchBadge);
 			}
 			node.$subMatchBadge.show().text(node.subMatchCount);
 		} else if ( node.$subMatchBadge ) {
@@ -273,9 +331,14 @@ $.ui.fancytree.registerExtension({
 		}
 		// node.debug("nodeRenderStatus", node.titleWithHighlight, node.title)
 		if( node.titleWithHighlight ) {
-			$("span.fancytree-title", node.span).html(node.titleWithHighlight);
+			$title.html(node.titleWithHighlight);
+		} else if ( escapeTitles ) {
+			$title.text(node.title);
 		} else {
-			$("span.fancytree-title", node.span).html(node.title);
+			$title.html(node.title);
+		}
+		if( enhanceTitle ) {
+			enhanceTitle({type: "enhanceTitle"}, {node: node, $title: $title});
 		}
 		return res;
 	}

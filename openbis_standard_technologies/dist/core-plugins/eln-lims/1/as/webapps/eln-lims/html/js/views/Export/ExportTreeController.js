@@ -22,4 +22,8 @@ function ExportTreeController(parentController) {
 	this.init = function($container) {
 		exportTreeView.repaint($container);
 	}
+	
+	this.exportSelected = function() {
+		alert("JA JA JA");
+	}
 }

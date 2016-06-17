@@ -4,13 +4,13 @@
  * Support faster lookup of nodes by key and shared ref-ids.
  * (Extension module for jquery.fancytree.js: https://github.com/mar10/fancytree/)
  *
- * Copyright (c) 2008-2015, Martin Wendt (http://wwWendt.de)
+ * Copyright (c) 2008-2016, Martin Wendt (http://wwWendt.de)
  *
  * Released under the MIT license
  * https://github.com/mar10/fancytree/wiki/LicenseInfo
  *
- * @version 2.13.0
- * @date 2015-11-16T07:33
+ * @version 2.18.0
+ * @date 2016-05-02T19:34
  */
 
 ;(function($, window, document, undefined) {
@@ -271,6 +271,20 @@ $.ui.fancytree._FancytreeNodeClass.prototype.reRegister = function(key, refKey){
 
 
 /**
+ * [ext-clones] Define a refKey for an existing node.
+ * @param {string} refKey
+ * @returns {boolean}
+ *
+ * @alias FancytreeNode#setRefKey
+ * @requires jquery.fancytree.clones.js
+ * @since 2.16
+ */
+$.ui.fancytree._FancytreeNodeClass.prototype.setRefKey = function(refKey){
+	return this.reRegister(null, refKey);
+};
+
+
+/**
  * [ext-clones] Return all nodes with a given refKey (null if not found).
  * @param {string} refKey
  * @param {FancytreeNode} [rootNode] optionally restrict results to descendants of this node
@@ -365,7 +379,7 @@ $.ui.fancytree.registerExtension({
 
 //		ctx.tree.debug("clones.treeRegisterNode", add, node);
 
-		if( key === "_statusNode" ){
+		if( node.isStatusNode() ){
 			return this._superApply(arguments);
 		}
 
