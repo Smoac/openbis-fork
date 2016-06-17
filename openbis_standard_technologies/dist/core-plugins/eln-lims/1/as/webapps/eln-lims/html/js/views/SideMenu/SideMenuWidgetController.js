@@ -415,7 +415,7 @@ function SideMenuWidgetController(mainController) {
                         
                         if(profile.mainMenu.showExports) {
                        	 utilities.newMenuIfSelected.children.push(
-                                    new SideMenuWidgetComponent(true, false, "EXPORTS", "EXPORTS", utilities, null, "showExportTreePage", null, "")
+                                    new SideMenuWidgetComponent(true, false, "EXPORT BUILDER", "EXPORT_BUILDER", utilities, null, "showExportTreePage", null, "")
                                     );
                         }
                        
