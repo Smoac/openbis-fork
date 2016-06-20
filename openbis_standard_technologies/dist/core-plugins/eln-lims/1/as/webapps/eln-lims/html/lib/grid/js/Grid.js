@@ -310,6 +310,16 @@ $.extend(Grid.prototype, {
 	},
 	
 	exportTSV : function(isAllRowsOrVisible, isAllColumnsOrVisible, plainText) {
+		var _this = this;
+		if(plainText) {
+			Util.showWarning("<b>Don't use this file for imports</b><br>Do understand that you are importing the data removing the rich text format. If you use this file to import data back, you will be removing the rich text format on the database!", function() {
+				_this.exportTSVB(isAllRowsOrVisible, isAllColumnsOrVisible, plainText);
+			});
+		} else {
+			_this.exportTSVB(isAllRowsOrVisible, isAllColumnsOrVisible, plainText);
+		}
+	},
+	exportTSVB : function(isAllRowsOrVisible, isAllColumnsOrVisible, plainText) {
 		var thisGrid = this;
 		
 		var exportColumnsFromData = function(namePrefix, data, headings) {
