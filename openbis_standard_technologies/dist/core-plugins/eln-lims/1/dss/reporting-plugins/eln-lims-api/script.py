@@ -76,28 +76,33 @@ def getConfigParameterAsString(propertyKey):
 		return property;
 
 def getDirectLinkURL():
-	ftpServerEnable = getConfigParameterAsString("ftp.server.enable");
 	
+	#CIFS
+	cifsServerEnable = getConfigParameterAsString("cifs.server.enable");
+	cifsServerPort = getConfigParameterAsString("cifs.server.smb-port");
+	
+	#SFTP
+	sftpPort = getConfigParameterAsString("ftp.server.sftp-port");
+	
+	#FTPS
+	ftpServerEnable = getConfigParameterAsString("ftp.server.enable");
 	ftpServerUseSsl = getConfigParameterAsString("ftp.server.use-ssl");
 	useSsl = getConfigParameterAsString("use-ssl");
-	
 	ftpPortLegacy = getConfigParameterAsString("ftp.server.port");
 	ftpPort = getConfigParameterAsString("ftp.server.ftp-port");
 	
-	sftpPort = getConfigParameterAsString("ftp.server.sftp-port");
-	
-	
 	protocol = None;
 	port = None;
-	if (ftpServerEnable == "true") and (sftpPort is not None):
+	
+	if (cifsServerEnable == "true") and (cifsServerPort is not None):
+		protocol = "cifs"
+		port = cifsServerPort;
+	if (sftpPort is not None):
 		protocol = "sftp";
+		port = sftpPort;
 	elif (ftpServerEnable == "true") and ((ftpPort is not None) or (ftpPortLegacy is not None)) and (ftpServerUseSsl == "true" or useSsl == "true"):
 		protocol = "ftps";
-	
-	if protocol is not None:
-		if sftpPort is not None:
-			port = sftpPort;
-		elif ftpPort is not None:
+		if ftpPort is not None:
 			port = ftpPort;
 		elif ftpPortLegacy is not None:
 			port = ftpPortLegacy;
@@ -105,7 +110,6 @@ def getDirectLinkURL():
 	directLinkURL = None;
 	if protocol is not None:
 		directLinkURL = protocol + "://$URL:" + str(port) + "/";
-	
 	return getJsonForData(directLinkURL);
 
 def getProperties(tr, parameters):
