@@ -38,7 +38,6 @@ public class DummyUsersInterface implements UsersInterface
     @Override
     public UserAccount getUserAccount(String userName)
     {
-        System.out.println("DummyUsersInterface.getUserAccount() "+userName);
         return new UserAccount(userName, null);
     }
 
