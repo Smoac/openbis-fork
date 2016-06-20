@@ -7,9 +7,9 @@ import traceback
 
 import util
 
-INSTALLER_PROJECT = 'gradle-installation'
-OPENBIS_STANDARD_TECHNOLOGIES_PROJECT = 'gradle-openbis-standard-technologies'
-DATAMOVER_PROJECT = 'gradle-datamover'
+INSTALLER_PROJECT = 'installation'
+OPENBIS_STANDARD_TECHNOLOGIES_PROJECT = 'openbis-standard-technologies'
+DATAMOVER_PROJECT = 'datamover'
 
 PSQL_EXE = 'psql'
 
