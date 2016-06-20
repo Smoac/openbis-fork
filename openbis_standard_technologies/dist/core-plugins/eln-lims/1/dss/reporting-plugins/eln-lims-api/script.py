@@ -97,7 +97,7 @@ def getDirectLinkURL():
 	if (cifsServerEnable == "true") and (cifsServerPort is not None):
 		protocol = "cifs"
 		port = cifsServerPort;
-	if (sftpPort is not None):
+	elif (sftpPort is not None):
 		protocol = "sftp";
 		port = sftpPort;
 	elif (ftpServerEnable == "true") and ((ftpPort is not None) or (ftpPortLegacy is not None)) and (ftpServerUseSsl == "true" or useSsl == "true"):
