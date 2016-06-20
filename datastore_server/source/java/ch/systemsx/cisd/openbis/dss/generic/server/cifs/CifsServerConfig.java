@@ -76,7 +76,7 @@ class CifsServerConfig
             .entry("host.domain", "OPENBIS")
             .entry("broadcast-mask", "255.255.255.255")
             .entry("smb-dialects", "LanMan,NT")
-            .entry(SMB_PORT_KEY, "1445")
+            .entry(SMB_PORT_KEY, null)
             .entry("session-log-flags", "Negotiate,Socket,Tree")
             .entry("log-level", "INFO")
             .entry("share-name", "STORE")
