@@ -145,6 +145,18 @@ define([ 'jquery', 'util/Json' ], function(jquery, stjsUtil) {
 			});
 		}
 
+		this.getSessionInformation = function() {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "getSessionInformation",
+					"params" : [ thisFacade._private.sessionToken ]
+				},
+				returnType : "SessionInformation"
+			});
+		}
+		
 		this.createSpaces = function(creations) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
