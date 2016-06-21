@@ -39,6 +39,21 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 @JsonObject("NewDataSetDTO")
 public class NewDataSetDTO implements Serializable
 {
+ 
+	//TO-DO - Fix Hack: The only reason to have this property as transient is because Jackson is not ignoring it using @JsonIgnore
+    transient UploadObserver uploadObserver = null; 
+    
+    public void addUploadObserver(UploadObserver uploadObserver)
+    {
+        this.uploadObserver = uploadObserver;
+    }
+    
+    public void notifyUploadProgress(long totalBytesRead) {
+    	if(uploadObserver != null) {
+    		uploadObserver.updateTotalBytesRead(totalBytesRead);
+    	}
+    }
+    
     public static String DEFAULT_DATA_SET_FOLDER_NAME = "original";
 
     /**

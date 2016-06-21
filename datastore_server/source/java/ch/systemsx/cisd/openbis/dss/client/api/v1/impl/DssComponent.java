@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.client.api.v1.impl;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -475,14 +476,36 @@ class AuthenticatedState extends AbstractDssComponentState
     }
 
     @Override
-    public IDataSetDss putDataSet(NewDataSetDTO newDataset, File dataSetFile)
+    public IDataSetDss putDataSet(final NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
     {
         final IDssServiceRpcGeneric dssService = getServiceForPutDataStore();
         ConcatenatedContentInputStream fileInputStream =
                 new ConcatenatedContentInputStream(true, getContentForFileInfos(
                         dataSetFile.getPath(), newDataset.getFileInfos()));
-        String code = dssService.putDataSet(sessionToken, newDataset, fileInputStream);
+        
+        FilterInputStream progressInputStream = new FilterInputStream(fileInputStream) {
+        	long totalRead = 0;
+            public int read() throws IOException {
+            	totalRead += 1;
+            	newDataset.notifyUploadProgress(totalRead);
+                return in.read();
+            }
+            
+            public int read(byte b[]) throws IOException {
+            	totalRead += b.length;
+            	newDataset.notifyUploadProgress(totalRead);
+                return read(b, 0, b.length);
+            }
+            
+            public int read(byte b[], int off, int len) throws IOException {
+            	totalRead += len;
+            	newDataset.notifyUploadProgress(totalRead);
+                return in.read(b, off, len);
+            }
+        };
+        
+        String code = dssService.putDataSet(sessionToken, newDataset, progressInputStream);
         return new DataSetDss(code, dssService, this);
     }
 

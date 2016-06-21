@@ -25,6 +25,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadClientModel.NewDataSetInfo;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadClientModel.NewDataSetInfo.Status;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.UploadObserver;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
@@ -64,7 +65,7 @@ final class DataSetUploadOperation implements Runnable
     {
         try
         {
-            if (newDataSetInfo.getStatus() == NewDataSetInfo.Status.QUEUED_FOR_UPLOAD)
+        	if (newDataSetInfo.getStatus() == NewDataSetInfo.Status.QUEUED_FOR_UPLOAD)
             {
                 newDataSetInfo.setStatus(Status.UPLOADING);
                 tableModel.fireChanged(newDataSetInfo, Status.UPLOADING);
@@ -72,6 +73,15 @@ final class DataSetUploadOperation implements Runnable
                 NewDataSetDTO cleanDto =
                         clientModel.cleanNewDataSetDTO(newDataSetInfo.getNewDataSetBuilder()
                                 .asNewDataSetDTO());
+                cleanDto.addUploadObserver(new UploadObserver() {
+					@Override
+					public void updateTotalBytesRead(long totalBytesRead) {
+						double totalFileSize = newDataSetInfo.getTotalFileSize();
+						int percent = (int)((totalBytesRead / totalFileSize) * 100);
+						newDataSetInfo.updateProgress(percent, totalBytesRead); 
+						tableModel.fireChanged(newDataSetInfo, Status.UPLOADING);
+					}
+                });
                 clientModel.getOpenBISService().putDataSet(cleanDto,
                         newDataSetInfo.getNewDataSetBuilder().getFile());
             }
