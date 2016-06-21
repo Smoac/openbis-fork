@@ -16,15 +16,22 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.coreplugin;
 
+import static ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsInjector.INITIALIZE_MASTER_DATA_CORE_PLUGIN_NAME;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import ch.systemsx.cisd.common.collection.IKeyExtractor;
+import ch.systemsx.cisd.common.collection.TableMap;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
@@ -36,6 +43,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
  */
 public class ModuleEnabledChecker
 {
+    private static final IKeyExtractor<String, CorePlugin> CORE_PLUGIN_NAME_EXTRACTOR = new IKeyExtractor<String, CorePlugin>()
+        {
+            @Override
+            public String getKey(CorePlugin corePlugin)
+            {
+                return corePlugin.getName();
+            }
+        };
+
     private final List<Pattern> enabledModulesPatterns;
 
     public ModuleEnabledChecker(Properties properties, String key)
@@ -59,12 +75,67 @@ public class ModuleEnabledChecker
         }
     }
 
-    public static interface IModuleNameExtractor<T>
+    public Set<CorePlugin> getModuleWithEnabledMasterDataInitializations(List<CorePlugin> corePlugins)
     {
-        String getName(T item);
+        Set<CorePlugin> result = new LinkedHashSet<>();
+        TableMap<String, CorePlugin> pluginsByName = new TableMap<>(corePlugins, CORE_PLUGIN_NAME_EXTRACTOR);
+        for (String enabledPlugin : getEnabledPlugins(corePlugins))
+        {
+            CorePlugin plugin = getPluginByFullRequiredPluginName(pluginsByName, enabledPlugin, null);
+            String name = plugin.getName();
+            if (enabledPlugin.equals(name) 
+                    || enabledPlugin.equals(name + ":" + INITIALIZE_MASTER_DATA_CORE_PLUGIN_NAME))
+            {
+                result.add(plugin);
+            }
+        }
+        return result;
+    }
+    
+    Set<String> getEnabledPlugins(List<CorePlugin> corePlugins)
+    {
+        TableMap<String, CorePlugin> pluginsByName = new TableMap<>(corePlugins, CORE_PLUGIN_NAME_EXTRACTOR);
+        Set<String> result = new LinkedHashSet<>();
+        for (CorePlugin corePlugin : getListOfEnabledPlugins(corePlugins))
+        {
+            addRequiredPlugins(result, new HashSet<CorePlugin>(), pluginsByName, corePlugin);
+            result.add(corePlugin.getName());
+        }
+        return result;
     }
 
-    public List<CorePlugin> getListOfEnabledPlugins(List<CorePlugin> corePlugins)
+    private void addRequiredPlugins(Set<String> result, Set<CorePlugin> visitedPlugins, 
+            TableMap<String, CorePlugin> pluginsByName, CorePlugin corePlugin)
+    {
+        if (visitedPlugins.contains(corePlugin))
+        {
+            return;
+        }
+        visitedPlugins.add(corePlugin);
+        for (String requiredPlugin : corePlugin.getRequiredPlugins())
+        {
+            CorePlugin referredPlugin = getPluginByFullRequiredPluginName(pluginsByName, requiredPlugin, corePlugin);
+            addRequiredPlugins(result, visitedPlugins, pluginsByName, referredPlugin);
+            result.add(requiredPlugin);
+        }
+    }
+
+    private CorePlugin getPluginByFullRequiredPluginName(TableMap<String, CorePlugin> pluginsByName, 
+            String requiredPlugin, CorePlugin corePlugin)
+    {
+        FullPluginName fullPluginName = new FullPluginName(requiredPlugin);
+        String moduleName = fullPluginName.getModule();
+        CorePlugin referredPlugin = pluginsByName.tryGet(moduleName);
+        if (referredPlugin == null)
+        {
+            throw new ConfigurationFailureException("Required plugin '" + requiredPlugin 
+                    + "' specified by core plugin '" + corePlugin + "' refers to the unknown module '" 
+                    + moduleName + "'." );
+        }
+        return referredPlugin;
+    }
+    
+    List<CorePlugin> getListOfEnabledPlugins(List<CorePlugin> corePlugins)
     {
         ArrayList<CorePlugin> result = new ArrayList<>();
 
@@ -82,7 +153,7 @@ public class ModuleEnabledChecker
         }
         return result;
     }
-
+    
     public List<String> getListOfEnabledModules(List<String> moduleNames)
     {
         List<String> remainingModules = new LinkedList<>(moduleNames);
@@ -113,5 +184,54 @@ public class ModuleEnabledChecker
             }
         }
         return false;
+    }
+    
+    private static final class FullPluginName
+    {
+        private final String module;
+        private final String pluginType;
+        private final String name;
+        
+        FullPluginName(String nameAsString)
+        {
+            String[] splittedName = nameAsString.split(":");
+            module = splittedName[0];
+            if (splittedName.length > 1)
+            {
+                pluginType = splittedName[1];
+                if (splittedName.length > 2)
+                {
+                    name = splittedName[2];
+                } else
+                {
+                    name = null;
+                }
+            } else
+            {
+                pluginType = null;
+                name = null;
+            }
+        }
+
+        public String getModule()
+        {
+            return module;
+        }
+
+        @Override
+        public String toString()
+        {
+            StringBuilder builder = new StringBuilder(module);
+            if (pluginType != null)
+            {
+                builder.append(':').append(pluginType);
+                if (name != null)
+                {
+                    builder.append(':').append(name);
+                }
+            }
+            return builder.toString();
+        }
+        
     }
 }

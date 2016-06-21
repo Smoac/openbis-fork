@@ -54,6 +54,7 @@ public class CorePluginScannerTest extends AbstractFileSystemTestCase
         CorePlugin plugin = plugins.get(0);
         assertEquals("plugin-X", plugin.getName());
         assertEquals(15, plugin.getVersion());
+        assertEquals("[plugin-Y:drop-boxes]", plugin.getRequiredPlugins().toString());
         assertEquals("TEST-SCRIPT", getMasterDataScript(plugin, scanner).trim());
 
         plugin = plugins.get(1);
@@ -85,6 +86,7 @@ public class CorePluginScannerTest extends AbstractFileSystemTestCase
         CorePlugin plugin = plugins.get(0);
         assertEquals("plugin-X", plugin.getName());
         assertEquals(17, plugin.getVersion());
+        assertEquals("[]", plugin.getRequiredPlugins().toString());
 
         plugin = plugins.get(1);
         assertEquals("plugin-Y", plugin.getName());
