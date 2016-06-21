@@ -8,7 +8,7 @@ import traceback
 import util
 
 INSTALLER_PROJECT = 'installation'
-OPENBIS_STANDARD_TECHNOLOGIES_PROJECT = 'openbis-standard-technologies'
+OPENBIS_STANDARD_TECHNOLOGIES_PROJECT = 'openbis_standard_technologies'
 DATAMOVER_PROJECT = 'datamover'
 
 PSQL_EXE = 'psql'
