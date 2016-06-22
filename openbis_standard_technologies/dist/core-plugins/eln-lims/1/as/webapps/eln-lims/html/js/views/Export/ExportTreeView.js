@@ -146,7 +146,7 @@ function ExportTreeView(exportTreeController, exportTreeModel) {
     	exportTreeModel.tree = $tree.fancytree({
         	extensions: ["dnd", "edit", "glyph"], //, "wide"
         	checkbox: true,
-        	selectMode: 3, // 1:single, 2:multi, 3:multi-hier
+        	selectMode: 2, // 1:single, 2:multi, 3:multi-hier
         	glyph: glyph_opts,
         	source: treeModel,
         	lazyLoad : onLazyLoad
