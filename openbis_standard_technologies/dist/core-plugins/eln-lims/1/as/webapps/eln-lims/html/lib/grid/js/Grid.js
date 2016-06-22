@@ -312,7 +312,7 @@ $.extend(Grid.prototype, {
 	exportTSV : function(isAllRowsOrVisible, isAllColumnsOrVisible, plainText) {
 		var _this = this;
 		if(plainText) {
-			Util.showWarning("<b>Don't use this file for imports</b><br>Do understand that you are importing the data removing the rich text format. If you use this file to import data back, you will be removing the rich text format on the database!", function() {
+			Util.showWarning("<b>DO NOT USE THIS FILE FOR BATCH UPDATE!</b><br>This file does not contain rich text format. If used for Batch Update, all rich text format in the updated entries will be lost!", function() {
 				_this.exportTSVB(isAllRowsOrVisible, isAllColumnsOrVisible, plainText);
 			});
 		} else {
