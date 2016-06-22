@@ -20,13 +20,13 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -80,6 +80,10 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
      */
     public static final String LINK_DIRECTORY = "data";
 
+    private static final String META_DATA_TSV_FILE = "meta-data.tsv";
+    
+    private static final String MODIFICATION_TIMESTAMP_FILE = "modification_timestamp";
+    
     private static final String REBUILDING_HIERARCHICAL_STORAGE = "Rebuilding hierarchical storage";
 
     private static final Logger operationLog =
@@ -137,7 +141,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
         storeRoot = new File(storeRootFileName);
         hierarchyRoot = new File(hierarchyRootFileName);
         linkSourceDescriptors = initializeLinkSourceDescriptors(pluginProperties);
-        withMetaData = PropertyUtils.getBoolean(pluginProperties, WITH_META_DATA, true);
+        withMetaData = PropertyUtils.getBoolean(pluginProperties, WITH_META_DATA, false);
 
         operationLog.info("Plugin initialized with: store root = " + storeRootFileName
                 + ", hierarchy root = " + hierarchyRootFileName);
@@ -282,7 +286,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
 
     }
 
-    private final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US);
+    private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
 
     private void createDataSetFolder(DataSetInformation info)
     {
@@ -293,20 +297,20 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
 
     private void createMetaDataFile(DataSetInformation info)
     {
-        File file = new File(info.targetFile, "meta-data.tsv");
+        File file = new File(info.targetFile, META_DATA_TSV_FILE);
         String content = MetaDataBuilder.createMetaData(info.dto);
         FileUtilities.writeToFile(file, content);
     }
 
     private void createModificationDateFile(DataSetInformation info)
     {
-        File file = new File(info.targetFile, "modification_timestamp");
+        File file = new File(info.targetFile, MODIFICATION_TIMESTAMP_FILE);
         FileUtilities.writeToFile(file, dateFormat.format(info.dto.getModificationDate()));
     }
 
     private Date getModificationDateFromFile(DataSetInformation info)
     {
-        File file = new File(info.targetFile, "modification_timestamp");
+        File file = new File(info.targetFile, MODIFICATION_TIMESTAMP_FILE);
         if (file.exists() == false)
             return null;
         String content = FileUtilities.loadToString(file);
@@ -516,8 +520,8 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
             // we try to be safe and delete only links and files that we know we created
             return FileUtilities.isSymbolicLink(file) ||
                     file.isDirectory() ||
-                    file.getName().equals("modification_timestamp") ||
-                    file.getName().equals("meta-data.tsv");
+                    file.getName().equals(MODIFICATION_TIMESTAMP_FILE) ||
+                    file.getName().equals(META_DATA_TSV_FILE);
         } else
         {
             operationLog.warn("Aborting an attempt to delete content outside of hierarchy root : "
