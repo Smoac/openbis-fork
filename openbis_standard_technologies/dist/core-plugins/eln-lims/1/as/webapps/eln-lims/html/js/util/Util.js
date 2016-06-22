@@ -256,11 +256,11 @@ var Util = new function() {
 											.append($("<br>"))
 											.append("Directly clicking on it will open the default application.")
 											.append($("<br>"))
-											.append($("<b>Mac/Unix: </b>"))
+											.append($("<b>Mac (Opens in Finder): </b>"))
 											.append($("<a>", { "href" : directLinkUnix, "target" : "_blank"}).append(directLinkUnix))
 											.append($("<br>"))
 											.append($("<b>Windows (Copy link on Explorer): </b>"))
-											.append($("<a>", { "href" : directLinkWin, "target" : "_blank"}).append(directLinkWin));
+											.append(directLinkWin);
 		$window.css("margin-bottom", "10px");
 		$window.css("margin-left", "10px");
 		$window.css("margin-right", "10px");
