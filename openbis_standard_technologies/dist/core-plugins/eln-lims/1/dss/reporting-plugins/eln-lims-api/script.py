@@ -110,6 +110,9 @@ def getDirectLinkURL():
 	directLinkURL = None;
 	if protocol is not None:
 		directLinkURL = protocol + "://$URL:" + str(port) + "/";
+	if protocol == "cifs":
+		directLinkURL += "STORE/";
+	
 	return getJsonForData(directLinkURL);
 
 def getProperties(tr, parameters):
