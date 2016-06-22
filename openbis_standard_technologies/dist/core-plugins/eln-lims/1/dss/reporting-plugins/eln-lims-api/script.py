@@ -93,10 +93,11 @@ def getDirectLinkURL():
 	
 	protocol = None;
 	port = None;
-	
+	UNCsuffix = None;
 	if (cifsServerEnable == "true") and (cifsServerPort is not None):
 		protocol = "cifs"
 		port = cifsServerPort;
+		UNCsuffix = "STORE/";
 	elif (sftpPort is not None):
 		protocol = "sftp";
 		port = sftpPort;
@@ -106,14 +107,12 @@ def getDirectLinkURL():
 			port = ftpPort;
 		elif ftpPortLegacy is not None:
 			port = ftpPortLegacy;
-		
-	directLinkURL = None;
-	if protocol is not None:
-		directLinkURL = protocol + "://$URL:" + str(port) + "/";
-	if protocol == "cifs":
-		directLinkURL += "STORE/";
-	
-	return getJsonForData(directLinkURL);
+
+	return getJsonForData({
+						"protocol" : protocol,
+						"port" : port,
+						"UNCsuffix" : UNCsuffix
+						});
 
 def getProperties(tr, parameters):
 	sessionToken = parameters.get("sessionToken");

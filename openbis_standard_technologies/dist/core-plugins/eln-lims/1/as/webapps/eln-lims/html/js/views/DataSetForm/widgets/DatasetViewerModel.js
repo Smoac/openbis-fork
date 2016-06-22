@@ -69,9 +69,9 @@ function DataSetViewerModel(containerId, profile, sample, serverFacade, datastor
 	
 	this.getDirectDirectoryLink = function(datasetCode, datasetFile) {
 		var directLinkComponent = null;
-		if(profile.directLinkEnabled && profile.directLinkURL) {
-			var directLink = profile.directLinkURL + this.sample.experimentIdentifierOrNull.substring(1) + "/" + datasetCode + "/" + datasetFile.pathInDataSet + "/";
-			directLinkComponent = "<span onclick=\"" + "Util.showDirectLink('" + directLink + "')" + "\" class='glyphicon glyphicon-hdd'></span>";
+		if(profile.directLinkEnabled && profile.directFileServer) {
+			var path = this.sample.experimentIdentifierOrNull.substring(1) + "/" + datasetCode + "/" + datasetFile.pathInDataSet + "/";
+			directLinkComponent = "<span onclick=\"" + "Util.showDirectLink('" + path + "')" + "\" class='glyphicon glyphicon-hdd'></span>";
 		}
 		return directLinkComponent;
 	}

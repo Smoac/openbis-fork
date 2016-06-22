@@ -59,7 +59,7 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		this.directLinkEnabled = true;
-		this.directLinkURL = null; //To be set during initialization using info retrieved from the DSS configuration by the reporting plugin
+		this.directFileServer = null; //To be set during initialization using info retrieved from the DSS configuration by the reporting plugin
 		this.copyPastePlainText = false;
 		this.hideCodes = true;
 		this.hideTypes = {
@@ -659,12 +659,7 @@ $.extend(DefaultProfile.prototype, {
 			var _this = this;
 			this.serverFacade.getDirectLinkURL(function(error, result) {
 				if(!error) {
-					var hostName = window.location.hostname;
-					var directLinkURL = result.data;
-						if(directLinkURL) {
-							directLinkURL = directLinkURL.replace("$URL", hostName);
-						}
-					_this.directLinkURL = directLinkURL;
+					_this.directFileServer = result.data;
 				}
 				callback();
 			});
