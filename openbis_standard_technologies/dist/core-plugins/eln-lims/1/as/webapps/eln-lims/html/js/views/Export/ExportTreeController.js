@@ -29,7 +29,7 @@ function ExportTreeController(parentController) {
 		var toExport = [];
 		for(var eIdx = 0; eIdx < selectedNodes.length; eIdx++) {
 			var node = selectedNodes[eIdx];
-			toExport.push({ type: node.data.entityType, permId : node.key, expand : !node.expand });
+			toExport.push({ type: node.data.entityType, permId : node.key, expand : !node.expanded });
 		}
 		
 		if(toExport.length === 0) {
