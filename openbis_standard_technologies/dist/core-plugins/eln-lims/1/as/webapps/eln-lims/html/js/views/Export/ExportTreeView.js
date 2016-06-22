@@ -35,7 +35,7 @@ function ExportTreeView(exportTreeController, exportTreeModel) {
 		var $formTitle = $("<h2>").append("Export Builder");
 		
 		$formColumn.append($formTitle);
-		$formColumn.append(FormUtil.getInfoBox("You can select any parts of the accesible openBIS structure to export.", [
+		$formColumn.append(FormUtil.getInfoBox("You can select any parts of the accesible openBIS structure to export:", [
 			"If you select a tree node and do not expand it, everything below this node will be exported by default.",
 			"To export selectively only parts of a tree, open the nodes and select what to export."
 		]));
