@@ -4,9 +4,9 @@ ERROR causing test failure: Test data folder missing
 
 Solution:
 
-ssh hudson
-cd ~/hudson/jobs/integration-tests/workspace/integration-tests/targets/
-ln -s ../../../../../test-data test-data
+ssh ci@bs-ci01.ethz.ch
+cd ~/jenkins/workspace_dist/integration-tests/targets/
+ln -s /local0/ci/jenkins/test-data/ test-data
 
 
 Note: If this happening on stage-jenkins you have to do the following:
