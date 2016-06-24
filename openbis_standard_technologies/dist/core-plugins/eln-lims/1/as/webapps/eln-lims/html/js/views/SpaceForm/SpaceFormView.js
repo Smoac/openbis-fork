@@ -36,7 +36,21 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 		var $createProj = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
 			_this._spaceFormController.createProject();
 		});
+		
+		var $export = FormUtil.getButtonWithIcon("glyphicon-export", function() {
+			Util.blockUI();
+			var facade = mainController.serverFacade;
+			facade.exportAll([{ type: "SPACE", permId : _this._spaceFormModel.space.code, expand : true }], false, function(error, result) {
+				if(error) {
+					Util.showError(error);
+				} else {
+					Util.showSuccess("Export is being processed, you will receibe an email when is ready, if you logout the process will stop.", function() { Util.unblockUI(); });
+				}
+			});
+		});
+		
 		toolbarModel.push({ component : $createProj, tooltip: "Create Project" });
+		toolbarModel.push({ component : $export, tooltip: "Export" });
 		
 		$formColumn.append($formTitle);
 		$formColumn.append(FormUtil.getToolbar(toolbarModel));

@@ -37,9 +37,9 @@ public abstract class AbstractCompositeSearchCriteriaTranslator extends Abstract
 
     private IDAOFactory daoFactory;
 
-    private IEntityAttributeProviderFactory entityAttributeProviderFactory;
+    private IObjectAttributeProviderFactory entityAttributeProviderFactory;
 
-    protected AbstractCompositeSearchCriteriaTranslator(IDAOFactory daoFactory, IEntityAttributeProviderFactory entityAttributeProviderFactory)
+    protected AbstractCompositeSearchCriteriaTranslator(IDAOFactory daoFactory, IObjectAttributeProviderFactory entityAttributeProviderFactory)
     {
         this.daoFactory = daoFactory;
         this.entityAttributeProviderFactory = entityAttributeProviderFactory;
@@ -105,7 +105,7 @@ public abstract class AbstractCompositeSearchCriteriaTranslator extends Abstract
         return daoFactory;
     }
 
-    public IEntityAttributeProviderFactory getEntityAttributeProviderFactory()
+    public IObjectAttributeProviderFactory getEntityAttributeProviderFactory()
     {
         return entityAttributeProviderFactory;
     }

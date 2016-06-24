@@ -226,7 +226,7 @@ var Util = new function() {
 		});
 	}
 
-	this.showDirectLink = function(directLink) {
+	this.showDirectLink = function(path) {
 		var css = {
 				'text-align' : 'left',
 				'top' : '15%',
@@ -236,6 +236,16 @@ var Util = new function() {
 				'overflow' : 'hidden'
 		};
 		
+		var hostName = window.location.hostname;
+		var protocol = profile.directFileServer.protocol;
+		var suffix = profile.directFileServer.UNCsuffix;
+		if(!suffix) {
+			suffix = ""; 
+		}
+		var port = profile.directFileServer.protocol;
+		
+		directLinkUnix = protocol + "://" + hostName + ":" + port + "/" + suffix + path;
+		directLinkWin = "\\\\" + hostName + "\\" + (new String(suffix + path).replace(new RegExp("/", 'g'),"\\"));
 		var $close = $("<div>", { style : "float:right;" })
 							.append($("<a>", { class : 'btn btn-default' }).append($("<span>", { class : 'glyphicon glyphicon-remove' }))).click(function() {
 								Util.unblockUI();
@@ -246,7 +256,11 @@ var Util = new function() {
 											.append($("<br>"))
 											.append("Directly clicking on it will open the default application.")
 											.append($("<br>"))
-											.append($("<a>", { "href" : directLink, "target" : "_blank"}).append(directLink));
+											.append($("<b>Mac (Opens in Finder): </b>"))
+											.append($("<a>", { "href" : directLinkUnix, "target" : "_blank"}).append(directLinkUnix))
+											.append($("<br>"))
+											.append($("<b>Windows (Copy link on Explorer): </b>"))
+											.append(directLinkWin);
 		$window.css("margin-bottom", "10px");
 		$window.css("margin-left", "10px");
 		$window.css("margin-right", "10px");

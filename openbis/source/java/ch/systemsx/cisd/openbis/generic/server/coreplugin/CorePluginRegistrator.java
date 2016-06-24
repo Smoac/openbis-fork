@@ -60,22 +60,19 @@ public class CorePluginRegistrator implements InitializingBean
         CorePluginScanner pluginScanner = new CorePluginScanner(pluginsFolderName, ScannerType.AS);
         String sessionToken = getSessionToken();
         List<CorePlugin> plugins = pluginScanner.scanForPlugins();
-        for (CorePlugin plugin : moduleEnabledChecker.getListOfEnabledPlugins(plugins))
+        for (CorePlugin plugin : moduleEnabledChecker.getModuleWithEnabledMasterDataInitializations(plugins))
         {
-            if (moduleEnabledChecker.isModuleEnabled(plugin.getName()))
+            if (disabledMasterDataInitializationChecker.isModuleEnabled(plugin.getName()))
             {
-                if (disabledMasterDataInitializationChecker.isModuleEnabled(plugin.getName()))
+                operationLog.info("Registering of master data for plugin " + plugin + " is disabled");
+            } else
+            {
+                try
                 {
-                    operationLog.info("Registering of master data for plugin " + plugin + " is disabled");
-                } else
+                    commonServer.registerPlugin(sessionToken, plugin, pluginScanner);
+                } catch (Exception ex)
                 {
-                    try
-                    {
-                        commonServer.registerPlugin(sessionToken, plugin, pluginScanner);
-                    } catch (Exception ex)
-                    {
-                        operationLog.error("Failed to install core plugin: " + plugin, ex);
-                    }
+                    operationLog.error("Failed to install core plugin: " + plugin, ex);
                 }
             }
         }

@@ -39,12 +39,25 @@ public class FtpFileFactory
      */
     public static FtpFile createFtpFile(String dataSetCode, String path,
             IHierarchicalContentNode contentNode, IHierarchicalContent content,
-            IHierarchicalContentNodeFilter childrenFilter)
+            IHierarchicalContentNodeFilter childrenFilter, Cache cache)
     {
-        return new FtpFileImpl(dataSetCode, path, contentNode.getRelativePath(),
-                contentNode.isDirectory(), getSize(contentNode), getLastModified(contentNode),
-                content, childrenFilter);
+        return createFtpFile(dataSetCode, path, contentNode, content, childrenFilter, getLastModified(contentNode), cache);
 
+    }
+
+    public static FtpFile createFtpFile(String dataSetCode, String path, IHierarchicalContentNode contentNode, 
+            IHierarchicalContent content, IHierarchicalContentNodeFilter childrenFilter, 
+            long lastModified, Cache cache)
+    {
+        FtpFile file = cache.getFile(path);
+        if (file == null)
+        {
+            file = new FtpFileImpl(dataSetCode, path, contentNode.getRelativePath(),
+                    contentNode.isDirectory(), getSize(contentNode), lastModified,
+                    content, childrenFilter, cache);
+            cache.putFile(file, path);
+        }
+        return file;
     }
 
     private static long getSize(IHierarchicalContentNode contentNode)

@@ -38,6 +38,9 @@ import javax.validation.constraints.Pattern;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.constraints.Length;
 
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
@@ -45,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
@@ -54,9 +58,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
  * @author Izabela Adamczyk
  */
 @Entity
-@Table(name = TableNames.CONTROLLED_VOCABULARY_TERM_TABLE, uniqueConstraints =
-{ @UniqueConstraint(columnNames =
-{ ColumnNames.CODE_COLUMN, ColumnNames.CONTROLLED_VOCABULARY_COLUMN }) })
+@Table(name = TableNames.CONTROLLED_VOCABULARY_TERM_TABLE, uniqueConstraints = {
+        @UniqueConstraint(columnNames = { ColumnNames.CODE_COLUMN, ColumnNames.CONTROLLED_VOCABULARY_COLUMN }) })
 public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implements
         IIdAndCodeHolder, Comparable<VocabularyTermPE>, Serializable
 {
@@ -89,6 +92,7 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = 50, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regexp = AbstractIdAndCodeHolder.TERM_CODE_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.TERM_CODE_PATTERN_MESSAGE)
+    @Field(index = Index.YES, store = Store.YES, name = SearchFieldConstants.CODE)
     public String getCode()
     {
         return code;

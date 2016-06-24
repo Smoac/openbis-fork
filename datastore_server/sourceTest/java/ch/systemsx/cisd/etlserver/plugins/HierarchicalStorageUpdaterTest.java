@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -29,6 +30,7 @@ import org.jmock.Mockery;
 import org.springframework.beans.factory.BeanFactory;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
@@ -36,6 +38,16 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
@@ -69,6 +81,7 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
         super(false);
     }
 
+    @SuppressWarnings("unchecked")
     @BeforeMethod
     public void setUpMocks() throws Exception
     {
@@ -88,6 +101,9 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
 
                     allowing(openBISService).listPhysicalDataSets();
                     will(returnValue(listDataSets()));
+
+                    allowing(openBISService).listDataSetsByCode(with(any(List.class)));
+                    will(returnValue(listAbstractDataSets()));
                 }
             });
     }
@@ -98,40 +114,88 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
         ServiceProviderTestWrapper.restoreApplicationContext();
     }
 
-    @Test
-    public void testDataIsNotDeletedAfterReconfig() throws Exception
+    @DataProvider(name = "Configs")
+    protected Object[][] getConfigs()
+    {
+        return new Object[][] {
+                { true }, { false } };
+    }
+
+    @Test(dataProvider = "Configs")
+    public void testDataIsNotDeletedAfterReconfig(boolean linksOnly) throws Exception
     {
 
-        updater().execute();
+        updater(linksOnly).execute();
 
         // execute with different configuration and attempt to damage the data store
-        reconfiguredUpdater().execute();
+        reconfiguredUpdater(linksOnly).execute();
 
         assertDataStoreNotDamaged();
 
     }
 
-    @Test
-    public void testBrokenLinksAreDeleted() throws Exception
+    @Test(dataProvider = "Configs")
+    public void testBrokenLinksAreDeleted(boolean linksOnly) throws Exception
     {
 
-        HierarchicalStorageUpdater storageUpdater = createUpdater(true);
+        HierarchicalStorageUpdater storageUpdater = createUpdater(true, linksOnly);
         storageUpdater.execute();
 
         File shareRoot = new File(getStoreRoot(), SHARE_ID);
         File dataSetSource = new File(shareRoot, "ds2");
         assertTrue(dataSetSource.isDirectory());
 
-        File symboliLink =
+        File locationInHierarchicalStore =
                 new File(getHierarchyRoot().getAbsolutePath()
                         + "/space/project/experiment/dataset-type+sample+ds2");
-        assertTrue("Symbolic links should be created", FileUtilities.isSymbolicLink(symboliLink));
+
+        File symlinkInside = new File(locationInHierarchicalStore, "data");
+        File metaDataFileInside = new File(locationInHierarchicalStore, "meta-data.tsv");
+
+        if (linksOnly)
+        {
+            assertTrue("Symbolic link should be created", FileUtilities.isSymbolicLink(locationInHierarchicalStore));
+        } else
+        {
+            assertTrue("Directory should be created", locationInHierarchicalStore.isDirectory());
+            assertTrue("Meta data file should be created", metaDataFileInside.isFile());
+            assertTrue("Symlink should be created ", FileUtilities.isSymbolicLink(symlinkInside));
+        }
 
         FileUtilities.deleteRecursively(dataSetSource);
 
         storageUpdater.execute();
 
-        assertTrue("Broken symlinks should be deleted", false == symboliLink.exists());
+        if (linksOnly)
+        {
+            assertTrue("Broken symlinks should be deleted", false == locationInHierarchicalStore.exists());
+        } else
+        {
+            assertTrue("Directory should be kept", locationInHierarchicalStore.isDirectory());
+            assertTrue("Meta data file should be kept", metaDataFileInside.isFile());
+            assertTrue("Symlink should be deleted", false == symlinkInside.exists());
+        }
+    }
+
+    @Test
+    public void testMetaDataCreated() throws Exception
+    {
+        HierarchicalStorageUpdater storageUpdater = createUpdater(true, false);
+        storageUpdater.execute();
+
+        File shareRoot = new File(getStoreRoot(), SHARE_ID);
+        File dataSetSource = new File(shareRoot, "ds2");
+        assertTrue(dataSetSource.isDirectory());
+
+        File directory =
+                new File(getHierarchyRoot().getAbsolutePath()
+                        + "/space/project/experiment/dataset-type+sample+ds2");
+        assertTrue("Directory should be created", directory.isDirectory());
+
+        File metaDataFile = new File(directory, "meta-data.tsv");
+        assertTrue("metadata files created", metaDataFile.exists());
+        List<String> content = FileUtilities.loadToStringList(metaDataFile);
+        assertEquals("data_set\tcode\tds2", content.get(0));
     }
 
     private void prepareDirectoryStructures() throws IOException
@@ -164,17 +228,17 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
         assertEquals(errMessage, templateSize, rootSize);
     }
 
-    private HierarchicalStorageUpdater updater()
+    private HierarchicalStorageUpdater updater(boolean linksOnly)
     {
-        return createUpdater(false);
+        return createUpdater(false, linksOnly);
     }
 
-    private HierarchicalStorageUpdater reconfiguredUpdater()
+    private HierarchicalStorageUpdater reconfiguredUpdater(boolean linksOnly)
     {
-        return createUpdater(true);
+        return createUpdater(true, linksOnly);
     }
 
-    private HierarchicalStorageUpdater createUpdater(boolean linkFromFirstChild)
+    private HierarchicalStorageUpdater createUpdater(boolean linkFromFirstChild, boolean onlyLinks)
     {
         final String pluginName = "hierarchical-storage-updater";
 
@@ -189,6 +253,8 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
             properties.put(HierarchicalStorageUpdater.LINK_FROM_FIRST_CHILD + "." + DATASET_TYPE,
                     "" + true);
         }
+
+        properties.put(HierarchicalStorageUpdater.WITH_META_DATA, onlyLinks ? "false" : "true");
 
         HierarchicalStorageUpdater updater = new HierarchicalStorageUpdater();
         updater.setUp(pluginName, properties);
@@ -214,4 +280,48 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
         }
         return result;
     }
+
+    List<AbstractExternalData> listAbstractDataSets()
+    {
+        final File shareRoot = new File(getStoreRoot(), SHARE_ID);
+        final List<AbstractExternalData> result = new ArrayList<>();
+        for (File directory : FileUtilities.listDirectories(shareRoot, false))
+        {
+            PhysicalDataSet dataset = new PhysicalDataSet();
+            result.add(dataset);
+            dataset.setDataSetType(new DataSetType(DATASET_TYPE));
+            dataset.setCode(directory.getName());
+            dataset.setLocation(directory.getName());
+            dataset.setShareId(SHARE_ID);
+
+            dataset.setPresentInArchive(false);
+            dataset.setStatus(DataSetArchivingStatus.AVAILABLE);
+
+            Space space = new Space();
+            space.setCode("space");
+            Project project = new Project();
+            project.setSpace(space);
+            Experiment experiment = new Experiment();
+            experiment.setProject(project);
+            experiment.setCode("experiment");
+
+            ExperimentType experimentType = new ExperimentType();
+            experimentType.setCode("experiment_type");
+            experiment.setExperimentType(experimentType);
+            dataset.setExperiment(experiment);
+
+            Sample sample = new Sample();
+            sample.setCode("sample");
+            sample.setSpace(space);
+            sample.setExperiment(experiment);
+            SampleType sampleType = new SampleType();
+            sampleType.setCode("sample_type");
+            sample.setSampleType(sampleType);
+            dataset.setSample(sample);
+
+            dataset.setModificationDate(new Date());
+        }
+        return result;
+    }
+
 }

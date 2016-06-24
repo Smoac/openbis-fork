@@ -51,14 +51,16 @@ fi
 echo "mv $ROOT_DIR/datastore_server $BACKUP_DIR/datastore_server"
 mv $ROOT_DIR/datastore_server $BACKUP_DIR/datastore_server
 
-if [ -d $ROOT_DIR/beewm ]; then
-	echo "mv $ROOT_DIR/beewm/bee-workflowmanager/etc $BACKUP_DIR/beewm"
-	mv $ROOT_DIR/beewm/bee-workflowmanager/etc $BACKUP_DIR/beewm
+if [ -d $BACKUP_DIR/datastore_server/data/sessionWorkspace ]; then
+  echo "rm -r $BACKUP_DIR/datastore_server/data/sessionWorkspace"
+  rm -r $BACKUP_DIR/datastore_server/data/sessionWorkspace
 fi
 
-if [ -d $ROOT_DIR/core-plugins/eln-lims ]; then
-	echo "mv $ROOT_DIR/core-plugins/eln-lims $BACKUP_DIR/eln-lims"
-	mv $ROOT_DIR/core-plugins/eln-lims $BACKUP_DIR/eln-lims
+if [ -d $ROOT_DIR/core-plugins/eln-lims/1/as/webapps/eln-lims/html/etc ]; then
+  echo "mkdir -p $BACKUP_DIR/eln-lims/1/as/webapps/eln-lims/html"
+  mkdir -p $BACKUP_DIR/eln-lims/1/as/webapps/eln-lims/html
+  echo "$ROOT_DIR/core-plugins/eln-lims/1/as/webapps/eln-lims/html/etc $BACKUP_DIR/eln-lims/1/as/webapps/eln-lims/html"
+  mv $ROOT_DIR/core-plugins/eln-lims/1/as/webapps/eln-lims/html/etc $BACKUP_DIR/eln-lims/1/as/webapps/eln-lims/html
 fi
 
 echo "DONE"

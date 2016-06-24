@@ -56,10 +56,4 @@ public abstract class AbstractFtpFolder extends AbstractFtpFile
         return 0;
     }
 
-    @Override
-    public long getLastModified()
-    {
-        return System.currentTimeMillis();
-    }
-
 }

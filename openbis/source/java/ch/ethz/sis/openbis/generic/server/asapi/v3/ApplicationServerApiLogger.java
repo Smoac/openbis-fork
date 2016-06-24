@@ -90,6 +90,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecution
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.CustomASServiceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ICustomASServiceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.CustomASServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.delete.SpaceDeletionOptions;
@@ -525,6 +526,13 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public void unarchiveDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetUnarchiveOptions options)
     {
         logAccess(sessionToken, "unarchive-data-sets", "DATA_SET_IDS(%s) UNARCHIVE_OPTIONS(%s)", abbreviate(dataSetIds), options);
+    }
+
+    @Override
+    public SessionInformation getSessionInformation(String sessionToken)
+    {
+        logAccess(sessionToken, "session-info");
+        return null;
     }
 
 }

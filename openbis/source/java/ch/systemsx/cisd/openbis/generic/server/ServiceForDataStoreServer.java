@@ -1668,7 +1668,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed(value = { RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public Space tryGetSpace(String sessionToken,
             @AuthorizationGuard(guardClass = ExistingSpaceIdentifierPredicate.class) SpaceIdentifier spaceIdentifier)
     {
@@ -1689,7 +1689,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed(value = { RoleWithHierarchy.SPACE_ETL_SERVER })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public Project tryGetProject(String sessionToken,
             @AuthorizationGuard(guardClass = ExistingSpaceIdentifierPredicate.class) ProjectIdentifier projectIdentifier)
     {

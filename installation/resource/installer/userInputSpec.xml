@@ -73,7 +73,19 @@
       <spec txt="Fast data set file browsing" true="true" false="false"/>
     </field>
   </panel>
+  
+  <panel id="UserInputPanel.ELN_MASTER_DATA">
+    <field type="title" txt="ELN/LIMS master data" bold="true" size="2" />
 
+    <field type="radio" variable="ELN-LIMS-MASTER-DATA">
+      <description align="left" txt="Should ELN/LIMS master data be installed?" />
+      <spec>
+          <choice txt="Yes" value="true"/>
+          <choice txt="No" value="false" set="true"/>
+      </spec>
+    </field>
+  </panel>
+  
   <panel id="UserInputPanel.MISC">
     <field type="title" txt="Misc" bold="true" size="2" />
     <field type="password" align="left" variable="ADMIN_PASSWORD">
@@ -124,18 +136,5 @@
     <field type="staticText" align="left" txt="Click next to create a backup of the existing installation." />
     
   </panel>  
-
-  <panel id="UserInputPanel.BEEWM">
-        <field type="title" txt="BeeWM Workflow Manager" bold="true" size="2" />
-        <field type="check" variable="INSTALL_BEEWM">
-          <spec txt="Install BeeWM" true="true" false="false"/>
-        </field>
-        <field type="staticText" align="left"  txt="Enables the definition of complex data processing workflows that can be run on the datasets stored in openBIS and the results can be imported as a new dataset. Processing is currently supported on LSF and SGE/UGE clusters or on the local machine."/>
-        <field type="staticText" align="left"  txt="Hint: Install screening technology and register the screening example dataset and you can try out a simple BeeWM processing with the imported HCS_IMAGE_RAW dataset." />
-         <field type="staticText" align="left"  txt="Java home directory (at least version 7 required):"/>
-         <field type="dir" align="left" variable="JAVA_PATH">
-            <spec size="25" set="${ENV[JAVA_HOME]}" mustExist="true" create="false"/>
-        </field>
-  </panel>
 
 </userInput>

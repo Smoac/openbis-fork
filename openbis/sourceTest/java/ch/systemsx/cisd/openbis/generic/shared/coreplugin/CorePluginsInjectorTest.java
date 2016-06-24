@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.shared.coreplugin;
 
 import static ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils.DEFAULT_MAINTENANCE_PLUGINS_PROPERTY_NAME;
+import static ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_MODULES_KEY;
+import static ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.CORE_PLUGIN_PROPERTIES_FILE_NAME;
 import static ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsInjector.DISABLED_CORE_PLUGINS_KEY;
 import static ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsInjector.PLUGIN_PROPERTIES_FILE_NAME;
 
@@ -45,7 +47,6 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
-import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.coreplugin.JettyWebAppPluginInjector;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
@@ -120,24 +121,6 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
     {
         // To following line of code should also be called at the end of each test method.
         // Otherwise one do not known which test failed.
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testNoCorePluginsDefined()
-    {
-        final RecordingMatcher<String> logMatcher = new RecordingMatcher<String>();
-        context.checking(new Expectations()
-            {
-                {
-                    one(logger).log(with(LogLevel.WARN), with(logMatcher));
-                }
-            });
-
-        injector.injectCorePlugins(new Properties());
-
-        assertEquals("Core plugins folder '" + CorePluginsUtils.DEFAULT_CORE_PLUGINS_FOLDER
-                + "' does not exists.", logMatcher.recordedObject());
         context.assertIsSatisfied();
     }
 
@@ -376,6 +359,46 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public void testDependentPlugins()
+    {
+        File r1 = new File(corePluginsFolder, "dep2/2/dss/reporting-plugins/r1");
+        r1.mkdirs();
+        FileUtilities.writeToFile(new File(r1, PLUGIN_PROPERTIES_FILE_NAME), "");
+        File dpa = new File(corePluginsFolder, "dep/1/dss/drop-boxes/a");
+        dpa.mkdirs();
+        FileUtilities.writeToFile(new File(dpa, PLUGIN_PROPERTIES_FILE_NAME), "");
+        File dpb = new File(corePluginsFolder, "dep/1/dss/drop-boxes/b");
+        dpb.mkdirs();
+        FileUtilities.writeToFile(new File(dpb, PLUGIN_PROPERTIES_FILE_NAME), "");
+        File s1 = new File(corePluginsFolder, "dep/1/dss/services/s1");
+        s1.mkdirs();
+        FileUtilities.writeToFile(new File(s1, PLUGIN_PROPERTIES_FILE_NAME), "");
+        File s2 = new File(corePluginsFolder, "dep/1/dss/services/s2");
+        s2.mkdirs();
+        FileUtilities.writeToFile(new File(s2, PLUGIN_PROPERTIES_FILE_NAME), "");
+        FileUtilities.writeToFile(new File(corePluginsFolder, "dep/1/" + CORE_PLUGIN_PROPERTIES_FILE_NAME), 
+                CorePluginScanner.REQUIRED_PLUGINS_KEY + " = dep2:reporting-plugins, dep2:services");
+        File misc = new File(corePluginsFolder, "screening/1/dss/miscellaneous/c");
+        misc.mkdirs();
+        FileUtilities.writeToFile(new File(misc, PLUGIN_PROPERTIES_FILE_NAME), "");
+        FileUtilities.writeToFile(new File(corePluginsFolder, "screening/1/" + CORE_PLUGIN_PROPERTIES_FILE_NAME), 
+                CorePluginScanner.REQUIRED_PLUGINS_KEY + " = dep:drop-boxes:a, dep:services");
+        
+        Properties properties = createProperties();
+        preparePluginNameLog("dep2:reporting-plugins:r1 [" + r1 + "]", "dep:drop-boxes:a [" + dpa + "]", 
+                "dep:services:s1 [" + s1 + "]", 
+                "dep:services:s2 [" + s2 + "]", "screening:miscellaneous:c [" + misc + "]");
+        
+        injector.injectCorePlugins(properties);
+        
+        assertProperties(corePluginsFolderProperty 
+                + Constants.DISABLED_MASTER_DATA_INITIALIZATION + " = dep,dep2\n" + enabledScreeningProperty
+                + "inputs = a\n" + "plugin-services = s1, s2\n"
+                + "reporting-plugins = r1\n", properties);
+        context.assertIsSatisfied();
+    }
 
     @Test
     public void testDisabledPluginsByPropertiesAndNotEnabledTechnology()
@@ -392,20 +415,22 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         File dp2 = new File(corePluginsFolder, "screening/1/dss/drop-boxes/dp2");
         dp2.mkdirs();
         FileUtilities.writeToFile(new File(dp2, PLUGIN_PROPERTIES_FILE_NAME), "");
-        new File(corePluginsFolder, "proteomics/1/dss/drop-boxes/dp3").mkdirs();
-        new File(corePluginsFolder, "proteomics/1/dss/reporting-plugins/r1").mkdirs();
+        File dp3 = new File(corePluginsFolder, "proteomics/1/dss/drop-boxes/dp3");
+        dp3.mkdirs();
+        FileUtilities.writeToFile(new File(dp3, PLUGIN_PROPERTIES_FILE_NAME), "");
         Properties properties = createProperties();
         properties.setProperty(DISABLED_CORE_PLUGINS_KEY,
-                "screening:miscellaneous, screening:drop-boxes:dp1, screening:" + CorePluginsInjector.INITIALIZE_MASTER_DATA_CORE_PLUGIN_NAME);
+                "screening:miscellaneous, screening:drop-boxes:dp1, screening:"
+                        + CorePluginsInjector.INITIALIZE_MASTER_DATA_CORE_PLUGIN_NAME);
         preparePluginNameLog("screening:drop-boxes:dp2 [" + dp2 + "]");
-        prepareNotEnabledTechnology("proteomics");
 
         injector.injectCorePlugins(properties);
 
         assertProperties(corePluginsFolderProperty
                 + "disabled-core-plugins = screening:miscellaneous, screening:drop-boxes:dp1, screening:"
                 + CorePluginsInjector.INITIALIZE_MASTER_DATA_CORE_PLUGIN_NAME + "\n"
-                + Constants.DISABLED_MASTER_DATA_INITIALIZATION + " = screening\n" + enabledScreeningProperty + "inputs = dp2\n", properties);
+                + Constants.DISABLED_MASTER_DATA_INITIALIZATION + " = proteomics,screening\n" 
+                + enabledScreeningProperty + "inputs = dp2\n", properties);
         context.assertIsSatisfied();
     }
 
@@ -587,17 +612,6 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
             });
     }
 
-    private void prepareNotEnabledTechnology(final String module)
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(logger).log(LogLevel.INFO,
-                            "Core plugins for module '" + module + "' are not enabled.");
-                }
-            });
-    }
-
     private void assertProperties(String expectedProperties, Properties properties)
     {
         Set<Entry<Object, Object>> entrySet = properties.entrySet();
@@ -623,11 +637,8 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
     private Properties createProperties(String technologies)
     {
         Properties properties = new ExtendedProperties();
-        properties.setProperty(CorePluginsUtils.CORE_PLUGINS_FOLDER_KEY,
-                corePluginsFolder.getPath());
-        properties
-                .setProperty(ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_MODULES_KEY,
-                        technologies);
+        properties.setProperty(CorePluginsUtils.CORE_PLUGINS_FOLDER_KEY, corePluginsFolder.getPath());
+        properties.setProperty(ENABLED_MODULES_KEY, technologies);
         return properties;
     }
 

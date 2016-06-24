@@ -25,11 +25,7 @@ import org.apache.ftpserver.ftplet.FtpFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolver;
-import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
 /**
  * Resolves experiment folders with path "/<space-code>/<project-code>/<experiment-code>" to {@link FtpFile}-s.
@@ -58,35 +54,25 @@ public class ExperimentFolderResolver implements IFtpPathResolver
     @Override
     public FtpFile resolve(final String path, final FtpPathResolverContext resolverContext)
     {
-        return new AbstractFtpFolder(path)
+        final Experiment experiment = resolverContext.getExperiment(path);
+        AbstractFtpFolder file = new AbstractFtpFolder(path)
             {
                 @Override
                 public List<FtpFile> unsafeListFiles()
                 {
-                    return listChildrenNames(path, resolverContext);
+                    if (experiment == null)
+                    {
+                        return Collections.emptyList();
+                    } else
+                    {
+                        return childLister.listExperimentChildrenPaths(experiment, path, resolverContext);
+                    }
                 }
-
             };
-    }
-
-    private List<FtpFile> listChildrenNames(String expIdentifier, FtpPathResolverContext context)
-    {
-        IServiceForDataStoreServer service = context.getService();
-        String sessionToken = context.getSessionToken();
-
-        ExperimentIdentifier identifier =
-                new ExperimentIdentifierFactory(expIdentifier).createIdentifier();
-
-        List<Experiment> experiments =
-                service.listExperiments(sessionToken, Collections.singletonList(identifier),
-                        new ExperimentFetchOptions());
-        if (experiments == null || experiments.isEmpty())
+        if (experiment != null)
         {
-            return Collections.emptyList();
-        } else
-        {
-            return childLister.listExperimentChildrenPaths(experiments.get(0), expIdentifier,
-                    context);
+            file.setLastModified(experiment.getModificationDate().getTime());
         }
+        return file;
     }
 }

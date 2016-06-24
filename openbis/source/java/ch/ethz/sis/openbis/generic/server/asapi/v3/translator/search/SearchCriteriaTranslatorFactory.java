@@ -29,9 +29,9 @@ public class SearchCriteriaTranslatorFactory extends AbstractSearchCriteriaTrans
 
     private IDAOFactory daoFactory;
 
-    private IEntityAttributeProviderFactory entityAttributeProviderFactory;
+    private IObjectAttributeProviderFactory entityAttributeProviderFactory;
 
-    public SearchCriteriaTranslatorFactory(IDAOFactory daoFactory, IEntityAttributeProviderFactory entityAttributeProviderFactory)
+    public SearchCriteriaTranslatorFactory(IDAOFactory daoFactory, IObjectAttributeProviderFactory entityAttributeProviderFactory)
     {
         this.daoFactory = daoFactory;
         this.entityAttributeProviderFactory = entityAttributeProviderFactory;
@@ -41,10 +41,6 @@ public class SearchCriteriaTranslatorFactory extends AbstractSearchCriteriaTrans
     protected List<ISearchCriteriaTranslator> createTranslators()
     {
         List<ISearchCriteriaTranslator> translators = new LinkedList<ISearchCriteriaTranslator>();
-        translators.add(new StringFieldSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
-        translators.add(new DateFieldSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
-        translators.add(new NumberFieldSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
-        translators.add(new EntityTypeSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new SampleTypeSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new TagSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new SpaceSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
@@ -52,7 +48,21 @@ public class SearchCriteriaTranslatorFactory extends AbstractSearchCriteriaTrans
         translators.add(new ExperimentSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new SampleSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new DataSetSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
+        translators.add(new PhysicalDataSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
+        translators.add(new LinkedDataSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
+        translators.add(new StorageFormatSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
+        translators.add(new LocatorTypeSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
+        translators.add(new FileFormatTypeSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
+        translators.add(new CompleteSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
+        translators.add(new StatusSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
+        translators.add(new ExternalDmsSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new MaterialSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
+        translators.add(new StringFieldSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
+        translators.add(new DateFieldSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
+        translators.add(new NumberFieldSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
+        translators.add(new BooleanFieldSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
+        translators.add(new EnumFieldSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
+        translators.add(new EntityTypeSearchCriteriaTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         return translators;
     }
 
@@ -61,7 +71,7 @@ public class SearchCriteriaTranslatorFactory extends AbstractSearchCriteriaTrans
         return daoFactory;
     }
 
-    public IEntityAttributeProviderFactory getEntityAttributeProviderFactory()
+    public IObjectAttributeProviderFactory getEntityAttributeProviderFactory()
     {
         return entityAttributeProviderFactory;
     }

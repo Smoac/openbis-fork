@@ -49,9 +49,9 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverConfig;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpServerConfig;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpServerConfigBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.ResolverConfigBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
@@ -59,11 +59,12 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.Translator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -126,6 +127,8 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
 
     private static final String RENDERED_REGISTRATION_DATE = TemplateBasedDataSetResourceResolver
             .extractDateValue(REGISTRATION_DATE);
+
+    private static final Date MODIFICATION_DATE = new Date(1234567890);
 
     private static final String SESSION_TOKEN = "token";
 
@@ -211,16 +214,16 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
             });
 
         ds1 =
-                new DataSetBuilder().experiment(experiment).code("ds1").type(DS_TYPE1)
-                        .registrationDate(REGISTRATION_DATE).getDataSet();
+                new DataSetBuilder().experiment(experiment).code("ds1").type(DS_TYPE1).modificationDate(MODIFICATION_DATE)
+                        .registrationDate(REGISTRATION_DATE).status(DataSetArchivingStatus.AVAILABLE).getDataSet();
         File ds1Root = new File(root, ds1.getCode());
         File ds1Original = new File(ds1Root, "original");
         ds1Original.mkdirs();
         FileUtilities.writeToFile(new File(ds1Original, "abc.txt"), "abcdefghijklmnopqrstuvwxyz");
         FileUtilities.writeToFile(new File(ds1Original, "some.properties"), "a = alpha\nb = bets");
         ds2 =
-                new DataSetBuilder().experiment(experiment).code("ds2").type(DS_TYPE2)
-                        .registrationDate(REGISTRATION_DATE).getDataSet();
+                new DataSetBuilder().experiment(experiment).code("ds2").type(DS_TYPE2).modificationDate(MODIFICATION_DATE)
+                        .registrationDate(REGISTRATION_DATE).status(DataSetArchivingStatus.AVAILABLE).getDataSet();
         File ds2Root = new File(root, ds2.getCode());
         File ds2Original = new File(ds2Root, "original2");
         ds2Original.mkdirs();
@@ -229,8 +232,8 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         dataFolder.mkdirs();
         FileUtilities.writeToFile(new File(dataFolder, "a1.tsv"), "t\tlevel\n1.34\t2\n");
         ds3 =
-                new DataSetBuilder().experiment(experiment).code("ds3").type(DS_TYPE3)
-                        .registrationDate(REGISTRATION_DATE).getDataSet();
+                new DataSetBuilder().experiment(experiment).code("ds3").type(DS_TYPE3).modificationDate(MODIFICATION_DATE)
+                        .registrationDate(REGISTRATION_DATE).status(DataSetArchivingStatus.AVAILABLE).getDataSet();
     }
 
     @AfterMethod(alwaysRun = true)
@@ -251,8 +254,8 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
     @Test
     public void testInvalidConfig()
     {
-        FtpServerConfig config =
-                new FtpServerConfigBuilder().withTemplate(TEMPLATE_WITH_FILENAMES)
+        FtpPathResolverConfig config =
+                new ResolverConfigBuilder().withTemplate(TEMPLATE_WITH_FILENAMES)
                         .showParentsAndChildren().getConfig();
         try
         {
@@ -268,8 +271,8 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
     @Test
     public void testWithParentsTopLevel()
     {
-        FtpServerConfig config =
-                new FtpServerConfigBuilder().withTemplate(BIG_TEMPLATE).showParentsAndChildren()
+        FtpPathResolverConfig config =
+                new ResolverConfigBuilder().withTemplate(BIG_TEMPLATE).showParentsAndChildren()
                         .getConfig();
         resolver = new TemplateBasedDataSetResourceResolver(config);
         resolver.setContentProvider(simpleFileContentProvider);
@@ -300,8 +303,8 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
     @Test
     public void testChildOfParent()
     {
-        FtpServerConfig config =
-                new FtpServerConfigBuilder().withTemplate(BIG_TEMPLATE).showParentsAndChildren()
+        FtpPathResolverConfig config =
+                new ResolverConfigBuilder().withTemplate(BIG_TEMPLATE).showParentsAndChildren()
                         .getConfig();
         resolver = new TemplateBasedDataSetResourceResolver(config);
         resolver.setContentProvider(simpleFileContentProvider);
@@ -339,8 +342,8 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
     @Test
     public void testAvoidInfiniteParentChildChains()
     {
-        FtpServerConfig config =
-                new FtpServerConfigBuilder().withTemplate(BIG_TEMPLATE).showParentsAndChildren()
+        FtpPathResolverConfig config =
+                new ResolverConfigBuilder().withTemplate(BIG_TEMPLATE).showParentsAndChildren()
                         .getConfig();
         resolver = new TemplateBasedDataSetResourceResolver(config);
         resolver.setContentProvider(simpleFileContentProvider);
@@ -375,8 +378,8 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
     @Test
     public void testResolveNestedFilesWithSimpleTemplate() throws IOException
     {
-        FtpServerConfig config =
-                new FtpServerConfigBuilder().withTemplate(SIMPLE_TEMPLATE).showParentsAndChildren()
+        FtpPathResolverConfig config =
+                new ResolverConfigBuilder().withTemplate(SIMPLE_TEMPLATE).showParentsAndChildren()
                         .getConfig();
         resolver = new TemplateBasedDataSetResourceResolver(config);
         resolver.setContentProvider(simpleFileContentProvider);
@@ -409,8 +412,8 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
     @Test
     public void testHierarchicalContentClosed() throws IOException
     {
-        FtpServerConfig config =
-                new FtpServerConfigBuilder().withTemplate(SIMPLE_TEMPLATE).getConfig();
+        FtpPathResolverConfig config =
+                new ResolverConfigBuilder().withTemplate(SIMPLE_TEMPLATE).getConfig();
         resolver = new TemplateBasedDataSetResourceResolver(config);
         resolver.setContentProvider(hierarchicalContentProvider);
 
@@ -488,8 +491,8 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
     @Test
     public void testSubPathAndFileFilters()
     {
-        FtpServerConfig config =
-                new FtpServerConfigBuilder().withTemplate(TEMPLATE_WITH_FILENAMES)
+        FtpPathResolverConfig config =
+                new ResolverConfigBuilder().withTemplate(TEMPLATE_WITH_FILENAMES)
                         .withFileListSubPath(DS_TYPE1, "orig[^/]*")
                         .withFileListFilter(DS_TYPE1, "[^.]*\\.txt").getConfig();
         resolver = new TemplateBasedDataSetResourceResolver(config);

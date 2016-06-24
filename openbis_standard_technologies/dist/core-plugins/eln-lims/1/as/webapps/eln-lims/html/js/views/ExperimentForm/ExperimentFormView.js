@@ -95,6 +95,20 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 				_this._experimentFormController.deleteExperiment(reason);
 			}, true);
 			toolbarModel.push({ component : $deleteBtn, tooltip: "Delete" });
+			
+			//Export
+			var $export = FormUtil.getButtonWithIcon("glyphicon-export", function() {
+				Util.blockUI();
+				var facade = mainController.serverFacade;
+				facade.exportAll([{ type: "EXPERIMENT", permId : _this._experimentFormModel.experiment.permId, expand : true }], false, function(error, result) {
+					if(error) {
+						Util.showError(error);
+					} else {
+						Util.showSuccess("Export is being processed, you will receibe an email when is ready, if you logout the process will stop.", function() { Util.unblockUI(); });
+					}
+				});
+			});
+			toolbarModel.push({ component : $export, tooltip: "Export" });
 		}
 		
 		$formColumn.append(FormUtil.getToolbar(toolbarModel));

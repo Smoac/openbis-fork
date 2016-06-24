@@ -370,6 +370,9 @@ function StorageController(configOverride) {
 		} else if(!this._storageModel.boxPosition && validationLevel >= ValidationLevel.BOX_POSITION) {
 			callback("Select a box position please.");
 		} else {
+			if(!this._storageModel.boxName) {
+				this._storageModel.setDefaultBoxName();
+			}
 			callback(null);
 		}
 	}

@@ -167,6 +167,7 @@ public class ZipDataSetPackagerTest extends AbstractFileSystemTestCase
                 "data_set\tdata_set_type\tMY-DATASET\n" +
                 "data_set\tis_measured\tTRUE\n" +
                 "data_set\tis_complete\tFALSE\n" +
+                "data_set\tis_present_in_archive\tFALSE\n" +
                 "data_set\tAGE\t42\n" +
                 "data_set\tparent_codes\t\n" +
                 "experiment\tspace_code\tS\n" +
@@ -242,6 +243,7 @@ public class ZipDataSetPackagerTest extends AbstractFileSystemTestCase
                 "data_set\tdata_set_type\tMY-DATASET\n" +
                 "data_set\tis_measured\tTRUE\n" +
                 "data_set\tis_complete\tFALSE\n" +
+                "data_set\tis_present_in_archive\tFALSE\n" +
                 "data_set\tAGE\t24\n" +
                 "data_set\tparent_codes\tP1\n" +
                 "sample\ttype_code\tMY-SAMPLE\n" +

@@ -6,14 +6,13 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCr
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SimpleAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 public class SampleTypeSearchCriteriaTranslator extends EntityTypeSearchCriteriaTranslator
 {
-    public SampleTypeSearchCriteriaTranslator(IDAOFactory daoFactory, IEntityAttributeProviderFactory entityAttributeProviderFactory)
+    public SampleTypeSearchCriteriaTranslator(IDAOFactory daoFactory, IObjectAttributeProviderFactory entityAttributeProviderFactory)
     {
         super(daoFactory, entityAttributeProviderFactory);
     }
@@ -45,9 +44,9 @@ public class SampleTypeSearchCriteriaTranslator extends EntityTypeSearchCriteria
     @Override
     protected DetailedSearchField doTranslateSearchField(SearchTranslationContext context, ISearchCriteria criteria, ISearchCriteria subCriteria)
     {
-        EntityKind entityKind = context.peekEntityKind();
+        SearchObjectKind objectKind = context.peekObjectKind();
 
-        if (EntityKind.SAMPLE.equals(entityKind))
+        if (SearchObjectKind.SAMPLE.equals(objectKind))
         {
             if (subCriteria instanceof ListableSampleTypeSearchCriteria)
             {
@@ -60,7 +59,7 @@ public class SampleTypeSearchCriteriaTranslator extends EntityTypeSearchCriteria
             }
         } else
         {
-            throw new IllegalArgumentException("Unknown entity kind: " + entityKind);
+            throw new IllegalArgumentException("Unknown object kind: " + objectKind);
         }
     }
 }

@@ -685,6 +685,7 @@ var FormUtil = new function() {
 	// Rich Text Editor Support - (Summernote)
 	//
 	this.activateRichTextProperties = function($component, componentOnChange) {
+		var _this = this;
 		$("body").append($component);
 		
 		$component.summernote({
@@ -693,7 +694,22 @@ var FormUtil = new function() {
 		['Paragraph style ', ['style', 'ol', 'ul', 'paragraph', 'height']],
 		['Insert', ['link', 'table', 'hr', 'specialCharacter']],
 		['Misc', ['fullscreen', 'undo', 'redo', 'help']],],
-		disableDragAndDrop: true});
+		disableDragAndDrop: true,
+		callbacks: {
+	        onPaste: function (e) {
+	        	if(profile.copyPastePlainText) {
+	        		var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData("text/plain");
+		        	e.preventDefault();
+		            setTimeout( function(){
+		                document.execCommand( 'insertText', false, bufferText );
+		            }, 10 );
+	        	} else {
+//	        		var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData("text/html");
+//	        		bufferText = _this.sanitizeRichHTMLText(bufferText);
+//	        		((e.originalEvent || e).clipboardData || window.clipboardData).setData("text/html", bufferText);
+	        	}
+	        }
+	    }});
 		
 		$component.on("summernote.change", componentOnChange);
 		
@@ -781,5 +797,21 @@ var FormUtil = new function() {
 		var link = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).append(displayName);
 		link.click(click);
 		return link;
+	}
+	
+	this.getBox = function() {
+		var $box = $("<div>", { style : "background-color:#f8f8f8; margin-right:10px; padding:10px; border-color: #e7e7e7; border-style: solid; border-width: 1px;"});
+		return $box;
+	}
+	
+	this.getInfoBox = function(title, lines) {
+		var $infoBox = this.getBox();
+		
+		$infoBox.append($("<span>", { class : 'glyphicon glyphicon-info-sign' })).append(" " + title);
+		for(var lIdx = 0; lIdx < lines.length; lIdx++) {
+			$infoBox.append($("<br>"));
+			$infoBox.append(lines[lIdx]);
+		}
+		return $infoBox;
 	}
 }

@@ -94,6 +94,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecution
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.CustomASServiceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ICustomASServiceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.CustomASServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.delete.SpaceDeletionOptions;
@@ -142,6 +143,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGetExperimen
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGetMaterialMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGetProjectMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGetSampleMethodExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGetSessionInformationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGetSpaceMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGetTagMethodExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.method.IGetVocabularyTermMethodExecutor;
@@ -357,6 +359,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private IUnarchiveDataSetMethodExecutor unarchiveDataSetExecutor;
+
+    @Autowired
+    private IGetSessionInformationExecutor getSessionInformationExecutor;
 
     // Default constructor needed by Spring
     public ApplicationServerApi()
@@ -893,6 +898,14 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public SessionInformation getSessionInformation(String sessionToken)
+    {
+        return getSessionInformationExecutor.getSessionInformation(sessionToken);
+    }
+
+    @Override
     public IApplicationServerApi createLogger(IInvocationLoggerContext context)
     {
         return new ApplicationServerApiLogger(sessionManager, context);
@@ -909,5 +922,4 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     {
         return 0;
     }
-
 }

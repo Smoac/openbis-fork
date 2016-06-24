@@ -664,7 +664,7 @@ test("getDataStoreBaseURLs()", function() {
 test("listDataSetTypes()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listDataSetTypes(function(response) {
-			assertObjectsCount(response.result, 27);
+			assertObjectsCount(response.result, 28);
 			facade.close();
 		});
 	});

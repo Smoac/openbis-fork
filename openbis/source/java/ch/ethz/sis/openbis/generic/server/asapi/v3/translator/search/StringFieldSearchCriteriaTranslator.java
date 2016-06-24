@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion
 public class StringFieldSearchCriteriaTranslator extends AbstractFieldSearchCriteriaTranslator
 {
 
-    public StringFieldSearchCriteriaTranslator(IDAOFactory daoFactory, IEntityAttributeProviderFactory entityAttributeProviderFactory)
+    public StringFieldSearchCriteriaTranslator(IDAOFactory daoFactory, IObjectAttributeProviderFactory entityAttributeProviderFactory)
     {
         super(daoFactory, entityAttributeProviderFactory);
     }

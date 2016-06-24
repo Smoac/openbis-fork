@@ -205,7 +205,7 @@ function SideMenuWidgetController(mainController) {
     	this._sideMenuWidgetModel.$container = $container;
         var _this = this;
         
-        var labNotebookNode = new SideMenuWidgetComponent(true, true, "LAB NOTEBOOK", "LAB_NOTEBOOK", this._sideMenuWidgetModel.menuStructure, { children: [] }, null, null, "");
+        var labNotebookNode = new SideMenuWidgetComponent(true, true, "LAB NOTEBOOK", "LAB_NOTEBOOK", this._sideMenuWidgetModel.menuStructure, { children: [] }, 'showLabNotebookPage', null, "");
         this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(labNotebookNode);
 
         mainController.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(dataWithSpacesAndProjects) {
@@ -319,7 +319,7 @@ function SideMenuWidgetController(mainController) {
 
                     
                     //Fill Inventory
-                    var inventoryNode = new SideMenuWidgetComponent(true, true, "INVENTORY", "INVENTORY", _this._sideMenuWidgetModel.menuStructure, { children: [] }, null, null, "");
+                    var inventoryNode = new SideMenuWidgetComponent(true, true, "INVENTORY", "INVENTORY", _this._sideMenuWidgetModel.menuStructure, { children: [] }, 'showInventoryPage', null, "");
                     _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(inventoryNode);
 
                     //Fill Spaces
@@ -411,6 +411,12 @@ function SideMenuWidgetController(mainController) {
                         	 utilities.newMenuIfSelected.children.push(
                                      new SideMenuWidgetComponent(true, false, "SAMPLE BROWSER", "SAMPLE_BROWSER", utilities, null, "showSamplesPage", null, "")
                                      );
+                        }
+                        
+                        if(profile.mainMenu.showExports) {
+                       	 utilities.newMenuIfSelected.children.push(
+                                    new SideMenuWidgetComponent(true, false, "EXPORT BUILDER", "EXPORT_BUILDER", utilities, null, "showExportTreePage", null, "")
+                                    );
                         }
                        
                         if(profile.mainMenu.showStorageManager && profile.storagesConfiguration["isEnabled"]) {

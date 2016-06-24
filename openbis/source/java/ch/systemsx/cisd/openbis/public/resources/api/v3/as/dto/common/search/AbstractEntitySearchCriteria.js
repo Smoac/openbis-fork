@@ -14,10 +14,6 @@ define(
 				prototype['@type'] = 'as.dto.common.search.AbstractEntitySearchCriteria';
 				constructor.serialVersionUID = 1;
 				prototype.operator = SearchOperator.AND;
-				prototype.withOperator = function(anOperator) {
-					this.operator = anOperator;
-					return this;
-				};
 				prototype.getOperator = function() {
 					return this.operator;
 				};

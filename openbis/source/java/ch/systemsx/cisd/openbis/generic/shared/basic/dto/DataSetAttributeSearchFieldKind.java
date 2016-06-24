@@ -23,16 +23,14 @@ import java.io.Serializable;
  * 
  * @author Piotr Buczek
  */
-public enum DataSetAttributeSearchFieldKind implements Serializable, IAttributeSearchFieldKind
+public enum DataSetAttributeSearchFieldKind implements Serializable,IAttributeSearchFieldKind
 {
+
+    // common fields
+
     CODE("Code"),
 
     DATA_SET_TYPE("Data Set Type"),
-
-    FILE_TYPE("File Type"),
-
-    STORAGE_CONFIRMATION("Storage confirmed", new SearchFieldAvailableForAdmins(),
-            new SearchFieldBooleanCriterionFactory()),
 
     METAPROJECT("Metaproject"),
 
@@ -56,7 +54,38 @@ public enum DataSetAttributeSearchFieldKind implements Serializable, IAttributeS
 
     MODIFICATION_DATE_UNTIL(
             CommonAttributeSearchFieldKindDecsriptions.MODIFICATION_DATE_UNTIL_DESCRIPTION, null,
-            new SearchFieldDateCriterionFactory());
+            new SearchFieldDateCriterionFactory()),
+
+    // physical data set fields
+
+    LOCATOR_TYPE("Locator Type"),
+
+    LOCATION("Location"),
+
+    SHARE_ID("Share id"),
+
+    SIZE("Size"),
+
+    STORAGE_FORMAT("Storage format"),
+
+    FILE_TYPE("File Type"),
+
+    COMPLETE("Complete"),
+
+    STATUS("Status"),
+
+    PRESENT_IN_ARCHIVE("Present in archive"),
+
+    STORAGE_CONFIRMATION("Storage confirmed", new SearchFieldAvailableForAdmins(),
+            new SearchFieldBooleanCriterionFactory()),
+
+    SPEED_HINT("Speed hint"),
+
+    // link data set fields
+
+    EXTERNAL_CODE("External code"),
+
+    EXTERNAL_DMS("External dms");
 
     private final String description;
 

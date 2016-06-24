@@ -206,69 +206,83 @@ $.extend(Grid.prototype, {
 		var thisGrid = this;
 		var columnList = thisGrid.panel.find(".optionsDropdown").find("ul");
 		
+		
+		var options = {
+				"" : false,
+				"(plain text)" : true
+		}
+		
+		var getOptionClickEvent = function(isAllRowsOrVisible, isAllColumnsOrVisible, plainText) {
+			return function() {
+				thisGrid.exportTSV(isAllRowsOrVisible, isAllColumnsOrVisible, plainText);
+			}
+		}
 		// Export shown rows with shown columns
-		var labelSRSC = $("<label>", { style : 'white-space: nowrap; cursor:pointer;' })
-						.attr("role", "menuitem")
-						.append("Export visible columns with visible rows");
+		for(option in options) {
+			var labelSRSC = $("<label>", { style : 'white-space: nowrap; cursor:pointer;' })
+							.attr("role", "menuitem")
+							.append("Export visible columns with visible rows " + option);
 
-		var itemSRSC = $("<li>")
-						.attr("role", "presentation")
-						.attr("style", "margin-left: 5px; margin-right: 5px;")
-						.append(labelSRSC);
-		
-		itemSRSC.click(function() {
-			thisGrid.exportTSV(false, false);
-		});
-		
-		columnList.append(itemSRSC);
+			var itemSRSC = $("<li>")
+							.attr("role", "presentation")
+							.attr("style", "margin-left: 5px; margin-right: 5px;")
+							.append(labelSRSC);
+
+			itemSRSC.click(getOptionClickEvent(false, false, options[option]));
+
+			columnList.append(itemSRSC);
+		}
 		
 		// Export shown rows with all columns
-		var labelSRAC = $("<label>", { style : 'white-space: nowrap; cursor:pointer;' })
-						.attr("role", "menuitem")
-						.append("Export all columns with visible rows");
-
-		var itemSRAC = $("<li>")
-						.attr("role", "presentation")
-						.attr("style", "margin-left: 5px; margin-right: 5px;")
-						.append(labelSRAC);
-		
-		itemSRAC.click(function() {
-			thisGrid.exportTSV(false, true);
-		});
-		
-		columnList.append(itemSRAC);
+		for(option in options) {
+			var labelSRAC = $("<label>", { style : 'white-space: nowrap; cursor:pointer;' })
+							.attr("role", "menuitem")
+							.append("Export all columns with visible rows " + option);
+	
+			var itemSRAC = $("<li>")
+							.attr("role", "presentation")
+							.attr("style", "margin-left: 5px; margin-right: 5px;")
+							.append(labelSRAC);
+			
+			itemSRAC.click(getOptionClickEvent(false, true, options[option]));
+			
+			columnList.append(itemSRAC);
+		}
 		
 		// Export all rows with visible columns
-		var labelARSC = $("<label>", { style : 'white-space: nowrap; cursor:pointer;' })
-						.attr("role", "menuitem")
-						.append("Export visible columns with all rows");
-
-		var itemARSC = $("<li>")
-						.attr("role", "presentation")
-						.attr("style", "margin-left: 5px; margin-right: 5px;")
-						.append(labelARSC);
-		
-		itemARSC.click(function() {
-			thisGrid.exportTSV(true, false);
-		});
-		
-		columnList.append(itemARSC);
+		for(option in options) {
+			var labelARSC = $("<label>", { style : 'white-space: nowrap; cursor:pointer;' })
+							.attr("role", "menuitem")
+							.append("Export visible columns with all rows " + option);
+	
+			var itemARSC = $("<li>")
+							.attr("role", "presentation")
+							.attr("style", "margin-left: 5px; margin-right: 5px;")
+							.append(labelARSC);
+			
+			var plainTextVal = options[option];
+			itemARSC.click(getOptionClickEvent(true, false, options[option]));
+			
+			columnList.append(itemARSC);
+		}
 		
 		// Export all rows with all columns
-		var labelARAC = $("<label>", { style : 'white-space: nowrap; cursor:pointer;' })
-						.attr("role", "menuitem")
-						.append("Export all columns with all rows");
-
-		var itemARAC = $("<li>")
-						.attr("role", "presentation")
-						.attr("style", "margin-left: 5px; margin-right: 5px;")
-						.append(labelARAC);
+		for(option in options) {
+			var labelARAC = $("<label>", { style : 'white-space: nowrap; cursor:pointer;' })
+							.attr("role", "menuitem")
+							.append("Export all columns with all rows " + option);
+	
+			var itemARAC = $("<li>")
+							.attr("role", "presentation")
+							.attr("style", "margin-left: 5px; margin-right: 5px;")
+							.append(labelARAC);
+			
+			var plainTextVal = options[option];
+			itemARAC.click(getOptionClickEvent(true, true, options[option]));
+			
+			columnList.append(itemARAC);
+		}
 		
-		itemARAC.click(function() {
-			thisGrid.exportTSV(true, true);
-		});
-		
-		columnList.append(itemARAC);
 		
 		if(this.extraOptions) {
 			for(var oIdx = 0; oIdx < this.extraOptions.length; oIdx++) {
@@ -295,10 +309,21 @@ $.extend(Grid.prototype, {
 		}
 	},
 	
-	exportTSV : function(isAllRowsOrVisible, isAllColumnsOrVisible) {
+	exportTSV : function(isAllRowsOrVisible, isAllColumnsOrVisible, plainText) {
+		var _this = this;
+		if(plainText) {
+			Util.showWarning("<b>DO NOT USE THIS FILE FOR BATCH UPDATE!</b><br>This file does not contain rich text format. If used for Batch Update, all rich text format in the updated entries will be lost!", function() {
+				_this.exportTSVB(isAllRowsOrVisible, isAllColumnsOrVisible, plainText);
+			});
+		} else {
+			_this.exportTSVB(isAllRowsOrVisible, isAllColumnsOrVisible, plainText);
+		}
+	},
+	exportTSVB : function(isAllRowsOrVisible, isAllColumnsOrVisible, plainText) {
 		var thisGrid = this;
 		
 		var exportColumnsFromData = function(namePrefix, data, headings) {
+			
 			var arrayOfRowArrays = [];
 			arrayOfRowArrays.push(headings);
 			for(var dIdx = 0; dIdx < data.length; dIdx++) {
@@ -310,6 +335,9 @@ $.extend(Grid.prototype, {
 						rowValue = "";
 					} else {
 						rowValue = String(rowValue).replace(/\r?\n|\r|\t/g, " "); //Remove carriage returns and tabs
+						if(plainText === true){
+							rowValue = String(rowValue).replace(/<(?:.|\n)*?>/gm, '');
+						}
 					}
 					rowAsArray.push(rowValue);
 				}
