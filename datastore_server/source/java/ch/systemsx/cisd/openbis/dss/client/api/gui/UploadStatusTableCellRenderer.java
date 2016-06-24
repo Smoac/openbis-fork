@@ -47,7 +47,7 @@ public class UploadStatusTableCellRenderer implements TableCellRenderer
 
     private final JPanel fixErrorsPanel = new JPanel();
 
-    private final JProgressBar progressBar = new JProgressBar();
+    private final JProgressBar progressBar = new JProgressBar(0, 100);
 
     private final JLabel progressLabel = new JLabel();
 
@@ -139,6 +139,9 @@ public class UploadStatusTableCellRenderer implements TableCellRenderer
                 break;
             case QUEUED_FOR_UPLOAD:
             case UPLOADING:
+            	panel = progressPanel;
+            	progressBar.setValue(dataSetInfo.getPercentageDownloaded());
+            	break;
             case STALLED:
                 panel = progressPanel;
                 progressBar.setValue(0);

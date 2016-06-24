@@ -28,7 +28,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SimpleAttributeSearchFieldKind;
@@ -44,7 +43,7 @@ public class ProjectSearchCriteriaTranslator extends AbstractFieldFromCompositeS
     private static final DetailedSearchField PROJECT_ID_FIELD = DetailedSearchField.createAttributeField(
             new SimpleAttributeSearchFieldKind(SearchFieldConstants.PROJECT_ID, "Project ID"));
 
-    public ProjectSearchCriteriaTranslator(IDAOFactory daoFactory, IEntityAttributeProviderFactory entityAttributeProviderFactory)
+    public ProjectSearchCriteriaTranslator(IDAOFactory daoFactory, IObjectAttributeProviderFactory entityAttributeProviderFactory)
     {
         super(daoFactory, entityAttributeProviderFactory);
     }
@@ -60,10 +59,10 @@ public class ProjectSearchCriteriaTranslator extends AbstractFieldFromCompositeS
     @Override
     protected SearchCriteriaTranslationResult doTranslate(SearchTranslationContext context, ISearchCriteria criteria)
     {
-        if (EnumSet.of(EntityKind.EXPERIMENT, EntityKind.SAMPLE).contains(context.peekEntityKind()) == false)
+        if (EnumSet.of(SearchObjectKind.EXPERIMENT, SearchObjectKind.SAMPLE).contains(context.peekObjectKind()) == false)
         {
             throw new IllegalArgumentException("Project criteria can be used only in experiment or sample criteria, "
-                    + "but was used in: " + context.peekEntityKind() + " context.");
+                    + "but was used in: " + context.peekObjectKind() + " context.");
         }
         // TODO: project samples
         // if (criteria instanceof NoProjectSearchCriteria)
@@ -84,21 +83,21 @@ public class ProjectSearchCriteriaTranslator extends AbstractFieldFromCompositeS
     @Override
     protected DetailedSearchField doTranslateSearchField(SearchTranslationContext context, ISearchCriteria criteria, ISearchCriteria subCriteria)
     {
-        EntityKind entityKind = context.peekEntityKind();
+        SearchObjectKind objectKind = context.peekObjectKind();
         if (subCriteria instanceof CodeSearchCriteria)
         {
             return DetailedSearchField.createAttributeField(
-                    entityKind == EntityKind.EXPERIMENT ? ExperimentAttributeSearchFieldKind.PROJECT
+                    objectKind == SearchObjectKind.EXPERIMENT ? ExperimentAttributeSearchFieldKind.PROJECT
                             : SampleAttributeSearchFieldKind.PROJECT);
         } else if (subCriteria instanceof PermIdSearchCriteria)
         {
             return DetailedSearchField.createAttributeField(
-                    entityKind == EntityKind.EXPERIMENT ? ExperimentAttributeSearchFieldKind.PROJECT_PERM_ID
+                    objectKind == SearchObjectKind.EXPERIMENT ? ExperimentAttributeSearchFieldKind.PROJECT_PERM_ID
                             : SampleAttributeSearchFieldKind.PROJECT_PERM_ID);
         } else if (subCriteria instanceof SpaceSearchCriteria)
         {
             return DetailedSearchField.createAttributeField(
-                    entityKind == EntityKind.EXPERIMENT ? ExperimentAttributeSearchFieldKind.PROJECT_SPACE
+                    objectKind == SearchObjectKind.EXPERIMENT ? ExperimentAttributeSearchFieldKind.PROJECT_SPACE
                             : SampleAttributeSearchFieldKind.PROJECT_SPACE);
         } else
         {

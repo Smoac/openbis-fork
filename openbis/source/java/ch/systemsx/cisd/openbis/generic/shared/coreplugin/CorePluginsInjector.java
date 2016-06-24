@@ -122,7 +122,8 @@ public class CorePluginsInjector
                 scanForCorePlugins(corePluginsFolderPath, moduleEnabledChecker, disabledPlugins,
                         pluginNames, listOfDisabledMasterDataInitialization);
 
-        injectProperty(properties, Constants.DISABLED_MASTER_DATA_INITIALIZATION, StringUtils.join(listOfDisabledMasterDataInitialization, ","));
+        injectProperty(properties, Constants.DISABLED_MASTER_DATA_INITIALIZATION, 
+                StringUtils.join(listOfDisabledMasterDataInitialization, ","));
 
         for (Entry<IPluginType, Map<String, NamedCorePluginFolder>> entry : plugins.entrySet())
         {
@@ -168,7 +169,11 @@ public class CorePluginsInjector
             }
         }
         pluginKeyBundles.addOrReplaceKeyBundleIn(properties);
+        return createPluginFoldersMap(plugins);
+    }
 
+    private Map<String, File> createPluginFoldersMap(Map<IPluginType, Map<String, NamedCorePluginFolder>> plugins)
+    {
         Map<String, File> pluginFolders = new HashMap<String, File>();
         for (Map<String, NamedCorePluginFolder> map : plugins.values())
         {
@@ -178,7 +183,6 @@ public class CorePluginsInjector
             }
         }
         return pluginFolders;
-
     }
 
     private void injectProperty(Properties properties, String key, String value)
@@ -199,33 +203,15 @@ public class CorePluginsInjector
     {
         Map<IPluginType, Map<String, NamedCorePluginFolder>> typeToPluginsMap =
                 new LinkedHashMap<IPluginType, Map<String, NamedCorePluginFolder>>();
-        CorePluginScanner scanner =
-                new CorePluginScanner(corePluginsFolderPath, scannerType, logger);
+        CorePluginScanner scanner = new CorePluginScanner(corePluginsFolderPath, scannerType, logger);
         List<CorePlugin> plugins = scanner.scanForPlugins();
 
-        // this loop is here just to log unregistered plugins
-        for (CorePlugin plugin : plugins)
-        {
-            String module = plugin.getName();
-            if (moduleEnabledChecker.isModuleEnabled(module) == false)
-            {
-                logger.log(LogLevel.INFO, "Core plugins for module '" + module
-                        + "' are not enabled.");
-                continue;
-            }
-        }
-
-        for (CorePlugin corePlugin : moduleEnabledChecker.getListOfEnabledPlugins(plugins))
+        Set<String> enabledPlugins = moduleEnabledChecker.getEnabledPlugins(plugins);
+        for (CorePlugin corePlugin : plugins)
         {
             String module = corePlugin.getName();
-            if (moduleEnabledChecker.isModuleEnabled(module) == false)
-            {
-                throw new IllegalStateException(
-                        "Error in core plugin initialization. Core plugin " + module + " is not enabled, but passed early initialization test.");
-            }
-
             // special treatment for initialize master data, as it is not a core plugin atm
-            if (isDisabled(disabledPlugins, module + ":" + INITIALIZE_MASTER_DATA_CORE_PLUGIN_NAME))
+            if (isDisabled(enabledPlugins, disabledPlugins, module + ":" + INITIALIZE_MASTER_DATA_CORE_PLUGIN_NAME))
             {
                 disabledMasterDataInitialization.add(module);
             }
@@ -251,19 +237,17 @@ public class CorePluginsInjector
                         NamedCorePluginFolder plugin =
                                 new NamedCorePluginFolder(module, pluginType, pluginFolder);
                         String fullPluginName = plugin.getFullPluginName();
-                        if (isDisabled(disabledPlugins, fullPluginName) == false)
+                        if (isDisabled(enabledPlugins, disabledPlugins, fullPluginName) == false)
                         {
                             String fullPluginKey =
                                     pluginType.getPrefix()
                                             + pluginType.getPluginKey(module, pluginName,
                                                     plugin.getPluginProperties());
                             assertAndAddPluginName(fullPluginKey, pluginNames, pluginType);
-                            Map<String, NamedCorePluginFolder> map =
-                                    typeToPluginsMap.get(pluginType);
+                            Map<String, NamedCorePluginFolder> map = typeToPluginsMap.get(pluginType);
                             if (map == null)
                             {
-                                map =
-                                        new LinkedHashMap<String, CorePluginsInjector.NamedCorePluginFolder>();
+                                map = new LinkedHashMap<String, CorePluginsInjector.NamedCorePluginFolder>();
                                 typeToPluginsMap.put(pluginType, map);
                             }
                             map.put(fullPluginKey, plugin);
@@ -274,8 +258,8 @@ public class CorePluginsInjector
         }
         return typeToPluginsMap;
     }
-
-    private boolean isDisabled(List<String> disabledPlugins, String fullPluginName)
+    
+    private boolean isDisabled(Set<String> enabledPlugins, List<String> disabledPlugins, String fullPluginName)
     {
         for (String disabledPlugin : disabledPlugins)
         {
@@ -284,7 +268,14 @@ public class CorePluginsInjector
                 return true;
             }
         }
-        return false;
+        for (String enabledPlugin : enabledPlugins)
+        {
+            if (fullPluginName.startsWith(enabledPlugin))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void assertAndAddPluginName(String pluginName, Set<String> pluginNames,

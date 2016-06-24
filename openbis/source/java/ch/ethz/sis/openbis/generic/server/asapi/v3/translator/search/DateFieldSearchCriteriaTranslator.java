@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 public class DateFieldSearchCriteriaTranslator extends AbstractFieldSearchCriteriaTranslator
 {
 
-    public DateFieldSearchCriteriaTranslator(IDAOFactory daoFactory, IEntityAttributeProviderFactory entityAttributeProviderFactory)
+    public DateFieldSearchCriteriaTranslator(IDAOFactory daoFactory, IObjectAttributeProviderFactory entityAttributeProviderFactory)
     {
         super(daoFactory, entityAttributeProviderFactory);
     }

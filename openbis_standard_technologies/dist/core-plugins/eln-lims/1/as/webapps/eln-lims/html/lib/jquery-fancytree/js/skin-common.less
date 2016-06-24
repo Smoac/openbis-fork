@@ -109,6 +109,9 @@ ul.fancytree-container {
 		padding: 0 0 0 @fancy-level-indent;
 		margin: 0;
 	}
+	ul>li:before { // #538
+		content: none;
+	}
 	li {
 		list-style-image: none;
 		list-style-position: outside;
@@ -173,10 +176,13 @@ span.fancytree-radio,
 span.fancytree-custom-icon {
 	margin-top: @fancy-icon-ofs-top;
 }
-/* Used by iconclass option and iconClass callback: */
+/* Used by icon option: */
 span.fancytree-custom-icon {
+	width: @fancy-icon-width;
+	height: @fancy-icon-height;
 	display: inline-block;
 	margin-left: @fancy-icon-spacing;
+	.setBgPos(0, 0);
 }
 /* Used by 'icon' node option: */
 img.fancytree-icon {
@@ -269,6 +275,21 @@ span.fancytree-expander {
 .fancytree-exp-el span.fancytree-expander:hover,  
 .fancytree-exp-edl span.fancytree-expander:hover {
 	.useSprite(3, 6);
+}
+
+/* Fade out expanders, when container is not hovered or active */
+.fancytree-fade-expander {
+	span.fancytree-expander {
+		transition: opacity 1.5s;
+		opacity: 0;
+	}
+	&:hover span.fancytree-expander,
+	&.fancytree-treefocus span.fancytree-expander,
+	.fancytree-treefocus span.fancytree-expander,
+	[class*='fancytree-statusnode-'] span.fancytree-expander {
+		transition: opacity 0.6s;
+		opacity: 1;
+	}
 }
 
 /*------------------------------------------------------------------------------
@@ -393,8 +414,8 @@ span.fancytree-icon { // Default icon
 // 'Loading' status overrides all others
 .fancytree-loading span.fancytree-expander,
 .fancytree-loading span.fancytree-expander:hover,
-.fancytree-statusnode-wait span.fancytree-icon,
-.fancytree-statusnode-wait span.fancytree-icon:hover {
+.fancytree-statusnode-loading span.fancytree-icon,
+.fancytree-statusnode-loading span.fancytree-icon:hover {
 	background-image: @fancy-loading-url;
 	.useSprite(0, 0);
 }
@@ -533,7 +554,8 @@ span.fancytree-drop-reject {
 table.fancytree-ext-table {
 	border-collapse: collapse;
 	span.fancytree-node {
-		display: inline-block; // #117
+		display: inline-block;  // #117
+		box-sizing: border-box;  // #562
 	}
 }
 

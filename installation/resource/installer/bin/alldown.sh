@@ -18,9 +18,3 @@ fi
 
 $BASE/dssdown.sh
 $BASE/bisdown.sh
-
-#Start up beewm if it's installed
-beewmInstallDir=`echo ${BASE}/../servers/beewm/bee-*`
-if [[ -d ${beewmInstallDir} ]]; then
-        ${beewmInstallDir}/bee.sh stop
-fi

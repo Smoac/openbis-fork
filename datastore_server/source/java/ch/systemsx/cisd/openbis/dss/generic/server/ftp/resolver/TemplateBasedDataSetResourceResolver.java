@@ -39,20 +39,19 @@ import ch.systemsx.cisd.common.string.Template;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentNodeFilter;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpFileFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverConfig;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverRegistry;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpServerConfig;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolver;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.FtpFileEvaluationContext.EvaluatedElement;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 
 /**
  * Resolves paths like
@@ -102,6 +101,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
             super(absolutePath);
             this.dataSet = dataSet;
             this.resolverContext = resolverContext;
+            setLastModified(dataSet.getModificationDate().getTime());
         }
 
         @Override
@@ -122,6 +122,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
                 IHierarchicalContentNode rootNode =
                         getDataSetFileListRoot(dataSet, hierarchicalContent);
                 List<IHierarchicalContentNode> childNodes = rootNode.getChildNodes();
+                Cache cache = resolverContext.getCache();
                 for (IHierarchicalContentNode childNode : childNodes)
                 {
                     IHierarchicalContentNodeFilter fileFilter = getFileFilter(dataSet);
@@ -129,7 +130,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
                     {
                         result.add(FtpFileFactory.createFtpFile(dataSet.getCode(), absolutePath
                                 + FtpConstants.FILE_SEPARATOR + childNode.getName(), childNode,
-                                hierarchicalContent, fileFilter));
+                                hierarchicalContent, fileFilter, cache));
                     }
                 }
             } finally
@@ -200,17 +201,17 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
 
     private IHierarchicalContentProvider contentProvider;
 
-    public TemplateBasedDataSetResourceResolver(FtpServerConfig ftpServerConfig)
+    public TemplateBasedDataSetResourceResolver(FtpPathResolverConfig resolverConfig)
     {
-        this.template = new Template(ftpServerConfig.getDataSetDisplayTemplate());
-        showParentsAndChildren = ftpServerConfig.isShowParentsAndChildren();
+        this.template = new Template(resolverConfig.getDataSetDisplayTemplate());
+        showParentsAndChildren = resolverConfig.isShowParentsAndChildren();
         fileNamePresent = template.getPlaceholderNames().contains(FILE_NAME_VARNAME);
         if (fileNamePresent && showParentsAndChildren)
         {
             throw new ConfigurationFailureException("Template contains file name variable and "
                     + "the flag to show parents/children data sets is set.");
         }
-        this.dataSetTypeConfigs = initializeDataSetTypeConfigs(ftpServerConfig);
+        this.dataSetTypeConfigs = initializeDataSetTypeConfigs(resolverConfig);
         this.defaultDSTypeConfig = new DataSetTypeConfig();
     }
 
@@ -233,8 +234,6 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
     public FtpFile resolve(final String path, final FtpPathResolverContext resolverContext)
     {
         String experimentId = extractExperimentIdFromPath(path);
-        IServiceForDataStoreServer service = resolverContext.getService();
-        String sessionToken = resolverContext.getSessionToken();
 
         Experiment experiment = tryGetExperiment(experimentId, resolverContext);
         if (experiment == null)
@@ -242,15 +241,13 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
             return FtpPathResolverRegistry.getNonExistingFile(path, "Unknown experiment '"
                     + experimentId + "'.");
         }
-        List<AbstractExternalData> dataSets =
-                service.listDataSetsByExperimentID(sessionToken, new TechId(experiment));
+        List<AbstractExternalData> dataSets = resolverContext.getDataSets(experiment);
         if (fileNamePresent)
         {
             FtpFileEvaluationContext evalContext = evaluateDataSetPaths(resolverContext, dataSets);
-
             try
             {
-                return extractMatchingFile(path, experimentId, evalContext);
+                return extractMatchingFile(path, experimentId, resolverContext.getCache(), evalContext);
             } finally
             {
                 evalContext.close();
@@ -318,11 +315,17 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         return null;
     }
 
-    private FtpFile extractMatchingFile(String path, String experimentId,
+    private FtpFile extractMatchingFile(String path, String experimentId, Cache cache, 
             FtpFileEvaluationContext evalContext)
     {
         final EvaluatedElement matchingElement =
                 tryFindMatchingEvalElement(path, experimentId, evalContext);
+        if (matchingElement == null)
+        {
+            return FtpPathResolverRegistry.getNonExistingFile(path, "Resource '"
+                    + path + "' for experiment " + experimentId + " does not exist.");
+
+        }
 
         final String pathInDataSet = extractPathInDataSet(path);
         final String hierarchicalNodePath =
@@ -335,8 +338,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         if (contentNodeOrNull != null && fileFilter.accept(contentNodeOrNull))
         {
             return FtpFileFactory.createFtpFile(dataSet.getCode(), path, contentNodeOrNull,
-                    content,
-                    fileFilter);
+                    content, fileFilter, dataSet.getModificationDate().getTime(), cache);
         } else
         {
             return FtpPathResolverRegistry.getNonExistingFile(path, "Resource '"
@@ -421,11 +423,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
     public List<FtpFile> listExperimentChildrenPaths(Experiment experiment,
             final String parentPath, FtpPathResolverContext context)
     {
-        IServiceForDataStoreServer service = context.getService();
-        String sessionToken = context.getSessionToken();
-
-        List<AbstractExternalData> dataSets =
-                service.listDataSetsByExperimentID(sessionToken, new TechId(experiment));
+        List<AbstractExternalData> dataSets = context.getDataSets(experiment);
 
         FtpFileEvaluationContext evalContext = evaluateDataSetPaths(context, dataSets);
         try
@@ -437,26 +435,24 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         }
     }
 
-    private List<FtpFile> createFtpFilesFromEvaluationResult(
-            ISessionTokenProvider sessionTokenProvider,
+    private List<FtpFile> createFtpFilesFromEvaluationResult(FtpPathResolverContext context,
             final String parentPath, FtpFileEvaluationContext evalResult)
     {
         ArrayList<FtpFile> result = new ArrayList<FtpFile>();
+        Cache cache = context.getCache();
         for (EvaluatedElement evalElement : evalResult.getEvalElements())
         {
-            IHierarchicalContentNodeFilter fileFilter = getFileFilter(evalElement.dataSet);
+            AbstractExternalData dataSet = evalElement.dataSet;
+            IHierarchicalContentNodeFilter fileFilter = getFileFilter(dataSet);
             if (fileFilter.accept(evalElement.contentNode))
             {
                 String childPath =
                         parentPath + FtpConstants.FILE_SEPARATOR + evalElement.evaluatedTemplate;
-                String dataSetCode = evalElement.dataSet.getCode();
-                IHierarchicalContentProvider getContentProvider =
-                        getContentProvider(sessionTokenProvider);
-
+                String dataSetCode = dataSet.getCode();
+                IHierarchicalContent content = evalResult.getHierarchicalContent(dataSet);
                 FtpFile childFtpFile =
-                        FtpFileFactory.createFtpFile(dataSetCode, childPath,
-                                evalElement.contentNode,
-                                getContentProvider.asContent(evalElement.dataSet), fileFilter);
+                        FtpFileFactory.createFtpFile(dataSetCode, childPath, evalElement.contentNode,
+                                content, fileFilter, dataSet.getModificationDate().getTime(), cache);
                 result.add(childFtpFile);
             }
         }
@@ -598,11 +594,11 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
     }
 
     private Map<String, DataSetTypeConfig> initializeDataSetTypeConfigs(
-            FtpServerConfig ftpServerConfig)
+            FtpPathResolverConfig resolverConfig)
     {
         Map<String, DataSetTypeConfig> result = new HashMap<String, DataSetTypeConfig>();
-        Map<String, String> fileListSubPaths = ftpServerConfig.getFileListSubPaths();
-        Map<String, String> fileListFilters = ftpServerConfig.getFileListFilters();
+        Map<String, String> fileListSubPaths = resolverConfig.getFileListSubPaths();
+        Map<String, String> fileListFilters = resolverConfig.getFileListFilters();
 
         for (Entry<String, String> subPathEntry : fileListSubPaths.entrySet())
         {

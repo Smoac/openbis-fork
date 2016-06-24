@@ -177,6 +177,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
 				                    {value : "Property", label : "Property"}, 
 				                    {value : "Attribute", label : "Attribute"},
+				                    {value : "Sample", label : "Sample"},
 // ELN-UI don't support this yet
 //				                    {value : "Parent", label : "Parent"}, 
 //				                    {value : "Children", label : "Children"}
@@ -205,7 +206,10 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					break;
 				case "Attribute":
 					$newFieldNameContainer.append(_this._getNewAttributeDropdown(_this._advancedSearchModel.criteria.entityKind));
-					break;	
+					break;
+				case "Sample":
+					$newFieldNameContainer.append(_this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "SAMPLE"));
+					break;
 				case "Experiment":
 					$newFieldNameContainer.append(_this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "EXPERIMENT"));
 					break;
@@ -222,12 +226,14 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		return $fieldTypeComponent;
 	}
 	
-	this._getNewMergedDropdown = function(entityKind, parentOrChildrenOrExperiment) {
+	this._getNewMergedDropdown = function(entityKind, parentOrChildrenOrExperimentOrSample) {
 		var _this = this;
 		var model = null;
 		var attributesModel = null;
-		if(parentOrChildrenOrExperiment === "EXPERIMENT") {
+		if(parentOrChildrenOrExperimentOrSample === "EXPERIMENT") {
 			attributesModel = this._getFieldNameAttributesByEntityKind("EXPERIMENT");
+		} else if(parentOrChildrenOrExperimentOrSample === "SAMPLE") {
+			attributesModel = this._getFieldNameAttributesByEntityKind("SAMPLE");
 		} else {
 			attributesModel = this._getFieldNameAttributesByEntityKind(entityKind);
 		}

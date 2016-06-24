@@ -209,6 +209,7 @@ getContent
 getCount
 getCreationId
 getCreations
+getCreatorPerson
 getCriteria
 getDataSetFile
 getDataSetId
@@ -243,6 +244,7 @@ getFrom
 getGeneratedCodePrefix
 getHistory
 getHourOffset
+getHomeGroupCode
 getId
 getIdentifier
 getInputStream
@@ -274,6 +276,7 @@ getPath
 getPermId
 getPermIds
 getPermlink
+getPerson
 getPhysicalData
 getPreviousVersion
 getProject
@@ -293,6 +296,7 @@ getResourceReader
 getSample
 getSampleId
 getSamples
+getSessionInformation
 getShareId
 getSize
 getSortBy
@@ -315,6 +319,7 @@ getTypeId
 getUpdates
 getUrlTemplate
 getUserId
+getUserName
 getValidFrom
 getValidTo
 getValue
@@ -577,6 +582,7 @@ searchSpaces
 ServerTimeZone
 SERVICE_NAME
 SERVICE_URL
+SessionInformation
 set
 setAccessDate
 setActions
@@ -600,6 +606,7 @@ setContainerIds
 setContainers
 setContent
 setCreationId
+setCreatorPerson
 setCriteria
 setDataSetId
 setDataSetPermId
@@ -628,6 +635,7 @@ setFileLength
 setFirstName
 setGeneratedCodePrefix
 setHistory
+setHomeGroupCode
 setId
 setIdentifier
 setKind
@@ -658,6 +666,7 @@ setParents
 setPath
 setPermId
 setPermlink
+setPerson
 setPhysicalData
 setPostRegistered
 setPresentInArchive
@@ -702,6 +711,7 @@ setTypeCode
 setTypeId
 setUrlTemplate
 setUserId
+setUserName
 setValidFrom
 setValidTo
 setValue
@@ -1157,3 +1167,29 @@ Data Set Unarchive Options
 is Remove From Data Store
 set Remove From Data Store
 unarchive Data Sets
+Boolean Field Search Criteria
+Complete Search Criteria
+Enum Field Search Criteria
+External Code Search Criteria
+External Dms Search Criteria
+File Format Type Search Criteria
+Linked Data Search Criteria
+Location Search Criteria
+Locator Type Search Criteria
+Physical Data Search Criteria
+Present In Archive Search Criteria
+Share Id Search Criteria
+Size Search Criteria
+Speed Hint Search Criteria
+Status Search Criteria
+Storage Confirmation Search Criteria
+Storage Format Search Criteria
+with Complete
+with External Code
+with Location
+with Present In Archive
+with Share Id
+with Size
+with Speed Hint
+with Status
+with Storage Confirmation

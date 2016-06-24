@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Properties;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -73,6 +74,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
@@ -110,12 +112,16 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
         this.openBisService = openBisService;
         this.generalInfoService = generalInfoService;
         this.userManager = userManager;
-        this.config = new FtpServerConfig(DssPropertyParametersUtil.loadServiceProperties());
-        this.pathResolverRegistry = new FtpPathResolverRegistry(config);
+        Properties ftpProperties = PropertyParametersUtil.extractSingleSectionProperties(
+                DssPropertyParametersUtil.loadServiceProperties(), "ftp.server", true).getProperties();
+        this.config = new FtpServerConfig(ftpProperties);
+        FtpPathResolverConfig resolverConfig = new FtpPathResolverConfig(ftpProperties);
+        this.pathResolverRegistry = new FtpPathResolverRegistry(resolverConfig);
 
         if (config.isStartServer())
         {
             config.logStartupInfo();
+            resolverConfig.logStartupInfo("SFTP/FTP");
             start();
         }
     }

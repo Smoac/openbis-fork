@@ -22,14 +22,16 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
@@ -40,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  */
 public class FtpPathResolverContext implements ISessionTokenProvider
 {
-
     private final String sessionToken;
 
     private final IServiceForDataStoreServer service;
@@ -71,6 +72,11 @@ public class FtpPathResolverContext implements ISessionTokenProvider
     public IServiceForDataStoreServer getService()
     {
         return service;
+    }
+
+    public Cache getCache()
+    {
+        return cache;
     }
 
     public DataSet getDataSet(String dataSetCode)
@@ -125,20 +131,46 @@ public class FtpPathResolverContext implements ISessionTokenProvider
         {
             ExperimentIdentifier experimentIdentifier =
                     new ExperimentIdentifierFactory(experimentId).createIdentifier();
-
             List<Experiment> result =
                     service.listExperiments(sessionToken,
                             Collections.singletonList(experimentIdentifier),
                             new ExperimentFetchOptions());
-            experiment = result.isEmpty() ? null : result.get(0);
-            if (experiment != null)
+            if (result.isEmpty())
             {
-                cache.putExperiment(experiment);
+                throw new UserFailureException("Unknown experiment '" + experimentIdentifier + "'.");
             }
+            experiment = result.get(0);
+            cache.putExperiment(experiment);
         }
         return experiment;
     }
 
+    public List<AbstractExternalData> getDataSets(Experiment experiment)
+    {
+        String experimentPermId = experiment.getPermId();
+        List<AbstractExternalData> dataSets = cache.getDataSetsByExperiment(experimentPermId);
+        if (dataSets == null)
+        {
+            dataSets = getAvailableDataSets(experiment);
+            cache.putDataSetsForExperiment(dataSets, experimentPermId);
+        }
+        return dataSets;
+    }
+
+    private List<AbstractExternalData> getAvailableDataSets(Experiment experiment)
+    {
+        List<AbstractExternalData> availableDataSets = new ArrayList<>();
+        List<AbstractExternalData> dataSets = service.listDataSetsByExperimentID(sessionToken, new TechId(experiment));
+        for (AbstractExternalData dataSet : dataSets)
+        {
+            if (dataSet.isAvailable())
+            {
+                availableDataSets.add(dataSet);
+            }
+        }
+        return availableDataSets;
+    }
+    
     public IGeneralInformationService getGeneralInfoService()
     {
         return generalInfoService;

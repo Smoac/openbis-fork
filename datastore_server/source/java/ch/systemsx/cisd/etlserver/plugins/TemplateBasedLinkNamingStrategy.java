@@ -22,9 +22,11 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
@@ -35,6 +37,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  */
 public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLinkNamingStrategy
 {
+
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, TemplateBasedLinkNamingStrategy.class);
 
     public static final String DEFAULT_LINK_TEMPLATE =
             "${space}/${project}/${experiment}/${dataSetType}+${sample}+${dataSet}";
@@ -93,7 +98,7 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
     public Set<String> extractPaths(File root)
     {
         HashSet<String> set = new HashSet<String>();
-        accumulateSymLinkPaths(set, root);
+        accumulatePaths(set, root, 3);
         return set;
     }
 
@@ -105,20 +110,23 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
     }
 
     @Private
-    static void accumulateSymLinkPaths(HashSet<String> paths, File dir)
+    static void accumulatePaths(HashSet<String> paths, File dir, int deepness)
     {
         File[] children = dir.listFiles();
         if (children != null)
         {
             for (File child : children)
             {
-                if (FileUtilities.isSymbolicLink(child))
+                if (deepness == 0)
                 {
                     String absolutePath = child.getAbsolutePath();
                     paths.add(absolutePath);
                 } else if (child.isDirectory())
                 {
-                    accumulateSymLinkPaths(paths, child);
+                    accumulatePaths(paths, child, deepness - 1);
+                } else if (child.isFile())
+                {
+                    operationLog.warn("File in the Hierarchical store view at the unexpected depth " + child.getAbsolutePath());
                 }
             }
         }

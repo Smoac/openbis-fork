@@ -160,7 +160,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 		this.getResponseFromJSTestAggregationService = function(facade, params, callback) {
 			var c = this;
 			return $.ajax({
-				"url" : "http://localhost:20001/datastore_server/rmi-dss-api-v1.json",
+				"url" : "http://" + testHost + ":20001/datastore_server/rmi-dss-api-v1.json",
 				"type" : "POST",
 				"processData" : false,
 				"dataType" : "json",
@@ -420,6 +420,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, openbis, 
 			fo.withPhysicalData().withFileFormatType();
 			fo.withPhysicalData().withLocatorType();
 			fo.withPhysicalData().withStorageFormat();
+			fo.withLinkedData().withExternalDms();
 			fo.withHistory();
 			fo.withTags();
 			fo.withRegistrator();

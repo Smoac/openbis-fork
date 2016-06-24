@@ -222,6 +222,7 @@ h1, h2, legend {
 
 .ui-fancytree {
     color: #777;
+    background-color: transparent !important;
     border: none !important;
 }
 

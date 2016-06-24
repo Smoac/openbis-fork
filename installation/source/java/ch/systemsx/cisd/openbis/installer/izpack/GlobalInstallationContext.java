@@ -55,7 +55,7 @@ public class GlobalInstallationContext
     public static final String PATHINFO_DB_ENABLED = "PATHINFO_DB_ENABLED";
 
     public static final String[] TECHNOLOGIES =
-    { TECHNOLOGY_PROTEOMICS, TECHNOLOGY_SCREENING, TECHNOLOGY_ILLUMINA_NGS, TECHNOLOGY_ELN_LIMS };
+            { TECHNOLOGY_PROTEOMICS, TECHNOLOGY_SCREENING, TECHNOLOGY_ILLUMINA_NGS, TECHNOLOGY_ELN_LIMS };
 
     /**
      * set to true if the installation process is trying to update an existing openBIS installation.
@@ -82,6 +82,8 @@ public class GlobalInstallationContext
     public static boolean presentKeyStoreFile = false;
 
     public static File installDir;
+
+    public static boolean isElnMasterDataNotInstalled = false;
 
     public static void initialize(AutomatedInstallData data)
     {
@@ -116,6 +118,10 @@ public class GlobalInstallationContext
         {
             populateFirstTimeInstallVariables(data);
         }
+
+        isElnMasterDataNotInstalled = (isFirstTimeInstallation == true) ||
+                (new File(installDir, "servers/core-plugins/eln-lims/1/as/initialize-master-data.py").exists() == false) ||
+                (new SetTechnologyCheckBoxesAction().isTechnologyEnabled(installDir, TECHNOLOGY_ELN_LIMS) == false);
     }
 
     private static boolean installationExists()

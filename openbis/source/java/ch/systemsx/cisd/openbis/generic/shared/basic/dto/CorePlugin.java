@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Represents a versioned openBIS core plugin.
  * 
@@ -26,6 +29,8 @@ public class CorePlugin implements Comparable<CorePlugin>
     private final String name;
 
     private final int version;
+
+    private final List<String> requiredPlugins = new ArrayList<>();
 
     public CorePlugin(String name, int version)
     {
@@ -43,6 +48,16 @@ public class CorePlugin implements Comparable<CorePlugin>
         return version;
     }
 
+    public void addRequiredPlugin(String requiredPlugin)
+    {
+        requiredPlugins.add(requiredPlugin);
+    }
+
+    public List<String> getRequiredPlugins()
+    {
+        return requiredPlugins;
+    }
+
     @Override
     public int compareTo(CorePlugin other)
     {
@@ -57,7 +72,13 @@ public class CorePlugin implements Comparable<CorePlugin>
     @Override
     public String toString()
     {
-        return String.format("Core Plugin[name='%s', version='%s']", name, version);
+        if (requiredPlugins.isEmpty())
+        {
+            return String.format("Core Plugin[name='%s', version='%s']", name, version);
+        }
+        return String.format("Core Plugin[name='%s', version='%s', required plugins:%s]",
+                name, version, requiredPlugins);
+
     }
 
     @Override

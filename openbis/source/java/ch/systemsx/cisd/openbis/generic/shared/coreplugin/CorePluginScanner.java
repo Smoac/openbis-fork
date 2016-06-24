@@ -21,9 +21,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.io.PropertyIOUtils;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -39,6 +41,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
  */
 public class CorePluginScanner implements ICorePluginResourceLoader
 {
+    static final String CORE_PLUGIN_PROPERTIES_FILE_NAME = "core-plugin.properties";
+
+    static final String REQUIRED_PLUGINS_KEY = "required-plugins";
+    
     /**
      * the type of plugins we are scanning for.
      */
@@ -188,8 +194,18 @@ public class CorePluginScanner implements ICorePluginResourceLoader
     {
         String name = pluginDir.getName();
         int version = parseVersion(versionDir);
+        CorePlugin corePlugin = new CorePlugin(name, version);
+        File corePluginPropertiesFile = new File(versionDir, CORE_PLUGIN_PROPERTIES_FILE_NAME);
+        if (corePluginPropertiesFile.isFile())
+        {
+            Properties corePluginProperties = PropertyIOUtils.loadProperties(corePluginPropertiesFile);
+            for (String requiredPlugin : corePluginProperties.getProperty(REQUIRED_PLUGINS_KEY, "").split(","))
+            {
+                corePlugin.addRequiredPlugin(requiredPlugin.trim());
+            }
+        }
 
-        return new CorePlugin(name, version);
+        return corePlugin;
     }
 
     /**

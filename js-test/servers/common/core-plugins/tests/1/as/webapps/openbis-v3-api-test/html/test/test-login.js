@@ -25,6 +25,25 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common' ], function($, _, open
 				c.finish();
 			});
 		});
+		
+		QUnit.test("getSessionInformation()", function(assert) {
+			var c = new common(assert);
+			c.start();
+			
+			$.when(c.createFacade()).then(function(facade) {
+				return facade.login("openbis_test_js", "password").then(function() {
+					return facade.getSessionInformation().then(function(sessionInformation) {
+						c.assertTrue(sessionInformation != null);
+						c.assertTrue(sessionInformation.getPerson() != null);
+						c.finish();
+					});
+				});
+			}).fail(function(error) {
+				c.fail(error.message);
+				c.finish();
+			});
+		});
+		
 
 		QUnit.test("loginAsAnonymousUser()", function(assert) {
 			var c = new common(assert);

@@ -214,8 +214,8 @@ test("getPlateMetadataList()", function(){
 test("listAllExperiments()", function(){
 	createFacadeAndLogin(function(facade){
 		facade.listAllExperiments(function(response){
-			assertObjectsCount(response.result, 4);
-			assertObjectsWithValues(response.result, "experimentCode", ["EXP-1","EXP-2","TEST-EXPERIMENT","TEST-EXPERIMENT-2"]);
+			assertObjectsCount(response.result, 5);
+			assertObjectsWithValues(response.result, "experimentCode", ["EXP-1","EXP-2","TEST-EXPERIMENT","TEST-EXPERIMENT-2","TEST-EXPERIMENT-3"]);
 			facade.close();
 		});
 	});
@@ -226,8 +226,8 @@ test("listExperimentsVisibleToUser()", function(){
 		var userId = "test_space_admin";
 		
 		facade.listExperimentsVisibleToUser(userId, function(response){
-			assertObjectsCount(response.result, 2);
-			assertObjectsWithValues(response.result, "experimentCode", ["TEST-EXPERIMENT","TEST-EXPERIMENT-2"]);
+			assertObjectsCount(response.result, 3);
+			assertObjectsWithValues(response.result, "experimentCode", ["TEST-EXPERIMENT","TEST-EXPERIMENT-2","TEST-EXPERIMENT-3"]);
 			facade.close();
 		});
 	});

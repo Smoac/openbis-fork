@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKi
 public abstract class AbstractFieldFromCompositeSearchCriteriaTranslator extends AbstractFieldSearchCriteriaTranslator
 {
 
-    public AbstractFieldFromCompositeSearchCriteriaTranslator(IDAOFactory daoFactory, IEntityAttributeProviderFactory entityAttributeProviderFactory)
+    public AbstractFieldFromCompositeSearchCriteriaTranslator(IDAOFactory daoFactory, IObjectAttributeProviderFactory entityAttributeProviderFactory)
     {
         super(daoFactory, entityAttributeProviderFactory);
     }

@@ -18,8 +18,10 @@ package ch.systemsx.cisd.openbis.generic.shared.coreplugin;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import org.testng.annotations.Test;
 
@@ -128,7 +130,7 @@ public class ModuleEnabledCheckerTest extends TestCase
         {
             expectedCorePluginsList.add(new CorePlugin(plugin, 1));
         }
-        List<CorePlugin> enabledPlugins = checker.getListOfEnabledPlugins(corePluginsList);
+        Collection<CorePlugin> enabledPlugins = checker.getListOfEnabledPlugins(corePluginsList);
         assertEquals(expectedCorePluginsList.toString(), enabledPlugins.toString());
     }
 
@@ -136,5 +138,63 @@ public class ModuleEnabledCheckerTest extends TestCase
     public void testWithInvalidRegEx()
     {
         new ModuleEnabledChecker(Arrays.asList("[a-b)*"));
+    }
+    
+    @Test
+    public void testGetEnabledPluginsWithRequiredPluginOfNonExistentModule()
+    {
+        ModuleEnabledChecker checker = listFactory.create("a.*, beta");
+        try
+        {
+            List<CorePlugin> plugins = Arrays.asList(corePlugin("beta", 1, "g:drop-boxes:g2"));
+            checker.getEnabledPlugins(plugins);
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Required plugin 'g:drop-boxes:g2' specified by core plugin "
+                    + "'Core Plugin[name='beta', version='1', required plugins:[g:drop-boxes:g2]]' "
+                    + "refers to the unknown module 'g'.", ex.getMessage());
+        }
+    }
+    
+    @Test
+    public void testGetEnabledPluginsRequiredPlugin()
+    {
+        ModuleEnabledChecker checker = listFactory.create("beta, a.*");
+        List<CorePlugin> plugins = Arrays.asList(corePlugin("alpha", 2), 
+                corePlugin("beta", 1, "gamma:drop-boxes"), 
+                corePlugin("gamma", 1, "beta:services:s1", "delta:maintenance-tasks"),
+                corePlugin("delta", 3));
+        
+        Set<String> enabledPlugins = checker.getEnabledPlugins(plugins);
+        
+        assertEquals("[beta:services:s1, delta:maintenance-tasks, gamma:drop-boxes, beta, alpha]", 
+                enabledPlugins.toString());
+    }
+    
+    @Test
+    public void testGetModuleWithEnabledMasterDataInitializations()
+    {
+        ModuleEnabledChecker checker = listFactory.create("beta, a.*");
+        List<CorePlugin> plugins = Arrays.asList(corePlugin("alpha", 2), 
+                corePlugin("beta", 1, "gamma:" + CorePluginsInjector.INITIALIZE_MASTER_DATA_CORE_PLUGIN_NAME),
+                corePlugin("gamma", 7));
+        
+        Set<CorePlugin> corePlugins = checker.getModuleWithEnabledMasterDataInitializations(plugins);
+        
+        assertEquals("[Core Plugin[name='gamma', version='7'], "
+                + "Core Plugin[name='beta', version='1', required plugins:[gamma:initialize-master-data]], "
+                + "Core Plugin[name='alpha', version='2']]", 
+                corePlugins.toString());
+    }
+    
+    private CorePlugin corePlugin(String name, int version, String... requiredPlugins)
+    {
+        CorePlugin corePlugin = new CorePlugin(name, version);
+        for (String requiredPlugin : requiredPlugins)
+        {
+            corePlugin.addRequiredPlugin(requiredPlugin);
+        }
+        return corePlugin;
     }
 }

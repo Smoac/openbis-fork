@@ -183,6 +183,17 @@ function ServerFacade(openbisServer) {
 	}
 	
 	//
+	//
+	//
+	this.exportAll = function(entities, includeRoot, callbackFunction) {
+		this.customELNApi({
+			"method" : "exportAll",
+			"includeRoot" : includeRoot,
+			"entities" : entities,
+		}, callbackFunction, "exports-api");
+	}
+	
+	//
 	// Metadata Related Functions
 	//
 	this.listSampleTypes = function(callbackFunction) {
@@ -500,8 +511,13 @@ function ServerFacade(openbisServer) {
  			service = "eln-lims-api";
  		}
  		
+ 		if(!parameters) {
+ 			parameters = {};
+ 		}
+ 		parameters["sessionToken"] = this.openbisServer.getSession();
+ 		
  		var dataStoreCode = profile.getDefaultDataStoreCode();
- 		this.createReportFromAggregationService(dataStoreCode, parameters, function(data) {
+ 		this.openbisServer.createReportFromAggregationService(dataStoreCode, service, parameters, function(data) {
  			var error = null;
  			var result = {};
  			if(data.error) { //Error Case 1
@@ -518,7 +534,7 @@ function ServerFacade(openbisServer) {
  				error = "Unknown Error.";
  			}
  			callbackFunction(error, result);
- 		}, service);
+ 		});
 	}
  	
  	this.createReportFromAggregationService = function(dataStoreCode, parameters, callbackFunction, service) {
@@ -665,7 +681,21 @@ function ServerFacade(openbisServer) {
 		var fetchOptionsClass = 'as/dto/sample/fetchoptions/SampleFetchOptions';
 		var searchMethodName = 'searchSamples';
 		this.searchForEntityAdvanced(advancedSearchCriteria, callback, criteriaClass, fetchOptionsClass, searchMethodName);
-	} 
+	}
+	
+	this.searchForSpacesAdvanced = function(advancedSearchCriteria, callback) {
+		var criteriaClass = 'as/dto/space/search/SpaceSearchCriteria';
+		var fetchOptionsClass = 'as/dto/space/fetchoptions/SpaceFetchOptions';
+		var searchMethodName = 'searchSpaces';
+		this.searchForEntityAdvanced(advancedSearchCriteria, callback, criteriaClass, fetchOptionsClass, searchMethodName);
+	}
+	
+	this.searchForProjectsAdvanced = function(advancedSearchCriteria, callback) {
+		var criteriaClass = 'as/dto/project/search/ProjectSearchCriteria';
+		var fetchOptionsClass = 'as/dto/project/fetchoptions/ProjectFetchOptions';
+		var searchMethodName = 'searchProjects';
+		this.searchForEntityAdvanced(advancedSearchCriteria, callback, criteriaClass, fetchOptionsClass, searchMethodName);
+	}
 	
 	this.searchForEntityAdvanced = function(advancedSearchCriteria, callback, criteriaClass, fetchOptionsClass, searchMethodName) {
 		require(['openbis', 
@@ -690,21 +720,33 @@ function ServerFacade(openbisServer) {
 				
 				//Setting the fetchOptions given standard settings
 				var fetchOptions = new EntityFetchOptions();
-				fetchOptions.withTags();
-				fetchOptions.withType();
+				if(fetchOptions.withTags) {
+					fetchOptions.withTags();
+				}
+				if(fetchOptions.withType) {
+					fetchOptions.withType();
+				}
 				if(fetchOptions.withSpace) {
 					fetchOptions.withSpace();
 				}
 				if(fetchOptions.withExperiment) {
 					fetchOptions.withExperiment();
 				}
-				fetchOptions.withRegistrator();
-				fetchOptions.withModifier();
+				if(fetchOptions.withRegistrator) {
+					fetchOptions.withRegistrator();
+				}
+				if(fetchOptions.withModifier) {
+					fetchOptions.withModifier();
+				}
 				if(fetchOptions.withParents) {
 					fetchOptions.withParents();
 				}
-				
-				fetchOptions.withProperties();
+				if(fetchOptions.withProjects) {
+					fetchOptions.withProjects();
+				}
+				if(fetchOptions.withProjects) {
+					fetchOptions.withProjects();
+				}
 				
 				//Operator
 				var operator = advancedSearchCriteria.logicalOperator;
@@ -785,6 +827,16 @@ function ServerFacade(openbisServer) {
 							break;
 						case "Attribute":
 							setAttributeCriteria(searchCriteria, fieldName, fieldValue);
+							break;
+						case "Sample":
+							switch(fieldNameType) {
+								case "PROP":
+									setPropertyCriteria(searchCriteria.withSample(), fieldName, fieldValue);
+									break;
+								case "ATTR":
+									setAttributeCriteria(searchCriteria.withSample(), fieldName, fieldValue);
+									break;
+							}
 							break;
 						case "Experiment":
 							switch(fieldNameType) {

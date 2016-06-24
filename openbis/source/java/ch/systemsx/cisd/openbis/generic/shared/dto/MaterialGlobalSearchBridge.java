@@ -3,6 +3,9 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.lucene.document.Document;
+import org.hibernate.search.bridge.LuceneOptions;
+
 public class MaterialGlobalSearchBridge extends GlobalSearchBridge<MaterialPE>
 {
     @Override
@@ -19,5 +22,11 @@ public class MaterialGlobalSearchBridge extends GlobalSearchBridge<MaterialPE>
         addProperties(values, material.getProperties());
         addPerson(values, "registrator", material.getRegistrator());
         return values;
+    }
+
+    @Override
+    protected boolean shouldIndex(String name, Object value, Document document, LuceneOptions luceneOptions)
+    {
+        return true;
     }
 }

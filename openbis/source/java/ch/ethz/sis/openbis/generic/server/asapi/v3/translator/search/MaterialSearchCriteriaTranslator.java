@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.search;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
  * @author pkupczyk
@@ -27,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 public class MaterialSearchCriteriaTranslator extends AbstractCompositeSearchCriteriaTranslator
 {
 
-    protected MaterialSearchCriteriaTranslator(IDAOFactory idaoFactory, IEntityAttributeProviderFactory entityAttributeProviderFactory)
+    protected MaterialSearchCriteriaTranslator(IDAOFactory idaoFactory, IObjectAttributeProviderFactory entityAttributeProviderFactory)
     {
         super(idaoFactory, entityAttributeProviderFactory);
     }
@@ -41,11 +40,11 @@ public class MaterialSearchCriteriaTranslator extends AbstractCompositeSearchCri
     @Override
     protected SearchCriteriaTranslationResult doTranslate(SearchTranslationContext context, ISearchCriteria criteria)
     {
-        context.pushEntityKind(EntityKind.MATERIAL);
+        context.pushObjectKind(SearchObjectKind.MATERIAL);
         SearchCriteriaTranslationResult translationResult = super.doTranslate(context, criteria);
-        context.popEntityKind();
+        context.popObjectKind();
 
-        if (context.peekEntityKind() == null)
+        if (context.peekObjectKind() == null)
         {
             return translationResult;
         } else

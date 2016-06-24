@@ -146,9 +146,16 @@ public abstract class GlobalSearchBridge<T extends IEntityWithMetaprojects> impl
         }
     }
 
+    protected abstract boolean shouldIndex(String name, Object value, Document document, LuceneOptions luceneOptions);
+
     @Override
     public void set(String name, Object value, Document document, LuceneOptions luceneOptions)
     {
+        if (shouldIndex(name, value, document, luceneOptions) == false)
+        {
+            return;
+        }
+
         try
         {
             @SuppressWarnings("unchecked")

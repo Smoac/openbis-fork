@@ -101,6 +101,20 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			}, true);
 			toolbarModel.push({ component : $deleteBtn, tooltip: "Delete" });
 			
+			//Export
+			var $export = FormUtil.getButtonWithIcon("glyphicon-export", function() {
+				Util.blockUI();
+				var facade = mainController.serverFacade;
+				facade.exportAll([{ type: "PROJECT", permId : _this._projectFormModel.project.permId, expand : true }], false, function(error, result) {
+					if(error) {
+						Util.showError(error);
+					} else {
+						Util.showSuccess("Export is being processed, you will receibe an email when is ready, if you logout the process will stop.", function() { Util.unblockUI(); });
+					}
+				});
+			});
+			toolbarModel.push({ component : $export, tooltip: "Export" });
+			
 			//Operations
 			var $operationsMenu = FormUtil.getOperationsMenu([{ label: "Create Experiment", event: function() {
 				showSelectExperimentType();

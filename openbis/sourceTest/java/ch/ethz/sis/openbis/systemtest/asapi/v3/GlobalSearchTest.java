@@ -38,6 +38,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 
 /**
  * @author pkupczyk
@@ -491,6 +492,40 @@ public class GlobalSearchTest extends AbstractTest
         assertSampleNotFetched(object);
         assertDataSetNotFetched(object);
         assertMaterialNotFetched(object);
+    }
+
+    @Test
+    public void testSearchWithDataSetPermIdAndLocation()
+    {
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.withDataSet();
+
+        GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatContainsExactly("20110509092359990-11");
+        criteria.withText().thatContainsExactly("result-18");
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
+        assertEquals(result.getObjects().size(), 2);
+
+        GlobalSearchObject object1 = result.getObjects().get(0);
+        GlobalSearchObject object2 = result.getObjects().get(1);
+
+        assertDataSet(object1, "20110509092359990-11", object1.getMatch());
+        AssertionUtil.assertContains("Location: contained/20110509092359990-11", object1.getMatch());
+        AssertionUtil.assertContains("Perm ID: 20110509092359990-11", object1.getMatch());
+        assertEquals(object1.getDataSet().getCode(), "20110509092359990-11");
+        assertEquals(object1.getScore(), 210.0);
+        assertExperimentNotFetched(object1);
+        assertSampleNotFetched(object1);
+        assertMaterialNotFetched(object1);
+
+        assertDataSet(object2, "20081105092259000-18", object2.getMatch());
+        AssertionUtil.assertContains("Location: xml/result-18", object2.getMatch());
+        assertEquals(object2.getDataSet().getCode(), "20081105092259000-18");
+        assertEquals(object2.getScore(), 10.0);
+        assertExperimentNotFetched(object2);
+        assertSampleNotFetched(object2);
+        assertMaterialNotFetched(object2);
     }
 
     @Test
