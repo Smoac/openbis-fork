@@ -24,7 +24,8 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.jython.IJythonInterpreter;
 import ch.systemsx.cisd.common.jython.JythonScriptSplitter;
 import ch.systemsx.cisd.common.jython.JythonUtils;
-import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
+import ch.systemsx.cisd.common.jython.v25.Jython25InterpreterFactory;
+import ch.systemsx.cisd.common.jython.v27.Jython27InterpreterFactory;
 
 /**
  * A class for running python scripts that register master data.
@@ -57,7 +58,7 @@ public class MasterDataRegistrationScriptRunner implements IMasterDataScriptRegi
         MasterDataRegistrationService service = new MasterDataRegistrationService(commonServer);
 
         // Configure the evaluator
-        IJythonInterpreter interpreter = Evaluator.getInterpreterFactory().createInterpreter();
+        IJythonInterpreter interpreter = createInterpreter();
         interpreter.addToPath(jythonPath);
         interpreter.set(SERVICE_VARIABLE_NAME, service);
 
@@ -80,6 +81,17 @@ public class MasterDataRegistrationScriptRunner implements IMasterDataScriptRegi
         }
 
         service.commit();
+    }
+
+    private IJythonInterpreter createInterpreter()
+    {
+        try
+        {
+            return new Jython25InterpreterFactory().createInterpreter();
+        } catch (Exception ex)
+        {
+            return new Jython27InterpreterFactory().createInterpreter();
+        }
     }
 
     private void checkValidJythonScript(File jythonScript)
