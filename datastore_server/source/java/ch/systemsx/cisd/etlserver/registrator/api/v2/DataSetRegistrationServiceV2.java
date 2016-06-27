@@ -63,6 +63,16 @@ public class DataSetRegistrationServiceV2<T extends DataSetInformation> extends
                         public void exec(String scriptString, String scriptFile)
                         {
                         }
+
+                        @Override
+                        public void exec(String scriptString)
+                        {
+                        }
+
+                        @Override
+                        public void addToPath(String... pythonPaths)
+                        {
+                        }
                     }, null);
     }
 
