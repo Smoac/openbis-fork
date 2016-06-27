@@ -73,6 +73,12 @@ public class DataSetRegistrationServiceV2<T extends DataSetInformation> extends
                         public void addToPath(String... pythonPaths)
                         {
                         }
+
+                        @Override
+                        public boolean isNextCommand(String line)
+                        {
+                            return false;
+                        }
                     }, null);
     }
 

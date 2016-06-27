@@ -25,6 +25,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.jython.v27.Jython27InterpreterFactory;
 
 /**
  * @author pkupczyk
@@ -38,7 +39,7 @@ public class JythonScriptSplitterTest
     @Test
     public void testSplittingNullScriptShouldReturnNoBatches()
     {
-        JythonScriptSplitter splitter = new JythonScriptSplitter();
+        JythonScriptSplitter splitter = new JythonScriptSplitter(new Jython27InterpreterFactory().createInterpreter());
         List<String> batches = splitter.split(null);
         Assert.assertNotNull(batches);
         Assert.assertEquals(batches, Collections.emptyList());
@@ -47,7 +48,7 @@ public class JythonScriptSplitterTest
     @Test
     public void testSplittingEmptyScriptShouldReturnOneEmptyBatch()
     {
-        JythonScriptSplitter splitter = new JythonScriptSplitter();
+        JythonScriptSplitter splitter = new JythonScriptSplitter(new Jython27InterpreterFactory().createInterpreter());
         List<String> batches = splitter.split("");
         Assert.assertNotNull(batches);
         Assert.assertEquals(batches.size(), 1);
@@ -89,7 +90,7 @@ public class JythonScriptSplitterTest
     {
         String originalScript = getTestScriptCode(scriptSize);
 
-        JythonScriptSplitter splitter = new JythonScriptSplitter();
+        JythonScriptSplitter splitter = new JythonScriptSplitter(new Jython27InterpreterFactory().createInterpreter());
         splitter.setBatchSize(batchSize);
 
         List<String> batches = splitter.split(originalScript);

@@ -29,6 +29,7 @@ import org.python.core.Py;
 import org.python.core.PyDictionary;
 import org.python.core.PyFunction;
 import org.python.core.PyObject;
+import org.python.core.PySequenceList;
 
 import ch.systemsx.cisd.common.jython.JythonUtils;
 import ch.systemsx.cisd.common.jython.PythonInterpreter;
@@ -161,7 +162,7 @@ public class ValidationScriptRunner
             Map<String, String> javaResult = null;
             if (result instanceof PyDictionary)
             {
-                javaResult = JythonUtils.convertPyDictToMap((PyDictionary) result);
+                javaResult = convertPyDictToMap((PyDictionary) result);
             } else
             {
                 javaResult = (Map<String, String>) result;
@@ -170,6 +171,17 @@ public class ValidationScriptRunner
         }
 
         return metadata;
+    }
+    
+    private static Map<String, String> convertPyDictToMap(PyDictionary result)
+    {
+        Map<String, String> javaMap = new HashMap<String, String>();
+        for (Object item : result.items())
+        {
+            PySequenceList tuple = (PySequenceList) item;
+            javaMap.put(tuple.get(0).toString(), tuple.get(1).toString());
+        }
+        return javaMap;
     }
 
     public String getScriptString()

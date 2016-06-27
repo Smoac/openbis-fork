@@ -18,8 +18,6 @@ package ch.systemsx.cisd.common.jython;
 
 import java.util.List;
 
-import org.python.core.PyException;
-
 /**
  * Splits jython code into smaller batches to overcome 64KB script size limitation.
  * 
@@ -32,16 +30,23 @@ public class JythonScriptSplitter
 
     private int batchSize = DEFAULT_BATCH_SIZE;
 
-    public List<String> split(String scriptToSplit) throws PyException
+    private IJythonInterpreter interpreter;
+
+    public JythonScriptSplitter(IJythonInterpreter interpreter)
+    {
+        this.interpreter = interpreter;
+    }
+
+    public List<String> split(String scriptToSplit)
     {
         JythonScript script = new JythonScript(scriptToSplit);
         JythonScriptBatches batches = new JythonScriptBatches();
         JythonScriptBatch batch = new JythonScriptBatch();
-        JythonScriptCommand command = new JythonScriptCommand();
+        JythonScriptLines command = new JythonScriptLines();
 
         for (String line : script.getLines())
         {
-            if (command.getSize() > 0 && command.isNextCommand(line))
+            if (command.getSize() > 0 && interpreter.isNextCommand(command.getLines()))
             {
                 if (batch.getSize() > 0 && batch.getSize() + command.getSize() > getBatchSize())
                 {
@@ -49,7 +54,7 @@ public class JythonScriptSplitter
                     batch = new JythonScriptBatch();
                 }
                 batch.addLines(command);
-                command = new JythonScriptCommand();
+                command = new JythonScriptLines();
                 command.addLine(line);
             } else
             {

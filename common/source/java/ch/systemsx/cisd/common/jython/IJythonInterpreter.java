@@ -29,4 +29,6 @@ public interface IJythonInterpreter
     void releaseResources();
 
     IJythonFunction tryJythonFunction(String name);
+
+    boolean isNextCommand(String lines);
 }
