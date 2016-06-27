@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import ch.systemsx.cisd.openbis.dss.generic.server.ConfigParameters;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
@@ -104,6 +105,10 @@ public class OaipmhServlet extends HttpServlet
                     Enumeration<String> parameterNames = config.getInitParameterNames();
                     String handlerParameterNamePrefix = handlerParameterName + ".";
 
+                    // pass in the mandatory service plugin property "path"
+                    properties.setProperty("path", config.getInitParameter(ConfigParameters.PLUGIN_SERVICE_PATH_KEY));
+
+                    // pass in request-handler plugin properties
                     while (parameterNames.hasMoreElements())
                     {
                         String parameterName = parameterNames.nextElement();

@@ -68,7 +68,9 @@ public class JythonBasedRequestHandler implements IRequestHandler
 
     private static final String PROPERTIES_VARIABLE_NAME = "properties";
 
-    private Properties properties;
+    private static final String USER_SESSION_TOKEN = "userSessionToken";
+
+    protected Properties properties;
 
     private String scriptPath;
 
@@ -122,12 +124,20 @@ public class JythonBasedRequestHandler implements IRequestHandler
                     new HashMap<String, String>(), service.createEMailClient(), session.getUserName(), session.getUserEmail(),
                     session.getSessionToken());
             IRequestHandlerPluginScriptRunner runner = factory.createRequestHandlerPluginRunner(context);
-            runner.setVariable(PROPERTIES_VARIABLE_NAME, properties);
+
+            setVariables(runner, session);
+
             runner.handle(req, resp);
         } finally
         {
             manager.releaseLocks();
         }
+    }
+
+    protected void setVariables(IRequestHandlerPluginScriptRunner runner, SessionContextDTO session)
+    {
+        runner.setVariable(PROPERTIES_VARIABLE_NAME, properties);
+        runner.setVariable(USER_SESSION_TOKEN, session.getSessionToken());
     }
 
     protected IPluginScriptRunnerFactory getScriptRunnerFactory(String scriptPath)
