@@ -62,7 +62,7 @@ public class MasterDataRegistrationScriptRunner implements IMasterDataScriptRegi
         interpreter.set(SERVICE_VARIABLE_NAME, service);
 
         // Split the script to overcome 64KB limit (see LMS-2749)
-        List<String> batches = new JythonScriptSplitter().split(jythonScript);
+        List<String> batches = new JythonScriptSplitter(interpreter).split(jythonScript);
 
         // Invoke the evaluator
         for (String batch : batches)
