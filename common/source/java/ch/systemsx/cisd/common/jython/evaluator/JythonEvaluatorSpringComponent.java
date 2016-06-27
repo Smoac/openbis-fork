@@ -21,7 +21,9 @@ import org.springframework.beans.factory.BeanInitializationException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.jython.v25.Jython25EvaluatorFactory;
+import ch.systemsx.cisd.common.jython.v25.Jython25InterpreterFactory;
 import ch.systemsx.cisd.common.jython.v27.Jython27EvaluatorFactory;
+import ch.systemsx.cisd.common.jython.v27.Jython27InterpreterFactory;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
@@ -42,9 +44,11 @@ public class JythonEvaluatorSpringComponent
         if ("2.7".equals(jythonVersion))
         {
             Evaluator.setFactory(new Jython27EvaluatorFactory());
+            Evaluator.setInterpreterFactory(new Jython27InterpreterFactory());
         } else if ("2.5".equals(jythonVersion))
         {
             Evaluator.setFactory(new Jython25EvaluatorFactory());
+            Evaluator.setInterpreterFactory(new Jython25InterpreterFactory());
         } else
         {
             String msg =

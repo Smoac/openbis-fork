@@ -19,6 +19,10 @@ package ch.systemsx.cisd.common.jython;
 public interface IJythonInterpreter
 {
     void exec(String scriptString, String scriptFile);
+    
+    void exec(String scriptString);
+    
+    void addToPath(String... pythonPaths);
 
     void set(String variableName, Object object);
 

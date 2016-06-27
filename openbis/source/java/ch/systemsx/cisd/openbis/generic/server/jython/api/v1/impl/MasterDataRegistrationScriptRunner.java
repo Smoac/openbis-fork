@@ -21,9 +21,10 @@ import java.util.List;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.jython.IJythonInterpreter;
 import ch.systemsx.cisd.common.jython.JythonScriptSplitter;
 import ch.systemsx.cisd.common.jython.JythonUtils;
-import ch.systemsx.cisd.common.jython.PythonInterpreter;
+import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
 
 /**
  * A class for running python scripts that register master data.
@@ -56,7 +57,7 @@ public class MasterDataRegistrationScriptRunner implements IMasterDataScriptRegi
         MasterDataRegistrationService service = new MasterDataRegistrationService(commonServer);
 
         // Configure the evaluator
-        PythonInterpreter interpreter = PythonInterpreter.createIsolatedPythonInterpreter();
+        IJythonInterpreter interpreter = Evaluator.getInterpreterFactory().createInterpreter();
         interpreter.addToPath(jythonPath);
         interpreter.set(SERVICE_VARIABLE_NAME, service);
 

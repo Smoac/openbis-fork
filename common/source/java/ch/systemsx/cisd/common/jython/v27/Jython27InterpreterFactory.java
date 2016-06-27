@@ -117,9 +117,21 @@ public class Jython27InterpreterFactory implements IJythonInterpreterFactory
         }
 
         @Override
+        public void exec(String scriptString)
+        {
+            interpreter.exec(scriptString);
+        }
+        
+        @Override
         public void set(String variableName, Object object)
         {
             interpreter.set(variableName, object);
+        }
+
+        @Override
+        public void addToPath(String... pythonPaths)
+        {
+            interpreter.addToPath(pythonPaths);
         }
 
         @Override
