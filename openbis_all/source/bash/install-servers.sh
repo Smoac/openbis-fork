@@ -26,7 +26,7 @@ OPENBIS_ROOT_DIR="$1"
 
 echo "==== Fetsching openBIS installation tar ball"
 rm -rf "$OPENBIS_ROOT_DIR/"openBIS-installation*
-"$BIN_DIR/fetch-ci-artifacts.sh" -d "$OPENBIS_ROOT_DIR" gradle-installation
+"$BIN_DIR/fetch-ci-artifacts.sh" -d "$OPENBIS_ROOT_DIR" installation
 
 echo "==== Unpack installation tar ball and replace console.properties"
 TARBALL=`ls -1 $OPENBIS_ROOT_DIR/openBIS-installation*.tar.gz`
