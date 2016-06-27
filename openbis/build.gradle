@@ -31,7 +31,9 @@ dependencies {
 			'unimi:fastutil:5.1.5',
 			'apache:commons-collections:+',
 			'springframework:spring-context-support:+',
-			'ehcache:ehcache:2.10.0'
+			'ehcache:ehcache:2.10.0',
+			'jline:jline:+'
+			
 
     runtime 'slf4j:slf4j-log4j12:+'
 
