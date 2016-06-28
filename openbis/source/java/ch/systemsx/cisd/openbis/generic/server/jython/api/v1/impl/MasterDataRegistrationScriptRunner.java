@@ -88,7 +88,7 @@ public class MasterDataRegistrationScriptRunner implements IMasterDataScriptRegi
         try
         {
             return new Jython25InterpreterFactory().createInterpreter();
-        } catch (Exception ex)
+        } catch (NoClassDefFoundError ex)
         {
             return new Jython27InterpreterFactory().createInterpreter();
         }
