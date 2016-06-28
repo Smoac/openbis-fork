@@ -561,14 +561,13 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			var fSearch = function(facade) {
 				var criteria = new c.DataSetSearchCriteria();
 				var pdCriteria = criteria.withPhysicalData();
-				pdCriteria.withLocation().thatEquals("1FD3FF61-1576-4908-AE3D-296E60B4CE06/a7/e6/b4/20160628180052405-472");
-				pdCriteria.withSize().thatEquals(1);
+				pdCriteria.withLocation().thatEquals('"1FD3FF61-1576-4908-AE3D-296E60B4CE06/2e/ac/5a/20130412153118625-384"');
 				pdCriteria.withStorageFormat().withCode().thatContains("PROPRIETARY");
-				pdCriteria.withFileFormatType().withCode().thatContains("PROPRIETARY");
+				pdCriteria.withFileFormatType().withCode().thatContains("UNKNOWN");
 				pdCriteria.withLocatorType().withCode().thatContains("RELATIVE_LOCATION");
-				pdCriteria.withComplete().thatEquals("UNKNOWN");
-				pdCriteria.withStatus().thatEquals("ARCHIVED");
-				pdCriteria.withPresentInArchive().thatEquals(true);
+				pdCriteria.withComplete().thatEquals("YES");
+				pdCriteria.withStatus().thatEquals("AVAILABLE");
+				pdCriteria.withPresentInArchive().thatEquals(false);
 				pdCriteria.withStorageConfirmation().thatEquals(true);
 				pdCriteria.withSpeedHint().thatEquals(-50);
 
@@ -576,7 +575,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			}
 
 			var fCheck = function(facade, dataSets) {
-				c.assertObjectsWithValues(dataSets, "code", [ "20160628180052405-472" ]);
+				c.assertObjectsWithValues(dataSets, "code", [ "20130412153118625-384" ]);
 			}
 
 			testSearch(c, fSearch, fCheck);
