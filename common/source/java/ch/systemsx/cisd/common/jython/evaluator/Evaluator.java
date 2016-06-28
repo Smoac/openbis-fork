@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.common.jython.evaluator;
 
-import ch.systemsx.cisd.common.jython.IJythonInterpreterFactory;
-
 /**
  * @author Jakub Straszewski
  */
@@ -32,7 +30,6 @@ public class Evaluator
     }
 
     private static IJythonEvaluatorFactory factory;
-    private static IJythonInterpreterFactory interpreterFactory;
 
     static void setFactory(IJythonEvaluatorFactory factory)
     {
@@ -44,33 +41,13 @@ public class Evaluator
         if (factory == null)
         {
             // we should make sure that the initialization happens before first call to this method
-            throw createException("evaluators");
+            throw new IllegalStateException(
+                    "Jython evaluator component not initialized. Application context is not initialized properly "
+                    + "- JythonEvaluatorSpringComponent must be initialized before jython evaluators are used.");
         }
         return factory;
     }
 
-    static void setInterpreterFactory(IJythonInterpreterFactory interpreterFactory)
-    {
-        Evaluator.interpreterFactory = interpreterFactory;
-    }
-
-    public static IJythonInterpreterFactory getInterpreterFactory()
-    {
-        if (interpreterFactory == null)
-        {
-            // we should make sure that the initialization happens before first call to this method
-            throw createException("interpreters");
-        }
-        return interpreterFactory;
-    }
-
-    private static IllegalStateException createException(String type)
-    {
-        return new IllegalStateException(
-                "Jython evaluator component not initialized. Application context is not initialized properly "
-                        + "- JythonEvaluatorSpringComponent must be initialized before jython " + type + " are used.");
-    }
-    
     public static boolean isMultiline(String expression)
     {
         return expression.indexOf('\n') >= 0;
