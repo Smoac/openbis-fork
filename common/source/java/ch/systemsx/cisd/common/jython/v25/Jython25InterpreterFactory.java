@@ -153,7 +153,7 @@ public class Jython25InterpreterFactory implements IJythonInterpreterFactory
             try
             {
                 PyFunction function = interpreter.get(name, PyFunction.class);
-                return new Jython25Function(function);
+                return function == null ? null : new Jython25Function(function);
             } catch (Exception e)
             {
                 return null;
