@@ -561,13 +561,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			var fSearch = function(facade) {
 				var criteria = new c.DataSetSearchCriteria();
 				var pdCriteria = criteria.withPhysicalData();
-				pdCriteria.withShareId().thatEquals("2");
-				pdCriteria.withLocation().thatEquals("1FD3FF61-1576-4908-AE3D-296E60B4CE06/2f/7a/b9/20130415100308111-409");
-				pdCriteria.withSize().thatEquals(1);
-				pdCriteria.withStorageFormat().withCode().thatContains("");
-				pdCriteria.withFileFormatType().withCode().thatContains("PROPRIETARY");
+				pdCriteria.withLocation().thatEquals('"1FD3FF61-1576-4908-AE3D-296E60B4CE06/2e/ac/5a/20130412153118625-384"');
+				pdCriteria.withStorageFormat().withCode().thatContains("PROPRIETARY");
+				pdCriteria.withFileFormatType().withCode().thatContains("UNKNOWN");
 				pdCriteria.withLocatorType().withCode().thatContains("RELATIVE_LOCATION");
-				pdCriteria.withComplete().thatEquals("UNKNOWN");
+				pdCriteria.withComplete().thatEquals("YES");
 				pdCriteria.withStatus().thatEquals("AVAILABLE");
 				pdCriteria.withPresentInArchive().thatEquals(false);
 				pdCriteria.withStorageConfirmation().thatEquals(true);
@@ -577,12 +575,12 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			}
 
 			var fCheck = function(facade, dataSets) {
-				c.assertObjectsWithValues(dataSets, "code", [ "20130415100308111-409" ]);
+				c.assertObjectsWithValues(dataSets, "code", [ "20130412153118625-384" ]);
 			}
 
 			testSearch(c, fSearch, fCheck);
 		});
-		
+
 		QUnit.test("searchDataSets() withLinkedData", function(assert) {
 			var c = new common(assert);
 
@@ -601,7 +599,6 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 
 			testSearch(c, fSearch, fCheck);
 		});
-
 
 		QUnit.test("searchDataSetTypes()", function(assert) {
 			var c = new common(assert);
