@@ -156,7 +156,10 @@ unzip -q lib/hdf5-windows-*.jar -d $LIB_FOLDER native/*
 
 # Build classpath from $LIB_FOLDER and $EXT_LIB_FOLDER content. 
 # datastore_server.jar and common.jar have to appear before cifex.jar
-CP=`echo $LIB_FOLDER/slf4j-log4j12-1.6.2.jar $LIB_FOLDER/datastore_server.jar $LIB_FOLDER/common.jar $LIB_FOLDER/dbmigration*.jar $LIB_FOLDER/*.jar $EXT_LIB_FOLDER/*.jar | sed 's/ /:/g'`
+CP=`echo $LIB_FOLDER/slf4j-log4j12-1.6.2.jar $LIB_FOLDER/datastore_server.jar $LIB_FOLDER/common.jar \
+    $LIB_FOLDER/dbmigration*.jar $LIB_FOLDER/*.jar $EXT_LIB_FOLDER/*.jar \
+    | sed 's/\(.*\) [^ ]*jython27[^ ]* \(.*\)/\1 \2/g' \
+    | sed 's/ /:/g'`
 
 CMD="${JAVA_BIN} ${JAVA_OPTS} ${JAVA_MEM_OPTS} -Dnative.libpath=$LIB_FOLDER/native -classpath $CP ch.systemsx.cisd.openbis.dss.generic.DataStoreServer"
 

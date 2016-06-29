@@ -41,10 +41,10 @@ public class JythonEvaluatorSpringComponent
         String jythonVersion = propertyConfigurer.getResolvedProps().getProperty("jython-version");
         if ("2.7".equals(jythonVersion))
         {
-            Evaluator.setFactory(new Jython27EvaluatorFactory());
+            Evaluator.setFactory(createJython27EvaluatorFactory());
         } else if ("2.5".equals(jythonVersion))
         {
-            Evaluator.setFactory(new Jython25EvaluatorFactory());
+            Evaluator.setFactory(createJython25EvaluatorFactory());
         } else
         {
             String msg =
@@ -55,5 +55,15 @@ public class JythonEvaluatorSpringComponent
             operationLog.error(msg);
             throw new BeanInitializationException(msg);
         }
+    }
+
+    protected IJythonEvaluatorFactory createJython25EvaluatorFactory()
+    {
+        return new Jython25EvaluatorFactory();
+    }
+
+    protected IJythonEvaluatorFactory createJython27EvaluatorFactory()
+    {
+        return new Jython27EvaluatorFactory();
     }
 }

@@ -284,7 +284,8 @@
     -->
     <bean id="cifs-server" class="ch.systemsx.cisd.openbis.dss.generic.server.cifs.CifsServer" destroy-method="stop"/>
         
-    <bean id="jython-evaluator" class="ch.systemsx.cisd.common.jython.evaluator.JythonEvaluatorSpringComponent" >
+        
+    <bean id="jython-evaluator" class="ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServerJythonEvaluatorSpringComponent" >
       <constructor-arg ref="propertyConfigurer" /> 
     </bean>
 </beans>
