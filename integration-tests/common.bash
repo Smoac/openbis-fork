@@ -20,7 +20,7 @@ OPENBIS_SERVER=$WORK/openBIS-server
 CI_HOST=stage-jenkins.ethz.ch
 CI_HOME=/localhome/ci
 SSH_CRUISE_CONTROL_NAME=ci@$CI_HOST
-HUDSON_ARTIFACTS=hudson/jobs
+HUDSON_ARTIFACTS=jenkins/home/jobs
 CI_HOST_IP=`host $CI_HOST|grep address|awk '{print $4}'`
 MY_HOST=`hostname`
 MY_HOST_IP=`host $MY_HOST|grep address|awk '{print $4}'`
@@ -352,7 +352,10 @@ function fetch_latest_artifacts_from_cruise_control {
     local proj_name=$1
     local dest_dir=$2
     
-    local last_build="$HUDSON_ARTIFACTS/$proj_name/lastSuccessful/archive/_main/targets/dist"
+    local last_build="$HUDSON_ARTIFACTS/$proj_name/builds/lastSuccessfulBuild/archive/_main/targets/dist"
+    if [ $proj_name == "datamover" ]; then
+        last_build="$HUDSON_ARTIFACTS/datamover-16.05/builds/lastSuccessfulBuild/archive/datamover/targets/gradle/distributions"
+    fi
     if [ -n "$MY_HOST_IP" -a "$MY_HOST_IP" == "$CI_HOST_IP" ]; then
         local last=`ls $CI_HOME/$last_build/*.zip`
         echo "Fetching artifacts locally from project '$proj_name':$last" 
