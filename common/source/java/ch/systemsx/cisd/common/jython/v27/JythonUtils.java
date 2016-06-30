@@ -18,12 +18,15 @@ package ch.systemsx.cisd.common.jython.v27;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import org.python27.core.Py;
 import org.python27.core.PyDictionary;
 import org.python27.core.PyFunction;
 import org.python27.core.PyObject;
 import org.python27.core.PySequenceList;
+
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
 /**
  * Jython utility methods.
@@ -76,7 +79,39 @@ class JythonUtils
         {
             pyArgs[i] = Py.java2py(args[i]);
         }
-        return function.__call__(pyArgs);
+        return invokeFunction(function, pyArgs);
+    }
+
+    static PyObject invokeFunction(final PyFunction function, final PyObject[] pyArgs)
+    {
+        return executeWithContextClassLoader(function, new Callable<PyObject>()
+            {
+                @Override
+                public PyObject call() throws Exception
+                {
+                    return function.__call__(pyArgs);
+                }
+            });
+    }
+    
+    static final <V> V executeWithContextClassLoader(Object object, Callable<V> action)
+    {
+        Thread thread = Thread.currentThread();
+        ClassLoader originalContextClassLoader = thread.getContextClassLoader();
+        try
+        {
+            thread.setContextClassLoader(object.getClass().getClassLoader());
+            try
+            {
+                return action.call();
+            } catch (Exception ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+        } finally
+        {
+            thread.setContextClassLoader(originalContextClassLoader);
+        }
     }
 
 }
