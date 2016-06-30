@@ -311,9 +311,18 @@ $.extend(Grid.prototype, {
 	
 	exportTSV : function(isAllRowsOrVisible, isAllColumnsOrVisible, plainText) {
 		var _this = this;
-		if(plainText) {
-			Util.showWarning("<b>DO NOT USE THIS FILE FOR BATCH UPDATE!</b><br>This file does not contain rich text format. If used for Batch Update, all rich text format in the updated entries will be lost!", function() {
+		var disablePlanTextExportWarning = this.tableSettings.disablePlanTextExportWarning;
+		if(plainText  && !disablePlanTextExportWarning) {
+			var dontShowAnymore = "<input type='checkbox' id='disablePlanTextExportWarning'> Don't show this warning again.";
+			
+			Util.showWarning("<b>DO NOT USE THIS FILE FOR BATCH UPDATE!</b><br>This file does not contain rich text format. If used for Batch Update, all rich text format in the updated entries will be lost!<br><br>" + dontShowAnymore, function() {
 				_this.exportTSVB(isAllRowsOrVisible, isAllColumnsOrVisible, plainText);
+				
+				var isSelected = $("#disablePlanTextExportWarning").val() === "on";
+				if(_this.onChangeState) {
+					_this.tableSettings.disablePlanTextExportWarning = isSelected;
+					_this.onChangeState(_this.tableSettings);
+				}
 			});
 		} else {
 			_this.exportTSVB(isAllRowsOrVisible, isAllColumnsOrVisible, plainText);
