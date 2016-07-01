@@ -102,7 +102,8 @@ function SideMenuWidgetController(mainController) {
             children: []
         };
         var projectIdentifier = "/" + spaceCode + "/" + projectCode;
-        var menuItemProject = new SideMenuWidgetComponent(true, false, projectCode, projectIdentifier, menuItemSpace, newMenuIfSelectedProject, "showProjectPageFromIdentifier", projectIdentifier, "(Project)");
+        var projectDisplayName = Util.getDisplayNameFromCode(projectCode);
+        var menuItemProject = new SideMenuWidgetComponent(true, false, projectDisplayName, projectIdentifier, menuItemSpace, newMenuIfSelectedProject, "showProjectPageFromIdentifier", projectIdentifier, "(Project)");
         menuItemSpace.newMenuIfSelected.children.push(menuItemProject);
         menuItemSpace.newMenuIfSelected.children.sort(naturalSortSideMenuWidgetComponent);
         this._sideMenuWidgetView.repaint();
