@@ -38,10 +38,9 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		//
 		var title = null;
 		var entityPath = null;
-		
+		var isInventoryProject = this._projectFormModel.project && profile.isInventorySpace(this._projectFormModel.project.spaceCode);
 		var typeTitle = "Project: ";
-//		if(this._projectFormModel.project &&
-//		   profile.isInventorySpace(this._projectFormModel.project.spaceCode)) {
+//		if(isInventoryProject) {
 //			typeTitle = "";
 //		}
 		
@@ -150,7 +149,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		}
 		
 		// Experiment And Samples Table
-		if(this._projectFormModel.mode !== FormMode.CREATE) {
+		if(this._projectFormModel.mode !== FormMode.CREATE && !isInventoryProject) {
 			var $experimentsContainer = $("<div>");
 			$formColumn.append($experimentsContainer);
 			
