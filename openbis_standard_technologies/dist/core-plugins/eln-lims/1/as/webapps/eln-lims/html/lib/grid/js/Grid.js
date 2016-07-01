@@ -316,13 +316,12 @@ $.extend(Grid.prototype, {
 			var dontShowAnymore = "<input type='checkbox' id='disablePlanTextExportWarning'> Don't show this warning again.";
 			
 			Util.showWarning("<b>DO NOT USE THIS FILE FOR BATCH UPDATE!</b><br>This file does not contain rich text format. If used for Batch Update, all rich text format in the updated entries will be lost!<br><br>" + dontShowAnymore, function() {
-				_this.exportTSVB(isAllRowsOrVisible, isAllColumnsOrVisible, plainText);
-				
-				var isSelected = $("#disablePlanTextExportWarning").val() === "on";
+				var isSelected = $("#disablePlanTextExportWarning")[0].checked;
 				if(_this.onChangeState) {
 					_this.tableSettings.disablePlanTextExportWarning = isSelected;
 					_this.onChangeState(_this.tableSettings);
 				}
+				_this.exportTSVB(isAllRowsOrVisible, isAllColumnsOrVisible, plainText);
 			});
 		} else {
 			_this.exportTSVB(isAllRowsOrVisible, isAllColumnsOrVisible, plainText);
