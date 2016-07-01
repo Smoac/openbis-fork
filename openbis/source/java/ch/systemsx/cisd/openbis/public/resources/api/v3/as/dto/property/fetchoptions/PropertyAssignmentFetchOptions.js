@@ -1,24 +1,38 @@
-define([ "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/vocabulary/fetchoptions/VocabularyFetchOptions", 
-         "as/dto/property/fetchoptions/PropertyAssignmentSortOptions" ], function(stjs, FetchOptions) {
+define([ "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/property/fetchoptions/PropertyTypeFetchOptions", "as/dto/person/fetchoptions/PersonFetchOptions",
+		"as/dto/property/fetchoptions/PropertyAssignmentSortOptions" ], function(stjs, FetchOptions) {
 	var PropertyAssignmentFetchOptions = function() {
 	};
 	stjs.extend(PropertyAssignmentFetchOptions, FetchOptions, [ FetchOptions ], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.property.fetchoptions.PropertyAssignmentFetchOptions';
 		constructor.serialVersionUID = 1;
-		prototype.vocabulary = null;
+		prototype.propertyType = null;
+		prototype.registrator = null;
 		prototype.sort = null;
-		prototype.withVocabulary = function() {
-			if (this.vocabulary == null) {
-				var VocabularyFetchOptions = require("as/dto/vocabulary/fetchoptions/VocabularyFetchOptions");
-				this.vocabulary = new VocabularyFetchOptions();
+		prototype.withPropertyType = function() {
+			if (this.propertyType == null) {
+				var PropertyTypeFetchOptions = require("as/dto/property/fetchoptions/PropertyTypeFetchOptions");
+				this.propertyType = new PropertyTypeFetchOptions();
 			}
-			return this.vocabulary;
+			return this.propertyType;
 		};
-		prototype.withVocabularyUsing = function(fetchOptions) {
-			return this.vocabulary = fetchOptions;
+		prototype.withPropertyTypeUsing = function(fetchOptions) {
+			return this.propertyType = fetchOptions;
 		};
-		prototype.hasVocabulary = function() {
-			return this.vocabulary != null;
+		prototype.hasPropertyType = function() {
+			return this.propertyType != null;
+		};
+		prototype.withRegistrator = function() {
+			if (this.registrator == null) {
+				var PersonFetchOptions = require("as/dto/person/fetchoptions/PersonFetchOptions");
+				this.registrator = new PersonFetchOptions();
+			}
+			return this.registrator;
+		};
+		prototype.withRegistratorUsing = function(fetchOptions) {
+			return this.registrator = fetchOptions;
+		};
+		prototype.hasRegistrator = function() {
+			return this.registrator != null;
 		};
 		prototype.sortBy = function() {
 			if (this.sort == null) {
@@ -31,6 +45,8 @@ define([ "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/vocabulary/f
 			return this.sort;
 		};
 	}, {
+		propertyType : "PropertyType",
+		registrator : "Person",
 		sort : "PropertyAssignmentSortOptions"
 	});
 	return PropertyAssignmentFetchOptions;

@@ -752,9 +752,9 @@ public class AbstractTest extends SystemTestCase
         {
             for (PropertyAssignment propertyAssignment : propertyAssignments)
             {
-                if (propertyAssignment.getVocabulary() != null)
+                if (propertyAssignment.getPropertyType().getVocabulary() != null)
                 {
-                    codes.add(propertyAssignment.getVocabulary().getCode());
+                    codes.add(propertyAssignment.getPropertyType().getVocabulary().getCode());
                 }
             }
         }

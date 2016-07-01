@@ -17,9 +17,10 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
@@ -27,40 +28,65 @@ import java.io.Serializable;
 /*
  * Class automatically generated with DtoGenerator
  */
-@JsonObject("as.dto.property.fetchoptions.PropertyAssignmentFetchOptions")
-public class PropertyAssignmentFetchOptions extends FetchOptions<PropertyAssignment> implements Serializable
+@JsonObject("as.dto.property.fetchoptions.PropertyTypeFetchOptions")
+public class PropertyTypeFetchOptions extends FetchOptions<PropertyType> implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
-    private PropertyTypeFetchOptions propertyType;
+    private VocabularyFetchOptions vocabulary;
+
+    @JsonProperty
+    private MaterialTypeFetchOptions materialType;
 
     @JsonProperty
     private PersonFetchOptions registrator;
 
     @JsonProperty
-    private PropertyAssignmentSortOptions sort;
+    private PropertyTypeSortOptions sort;
 
     // Method automatically generated with DtoGenerator
-    public PropertyTypeFetchOptions withPropertyType()
+    public VocabularyFetchOptions withVocabulary()
     {
-        if (propertyType == null)
+        if (vocabulary == null)
         {
-            propertyType = new PropertyTypeFetchOptions();
+            vocabulary = new VocabularyFetchOptions();
         }
-        return propertyType;
+        return vocabulary;
     }
 
     // Method automatically generated with DtoGenerator
-    public PropertyTypeFetchOptions withPropertyTypeUsing(PropertyTypeFetchOptions fetchOptions)
+    public VocabularyFetchOptions withVocabularyUsing(VocabularyFetchOptions fetchOptions)
     {
-        return propertyType = fetchOptions;
+        return vocabulary = fetchOptions;
     }
 
     // Method automatically generated with DtoGenerator
-    public boolean hasPropertyType()
+    public boolean hasVocabulary()
     {
-        return propertyType != null;
+        return vocabulary != null;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public MaterialTypeFetchOptions withMaterialType()
+    {
+        if (materialType == null)
+        {
+            materialType = new MaterialTypeFetchOptions();
+        }
+        return materialType;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public MaterialTypeFetchOptions withMaterialTypeUsing(MaterialTypeFetchOptions fetchOptions)
+    {
+        return materialType = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public boolean hasMaterialType()
+    {
+        return materialType != null;
     }
 
     // Method automatically generated with DtoGenerator
@@ -87,26 +113,27 @@ public class PropertyAssignmentFetchOptions extends FetchOptions<PropertyAssignm
 
     // Method automatically generated with DtoGenerator
     @Override
-    public PropertyAssignmentSortOptions sortBy()
+    public PropertyTypeSortOptions sortBy()
     {
         if (sort == null)
         {
-            sort = new PropertyAssignmentSortOptions();
+            sort = new PropertyTypeSortOptions();
         }
         return sort;
     }
 
     // Method automatically generated with DtoGenerator
     @Override
-    public PropertyAssignmentSortOptions getSortBy()
+    public PropertyTypeSortOptions getSortBy()
     {
         return sort;
     }
     @Override
     protected FetchOptionsToStringBuilder getFetchOptionsStringBuilder()
     {
-        FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("PropertyAssignment", this);
-        f.addFetchOption("PropertyType", propertyType);
+        FetchOptionsToStringBuilder f = new FetchOptionsToStringBuilder("PropertyType", this);
+        f.addFetchOption("Vocabulary", vocabulary);
+        f.addFetchOption("MaterialType", materialType);
         f.addFetchOption("Registrator", registrator);
         return f;
     }

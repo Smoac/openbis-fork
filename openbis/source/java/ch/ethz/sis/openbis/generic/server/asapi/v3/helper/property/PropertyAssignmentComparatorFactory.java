@@ -23,6 +23,7 @@ import java.util.Map;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentSortOptions;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.AbstractComparator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.AbstractStringComparator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.ComparatorFactory;
 
@@ -31,10 +32,18 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.ComparatorFactory
  */
 public class PropertyAssignmentComparatorFactory extends ComparatorFactory
 {
-    private static final Map<String, Comparator<PropertyAssignment>> COMPARATORS_BY_FIELD = new HashMap<>();
+    private static final Map<String, Comparator<?>> COMPARATORS_BY_FIELD = new HashMap<>();
 
     static
     {
+        COMPARATORS_BY_FIELD.put(PropertyAssignmentSortOptions.ORDINAL, new AbstractComparator<PropertyAssignment, Integer>()
+            {
+                @Override
+                protected Integer getValue(PropertyAssignment propertyAssignment)
+                {
+                    return propertyAssignment.getOrdinal();
+                }
+            });
         COMPARATORS_BY_FIELD.put(PropertyAssignmentSortOptions.CODE, new AbstractPropertyAssignmentComparator()
             {
                 @Override
@@ -60,15 +69,15 @@ public class PropertyAssignmentComparatorFactory extends ComparatorFactory
     }
 
     @Override
-    public Comparator<PropertyAssignment> getComparator(String field)
+    public Comparator<?> getComparator(String field)
     {
         return COMPARATORS_BY_FIELD.get(field);
     }
 
     @Override
-    public Comparator<PropertyAssignment> getDefaultComparator()
+    public Comparator<?> getDefaultComparator()
     {
-        return COMPARATORS_BY_FIELD.get(PropertyAssignmentSortOptions.CODE);
+        return getComparator(PropertyAssignmentSortOptions.ORDINAL);
     }
 
     private abstract static class AbstractPropertyAssignmentComparator extends AbstractStringComparator<PropertyAssignment>

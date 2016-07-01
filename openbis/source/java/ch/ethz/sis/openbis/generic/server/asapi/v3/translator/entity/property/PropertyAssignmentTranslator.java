@@ -21,113 +21,131 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataTypeCode;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.ObjectToManyRelationTranslator;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.vocabulary.IVocabularyTranslator;
-
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import net.lemnik.eodsql.QueryTool;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.person.IPersonTranslator;
 
 /**
  * @author Franz-Josef Elmer
  */
 public abstract class PropertyAssignmentTranslator extends ObjectToManyRelationTranslator<PropertyAssignment, PropertyAssignmentFetchOptions>
 {
-    @Autowired
-    private IVocabularyTranslator vocabularyTranslator;
 
-    protected Map<Long, PropertyAssignment> getAssignments(TranslationContext context, 
-            Collection<PropertyAssignmentRecord> assignmentRecords, 
+    @Autowired
+    private IPropertyTypeTranslator propertyTypeTranslator;
+
+    @Autowired
+    private IPersonTranslator personTranslator;
+
+    protected Map<Long, PropertyAssignment> getAssignments(TranslationContext context,
+            Collection<PropertyAssignmentRecord> assignmentRecords,
             PropertyAssignmentFetchOptions assignmentFetchOptions)
     {
         Map<Long, PropertyAssignment> assignments = new HashMap<>();
-        Map<Long, List<PropertyAssignment>> assignmentsByPropertyTypeId = new HashMap<>();
+
         for (PropertyAssignmentRecord assignmentRecord : assignmentRecords)
         {
             PropertyAssignment assignment = new PropertyAssignment();
+            assignment.setSection(assignmentRecord.section);
+            assignment.setOrdinal(assignmentRecord.ordinal);
             assignment.setMandatory(assignmentRecord.is_mandatory);
+            assignment.setShowInEditView(assignmentRecord.is_shown_edit);
+            assignment.setShowRawValueInForms(assignmentRecord.show_raw_value);
+            assignment.setRegistrationDate(assignmentRecord.registration_timestamp);
+            assignment.setFetchOptions(assignmentFetchOptions);
             assignments.put(assignmentRecord.id, assignment);
-            List<PropertyAssignment> list = assignmentsByPropertyTypeId.get(assignmentRecord.prty_id);
-            if (list == null)
-            {
-                list = new ArrayList<>();
-                assignmentsByPropertyTypeId.put(assignmentRecord.prty_id, list);
-            }
-            list.add(assignment);
         }
-        VocabularyFetchOptions vocabularyFetchOptions = getVocabularyFetchOptions(assignmentFetchOptions);
-        Map<Long, PropertyType> propertyTypesByVocabularyId = injectPropertyTypes(assignmentsByPropertyTypeId, vocabularyFetchOptions);
-        injectVocabularies(context, vocabularyFetchOptions, propertyTypesByVocabularyId);
-        return assignments;
-    }
 
-    private void injectVocabularies(TranslationContext context, VocabularyFetchOptions vocabularyFetchOptions,
-            Map<Long, PropertyType> propertyTypesByVocabularyId)
-    {
-        if (vocabularyFetchOptions != null)
+        if (assignmentFetchOptions.getSortBy() != null && (assignmentFetchOptions.getSortBy().getCode() != null
+                || assignmentFetchOptions.getSortBy().getLabel() != null))
         {
-            Set<Long> ids = propertyTypesByVocabularyId.keySet();
-            Map<Long, Vocabulary> map = vocabularyTranslator.translate(context, ids, vocabularyFetchOptions);
-            Set<Entry<Long, Vocabulary>> entrySet = map.entrySet();
-            for (Entry<Long, Vocabulary> entry : entrySet)
+            assignmentFetchOptions.withPropertyType();
+        }
+
+        if (assignmentFetchOptions.hasPropertyType())
+        {
+            Map<Long, List<PropertyAssignment>> assignmentsByPropertyTypeId = getAssignmentsByPropertyTypeId(assignments, assignmentRecords);
+            Map<Long, PropertyType> propertyTypeMap =
+                    propertyTypeTranslator.translate(context, assignmentsByPropertyTypeId.keySet(), assignmentFetchOptions.withPropertyType());
+
+            for (Map.Entry<Long, List<PropertyAssignment>> entry : assignmentsByPropertyTypeId.entrySet())
             {
-                Long vocabularyId = entry.getKey();
-                Vocabulary vocabulary = entry.getValue();
-                PropertyType propertyType = propertyTypesByVocabularyId.get(vocabularyId);
-                if (propertyType != null)
+                PropertyType propertyType = propertyTypeMap.get(entry.getKey());
+                for (PropertyAssignment assignment : entry.getValue())
                 {
-                    propertyType.setVocabulary(vocabulary);
+                    assignment.setPropertyType(propertyType);
                 }
             }
         }
-    }
 
-    private Map<Long, PropertyType> injectPropertyTypes(Map<Long, List<PropertyAssignment>> assignmentsByPropertyTypeId,
-            VocabularyFetchOptions vocabularyFetchOptions)
-    {
-        PropertyTypeQuery query = QueryTool.getManagedQuery(PropertyTypeQuery.class);
-        List<PropertyTypeRecord> propertyTypeRecords = query.getPropertyTypes(new LongOpenHashSet(assignmentsByPropertyTypeId.keySet()));
-        Map<Long, PropertyType> propertyTypesByVocabularyId = new HashMap<>();
-        for (PropertyTypeRecord propertyTypeRecord : propertyTypeRecords)
+        if (assignmentFetchOptions.hasRegistrator())
         {
-            Long propertyTypeId = propertyTypeRecord.id;
-            PropertyType propertyType = new PropertyType();
-            propertyType.setCode(propertyTypeRecord.code);
-            propertyType.setLabel(propertyTypeRecord.label);
-            propertyType.setDescription(propertyTypeRecord.description);
-            propertyType.setDataTypeCode(DataTypeCode.valueOf(propertyTypeRecord.dataSetTypeCode));
-            propertyType.setInternalNameSpace(propertyTypeRecord.is_internal_namespace);
-            propertyType.setVocabularyFetchOptions(vocabularyFetchOptions);
-            if (propertyTypeRecord.covo_id != null)
+            Map<Long, List<PropertyAssignment>> assignmentsByRegistatorId = getAssignmentsByRegistratorId(assignments, assignmentRecords);
+            Map<Long, Person> registratorMap =
+                    personTranslator.translate(context, assignmentsByRegistatorId.keySet(), assignmentFetchOptions.withRegistrator());
+
+            for (Map.Entry<Long, List<PropertyAssignment>> entry : assignmentsByRegistatorId.entrySet())
             {
-                propertyTypesByVocabularyId.put(propertyTypeRecord.covo_id, propertyType);
-            }
-            for (PropertyAssignment assignment : assignmentsByPropertyTypeId.get(propertyTypeId))
-            {
-                assignment.setPropertyType(propertyType);
+                Person registrator = registratorMap.get(entry.getKey());
+                for (PropertyAssignment assignment : entry.getValue())
+                {
+                    assignment.setRegistrator(registrator);
+                }
             }
         }
-        return propertyTypesByVocabularyId;
+
+        return assignments;
     }
 
-    private VocabularyFetchOptions getVocabularyFetchOptions(PropertyAssignmentFetchOptions assignmentFetchOptions)
+    private Map<Long, List<PropertyAssignment>> getAssignmentsByPropertyTypeId(Map<Long, PropertyAssignment> assignments,
+            Collection<PropertyAssignmentRecord> assignmentRecords)
     {
-        if (assignmentFetchOptions.hasVocabulary())
+        Map<Long, List<PropertyAssignment>> map = new HashMap<Long, List<PropertyAssignment>>();
+
+        for (PropertyAssignmentRecord assignmentRecord : assignmentRecords)
         {
-            return assignmentFetchOptions.withVocabulary();
+            PropertyAssignment assignment = assignments.get(assignmentRecord.id);
+            List<PropertyAssignment> list = map.get(assignmentRecord.prty_id);
+
+            if (list == null)
+            {
+                list = new ArrayList<PropertyAssignment>();
+                map.put(assignmentRecord.prty_id, list);
+            }
+
+            list.add(assignment);
         }
-        return null;
+
+        return map;
+    }
+
+    private Map<Long, List<PropertyAssignment>> getAssignmentsByRegistratorId(Map<Long, PropertyAssignment> assignments,
+            Collection<PropertyAssignmentRecord> assignmentRecords)
+    {
+        Map<Long, List<PropertyAssignment>> map = new HashMap<Long, List<PropertyAssignment>>();
+
+        for (PropertyAssignmentRecord assignmentRecord : assignmentRecords)
+        {
+            PropertyAssignment assignment = assignments.get(assignmentRecord.id);
+            List<PropertyAssignment> list = map.get(assignmentRecord.pers_id_registerer);
+
+            if (list == null)
+            {
+                list = new ArrayList<PropertyAssignment>();
+                map.put(assignmentRecord.pers_id_registerer, list);
+            }
+
+            list.add(assignment);
+        }
+
+        return map;
     }
 
     @Override
@@ -135,4 +153,5 @@ public abstract class PropertyAssignmentTranslator extends ObjectToManyRelationT
     {
         return new ArrayList<>();
     }
+
 }

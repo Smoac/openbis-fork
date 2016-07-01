@@ -16,7 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.material;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -27,7 +26,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.SortAndPage;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationResults;
@@ -83,9 +81,7 @@ public class MaterialTypeTranslator extends AbstractCachingTranslator<Long, Mate
 
         if (fetchOptions.hasPropertyAssignments())
         {
-            Collection<PropertyAssignment> assignments = relations.get(IMaterialPropertyAssignmentTranslator.class, typeId);
-            List<PropertyAssignment> propertyAssignments = new ArrayList<>(assignments);
-            result.setPropertyAssignments(new SortAndPage().sortAndPage(propertyAssignments, fetchOptions.withPropertyAssignments()));
+            result.setPropertyAssignments((List<PropertyAssignment>) relations.get(IMaterialPropertyAssignmentTranslator.class, typeId));
         }
     }
 

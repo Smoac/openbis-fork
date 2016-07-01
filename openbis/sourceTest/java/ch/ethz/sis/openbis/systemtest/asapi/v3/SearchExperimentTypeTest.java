@@ -42,7 +42,7 @@ public class SearchExperimentTypeTest extends AbstractTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentTypeSearchCriteria searchCriteria = new ExperimentTypeSearchCriteria();
         ExperimentTypeFetchOptions fetchOptions = new ExperimentTypeFetchOptions();
-        fetchOptions.withPropertyAssignments().withVocabulary();
+        fetchOptions.withPropertyAssignments().withPropertyType().withVocabulary();
         SearchResult<ExperimentType> searchResult = v3api.searchExperimentTypes(sessionToken, searchCriteria, fetchOptions);
 
         List<ExperimentType> types = searchResult.getObjects();
@@ -50,7 +50,7 @@ public class SearchExperimentTypeTest extends AbstractTest
         Collections.sort(codes);
         assertEquals(codes.toString(), "[COMPOUND_HCS, DELETION_TEST, SIRNA_HCS]");
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
-        
+
         List<String> vocabularyCodes = new ArrayList<String>();
         for (ExperimentType type : types)
         {

@@ -28,7 +28,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataTypeCode;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
@@ -65,10 +65,10 @@ public class SearchDataSetTypeTest extends AbstractTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         DataSetTypeSearchCriteria searchCriteria = new DataSetTypeSearchCriteria();
         DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
-        fetchOptions.withPropertyAssignments();
-        
+        fetchOptions.withPropertyAssignments().sortBy().code();
+
         SearchResult<DataSetType> searchResult = v3api.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
-        
+
         List<DataSetType> types = searchResult.getObjects();
         List<String> codes = extractCodes(types);
         Collections.sort(codes);
@@ -84,7 +84,7 @@ public class SearchDataSetTypeTest extends AbstractTest
                 + "VALIDATED_CONTAINER_TYPE:, VALIDATED_IMPOSSIBLE_TO_UPDATE_TYPE:, VALIDATED_NORMAL_TYPE:]");
         v3api.logout(sessionToken);
     }
-    
+
     @Test
     public void testSearchAllWithVocabularies()
     {
@@ -93,10 +93,10 @@ public class SearchDataSetTypeTest extends AbstractTest
         DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
         PropertyAssignmentFetchOptions assignmentFetchOptions = fetchOptions.withPropertyAssignments();
         assignmentFetchOptions.sortBy().label().desc();
-        assignmentFetchOptions.withVocabulary();
-        
+        assignmentFetchOptions.withPropertyType().withVocabulary();
+
         SearchResult<DataSetType> searchResult = v3api.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
-        
+
         List<DataSetType> types = searchResult.getObjects();
         List<String> codes = extractCodes(types);
         Collections.sort(codes);
@@ -119,7 +119,7 @@ public class SearchDataSetTypeTest extends AbstractTest
         assertEquals(vocabularyCodes.toString(), "[GENDER, ORGANISM, ORGANISM]");
         v3api.logout(sessionToken);
     }
-    
+
     protected List<String> getDataSetTypePropertyTypeInfo(List<DataSetType> types)
     {
         List<String> infos = new ArrayList<>();
@@ -130,15 +130,15 @@ public class SearchDataSetTypeTest extends AbstractTest
             for (PropertyAssignment assignment : assignments)
             {
                 PropertyType propertyType = assignment.getPropertyType();
-                info += " " + propertyType.getCode() + "[" + propertyType.getDataTypeCode();
-                if (propertyType.getVocabularyFetchOptions() != null)
+                info += " " + propertyType.getCode() + "[" + propertyType.getDataType();
+                if (propertyType.getFetchOptions().hasVocabulary())
                 {
                     Vocabulary vocabulary = propertyType.getVocabulary();
                     if (vocabulary != null)
                     {
                         info += ":" + vocabulary.getCode();
                     }
-                } else if (propertyType.getDataTypeCode() == DataTypeCode.CONTROLLEDVOCABULARY)
+                } else if (propertyType.getDataType() == DataType.CONTROLLEDVOCABULARY)
                 {
                     info += ":?";
                 }
@@ -149,7 +149,7 @@ public class SearchDataSetTypeTest extends AbstractTest
         Collections.sort(infos);
         return infos;
     }
-    
+
     @Test
     public void testSearchExactCode()
     {

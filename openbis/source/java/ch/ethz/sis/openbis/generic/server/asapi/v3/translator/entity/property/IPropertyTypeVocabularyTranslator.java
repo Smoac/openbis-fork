@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ETH Zuerich, SIS
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.property;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.property;
 
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.IObjectToOneRelationTranslator;
 
 /**
- * @author Franz-Josef Elmer
+ * @author pkupczyk
  */
-@JsonObject("as.dto.property.DataTypeCode")
-public enum DataTypeCode
+public interface IPropertyTypeVocabularyTranslator extends IObjectToOneRelationTranslator<Vocabulary, VocabularyFetchOptions>
 {
-    // Do not refactor names - they are stored in database.
-    INTEGER, VARCHAR, MULTILINE_VARCHAR, REAL, TIMESTAMP, BOOLEAN, CONTROLLEDVOCABULARY, MATERIAL,
-    HYPERLINK, XML;
+
 }

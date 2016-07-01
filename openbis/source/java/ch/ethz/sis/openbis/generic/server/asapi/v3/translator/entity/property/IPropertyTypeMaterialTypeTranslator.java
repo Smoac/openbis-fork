@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ETH Zuerich, SIS
+ * Copyright 2015 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,30 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.property;
 
-import java.util.Date;
-
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.ObjectBaseRecord;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.IObjectToOneRelationTranslator;
 
 /**
- * @author Franz-Josef Elmer
+ * @author pkupczyk
  */
-public class PropertyAssignmentRecord extends ObjectBaseRecord
+public interface IPropertyTypeMaterialTypeTranslator extends IObjectToOneRelationTranslator<MaterialType, MaterialTypeFetchOptions>
 {
-
-    public String section;
-
-    public Integer ordinal;
-
-    public Long prty_id;
-
-    public Boolean is_mandatory;
-
-    public Boolean is_shown_edit;
-
-    public Boolean show_raw_value;
-
-    public Long pers_id_registerer;
-
-    public Date registration_timestamp;
 
 }

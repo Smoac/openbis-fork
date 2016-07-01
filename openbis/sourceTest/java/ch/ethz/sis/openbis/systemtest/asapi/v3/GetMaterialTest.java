@@ -36,7 +36,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFe
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.update.MaterialUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataTypeCode;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.systemsx.cisd.common.test.AssertionUtil;
@@ -197,9 +197,9 @@ public class GetMaterialTest extends AbstractDataSetTest
         assertEquals(propertyAssignment.getPropertyType().getCode(), "VOLUME");
         assertEquals(propertyAssignment.getPropertyType().getLabel(), "Volume");
         assertEquals(propertyAssignment.getPropertyType().getDescription(), "The volume of this person");
-        assertEquals(propertyAssignment.getPropertyType().isInternalNameSpace(), false);
-        assertEquals(propertyAssignment.getPropertyType().getDataTypeCode(), DataTypeCode.REAL);
-        assertEquals(propertyAssignment.isMandatory(), false);
+        assertEquals(propertyAssignment.getPropertyType().isInternalNameSpace(), Boolean.FALSE);
+        assertEquals(propertyAssignment.getPropertyType().getDataType(), DataType.REAL);
+        assertEquals(propertyAssignment.isMandatory(), Boolean.FALSE);
         assertOrder(propertyAssignments, "VOLUME", "IS_VALID", "SIZE", "PURCHASE_DATE", "EYE_COLOR", "DESCRIPTION");
 
         v3api.logout(sessionToken);
@@ -211,6 +211,7 @@ public class GetMaterialTest extends AbstractDataSetTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
         fetchOptions.withType().withPropertyAssignments().sortBy().code().asc();
+
         List<MaterialPermId> materialIds = Arrays.asList(new MaterialPermId("GFP", "CONTROL"));
 
         Map<IMaterialId, Material> map = v3api.getMaterials(sessionToken, materialIds, fetchOptions);

@@ -14,32 +14,17 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.property;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.property;
 
-import java.util.Date;
-
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.ObjectBaseRecord;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class PropertyAssignmentRecord extends ObjectBaseRecord
+@JsonObject("as.dto.property.DataType")
+public enum DataType
 {
-
-    public String section;
-
-    public Integer ordinal;
-
-    public Long prty_id;
-
-    public Boolean is_mandatory;
-
-    public Boolean is_shown_edit;
-
-    public Boolean show_raw_value;
-
-    public Long pers_id_registerer;
-
-    public Date registration_timestamp;
-
+    // Do not refactor names - they are stored in database.
+    INTEGER, VARCHAR, MULTILINE_VARCHAR, REAL, TIMESTAMP, BOOLEAN, CONTROLLEDVOCABULARY, MATERIAL,
+    HYPERLINK, XML;
 }
