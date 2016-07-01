@@ -45,7 +45,8 @@ public class ExperimentFetchOptionsTest
         assertEquals(fetchOptions.toString(), "Experiment\n"
                 + "    with Type\n"
                 + "        with PropertyAssignments\n"
-                + "            with Vocabulary\n");
+                + "            with PropertyType\n"
+                + "                with Vocabulary\n");
     }
 
 }
