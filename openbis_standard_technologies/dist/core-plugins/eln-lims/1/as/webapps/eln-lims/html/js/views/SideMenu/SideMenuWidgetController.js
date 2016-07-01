@@ -205,7 +205,7 @@ function SideMenuWidgetController(mainController) {
     	this._sideMenuWidgetModel.$container = $container;
         var _this = this;
         
-        var labNotebookNode = new SideMenuWidgetComponent(true, true, "LAB NOTEBOOK", "LAB_NOTEBOOK", this._sideMenuWidgetModel.menuStructure, { children: [] }, 'showLabNotebookPage', null, "");
+        var labNotebookNode = new SideMenuWidgetComponent(true, true, "Lab Notebook", "LAB_NOTEBOOK", this._sideMenuWidgetModel.menuStructure, { children: [] }, 'showLabNotebookPage', null, "");
         this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(labNotebookNode);
 
         mainController.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(dataWithSpacesAndProjects) {
@@ -222,7 +222,8 @@ function SideMenuWidgetController(mainController) {
                 var newMenuIfSelectedSpace = {
                     children: []
                 };
-                var menuItemSpace = new SideMenuWidgetComponent(true, false, space.code, space.code, labNotebookNode, newMenuIfSelectedSpace, 'showSpacePage', space.code, "(Space)");
+                var spaceDisplayName = Util.getDisplayNameFromCode(space.code);
+                var menuItemSpace = new SideMenuWidgetComponent(true, false, spaceDisplayName, space.code, labNotebookNode, newMenuIfSelectedSpace, 'showSpacePage', space.code, "(Space)");
                 labNotebookNode.newMenuIfSelected.children.push(menuItemSpace);
                 
                 //Fill Projects
@@ -236,7 +237,8 @@ function SideMenuWidgetController(mainController) {
                         children: []
                     };
                     var projectIdentifier = "/" + project.spaceCode + "/" + project.code;
-                    var menuItemProject = new SideMenuWidgetComponent(true, false, project.code, projectIdentifier, menuItemSpace, newMenuIfSelectedProject, "showProjectPageFromPermId", project.permId, "(Project)");
+                    var projectDisplayName = Util.getDisplayNameFromCode(project.code);
+                    var menuItemProject = new SideMenuWidgetComponent(true, false, projectDisplayName, projectIdentifier, menuItemSpace, newMenuIfSelectedProject, "showProjectPageFromPermId", project.permId, "(Project)");
                     newMenuIfSelectedSpace.children.push(menuItemProject);
                 }
                 
@@ -319,7 +321,7 @@ function SideMenuWidgetController(mainController) {
 
                     
                     //Fill Inventory
-                    var inventoryNode = new SideMenuWidgetComponent(true, true, "INVENTORY", "INVENTORY", _this._sideMenuWidgetModel.menuStructure, { children: [] }, 'showInventoryPage', null, "");
+                    var inventoryNode = new SideMenuWidgetComponent(true, true, "Inventory", "INVENTORY", _this._sideMenuWidgetModel.menuStructure, { children: [] }, 'showInventoryPage', null, "");
                     _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(inventoryNode);
 
                     //Fill Spaces
@@ -335,7 +337,8 @@ function SideMenuWidgetController(mainController) {
                         var newMenuIfSelectedSpace = {
                             children: []
                         };
-                        var menuItemSpace = new SideMenuWidgetComponent(true, false, space.code, space.code, inventoryNode, newMenuIfSelectedSpace, 'showSpacePage', space.code, "(Space)");
+                        var spaceDisplayName = Util.getDisplayNameFromCode(space.code);
+                        var menuItemSpace = new SideMenuWidgetComponent(true, false, spaceDisplayName, space.code, inventoryNode, newMenuIfSelectedSpace, 'showSpacePage', space.code, "(Space)");
                         inventoryNode.newMenuIfSelected.children.push(menuItemSpace);
 
                         //Fill Projects
@@ -349,7 +352,8 @@ function SideMenuWidgetController(mainController) {
                                 children: []
                             };
                             var projectIdentifier = "/" + project.spaceCode + "/" + project.code;
-                            var menuItemProject = new SideMenuWidgetComponent(true, false, project.code, projectIdentifier, menuItemSpace, newMenuIfSelectedProject, "showProjectPageFromPermId", project.permId, "(Project)");
+                            var projectDisplayName = Util.getDisplayNameFromCode(project.code);
+                            var menuItemProject = new SideMenuWidgetComponent(true, false, projectDisplayName, projectIdentifier, menuItemSpace, newMenuIfSelectedProject, "showProjectPageFromPermId", project.permId, "(Project)");
                             newMenuIfSelectedSpace.children.push(menuItemProject);
                         }
                         newMenuIfSelectedSpace.children.sort(naturalSortSideMenuWidgetComponent); //Sort Projects
@@ -394,52 +398,52 @@ function SideMenuWidgetController(mainController) {
                         }
                         
                         //Fill Utils
-                        var utilities = new SideMenuWidgetComponent(true, true, "UTILITIES", "UTILITIES", _this._sideMenuWidgetModel.menuStructure, { children : [] } , null, null, "");
+                        var utilities = new SideMenuWidgetComponent(true, true, "Utilities", "UTILITIES", _this._sideMenuWidgetModel.menuStructure, { children : [] } , null, null, "");
                         _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(utilities);
                         
             			_this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
-                                new SideMenuWidgetComponent(true, false, "ABOUT", "ABOUT", _this._sideMenuWidgetModel.menuStructure, null, "showAbout", null, "")
+                                new SideMenuWidgetComponent(true, false, "About", "ABOUT", _this._sideMenuWidgetModel.menuStructure, null, "showAbout", null, "")
                         );
             			
                         if(profile.mainMenu.showDrawingBoard) {
                         	utilities.newMenuIfSelected.children.push(
-                                	new SideMenuWidgetComponent(true, false, "DRAWING BOARD", "DRAWING_BOARD", utilities, null, "showDrawingBoard", null, "")
+                                	new SideMenuWidgetComponent(true, false, "Drawing Board", "DRAWING_BOARD", utilities, null, "showDrawingBoard", null, "")
                                 );
                         }
                         
                         if(profile.mainMenu.showSampleBrowser) {
                         	 utilities.newMenuIfSelected.children.push(
-                                     new SideMenuWidgetComponent(true, false, "SAMPLE BROWSER", "SAMPLE_BROWSER", utilities, null, "showSamplesPage", null, "")
+                                     new SideMenuWidgetComponent(true, false, "Sample Browser", "SAMPLE_BROWSER", utilities, null, "showSamplesPage", null, "")
                                      );
                         }
                         
                         if(profile.mainMenu.showExports) {
                        	 utilities.newMenuIfSelected.children.push(
-                                    new SideMenuWidgetComponent(true, false, "EXPORT BUILDER", "EXPORT_BUILDER", utilities, null, "showExportTreePage", null, "")
+                                    new SideMenuWidgetComponent(true, false, "Export Builder", "EXPORT_BUILDER", utilities, null, "showExportTreePage", null, "")
                                     );
                         }
                        
                         if(profile.mainMenu.showStorageManager && profile.storagesConfiguration["isEnabled"]) {
                         	utilities.newMenuIfSelected.children.push(
-                                    new SideMenuWidgetComponent(true, false, "STORAGE MANAGER", "STORAGE_MANAGER", utilities, null, "showStorageManager", null, "")
+                                    new SideMenuWidgetComponent(true, false, "Storage Manager", "STORAGE_MANAGER", utilities, null, "showStorageManager", null, "")
                                     );
                         }
                         
                         if(profile.mainMenu.showAdvancedSearch) {
                         	utilities.newMenuIfSelected.children.push(
-                                    new SideMenuWidgetComponent(true, false, "ADVANCED SEARCH", "ADVANCED_SEARCH", utilities, null, "showAdvancedSearchPage", null, "")
+                                    new SideMenuWidgetComponent(true, false, "Advanced Search", "ADVANCED_SEARCH", utilities, null, "showAdvancedSearchPage", null, "")
                                     );
                         }
                         
                         if(profile.mainMenu.showTrashcan) {
                         	utilities.newMenuIfSelected.children.push(
-                                    new SideMenuWidgetComponent(true, false, "TRASHCAN", "TRASHCAN", utilities, null, "showTrashcanPage", null, "")
+                                    new SideMenuWidgetComponent(true, false, "Trashcan", "TRASHCAN", utilities, null, "showTrashcanPage", null, "")
                                     );
                         }
                         
                         if(profile.mainMenu.showVocabularyViewer) {
 	                        utilities.newMenuIfSelected.children.push(
-	                                new SideMenuWidgetComponent(true, false, "VOCABULARY VIEWER", "VOCABULARY_VIEWER", utilities, null, "showVocabularyManagerPage", null, "")
+	                                new SideMenuWidgetComponent(true, false, "Vocabulary Viewer", "VOCABULARY_VIEWER", utilities, null, "showVocabularyManagerPage", null, "")
 	                                );
                         }
                         
@@ -452,7 +456,7 @@ function SideMenuWidgetController(mainController) {
                         	mainController.serverFacade.listPersons(function(data) {
                     			if(data.result && data.result.length > 0) {
                     				utilities.newMenuIfSelected.children.push(
-                                            new SideMenuWidgetComponent(true, false, "USER MANAGER", "USER_MANAGER", utilities, null, "showUserManagerPage", null, "")
+                                            new SideMenuWidgetComponent(true, false, "User Manager", "USER_MANAGER", utilities, null, "showUserManagerPage", null, "")
                                     );
                     			}
                     			
@@ -502,7 +506,7 @@ function SideMenuWidgetController(mainController) {
 function SideMenuWidgetComponent(isSelectable, isTitle, displayName, uniqueId, parent, newMenuIfSelected, newViewIfSelected, newViewIfSelectedData, contextTitle) {
     this.isSelectable = isSelectable;
     this.isTitle = isTitle;
-    this.displayName = displayName; //(displayName.charAt(0) + displayName.slice(1).toLowerCase()).replace(/_/g, ' ');
+    this.displayName = displayName;
     this.uniqueId = uniqueId;
     this.contextTitle = contextTitle;
     this.parent = parent;

@@ -27,7 +27,12 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 			
 		$form.append($formColumn);
 		
-		var $formTitle = $("<h2>").append("Space " + this._spaceFormModel.space.code);
+		var typeTitle = "Space: ";
+//		if(profile.isInventorySpace(this._spaceFormModel.space.code)) {
+//			typeTitle = "";
+//		}
+		
+		var $formTitle = $("<h2>").append(typeTitle + this._spaceFormModel.space.code);
 		
 		//
 		// Toolbar

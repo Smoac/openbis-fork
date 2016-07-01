@@ -38,14 +38,21 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		//
 		var title = null;
 		var entityPath = null;
+		
+		var typeTitle = "Project: ";
+//		if(this._projectFormModel.project &&
+//		   profile.isInventorySpace(this._projectFormModel.project.spaceCode)) {
+//			typeTitle = "";
+//		}
+		
 		if(this._projectFormModel.mode === FormMode.CREATE) {
-			title = "Create Project";
+			title = "Create " + typeTitle;
 			entityPath = "";
 		} else if (this._projectFormModel.mode === FormMode.EDIT) {
-			title = "Update Project: " + this._projectFormModel.project.code;
+			title = "Update " + typeTitle + this._projectFormModel.project.code;
 			entityPath = "/" + this._projectFormModel.project.spaceCode + "/" + this._projectFormModel.project.code;
 		} else {
-			title = "Project: " + this._projectFormModel.project.code;
+			title = typeTitle + this._projectFormModel.project.code;
 			entityPath = "/" + this._projectFormModel.project.spaceCode + "/" + this._projectFormModel.project.code;
 		}
 		

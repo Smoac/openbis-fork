@@ -43,18 +43,26 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		}
 		var entityPath = null;
 		
+		var typeTitle = "Experiment: ";
+//		if(this._experimentFormModel.experiment &&
+//		   this._experimentFormModel.experiment.identifier &&
+//		   profile.isInventorySpace(this._experimentFormModel.experiment.identifier.split("/")[1])
+//		) {
+//			typeTitle = "";
+//		}
+		
 		var title = null;
 		switch(this._experimentFormModel.mode) {
 	    	case FormMode.CREATE:
-	    		title = "Create Experiment " + this._experimentFormModel.experiment.experimentTypeCode;
+	    		title = "Create " + typeTitle + this._experimentFormModel.experiment.experimentTypeCode;
 	    		entityPath = "";
 	    		break;
 	    	case FormMode.EDIT:
-	    		title = "Update Experiment: " + nameLabel;
+	    		title = "Update " + typeTitle + nameLabel;
 	    		entityPath = this._experimentFormModel.experiment.identifier;
 	    		break;
 	    	case FormMode.VIEW:
-	    		title = "Experiment: " + nameLabel;
+	    		title = typeTitle + nameLabel;
 	    		entityPath = this._experimentFormModel.experiment.identifier;
 	    		break;
 		}

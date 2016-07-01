@@ -541,9 +541,17 @@ def initELNMasterData():
 	##
 	## Experiment Types
 	##
-	createExperimentTypeWithProperties("MATERIALS", "Folder used to organize samples in the Inventory/MATERIALS", []);
-	createExperimentTypeWithProperties("METHODS", "Folder used to organize samples in the Inventory/METHODS", []);
-	createExperimentTypeWithProperties("BOARDS", "Folder used to organize boards", []);
+	createExperimentTypeWithProperties("MATERIALS", "Folder used to organize samples in the Inventory/MATERIALS", [
+		["NAME", 				"General", "Name", 					DataType.VARCHAR, 			None,	"Name", None, None]
+	]);
+	
+	createExperimentTypeWithProperties("METHODS", "Folder used to organize samples in the Inventory/METHODS", [
+		["NAME", 				"General", "Name", 					DataType.VARCHAR, 			None,	"Name", None, None]
+	]);
+	
+	createExperimentTypeWithProperties("BOARDS", "Folder used to organize boards", [
+		["NAME", 				"General", "Name", 					DataType.VARCHAR, 			None,	"Name", None, None]
+	]);
 	
 	
 	createExperimentTypeWithProperties("DEFAULT_EXPERIMENT", "Default Experiment", [
