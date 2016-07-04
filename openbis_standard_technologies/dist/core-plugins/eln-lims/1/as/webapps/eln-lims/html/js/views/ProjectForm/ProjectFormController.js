@@ -30,8 +30,7 @@ function ProjectFormController(mainController, mode, project) {
 				Util.showError(data.error.message);
 			} else {
 				Util.showSuccess("Project Deleted");
-				var projectIdentifier = "/" + _this._projectFormModel.project.spaceCode + "/" + _this._projectFormModel.project.code;
-				mainController.sideMenu.deleteUniqueIdAndMoveToParent(projectIdentifier);
+				mainController.sideMenu.deleteNodeByEntityPermId(_this._projectFormModel.project.permId, true);
 			}
 		});
 	}
@@ -87,7 +86,7 @@ function ProjectFormController(mainController, mode, project) {
 					var message = "";
 					if(_this._projectFormModel.mode === FormMode.CREATE) {
 						message = "Project Created.";
-						_this._mainController.sideMenu.refreshProject(_this._projectFormModel.project.spaceCode, _this._projectFormModel.project.code);
+						_this._mainController.sideMenu.refreshCurrentNode(); //Space Node
 					} else if(_this._projectFormModel.mode === FormMode.EDIT) {
 						message = "Project Updated.";
 					}

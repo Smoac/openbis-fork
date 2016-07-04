@@ -168,8 +168,10 @@ function DataSetFormController(parentController, mode, sample, dataSet, isMini) 
 					
 					if(_this._dataSetFormModel.mode === FormMode.CREATE) {
 						Util.showSuccess("DataSet Created.", callbackOk);
+						mainController.sideMenu.refreshCurrentNode();
 					} else if(_this._dataSetFormModel.mode === FormMode.EDIT) {
 						Util.showSuccess("DataSet Updated.", callbackOk);
+						mainController.sideMenu.refreshNodeParent(_this._dataSetFormModel.dataSet.code);
 					}
 					
 				} else { //This should never happen

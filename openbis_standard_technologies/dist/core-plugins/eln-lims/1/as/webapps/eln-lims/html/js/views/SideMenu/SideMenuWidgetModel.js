@@ -21,11 +21,9 @@
  * @this {SideMenuWidgetModel}
  */
 function SideMenuWidgetModel() {
-    this.menuDOMTitle = null;
     this.menuDOMBody = null;
-    this.menuStructure = new SideMenuWidgetComponent(false, true, "Main Menu", "MAIN_MENU", null, {children: []}, 'showBlancPage', null, "");
-    this.pointerToMenuNode = this.menuStructure;
     this.isHidden = false;
-    this.isTreeNavigation = true;
     this.$container = null;
+    this.tree = null;
+    this.selectedNodeData = null;
 }

@@ -747,6 +747,9 @@ function ServerFacade(openbisServer) {
 				if(fetchOptions.withProjects) {
 					fetchOptions.withProjects();
 				}
+				if(fetchOptions.withProperties) {
+					fetchOptions.withProperties();
+				}
 				
 				//Operator
 				var operator = advancedSearchCriteria.logicalOperator;
