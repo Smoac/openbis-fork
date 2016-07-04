@@ -301,6 +301,7 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
             space.setCode("space");
             Project project = new Project();
             project.setSpace(space);
+            project.setCode("project");
             Experiment experiment = new Experiment();
             experiment.setProject(project);
             experiment.setCode("experiment");

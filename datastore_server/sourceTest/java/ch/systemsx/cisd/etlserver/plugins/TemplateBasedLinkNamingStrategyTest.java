@@ -21,7 +21,13 @@ import static ch.systemsx.cisd.etlserver.plugins.TemplateBasedLinkNamingStrategy
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 
 /**
  * Test cases for {@link TemplateBasedLinkNamingStrategy}.
@@ -64,21 +70,35 @@ public class TemplateBasedLinkNamingStrategyTest extends AbstractFileSystemTestC
 
     private String createPathFromTemplate(String template)
     {
-        SimpleDataSetInformationDTO dsInfo = createDataSetInfo();
-        return new TemplateBasedLinkNamingStrategy(template)
-                .createHierarchicalPath(dsInfo);
+        AbstractExternalData dsInfo = createDataSetInfo();
+        return new TemplateBasedLinkNamingStrategy(template, null)
+                .createHierarchicalPaths(dsInfo).iterator().next().getPath();
     }
 
-    private SimpleDataSetInformationDTO createDataSetInfo()
+    private AbstractExternalData createDataSetInfo()
     {
-        SimpleDataSetInformationDTO dsInfo = new SimpleDataSetInformationDTO();
-        dsInfo.setDataSetCode(DATASET);
-        dsInfo.setDataSetLocation(LOCATION);
-        dsInfo.setDataSetType(TYPE);
-        dsInfo.setExperimentCode(EXPERIMENT);
-        dsInfo.setSpaceCode(GROUP);
-        dsInfo.setProjectCode(PROJECT);
-        dsInfo.setSampleCode(SAMPLE);
+        PhysicalDataSet dsInfo = new PhysicalDataSet();
+        dsInfo.setCode(DATASET);
+        dsInfo.setLocation(LOCATION);
+
+        DataSetType type = new DataSetType();
+        type.setCode(TYPE);
+        dsInfo.setDataSetType(type);
+
+        Space space = new Space();
+        space.setCode(GROUP);
+        Project project = new Project();
+        project.setCode(PROJECT);
+        project.setSpace(space);
+        Experiment experiment = new Experiment();
+        experiment.setCode(EXPERIMENT);
+        experiment.setProject(project);
+        dsInfo.setExperiment(experiment);
+
+        Sample sample = new Sample();
+        sample.setCode(SAMPLE);
+        dsInfo.setSample(sample);
+
         return dsInfo;
     }
 }
