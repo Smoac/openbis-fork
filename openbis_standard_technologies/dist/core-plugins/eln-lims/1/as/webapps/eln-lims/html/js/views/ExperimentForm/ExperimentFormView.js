@@ -149,7 +149,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			$formColumn.append($("<legend>").append("Samples"));
 			var sampleListContainer = $("<div>");
 			$formColumn.append(sampleListContainer);
-			var sampleList = new SampleTableController(this._experimentFormController, null, this._experimentFormModel.experiment.identifier);
+			var sampleList = new SampleTableController(this._experimentFormController, null, this._experimentFormModel.experiment.identifier, null, null, this._experimentFormModel.experiment);
 			sampleList.init(sampleListContainer);
 		}
 		
