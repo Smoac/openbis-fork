@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
@@ -33,7 +34,7 @@ import java.util.List;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.sample.SampleType")
-public class SampleType implements Serializable, ICodeHolder, IModificationDateHolder, IPermIdHolder
+public class SampleType implements Serializable, ICodeHolder, IModificationDateHolder, IPermIdHolder, IPropertyAssignmentsHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -205,6 +206,7 @@ public class SampleType implements Serializable, ICodeHolder, IModificationDateH
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    @Override
     public List<PropertyAssignment> getPropertyAssignments()
     {
         if (getFetchOptions() != null && getFetchOptions().hasPropertyAssignments())

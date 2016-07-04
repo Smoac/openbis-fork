@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.property;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyTypeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
@@ -31,7 +32,7 @@ import java.util.Date;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.property.PropertyAssignment")
-public class PropertyAssignment implements Serializable, IRegistrationDateHolder, IRegistratorHolder
+public class PropertyAssignment implements Serializable, IPropertyTypeHolder, IRegistrationDateHolder, IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -103,6 +104,7 @@ public class PropertyAssignment implements Serializable, IRegistrationDateHolder
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    @Override
     public PropertyType getPropertyType()
     {
         if (getFetchOptions() != null && getFetchOptions().hasPropertyType())

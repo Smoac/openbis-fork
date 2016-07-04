@@ -16,6 +16,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IOwnerHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IParentChildrenHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IProjectHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IProjectsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyTypeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISamplesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ArchivingStatus;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.Complete;
@@ -645,7 +646,8 @@ public class Generator extends AbstractGenerator
 
         gen.addStringField("section");
         gen.addSimpleField(Integer.class, "ordinal");
-        gen.addFetchedField(PropertyType.class, "propertyType", "Property type", PropertyTypeFetchOptions.class);
+        gen.addFetchedField(PropertyType.class, "propertyType", "Property type", PropertyTypeFetchOptions.class)
+                .withInterface(IPropertyTypeHolder.class);
         gen.addBooleanField("mandatory");
         gen.addBooleanField("showInEditView");
         gen.addBooleanField("showRawValueInForms");

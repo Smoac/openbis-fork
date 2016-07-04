@@ -176,7 +176,8 @@ public class PropertyType implements Serializable, ICodeHolder, IRegistrationDat
         if (getFetchOptions() != null && getFetchOptions().hasVocabulary())
         {
             return vocabulary;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Vocabulary has not been fetched.");
         }
@@ -195,7 +196,8 @@ public class PropertyType implements Serializable, ICodeHolder, IRegistrationDat
         if (getFetchOptions() != null && getFetchOptions().hasMaterialType())
         {
             return materialType;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Material type has not been fetched.");
         }
@@ -241,7 +243,8 @@ public class PropertyType implements Serializable, ICodeHolder, IRegistrationDat
         if (getFetchOptions() != null && getFetchOptions().hasRegistrator())
         {
             return registrator;
-        } else
+        }
+        else
         {
             throw new NotFetchedException("Registrator has not been fetched.");
         }

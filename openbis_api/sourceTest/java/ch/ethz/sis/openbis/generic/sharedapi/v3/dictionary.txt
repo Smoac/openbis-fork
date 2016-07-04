@@ -1218,3 +1218,5 @@ with Material Type
 with Material Type Using
 with Property Type
 with Property Type Using
+I Property Assignments Holder
+I Property Type Holder
