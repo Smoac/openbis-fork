@@ -212,22 +212,53 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         // Body
         //
         
-		var treeModel = [
-		                 { title : "Lab Notebook", entityType: "LAB_NOTEBOOK", key : "LAB_NOTEBOOK", folder : true, lazy : true, view : "showLabNotebookPage" },
-		                 { title : "Inventory", entityType: "INVENTORY", key : "INVENTORY", folder : true, lazy : true, view : "showInventoryPage" },
-		              	 { title : "Utilities", entityType: "UTILITIES", key : "UTILITIES", folder : true, lazy : false, children : [
-		                					{ title : "Drawing Board", entityType: "DRAWING_BOARD", key : "DRAWING_BOARD", folder : false, lazy : false, view : "showDrawingBoard" },
-		                					{ title : "Sample Browser", entityType: "SAMPLE_BROWSER", key : "SAMPLE_BROWSER", folder : false, lazy : false, view : "showSamplesPage" },
-		                					{ title : "Export Builder", entityType: "EXPORT_BUILDER", key : "EXPORT_BUILDER", folder : false, lazy : false, view : "showExportTreePage" },
-		                					{ title : "Storage Manager", entityType: "STORAGE_MANAGER", key : "STORAGE_MANAGER", folder : false, lazy : false, view : "showStorageManager" },
-		                					{ title : "Advanced Search", entityType: "ADVANCED_SEARCH", key : "ADVANCED_SEARCH", folder : false, lazy : false, view : "showAdvancedSearchPage" },
-		                					{ title : "Trashcan", entityType: "TRASHCAN", key : "TRASHCAN", folder : false, lazy : false, view : "showTrashcanPage" },
-		                					{ title : "Vocabulary Viewer", entityType: "VOCABULARY_VIEWER", key : "VOCABULARY_VIEWER", folder : false, lazy : false, view : "showVocabularyManagerPage" },
-		                					{ title : "User Manager", entityType: "USER_MANAGER", key : "USER_MANAGER", folder : false, lazy : false, view : "showUserManagerPage" }
-		              ] },
-		            { title : "About", entityType: "ABOUT", key : "ABOUT", folder : false, lazy : false, view : "showAbout" }
-		];
-		
+        var treeModel = [];
+        
+        if(profile.mainMenu.showLabNotebook) {
+        	treeModel.push({ title : "Lab Notebook", entityType: "LAB_NOTEBOOK", key : "LAB_NOTEBOOK", folder : true, lazy : true, view : "showLabNotebookPage" });
+        }
+        
+        if(profile.mainMenu.showInventory) {
+        	treeModel.push({ title : "Inventory", entityType: "INVENTORY", key : "INVENTORY", folder : true, lazy : true, view : "showInventoryPage" });
+        }
+        
+        var treeModelUtils = [];
+        
+        if(profile.mainMenu.showDrawingBoard) {
+        	treeModelUtils.push({ title : "Drawing Board", entityType: "DRAWING_BOARD", key : "DRAWING_BOARD", folder : false, lazy : false, view : "showDrawingBoard" });
+        }
+        
+        if(profile.mainMenu.showSampleBrowser) {
+        	treeModelUtils.push({ title : "Sample Browser", entityType: "SAMPLE_BROWSER", key : "SAMPLE_BROWSER", folder : false, lazy : false, view : "showSamplesPage" });
+        }
+        
+        if(profile.mainMenu.showExports) {
+        	treeModelUtils.push({ title : "Export Builder", entityType: "EXPORT_BUILDER", key : "EXPORT_BUILDER", folder : false, lazy : false, view : "showExportTreePage" });
+        }
+        
+        if(profile.mainMenu.showStorageManager) {
+        	treeModelUtils.push({ title : "Storage Manager", entityType: "STORAGE_MANAGER", key : "STORAGE_MANAGER", folder : false, lazy : false, view : "showStorageManager" });
+        }
+        
+        if(profile.mainMenu.showAdvancedSearch) {
+        	treeModelUtils.push({ title : "Advanced Search", entityType: "ADVANCED_SEARCH", key : "ADVANCED_SEARCH", folder : false, lazy : false, view : "showAdvancedSearchPage" });
+        }
+        
+        if(profile.mainMenu.showTrashcan) {
+        	treeModelUtils.push({ title : "Trashcan", entityType: "TRASHCAN", key : "TRASHCAN", folder : false, lazy : false, view : "showTrashcanPage" });
+        }
+        
+        if(profile.mainMenu.showVocabularyViewer) {
+        	treeModelUtils.push({ title : "Vocabulary Viewer", entityType: "VOCABULARY_VIEWER", key : "VOCABULARY_VIEWER", folder : false, lazy : false, view : "showVocabularyManagerPage" });
+        }
+        
+        if(profile.mainMenu.showUserManager) {
+        	treeModelUtils.push({ title : "User Manager", entityType: "USER_MANAGER", key : "USER_MANAGER", folder : false, lazy : false, view : "showUserManagerPage" });
+        }
+        
+        treeModel.push({ title : "Utilities", entityType: "UTILITIES", key : "UTILITIES", folder : true, lazy : false, children : treeModelUtils });
+        treeModel.push({ title : "About", entityType: "ABOUT", key : "ABOUT", folder : false, lazy : false, view : "showAbout" });
+        
 		var glyph_opts = {
         	    map: {
         	      doc: "glyphicon glyphicon-file",
