@@ -57,7 +57,12 @@ function SideMenuWidgetController(mainController) {
     
     this.refreshNodeParent = function(key) {
     	var node = $(this._sideMenuWidgetModel.tree).fancytree('getTree').getNodeByKey(key);
-    	this._refreshNode(node.getParent().key);
+    	if(node) {
+    		var parent = node.getParent();
+    		if(parent) {
+    			this._refreshNode(parent.key);
+    		}
+    	}
     }
     
     this.moveToNodeId = function(uniqueId) {
@@ -116,9 +121,11 @@ function SideMenuWidgetController(mainController) {
     
     this._refreshNode = function(key) {
     	var node = $(this._sideMenuWidgetModel.tree).fancytree('getTree').getNodeByKey(key);
-    	node.removeChildren();
-    	node.resetLazy();
-    	node.setExpanded(true);
+    	if(node) {
+    		node.removeChildren();
+        	node.resetLazy();
+        	node.setExpanded(true);
+    	}
     }
 }
 

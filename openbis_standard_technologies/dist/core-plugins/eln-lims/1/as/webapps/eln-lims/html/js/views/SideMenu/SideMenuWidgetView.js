@@ -372,13 +372,21 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     		}
     	};
     	
+    	var onCollaps = function(event, data) {
+    		if(data.node.isExpanded() && data.node.lazy) { //Is going to be collapsed
+    			data.node.removeChildren();
+    			data.node.resetLazy();
+    		}
+    	};
+    	
     	$tree.fancytree({
         	extensions: ["dnd", "edit", "glyph"], //, "wide"
         	glyph: glyph_opts,
         	source: treeModel,
         	lazyLoad : onLazyLoad,
         	click : onClick,
-        	activate: onActivate
+        	activate: onActivate,
+        	beforeExpand : onCollaps //Yes, for collapsing event we need to use expand 
         });
 		
         this._sideMenuWidgetModel.menuDOMBody.append($tree);
