@@ -268,6 +268,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
 
         // by this time - only paths which should be deleted are left in the existingPaths
         deleteObsoleteLinks(existingPaths);
+        operationLog.info(REBUILDING_HIERARCHICAL_STORAGE + " finished");
     }
 
     private void handleNonExistingEntry(DataSetInformation info)
