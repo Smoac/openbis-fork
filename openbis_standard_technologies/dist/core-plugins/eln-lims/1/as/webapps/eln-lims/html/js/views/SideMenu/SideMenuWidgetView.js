@@ -215,11 +215,11 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         var treeModel = [];
         
         if(profile.mainMenu.showLabNotebook) {
-        	treeModel.push({ title : "Lab Notebook", entityType: "LAB_NOTEBOOK", key : "LAB_NOTEBOOK", folder : true, lazy : true, view : "showLabNotebookPage" });
+        	treeModel.push({ title : "Lab Notebook", entityType: "LAB_NOTEBOOK", key : "LAB_NOTEBOOK", folder : true, lazy : true, view : "showLabNotebookPage", icon : "glyphicon glyphicon-book" });
         }
         
         if(profile.mainMenu.showInventory) {
-        	treeModel.push({ title : "Inventory", entityType: "INVENTORY", key : "INVENTORY", folder : true, lazy : true, view : "showInventoryPage" });
+        	treeModel.push({ title : "Inventory", entityType: "INVENTORY", key : "INVENTORY", folder : true, lazy : true, view : "showInventoryPage", icon : "glyphicon glyphicon-inbox" });
         }
         
         var treeModelUtils = [];
@@ -229,34 +229,34 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         }
         
         if(profile.mainMenu.showSampleBrowser) {
-        	treeModelUtils.push({ title : "Sample Browser", entityType: "SAMPLE_BROWSER", key : "SAMPLE_BROWSER", folder : false, lazy : false, view : "showSamplesPage" });
-        }
-        
-        if(profile.mainMenu.showExports) {
-        	treeModelUtils.push({ title : "Export Builder", entityType: "EXPORT_BUILDER", key : "EXPORT_BUILDER", folder : false, lazy : false, view : "showExportTreePage" });
-        }
-        
-        if(profile.mainMenu.showStorageManager) {
-        	treeModelUtils.push({ title : "Storage Manager", entityType: "STORAGE_MANAGER", key : "STORAGE_MANAGER", folder : false, lazy : false, view : "showStorageManager" });
-        }
-        
-        if(profile.mainMenu.showAdvancedSearch) {
-        	treeModelUtils.push({ title : "Advanced Search", entityType: "ADVANCED_SEARCH", key : "ADVANCED_SEARCH", folder : false, lazy : false, view : "showAdvancedSearchPage" });
-        }
-        
-        if(profile.mainMenu.showTrashcan) {
-        	treeModelUtils.push({ title : "Trashcan", entityType: "TRASHCAN", key : "TRASHCAN", folder : false, lazy : false, view : "showTrashcanPage" });
+        	treeModelUtils.push({ title : "Sample Browser", entityType: "SAMPLE_BROWSER", key : "SAMPLE_BROWSER", folder : false, lazy : false, view : "showSamplesPage", icon : "glyphicon glyphicon-list-alt" });
         }
         
         if(profile.mainMenu.showVocabularyViewer) {
-        	treeModelUtils.push({ title : "Vocabulary Viewer", entityType: "VOCABULARY_VIEWER", key : "VOCABULARY_VIEWER", folder : false, lazy : false, view : "showVocabularyManagerPage" });
+        	treeModelUtils.push({ title : "Vocabulary Browser", entityType: "VOCABULARY_BROWSER", key : "VOCABULARY_BROWSER", folder : false, lazy : false, view : "showVocabularyManagerPage", icon : "glyphicon glyphicon-list-alt" });
+        }
+        
+        if(profile.mainMenu.showAdvancedSearch) {
+        	treeModelUtils.push({ title : "Advanced Search", entityType: "ADVANCED_SEARCH", key : "ADVANCED_SEARCH", folder : false, lazy : false, view : "showAdvancedSearchPage", icon : "glyphicon glyphicon-search" });
+        }
+        
+        if(profile.mainMenu.showExports) {
+        	treeModelUtils.push({ title : "Export Builder", entityType: "EXPORT_BUILDER", key : "EXPORT_BUILDER", folder : false, lazy : false, view : "showExportTreePage", icon : "glyphicon glyphicon-export" });
+        }
+        
+        if(profile.mainMenu.showStorageManager) {
+        	treeModelUtils.push({ title : "Storage Manager", entityType: "STORAGE_MANAGER", key : "STORAGE_MANAGER", folder : false, lazy : false, view : "showStorageManager", icon : "glyphicon glyphicon-wrench" });
         }
         
         if(profile.mainMenu.showUserManager) {
-        	treeModelUtils.push({ title : "User Manager", entityType: "USER_MANAGER", key : "USER_MANAGER", folder : false, lazy : false, view : "showUserManagerPage" });
+        	treeModelUtils.push({ title : "User Manager", entityType: "USER_MANAGER", key : "USER_MANAGER", folder : false, lazy : false, view : "showUserManagerPage", icon : "glyphicon glyphicon-wrench" });
         }
         
-        treeModel.push({ title : "Utilities", entityType: "UTILITIES", key : "UTILITIES", folder : true, lazy : false, children : treeModelUtils });
+        if(profile.mainMenu.showTrashcan) {
+        	treeModelUtils.push({ title : "Trashcan", entityType: "TRASHCAN", key : "TRASHCAN", folder : false, lazy : false, view : "showTrashcanPage", icon : "glyphicon glyphicon-trash" });
+        }
+        
+        treeModel.push({ title : "Utilities", entityType: "UTILITIES", key : "UTILITIES", folder : true, lazy : false, children : treeModelUtils, icon : "glyphicon glyphicon-wrench" });
         treeModel.push({ title : "About", entityType: "ABOUT", key : "ABOUT", folder : false, lazy : false, view : "showAbout", icon : "glyphicon glyphicon-info-sign" });
         
 		var glyph_opts = {
