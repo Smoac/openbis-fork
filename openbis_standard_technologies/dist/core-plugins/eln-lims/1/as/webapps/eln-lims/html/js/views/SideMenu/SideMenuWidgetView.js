@@ -372,8 +372,8 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     		}
     	};
     	
-    	var onCollaps = function(event, data) {
-    		if(data.node.isExpanded() && data.node.lazy) { //Is going to be collapsed
+    	var onCollapse = function(event, data) {
+    		if(data.node.lazy) { //Is going to be collapsed
     			data.node.removeChildren();
     			data.node.resetLazy();
     		}
@@ -386,7 +386,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	lazyLoad : onLazyLoad,
         	click : onClick,
         	activate: onActivate,
-        	beforeExpand : onCollaps //Yes, for collapsing event we need to use expand 
+        	collapse : onCollapse //Yes, for collapsing event we need to use expand 
         });
 		
         this._sideMenuWidgetModel.menuDOMBody.append($tree);
