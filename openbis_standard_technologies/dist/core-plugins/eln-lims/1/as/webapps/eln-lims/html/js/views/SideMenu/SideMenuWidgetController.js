@@ -110,7 +110,11 @@ function SideMenuWidgetController(mainController) {
     
     this._showNodeView = function(node) {
 		if(node.data.view) {
-			mainController.changeView(node.data.view, node.data.viewData);
+			var viewData =  node.data.viewData;
+			if(!viewData) {
+				viewData = null;
+			}
+			mainController.changeView(node.data.view, viewData);
 			this._sideMenuWidgetModel.selectedNodeData = {
 				key : node.key,
 				view : node.data.view,

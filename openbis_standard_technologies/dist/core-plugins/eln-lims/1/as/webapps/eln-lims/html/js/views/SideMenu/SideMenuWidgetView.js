@@ -257,7 +257,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         }
         
         treeModel.push({ title : "Utilities", entityType: "UTILITIES", key : "UTILITIES", folder : true, lazy : false, children : treeModelUtils });
-        treeModel.push({ title : "About", entityType: "ABOUT", key : "ABOUT", folder : false, lazy : false, view : "showAbout" });
+        treeModel.push({ title : "About", entityType: "ABOUT", key : "ABOUT", folder : false, lazy : false, view : "showAbout", icon : "glyphicon glyphicon-info-sign" });
         
 		var glyph_opts = {
         	    map: {
