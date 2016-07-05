@@ -220,7 +220,8 @@ h1, h2, legend {
     background-position: 12px 5px !important;
 }
 
-.ui-fancytree {
+.ui-fancytree,
+.fancytree-expanded span.fancytree-expander {
     color: #777;
     background-color: transparent !important;
     border: none !important;
