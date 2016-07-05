@@ -23,15 +23,13 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
@@ -41,10 +39,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  */
 public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLinkNamingStrategy
 {
-
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, TemplateBasedLinkNamingStrategy.class);
-
     public static final String DEFAULT_LINK_TEMPLATE =
             "${space}/${project}/${experiment}/${dataSetType}+${sample}+${dataSet}";
 
@@ -194,7 +188,8 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
             @Override
             String extractValueFromData(AbstractExternalData data, ContainerDataSet container)
             {
-                return getPathElement(data.getExperiment().getCode());
+                Experiment experiment = data.getExperiment();
+                return getPathElement(experiment == null ? null : experiment.getCode());
             }
         },
 
@@ -203,7 +198,8 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
             @Override
             String extractValueFromData(AbstractExternalData data, ContainerDataSet container)
             {
-                return getPathElement(data.getExperiment().getProject().getCode());
+                Experiment experiment = data.getExperiment();
+                return getPathElement(experiment == null ? null : experiment.getProject().getCode());
             }
         },
 
