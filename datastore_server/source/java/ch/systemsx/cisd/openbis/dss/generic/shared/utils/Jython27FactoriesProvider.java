@@ -45,7 +45,8 @@ public class Jython27FactoriesProvider
             {
                 if (file.getName().startsWith("jython27"))
                 {
-                    return new Jython27ClassLoader(file);
+                    // TODO un-comment when Jython27ClassLoader is working.
+                    // return new Jython27ClassLoader(file);
                 }
             }
         }
