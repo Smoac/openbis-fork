@@ -291,7 +291,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
                 + "' or '" + TemplateBasedLinkNamingStrategy.COMPONENT_LINKS_TEMPLATE_PROP_NAME
                 + "' has been modified after hierarchical store has been built. In this case the hierarchical store directory "
                 + "should be deleted manually. It will be recreated after DSS start up.";
-        if (withMetaData || info.containerDto != null)
+        if (withMetaData)
         {
             if (FileUtilities.isSymbolicLink(info.targetFile))
             {
