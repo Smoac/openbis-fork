@@ -22,6 +22,9 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 
@@ -33,8 +36,9 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
  * constructor. 
  * <ul>
  * <li>This class loader always try first to find and load the class from the specified JAR file.
- * <li>If it isn't found and if its fully-qualified class name does not match <tt>*.v27.*</tt> the class is 
- * loaded by the application class loader. 
+ * Exceptions are classes from packages starting with <tt>sun.</tt> or <tt>java</tt>.
+ * <li>If it isn't found (or it is from these packages) and if its fully-qualified class name 
+ * does not match <tt>*.v27.*</tt> the class is loaded by the application class loader. 
  * <li>A class not found in the provided JAR file and fully-qualified class name does match <tt>*.v27.*</tt>
  * are loaded with this class loader.
  * </ul>
@@ -43,7 +47,8 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
  */
 public class Jython27ClassLoader extends ClassLoader
 {
-    private final ClassLoader jythonJarClassLoader;
+    private final URLClassLoader jythonJarClassLoader;
+    private final Map<String, Class<?>> cachedClasses = new HashMap<>();
 
     public Jython27ClassLoader(File jythonJar)
     {
@@ -57,8 +62,7 @@ public class Jython27ClassLoader extends ClassLoader
         }
         try
         {
-            URL url = jythonJar.toURI().toURL();
-            jythonJarClassLoader = new URLClassLoader(new URL[] { url }, null);
+            jythonJarClassLoader = new URLClassLoader(new URL[] { jythonJar.toURI().toURL() }, null);
         } catch (MalformedURLException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -66,37 +70,94 @@ public class Jython27ClassLoader extends ClassLoader
     }
 
     @Override
-    public Class<?> loadClass(String name) throws ClassNotFoundException
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException
     {
-        try
+        Class<?> clazz = cachedClasses.get(name);
+        if (clazz == null)
         {
-            return jythonJarClassLoader.loadClass(name);
-        } catch (ClassNotFoundException ex)
-        {
-            if (name.contains(".v27.") == false)
+            if (name.startsWith("sun.") == false && name.startsWith("java") == false)
             {
-                return super.loadClass(name);
+                clazz = tryLoadClass(jythonJarClassLoader, name);
             }
-            synchronized (getClassLoadingLock(name))
+            if (clazz == null)
             {
-                InputStream stream = getResourceAsStream(name.replace('.', '/') + ".class");
-                if (stream != null)
+                if (name.contains(".v27."))
                 {
-                    try
+                    clazz = tryLoadClass(this, name);
+                    if (clazz == null)
                     {
-                        byte[] bytes = IOUtils.toByteArray(stream);
-                        return defineClass(name, bytes, 0, bytes.length);
-                    } catch (IOException ex2)
-                    {
-                        throw CheckedExceptionTunnel.wrapIfNecessary(ex2);
-                    } finally
-                    {
-                        IOUtils.closeQuietly(stream);
+                        return super.loadClass(name, resolve);
                     }
+                } else
+                {
+                    return super.loadClass(name, resolve);
                 }
-                return super.loadClass(name);
             }
         }
+        if (resolve)
+        {
+            resolveClass(clazz);
+        }
+        cachedClasses.put(name, clazz);
+        return clazz;
+    }
+    
+    @Override
+    public URL getResource(String name)
+    {
+        URL resource = jythonJarClassLoader.getResource(name);
+        if (resource != null)
+        {
+            return resource;
+        }
+        return super.getResource(name);
     }
 
+    @Override
+    protected URL findResource(String name)
+    {
+        URL resource = jythonJarClassLoader.findResource(name);
+        if (resource != null)
+        {
+            return resource;
+        }
+        return super.findResource(name);
+    }
+    
+    @Override
+    protected Enumeration<URL> findResources(String name) throws IOException
+    {
+        Enumeration<URL> resources = jythonJarClassLoader.findResources(name);
+        if (resources != null)
+        {
+            return resources;
+        }
+        return super.findResources(name);
+    }
+    
+    private Class<?> tryLoadClass(ClassLoader classLoader, String name)
+    {
+        synchronized (getClassLoadingLock(name))
+        {
+            InputStream stream = classLoader.getResourceAsStream(name.replace('.', '/') + ".class");
+            if (stream != null)
+            {
+                try
+                {
+                    byte[] bytes = IOUtils.toByteArray(stream);
+                    return defineClass(name, bytes, 0, bytes.length);
+                } catch (SecurityException ex)
+                {
+                    return null;
+                } catch (IOException ex)
+                {
+                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                } finally
+                {
+                    IOUtils.closeQuietly(stream);
+                }
+            }
+            return null;
+        }
+    }
 }
