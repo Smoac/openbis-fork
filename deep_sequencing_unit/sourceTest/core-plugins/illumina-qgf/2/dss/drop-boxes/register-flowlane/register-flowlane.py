@@ -1,6 +1,6 @@
 '''
 @copyright:
-2015 ETH Zuerich, SIS
+2016 ETH Zuerich, SIS
     
 @license: 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,10 +41,10 @@ from __builtin__ import file
 
 FASTQ_GZ_PATTERN = "*.fastq.gz"
 METADATA_FILE_SUFFIX = "_metadata.tsv"
-AFFILIATION_PROPERTY_NAME='AFFILIATION'
 INDEX1='BARCODE'
 INDEX2='INDEX2'
 EXTERNAL_SAMPLE_NAME='EXTERNAL_SAMPLE_NAME'
+FASTQ_SAMPLE_CODE = 'FASTQ_SAMPLE_CODE'
 INDEXREAD1='INDEXREAD'
 INDEXREAD2='INDEXREAD2'
 MISMATCH_IN_INDEX='MISMATCH_IN_INDEX'
@@ -169,10 +169,10 @@ def writeMetadataFile(transaction, folder_name, meta_data_file_name, sequencing_
         meta_data_file.close()
   
     destinationFolder = folder_name
-    extraCopySciCore (sample_space, meta_data_file_name, destinationFolder)
+    extraCopySciCore (transaction, sample_space, meta_data_file_name, destinationFolder)
 
 
-def extraCopySciCore (sample_space, filePath, destinationFolder=""):
+def extraCopySciCore (transaction, sample_space, filePath, destinationFolder=""):
     '''
     Handles the extra copies of the data for transfer with datamover for SCICORE
     '''
@@ -182,27 +182,25 @@ def extraCopySciCore (sample_space, filePath, destinationFolder=""):
         dropBoxFolder = '/Users/kohleman/tmp/scicore'
     
     # if a sample is part of this space list then it will be transferred to sciCore
-    SPACE_LIST = ["DUW_SALZBURGER", "BIOZENTRUM_HANDSCHIN", "BIOZENTRUM_ZAVOLAN",
+    SPACE_WHITELIST = ["DUW_SALZBURGER", "BIOZENTRUM_HANDSCHIN", "BIOZENTRUM_ZAVOLAN",
                   "BIOZENTRUM_KELLER", "BIOZENTRUM_NIMWEGEN", "BSSE_DBM_BIOZENTRUM_NEUROSTEMX",
                   "UNI_BASEL_STPH_UTZINGER", "UNI_BASEL_STPH_GAGNEUX",
                   "BIOZENTRUM_PAPASSOTIROPOULOS_BEERENWINKEL", "BIOZENTRUM_SPANG",
-                  "BIOZENTRUM_JENAL", "DBM_ROLINK", "DBM_CHRISTOFORI", "DBM_BORGER", "DBM_GIRARD",
-                  "DBM_JACOB", "DBM_KUSTER", "DBM_SCHAER", "DBM_SKODA", "DBM_SPAGNOLI", "DBM_BANFI_ROCHE", "DBM_BANFI",
-                  "DBM_TAYLOR", "DBM_WYMANN", "DBM_ZELLER", "DBM_RESINK", "DBM_ROLINK", "DBM_WICKI", "DBM_JEKER", "DBM_ACETO"]
-
+                  "BIOZENTRUM_JENAL", "UNI_BASEL_CHEMIE_CREUS","UKBB_WELLMANN" 
+                 ]
+    DBM_SPACE_PREFIX = "DBM_"
     
     basename = os.path.basename(filePath)
     
-    if (sample_space in SPACE_LIST):
+    if (sample_space in SPACE_WHITELIST) or sample_space.startswith(DBM_SPACE_PREFIX):
         dirname = os.path.join(dropBoxFolder, destinationFolder)
-        #os.chmod(dirname, 0774)
         if not os.path.exists(dirname):
             os.mkdir(dirname)
         print("COPYING " + filePath + " TO SCICORE FOLDER " + dirname)
         shutil.copy(filePath, dirname)
         #os.chmod(os.path.join(dirname, basename), 0774)
     else:
-        print(sample_space + " not in SPACE_LIST. Sample will not be copied to BC2.\n")
+        print(sample_space + " not in SPACE_WHITELIST. Sample will not be copied to sciCORE.\n")
 
 
 def get_sample_properties (transaction, sample): 
@@ -266,7 +264,7 @@ def put_files_to_dataset (transaction, dataSet, fastq_files, folder_name, sample
 
     for file in fastq_files:
         print("SAMPLE_SPACE:" + sample_space)
-        extraCopySciCore (sample_space, file, folder_name)
+        extraCopySciCore (transaction, sample_space, file, folder_name)
         transaction.moveFile(file, dataSet, folder_name)
 
 # -------------------------------------------------------------------------------
@@ -337,7 +335,8 @@ def process_regular_samples(transaction, name, sample_code, flowCellId, flowLane
     if (INDEX2 in sequencing_sample_properties_dict) and (fcMetaDataDict[INDEXREAD2] > 0):
         dataSet.setPropertyValue(INDEX2, sequencing_sample_properties_dict[INDEX2])
     dataSet.setPropertyValue(EXTERNAL_SAMPLE_NAME, sequencing_sample_properties_dict[EXTERNAL_SAMPLE_NAME])
-   
+    dataSet.setPropertyValue(FASTQ_SAMPLE_CODE, sequencing_sample_code.replace('-','_'))
+    
     sample_space = foundSample[0].getSpace()
     filepart, suffix = first_fastq_file.split('.', 1)
 
