@@ -65,7 +65,6 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                         .append($("<span>", {"class": "glyphicon glyphicon-resize-full"}))
                         );
         
-        var dropDownSearch = "";
         var searchDomains = profile.getSearchDomains();
 
         var searchFunction = function() {
@@ -86,8 +85,9 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 
             mainController.changeView("showSearchPage", argsMapStr);
         };
-
-        if (searchDomains.length > 1) {
+        
+        var dropDownSearch = null;
+        if (searchDomains.length > 0) {
             //Default Selected for the prefix
             var defaultSelected = "";
             if (searchDomains[0].label.length > 3) {
@@ -130,14 +130,16 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 
         var searchElement = $("<input>", {"id": "search", "type": "text", "class": "form-control search-query", "placeholder": "Search"});
         searchElement.change(searchFunction);
-
+        searchElement.css({"width" : "68%"});
+        searchElement.css({"padding-right" : "0px"});
+        searchElement.css({"margin-right" : "2px"});
+        
         var $searchForm = $("<li>")
-                .append($("<form>", {"class": "navbar-form", "onsubmit": "return false;", "style": "padding-right:0px;"})
-                        .append(searchElement));
+                .append($("<form>", {"class": "navbar-form", "onsubmit": "return false;" })
+                        .append(searchElement)
+                        .append(dropDownSearch)
+                        );
         $searchForm.css({"width" : "100%"});
-        var $searchFormDropdown = $("<li>")
-        .append($("<form>", {"class": "navbar-form", "onsubmit": "return false;"})
-                .append(dropDownSearch));
         
         var logoutButton = $("<a>", {"id": "logout-button", "href": ""}).append($("<span>", {"class": "glyphicon glyphicon-off"}));
         logoutButton.click(function() {
@@ -152,10 +154,6 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         $headerItemList.append($logoutButton);
         $headerItemList.append($toggleButton);
         $headerItemList.append($searchForm);
-        
-        if(dropDownSearch !== "") {
-        	$headerItemList.append($searchFormDropdown);
-        }
         
         var $body = $("<div>", {"id": "sideMenuBody"});
         $widget
