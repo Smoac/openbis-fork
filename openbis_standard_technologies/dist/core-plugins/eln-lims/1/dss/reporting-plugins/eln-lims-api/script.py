@@ -322,7 +322,8 @@ def init(tr, parameters, tableBuilder):
 	if inventorySpace == None:
 		elnTypesMetadata = tr.getVocabularyForUpdate("ELN_TYPES_METADATA");
 		elnTypesMetadataMini = tr.getVocabularyForUpdate("ELN_TYPES_METADATA_MINI");
-		if (elnTypesMetadata is not None) or (elnTypesMetadataMini is not None): # We can only create the data if the ELN metadata is present, this is not true on highly customized systems.
+		addData = elnTypesMetadata != None or elnTypesMetadataMini != None;
+		if addData: # We can only create the data if the ELN metadata is present, this is not true on highly customized systems.
 			tr.createNewSpace("MATERIALS", None);
 			
 			##
@@ -369,8 +370,8 @@ def init(tr, parameters, tableBuilder):
 			##
 			##
 			##
-			
 			tr.createNewSpace("METHODS", None);
+			
 			##
 			## If not Mini
 			##

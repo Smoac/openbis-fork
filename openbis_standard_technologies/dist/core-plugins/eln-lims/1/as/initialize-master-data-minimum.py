@@ -28,8 +28,9 @@ tr = service.transaction();
 ##
 ## Vocabulary Types
 ##
+elnTypes.createVocabularyWithTerms(tr, elnTypes.OWNER);
 elnTypes.createVocabularyWithTerms(tr, elnTypes.ELN_TYPES_METADATA_MINI);
-    
+
 ##
 ## Property Types for annotations
 ##
@@ -58,5 +59,4 @@ elnTypes.createExperimentTypeWithProperties(tr, elnTypes.DEFAULT_EXPERIMENT);
 ##
 ## Sample Types - Non Materials
 ##
-elnTypes.EXPERIMENTAL_STEP_ANNOTATIONS = None;
-elnTypes.createSampleTypeWithProperties(tr, elnTypes.EXPERIMENTAL_STEP);
+elnTypes.createSampleTypeWithProperties(tr, elnTypes.EXPERIMENTAL_STEP_MINI);
