@@ -242,7 +242,7 @@ var Util = new function() {
 		if(!suffix) {
 			suffix = ""; 
 		}
-		var port = profile.directFileServer.protocol;
+		var port = profile.directFileServer.port;
 		
 		directLinkUnix = protocol + "://" + hostName + ":" + port + "/" + suffix + path;
 		directLinkWin = "\\\\" + hostName + "\\" + (new String(suffix + path).replace(new RegExp("/", 'g'),"\\"));
@@ -251,16 +251,23 @@ var Util = new function() {
 								Util.unblockUI();
 							});
 		
-		var $window = $("<div>").append($close).append($("<h1>").append("Direct Link"))
-											.append("Please use this link to access the folder though the network: ")
-											.append($("<br>"))
-											.append("Directly clicking on it will open the default application.")
-											.append($("<br>"))
-											.append($("<b>Mac (Opens in Finder): </b>"))
-											.append($("<a>", { "href" : directLinkUnix, "target" : "_blank"}).append(directLinkUnix))
-											.append($("<br>"))
-											.append($("<b>Windows (Copy link on Explorer): </b>"))
-											.append(directLinkWin);
+		var isWindows = window.navigator.userAgent.toLowerCase().indexOf("windows") > -1;
+		var $window = null;
+		if(isWindows) {
+			var $readOnlyInput = $("<input>", { class : "form-control", id : "windowsLink", readonly : "readonly", type : "text", value :  directLinkWin, onClick : "this.setSelectionRange(0, this.value.length)" });
+			
+			$window = $("<div>").append($close).append($("<h1>").append("Direct Link"))
+					.append("Please use this link to access the folder though the network, copy it on the explorer address bar: ")
+					.append($("<br>"))
+					.append($readOnlyInput);
+		} else {
+			$window = $("<div>").append($close).append($("<h1>").append("Direct Link"))
+					.append("Please use this link to access the folder though the network, directly clicking on it will open it with the default application: ")
+					.append($("<br>"))
+					.append($("<b>Link: </b>"))
+					.append($("<a>", { "href" : directLinkUnix, "target" : "_blank"}).append(directLinkUnix));
+		}
+		
 		$window.css("margin-bottom", "10px");
 		$window.css("margin-left", "10px");
 		$window.css("margin-right", "10px");
