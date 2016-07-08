@@ -42,7 +42,7 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 			return this;
 		};
 		prototype.withType = function() {
-			var SampleTypeSearchCriteria = require("as/dto/entitytype/search/SampleTypeSearchCriteria");
+			var SampleTypeSearchCriteria = require("as/dto/sample/search/SampleTypeSearchCriteria");
 			return this.addCriteria(new SampleTypeSearchCriteria());
 		};
 		prototype.withOrOperator = function() {

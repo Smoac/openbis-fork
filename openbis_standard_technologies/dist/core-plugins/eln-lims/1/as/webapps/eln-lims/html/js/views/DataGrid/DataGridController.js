@@ -26,30 +26,18 @@ function DataGridController(title, columns, data, rowClickEventHandler, showAllC
 	
 	this.init = function($container, extraOptions) {
 		var webAppId = "ELN-LIMS";
-		mainController.serverFacade.openbisServer.getWebAppSettings(webAppId, function(response) {
-			var settings = response.result.settings;
+		mainController.serverFacade.getSetting(configKey, function(tableConfig) {
 			var onColumnsChange = function(tableState) {
-				if(!settings) {
-					settings = {};
-				}
-				settings[configKey] = JSON.stringify(tableState);
-				
-				var webAppSettings = {
-						"@type" : "WebAppSettings",
-						"webAppId" : webAppId,
-						"settings" : settings
-				}
-				
-				mainController.serverFacade.openbisServer.setWebAppSettings(webAppSettings, function(result) {});
+				mainController.serverFacade.setSetting(configKey, JSON.stringify(tableState));
 			}
-			var tableSettings = null;
-			if(configKey && settings[configKey]) {
-				tableSettings = JSON.parse(settings[configKey]);
-				if(Object.keys(tableSettings).length > 3) { //Clean old settings
-					tableSettings = null;
+			
+			if(tableConfig) {
+				tableConfig = JSON.parse(tableConfig);
+				if(!tableConfig.pageSize) { //Clean old settings
+					tableConfig = null;
 				}
 			}
-			_this._grid = new Grid(columns, data, showAllColumns, tableSettings, onColumnsChange, isMultiselectable);
+			_this._grid = new Grid(columns, data, showAllColumns, tableConfig, onColumnsChange, isMultiselectable);
 			if(rowClickEventHandler) {
 				_this._grid.addRowClickListener(rowClickEventHandler);
 			}

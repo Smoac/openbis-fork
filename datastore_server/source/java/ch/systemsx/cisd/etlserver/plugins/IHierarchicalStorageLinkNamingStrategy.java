@@ -19,7 +19,7 @@ package ch.systemsx.cisd.etlserver.plugins;
 import java.io.File;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * A naming strategy for symbolic links in hiearchical storages.
@@ -30,9 +30,10 @@ public interface IHierarchicalStorageLinkNamingStrategy
 {
 
     /**
-     * For a given {@link SimpleDataSetInformationDTO} creates relevant path part e.g. <code>Instance_AAA/Group_BBB/Project_CCC...</code>
+     * For a given {@link AbstractExternalData} creates relevant path part e.g. <code>Instance_AAA/Group_BBB/Project_CCC...</code> There can be
+     * multiple paths because dataset can be a component in multiple containers.
      */
-    public String createHierarchicalPath(SimpleDataSetInformationDTO data);
+    public Set<HierarchicalPath> createHierarchicalPaths(AbstractExternalData data);
 
     /**
      * Returns all data set paths located under <code>root</code>.
