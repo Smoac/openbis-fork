@@ -78,10 +78,10 @@
     <field type="title" txt="ELN/LIMS master data" bold="true" size="2" />
 
     <field type="radio" variable="ELN-LIMS-MASTER-DATA">
-      <description align="left" txt="Should ELN/LIMS master data be installed?" />
+      <description align="left" txt="Install ELN/LIMS default entity types (PLASMID, YEAST, FLY, etc.)?" />
       <spec>
-          <choice txt="Yes" value="true"/>
-          <choice txt="No" value="false" set="true"/>
+          <choice txt="Yes" value="true" set="true"/>
+          <choice txt="No" value="false"/>
       </spec>
     </field>
   </panel>

@@ -16,9 +16,8 @@
 
 package ch.systemsx.cisd.openbis.installer.izpack;
 
-import static ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext.TECHNOLOGY_ELN_LIMS;
-
 import java.util.HashMap;
+import java.util.Map;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.PanelActionConfiguration;
@@ -31,23 +30,20 @@ public class ELNMasterDataAction extends AbstractScriptExecutor
     /**
      * a script that creates a installation backup.
      */
-    private static final String CREATE_BACKUP_SCRIPT = "delete-eln-master-data-script.sh";
+    private static final String ELN_MASTER_DATA_SCRIPT = "disable-eln-master-data-script.sh";
 
     @Override
     public synchronized void executeAction(AutomatedInstallData data)
     {
-        String script = getAdminScript(data, CREATE_BACKUP_SCRIPT);
+        String script = getAdminScript(data, ELN_MASTER_DATA_SCRIPT);
 
-        String elnEnabled = data.getVariable(TECHNOLOGY_ELN_LIMS);
         String elnMasterDataEnabled = data.getVariable("ELN-LIMS-MASTER-DATA");
-        if (elnMasterDataEnabled == null)
-        {
-            elnMasterDataEnabled = "true";
-        }
 
-        if ("true".equals(elnEnabled) && "false".equals(elnMasterDataEnabled))
+        if (elnMasterDataEnabled != null)
         {
-            executeAdminScript(new HashMap<String, String>(), script);
+            Map<String, String> env = new HashMap<String, String>();
+            env.put("ELN_MASTER_DATA", elnMasterDataEnabled);
+            executeAdminScript(env, script);
         }
     }
 
