@@ -160,6 +160,10 @@ CP=`echo $LIB_FOLDER/slf4j-log4j12-1.6.2.jar $LIB_FOLDER/datastore_server.jar $L
     $LIB_FOLDER/dbmigration*.jar $LIB_FOLDER/*.jar $EXT_LIB_FOLDER/*.jar \
     | sed 's/\(.*\) [^ ]*jython27[^ ]* \(.*\)/\1 \2/g' \
     | sed 's/ /:/g'`
+# TODO: remove the following statement when Jython27ClassLoader works
+CP=`echo $LIB_FOLDER/slf4j-log4j12-1.6.2.jar $LIB_FOLDER/datastore_server.jar $LIB_FOLDER/common.jar \
+    $LIB_FOLDER/dbmigration*.jar $LIB_FOLDER/*.jar $EXT_LIB_FOLDER/*.jar \
+    | sed 's/ /:/g'`
 
 CMD="${JAVA_BIN} ${JAVA_OPTS} ${JAVA_MEM_OPTS} -Dnative.libpath=$LIB_FOLDER/native -classpath $CP ch.systemsx.cisd.openbis.dss.generic.DataStoreServer"
 
