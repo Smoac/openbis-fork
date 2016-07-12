@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetPE
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
@@ -100,7 +101,17 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
     @Override
     protected void checkAccess(IOperationContext context, IDataSetId id, DataPE entity)
     {
-        if (false == new DataSetPEByExperimentOrSampleIdentifierValidator().doValidation(context.getSession().tryGetPerson(), entity))
+        boolean isStorageConfirmed;
+        if (entity instanceof ExternalDataPE)
+        {
+            isStorageConfirmed = ((ExternalDataPE) entity).isStorageConfirmation();
+        } else
+        {
+            isStorageConfirmed = true;
+        }
+
+        if (isStorageConfirmed
+                && false == new DataSetPEByExperimentOrSampleIdentifierValidator().doValidation(context.getSession().tryGetPerson(), entity))
         {
             throw new UnauthorizedObjectAccessException(id);
         }
