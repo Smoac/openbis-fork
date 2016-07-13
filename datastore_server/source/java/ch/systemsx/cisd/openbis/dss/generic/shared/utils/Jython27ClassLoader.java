@@ -99,7 +99,23 @@ public class Jython27ClassLoader extends ClassLoader
             resolveClass(clazz);
         }
         cachedClasses.put(name, clazz);
+        definePackage(name);
         return clazz;
+    }
+    
+    private void definePackage(String className)
+    {
+        String packageName = getPackageName(className);
+        if (getPackage(packageName) == null)
+        {
+            definePackage(packageName, null, null, null, null, null, null, null);
+        }
+    }
+    
+    private String getPackageName(String className)
+    {
+        int offset = className.lastIndexOf('.');
+        return (offset == -1) ? null : className.substring(0, offset);
     }
     
     @Override
