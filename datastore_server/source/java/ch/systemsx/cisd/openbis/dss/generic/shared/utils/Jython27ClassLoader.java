@@ -22,8 +22,10 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
@@ -47,6 +49,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
  */
 public class Jython27ClassLoader extends ClassLoader
 {
+    private static final List<String> EXCLUDED_PACKAGES_STARTS = Arrays.asList("java", "sun.", "com.sun.");
     private final URLClassLoader jythonJarClassLoader;
     private final Map<String, Class<?>> cachedClasses = new HashMap<>();
 
@@ -75,7 +78,7 @@ public class Jython27ClassLoader extends ClassLoader
         Class<?> clazz = cachedClasses.get(name);
         if (clazz == null)
         {
-            if (name.startsWith("sun.") == false && name.startsWith("java") == false)
+            if (excludedPackageStart(name) == false)
             {
                 clazz = tryLoadClass(jythonJarClassLoader, name);
             }
@@ -101,6 +104,18 @@ public class Jython27ClassLoader extends ClassLoader
         cachedClasses.put(name, clazz);
         definePackage(name);
         return clazz;
+    }
+    
+    private boolean excludedPackageStart(String className)
+    {
+        for (String packageStart : EXCLUDED_PACKAGES_STARTS)
+        {
+            if (className.startsWith(packageStart))
+            {
+                return true;
+            }
+        }
+        return false;
     }
     
     private void definePackage(String className)
