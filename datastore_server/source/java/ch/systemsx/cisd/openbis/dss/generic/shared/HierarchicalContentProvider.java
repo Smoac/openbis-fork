@@ -32,7 +32,9 @@ import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentFactory;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.HierarchicalContentProxy;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentExecuteOnAccess;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.DssServiceRpcGenericFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.IContentCache;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.IDssServiceRpcGenericFactory;
@@ -163,13 +165,8 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
         return asContent(new ExternalDataLocationNode(dataSet), true);
     }
 
-    private IHierarchicalContent asContent(IDatasetLocationNode locationNode, boolean shouldUpdateAccessTimestamp)
+    private IHierarchicalContent asContent(final IDatasetLocationNode locationNode, final boolean shouldUpdateAccessTimestamp)
     {
-        if (shouldUpdateAccessTimestamp)
-        {
-            openbisService.notifyDatasetAccess(locationNode.getLocation().getDataSetCode());
-        }
-
         if (isLocal(locationNode))
         {
             if (locationNode.isContainer())
@@ -191,13 +188,21 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                             return orderInContainer == null ? 0 : orderInContainer;
                         }
                     });
-                for (IDatasetLocationNode component : sortedNodes)
+                for (final IDatasetLocationNode component : sortedNodes)
                 {
-                    if (shouldUpdateAccessTimestamp)
-                    {
-                        openbisService.notifyDatasetAccess(component.getLocation().getDataSetCode());
-                    }
-                    IHierarchicalContent componentContent = tryCreateComponentContent(component);
+                    HierarchicalContentProxy componentContent = new HierarchicalContentProxy(tryCreateComponentContent(component));
+                    componentContent.addExecuteOnAccessMethod(new IHierarchicalContentExecuteOnAccess()
+                        {
+                            @Override
+                            public void execute()
+                            {
+                                if (shouldUpdateAccessTimestamp)
+                                {
+                                    openbisService.notifyDatasetAccess(component.getLocation().getDataSetCode());
+                                }
+                            }
+                        });
+
                     if (componentContent != null)
                     {
                         componentContents.add(componentContent);
@@ -206,15 +211,28 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                 return getHierarchicalContentFactory().asVirtualHierarchicalContent(componentContents);
             } else
             {
-                return asContent(locationNode.getLocation());
+                HierarchicalContentProxy asContent = new HierarchicalContentProxy(asContent(locationNode.getLocation()));
+                asContent.addExecuteOnAccessMethod(new IHierarchicalContentExecuteOnAccess()
+                    {
+                        @Override
+                        public void execute()
+                        {
+                            if (shouldUpdateAccessTimestamp)
+                            {
+                                openbisService.notifyDatasetAccess(locationNode.getLocation().getDataSetCode());
+                            }
+                        }
+                    });
+                return asContent;
             }
         } else
         {
+
             ISingleDataSetPathInfoProvider provider = null;
             if (PathInfoDataSourceProvider.isDataSourceDefined())
             {
-                IDataSetPathInfoProvider dataSetPathInfoProvider =
-                        ServiceProvider.getDataSetPathInfoProvider();
+                IDataSetPathInfoProvider dataSetPathInfoProvider = ServiceProvider.getDataSetPathInfoProvider();
+
                 provider =
                         dataSetPathInfoProvider.tryGetSingleDataSetPathInfoProvider(locationNode
                                 .getLocation().getDataSetCode());
@@ -225,8 +243,20 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                 SslCertificateHelper.trustAnyCertificate(locationNode.getLocation()
                         .getDataStoreUrl());
             }
-            return new RemoteHierarchicalContent(locationNode, provider, serviceFactory,
-                    sessionTokenProvider, cache);
+            HierarchicalContentProxy hierarchicalContentProxy =
+                    new HierarchicalContentProxy(new RemoteHierarchicalContent(locationNode, provider, serviceFactory, sessionTokenProvider, cache));
+            hierarchicalContentProxy.addExecuteOnAccessMethod(new IHierarchicalContentExecuteOnAccess()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        if (shouldUpdateAccessTimestamp)
+                        {
+                            openbisService.notifyDatasetAccess(locationNode.getLocation().getDataSetCode());
+                        }
+                    }
+                });
+            return hierarchicalContentProxy;
         }
     }
 
