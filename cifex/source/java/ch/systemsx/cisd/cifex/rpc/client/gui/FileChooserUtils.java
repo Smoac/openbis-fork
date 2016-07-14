@@ -32,51 +32,55 @@ import ch.systemsx.cisd.base.utilities.OSUtilities;
 public class FileChooserUtils
 {
 
+    public enum FileChooserMode
+    {
+        File, Files, Directory
+    }
+
     /**
-     * Let the user choose a file (<code>chooseDirectories=false</code>) or directory (
-     * <code>chooseDirectories=true</code>). Start the selection process in
-     * <var>initialDirectory</var>. The windows will be shown relative to <var>parentFrame</var>.
+     * Let the user choose a file (<code>chooseDirectories=false</code>) or directory ( <code>chooseDirectories=true</code>). Start the selection
+     * process in <var>initialDirectory</var>. The windows will be shown relative to <var>parentFrame</var>.
      * 
-     * @return The new file or directory if the user approved the selection or <code>null</code> if
-     *         the user cancelled the selection.
+     * @return The new file or directory if the user approved the selection or <code>null</code> if the user cancelled the selection.
      */
-    public static File tryChooseFile(Frame parentFrame, File initialDirectory,
-            boolean chooseDirectories)
+    public static File[] tryChooseFile(Frame parentFrame, File initialDirectory,
+            FileChooserMode mode)
     {
         if (OSUtilities.isMacOS())
         {
-            if (chooseDirectories)
+            if (mode == FileChooserMode.Directory)
             {
                 System.setProperty("apple.awt.fileDialogForDirectories", "true");
             }
-            final FileDialog fileChooser = new FileDialog(parentFrame, getTitle(chooseDirectories));
+            final FileDialog fileChooser = new FileDialog(parentFrame, getTitle(mode));
+            if (mode == FileChooserMode.Files)
+            {
+                fileChooser.setMultipleMode(true);
+            }
             fileChooser.setModal(true);
             fileChooser.setMode(FileDialog.LOAD);
             fileChooser.setDirectory(initialDirectory.getAbsolutePath());
             fileChooser.setVisible(true);
-            final String newParent = fileChooser.getDirectory();
-            final String newFile = fileChooser.getFile();
-            if (chooseDirectories)
+            final File[] newFiles = fileChooser.getFiles();
+            if (mode == FileChooserMode.Directory)
             {
                 System.setProperty("apple.awt.fileDialogForDirectories", "false");
             }
-            if (newFile != null)
-            {
-                return new File(newParent, newFile);
-            } else
-            {
-                return null;
-            }
+            return newFiles;
         } else
         {
             final JFileChooser fileChooser = new JFileChooser(initialDirectory);
-            fileChooser.setFileSelectionMode(chooseDirectories ? JFileChooser.DIRECTORIES_ONLY
+            if (mode == FileChooserMode.Files)
+            {
+                fileChooser.setMultiSelectionEnabled(true);
+            }
+            fileChooser.setFileSelectionMode(mode == FileChooserMode.Directory ? JFileChooser.DIRECTORIES_ONLY
                     : JFileChooser.FILES_ONLY);
-            fileChooser.setDialogTitle(getTitle(chooseDirectories));
+            fileChooser.setDialogTitle(getTitle(mode));
             final int returnVal = fileChooser.showOpenDialog(parentFrame);
             if (returnVal == JFileChooser.APPROVE_OPTION)
             {
-                return fileChooser.getSelectedFile();
+                return fileChooser.getSelectedFiles();
             } else
             {
                 return null;
@@ -85,8 +89,18 @@ public class FileChooserUtils
 
     }
 
-    private static String getTitle(boolean chooseDirectories)
+    private static String getTitle(FileChooserMode mode)
     {
-        return "Select a " + (chooseDirectories ? "Directory" : "File");
+        switch (mode)
+        {
+            case File:
+                return "Select a file";
+            case Files:
+                return "Select one or more files";
+            case Directory:
+                return "Select a directory";
+            default:
+                return null;
+        }
     }
 }

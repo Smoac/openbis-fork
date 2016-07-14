@@ -55,11 +55,9 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
 /**
- * The GUI for the WebStart file download application. This class assembles the GUI and creates the
- * necessary contextual objects (like the ICIFEXComponent) for interacting with the server. Although
- * FileDownloadClientModel handles most of the logic, the contextual information needs to be stored
- * here so clean-up can be performed, e.g., if the user closes the window while a download is in
- * progress.
+ * The GUI for the WebStart file download application. This class assembles the GUI and creates the necessary contextual objects (like the
+ * ICIFEXComponent) for interacting with the server. Although FileDownloadClientModel handles most of the logic, the contextual information needs to
+ * be stored here so clean-up can be performed, e.g., if the user closes the window while a download is in progress.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -122,9 +120,9 @@ public class FileDownloadClient extends AbstractSwingGUI
 
     FileDownloadClient(final CIFEXCommunicationState commState, final ITimeProvider timeProvider)
     {
-    	this(commState, timeProvider, true);
+        this(commState, timeProvider, true);
     }
-    
+
     FileDownloadClient(final CIFEXCommunicationState commState, final ITimeProvider timeProvider, final boolean isShownByDefault)
     {
         // save and create local state
@@ -196,11 +194,13 @@ public class FileDownloadClient extends AbstractSwingGUI
         window.add(spacer, BorderLayout.SOUTH);
         window.pack();
         window.setLocationByPlatform(true);
-        
-        if(isShownByDefault) {
-        	window.setVisible(true);
-        } else {
-        	window.setVisible(false);
+
+        if (isShownByDefault)
+        {
+            window.setVisible(true);
+        } else
+        {
+            window.setVisible(false);
         }
     }
 
@@ -326,12 +326,12 @@ public class FileDownloadClient extends AbstractSwingGUI
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    final File newDirOrNull =
+                    final File[] newDirOrNull =
                             FileChooserUtils.tryChooseFile(getWindowFrame(), tableModel
-                                    .getDownloadDirectory(), true);
-                    if (newDirOrNull != null)
+                                    .getDownloadDirectory(), FileChooserUtils.FileChooserMode.Directory);
+                    if (newDirOrNull != null && newDirOrNull.length == 1)
                     {
-                        tableModel.setDownloadDirectory(newDirOrNull);
+                        tableModel.setDownloadDirectory(newDirOrNull[0]);
                         updateDirectoryLabel();
                     }
                 }

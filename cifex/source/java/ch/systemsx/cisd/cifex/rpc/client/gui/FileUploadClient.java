@@ -138,10 +138,10 @@ public class FileUploadClient extends AbstractSwingGUI
     {
         this(commState, timeProvider, true);
     }
-    
+
     FileUploadClient(final CIFEXCommunicationState commState, final ITimeProvider timeProvider, final boolean isShownByDefault)
     {
-    	// save and create local state
+        // save and create local state
         super(commState);
 
         this.passphraseGenerator = new PasswordGenerator();
@@ -226,7 +226,8 @@ public class FileUploadClient extends AbstractSwingGUI
                         JOptionPane.showMessageDialog(getWindowFrame(),
                                 "Operation did not complete successfully. "
                                         + "Check the status in the CIFEX Web GUI "
-                                        + "(Uploaded Files > Edit Sharing)", "Warning",
+                                        + "(Uploaded Files > Edit Sharing)",
+                                "Warning",
                                 JOptionPane.WARNING_MESSAGE);
                     }
                 }
@@ -288,11 +289,13 @@ public class FileUploadClient extends AbstractSwingGUI
 
         window.pack();
         window.setLocationByPlatform(true);
-        
-        if(isShownByDefault) {
-        	window.setVisible(true);
-        } else {
-        	window.setVisible(false);
+
+        if (isShownByDefault)
+        {
+            window.setVisible(true);
+        } else
+        {
+            window.setVisible(false);
         }
     }
 
@@ -315,8 +318,7 @@ public class FileUploadClient extends AbstractSwingGUI
     }
 
     /**
-     * Create the panel with the information required for uploading files to CIFEX (file path,
-     * recipients, and comments).
+     * Create the panel with the information required for uploading files to CIFEX (file path, recipients, and comments).
      */
     private JPanel createFileListPanel()
     {
@@ -569,39 +571,42 @@ public class FileUploadClient extends AbstractSwingGUI
 
     private void chooseAndAddFile()
     {
-        File file = FileChooserUtils.tryChooseFile(getWindowFrame(), workingDirectory, false);
-        if (file != null)
+        File[] files = FileChooserUtils.tryChooseFile(getWindowFrame(), workingDirectory, FileChooserUtils.FileChooserMode.Files);
+        if (files != null)
         {
-            workingDirectory = file.getParentFile();
-            try
+            for (File file : files)
             {
-                // That's need to make the test reliable whether the file is already added.
-                file = file.getCanonicalFile();
-            } catch (IOException ex)
-            {
-                JOptionPane.showMessageDialog(getWindowFrame(), "Problem canonicalizing file:\n"
-                        + file.getAbsolutePath());
+                workingDirectory = file.getParentFile();
+                try
+                {
+                    // That's need to make the test reliable whether the file is already added.
+                    file = file.getCanonicalFile();
+                } catch (IOException ex)
+                {
+                    JOptionPane.showMessageDialog(getWindowFrame(), "Problem canonicalizing file:\n"
+                            + file.getAbsolutePath());
 
-                return;
+                    return;
+                }
+                if (file.exists() == false)
+                {
+                    JOptionPane.showMessageDialog(getWindowFrame(), "File does not exists:\n"
+                            + file.getAbsolutePath());
+                    return;
+                }
+                if (file.isDirectory())
+                {
+                    JOptionPane.showMessageDialog(getWindowFrame(), "Can't upload whole directories.");
+                    return;
+                }
+                if (tableModel.alreadyAdded(file))
+                {
+                    JOptionPane.showMessageDialog(getWindowFrame(), "File already added:\n"
+                            + file.getAbsolutePath());
+                    return;
+                }
+                tableModel.addFile(file);
             }
-            if (file.exists() == false)
-            {
-                JOptionPane.showMessageDialog(getWindowFrame(), "File does not exists:\n"
-                        + file.getAbsolutePath());
-                return;
-            }
-            if (file.isDirectory())
-            {
-                JOptionPane.showMessageDialog(getWindowFrame(), "Can't upload whole directories.");
-                return;
-            }
-            if (tableModel.alreadyAdded(file))
-            {
-                JOptionPane.showMessageDialog(getWindowFrame(), "File already added:\n"
-                        + file.getAbsolutePath());
-                return;
-            }
-            tableModel.addFile(file);
         }
     }
 
@@ -680,7 +685,7 @@ public class FileUploadClient extends AbstractSwingGUI
                             {
                                 notifyUserOfThrowable(getWindowFrame(), file.getOriginalFile()
                                         .getPath(), "Encrypting", new IOException("File '"
-                                        + file.getEncryptedFile() + "' could not be deleted."),
+                                                + file.getEncryptedFile() + "' could not be deleted."),
                                         null);
                                 tableModel.fireChanged(file.getOriginalFile(),
                                         FileItemStatus.ABORTED);
