@@ -217,7 +217,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         }
         
         if(profile.mainMenu.showInventory) {
-        	treeModel.push({ title : "Inventory", entityType: "INVENTORY", key : "INVENTORY", folder : true, lazy : true, view : "showInventoryPage", icon : "glyphicon glyphicon-inbox" });
+        	treeModel.push({ title : "Inventory", entityType: "INVENTORY", key : "INVENTORY", folder : true, lazy : true, view : "showInventoryPage" });
         }
         
         var treeModelUtils = [];
@@ -243,11 +243,11 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         }
         
         if(profile.mainMenu.showStorageManager) {
-        	treeModelUtils.push({ title : "Storage Manager", entityType: "STORAGE_MANAGER", key : "STORAGE_MANAGER", folder : false, lazy : false, view : "showStorageManager", icon : "glyphicon glyphicon-wrench" });
+        	treeModelUtils.push({ title : "Storage Manager", entityType: "STORAGE_MANAGER", key : "STORAGE_MANAGER", folder : false, lazy : false, view : "showStorageManager" });
         }
         
         if(profile.mainMenu.showUserManager) {
-        	treeModelUtils.push({ title : "User Manager", entityType: "USER_MANAGER", key : "USER_MANAGER", folder : false, lazy : false, view : "showUserManagerPage", icon : "glyphicon glyphicon-wrench" });
+        	treeModelUtils.push({ title : "User Manager", entityType: "USER_MANAGER", key : "USER_MANAGER", folder : false, lazy : false, view : "showUserManagerPage" });
         }
         
         if(profile.mainMenu.showTrashcan) {
