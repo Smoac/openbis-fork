@@ -5,14 +5,40 @@ import java.util.List;
 
 public class HierarchicalContentProxy implements IHierarchicalContent
 {
+
     private final IHierarchicalContent hierarchicalContent;
 
-    private final List<IHierarchicalContentExecuteOnAccess> executeOnAccessList = new ArrayList<IHierarchicalContentExecuteOnAccess>();
+    private final List<IHierarchicalContentExecuteOnAccess> executeOnAccessList;
 
-    public HierarchicalContentProxy(IHierarchicalContent hierarchicalContent)
+    private HierarchicalContentProxy(IHierarchicalContent hierarchicalContent, List<IHierarchicalContentExecuteOnAccess> executeOnAccessList)
     {
         super();
-        this.hierarchicalContent = hierarchicalContent;
+        if (hierarchicalContent == null)
+        {
+            throw new IllegalArgumentException("hierarchicalContent was null");
+        } else
+        {
+            this.hierarchicalContent = hierarchicalContent;
+        }
+
+        if (executeOnAccessList == null)
+        {
+            this.executeOnAccessList = new ArrayList<IHierarchicalContentExecuteOnAccess>();
+        } else
+        {
+            this.executeOnAccessList = executeOnAccessList;
+        }
+    }
+
+    public static IHierarchicalContent getProxyFor(IHierarchicalContent hierarchicalContent,
+            List<IHierarchicalContentExecuteOnAccess> executeOnAccessList)
+    {
+        if (hierarchicalContent != null)
+        {
+            HierarchicalContentProxy newIntance = new HierarchicalContentProxy(hierarchicalContent, executeOnAccessList);
+            return newIntance;
+        }
+        return null;
     }
 
     public void addExecuteOnAccessMethod(IHierarchicalContentExecuteOnAccess executeOnAccessMethod)
@@ -31,7 +57,6 @@ public class HierarchicalContentProxy implements IHierarchicalContent
     @Override
     public IHierarchicalContentNode getRootNode()
     {
-        // executeOnAccessMethods();
         return hierarchicalContent.getRootNode();
     }
 
@@ -66,7 +91,25 @@ public class HierarchicalContentProxy implements IHierarchicalContent
     @Override
     public void close()
     {
-        // executeOnAccessMethods();
         hierarchicalContent.close();
     }
+
+    @Override
+    public int hashCode()
+    {
+        return (hierarchicalContent != null) ? hierarchicalContent.hashCode() : 0;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        return hierarchicalContent == obj || (hierarchicalContent != null && hierarchicalContent.equals(obj));
+    }
+
+    @Override
+    public String toString()
+    {
+        return hierarchicalContent.toString();
+    }
+
 }

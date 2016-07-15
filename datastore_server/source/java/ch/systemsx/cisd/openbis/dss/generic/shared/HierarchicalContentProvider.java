@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -190,8 +191,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                     });
                 for (final IDatasetLocationNode component : sortedNodes)
                 {
-                    HierarchicalContentProxy componentContent = new HierarchicalContentProxy(tryCreateComponentContent(component));
-                    componentContent.addExecuteOnAccessMethod(new IHierarchicalContentExecuteOnAccess()
+                    IHierarchicalContentExecuteOnAccess onAccess = new IHierarchicalContentExecuteOnAccess()
                         {
                             @Override
                             public void execute()
@@ -201,7 +201,9 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                                     openbisService.notifyDatasetAccess(component.getLocation().getDataSetCode());
                                 }
                             }
-                        });
+                        };
+                    IHierarchicalContent componentContent =
+                            HierarchicalContentProxy.getProxyFor(tryCreateComponentContent(component), Arrays.asList(onAccess));
 
                     if (componentContent != null)
                     {
@@ -211,8 +213,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                 return getHierarchicalContentFactory().asVirtualHierarchicalContent(componentContents);
             } else
             {
-                HierarchicalContentProxy asContent = new HierarchicalContentProxy(asContent(locationNode.getLocation()));
-                asContent.addExecuteOnAccessMethod(new IHierarchicalContentExecuteOnAccess()
+                IHierarchicalContentExecuteOnAccess onAccess = new IHierarchicalContentExecuteOnAccess()
                     {
                         @Override
                         public void execute()
@@ -222,7 +223,8 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                                 openbisService.notifyDatasetAccess(locationNode.getLocation().getDataSetCode());
                             }
                         }
-                    });
+                    };
+                IHierarchicalContent asContent = HierarchicalContentProxy.getProxyFor(asContent(locationNode.getLocation()), Arrays.asList(onAccess));
                 return asContent;
             }
         } else
@@ -243,9 +245,8 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                 SslCertificateHelper.trustAnyCertificate(locationNode.getLocation()
                         .getDataStoreUrl());
             }
-            HierarchicalContentProxy hierarchicalContentProxy =
-                    new HierarchicalContentProxy(new RemoteHierarchicalContent(locationNode, provider, serviceFactory, sessionTokenProvider, cache));
-            hierarchicalContentProxy.addExecuteOnAccessMethod(new IHierarchicalContentExecuteOnAccess()
+
+            IHierarchicalContentExecuteOnAccess onAccess = new IHierarchicalContentExecuteOnAccess()
                 {
                     @Override
                     public void execute()
@@ -255,7 +256,10 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                             openbisService.notifyDatasetAccess(locationNode.getLocation().getDataSetCode());
                         }
                     }
-                });
+                };
+
+            IHierarchicalContent hierarchicalContentProxy = HierarchicalContentProxy.getProxyFor(
+                    new RemoteHierarchicalContent(locationNode, provider, serviceFactory, sessionTokenProvider, cache), Arrays.asList(onAccess));
             return hierarchicalContentProxy;
         }
     }
