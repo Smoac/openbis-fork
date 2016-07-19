@@ -30,6 +30,12 @@ dependencies {
 				'hamcrest:hamcrest-library:+'
 } 
 
+test {
+    systemProperty "http.proxyHost", System.getProperty("test.http.proxyHost")
+    systemProperty "http.proxyPort", System.getProperty("test.http.proxyPort")
+    systemProperty "http.nonProxyHosts", System.getProperty("test.http.nonProxyHosts")
+}
+
 testJar {
 	from "source/java/genericCommonContext.xml"
 }
