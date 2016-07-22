@@ -32,6 +32,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.FileUtils;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -2738,7 +2740,8 @@ public final class CommonClientService extends AbstractClientService implements
         HttpSession httpSession = getHttpSession();
         UploadedFilesBean uploadedFiles = null;
         ConsumerTask asyncCustomImportTask = null;
-
+        final RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        final String sessionId = getSessionToken();
         try
         {
             uploadedFiles = (UploadedFilesBean) httpSession.getAttribute(sessionKey);
@@ -2765,10 +2768,11 @@ public final class CommonClientService extends AbstractClientService implements
                         @Override
                         public void doActionOrThrowException(Writer writer)
                         {
+                            RequestContextHolder.setRequestAttributes(requestAttributes);
                             // Some stuff is repeated on the async executor, this is expected
                             CustomImportFile customImportFileAsync = getCustomImportFile(this.getFilesForTask());
                             // Execute task
-                            commonServer.performCustomImport(getSessionToken(), customImportCode, customImportFileAsync);
+                            commonServer.performCustomImport(sessionId, customImportCode, customImportFileAsync);
                         }
                     };
 

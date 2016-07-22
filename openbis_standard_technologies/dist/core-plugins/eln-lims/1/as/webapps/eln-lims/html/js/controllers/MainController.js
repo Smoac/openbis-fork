@@ -521,13 +521,18 @@ function MainController(profile) {
 		}
 		
 		if(experimentIdentifier) {
-			sampleTableController = new SampleTableController(this, "Experiment " + experimentIdentifier, experimentIdentifier);
+			this.serverFacade.listExperimentsForIdentifiers([experimentIdentifier], function(data) {
+				sampleTableController = new SampleTableController(this, "Experiment " + experimentIdentifier, experimentIdentifier, null, null, data.result[0]);
+				sampleTableController.init($("#mainContainer"));
+				this.currentView = sampleTableController;
+			});
 		} else {
 			sampleTableController = new SampleTableController(this, "Sample Browser", null);
+			sampleTableController.init($("#mainContainer"));
+			this.currentView = sampleTableController;
 		}
 		
-		sampleTableController.init($("#mainContainer"));
-		this.currentView = sampleTableController;
+		
 	}
 
 	this._showSampleHierarchyPage = function(permId) {

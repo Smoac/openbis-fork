@@ -25,7 +25,6 @@ import ch.systemsx.cisd.common.jython.IJythonFunction;
 import ch.systemsx.cisd.common.jython.IJythonInterpreter;
 import ch.systemsx.cisd.common.jython.IJythonInterpreterFactory;
 import ch.systemsx.cisd.common.jython.v25.Jython25InterpreterFactory;
-import ch.systemsx.cisd.common.jython.v27.Jython27InterpreterFactory;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
@@ -37,6 +36,7 @@ import ch.systemsx.cisd.etlserver.registrator.v2.AbstractDataSetRegistrationDeta
 import ch.systemsx.cisd.etlserver.registrator.v2.AbstractProgrammableTopLevelDataSetHandler;
 import ch.systemsx.cisd.etlserver.registrator.v2.DataSetRegistrationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Jython27FactoriesProvider;
 
 /**
  * A top-level data set handler that runs a python (jython) script to register data sets.
@@ -78,7 +78,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
             jythonInterpreterFactory = new Jython25InterpreterFactory();
         } else
         {
-            jythonInterpreterFactory = new Jython27InterpreterFactory();
+            jythonInterpreterFactory = Jython27FactoriesProvider.getInterpreterFactory();
         }
 
         DssRegistrationHealthMonitor.getInstance(globalState.getOpenBisService(),

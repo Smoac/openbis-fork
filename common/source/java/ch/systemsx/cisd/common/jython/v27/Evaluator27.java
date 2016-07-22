@@ -190,7 +190,7 @@ public final class Evaluator27 implements IJythonEvaluator
             {
                 pyArgs[i] = translateToPython(args[i]);
             }
-            PyObject result = func.__call__(pyArgs);
+            PyObject result = JythonUtils.invokeFunction(func, pyArgs);
             return translateToJava(result);
         } catch (PyException ex)
         {

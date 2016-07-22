@@ -489,6 +489,18 @@ var Util = new function() {
 		           s4() + '-' + s4() + s4() + s4();
 	};
 	
+	this.getDisplayNameFromCode = function(openBISCode) {
+		var normalizedCodeParts = openBISCode.toLowerCase().split('_');
+		var displayName = "";
+		for(var i = 0; i < normalizedCodeParts.length; i++) {
+			if(i > 0) {
+				displayName += " ";
+			}
+			displayName += normalizedCodeParts[i].capitalizeFirstLetter();
+		}
+		return displayName;
+	}
+	
 	//
 	// Grid related function
 	//
@@ -580,6 +592,10 @@ String.prototype.endsWith = function(suffix) {
 
 String.prototype.startsWith = function (prefix) {
     return this.slice(0, prefix.length) == prefix;
+};
+
+String.prototype.capitalizeFirstLetter = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
 };
 
 Array.prototype.uniqueOBISEntity = function() {

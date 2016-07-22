@@ -38,14 +38,20 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		//
 		var title = null;
 		var entityPath = null;
+		var isInventoryProject = this._projectFormModel.project && profile.isInventorySpace(this._projectFormModel.project.spaceCode);
+		var typeTitle = "Project: ";
+//		if(isInventoryProject) {
+//			typeTitle = "";
+//		}
+		
 		if(this._projectFormModel.mode === FormMode.CREATE) {
-			title = "Create Project";
+			title = "Create " + typeTitle;
 			entityPath = "";
 		} else if (this._projectFormModel.mode === FormMode.EDIT) {
-			title = "Update Project: " + this._projectFormModel.project.code;
+			title = "Update " + typeTitle + this._projectFormModel.project.code;
 			entityPath = "/" + this._projectFormModel.project.spaceCode + "/" + this._projectFormModel.project.code;
 		} else {
-			title = "Project: " + this._projectFormModel.project.code;
+			title = typeTitle + this._projectFormModel.project.code;
 			entityPath = "/" + this._projectFormModel.project.spaceCode + "/" + this._projectFormModel.project.code;
 		}
 		
@@ -109,7 +115,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 					if(error) {
 						Util.showError(error);
 					} else {
-						Util.showSuccess("Export is being processed, you will receibe an email when is ready, if you logout the process will stop.", function() { Util.unblockUI(); });
+						Util.showSuccess("Export is being processed, you will receive an email when is ready, if you logout the process will stop.", function() { Util.unblockUI(); });
 					}
 				});
 			});
@@ -143,7 +149,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		}
 		
 		// Experiment And Samples Table
-		if(this._projectFormModel.mode !== FormMode.CREATE) {
+		if(this._projectFormModel.mode !== FormMode.CREATE && !isInventoryProject) {
 			var $experimentsContainer = $("<div>");
 			$formColumn.append($experimentsContainer);
 			

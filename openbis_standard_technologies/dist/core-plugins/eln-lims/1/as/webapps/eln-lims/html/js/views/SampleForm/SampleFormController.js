@@ -96,7 +96,7 @@ function SampleFormController(mainController, mode, sample) {
 			} else {
 				Util.showSuccess("Sample Deleted");
 				if(_this._sampleFormModel.isELNSample) {
-					mainController.sideMenu.deleteUniqueIdAndMoveToParent(_this._sampleFormModel.sample.identifier);
+					mainController.sideMenu.deleteNodeByEntityPermId(_this._sampleFormModel.sample.permId, true);
 				} else {
 					mainController.changeView('showSamplesPage', ":" + _this._sampleFormModel.sample.experimentIdentifierOrNull);
 				}
@@ -320,7 +320,11 @@ function SampleFormController(mainController, mode, sample) {
 			
 			var callbackOk = function() {
 				if((isCopyWithNewCode || _this._sampleFormModel.mode === FormMode.CREATE || _this._sampleFormModel.mode === FormMode.EDIT) && _this._sampleFormModel.isELNSample) {
-					mainController.sideMenu.refreshSubExperiment(_this._sampleFormModel.sample.experimentIdentifierOrNull);
+					if(_this._sampleFormModel.mode === FormMode.CREATE) {
+						mainController.sideMenu.refreshCurrentNode();
+					} else if(_this._sampleFormModel.mode === FormMode.EDIT) {
+						mainController.sideMenu.refreshNodeParent(_this._sampleFormModel.sample.permId);
+					}
 				}
 				
 				var sampleCodeToOpen = null;

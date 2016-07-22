@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.property;
 
+import java.util.Date;
+
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.ObjectBaseRecord;
 
 /**
@@ -23,7 +25,21 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.Obje
  */
 public class PropertyAssignmentRecord extends ObjectBaseRecord
 {
-    public Boolean is_mandatory;
+
+    public String section;
+
+    public Integer ordinal;
 
     public Long prty_id;
+
+    public Boolean is_mandatory;
+
+    public Boolean is_shown_edit;
+
+    public Boolean show_raw_value;
+
+    public Long pers_id_registerer;
+
+    public Date registration_timestamp;
+
 }

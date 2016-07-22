@@ -16,6 +16,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IOwnerHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IParentChildrenHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IProjectHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IProjectsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyTypeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISamplesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ArchivingStatus;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.Complete;
@@ -68,6 +69,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
@@ -635,6 +640,46 @@ public class Generator extends AbstractGenerator
         return gen;
     }
 
+    private static DtoGenerator createPropertyAssignmentGenerator()
+    {
+        DtoGenerator gen = new DtoGenerator("property", "PropertyAssignment", PropertyAssignmentFetchOptions.class);
+
+        gen.addStringField("section");
+        gen.addSimpleField(Integer.class, "ordinal");
+        gen.addFetchedField(PropertyType.class, "propertyType", "Property type", PropertyTypeFetchOptions.class)
+                .withInterface(IPropertyTypeHolder.class);
+        gen.addBooleanField("mandatory");
+        gen.addBooleanField("showInEditView");
+        gen.addBooleanField("showRawValueInForms");
+        addRegistrator(gen);
+        addRegistrationDate(gen);
+        gen.setToStringMethod(
+                "\"PropertyAssignment property type: \" + (propertyType != null ? propertyType.getCode() : null) + \", mandatory: \" + mandatory");
+
+        return gen;
+    }
+
+    private static DtoGenerator createPropertyTypeGenerator()
+    {
+        DtoGenerator gen = new DtoGenerator("property", "PropertyType", PropertyTypeFetchOptions.class);
+
+        addCode(gen);
+        gen.addStringField("label");
+        addDescription(gen);
+        gen.addBooleanField("managedInternally");
+        gen.addBooleanField("internalNameSpace");
+        gen.addSimpleField(DataType.class, "dataType");
+        gen.addFetchedField(Vocabulary.class, "vocabulary", "Vocabulary", VocabularyFetchOptions.class);
+        gen.addFetchedField(MaterialType.class, "materialType", "Material type", MaterialTypeFetchOptions.class);
+        gen.addStringField("schema");
+        gen.addStringField("transformation");
+        addRegistrator(gen);
+        addRegistrationDate(gen);
+        gen.setToStringMethod("\"PropertyType \" + code");
+
+        return gen;
+    }
+
     public static void main(String[] args) throws FileNotFoundException
     {
         List<DtoGenerator> list = new LinkedList<DtoGenerator>();
@@ -665,6 +710,8 @@ public class Generator extends AbstractGenerator
         list.add(createCustomASServiceGenerator());
         list.add(createObjectKindModificationGenerator());
         list.add(createGlobalSearchObject());
+        list.add(createPropertyAssignmentGenerator());
+        list.add(createPropertyTypeGenerator());
 
         for (DtoGenerator gen : list)
         {

@@ -109,6 +109,8 @@ function DataSetFormController(parentController, mode, sample, dataSet, isMini) 
 		
 		var method = null;
 		var sampleIdentifier = this._dataSetFormModel.sample.identifier;
+		var space = sampleIdentifier.split("/")[1];
+		var isInventory = profile.isInventorySpace(space);
 		var dataSetTypeCode = null;
 		var dataSetCode = null;
 		if(this._dataSetFormModel.mode === FormMode.CREATE) {
@@ -168,8 +170,15 @@ function DataSetFormController(parentController, mode, sample, dataSet, isMini) 
 					
 					if(_this._dataSetFormModel.mode === FormMode.CREATE) {
 						Util.showSuccess("DataSet Created.", callbackOk);
+						if(!isInventory) {
+							mainController.sideMenu.refreshCurrentNode();
+						}
+						
 					} else if(_this._dataSetFormModel.mode === FormMode.EDIT) {
 						Util.showSuccess("DataSet Updated.", callbackOk);
+						if(!isInventory) {
+							mainController.sideMenu.refreshNodeParent(_this._dataSetFormModel.dataSet.code);
+						}
 					}
 					
 				} else { //This should never happen

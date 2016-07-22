@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
@@ -60,7 +61,16 @@ public class DeleteDataSetExecutor extends AbstractDeleteEntityExecutor<IDeletio
     @Override
     protected void checkAccess(IOperationContext context, IDataSetId entityId, DataPE entity)
     {
-        if (false == new SimpleSpaceValidator().doValidation(context.getSession().tryGetPerson(), entity.getSpace()))
+        boolean isStorageConfirmed;
+        if (entity instanceof ExternalDataPE)
+        {
+            isStorageConfirmed = ((ExternalDataPE) entity).isStorageConfirmation();
+        } else
+        {
+            isStorageConfirmed = true;
+        }
+
+        if (isStorageConfirmed && false == new SimpleSpaceValidator().doValidation(context.getSession().tryGetPerson(), entity.getSpace()))
         {
             throw new UnauthorizedObjectAccessException(entityId);
         }

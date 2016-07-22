@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.property;
 
+import java.util.Date;
+
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.ObjectBaseRecord;
 
 /**
@@ -29,8 +31,16 @@ public class PropertyTypeRecord extends ObjectBaseRecord
 
     public String description;
 
+    public String data_type;
+
+    public Boolean is_managed_internally;
+
     public Boolean is_internal_namespace;
 
-    public String dataSetTypeCode;
-    public Long covo_id;
+    public String schema;
+
+    public String transformation;
+
+    public Date registration_timestamp;
+
 }

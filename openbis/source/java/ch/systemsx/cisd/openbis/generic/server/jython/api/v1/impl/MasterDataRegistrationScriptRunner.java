@@ -21,9 +21,11 @@ import java.util.List;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.jython.IJythonInterpreter;
 import ch.systemsx.cisd.common.jython.JythonScriptSplitter;
 import ch.systemsx.cisd.common.jython.JythonUtils;
-import ch.systemsx.cisd.common.jython.PythonInterpreter;
+import ch.systemsx.cisd.common.jython.v25.Jython25InterpreterFactory;
+import ch.systemsx.cisd.common.jython.v27.Jython27InterpreterFactory;
 
 /**
  * A class for running python scripts that register master data.
@@ -56,12 +58,12 @@ public class MasterDataRegistrationScriptRunner implements IMasterDataScriptRegi
         MasterDataRegistrationService service = new MasterDataRegistrationService(commonServer);
 
         // Configure the evaluator
-        PythonInterpreter interpreter = PythonInterpreter.createIsolatedPythonInterpreter();
+        IJythonInterpreter interpreter = createInterpreter();
         interpreter.addToPath(jythonPath);
         interpreter.set(SERVICE_VARIABLE_NAME, service);
 
         // Split the script to overcome 64KB limit (see LMS-2749)
-        List<String> batches = new JythonScriptSplitter().split(jythonScript);
+        List<String> batches = new JythonScriptSplitter(interpreter).split(jythonScript);
 
         // Invoke the evaluator
         for (String batch : batches)
@@ -79,6 +81,17 @@ public class MasterDataRegistrationScriptRunner implements IMasterDataScriptRegi
         }
 
         service.commit();
+    }
+
+    private IJythonInterpreter createInterpreter()
+    {
+        try
+        {
+            return new Jython25InterpreterFactory().createInterpreter();
+        } catch (NoClassDefFoundError ex)
+        {
+            return new Jython27InterpreterFactory().createInterpreter();
+        }
     }
 
     private void checkValidJythonScript(File jythonScript)

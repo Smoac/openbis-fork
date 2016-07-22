@@ -4,6 +4,7 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/SortOptions" ], function
 	};
 
 	var fields = {
+		ORDINAL : "ORDINAL",
 		CODE : "CODE",
 		LABEL : "LABEL"
 	};
@@ -11,6 +12,12 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/SortOptions" ], function
 	stjs.extend(PropertyAssignmentSortOptions, SortOptions, [ SortOptions ], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.property.fetchoptions.PropertyAssignmentSortOptions';
 		constructor.serialVersionUID = 1;
+		prototype.ordinal = function() {
+			return this.getOrCreateSorting(fields.ORDINAL);
+		};
+		prototype.getOrdinal = function() {
+			return this.getSorting(fields.ORDINAL);
+		};
 		prototype.code = function() {
 			return this.getOrCreateSorting(fields.CODE);
 		};

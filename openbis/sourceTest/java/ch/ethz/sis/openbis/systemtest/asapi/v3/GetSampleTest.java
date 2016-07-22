@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import junit.framework.Assert;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.testng.annotations.Test;
@@ -51,7 +49,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataTypeCode;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
@@ -68,6 +66,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+
+import junit.framework.Assert;
 
 /**
  * @author pkupczyk
@@ -1089,15 +1089,15 @@ public class GetSampleTest extends AbstractSampleTest
         assertEquals(propertyAssignments.get(0).getPropertyType().getCode(), "PLATE_GEOMETRY");
         assertEquals(propertyAssignments.get(0).getPropertyType().getLabel(), "Plate Geometry");
         assertEquals(propertyAssignments.get(0).getPropertyType().getDescription(), "Plate Geometry");
-        assertEquals(propertyAssignments.get(0).getPropertyType().isInternalNameSpace(), true);
-        assertEquals(propertyAssignments.get(0).getPropertyType().getDataTypeCode(), DataTypeCode.CONTROLLEDVOCABULARY);
-        assertEquals(propertyAssignments.get(0).isMandatory(), true);
+        assertEquals(propertyAssignments.get(0).getPropertyType().isInternalNameSpace(), Boolean.TRUE);
+        assertEquals(propertyAssignments.get(0).getPropertyType().getDataType(), DataType.CONTROLLEDVOCABULARY);
+        assertEquals(propertyAssignments.get(0).isMandatory(), Boolean.TRUE);
         assertEquals(propertyAssignments.get(1).getPropertyType().getCode(), "DESCRIPTION");
         assertEquals(propertyAssignments.get(1).getPropertyType().getLabel(), "Description");
         assertEquals(propertyAssignments.get(1).getPropertyType().getDescription(), "A Description");
-        assertEquals(propertyAssignments.get(1).getPropertyType().isInternalNameSpace(), false);
-        assertEquals(propertyAssignments.get(1).getPropertyType().getDataTypeCode(), DataTypeCode.VARCHAR);
-        assertEquals(propertyAssignments.get(1).isMandatory(), false);
+        assertEquals(propertyAssignments.get(1).getPropertyType().isInternalNameSpace(), Boolean.FALSE);
+        assertEquals(propertyAssignments.get(1).getPropertyType().getDataType(), DataType.VARCHAR);
+        assertEquals(propertyAssignments.get(1).isMandatory(), Boolean.FALSE);
         assertEquals(propertyAssignments.size(), 2);
         v3api.logout(sessionToken);
     }

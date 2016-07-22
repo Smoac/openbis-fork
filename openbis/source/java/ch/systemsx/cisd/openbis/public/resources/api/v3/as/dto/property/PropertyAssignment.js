@@ -4,34 +4,83 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 	stjs.extend(PropertyAssignment, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.property.PropertyAssignment';
 		constructor.serialVersionUID = 1;
-		prototype.mandatory = null;
+		prototype.fetchOptions = null;
+		prototype.section = null;
+		prototype.ordinal = null;
 		prototype.propertyType = null;
+		prototype.mandatory = null;
+		prototype.showInEditView = null;
+		prototype.showRawValueInForms = null;
+		prototype.registrator = null;
+		prototype.registrationDate = null;
+
+		prototype.getFetchOptions = function() {
+			return this.fetchOptions;
+		};
+		prototype.setFetchOptions = function(fetchOptions) {
+			this.fetchOptions = fetchOptions;
+		};
+		prototype.getSection = function() {
+			return this.section;
+		};
+		prototype.setSection = function(section) {
+			this.section = section;
+		};
+		prototype.getOrdinal = function() {
+			return this.ordinal;
+		};
+		prototype.setOrdinal = function(ordinal) {
+			this.ordinal = ordinal;
+		};
+		prototype.getPropertyType = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasPropertyType()) {
+				return this.propertyType;
+			} else {
+				throw new exceptions.NotFetchedException("Property type has not been fetched.");
+			}
+		};
+		prototype.setPropertyType = function(propertyType) {
+			this.propertyType = propertyType;
+		};
 		prototype.isMandatory = function() {
 			return this.mandatory;
 		};
 		prototype.setMandatory = function(mandatory) {
 			this.mandatory = mandatory;
 		};
-		prototype.getPropertyType = function() {
-			return this.propertyType;
+		prototype.isShowInEditView = function() {
+			return this.showInEditView;
 		};
-		prototype.setPropertyType = function(propertyType) {
-			this.propertyType = propertyType;
+		prototype.setShowInEditView = function(showInEditView) {
+			this.showInEditView = showInEditView;
 		};
-		prototype.getVocabularyFetchOptions = function() {
-			if (this.propertyType == null) {
-				return null;
-			}
-			return this.propertyType.getVocabularyFetchOptions();
-		}
-		prototype.getVocabulary = function() {
-			if (this.getVocabularyFetchOptions()) {
-				return this.propertyType.getVocabulary();
+		prototype.isShowRawValueInForms = function() {
+			return this.showRawValueInForms;
+		};
+		prototype.setShowRawValueInForms = function(showRawValueInForms) {
+			this.showRawValueInForms = showRawValueInForms;
+		};
+		prototype.getRegistrator = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasRegistrator()) {
+				return this.registrator;
 			} else {
-				throw new exceptions.NotFetchedException("Vocabulary has not been fetched.");
-			}		}
+				throw new exceptions.NotFetchedException("Registrator has not been fetched.");
+			}
+		};
+		prototype.setRegistrator = function(registrator) {
+			this.registrator = registrator;
+		};
+		prototype.getRegistrationDate = function() {
+			return this.registrationDate;
+		};
+		prototype.setRegistrationDate = function(registrationDate) {
+			this.registrationDate = registrationDate;
+		};
 	}, {
-		propertyType : "PropertyType"
+		fetchOptions : "PropertyAssignmentFetchOptions",
+		propertyType : "PropertyType",
+		registrator : "Person",
+		registrationDate : "Date"
 	});
 	return PropertyAssignment;
 })

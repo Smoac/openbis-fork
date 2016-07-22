@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ETH Zuerich, SIS
+ * Copyright 2014 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,27 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.property;
 
-import java.io.Serializable;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
+import java.util.Date;
 
-/**
- * @author Franz-Josef Elmer
+/*
+ * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.property.PropertyType")
-public class PropertyType implements ICodeHolder, Serializable
+public class PropertyType implements Serializable, ICodeHolder, IRegistrationDateHolder, IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
+
+    @JsonProperty
+    private PropertyTypeFetchOptions fetchOptions;
 
     @JsonProperty
     private String code;
@@ -45,82 +51,129 @@ public class PropertyType implements ICodeHolder, Serializable
     private String description;
 
     @JsonProperty
-    private DataTypeCode dataTypeCode;
+    private Boolean managedInternally;
 
     @JsonProperty
-    private boolean internalNameSpace;
-    
+    private Boolean internalNameSpace;
+
     @JsonProperty
-    private VocabularyFetchOptions vocabularyFetchOptions;
+    private DataType dataType;
 
     @JsonProperty
     private Vocabulary vocabulary;
-    
+
+    @JsonProperty
+    private MaterialType materialType;
+
+    @JsonProperty
+    private String schema;
+
+    @JsonProperty
+    private String transformation;
+
+    @JsonProperty
+    private Person registrator;
+
+    @JsonProperty
+    private Date registrationDate;
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public PropertyTypeFetchOptions getFetchOptions()
+    {
+        return fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setFetchOptions(PropertyTypeFetchOptions fetchOptions)
+    {
+        this.fetchOptions = fetchOptions;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
     @Override
     public String getCode()
     {
         return code;
     }
 
+    // Method automatically generated with DtoGenerator
     public void setCode(String code)
     {
         this.code = code;
     }
 
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
     public String getLabel()
     {
         return label;
     }
 
+    // Method automatically generated with DtoGenerator
     public void setLabel(String label)
     {
         this.label = label;
     }
 
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
     public String getDescription()
     {
         return description;
     }
 
+    // Method automatically generated with DtoGenerator
     public void setDescription(String description)
     {
         this.description = description;
     }
 
-    public DataTypeCode getDataTypeCode()
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public Boolean isManagedInternally()
     {
-        return dataTypeCode;
+        return managedInternally;
     }
 
-    public void setDataTypeCode(DataTypeCode dataTypeCode)
+    // Method automatically generated with DtoGenerator
+    public void setManagedInternally(Boolean managedInternally)
     {
-        this.dataTypeCode = dataTypeCode;
+        this.managedInternally = managedInternally;
     }
 
-    public boolean isInternalNameSpace()
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public Boolean isInternalNameSpace()
     {
         return internalNameSpace;
     }
 
-    public void setInternalNameSpace(boolean internalNameSpace)
+    // Method automatically generated with DtoGenerator
+    public void setInternalNameSpace(Boolean internalNameSpace)
     {
         this.internalNameSpace = internalNameSpace;
     }
 
-    public VocabularyFetchOptions getVocabularyFetchOptions()
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public DataType getDataType()
     {
-        return vocabularyFetchOptions;
+        return dataType;
     }
 
-    public void setVocabularyFetchOptions(VocabularyFetchOptions fetchOptions)
+    // Method automatically generated with DtoGenerator
+    public void setDataType(DataType dataType)
     {
-        this.vocabularyFetchOptions = fetchOptions;
+        this.dataType = dataType;
     }
-    
+
+    // Method automatically generated with DtoGenerator
     @JsonIgnore
     public Vocabulary getVocabulary()
     {
-        if (getVocabularyFetchOptions() != null)
+        if (getFetchOptions() != null && getFetchOptions().hasVocabulary())
         {
             return vocabulary;
         }
@@ -129,9 +182,99 @@ public class PropertyType implements ICodeHolder, Serializable
             throw new NotFetchedException("Vocabulary has not been fetched.");
         }
     }
-    
+
+    // Method automatically generated with DtoGenerator
     public void setVocabulary(Vocabulary vocabulary)
     {
         this.vocabulary = vocabulary;
     }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public MaterialType getMaterialType()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasMaterialType())
+        {
+            return materialType;
+        }
+        else
+        {
+            throw new NotFetchedException("Material type has not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setMaterialType(MaterialType materialType)
+    {
+        this.materialType = materialType;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public String getSchema()
+    {
+        return schema;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setSchema(String schema)
+    {
+        this.schema = schema;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public String getTransformation()
+    {
+        return transformation;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setTransformation(String transformation)
+    {
+        this.transformation = transformation;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    @Override
+    public Person getRegistrator()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasRegistrator())
+        {
+            return registrator;
+        }
+        else
+        {
+            throw new NotFetchedException("Registrator has not been fetched.");
+        }
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setRegistrator(Person registrator)
+    {
+        this.registrator = registrator;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    @Override
+    public Date getRegistrationDate()
+    {
+        return registrationDate;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setRegistrationDate(Date registrationDate)
+    {
+        this.registrationDate = registrationDate;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @Override
+    public String toString()
+    {
+        return "PropertyType " + code;
+    }
+
 }

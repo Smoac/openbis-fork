@@ -52,7 +52,7 @@ function MoveSampleController(samplePermId, successAction) {
 							Util.unblockUI(); 
 							if(_this._moveSampleModel.successAction) { 
 								//Delete Sample from current experiment menu
-								mainController.sideMenu.deleteUniqueIdAndMoveToParent(_this._moveSampleModel.sample.identifier, true);
+								mainController.sideMenu.deleteNodeByEntityPermId(_this._moveSampleModel.sample.permId, true);
 								
 								//Add Experiment to the menu if new
 								if(_this._moveSampleModel.isNewExperiment) {
@@ -67,7 +67,7 @@ function MoveSampleController(samplePermId, successAction) {
 								}
 								
 								//Refresh Experiment where sample was moved
-								mainController.sideMenu.refreshSubExperiment(_this._moveSampleModel.experimentIdentifier);
+								mainController.sideMenu.refreshNodeParent(_this._moveSampleModel.sample.permId);
 								
 								_this._moveSampleModel.successAction();
 							} 

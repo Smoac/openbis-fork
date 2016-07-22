@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-function SampleTableModel(title, experimentIdentifier, projectPermId, showInProjectOverview) {
+function SampleTableModel(title, experimentIdentifier, projectPermId, showInProjectOverview, experiment) {
 	this.title = title;
 	this.experimentIdentifier = experimentIdentifier;
+	this.experiment = experiment;
 	this.projectPermId = projectPermId;
 	this.showInProjectOverview = showInProjectOverview;
 	this.sampleTypes = {};

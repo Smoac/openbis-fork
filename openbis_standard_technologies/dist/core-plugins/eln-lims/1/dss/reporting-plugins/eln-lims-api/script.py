@@ -167,11 +167,7 @@ def process(tr, parameters, tableBuilder):
 	# Obtain the user using the dropbox
 	sessionToken = parameters.get("sessionToken"); #String
 	sessionId = username(sessionToken); #String
-	if sessionId == userId:
-		tr.setUserId(userId);
-	else:
-		print "[SECURITY] User " + userId + " tried to execute the eln-lims dropbox using " + sessionId + " account.";
-		raise UserFailureException("[SECURITY] User " + userId + " tried to use " + sessionId + " account, this will be communicated to the admin.");
+	tr.setUserId(userId);
 	
 	if method == "init":
 		isOk = init(tr, parameters, tableBuilder);
@@ -324,43 +320,80 @@ def getFeaturesFromFeatureVector(tr, parameters, tableBuilder):
 def init(tr, parameters, tableBuilder):
 	inventorySpace = tr.getSpace("DEFAULT_LAB_NOTEBOOK");
 	if inventorySpace == None:
-		elnTypes = tr.getVocabularyForUpdate("ELN_TYPES_METADATA");
-		if elnTypes is not None: # We can only create the data if the ELN metadata is present, this is not true on highly customized systems.
+		elnTypesMetadata = tr.getVocabularyForUpdate("ELN_TYPES_METADATA");
+		elnTypesMetadataMini = tr.getVocabularyForUpdate("ELN_TYPES_METADATA_MINI");
+		addData = elnTypesMetadata != None or elnTypesMetadataMini != None;
+		if addData: # We can only create the data if the ELN metadata is present, this is not true on highly customized systems.
 			tr.createNewSpace("MATERIALS", None);
 			
-			tr.createNewProject("/MATERIALS/REAGENTS");
-			tr.createNewExperiment("/MATERIALS/REAGENTS/ANTIBODY_COLLECTION", 		"MATERIALS");
-			tr.createNewExperiment("/MATERIALS/REAGENTS/CHEMICAL_COLLECTION", 		"MATERIALS");
-			tr.createNewExperiment("/MATERIALS/REAGENTS/ENZYME_COLLECTION", 			"MATERIALS");
-			tr.createNewExperiment("/MATERIALS/REAGENTS/MEDIA_COLLECTION", 			"MATERIALS");
-			tr.createNewExperiment("/MATERIALS/REAGENTS/SOLUTION_BUFFER_COLLECTION",	"MATERIALS");
-			
-			tr.createNewProject("/MATERIALS/BACTERIA");
-			tr.createNewExperiment("/MATERIALS/BACTERIA/BACTERIA_COLLECTION_1",		"MATERIALS");
-			tr.createNewProject("/MATERIALS/CELL_LINES");
-			tr.createNewExperiment("/MATERIALS/CELL_LINES/CELL_LINE_COLLECTION_1",	"MATERIALS");
-			tr.createNewProject("/MATERIALS/FLIES");
-			tr.createNewExperiment("/MATERIALS/FLIES/FLY_COLLECTION_1",				"MATERIALS");
-			tr.createNewProject("/MATERIALS/YEASTS");
-			tr.createNewExperiment("/MATERIALS/YEASTS/YEAST_COLLECTION_1",			"MATERIALS");
-			tr.createNewProject("/MATERIALS/PLASMIDS");
-			tr.createNewExperiment("/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1",		"MATERIALS");
-			tr.createNewProject("/MATERIALS/POLYNUCLEOTIDES");
-			tr.createNewExperiment("/MATERIALS/POLYNUCLEOTIDES/OLIGO_COLLECTION_1",	"MATERIALS");
-			tr.createNewExperiment("/MATERIALS/POLYNUCLEOTIDES/RNA_COLLECTION_1",	"MATERIALS");
-			
+			##
+			## If not Mini
+			##
+			if elnTypesMetadata is not None:
+				tr.createNewProject("/MATERIALS/REAGENTS");
+				antibodyCollection = tr.createNewExperiment("/MATERIALS/REAGENTS/ANTIBODY_COLLECTION", 		"MATERIALS");
+				antibodyCollection.setPropertyValue("NAME", "Antibody Collection");
+				chemicalCollection = tr.createNewExperiment("/MATERIALS/REAGENTS/CHEMICAL_COLLECTION", 		"MATERIALS");
+				chemicalCollection.setPropertyValue("NAME", "Chemical Collection");
+				enzymeCollection = tr.createNewExperiment("/MATERIALS/REAGENTS/ENZYME_COLLECTION", 			"MATERIALS");
+				enzymeCollection.setPropertyValue("NAME", "Enzyme Collection");
+				mediaCollection = tr.createNewExperiment("/MATERIALS/REAGENTS/MEDIA_COLLECTION", 			"MATERIALS");
+				mediaCollection.setPropertyValue("NAME", "Media Collection");
+				solutionBufferCollection = tr.createNewExperiment("/MATERIALS/REAGENTS/SOLUTION_BUFFER_COLLECTION",	"MATERIALS");
+				solutionBufferCollection.setPropertyValue("NAME", "Solution Buffer Collection");
+				
+				tr.createNewProject("/MATERIALS/BACTERIA");
+				bacteriaCollection = tr.createNewExperiment("/MATERIALS/BACTERIA/BACTERIA_COLLECTION_1",		"MATERIALS");
+				bacteriaCollection.setPropertyValue("NAME", "Bacteria Collection 1");
+				
+				tr.createNewProject("/MATERIALS/CELL_LINES");
+				cellLineCollection1 = tr.createNewExperiment("/MATERIALS/CELL_LINES/CELL_LINE_COLLECTION_1",	"MATERIALS");
+				cellLineCollection1.setPropertyValue("NAME", "Cell Line Collection 1");
+				
+				tr.createNewProject("/MATERIALS/FLIES");
+				flyCollection1 = tr.createNewExperiment("/MATERIALS/FLIES/FLY_COLLECTION_1",				"MATERIALS");
+				flyCollection1.setPropertyValue("NAME", "Fly Collection 1");
+				
+				tr.createNewProject("/MATERIALS/YEASTS");
+				yeastCollection1 = tr.createNewExperiment("/MATERIALS/YEASTS/YEAST_COLLECTION_1",			"MATERIALS");
+				yeastCollection1.setPropertyValue("NAME", "Yeast Collection 1");
+				
+				tr.createNewProject("/MATERIALS/PLASMIDS");
+				plasmidCollection1 = tr.createNewExperiment("/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1",		"MATERIALS");
+				plasmidCollection1.setPropertyValue("NAME", "Plasmid Collection 1");
+				
+				tr.createNewProject("/MATERIALS/POLYNUCLEOTIDES");
+				oligoCollection1 = tr.createNewExperiment("/MATERIALS/POLYNUCLEOTIDES/OLIGO_COLLECTION_1",	"MATERIALS");
+				oligoCollection1.setPropertyValue("NAME", "Oligo Collection 1");
+				rnaCollection1 = tr.createNewExperiment("/MATERIALS/POLYNUCLEOTIDES/RNA_COLLECTION_1",	"MATERIALS");
+				rnaCollection1.setPropertyValue("NAME", "RNA Collection 1");
+			##
+			##
+			##
 			tr.createNewSpace("METHODS", None);
 			
-			tr.createNewProject("/METHODS/PROTOCOLS");
-			tr.createNewExperiment("/METHODS/PROTOCOLS/GENERAL_PROTOCOLS", 			"METHODS");
-			tr.createNewExperiment("/METHODS/PROTOCOLS/PCR_PROTOCOLS", 				"METHODS");
-			tr.createNewExperiment("/METHODS/PROTOCOLS/WESTERN_BLOTTING_PROTOCOLS", 	"METHODS");
+			##
+			## If not Mini
+			##
+			if elnTypesMetadata is not None:
+				tr.createNewProject("/METHODS/PROTOCOLS");
+				generalProtocols = tr.createNewExperiment("/METHODS/PROTOCOLS/GENERAL_PROTOCOLS", 			"METHODS");
+				generalProtocols.setPropertyValue("NAME", "General Protocols");
+				
+				pcrProtocols = tr.createNewExperiment("/METHODS/PROTOCOLS/PCR_PROTOCOLS", 				"METHODS");
+				pcrProtocols.setPropertyValue("NAME", "PCR Protocols");
+				
+				westernBottingProtocols = tr.createNewExperiment("/METHODS/PROTOCOLS/WESTERN_BLOTTING_PROTOCOLS", 	"METHODS");
+				westernBottingProtocols.setPropertyValue("NAME", "Western Botting Protocols");
+			##
+			##
+			##
 			
 			tr.createNewSpace("DEFAULT_LAB_NOTEBOOK", None);
-			
 			tr.createNewProject("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT");
-			tr.createNewExperiment("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT/DEFAULT_EXPERIMENT", 	"DEFAULT_EXPERIMENT");
-	
+			defaultExperiment = tr.createNewExperiment("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT/DEFAULT_EXPERIMENT", 	"DEFAULT_EXPERIMENT");
+			defaultExperiment.setPropertyValue("NAME", "Default Experiment");
+			
 	return True;
 
 def registerUserPassword(tr, parameters, tableBuilder):

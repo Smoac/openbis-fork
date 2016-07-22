@@ -23,9 +23,13 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		var _this = this;
 		$container.empty();
 		var $title = $("<div>");
-		if(this._sampleTableModel.experimentIdentifier) {
+		if(this._sampleTableModel.title && this._sampleTableModel.experimentIdentifier) {
+			var title = "Experiment: " + this._sampleTableModel.experimentIdentifier.substring(this._sampleTableModel.experimentIdentifier.lastIndexOf("/") + 1);
+			if(this._sampleTableModel.experiment && this._sampleTableModel.experiment.properties[profile.propertyReplacingCode]) {
+				title = "Experiment: " + this._sampleTableModel.experiment.properties[profile.propertyReplacingCode];
+			}
 			$title
-				.append($("<h2>").append("Experiment: " + this._sampleTableModel.experimentIdentifier.substring(this._sampleTableModel.experimentIdentifier.lastIndexOf("/") + 1)))
+				.append($("<h2>").append(title))
 				.append($("<h4>", { "style" : "font-weight:normal;" } ).append(this._sampleTableModel.experimentIdentifier));
 		} else if(this._sampleTableModel.title) {
 			$title.append($("<h2>").append(this._sampleTableModel.title));

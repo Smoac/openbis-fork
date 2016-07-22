@@ -5,6 +5,8 @@
 
 source `dirname "$0"`/setup-env
 
+
+
 checkNotRoot
 
 bin/status.sh -q
@@ -12,6 +14,8 @@ if [ $? -eq 0 ]; then
   echo openBIS AS already running, shut it down before starting a new one. > /dev/stderr
   exit 1
 fi
+
+disableJythonByProperty
 
 $JVM -DSTOP.PORT=$JETTY_STOP_PORT \
      -DSTOP.KEY=$JETTY_STOP_KEY \

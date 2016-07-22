@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 import java.text.SimpleDateFormat;
@@ -57,8 +58,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataTypeCode;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
@@ -330,6 +334,8 @@ public class GetExperimentTest extends AbstractExperimentTest
         assertEquals(type.getCode(), "SIRNA_HCS");
         assertEquals(type.getDescription(), "Small Interfering RNA High Content Screening");
         assertNotNull(type.getModificationDate());
+        assertPropertyAssignmentsNotFetched(type);
+        assertEquals(type.getFetchOptions().hasPropertyAssignments(), false);
 
         assertProjectNotFetched(experiment);
         assertPropertiesNotFetched(experiment);
@@ -337,12 +343,63 @@ public class GetExperimentTest extends AbstractExperimentTest
         assertRegistratorNotFetched(experiment);
         assertModifierNotFetched(experiment);
         assertAttachmentsNotFetched(experiment);
-        assertEquals(type.getFetchOptions().hasPropertyAssignments(), false);
         v3api.logout(sessionToken);
     }
 
     @Test
-    public void testGetWithTypeAndPropertyAssignments()
+    public void testGetWithTypeWithPropertyAssignments()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.withType().withPropertyAssignments();
+        ExperimentPermId permId = new ExperimentPermId("200811050951882-1028");
+
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, Arrays.asList(permId), fetchOptions);
+
+        assertEquals(1, map.size());
+        Experiment experiment = map.get(permId);
+        ExperimentType type = experiment.getType();
+        assertEquals(type.getCode(), "SIRNA_HCS");
+
+        assertEquals(type.getFetchOptions().hasPropertyAssignments(), true);
+        List<PropertyAssignment> propertyAssignments = type.getPropertyAssignments();
+        assertEquals(propertyAssignments.size(), 3);
+
+        // DESCRIPTION
+        PropertyAssignment propertyAssignment0 = propertyAssignments.get(0);
+        assertEquals(propertyAssignment0.getOrdinal(), Integer.valueOf(1));
+        assertEquals(propertyAssignment0.isMandatory(), Boolean.TRUE);
+        assertEquals(propertyAssignment0.isShowInEditView(), Boolean.TRUE);
+        assertEquals(propertyAssignment0.isShowRawValueInForms(), Boolean.FALSE);
+        assertEqualsDate(propertyAssignment0.getRegistrationDate(), "2008-11-05 09:18:00");
+
+        // PURCHASE_DATE
+        PropertyAssignment propertyAssignment1 = propertyAssignments.get(1);
+        assertEquals(propertyAssignment1.getOrdinal(), Integer.valueOf(2));
+        assertEquals(propertyAssignment1.isMandatory(), Boolean.FALSE);
+        assertEquals(propertyAssignment1.isShowInEditView(), Boolean.TRUE);
+        assertEquals(propertyAssignment1.isShowRawValueInForms(), Boolean.FALSE);
+        assertEqualsDate(propertyAssignment1.getRegistrationDate(), "2008-11-05 09:18:24");
+
+        // GENDER
+        PropertyAssignment propertyAssignment2 = propertyAssignments.get(2);
+        assertEquals(propertyAssignment2.getOrdinal(), Integer.valueOf(3));
+        assertEquals(propertyAssignment2.isMandatory(), Boolean.FALSE);
+        assertEquals(propertyAssignment2.isShowInEditView(), Boolean.TRUE);
+        assertEquals(propertyAssignment2.isShowRawValueInForms(), Boolean.FALSE);
+        assertEqualsDate(propertyAssignment2.getRegistrationDate(), "2008-11-05 09:21:53");
+
+        for (PropertyAssignment propertyAssignment : propertyAssignments)
+        {
+            assertPropertyTypeNotFetched(propertyAssignment);
+            assertRegistratorNotFetched(propertyAssignment);
+        }
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testGetWithTypeWithPropertyAssignmentsWithImplicitPropertyTypeFromSorting()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -355,17 +412,119 @@ public class GetExperimentTest extends AbstractExperimentTest
         Experiment experiment = map.get(permId);
         ExperimentType type = experiment.getType();
         assertEquals(type.getCode(), "SIRNA_HCS");
+
         assertEquals(type.getFetchOptions().hasPropertyAssignments(), true);
         List<PropertyAssignment> propertyAssignments = type.getPropertyAssignments();
+        assertEquals(propertyAssignments.size(), 3);
+
         assertEquals(propertyAssignments.get(0).getPropertyType().getCode(), "PURCHASE_DATE");
-        assertEquals(propertyAssignments.get(0).getPropertyType().getLabel(), "Purchased");
-        assertEquals(propertyAssignments.get(0).getPropertyType().getDescription(), "When material has been bought");
-        assertEquals(propertyAssignments.get(0).getPropertyType().isInternalNameSpace(), false);
-        assertEquals(propertyAssignments.get(0).getPropertyType().getDataTypeCode(), DataTypeCode.TIMESTAMP);
-        assertEquals(propertyAssignments.get(0).isMandatory(), false);
         assertEquals(propertyAssignments.get(1).getPropertyType().getCode(), "GENDER");
         assertEquals(propertyAssignments.get(2).getPropertyType().getCode(), "DESCRIPTION");
+
+        for (PropertyAssignment propertyAssignment : propertyAssignments)
+        {
+            assertRegistratorNotFetched(propertyAssignment);
+        }
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testGetWithTypeWithPropertyAssignmentsWithExplicitPropertyType()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withType().withPropertyAssignments();
+        propertyAssignmentFetchOptions.withPropertyType();
+        propertyAssignmentFetchOptions.withRegistrator();
+
+        ExperimentPermId permId = new ExperimentPermId("200811050951882-1028");
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, Arrays.asList(permId), fetchOptions);
+
+        assertEquals(1, map.size());
+        Experiment experiment = map.get(permId);
+        ExperimentType type = experiment.getType();
+        assertEquals(type.getCode(), "SIRNA_HCS");
+
+        assertEquals(type.getFetchOptions().hasPropertyAssignments(), true);
+        List<PropertyAssignment> propertyAssignments = type.getPropertyAssignments();
         assertEquals(propertyAssignments.size(), 3);
+
+        PropertyType propertyType0 = propertyAssignments.get(0).getPropertyType();
+        assertEquals(propertyType0.getCode(), "DESCRIPTION");
+        assertEquals(propertyType0.getLabel(), "Description");
+        assertEquals(propertyType0.getDescription(), "A Description");
+        assertEquals(propertyType0.isInternalNameSpace(), Boolean.FALSE);
+        assertEquals(propertyType0.isManagedInternally(), Boolean.FALSE);
+        assertEquals(propertyType0.getDataType(), DataType.VARCHAR);
+        assertEqualsDate(propertyType0.getRegistrationDate(), "2008-11-05 09:18:00");
+
+        PropertyType propertyType1 = propertyAssignments.get(1).getPropertyType();
+        assertEquals(propertyType1.getCode(), "PURCHASE_DATE");
+        assertEquals(propertyType1.getLabel(), "Purchased");
+        assertEquals(propertyType1.getDescription(), "When material has been bought");
+        assertEquals(propertyType1.isInternalNameSpace(), Boolean.FALSE);
+        assertEquals(propertyType1.isManagedInternally(), Boolean.FALSE);
+        assertEquals(propertyType1.getDataType(), DataType.TIMESTAMP);
+        assertEqualsDate(propertyType1.getRegistrationDate(), "2008-11-05 09:18:16");
+
+        PropertyType propertyType2 = propertyAssignments.get(2).getPropertyType();
+        assertEquals(propertyType2.getCode(), "GENDER");
+        assertEquals(propertyType2.getLabel(), "Gender");
+        assertEquals(propertyType2.getDescription(), "The gender of the living organism");
+        assertEquals(propertyType2.isInternalNameSpace(), Boolean.FALSE);
+        assertEquals(propertyType2.isManagedInternally(), Boolean.FALSE);
+        assertEquals(propertyType2.getDataType(), DataType.CONTROLLEDVOCABULARY);
+        assertEqualsDate(propertyType2.getRegistrationDate(), "2008-11-05 09:18:31");
+
+        assertEquals(propertyAssignments.get(0).getRegistrator().getUserId(), "system");
+        assertEquals(propertyAssignments.get(1).getRegistrator().getUserId(), "test");
+        assertEquals(propertyAssignments.get(2).getRegistrator().getUserId(), "test");
+
+        for (PropertyAssignment propertyAssignment : propertyAssignments)
+        {
+            PropertyType propertyType = propertyAssignment.getPropertyType();
+            assertVocabularyNotFetched(propertyType);
+            assertMaterialTypeNotFetched(propertyType);
+            assertRegistratorNotFetched(propertyType);
+        }
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testGetWithTypeWithPropertyAssignmentsWithExplicitPropertyTypeWithAllOptions()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        PropertyTypeFetchOptions propertyTypeFetchOptions = fetchOptions.withType().withPropertyAssignments().withPropertyType();
+        propertyTypeFetchOptions.withVocabulary();
+        propertyTypeFetchOptions.withMaterialType();
+        propertyTypeFetchOptions.withRegistrator();
+
+        ExperimentPermId permId = new ExperimentPermId("200811050951882-1028");
+        Map<IExperimentId, Experiment> map = v3api.getExperiments(sessionToken, Arrays.asList(permId), fetchOptions);
+
+        assertEquals(1, map.size());
+        Experiment experiment = map.get(permId);
+        ExperimentType type = experiment.getType();
+        assertEquals(type.getCode(), "SIRNA_HCS");
+
+        assertEquals(type.getFetchOptions().hasPropertyAssignments(), true);
+        List<PropertyAssignment> propertyAssignments = type.getPropertyAssignments();
+        assertEquals(propertyAssignments.size(), 3);
+
+        assertEquals(propertyAssignments.get(0).getPropertyType().getCode(), "DESCRIPTION");
+        assertEquals(propertyAssignments.get(1).getPropertyType().getCode(), "PURCHASE_DATE");
+        assertEquals(propertyAssignments.get(2).getPropertyType().getCode(), "GENDER");
+
+        PropertyType propertyType = propertyAssignments.get(2).getPropertyType();
+        assertEquals(propertyType.getVocabulary().getCode(), "GENDER");
+        assertNull(propertyType.getMaterialType());
+        assertEquals(propertyType.getRegistrator().getUserId(), "test");
+
         v3api.logout(sessionToken);
     }
 

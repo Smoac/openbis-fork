@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.common.jython.v27;
 
+import org.python27.core.CompileMode;
+import org.python27.core.CompilerFlags;
+import org.python27.core.Py;
 import org.python27.core.PyBaseCode;
+import org.python27.core.PyException;
 import org.python27.core.PyFunction;
 import org.python27.core.PyInteger;
 import org.python27.core.PyObject;
@@ -117,9 +121,21 @@ public class Jython27InterpreterFactory implements IJythonInterpreterFactory
         }
 
         @Override
+        public void exec(String scriptString)
+        {
+            interpreter.exec(scriptString);
+        }
+        
+        @Override
         public void set(String variableName, Object object)
         {
             interpreter.set(variableName, object);
+        }
+
+        @Override
+        public void addToPath(String... pythonPaths)
+        {
+            interpreter.addToPath(pythonPaths);
         }
 
         @Override
@@ -139,6 +155,21 @@ public class Jython27InterpreterFactory implements IJythonInterpreterFactory
             else
             {
                 return new Jython27Function(function);
+            }
+        }
+
+        @Override
+        public boolean isNextCommand(String lines)
+        {
+            try
+            {
+                PyObject object =
+                        Py.compile_command_flags(lines, "<input>", CompileMode.single,
+                                new CompilerFlags(), true);
+                return object != Py.None;
+            } catch (PyException e)
+            {
+                return false;
             }
         }
     }

@@ -27,7 +27,12 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 			
 		$form.append($formColumn);
 		
-		var $formTitle = $("<h2>").append("Space " + this._spaceFormModel.space.code);
+		var typeTitle = "Space: ";
+//		if(profile.isInventorySpace(this._spaceFormModel.space.code)) {
+//			typeTitle = "";
+//		}
+		
+		var $formTitle = $("<h2>").append(typeTitle + this._spaceFormModel.space.code);
 		
 		//
 		// Toolbar
@@ -44,7 +49,7 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 				if(error) {
 					Util.showError(error);
 				} else {
-					Util.showSuccess("Export is being processed, you will receibe an email when is ready, if you logout the process will stop.", function() { Util.unblockUI(); });
+					Util.showSuccess("Export is being processed, you will receive an email when is ready, if you logout the process will stop.", function() { Util.unblockUI(); });
 				}
 			});
 		});

@@ -218,7 +218,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 				var criteria = new c.ExperimentTypeSearchCriteria();
 				criteria.withCode().thatStartsWith("HT");
 				var fetchOptions = new c.ExperimentTypeFetchOptions();
-				fetchOptions.withPropertyAssignments();
+				fetchOptions.withPropertyAssignments().withPropertyType();
 				return facade.searchExperimentTypes(criteria, fetchOptions);
 			}
 
@@ -227,7 +227,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 				var type = experimentTypes[0];
 				c.assertEqual(type.getCode(), "HT_SEQUENCING", "Experiment type code");
 				c.assertEqual(type.getFetchOptions().hasPropertyAssignments(), true);
-				c.assertEqual(type.getFetchOptions().withPropertyAssignments().hasVocabulary(), false);
+				c.assertEqual(type.getFetchOptions().withPropertyAssignments().withPropertyType().hasVocabulary(), false);
 				var assignments = type.getPropertyAssignments();
 				c.assertEqual(assignments.length, 1, "Number of property assignments");
 				c.assertEqual(assignments[0].isMandatory(), false, "Mandatory property assignment?");
@@ -235,7 +235,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 				c.assertEqual(propertyType.getCode(), "EXPERIMENT_DESIGN", "Property type code");
 				c.assertEqual(propertyType.getLabel(), "Experiment Design", "Property type label");
 				c.assertEqual(propertyType.getDescription(), "", "Property type description");
-				c.assertEqual(propertyType.getDataTypeCode(), "CONTROLLEDVOCABULARY", "Property data type code");
+				c.assertEqual(propertyType.getDataType(), "CONTROLLEDVOCABULARY", "Property data type");
 				c.assertEqual(propertyType.isInternalNameSpace(), false, "Property type internal name space?");
 			}
 
@@ -249,7 +249,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 				var criteria = new c.ExperimentTypeSearchCriteria();
 				criteria.withCode().thatStartsWith("HT");
 				var fetchOptions = new c.ExperimentTypeFetchOptions();
-				fetchOptions.withPropertyAssignments().withVocabulary();
+				fetchOptions.withPropertyAssignments().withPropertyType().withVocabulary();
 				return facade.searchExperimentTypes(criteria, fetchOptions);
 			}
 
@@ -258,7 +258,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 				var type = experimentTypes[0];
 				c.assertEqual(type.getCode(), "HT_SEQUENCING", "Experiment type code");
 				c.assertEqual(type.getFetchOptions().hasPropertyAssignments(), true);
-				c.assertEqual(type.getFetchOptions().withPropertyAssignments().hasVocabulary(), true);
+				c.assertEqual(type.getFetchOptions().withPropertyAssignments().withPropertyType().hasVocabulary(), true);
 				var assignments = type.getPropertyAssignments();
 				c.assertEqual(assignments.length, 1, "Number of property assignments");
 				c.assertEqual(assignments[0].isMandatory(), false, "Mandatory property assignment?");
@@ -266,7 +266,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 				c.assertEqual(propertyType.getCode(), "EXPERIMENT_DESIGN", "Property type code");
 				c.assertEqual(propertyType.getLabel(), "Experiment Design", "Property type label");
 				c.assertEqual(propertyType.getDescription(), "", "Property type description");
-				c.assertEqual(propertyType.getDataTypeCode(), "CONTROLLEDVOCABULARY", "Property data type code");
+				c.assertEqual(propertyType.getDataType(), "CONTROLLEDVOCABULARY", "Property data type");
 				c.assertEqual(propertyType.getVocabulary().getCode(), "EXPERIMENT_DESIGN", "Vocabulary code");
 				c.assertEqual(propertyType.isInternalNameSpace(), false, "Property type internal name space?");
 			}
@@ -398,8 +398,18 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 			var fSearch = function(facade) {
 				var criteria = new c.SampleTypeSearchCriteria();
 				criteria.withCode().thatStartsWith("MA");
+
 				var fetchOptions = new c.SampleTypeFetchOptions();
-				fetchOptions.withPropertyAssignments().sortBy().label().desc();
+
+				var assignmentFetchOptions = fetchOptions.withPropertyAssignments();
+				assignmentFetchOptions.withRegistrator();
+				assignmentFetchOptions.sortBy().label().desc();
+
+				var propertyTypeFetchOptions = assignmentFetchOptions.withPropertyType();
+				propertyTypeFetchOptions.withVocabulary();
+				propertyTypeFetchOptions.withMaterialType();
+				propertyTypeFetchOptions.withRegistrator();
+
 				return facade.searchSampleTypes(criteria, fetchOptions);
 			}
 
@@ -410,13 +420,30 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 				c.assertEqual(type.getFetchOptions().hasPropertyAssignments(), true);
 				var assignments = type.getPropertyAssignments();
 				c.assertEqual(assignments.length, 8, "Number of property assignments");
-				c.assertEqual(assignments[0].isMandatory(), true, "Mandatory property assignment?");
-				var propertyType = assignments[0].getPropertyType();
+
+				var assignment = assignments[0];
+				c.assertEqual(assignment.isMandatory(), true, "Mandatory property assignment?");
+				c.assertEqual(assignment.getOrdinal(), 22, "Ordinal");
+				c.assertEqual(assignment.getSection(), null, "Section");
+				c.assertEqual(assignment.isShowInEditView(), true, "Show in edit view");
+				c.assertEqual(assignment.isShowRawValueInForms(), false, "Show raw value in forms");
+				c.assertDate(assignment.getRegistrationDate(), "Registration date", 2013, 4, 12, 8, 4);
+				c.assertEqual(assignment.getRegistrator().getUserId(), "system", "Registrator user id");
+
+				var propertyType = assignment.getPropertyType();
 				c.assertEqual(propertyType.getCode(), "SAMPLE_KIND", "Property type code");
 				c.assertEqual(propertyType.getLabel(), "Sample Kind", "Property type label");
 				c.assertEqual(propertyType.getDescription(), "", "Property type description");
-				c.assertEqual(propertyType.getDataTypeCode(), "CONTROLLEDVOCABULARY", "Property data type code");
+				c.assertEqual(propertyType.getDataType(), "CONTROLLEDVOCABULARY", "Property data type");
+				c.assertEqual(propertyType.isManagedInternally(), false, "Property type managed internally?");
 				c.assertEqual(propertyType.isInternalNameSpace(), false, "Property type internal name space?");
+				c.assertEqual(propertyType.getVocabulary().getCode(), "SAMPLE_TYPE", "Property type vocabulary code");
+				c.assertEqual(propertyType.getMaterialType(), null, "Property type vocabulary code");
+				c.assertEqual(propertyType.getSchema(), null, "Property type schema");
+				c.assertEqual(propertyType.getTransformation(), null, "Property type transformation");
+				c.assertEqual(propertyType.getRegistrator().getUserId(), "system", "Registrator user id");
+				c.assertDate(propertyType.getRegistrationDate(), "Registration date", 2013, 4, 12, 8, 4);
+
 				c.assertEqual(assignments[1].getPropertyType().getCode(), "NCBI_ORGANISM_TAXONOMY", "Second property type code");
 			}
 
@@ -623,10 +650,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 				c.assertEqual(propertyType.getCode(), "MACS_VERSION", "Property type code");
 				c.assertEqual(propertyType.getLabel(), "MACS VERSION", "Property type label");
 				c.assertEqual(propertyType.getDescription(), "", "Property type description");
-				c.assertEqual(propertyType.getDataTypeCode(), "CONTROLLEDVOCABULARY", "Property data type code");
+				c.assertEqual(propertyType.getDataType(), "CONTROLLEDVOCABULARY", "Property data type");
 				c.assertEqual(propertyType.isInternalNameSpace(), false, "Property type internal name space?");
 				c.assertEqual(assignments[1].getPropertyType().getCode(), "NOTES", "Second property type code");
-				c.assertEqual(assignments[1].getPropertyType().getDataTypeCode(), "MULTILINE_VARCHAR", "Second property data type code");
+				c.assertEqual(assignments[1].getPropertyType().getDataType(), "MULTILINE_VARCHAR", "Second property data type");
 			}
 
 			testSearch(c, fSearch, fCheck);
@@ -691,7 +718,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/naturalsort' ],
 				c.assertEqual(propertyType.getCode(), "GENE_SYMBOLS", "Property type code");
 				c.assertEqual(propertyType.getLabel(), "Gene symbols", "Property type label");
 				c.assertEqual(propertyType.getDescription(), "", "Property type description");
-				c.assertEqual(propertyType.getDataTypeCode(), "VARCHAR", "Property data type code");
+				c.assertEqual(propertyType.getDataType(), "VARCHAR", "Property data type");
 				c.assertEqual(propertyType.isInternalNameSpace(), false, "Property type internal name space?");
 				c.assertEqual(assignments[1].getPropertyType().getCode(), "DESCRIPTION", "Second property type code");
 				c.assertEqual(assignments[1].getPropertyType().getDescription(), "A Description", "Second property type description");

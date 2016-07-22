@@ -49,7 +49,7 @@ function ExperimentFormController(mainController, mode, experiment) {
 					Util.showSuccess("Experiment Deleted");
 					
 					//Delete experiment from UI
-					mainController.sideMenu.deleteUniqueIdAndMoveToParent(_this._experimentFormModel.experiment.identifier);
+					mainController.sideMenu.deleteNodeByEntityPermId(_this._experimentFormModel.experiment.permId, true);
 				}
 			});
 		});
@@ -108,14 +108,13 @@ function ExperimentFormController(mainController, mode, experiment) {
 					}
 					
 					var callbackOk = function() {
-						var projectIdentifier = "/" + experimentSpace + "/" + experimentProject;
-						if(_this._experimentFormModel.mode === FormMode.CREATE) {
-							var isInventory = profile.isInventorySpace(experimentSpace);
-							_this._mainController.sideMenu.refreshExperiment(experiment, isInventory);
-						} else if(_this._experimentFormModel.mode === FormMode.EDIT) {
-							_this._mainController.sideMenu.updateExperimentName(experiment);
-						}
 						_this._experimentFormModel.isFormDirty = false;
+						
+						if(_this._experimentFormModel.mode === FormMode.CREATE) {
+							_this._mainController.sideMenu.refreshCurrentNode(); //Project
+						} else if(_this._experimentFormModel.mode === FormMode.EDIT) {
+							_this._mainController.sideMenu.refreshNodeParent(_this._experimentFormModel.experiment.permId);
+						}
 						
 						var isInventory = profile.isInventorySpace(experimentSpace);
 						if(isInventory) {
@@ -123,7 +122,6 @@ function ExperimentFormController(mainController, mode, experiment) {
 						} else {
 							_this._mainController.changeView("showExperimentPageFromIdentifier", experimentIdentifier);
 						}
-						
 						Util.unblockUI();
 					}
 					

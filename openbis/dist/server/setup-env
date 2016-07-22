@@ -87,3 +87,27 @@ printStatus()
     return 2
   fi
 }
+
+enableJython()
+{
+  version=$1
+  path=`ls webapps/openbis/WEB-INF/lib/jyth*$version*`
+  mv $path ${path%_*}
+  echo ${path%_*}
+}
+
+disableJythonByProperty()
+{
+  jython25=`enableJython 2.5`
+  jython27=`enableJython 2.7`
+  required_jython_version=`awk -F'=' '/^jython-version/ {gsub(/[ \t]/, "", $2); print $2}' etc/service.properties`
+  echo "required jython version: $required_jython_version"
+  if [ "$required_jython_version" == "2.5"  ]; then
+    mv "$jython27" "${jython27}_disabled"
+    echo jython 2.7 disabled
+  fi
+  if [ "$required_jython_version" == "2.7"  ]; then
+    mv "$jython25" "${jython25}_disabled"
+    echo jython 2.5 disabled
+  fi
+}
