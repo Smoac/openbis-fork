@@ -62,6 +62,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IParentChildre
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IProjectHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IProjectsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyTypeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISampleHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISamplesHolder;
@@ -74,6 +76,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
@@ -320,6 +323,18 @@ public class AbstractTest extends SystemTestCase
             });
     }
 
+    protected void assertPropertyTypeNotFetched(final IPropertyTypeHolder propertyTypeHolder)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    propertyTypeHolder.getPropertyType();
+                }
+            });
+    }
+
     protected void assertPropertiesNotFetched(final IPropertiesHolder propertiesHolder)
     {
         assertNotFetched(new IDelegatedAction()
@@ -328,6 +343,18 @@ public class AbstractTest extends SystemTestCase
                 public void execute()
                 {
                     propertiesHolder.getProperties();
+                }
+            });
+    }
+
+    protected void assertPropertyAssignmentsNotFetched(final IPropertyAssignmentsHolder propertyAssignmentsHolder)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    propertyAssignmentsHolder.getPropertyAssignments();
                 }
             });
     }
@@ -508,6 +535,30 @@ public class AbstractTest extends SystemTestCase
                 public void execute()
                 {
                     term.getVocabulary();
+                }
+            });
+    }
+
+    protected void assertVocabularyNotFetched(final PropertyType propertyType)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    propertyType.getVocabulary();
+                }
+            });
+    }
+
+    protected void assertMaterialTypeNotFetched(final PropertyType propertyType)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    propertyType.getMaterialType();
                 }
             });
     }
@@ -752,9 +803,9 @@ public class AbstractTest extends SystemTestCase
         {
             for (PropertyAssignment propertyAssignment : propertyAssignments)
             {
-                if (propertyAssignment.getVocabulary() != null)
+                if (propertyAssignment.getPropertyType().getVocabulary() != null)
                 {
-                    codes.add(propertyAssignment.getVocabulary().getCode());
+                    codes.add(propertyAssignment.getPropertyType().getVocabulary().getCode());
                 }
             }
         }

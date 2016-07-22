@@ -24,26 +24,10 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     this._sideMenuWidgetController = sideMenuWidgetController;
     this._sideMenuWidgetModel = sideMenuWidgetModel;
     
-    var $toggleNavButtonIcon = null;
     var toggleMenuSizeBig = false;
     var DISPLAY_NAME_LENGTH_SHORT = 15;
     var DISPLAY_NAME_LENGTH_LONG = 300;
     var cutDisplayNameAtLength = DISPLAY_NAME_LENGTH_SHORT; // Fix for long names
-    
-    this._updateNavButtonIcon = function() {
-    	if(this._sideMenuWidgetModel.isTreeNavigation) {
-    		$toggleNavButtonIcon.removeClass( "glyphicon-align-left" );
-    		$toggleNavButtonIcon.addClass( "glyphicon-list" );
-    	} else {
-    		$toggleNavButtonIcon.removeClass( "glyphicon-list" );
-    		$toggleNavButtonIcon.addClass( "glyphicon-align-left" );
-    	}
-    }
-    this.toggleNavType = function() {
-    	this._sideMenuWidgetModel.isTreeNavigation = !this._sideMenuWidgetModel.isTreeNavigation;
-    	this._updateNavButtonIcon();
-    	this.repaint();
-    }
     
     this.hideSideMenu = function() {
         this._sideMenuWidgetModel.$container.hide();
@@ -64,7 +48,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         this._sideMenuWidgetModel.isHidden = false;
     };
     
-    this.repaintFirst = function($container) {
+    this.repaint = function($container) {
         var _this = this;
         var $widget = $("<div>");
         //
@@ -72,9 +56,8 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         //
         var $header = $("<div>", {"id": "sideMenuHeader"});
         var $headerItemList = $("<ul>", {"class": "nav navbar-nav"});
-        var $headerItemList2 = $("<ul>", {"class": "nav navbar-nav"});
         $header.append($("<nav>", {"class": "navbar navbar-default", "role": "navigation", "style": "margin:0px; border-left-width:0px; border-right-width:0px;"})
-                        .append($headerItemList).append($("<br>")).append($headerItemList2)
+                        .append($headerItemList).append($("<br>"))
                        );
 
         var $toggleButton = $("<li>")
@@ -82,14 +65,6 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                         .append($("<span>", {"class": "glyphicon glyphicon-resize-full"}))
                         );
         
-        $toggleNavButtonIcon = $("<span>", { "class" : "glyphicon" });
-        this._updateNavButtonIcon();
-        var $toggleNavButton = $("<li>")
-        .append($("<a>", {"href": "javascript:mainController.sideMenu.toggleNavType();"})
-                .append($toggleNavButtonIcon)
-                );
-        
-        var dropDownSearch = "";
         var searchDomains = profile.getSearchDomains();
 
         var searchFunction = function() {
@@ -110,8 +85,9 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 
             mainController.changeView("showSearchPage", argsMapStr);
         };
-
-        if (searchDomains.length > 1) {
+        
+        var dropDownSearch = null;
+        if (searchDomains.length > 0) {
             //Default Selected for the prefix
             var defaultSelected = "";
             if (searchDomains[0].label.length > 3) {
@@ -154,14 +130,16 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 
         var searchElement = $("<input>", {"id": "search", "type": "text", "class": "form-control search-query", "placeholder": "Search"});
         searchElement.change(searchFunction);
-
+        searchElement.css({"width" : "68%"});
+        searchElement.css({"padding-right" : "0px"});
+        searchElement.css({"margin-right" : "2px"});
+        
         var $searchForm = $("<li>")
-                .append($("<form>", {"class": "navbar-form", "onsubmit": "return false;", "style": "padding-right:0px;"})
-                        .append(searchElement));
+                .append($("<form>", {"class": "navbar-form", "onsubmit": "return false;" })
+                        .append(searchElement)
+                        .append(dropDownSearch)
+                        );
         $searchForm.css({"width" : "100%"});
-        var $searchFormDropdown = $("<li>")
-        .append($("<form>", {"class": "navbar-form", "onsubmit": "return false;"})
-                .append(dropDownSearch));
         
         var logoutButton = $("<a>", {"id": "logout-button", "href": ""}).append($("<span>", {"class": "glyphicon glyphicon-off"}));
         logoutButton.click(function() {
@@ -175,22 +153,12 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 
         $headerItemList.append($logoutButton);
         $headerItemList.append($toggleButton);
-        //$headerItemList.append($toggleMenuButton);
-        $headerItemList.append($toggleNavButton);
-        
-        $headerItemList2.append($searchForm);
-        if(dropDownSearch !== "") {
-        	$headerItemList2.append($searchFormDropdown);
-        }
+        $headerItemList.append($searchForm);
         
         var $body = $("<div>", {"id": "sideMenuBody"});
         $widget
                 .append($header)
                 .append($body);
-
-        var $title = $("<div>", {"class": "sideMenuTitle"});
-        $header
-                .append($title);
 
         $container.empty();
         $container.append($widget);
@@ -198,18 +166,9 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         //
         // Print Menu
         //
-        this._sideMenuWidgetModel.menuDOMTitle = $title;
         this._sideMenuWidgetModel.menuDOMBody = $body;
-        this.repaint();
+        this.repaintTreeMenuDinamic();
     };
-    
-    this.repaint = function() {
-    	if(this._sideMenuWidgetModel.isTreeNavigation) {
-    		this.repaintTreeMenu();
-    	} else {
-    		this.repaintListMenu();
-    	}
-    }
     
     this._getDisplayNameLinkForNode = function(menuItem, isTreeMenu) {
         var menuItemDisplayName = menuItem.displayName;
@@ -242,62 +201,63 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         return $menuItemLink;
     }
     
-    this.repaintTreeMenu = function() {
+    this.repaintTreeMenuDinamic = function() {
     	var _this = this;
-    	this._sideMenuWidgetModel.menuDOMTitle.empty();
         this._sideMenuWidgetModel.menuDOMBody.empty();
-        var tree = $("<div>", { "id" : "tree" });
+        var $tree = $("<div>", { "id" : "tree" });
         
         //
         // Body
         //
-//        var rootNode = { title : "Main Menu", key : "MAIN_MENU", menuData : this._sideMenuWidgetModel.menuStructure };
-//        var sourceByKey = { "MAIN_MENU" : rootNode };
-//        var treeModel = [rootNode];
         
-        var sourceByKey = { };
         var treeModel = [];
-        var todo = this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.slice();
-
-        while(todo.length > 0) {
-        	var modelNode = todo.shift();
-        	
-			//Add Root Source if not found
-			var treeModelRoot = null;
-			if(!sourceByKey[modelNode.uniqueId]) {
-				treeModelRoot = {title : modelNode.displayName, key : modelNode.uniqueId, menuData : modelNode};
-				treeModel.push(treeModelRoot);
-				sourceByKey[modelNode.uniqueId] = treeModelRoot;
-			} else {
-				treeModelRoot = sourceByKey[modelNode.uniqueId];
-			}
-			
-			//Create children if new
-    		if(modelNode.newMenuIfSelected && !treeModelRoot.children) {
-    			treeModelRoot.folder = true;
-    			treeModelRoot.children = [];
-    		}
-    		
-        	if(modelNode.newMenuIfSelected && modelNode.newMenuIfSelected.children.length !== 0) {
-        		for(var cIdx = 0; cIdx < modelNode.newMenuIfSelected.children.length; cIdx++) {
-        			var modelNodeChild = modelNode.newMenuIfSelected.children[cIdx];
-        			var $titleWithLink = this._getDisplayNameLinkForNode(modelNodeChild, true);
-        			if($titleWithLink.outerHTML) {
-        				$titleWithLink = $titleWithLink.outerHTML;
-        			}
-        			var treeModelChild = {title : $titleWithLink, key : modelNodeChild.uniqueId, menuData : modelNodeChild};
-        			
-        			//Add Child
-            		treeModelRoot.children.push(treeModelChild);
-            		
-            		//Push child for next
-        			todo.push(modelNodeChild);
-        			sourceByKey[treeModelChild.key] = treeModelChild;
-        		}
-        	}
+        
+        if(profile.mainMenu.showLabNotebook) {
+        	treeModel.push({ title : "Lab Notebook", entityType: "LAB_NOTEBOOK", key : "LAB_NOTEBOOK", folder : true, lazy : true, view : "showLabNotebookPage", icon : "glyphicon glyphicon-book" });
         }
         
-        glyph_opts = {
+        if(profile.mainMenu.showInventory) {
+        	treeModel.push({ title : "Inventory", entityType: "INVENTORY", key : "INVENTORY", folder : true, lazy : true, view : "showInventoryPage" });
+        }
+        
+        var treeModelUtils = [];
+        
+        if(profile.mainMenu.showDrawingBoard) {
+        	treeModelUtils.push({ title : "Drawing Board", entityType: "DRAWING_BOARD", key : "DRAWING_BOARD", folder : false, lazy : false, view : "showDrawingBoard" });
+        }
+        
+        if(profile.mainMenu.showSampleBrowser) {
+        	treeModelUtils.push({ title : "Sample Browser", entityType: "SAMPLE_BROWSER", key : "SAMPLE_BROWSER", folder : false, lazy : false, view : "showSamplesPage", icon : "glyphicon glyphicon-list-alt" });
+        }
+        
+        if(profile.mainMenu.showVocabularyViewer) {
+        	treeModelUtils.push({ title : "Vocabulary Browser", entityType: "VOCABULARY_BROWSER", key : "VOCABULARY_BROWSER", folder : false, lazy : false, view : "showVocabularyManagerPage", icon : "glyphicon glyphicon-list-alt" });
+        }
+        
+        if(profile.mainMenu.showAdvancedSearch) {
+        	treeModelUtils.push({ title : "Advanced Search", entityType: "ADVANCED_SEARCH", key : "ADVANCED_SEARCH", folder : false, lazy : false, view : "showAdvancedSearchPage", icon : "glyphicon glyphicon-search" });
+        }
+        
+        if(profile.mainMenu.showExports) {
+        	treeModelUtils.push({ title : "Export Builder", entityType: "EXPORT_BUILDER", key : "EXPORT_BUILDER", folder : false, lazy : false, view : "showExportTreePage", icon : "glyphicon glyphicon-export" });
+        }
+        
+        if(profile.mainMenu.showStorageManager) {
+        	treeModelUtils.push({ title : "Storage Manager", entityType: "STORAGE_MANAGER", key : "STORAGE_MANAGER", folder : false, lazy : false, view : "showStorageManager" });
+        }
+        
+        if(profile.mainMenu.showUserManager) {
+        	treeModelUtils.push({ title : "User Manager", entityType: "USER_MANAGER", key : "USER_MANAGER", folder : false, lazy : false, view : "showUserManagerPage" });
+        }
+        
+        if(profile.mainMenu.showTrashcan) {
+        	treeModelUtils.push({ title : "Trashcan", entityType: "TRASHCAN", key : "TRASHCAN", folder : false, lazy : false, view : "showTrashcanPage", icon : "glyphicon glyphicon-trash" });
+        }
+        
+        treeModel.push({ title : "Utilities", entityType: "UTILITIES", key : "UTILITIES", folder : true, lazy : false, children : treeModelUtils, icon : "glyphicon glyphicon-wrench" });
+        treeModel.push({ title : "About", entityType: "ABOUT", key : "ABOUT", folder : false, lazy : false, view : "showAbout", icon : "glyphicon glyphicon-info-sign" });
+        
+		var glyph_opts = {
         	    map: {
         	      doc: "glyphicon glyphicon-file",
         	      docOpen: "glyphicon glyphicon-file",
@@ -315,185 +275,150 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	      loading: "glyphicon glyphicon-refresh"
         	    }
         };
-        
-//        var updateIcons = function(treeDataNode) {
-//        	var menuData = treeDataNode.node.data.menuData;
-//    		if(menuData.parent && (menuData.parent.uniqueId == "UTILITIES")) {
-//    			var node = treeDataNode.node;
-//    			var $span = $(node.span);
-//    			var $icon = $span.find("> span.fancytree-icon");
-//    			$icon.removeClass("glyphicon-file");
-//    			$icon.addClass("glyphicon-briefcase");
-//    		}
-//        }
-        
-        var onActivate = function(event, data) {
+    	
+    	var onLazyLoad = function(event, data) {
+    		var dfd = new $.Deferred();
+    	    data.result = dfd.promise();
+    	    var type = data.node.data.entityType;
+    	    var permId = data.node.key;
+    	    
+    	    switch(type) {
+    	    	case "LAB_NOTEBOOK":
+    	    	case "INVENTORY":
+    	    		var spaceRules = { entityKind : "SPACE", logicalOperator : "AND", rules : { } };
+    	    		mainController.serverFacade.searchForSpacesAdvanced(spaceRules, function(searchResult) {
+    	    			var results = [];
+    	                var spaces = searchResult.objects;
+    	                for (var i = 0; i < spaces.length; i++) {
+    	                    var space = spaces[i];
+    	                    var isInventorySpace = profile.isInventorySpace(space.code);
+    	                    if((type === "LAB_NOTEBOOK" && !isInventorySpace) || (type === "INVENTORY" && isInventorySpace)) {
+    	                    	var normalizedSpaceTitle = Util.getDisplayNameFromCode(space.code);
+    	                    	results.push({ title : normalizedSpaceTitle, entityType: "SPACE", key : space.getCode(), folder : true, lazy : true, view : "showSpacePage", viewData: space.getCode() });
+    	                    }
+    	                }
+    	                dfd.resolve(results);
+    	    		});
+    	    		break;
+    	    	case "SPACE":
+    	    		var projectRules = { "UUIDv4" : { type : "Attribute", name : "SPACE", value : permId } };
+    	    		mainController.serverFacade.searchForProjectsAdvanced({ entityKind : "PROJECT", logicalOperator : "AND", rules : projectRules }, function(searchResult) {
+    	    			var results = [];
+    	                var projects = searchResult.objects;
+    	                for (var i = 0; i < projects.length; i++) {
+    	                    var project = projects[i];
+    	                    var normalizedProjectTitle = Util.getDisplayNameFromCode(project.code);
+    	                    results.push({ title : normalizedProjectTitle, entityType: "PROJECT", key : project.getPermId().getPermId(), folder : true, lazy : true, view : "showProjectPageFromPermId", viewData: project.getPermId().getPermId() });
+    	                }
+    	                dfd.resolve(results);
+    	    		});
+    	    		break;
+    	    	case "PROJECT":
+    	    		var experimentRules = { "UUIDv4" : { type : "Attribute", name : "PROJECT_PERM_ID", value : permId } };
+    	    		mainController.serverFacade.searchForExperimentsAdvanced({ entityKind : "EXPERIMENT", logicalOperator : "AND", rules : experimentRules }, function(searchResult) {
+    	    			var results = [];
+    	                var experiments = searchResult.objects;
+    	                for (var i = 0; i < experiments.length; i++) {
+    	                    var experiment = experiments[i];
+    	                    var experimentDisplayName = experiment.code;
+    	                    if(experiment.properties && experiment.properties[profile.propertyReplacingCode]) {
+    	                    	experimentDisplayName = experiment.properties[profile.propertyReplacingCode];
+    	                    }
+    	                    var isInventorySpace = profile.isInventorySpace(experiment.getIdentifier().getIdentifier().split("/")[1]);
+    	                    var viewToUse = null;
+    	                    var loadSamples = null;
+    	                    if(isInventorySpace) {
+    	                    	viewToUse = "showSamplesPage";
+    	                    	loadSamples = false;
+    	                    } else {
+    	                    	viewToUse = "showExperimentPageFromIdentifier";
+    	                    	loadSamples = true;
+    	                    }
+    	                    
+    	                    results.push({ title : experimentDisplayName, entityType: "EXPERIMENT", key : experiment.getPermId().getPermId(), folder : true, lazy : loadSamples, view : viewToUse, viewData: experiment.getIdentifier().getIdentifier() });
+    	                }
+    	                dfd.resolve(results);
+    	    		});
+    	    		break;
+    	    	case "EXPERIMENT":
+    	    		var sampleRules = { "UUIDv4" : { type : "Experiment", name : "ATTR.PERM_ID", value : permId } };
+    	    		mainController.serverFacade.searchForSamplesAdvanced({ entityKind : "SAMPLE", logicalOperator : "AND", rules : sampleRules }, function(searchResult) {
+    	    			var results = [];
+    	                var samples = searchResult.objects;
+    	                
+    	                if(samples.length > 30) {
+    	                	Util.showInfo("More than 30 Samples, please use the sample table on the experiment to navigate them.");
+    	                } else {
+    	                	for (var i = 0; i < samples.length; i++) {
+        	                    var sample = samples[i];
+        	                    var sampleDisplayName = sample.code;
+        	                    if(sample.properties && sample.properties[profile.propertyReplacingCode]) {
+        	                    	sampleDisplayName = sample.properties[profile.propertyReplacingCode];
+        	                    }
+        	                    results.push({ title : sampleDisplayName, entityType: "SAMPLE", key : sample.getPermId().getPermId(), folder : true, lazy : true, view : "showViewSamplePageFromPermId", viewData: sample.getPermId().getPermId() });
+        	                }
+    	                }
+    	                
+    	                dfd.resolve(results);
+    	    		});
+    	    		break;
+    	    	case "SAMPLE":
+    	    		var datasetRules = { "UUIDv4" : { type : "Sample", name : "ATTR.PERM_ID", value : permId } };
+    	    		mainController.serverFacade.searchForDataSetsAdvanced({ entityKind : "DATASET", logicalOperator : "AND", rules : datasetRules }, function(searchResult) {
+    	    			var results = [];
+    	                var datasets = searchResult.objects;
+    	                
+    	                if(datasets.length > 30) {
+    	                	Util.showInfo("More than 30 Datasets, please use the dataset viewer on the sample to navigate them.");
+    	                } else {
+    	                	for (var i = 0; i < datasets.length; i++) {
+        	                    var dataset = datasets[i];
+        	                    var datasetDisplayName = dataset.code;
+        	                    if(dataset.properties && dataset.properties[profile.propertyReplacingCode]) {
+        	                    	datasetDisplayName = dataset.properties[profile.propertyReplacingCode];
+        	                    }
+        	                    
+        	                    results.push({ title : datasetDisplayName, entityType: "DATASET", key : dataset.getPermId().getPermId(), folder : true, lazy : false, view : "showViewDataSetPageFromPermId", viewData: dataset.getPermId().getPermId() });
+        	                }
+    	                }
+    	                
+    	                
+    	                dfd.resolve(results);
+    	    		});
+    	    		break;
+    	    	case "DATASET":
+    	    		break;
+    	    }
+    	};
+    	
+    	var onActivate = function(event, data) {
     		data.node.setExpanded(true);
     	};
     	
-    	var onClick = function(event, data){
-    		var menuData = data.node.data.menuData;
-    		if(menuData.isSelectable) {
-    			_this._sideMenuWidgetModel.pointerToMenuNode = menuData;
-    			if(menuData.newViewIfSelected) {
-    				mainController.changeView(menuData.newViewIfSelected, menuData.newViewIfSelectedData);
-    			}
+    	var onClick = function(event, data) {
+    		if(data.node.data.view) {
+    			_this._sideMenuWidgetController._showNodeView(data.node);
     		}
     	};
     	
-        tree.fancytree({
+    	var onCollapse = function(event, data) {
+    		if(data.node.lazy) { //Is going to be collapsed
+    			data.node.removeChildren();
+    			data.node.resetLazy();
+    		}
+    	};
+    	
+    	$tree.fancytree({
         	extensions: ["dnd", "edit", "glyph"], //, "wide"
         	glyph: glyph_opts,
         	source: treeModel,
+        	lazyLoad : onLazyLoad,
+        	click : onClick,
         	activate: onActivate,
-        	click: onClick
+        	collapse : onCollapse //Yes, for collapsing event we need to use expand 
         });
-        
-        this._sideMenuWidgetModel.menuDOMBody.append(tree);
-        
-        //Expand Tree Node
-        var expandToParent = function(tree, menuData, isRoot) {
-        	var node = tree.fancytree("getTree").getNodeByKey(menuData.uniqueId);
-        	if(node) {
-        		node.setExpanded(true);
-            	if(isRoot) {
-            		node.setActive(true);
-            	}
-            	if(menuData.parent) {
-            		expandToParent(tree, menuData.parent, false);
-            	}
-        	}
-        }
-        
-        var menuToPaint = this._sideMenuWidgetModel.pointerToMenuNode;
-        expandToParent(tree, menuToPaint, true);
+		
+        this._sideMenuWidgetModel.menuDOMBody.append($tree);
+        this._sideMenuWidgetModel.tree = $tree;
     }
-    
-    this.repaintListMenu = function() {
-        var _this = this;
-        var menuToPaint = this._sideMenuWidgetModel.pointerToMenuNode;
-        //
-        // Title
-        //
-        var titleShowTooltip = menuToPaint.displayName.length > cutDisplayNameAtLength;
-        if (titleShowTooltip) {
-            var titleDisplayName = (menuToPaint.displayName).substring(0, cutDisplayNameAtLength) + "...";
-        } else {
-            var titleDisplayName = (menuToPaint.displayName);
-        }
-        //
-        this._sideMenuWidgetModel.menuDOMTitle.empty();
-        var isBackButtonShown = menuToPaint.parent !== null;
-        if (isBackButtonShown) {
-            var backButton = $("<a>", {"id": "back-button", "href": "javascript:void(0);", "style": "float:left; color:black; padding-left:10px;"}).append($("<span>", {"class": "glyphicon glyphicon-arrow-left"}));
-            var backButtonClick = function(menuItem) {
-                return function() {
-                    var parent = menuItem.parent;
-                    _this._sideMenuWidgetModel.pointerToMenuNode = parent;
-                    _this.repaint();
-
-                    if (parent.newViewIfSelected !== null) {
-                        mainController.changeView(parent.newViewIfSelected, parent.newViewIfSelectedData);
-                    }
-                };
-            };
-            backButton.click(backButtonClick(menuToPaint));
-            this._sideMenuWidgetModel.menuDOMTitle.append(backButton);
-        }
-
-        var $titleAsTextOrLink = null;
-        if (menuToPaint.newViewIfSelected && menuToPaint.newViewIfSelected !== "showBlancPage") {
-            $titleAsTextOrLink = $("<a>", {"href": "javascript:void(0);"}).append(titleDisplayName);
-
-            var clickFunction = function(menuToPaint) {
-                return function() {
-                    mainController.changeView(menuToPaint.newViewIfSelected, menuToPaint.newViewIfSelectedData);
-                };
-            };
-
-            $titleAsTextOrLink.click(clickFunction(menuToPaint));
-        } else {
-            $titleAsTextOrLink = $("<span>").text(titleDisplayName);
-        }
-
-        if (titleShowTooltip) {
-            $titleAsTextOrLink.attr("title", menuToPaint.displayName);
-            $titleAsTextOrLink.tooltipster();
-        }
-
-        var $mainTitle = $("<span>").append($titleAsTextOrLink);
-
-        if (isBackButtonShown) {
-            $mainTitle.css({
-                "margin-left": "-24px"
-            });
-        }
-
-        this._sideMenuWidgetModel.menuDOMTitle.append($mainTitle);
-
-
-        //
-        // Body
-        //
-        this._sideMenuWidgetModel.menuDOMBody.empty();
-        for (var mIdx = 0; mIdx < menuToPaint.newMenuIfSelected.children.length; mIdx++) {
-            var menuItem = menuToPaint.newMenuIfSelected.children[mIdx];
-
-
-            var $menuItem = $("<div>", {"class": "sideMenuItem"});
-
-            var menuItemDisplayName = menuItem.displayName;
-            if (!menuItemDisplayName) {
-                menuItemDisplayName = menuItem.unqueId;
-            }
-
-            //
-            var itemShowTooltip = menuItemDisplayName.length > cutDisplayNameAtLength;
-            if (itemShowTooltip) {
-                var itemDisplayName = menuItemDisplayName.substring(0, cutDisplayNameAtLength) + "...";
-            } else {
-                var itemDisplayName = menuItemDisplayName;
-            }
-            //
-            var $menuItemLink = this._getDisplayNameLinkForNode(menuItem);
-            var $menuItemTitle = $("<span>").append($menuItemLink);
-
-            if (itemShowTooltip) {
-                $menuItem.attr("title", menuItemDisplayName);
-                $menuItem.tooltipster();
-            }
-
-            $menuItem.append($menuItemTitle);
-
-            if (menuItem.isTitle) {
-                $menuItem.addClass("sideMenuItemTitle");
-            }
-
-            if (menuItem.isSelectable) {
-                $menuItem.addClass("sideMenuItemSelectable");
-                if (menuItem.newMenuIfSelected && menuItem.newMenuIfSelected.children.length > 0) {
-                    $menuItem.append("<span class='glyphicon glyphicon-chevron-right put-chevron-right'></span>");
-                }
-
-                var clickFunction = function(menuItem) {
-                    return function() {
-                        if (menuItem.newMenuIfSelected && menuItem.newMenuIfSelected.children.length > 0) {
-                            _this._sideMenuWidgetModel.pointerToMenuNode = menuItem;
-                            _this.repaint();
-                        }
-
-                        if (menuItem.newViewIfSelected !== null) {
-                            mainController.changeView(menuItem.newViewIfSelected, menuItem.newViewIfSelectedData);
-                        }
-                    };
-                };
-
-                $menuItem.click(clickFunction(menuItem));
-            }
-
-            this._sideMenuWidgetModel.menuDOMBody.append($menuItem);
-        }
-
-        $(window).resize();
-    };
 }

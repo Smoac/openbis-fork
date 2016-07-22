@@ -21,8 +21,6 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ExperimentFetchOptionsTest
@@ -33,21 +31,22 @@ public class ExperimentFetchOptionsTest
     {
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         assertEquals(fetchOptions.toString(), "Experiment\n");
-        
+
         fetchOptions.withType();
         assertEquals(fetchOptions.toString(), "Experiment\n"
                 + "    with Type\n");
-        
+
         fetchOptions.withType().withPropertyAssignments();
         assertEquals(fetchOptions.toString(), "Experiment\n"
                 + "    with Type\n"
                 + "        with PropertyAssignments\n");
-        
-        fetchOptions.withType().withPropertyAssignments().withVocabulary();
+
+        fetchOptions.withType().withPropertyAssignments().withPropertyType().withVocabulary();
         assertEquals(fetchOptions.toString(), "Experiment\n"
                 + "    with Type\n"
                 + "        with PropertyAssignments\n"
-                + "            with Vocabulary\n");
+                + "            with PropertyType\n"
+                + "                with Vocabulary\n");
     }
 
 }

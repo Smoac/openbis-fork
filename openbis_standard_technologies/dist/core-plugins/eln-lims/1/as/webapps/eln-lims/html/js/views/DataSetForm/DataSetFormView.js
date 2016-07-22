@@ -81,6 +81,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			//Delete Button
 			var $deleteBtn = FormUtil.getDeleteButton(function(reason) {
 				_this._dataSetFormController.deleteDataSet(reason);
+				mainController.sideMenu.deleteNodeByEntityPermId(_this._dataSetFormModel.dataSet.code, true);
 			}, true);
 			toolbarModel.push({ component : $deleteBtn, tooltip: "Delete" });
 			
@@ -92,7 +93,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					if(error) {
 						Util.showError(error);
 					} else {
-						Util.showSuccess("Export is being processed, you will receibe an email when is ready, if you logout the process will stop.", function() { Util.unblockUI(); });
+						Util.showSuccess("Export is being processed, you will receive an email when is ready, if you logout the process will stop.", function() { Util.unblockUI(); });
 					}
 				});
 			});
@@ -296,7 +297,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		}
 		
 		if(this._dataSetFormModel.mode !== FormMode.CREATE) {
-			var dataSetViewer = new DataSetViewerController("filesViewer", profile, null, mainController.serverFacade, profile.getDefaultDataStoreURL(), [this._dataSetFormModel.dataSet], false, false);
+			var dataSetViewer = new DataSetViewerController("filesViewer", profile, this._dataSetFormModel.sample, mainController.serverFacade, profile.getDefaultDataStoreURL(), [this._dataSetFormModel.dataSet], false, false);
 			dataSetViewer.init();
 		}
 	}

@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.property;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.ObjectQuery;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.entity.common.ObjectRelationRecord;
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
@@ -29,8 +30,20 @@ import net.lemnik.eodsql.Select;
  */
 public interface PropertyTypeQuery extends ObjectQuery
 {
-    @Select(sql = "select pt.*, t.code as dataSetTypeCode "
-            + "from property_types pt join data_types t on pt.daty_id=t.id where pt.id = any(?{1})",
-            parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    @Select(sql = "select pt.*, dt.code as data_type from property_types pt, data_types dt where pt.daty_id = dt.id and pt.id = any(?{1})", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<PropertyTypeRecord> getPropertyTypes(LongSet propertyTypeIds);
+
+    @Select(sql = "select id as objectId, covo_id as relatedId from property_types where id = any(?{1})", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getVocabularyIds(LongSet propertyTypeIds);
+
+    @Select(sql = "select id as objectId, maty_prop_id as relatedId from property_types where id = any(?{1})", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getMaterialTypeIds(LongSet objectIds);
+
+    @Select(sql = "select id as objectId, pers_id_registerer as relatedId from property_types where id = any(?{1})", parameterBindings = {
+            LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getRegistratorIds(LongSet objectIds);
+
 }

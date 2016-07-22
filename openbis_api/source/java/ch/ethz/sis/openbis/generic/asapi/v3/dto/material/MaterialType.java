@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
@@ -33,7 +34,7 @@ import java.util.List;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.material.MaterialType")
-public class MaterialType implements Serializable, ICodeHolder, IModificationDateHolder, IPermIdHolder
+public class MaterialType implements Serializable, ICodeHolder, IModificationDateHolder, IPermIdHolder, IPropertyAssignmentsHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -125,6 +126,7 @@ public class MaterialType implements Serializable, ICodeHolder, IModificationDat
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    @Override
     public List<PropertyAssignment> getPropertyAssignments()
     {
         if (getFetchOptions() != null && getFetchOptions().hasPropertyAssignments())

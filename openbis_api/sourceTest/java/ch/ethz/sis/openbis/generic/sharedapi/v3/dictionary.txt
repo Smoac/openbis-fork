@@ -1193,3 +1193,30 @@ with Size
 with Speed Hint
 with Status
 with Storage Confirmation
+Data Type
+get Data Type
+get Material Type
+get Schema
+get Section
+get Transformation
+has Material Type
+has Property Type
+is Managed Internally
+is Show In Edit View
+is Show Raw Value In Forms
+Property Type Fetch Options
+Property Type Sort Options
+set Data Type
+set Managed Internally
+set Material Type
+set Schema
+set Section
+set Show In Edit View
+set Show Raw Value In Forms
+set Transformation
+with Material Type
+with Material Type Using
+with Property Type
+with Property Type Using
+I Property Assignments Holder
+I Property Type Holder

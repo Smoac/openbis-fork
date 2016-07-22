@@ -120,8 +120,12 @@ public class GlobalInstallationContext
         }
 
         isElnMasterDataNotInstalled = (isFirstTimeInstallation == true) ||
-                (new File(installDir, "servers/core-plugins/eln-lims/1/as/initialize-master-data.py").exists() == false) ||
-                (new SetTechnologyCheckBoxesAction().isTechnologyEnabled(installDir, TECHNOLOGY_ELN_LIMS) == false);
+                ((new File(installDir, "servers/core-plugins/eln-lims/1/as/initialize-master-data.py").exists() == false) &&
+                        (new File(installDir, "servers/core-plugins/eln-lims/1/as/initialize-master-data-minimum.py").exists() == false))
+                ||
+                ((new File(installDir, "servers/core-plugins/eln-lims/1/as/.eln-master-data-installed").exists() == false) &&
+                        (new File(installDir, "servers/core-plugins/eln-lims/1/as/initialize-master-data-minimum.py").exists() == true));
+
     }
 
     private static boolean installationExists()

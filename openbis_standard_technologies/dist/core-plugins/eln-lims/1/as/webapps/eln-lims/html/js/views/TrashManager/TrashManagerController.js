@@ -21,9 +21,7 @@ function TrashManagerController(mainController) {
 	
 	this.revertDeletions = function(deletionIds) {
 		mainController.serverFacade.revertDeletions(deletionIds, function(data) {
-			Util.showSuccess("Deletions Reverted. The application will reload automatically to show changes.", function() {
-				location.reload();
-			});
+			Util.showSuccess("Deletions Reverted.", function() {});
 			mainController.changeView('showTrashcanPage', null);
 		});
 	}

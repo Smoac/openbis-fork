@@ -17,6 +17,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationD
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModifierHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISampleHolder;
@@ -144,7 +145,7 @@ public class AbstractGenerator
     public static void addPropertyAssignments(DtoGenerator gen)
     {
         gen.addPluralFetchedField("List<PropertyAssignment>", List.class.getName(), "propertyAssignments",
-                "Property assigments", PropertyAssignmentFetchOptions.class);
+                "Property assigments", PropertyAssignmentFetchOptions.class).withInterface(IPropertyAssignmentsHolder.class);
         gen.addClassForImport(PropertyAssignment.class);
     }
 

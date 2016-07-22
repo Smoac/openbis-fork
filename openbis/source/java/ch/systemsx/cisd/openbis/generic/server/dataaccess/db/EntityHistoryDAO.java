@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.python.tests.RedundantInterfaceDeclarations.Implementation;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -30,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractEntityPropertyHistory
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
- * The unique {@link Implementation} of {@link IEntityHistoryDAO}.
+ * The unique implementation of {@link IEntityHistoryDAO}.
  * 
  * @author Franz-Josef Elmer
  */

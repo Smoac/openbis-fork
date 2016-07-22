@@ -42,8 +42,8 @@ public class SearchSampleTypeTest extends AbstractTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
         SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
-        fetchOptions.withPropertyAssignments().withVocabulary();
-        
+        fetchOptions.withPropertyAssignments().withPropertyType().withVocabulary();
+
         SearchResult<SampleType> searchResult = v3api.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
 
         List<SampleType> types = searchResult.getObjects();
@@ -123,7 +123,7 @@ public class SearchSampleTypeTest extends AbstractTest
         assertOrder(propertyAssignments, "BACTERIUM", "ORGANISM", "DESCRIPTION");
         v3api.logout(sessionToken);
     }
-    
+
     @Test
     public void testSearchListableOnly()
     {
@@ -133,7 +133,7 @@ public class SearchSampleTypeTest extends AbstractTest
         SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
 
         SearchResult<SampleType> searchResult = v3api.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
-        
+
         List<SampleType> types = searchResult.getObjects();
         List<String> codes = extractCodes(types);
         Collections.sort(codes);
@@ -142,7 +142,7 @@ public class SearchSampleTypeTest extends AbstractTest
                 + "VALIDATE_CHILDREN]");
         v3api.logout(sessionToken);
     }
-    
+
     @Test
     public void testSearchNonListableOnly()
     {
@@ -150,25 +150,25 @@ public class SearchSampleTypeTest extends AbstractTest
         SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
         searchCriteria.withListable().thatEquals(false);
         SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
-        
+
         SearchResult<SampleType> searchResult = v3api.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
-        
+
         List<SampleType> types = searchResult.getObjects();
         List<String> codes = extractCodes(types);
         Collections.sort(codes);
         assertEquals(codes.toString(), "[WELL]");
         v3api.logout(sessionToken);
     }
-    
+
     @Test
     public void testSearchListableAndNonListable()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
         SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
-        
+
         SearchResult<SampleType> searchResult = v3api.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
-        
+
         List<SampleType> types = searchResult.getObjects();
         List<String> codes = extractCodes(types);
         Collections.sort(codes);

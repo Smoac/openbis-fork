@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.common.jython.v27;
 
+import java.util.concurrent.Callable;
+
 import org.apache.log4j.Logger;
 import org.python27.core.CompileMode;
 import org.python27.core.Py;
@@ -131,7 +133,35 @@ class PythonInterpreter27 extends org.python27.util.PythonInterpreter
         return new PythonInterpreter27();
     }
 
-    public void exec(String data, String filename)
+    @Override
+    public void exec(final String s)
+    {
+        JythonUtils.executeWithContextClassLoader(this, new Callable<Void>()
+            {
+                @Override
+                public Void call() throws Exception
+                {
+                    PythonInterpreter27.super.exec(s);
+                    return null;
+                }
+            });
+    }
+
+    @Override
+    public void exec(final PyObject code)
+    {
+        JythonUtils.executeWithContextClassLoader(this, new Callable<Void>()
+            {
+                @Override
+                public Void call() throws Exception
+                {
+                    PythonInterpreter27.super.exec(code);
+                    return null;
+                }
+            });
+    }
+
+    public void exec(final String data, final String filename)
     {
         String[] pythonPath = ch.systemsx.cisd.common.jython.JythonUtils.getScriptDirectoryPythonPath(filename);
 
@@ -143,7 +173,15 @@ class PythonInterpreter27 extends org.python27.util.PythonInterpreter
 
             setSystemState();
 
-            Py.exec(Py.compile_flags(data, filename, CompileMode.exec, cflags), getLocals(), null);
+            JythonUtils.executeWithContextClassLoader(this, new Callable<Void>()
+                {
+                    @Override
+                    public Void call() throws Exception
+                    {
+                        Py.exec(Py.compile_flags(data, filename, CompileMode.exec, cflags), getLocals(), null);
+                        return null;
+                    }
+                });
             Py.flushLine();
         } finally
         {

@@ -32,10 +32,23 @@ public class PropertyAssignmentSortOptions extends SortOptions<PropertyAssignmen
     private static final long serialVersionUID = 1L;
 
     @JsonIgnore
+    public static final String ORDINAL = "ORDINAL";
+
+    @JsonIgnore
     public static final String CODE = "CODE";
 
     @JsonIgnore
     public static final String LABEL = "LABEL";
+
+    public SortOrder ordinal()
+    {
+        return getOrCreateSorting(ORDINAL);
+    }
+
+    public SortOrder getOrdinal()
+    {
+        return getSorting(ORDINAL);
+    }
 
     public SortOrder code()
     {

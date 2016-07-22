@@ -33,10 +33,6 @@ public abstract class AbstractDataSetByExperimentOrSampleIdentifierValidator<DAT
     @Override
     public boolean doValidation(PersonPE person, final DATA_SET dataSet)
     {
-        if (StorageConfirmedForAdminValidator.isValid(person, isStorageConfirmed(dataSet)) == false)
-        {
-            return false;
-        }
         if (getExperimentIdentifier(dataSet) != null)
         {
             return experimentValidator.isValid(person, new IIdentifierHolder()

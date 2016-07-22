@@ -21,16 +21,19 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IMapObjectByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.SortAndPage;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 
 /**
  * @author pkupczyk
  */
-public abstract class AbstractGetMethodExecutor<OBJECT_ID extends IObjectId, OBJECT_PE, OBJECT, FETCH_OPTIONS> extends AbstractMethodExecutor
+public abstract class AbstractGetMethodExecutor<OBJECT_ID extends IObjectId, OBJECT_PE, OBJECT, FETCH_OPTIONS extends FetchOptions<OBJECT>>
+        extends AbstractMethodExecutor
 {
 
     public Map<OBJECT_ID, OBJECT> get(final String sessionToken, final List<? extends OBJECT_ID> objectIds, final FETCH_OPTIONS fetchOptions)
@@ -41,7 +44,9 @@ public abstract class AbstractGetMethodExecutor<OBJECT_ID extends IObjectId, OBJ
                 public Map<OBJECT_ID, OBJECT> execute(IOperationContext context)
                 {
                     Map<OBJECT_ID, OBJECT_PE> map = getMapExecutor().map(context, objectIds);
-                    return translate(context, map, fetchOptions);
+                    Map<OBJECT_ID, OBJECT> translated = translate(context, map, fetchOptions);
+                    sortAndPage(translated, fetchOptions);
+                    return translated;
                 }
             });
     }
@@ -70,6 +75,13 @@ public abstract class AbstractGetMethodExecutor<OBJECT_ID extends IObjectId, OBJ
         }
 
         return idToObjectMap;
+    }
+
+    private void sortAndPage(Map<OBJECT_ID, OBJECT> map, FETCH_OPTIONS fetchOptions)
+    {
+        // sort and page the objects internal collections - ignore the top level changes
+        // (we want to maintain all the results and keep them in order of the passed ids)
+        new SortAndPage().sortAndPage(map.values(), fetchOptions);
     }
 
     protected abstract IMapObjectByIdExecutor<OBJECT_ID, OBJECT_PE> getMapExecutor();

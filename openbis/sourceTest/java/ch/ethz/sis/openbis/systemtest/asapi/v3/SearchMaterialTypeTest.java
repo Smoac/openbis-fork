@@ -61,7 +61,7 @@ public class SearchMaterialTypeTest extends AbstractTest
         MaterialTypeSearchCriteria searchCriteria = new MaterialTypeSearchCriteria();
         searchCriteria.withCode().thatEquals("BACTERIUM");
         MaterialTypeFetchOptions fetchOptions = new MaterialTypeFetchOptions();
-        fetchOptions.withPropertyAssignments().withVocabulary();
+        fetchOptions.withPropertyAssignments().withPropertyType().withVocabulary();
         SearchResult<MaterialType> searchResult = v3api.searchMaterialTypes(sessionToken, searchCriteria, fetchOptions);
 
         List<MaterialType> types = searchResult.getObjects();
@@ -69,7 +69,7 @@ public class SearchMaterialTypeTest extends AbstractTest
         Collections.sort(codes);
         assertEquals(codes.toString(), "[BACTERIUM]");
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
-        
+
         List<String> vocabularyCodes = new ArrayList<String>();
         for (MaterialType type : types)
         {
@@ -77,7 +77,7 @@ public class SearchMaterialTypeTest extends AbstractTest
         }
         Collections.sort(vocabularyCodes);
         assertEquals(vocabularyCodes.toString(), "[BACTERIUM:[ORGANISM]]");
-        
+
         v3api.logout(sessionToken);
     }
 

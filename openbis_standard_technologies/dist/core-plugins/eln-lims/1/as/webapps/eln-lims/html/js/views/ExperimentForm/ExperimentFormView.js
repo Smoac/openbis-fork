@@ -43,18 +43,26 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		}
 		var entityPath = null;
 		
+		var typeTitle = "Experiment: ";
+//		if(this._experimentFormModel.experiment &&
+//		   this._experimentFormModel.experiment.identifier &&
+//		   profile.isInventorySpace(this._experimentFormModel.experiment.identifier.split("/")[1])
+//		) {
+//			typeTitle = "";
+//		}
+		
 		var title = null;
 		switch(this._experimentFormModel.mode) {
 	    	case FormMode.CREATE:
-	    		title = "Create Experiment " + this._experimentFormModel.experiment.experimentTypeCode;
+	    		title = "Create " + typeTitle + this._experimentFormModel.experiment.experimentTypeCode;
 	    		entityPath = "";
 	    		break;
 	    	case FormMode.EDIT:
-	    		title = "Update Experiment: " + nameLabel;
+	    		title = "Update " + typeTitle + nameLabel;
 	    		entityPath = this._experimentFormModel.experiment.identifier;
 	    		break;
 	    	case FormMode.VIEW:
-	    		title = "Experiment: " + nameLabel;
+	    		title = typeTitle + nameLabel;
 	    		entityPath = this._experimentFormModel.experiment.identifier;
 	    		break;
 		}
@@ -104,7 +112,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 					if(error) {
 						Util.showError(error);
 					} else {
-						Util.showSuccess("Export is being processed, you will receibe an email when is ready, if you logout the process will stop.", function() { Util.unblockUI(); });
+						Util.showSuccess("Export is being processed, you will receive an email when is ready, if you logout the process will stop.", function() { Util.unblockUI(); });
 					}
 				});
 			});
@@ -141,7 +149,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			$formColumn.append($("<legend>").append("Samples"));
 			var sampleListContainer = $("<div>");
 			$formColumn.append(sampleListContainer);
-			var sampleList = new SampleTableController(this._experimentFormController, null, this._experimentFormModel.experiment.identifier);
+			var sampleList = new SampleTableController(this._experimentFormController, null, this._experimentFormModel.experiment.identifier, null, null, this._experimentFormModel.experiment);
 			sampleList.init(sampleListContainer);
 		}
 		

@@ -193,25 +193,6 @@ public class UpdateDataSetTest extends AbstractSampleTest
     }
 
     @Test
-    public void testUpdateWithSampleUnauthorized()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final IDataSetId dataSetId = new DataSetPermId("20081105092159111-1");
-        final DataSetUpdate update = new DataSetUpdate();
-        update.setDataSetId(dataSetId);
-
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.updateDataSets(sessionToken, Arrays.asList(update));
-                }
-            }, dataSetId);
-    }
-
-    @Test
     public void testUpdateWithSampleNull()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);

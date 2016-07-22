@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.common.jython.v25;
 
+import org.python.core.CompileMode;
+import org.python.core.CompilerFlags;
+import org.python.core.Py;
 import org.python.core.PyBaseCode;
+import org.python.core.PyException;
 import org.python.core.PyFunction;
 import org.python.core.PyInteger;
 import org.python.core.PyObject;
@@ -25,7 +29,6 @@ import ch.systemsx.cisd.common.jython.IJythonFunction;
 import ch.systemsx.cisd.common.jython.IJythonInterpreter;
 import ch.systemsx.cisd.common.jython.IJythonInterpreterFactory;
 import ch.systemsx.cisd.common.jython.IJythonObject;
-import ch.systemsx.cisd.common.jython.JythonUtils;
 import ch.systemsx.cisd.common.jython.PythonInterpreter;
 
 public class Jython25InterpreterFactory implements IJythonInterpreterFactory
@@ -48,7 +51,12 @@ public class Jython25InterpreterFactory implements IJythonInterpreterFactory
         @Override
         public IJythonObject invoke(Object... arguments)
         {
-            PyObject result = JythonUtils.invokeFunction(function, arguments);
+            PyObject[] pyArgs = new PyObject[arguments.length];
+            for (int i = 0; i < arguments.length; i++)
+            {
+                pyArgs[i] = Py.java2py(arguments[i]);
+            }
+            PyObject result = function.__call__(pyArgs);
             if (result == null)
             {
                 return null;
@@ -116,9 +124,21 @@ public class Jython25InterpreterFactory implements IJythonInterpreterFactory
         }
 
         @Override
+        public void exec(String scriptString)
+        {
+            interpreter.exec(scriptString);
+        }
+        
+        @Override
         public void set(String variableName, Object object)
         {
             interpreter.set(variableName, object);
+        }
+
+        @Override
+        public void addToPath(String... pythonPaths)
+        {
+            interpreter.addToPath(pythonPaths);
         }
 
         @Override
@@ -130,15 +150,30 @@ public class Jython25InterpreterFactory implements IJythonInterpreterFactory
         @Override
         public IJythonFunction tryJythonFunction(String name)
         {
-            PyFunction function = JythonUtils.tryJythonFunction(interpreter, name);
-            if (function == null)
+            try
+            {
+                PyFunction function = interpreter.get(name, PyFunction.class);
+                return function == null ? null : new Jython25Function(function);
+            } catch (Exception e)
             {
                 return null;
             }
-            else
+        }
+
+        @Override
+        public boolean isNextCommand(String lines)
+        {
+            try
             {
-                return new Jython25Function(function);
+                PyObject object =
+                        Py.compile_command_flags(lines, "<input>", CompileMode.single,
+                                new CompilerFlags(), true);
+                return object != Py.None;
+            } catch (PyException e)
+            {
+                return false;
             }
         }
+
     }
 }
