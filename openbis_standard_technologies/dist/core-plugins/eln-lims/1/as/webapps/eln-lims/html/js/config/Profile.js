@@ -50,7 +50,7 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		this.searchDomains = [ { "@id" : -1, "@type" : "GobalSearch", label : "Global", name : "global"}];
-		this.inventorySpaces = ["MATERIALS", "METHODS"];
+		this.inventorySpaces = ["MATERIALS", "METHODS", "ORDERS"];
 		this.sampleTypeProtocols = ["GENERAL_PROTOCOL", "PCR_PROTOCOL", "WESTERN_BLOTTING_PROTOCOL"];
 		this.searchSamplesUsingV3OnDropbox = false;
 		this.searchSamplesUsingV3OnDropboxRunCustom = false;
@@ -63,7 +63,7 @@ $.extend(DefaultProfile.prototype, {
 		this.copyPastePlainText = false;
 		this.hideCodes = true;
 		this.hideTypes = {
-				"sampleTypeCodes" : [],
+				"sampleTypeCodes" : ["SUPPLIER", "PRODUCT", "REQUEST", "ORDER", "ORDER_LANGUAGE"],
 				"experimentTypeCodes" : []
 		}		
 		this.propertyReplacingCode = "NAME";

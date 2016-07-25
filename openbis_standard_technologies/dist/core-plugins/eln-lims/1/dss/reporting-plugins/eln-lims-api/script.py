@@ -324,6 +324,8 @@ def init(tr, parameters, tableBuilder):
 		elnTypesMetadataMini = tr.getVocabularyForUpdate("ELN_TYPES_METADATA_MINI");
 		addData = elnTypesMetadata != None or elnTypesMetadataMini != None;
 		if addData: # We can only create the data if the ELN metadata is present, this is not true on highly customized systems.
+			tr.createNewSpace("ORDERS", None);
+			
 			tr.createNewSpace("MATERIALS", None);
 			
 			##
