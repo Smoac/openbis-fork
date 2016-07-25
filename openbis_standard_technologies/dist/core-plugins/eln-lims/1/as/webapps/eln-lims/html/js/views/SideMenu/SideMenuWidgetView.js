@@ -247,7 +247,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         }
         
         if(profile.mainMenu.showUserManager) {
-        	treeModelUtils.push({ title : "User Manager", entityType: "USER_MANAGER", key : "USER_MANAGER", folder : false, lazy : false, view : "showUserManagerPage" });
+        	treeModelUtils.push({ title : "User Manager", entityType: "USER_MANAGER", key : "USER_MANAGER", folder : false, lazy : false, view : "showUserManagerPage", icon : "fa fa-users" });
         }
         
         if(profile.mainMenu.showTrashcan) {
@@ -355,7 +355,12 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	                    if(sample.properties && sample.properties[profile.propertyReplacingCode]) {
         	                    	sampleDisplayName = sample.properties[profile.propertyReplacingCode];
         	                    }
-        	                    results.push({ title : sampleDisplayName, entityType: "SAMPLE", key : sample.getPermId().getPermId(), folder : true, lazy : true, view : "showViewSamplePageFromPermId", viewData: sample.getPermId().getPermId() });
+        	                    
+        	                    var sampleNode = { title : sampleDisplayName, entityType: "SAMPLE", key : sample.getPermId().getPermId(), folder : true, lazy : true, view : "showViewSamplePageFromPermId", viewData: sample.getPermId().getPermId() };
+        	                    if(sample.getType().getCode() === "EXPERIMENTAL_STEP") {
+        	                    	sampleNode.icon = "fa fa-flask";
+        	                    }
+        	                    results.push(sampleNode);
         	                }
     	                }
     	                
