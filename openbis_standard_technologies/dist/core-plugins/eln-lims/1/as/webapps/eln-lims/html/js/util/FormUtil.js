@@ -447,7 +447,9 @@ var FormUtil = new function() {
 	
 	this.getButtonWithIcon = function(iconClass, clickEvent, text) {
 		var $pinBtn = $("<a>", { 'class' : 'btn btn-default' }).append($("<span>", { 'class' : 'glyphicon ' + iconClass }));
-		$pinBtn.append("&nbsp;").append(text);
+		if(text) {
+			$pinBtn.append("&nbsp;").append(text);
+		}
 		$pinBtn.click(clickEvent);
 		return $pinBtn;
 	}
