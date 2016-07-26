@@ -925,8 +925,7 @@ ORDER = ["ORDER", "", [
         ["ORDER_STATUS",                              "General",            "Order Status",                             DataType.CONTROLLEDVOCABULARY,                   "ORDER_STATUS",             "Order Status",                           None,       None],
         ["TOTAL_PRICE",                               "General",            "Total Price",                              DataType.VARCHAR,                                None,                       "Total Price",                            None,       None],
         ["ADDITIONAL_INFORMATION",                    "General",            "Additional Information",                   DataType.MULTILINE_VARCHAR,                      None,                       "Additional Information",                 None,       None],
-        ["REQUESTS",                                  "General",            "Requests",                                 DataType.XML,                                    None,                       "Requests",                               None,       None],
-        ["PRODUCTS",                                  "General",            "Products",                                 DataType.XML,                                    None,                       "Products",                               None,       None]
+        ["REQUESTS",                                  "General",            "Requests",                                 DataType.XML,                                    None,                       "Requests",                               None,       None]
     ]];
     
 ORDER_LANGUAGE = ["ORDER_LANGUAGE", "", [
