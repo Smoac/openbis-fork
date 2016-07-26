@@ -50,8 +50,22 @@ $.extend(DefaultProfile.prototype, {
 				showUserManager : true
 		}
 		
+		this.orderLanguage = {
+				"EN" : {
+					"DATE_LABEL" : "Date",
+					"ORDER_MANAGER_LABEL" : "Order Manager",
+					"ORDER_MANAGER_CONTACT_DETAILS_LABEL" : "Order Manager Contact Details",
+					"COMPANY_EMAIL_LABEL" : "Company Email",
+					"COMPANY_FAX_LABEL" : "Company Fax",
+					"QUANTITY_LABEL" : "Quantity",
+					"PRODUCT_LABEL" : "Product",
+					"TOTAL_PRICE_LABEL" : "Total Price",
+					"ADDITIONAL_INFORMATION_LABEL" : "Additional Information"
+				}
+		}
+		
 		this.searchDomains = [ { "@id" : -1, "@type" : "GobalSearch", label : "Global", name : "global"}];
-		this.inventorySpaces = ["MATERIALS", "METHODS", "ORDERS"];
+		this.inventorySpaces = ["MATERIALS", "METHODS", "PURCHASES"];
 		this.sampleTypeProtocols = ["GENERAL_PROTOCOL", "PCR_PROTOCOL", "WESTERN_BLOTTING_PROTOCOL"];
 		this.searchSamplesUsingV3OnDropbox = false;
 		this.searchSamplesUsingV3OnDropboxRunCustom = false;
@@ -63,9 +77,8 @@ $.extend(DefaultProfile.prototype, {
 		this.directFileServer = null; //To be set during initialization using info retrieved from the DSS configuration by the reporting plugin
 		this.copyPastePlainText = false;
 		this.hideCodes = true;
-		this.hideSpaces = ["ORDERS"];
 		this.hideTypes = {
-				"sampleTypeCodes" : ["SUPPLIER", "PRODUCT", "REQUEST", "ORDER", "ORDER_LANGUAGE"],
+				"sampleTypeCodes" : ["SUPPLIER", "PRODUCT", "REQUEST", "ORDER"],
 				"experimentTypeCodes" : []
 		}		
 		this.propertyReplacingCode = "NAME";
@@ -104,10 +117,6 @@ $.extend(DefaultProfile.prototype, {
 			} else {
 				return true;
 			}
-		}
-		
-		this.isSpaceHidden = function(spaceCode) {
-			return ($.inArray(spaceCode, this.hideSpaces) !== -1);
 		}
 		
 		this.isExperimentTypeHidden = function(experimentTypeCode) {

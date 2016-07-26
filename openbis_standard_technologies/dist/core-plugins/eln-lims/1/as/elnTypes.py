@@ -857,6 +857,11 @@ DRAWING_BOARD_SAMPLE = ["DRAWING_BOARD", "", [
 ## Types - Orders
 ##
 
+
+PURCHASES = ["PURCHASES", "Folder used to organize purchases related items", [
+        ["NAME",                 "General", "Name",                     DataType.VARCHAR,             None,    "Name", None, None]
+    ]];
+    
 LANGUAGE = [ "LANGUAGE", "Language", 
                                 [ 
                                     ["ENGLISH", "English (Default)", None],
@@ -926,17 +931,4 @@ ORDER = ["ORDER", "", [
         ["TOTAL_PRICE",                               "General",            "Total Price",                              DataType.VARCHAR,                                None,                       "Total Price",                            None,       None],
         ["ADDITIONAL_INFORMATION",                    "General",            "Additional Information",                   DataType.MULTILINE_VARCHAR,                      None,                       "Additional Information",                 None,       None],
         ["REQUESTS",                                  "General",            "Requests",                                 DataType.XML,                                    None,                       "Requests",                               None,       None]
-    ]];
-    
-ORDER_LANGUAGE = ["ORDER_LANGUAGE", "", [
-        ["ORDER_LANGUAGE",                      "General",            "Order language",                         DataType.CONTROLLEDVOCABULARY,      "LANGUAGE",                 "Order language",                             None,       None],
-        ["DATE_LABEL",                          "General",            "Date label",                             DataType.VARCHAR,                   None,                       "Date label",                                 None,       None],
-        ["ORDER_MANAGER_LABEL",                 "General",            "Order manager label",                    DataType.VARCHAR,                   None,                       "Order manager label",                        None,       None],
-        ["ORDER_MANAGER_CONTACT_DETAILS_LABEL", "General",            "Order manager contact details label",    DataType.VARCHAR,                   None,                       "Order manager contact details label",        None,       None],
-        ["COMPANY_EMAIL_LABEL",                 "General",            "Company email label",                    DataType.VARCHAR,                   None,                       "Company email label",                        None,       None],
-        ["COMPANY_FAX_LABEL",                   "General",            "Company fax label",                      DataType.VARCHAR,                   None,                       "Company fax label",                          None,       None],
-        ["QUANTITY_LABEL",                      "General",            "Quantity label",                         DataType.VARCHAR,                   None,                       "Quantity label",                             None,       None],
-        ["PRODUCT_LABEL",                       "General",            "Product label",                          DataType.VARCHAR,                   None,                       "Product label",                              None,       None],
-        ["TOTAL_PRICE_LABEL",                   "General",            "Total price label",                      DataType.VARCHAR,                   None,                       "Total price label",                          None,       None],
-        ["ADDITIONAL_INFORMATION_LABEL",        "General",            "Additional information Label",           DataType.VARCHAR,                   None,                       "Additional information label",               None,       None]
     ]];

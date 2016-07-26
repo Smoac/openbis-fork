@@ -58,7 +58,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			}
 			
 			//Add Sample Type
-			if(sampleTypeCode !== null && !profile.isSampleTypeHidden(sampleTypeCode)) {
+			if(sampleTypeCode !== null) {
 				var $createButton = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
 					var argsMap = {
 							"sampleTypeCode" : sampleTypeCode,

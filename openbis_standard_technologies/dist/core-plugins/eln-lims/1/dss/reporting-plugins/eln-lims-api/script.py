@@ -324,7 +324,23 @@ def init(tr, parameters, tableBuilder):
 		elnTypesMetadataMini = tr.getVocabularyForUpdate("ELN_TYPES_METADATA_MINI");
 		addData = elnTypesMetadata != None or elnTypesMetadataMini != None;
 		if addData: # We can only create the data if the ELN metadata is present, this is not true on highly customized systems.
-			tr.createNewSpace("ORDERS", None);
+			tr.createNewSpace("PURCHASES", None);
+			
+			tr.createNewProject("/PURCHASES/PRODUCTS");
+			purchasesCollection = tr.createNewExperiment("/PURCHASES/PRODUCTS/PRODUCT_COLLECTION_1",		"PURCHASES");
+			purchasesCollection.setPropertyValue("NAME", "Product Collection 1");
+			
+			tr.createNewProject("/PURCHASES/SUPPLIERS");
+			purchasesCollection = tr.createNewExperiment("/PURCHASES/SUPPLIERS/SUPPLIER_COLLECTION_1",		"PURCHASES");
+			purchasesCollection.setPropertyValue("NAME", "Supplier Collection 1");
+			
+			tr.createNewProject("/PURCHASES/REQUESTS");
+			purchasesCollection = tr.createNewExperiment("/PURCHASES/REQUESTS/REQUEST_COLLECTION_1",		"PURCHASES");
+			purchasesCollection.setPropertyValue("NAME", "Request Collection 1");
+			
+			tr.createNewProject("/PURCHASES/ORDERS");
+			purchasesCollection = tr.createNewExperiment("/PURCHASES/ORDERS/ORDER_COLLECTION_1",			"PURCHASES");
+			purchasesCollection.setPropertyValue("NAME", "Order Collection 1");
 			
 			tr.createNewSpace("MATERIALS", None);
 			

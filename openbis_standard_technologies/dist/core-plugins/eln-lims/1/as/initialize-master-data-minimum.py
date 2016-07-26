@@ -70,8 +70,9 @@ elnTypes.createVocabularyWithTerms(tr, elnTypes.CURRENCY);
 elnTypes.createVocabularyWithTerms(tr, elnTypes.PREFERRED_ORDER_METHOD);
 elnTypes.createVocabularyWithTerms(tr, elnTypes.ORDER_STATUS);
 
+elnTypes.createExperimentTypeWithProperties(tr, elnTypes.PURCHASES);
+
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.SUPPLIER);
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.PRODUCT);
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.REQUEST);
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.ORDER);
-elnTypes.createSampleTypeWithProperties(tr, elnTypes.ORDER_LANGUAGE);
