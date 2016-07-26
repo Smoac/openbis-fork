@@ -220,6 +220,10 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	treeModel.push({ title : "Inventory", entityType: "INVENTORY", key : "INVENTORY", folder : true, lazy : true, view : "showInventoryPage" });
         }
         
+        if(profile.mainMenu.showOrders) {
+        	treeModel.push({ title : "Orders", entityType: "ORDERS", key : "ORDERS", folder : true, lazy : false, view : "showOrdersPage", icon : "fa fa-shopping-cart" });
+        }
+        
         var treeModelUtils = [];
         
         if(profile.mainMenu.showDrawingBoard) {
@@ -291,10 +295,12 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	                var spaces = searchResult.objects;
     	                for (var i = 0; i < spaces.length; i++) {
     	                    var space = spaces[i];
-    	                    var isInventorySpace = profile.isInventorySpace(space.code);
-    	                    if((type === "LAB_NOTEBOOK" && !isInventorySpace) || (type === "INVENTORY" && isInventorySpace)) {
-    	                    	var normalizedSpaceTitle = Util.getDisplayNameFromCode(space.code);
-    	                    	results.push({ title : normalizedSpaceTitle, entityType: "SPACE", key : space.getCode(), folder : true, lazy : true, view : "showSpacePage", viewData: space.getCode() });
+    	                    if(!profile.isSpaceHidden(space.code)) {
+    	                    	var isInventorySpace = profile.isInventorySpace(space.code);
+        	                    if((type === "LAB_NOTEBOOK" && !isInventorySpace) || (type === "INVENTORY" && isInventorySpace)) {
+        	                    	var normalizedSpaceTitle = Util.getDisplayNameFromCode(space.code);
+        	                    	results.push({ title : normalizedSpaceTitle, entityType: "SPACE", key : space.getCode(), folder : true, lazy : true, view : "showSpacePage", viewData: space.getCode() });
+        	                    }
     	                    }
     	                }
     	                dfd.resolve(results);

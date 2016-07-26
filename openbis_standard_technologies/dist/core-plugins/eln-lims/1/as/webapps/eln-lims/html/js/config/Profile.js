@@ -39,6 +39,7 @@ $.extend(DefaultProfile.prototype, {
 		this.mainMenu = {
 				showLabNotebook : true,
 				showInventory : true,
+				showOrders : true,
 				showDrawingBoard : false,
 				showSampleBrowser : true,
 				showExports : true,
@@ -62,6 +63,7 @@ $.extend(DefaultProfile.prototype, {
 		this.directFileServer = null; //To be set during initialization using info retrieved from the DSS configuration by the reporting plugin
 		this.copyPastePlainText = false;
 		this.hideCodes = true;
+		this.hideSpaces = ["ORDERS"];
 		this.hideTypes = {
 				"sampleTypeCodes" : ["SUPPLIER", "PRODUCT", "REQUEST", "ORDER", "ORDER_LANGUAGE"],
 				"experimentTypeCodes" : []
@@ -102,6 +104,10 @@ $.extend(DefaultProfile.prototype, {
 			} else {
 				return true;
 			}
+		}
+		
+		this.isSpaceHidden = function(spaceCode) {
+			return ($.inArray(spaceCode, this.hideSpaces) !== -1);
 		}
 		
 		this.isExperimentTypeHidden = function(experimentTypeCode) {
