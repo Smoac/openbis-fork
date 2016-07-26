@@ -520,11 +520,13 @@ function MainController(profile) {
 			experimentIdentifier = null;
 		}
 		
+		
 		if(experimentIdentifier) {
+			var _this = this;
 			this.serverFacade.listExperimentsForIdentifiers([experimentIdentifier], function(data) {
 				sampleTableController = new SampleTableController(this, "Experiment " + experimentIdentifier, experimentIdentifier, null, null, data.result[0]);
 				sampleTableController.init($("#mainContainer"));
-				this.currentView = sampleTableController;
+				_this.currentView = sampleTableController;
 			});
 		} else {
 			sampleTableController = new SampleTableController(this, "Sample Browser", null);
