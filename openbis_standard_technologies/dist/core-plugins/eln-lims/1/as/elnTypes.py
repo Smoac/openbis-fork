@@ -899,7 +899,8 @@ SUPPLIER = ["SUPPLIER", "", [
         ["ACCOUNT_NUMBER",                      "General",            "Account number",         DataType.VARCHAR,                   None,                       "Account number",               None,       None],
         ["PREFERRED_ORDER_METHOD",              "General",            "Preferred Order Method", DataType.CONTROLLEDVOCABULARY,      "PREFERRED_ORDER_METHOD",   "Preferred Order Method",       None,       None],
         ["URL",                                 "General",            "URL",                    DataType.VARCHAR,                   None,                       "URL",                          None,       None],
-        ["ADDITIONAL_INFORMATION",              "General",            "Additional Information", DataType.MULTILINE_VARCHAR,         None,                       "Additional Information",       None,       None]
+        ["ADDITIONAL_INFORMATION",              "General",            "Additional Information", DataType.MULTILINE_VARCHAR,         None,                       "Additional Information",       None,       None],
+        ["ANNOTATIONS_STATE",        "Comments",            "Annotations State",        DataType.XML,                    None,                "Annotations State", None, None]
     ]];
     
 PRODUCT = ["PRODUCT", "", [
@@ -912,7 +913,8 @@ PRODUCT = ["PRODUCT", "", [
         ["HAZARD_STATEMENT",                    "General",            "Hazard Statement",               DataType.VARCHAR,                   None,                       "Hazard Statement",                   None,       None],
         ["PRICE_PER_UNIT",                      "General",            "Price Per Unit",                 DataType.REAL,                      None,                       "Price Per Unit",                     None,       None],
         ["CURRENCY",                            "General",            "Currency",                       DataType.CONTROLLEDVOCABULARY,      "CURRENCY",                 "Currency",                           None,       None],
-        ["SIZE_OF_ITEM",                        "General",            "Size of Item",                   DataType.VARCHAR,                   None,                       "Size of Item",                       None,       None]
+        ["SIZE_OF_ITEM",                        "General",            "Size of Item",                   DataType.VARCHAR,                   None,                       "Size of Item",                       None,       None],
+        ["ANNOTATIONS_STATE",        "Comments",            "Annotations State",        DataType.XML,                    None,                "Annotations State", None, None]
     ]];
 
 REQUEST = ["REQUEST", "", [
@@ -921,7 +923,7 @@ REQUEST = ["REQUEST", "", [
         ["BUYER",                               "General",            "Buyer",                              DataType.VARCHAR,                   None,                       "Buyer",                            None,       None],
         ["REQUEST_MANAGER",                     "General",            "Request Manager",                    DataType.VARCHAR,                   None,                       "Request Manager",                  None,       None],
         ["REQUEST_MANAGER_CONTACT_DETAILS",     "General",            "Request Manager Contact Details",    DataType.MULTILINE_VARCHAR,         None,                       "Request Manager Contact Details",  None,       None],
-        ["PRODUCTS",                            "General",            "Products",                           DataType.XML,                       None,                       "Products",                         None,       None]
+        ["ANNOTATIONS_STATE",        "Comments",            "Annotations State",        DataType.XML,                    None,                "Annotations State", None, None]
     ]];
 
 ORDER = ["ORDER", "", [
@@ -930,5 +932,5 @@ ORDER = ["ORDER", "", [
         ["ORDER_STATUS",                              "General",            "Order Status",                             DataType.CONTROLLEDVOCABULARY,                   "ORDER_STATUS",             "Order Status",                           None,       None],
         ["TOTAL_PRICE",                               "General",            "Total Price",                              DataType.VARCHAR,                                None,                       "Total Price",                            None,       None],
         ["ADDITIONAL_INFORMATION",                    "General",            "Additional Information",                   DataType.MULTILINE_VARCHAR,                      None,                       "Additional Information",                 None,       None],
-        ["REQUESTS",                                  "General",            "Requests",                                 DataType.XML,                                    None,                       "Requests",                               None,       None]
+        ["ANNOTATIONS_STATE",        "Comments",            "Annotations State",        DataType.XML,                    None,                "Annotations State", None, None]
     ]];

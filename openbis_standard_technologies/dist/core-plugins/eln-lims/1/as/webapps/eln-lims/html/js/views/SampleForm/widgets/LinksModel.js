@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-function LinksModel(title, sampleTypeHints, isDisabled, showInfo) {
+function LinksModel(title, sampleTypeHints, isDisabled, showInfo, disableAddAnyType) {
 	this.title = title;
 	this.sampleTypeHints = sampleTypeHints;
 	this.isDisabled = isDisabled;
 	this.showInfo = showInfo;
+	this.disableAddAnyType = disableAddAnyType;
 	this.samplesRemoved = [];
 	this.samplesByType = {};
 	this.stateObj = {};

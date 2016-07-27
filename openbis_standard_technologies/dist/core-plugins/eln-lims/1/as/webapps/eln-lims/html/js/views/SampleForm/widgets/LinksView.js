@@ -131,7 +131,15 @@ function LinksView(linksController, linksModel) {
 	this.repaint = function($container) {
 		$savedContainer = $container;
 		$container.empty();
-		$container.append($("<legend>").append(linksModel.title).append("&nbsp;").append(linksView.getAddAnyBtn()).css("margin-top", "20px").css("margin-bottom", "20px"));
+		
+		var addAnyBtn = null;
+		if(linksModel.disableAddAnyType) {
+			addAnyBtn = "";
+		} else {
+			addAnyBtn = linksView.getAddAnyBtn();
+		}
+		
+		$container.append($("<legend>").append(linksModel.title).append("&nbsp;").append(addAnyBtn).css("margin-top", "20px").css("margin-bottom", "20px"));
 		$container.append($samplePicker);
 	}
 	

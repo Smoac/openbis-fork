@@ -277,13 +277,21 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var isDisabled = this._sampleFormModel.mode === FormMode.VIEW;
 		
 		var currentParentsLinks = (this._sampleFormModel.sample)?this._sampleFormModel.sample.parents:null;
-
-		this._sampleFormModel.sampleLinksParents = new LinksController("Parents",
-																		requiredParents,
-																		isDisabled,
-																		currentParentsLinks,
-																		this._sampleFormModel.mode === FormMode.CREATE || this._sampleFormModel.mode === FormMode.EDIT);
-		this._sampleFormModel.sampleLinksParents.init($sampleParentsWidget);
+		var parentsTitle = "Parents";
+		if(sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_PARENTS_TITLE"]) {
+			parentsTitle = sampleTypeDefinitionsExtension["SAMPLE_PARENTS_TITLE"];
+		}
+		var parentsAnyTypeDisabled = sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_PARENTS_ANY_TYPE_DISABLED"];
+		this._sampleFormModel.sampleLinksParents = new LinksController(parentsTitle,
+																			requiredParents,
+																			isDisabled,
+																			currentParentsLinks,
+																			this._sampleFormModel.mode === FormMode.CREATE || this._sampleFormModel.mode === FormMode.EDIT,
+																			parentsAnyTypeDisabled);
+		if(!sampleTypeDefinitionsExtension || !sampleTypeDefinitionsExtension["SAMPLE_PARENTS_DISABLED"]) {
+			this._sampleFormModel.sampleLinksParents.init($sampleParentsWidget);
+		}
+		
 		//
 		// LINKS TO CHILDREN
 		//
@@ -291,19 +299,28 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		if(sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_HINT"]) {
 			requiredChildren = sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_HINT"];
 		}
-		
+			
 		var sampleChildrenWidgetId = "sampleChildrenWidgetId";
 		var $sampleChildrenWidget = $("<div>", { "id" : sampleChildrenWidgetId });
 		$formColumn.append($sampleChildrenWidget);
-		
+			
 		var currentChildrenLinks = (this._sampleFormModel.sample)?this._sampleFormModel.sample.children:null;
-		this._sampleFormModel.sampleLinksChildren = new LinksController("Children",
-														requiredChildren,
-														isDisabled,
-														currentChildrenLinks,
-														this._sampleFormModel.mode === FormMode.CREATE);
 		
-		this._sampleFormModel.sampleLinksChildren.init($sampleChildrenWidget);
+		var childrenTitle = "Children";
+		if(sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_TITLE"]) {
+			childrenTitle = sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_TITLE"];
+		}
+		var childrenAnyTypeDisabled = sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_ANY_TYPE_DISABLED"];
+		this._sampleFormModel.sampleLinksChildren = new LinksController(childrenTitle,
+															requiredChildren,
+															isDisabled,
+															currentChildrenLinks,
+															this._sampleFormModel.mode === FormMode.CREATE,
+															childrenAnyTypeDisabled);
+		if(!sampleTypeDefinitionsExtension || !sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_DISABLED"]) {
+			this._sampleFormModel.sampleLinksChildren.init($sampleChildrenWidget);
+		}
+		
 		//
 		// GENERATE CHILDREN
 		//

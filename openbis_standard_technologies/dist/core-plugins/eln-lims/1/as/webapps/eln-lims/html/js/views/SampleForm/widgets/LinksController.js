@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, showAnnotableTypes) {
-	var linksModel = new LinksModel(title, sampleTypeHints, isDisabled, showAnnotableTypes);
+function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, showAnnotableTypes, disableAddAnyType) {
+	var linksModel = new LinksModel(title, sampleTypeHints, isDisabled, showAnnotableTypes, disableAddAnyType);
 	var linksView = new LinksView(this, linksModel);
 	
 	this.init = function($container) {

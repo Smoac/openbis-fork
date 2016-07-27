@@ -268,7 +268,36 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 													}																					
 												],
 				},
-
+				"REQUEST" : {
+					"SAMPLE_PARENTS_TITLE" : "Products",
+					"SAMPLE_PARENTS_ANY_TYPE_DISABLED" : true,
+					"SAMPLE_CHILDREN_DISABLED" : true,
+					"SAMPLE_PARENTS_HINT" : [{
+						"LABEL" : "Products",
+						"TYPE": "PRODUCT",
+						"MIN_COUNT" : 0,
+						"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+					}]
+				},
+				"ORDER" : {
+					"SAMPLE_PARENTS_TITLE" : "Requests",
+					"SAMPLE_PARENTS_ANY_TYPE_DISABLED" : true,
+					"SAMPLE_CHILDREN_DISABLED" : true,
+					"SAMPLE_PARENTS_HINT" : [{
+						"LABEL" : "Requests",
+						"TYPE": "REQUEST",
+						"MIN_COUNT" : 0,
+						"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+					}]
+				},
+				"SUPPLIER" : {
+					"SAMPLE_CHILDREN_DISABLED" : true,
+					"SAMPLE_PARENTS_DISABLED" : true,
+				},
+				"PRODUCT" : {
+					"SAMPLE_CHILDREN_DISABLED" : true,
+					"SAMPLE_PARENTS_DISABLED" : true,
+				},
 				"EXPERIMENTAL_STEP" : {
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
