@@ -276,7 +276,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 						"LABEL" : "Products",
 						"TYPE": "PRODUCT",
 						"MIN_COUNT" : 0,
-						"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+						"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : true }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
 					}]
 				},
 				"ORDER" : {
@@ -287,7 +287,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 						"LABEL" : "Requests",
 						"TYPE": "REQUEST",
 						"MIN_COUNT" : 0,
-						"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+						"ANNOTATION_PROPERTIES" : []
 					}]
 				},
 				"SUPPLIER" : {
@@ -296,7 +296,14 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				},
 				"PRODUCT" : {
 					"SAMPLE_CHILDREN_DISABLED" : true,
-					"SAMPLE_PARENTS_DISABLED" : true,
+					"SAMPLE_PARENTS_TITLE" : "Suppliers",
+					"SAMPLE_PARENTS_ANY_TYPE_DISABLED" : true,
+					"SAMPLE_PARENTS_HINT" : [{
+						"LABEL" : "Suppliers",
+						"TYPE": "SUPPLIER",
+						"MIN_COUNT" : 1,
+						"ANNOTATION_PROPERTIES" : []
+					}]
 				},
 				"EXPERIMENTAL_STEP" : {
 					"SAMPLE_PARENTS_HINT" : [

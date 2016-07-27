@@ -38,6 +38,29 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 	// API - Used by Sample Form
 	//
 	this.isValid = function() {
+		if(sampleTypeHints) {
+			for(var typeIdx = 0; typeIdx < sampleTypeHints.length; typeIdx++) {
+				var sampleTypeHint = sampleTypeHints[typeIdx];
+				var sampleTypeCode = sampleTypeHint["TYPE"];
+				var sampleTypeMinCount = sampleTypeHint["MIN_COUNT"];
+				var sampleTypeAnnotations = sampleTypeHint["ANNOTATION_PROPERTIES"];
+				var sampleTypeCount = (linksModel.samplesByType[sampleTypeCode])?linksModel.samplesByType[sampleTypeCode].length:0;
+				if(sampleTypeCount < sampleTypeMinCount) {
+					Util.showError("Currently you only have " + sampleTypeCount + " of the " + sampleTypeMinCount + " required " + sampleTypeCode + ".");
+					return false;
+				}
+				
+				if(sampleTypeCount > 0) {
+					for(var sampleIdx = 0; sampleIdx < linksModel.samplesByType[sampleTypeCode].length; sampleIdx++) {
+						var sampleWithAnnotations = linksModel.samplesByType[sampleTypeCode][sampleIdx];
+						for(var annotIdx = 0; annotIdx < sampleTypeAnnotations.length; annotIdx++) {
+							//TO-DO, Not enough information to validate required annotations here
+						}
+					}
+				}
+			}
+		}
+		
 		return true;
 	}
 	

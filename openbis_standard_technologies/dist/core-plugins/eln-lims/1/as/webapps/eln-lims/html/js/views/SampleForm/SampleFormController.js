@@ -112,16 +112,15 @@ function SampleFormController(mainController, mode, sample) {
 		// Parents/Children Links
 		//
 		if(!this._sampleFormModel.sampleLinksParents.isValid()) {
-			Util.showError("Missing Parents.");
 			return;
 		}
 		var sampleParentsFinal = this._sampleFormModel.sampleLinksParents.getSamplesIdentifiers();
 		
 		if(!this._sampleFormModel.sampleLinksChildren.isValid()) {
-			Util.showError("Missing Children.");
 			return;
 		}
 		var sampleChildrenFinal = this._sampleFormModel.sampleLinksChildren.getSamplesIdentifiers();
+		
 		var sampleChildrenRemovedFinal = this._sampleFormModel.sampleLinksChildren.getSamplesRemovedIdentifiers();
 		
 		//
