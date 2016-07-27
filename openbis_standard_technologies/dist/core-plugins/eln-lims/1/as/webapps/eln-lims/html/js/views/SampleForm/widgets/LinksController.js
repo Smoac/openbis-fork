@@ -39,6 +39,9 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 	//
 	this.isValid = function() {
 		if(sampleTypeHints) {
+			var sampleFromIdxOwner = mainController.currentView._sampleFormModel.sample;
+			var allOwnerAnnotations = FormUtil.getAnnotationsFromSample(sampleFromIdxOwner);
+			
 			for(var typeIdx = 0; typeIdx < sampleTypeHints.length; typeIdx++) {
 				var sampleTypeHint = sampleTypeHints[typeIdx];
 				var sampleTypeCode = sampleTypeHint["TYPE"];
@@ -52,9 +55,23 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 				
 				if(sampleTypeCount > 0) {
 					for(var sampleIdx = 0; sampleIdx < linksModel.samplesByType[sampleTypeCode].length; sampleIdx++) {
-						var sampleWithAnnotations = linksModel.samplesByType[sampleTypeCode][sampleIdx];
-						for(var annotIdx = 0; annotIdx < sampleTypeAnnotations.length; annotIdx++) {
-							//TO-DO, Not enough information to validate required annotations here
+						var sampleFromIdx = linksModel.samplesByType[sampleTypeCode][sampleIdx];
+						var sampleFromIdxAnnotations = null;
+						
+						if(allOwnerAnnotations && allOwnerAnnotations[sampleFromIdx.permId]) {
+							sampleFromIdxAnnotations = allOwnerAnnotations[sampleFromIdx.permId];
+						}
+						
+						if(sampleFromIdxAnnotations) {
+							for(var annotIdx = 0; annotIdx < sampleTypeAnnotations.length; annotIdx++) {
+								var sampleTypeAnnotation = sampleTypeAnnotations[annotIdx];
+								var sampleTypeAnnotationType = sampleTypeAnnotation["TYPE"];
+								var sampleTypeAnnotationIsMandatory = sampleTypeAnnotation["MANDATORY"];
+								if(sampleTypeAnnotationIsMandatory && !sampleFromIdxAnnotations[sampleTypeAnnotationType]) {
+									Util.showError("You are missing an annotation " + sampleTypeAnnotationType + " on " + sampleFromIdx.code +".");
+									return false;
+								}
+							}
 						}
 					}
 				}
