@@ -28,7 +28,12 @@ dependencies {
 	testCompile 'fjelmer:classycle:+',
 				'hamcrest:hamcrest-integration:+',
 				'hamcrest:hamcrest-library:+'
-} 
+}
+ 
+test {
+    systemProperty "openbis.proxyHost", System.getProperty("openbis.proxyHost")
+    systemProperty "openbis.proxyPort", System.getProperty("openbis.proxyPort")
+}
 
 testJar {
 	from "source/java/genericCommonContext.xml"

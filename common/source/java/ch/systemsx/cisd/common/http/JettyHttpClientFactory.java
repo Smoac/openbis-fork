@@ -20,6 +20,8 @@ import java.io.InputStream;
 import java.security.KeyStore;
 
 import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.HttpProxy;
+import org.eclipse.jetty.client.ProxyConfiguration;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ScheduledExecutorScheduler;
@@ -42,6 +44,17 @@ public class JettyHttpClientFactory
             synchronized (JettyHttpClientFactory.class)
             {
                 HttpClient client = createHttpClient();
+
+                String proxyHost = System.getProperties().getProperty("openbis.proxyHost");
+                String proxyPort = System.getProperties().getProperty("openbis.proxyPort");
+
+                if (proxyHost != null && proxyPort != null)
+                {
+                    ProxyConfiguration proxyConfig = client.getProxyConfiguration();
+                    HttpProxy proxy = new HttpProxy(proxyHost, Integer.parseInt(proxyPort));
+                    proxyConfig.getProxies().add(proxy);
+                }
+
                 try
                 {
                     client.start();
