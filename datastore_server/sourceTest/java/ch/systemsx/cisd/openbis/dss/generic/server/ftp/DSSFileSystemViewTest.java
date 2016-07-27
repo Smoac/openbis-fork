@@ -29,6 +29,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.test.TrackingMockery;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.AbstractFtpFile;
@@ -48,6 +49,8 @@ public class DSSFileSystemViewTest extends AssertJUnit
 
     private IGeneralInformationService infoService;
 
+    private IApplicationServerApi v3api;
+
     private IFtpPathResolverRegistry registry;
 
     private DSSFileSystemView view;
@@ -59,8 +62,9 @@ public class DSSFileSystemViewTest extends AssertJUnit
         service = context.mock(IServiceForDataStoreServer.class);
         infoService = context.mock(IGeneralInformationService.class);
         registry = context.mock(IFtpPathResolverRegistry.class);
+        v3api = context.mock(IApplicationServerApi.class);
         prepareTryResolve("/");
-        view = new DSSFileSystemView(SESSION_TOKEN, service, infoService, registry);
+        view = new DSSFileSystemView(SESSION_TOKEN, service, infoService, v3api, registry);
     }
 
     @AfterMethod

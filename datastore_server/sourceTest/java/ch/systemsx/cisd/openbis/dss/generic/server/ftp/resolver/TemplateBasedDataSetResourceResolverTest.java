@@ -35,6 +35,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
@@ -164,6 +165,8 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
 
     private IGeneralInformationService generalInfoService;
 
+    private IApplicationServerApi v3api;
+
     private SimpleFileContentProvider simpleFileContentProvider;
 
     private PhysicalDataSet ds1;
@@ -192,6 +195,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         context = new TrackingMockery();
         service = context.mock(IServiceForDataStoreServer.class);
         generalInfoService = context.mock(IGeneralInformationService.class);
+        v3api = context.mock(IApplicationServerApi.class);
 
         hierarchicalContentProvider = context.mock(IHierarchicalContentProvider.class);
         File root = new File(workingDirectory, "data-sets");
@@ -199,7 +203,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         simpleFileContentProvider = new SimpleFileContentProvider(root);
 
         resolverContext =
-                new FtpPathResolverContext(SESSION_TOKEN, service, generalInfoService, null,
+                new FtpPathResolverContext(SESSION_TOKEN, service, generalInfoService, v3api, null,
                         new Cache(timeProvider));
         context.checking(new Expectations()
             {

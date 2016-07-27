@@ -40,6 +40,7 @@ import org.apache.ftpserver.ftplet.FtpFile;
 import org.apache.log4j.Logger;
 import org.springframework.extensions.config.ConfigElement;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -48,38 +49,44 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.DSSFileSystemView;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverConfig;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverRegistry;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolverRegistry;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.NonExistingFtpFile;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataSetCifsView implements DiskInterface
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DataSetCifsView.class);
-    
+
     private Cache cache;
+
     private IServiceForDataStoreServer dssService;
+
     private IGeneralInformationService generalInfoService;
-    
-    private FtpPathResolverRegistry pathResolverRegistry;
+
+    private IApplicationServerApi v3api;
+
+    private IFtpPathResolverRegistry pathResolverRegistry;
+
     public DataSetCifsView()
     {
         operationLog.info("CIFS view onto the data store created");
         cache = new Cache(SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
 
-    DataSetCifsView(IServiceForDataStoreServer openBisService, IGeneralInformationService generalInfoService, Cache cache)
+    DataSetCifsView(IServiceForDataStoreServer openBisService, IGeneralInformationService generalInfoService, IApplicationServerApi v3api,
+            Cache cache)
     {
         this.dssService = openBisService;
         this.generalInfoService = generalInfoService;
+        this.v3api = v3api;
         this.cache = cache;
     }
-    
+
     @Override
     public DeviceContext createContext(String shareName, ConfigElement args) throws DeviceContextException
     {
@@ -95,7 +102,7 @@ public class DataSetCifsView implements DiskInterface
     {
         operationLog.info("tree " + tree + " opened");
     }
-    
+
     @Override
     public void treeClosed(SrvSession sess, TreeConnection tree)
     {
@@ -186,7 +193,7 @@ public class DataSetCifsView implements DiskInterface
             }
             operationLog.info("Open file '" + path + "'.");
             NetworkFile networkFile = new CifsFile(file);
-            
+
             networkFile.setAttributes(FileAttribute.ReadOnly);
             networkFile.setCreationDate(file.getLastModified());
             networkFile.setModifyDate(file.getLastModified());
@@ -208,7 +215,7 @@ public class DataSetCifsView implements DiskInterface
     }
 
     @Override
-    public int readFile(SrvSession sess, TreeConnection tree, NetworkFile file, byte[] buf, int bufPos, 
+    public int readFile(SrvSession sess, TreeConnection tree, NetworkFile file, byte[] buf, int bufPos,
             int size, long filePos) throws IOException
     {
         if (file.isDirectory())
@@ -296,7 +303,8 @@ public class DataSetCifsView implements DiskInterface
         try
         {
             String sessionToken = getSessionToken(session);
-            return new DSSFileSystemView(sessionToken, getDssService(), getGeneralInfoService(), pathResolverRegistry, cache);
+            return new DSSFileSystemView(sessionToken, getDssService(), getGeneralInfoService(), getApplicationServerApi(), pathResolverRegistry,
+                    cache);
         } catch (FtpException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -316,7 +324,7 @@ public class DataSetCifsView implements DiskInterface
         }
         return dssService;
     }
-    
+
     private IGeneralInformationService getGeneralInfoService()
     {
         if (generalInfoService == null)
@@ -325,7 +333,16 @@ public class DataSetCifsView implements DiskInterface
         }
         return generalInfoService;
     }
-    
+
+    private IApplicationServerApi getApplicationServerApi()
+    {
+        if (v3api == null)
+        {
+            v3api = ServiceProvider.getV3ApplicationService();
+        }
+        return v3api;
+    }
+
     private String getSessionToken(SrvSession sess)
     {
         ClientInfo client = sess.getClientInformation();

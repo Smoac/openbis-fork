@@ -276,6 +276,7 @@
     <bean id="ftp-server" class="ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpServer" destroy-method="stop">
         <constructor-arg ref="etl-lims-service"/>
         <constructor-arg ref="general-information-service"/>
+        <constructor-arg ref="v3-application-service"/>
         <constructor-arg ref="adapted-ftp-user-manager"/>
     </bean>
 

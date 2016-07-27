@@ -22,8 +22,11 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.server.ISessionTokenProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
@@ -48,18 +51,23 @@ public class FtpPathResolverContext implements ISessionTokenProvider
 
     private final IGeneralInformationService generalInfoService;
 
+    private final IApplicationServerApi v3api;
+
     private final IFtpPathResolverRegistry resolverRegistry;
 
     private final Cache cache;
 
+    private IHierarchicalContentProvider contentProvider;
+
     public FtpPathResolverContext(String sessionToken, IServiceForDataStoreServer service,
-            IGeneralInformationService generalInfoService,
+            IGeneralInformationService generalInfoService, IApplicationServerApi v3api,
             IFtpPathResolverRegistry resolverRegistry, Cache cache)
     {
         this.sessionToken = sessionToken;
         this.service = service;
         this.generalInfoService = generalInfoService;
         this.resolverRegistry = resolverRegistry;
+        this.v3api = v3api;
         this.cache = cache;
     }
 
@@ -74,9 +82,23 @@ public class FtpPathResolverContext implements ISessionTokenProvider
         return service;
     }
 
+    public IApplicationServerApi getV3Api()
+    {
+        return v3api;
+    }
+
     public Cache getCache()
     {
         return cache;
+    }
+
+    public IHierarchicalContentProvider getContentProvider()
+    {
+        if (contentProvider == null)
+        {
+            contentProvider = ServiceProvider.getHierarchicalContentProvider();
+        }
+        return contentProvider.cloneFor(this);
     }
 
     public DataSet getDataSet(String dataSetCode)
@@ -170,7 +192,7 @@ public class FtpPathResolverContext implements ISessionTokenProvider
         }
         return availableDataSets;
     }
-    
+
     public IGeneralInformationService getGeneralInfoService()
     {
         return generalInfoService;

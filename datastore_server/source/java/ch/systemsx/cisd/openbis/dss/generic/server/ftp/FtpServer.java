@@ -69,6 +69,7 @@ import org.apache.sshd.server.SshFile;
 import org.apache.sshd.server.session.ServerSession;
 import org.apache.sshd.server.sftp.SftpSubsystem;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -76,6 +77,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.V3FtpPathResolverRegistry;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
@@ -104,19 +106,23 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
 
     private final IGeneralInformationService generalInfoService;
 
+    private final IApplicationServerApi v3api;
+
     private SshServer sshServer;
 
-    public FtpServer(IServiceForDataStoreServer openBisService, IGeneralInformationService generalInfoService,
+    public FtpServer(IServiceForDataStoreServer openBisService, IGeneralInformationService generalInfoService, IApplicationServerApi v3api,
             UserManager userManager) throws Exception
     {
         this.openBisService = openBisService;
         this.generalInfoService = generalInfoService;
+        this.v3api = v3api;
         this.userManager = userManager;
         Properties ftpProperties = PropertyParametersUtil.extractSingleSectionProperties(
                 DssPropertyParametersUtil.loadServiceProperties(), "ftp.server", true).getProperties();
         this.config = new FtpServerConfig(ftpProperties);
         FtpPathResolverConfig resolverConfig = new FtpPathResolverConfig(ftpProperties);
-        this.pathResolverRegistry = new FtpPathResolverRegistry(resolverConfig);
+        this.pathResolverRegistry = new V3FtpPathResolverRegistry(resolverConfig);
+        // this.pathResolverRegistry = new FtpPathResolverRegistry(resolverConfig);
 
         if (config.isStartServer())
         {
@@ -266,7 +272,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
         if (user instanceof FtpUser)
         {
             String sessionToken = ((FtpUser) user).getSessionToken();
-            return new DSSFileSystemView(sessionToken, openBisService, generalInfoService,
+            return new DSSFileSystemView(sessionToken, openBisService, generalInfoService, v3api,
                     pathResolverRegistry);
         } else
         {
