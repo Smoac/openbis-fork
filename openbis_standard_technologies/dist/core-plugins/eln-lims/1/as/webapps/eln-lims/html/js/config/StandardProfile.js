@@ -456,31 +456,42 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 						var orderPages = [];
 						for(var providerPermId in productsByProviderPermId) {
 							var provider = providerByPermId[providerPermId];
+							var preferredSupplierLanguage = provider.properties["COMPANY_LANGUAGE"];
+							
+							var languageLabels = profile.orderLanguage[preferredSupplierLanguage];
+							if(!languageLabels) {
+								languageLabels = profile.orderLanguage["ENGLISH"];
+							}
+							
 							var providerProducts = productsByProviderPermId[providerPermId];
-							var page  = "Order for supplier: " + provider.properties["COMPANY_NAME"];
+							var page = languageLabels["DATE_LABEL"] + ": " + Util.getFormatedDate(new Date());
 								page += "\n";
-								page += "Contact Info:";
+								page += languageLabels["SUPPLIER_LABEL"] + ": " + provider.properties["COMPANY_NAME"];
 								page += "\n";
-								page += "- Supplier address: " + provider.properties["COMPANY_ADDRESS"];
+								page += languageLabels["CONTACT_INFO_LABEL"] + ":";
 								page += "\n";
-								page += "- Supplier fax: " + provider.properties["COMPANY_FAX"];
+								page += "- " + languageLabels["CONTACT_INFO_LABEL"] + ":";
 								page += "\n";
-								page += "- Supplier phone: " + provider.properties["COMPANY_PHONE"];
+								page += "- " + languageLabels["ORDER_MANAGER_LABEL"] + ": " + order.properties["ORDER_MANAGER"];
 								page += "\n";
-								page += "- Supplier email: " + provider.properties["COMPANY_EMAIL"];
+								page += "- " + languageLabels["ORDER_MANAGER_CONTACT_DETAILS_LABEL"] + ": " + order.properties["ORDER_MANAGER_CONTACT_DETAILS"];
 								page += "\n";
-								page += "Other Info:";
+								page += "- " + languageLabels["SUPPLIER_FAX_LABEL"] + ": " + provider.properties["COMPANY_FAX"];
 								page += "\n";
-								page += "- Account No: " + provider.properties["ACCOUNT_NUMBER"];
+								page += "- " + languageLabels["SUPPLIER_EMAIL_LABEL"] + ": " + provider.properties["COMPANY_EMAIL"];
 								page += "\n";
-								page += "- Preferred Language: " + provider.properties["COMPANY_LANGUAGE"];
+								page += languageLabels["ORDER_INFO_LABEL"] + ":";
 								page += "\n";
-								page += "- Preferred Order Method: " + provider.properties["PREFERRED_ORDER_METHOD"];
+								page += "- " + languageLabels["ACCOUNT_LABEL"] + ": " + provider.properties["ACCOUNT_NUMBER"];
+								page += "\n";
+								page += "- " + languageLabels["PREFERRED_LANGUAGE_LABEL"] + ": " + provider.properties["COMPANY_LANGUAGE"];
+								page += "\n";
+								page += "- " + languageLabels["PREFERRED_ORDER_METHOD_LABEL"] + ": " + provider.properties["PREFERRED_ORDER_METHOD"];
 								page += "\n";
 								page += "\n";
-								page += "Requested Products:";
+								page += languageLabels["REQUESTED_PRODUCTS_LABEL"] + ":";
 								page += "\n";
-								page += "Name\tCode\tQuantity\tUnit Price\tCurrency";
+								page += languageLabels["PRODUCTS_COLUMN_NAMES_LABEL"];
 								page += "\n";
 								var totalByCurrency = {};
 								for(var pIdx = 0; pIdx < providerProducts.length; pIdx++) {
@@ -497,12 +508,14 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 									totalByCurrency[product.properties["CURRENCY"]] = totalForCurrency;
 								}
 								page += "\n";
-								page += "Price Totals by currency:"
+								page += languageLabels["PRICE_TOTALS_LABEL"] + ":";
 								page += "\n";
 								for(var currency in totalByCurrency) {
 									page += totalByCurrency[currency] + " " + currency;
 									page += "\n";
 								}
+								page += languageLabels["ADDITIONAL_INFO_LABEL"] + ": " + order.properties["ADDITIONAL_INFORMATION"];
+								page += "\n";
 								page += "-------------------------------------------------------------------";
 								page += "\n";
 							orderPages.push(page);

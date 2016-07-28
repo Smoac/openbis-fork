@@ -51,16 +51,27 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		this.orderLanguage = {
-				"EN" : {
+				"ENGLISH" : {
 					"DATE_LABEL" : "Date",
+					"SUPPLIER_LABEL" : "Supplier",
+					"CONTACT_INFO_LABEL" : "Contact Information",
+					"ORDER_INFO_LABEL" : "Contact Information",
+					"ACCOUNT_LABEL" : "Account No",
+					
+					"PREFERRED_LANGUAGE_LABEL" : "Preferred Supplier Language",
+					"PREFERRED_ORDER_METHOD_LABEL" : "Preferred Supplier Order Method",
+					
 					"ORDER_MANAGER_LABEL" : "Order Manager",
 					"ORDER_MANAGER_CONTACT_DETAILS_LABEL" : "Order Manager Contact Details",
-					"COMPANY_EMAIL_LABEL" : "Company Email",
-					"COMPANY_FAX_LABEL" : "Company Fax",
-					"QUANTITY_LABEL" : "Quantity",
-					"PRODUCT_LABEL" : "Product",
-					"TOTAL_PRICE_LABEL" : "Total Price",
-					"ADDITIONAL_INFORMATION_LABEL" : "Additional Information"
+					
+					"REQUESTED_PRODUCTS_LABEL" : "Requested Products",
+					"PRODUCTS_COLUMN_NAMES_LABEL" : "Name\tCode\tQuantity\tUnit Price\tCurrency",
+					
+					"SUPPLIER_FAX_LABEL" : "Supplier fax",
+					"SUPPLIER_EMAIL_LABEL" : "Supplier Email",
+					
+					"PRICE_TOTALS_LABEL" : "Price Totals by currency",
+					"ADDITIONAL_INFO_LABEL" : "Additional Information"
 				}
 		}
 		
