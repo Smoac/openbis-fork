@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverConfig;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolver;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolverRegistry;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpNonExistingFile;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 
 /**
@@ -56,9 +57,11 @@ public class V3FtpPathResolverRegistry implements IFtpPathResolverRegistry
 
     }
 
+    // note to self - the resolver context is created fresh for each request
     @Override
     public FtpFile resolve(String path, FtpPathResolverContext resolverContext)
     {
+        System.err.println(path + " Resolver registry: " + this.hashCode());
         try
         {
             V3RootLevelResolver resolver = new V3RootLevelResolver(resolverContext);
@@ -68,7 +71,7 @@ public class V3FtpPathResolverRegistry implements IFtpPathResolverRegistry
         {
             operationLog.warn(e);
         }
-        return V3Resolver.getNonExistingFile(path, path);
+        return new V3FtpNonExistingFile(path, "Error when retrieving path");
     }
 
 }

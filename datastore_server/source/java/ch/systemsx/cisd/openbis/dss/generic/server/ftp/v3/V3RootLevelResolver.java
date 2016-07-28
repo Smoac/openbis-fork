@@ -23,6 +23,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
 
 class V3RootLevelResolver extends V3Resolver
 {
@@ -42,15 +44,24 @@ class V3RootLevelResolver extends V3Resolver
             V3FtpDirectoryResponse response = new V3FtpDirectoryResponse(fullPath);
             for (Space space : spaces)
             {
-                response.AddDirectory(space.getCode());
+                response.addDirectory(space.getCode());
             }
+            response.addDirectory("__PLUGIN__");
             return response;
         } else
         {
             String item = subPath[0];
             String[] remaining = Arrays.copyOfRange(subPath, 1, subPath.length);
-            V3SpaceLevelResolver resolver = new V3SpaceLevelResolver(item, resolverContext);
-            return resolver.resolve(fullPath, remaining);
+
+            if (item.equals("__PLUGIN__"))
+            {
+                V3PluginResolver resolver = new V3PluginResolver(resolverContext);
+                return resolver.resolve(fullPath, remaining);
+            } else
+            {
+                V3SpaceLevelResolver resolver = new V3SpaceLevelResolver(item, resolverContext);
+                return resolver.resolve(fullPath, remaining);
+            }
         }
     }
 }

@@ -27,6 +27,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetc
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
 
 class V3ProjectLevelResolver extends V3Resolver
 {
@@ -52,7 +54,7 @@ class V3ProjectLevelResolver extends V3Resolver
             V3FtpDirectoryResponse response = new V3FtpDirectoryResponse(fullPath);
             for (Experiment exp : project.getExperiments())
             {
-                response.AddDirectory(exp.getCode());
+                response.addDirectory(exp.getCode());
             }
             return response;
         } else

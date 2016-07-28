@@ -26,6 +26,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.Experime
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
 
 class V3ExperimentLevelResolver extends V3Resolver
 {
@@ -51,7 +53,7 @@ class V3ExperimentLevelResolver extends V3Resolver
             V3FtpDirectoryResponse response = new V3FtpDirectoryResponse(fullPath);
             for (DataSet dataSet : exp.getDataSets())
             {
-                response.AddDirectory(dataSet.getCode());
+                response.addDirectory(dataSet.getCode());
             }
             return response;
         } else

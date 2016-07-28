@@ -26,11 +26,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.ftpserver.ftplet.FtpFile;
 
 /**
- * 
- *
  * @author Bernd Rinn
  */
-public final class NonExistingFtpFile implements FtpFile
+public class NonExistingFtpFile implements FtpFile
 {
     private final String path;
 
@@ -41,7 +39,7 @@ public final class NonExistingFtpFile implements FtpFile
         this.path = path;
         this.errorMsgOrNull = errorMsgOrNull;
     }
-    
+
     public String getErrorMessage()
     {
         return errorMsgOrNull;

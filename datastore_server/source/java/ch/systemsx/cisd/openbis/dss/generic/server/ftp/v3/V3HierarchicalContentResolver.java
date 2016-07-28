@@ -20,6 +20,9 @@ import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFileResponse;
 
 class V3HierarchicalContentResolver extends V3Resolver
 {
@@ -54,10 +57,10 @@ class V3HierarchicalContentResolver extends V3Resolver
         {
             if (node.isDirectory())
             {
-                response.AddDirectory(node.getName());
+                response.addDirectory(node.getName());
             } else
             {
-                response.AddFile(node.getName(), node);
+                response.addFile(node.getName(), node);
             }
         }
         return response;
