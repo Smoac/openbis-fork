@@ -16,11 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import org.apache.ftpserver.ftplet.FtpFile;
-
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
@@ -38,7 +33,7 @@ class V3HierarchicalContentResolver extends V3Resolver
     }
 
     @Override
-    public FtpFile resolve(String fullPath, String[] subPath)
+    public V3FtpFile resolve(String fullPath, String[] subPath)
     {
         IHierarchicalContentNode rootNode;
         if (subPath.length == 0)
@@ -51,21 +46,21 @@ class V3HierarchicalContentResolver extends V3Resolver
 
         if (false == rootNode.isDirectory())
         {
-            return createFileWithContent(fullPath, rootNode);
+            return new V3FtpFileResponse(fullPath, rootNode);
         }
 
-        List<FtpFile> files = new LinkedList<>();
+        V3FtpDirectoryResponse response = new V3FtpDirectoryResponse(fullPath);
         for (IHierarchicalContentNode node : rootNode.getChildNodes())
         {
             if (node.isDirectory())
             {
-                files.add(createDirectoryScaffolding(fullPath, node.getName()));
+                response.AddDirectory(node.getName());
             } else
             {
-                files.add(createFileScaffolding(fullPath, node.getName(), node));
+                response.AddFile(node.getName(), node);
             }
         }
-        return createDirectoryWithContent(fullPath, files);
+        return response;
     }
 
 }

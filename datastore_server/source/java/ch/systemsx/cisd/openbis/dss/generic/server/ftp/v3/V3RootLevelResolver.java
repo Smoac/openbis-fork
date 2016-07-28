@@ -17,10 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3;
 
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
-
-import org.apache.ftpserver.ftplet.FtpFile;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
@@ -35,18 +32,19 @@ class V3RootLevelResolver extends V3Resolver
     }
 
     @Override
-    public FtpFile resolve(String fullPath, String[] subPath)
+    public V3FtpFile resolve(String fullPath, String[] subPath)
     {
         if (subPath.length == 0)
         {
             List<Space> spaces =
                     api.searchSpaces(sessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions()).getObjects();
-            List<FtpFile> files = new LinkedList<>();
+
+            V3FtpDirectoryResponse response = new V3FtpDirectoryResponse(fullPath);
             for (Space space : spaces)
             {
-                files.add(createDirectoryScaffolding(fullPath, space.getCode()));
+                response.AddDirectory(space.getCode());
             }
-            return createDirectoryWithContent(fullPath, files);
+            return response;
         } else
         {
             String item = subPath[0];

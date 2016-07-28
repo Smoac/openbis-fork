@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.ftpserver.ftplet.FtpFile;
@@ -44,112 +45,128 @@ public abstract class V3Resolver
         this.api = resolverContext.getV3Api();
     }
 
-    public abstract FtpFile resolve(String fullPath, String[] subPath);
+    /**
+     * Create a ftp file which has specified full path, resolving the local path specified as an array of path items.
+     */
+    public abstract V3FtpFile resolve(String fullPath, String[] pathItems);
 
-    public static FtpFile createDirectoryScaffolding(String parentPath, String name)
+    public interface V3FtpFile extends FtpFile
     {
-        return new AbstractFtpFolder(parentPath + "/" + name)
-            {
-                @Override
-                public List<FtpFile> unsafeListFiles() throws RuntimeException
-                {
-                    throw new IllegalStateException("Don't expect to sak for file listing of scaffolding directory");
-                }
-            };
+
     }
 
-    public static FtpFile createDirectoryWithContent(String name, final List<FtpFile> files)
+    public class V3FtpDirectoryResponse extends AbstractFtpFolder implements V3FtpFile
     {
-        return new AbstractFtpFolder(name)
-            {
+        private final List<FtpFile> files;
 
-                @Override
-                public List<FtpFile> unsafeListFiles() throws RuntimeException
+        public V3FtpDirectoryResponse(String fullPath)
+        {
+            super(fullPath);
+            this.files = new ArrayList<>();
+        }
+
+        @Override
+        public List<FtpFile> unsafeListFiles() throws RuntimeException
+        {
+            return files;
+        }
+
+        public void AddDirectory(String directoryName)
+        {
+            files.add(new AbstractFtpFolder(getAbsolutePath() + "/" + directoryName)
                 {
-                    return files;
-                }
+                    @Override
+                    public List<FtpFile> unsafeListFiles() throws RuntimeException
+                    {
+                        throw new IllegalStateException("Don't expect to sak for file listing of scaffolding directory");
+                    }
+                });
+        }
 
-            };
+        public void AddFile(String fileName, final IHierarchicalContentNode node)
+        {
+            AbstractFtpFile file = new AbstractFtpFile(this.absolutePath + "/" + fileName)
+                {
+
+                    @Override
+                    public boolean isFile()
+                    {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean isDirectory()
+                    {
+                        return false;
+                    }
+
+                    @Override
+                    public long getSize()
+                    {
+                        return node.getFileLength();
+                    }
+
+                    @Override
+                    public long getLastModified()
+                    {
+                        return node.getLastModified();
+                    }
+
+                    @Override
+                    public InputStream createInputStream(long offset) throws IOException
+                    {
+                        throw new IllegalStateException("Don't expect to ask for input stream of scaffolding file");
+                    }
+
+                    @Override
+                    public List<FtpFile> unsafeListFiles() throws RuntimeException
+                    {
+                        throw new IllegalStateException("Don't expect to ask for file listing of scaffolding file");
+                    }
+                };
+            files.add(file);
+        }
     }
 
-    protected FtpFile createFileWithContent(String name, final IHierarchicalContentNode node)
+    public class V3FtpFileResponse extends AbstractFtpFile implements V3FtpFile
     {
-        return new AbstractFtpFile(name)
-            {
+        private IHierarchicalContentNode node;
 
-                @Override
-                public boolean isFile()
-                {
-                    return true;
-                }
+        public V3FtpFileResponse(String fullPath, final IHierarchicalContentNode node)
+        {
+            super(fullPath);
+            this.node = node;
+        }
 
-                @Override
-                public boolean isDirectory()
-                {
-                    return false;
-                }
+        @Override
+        public boolean isFile()
+        {
+            return true;
+        }
 
-                @Override
-                public long getSize()
-                {
-                    throw new IllegalStateException("Size is not required for content node");
-                }
+        @Override
+        public boolean isDirectory()
+        {
+            return false;
+        }
 
-                @Override
-                public InputStream createInputStream(long offset) throws IOException
-                {
-                    return node.getInputStream();
-                }
+        @Override
+        public long getSize()
+        {
+            return node.getFileLength();
+        }
 
-                @Override
-                public List<FtpFile> unsafeListFiles() throws RuntimeException
-                {
-                    throw new IllegalStateException("Don't expect to sak for file listing of file");
-                }
-            };
-    }
+        @Override
+        public InputStream createInputStream(long offset) throws IOException
+        {
+            return node.getInputStream();
+        }
 
-    protected FtpFile createFileScaffolding(String parentPath, String name, final IHierarchicalContentNode node)
-    {
-        return new AbstractFtpFile(parentPath + "/" + name)
-            {
-
-                @Override
-                public boolean isFile()
-                {
-                    return true;
-                }
-
-                @Override
-                public boolean isDirectory()
-                {
-                    return false;
-                }
-
-                @Override
-                public long getSize()
-                {
-                    return node.getFileLength();
-                }
-
-                @Override
-                public long getLastModified()
-                {
-                    return node.getLastModified();
-                }
-
-                @Override
-                public InputStream createInputStream(long offset) throws IOException
-                {
-                    throw new IllegalStateException("Don't expect to ask for input stream of scaffolding file");
-                }
-
-                @Override
-                public List<FtpFile> unsafeListFiles() throws RuntimeException
-                {
-                    throw new IllegalStateException("Don't expect to ask for file listing of scaffolding file");
-                }
-            };
+        @Override
+        public List<FtpFile> unsafeListFiles() throws RuntimeException
+        {
+            throw new IllegalStateException("Don't expect to sak for file listing of file");
+        }
     }
 
     /**
