@@ -568,6 +568,22 @@ var Util = new function() {
 		saveAs(blob, fileName);
 	}
 	
+	this.downloadTextFile = function(content, fileName) {
+		var contentEncoded = null;
+		var out = null;
+		var charType = null;
+		
+		contentEncoded = content;
+		out = new Uint8Array(contentEncoded.length);
+		for(var ii = 0,jj = contentEncoded.length; ii < jj; ++ii){
+			out[ii] = contentEncoded.charCodeAt(ii);
+		}
+		charType = 'text/tsv;charset=UTF-8;';
+		
+		var blob = new Blob([out], {type: charType});
+		saveAs(blob, fileName);
+	}
+	
 	//
 	// Components Resize events
 	//

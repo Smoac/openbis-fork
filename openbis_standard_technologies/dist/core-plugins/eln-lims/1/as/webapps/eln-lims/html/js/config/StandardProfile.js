@@ -408,6 +408,115 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				var isEnabled = mainController.currentView._sampleFormModel.mode !== FormMode.VIEW;
 				var freeFormTableController = new FreeFormTableController(sample, isEnabled);
 				freeFormTableController.init($("#" + containerId));
+			} else if(sampleTypeCode === "ORDER") {
+				var isExisting = mainController.currentView._sampleFormModel.mode === FormMode.VIEW;
+				if(isExisting) {
+					var order = mainController.currentView._sampleFormModel.sample;
+					var requests = order.parents;
+					var providerByPermId = {};
+					var productsByProviderPermId = {};
+					var quantityByProductPermId = {};
+					var printOrder = FormUtil.getButtonWithIcon("glyphicon-print",function() {
+						
+						//1. Group products from all requests by provider and obtain their quantities from the annotations
+						for(var rIdx = 0; rIdx < requests.length; rIdx++) {
+							var request = requests[rIdx];
+							var requestProductsAnnotations = FormUtil.getAnnotationsFromSample(request);
+							var requestProducts = request.parents;
+							for(var pIdx = 0; pIdx < requestProducts.length; pIdx++) {
+								var requestProduct = requestProducts[pIdx];
+								var requestProductAnnotations = requestProductsAnnotations[requestProduct.permId];
+								
+								if(requestProduct.parents.length === 0) {
+									Util.showError("Product " + requestProduct.code + " don't have a provider, FIX IT!.");
+									return;
+								}
+								var provider = requestProduct.parents[0];
+								var providerProducts = productsByProviderPermId[provider.permId];
+								if(!providerProducts) {
+									providerProducts = [];
+									productsByProviderPermId[provider.permId] = providerProducts;
+									providerByPermId[provider.permId] = provider;
+								}
+								var quantity = quantityByProductPermId[requestProduct.permId];
+								if(!quantity) {
+									quantity = 0;
+								}
+								quantity += parseInt(requestProductAnnotations["QUANTITY"]);
+								if(!quantity) {
+									Util.showError("Product " + requestProduct.code + " from request " +  request.code + " don't have a quantity, FIX IT!.");
+									return;
+								}
+								quantityByProductPermId[requestProduct.permId] = quantity;
+								providerProducts.push(requestProduct);
+							}
+						}
+						
+						//2. Create an order page for each provider
+						var orderPages = [];
+						for(var providerPermId in productsByProviderPermId) {
+							var provider = providerByPermId[providerPermId];
+							var providerProducts = productsByProviderPermId[providerPermId];
+							var page  = "Order for supplier: " + provider.properties["COMPANY_NAME"];
+								page += "\n";
+								page += "Contact Info:";
+								page += "\n";
+								page += "- Supplier address: " + provider.properties["COMPANY_ADDRESS"];
+								page += "\n";
+								page += "- Supplier fax: " + provider.properties["COMPANY_FAX"];
+								page += "\n";
+								page += "- Supplier phone: " + provider.properties["COMPANY_PHONE"];
+								page += "\n";
+								page += "- Supplier email: " + provider.properties["COMPANY_EMAIL"];
+								page += "\n";
+								page += "Other Info:";
+								page += "\n";
+								page += "- Account No: " + provider.properties["ACCOUNT_NUMBER"];
+								page += "\n";
+								page += "- Preferred Language: " + provider.properties["COMPANY_LANGUAGE"];
+								page += "\n";
+								page += "- Preferred Order Method: " + provider.properties["PREFERRED_ORDER_METHOD"];
+								page += "\n";
+								page += "\n";
+								page += "Requested Products:";
+								page += "\n";
+								page += "Name\tCode\tQuantity\tUnit Price\tCurrency";
+								page += "\n";
+								var totalByCurrency = {};
+								for(var pIdx = 0; pIdx < providerProducts.length; pIdx++) {
+									var product = providerProducts[pIdx];
+									var quantity = quantityByProductPermId[product.permId];
+									var unitPrice = parseFloat(product.properties["PRICE_PER_UNIT"]);
+									page += product.properties["PRODUCT_MAIN_NAME"] + "\t" + product.properties["CATALOG_CODE"] + "\t" + quantity + "\t" + product.properties["PRICE_PER_UNIT"] + "\t" + product.properties["CURRENCY"];
+									page += "\n";
+									var totalForCurrency = totalByCurrency[product.properties["CURRENCY"]];
+									if(!totalForCurrency) {
+										totalForCurrency = 0;
+									}
+									totalForCurrency += unitPrice * quantity;
+									totalByCurrency[product.properties["CURRENCY"]] = totalForCurrency;
+								}
+								page += "\n";
+								page += "Price Totals by currency:"
+								page += "\n";
+								for(var currency in totalByCurrency) {
+									page += totalByCurrency[currency] + " " + currency;
+									page += "\n";
+								}
+								page += "-------------------------------------------------------------------";
+								page += "\n";
+							orderPages.push(page);
+						}
+						
+						//3. Print Pages
+						var completeOrder = "";
+						for(var pageIdx = 0; pageIdx < orderPages.length; pageIdx++) {
+							completeOrder += orderPages[pageIdx];
+						}
+						Util.downloadTextFile(completeOrder, "order.txt");
+					}, "Print Order");
+					$("#" + containerId).append(printOrder);
+				}
 			}
 		}
 		

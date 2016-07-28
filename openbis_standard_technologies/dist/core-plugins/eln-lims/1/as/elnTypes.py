@@ -75,9 +75,12 @@ def addPropertiesToSamples(tr, sampleTypeCodes, properties):
     
 def addProperties(tr, entity, properties):
     for property in properties:
-        addProperty(tr, entity, property[0], property[1], property[2], property[3], property[4], property[5], property[6], property[7]);
+        isMandatory = False;
+        if len(property) > 8:
+            isMandatory = property[8];
+        addProperty(tr, entity, property[0], property[1], property[2], property[3], property[4], property[5], property[6], property[7], isMandatory);
     
-def addProperty(tr, entity, propertyCode, section, propertyLabel, dataType, vocabularyCode, propertyDescription, managedScript, dynamicScript):
+def addProperty(tr, entity, propertyCode, section, propertyLabel, dataType, vocabularyCode, propertyDescription, managedScript, dynamicScript, isMandatory):
     property = None;
     
     if propertyCode in propertiesCache:
@@ -88,6 +91,7 @@ def addProperty(tr, entity, propertyCode, section, propertyLabel, dataType, voca
     propertyAssignment = tr.assignPropertyType(entity, property);
     propertyAssignment.setSection(section);
     propertyAssignment.setShownEdit(True);
+    propertyAssignment.setMandatory(isMandatory);
     
     if managedScript != None:
         propertyAssignment.setManaged(True);
@@ -890,29 +894,29 @@ ORDER_STATUS = [ "ORDER_STATUS", "Order Status",
                                 ]];
                                 
 SUPPLIER = ["SUPPLIER", "", [
-        ["COMPANY_NAME",                        "General",            "Company name",           DataType.VARCHAR,                   None,                       "Company name",                 None,       None],
-        ["COMPANY_ADDRESS",                     "General",            "Company address",        DataType.MULTILINE_VARCHAR,         None,                       "Company address",              None,       None],
+        ["COMPANY_NAME",                        "General",            "Company name",           DataType.VARCHAR,                   None,                       "Company name",                 None,       None, True],
+        ["COMPANY_ADDRESS",                     "General",            "Company address",        DataType.VARCHAR,         None,                       "Company address",              None,       None, True],
         ["COMPANY_FAX",                         "General",            "Company fax",            DataType.VARCHAR,                   None,                       "Company fax",                  None,       None],
         ["COMPANY_PHONE",                       "General",            "Company phone",          DataType.VARCHAR,                   None,                       "Company phone",                None,       None],
-        ["COMPANY_EMAIL",                       "General",            "Company email",          DataType.VARCHAR,                   None,                       "Company email",                None,       None],
-        ["COMPANY_LANGUAGE",                    "General",            "Company language",       DataType.CONTROLLEDVOCABULARY,      "LANGUAGE",                 "Company language",             None,       None],
-        ["ACCOUNT_NUMBER",                      "General",            "Account number",         DataType.VARCHAR,                   None,                       "Account number",               None,       None],
-        ["PREFERRED_ORDER_METHOD",              "General",            "Preferred Order Method", DataType.CONTROLLEDVOCABULARY,      "PREFERRED_ORDER_METHOD",   "Preferred Order Method",       None,       None],
+        ["COMPANY_EMAIL",                       "General",            "Company email",          DataType.VARCHAR,                   None,                       "Company email",                None,       None, True],
+        ["COMPANY_LANGUAGE",                    "General",            "Company language",       DataType.CONTROLLEDVOCABULARY,      "LANGUAGE",                 "Company language",             None,       None, True],
+        ["ACCOUNT_NUMBER",                      "General",            "Account number",         DataType.VARCHAR,                   None,                       "Account number",               None,       None, True],
+        ["PREFERRED_ORDER_METHOD",              "General",            "Preferred Order Method", DataType.CONTROLLEDVOCABULARY,      "PREFERRED_ORDER_METHOD",   "Preferred Order Method",       None,       None, True],
         ["URL",                                 "General",            "URL",                    DataType.VARCHAR,                   None,                       "URL",                          None,       None],
-        ["ADDITIONAL_INFORMATION",              "General",            "Additional Information", DataType.MULTILINE_VARCHAR,         None,                       "Additional Information",       None,       None],
+        ["ADDITIONAL_INFORMATION",              "General",            "Additional Information", DataType.VARCHAR,         None,                       "Additional Information",       None,       None],
         ["ANNOTATIONS_STATE",        "Comments",            "Annotations State",        DataType.XML,                    None,                "Annotations State", None, None]
     ]];
     
 PRODUCT = ["PRODUCT", "", [
-        ["PRODUCT_MAIN_NAME",                   "General",            "Product Main Name",              DataType.VARCHAR,                   None,                       "Product Main Name",                  None,       None],
+        ["PRODUCT_MAIN_NAME",                   "General",            "Product Main Name",              DataType.VARCHAR,                   None,                       "Product Main Name",                  None,       None, True],
         ["PRODUCT_SECONDARY_NAMES",             "General",            "Product Secondary Names",        DataType.VARCHAR,                   None,                       "Product Secondary Names",            None,       None],
         ["DESCRIPTION",                         "General",            "Description",                    DataType.MULTILINE_VARCHAR,         None,                       "Description",                        None,       None],
         ["COMPANY",                             "General",            "Company",                        DataType.VARCHAR,                   None,                       "Company",                            None,       None],
-        ["CATALOG_CODE",                        "General",            "Catalog Code",                   DataType.VARCHAR,                   None,                       "Catalog Code",                       None,       None],
+        ["CATALOG_CODE",                        "General",            "Catalog Code",                   DataType.VARCHAR,                   None,                       "Catalog Code",                       None,       None, True],
         ["CATEGORY",                            "General",            "Category",                       DataType.VARCHAR,                   None,                       "Category",                           None,       None],
         ["HAZARD_STATEMENT",                    "General",            "Hazard Statement",               DataType.VARCHAR,                   None,                       "Hazard Statement",                   None,       None],
-        ["PRICE_PER_UNIT",                      "General",            "Price Per Unit",                 DataType.REAL,                      None,                       "Price Per Unit",                     None,       None],
-        ["CURRENCY",                            "General",            "Currency",                       DataType.CONTROLLEDVOCABULARY,      "CURRENCY",                 "Currency",                           None,       None],
+        ["PRICE_PER_UNIT",                      "General",            "Price Per Unit",                 DataType.REAL,                      None,                       "Price Per Unit",                     None,       None, True],
+        ["CURRENCY",                            "General",            "Currency",                       DataType.CONTROLLEDVOCABULARY,      "CURRENCY",                 "Currency",                           None,       None, True],
         ["SIZE_OF_ITEM",                        "General",            "Size of Item",                   DataType.VARCHAR,                   None,                       "Size of Item",                       None,       None],
         ["ANNOTATIONS_STATE",        "Comments",            "Annotations State",        DataType.XML,                    None,                "Annotations State", None, None]
     ]];
@@ -922,15 +926,14 @@ REQUEST = ["REQUEST", "", [
         ["DEPARTMENT",                          "General",            "Department",                         DataType.VARCHAR,                   None,                       "Department",                       None,       None],
         ["BUYER",                               "General",            "Buyer",                              DataType.VARCHAR,                   None,                       "Buyer",                            None,       None],
         ["REQUEST_MANAGER",                     "General",            "Request Manager",                    DataType.VARCHAR,                   None,                       "Request Manager",                  None,       None],
-        ["REQUEST_MANAGER_CONTACT_DETAILS",     "General",            "Request Manager Contact Details",    DataType.MULTILINE_VARCHAR,         None,                       "Request Manager Contact Details",  None,       None],
+        ["REQUEST_MANAGER_CONTACT_DETAILS",     "General",            "Request Manager Contact Details",    DataType.VARCHAR,                   None,                       "Request Manager Contact Details",  None,       None],
         ["ANNOTATIONS_STATE",        "Comments",            "Annotations State",        DataType.XML,                    None,                "Annotations State", None, None]
     ]];
 
 ORDER = ["ORDER", "", [
         ["ORDER_MANAGER",                             "General",            "Order Manager",                            DataType.VARCHAR,                                None,                       "Order Manager",                          None,       None],
-        ["ORDER_MANAGER_CONTACT_DETAILS",             "General",            "Order Manager Contact Details",            DataType.MULTILINE_VARCHAR,                      None,                       "Order Manager Contact Details",          None,       None],
+        ["ORDER_MANAGER_CONTACT_DETAILS",             "General",            "Order Manager Contact Details",            DataType.VARCHAR,                                None,                       "Order Manager Contact Details",          None,       None],
         ["ORDER_STATUS",                              "General",            "Order Status",                             DataType.CONTROLLEDVOCABULARY,                   "ORDER_STATUS",             "Order Status",                           None,       None],
-        ["TOTAL_PRICE",                               "General",            "Total Price",                              DataType.VARCHAR,                                None,                       "Total Price",                            None,       None],
-        ["ADDITIONAL_INFORMATION",                    "General",            "Additional Information",                   DataType.MULTILINE_VARCHAR,                      None,                       "Additional Information",                 None,       None],
+        ["ADDITIONAL_INFORMATION",                    "General",            "Additional Information",                   DataType.VARCHAR,                           None,                       "Additional Information",                 None,       None],
         ["ANNOTATIONS_STATE",        "Comments",            "Annotations State",        DataType.XML,                    None,                "Annotations State", None, None]
     ]];
