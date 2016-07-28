@@ -46,10 +46,15 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 				var sampleTypeHint = sampleTypeHints[typeIdx];
 				var sampleTypeCode = sampleTypeHint["TYPE"];
 				var sampleTypeMinCount = sampleTypeHint["MIN_COUNT"];
+				var sampleTypeMaxCount = sampleTypeHint["MAX_COUNT"];
 				var sampleTypeAnnotations = sampleTypeHint["ANNOTATION_PROPERTIES"];
 				var sampleTypeCount = (linksModel.samplesByType[sampleTypeCode])?linksModel.samplesByType[sampleTypeCode].length:0;
 				if(sampleTypeCount < sampleTypeMinCount) {
-					Util.showError("Currently you only have " + sampleTypeCount + " of the " + sampleTypeMinCount + " required " + sampleTypeCode + ".");
+					Util.showError("Currently only have " + sampleTypeCount + " of the " + sampleTypeMinCount + " required " + sampleTypeCode + ".");
+					return false;
+				}
+				if(sampleTypeMaxCount && sampleTypeCount > sampleTypeMaxCount) {
+					Util.showError("Currently have " + sampleTypeCount + " of the maximum " + sampleTypeMaxCount + " for " + sampleTypeCode + ".");
 					return false;
 				}
 				
@@ -68,7 +73,7 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 								var sampleTypeAnnotationType = sampleTypeAnnotation["TYPE"];
 								var sampleTypeAnnotationIsMandatory = sampleTypeAnnotation["MANDATORY"];
 								if(sampleTypeAnnotationIsMandatory && !sampleFromIdxAnnotations[sampleTypeAnnotationType]) {
-									Util.showError("You are missing an annotation " + sampleTypeAnnotationType + " on " + sampleFromIdx.code +".");
+									Util.showError("Missing an annotation " + sampleTypeAnnotationType + " on " + sampleFromIdx.code +".");
 									return false;
 								}
 							}

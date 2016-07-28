@@ -302,6 +302,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 						"LABEL" : "Suppliers",
 						"TYPE": "SUPPLIER",
 						"MIN_COUNT" : 1,
+						"MAX_COUNT" : 1,
 						"ANNOTATION_PROPERTIES" : []
 					}]
 				},
