@@ -48,9 +48,9 @@ import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.DSSFileSystemView;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverConfig;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverRegistry;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolverRegistry;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.NonExistingFtpFile;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.V3FtpPathResolverRegistry;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
@@ -93,7 +93,8 @@ public class DataSetCifsView implements DiskInterface
         operationLog.info("create context for share " + shareName + ": " + Utils.render(args));
         FtpPathResolverConfig resolverConfig = new FtpPathResolverConfig(CifsServerConfig.getServerProperties());
         resolverConfig.logStartupInfo("CIFS");
-        pathResolverRegistry = new FtpPathResolverRegistry(resolverConfig);
+        // pathResolverRegistry = new FtpPathResolverRegistry(resolverConfig);
+        pathResolverRegistry = new V3FtpPathResolverRegistry(resolverConfig);
         return new DiskDeviceContext(shareName);
     }
 
