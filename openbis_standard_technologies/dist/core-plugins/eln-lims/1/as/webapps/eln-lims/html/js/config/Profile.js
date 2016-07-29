@@ -55,8 +55,8 @@ $.extend(DefaultProfile.prototype, {
 					"DATE_LABEL" : "Date",
 					"SUPPLIER_LABEL" : "Supplier",
 					"CONTACT_INFO_LABEL" : "Contact Information",
-					"ORDER_INFO_LABEL" : "Contact Information",
-					"ACCOUNT_LABEL" : "Account No",
+					"ORDER_INFO_LABEL" : "Order Information",
+					"ACCOUNT_LABEL" : "Account Number",
 					
 					"PREFERRED_LANGUAGE_LABEL" : "Preferred Supplier Language",
 					"PREFERRED_ORDER_METHOD_LABEL" : "Preferred Supplier Order Method",
@@ -70,8 +70,29 @@ $.extend(DefaultProfile.prototype, {
 					"SUPPLIER_FAX_LABEL" : "Supplier fax",
 					"SUPPLIER_EMAIL_LABEL" : "Supplier Email",
 					
-					"PRICE_TOTALS_LABEL" : "Price Totals by currency",
+					"PRICE_TOTALS_LABEL" : "Total Price",
 					"ADDITIONAL_INFO_LABEL" : "Additional Information"
+				},
+				"GERMAN" : {
+					"DATE_LABEL" : "Datum",
+					"SUPPLIER_LABEL" : "Lieferant",
+					"CONTACT_INFO_LABEL" : "Kontaktdetails",
+					"ORDER_INFO_LABEL" : "Bestellungdetails",
+					"ACCOUNT_LABEL" : "Account Nummer",
+					 
+					"PREFERRED_LANGUAGE_LABEL" : "Bevorzugte Lieferanten-Sprache",
+					"PREFERRED_ORDER_METHOD_LABEL" : "Bevorzugte Bestellungsart",
+					 
+					"ORDER_MANAGER_LABEL" : "Besteller",
+					"ORDER_MANAGER_CONTACT_DETAILS_LABEL" : "Besteller Kontaktdetails",
+					 
+					"REQUESTED_PRODUCTS_LABEL" : "Bestellte Produkte",
+					"PRODUCTS_COLUMN_NAMES_LABEL" : "Name\tCode\tMenge\tPreis pro Einheit\tWährung",
+					"SUPPLIER_FAX_LABEL" : "Lieferant Fax",
+					"SUPPLIER_EMAIL_LABEL" : "Lieferant Email",
+					 
+					"PRICE_TOTALS_LABEL" : "Gesamtpreis",
+					"ADDITIONAL_INFO_LABEL" : "Zusätzliches Informationen"
 				}
 		}
 		
