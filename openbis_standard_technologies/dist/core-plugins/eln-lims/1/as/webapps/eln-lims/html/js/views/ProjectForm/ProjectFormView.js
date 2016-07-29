@@ -206,9 +206,9 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		if(this._projectFormModel.mode !== FormMode.VIEW) {
 			var btnText = null;
 			if(this._projectFormModel.mode === FormMode.CREATE) {
-				btnText = "Create Project";
+				btnText = "Create";
 			} else if(this._projectFormModel.mode === FormMode.EDIT) {
-				btnText = "Update Project";
+				btnText = "Update";
 			}
 			
 			var $updateBtn = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : btnText });

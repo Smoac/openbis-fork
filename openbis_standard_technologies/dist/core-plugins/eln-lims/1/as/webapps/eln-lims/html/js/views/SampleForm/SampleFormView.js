@@ -389,10 +389,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			var btnTitle = null;
 			switch(this._sampleFormModel.mode) {
 		    	case FormMode.CREATE:
-		    		btnTitle = "Create Sample";
+		    		btnTitle = "Create";
 		    		break;
 		    	case FormMode.EDIT:
-		    		btnTitle = "Update Sample";
+		    		btnTitle = "Update";
 		    		break;
 			}
 			

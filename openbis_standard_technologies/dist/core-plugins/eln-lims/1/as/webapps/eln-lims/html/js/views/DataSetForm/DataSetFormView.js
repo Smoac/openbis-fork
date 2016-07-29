@@ -188,9 +188,9 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		if(this._dataSetFormModel.mode !== FormMode.VIEW) {
 			var btnText = "";
 			if(this._dataSetFormModel.mode === FormMode.CREATE) {
-				btnText = 'Create Dataset';
+				btnText = 'Create';
 			} else if(this._dataSetFormModel.mode === FormMode.EDIT) {
-				btnText = 'Update Dataset';
+				btnText = 'Update';
 			}
 			
 			var $submitButton = $('<fieldset>')

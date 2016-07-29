@@ -158,10 +158,10 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			var btnTitle = "";
 			switch(this._experimentFormModel.mode) {
 		    	case FormMode.CREATE:
-		    		btnTitle = "Create Experiment";
+		    		btnTitle = "Create";
 		    		break;
 		    	case FormMode.EDIT:
-		    		btnTitle = "Update Experiment";
+		    		btnTitle = "Update";
 		    		break;
 			}
 			
