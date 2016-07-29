@@ -362,7 +362,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// Identification Info on View/Edit
 		//
-		if(this._sampleFormModel.mode !== FormMode.CREATE) {
+		if(this._sampleFormModel.mode !== FormMode.CREATE && (!sampleTypeDefinitionsExtension || !sampleTypeDefinitionsExtension["SAMPLE_INFO_DISABLED_AFTER_CREATE"])) {
 			this._paintIdentificationInfo($formColumn);
 		}
 		

@@ -280,6 +280,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					}]
 				},
 				"ORDER" : {
+					"SAMPLE_INFO_DISABLED_AFTER_CREATE" : true,
 					"SAMPLE_PARENTS_TITLE" : "Requests",
 					"SAMPLE_PARENTS_ANY_TYPE_DISABLED" : true,
 					"SAMPLE_CHILDREN_DISABLED" : true,
@@ -619,7 +620,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					var orderSummary = new DataGridController("Order Summary", columns, getDataRows, null, false, "ORDER_SUMMARY");
 					orderSummary.init(orderSummaryContainer);
 					
-					var totalsByCurrencyContainer = $("<div>").append($("<h3>").append("Total:"));
+					var totalsByCurrencyContainer = $("<div>").append($("<br>")).append($("<legend>").append("Total:"));
 					for(var currency in absoluteTotalByCurrency) {
 						totalsByCurrencyContainer.append(absoluteTotalByCurrency[currency] + " " + currency).append($("<br>"));
 					}

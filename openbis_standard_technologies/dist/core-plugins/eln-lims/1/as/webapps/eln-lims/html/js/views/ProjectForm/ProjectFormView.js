@@ -151,15 +151,17 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		// Experiment And Samples Table
 		if(this._projectFormModel.mode !== FormMode.CREATE && !isInventoryProject) {
 			var $experimentsContainer = $("<div>");
+			$formColumn.append($("<legend>").append("Experiments"))
 			$formColumn.append($experimentsContainer);
 			
-			var experimentTableController = new ExperimentTableController(this._projectFormController, "Experiments", this._projectFormModel.project, true);
+			var experimentTableController = new ExperimentTableController(this._projectFormController, null, this._projectFormModel.project, true);
 			experimentTableController.init($experimentsContainer);
 			
 			var $samplesContainer = $("<div>");
+			$formColumn.append($("<legend>").append("Samples"))
 			$formColumn.append($samplesContainer);
 			
-			var sampleTableController = new SampleTableController(this._projectFormController, "Samples", null, this._projectFormModel.project.permId, true);
+			var sampleTableController = new SampleTableController(this._projectFormController, null, null, this._projectFormModel.project.permId, true);
 			sampleTableController.init($samplesContainer);
 		}
 		
