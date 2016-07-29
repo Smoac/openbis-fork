@@ -299,6 +299,9 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	                    if(space.getCode() === "PURCHASES") {
         	                    	spaceNode.icon = "fa fa-shopping-cart";
         	                    }
+        	                    if(space.getCode() === "PURCHASES_ORDERS") {
+        	                    	spaceNode.icon = "fa fa-cart-plus";
+        	                    }
         	                    results.push(spaceNode);
         	                }
     	                }

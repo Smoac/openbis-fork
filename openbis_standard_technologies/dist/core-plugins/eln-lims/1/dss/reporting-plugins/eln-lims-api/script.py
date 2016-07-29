@@ -338,8 +338,9 @@ def init(tr, parameters, tableBuilder):
 			purchasesCollection = tr.createNewExperiment("/PURCHASES/REQUESTS/REQUEST_COLLECTION_1",		"PURCHASES");
 			purchasesCollection.setPropertyValue("NAME", "Request Collection 1");
 			
-			tr.createNewProject("/PURCHASES/ORDERS");
-			purchasesCollection = tr.createNewExperiment("/PURCHASES/ORDERS/ORDER_COLLECTION_1",			"PURCHASES");
+			tr.createNewSpace("PURCHASES_ORDERS", None);
+			tr.createNewProject("/PURCHASES_ORDERS/ORDERS");
+			purchasesCollection = tr.createNewExperiment("/PURCHASES_ORDERS/ORDERS/ORDER_COLLECTION_1",			"PURCHASES");
 			purchasesCollection.setPropertyValue("NAME", "Order Collection 1");
 			
 			tr.createNewSpace("MATERIALS", None);

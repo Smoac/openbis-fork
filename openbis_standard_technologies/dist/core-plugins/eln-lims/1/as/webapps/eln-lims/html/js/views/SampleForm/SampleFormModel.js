@@ -21,7 +21,7 @@ function SampleFormModel(mode, sample) {
 	
 	this.isFormDirty = false;
 	this.isFormLoaded = false;
-	this.isELNSample = profile.inventorySpaces.length > 0 && $.inArray(sample.spaceCode, profile.inventorySpaces) === -1;
+	this.isELNSample = !profile.isInventorySpace(sample.spaceCode);
 	
 	//
 	// TO-DO: Legacy code to be refactored
