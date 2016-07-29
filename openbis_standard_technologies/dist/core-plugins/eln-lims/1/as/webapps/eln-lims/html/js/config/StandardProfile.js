@@ -411,48 +411,56 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 			} else if(sampleTypeCode === "ORDER") {
 				var isExisting = mainController.currentView._sampleFormModel.mode === FormMode.VIEW;
 				if(isExisting) {
+					//
+					// Data Structures to Help the reports functionality
+					//
 					var order = mainController.currentView._sampleFormModel.sample;
 					var requests = order.parents;
 					var providerByPermId = {};
 					var productsByProviderPermId = {};
 					var quantityByProductPermId = {};
-					var printOrder = FormUtil.getButtonWithIcon("glyphicon-print",function() {
-						
-						//1. Group products from all requests by provider and obtain their quantities from the annotations
-						for(var rIdx = 0; rIdx < requests.length; rIdx++) {
-							var request = requests[rIdx];
-							var requestProductsAnnotations = FormUtil.getAnnotationsFromSample(request);
-							var requestProducts = request.parents;
-							for(var pIdx = 0; pIdx < requestProducts.length; pIdx++) {
-								var requestProduct = requestProducts[pIdx];
-								var requestProductAnnotations = requestProductsAnnotations[requestProduct.permId];
-								
-								if(requestProduct.parents.length === 0) {
-									Util.showError("Product " + requestProduct.code + " don't have a provider, FIX IT!.");
-									return;
-								}
-								var provider = requestProduct.parents[0];
-								var providerProducts = productsByProviderPermId[provider.permId];
-								if(!providerProducts) {
-									providerProducts = [];
-									productsByProviderPermId[provider.permId] = providerProducts;
-									providerByPermId[provider.permId] = provider;
-								}
-								var quantity = quantityByProductPermId[requestProduct.permId];
-								if(!quantity) {
-									quantity = 0;
-								}
-								quantity += parseInt(requestProductAnnotations["QUANTITY"]);
-								if(!quantity) {
-									Util.showError("Product " + requestProduct.code + " from request " +  request.code + " don't have a quantity, FIX IT!.");
-									return;
-								}
-								quantityByProductPermId[requestProduct.permId] = quantity;
-								providerProducts.push(requestProduct);
+					
+					//
+					// Fills data structures
+					//
+					for(var rIdx = 0; rIdx < requests.length; rIdx++) {
+						var request = requests[rIdx];
+						var requestProductsAnnotations = FormUtil.getAnnotationsFromSample(request);
+						var requestProducts = request.parents;
+						for(var pIdx = 0; pIdx < requestProducts.length; pIdx++) {
+							var requestProduct = requestProducts[pIdx];
+							var requestProductAnnotations = requestProductsAnnotations[requestProduct.permId];
+							
+							if(requestProduct.parents.length === 0) {
+								Util.showError("Product " + requestProduct.code + " don't have a provider, FIX IT!.");
+								return;
 							}
+							var provider = requestProduct.parents[0];
+							var providerProducts = productsByProviderPermId[provider.permId];
+							if(!providerProducts) {
+								providerProducts = [];
+								productsByProviderPermId[provider.permId] = providerProducts;
+								providerByPermId[provider.permId] = provider;
+							}
+							var quantity = quantityByProductPermId[requestProduct.permId];
+							if(!quantity) {
+								quantity = 0;
+							}
+							quantity += parseInt(requestProductAnnotations["QUANTITY"]);
+							if(!quantity) {
+								Util.showError("Product " + requestProduct.code + " from request " +  request.code + " don't have a quantity, FIX IT!.");
+								return;
+							}
+							quantityByProductPermId[requestProduct.permId] = quantity;
+							providerProducts.push(requestProduct);
 						}
-						
-						//2. Create an order page for each provider
+					}
+					
+					//
+					// Button that prints an order report
+					//
+					var printOrder = FormUtil.getButtonWithIcon("glyphicon-print",function() {
+						//Create an order page for each provider
 						var orderPages = [];
 						for(var providerPermId in productsByProviderPermId) {
 							var provider = providerByPermId[providerPermId];
@@ -464,9 +472,9 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 							}
 							
 							var providerProducts = productsByProviderPermId[providerPermId];
-							var page = languageLabels["DATE_LABEL"] + ": " + Util.getFormatedDate(new Date());
+							var page = languageLabels["DATE_LABEL"] + ": " + Util.getFormatedDate(new Date(order.registrationDetails.modificationDate));
 								page += "\n";
-								page += languageLabels["SUPPLIER_LABEL"] + ": " + provider.properties["COMPANY_NAME"];
+								page += languageLabels["SUPPLIER_LABEL"] + ": " + provider.properties["NAME"];
 								page += "\n";
 								page += languageLabels["CONTACT_INFO_LABEL"] + ":";
 								page += "\n";
@@ -498,7 +506,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 									var product = providerProducts[pIdx];
 									var quantity = quantityByProductPermId[product.permId];
 									var unitPrice = parseFloat(product.properties["PRICE_PER_UNIT"]);
-									page += product.properties["PRODUCT_MAIN_NAME"] + "\t" + product.properties["CATALOG_CODE"] + "\t" + quantity + "\t" + product.properties["PRICE_PER_UNIT"] + "\t" + product.properties["CURRENCY"];
+									page += product.properties["NAME"] + "\t" + product.properties["CATALOG_CODE"] + "\t" + quantity + "\t" + product.properties["PRICE_PER_UNIT"] + "\t" + product.properties["CURRENCY"];
 									page += "\n";
 									var totalForCurrency = totalByCurrency[product.properties["CURRENCY"]];
 									if(!totalForCurrency) {
@@ -521,14 +529,82 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 							orderPages.push(page);
 						}
 						
-						//3. Print Pages
+						//Print Pages
 						var completeOrder = "";
 						for(var pageIdx = 0; pageIdx < orderPages.length; pageIdx++) {
 							completeOrder += orderPages[pageIdx];
 						}
 						Util.downloadTextFile(completeOrder, "order.txt");
 					}, "Print Order");
-					$("#" + containerId).append(printOrder);
+					
+					//
+					// Order Summary Grid
+					//
+					var columns = [ {
+						label : 'Code',
+						property : 'code',
+						isExportable: true,
+						sortable : true,
+						render : function(data) {
+							return FormUtil.getFormLink(data.code, "SAMPLE", data.permId);
+						}
+					},{
+						label : 'Supplier',
+						property : 'supplier',
+						isExportable: true,
+						sortable : true
+					}, {
+						label : 'Name',
+						property : 'name',
+						isExportable: true,
+						sortable : true
+					}, {
+						label : 'Quantity',
+						property : 'quantity',
+						isExportable: true,
+						sortable : true,
+					}, {
+						label : 'Unit Price',
+						property : 'unitPrice',
+						isExportable: true,
+						sortable : true
+					}, {
+						label : 'Currency',
+						property : 'currency',
+						isExportable: true,
+						sortable : true
+					}];
+					
+					var getDataRows = function(callback) {
+						var rows = [];
+						for(var providerPermId in productsByProviderPermId) {
+							var provider = providerByPermId[providerPermId];
+							var providerProducts = productsByProviderPermId[providerPermId];
+							for(var pIdx = 0; pIdx < providerProducts.length; pIdx++) {
+								var product = providerProducts[pIdx];
+								var quantity = quantityByProductPermId[product.permId];
+								var unitPrice = parseFloat(product.properties["PRICE_PER_UNIT"]);
+								
+								var rowData = {};
+								rowData.permId = product.permId;
+								rowData.supplier = provider.properties["NAME"];
+								rowData.name = product.properties["NAME"];
+								rowData.code =  product.properties["CATALOG_CODE"];
+								rowData.quantity = quantity;
+								rowData.unitPrice = product.properties["PRICE_PER_UNIT"];
+								rowData.currency = product.properties["CURRENCY"];
+								rows.push(rowData);
+							}
+							
+						}
+						callback(rows);
+					};
+					
+					var orderSummaryContainer = $("<div>");
+					var orderSummary = new DataGridController("Order Summary", columns, getDataRows, null, false, "ORDER_SUMMARY");
+					orderSummary.init(orderSummaryContainer);
+					
+					$("#" + containerId).append(orderSummaryContainer).append($("<br>")).append(printOrder);
 				}
 			}
 		}

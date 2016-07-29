@@ -875,7 +875,8 @@ LANGUAGE = [ "LANGUAGE", "Language",
 CURRENCY = [ "CURRENCY", "Currency", 
                                 [ 
                                     ["CHF", "CHF (Default)", None],
-                                    ["EUR", "EUR", None]
+                                    ["EUR", "EUR", None],
+                                    ["USD", "USD", None]
                                 ]];
 
 PREFERRED_ORDER_METHOD = [ "PREFERRED_ORDER_METHOD", "Preferred Order Method", 
@@ -894,7 +895,7 @@ ORDER_STATUS = [ "ORDER_STATUS", "Order Status",
                                 ]];
                                 
 SUPPLIER = ["SUPPLIER", "", [
-        ["COMPANY_NAME",                        "General",            "Company name",           DataType.VARCHAR,                   None,                       "Company name",                 None,       None, True],
+        ["NAME",                     "General",            "Name",                        DataType.VARCHAR,        None,                "Name", None, None, True],
         ["COMPANY_ADDRESS",                     "General",            "Company address",        DataType.VARCHAR,         None,                       "Company address",              None,       None, True],
         ["COMPANY_FAX",                         "General",            "Company fax",            DataType.VARCHAR,                   None,                       "Company fax",                  None,       None],
         ["COMPANY_PHONE",                       "General",            "Company phone",          DataType.VARCHAR,                   None,                       "Company phone",                None,       None],
@@ -908,7 +909,7 @@ SUPPLIER = ["SUPPLIER", "", [
     ]];
     
 PRODUCT = ["PRODUCT", "", [
-        ["PRODUCT_MAIN_NAME",                   "General",            "Product Main Name",              DataType.VARCHAR,                   None,                       "Product Main Name",                  None,       None, True],
+        ["NAME",                     "General",            "Name",                        DataType.VARCHAR,        None,                "Name", None, None, True],
         ["PRODUCT_SECONDARY_NAMES",             "General",            "Product Secondary Names",        DataType.VARCHAR,                   None,                       "Product Secondary Names",            None,       None],
         ["DESCRIPTION",                         "General",            "Description",                    DataType.MULTILINE_VARCHAR,         None,                       "Description",                        None,       None],
         ["COMPANY",                             "General",            "Company",                        DataType.VARCHAR,                   None,                       "Company",                            None,       None],
@@ -922,6 +923,7 @@ PRODUCT = ["PRODUCT", "", [
     ]];
 
 REQUEST = ["REQUEST", "", [
+        ["NAME",                     "General",            "Name",                        DataType.VARCHAR,        None,                "Name", None, None],
         ["PROJECT",                             "General",            "Project",                            DataType.VARCHAR,                   None,                       "Project",                          None,       None],
         ["DEPARTMENT",                          "General",            "Department",                         DataType.VARCHAR,                   None,                       "Department",                       None,       None],
         ["BUYER",                               "General",            "Buyer",                              DataType.VARCHAR,                   None,                       "Buyer",                            None,       None],
@@ -931,6 +933,7 @@ REQUEST = ["REQUEST", "", [
     ]];
 
 ORDER = ["ORDER", "", [
+        ["NAME",                     "General",            "Name",                        DataType.VARCHAR,        None,                "Name", None, None],
         ["ORDER_MANAGER",                             "General",            "Order Manager",                            DataType.VARCHAR,                                None,                       "Order Manager",                          None,       None],
         ["ORDER_MANAGER_CONTACT_DETAILS",             "General",            "Order Manager Contact Details",            DataType.VARCHAR,                                None,                       "Order Manager Contact Details",          None,       None],
         ["ORDER_STATUS",                              "General",            "Order Status",                             DataType.CONTROLLEDVOCABULARY,                   "ORDER_STATUS",             "Order Status",                           None,       None],
