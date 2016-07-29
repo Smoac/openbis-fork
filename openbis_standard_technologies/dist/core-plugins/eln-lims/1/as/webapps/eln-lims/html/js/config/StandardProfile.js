@@ -419,6 +419,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					var providerByPermId = {};
 					var productsByProviderPermId = {};
 					var quantityByProductPermId = {};
+					var absoluteTotalByCurrency = {};
 					
 					//
 					// Fills data structures
@@ -451,6 +452,14 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 								Util.showError("Product " + requestProduct.code + " from request " +  request.code + " don't have a quantity, FIX IT!.");
 								return;
 							}
+							
+							var absoluteTotalForCurrency = absoluteTotalByCurrency[requestProduct.properties["CURRENCY"]];
+							if(!absoluteTotalForCurrency) {
+								absoluteTotalForCurrency = 0;
+							}
+							absoluteTotalForCurrency += requestProduct.properties["PRICE_PER_UNIT"] * quantity;
+							absoluteTotalByCurrency[requestProduct.properties["CURRENCY"]] = absoluteTotalForCurrency;
+							
 							quantityByProductPermId[requestProduct.permId] = quantity;
 							providerProducts.push(requestProduct);
 						}
@@ -501,25 +510,25 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 								page += "\n";
 								page += languageLabels["PRODUCTS_COLUMN_NAMES_LABEL"];
 								page += "\n";
-								var totalByCurrency = {};
+								var providerTotalByCurrency = {};
 								for(var pIdx = 0; pIdx < providerProducts.length; pIdx++) {
 									var product = providerProducts[pIdx];
 									var quantity = quantityByProductPermId[product.permId];
 									var unitPrice = parseFloat(product.properties["PRICE_PER_UNIT"]);
 									page += product.properties["NAME"] + "\t" + product.properties["CATALOG_CODE"] + "\t" + quantity + "\t" + product.properties["PRICE_PER_UNIT"] + "\t" + product.properties["CURRENCY"];
 									page += "\n";
-									var totalForCurrency = totalByCurrency[product.properties["CURRENCY"]];
+									var totalForCurrency = providerTotalByCurrency[product.properties["CURRENCY"]];
 									if(!totalForCurrency) {
 										totalForCurrency = 0;
 									}
 									totalForCurrency += unitPrice * quantity;
-									totalByCurrency[product.properties["CURRENCY"]] = totalForCurrency;
+									providerTotalByCurrency[product.properties["CURRENCY"]] = totalForCurrency;
 								}
 								page += "\n";
 								page += languageLabels["PRICE_TOTALS_LABEL"] + ":";
 								page += "\n";
-								for(var currency in totalByCurrency) {
-									page += totalByCurrency[currency] + " " + currency;
+								for(var currency in providerTotalByCurrency) {
+									page += providerTotalByCurrency[currency] + " " + currency;
 									page += "\n";
 								}
 								page += languageLabels["ADDITIONAL_INFO_LABEL"] + ": " + order.properties["ADDITIONAL_INFORMATION"];
@@ -569,6 +578,11 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 						isExportable: true,
 						sortable : true
 					}, {
+						label : 'Total Product Cost',
+						property : 'totalProductCost',
+						isExportable: true,
+						sortable : true
+					}, {
 						label : 'Currency',
 						property : 'currency',
 						isExportable: true,
@@ -592,6 +606,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 								rowData.code =  product.properties["CATALOG_CODE"];
 								rowData.quantity = quantity;
 								rowData.unitPrice = product.properties["PRICE_PER_UNIT"];
+								rowData.totalProductCost = rowData.quantity * rowData.unitPrice;
 								rowData.currency = product.properties["CURRENCY"];
 								rows.push(rowData);
 							}
@@ -604,7 +619,11 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					var orderSummary = new DataGridController("Order Summary", columns, getDataRows, null, false, "ORDER_SUMMARY");
 					orderSummary.init(orderSummaryContainer);
 					
-					$("#" + containerId).append(orderSummaryContainer).append($("<br>")).append(printOrder);
+					var totalsByCurrencyContainer = $("<div>").append($("<h3>").append("Total:"));
+					for(var currency in absoluteTotalByCurrency) {
+						totalsByCurrencyContainer.append(absoluteTotalByCurrency[currency] + " " + currency).append($("<br>"));
+					}
+					$("#" + containerId).append(orderSummaryContainer).append(totalsByCurrencyContainer).append($("<br>")).append(printOrder);
 				}
 			}
 		}
