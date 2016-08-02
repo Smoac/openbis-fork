@@ -77,7 +77,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.V3FtpPathResolverRegistry;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
@@ -121,8 +120,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
                 DssPropertyParametersUtil.loadServiceProperties(), "ftp.server", true).getProperties();
         this.config = new FtpServerConfig(ftpProperties);
         FtpPathResolverConfig resolverConfig = new FtpPathResolverConfig(ftpProperties);
-        this.pathResolverRegistry = new V3FtpPathResolverRegistry(resolverConfig);
-        // this.pathResolverRegistry = new FtpPathResolverRegistry(resolverConfig);
+        this.pathResolverRegistry = resolverConfig.getResolverRegistry();
 
         if (config.isStartServer())
         {
@@ -239,7 +237,6 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
         return s;
     }
 
-    @SuppressWarnings("unchecked")
     private List<NamedFactory<Command>> creatSubsystemFactories()
     {
         return Arrays.<NamedFactory<Command>> asList(new SftpSubsystem.Factory());

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.cifs;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Properties;
 
 import org.alfresco.jlan.server.SrvSession;
 import org.alfresco.jlan.server.auth.ClientInfo;
@@ -50,7 +51,6 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.DSSFileSystemView;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverConfig;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolverRegistry;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.NonExistingFtpFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.V3FtpPathResolverRegistry;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
@@ -91,10 +91,11 @@ public class DataSetCifsView implements DiskInterface
     public DeviceContext createContext(String shareName, ConfigElement args) throws DeviceContextException
     {
         operationLog.info("create context for share " + shareName + ": " + Utils.render(args));
-        FtpPathResolverConfig resolverConfig = new FtpPathResolverConfig(CifsServerConfig.getServerProperties());
+        Properties serverProperties = CifsServerConfig.getServerProperties();
+        FtpPathResolverConfig resolverConfig = new FtpPathResolverConfig(serverProperties);
         resolverConfig.logStartupInfo("CIFS");
-        // pathResolverRegistry = new FtpPathResolverRegistry(resolverConfig);
-        pathResolverRegistry = new V3FtpPathResolverRegistry(resolverConfig);
+
+        pathResolverRegistry = resolverConfig.getResolverRegistry();
         return new DiskDeviceContext(shareName);
     }
 

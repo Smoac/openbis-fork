@@ -46,7 +46,8 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
     /**
      * initializes the registry with all known {@link IFtpPathResolver}-s.
      */
-    public FtpPathResolverRegistry(FtpPathResolverConfig config)
+    @Override
+    public void initialize(FtpPathResolverConfig config)
     {
         pathResolvers.add(new RootFolderResolver());
         pathResolvers.add(new SpaceFolderResolver());

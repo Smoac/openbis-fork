@@ -19,15 +19,12 @@ package ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3;
 import org.apache.ftpserver.ftplet.FtpFile;
 import org.apache.log4j.Logger;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverConfig;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolver;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolverRegistry;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpNonExistingFile;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 
 /**
  * A registry of ftp resolvers. It keeps the style of old-style resolver regisrty, but actually only calls itself root resolver.
@@ -40,19 +37,8 @@ public class V3FtpPathResolverRegistry implements IFtpPathResolverRegistry
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             V3FtpPathResolverRegistry.class);
 
-    private IApplicationServerApi v3api;
-
-    public IApplicationServerApi getV3api()
-    {
-        if (v3api == null)
-            v3api = ServiceProvider.getV3ApplicationService();
-        return v3api;
-    }
-
-    /**
-     * initializes the registry with all known {@link IFtpPathResolver}-s.
-     */
-    public V3FtpPathResolverRegistry(FtpPathResolverConfig config)
+    @Override
+    public void initialize(FtpPathResolverConfig config)
     {
 
     }
