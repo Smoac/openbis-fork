@@ -24,5 +24,5 @@ public interface V3Resolver
     /**
      * Create a ftp file which has specified full path, resolving the local path specified as an array of path items.
      */
-    public abstract V3FtpFile resolve(String fullPath, String[] pathItems, FtpPathResolverContext resolverContext);
+    V3FtpFile resolve(String fullPath, String[] pathItems, FtpPathResolverContext resolverContext);
 }

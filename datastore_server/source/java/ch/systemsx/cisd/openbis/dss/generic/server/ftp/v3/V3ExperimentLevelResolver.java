@@ -24,7 +24,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
@@ -59,11 +58,8 @@ class V3ExperimentLevelResolver implements V3Resolver
         } else
         {
             String dataSetCode = subPath[0];
-            IHierarchicalContent content = context.getContentProvider().asContent(dataSetCode);
             String[] remaining = Arrays.copyOfRange(subPath, 1, subPath.length);
-            V3HierarchicalContentResolver resolver = new V3HierarchicalContentResolver(content);
-            return resolver.resolve(fullPath, remaining, context);
+            return new V3DataSetContentResolver(dataSetCode).resolve(fullPath, remaining, context);
         }
     }
-
 }

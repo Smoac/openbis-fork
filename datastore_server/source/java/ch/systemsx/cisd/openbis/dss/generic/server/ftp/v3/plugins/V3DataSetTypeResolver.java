@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3;
+package ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.plugins;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,15 +31,24 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearch
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.V3Resolver;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFileResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpNonExistingFile;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 
-class V3PluginResolver implements V3Resolver
+/**
+ * Resolves paths of a form /DATA_SET_TYPE/DATA_SET_CODE/{files} <br>
+ * / - list all data set types <br>
+ * /UNKNOWN - list all data sets of type UNKNOWN <br>
+ * /UNKNOWN/20193763213-123 - list in one directory all files belonging to the data set 20193763213-123 or any of it's parents <br>
+ * /UNKNOWN/20193763213-123/test0123.png - download the content of a listed file
+ * 
+ * @author Jakub Straszewski
+ */
+public class V3DataSetTypeResolver implements V3Resolver
 {
-
     @Override
     public V3FtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
     {
