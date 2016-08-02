@@ -26,42 +26,30 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
 
-class V3RootLevelResolver extends V3Resolver
+class V3RootLevelResolver implements V3Resolver
 {
-    public V3RootLevelResolver(FtpPathResolverContext resolverContext)
-    {
-        super(resolverContext);
-    }
 
     @Override
-    public V3FtpFile resolve(String fullPath, String[] subPath)
+    public V3FtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
     {
         if (subPath.length == 0)
         {
             List<Space> spaces =
-                    api.searchSpaces(sessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions()).getObjects();
+                    context.getV3Api().searchSpaces(context.getSessionToken(), new SpaceSearchCriteria(), new SpaceFetchOptions()).getObjects();
 
             V3FtpDirectoryResponse response = new V3FtpDirectoryResponse(fullPath);
             for (Space space : spaces)
             {
                 response.addDirectory(space.getCode());
             }
-            response.addDirectory("__PLUGIN__");
             return response;
         } else
         {
             String item = subPath[0];
             String[] remaining = Arrays.copyOfRange(subPath, 1, subPath.length);
 
-            if (item.equals("__PLUGIN__"))
-            {
-                V3PluginResolver resolver = new V3PluginResolver(resolverContext);
-                return resolver.resolve(fullPath, remaining);
-            } else
-            {
-                V3SpaceLevelResolver resolver = new V3SpaceLevelResolver(item, resolverContext);
-                return resolver.resolve(fullPath, remaining);
-            }
+            V3SpaceLevelResolver resolver = new V3SpaceLevelResolver(item);
+            return resolver.resolve(fullPath, remaining, context);
         }
     }
 }

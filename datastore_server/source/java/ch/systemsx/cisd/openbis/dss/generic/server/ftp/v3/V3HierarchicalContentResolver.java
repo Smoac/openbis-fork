@@ -24,19 +24,18 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryRes
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFileResponse;
 
-class V3HierarchicalContentResolver extends V3Resolver
+class V3HierarchicalContentResolver implements V3Resolver
 {
 
     private IHierarchicalContent content;
 
-    public V3HierarchicalContentResolver(IHierarchicalContent content, FtpPathResolverContext resolverContext)
+    public V3HierarchicalContentResolver(IHierarchicalContent content)
     {
-        super(resolverContext);
         this.content = content;
     }
 
     @Override
-    public V3FtpFile resolve(String fullPath, String[] subPath)
+    public V3FtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
     {
         IHierarchicalContentNode rootNode;
         if (subPath.length == 0)

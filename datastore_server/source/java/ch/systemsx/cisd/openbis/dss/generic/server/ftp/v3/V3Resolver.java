@@ -16,27 +16,13 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
 
-public abstract class V3Resolver
+public interface V3Resolver
 {
-    protected FtpPathResolverContext resolverContext;
-
-    protected IApplicationServerApi api;
-
-    protected String sessionToken;
-
-    public V3Resolver(FtpPathResolverContext resolverContext)
-    {
-        this.resolverContext = resolverContext;
-        this.sessionToken = resolverContext.getSessionToken();
-        this.api = resolverContext.getV3Api();
-    }
-
     /**
      * Create a ftp file which has specified full path, resolving the local path specified as an array of path items.
      */
-    public abstract V3FtpFile resolve(String fullPath, String[] pathItems);
+    public abstract V3FtpFile resolve(String fullPath, String[] pathItems, FtpPathResolverContext resolverContext);
 }

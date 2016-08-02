@@ -26,18 +26,17 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
 
-class V3SpaceLevelResolver extends V3Resolver
+class V3SpaceLevelResolver implements V3Resolver
 {
     String spaceCode;
 
-    public V3SpaceLevelResolver(String spaceCode, FtpPathResolverContext resolverContext)
+    public V3SpaceLevelResolver(String spaceCode)
     {
-        super(resolverContext);
         this.spaceCode = spaceCode;
     }
 
     @Override
-    public V3FtpFile resolve(String fullPath, String[] subPath)
+    public V3FtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
     {
         if (subPath.length == 0)
         {
@@ -45,7 +44,7 @@ class V3SpaceLevelResolver extends V3Resolver
             searchCriteria.withSpace().withCode().thatEquals(spaceCode);
             ProjectFetchOptions fetchOptions = new ProjectFetchOptions();
             List<Project> projects =
-                    api.searchProjects(sessionToken, searchCriteria, fetchOptions).getObjects();
+                    context.getV3Api().searchProjects(context.getSessionToken(), searchCriteria, fetchOptions).getObjects();
 
             V3FtpDirectoryResponse response = new V3FtpDirectoryResponse(fullPath);
             for (Project project : projects)
@@ -57,8 +56,8 @@ class V3SpaceLevelResolver extends V3Resolver
         {
             String item = subPath[0];
             String[] remaining = Arrays.copyOfRange(subPath, 1, subPath.length);
-            V3ProjectLevelResolver resolver = new V3ProjectLevelResolver(spaceCode, item, resolverContext);
-            return resolver.resolve(fullPath, remaining);
+            V3ProjectLevelResolver resolver = new V3ProjectLevelResolver(spaceCode, item);
+            return resolver.resolve(fullPath, remaining, context);
         }
     }
 }

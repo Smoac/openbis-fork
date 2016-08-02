@@ -30,25 +30,25 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
 
-class V3ProjectLevelResolver extends V3Resolver
+class V3ProjectLevelResolver implements V3Resolver
 {
     private ProjectIdentifier projectIdentifier;
 
-    public V3ProjectLevelResolver(String spaceCode, String projectCode, FtpPathResolverContext resolverContext)
+    public V3ProjectLevelResolver(String spaceCode, String projectCode)
     {
-        super(resolverContext);
         this.projectIdentifier = new ProjectIdentifier(spaceCode, projectCode);
     }
 
     @Override
-    public V3FtpFile resolve(String fullPath, String[] subPath)
+    public V3FtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
     {
         if (subPath.length == 0)
         {
             ProjectFetchOptions fetchOptions = new ProjectFetchOptions();
             fetchOptions.withExperiments();
 
-            Map<IProjectId, Project> projects = api.getProjects(sessionToken, Collections.singletonList(projectIdentifier), fetchOptions);
+            Map<IProjectId, Project> projects =
+                    context.getV3Api().getProjects(context.getSessionToken(), Collections.singletonList(projectIdentifier), fetchOptions);
             Project project = projects.get(projectIdentifier);
 
             V3FtpDirectoryResponse response = new V3FtpDirectoryResponse(fullPath);
@@ -62,8 +62,8 @@ class V3ProjectLevelResolver extends V3Resolver
             String item = subPath[0];
             String[] remaining = Arrays.copyOfRange(subPath, 1, subPath.length);
             V3ExperimentLevelResolver resolver =
-                    new V3ExperimentLevelResolver(new ExperimentIdentifier(projectIdentifier.getIdentifier() + "/" + item), resolverContext);
-            return resolver.resolve(fullPath, remaining);
+                    new V3ExperimentLevelResolver(new ExperimentIdentifier(projectIdentifier.getIdentifier() + "/" + item));
+            return resolver.resolve(fullPath, remaining, context);
         }
     }
 }

@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUt
 class CifsServerConfig
 {
     private static final String SECTION_NAME = "cifs.server";
+
     private static final Template CONFIG_TEMPLATE_XML = new Template("<jlanserver>\n"
             + "<servers><SMB/></servers>\n"
             + "<SMB>\n"
@@ -63,9 +64,9 @@ class CifsServerConfig
             + "</debug>\n"
             + "<security>\n"
             + "  <JCEProvider>org.bouncycastle.jce.provider.BouncyCastleProvider</JCEProvider>\n"
-            + "  <usersInterface>\n" 
-            + "    <class>ch.systemsx.cisd.openbis.dss.generic.server.cifs.DummyUsersInterface</class>\n" 
-            + "  </usersInterface>\n"  
+            + "  <usersInterface>\n"
+            + "    <class>ch.systemsx.cisd.openbis.dss.generic.server.cifs.DummyUsersInterface</class>\n"
+            + "  </usersInterface>\n"
             + "</security>\n"
             + "</jlanserver>\n");
 
@@ -81,16 +82,17 @@ class CifsServerConfig
             .entry("log-level", "INFO")
             .entry("share-name", "STORE")
             .getMap();
-    
+
     static Properties getServerProperties()
     {
         return PropertyParametersUtil.extractSingleSectionProperties(
-                DssPropertyParametersUtil.loadServiceProperties(), SECTION_NAME, false).getProperties();
+                DssPropertyParametersUtil.loadServiceProperties(), SECTION_NAME, true).getProperties();
     }
-    
+
     private final boolean enabled;
+
     private final Properties serverProperties;
-    
+
     public CifsServerConfig(Properties props)
     {
         serverProperties = PropertyParametersUtil.extractSingleSectionProperties(props, SECTION_NAME, false).getProperties();
@@ -101,12 +103,12 @@ class CifsServerConfig
     {
         return enabled;
     }
-    
+
     public String getPort()
     {
         return getProperty(SMB_PORT_KEY);
     }
-    
+
     private String getProperty(String key)
     {
         return serverProperties.getProperty(key, CONFIG_PARAMS.get(key));
@@ -122,5 +124,5 @@ class CifsServerConfig
         }
         return template.createText();
     }
-    
+
 }

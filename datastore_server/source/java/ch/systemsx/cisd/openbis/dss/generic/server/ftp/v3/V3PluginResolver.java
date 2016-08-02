@@ -35,33 +35,29 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryRes
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFileResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpNonExistingFile;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 
-class V3PluginResolver extends V3Resolver
+class V3PluginResolver implements V3Resolver
 {
 
-    public V3PluginResolver(FtpPathResolverContext resolverContext)
-    {
-        super(resolverContext);
-    }
-
     @Override
-    public V3FtpFile resolve(String fullPath, String[] subPath)
+    public V3FtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
     {
         if (subPath.length == 0)
         {
-            return listDataSetTypes(fullPath);
+            return listDataSetTypes(fullPath, context);
         }
 
         String dataSetType = subPath[0];
         if (subPath.length == 1)
         {
-            return listDataSetsOfGivenType(fullPath, dataSetType);
+            return listDataSetsOfGivenType(fullPath, dataSetType, context);
         }
 
-        return resolveFileSearch(fullPath, subPath);
+        return resolveFileSearch(fullPath, subPath, context);
     }
 
-    private V3FtpFile resolveFileSearch(String fullPath, String[] subPath)
+    private V3FtpFile resolveFileSearch(String fullPath, String[] subPath, FtpPathResolverContext context)
     {
         String dataSetCode = subPath[1];
         String requestedFileName = subPath.length == 2 ? null : subPath[2];
@@ -70,11 +66,11 @@ class V3PluginResolver extends V3Resolver
             throw new IllegalArgumentException("This resolver can't resolve path of that length");
         }
 
-        List<DataSet> dataSetsToSearch = searchForDataSetAndParents(dataSetCode);
+        List<DataSet> dataSetsToSearch = searchForDataSetAndParents(dataSetCode, context);
 
         if (requestedFileName != null)
         {
-            IHierarchicalContentNode result = findRequestedNode(dataSetsToSearch, requestedFileName);
+            IHierarchicalContentNode result = findRequestedNode(dataSetsToSearch, requestedFileName, context.getContentProvider());
             if (result != null)
             {
                 return new V3FtpFileResponse(fullPath, result);
@@ -85,20 +81,20 @@ class V3PluginResolver extends V3Resolver
         }
 
         V3FtpDirectoryResponse response = new V3FtpDirectoryResponse(fullPath);
-        for (IHierarchicalContentNode file : findAllNodes(dataSetsToSearch))
+        for (IHierarchicalContentNode file : findAllNodes(dataSetsToSearch, context.getContentProvider()))
         {
             response.addFile(file.getName(), file);
         }
         return response;
     }
 
-    private List<IHierarchicalContentNode> findAllNodes(List<DataSet> dataSetsToSearch)
+    private List<IHierarchicalContentNode> findAllNodes(List<DataSet> dataSetsToSearch, IHierarchicalContentProvider contentProvider)
     {
         List<IHierarchicalContentNode> result = new ArrayList<>();
         for (DataSet dataSet : dataSetsToSearch)
         {
             Stack<IHierarchicalContentNode> nodes = new Stack<>();
-            nodes.push(resolverContext.getContentProvider().asContent(dataSet.getCode()).getRootNode());
+            nodes.push(contentProvider.asContent(dataSet.getCode()).getRootNode());
 
             while (false == nodes.isEmpty())
             {
@@ -118,11 +114,12 @@ class V3PluginResolver extends V3Resolver
         return result;
     }
 
-    private IHierarchicalContentNode findRequestedNode(List<DataSet> dataSetsToSearch, String requestedFileName)
+    private IHierarchicalContentNode findRequestedNode(List<DataSet> dataSetsToSearch, String requestedFileName,
+            IHierarchicalContentProvider contentProvider)
     {
         for (DataSet dataSet : dataSetsToSearch)
         {
-            IHierarchicalContent content = resolverContext.getContentProvider().asContent(dataSet.getCode());
+            IHierarchicalContent content = contentProvider.asContent(dataSet.getCode());
             IHierarchicalContentNode result = findRequestedNode(content.getRootNode(), requestedFileName);
             if (result != null)
             {
@@ -155,12 +152,12 @@ class V3PluginResolver extends V3Resolver
     }
 
     // returns a list of data sets starting with requested data set and continuedby it's parents
-    private List<DataSet> searchForDataSetAndParents(String dataSetCode)
+    private List<DataSet> searchForDataSetAndParents(String dataSetCode, FtpPathResolverContext context)
     {
         DataSetPermId dataId = new DataSetPermId(dataSetCode);
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withParents();
-        DataSet dataSet = api.getDataSets(sessionToken, Collections.singletonList(dataId), fetchOptions).get(dataId);
+        DataSet dataSet = context.getV3Api().getDataSets(context.getSessionToken(), Collections.singletonList(dataId), fetchOptions).get(dataId);
 
         List<DataSet> dataSetsToSearch = new ArrayList<>();
         dataSetsToSearch.add(dataSet);
@@ -168,13 +165,13 @@ class V3PluginResolver extends V3Resolver
         return dataSetsToSearch;
     }
 
-    private V3FtpFile listDataSetsOfGivenType(String fullPath, String dataSetType)
+    private V3FtpFile listDataSetsOfGivenType(String fullPath, String dataSetType, FtpPathResolverContext context)
     {
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withParents();
         DataSetSearchCriteria searchCriteria = new DataSetSearchCriteria();
         searchCriteria.withType().withCode().thatEquals(dataSetType);
-        List<DataSet> dataSets = api.searchDataSets(sessionToken, searchCriteria, fetchOptions).getObjects();
+        List<DataSet> dataSets = context.getV3Api().searchDataSets(context.getSessionToken(), searchCriteria, fetchOptions).getObjects();
 
         V3FtpDirectoryResponse result = new V3FtpDirectoryResponse(fullPath);
         for (DataSet dataSet : dataSets)
@@ -184,10 +181,11 @@ class V3PluginResolver extends V3Resolver
         return result;
     }
 
-    private V3FtpFile listDataSetTypes(String fullPath)
+    private V3FtpFile listDataSetTypes(String fullPath, FtpPathResolverContext context)
     {
         List<DataSetType> dataSetTypes =
-                api.searchDataSetTypes(sessionToken, new DataSetTypeSearchCriteria(), new DataSetTypeFetchOptions()).getObjects();
+                context.getV3Api().searchDataSetTypes(context.getSessionToken(), new DataSetTypeSearchCriteria(), new DataSetTypeFetchOptions())
+                        .getObjects();
 
         V3FtpDirectoryResponse response = new V3FtpDirectoryResponse(fullPath);
         for (DataSetType type : dataSetTypes)

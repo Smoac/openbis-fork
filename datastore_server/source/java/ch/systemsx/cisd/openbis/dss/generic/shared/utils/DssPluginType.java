@@ -33,6 +33,7 @@ public enum DssPluginType implements IPluginType
     PROCESSING_PLUGINS("processing-plugins", Constants.PROCESSING_PLUGIN_NAMES),
     SEARCH_DOMAIN_SERVICES("search-domain-services", Constants.SEARCH_DOMAIN_SERVICE_NAMES),
     MAINTENANCE_TASKS("maintenance-tasks", MaintenanceTaskUtils.DEFAULT_MAINTENANCE_PLUGINS_PROPERTY_NAME),
+    DSS_FS_PLUGINS("file-system-plugins", Constants.DSS_FS_PLUGIN_NAMES),
     MISCELLANEOUS("miscellaneous", null);
 
     private PluginType pluginType;

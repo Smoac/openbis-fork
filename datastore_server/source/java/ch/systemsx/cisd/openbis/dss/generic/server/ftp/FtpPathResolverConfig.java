@@ -63,6 +63,8 @@ public class FtpPathResolverConfig
 
     private final String resolverClass;
 
+    private final Properties properties;
+
     public FtpPathResolverConfig(Properties props)
     {
         dataSetDisplayTemplate =
@@ -70,6 +72,8 @@ public class FtpPathResolverConfig
         showParentsAndChildren = PropertyUtils.getBoolean(props, SHOW_PARENTS_AND_CHILDREN_KEY, false);
 
         resolverClass = PropertyUtils.getProperty(props, PATH_RESOLVER_KEY, V3FtpPathResolverRegistry.class.getCanonicalName());
+
+        properties = props;
 
         ExtendedProperties fileListSubPathProps =
                 ExtendedProperties.getSubset(props, DATASET_FILELIST_SUBPATH_KEY, true);
@@ -130,6 +134,11 @@ public class FtpPathResolverConfig
                             + "set type '%s' : '%s'", serverType, filterEntry.getKey(), filterEntry.getValue());
             operationLog.info(message);
         }
+    }
+
+    public Properties getProperties()
+    {
+        return properties;
     }
 
     public IFtpPathResolverRegistry getResolverRegistry()

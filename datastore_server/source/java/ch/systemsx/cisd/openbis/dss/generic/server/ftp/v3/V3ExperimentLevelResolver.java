@@ -29,25 +29,25 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
 
-class V3ExperimentLevelResolver extends V3Resolver
+class V3ExperimentLevelResolver implements V3Resolver
 {
     private IExperimentId experimentId;
 
-    public V3ExperimentLevelResolver(IExperimentId experimentId, FtpPathResolverContext resolverContext)
+    public V3ExperimentLevelResolver(IExperimentId experimentId)
     {
-        super(resolverContext);
         this.experimentId = experimentId;
     }
 
     @Override
-    public V3FtpFile resolve(String fullPath, String[] subPath)
+    public V3FtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
     {
         if (subPath.length == 0)
         {
             ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
             fetchOptions.withDataSets();
 
-            Map<IExperimentId, Experiment> experiments = api.getExperiments(sessionToken, Collections.singletonList(experimentId), fetchOptions);
+            Map<IExperimentId, Experiment> experiments =
+                    context.getV3Api().getExperiments(context.getSessionToken(), Collections.singletonList(experimentId), fetchOptions);
             Experiment exp = experiments.get(experimentId);
 
             V3FtpDirectoryResponse response = new V3FtpDirectoryResponse(fullPath);
@@ -59,10 +59,10 @@ class V3ExperimentLevelResolver extends V3Resolver
         } else
         {
             String dataSetCode = subPath[0];
-            IHierarchicalContent content = resolverContext.getContentProvider().asContent(dataSetCode);
+            IHierarchicalContent content = context.getContentProvider().asContent(dataSetCode);
             String[] remaining = Arrays.copyOfRange(subPath, 1, subPath.length);
-            V3HierarchicalContentResolver resolver = new V3HierarchicalContentResolver(content, resolverContext);
-            return resolver.resolve(fullPath, remaining);
+            V3HierarchicalContentResolver resolver = new V3HierarchicalContentResolver(content);
+            return resolver.resolve(fullPath, remaining, context);
         }
     }
 
