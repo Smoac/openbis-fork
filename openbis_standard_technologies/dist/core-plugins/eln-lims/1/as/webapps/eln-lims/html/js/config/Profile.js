@@ -658,7 +658,7 @@ $.extend(DefaultProfile.prototype, {
 		this.initDirectLinkURL = function(callback) {
 			var _this = this;
 			this.serverFacade.getDirectLinkURL(function(error, result) {
-				if(!error) {
+				if(!error && result.data.protocol) {
 					_this.directFileServer = result.data;
 				}
 				callback();
