@@ -386,7 +386,7 @@ def getTXT(entityObj, v3, sessionToken):
 		searchCriteria = ExperimentTypeSearchCriteria();
 		searchCriteria.withCode().thatEquals(entityObj.getType().getCode());
 		fetchOptions = ExperimentTypeFetchOptions();
-		fetchOptions.withPropertyAssignments();
+		fetchOptions.withPropertyAssignments().withPropertyType();
 		results = v3.searchExperimentTypes(sessionToken, searchCriteria, fetchOptions);
 		typeObj = results.getObjects().get(0);
 	if isinstance(entityObj, Sample):
@@ -394,7 +394,7 @@ def getTXT(entityObj, v3, sessionToken):
 		searchCriteria = SampleTypeSearchCriteria();
 		searchCriteria.withCode().thatEquals(entityObj.getType().getCode());
 		fetchOptions = SampleTypeFetchOptions();
-		fetchOptions.withPropertyAssignments();
+		fetchOptions.withPropertyAssignments().withPropertyType();
 		results = v3.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
 		typeObj = results.getObjects().get(0);
 	if isinstance(entityObj, DataSet):
@@ -402,7 +402,7 @@ def getTXT(entityObj, v3, sessionToken):
 		searchCriteria = DataSetTypeSearchCriteria();
 		searchCriteria.withCode().thatEquals(entityObj.getType().getCode());
 		fetchOptions = DataSetTypeFetchOptions();
-		fetchOptions.withPropertyAssignments();
+		fetchOptions.withPropertyAssignments().withPropertyType();
 		results = v3.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
 		typeObj = results.getObjects().get(0);
 	
