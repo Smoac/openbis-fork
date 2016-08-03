@@ -48,7 +48,7 @@ class V3HierarchicalContentResolver implements V3Resolver
 
         if (false == rootNode.isDirectory())
         {
-            return new V3FtpFileResponse(fullPath, rootNode);
+            return new V3FtpFileResponse(fullPath, rootNode, content);
         }
 
         V3FtpDirectoryResponse response = new V3FtpDirectoryResponse(fullPath);

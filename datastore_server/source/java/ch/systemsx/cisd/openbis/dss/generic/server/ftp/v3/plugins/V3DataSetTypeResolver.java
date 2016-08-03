@@ -79,10 +79,10 @@ public class V3DataSetTypeResolver implements V3Resolver
 
         if (requestedFileName != null)
         {
-            IHierarchicalContentNode result = findRequestedNode(dataSetsToSearch, requestedFileName, context.getContentProvider());
+            V3FtpFileResponse result = findRequestedNode(fullPath, dataSetsToSearch, requestedFileName, context.getContentProvider());
             if (result != null)
             {
-                return new V3FtpFileResponse(fullPath, result);
+                return result;
             } else
             {
                 return new V3FtpNonExistingFile(fullPath, "Unable to locate requested file");
@@ -123,16 +123,16 @@ public class V3DataSetTypeResolver implements V3Resolver
         return result;
     }
 
-    private IHierarchicalContentNode findRequestedNode(List<DataSet> dataSetsToSearch, String requestedFileName,
+    private V3FtpFileResponse findRequestedNode(String fullPath, List<DataSet> dataSetsToSearch, String requestedFileName,
             IHierarchicalContentProvider contentProvider)
     {
         for (DataSet dataSet : dataSetsToSearch)
         {
             IHierarchicalContent content = contentProvider.asContent(dataSet.getCode());
-            IHierarchicalContentNode result = findRequestedNode(content.getRootNode(), requestedFileName);
-            if (result != null)
+            IHierarchicalContentNode node = findRequestedNode(content.getRootNode(), requestedFileName);
+            if (node != null)
             {
-                return result;
+                return new V3FtpFileResponse(fullPath, node, content);
             }
         }
         return null;

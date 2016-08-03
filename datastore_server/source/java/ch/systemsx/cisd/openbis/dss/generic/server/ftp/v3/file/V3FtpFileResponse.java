@@ -22,17 +22,22 @@ import java.util.List;
 
 import org.apache.ftpserver.ftplet.FtpFile;
 
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.HierarchicalContentUtils;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.AbstractFtpFile;
 
 public class V3FtpFileResponse extends AbstractFtpFile implements V3FtpFile
 {
-    private IHierarchicalContentNode node;
+    private final IHierarchicalContentNode node;
 
-    public V3FtpFileResponse(String fullPath, final IHierarchicalContentNode node)
+    private final IHierarchicalContent content;
+
+    public V3FtpFileResponse(String fullPath, final IHierarchicalContentNode node, final IHierarchicalContent content)
     {
         super(fullPath);
         this.node = node;
+        this.content = content;
     }
 
     @Override
@@ -56,7 +61,25 @@ public class V3FtpFileResponse extends AbstractFtpFile implements V3FtpFile
     @Override
     public InputStream createInputStream(long offset) throws IOException
     {
-        return node.getInputStream();
+        try
+        {
+            InputStream result =
+                    HierarchicalContentUtils.getInputStreamAutoClosingContent(node, content);
+
+            if (offset > 0)
+            {
+                result.skip(offset);
+            }
+            return result;
+        } catch (IOException ioex)
+        {
+            content.close();
+            throw ioex;
+        } catch (RuntimeException re)
+        {
+            content.close();
+            throw re;
+        }
     }
 
     @Override
