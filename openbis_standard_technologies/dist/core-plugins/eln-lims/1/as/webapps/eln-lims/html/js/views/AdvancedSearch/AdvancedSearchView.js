@@ -552,6 +552,9 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 							case "DATA_SET":
 								entity = entity.dataSet;
 							break;
+							case "MATERIAL":
+								continue; //Skip materials, they are not supported on the ELN
+							break;
 						}
 					}
 					
