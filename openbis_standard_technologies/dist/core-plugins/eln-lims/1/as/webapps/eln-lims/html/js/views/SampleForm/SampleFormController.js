@@ -98,7 +98,7 @@ function SampleFormController(mainController, mode, sample) {
 				if(_this._sampleFormModel.isELNSample) {
 					mainController.sideMenu.deleteNodeByEntityPermId(_this._sampleFormModel.sample.permId, true);
 				} else {
-					mainController.changeView('showSamplesPage', ":" + _this._sampleFormModel.sample.experimentIdentifierOrNull);
+					mainController.changeView('showSamplesPage', _this._sampleFormModel.sample.experimentIdentifierOrNull);
 				}
 			}
 		});
