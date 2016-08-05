@@ -238,13 +238,13 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     public EncapsulatedOpenBISService(IServiceForDataStoreServer service,
-            OpenBISSessionHolder sessionHolder, String downloadUrl)
+            OpenBISSessionHolder sessionHolder)
     {
-        this(service, sessionHolder, downloadUrl, null);
+        this(service, sessionHolder, null);
     }
 
     public EncapsulatedOpenBISService(IServiceForDataStoreServer service,
-            OpenBISSessionHolder sessionHolder, String downloadUrl, IShareIdManager shareIdManager)
+            OpenBISSessionHolder sessionHolder, IShareIdManager shareIdManager)
     {
         this.shareIdManager = shareIdManager;
         assert service != null : "Given IETLLIMSService implementation can not be null.";

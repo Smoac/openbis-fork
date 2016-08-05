@@ -24,7 +24,6 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.common.spring.PropertyPlaceholderUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.ConfigParameters;
 import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
@@ -32,7 +31,6 @@ import ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IPluginTaskInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSourceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ManagedAuthentication;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
@@ -145,12 +143,6 @@ public class OpenBISAuthenticationInterceptor implements MethodInterceptor
         dataStoreServerInfo.setPort(port);
         dataStoreServerInfo.setUseSSL(useSSL);
         dataStoreServerInfo.setDataStoreCode(sessionHolder.getDataStoreCode());
-        if (StringUtils.isBlank(downloadUrl))
-        {
-            final String msg =
-                    "'" + DssPropertyParametersUtil.DOWNLOAD_URL_KEY + "' has to be set.";
-            throw new ConfigurationFailureException(msg);
-        }
         dataStoreServerInfo.setDownloadUrl(downloadUrl);
         dataStoreServerInfo.setSessionToken(sessionTokenManager.drawSessionToken());
         dataStoreServerInfo.setServicesDescriptions(pluginTaskDescriptions);
@@ -201,7 +193,7 @@ public class OpenBISAuthenticationInterceptor implements MethodInterceptor
 
     public final void setDownloadUrl(String downloadUrl)
     {
-        this.downloadUrl = downloadUrl;
+        this.downloadUrl = downloadUrl.equals("${download-url}") ? "" : downloadUrl;
     }
 
     public void setTimeoutInMinutes(String timeoutInMinutes)

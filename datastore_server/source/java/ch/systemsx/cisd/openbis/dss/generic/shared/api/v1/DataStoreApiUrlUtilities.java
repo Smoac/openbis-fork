@@ -35,6 +35,7 @@ public class DataStoreApiUrlUtilities
      */
     public static String getDataStoreUrlFromDownloadUrl(String dataStoreDownloadUrl)
     {
+        dataStoreDownloadUrl = dataStoreDownloadUrl.equals("${download-url}") ? "" : dataStoreDownloadUrl;
         String datastoreUrl = dataStoreDownloadUrl;
 
         // The url objained form a DataStore object is the *download* url. Convert this to the
