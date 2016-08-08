@@ -85,8 +85,7 @@ import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
  * 
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses =
-{ TransferredDataSetHandler.class, DataSetRegistrationHelper.class,
+@Friend(toClasses = { TransferredDataSetHandler.class, DataSetRegistrationHelper.class,
         IdentifiedDataStrategy.class, PluginTaskInfoProvider.class,
         DssPropertyParametersUtil.class })
 public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestCase
@@ -281,7 +280,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         OpenBISSessionHolder sessionHolder = new OpenBISSessionHolder();
         sessionHolder.setSessionToken(SESSION_TOKEN);
         authorizedLimsService =
-                new EncapsulatedOpenBISService(limsService, sessionHolder, "", shareIdManager);
+                new EncapsulatedOpenBISService(limsService, sessionHolder, shareIdManager);
         dataSetValidator = context.mock(IDataSetValidator.class);
 
         Properties threadProperties = new Properties();
@@ -487,8 +486,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
             final DataSetInformation dataSet, final String dataSetCode, final String recipient)
     {
         SampleIdentifier sampleIdentifier = dataSet.getSampleIdentifier();
-        String code = sampleIdentifier != null ? sampleIdentifier.getSampleCode() :
-                dataSet.getExperimentIdentifier().getExperimentCode();
+        String code = sampleIdentifier != null ? sampleIdentifier.getSampleCode() : dataSet.getExperimentIdentifier().getExperimentCode();
         expectations.one(mailClient).sendMessage(
                 String.format(DataSetRegistrationHelper.EMAIL_SUBJECT_TEMPLATE, code),
                 getNotificationEmailContent(dataSet, dataSetCode), null, null, recipient);
@@ -873,7 +871,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 LogMonitoringAppender
                         .addAppender(
                                 LogCategory.OPERATION,
-                                Pattern.compile("P[0-9]+-\\{test-script.sh\\} had command line: \\[sourceTest/java/ch/systemsx/cisd/etlserver/utils/test-script.sh, 4711-42, .*/datastore_server/targets/unit-test-wd/ch.systemsx.cisd.etlserver.TransferredDataSetHandlerTest/data1\\]"),
+                                Pattern.compile(
+                                        "P[0-9]+-\\{test-script.sh\\} had command line: \\[sourceTest/java/ch/systemsx/cisd/etlserver/utils/test-script.sh, 4711-42, .*/datastore_server/targets/unit-test-wd/ch.systemsx.cisd.etlserver.TransferredDataSetHandlerTest/data1\\]"),
                                 Pattern.compile("P[0-9]+-\\{test-script.sh\\} process returned with exit value 1."));
 
         handler.handle(isFinishedData1);
