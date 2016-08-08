@@ -23,15 +23,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.lemnik.eodsql.BaseQuery;
-import net.lemnik.eodsql.QueryTool;
-import net.lemnik.eodsql.Select;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.db.DBUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
+import net.lemnik.eodsql.BaseQuery;
+import net.lemnik.eodsql.QueryTool;
+import net.lemnik.eodsql.Select;
 
 /**
  * @author Franz-Josef Elmer
@@ -45,7 +45,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         public long id;
 
         public Long dase_id;
-        
+
         public Long parent_id;
 
         public String relative_path;
@@ -60,26 +60,26 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
 
         public Date last_modified;
     }
-    
+
     @Private
     public static class ExtendedDataSetFileRecord extends DataSetFileRecord
     {
-    	public String code;
+        public String code;
     }
-    
+
     @Private
     static interface IPathInfoDAO extends BaseQuery
     {
-    	
+
         static String SELECT_DATA_SET_FILES =
                 "SELECT id, parent_id, relative_path, file_name, size_in_bytes, checksum_crc32, "
                         + "is_directory, last_modified FROM data_set_files ";
 
-        static String SELECT_DATA_SET_FILES_WITH_DATA_SET_INFO = 
-        		"SELECT f.id, f.dase_id, f.parent_id, f.relative_path, f.file_name, f.size_in_bytes, " 
-        		+ "f.checksum_crc32, f.is_directory, f.last_modified, s.code "
-        		+ " FROM data_set_files f LEFT JOIN data_sets s ON (s.id = f.dase_id) ";	
-        
+        static String SELECT_DATA_SET_FILES_WITH_DATA_SET_INFO =
+                "SELECT f.id, f.dase_id, f.parent_id, f.relative_path, f.file_name, f.size_in_bytes, "
+                        + "f.checksum_crc32, f.is_directory, f.last_modified, s.code "
+                        + " FROM data_set_files f LEFT JOIN data_sets s ON (s.id = f.dase_id) ";
+
         @Select("SELECT id FROM data_sets WHERE code = ?{1}")
         public Long tryToGetDataSetId(String dataSetCode);
 
@@ -98,10 +98,10 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         @Select(SELECT_DATA_SET_FILES + "WHERE dase_id = ?{1} AND relative_path ~ ?{2}")
         public List<DataSetFileRecord> listDataSetFilesByRelativePathRegex(long dataSetId,
                 String relativePathRegex);
-        
-        @Select(SELECT_DATA_SET_FILES_WITH_DATA_SET_INFO + "WHERE relative_path LIKE ?{1}")
+
+        @Select(SELECT_DATA_SET_FILES_WITH_DATA_SET_INFO + "WHERE LOWER(relative_path) LIKE LOWER(?{1})")
         public List<ExtendedDataSetFileRecord> listFilesByRelativePathLikeExpression(String relativePathLikeExpression);
-      
+
         @Select(SELECT_DATA_SET_FILES + "WHERE dase_id = ?{1} AND relative_path LIKE ?{2}")
         public List<DataSetFileRecord> listDataSetFilesByRelativePathLikeExpression(long dataSetId,
                 String relativePathLikeExpression);
@@ -135,14 +135,15 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
     {
         this.dao = dao;
     }
-     
-	@Override
-	public List<ExtendedDataSetFileRecord> listPathInfosByRegularExpression(
-			String substring) {
-		List<ExtendedDataSetFileRecord> fileRecords = getDao().listFilesByRelativePathLikeExpression("%" + substring + "%");
-		return fileRecords; 
-	}	
-	
+
+    @Override
+    public List<ExtendedDataSetFileRecord> listPathInfosByRegularExpression(
+            String substring)
+    {
+        List<ExtendedDataSetFileRecord> fileRecords = getDao().listFilesByRelativePathLikeExpression("%" + substring + "%");
+        return fileRecords;
+    }
+
     @Override
     public List<DataSetPathInfo> listPathInfosByRegularExpression(String dataSetCode,
             final String regularExpression)
