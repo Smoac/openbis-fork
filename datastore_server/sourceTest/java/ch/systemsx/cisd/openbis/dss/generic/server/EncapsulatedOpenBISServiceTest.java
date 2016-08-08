@@ -63,7 +63,7 @@ public class EncapsulatedOpenBISServiceTest
         shareIdManager = context.mock(IShareIdManager.class);
         session = new OpenBISSessionHolder();
         session.setSessionToken(SESSION_TOKEN);
-        encapsulatedLimsService = new EncapsulatedOpenBISService(limsService, session, "", shareIdManager);
+        encapsulatedLimsService = new EncapsulatedOpenBISService(limsService, session, shareIdManager);
     }
 
     @AfterMethod
