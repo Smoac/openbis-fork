@@ -189,7 +189,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
 
     protected IJythonEvaluator createEvaluator(String scriptString, String[] pythonPath, DataSetProcessingContext context)
     {
-        final IJythonEvaluator evaluator = Evaluator.getFactory().create("", pythonPath, null, null, scriptString, false);
+        final IJythonEvaluator evaluator = Evaluator.getFactory().create("", pythonPath, scriptPath, null, scriptString, false);
 
         evaluator.set(SEARCH_SERVICE_VARIABLE_NAME, createUserSearchService(context));
         evaluator.set(SEARCH_SERVICE_UNFILTERED_VARIABLE_NAME, createUnfilteredSearchService());
