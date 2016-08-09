@@ -17,14 +17,19 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
+import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search.ProjectSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpNonExistingFile;
 
 class V3SpaceLevelResolver implements V3Resolver
 {
@@ -40,14 +45,25 @@ class V3SpaceLevelResolver implements V3Resolver
     {
         if (subPath.length == 0)
         {
-            ProjectSearchCriteria searchCriteria = new ProjectSearchCriteria();
-            searchCriteria.withSpace().withCode().thatEquals(spaceCode);
-            ProjectFetchOptions fetchOptions = new ProjectFetchOptions();
-            List<Project> projects =
-                    context.getV3Api().searchProjects(context.getSessionToken(), searchCriteria, fetchOptions).getObjects();
+            SpaceSearchCriteria searchCriteria = new SpaceSearchCriteria();
+            searchCriteria.withCode().thatEquals(spaceCode);
+            SpaceFetchOptions fetchOptions = new SpaceFetchOptions();
+            fetchOptions.withProjects();
+
+            SpacePermId spaceCodeId = new SpacePermId(spaceCode);
+
+            Map<ISpaceId, Space> spaces =
+                    context.getV3Api().getSpaces(context.getSessionToken(), Collections.singletonList(spaceCodeId), fetchOptions);
+
+            Space space = spaces.get(spaceCodeId);
+
+            if (space == null)
+            {
+                return new V3FtpNonExistingFile(fullPath, null);
+            }
 
             V3FtpDirectoryResponse response = new V3FtpDirectoryResponse(fullPath);
-            for (Project project : projects)
+            for (Project project : space.getProjects())
             {
                 response.addDirectory(project.getCode());
             }

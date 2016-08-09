@@ -77,6 +77,11 @@ public class V3DataSetTypeResolver implements V3Resolver
 
         List<DataSet> dataSetsToSearch = searchForDataSetAndParents(dataSetCode, context);
 
+        if (dataSetsToSearch == null)
+        {
+            return new V3FtpNonExistingFile(fullPath, null);
+        }
+
         if (requestedFileName != null)
         {
             V3FtpFileResponse result = findRequestedNode(fullPath, dataSetsToSearch, requestedFileName, context.getContentProvider());
@@ -167,6 +172,11 @@ public class V3DataSetTypeResolver implements V3Resolver
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withParents();
         DataSet dataSet = context.getV3Api().getDataSets(context.getSessionToken(), Collections.singletonList(dataId), fetchOptions).get(dataId);
+
+        if (dataSet == null)
+        {
+            return null;
+        }
 
         List<DataSet> dataSetsToSearch = new ArrayList<>();
         dataSetsToSearch.add(dataSet);

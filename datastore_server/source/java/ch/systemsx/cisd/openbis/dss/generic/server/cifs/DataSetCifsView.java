@@ -127,7 +127,7 @@ public class DataSetCifsView implements DiskInterface
             FtpFile file = view.getFile(normalizedPath, cache);
             FileInfo fileInfo = new FileInfo();
             Utils.populateFileInfo(fileInfo, file);
-            operationLog.info("provide file info for virtual file '" + file.getAbsolutePath() + "': " + fileInfo);
+            operationLog.debug("provide file info for virtual file '" + file.getAbsolutePath() + "': " + fileInfo);
             return fileInfo;
         } catch (FtpException ex)
         {
@@ -193,7 +193,7 @@ public class DataSetCifsView implements DiskInterface
                 NonExistingFtpFile nonExistingFtpFile = (NonExistingFtpFile) file;
                 throw new FileNotFoundException(path + " does not exist. Reason: " + nonExistingFtpFile.getErrorMessage());
             }
-            operationLog.info("Open file '" + path + "'.");
+            operationLog.debug("Open file '" + path + "'.");
             NetworkFile networkFile = new CifsFile(file);
 
             networkFile.setAttributes(FileAttribute.ReadOnly);

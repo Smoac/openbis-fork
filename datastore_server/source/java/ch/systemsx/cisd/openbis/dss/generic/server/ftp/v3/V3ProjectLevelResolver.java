@@ -29,6 +29,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpNonExistingFile;
 
 class V3ProjectLevelResolver implements V3Resolver
 {
@@ -52,6 +53,10 @@ class V3ProjectLevelResolver implements V3Resolver
             Project project = projects.get(projectIdentifier);
 
             V3FtpDirectoryResponse response = new V3FtpDirectoryResponse(fullPath);
+            if (project == null)
+            {
+                return new V3FtpNonExistingFile(fullPath, null);
+            }
             for (Experiment exp : project.getExperiments())
             {
                 response.addDirectory(exp.getCode());

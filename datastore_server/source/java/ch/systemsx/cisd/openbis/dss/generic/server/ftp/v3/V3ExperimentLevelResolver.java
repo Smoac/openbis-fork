@@ -27,6 +27,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpNonExistingFile;
 
 class V3ExperimentLevelResolver implements V3Resolver
 {
@@ -48,6 +49,11 @@ class V3ExperimentLevelResolver implements V3Resolver
             Map<IExperimentId, Experiment> experiments =
                     context.getV3Api().getExperiments(context.getSessionToken(), Collections.singletonList(experimentId), fetchOptions);
             Experiment exp = experiments.get(experimentId);
+
+            if (exp == null)
+            {
+                return new V3FtpNonExistingFile(fullPath, null);
+            }
 
             V3FtpDirectoryResponse response = new V3FtpDirectoryResponse(fullPath);
             for (DataSet dataSet : exp.getDataSets())

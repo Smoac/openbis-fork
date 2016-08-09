@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFileResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpNonExistingFile;
 
 class V3HierarchicalContentResolver implements V3Resolver
 {
@@ -43,7 +44,12 @@ class V3HierarchicalContentResolver implements V3Resolver
             rootNode = content.getRootNode();
         } else
         {
-            rootNode = content.getNode(StringUtils.join(subPath, "/"));
+            rootNode = content.tryGetNode(StringUtils.join(subPath, "/"));
+        }
+
+        if (rootNode == null)
+        {
+            return new V3FtpNonExistingFile(fullPath, null);
         }
 
         if (false == rootNode.isDirectory())

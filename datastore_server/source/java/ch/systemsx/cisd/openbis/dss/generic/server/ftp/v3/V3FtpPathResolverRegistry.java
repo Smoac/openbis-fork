@@ -85,17 +85,17 @@ public class V3FtpPathResolverRegistry implements IFtpPathResolverRegistry
     @Override
     public FtpFile resolve(String path, FtpPathResolverContext resolverContext)
     {
-        
+
         String responseCacheKey = resolverContext.getSessionToken() + "$" + path;
         Cache cache = resolverContext.getCache();
         V3FtpFile response = cache.getResponse(responseCacheKey);
         if (response != null)
         {
-            operationLog.info("Path "+path+" requested (found in cache).");
+            operationLog.debug("Path " + path + " requested (found in cache).");
             return response;
         }
 
-        operationLog.info("Path "+path+" requested.");
+        operationLog.debug("Path " + path + " requested.");
 
         String[] split = path.equals("/") ? new String[] {} : path.substring(1).split("/");
         try
@@ -152,7 +152,7 @@ public class V3FtpPathResolverRegistry implements IFtpPathResolverRegistry
                         return resolver.resolve(path, remaining, resolverContext);
                     }
                 }
-                return new V3FtpNonExistingFile(path, "Error when retrieving path");
+                return new V3FtpNonExistingFile(path, null);
             }
         }
     }
