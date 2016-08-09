@@ -51,10 +51,13 @@ function ExperimentTableView(experimentTableController, experimentTableModel) {
 	
 	this._showExperimentFromOverviewDropdown = function() {
 		var _this = this;
-		var expDropModel = [{value : "OVERVIEW", label : "Show only overview experiments", selected : this._experimentTableModel.showInProjectOverview },
-		                          {value : "ALL", label : "Show all experiments", selected : !this._experimentTableModel.showInProjectOverview }];
+		var expDropModel = [];
+		var projectIdentifier = "/" + this._experimentTableModel.project.spaceCode + "/" + this._experimentTableModel.project.code;
+		expDropModel = [{value : "OVERVIEW", label : "Show only overview " + ELNDictionary.getExperimentKindName(projectIdentifier, true), selected : this._experimentTableModel.showInProjectOverview },
+		                {value : "ALL", label : "Show all " + ELNDictionary.getExperimentKindName(projectIdentifier, true), selected : !this._experimentTableModel.showInProjectOverview }];
 		
-		var $experimentDropdown = FormUtil.getDropdown(expDropModel, "Select what experiments to show");
+		
+		var $experimentDropdown = FormUtil.getDropdown(expDropModel, "Select what " + ELNDictionary.getExperimentKindName(projectIdentifier, true) + " to show");
 		
 		$experimentDropdown.change(function() {
 			switch($(this).val()){
@@ -73,7 +76,8 @@ function ExperimentTableView(experimentTableController, experimentTableModel) {
 	this._getProjectExperimentTypesDropdown = function() {
 		var _this = this;
 		var	$typesSelector = $('<select>', { class : 'form-control' });
-		$typesSelector.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select an experiment type"));
+		var projectIdentifier = "/" + this._experimentTableModel.project.spaceCode + "/" + this._experimentTableModel.project.code;
+		$typesSelector.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select an " + ELNDictionary.getExperimentKindName(projectIdentifier, true) + " type"));
 		for(typeCode in this._experimentTableModel.types) {
 			$typesSelector.append($('<option>', { 'value' : typeCode }).text(typeCode));
 		}

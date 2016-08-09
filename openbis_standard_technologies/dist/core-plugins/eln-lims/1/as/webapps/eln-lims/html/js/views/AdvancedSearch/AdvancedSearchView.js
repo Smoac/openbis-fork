@@ -164,7 +164,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
 				                    {value : "Property", label : "Property"}, 
 				                    {value : "Attribute", label : "Attribute"}, 
-				                    {value : "Experiment", label : "Experiment"}, 
+				                    {value : "Experiment", label : ELNDictionary.ExperimentELN}, 
+				                    {value : "Experiment", label : ELNDictionary.ExperimentInventory}, 
 				                    {value : "Parent", label : "Parent"}, 
 				                    {value : "Children", label : "Children"}];
 				break;
@@ -336,7 +337,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	this._getEntityTypeDropdown = function() {
 		var _this = this;
 		var model = [{ value : 'ALL', label : "All", selected : true },
-		             { value : 'EXPERIMENT', label : "Experiment" },
+		             { value : 'EXPERIMENT', label : ELNDictionary.ExperimentELN },
+		             { value : 'EXPERIMENT', label : ELNDictionary.ExperimentInventory },
 		             { value : 'SAMPLE', label : "" + ELNDictionary.Sample + "" },
 		             { value : 'DATASET', label : "Dataset" }];
 		this._advancedSearchModel.resetModel('ALL');
@@ -432,7 +434,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					return getLinkOnClick(data.identifier, data);
 				}
 			}, {
-				label : 'Experiment',
+				label : ELNDictionary.ExperimentELN + '/' + ELNDictionary.ExperimentInventory,
 				property : 'experiment',
 				isExportable: false,
 				sortable : true

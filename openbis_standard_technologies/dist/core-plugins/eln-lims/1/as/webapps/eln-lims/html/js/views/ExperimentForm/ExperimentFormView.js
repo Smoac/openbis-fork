@@ -43,7 +43,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		}
 		var entityPath = null;
 		
-		var typeTitle = "Experiment: ";
+		var typeTitle = "" + ELNDictionary.getExperimentKindName(this._experimentFormModel.experiment.identifier) + ": ";
 //		if(this._experimentFormModel.experiment &&
 //		   this._experimentFormModel.experiment.identifier &&
 //		   profile.isInventorySpace(this._experimentFormModel.experiment.identifier.split("/")[1])

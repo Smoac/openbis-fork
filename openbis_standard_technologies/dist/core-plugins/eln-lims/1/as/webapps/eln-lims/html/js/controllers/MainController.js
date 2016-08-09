@@ -316,7 +316,8 @@ function MainController(profile) {
 					var argsMap = JSON.parse(cleanText);
 					var experimentTypeCode = argsMap["experimentTypeCode"];
 					var projectIdentifier = argsMap["projectIdentifier"];
-					document.title = "Create Experiment " + experimentTypeCode;
+					
+					document.title = "Create " + ELNDictionary.getExperimentKindName(projectIdentifier) + " " + experimentTypeCode;
 					var experiment = {
 							experimentTypeCode : experimentTypeCode,
 							identifier : projectIdentifier
@@ -327,7 +328,7 @@ function MainController(profile) {
 				case "showExperimentPageFromIdentifier":
 					var _this = this;
 					this.serverFacade.listExperimentsForIdentifiers([arg], function(data) {
-						document.title = "Experiment " + arg;
+						document.title = "" + ELNDictionary.getExperimentKindName(arg) + " " + arg;
 						_this._showExperimentPage(data.result[0], FormMode.VIEW);
 						window.scrollTo(0,0);
 					});
@@ -335,7 +336,7 @@ function MainController(profile) {
 				case "showEditExperimentPageFromIdentifier":
 					var _this = this;
 					this.serverFacade.listExperimentsForIdentifiers([arg], function(data) {
-						document.title = "Experiment " + arg;
+						document.title = "" + ELNDictionary.getExperimentKindName(arg) + " " + arg;
 						_this._showExperimentPage(data.result[0], FormMode.EDIT);
 						window.scrollTo(0,0);
 					});
@@ -524,7 +525,7 @@ function MainController(profile) {
 		if(experimentIdentifier) {
 			var _this = this;
 			this.serverFacade.listExperimentsForIdentifiers([experimentIdentifier], function(data) {
-				sampleTableController = new SampleTableController(this, "Experiment " + experimentIdentifier, experimentIdentifier, null, null, data.result[0]);
+				sampleTableController = new SampleTableController(this, "" + ELNDictionary.getExperimentKindName(experimentIdentifier) + " " + experimentIdentifier, experimentIdentifier, null, null, data.result[0]);
 				sampleTableController.init($("#mainContainer"));
 				_this.currentView = sampleTableController;
 			});

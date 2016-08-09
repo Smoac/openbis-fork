@@ -67,7 +67,7 @@ var SampleDataGridUtil = new function() {
 		});
 		
 		columns.push({
-			label : 'Experiment',
+			label : ELNDictionary.ExperimentELN + '/' + ELNDictionary.ExperimentInventory,
 			property : 'experiment',
 			isExportable: true,
 			sortable : true
