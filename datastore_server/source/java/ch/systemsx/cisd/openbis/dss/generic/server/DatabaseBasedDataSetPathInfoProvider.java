@@ -137,16 +137,17 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
     }
 
     @Override
-    public List<DataSetPathInfo> listPathInfosByRegularExpression(
+    public Map<String, List<DataSetPathInfo>> listPathInfosByRegularExpression(
             String substring)
     {
         List<ExtendedDataSetFileRecord> fileRecords = getDao().listFilesByRelativePathLikeExpression("%" + substring + "%");
-        List<DataSetPathInfo> pathInfos = new ArrayList<DataSetPathInfo>(fileRecords.size());
+
+        Map<String, List<DataSetPathInfo>> allPathInfos = new HashMap<String, List<DataSetPathInfo>>();
         for (ExtendedDataSetFileRecord fileRecord : fileRecords)
         {
+            // Build new info
             DataSetPathInfo dataSetPathInfo = new DataSetPathInfo();
             dataSetPathInfo.setChecksumCRC32(fileRecord.checksum_crc32);
-            dataSetPathInfo.setDataSetCode(fileRecord.code);
             dataSetPathInfo.setDirectory(fileRecord.is_directory);
             dataSetPathInfo.setFileName(fileRecord.file_name);
             dataSetPathInfo.setId(fileRecord.id);
@@ -159,9 +160,17 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
                 dataSetPathInfoParent.setId(fileRecord.parent_id);
                 dataSetPathInfo.setParent(dataSetPathInfoParent);
             }
-            pathInfos.add(dataSetPathInfo);
+
+            // Add to dataSetCode list
+            List<DataSetPathInfo> dataSetPathInfos = allPathInfos.get(fileRecord.code);
+            if (dataSetPathInfos == null)
+            {
+                dataSetPathInfos = new ArrayList<DataSetPathInfo>();
+                allPathInfos.put(fileRecord.code, dataSetPathInfos);
+            }
+            dataSetPathInfos.add(dataSetPathInfo);
         }
-        return pathInfos;
+        return allPathInfos;
     }
 
     @Override

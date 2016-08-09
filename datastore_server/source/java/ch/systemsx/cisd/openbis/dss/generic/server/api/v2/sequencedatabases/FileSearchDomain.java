@@ -33,30 +33,33 @@ public class FileSearchDomain extends AbstractSearchDomainService
     public List<SearchDomainSearchResult> search(String searchString, Map<String, String> optionalParametersOrNull)
     {
         IDataSetPathInfoProvider dataSetPathInfoProvider = ServiceProvider.getDataSetPathInfoProvider();
-        List<DataSetPathInfo> dataSetPathInfos = dataSetPathInfoProvider.listPathInfosByRegularExpression(searchString);
+        Map<String, List<DataSetPathInfo>> allPathInfos = dataSetPathInfoProvider.listPathInfosByRegularExpression(searchString);
 
         List<SearchDomainSearchResult> results = new ArrayList<SearchDomainSearchResult>();
 
-        for (DataSetPathInfo dataSetPathInfo : dataSetPathInfos)
+        for (String datasetCode : allPathInfos.keySet())
         {
+            List<DataSetPathInfo> dataSetPathInfos = allPathInfos.get(datasetCode);
 
-            SearchDomainSearchResult searchDomainSearchResult = new SearchDomainSearchResult();
+            for (DataSetPathInfo dataSetPathInfo : dataSetPathInfos)
+            {
+                SearchDomainSearchResult searchDomainSearchResult = new SearchDomainSearchResult();
 
-            SearchDomain searchDomain = new SearchDomain();
-            searchDomain.setName("File");
-            searchDomain.setLabel("File");
+                SearchDomain searchDomain = new SearchDomain();
+                searchDomain.setName("File");
+                searchDomain.setLabel("File");
 
-            searchDomainSearchResult.setSearchDomain(searchDomain);
+                searchDomainSearchResult.setSearchDomain(searchDomain);
 
-            DataSetFileSearchResultLocation dfsrl = new DataSetFileSearchResultLocation();
-            dfsrl.setPermId(dataSetPathInfo.getDataSetCode());
-            dfsrl.setCode(dataSetPathInfo.getDataSetCode());
-            dfsrl.setIdentifier(dataSetPathInfo.getDataSetCode());
-            dfsrl.setPathInDataSet(dataSetPathInfo.getRelativePath());
-            dfsrl.setEntityKind(EntityKind.DATA_SET);
+                DataSetFileSearchResultLocation dfsrl = new DataSetFileSearchResultLocation();
+                dfsrl.setPermId(datasetCode);
+                dfsrl.setCode(datasetCode);
+                dfsrl.setPathInDataSet(dataSetPathInfo.getRelativePath());
+                dfsrl.setEntityKind(EntityKind.DATA_SET);
 
-            searchDomainSearchResult.setResultLocation(dfsrl);
-            results.add(searchDomainSearchResult);
+                searchDomainSearchResult.setResultLocation(dfsrl);
+                results.add(searchDomainSearchResult);
+            }
         }
 
         return results;
