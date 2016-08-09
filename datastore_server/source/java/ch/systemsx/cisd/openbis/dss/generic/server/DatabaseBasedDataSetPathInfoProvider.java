@@ -137,11 +137,31 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
     }
 
     @Override
-    public List<ExtendedDataSetFileRecord> listPathInfosByRegularExpression(
+    public List<DataSetPathInfo> listPathInfosByRegularExpression(
             String substring)
     {
         List<ExtendedDataSetFileRecord> fileRecords = getDao().listFilesByRelativePathLikeExpression("%" + substring + "%");
-        return fileRecords;
+        List<DataSetPathInfo> pathInfos = new ArrayList<DataSetPathInfo>(fileRecords.size());
+        for (ExtendedDataSetFileRecord fileRecord : fileRecords)
+        {
+            DataSetPathInfo dataSetPathInfo = new DataSetPathInfo();
+            dataSetPathInfo.setChecksumCRC32(fileRecord.checksum_crc32);
+            dataSetPathInfo.setDataSetCode(fileRecord.code);
+            dataSetPathInfo.setDirectory(fileRecord.is_directory);
+            dataSetPathInfo.setFileName(fileRecord.file_name);
+            dataSetPathInfo.setId(fileRecord.id);
+            dataSetPathInfo.setLastModified(fileRecord.last_modified);
+            dataSetPathInfo.setRelativePath(fileRecord.relative_path);
+            dataSetPathInfo.setSizeInBytes(fileRecord.size_in_bytes);
+            if (fileRecord.parent_id != null)
+            {
+                DataSetPathInfo dataSetPathInfoParent = new DataSetPathInfo();
+                dataSetPathInfoParent.setId(fileRecord.parent_id);
+                dataSetPathInfo.setParent(dataSetPathInfoParent);
+            }
+            pathInfos.add(dataSetPathInfo);
+        }
+        return pathInfos;
     }
 
     @Override

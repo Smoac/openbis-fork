@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 import java.util.List;
 import java.util.Map;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.DatabaseBasedDataSetPathInfoProvider.ExtendedDataSetFileRecord;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 
 /**
@@ -29,11 +28,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
  */
 public interface IDataSetPathInfoProvider
 {
-	
+
     public List<DataSetPathInfo> listPathInfosByRegularExpression(String dataSetCode, String regularExpression);
 
-    public List<ExtendedDataSetFileRecord> listPathInfosByRegularExpression(String regularExpression);
-	
+    public List<DataSetPathInfo> listPathInfosByRegularExpression(String regularExpression);
+
     public DataSetPathInfo tryGetFullDataSetRootPathInfo(String dataSetCode);
 
     public ISingleDataSetPathInfoProvider tryGetSingleDataSetPathInfoProvider(String dataSetCode);

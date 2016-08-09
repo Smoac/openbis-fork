@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.DatabaseBasedDataSetPathInfoProvider.ExtendedDataSetFileRecord;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFileSearchResultLocation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
@@ -29,38 +29,37 @@ public class FileSearchDomain extends AbstractSearchDomainService
         return true;
     }
 
-    
     @Override
     public List<SearchDomainSearchResult> search(String searchString, Map<String, String> optionalParametersOrNull)
-    {   	
-    	IDataSetPathInfoProvider dataSetPathInfoProvider = ServiceProvider.getDataSetPathInfoProvider();
-    	List<ExtendedDataSetFileRecord> dataSetPathInfos = dataSetPathInfoProvider.listPathInfosByRegularExpression(searchString);
-        
-    	List<SearchDomainSearchResult> results = new ArrayList<SearchDomainSearchResult>();
-    	
-    	for(ExtendedDataSetFileRecord dataSetPathInfo : dataSetPathInfos){
-        	
-        	SearchDomainSearchResult searchDomainSearchResult = new SearchDomainSearchResult();
-        	
-        	SearchDomain searchDomain = new SearchDomain();
-        	searchDomain.setName("File");
-        	searchDomain.setLabel("File");
+    {
+        IDataSetPathInfoProvider dataSetPathInfoProvider = ServiceProvider.getDataSetPathInfoProvider();
+        List<DataSetPathInfo> dataSetPathInfos = dataSetPathInfoProvider.listPathInfosByRegularExpression(searchString);
 
-        	searchDomainSearchResult.setSearchDomain(searchDomain);
-        	        	
-        	DataSetFileSearchResultLocation dfsrl = new DataSetFileSearchResultLocation();
-        	dfsrl.setPermId(dataSetPathInfo.code);
-        	dfsrl.setCode(dataSetPathInfo.code);
-        	dfsrl.setPathInDataSet(dataSetPathInfo.relative_path);
-        	dfsrl.setIdentifier(dataSetPathInfo.code);
-        	dfsrl.setEntityKind(EntityKind.DATA_SET);
-        	
-        	searchDomainSearchResult.setResultLocation(dfsrl);
-        	results.add(searchDomainSearchResult);
-    	}
-    	
-    	return results;
+        List<SearchDomainSearchResult> results = new ArrayList<SearchDomainSearchResult>();
+
+        for (DataSetPathInfo dataSetPathInfo : dataSetPathInfos)
+        {
+
+            SearchDomainSearchResult searchDomainSearchResult = new SearchDomainSearchResult();
+
+            SearchDomain searchDomain = new SearchDomain();
+            searchDomain.setName("File");
+            searchDomain.setLabel("File");
+
+            searchDomainSearchResult.setSearchDomain(searchDomain);
+
+            DataSetFileSearchResultLocation dfsrl = new DataSetFileSearchResultLocation();
+            dfsrl.setPermId(dataSetPathInfo.getDataSetCode());
+            dfsrl.setCode(dataSetPathInfo.getDataSetCode());
+            dfsrl.setIdentifier(dataSetPathInfo.getDataSetCode());
+            dfsrl.setPathInDataSet(dataSetPathInfo.getRelativePath());
+            dfsrl.setEntityKind(EntityKind.DATA_SET);
+
+            searchDomainSearchResult.setResultLocation(dfsrl);
+            results.add(searchDomainSearchResult);
+        }
+
+        return results;
     }
-    
 
 }

@@ -27,6 +27,8 @@ public class DataSetPathInfo
 {
     private long id;
 
+    private String dataSetCode;
+
     private String fileName;
 
     private String relativePath;
@@ -136,4 +138,13 @@ public class DataSetPathInfo
         children.add(child);
     }
 
+    public String getDataSetCode()
+    {
+        return dataSetCode;
+    }
+
+    public void setDataSetCode(String dataSetCode)
+    {
+        this.dataSetCode = dataSetCode;
+    }
 }
