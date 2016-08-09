@@ -227,7 +227,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         }
         
         if(profile.mainMenu.showSampleBrowser) {
-        	treeModelUtils.push({ title : "Sample Browser", entityType: "SAMPLE_BROWSER", key : "SAMPLE_BROWSER", folder : false, lazy : false, view : "showSamplesPage", icon : "glyphicon glyphicon-list-alt" });
+        	treeModelUtils.push({ title : "" + ELNDictionary.Sample + " Browser", entityType: "SAMPLE_BROWSER", key : "SAMPLE_BROWSER", folder : false, lazy : false, view : "showSamplesPage", icon : "glyphicon glyphicon-list-alt" });
         }
         
         if(profile.mainMenu.showVocabularyViewer) {

@@ -56,11 +56,11 @@ function StorageManagerController(mainController) {
 			var isNewDataHolderEmpty = $(newDataHolder).children().length === 0;
 			if(isMultiplePosition) {
 				//var oldBoxName === data.properties[newStoragePropertyGroup.boxProperty];
-				var errorMsg = "Multiple position Samples are not supported by the manager, please use the sample form for this.";
+				var errorMsg = "Multiple position " + ELNDictionary.Samples + " are not supported by the manager, please use the " + ELNDictionary.samples + " form for this.";
 				Util.showError(errorMsg);
 				throw errorMsg;
 			} else if(!isNewDataHolderEmpty) {
-				var errorMsg = "That position on the box is already used by another Sample.";
+				var errorMsg = "That position on the box is already used by another " + ELNDictionary.Sample + ".";
 				Util.showError(errorMsg);
 				throw errorMsg;
 			} else {
@@ -110,7 +110,7 @@ function StorageManagerController(mainController) {
 						newDataHolder) {
 			var isBox = data.samples !== undefined;
 			if(!isBox) {
-				var errorMsg = "Samples can't be put inside a rack without a Box.";
+				var errorMsg = "" + ELNDictionary.Samples + " can't be put inside a rack without a Box.";
 				Util.showError(errorMsg);
 				throw errorMsg;
 			}

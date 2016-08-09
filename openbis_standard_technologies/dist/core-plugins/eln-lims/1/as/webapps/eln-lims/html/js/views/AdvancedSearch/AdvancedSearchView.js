@@ -177,7 +177,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
 				                    {value : "Property", label : "Property"}, 
 				                    {value : "Attribute", label : "Attribute"},
-				                    {value : "Sample", label : "Sample"},
+				                    {value : "" + ELNDictionary.Sample + "", label : "" + ELNDictionary.Sample + ""},
 // ELN-UI don't support this yet
 //				                    {value : "Parent", label : "Parent"}, 
 //				                    {value : "Children", label : "Children"}
@@ -207,7 +207,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				case "Attribute":
 					$newFieldNameContainer.append(_this._getNewAttributeDropdown(_this._advancedSearchModel.criteria.entityKind));
 					break;
-				case "Sample":
+				case "" + ELNDictionary.Sample + "":
 					$newFieldNameContainer.append(_this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "SAMPLE"));
 					break;
 				case "Experiment":
@@ -315,7 +315,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				break;
 			case "SAMPLE":
 				model = [{ value : "ATTR.CODE", label: "Code" },
-				         { value : "ATTR.SAMPLE_TYPE", label: "Sample Type" },
+				         { value : "ATTR.SAMPLE_TYPE", label: "" + ELNDictionary.Sample + " Type" },
 				         { value : "ATTR.PERM_ID", label: "Perm Id" },
 				         { value : "ATTR.SPACE", label: "Space" },
 //				         { value : "ATTR.METAPROJECT", label: "Tag" }, TO-DO Not supported by ELN yet
@@ -337,7 +337,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		var _this = this;
 		var model = [{ value : 'ALL', label : "All", selected : true },
 		             { value : 'EXPERIMENT', label : "Experiment" },
-		             { value : 'SAMPLE', label : "Sample" },
+		             { value : 'SAMPLE', label : "" + ELNDictionary.Sample + "" },
 		             { value : 'DATASET', label : "Dataset" }];
 		this._advancedSearchModel.resetModel('ALL');
 		var $dropdown = FormUtil.getDropdown(model, 'Select Entity Type to search for');

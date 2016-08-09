@@ -108,13 +108,13 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		
 		switch(this._sampleFormModel.mode) {
 	    	case FormMode.CREATE:
-	    		title = "Create Sample " + this._sampleFormModel.sample.sampleTypeCode;
+	    		title = "Create " + ELNDictionary.Sample + " " + Util.getDisplayNameFromCode(this._sampleFormModel.sample.sampleTypeCode);
 	    		break;
 	    	case FormMode.EDIT:
-	    		title = "Update Sample: " + nameLabel;
+	    		title = "Update " + ELNDictionary.Sample + ": " + nameLabel;
 	    		break;
 	    	case FormMode.VIEW:
-	    		title = "Sample: " + nameLabel;
+	    		title = "" + ELNDictionary.Sample + ": " + nameLabel;
 	    		break;
 		}
 		
@@ -160,7 +160,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					}
 				}
 				if(this._sampleFormModel.datasets.length > 0) {
-					warningText += "\n\nThe sample has " + this._sampleFormModel.datasets.length + " datasets, these will be deleted with the sample:\n";
+					warningText += "\n\nThe " + ELNDictionary.sample + " has " + this._sampleFormModel.datasets.length + " datasets, these will be deleted with the " + ELNDictionary.sample + ":\n";
 					var numDatasetsToShow = this._sampleFormModel.datasets.length;
 					if(numDatasetsToShow > 10) {
 						numDatasetsToShow = 10;

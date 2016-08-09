@@ -158,7 +158,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			experimentTableController.init($experimentsContainer);
 			
 			var $samplesContainer = $("<div>");
-			$formColumn.append($("<legend>").append("Samples"))
+			$formColumn.append($("<legend>").append("" + ELNDictionary.Samples + ""))
 			$formColumn.append($samplesContainer);
 			
 			var sampleTableController = new SampleTableController(this._projectFormController, null, null, this._projectFormModel.project.permId, true);

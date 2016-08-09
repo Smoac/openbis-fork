@@ -69,7 +69,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 					mainController.changeView("showCreateSubExperimentPage", argsMapStr);
 				});
 				
-				toolbarModel.push({ component : $createButton, tooltip: "Create " + sampleTypeCode });
+				toolbarModel.push({ component : $createButton, tooltip: "Create " + Util.getDisplayNameFromCode(sampleTypeCode) });
 			}
 		}
 		
@@ -115,19 +115,19 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		$dropDownMenu.append($caret);
 		$dropDownMenu.append($list);
 		
-		var $createSampleOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Create Sample'}).append("Create Sample"));
+		var $createSampleOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Create ' + ELNDictionary.Sample + ''}).append('Create ' + ELNDictionary.Sample + ''));
 		$createSampleOption.click(function() {
 			_this.createNewSample(_this._sampleTableModel.experimentIdentifier);
 		});
 		$list.append($createSampleOption);
 		
-		var $batchRegisterOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Batch Register Samples'}).append("Batch Register Samples"));
+		var $batchRegisterOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Batch Register ' + ELNDictionary.Sample + 's'}).append("Batch Register " + ELNDictionary.Sample + "s"));
 		$batchRegisterOption.click(function() {
 			_this.registerSamples(_this._sampleTableModel.experimentIdentifier);
 		});
 		$list.append($batchRegisterOption);
 		
-		var $batchUpdateOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Batch Update Samples'}).append("Batch Update Samples"));
+		var $batchUpdateOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Batch Update ' + ELNDictionary.Sample + 's'}).append("Batch Update " + ELNDictionary.Sample + "s"));
 		$batchUpdateOption.click(function() {
 			_this.updateSamples(_this._sampleTableModel.experimentIdentifier);
 		});
@@ -139,7 +139,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	this._getLoadedSampleTypesDropdown = function() {
 		var _this = this;
 		var	$sampleTypesSelector = $('<select>', { 'id' : 'sampleTypeCodesToShow', class : 'form-control' });
-		$sampleTypesSelector.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select a sample type"));
+		$sampleTypesSelector.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select a " + ELNDictionary.sample + " type"));
 		for(sampleTypeCode in this._sampleTableModel.sampleTypes) {
 			$sampleTypesSelector.append($('<option>', { 'value' : sampleTypeCode }).text(sampleTypeCode));
 		}
@@ -195,7 +195,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	
 	this.registerSamples = function(experimentIdentifier) {
 		var _this = this;
-		var typeAndFileController = new TypeAndFileController('Register Samples', "REGISTRATION", function(type, file) {
+		var typeAndFileController = new TypeAndFileController('Register ' + ELNDictionary.Samples + '', "REGISTRATION", function(type, file) {
 			Util.blockUI();
 			mainController.serverFacade.fileUpload(typeAndFileController.getFile(), function(result) {
 				//Code After the upload
@@ -253,7 +253,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	}
 	
 	this.updateSamples = function(experimentIdentifier) {
-		var typeAndFileController = new TypeAndFileController('Update Samples', "UPDATE", function(type, file) {
+		var typeAndFileController = new TypeAndFileController('Update ' + ELNDictionary.Samples + '', "UPDATE", function(type, file) {
 			Util.blockUI();
 			var finalCallback = function(data) {
 				if(data.error) {

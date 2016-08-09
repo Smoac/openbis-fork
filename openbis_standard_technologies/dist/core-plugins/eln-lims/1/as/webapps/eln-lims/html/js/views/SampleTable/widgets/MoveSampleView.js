@@ -27,7 +27,7 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 			_this._moveSampleController.move();
 		});
 		
-		$window.append($('<legend>').append("Move Sample"));
+		$window.append($('<legend>').append("Move " + ELNDictionary.Sample + ""));
 		$window.append(FormUtil.getFieldForLabelWithText("Type", this._moveSampleModel.sample.sampleTypeCode));
 		$window.append(FormUtil.getFieldForLabelWithText("Identifier", this._moveSampleModel.sample.identifier));
 		$window.append(FormUtil.getFieldForLabelWithText("Current Experiment", this._moveSampleModel.sample.experimentIdentifierOrNull));

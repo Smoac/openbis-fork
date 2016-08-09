@@ -94,7 +94,7 @@ function SampleFormController(mainController, mode, sample) {
 			if(data.error) {
 				Util.showError(data.error.message);
 			} else {
-				Util.showSuccess("Sample Deleted");
+				Util.showSuccess("" + ELNDictionary.Sample + " Deleted");
 				if(_this._sampleFormModel.isELNSample) {
 					mainController.sideMenu.deleteNodeByEntityPermId(_this._sampleFormModel.sample.permId, true);
 				} else {
@@ -310,11 +310,11 @@ function SampleFormController(mainController, mode, sample) {
 			
 			var message = "";
 			if(isCopyWithNewCode) {
-				message = "Sample copied with new code: " + isCopyWithNewCode + ".";
+				message = "" + ELNDictionary.Sample + " copied with new code: " + isCopyWithNewCode + ".";
 			} else if(_this._sampleFormModel.mode === FormMode.CREATE) {
-				message = "Sample Created.";
+				message = "" + ELNDictionary.Sample + " Created.";
 			} else if(_this._sampleFormModel.mode === FormMode.EDIT) {
-				message = "Sample Updated.";
+				message = "" + ELNDictionary.Sample + " Updated.";
 			}
 			
 			var callbackOk = function() {
