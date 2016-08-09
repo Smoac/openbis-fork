@@ -23,9 +23,10 @@ import java.util.Map;
 import org.apache.ftpserver.ftplet.FtpFile;
 
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 
 /**
  * Helper class to cache objects retrieved from remote services. Used by {@link FtpPathResolverContext}.
@@ -48,13 +49,13 @@ public class Cache
             this.timestamp = timestamp;
         }
     }
-    
+
     private final Map<String, TimeStampedObject<FtpFile>> filesByPath = new HashMap<>();
 
     private final Map<String, TimeStampedObject<DataSet>> dataSetsByCode = new HashMap<String, Cache.TimeStampedObject<DataSet>>();
 
     private final Map<String, TimeStampedObject<List<AbstractExternalData>>> dataSetsByExperiment = new HashMap<>();
-    
+
     private final Map<String, TimeStampedObject<AbstractExternalData>> externalData =
             new HashMap<String, Cache.TimeStampedObject<AbstractExternalData>>();
 
@@ -62,26 +63,28 @@ public class Cache
 
     private final ITimeProvider timeProvider;
 
+    private final Map<String, TimeStampedObject<V3FtpFile>> v3Responses = new HashMap<>();
+
     public Cache(ITimeProvider timeProvider)
     {
         this.timeProvider = timeProvider;
     }
-    
+
     void putFile(FtpFile file, String path)
     {
         filesByPath.put(path, timestamp(file));
     }
-    
+
     FtpFile getFile(String path)
     {
         return getObject(filesByPath, path);
     }
-    
+
     void putDataSetsForExperiment(List<AbstractExternalData> dataSets, String experimentPermId)
     {
         dataSetsByExperiment.put(experimentPermId, timestamp(dataSets));
     }
-    
+
     List<AbstractExternalData> getDataSetsByExperiment(String experimentPermId)
     {
         return getObject(dataSetsByExperiment, experimentPermId);
@@ -117,6 +120,16 @@ public class Cache
         experiments.put(experiment.getIdentifier(), timestamp(experiment));
     }
 
+    public V3FtpFile getResponse(String key)
+    {
+        return getObject(v3Responses, key);
+    }
+
+    public void putResponse(String key, V3FtpFile file)
+    {
+        v3Responses.put(key, timestamp(file));
+    }
+
     private <T> TimeStampedObject<T> timestamp(T object)
     {
         return new TimeStampedObject<T>(object, timeProvider.getTimeInMilliseconds());
@@ -127,7 +140,7 @@ public class Cache
         TimeStampedObject<T> timeStampedObject = map.get(key);
         return timeStampedObject == null
                 || timeProvider.getTimeInMilliseconds() - timeStampedObject.timestamp > LIVE_TIME ? null
-                : timeStampedObject.object;
+                        : timeStampedObject.object;
     }
 
 }

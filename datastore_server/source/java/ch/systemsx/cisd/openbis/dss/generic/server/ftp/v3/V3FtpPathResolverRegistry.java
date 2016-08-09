@@ -27,10 +27,12 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverConfig;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolverRegistry;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpNonExistingFile;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 
@@ -80,35 +82,50 @@ public class V3FtpPathResolverRegistry implements IFtpPathResolverRegistry
         }
     }
 
-    // note to self - the resolver context is created fresh for each request
     @Override
     public FtpFile resolve(String path, FtpPathResolverContext resolverContext)
     {
-        System.err.println(path + " Resolver registry: " + this.hashCode());
+        
+        String responseCacheKey = resolverContext.getSessionToken() + "$" + path;
+        Cache cache = resolverContext.getCache();
+        V3FtpFile response = cache.getResponse(responseCacheKey);
+        if (response != null)
+        {
+            operationLog.info("Path "+path+" requested (found in cache).");
+            return response;
+        }
+
+        operationLog.info("Path "+path+" requested.");
+
         String[] split = path.equals("/") ? new String[] {} : path.substring(1).split("/");
         try
         {
             if (plugins.size() > 0)
             {
-                return resolvePlugins(path, split, resolverContext);
+
+                response = resolvePlugins(path, split, resolverContext);
             } else
             {
-                return resolveDefault(path, resolverContext, split);
+                response = resolveDefault(path, resolverContext, split);
             }
         } catch (Exception e)
         {
-            operationLog.warn("Resolving "+path+" failed", e);
+            operationLog.warn("Resolving " + path + " failed", e);
+            response = new V3FtpNonExistingFile(path, "Error when retrieving path");
         }
-        return new V3FtpNonExistingFile(path, "Error when retrieving path");
+
+        cache.putResponse(responseCacheKey, response);
+        return response;
+
     }
 
-    private FtpFile resolveDefault(String path, FtpPathResolverContext resolverContext, String[] split)
+    private V3FtpFile resolveDefault(String path, FtpPathResolverContext resolverContext, String[] split)
     {
         V3RootLevelResolver resolver = new V3RootLevelResolver();
         return resolver.resolve(path, split, resolverContext);
     }
 
-    private FtpFile resolvePlugins(String path, String[] subPath, FtpPathResolverContext resolverContext)
+    private V3FtpFile resolvePlugins(String path, String[] subPath, FtpPathResolverContext resolverContext)
     {
         if (subPath.length == 0)
         {
