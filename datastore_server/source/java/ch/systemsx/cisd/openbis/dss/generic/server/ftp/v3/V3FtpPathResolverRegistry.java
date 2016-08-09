@@ -97,7 +97,7 @@ public class V3FtpPathResolverRegistry implements IFtpPathResolverRegistry
             }
         } catch (Exception e)
         {
-            operationLog.warn(e);
+            operationLog.warn("Resolving "+path+" failed", e);
         }
         return new V3FtpNonExistingFile(path, "Error when retrieving path");
     }

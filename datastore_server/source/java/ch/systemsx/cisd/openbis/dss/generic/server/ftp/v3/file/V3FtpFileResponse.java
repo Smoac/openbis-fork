@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.apache.ftpserver.ftplet.FtpFile;
 
+import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.HierarchicalContentUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
@@ -38,6 +39,11 @@ public class V3FtpFileResponse extends AbstractFtpFile implements V3FtpFile
         super(fullPath);
         this.node = node;
         this.content = content;
+    }
+
+    public IRandomAccessFile getFileContent()
+    {
+        return node.getFileContent();
     }
 
     @Override
