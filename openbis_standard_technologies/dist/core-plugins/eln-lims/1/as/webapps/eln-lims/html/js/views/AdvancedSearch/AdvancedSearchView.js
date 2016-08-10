@@ -314,13 +314,16 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				         { value : "ATTR.MODIFICATION_DATE", label : "Modification Date" }];
 				break;
 			case "SAMPLE":
-				model = [{ value : "ATTR.CODE", label: "Code" },
-				         { value : "ATTR.SAMPLE_TYPE", label: "" + ELNDictionary.Sample + " Type" },
-				         { value : "ATTR.PERM_ID", label: "Perm Id" },
-				         { value : "ATTR.SPACE", label: "Space" },
-//				         { value : "ATTR.METAPROJECT", label: "Tag" }, TO-DO Not supported by ELN yet
-						 { value : "ATTR.REGISTRATION_DATE", label: "Registration Date" }, 
-						 { value : "ATTR.MODIFICATION_DATE", label: "Modification Date" }];
+				model = [];
+				model.push({ value : "ATTR.CODE", label: "Code" });
+				if(!this._advancedSearchModel.isSampleTypeForced) {
+					model.push({ value : "ATTR.SAMPLE_TYPE", label: "" + ELNDictionary.Sample + " Type" });
+				}
+				model.push({ value : "ATTR.PERM_ID", label: "Perm Id" });
+				model.push({ value : "ATTR.SPACE", label: "Space" });
+//				model.push({ value : "ATTR.METAPROJECT", label: "Tag" }); //TO-DO Not supported by ELN yet
+				model.push({ value : "ATTR.REGISTRATION_DATE", label: "Registration Date" });
+				model.push({ value : "ATTR.MODIFICATION_DATE", label: "Modification Date" });
 				break;
 			case "DATASET":
 				model = [{ value : "ATTR.CODE", label : "Code" }, 
@@ -376,6 +379,9 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				_this._advancedSearchModel.criteria.rules[uuidValue].type = 'Attribute';
 				_this._advancedSearchModel.criteria.rules[uuidValue].name = 'ATTR.SAMPLE_TYPE';
 				_this._advancedSearchModel.criteria.rules[uuidValue].value = kindAndType[1];
+				_this._advancedSearchModel.isSampleTypeForced = true;
+			} else {
+				_this._advancedSearchModel.isSampleTypeForced = false;
 			}
 		});
 		
