@@ -163,9 +163,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			case "SAMPLE":
 				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
 				                    {value : "Property", label : "Property"}, 
-				                    {value : "Attribute", label : "Attribute"}, 
-				                    {value : "Experiment", label : ELNDictionary.ExperimentELN}, 
-				                    {value : "Experiment", label : ELNDictionary.ExperimentInventory}, 
+				                    {value : "Attribute", label : "Attribute"},
+				                    {value : "Experiment", label : ELNDictionary.ExperimentELN + "/" + ELNDictionary.ExperimentInventory}, 
 				                    {value : "Parent", label : "Parent"}, 
 				                    {value : "Children", label : "Children"}];
 				break;
@@ -178,7 +177,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
 				                    {value : "Property", label : "Property"}, 
 				                    {value : "Attribute", label : "Attribute"},
-				                    {value : "" + ELNDictionary.Sample + "", label : "" + ELNDictionary.Sample + ""},
+				                    {value : "Sample", label : "" + ELNDictionary.Sample + ""},
 // ELN-UI don't support this yet
 //				                    {value : "Parent", label : "Parent"}, 
 //				                    {value : "Children", label : "Children"}
@@ -208,7 +207,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				case "Attribute":
 					$newFieldNameContainer.append(_this._getNewAttributeDropdown(_this._advancedSearchModel.criteria.entityKind));
 					break;
-				case "" + ELNDictionary.Sample + "":
+				case "Sample":
 					$newFieldNameContainer.append(_this._getNewMergedDropdown(_this._advancedSearchModel.criteria.entityKind, "SAMPLE"));
 					break;
 				case "Experiment":
@@ -305,7 +304,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		switch(entityKind) {
 			case "EXPERIMENT":
 				model = [{ value : "ATTR.CODE", label : "Code" }, 
-				         { value : "ATTR.EXPERIMENT_TYPE", label : "Experiment Type" }, 
+				         { value : "ATTR.EXPERIMENT_TYPE", label :  ELNDictionary.ExperimentELN + "/" + ELNDictionary.ExperimentInventory + " Type" }, 
 				         { value : "ATTR.PERM_ID", label : "Perm Id" }, 
 				         { value : "ATTR.PROJECT", label : "Project" }, 
 				         { value : "ATTR.PROJECT_PERM_ID", label : "Project Perm Id" }, 
@@ -337,8 +336,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	this._getEntityTypeDropdown = function() {
 		var _this = this;
 		var model = [{ value : 'ALL', label : "All", selected : true },
-		             { value : 'EXPERIMENT', label : ELNDictionary.ExperimentELN },
-		             { value : 'EXPERIMENT', label : ELNDictionary.ExperimentInventory },
+		             { value : 'EXPERIMENT', label : ELNDictionary.ExperimentELN + "/" + ELNDictionary.ExperimentInventory },
 		             { value : 'SAMPLE', label : "" + ELNDictionary.Sample + "" },
 		             { value : 'DATASET', label : "Dataset" }];
 		this._advancedSearchModel.resetModel('ALL');
