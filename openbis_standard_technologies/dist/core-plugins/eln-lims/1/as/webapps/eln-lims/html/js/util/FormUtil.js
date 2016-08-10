@@ -250,7 +250,7 @@ var FormUtil = new function() {
 			$component.attr('required', '');
 		}
 		
-		$component.append($("<option>").attr('value', '').attr('selected', '').text('Select an experiment type'));
+		$component.append($("<option>").attr('value', '').attr('selected', '').text('Select a type'));
 		for(var i = 0; i < experimentTypes.length; i++) {
 			var experimentType = experimentTypes[i];
 			if(profile.isExperimentTypeHidden(experimentType.code)) {
