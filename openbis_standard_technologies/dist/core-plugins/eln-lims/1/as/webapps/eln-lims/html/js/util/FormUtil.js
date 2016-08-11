@@ -634,7 +634,7 @@ var FormUtil = new function() {
 			$component.attr('required', '');
 		}
 		
-		$component.append($("<option>").attr('value', '').attr('selected', '').text(alt));
+		$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text(alt));
 		for(var i = 0; i < terms.length; i++) {
 			$component.append($("<option>").attr('value',terms[i].code).text(terms[i].label));
 		}
