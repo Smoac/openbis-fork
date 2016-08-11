@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.ftpserver.ftplet.FtpFile;
 
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
@@ -64,6 +65,10 @@ public class Cache
     private final ITimeProvider timeProvider;
 
     private final Map<String, TimeStampedObject<V3FtpFile>> v3Responses = new HashMap<>();
+
+    private final Map<String, TimeStampedObject<IHierarchicalContent>> contents = new HashMap<>();
+
+    private final Map<String, TimeStampedObject<Boolean>> accessData = new HashMap<>();
 
     public Cache(ITimeProvider timeProvider)
     {
@@ -128,6 +133,26 @@ public class Cache
     public void putResponse(String key, V3FtpFile file)
     {
         v3Responses.put(key, timestamp(file));
+    }
+
+    public IHierarchicalContent getContent(String key)
+    {
+        return getObject(contents, key);
+    }
+
+    public void putContent(String key, IHierarchicalContent content)
+    {
+        contents.put(key, timestamp(content));
+    }
+
+    public Boolean getAccess(String dataSetCode)
+    {
+        return getObject(accessData, dataSetCode);
+    }
+
+    public void putAccess(String dataSetCode, Boolean access)
+    {
+        accessData.put(dataSetCode, timestamp(access));
     }
 
     private <T> TimeStampedObject<T> timestamp(T object)

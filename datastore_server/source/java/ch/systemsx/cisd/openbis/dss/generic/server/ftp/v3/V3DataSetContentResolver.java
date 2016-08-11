@@ -24,6 +24,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetc
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpNonExistingFile;
@@ -45,17 +46,33 @@ public class V3DataSetContentResolver implements V3Resolver
     @Override
     public V3FtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
     {
-        // this fetching of data set is for authorization purposes, as content provider doesn't check if user has access to data set
-        IDataSetId id = new DataSetPermId(dataSetCode);
-        Map<IDataSetId, DataSet> dataSets =
-                context.getV3Api().getDataSets(context.getSessionToken(), Collections.singletonList(id), new DataSetFetchOptions());
+        Cache cache = context.getCache();
 
-        if (dataSets.get(id) == null)
+        Boolean hasAccess = cache.getAccess(dataSetCode);
+        if (hasAccess == null)
+        {
+
+            // this fetching of data set is for authorization purposes, as content provider doesn't check if user has access to data set
+            IDataSetId id = new DataSetPermId(dataSetCode);
+            Map<IDataSetId, DataSet> dataSets =
+                    context.getV3Api().getDataSets(context.getSessionToken(), Collections.singletonList(id), new DataSetFetchOptions());
+
+            hasAccess = dataSets.containsKey(id);
+            cache.putAccess(dataSetCode, hasAccess);
+        }
+
+        if (hasAccess.booleanValue() == false)
         {
             return new V3FtpNonExistingFile(fullPath, "Path doesn't exist or unauthorized");
         }
 
-        IHierarchicalContent content = context.getContentProvider().asContent(dataSetCode);
+        IHierarchicalContent content = cache.getContent(dataSetCode);
+        if (content == null)
+        {
+            content = context.getContentProvider().asContentWithoutModifyingAccessTimestamp(dataSetCode);
+            cache.putContent(dataSetCode, content);
+        }
+
         V3HierarchicalContentResolver resolver = new V3HierarchicalContentResolver(content);
         return resolver.resolve(fullPath, subPath, context);
     }

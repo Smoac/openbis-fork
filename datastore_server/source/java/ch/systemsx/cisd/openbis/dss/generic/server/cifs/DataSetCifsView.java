@@ -30,6 +30,7 @@ import org.alfresco.jlan.server.filesys.DiskInterface;
 import org.alfresco.jlan.server.filesys.FileAttribute;
 import org.alfresco.jlan.server.filesys.FileInfo;
 import org.alfresco.jlan.server.filesys.FileName;
+import org.alfresco.jlan.server.filesys.FileOfflineException;
 import org.alfresco.jlan.server.filesys.FileOpenParams;
 import org.alfresco.jlan.server.filesys.FileStatus;
 import org.alfresco.jlan.server.filesys.NetworkFile;
@@ -226,12 +227,18 @@ public class DataSetCifsView implements DiskInterface
         }
         operationLog.debug("Read from virtual file '" + file.getFullName() + "' at position " + filePos + " "
                 + size + " bytes into the buffer of size " + buf.length + " at position " + bufPos + ".");
-        int rdlen = file.readFile(buf, size, bufPos, filePos);
-        if (rdlen == -1)
+        try
         {
-            rdlen = 0;
+            int rdlen = file.readFile(buf, size, bufPos, filePos);
+            if (rdlen == -1)
+            {
+                rdlen = 0;
+            }
+            return rdlen;
+        } catch (RuntimeException e)
+        {
+            throw new FileOfflineException();
         }
-        return rdlen;
     }
 
     @Override

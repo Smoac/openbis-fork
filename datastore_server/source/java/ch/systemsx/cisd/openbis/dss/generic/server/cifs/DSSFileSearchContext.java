@@ -40,7 +40,7 @@ public class DSSFileSearchContext extends SearchContext
 
     private int index;
 
-    public DSSFileSearchContext(DSSFileSystemView view, String normalizedSearchPath, int fileAttributes, 
+    public DSSFileSearchContext(DSSFileSystemView view, String normalizedSearchPath, int fileAttributes,
             Cache cache) throws FileNotFoundException
     {
         String[] pathStr = FileName.splitPath(normalizedSearchPath, java.io.File.separatorChar);
@@ -77,7 +77,7 @@ public class DSSFileSearchContext extends SearchContext
         FtpFile file = view.getFile(path, cache);
         if (file instanceof NonExistingFtpFile)
         {
-            throw new FtpException(file.getAbsolutePath() + " doesn't exist. Reason: " 
+            throw new FtpException(file.getAbsolutePath() + " doesn't exist. Reason: "
                     + ((NonExistingFtpFile) file).getErrorMessage());
         }
         return file;
@@ -114,8 +114,6 @@ public class DSSFileSearchContext extends SearchContext
     @Override
     public String nextFileName()
     {
-        System.out.println("DSSFileSearchContext.nextFileName()");
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -133,8 +131,6 @@ public class DSSFileSearchContext extends SearchContext
     @Override
     public boolean restartAt(FileInfo info)
     {
-        System.out.println("DSSFileSearchContext.restartAt() "+info);
-        // TODO Auto-generated method stub
         return false;
     }
 
