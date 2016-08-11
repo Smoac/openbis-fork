@@ -140,7 +140,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	this._getLoadedSampleTypesDropdown = function() {
 		var _this = this;
 		var	$sampleTypesSelector = $('<select>', { 'id' : 'sampleTypeCodesToShow', class : 'form-control' });
-		$sampleTypesSelector.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select a " + ELNDictionary.sample + " type"));
+		$sampleTypesSelector.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select an " + ELNDictionary.sample + " type"));
 		for(sampleTypeCode in this._sampleTableModel.sampleTypes) {
 			$sampleTypesSelector.append($('<option>', { 'value' : sampleTypeCode }).text(sampleTypeCode));
 		}

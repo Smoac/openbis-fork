@@ -584,6 +584,12 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					
 					//properties
 					rowData.entityKind = entity["@type"].substring(entity["@type"].lastIndexOf(".") + 1, entity["@type"].length);
+					if(rowData.entityKind === "Sample") {
+						rowData.entityKind = ELNDictionary.Sample;
+					} else if(rowData.entityKind === "Experiment") {
+						rowData.entityKind = ELNDictionary.getExperimentKindName(entity.identifier.identifier);
+					}
+					
 					if(entity.experiment) {
 						rowData.experiment = entity.experiment.code;
 					}

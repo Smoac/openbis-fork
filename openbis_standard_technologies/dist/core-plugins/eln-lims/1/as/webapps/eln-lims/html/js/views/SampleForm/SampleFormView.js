@@ -582,7 +582,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		$formColumn.append($("<legend>").append("Identification Info"));
 		$formColumn.append(FormUtil.getFieldForLabelWithText("Type", this._sampleFormModel.sample.sampleTypeCode));
-		$formColumn.append(FormUtil.getFieldForLabelWithText("Experiment", this._sampleFormModel.sample.experimentIdentifierOrNull));
+		$formColumn.append(FormUtil.getFieldForLabelWithText(ELNDictionary.getExperimentKindName("/" + this._sampleFormModel.sample.spaceCode), this._sampleFormModel.sample.experimentIdentifierOrNull));
 		
 		//
 		// Identification Info - Code

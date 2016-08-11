@@ -143,7 +143,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			$dataSetTypeFieldSet.append($dataSetCodeLabel);
 		}
 		
-		var ownerName = "Sample";
+		var ownerName = ELNDictionary.Sample;
 		var owner = this._dataSetFormModel.sample.identifier;
 		if(this._dataSetFormModel.sample.experimentIdentifierOrNull) {
 			owner = this._dataSetFormModel.sample.experimentIdentifierOrNull + "/" + this._dataSetFormModel.sample.code;

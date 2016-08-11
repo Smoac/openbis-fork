@@ -146,7 +146,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		
 		//Sample List Container
 		if(this._experimentFormModel.mode !== FormMode.CREATE) {
-			$formColumn.append($("<legend>").append("Samples"));
+			$formColumn.append($("<legend>").append(ELNDictionary.Samples));
 			var sampleListContainer = $("<div>");
 			$formColumn.append(sampleListContainer);
 			var sampleList = new SampleTableController(this._experimentFormController, null, this._experimentFormModel.experiment.identifier, null, null, this._experimentFormModel.experiment);
