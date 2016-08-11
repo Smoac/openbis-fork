@@ -404,6 +404,16 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 		
 		} 
 		
+		this.sampleFormOnSubmit = function(sample) {
+			if(sample.sampleTypeCode === "ORDER") {
+				var orderStatus = sample.properties["ORDER_STATUS"];
+				if(orderStatus === "ORDERED") {
+					delete sample.properties["ORDER_STATE"];
+					sample.properties["ORDER_STATE"] = window.btoa(JSON.stringify(sample));
+				}
+			}
+		}
+		
 		this.sampleFormContentExtra = function(sampleTypeCode, sample, containerId) {
 			if(sampleTypeCode === "EXPERIMENTAL_STEP") {
 				var isEnabled = mainController.currentView._sampleFormModel.mode !== FormMode.VIEW;
@@ -411,11 +421,17 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				freeFormTableController.init($("#" + containerId));
 			} else if(sampleTypeCode === "ORDER") {
 				var isExisting = mainController.currentView._sampleFormModel.mode === FormMode.VIEW;
+				var isFromState = false;
 				if(isExisting) {
 					//
 					// Data Structures to Help the reports functionality
 					//
 					var order = mainController.currentView._sampleFormModel.sample;
+					if(order.properties["ORDER_STATE"]) {
+						isFromState = true;
+						order = JSON.parse(window.atob(order.properties["ORDER_STATE"]));
+					}
+					
 					var requests = order.parents;
 					var providerByPermId = {};
 					var productsByProviderPermId = {};
@@ -617,7 +633,12 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					};
 					
 					var orderSummaryContainer = $("<div>");
-					var orderSummary = new DataGridController("Order Summary", columns, getDataRows, null, false, "ORDER_SUMMARY");
+					var repTitle = "Order Summary";
+					if(isFromState) {
+						repTitle += " (as saved when ordered)"
+					}
+					
+					var orderSummary = new DataGridController(repTitle, columns, getDataRows, null, false, "ORDER_SUMMARY");
 					orderSummary.init(orderSummaryContainer);
 					
 					var totalsByCurrencyContainer = $("<div>").append($("<br>")).append($("<legend>").append("Total:"));

@@ -383,6 +383,12 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		/*
+		 * Modifies sample before submit
+		 */
+		this.sampleFormOnSubmit = function(sample) {			
+		}
+
+		/*
 		 * Returns a Jquery component that is appended at the end of the form before the data set viewer
 		 */
 		this.sampleFormContentExtra = function(sampleTypeCode, sample, containerId) {

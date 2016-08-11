@@ -153,6 +153,10 @@ function SampleFormController(mainController, mode, sample) {
 			return;
 		}
 		
+		//On Submit
+		sample.parents = this._sampleFormModel.sampleLinksParents.getSamples();
+		profile.sampleFormOnSubmit(sample);
+		
 		//
 		//Identification Info
 		//

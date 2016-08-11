@@ -478,7 +478,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				continue;
 			}
 			
-			if(propertyType.code === "ANNOTATIONS_STATE" || propertyType.code === "FREEFORM_TABLE_STATE") {
+			if(propertyType.code === "ANNOTATIONS_STATE" || propertyType.code === "FREEFORM_TABLE_STATE" || propertyType.code === "ORDER_STATE" ) {
 				continue;
 			} else if(propertyType.code === "XMLCOMMENTS") {
 				var $commentsContainer = $("<div>");

@@ -87,7 +87,13 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 	}
 	
 	this.addSample = function(sample) {
-		linksView.updateSample(sample, true);
+		Util.blockUI();
+		mainController.serverFacade.searchWithIdentifiers([sample.identifier], function(results) {
+			if(results.length > 0) {
+				linksView.updateSample(results[0], true);
+				Util.unblockUI();
+			}
+		});
 	}
 	
 	this.getSamples = function() {
