@@ -352,6 +352,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 						$component = FormUtil.activateRichTextProperties($component, changeEvent(propertyType));
 					} else if(propertyType.dataType === "TIMESTAMP") {
 						$component.on("dp.change", changeEvent(propertyType));
+						$component.change(changeEvent(propertyType));
 					} else {
 						$component.change(changeEvent(propertyType));
 					}

@@ -693,12 +693,13 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 	if sampleProperties != None:
 		properties = getProperties(tr, parameters);
 		for key in sampleProperties.keySet():
-			propertyValue = sampleProperties[key];
+			propertyValue = unicode(sampleProperties[key]);
 			if propertyValue == "":
 				propertyValue = None;
 			else:
 				propertyValue = updateIfIsPropertyRichText(properties, key, propertyValue);
-			sample.setPropertyValue(key, unicode(propertyValue));
+			sample.setPropertyValue(key, propertyValue);
+			
 	#Add sample parents
 	if sampleParents != None:
 		sample.setParentSampleIdentifiers(sampleParents);
