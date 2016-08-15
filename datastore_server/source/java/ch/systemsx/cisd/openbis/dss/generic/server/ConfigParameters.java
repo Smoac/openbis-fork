@@ -157,9 +157,7 @@ public final class ConfigParameters implements IServletPropertiesManager
         dssRecoveryStateDir = DssPropertyParametersUtil.getDssRecoveryStateDir(properties);
         port = getMandatoryIntegerProperty(properties, PORT_KEY);
         serverURL = PropertyUtils.getMandatoryProperty(properties, SERVER_URL_KEY);
-
-        downloadURL = PropertyUtils.getProperty(properties, DOWNLOAD_URL, "");
-
+        downloadURL = PropertyUtils.getMandatoryProperty(properties, DOWNLOAD_URL);
         sessionTimeout = getMandatoryIntegerProperty(properties, SESSION_TIMEOUT_KEY) * 60;
         serverTimeoutInMinutes =
                 PropertyUtils.getInt(properties, SERVER_TIMEOUT_IN_MINUTES,
