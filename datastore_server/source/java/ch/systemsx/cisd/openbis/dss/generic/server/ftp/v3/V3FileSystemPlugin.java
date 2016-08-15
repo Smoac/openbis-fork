@@ -25,15 +25,18 @@ public class V3FileSystemPlugin
 
     public final Class<?> pluginResolverClass;
 
-    public V3FileSystemPlugin(String pluginCode, Class<?> pluginResolverClass)
+    private final String pluginName;
+
+    public V3FileSystemPlugin(String pluginName, String pluginCode, Class<?> pluginResolverClass)
     {
+        this.pluginName = pluginName;
         this.pluginCode = pluginCode;
         this.pluginResolverClass = pluginResolverClass;
         try
         {
             // cast to test if the instantiation can be done and is creating an object of a proper type
             @SuppressWarnings("unused")
-            V3Resolver result = (V3Resolver) pluginResolverClass.newInstance();
+            V3ResolverPlugin result = (V3ResolverPlugin) pluginResolverClass.newInstance();
         } catch (InstantiationException | IllegalAccessException ex)
         {
             throw new IllegalStateException("Couldn't instantiate object of type " + pluginResolverClass);
@@ -45,11 +48,13 @@ public class V3FileSystemPlugin
         return pluginCode;
     }
 
-    public V3Resolver getPluginResolver()
+    public V3ResolverPlugin getPluginResolver()
     {
         try
         {
-            return (V3Resolver) pluginResolverClass.newInstance();
+            V3ResolverPlugin plugin = (V3ResolverPlugin) pluginResolverClass.newInstance();
+            plugin.initialize(pluginName, pluginCode);
+            return plugin;
         } catch (InstantiationException | IllegalAccessException ex)
         {
             // this should be impossible as before creating this the check should have already been done.

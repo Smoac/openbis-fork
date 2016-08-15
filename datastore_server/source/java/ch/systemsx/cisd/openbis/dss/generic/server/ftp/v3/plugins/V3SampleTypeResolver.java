@@ -31,7 +31,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriter
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.V3DataSetContentResolver;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.V3Resolver;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.V3ResolverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
 
@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
  * 
  * @author Jakub Straszewski
  */
-public class V3SampleTypeResolver implements V3Resolver
+public class V3SampleTypeResolver implements V3ResolverPlugin
 {
     @Override
     public V3FtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
@@ -123,6 +123,11 @@ public class V3SampleTypeResolver implements V3Resolver
             response.addDirectory(type.getCode());
         }
         return response;
+    }
+
+    @Override
+    public void initialize(String name, String code)
+    {
     }
 
 }

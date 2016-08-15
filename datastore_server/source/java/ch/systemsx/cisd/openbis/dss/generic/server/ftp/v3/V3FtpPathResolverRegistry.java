@@ -66,7 +66,7 @@ public class V3FtpPathResolverRegistry implements IFtpPathResolverRegistry
                 try
                 {
                     Class<?> clazz = Class.forName(className);
-                    plugins.add(new V3FileSystemPlugin(code, clazz));
+                    plugins.add(new V3FileSystemPlugin(pluginName, code, clazz));
                 } catch (ClassNotFoundException ex)
                 {
                     throw new ConfigurationFailureException("Couldn't load class for file system plugin");
@@ -141,7 +141,7 @@ public class V3FtpPathResolverRegistry implements IFtpPathResolverRegistry
             String[] remaining = Arrays.copyOfRange(subPath, 1, subPath.length);
             if (subPath[0].equals("DEFAULT"))
             {
-                return resolveDefault(path, resolverContext, subPath);
+                return resolveDefault(path, resolverContext, remaining);
             } else
             {
                 for (V3FileSystemPlugin plugin : plugins)
