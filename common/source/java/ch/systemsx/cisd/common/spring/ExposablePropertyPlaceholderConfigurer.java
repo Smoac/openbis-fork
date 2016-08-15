@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.common.spring;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
 
 import org.springframework.beans.BeansException;
@@ -72,6 +74,11 @@ public class ExposablePropertyPlaceholderConfigurer extends PropertyPlaceholderC
         super.setSystemPropertiesMode(systemPropertiesMode);
     }
 
+    public Map<String, String> getDefaultValuesForMissingProperties()
+    {
+        return new HashMap<String, String>();
+    }
+
     @Override
     protected final void processProperties(
             final ConfigurableListableBeanFactory beanFactoryToProcess, final Properties props)
@@ -83,6 +90,16 @@ public class ExposablePropertyPlaceholderConfigurer extends PropertyPlaceholderC
             final String keyStr = key.toString();
             resolvedProps.setProperty(keyStr, getResolvedProperty(props, keyStr));
         }
+
+        Map<String, String> defaultValues = getDefaultValuesForMissingProperties();
+        for (String key : defaultValues.keySet())
+        {
+            if (resolvedProps.containsKey(key) == false)
+            {
+                resolvedProps.setProperty(key, defaultValues.get(key));
+            }
+        }
+
         injectPropertiesInto(resolvedProps);
         super.processProperties(beanFactoryToProcess, resolvedProps);
     }
