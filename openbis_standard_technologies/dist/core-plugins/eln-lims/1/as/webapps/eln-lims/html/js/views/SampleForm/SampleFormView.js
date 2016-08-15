@@ -25,7 +25,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var _this = this;
 		$container.empty();
 		
-		var $form = $("<span>", { "class" : "row col-md-8"});
+		var columnWith = 12;
+		if(this._sampleFormModel.mode === FormMode.VIEW) {
+			columnWith = 8;
+		}
+
+		var $form = $("<span>", { "class" : "row col-md-" + columnWith});
 		
 		var $formColumn = $("<form>", {
 			"class" : "form-horizontal form-panel-one", 
@@ -34,28 +39,32 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			'onsubmit' : 'mainController.currentView.createUpdateCopySample();'
 		});
 		
-		var $rightPanel = $("<span>", { "class" : "row col-md-4 form-panel-two", "style" : "margin-left:20px; margin-top:20px;"});
-		
+		var $rightPanel = null;
+		if(this._sampleFormModel.mode === FormMode.VIEW) {
+			$rightPanel = $("<span>", { "class" : "row col-md-4 form-panel-two", "style" : "margin-left:20px; margin-top:20px;"});
+		}
 		//
-		var windowScrollManager = function($form, $rightPanel) {
-			return function() {
-				if($(window).width() > 1024) { //Min Desktop resolution
-					var scrollablePanelCss = {'min-height' : $(window).height() + 'px', 'max-height' : $(window).height() + 'px' };
-					$("body").css("overflow", "hidden");
-					$formColumn.css(scrollablePanelCss);
-					$rightPanel.css(scrollablePanelCss);
-				} else {
-					var normalPanelCss = {'min-height' : 'initial', 'max-height' : 'initial' };
-					$("body").css("overflow", "auto");
-					$formColumn.css(normalPanelCss);
-					$rightPanel.css(normalPanelCss);
+		if($rightPanel) {
+			var windowScrollManager = function($form, $rightPanel) {
+				return function() {
+					if($(window).width() > 1024) { //Min Desktop resolution
+						var scrollablePanelCss = {'min-height' : $(window).height() + 'px', 'max-height' : $(window).height() + 'px' };
+						$("body").css("overflow", "hidden");
+						$formColumn.css(scrollablePanelCss);
+						$rightPanel.css(scrollablePanelCss);
+					} else {
+						var normalPanelCss = {'min-height' : 'initial', 'max-height' : 'initial' };
+						$("body").css("overflow", "auto");
+						$formColumn.css(normalPanelCss);
+						$rightPanel.css(normalPanelCss);
+					}
 				}
 			}
+			windowScrollManager = windowScrollManager($form, $rightPanel);
+			$(window).resize(windowScrollManager);
+			this._sampleFormController._windowHandlers.push(windowScrollManager);
+			$(window).resize();
 		}
-		windowScrollManager = windowScrollManager($form, $rightPanel);
-		$(window).resize(windowScrollManager);
-		this._sampleFormController._windowHandlers.push(windowScrollManager);
-		$(window).resize();
 		//
 		
 		$form.append($formColumn);
@@ -236,13 +245,11 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				Util.showImage($("#preview-image").attr("src"));
 			});
 			
-			if($(window).width() > 1024) { //Min Desktop resolution
+			if($rightPanel && $(window).width() > 1024) { //Min Desktop resolution
 				$rightPanel.append($previewImage);
 			} else {
 				$formColumn.append($previewImage);
 			}
-			
-			
 		}
 		
 		//
@@ -360,13 +367,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		}
 		
 		//
-		// Identification Info on View/Edit
-		//
-		if(this._sampleFormModel.mode !== FormMode.CREATE && (!sampleTypeDefinitionsExtension || !sampleTypeDefinitionsExtension["SAMPLE_INFO_DISABLED_AFTER_CREATE"])) {
-			this._paintIdentificationInfo($formColumn);
-		}
-		
-		//
 		// Storage
 		//
 		if(isStorageAvailable) {
@@ -381,6 +381,13 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// Extra Content
 		//
 		$formColumn.append($("<div>", { 'id' : 'sample-form-content-extra' }));
+		
+		//
+		// Identification Info on View/Edit
+		//
+		if(this._sampleFormModel.mode !== FormMode.CREATE) {
+			this._paintIdentificationInfo($formColumn);
+		}
 		
 		//
 		// FORM SUBMIT
@@ -404,13 +411,20 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// DATASETS
 		//
-		
 		var $dataSetViewerContainer = $("<div>", { 'id' : 'dataSetViewerContainer', 'style' : 'margin-top:10px;'});
-		$rightPanel.append($dataSetViewerContainer);
-
-		if(this._sampleFormModel.mode !== FormMode.CREATE) {
+		if($rightPanel) {
+			$rightPanel.append($dataSetViewerContainer);
+		} else {
+			$formColumn.append($dataSetViewerContainer);
+		}
+		
+		if(this._sampleFormModel.mode === FormMode.VIEW) {
 			var $inlineDataSetForm = $("<div>");
-			$rightPanel.append($inlineDataSetForm);
+			if($rightPanel) {
+				$rightPanel.append($inlineDataSetForm);
+			} else {
+				$formColumn.append($inlineDataSetForm);
+			}
 			var $dataSetFormController = new DataSetFormController(this, FormMode.CREATE, this._sampleFormModel.sample, null, true);
 			$dataSetFormController.init($inlineDataSetForm);
 		}
@@ -419,6 +433,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// INIT
 		//
 		$container.append($form).append($rightPanel);
+		if($rightPanel) {
+			$container.append($rightPanel);
+		}
 		
 		//
 		// Extra content

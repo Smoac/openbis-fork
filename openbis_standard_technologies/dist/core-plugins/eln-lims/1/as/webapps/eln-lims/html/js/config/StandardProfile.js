@@ -280,7 +280,6 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					}]
 				},
 				"ORDER" : {
-					"SAMPLE_INFO_DISABLED_AFTER_CREATE" : true,
 					"SAMPLE_PARENTS_TITLE" : "Requests",
 					"SAMPLE_PARENTS_ANY_TYPE_DISABLED" : true,
 					"SAMPLE_CHILDREN_DISABLED" : true,
@@ -646,6 +645,12 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 						totalsByCurrencyContainer.append(absoluteTotalByCurrency[currency] + " " + currency).append($("<br>"));
 					}
 					$("#" + containerId).append(orderSummaryContainer).append(totalsByCurrencyContainer).append($("<br>")).append(printOrder);
+				}
+			} else if(sampleTypeCode === "REQUEST") {
+				var isEnabled = mainController.currentView._sampleFormModel.mode === FormMode.CREATE;
+				if(isEnabled) {
+					var $newProductsController = new NewProductsController();
+						$newProductsController.init($("#" + containerId));
 				}
 			}
 		}
