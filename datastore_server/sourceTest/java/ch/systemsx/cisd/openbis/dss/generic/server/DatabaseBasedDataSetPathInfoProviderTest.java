@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -31,6 +32,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.dss.generic.server.DatabaseBasedDataSetPathInfoProvider.DataSetFileRecord;
+import ch.systemsx.cisd.openbis.dss.generic.server.DatabaseBasedDataSetPathInfoProvider.ExtendedDataSetFileRecord;
 import ch.systemsx.cisd.openbis.dss.generic.server.DatabaseBasedDataSetPathInfoProvider.IPathInfoDAO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
@@ -181,6 +183,50 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
 
         List<DataSetPathInfo> list =
                 pathInfoProvider.listPathInfosByRegularExpression("ds-1", regex);
+        sort(list);
+        check("dir", "dir", true, 53, list.get(0));
+        check("dir/text.txt", "text.txt", false, 23, list.get(1));
+        assertEquals(2, list.size());
+    }
+
+    @Test
+    public void testListPathInfosByRegularExpression()
+    {
+        final String regex = "(blabla|blabla)";
+        final ExtendedDataSetFileRecord r1 = recordExtended(1, "ds-1", 2L, "dir/text.txt", "text.txt", 23, false);
+        final ExtendedDataSetFileRecord r2 = recordExtended(2, "ds-1", null, "dir", "dir", 53, true);
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).listFilesByRelativePathRegex("^(blabla|blabla)$");
+                    will(returnValue(Arrays.asList(r1, r2)));
+                }
+            });
+
+        Map<String, List<DataSetPathInfo>> map = pathInfoProvider.listPathInfosByRegularExpression(regex);
+        List<DataSetPathInfo> list = map.get("ds-1");
+        sort(list);
+        check("dir", "dir", true, 53, list.get(0));
+        check("dir/text.txt", "text.txt", false, 23, list.get(1));
+        assertEquals(2, list.size());
+    }
+
+    @Test
+    public void testListPathInfosByPathLikeExpression()
+    {
+        final String regex = "blabla";
+        final ExtendedDataSetFileRecord r1 = recordExtended(1, "ds-1", 2L, "dir/text.txt", "text.txt", 23, false);
+        final ExtendedDataSetFileRecord r2 = recordExtended(2, "ds-1", null, "dir", "dir", 53, true);
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).listFilesByRelativePathLikeExpression("blabla");
+                    will(returnValue(Arrays.asList(r1, r2)));
+                }
+            });
+
+        Map<String, List<DataSetPathInfo>> map = pathInfoProvider.listPathInfosByRegularExpression(regex);
+        List<DataSetPathInfo> list = map.get("ds-1");
         sort(list);
         check("dir", "dir", true, 53, list.get(0));
         check("dir/text.txt", "text.txt", false, 23, list.get(1));
@@ -418,6 +464,21 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
         {
             assertSame(info, child.getParent());
         }
+    }
+
+    private DatabaseBasedDataSetPathInfoProvider.ExtendedDataSetFileRecord recordExtended(long id, String code, Long parentId,
+            String relativePath, String fileName, long size, boolean directory)
+    {
+        DatabaseBasedDataSetPathInfoProvider.ExtendedDataSetFileRecord record =
+                new DatabaseBasedDataSetPathInfoProvider.ExtendedDataSetFileRecord();
+        record.id = id;
+        record.code = code;
+        record.parent_id = parentId;
+        record.file_name = fileName;
+        record.relative_path = relativePath;
+        record.size_in_bytes = size;
+        record.is_directory = directory;
+        return record;
     }
 
     private DatabaseBasedDataSetPathInfoProvider.DataSetFileRecord record(long id, Long parentId,
