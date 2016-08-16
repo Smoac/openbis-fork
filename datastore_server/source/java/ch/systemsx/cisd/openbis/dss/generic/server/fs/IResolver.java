@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file;
+package ch.systemsx.cisd.openbis.dss.generic.server.fs;
 
-import org.apache.ftpserver.ftplet.FtpFile;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 
-public interface V3FtpFile extends FtpFile
+public interface IResolver
 {
-
+    /**
+     * Create a ftp file which has specified full path, resolving the local path specified as an array of path items.
+     */
+    IFtpFile resolve(String fullPath, String[] pathItems, FtpPathResolverContext resolverContext);
 }

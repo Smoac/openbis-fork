@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3;
+package ch.systemsx.cisd.openbis.dss.generic.server.fs;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,22 +26,22 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpDirectoryResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpNonExistingFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpNonExistingFile;
 
-class V3ProjectLevelResolver implements V3Resolver
+class ProjectLevelResolver implements IResolver
 {
     private ProjectIdentifier projectIdentifier;
 
-    public V3ProjectLevelResolver(String spaceCode, String projectCode)
+    public ProjectLevelResolver(String spaceCode, String projectCode)
     {
         this.projectIdentifier = new ProjectIdentifier(spaceCode, projectCode);
     }
 
     @Override
-    public V3FtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
+    public IFtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
     {
         if (subPath.length == 0)
         {
@@ -52,10 +52,10 @@ class V3ProjectLevelResolver implements V3Resolver
                     context.getV3Api().getProjects(context.getSessionToken(), Collections.singletonList(projectIdentifier), fetchOptions);
             Project project = projects.get(projectIdentifier);
 
-            V3FtpDirectoryResponse response = new V3FtpDirectoryResponse(fullPath);
+            FtpDirectoryResponse response = new FtpDirectoryResponse(fullPath);
             if (project == null)
             {
-                return new V3FtpNonExistingFile(fullPath, null);
+                return new FtpNonExistingFile(fullPath, null);
             }
             for (Experiment exp : project.getExperiments())
             {
@@ -66,8 +66,8 @@ class V3ProjectLevelResolver implements V3Resolver
         {
             String item = subPath[0];
             String[] remaining = Arrays.copyOfRange(subPath, 1, subPath.length);
-            V3ExperimentLevelResolver resolver =
-                    new V3ExperimentLevelResolver(new ExperimentIdentifier(projectIdentifier.getIdentifier() + "/" + item));
+            ExperimentLevelResolver resolver =
+                    new ExperimentLevelResolver(new ExperimentIdentifier(projectIdentifier.getIdentifier() + "/" + item));
             return resolver.resolve(fullPath, remaining, context);
         }
     }

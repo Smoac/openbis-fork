@@ -24,7 +24,7 @@ import org.apache.ftpserver.ftplet.FtpFile;
 
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -64,7 +64,7 @@ public class Cache
 
     private final ITimeProvider timeProvider;
 
-    private final Map<String, TimeStampedObject<V3FtpFile>> v3Responses = new HashMap<>();
+    private final Map<String, TimeStampedObject<IFtpFile>> v3Responses = new HashMap<>();
 
     private final Map<String, TimeStampedObject<IHierarchicalContent>> contents = new HashMap<>();
 
@@ -75,62 +75,62 @@ public class Cache
         this.timeProvider = timeProvider;
     }
 
-    void putFile(FtpFile file, String path)
+    public void putFile(FtpFile file, String path)
     {
         filesByPath.put(path, timestamp(file));
     }
 
-    FtpFile getFile(String path)
+    public FtpFile getFile(String path)
     {
         return getObject(filesByPath, path);
     }
 
-    void putDataSetsForExperiment(List<AbstractExternalData> dataSets, String experimentPermId)
+    public void putDataSetsForExperiment(List<AbstractExternalData> dataSets, String experimentPermId)
     {
         dataSetsByExperiment.put(experimentPermId, timestamp(dataSets));
     }
 
-    List<AbstractExternalData> getDataSetsByExperiment(String experimentPermId)
+    public List<AbstractExternalData> getDataSetsByExperiment(String experimentPermId)
     {
         return getObject(dataSetsByExperiment, experimentPermId);
     }
 
-    void putDataSet(DataSet dataSet)
+    public void putDataSet(DataSet dataSet)
     {
         dataSetsByCode.put(dataSet.getCode(), timestamp(dataSet));
     }
 
-    DataSet getDataSet(String dataSetCode)
+    public DataSet getDataSet(String dataSetCode)
     {
         return getObject(dataSetsByCode, dataSetCode);
     }
 
-    AbstractExternalData getExternalData(String code)
+    public AbstractExternalData getExternalData(String code)
     {
         return getObject(externalData, code);
     }
 
-    void putExternalData(AbstractExternalData dataSet)
+    public void putExternalData(AbstractExternalData dataSet)
     {
         externalData.put(dataSet.getCode(), timestamp(dataSet));
     }
 
-    Experiment getExperiment(String experimentId)
+    public Experiment getExperiment(String experimentId)
     {
         return getObject(experiments, experimentId);
     }
 
-    void putExperiment(Experiment experiment)
+    public void putExperiment(Experiment experiment)
     {
         experiments.put(experiment.getIdentifier(), timestamp(experiment));
     }
 
-    public V3FtpFile getResponse(String key)
+    public IFtpFile getResponse(String key)
     {
         return getObject(v3Responses, key);
     }
 
-    public void putResponse(String key, V3FtpFile file)
+    public void putResponse(String key, IFtpFile file)
     {
         v3Responses.put(key, timestamp(file));
     }

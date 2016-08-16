@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3;
+package ch.systemsx.cisd.openbis.dss.generic.server.fs;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,22 +26,22 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOpt
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpDirectoryResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpNonExistingFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpNonExistingFile;
 
-class V3SpaceLevelResolver implements V3Resolver
+class SpaceLevelResolver implements IResolver
 {
     String spaceCode;
 
-    public V3SpaceLevelResolver(String spaceCode)
+    public SpaceLevelResolver(String spaceCode)
     {
         this.spaceCode = spaceCode;
     }
 
     @Override
-    public V3FtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
+    public IFtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
     {
         if (subPath.length == 0)
         {
@@ -59,10 +59,10 @@ class V3SpaceLevelResolver implements V3Resolver
 
             if (space == null)
             {
-                return new V3FtpNonExistingFile(fullPath, null);
+                return new FtpNonExistingFile(fullPath, null);
             }
 
-            V3FtpDirectoryResponse response = new V3FtpDirectoryResponse(fullPath);
+            FtpDirectoryResponse response = new FtpDirectoryResponse(fullPath);
             for (Project project : space.getProjects())
             {
                 response.addDirectory(project.getCode());
@@ -72,7 +72,7 @@ class V3SpaceLevelResolver implements V3Resolver
         {
             String item = subPath[0];
             String[] remaining = Arrays.copyOfRange(subPath, 1, subPath.length);
-            V3ProjectLevelResolver resolver = new V3ProjectLevelResolver(spaceCode, item);
+            ProjectLevelResolver resolver = new ProjectLevelResolver(spaceCode, item);
             return resolver.resolve(fullPath, remaining, context);
         }
     }

@@ -1,4 +1,20 @@
-package ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.plugins;
+/*
+ * Copyright 2016 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.dss.generic.server.fs.plugins;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,13 +23,13 @@ import ch.systemsx.cisd.common.jython.JythonUtils;
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
 import ch.systemsx.cisd.common.jython.evaluator.IJythonEvaluator;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.IResolverPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpNonExistingFile;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.V3ResolverPlugin;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpNonExistingFile;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 
-public class JythonResolver implements V3ResolverPlugin
+public class JythonResolver implements IResolverPlugin
 {
 
     private static Map<String, IJythonEvaluator> interpreters = new HashMap<>();
@@ -27,20 +43,20 @@ public class JythonResolver implements V3ResolverPlugin
     private String pluginName;
 
     @Override
-    public V3FtpFile resolve(String fullPath, String[] pathItems, FtpPathResolverContext resolverContext)
+    public IFtpFile resolve(String fullPath, String[] pathItems, FtpPathResolverContext resolverContext)
     {
         if (fullPath.startsWith("/" + code))
         {
-            String shortPath = fullPath.substring(code.length() + 1);
-            if (shortPath.startsWith("/"))
+            String path = fullPath.substring(code.length() + 1);
+            if (path.startsWith("/"))
             {
-                shortPath = shortPath.substring(1);
+                path = path.substring(1);
             }
-            Object result = interpreter.evalFunction(RESOLVE_FUNCTION_NAME, shortPath, fullPath, resolverContext);
-            return (V3FtpFile) result;
+            Object result = interpreter.evalFunction(RESOLVE_FUNCTION_NAME, path, fullPath, resolverContext);
+            return (IFtpFile) result;
         } else
         {
-            return new V3FtpNonExistingFile(fullPath, "invalid request to plugin " + pluginName + ": " + fullPath);
+            return new FtpNonExistingFile(fullPath, "invalid request to plugin " + pluginName + ": " + fullPath);
         }
     }
 

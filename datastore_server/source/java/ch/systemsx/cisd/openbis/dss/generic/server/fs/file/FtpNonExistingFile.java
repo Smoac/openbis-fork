@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file;
+package ch.systemsx.cisd.openbis.dss.generic.server.fs.file;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.NonExistingFtpFile;
 
-public class V3FtpNonExistingFile extends NonExistingFtpFile implements V3FtpFile
+public class FtpNonExistingFile extends NonExistingFtpFile implements IFtpFile
 {
-    public V3FtpNonExistingFile(String path, String errorMsgOrNull)
+    public FtpNonExistingFile(String path, String errorMsgOrNull)
     {
         super(path, errorMsgOrNull);
     }

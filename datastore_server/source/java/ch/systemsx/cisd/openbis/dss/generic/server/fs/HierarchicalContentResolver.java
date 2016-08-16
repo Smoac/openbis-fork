@@ -14,29 +14,29 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3;
+package ch.systemsx.cisd.openbis.dss.generic.server.fs;
 
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpDirectoryResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpFileResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpNonExistingFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFileResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpNonExistingFile;
 
-class V3HierarchicalContentResolver implements V3Resolver
+class HierarchicalContentResolver implements IResolver
 {
 
     private IHierarchicalContent content;
 
-    public V3HierarchicalContentResolver(IHierarchicalContent content)
+    public HierarchicalContentResolver(IHierarchicalContent content)
     {
         this.content = content;
     }
 
     @Override
-    public V3FtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
+    public IFtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
     {
         IHierarchicalContentNode rootNode;
         if (subPath.length == 0)
@@ -49,15 +49,15 @@ class V3HierarchicalContentResolver implements V3Resolver
 
         if (rootNode == null)
         {
-            return new V3FtpNonExistingFile(fullPath, null);
+            return new FtpNonExistingFile(fullPath, null);
         }
 
         if (false == rootNode.isDirectory())
         {
-            return new V3FtpFileResponse(fullPath, rootNode, content);
+            return new FtpFileResponse(fullPath, rootNode, content);
         }
 
-        V3FtpDirectoryResponse response = new V3FtpDirectoryResponse(fullPath);
+        FtpDirectoryResponse response = new FtpDirectoryResponse(fullPath);
         for (IHierarchicalContentNode node : rootNode.getChildNodes())
         {
             if (node.isDirectory())

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.plugins;
+package ch.systemsx.cisd.openbis.dss.generic.server.fs.plugins;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -29,11 +29,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.DataSetContentResolver;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.IResolverPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpDirectoryResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.V3DataSetContentResolver;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.V3ResolverPlugin;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
 
 /**
  * Resolves paths of type "/SAMPLE_TYPE/SAMPLE_CODE/DATASET_CODE/data set content <br>
@@ -46,10 +46,10 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
  * 
  * @author Jakub Straszewski
  */
-public class V3SampleTypeResolver implements V3ResolverPlugin
+public class SampleTypeResolver implements IResolverPlugin
 {
     @Override
-    public V3FtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
+    public IFtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
     {
         if (subPath.length == 0)
         {
@@ -70,17 +70,17 @@ public class V3SampleTypeResolver implements V3ResolverPlugin
 
         String dataSetCode = subPath[2];
         String[] remaining = Arrays.copyOfRange(subPath, 3, subPath.length);
-        return new V3DataSetContentResolver(dataSetCode).resolve(fullPath, remaining, context);
+        return new DataSetContentResolver(dataSetCode).resolve(fullPath, remaining, context);
     }
 
-    private V3FtpFile listDataSetsForGivenSampleTypeAndCode(String fullPath, String sampleTypeCode, String sampleCode, FtpPathResolverContext context)
+    private IFtpFile listDataSetsForGivenSampleTypeAndCode(String fullPath, String sampleTypeCode, String sampleCode, FtpPathResolverContext context)
     {
         DataSetSearchCriteria searchCriteria = new DataSetSearchCriteria();
         searchCriteria.withSample().withType().withCode().thatEquals(sampleTypeCode);
         searchCriteria.withSample().withCode().thatEquals(sampleCode);
         List<DataSet> dataSets = context.getV3Api().searchDataSets(context.getSessionToken(), searchCriteria, new DataSetFetchOptions()).getObjects();
 
-        V3FtpDirectoryResponse result = new V3FtpDirectoryResponse(fullPath);
+        FtpDirectoryResponse result = new FtpDirectoryResponse(fullPath);
         for (DataSet dataSet : dataSets)
         {
             result.addDirectory(dataSet.getCode());
@@ -88,7 +88,7 @@ public class V3SampleTypeResolver implements V3ResolverPlugin
         return result;
     }
 
-    private V3FtpFile listSamplesOfGivenType(String fullPath, String sampleType, FtpPathResolverContext context)
+    private IFtpFile listSamplesOfGivenType(String fullPath, String sampleType, FtpPathResolverContext context)
     {
         SampleSearchCriteria searchCriteria = new SampleSearchCriteria();
         searchCriteria.withType().withCode().thatEquals(sampleType);
@@ -97,7 +97,7 @@ public class V3SampleTypeResolver implements V3ResolverPlugin
         // as codes can overlap, we want to create only one entry per code
         HashSet<String> sampleCodes = new HashSet<>();
 
-        V3FtpDirectoryResponse result = new V3FtpDirectoryResponse(fullPath);
+        FtpDirectoryResponse result = new FtpDirectoryResponse(fullPath);
         for (Sample sample : samples)
         {
             if (false == sampleCodes.contains(sample.getCode()))
@@ -109,7 +109,7 @@ public class V3SampleTypeResolver implements V3ResolverPlugin
         return result;
     }
 
-    private V3FtpFile listSampleTypes(String fullPath, FtpPathResolverContext context)
+    private IFtpFile listSampleTypes(String fullPath, FtpPathResolverContext context)
     {
         SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
         searchCriteria.withListable().thatEquals(true);
@@ -117,7 +117,7 @@ public class V3SampleTypeResolver implements V3ResolverPlugin
                 context.getV3Api().searchSampleTypes(context.getSessionToken(), searchCriteria, new SampleTypeFetchOptions())
                         .getObjects();
 
-        V3FtpDirectoryResponse response = new V3FtpDirectoryResponse(fullPath);
+        FtpDirectoryResponse response = new FtpDirectoryResponse(fullPath);
         for (SampleType type : sampleTypes)
         {
             response.addDirectory(type.getCode());

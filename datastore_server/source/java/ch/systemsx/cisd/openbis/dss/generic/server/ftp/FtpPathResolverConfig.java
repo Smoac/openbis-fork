@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.V3FtpPathResolverRegistry;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.FtpPathResolverRegistry;
 
 /**
  * @author Franz-Josef Elmer
@@ -71,7 +71,7 @@ public class FtpPathResolverConfig
                 PropertyUtils.getProperty(props, DATASET_DISPLAY_TEMPLATE_KEY, DEFAULT_DATASET_TEMPLATE);
         showParentsAndChildren = PropertyUtils.getBoolean(props, SHOW_PARENTS_AND_CHILDREN_KEY, false);
 
-        resolverClass = PropertyUtils.getProperty(props, PATH_RESOLVER_KEY, V3FtpPathResolverRegistry.class.getCanonicalName());
+        resolverClass = PropertyUtils.getProperty(props, PATH_RESOLVER_KEY, FtpPathResolverRegistry.class.getCanonicalName());
 
         properties = props;
 

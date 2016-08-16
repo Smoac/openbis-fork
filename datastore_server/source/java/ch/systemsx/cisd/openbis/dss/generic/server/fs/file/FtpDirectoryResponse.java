@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file;
+package ch.systemsx.cisd.openbis.dss.generic.server.fs.file;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,11 +27,11 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.AbstractFtpFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.AbstractFtpFolder;
 
-public class V3FtpDirectoryResponse extends AbstractFtpFolder implements V3FtpFile
+public class FtpDirectoryResponse extends AbstractFtpFolder implements IFtpFile
 {
     private final List<FtpFile> files;
 
-    public V3FtpDirectoryResponse(String fullPath)
+    public FtpDirectoryResponse(String fullPath)
     {
         super(fullPath);
         this.files = new ArrayList<>();

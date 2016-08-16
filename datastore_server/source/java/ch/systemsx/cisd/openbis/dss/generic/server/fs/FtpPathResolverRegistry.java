@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3;
+package ch.systemsx.cisd.openbis.dss.generic.server.fs;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -27,13 +27,13 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpDirectoryResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpNonExistingFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverConfig;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolverRegistry;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpNonExistingFile;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 
 /**
@@ -41,13 +41,13 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
  * 
  * @author Jakub Straszewski
  */
-public class V3FtpPathResolverRegistry implements IFtpPathResolverRegistry
+public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
 {
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            V3FtpPathResolverRegistry.class);
+            FtpPathResolverRegistry.class);
 
-    private List<V3FileSystemPlugin> plugins = new LinkedList<>();
+    private List<FileSystemPlugin> plugins = new LinkedList<>();
 
     @Override
     public void initialize(FtpPathResolverConfig config)
@@ -66,7 +66,7 @@ public class V3FtpPathResolverRegistry implements IFtpPathResolverRegistry
                 try
                 {
                     Class<?> clazz = Class.forName(className);
-                    plugins.add(new V3FileSystemPlugin(pluginName, code, clazz));
+                    plugins.add(new FileSystemPlugin(pluginName, code, clazz));
                 } catch (ClassNotFoundException ex)
                 {
                     throw new ConfigurationFailureException("Couldn't load class for file system plugin");
@@ -88,7 +88,7 @@ public class V3FtpPathResolverRegistry implements IFtpPathResolverRegistry
 
         String responseCacheKey = resolverContext.getSessionToken() + "$" + path;
         Cache cache = resolverContext.getCache();
-        V3FtpFile response = cache.getResponse(responseCacheKey);
+        IFtpFile response = cache.getResponse(responseCacheKey);
         if (response != null)
         {
             operationLog.debug("Path " + path + " requested (found in cache).");
@@ -111,7 +111,7 @@ public class V3FtpPathResolverRegistry implements IFtpPathResolverRegistry
         } catch (Exception e)
         {
             operationLog.warn("Resolving " + path + " failed", e);
-            response = new V3FtpNonExistingFile(path, "Error when retrieving path");
+            response = new FtpNonExistingFile(path, "Error when retrieving path");
         }
 
         cache.putResponse(responseCacheKey, response);
@@ -119,19 +119,19 @@ public class V3FtpPathResolverRegistry implements IFtpPathResolverRegistry
 
     }
 
-    private V3FtpFile resolveDefault(String path, FtpPathResolverContext resolverContext, String[] split)
+    private IFtpFile resolveDefault(String path, FtpPathResolverContext resolverContext, String[] split)
     {
-        V3RootLevelResolver resolver = new V3RootLevelResolver();
+        RootLevelResolver resolver = new RootLevelResolver();
         return resolver.resolve(path, split, resolverContext);
     }
 
-    private V3FtpFile resolvePlugins(String path, String[] subPath, FtpPathResolverContext resolverContext)
+    private IFtpFile resolvePlugins(String path, String[] subPath, FtpPathResolverContext resolverContext)
     {
         if (subPath.length == 0)
         {
-            V3FtpDirectoryResponse response = new V3FtpDirectoryResponse(path);
+            FtpDirectoryResponse response = new FtpDirectoryResponse(path);
             response.addDirectory("DEFAULT");
-            for (V3FileSystemPlugin plugin : plugins)
+            for (FileSystemPlugin plugin : plugins)
             {
                 response.addDirectory(plugin.getPluginCode());
             }
@@ -144,15 +144,15 @@ public class V3FtpPathResolverRegistry implements IFtpPathResolverRegistry
                 return resolveDefault(path, resolverContext, remaining);
             } else
             {
-                for (V3FileSystemPlugin plugin : plugins)
+                for (FileSystemPlugin plugin : plugins)
                 {
                     if (plugin.getPluginCode().equals(subPath[0]))
                     {
-                        V3Resolver resolver = plugin.getPluginResolver();
+                        IResolver resolver = plugin.getPluginResolver();
                         return resolver.resolve(path, remaining, resolverContext);
                     }
                 }
-                return new V3FtpNonExistingFile(path, null);
+                return new FtpNonExistingFile(path, null);
             }
         }
     }

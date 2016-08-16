@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3;
+package ch.systemsx.cisd.openbis.dss.generic.server.fs;
 
 /**
  * @author Jakub Straszewski
  */
-public class V3FileSystemPlugin
+public class FileSystemPlugin
 {
     public final String pluginCode;
 
@@ -27,7 +27,7 @@ public class V3FileSystemPlugin
 
     private final String pluginName;
 
-    public V3FileSystemPlugin(String pluginName, String pluginCode, Class<?> pluginResolverClass)
+    public FileSystemPlugin(String pluginName, String pluginCode, Class<?> pluginResolverClass)
     {
         this.pluginName = pluginName;
         this.pluginCode = pluginCode;
@@ -36,7 +36,7 @@ public class V3FileSystemPlugin
         {
             // cast to test if the instantiation can be done and is creating an object of a proper type
             @SuppressWarnings("unused")
-            V3ResolverPlugin result = (V3ResolverPlugin) pluginResolverClass.newInstance();
+            IResolverPlugin result = (IResolverPlugin) pluginResolverClass.newInstance();
         } catch (InstantiationException | IllegalAccessException ex)
         {
             throw new IllegalStateException("Couldn't instantiate object of type " + pluginResolverClass);
@@ -48,11 +48,11 @@ public class V3FileSystemPlugin
         return pluginCode;
     }
 
-    public V3ResolverPlugin getPluginResolver()
+    public IResolverPlugin getPluginResolver()
     {
         try
         {
-            V3ResolverPlugin plugin = (V3ResolverPlugin) pluginResolverClass.newInstance();
+            IResolverPlugin plugin = (IResolverPlugin) pluginResolverClass.newInstance();
             plugin.initialize(pluginName, pluginCode);
             return plugin;
         } catch (InstantiationException | IllegalAccessException ex)

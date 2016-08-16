@@ -26,8 +26,8 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpFileResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.FtpFileImpl;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFileResponse;
 
 /**
  * @author Franz-Josef Elmer
@@ -109,9 +109,9 @@ final class CifsFile extends NetworkFile
             if (randomAccessFile == null && file instanceof FtpFileImpl)
             {
                 randomAccessFile = ((FtpFileImpl) file).getFileContent();
-            } else if (randomAccessFile == null && file instanceof V3FtpFileResponse)
+            } else if (randomAccessFile == null && file instanceof FtpFileResponse)
             {
-                randomAccessFile = ((V3FtpFileResponse) file).getFileContent();
+                randomAccessFile = ((FtpFileResponse) file).getFileContent();
             }
         }
     }

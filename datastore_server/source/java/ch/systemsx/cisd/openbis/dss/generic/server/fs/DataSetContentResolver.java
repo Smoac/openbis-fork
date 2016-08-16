@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3;
+package ch.systemsx.cisd.openbis.dss.generic.server.fs;
 
 import java.util.Collections;
 import java.util.Map;
@@ -24,27 +24,27 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetc
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpNonExistingFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpNonExistingFile;
 
 /**
  * Resolves the content of the data set. Assumes that the first part of the path is data set code
  * 
  * @author Jakub Straszewski
  */
-public class V3DataSetContentResolver implements V3Resolver
+public class DataSetContentResolver implements IResolver
 {
     String dataSetCode;
 
-    public V3DataSetContentResolver(String dataSetCode)
+    public DataSetContentResolver(String dataSetCode)
     {
         this.dataSetCode = dataSetCode;
     }
 
     @Override
-    public V3FtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
+    public IFtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
     {
         Cache cache = context.getCache();
 
@@ -63,7 +63,7 @@ public class V3DataSetContentResolver implements V3Resolver
 
         if (hasAccess.booleanValue() == false)
         {
-            return new V3FtpNonExistingFile(fullPath, "Path doesn't exist or unauthorized");
+            return new FtpNonExistingFile(fullPath, "Path doesn't exist or unauthorized");
         }
 
         IHierarchicalContent content = cache.getContent(dataSetCode);
@@ -73,7 +73,7 @@ public class V3DataSetContentResolver implements V3Resolver
             cache.putContent(dataSetCode, content);
         }
 
-        V3HierarchicalContentResolver resolver = new V3HierarchicalContentResolver(content);
+        HierarchicalContentResolver resolver = new HierarchicalContentResolver(content);
         return resolver.resolve(fullPath, subPath, context);
     }
 }

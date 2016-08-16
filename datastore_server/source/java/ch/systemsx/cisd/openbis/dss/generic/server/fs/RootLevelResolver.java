@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3;
+package ch.systemsx.cisd.openbis.dss.generic.server.fs;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,22 +22,22 @@ import java.util.List;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpDirectoryResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpDirectoryResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.v3.file.V3FtpFile;
 
-class V3RootLevelResolver implements V3Resolver
+class RootLevelResolver implements IResolver
 {
 
     @Override
-    public V3FtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
+    public IFtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
     {
         if (subPath.length == 0)
         {
             List<Space> spaces =
                     context.getV3Api().searchSpaces(context.getSessionToken(), new SpaceSearchCriteria(), new SpaceFetchOptions()).getObjects();
 
-            V3FtpDirectoryResponse response = new V3FtpDirectoryResponse(fullPath);
+            FtpDirectoryResponse response = new FtpDirectoryResponse(fullPath);
             for (Space space : spaces)
             {
                 response.addDirectory(space.getCode());
@@ -48,7 +48,7 @@ class V3RootLevelResolver implements V3Resolver
             String item = subPath[0];
             String[] remaining = Arrays.copyOfRange(subPath, 1, subPath.length);
 
-            V3SpaceLevelResolver resolver = new V3SpaceLevelResolver(item);
+            SpaceLevelResolver resolver = new SpaceLevelResolver(item);
             return resolver.resolve(fullPath, remaining, context);
         }
     }
