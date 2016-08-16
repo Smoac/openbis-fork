@@ -33,7 +33,7 @@ public class FileSearchDomain extends AbstractSearchDomainService
     public List<SearchDomainSearchResult> search(String searchString, Map<String, String> optionalParametersOrNull)
     {
         IDataSetPathInfoProvider dataSetPathInfoProvider = ServiceProvider.getDataSetPathInfoProvider();
-        Map<String, List<DataSetPathInfo>> allPathInfos = dataSetPathInfoProvider.listPathInfosByRegularExpression(searchString);
+        Map<String, List<DataSetPathInfo>> allPathInfos = dataSetPathInfoProvider.listPathInfosBySearchString(searchString);
 
         List<SearchDomainSearchResult> results = new ArrayList<SearchDomainSearchResult>();
 

@@ -31,7 +31,7 @@ public interface IDataSetPathInfoProvider
 
     public List<DataSetPathInfo> listPathInfosByRegularExpression(String dataSetCode, String regularExpression);
 
-    public Map<String, List<DataSetPathInfo>> listPathInfosByRegularExpression(String regularExpression);
+    public Map<String, List<DataSetPathInfo>> listPathInfosBySearchString(String searchString);
 
     public DataSetPathInfo tryGetFullDataSetRootPathInfo(String dataSetCode);
 

@@ -137,7 +137,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
     }
 
     @Override
-    public Map<String, List<DataSetPathInfo>> listPathInfosByRegularExpression(String searchString)
+    public Map<String, List<DataSetPathInfo>> listPathInfosBySearchString(String searchString)
     {
         List<ExtendedDataSetFileRecord> fileRecords = getDao().listFilesByRelativePathLikeExpression(searchString.replace('*', '%'));
 
