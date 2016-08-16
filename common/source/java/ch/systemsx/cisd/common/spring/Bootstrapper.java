@@ -96,13 +96,6 @@ public class Bootstrapper implements ApplicationContextAware, InitializingBean
 
     private static boolean evaluateCondition(String condition)
     {
-        if (condition.contains("~"))
-        {
-            int index = condition.indexOf("~");
-            String property = condition.substring(0, index);
-            String containedText = condition.substring(index + 1);
-            return property.contains(containedText);
-        }
-        return false;
+        return condition.trim().toLowerCase().equals("true");
     }
 }
