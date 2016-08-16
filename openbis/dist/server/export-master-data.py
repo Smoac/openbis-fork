@@ -305,6 +305,7 @@ def exportAssignment(assignment):
 %(var)s.setMandatory(%(isMandatory)s)
 %(var)s.setSection(%(section)s)
 %(var)s.setPositionInForms(%(posInForms)s)
+%(var)s.setShownEdit(%(isShownEdit)s)
 """ % vars()
     else:
       return """
