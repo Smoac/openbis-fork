@@ -296,11 +296,8 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	                	var normalizedSpaceTitle = Util.getDisplayNameFromCode(space.code);
         	                	
         	                    var spaceNode = { title : normalizedSpaceTitle, entityType: "SPACE", key : space.getCode(), folder : true, lazy : true, view : "showSpacePage", viewData: space.getCode() };
-        	                    if(space.getCode() === "PURCHASES") {
+        	                    if(space.getCode() === "STOCK_CATALOG" || space.getCode() === "STOCK_ORDERS") {
         	                    	spaceNode.icon = "fa fa-shopping-cart";
-        	                    }
-        	                    if(space.getCode() === "PURCHASES_ORDERS") {
-        	                    	spaceNode.icon = "fa fa-cart-plus";
         	                    }
         	                    results.push(spaceNode);
         	                }

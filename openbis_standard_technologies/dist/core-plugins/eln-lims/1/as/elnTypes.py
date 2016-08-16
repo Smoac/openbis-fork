@@ -866,7 +866,7 @@ DRAWING_BOARD_SAMPLE = ["DRAWING_BOARD", "", [
 ##
 
 
-PURCHASES = ["PURCHASES", "Folder used to organize purchases related items", [
+STOCK = ["STOCK", "Folder used to organize purchases related items", [
         ["NAME",                 "General", "Name",                     DataType.VARCHAR,             None,    "Name", None, None]
     ]];
     
