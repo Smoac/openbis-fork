@@ -23,6 +23,14 @@ function NewProductsController() {
 	}
 	
 	this.createAndAddToForm = function(sample, action) {
+		//TO-DO
+		//1. Create Product
+		
+		//2. Add to sample parents widget with the quantity annotation
+		
+		//3. Add to the attribute sample.parents
+		
+		//When done for all new products, execute the action to submit the form
 		action();
 	}
 }
