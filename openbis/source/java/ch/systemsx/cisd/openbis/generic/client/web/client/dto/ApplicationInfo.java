@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
@@ -117,9 +118,16 @@ public final class ApplicationInfo implements IsSerializable
         return webClientConfiguration;
     }
 
-    public Set<String> getEnabledTechnologies()
+    public boolean isTechnologyEnabled(String technology)
     {
-        return enabledTechnologies;
+        for (String pattern : enabledTechnologies)
+        {
+            if (RegExp.compile(pattern).exec(technology) != null)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void setEnabledTechnologies(Set<String> enabledTechnologies)

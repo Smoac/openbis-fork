@@ -65,7 +65,7 @@ public class WelcomePanelHelper
 
     private static final String getSimpleModeWelcomePageBaseName(IViewContext<?> viewContext)
     {
-        if (viewContext.getModel().getApplicationInfo().getEnabledTechnologies().contains("screening"))
+        if (viewContext.getModel().getApplicationInfo().isTechnologyEnabled("screening"))
         {
             return SIMPLE_VIEW_MODE_PAGE_BASE_NAME_SCREENING;
         } else

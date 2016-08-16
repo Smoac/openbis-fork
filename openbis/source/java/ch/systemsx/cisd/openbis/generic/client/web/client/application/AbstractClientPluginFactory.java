@@ -63,8 +63,7 @@ public abstract class AbstractClientPluginFactory<V extends IViewContext<? exten
 
     protected boolean checkEnabledProperty(String technology)
     {
-        return viewContext.getModel().getApplicationInfo().getEnabledTechnologies()
-                .contains(technology);
+        return viewContext.getModel().getApplicationInfo().isTechnologyEnabled(technology);
     }
 
     protected abstract IModule maybeCreateModule();
