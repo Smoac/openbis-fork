@@ -76,11 +76,14 @@ def addPropertiesToSamples(tr, sampleTypeCodes, properties):
 def addProperties(tr, entity, properties):
     for property in properties:
         isMandatory = False;
-        if len(property) > 8:
+        showInEditViews = True;
+        if len(property) > 8 and property[8] is not None:
             isMandatory = property[8];
-        addProperty(tr, entity, property[0], property[1], property[2], property[3], property[4], property[5], property[6], property[7], isMandatory);
+        if len(property) > 9 and property[9] is not None:
+            showInEditViews = property[9];
+        addProperty(tr, entity, property[0], property[1], property[2], property[3], property[4], property[5], property[6], property[7], isMandatory, showInEditViews);
     
-def addProperty(tr, entity, propertyCode, section, propertyLabel, dataType, vocabularyCode, propertyDescription, managedScript, dynamicScript, isMandatory):
+def addProperty(tr, entity, propertyCode, section, propertyLabel, dataType, vocabularyCode, propertyDescription, managedScript, dynamicScript, isMandatory, showInEditViews):
     property = None;
     
     if propertyCode in propertiesCache:
@@ -92,6 +95,7 @@ def addProperty(tr, entity, propertyCode, section, propertyLabel, dataType, voca
     propertyAssignment.setSection(section);
     propertyAssignment.setShownEdit(True);
     propertyAssignment.setMandatory(isMandatory);
+    propertyAssignment.setShownEdit(showInEditViews);
     
     if managedScript != None:
         propertyAssignment.setManaged(True);
@@ -784,7 +788,7 @@ EXPERIMENTAL_STEP = ["EXPERIMENTAL_STEP", "", [
         ["END_DATE",             "General",                "End date",                    DataType.TIMESTAMP,        None,                                "Date when the experimental step is completed", None, None],
         ["EXPERIMENTAL_READOUT",             "Readout details",        "Experimental readout",                    DataType.CONTROLLEDVOCABULARY,    "EXPERIMENTAL_READOUT",                "Experimental readout used in the experiment", None, None],
         ["MACHINE",                         "Readout details",        "Machine",                                DataType.CONTROLLEDVOCABULARY,    "MACHINE",                            "Machine used to perform the experiment", None, None],
-        ["FREEFORM_TABLE_STATE",             "Readout details",        "Freeform Table State",                    DataType.MULTILINE_VARCHAR,        None,                                "Table describing how the order of samples measured in the experiments", None, None],
+        ["FREEFORM_TABLE_STATE",             "Readout details",        "Freeform Table State",                    DataType.MULTILINE_VARCHAR,        None,                                "Table describing how the order of samples measured in the experiments", None, None, None, False],
         ["PUBLICATION",                     "Comments",                "Publication",                            DataType.MULTILINE_VARCHAR,        None,                                "Publication from where the information was first found OR technical sheet given by the manufacturer", None, None],
         ["NOTES",                             "Comments",             "Notes",                                DataType.MULTILINE_VARCHAR,        None,                                "Notes", None, None],
         ["XMLCOMMENTS",                     "Comments",                "Comments List",                        DataType.XML,                    None,                                "Several comments can be added by different users", "COMMENTS_SAMPLE", None],
@@ -939,5 +943,5 @@ ORDER = ["ORDER", "", [
         ["ORDER_STATUS",                              "General",            "Order Status",                             DataType.CONTROLLEDVOCABULARY,                   "ORDER_STATUS",             "Order Status",                           None,       None, True],
         ["ADDITIONAL_INFORMATION",                    "General",            "Additional Information",                   DataType.VARCHAR,                               None,                       "Additional Information",                  None,       None],
         ["ANNOTATIONS_STATE",                         "Comments",           "Annotations State",                        DataType.XML,                                   None,                       "Annotations State",                       None,       None],
-        ["ORDER_STATE",                               "Comments",           "Order State",                              DataType.VARCHAR,                               None,                       "Order State",                             None,       None]
+        ["ORDER_STATE",                               "Comments",           "Order State",                              DataType.VARCHAR,                               None,                       "Order State",                             None,       None, None, False]
     ]];
