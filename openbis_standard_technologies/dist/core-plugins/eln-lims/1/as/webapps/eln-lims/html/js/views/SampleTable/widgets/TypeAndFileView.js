@@ -35,7 +35,7 @@ function TypeAndFileView(typeAndFileController, typeAndFileModel) {
 			_this._typeAndFileModel.sampleTypeCode = $(this).val();
 			_this.updateLink($(this).val());
 		});
-		var $sampleTypeDropDownBoxGroup = FormUtil.getFieldForComponentWithLabel($sampleTypeDropDown, 'Sample Type');
+		var $sampleTypeDropDownBoxGroup = FormUtil.getFieldForComponentWithLabel($sampleTypeDropDown, ELNDictionary.Sample + ' Type');
 		$window.append($sampleTypeDropDownBoxGroup);
 		
 		$window.append(this.linkContainer);
