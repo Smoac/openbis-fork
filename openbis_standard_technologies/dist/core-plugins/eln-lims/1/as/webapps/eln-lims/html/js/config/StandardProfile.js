@@ -403,13 +403,15 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 		
 		} 
 		
-		this.sampleFormOnSubmit = function(sample) {
+		this.sampleFormOnSubmit = function(sample, action) {
 			if(sample.sampleTypeCode === "ORDER") {
 				var orderStatus = sample.properties["ORDER_STATUS"];
 				if(orderStatus === "ORDERED") {
 					delete sample.properties["ORDER_STATE"];
 					sample.properties["ORDER_STATE"] = window.btoa(JSON.stringify(sample));
 				}
+			} else if(sample.sampleTypeCode === "REQUEST") {
+				mainController.currentView._newProductsController.createAndAddToForm(sample, action);
 			}
 		}
 		
@@ -647,10 +649,11 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					$("#" + containerId).append(orderSummaryContainer).append(totalsByCurrencyContainer).append($("<br>")).append(printOrder);
 				}
 			} else if(sampleTypeCode === "REQUEST") {
-				var isEnabled = mainController.currentView._sampleFormModel.mode === FormMode.CREATE;
+				var isEnabled = mainController.currentView._sampleFormModel.mode !== FormMode.VIEW;
 				if(isEnabled) {
 					var $newProductsController = new NewProductsController();
 						$newProductsController.init($("#" + containerId));
+						mainController.currentView._newProductsController = $newProductsController;
 				}
 			}
 		}

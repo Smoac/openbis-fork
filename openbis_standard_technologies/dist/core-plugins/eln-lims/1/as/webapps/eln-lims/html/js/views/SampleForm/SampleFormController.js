@@ -111,17 +111,17 @@ function SampleFormController(mainController, mode, sample) {
 		//
 		// Parents/Children Links
 		//
-		if(!this._sampleFormModel.sampleLinksParents.isValid()) {
+		if(!_this._sampleFormModel.sampleLinksParents.isValid()) {
 			return;
 		}
-		var sampleParentsFinal = this._sampleFormModel.sampleLinksParents.getSamplesIdentifiers();
+		var sampleParentsFinal = _this._sampleFormModel.sampleLinksParents.getSamplesIdentifiers();
 		
-		if(!this._sampleFormModel.sampleLinksChildren.isValid()) {
+		if(!_this._sampleFormModel.sampleLinksChildren.isValid()) {
 			return;
 		}
-		var sampleChildrenFinal = this._sampleFormModel.sampleLinksChildren.getSamplesIdentifiers();
+		var sampleChildrenFinal = _this._sampleFormModel.sampleLinksChildren.getSamplesIdentifiers();
 		
-		var sampleChildrenRemovedFinal = this._sampleFormModel.sampleLinksChildren.getSamplesRemovedIdentifiers();
+		var sampleChildrenRemovedFinal = _this._sampleFormModel.sampleLinksChildren.getSamplesRemovedIdentifiers();
 		
 		//
 		// Check that the same sample is not a parent and a child at the same time
@@ -154,148 +154,149 @@ function SampleFormController(mainController, mode, sample) {
 		}
 		
 		//On Submit
-		sample.parents = this._sampleFormModel.sampleLinksParents.getSamples();
-		profile.sampleFormOnSubmit(sample);
-		
-		//
-		//Identification Info
-		//
-		var sampleSpace = this._sampleFormModel.sample.spaceCode;
-		var sampleProject = null;
-		var sampleExperiment = null;
-		var sampleCode = this._sampleFormModel.sample.code;
-		var properties = this._sampleFormModel.sample.properties;
-		
-		var experimentIdentifier = this._sampleFormModel.sample.experimentIdentifierOrNull;
-		
-		if(experimentIdentifier) { //If there is a experiment detected, the sample should be attached to the experiment completely.
-			sampleSpace = experimentIdentifier.split("/")[1];
-			sampleProject = experimentIdentifier.split("/")[2];
-			sampleExperiment = experimentIdentifier.split("/")[3];
-		}
-		
-		//Children to create
-		var samplesToCreate = [];
-		this._sampleFormModel.sampleLinksChildren.getSamples().forEach(function(child) {
-			if(child.newSample) {
-			  child.properties = {};
-				if(profile.storagesConfiguration["isEnabled"]) {
-					child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["NAME_PROPERTY"]] = $("#childrenStorageSelector").val();
-					child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["ROW_PROPERTY"]] = 1;
-					child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["COLUMN_PROPERTY"]] = 1;
-					child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["BOX_SIZE_PROPERTY"]] = "1X1";
-					child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["BOX_PROPERTY"]] = experimentIdentifier.replace(/\//g,'\/') + "_" + _this._sampleFormModel.sample.code + "_EXP_RESULTS";
-					child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["USER_PROPERTY"]] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
-					child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["POSITION_PROPERTY"]] = "A1";
-				}
-				samplesToCreate.push(child);
-			}
-		});
-		
-		//Method
-		var method = "";
-		if(this._sampleFormModel.mode === FormMode.CREATE) {
-			method = "insertSample";
-		} else if(this._sampleFormModel.mode === FormMode.EDIT) {
-			method = "updateSample";
-		}
-		
-		var changesToDo = [];
-		
-		if(this._plateController) {
-			changesToDo = this._plateController.getChangesToDo();
-		}
-		
-		var parameters = {
-				//API Method
-				"method" : method,
-				//Identification Info
-				"sampleSpace" : sampleSpace,
-				"sampleProject" : sampleProject,
-				"sampleExperiment" : sampleExperiment,
-				"sampleCode" : sampleCode,
-				"sampleType" : this._sampleFormModel.sample.sampleTypeCode,
-				//Other Properties
-				"sampleProperties" : properties,
-				//Parent links
-				"sampleParents": sampleParentsFinal,
-				//Children links
-				"sampleChildren": sampleChildrenFinal,
-				"sampleChildrenNew": samplesToCreate,
-				"sampleChildrenRemoved": sampleChildrenRemovedFinal,
-				//Other Samples
-				"changesToDo" : changesToDo
-		};
-		
-		//
-		// Copy override - This part modifies what is done for a create/update and adds a couple of extra parameters needed to copy to the bench correctly
-		//
-		if(isCopyWithNewCode) {
-			parameters["method"] = "copySample";
-			parameters["sampleCode"] = isCopyWithNewCode;
-			parameters["notCopyProperties"] = [];
-			parameters["defaultBenchPropertyList"] = [];
+		sample.parents = _this._sampleFormModel.sampleLinksParents.getSamples();
+		var continueSampleCreation = function() {
+			//
+			//Identification Info
+			//
+			var sampleSpace = _this._sampleFormModel.sample.spaceCode;
+			var sampleProject = null;
+			var sampleExperiment = null;
+			var sampleCode = _this._sampleFormModel.sample.code;
+			var properties = _this._sampleFormModel.sample.properties;
 			
-			if(!copyCommentsLogOnCopy && parameters["sampleProperties"]["XMLCOMMENTS"]) {
-				delete parameters["sampleProperties"]["XMLCOMMENTS"];
+			var experimentIdentifier = _this._sampleFormModel.sample.experimentIdentifierOrNull;
+			
+			if(experimentIdentifier) { //If there is a experiment detected, the sample should be attached to the experiment completely.
+				sampleSpace = experimentIdentifier.split("/")[1];
+				sampleProject = experimentIdentifier.split("/")[2];
+				sampleExperiment = experimentIdentifier.split("/")[3];
 			}
 			
-			if(!linkParentsOnCopy) {
-				parameters["sampleParents"] = [];
-			}
-			if(!copyChildrenOnCopy) {
-				parameters["sampleChildren"] = [];
-			} else if(profile.storagesConfiguration["isEnabled"]) {
-				//1. All properties belonging to benches, to not to copy
-				for(var i = 0; i < profile.storagesConfiguration["STORAGE_PROPERTIES"].length; i++) {
-					var storagePropertyGroup = profile.storagesConfiguration["STORAGE_PROPERTIES"][i];
-					var listToUse = "notCopyProperties";
-					if(i === 0) {
-						listToUse = "defaultBenchPropertyList";
+			//Children to create
+			var samplesToCreate = [];
+			_this._sampleFormModel.sampleLinksChildren.getSamples().forEach(function(child) {
+				if(child.newSample) {
+				  child.properties = {};
+					if(profile.storagesConfiguration["isEnabled"]) {
+						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["NAME_PROPERTY"]] = $("#childrenStorageSelector").val();
+						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["ROW_PROPERTY"]] = 1;
+						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["COLUMN_PROPERTY"]] = 1;
+						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["BOX_SIZE_PROPERTY"]] = "1X1";
+						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["BOX_PROPERTY"]] = experimentIdentifier.replace(/\//g,'\/') + "_" + _this._sampleFormModel.sample.code + "_EXP_RESULTS";
+						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["USER_PROPERTY"]] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
+						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["POSITION_PROPERTY"]] = "A1";
 					}
-					
-					parameters[listToUse].push(storagePropertyGroup["NAME_PROPERTY"]);
-					parameters[listToUse].push(storagePropertyGroup["ROW_PROPERTY"]);
-					parameters[listToUse].push(storagePropertyGroup["COLUMN_PROPERTY"]);
-					parameters[listToUse].push(storagePropertyGroup["BOX_PROPERTY"]);
-					parameters[listToUse].push(storagePropertyGroup["BOX_SIZE_PROPERTY"]);
-					parameters[listToUse].push(storagePropertyGroup["USER_PROPERTY"]);
-					parameters[listToUse].push(storagePropertyGroup["POSITION_PROPERTY"]);
+					samplesToCreate.push(child);
 				}
-				
-				//2. Default Bench properties
-				var defaultStoragePropertyGroup = profile.storagesConfiguration["STORAGE_PROPERTIES"][0];
-				parameters["defaultBenchProperties"] = {};
-				var defaultBench = "";
-				var $benchDropdown = FormUtil.getDefaultBenchDropDown();
-				if($benchDropdown.length > 1) {
-					defaultBench = $benchDropdown.children()[1].value;
-				}
-				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["NAME_PROPERTY"]] = defaultBench;
-				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["ROW_PROPERTY"]] = 1;
-				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["COLUMN_PROPERTY"]] = 1;
-				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["BOX_PROPERTY"]] = this._sampleFormModel.sample.experimentIdentifierOrNull.replace(/\//g,'\/') + "_" + isCopyWithNewCode + "_EXP_RESULTS";
-				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["BOX_SIZE_PROPERTY"]] = "1X1";
-				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["USER_PROPERTY"]] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
-				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["POSITION_PROPERTY"]] = "A1";
-			}
-			parameters["sampleChildrenNew"] = [];
-			parameters["sampleChildrenRemoved"] = [];
-		}
-		
-		//
-		// Sending the request to the server
-		//
-		if(profile.getDefaultDataStoreCode()) {
-			
-			mainController.serverFacade.createReportFromAggregationService(profile.getDefaultDataStoreCode(), parameters, function(response) {
-				_this._createUpdateCopySampleCallback(_this, isCopyWithNewCode, response);
 			});
 			
-		} else {
-			Util.showError("No DSS available.", function() {Util.unblockUI();});
+			//Method
+			var method = "";
+			if(_this._sampleFormModel.mode === FormMode.CREATE) {
+				method = "insertSample";
+			} else if(_this._sampleFormModel.mode === FormMode.EDIT) {
+				method = "updateSample";
+			}
+			
+			var changesToDo = [];
+			
+			if(_this._plateController) {
+				changesToDo = _this._plateController.getChangesToDo();
+			}
+			
+			var parameters = {
+					//API Method
+					"method" : method,
+					//Identification Info
+					"sampleSpace" : sampleSpace,
+					"sampleProject" : sampleProject,
+					"sampleExperiment" : sampleExperiment,
+					"sampleCode" : sampleCode,
+					"sampleType" : _this._sampleFormModel.sample.sampleTypeCode,
+					//Other Properties
+					"sampleProperties" : properties,
+					//Parent links
+					"sampleParents": sampleParentsFinal,
+					//Children links
+					"sampleChildren": sampleChildrenFinal,
+					"sampleChildrenNew": samplesToCreate,
+					"sampleChildrenRemoved": sampleChildrenRemovedFinal,
+					//Other Samples
+					"changesToDo" : changesToDo
+			};
+			
+			//
+			// Copy override - This part modifies what is done for a create/update and adds a couple of extra parameters needed to copy to the bench correctly
+			//
+			if(isCopyWithNewCode) {
+				parameters["method"] = "copySample";
+				parameters["sampleCode"] = isCopyWithNewCode;
+				parameters["notCopyProperties"] = [];
+				parameters["defaultBenchPropertyList"] = [];
+				
+				if(!copyCommentsLogOnCopy && parameters["sampleProperties"]["XMLCOMMENTS"]) {
+					delete parameters["sampleProperties"]["XMLCOMMENTS"];
+				}
+				
+				if(!linkParentsOnCopy) {
+					parameters["sampleParents"] = [];
+				}
+				if(!copyChildrenOnCopy) {
+					parameters["sampleChildren"] = [];
+				} else if(profile.storagesConfiguration["isEnabled"]) {
+					//1. All properties belonging to benches, to not to copy
+					for(var i = 0; i < profile.storagesConfiguration["STORAGE_PROPERTIES"].length; i++) {
+						var storagePropertyGroup = profile.storagesConfiguration["STORAGE_PROPERTIES"][i];
+						var listToUse = "notCopyProperties";
+						if(i === 0) {
+							listToUse = "defaultBenchPropertyList";
+						}
+						
+						parameters[listToUse].push(storagePropertyGroup["NAME_PROPERTY"]);
+						parameters[listToUse].push(storagePropertyGroup["ROW_PROPERTY"]);
+						parameters[listToUse].push(storagePropertyGroup["COLUMN_PROPERTY"]);
+						parameters[listToUse].push(storagePropertyGroup["BOX_PROPERTY"]);
+						parameters[listToUse].push(storagePropertyGroup["BOX_SIZE_PROPERTY"]);
+						parameters[listToUse].push(storagePropertyGroup["USER_PROPERTY"]);
+						parameters[listToUse].push(storagePropertyGroup["POSITION_PROPERTY"]);
+					}
+					
+					//2. Default Bench properties
+					var defaultStoragePropertyGroup = profile.storagesConfiguration["STORAGE_PROPERTIES"][0];
+					parameters["defaultBenchProperties"] = {};
+					var defaultBench = "";
+					var $benchDropdown = FormUtil.getDefaultBenchDropDown();
+					if($benchDropdown.length > 1) {
+						defaultBench = $benchDropdown.children()[1].value;
+					}
+					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["NAME_PROPERTY"]] = defaultBench;
+					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["ROW_PROPERTY"]] = 1;
+					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["COLUMN_PROPERTY"]] = 1;
+					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["BOX_PROPERTY"]] = _this._sampleFormModel.sample.experimentIdentifierOrNull.replace(/\//g,'\/') + "_" + isCopyWithNewCode + "_EXP_RESULTS";
+					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["BOX_SIZE_PROPERTY"]] = "1X1";
+					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["USER_PROPERTY"]] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
+					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["POSITION_PROPERTY"]] = "A1";
+				}
+				parameters["sampleChildrenNew"] = [];
+				parameters["sampleChildrenRemoved"] = [];
+			}
+			
+			//
+			// Sending the request to the server
+			//
+			if(profile.getDefaultDataStoreCode()) {
+				
+				mainController.serverFacade.createReportFromAggregationService(profile.getDefaultDataStoreCode(), parameters, function(response) {
+					_this._createUpdateCopySampleCallback(_this, isCopyWithNewCode, response);
+				});
+				
+			} else {
+				Util.showError("No DSS available.", function() {Util.unblockUI();});
+			}
 		}
 		
+		profile.sampleFormOnSubmit(sample, continueSampleCreation);
 		return false;
 	}
 	

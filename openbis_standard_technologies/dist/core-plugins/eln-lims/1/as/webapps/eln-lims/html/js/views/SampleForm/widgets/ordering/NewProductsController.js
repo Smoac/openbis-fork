@@ -22,7 +22,7 @@ function NewProductsController() {
 		this._newProductsView.repaint($container);
 	}
 	
-	this.getNewSamples = function() {
-		
+	this.createAndAddToForm = function(sample, action) {
+		action();
 	}
 }
