@@ -103,9 +103,6 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         public List<DataSetFileRecord> listDataSetFilesByRelativePathLikeExpression(long dataSetId,
                 String relativePathLikeExpression);
 
-        @Select(SELECT_DATA_SET_FILES_WITH_DATA_SET_INFO + "WHERE relative_path ~* ?{1}")
-        public List<ExtendedDataSetFileRecord> listFilesByRelativePathRegex(String relativePathLikeExpression);
-
         @Select(SELECT_DATA_SET_FILES_WITH_DATA_SET_INFO + "WHERE LOWER(relative_path) LIKE LOWER(?{1})")
         public List<ExtendedDataSetFileRecord> listFilesByRelativePathLikeExpression(String relativePathLikeExpression);
 
@@ -140,18 +137,9 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
     }
 
     @Override
-    public Map<String, List<DataSetPathInfo>> listPathInfosByRegularExpression(String regularExpression)
+    public Map<String, List<DataSetPathInfo>> listPathInfosByRegularExpression(String searchString)
     {
-        String likeExpressionOrNull = DBUtils.tryToTranslateRegExpToLikePattern("^" + regularExpression + "$");
-        List<ExtendedDataSetFileRecord> fileRecords = null;
-
-        if (likeExpressionOrNull == null)
-        {
-            fileRecords = getDao().listFilesByRelativePathRegex("^" + regularExpression + "$");
-        } else
-        {
-            fileRecords = getDao().listFilesByRelativePathLikeExpression(likeExpressionOrNull);
-        }
+        List<ExtendedDataSetFileRecord> fileRecords = getDao().listFilesByRelativePathLikeExpression(searchString.replace('*', '%'));
 
         Map<String, List<DataSetPathInfo>> allPathInfos = new HashMap<String, List<DataSetPathInfo>>();
         for (ExtendedDataSetFileRecord fileRecord : fileRecords)
