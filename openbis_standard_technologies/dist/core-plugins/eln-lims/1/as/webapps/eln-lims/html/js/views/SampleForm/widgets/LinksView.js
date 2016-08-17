@@ -400,7 +400,7 @@ function LinksView(linksController, linksModel) {
 	linksView.getAddAnyBtn = function() {
 		var enabledFunction = function() {
 			var $sampleTypesDropdown = FormUtil.getSampleTypeDropdown("sampleTypeSelector", true);
-			Util.blockUI("Select type: <br><br>" + $sampleTypesDropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='sampleTypeSelectorCancel'>Cancel</a>");
+			Util.blockUI($sampleTypesDropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='sampleTypeSelectorCancel'>Cancel</a>");
 			
 			$("#sampleTypeSelector").on("change", function(event) {
 				var sampleTypeCode = $(this).val();
