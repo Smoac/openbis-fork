@@ -410,9 +410,13 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					delete sample.properties["ORDER_STATE"];
 					sample.properties["ORDER_STATE"] = window.btoa(JSON.stringify(sample));
 				}
-			} else if(sample.sampleTypeCode === "REQUEST") {
-				mainController.currentView._newProductsController.createAndAddToForm(sample, action);
+			} else if(action) {
+				action();
 			}
+//			Disable unfinished component
+//			else if(sample.sampleTypeCode === "REQUEST") {
+//				mainController.currentView._newProductsController.createAndAddToForm(sample, action);
+//			}
 		}
 		
 		this.sampleFormContentExtra = function(sampleTypeCode, sample, containerId) {
@@ -648,14 +652,16 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					}
 					$("#" + containerId).append(orderSummaryContainer).append(totalsByCurrencyContainer).append($("<br>")).append(printOrder);
 				}
-			} else if(sampleTypeCode === "REQUEST") {
-				var isEnabled = mainController.currentView._sampleFormModel.mode !== FormMode.VIEW;
-				if(isEnabled) {
-					var $newProductsController = new NewProductsController();
-						$newProductsController.init($("#" + containerId));
-						mainController.currentView._newProductsController = $newProductsController;
-				}
 			}
+//			Disable unfinished component
+//			else if(sampleTypeCode === "REQUEST") {
+//				var isEnabled = mainController.currentView._sampleFormModel.mode !== FormMode.VIEW;
+//				if(isEnabled) {
+//					var $newProductsController = new NewProductsController();
+//						$newProductsController.init($("#" + containerId));
+//						mainController.currentView._newProductsController = $newProductsController;
+//				}
+//			}
 		}
 		
 		this.getDataSetTypeForFileName = function(allDatasetFiles, fileName) {
