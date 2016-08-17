@@ -24,20 +24,20 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOpt
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpDirectoryResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.ResolverContext;
 
 class RootLevelResolver implements IResolver
 {
 
     @Override
-    public IFtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
+    public IFtpFile resolve(String[] subPath, ResolverContext context)
     {
         if (subPath.length == 0)
         {
             List<Space> spaces =
-                    context.getV3Api().searchSpaces(context.getSessionToken(), new SpaceSearchCriteria(), new SpaceFetchOptions()).getObjects();
+                    context.getApi().searchSpaces(context.getSessionToken(), new SpaceSearchCriteria(), new SpaceFetchOptions()).getObjects();
 
-            FtpDirectoryResponse response = new FtpDirectoryResponse(fullPath);
+            FtpDirectoryResponse response = context.createDirectoryResponse();
             for (Space space : spaces)
             {
                 response.addDirectory(space.getCode());
@@ -49,7 +49,7 @@ class RootLevelResolver implements IResolver
             String[] remaining = Arrays.copyOfRange(subPath, 1, subPath.length);
 
             SpaceLevelResolver resolver = new SpaceLevelResolver(item);
-            return resolver.resolve(fullPath, remaining, context);
+            return resolver.resolve(remaining, context);
         }
     }
 }

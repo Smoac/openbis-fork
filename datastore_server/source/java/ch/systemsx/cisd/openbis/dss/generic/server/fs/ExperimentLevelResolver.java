@@ -26,8 +26,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.Experime
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpDirectoryResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpNonExistingFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.ResolverContext;
 
 class ExperimentLevelResolver implements IResolver
 {
@@ -39,7 +38,7 @@ class ExperimentLevelResolver implements IResolver
     }
 
     @Override
-    public IFtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
+    public IFtpFile resolve(String[] subPath, ResolverContext context)
     {
         if (subPath.length == 0)
         {
@@ -47,15 +46,15 @@ class ExperimentLevelResolver implements IResolver
             fetchOptions.withDataSets();
 
             Map<IExperimentId, Experiment> experiments =
-                    context.getV3Api().getExperiments(context.getSessionToken(), Collections.singletonList(experimentId), fetchOptions);
+                    context.getApi().getExperiments(context.getSessionToken(), Collections.singletonList(experimentId), fetchOptions);
             Experiment exp = experiments.get(experimentId);
 
             if (exp == null)
             {
-                return new FtpNonExistingFile(fullPath, null);
+                return context.createNonExistingFileResponse(null);
             }
 
-            FtpDirectoryResponse response = new FtpDirectoryResponse(fullPath);
+            FtpDirectoryResponse response = context.createDirectoryResponse();
             for (DataSet dataSet : exp.getDataSets())
             {
                 response.addDirectory(dataSet.getCode());
@@ -65,7 +64,7 @@ class ExperimentLevelResolver implements IResolver
         {
             String dataSetCode = subPath[0];
             String[] remaining = Arrays.copyOfRange(subPath, 1, subPath.length);
-            return new DataSetContentResolver(dataSetCode).resolve(fullPath, remaining, context);
+            return new DataSetContentResolver(dataSetCode).resolve(remaining, context);
         }
     }
 }

@@ -28,8 +28,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpDirectoryResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpNonExistingFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.ResolverContext;
 
 class ProjectLevelResolver implements IResolver
 {
@@ -41,7 +40,7 @@ class ProjectLevelResolver implements IResolver
     }
 
     @Override
-    public IFtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
+    public IFtpFile resolve(String[] subPath, ResolverContext context)
     {
         if (subPath.length == 0)
         {
@@ -49,13 +48,13 @@ class ProjectLevelResolver implements IResolver
             fetchOptions.withExperiments();
 
             Map<IProjectId, Project> projects =
-                    context.getV3Api().getProjects(context.getSessionToken(), Collections.singletonList(projectIdentifier), fetchOptions);
+                    context.getApi().getProjects(context.getSessionToken(), Collections.singletonList(projectIdentifier), fetchOptions);
             Project project = projects.get(projectIdentifier);
 
-            FtpDirectoryResponse response = new FtpDirectoryResponse(fullPath);
+            FtpDirectoryResponse response = context.createDirectoryResponse();
             if (project == null)
             {
-                return new FtpNonExistingFile(fullPath, null);
+                return context.createNonExistingFileResponse(null);
             }
             for (Experiment exp : project.getExperiments())
             {
@@ -68,7 +67,7 @@ class ProjectLevelResolver implements IResolver
             String[] remaining = Arrays.copyOfRange(subPath, 1, subPath.length);
             ExperimentLevelResolver resolver =
                     new ExperimentLevelResolver(new ExperimentIdentifier(projectIdentifier.getIdentifier() + "/" + item));
-            return resolver.resolve(fullPath, remaining, context);
+            return resolver.resolve(remaining, context);
         }
     }
 }

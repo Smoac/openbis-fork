@@ -24,9 +24,8 @@ import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
 import ch.systemsx.cisd.common.jython.evaluator.IJythonEvaluator;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.IResolverPlugin;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpNonExistingFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.ResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 
 public class JythonResolver implements IResolverPlugin
@@ -36,39 +35,24 @@ public class JythonResolver implements IResolverPlugin
 
     private static final String RESOLVE_FUNCTION_NAME = "resolve";
 
+    private static final String SCRIPT_FILENAME_PROPERTY = "script-file";
+
     private IJythonEvaluator interpreter;
 
-    private String code;
-
-    private String pluginName;
-
     @Override
-    public IFtpFile resolve(String fullPath, String[] pathItems, FtpPathResolverContext resolverContext)
+    public IFtpFile resolve(String[] pathItems, ResolverContext resolverContext)
     {
-        if (fullPath.startsWith("/" + code))
-        {
-            String path = fullPath.substring(code.length() + 1);
-            if (path.startsWith("/"))
-            {
-                path = path.substring(1);
-            }
-            Object result = interpreter.evalFunction(RESOLVE_FUNCTION_NAME, path, fullPath, resolverContext);
-            return (IFtpFile) result;
-        } else
-        {
-            return new FtpNonExistingFile(fullPath, "invalid request to plugin " + pluginName + ": " + fullPath);
-        }
+        Object result = interpreter.evalFunction(RESOLVE_FUNCTION_NAME, pathItems, resolverContext);
+        return (IFtpFile) result;
     }
 
     @Override
     public void initialize(String pluginName, String code)
     {
-        this.pluginName = pluginName;
-        this.code = code;
-
         if (interpreters.containsKey(pluginName) == false)
         {
-            String scriptPath = PropertyUtils.getMandatoryProperty(DssPropertyParametersUtil.loadServiceProperties(), pluginName + ".script-file");
+            String scriptPath = PropertyUtils.getMandatoryProperty(DssPropertyParametersUtil.loadServiceProperties(),
+                    pluginName + "." + SCRIPT_FILENAME_PROPERTY);
             String scriptString = JythonUtils.extractScriptFromPath(scriptPath);
             String[] pythonPath = JythonUtils.getScriptDirectoryPythonPath(scriptPath);
             interpreters.put(pluginName, Evaluator.getFactory().create("", pythonPath, scriptPath, null, scriptString, false));

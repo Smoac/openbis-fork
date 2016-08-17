@@ -32,10 +32,9 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.IResolverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpDirectoryResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpFileResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpNonExistingFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.ResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 
 /**
@@ -50,23 +49,23 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 public class DataSetTypeResolver implements IResolverPlugin
 {
     @Override
-    public IFtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
+    public IFtpFile resolve(String[] subPath, ResolverContext context)
     {
         if (subPath.length == 0)
         {
-            return listDataSetTypes(fullPath, context);
+            return listDataSetTypes(context);
         }
 
         String dataSetType = subPath[0];
         if (subPath.length == 1)
         {
-            return listDataSetsOfGivenType(fullPath, dataSetType, context);
+            return listDataSetsOfGivenType(dataSetType, context);
         }
 
-        return resolveFileSearch(fullPath, subPath, context);
+        return resolveFileSearch(subPath, context);
     }
 
-    private IFtpFile resolveFileSearch(String fullPath, String[] subPath, FtpPathResolverContext context)
+    private IFtpFile resolveFileSearch(String[] subPath, ResolverContext context)
     {
         String dataSetCode = subPath[1];
         String requestedFileName = subPath.length == 2 ? null : subPath[2];
@@ -79,22 +78,22 @@ public class DataSetTypeResolver implements IResolverPlugin
 
         if (dataSetsToSearch == null)
         {
-            return new FtpNonExistingFile(fullPath, null);
+            return context.createNonExistingFileResponse(null);
         }
 
         if (requestedFileName != null)
         {
-            FtpFileResponse result = findRequestedNode(fullPath, dataSetsToSearch, requestedFileName, context.getContentProvider());
+            FtpFileResponse result = findRequestedNode(dataSetsToSearch, requestedFileName, context);
             if (result != null)
             {
                 return result;
             } else
             {
-                return new FtpNonExistingFile(fullPath, "Unable to locate requested file");
+                return context.createNonExistingFileResponse("Unable to locate requested file");
             }
         }
 
-        FtpDirectoryResponse response = new FtpDirectoryResponse(fullPath);
+        FtpDirectoryResponse response = context.createDirectoryResponse();
         for (IHierarchicalContentNode file : findAllNodes(dataSetsToSearch, context.getContentProvider()))
         {
             response.addFile(file.getName(), file);
@@ -128,16 +127,17 @@ public class DataSetTypeResolver implements IResolverPlugin
         return result;
     }
 
-    private FtpFileResponse findRequestedNode(String fullPath, List<DataSet> dataSetsToSearch, String requestedFileName,
-            IHierarchicalContentProvider contentProvider)
+    private FtpFileResponse findRequestedNode(List<DataSet> dataSetsToSearch, String requestedFileName,
+            ResolverContext context)
     {
+        IHierarchicalContentProvider contentProvider = context.getContentProvider();
         for (DataSet dataSet : dataSetsToSearch)
         {
             IHierarchicalContent content = contentProvider.asContent(dataSet.getCode());
             IHierarchicalContentNode node = findRequestedNode(content.getRootNode(), requestedFileName);
             if (node != null)
             {
-                return new FtpFileResponse(fullPath, node, content);
+                return context.createFileResponse(node, content);
             }
         }
         return null;
@@ -166,12 +166,12 @@ public class DataSetTypeResolver implements IResolverPlugin
     }
 
     // returns a list of data sets starting with requested data set and continuedby it's parents
-    private List<DataSet> searchForDataSetAndParents(String dataSetCode, FtpPathResolverContext context)
+    private List<DataSet> searchForDataSetAndParents(String dataSetCode, ResolverContext context)
     {
         DataSetPermId dataId = new DataSetPermId(dataSetCode);
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withParents();
-        DataSet dataSet = context.getV3Api().getDataSets(context.getSessionToken(), Collections.singletonList(dataId), fetchOptions).get(dataId);
+        DataSet dataSet = context.getApi().getDataSets(context.getSessionToken(), Collections.singletonList(dataId), fetchOptions).get(dataId);
 
         if (dataSet == null)
         {
@@ -184,15 +184,15 @@ public class DataSetTypeResolver implements IResolverPlugin
         return dataSetsToSearch;
     }
 
-    private IFtpFile listDataSetsOfGivenType(String fullPath, String dataSetType, FtpPathResolverContext context)
+    private IFtpFile listDataSetsOfGivenType(String dataSetType, ResolverContext context)
     {
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withParents();
         DataSetSearchCriteria searchCriteria = new DataSetSearchCriteria();
         searchCriteria.withType().withCode().thatEquals(dataSetType);
-        List<DataSet> dataSets = context.getV3Api().searchDataSets(context.getSessionToken(), searchCriteria, fetchOptions).getObjects();
+        List<DataSet> dataSets = context.getApi().searchDataSets(context.getSessionToken(), searchCriteria, fetchOptions).getObjects();
 
-        FtpDirectoryResponse result = new FtpDirectoryResponse(fullPath);
+        FtpDirectoryResponse result = context.createDirectoryResponse();
         for (DataSet dataSet : dataSets)
         {
             result.addDirectory(dataSet.getCode());
@@ -200,13 +200,13 @@ public class DataSetTypeResolver implements IResolverPlugin
         return result;
     }
 
-    private IFtpFile listDataSetTypes(String fullPath, FtpPathResolverContext context)
+    private IFtpFile listDataSetTypes(ResolverContext context)
     {
         List<DataSetType> dataSetTypes =
-                context.getV3Api().searchDataSetTypes(context.getSessionToken(), new DataSetTypeSearchCriteria(), new DataSetTypeFetchOptions())
+                context.getApi().searchDataSetTypes(context.getSessionToken(), new DataSetTypeSearchCriteria(), new DataSetTypeFetchOptions())
                         .getObjects();
 
-        FtpDirectoryResponse response = new FtpDirectoryResponse(fullPath);
+        FtpDirectoryResponse response = context.createDirectoryResponse();
         for (DataSetType type : dataSetTypes)
         {
             response.addDirectory(type.getCode());

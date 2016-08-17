@@ -25,8 +25,8 @@ import java.util.List;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.server.ISessionTokenProvider;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.ResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
@@ -57,11 +57,11 @@ public class FtpPathResolverContext implements ISessionTokenProvider
 
     private final Cache cache;
 
-    private IHierarchicalContentProvider contentProvider;
+    private final ResolverContext resolverContext;
 
     public FtpPathResolverContext(String sessionToken, IServiceForDataStoreServer service,
             IGeneralInformationService generalInfoService, IApplicationServerApi v3api,
-            IFtpPathResolverRegistry resolverRegistry, Cache cache)
+            IFtpPathResolverRegistry resolverRegistry, Cache cache, ResolverContext resolverContext)
     {
         this.sessionToken = sessionToken;
         this.service = service;
@@ -69,6 +69,7 @@ public class FtpPathResolverContext implements ISessionTokenProvider
         this.resolverRegistry = resolverRegistry;
         this.v3api = v3api;
         this.cache = cache;
+        this.resolverContext = resolverContext;
     }
 
     @Override
@@ -94,11 +95,7 @@ public class FtpPathResolverContext implements ISessionTokenProvider
 
     public IHierarchicalContentProvider getContentProvider()
     {
-        if (contentProvider == null)
-        {
-            contentProvider = ServiceProvider.getHierarchicalContentProvider();
-        }
-        return contentProvider.cloneFor(this);
+        return resolverContext.getContentProvider();
     }
 
     public DataSet getDataSet(String dataSetCode)
@@ -201,6 +198,11 @@ public class FtpPathResolverContext implements ISessionTokenProvider
     public IFtpPathResolverRegistry getResolverRegistry()
     {
         return resolverRegistry;
+    }
+
+    public ResolverContext getResolverContext()
+    {
+        return resolverContext;
     }
 
 }

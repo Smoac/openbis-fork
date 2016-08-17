@@ -28,8 +28,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpDirectoryResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpNonExistingFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.ResolverContext;
 
 class SpaceLevelResolver implements IResolver
 {
@@ -41,7 +40,7 @@ class SpaceLevelResolver implements IResolver
     }
 
     @Override
-    public IFtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
+    public IFtpFile resolve(String[] subPath, ResolverContext context)
     {
         if (subPath.length == 0)
         {
@@ -53,16 +52,16 @@ class SpaceLevelResolver implements IResolver
             SpacePermId spaceCodeId = new SpacePermId(spaceCode);
 
             Map<ISpaceId, Space> spaces =
-                    context.getV3Api().getSpaces(context.getSessionToken(), Collections.singletonList(spaceCodeId), fetchOptions);
+                    context.getApi().getSpaces(context.getSessionToken(), Collections.singletonList(spaceCodeId), fetchOptions);
 
             Space space = spaces.get(spaceCodeId);
 
             if (space == null)
             {
-                return new FtpNonExistingFile(fullPath, null);
+                return context.createNonExistingFileResponse(null);
             }
 
-            FtpDirectoryResponse response = new FtpDirectoryResponse(fullPath);
+            FtpDirectoryResponse response = context.createDirectoryResponse();
             for (Project project : space.getProjects())
             {
                 response.addDirectory(project.getCode());
@@ -73,7 +72,7 @@ class SpaceLevelResolver implements IResolver
             String item = subPath[0];
             String[] remaining = Arrays.copyOfRange(subPath, 1, subPath.length);
             ProjectLevelResolver resolver = new ProjectLevelResolver(spaceCode, item);
-            return resolver.resolve(fullPath, remaining, context);
+            return resolver.resolve(remaining, context);
         }
     }
 }

@@ -21,9 +21,7 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpDirectoryResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpFileResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpNonExistingFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.ResolverContext;
 
 class HierarchicalContentResolver implements IResolver
 {
@@ -36,7 +34,7 @@ class HierarchicalContentResolver implements IResolver
     }
 
     @Override
-    public IFtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
+    public IFtpFile resolve(String[] subPath, ResolverContext context)
     {
         IHierarchicalContentNode rootNode;
         if (subPath.length == 0)
@@ -49,15 +47,15 @@ class HierarchicalContentResolver implements IResolver
 
         if (rootNode == null)
         {
-            return new FtpNonExistingFile(fullPath, null);
+            return context.createNonExistingFileResponse(null);
         }
 
         if (false == rootNode.isDirectory())
         {
-            return new FtpFileResponse(fullPath, rootNode, content);
+            return context.createFileResponse(rootNode, content);
         }
 
-        FtpDirectoryResponse response = new FtpDirectoryResponse(fullPath);
+        FtpDirectoryResponse response = context.createDirectoryResponse();
         for (IHierarchicalContentNode node : rootNode.getChildNodes())
         {
             if (node.isDirectory())

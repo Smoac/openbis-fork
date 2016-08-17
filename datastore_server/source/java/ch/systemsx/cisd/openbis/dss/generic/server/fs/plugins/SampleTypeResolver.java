@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.fs.DataSetContentResolver;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.IResolverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpDirectoryResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.ResolverContext;
 
 /**
  * Resolves paths of type "/SAMPLE_TYPE/SAMPLE_CODE/DATASET_CODE/data set content <br>
@@ -49,38 +49,38 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 public class SampleTypeResolver implements IResolverPlugin
 {
     @Override
-    public IFtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
+    public IFtpFile resolve(String[] subPath, ResolverContext context)
     {
         if (subPath.length == 0)
         {
-            return listSampleTypes(fullPath, context);
+            return listSampleTypes(context);
         }
 
         String sampleType = subPath[0];
         if (subPath.length == 1)
         {
-            return listSamplesOfGivenType(fullPath, sampleType, context);
+            return listSamplesOfGivenType(sampleType, context);
         }
 
         String sampleCode = subPath[1];
         if (subPath.length == 2)
         {
-            return listDataSetsForGivenSampleTypeAndCode(fullPath, sampleType, sampleCode, context);
+            return listDataSetsForGivenSampleTypeAndCode(sampleType, sampleCode, context);
         }
 
         String dataSetCode = subPath[2];
         String[] remaining = Arrays.copyOfRange(subPath, 3, subPath.length);
-        return new DataSetContentResolver(dataSetCode).resolve(fullPath, remaining, context);
+        return new DataSetContentResolver(dataSetCode).resolve(remaining, context);
     }
 
-    private IFtpFile listDataSetsForGivenSampleTypeAndCode(String fullPath, String sampleTypeCode, String sampleCode, FtpPathResolverContext context)
+    private IFtpFile listDataSetsForGivenSampleTypeAndCode(String sampleTypeCode, String sampleCode, ResolverContext context)
     {
         DataSetSearchCriteria searchCriteria = new DataSetSearchCriteria();
         searchCriteria.withSample().withType().withCode().thatEquals(sampleTypeCode);
         searchCriteria.withSample().withCode().thatEquals(sampleCode);
-        List<DataSet> dataSets = context.getV3Api().searchDataSets(context.getSessionToken(), searchCriteria, new DataSetFetchOptions()).getObjects();
+        List<DataSet> dataSets = context.getApi().searchDataSets(context.getSessionToken(), searchCriteria, new DataSetFetchOptions()).getObjects();
 
-        FtpDirectoryResponse result = new FtpDirectoryResponse(fullPath);
+        FtpDirectoryResponse result = context.createDirectoryResponse();
         for (DataSet dataSet : dataSets)
         {
             result.addDirectory(dataSet.getCode());
@@ -88,16 +88,16 @@ public class SampleTypeResolver implements IResolverPlugin
         return result;
     }
 
-    private IFtpFile listSamplesOfGivenType(String fullPath, String sampleType, FtpPathResolverContext context)
+    private IFtpFile listSamplesOfGivenType(String sampleType, ResolverContext context)
     {
         SampleSearchCriteria searchCriteria = new SampleSearchCriteria();
         searchCriteria.withType().withCode().thatEquals(sampleType);
-        List<Sample> samples = context.getV3Api().searchSamples(context.getSessionToken(), searchCriteria, new SampleFetchOptions()).getObjects();
+        List<Sample> samples = context.getApi().searchSamples(context.getSessionToken(), searchCriteria, new SampleFetchOptions()).getObjects();
 
         // as codes can overlap, we want to create only one entry per code
         HashSet<String> sampleCodes = new HashSet<>();
 
-        FtpDirectoryResponse result = new FtpDirectoryResponse(fullPath);
+        FtpDirectoryResponse result = context.createDirectoryResponse();
         for (Sample sample : samples)
         {
             if (false == sampleCodes.contains(sample.getCode()))
@@ -109,15 +109,15 @@ public class SampleTypeResolver implements IResolverPlugin
         return result;
     }
 
-    private IFtpFile listSampleTypes(String fullPath, FtpPathResolverContext context)
+    private IFtpFile listSampleTypes(ResolverContext context)
     {
         SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
         searchCriteria.withListable().thatEquals(true);
         List<SampleType> sampleTypes =
-                context.getV3Api().searchSampleTypes(context.getSessionToken(), searchCriteria, new SampleTypeFetchOptions())
+                context.getApi().searchSampleTypes(context.getSessionToken(), searchCriteria, new SampleTypeFetchOptions())
                         .getObjects();
 
-        FtpDirectoryResponse response = new FtpDirectoryResponse(fullPath);
+        FtpDirectoryResponse response = context.createDirectoryResponse();
         for (SampleType type : sampleTypes)
         {
             response.addDirectory(type.getCode());

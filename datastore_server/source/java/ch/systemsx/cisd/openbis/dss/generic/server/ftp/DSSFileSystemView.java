@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.ResolverContext;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.util.Key;
@@ -165,9 +166,11 @@ public class DSSFileSystemView implements FileSystemView
 
         try
         {
+            ResolverContext resolverContext =
+                    new ResolverContext(sessionToken, cache, v3api, path);
             FtpPathResolverContext context =
                     new FtpPathResolverContext(sessionToken, service, generalInfoService, v3api,
-                            pathResolverRegistry, cache);
+                            pathResolverRegistry, cache, resolverContext);
             return pathResolverRegistry.resolve(normalizedPath, context);
         } catch (RuntimeException rex)
         {

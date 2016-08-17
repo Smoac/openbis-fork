@@ -25,9 +25,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpNonExistingFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.ResolverContext;
 
 /**
  * Resolves the content of the data set. Assumes that the first part of the path is data set code
@@ -44,18 +43,17 @@ public class DataSetContentResolver implements IResolver
     }
 
     @Override
-    public IFtpFile resolve(String fullPath, String[] subPath, FtpPathResolverContext context)
+    public IFtpFile resolve(String[] subPath, ResolverContext context)
     {
         Cache cache = context.getCache();
 
         Boolean hasAccess = cache.getAccess(dataSetCode);
         if (hasAccess == null)
         {
-
             // this fetching of data set is for authorization purposes, as content provider doesn't check if user has access to data set
             IDataSetId id = new DataSetPermId(dataSetCode);
             Map<IDataSetId, DataSet> dataSets =
-                    context.getV3Api().getDataSets(context.getSessionToken(), Collections.singletonList(id), new DataSetFetchOptions());
+                    context.getApi().getDataSets(context.getSessionToken(), Collections.singletonList(id), new DataSetFetchOptions());
 
             hasAccess = dataSets.containsKey(id);
             cache.putAccess(dataSetCode, hasAccess);
@@ -63,7 +61,7 @@ public class DataSetContentResolver implements IResolver
 
         if (hasAccess.booleanValue() == false)
         {
-            return new FtpNonExistingFile(fullPath, "Path doesn't exist or unauthorized");
+            return context.createNonExistingFileResponse("Path doesn't exist or unauthorized");
         }
 
         IHierarchicalContent content = cache.getContent(dataSetCode);
@@ -74,6 +72,6 @@ public class DataSetContentResolver implements IResolver
         }
 
         HierarchicalContentResolver resolver = new HierarchicalContentResolver(content);
-        return resolver.resolve(fullPath, subPath, context);
+        return resolver.resolve(subPath, context);
     }
 }

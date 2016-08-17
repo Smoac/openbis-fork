@@ -28,8 +28,8 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpDirectoryResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpNonExistingFile;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverConfig;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
@@ -69,7 +69,7 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
                     plugins.add(new FileSystemPlugin(pluginName, code, clazz));
                 } catch (ClassNotFoundException ex)
                 {
-                    throw new ConfigurationFailureException("Couldn't load class for file system plugin");
+                    throw new ConfigurationFailureException("Couldn't load class for file system plugin: " + className);
                 } catch (SecurityException ex)
                 {
                     throw new ConfigurationFailureException("Couldn't load class for file system plugin");
@@ -122,7 +122,7 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
     private IFtpFile resolveDefault(String path, FtpPathResolverContext resolverContext, String[] split)
     {
         RootLevelResolver resolver = new RootLevelResolver();
-        return resolver.resolve(path, split, resolverContext);
+        return resolver.resolve(split, resolverContext.getResolverContext());
     }
 
     private IFtpFile resolvePlugins(String path, String[] subPath, FtpPathResolverContext resolverContext)
@@ -149,7 +149,7 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
                     if (plugin.getPluginCode().equals(subPath[0]))
                     {
                         IResolver resolver = plugin.getPluginResolver();
-                        return resolver.resolve(path, remaining, resolverContext);
+                        return resolver.resolve(remaining, resolverContext.getResolverContext());
                     }
                 }
                 return new FtpNonExistingFile(path, null);

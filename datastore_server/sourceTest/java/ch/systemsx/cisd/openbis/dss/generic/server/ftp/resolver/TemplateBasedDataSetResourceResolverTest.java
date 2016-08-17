@@ -202,9 +202,16 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         root.mkdirs();
         simpleFileContentProvider = new SimpleFileContentProvider(root);
 
+        Cache cache = new Cache(timeProvider);
+        // these are the tests for old style resolvers.
+        // they are tested in here in a way that doesn't use the path in the Resolver context.
+        // in productive code we always create a new context for each request and we have a
+        // requested path for request in the context.
+        // As it doesn't affect resolvers tested in here I don't modify the tests accordingly
+        ResolverContext dssfsResolverContext = new ResolverContext(SESSION_TOKEN, cache, v3api, null);
+
         resolverContext =
-                new FtpPathResolverContext(SESSION_TOKEN, service, generalInfoService, v3api, null,
-                        new Cache(timeProvider));
+                new FtpPathResolverContext(SESSION_TOKEN, service, generalInfoService, v3api, null, cache, dssfsResolverContext);
         context.checking(new Expectations()
             {
                 {
