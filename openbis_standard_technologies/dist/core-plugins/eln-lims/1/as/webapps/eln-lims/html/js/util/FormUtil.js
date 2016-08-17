@@ -230,7 +230,7 @@ var FormUtil = new function() {
 			if(profile.isSampleTypeHidden(sampleType.code)) {
 				continue;
 			}
-			var label = sampleType.code;
+			var label = Util.getDisplayNameFromCode(sampleType.code);
 			var description = Util.getEmptyIfNull(sampleType.description);
 			if(description !== "") {
 				label += " (" + description + ")";
@@ -257,7 +257,7 @@ var FormUtil = new function() {
 				continue;
 			}
 			
-			var label = experimentType.code;
+			var label = Util.getDisplayNameFromCode(experimentType.code);
 			var description = Util.getEmptyIfNull(experimentType.description);
 			if(description !== "") {
 				label += " (" + description + ")";
@@ -312,19 +312,17 @@ var FormUtil = new function() {
 		
 		$component.attr('required', '');
 		
-		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
+		$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text('Select a dataset type'));
 		
 		for(var i = 0; i < dataSetTypes.length; i++) {
-			var displayName = dataSetTypes[i].code;
-			if(dataSetTypes[i].description) {
-				var length = dataSetTypes[i].description.length > 40;
-				if(dataSetTypes[i].description.length > 40) {
-					displayName = dataSetTypes[i].description.substring(1,36) + " ...";
-				} else {
-					displayName = dataSetTypes[i].description;
-				}
+			var datasetType = dataSetTypes[i];
+			var label = Util.getDisplayNameFromCode(datasetType.code);
+			var description = Util.getEmptyIfNull(datasetType.description);
+			if(description !== "") {
+				label += " (" + description + ")";
 			}
-			$component.append($("<option>").attr('value',dataSetTypes[i].code).text(displayName));
+			
+			$component.append($("<option>").attr('value',datasetType.code).text(label));
 		}
 		
 		return $component;
