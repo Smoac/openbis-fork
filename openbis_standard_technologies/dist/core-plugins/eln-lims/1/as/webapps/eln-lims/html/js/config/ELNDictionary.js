@@ -9,6 +9,10 @@ var ELNDictionary = {
 	ExperimentsInventory : "Collections"
 }
 
+ELNDictionary.getExperimentDualName = function() {
+	return ELNDictionary.ExperimentELN + "/" + ELNDictionary.ExperimentInventory;
+}
+
 ELNDictionary.getExperimentKindName = function(identifier, isPlural) {
 	var space = identifier.split("/")[1];
 	if(profile.isInventorySpace(space)) {

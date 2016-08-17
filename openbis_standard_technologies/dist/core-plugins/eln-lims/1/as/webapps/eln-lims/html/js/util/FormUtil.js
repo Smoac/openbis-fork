@@ -250,7 +250,7 @@ var FormUtil = new function() {
 			$component.attr('required', '');
 		}
 		
-		$component.append($("<option>").attr('value', '').attr('selected', '').text('Select a type'));
+		$component.append($("<option>").attr('value', '').attr('selected', '').text("Select an " + ELNDictionary.getExperimentDualName() + " type"));
 		for(var i = 0; i < experimentTypes.length; i++) {
 			var experimentType = experimentTypes[i];
 			if(profile.isExperimentTypeHidden(experimentType.code)) {
@@ -279,7 +279,7 @@ var FormUtil = new function() {
 		
 		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
 		for(var i = 0; i < spaces.length; i++) {
-			$component.append($("<option>").attr('value', spaces[i]).text(spaces[i]));
+			$component.append($("<option>").attr('value', spaces[i]).text(Util.getDisplayNameFromCode(spaces[i])));
 		}
 		
 		return $component;
@@ -385,11 +385,11 @@ var FormUtil = new function() {
             		}
             		var placeHolder = "";
             		if(withProjects && withExperiments) {
-            			placeHolder = "Select a project or experiment";
+            			placeHolder = "Select a project or " + ELNDictionary.getExperimentDualName();
             		} else if(withProjects) {
             			placeHolder = "Select a project";
             		} else if(withExperiments) {
-            			placeHolder = "Select an experiment";
+            			placeHolder = "Select an " + ELNDictionary.getExperimentDualName();
             		}
             		$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text(placeHolder));
             		for(var pIdx = 0; pIdx < projectsToUse.length; pIdx++) {
