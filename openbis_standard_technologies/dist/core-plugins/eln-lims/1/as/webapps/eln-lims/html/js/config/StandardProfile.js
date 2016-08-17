@@ -410,6 +410,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					delete sample.properties["ORDER_STATE"];
 					sample.properties["ORDER_STATE"] = window.btoa(JSON.stringify(sample));
 				}
+				action();
 			} else if(action) {
 				action();
 			}
