@@ -104,7 +104,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
     @Override
     public boolean isEnabled()
     {
-        return checkEnabledProperty("screening");
+        return checkEnabledProperty("screening") || checkEnabledProperty("microscopy");
     }
 
     @Override
