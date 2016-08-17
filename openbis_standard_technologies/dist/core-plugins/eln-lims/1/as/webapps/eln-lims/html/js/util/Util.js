@@ -489,6 +489,20 @@ var Util = new function() {
 		           s4() + '-' + s4() + s4() + s4();
 	};
 	
+	this.getDisplayNameForEntity = function(entity) {
+		var displayName = "";
+		if(profile.propertyReplacingCode && 
+			entity.properties && 
+			entity.properties[profile.propertyReplacingCode]) {
+			displayName = entity.properties[profile.propertyReplacingCode];
+		} else if(entity["@type"] === "as.dto.project.Project" || entity["@type"] === "as.dto.space.Space") {
+			displayName = this.getDisplayNameFromCode(entity.code);
+		} else {
+			displayName = entity.code;
+		}
+		return displayName;
+	}
+	
 	this.getDisplayNameFromCode = function(openBISCode) {
 		var normalizedCodeParts = openBISCode.toLowerCase().split('_');
 		var displayName = "";
