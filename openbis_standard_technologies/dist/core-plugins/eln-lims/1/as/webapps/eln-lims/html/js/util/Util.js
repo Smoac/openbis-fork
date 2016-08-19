@@ -395,6 +395,16 @@ var Util = new function() {
 	//
 	// Date Formating
 	//
+	this.parseDate = function(dateAsString) {
+		if(dateAsString) {
+			var yearTimeAndOffset = dateAsString.split(" ");
+			var yearParts = yearTimeAndOffset[0].split("-");
+			var timeParts = yearTimeAndOffset[1].split(":");
+			return new Date(yearParts[0],yearParts[1],yearParts[2], timeParts[0], timeParts[1], timeParts[2]);
+		}
+		return null;
+	}
+	
 	this.getFormatedDate = function(date) {
 		var day = date.getDate();
 		if(day < 10) {

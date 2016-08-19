@@ -563,7 +563,7 @@ var FormUtil = new function() {
 		return termCode;
 	}
 	
-	this.getFieldForPropertyType = function(propertyType) {
+	this.getFieldForPropertyType = function(propertyType, timestampValue) {
 		var $component = null;
 		if (propertyType.dataType === "BOOLEAN") {
 			$component = this._getBooleanField(propertyType.code, propertyType.description);
@@ -580,7 +580,7 @@ var FormUtil = new function() {
 		} else if (propertyType.dataType === "REAL") {
 			$component = this._getInputField("number", propertyType.code, propertyType.description, 'any', propertyType.mandatory);
 		} else if (propertyType.dataType === "TIMESTAMP") {
-			$component = this._getDatePickerField(propertyType.code, propertyType.description, propertyType.mandatory);
+			$component = this._getDatePickerField(propertyType.code, propertyType.description, propertyType.mandatory, timestampValue);
 		} else if (propertyType.dataType === "VARCHAR") {
 			$component = this._getInputField("text", propertyType.code, propertyType.description, null, propertyType.mandatory);
 		} else if (propertyType.dataType === "XML") {
@@ -671,7 +671,7 @@ var FormUtil = new function() {
 		return $component;
 	}
 	
-	this._getDatePickerField = function(id, alt, isRequired) {
+	this._getDatePickerField = function(id, alt, isRequired, value) {
 		var $component = $('<div>', {'class' : 'form-group', 'style' : 'margin-left: 0px;', 'placeholder' : alt });
 		var $subComponent = $('<div>', {'class' : 'input-group date', 'id' : 'datetimepicker_' + id });
 		var $input = $('<input>', {'class' : 'form-control', 'type' : 'text', 'id' : id, 'data-format' : 'yyyy-MM-dd HH:mm:ss'});
@@ -683,7 +683,20 @@ var FormUtil = new function() {
 		
 		$subComponent.append($input);
 		$subComponent.append($spanAddOn);
-		$subComponent.datetimepicker({ format : 'YYYY-MM-DD HH:mm:ss', useCurrent : false });
+		
+		var date = null;
+		if(value) {
+			date = Util.parseDate(value);
+		}
+		
+		var datetimepicker = $subComponent.datetimepicker({ 
+			format : 'YYYY-MM-DD HH:mm:ss', 
+			useCurrent : false,
+			defaultDate : date
+		});
+		
+		
+		
 		$component.append($subComponent);
 		
 		return $component;

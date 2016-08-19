@@ -528,13 +528,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 						continue;
 					}
 				} else {
-					var $component = FormUtil.getFieldForPropertyType(propertyType);
+					var $component = FormUtil.getFieldForPropertyType(propertyType, value);
 					//Update values if is into edit mode
 					if(this._sampleFormModel.mode === FormMode.EDIT) {
 						if(propertyType.dataType === "BOOLEAN") {
 							$($($component.children()[0]).children()[0]).prop('checked', value === "true");
 						} else if(propertyType.dataType === "TIMESTAMP") {
-							$($($component.children()[0]).children()[0]).val(value);
 						} else {
 							$component.val(value);
 						}
@@ -568,7 +567,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 						$component = FormUtil.activateRichTextProperties($component, changeEvent(propertyType));
 					} else if(propertyType.dataType === "TIMESTAMP") {
 						$component.on("dp.change", changeEvent(propertyType));
-						$component.change(changeEvent(propertyType));
 					} else {
 						$component.change(changeEvent(propertyType));
 					}
