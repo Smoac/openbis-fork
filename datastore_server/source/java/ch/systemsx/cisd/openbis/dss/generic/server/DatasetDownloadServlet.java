@@ -117,10 +117,14 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
 
         private final boolean disableLinks;
 
+        private final String referrerDomain;
+
+        private final boolean forceReferrerDomainOnEmptyDownloadURL;
+
         public RequestParams(String dataSetCode, String pathInfo, String sessionIdOrNull,
                 String urlPrefixWithDataset, String displayMode, boolean autoResolve,
                 String mainDataSetPathOrNull, String mainDataSetPatternOrNull,
-                boolean forceAutoResolve, boolean disableLinks)
+                boolean forceAutoResolve, boolean disableLinks, String referrerDomain, boolean forceReferrerDomainOnEmptyDownloadURL)
         {
             this.dataSetCode = dataSetCode;
             this.pathInfo = pathInfo;
@@ -132,6 +136,8 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             this.mainDataSetPatternOrNull = mainDataSetPatternOrNull;
             this.forceAutoResolve = forceAutoResolve;
             this.disableLinks = disableLinks;
+            this.referrerDomain = referrerDomain;
+            this.forceReferrerDomainOnEmptyDownloadURL = forceReferrerDomainOnEmptyDownloadURL;
         }
 
         public boolean isAutoResolve()
@@ -182,6 +188,16 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         public boolean isDisableLinks()
         {
             return disableLinks;
+        }
+
+        public String getReferrerDomain()
+        {
+            return referrerDomain;
+        }
+
+        public boolean isForceReferrerDomainOnEmptyDownloadURL()
+        {
+            return forceReferrerDomainOnEmptyDownloadURL;
         }
 
     }
@@ -332,9 +348,42 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         {
             mainDataSetPatternOrNull = null;
         }
+
+        // When using Apache mod_rewrite, clients will get redirected from https to http because openBIS is actually runs under a http connector
+        // Issue explained here http://stackoverflow.com/questions/18891210/how-to-reproduce-sendredirect-issue-https-change-to-http
+        // The next code is used to detect this case and the referrerDomain will be used for redirects when DOWNLOAD_URL is empty
+        String requestScheme = request.getScheme();
+        String referrer = request.getHeader("referer");
+        String referrerScheme = null;
+        String referrerDomain = null;
+        boolean forceReferrerDomainOnEmptyDownloadURL = false;
+
+        if (referrer != null)
+        {
+            int indexOfDomainEnd = StringUtils.ordinalIndexOf(referrer, "/", 3);
+            if (indexOfDomainEnd != -1)
+            {
+                referrerDomain = referrer.substring(0, indexOfDomainEnd);
+                int indexOfSchemeEnd = referrerDomain.indexOf("://");
+                if (indexOfSchemeEnd != -1)
+                {
+                    referrerScheme = referrerDomain.substring(0, indexOfSchemeEnd);
+                }
+
+            }
+        }
+
+        if (requestScheme != null &&
+                referrerScheme != null &&
+                requestScheme.equals(referrerScheme) == false)
+        {
+            forceReferrerDomainOnEmptyDownloadURL = true;
+        }
+        //
+
         return new RequestParams(dataSetCode, pathInfo, sessionIDOrNull, urlPrefixWithDataset,
                 displayMode, autoResolve, mainDataSetPathOrNull, mainDataSetPatternOrNull,
-                forceAutoResolve, disableLinks);
+                forceAutoResolve, disableLinks, referrerDomain, forceReferrerDomainOnEmptyDownloadURL);
     }
 
     private static String getDisplayMode(HttpServletRequest request)
@@ -432,7 +481,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             String newRelativePath = mainDataSets.get(0).getRelativePath();
             RenderingContext newRenderingContext =
                     new RenderingContext(renderingContext, newRelativePath);
-            autoResolveRedirect(response, newRenderingContext, requestParams.isDisableLinks());
+            autoResolveRedirect(response, newRenderingContext, requestParams);
         } else if (AutoResolveUtils.continueAutoResolving(requestParams.tryGetMainDataSetPattern(),
                 dirNode))
         {
@@ -443,7 +492,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             String newRelativePath = pathPrefix + childName;
             RenderingContext newRenderingContext =
                     new RenderingContext(renderingContext, newRelativePath);
-            autoResolveRedirect(response, newRenderingContext, requestParams.isDisableLinks());
+            autoResolveRedirect(response, newRenderingContext, requestParams);
         } else
         {
             createPage(rendererFactory, response, dataSetCode, renderingContext, dirNode, requestParams.isDisableLinks());
@@ -451,14 +500,23 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
     }
 
     private static void autoResolveRedirect(HttpServletResponse response,
-            RenderingContext newContext, Boolean disableLinks) throws IOException
+            RenderingContext newContext, RequestParams requestParams) throws IOException
     {
         String urlPrefix = newContext.getUrlPrefix();
         String relativePath = newContext.getRelativePath();
         String sessionIdOrNull = newContext.getSessionIdOrNull();
+        String newLocationDomain = null;
+        if (DOWNLOAD_URL.isEmpty() && requestParams.isForceReferrerDomainOnEmptyDownloadURL())
+        {
+            newLocationDomain = requestParams.getReferrerDomain();
+        } else
+        {
+            newLocationDomain = DOWNLOAD_URL;
+        }
         final String newLocation =
-                DOWNLOAD_URL + urlPrefix + "/" + relativePath
-                        + Utils.createUrlParameterForSessionId("?", sessionIdOrNull) + "&disableLinks=" + disableLinks;
+                newLocationDomain + urlPrefix + "/" + relativePath
+                        + Utils.createUrlParameterForSessionId("?", sessionIdOrNull) + "&disableLinks=" + requestParams.isDisableLinks();
+
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("Auto resolve redirect: '%s', context: %s",
