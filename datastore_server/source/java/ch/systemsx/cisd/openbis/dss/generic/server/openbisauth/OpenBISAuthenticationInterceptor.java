@@ -24,7 +24,6 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.common.spring.PropertyPlaceholderUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.ConfigParameters;
 import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
@@ -145,10 +144,10 @@ public class OpenBISAuthenticationInterceptor implements MethodInterceptor
         dataStoreServerInfo.setPort(port);
         dataStoreServerInfo.setUseSSL(useSSL);
         dataStoreServerInfo.setDataStoreCode(sessionHolder.getDataStoreCode());
-        if (StringUtils.isBlank(downloadUrl))
+        if (downloadUrl == null)
         {
             final String msg =
-                    "'" + DssPropertyParametersUtil.DOWNLOAD_URL_KEY + "' has to be set.";
+                    "'" + DssPropertyParametersUtil.DOWNLOAD_URL_KEY + "' can't be null.";
             throw new ConfigurationFailureException(msg);
         }
         dataStoreServerInfo.setDownloadUrl(downloadUrl);

@@ -220,16 +220,18 @@ public class DatasetDownloadServletTest
 
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
-        
+
         String output = writer.toString();
-        
+
         String directorySize = null;
-        if(output.contains("4 KB")) {
+        if (output.contains("4 KB"))
+        {
             directorySize = "4 KB";
-        } else {
+        } else
+        {
             directorySize = "68 bytes";
         }
-        
+
         assertEquals(
                 "<html><head><style type='text/css'> * { margin: 3px; }html { height: 100%;  }"
                         + "body { height: 100%; font-family: verdana, tahoma, helvetica; "
@@ -249,7 +251,8 @@ public class DatasetDownloadServletTest
                         + "<body><table> "
                         + OSUtilities.LINE_SEPARATOR
                         + "<tr><td class='td_file'>"
-                        + "<a href='/datastore_server/1234-1/" + ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME + "?disableLinks=false&mode=simpleHtml&sessionID=AV76CF'>"
+                        + "<a href='/datastore_server/1234-1/" + ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME
+                        + "?disableLinks=false&mode=simpleHtml&sessionID=AV76CF'>"
                         + "+ s % ! # @/</td><td>" + directorySize + "</td><td></td></tr>"
                         + OSUtilities.LINE_SEPARATOR
                         + "<tr><td class='td_file'>"
@@ -257,7 +260,7 @@ public class DatasetDownloadServletTest
                         + "read me @home.txt</td><td>12 bytes</td><td></td></tr>"
                         + OSUtilities.LINE_SEPARATOR + "</table> </div> </body></html>"
                         + OSUtilities.LINE_SEPARATOR + "",
-                        output);
+                output);
 
         String normalizedLogContent = getNormalizedLogContent();
         assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
@@ -291,6 +294,9 @@ public class DatasetDownloadServletTest
 
                     one(request).getParameter(DatasetDownloadServlet.DISABLE_LINKS);
                     will(returnValue(null));
+
+                    one(request).getScheme();
+                    one(request).getHeader("referer");
                 }
             });
     }
@@ -712,6 +718,9 @@ public class DatasetDownloadServletTest
         exp.one(request).getParameter(DatasetDownloadServlet.DISABLE_LINKS);
         exp.will(Expectations.returnValue(null));
 
+        exp.one(request).getScheme();
+        exp.one(request).getHeader("referer");
+
         // For the logging of problem requests
         Vector<String> parameterNames = new Vector<String>();
         parameterNames.add(AbstractDatasetDownloadServlet.DISPLAY_MODE_PARAM);
@@ -744,6 +753,9 @@ public class DatasetDownloadServletTest
 
                     one(request).getParameter(DatasetDownloadServlet.DISABLE_LINKS);
                     will(returnValue(null));
+
+                    one(request).getScheme();
+                    one(request).getHeader("referer");
                 }
             });
     }

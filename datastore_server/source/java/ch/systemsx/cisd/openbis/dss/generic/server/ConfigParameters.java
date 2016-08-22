@@ -29,8 +29,8 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
-import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.PluginServletConfig;
@@ -157,7 +157,7 @@ public final class ConfigParameters implements IServletPropertiesManager
         dssRecoveryStateDir = DssPropertyParametersUtil.getDssRecoveryStateDir(properties);
         port = getMandatoryIntegerProperty(properties, PORT_KEY);
         serverURL = PropertyUtils.getMandatoryProperty(properties, SERVER_URL_KEY);
-        downloadURL = PropertyUtils.getMandatoryProperty(properties, DOWNLOAD_URL);
+        downloadURL = PropertyUtils.getProperty(properties, DOWNLOAD_URL, "");
         sessionTimeout = getMandatoryIntegerProperty(properties, SESSION_TIMEOUT_KEY) * 60;
         serverTimeoutInMinutes =
                 PropertyUtils.getInt(properties, SERVER_TIMEOUT_IN_MINUTES,

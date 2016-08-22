@@ -62,7 +62,7 @@ public class GenericDssLinkReportingPlugin extends AbstractDssLinkReportingPlugi
     public GenericDssLinkReportingPlugin(Properties properties, File storeRoot)
     {
         super(properties, storeRoot);
-        this.downloadUrl = PropertyUtils.getMandatoryProperty(properties, DOWNLOAD_URL);
+        this.downloadUrl = PropertyUtils.getProperty(properties, DOWNLOAD_URL, "");
         this.regexOrNull = PropertyUtils.getProperty(properties, DATA_SET_REGEX);
         this.pathOrNull = PropertyUtils.getProperty(properties, DATA_SET_PATH);
     }

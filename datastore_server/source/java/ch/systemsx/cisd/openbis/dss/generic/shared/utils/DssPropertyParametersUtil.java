@@ -164,7 +164,7 @@ public class DssPropertyParametersUtil
 
     public static String getDownloadUrl(Properties serviceProperties)
     {
-        return PropertyUtils.getMandatoryProperty(serviceProperties, DOWNLOAD_URL_KEY);
+        return PropertyUtils.getProperty(serviceProperties, DOWNLOAD_URL_KEY, "");
     }
 
     public static int getDataStreamTimeout(Properties serviceProperties)
