@@ -22,7 +22,7 @@ def createVocabularyWithTerms(tr, vocabularyDefinition):
     vocabularyCode = vocabularyDefinition[0];
     vocabularyDescription = vocabularyDefinition[1];
     terms = vocabularyDefinition[2];
-    vocabulary = tr.createNewVocabulary(vocabularyCode);
+    vocabulary = tr.getOrCreateNewVocabulary(vocabularyCode);
     vocabulary.setChosenFromList(True);
     vocabulary.setDescription(vocabularyDescription);
     addTerms(tr, vocabulary, terms);
@@ -33,10 +33,14 @@ def addTerms(tr, vocabulary, terms):
         addTermWithLabelAndDescription(tr, vocabulary, term[0], term[1], term[2])
     
 def addTermWithLabelAndDescription(tr, vocabulary, termCode, termLabel, termDescription):
-    newTerm = tr.createNewVocabularyTerm(termCode);
-    newTerm.setLabel(termLabel);
-    newTerm.setDescription(termDescription);
-    vocabulary.addTerm(newTerm);
+    try:
+        existingTerm = tr.getVocabularyTerm(vocabulary, termCode);
+    except:
+        newTerm = tr.createNewVocabularyTerm(termCode);
+        newTerm.setLabel(termLabel);
+        newTerm.setDescription(termDescription);
+        vocabulary.addTerm(newTerm);
+
     
 def createSampleTypeWithProperties(tr, sampleTypeDefinition):
     sampleTypeCode = sampleTypeDefinition[0];
@@ -91,7 +95,7 @@ def addProperty(tr, entity, propertyCode, section, propertyLabel, dataType, voca
     else:
         property = createProperty(tr, propertyCode, dataType, propertyLabel, propertyDescription, vocabularyCode);
     
-    propertyAssignment = tr.assignPropertyType(entity, property);
+    propertyAssignment = tr.assignPropertyType(entity, property); #If the assignment already exists, returns the existing one
     propertyAssignment.setSection(section);
     propertyAssignment.setShownEdit(True);
     propertyAssignment.setMandatory(isMandatory);
