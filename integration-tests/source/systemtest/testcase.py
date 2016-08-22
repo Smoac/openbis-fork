@@ -4,12 +4,13 @@ import os.path
 import shutil
 import time
 import traceback
+import urllib
 
 import util
 
 INSTALLER_PROJECT = 'installation-16.05'
 OPENBIS_STANDARD_TECHNOLOGIES_PROJECT = 'openbis_standard_technologies-16.05'
-DATAMOVER_PROJECT = 'datamover-16.05'
+DATA_MOVER_DIST = 'https://wiki-bsse.ethz.ch/download/attachments/21567716/datamover-15.06.0-r34542.zip'
 
 PSQL_EXE = 'psql'
 
@@ -168,7 +169,8 @@ class TestCase(object):
                                            startCommand, stopCommand)
         
     def installDatamover(self, instanceName = 'datamover'):
-        zipFile = self.artifactRepository.getPathToArtifact(DATAMOVER_PROJECT, 'datamover')
+        zipFile = self.artifactRepository._download(urllib.urlopen(DATA_MOVER_DIST),
+                                                    'datamover.zip')
         installPath = self._getInstallPath(instanceName)
         util.unzip(zipFile, self.playgroundFolder)
         os.rename("%s/datamover" % (self.playgroundFolder), installPath)
