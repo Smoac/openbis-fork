@@ -52,7 +52,7 @@ a:hover {
 }
 
 body {
-	overflow-y:scroll;
+	overflow:hidden;
 }
 
 h1, h2, legend {
@@ -67,6 +67,36 @@ h1, h2, legend {
 
 #preview-image {
 	margin-top: 10px;	
+}
+
+
+/* 
+ * Scroll management
+ */
+html, 
+body, 
+#main, 
+.container, 
+.row, 
+#sideMenu, 
+#sideMenu > div, 
+#sideMenu > div > #sideMenuBody, 
+#sideMenu > div > #sideMenuBody > #tree,
+#mainContainer {
+	height: 100%;, max-height: 100%; 
+}
+
+#mainContainer {
+	overflow-y: scroll;
+	overflow-x: auto;
+}
+
+#sideMenu > div > #sideMenuBody > #tree > ul.fancytree-container {
+	height: 100%;
+	max-height: 100%; 
+	position: relative;
+	overflow-y: scroll;
+	overflow-x: hidden;
 }
 
 /*
@@ -335,7 +365,7 @@ h1, h2, legend {
 }
 
 #sideMenuBody > div > ul {
-	overflow: hidden;	
+	/* overflow: hidden; To Fix the non overflowing tree */
 	border : none;
 }
 

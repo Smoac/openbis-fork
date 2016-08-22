@@ -47,7 +47,7 @@ function SampleFormController(mainController, mode, sample) {
 		for(var whIdx = 0; whIdx < this._windowHandlers.length; whIdx++) {
 			$(window).off("resize", this._windowHandlers[whIdx]);
 		}
-		$("body").css("overflow", "auto");
+		$("#mainContainer").css("overflow-y", "auto");
 	}
 		
 	this.isDirty = function() {

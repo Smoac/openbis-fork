@@ -49,12 +49,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				return function() {
 					if($(window).width() > 1024) { //Min Desktop resolution
 						var scrollablePanelCss = {'min-height' : $(window).height() + 'px', 'max-height' : $(window).height() + 'px' };
-						$("body").css("overflow", "hidden");
+						$("#mainContainer").css("overflow-y", "hidden");
 						$formColumn.css(scrollablePanelCss);
 						$rightPanel.css(scrollablePanelCss);
 					} else {
 						var normalPanelCss = {'min-height' : 'initial', 'max-height' : 'initial' };
-						$("body").css("overflow", "auto");
+						$("#mainContainer").css("overflow-y", "auto");
 						$formColumn.css(normalPanelCss);
 						$rightPanel.css(normalPanelCss);
 					}
