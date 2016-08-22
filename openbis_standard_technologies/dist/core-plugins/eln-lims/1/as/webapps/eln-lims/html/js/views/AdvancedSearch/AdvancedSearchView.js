@@ -425,7 +425,14 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Entity Kind',
 				property : 'entityKind',
 				isExportable: true,
-				sortable : true
+				sortable : true,
+				render : function(data) {
+					if(data.entityKind === "Sample") {
+						return ELNDictionary.Sample;
+					} else if(data.entityKind === "Experiment") {
+						return ELNDictionary.getExperimentKindName(data.identifier);
+					}
+				}
 			}, {
 				label : 'Entity Type',
 				property : 'entityType',
@@ -584,11 +591,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					
 					//properties
 					rowData.entityKind = entity["@type"].substring(entity["@type"].lastIndexOf(".") + 1, entity["@type"].length);
-					if(rowData.entityKind === "Sample") {
-						rowData.entityKind = ELNDictionary.Sample;
-					} else if(rowData.entityKind === "Experiment") {
-						rowData.entityKind = ELNDictionary.getExperimentKindName(entity.identifier.identifier);
-					}
 					
 					if(entity.experiment) {
 						rowData.experiment = entity.experiment.code;
