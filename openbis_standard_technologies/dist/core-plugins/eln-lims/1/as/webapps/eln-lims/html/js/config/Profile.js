@@ -385,7 +385,10 @@ $.extend(DefaultProfile.prototype, {
 		/*
 		 * Modifies sample before submit
 		 */
-		this.sampleFormOnSubmit = function(sample) {			
+		this.sampleFormOnSubmit = function(sample, action) {
+			if(action) {
+				action();
+			}
 		}
 
 		/*
