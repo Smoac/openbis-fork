@@ -169,10 +169,10 @@ class TestCase(object):
                                            startCommand, stopCommand)
         
     def installDatamover(self, instanceName = 'datamover'):
-        zipFile = self.artifactRepository._download(urllib.urlopen(DATA_MOVER_DIST),
-                                                    'datamover.zip')
+        util.printAndFlush("Download %s to %s." % (DATA_MOVER_DIST, self.artifactRepository.localRepositoryFolder))
+        self.artifactRepository._download(urllib.urlopen(DATA_MOVER_DIST), 'datamover.zip')
         installPath = self._getInstallPath(instanceName)
-        util.unzip(zipFile, self.playgroundFolder)
+        util.unzip("%s/%s" % (self.artifactRepository.localRepositoryFolder, 'datamover.zip'), self.playgroundFolder)
         os.rename("%s/datamover" % (self.playgroundFolder), installPath)
         return DatamoverController(self, self.name, installPath, instanceName)
     
