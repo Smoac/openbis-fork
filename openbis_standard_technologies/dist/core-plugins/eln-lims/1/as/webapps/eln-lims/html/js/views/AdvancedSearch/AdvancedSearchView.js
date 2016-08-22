@@ -431,6 +431,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 						return ELNDictionary.Sample;
 					} else if(data.entityKind === "Experiment") {
 						return ELNDictionary.getExperimentKindName(data.identifier);
+					} else {
+						return data.entityKind;
 					}
 				}
 			}, {
