@@ -57,6 +57,7 @@ public class HierarchicalContentProxy implements IHierarchicalContent
     @Override
     public IHierarchicalContentNode getRootNode()
     {
+        executeOnAccessMethods();
         return hierarchicalContent.getRootNode();
     }
 
