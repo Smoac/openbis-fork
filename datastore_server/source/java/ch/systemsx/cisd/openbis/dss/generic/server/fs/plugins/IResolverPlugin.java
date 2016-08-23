@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.fs.file;
+package ch.systemsx.cisd.openbis.dss.generic.server.fs.plugins;
 
-import org.apache.ftpserver.ftplet.FtpFile;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.IResolver;
 
-public interface IFtpFile extends FtpFile
+public interface IResolverPlugin extends IResolver
 {
-
+    public void initialize(String name, String code);
 }

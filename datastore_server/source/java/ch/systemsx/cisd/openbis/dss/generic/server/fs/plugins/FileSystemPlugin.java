@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.fs;
+package ch.systemsx.cisd.openbis.dss.generic.server.fs.plugins;
 
 /**
  * @author Jakub Straszewski

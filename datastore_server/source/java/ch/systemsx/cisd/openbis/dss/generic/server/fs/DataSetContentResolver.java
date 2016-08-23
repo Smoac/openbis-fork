@@ -24,9 +24,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetc
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFileSystemViewResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.IResolver;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.ResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.ResolverContext;
 
 /**
  * Resolves the content of the data set. Assumes that the first part of the path is data set code
@@ -43,7 +44,7 @@ public class DataSetContentResolver implements IResolver
     }
 
     @Override
-    public IFtpFile resolve(String[] subPath, ResolverContext context)
+    public IFileSystemViewResponse resolve(String[] subPath, ResolverContext context)
     {
         Cache cache = context.getCache();
 

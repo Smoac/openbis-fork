@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.fs;
+package ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver;
 
-public interface IResolverPlugin extends IResolver
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFileSystemViewResponse;
+
+public interface IResolver
 {
-    public void initialize(String name, String code);
+    /**
+     * Create a file system response resolving the local path specified as an array of path items.
+     */
+    IFileSystemViewResponse resolve(String[] pathItems, ResolverContext resolverContext);
 }

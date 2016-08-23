@@ -22,22 +22,23 @@ import java.util.List;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpDirectoryResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.ResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.DirectoryResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFileSystemViewResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.IResolver;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.ResolverContext;
 
 class RootLevelResolver implements IResolver
 {
 
     @Override
-    public IFtpFile resolve(String[] subPath, ResolverContext context)
+    public IFileSystemViewResponse resolve(String[] subPath, ResolverContext context)
     {
         if (subPath.length == 0)
         {
             List<Space> spaces =
                     context.getApi().searchSpaces(context.getSessionToken(), new SpaceSearchCriteria(), new SpaceFetchOptions()).getObjects();
 
-            FtpDirectoryResponse response = context.createDirectoryResponse();
+            DirectoryResponse response = context.createDirectoryResponse();
             for (Space space : spaces)
             {
                 response.addDirectory(space.getCode(), space.getModificationDate());

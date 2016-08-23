@@ -24,7 +24,6 @@ import org.apache.ftpserver.ftplet.FtpFile;
 
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -64,7 +63,7 @@ public class Cache
 
     private final ITimeProvider timeProvider;
 
-    private final Map<String, TimeStampedObject<IFtpFile>> v3Responses = new HashMap<>();
+    private final Map<String, TimeStampedObject<FtpFile>> v3Responses = new HashMap<>();
 
     private final Map<String, TimeStampedObject<IHierarchicalContent>> contents = new HashMap<>();
 
@@ -125,12 +124,12 @@ public class Cache
         experiments.put(experiment.getIdentifier(), timestamp(experiment));
     }
 
-    public IFtpFile getResponse(String key)
+    public FtpFile getResponse(String key)
     {
         return getObject(v3Responses, key);
     }
 
-    public void putResponse(String key, IFtpFile file)
+    public void putResponse(String key, FtpFile file)
     {
         v3Responses.put(key, timestamp(file));
     }

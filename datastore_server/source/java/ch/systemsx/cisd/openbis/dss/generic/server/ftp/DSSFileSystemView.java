@@ -39,7 +39,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.ResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.ResolverContext;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.util.Key;

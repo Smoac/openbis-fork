@@ -14,15 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.fs;
+package ch.systemsx.cisd.openbis.dss.generic.server.fs.file;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.ResolverContext;
-
-public interface IResolver
+public interface IFileSystemViewResponse
 {
-    /**
-     * Create a ftp file which has specified full path, resolving the local path specified as an array of path items.
-     */
-    IFtpFile resolve(String[] pathItems, ResolverContext resolverContext);
+
 }

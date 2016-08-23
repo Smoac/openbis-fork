@@ -19,9 +19,10 @@ package ch.systemsx.cisd.openbis.dss.generic.server.fs;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpDirectoryResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.ResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.DirectoryResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFileSystemViewResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.IResolver;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.ResolverContext;
 
 class HierarchicalContentResolver implements IResolver
 {
@@ -34,7 +35,7 @@ class HierarchicalContentResolver implements IResolver
     }
 
     @Override
-    public IFtpFile resolve(String[] subPath, ResolverContext context)
+    public IFileSystemViewResponse resolve(String[] subPath, ResolverContext context)
     {
         IHierarchicalContentNode rootNode;
         if (subPath.length == 0)
@@ -55,7 +56,7 @@ class HierarchicalContentResolver implements IResolver
             return context.createFileResponse(rootNode, content);
         }
 
-        FtpDirectoryResponse response = context.createDirectoryResponse();
+        DirectoryResponse response = context.createDirectoryResponse();
         for (IHierarchicalContentNode node : rootNode.getChildNodes())
         {
             if (node.isDirectory())

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.fs;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,17 +29,27 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpDirectoryResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpNonExistingFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.HierarchicalContentUtils;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.DirectoryResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.DirectoryResponse.DirectoryNode;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.DirectoryResponse.FileNode;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.DirectoryResponse.Node;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FileResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFileSystemViewResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.NonExistingFileResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.plugins.FileSystemPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.IResolver;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverConfig;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolverRegistry;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.NonExistingFtpFile;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.AbstractFtpFile;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.AbstractFtpFolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 
 /**
- * A registry of ftp resolvers. It keeps the style of old-style resolver regisrty, but actually only calls itself root resolver.
+ * A entry point for the file system resolvers. It delegates resolution to plugin or default resolver.
  * 
  * @author Jakub Straszewski
  */
@@ -82,13 +94,166 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
         }
     }
 
+    private FtpFile convert(IFileSystemViewResponse response)
+    {
+        if (response instanceof DirectoryResponse)
+        {
+            return convert((DirectoryResponse) response);
+        }
+        if (response instanceof FileResponse)
+        {
+            return convert((FileResponse) response);
+        }
+        if (response instanceof NonExistingFileResponse)
+        {
+            return convert((NonExistingFileResponse) response);
+        }
+        throw new IllegalArgumentException();
+    }
+
+    private FtpFile convert(final DirectoryResponse dir)
+    {
+        return new AbstractFtpFolder(dir.getFullPath())
+            {
+                @Override
+                public List<FtpFile> unsafeListFiles() throws RuntimeException
+                {
+                    List<FtpFile> result = new LinkedList<FtpFile>();
+                    for (Node entry : dir.getFiles())
+                    {
+                        if (entry instanceof DirectoryNode)
+                        {
+                            final DirectoryNode dirEntry = (DirectoryNode) entry;
+                            result.add(new AbstractFtpFolder(dirEntry.getFullPath())
+                                {
+                                    @Override
+                                    public List<FtpFile> unsafeListFiles() throws RuntimeException
+                                    {
+                                        throw new IllegalStateException("Don't expect to sak for file listing of scaffolding directory");
+                                    }
+
+                                    @Override
+                                    public long getLastModified()
+                                    {
+                                        return dirEntry.getLastModified();
+                                    }
+                                });
+                        } else if (entry instanceof FileNode)
+                        {
+                            final FileNode fileNode = (FileNode) entry;
+                            AbstractFtpFile file = new AbstractFtpFile(fileNode.getFullPath())
+                                {
+                                    @Override
+                                    public boolean isFile()
+                                    {
+                                        return true;
+                                    }
+
+                                    @Override
+                                    public boolean isDirectory()
+                                    {
+                                        return false;
+                                    }
+
+                                    @Override
+                                    public long getSize()
+                                    {
+                                        return fileNode.getSize();
+                                    }
+
+                                    @Override
+                                    public long getLastModified()
+                                    {
+                                        return fileNode.getLastModified();
+                                    }
+
+                                    @Override
+                                    public InputStream createInputStream(long offset) throws IOException
+                                    {
+                                        throw new IllegalStateException("Don't expect to ask for input stream of scaffolding file");
+                                    }
+
+                                    @Override
+                                    public List<FtpFile> unsafeListFiles() throws RuntimeException
+                                    {
+                                        throw new IllegalStateException("Don't expect to ask for file listing of scaffolding file");
+                                    }
+                                };
+                            result.add(file);
+                        }
+                    }
+                    return result;
+                }
+            };
+    }
+
+    private FtpFile convert(final FileResponse file)
+    {
+        return new AbstractFtpFile(file.getFullPath())
+            {
+
+                @Override
+                public long getSize()
+                {
+                    return file.getNode().getFileLength();
+                }
+
+                @Override
+                public InputStream createInputStream(long offset) throws IOException
+                {
+                    try
+                    {
+                        InputStream result =
+                                HierarchicalContentUtils.getInputStreamAutoClosingContent(file.getNode(), file.getContent());
+
+                        if (offset > 0)
+                        {
+                            result.skip(offset);
+                        }
+                        return result;
+                    } catch (IOException ioex)
+                    {
+                        file.getContent().close();
+                        throw ioex;
+                    } catch (RuntimeException re)
+                    {
+                        file.getContent().close();
+                        throw re;
+                    }
+                }
+
+                @Override
+                public boolean isFile()
+                {
+                    return true;
+                }
+
+                @Override
+                public boolean isDirectory()
+                {
+                    return false;
+                }
+
+                @Override
+                public List<FtpFile> unsafeListFiles() throws RuntimeException
+                {
+                    throw new IllegalStateException("Don't expect to sak for file listing of file");
+                }
+            };
+    }
+
+    private FtpFile convert(NonExistingFileResponse nonExistingFile)
+    {
+        return new NonExistingFtpFile(nonExistingFile.getFullPath(), nonExistingFile.getErrorMsg());
+    }
+
     @Override
     public FtpFile resolve(String path, FtpPathResolverContext resolverContext)
     {
 
         String responseCacheKey = resolverContext.getSessionToken() + "$" + path;
         Cache cache = resolverContext.getCache();
-        IFtpFile response = cache.getResponse(responseCacheKey);
+        FtpFile response = cache.getResponse(responseCacheKey);
         if (response != null)
         {
             operationLog.debug("Path " + path + " requested (found in cache).");
@@ -97,39 +262,40 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
 
         operationLog.debug("Path " + path + " requested.");
 
+        IFileSystemViewResponse ifsResponse;
         String[] split = path.equals("/") ? new String[] {} : path.substring(1).split("/");
         try
         {
             if (plugins.size() > 0)
             {
 
-                response = resolvePlugins(path, split, resolverContext);
+                ifsResponse = resolvePlugins(path, split, resolverContext);
             } else
             {
-                response = resolveDefault(path, resolverContext, split);
+                ifsResponse = resolveDefault(path, resolverContext, split);
             }
         } catch (Exception e)
         {
             operationLog.warn("Resolving " + path + " failed", e);
-            response = new FtpNonExistingFile(path, "Error when retrieving path");
+            ifsResponse = resolverContext.getResolverContext().createNonExistingFileResponse("Error when retrieving path");
         }
-
+        response = convert(ifsResponse);
         cache.putResponse(responseCacheKey, response);
         return response;
 
     }
 
-    private IFtpFile resolveDefault(String path, FtpPathResolverContext resolverContext, String[] split)
+    private IFileSystemViewResponse resolveDefault(String path, FtpPathResolverContext resolverContext, String[] split)
     {
         RootLevelResolver resolver = new RootLevelResolver();
         return resolver.resolve(split, resolverContext.getResolverContext());
     }
 
-    private IFtpFile resolvePlugins(String path, String[] subPath, FtpPathResolverContext resolverContext)
+    private IFileSystemViewResponse resolvePlugins(String path, String[] subPath, FtpPathResolverContext resolverContext)
     {
         if (subPath.length == 0)
         {
-            FtpDirectoryResponse response = new FtpDirectoryResponse(path);
+            DirectoryResponse response = resolverContext.getResolverContext().createDirectoryResponse();
             response.addDirectory("DEFAULT");
             for (FileSystemPlugin plugin : plugins)
             {
@@ -152,7 +318,7 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
                         return resolver.resolve(remaining, resolverContext.getResolverContext());
                     }
                 }
-                return new FtpNonExistingFile(path, null);
+                return resolverContext.getResolverContext().createNonExistingFileResponse(null);
             }
         }
     }

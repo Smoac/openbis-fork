@@ -16,12 +16,25 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.fs.file;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.NonExistingFtpFile;
-
-public class FtpNonExistingFile extends NonExistingFtpFile implements IFtpFile
+public class NonExistingFileResponse implements IFileSystemViewResponse
 {
-    public FtpNonExistingFile(String path, String errorMsgOrNull)
+    private final String fullPath;
+
+    private final String errorMsg;
+
+    public NonExistingFileResponse(String path, String errorMsgOrNull)
     {
-        super(path, errorMsgOrNull);
+        this.fullPath = path;
+        this.errorMsg = errorMsgOrNull;
+    }
+
+    public String getFullPath()
+    {
+        return fullPath;
+    }
+
+    public String getErrorMsg()
+    {
+        return errorMsg;
     }
 }

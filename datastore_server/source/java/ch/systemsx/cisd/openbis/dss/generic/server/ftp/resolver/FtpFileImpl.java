@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +39,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpFileFactory;
  * 
  * @author Kaloyan Enimanev
  */
-public class FtpFileImpl extends AbstractFtpFile
+public class FtpFileImpl extends AbstractFtpFileWithContent
 {
     private final String dataSetCode;
 
@@ -70,7 +69,8 @@ public class FtpFileImpl extends AbstractFtpFile
         this.content = content;
         this.childrenFilter = childrenFilter;
     }
-    
+
+    @Override
     public IRandomAccessFile getFileContent()
     {
         try

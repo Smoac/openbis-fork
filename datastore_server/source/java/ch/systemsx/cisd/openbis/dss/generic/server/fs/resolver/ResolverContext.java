@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver;
+package ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpDirectoryResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpFileResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpNonExistingFile;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.DirectoryResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FileResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.NonExistingFileResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -50,19 +50,19 @@ public class ResolverContext implements ISessionTokenProvider
         this.fullPath = fullPath;
     }
 
-    public FtpFileResponse createFileResponse(IHierarchicalContentNode node, IHierarchicalContent content)
+    public FileResponse createFileResponse(IHierarchicalContentNode node, IHierarchicalContent content)
     {
-        return new FtpFileResponse(fullPath, node, content);
+        return new FileResponse(fullPath, node, content);
     }
 
-    public FtpDirectoryResponse createDirectoryResponse()
+    public DirectoryResponse createDirectoryResponse()
     {
-        return new FtpDirectoryResponse(fullPath);
+        return new DirectoryResponse(fullPath);
     }
 
-    public FtpNonExistingFile createNonExistingFileResponse(String errorMsg)
+    public NonExistingFileResponse createNonExistingFileResponse(String errorMsg)
     {
-        return new FtpNonExistingFile(fullPath, errorMsg);
+        return new NonExistingFileResponse(fullPath, errorMsg);
     }
 
     @Override

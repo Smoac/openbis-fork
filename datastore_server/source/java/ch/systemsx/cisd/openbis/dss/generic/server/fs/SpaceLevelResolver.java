@@ -26,9 +26,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOpt
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpDirectoryResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.ResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.DirectoryResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFileSystemViewResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.IResolver;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.ResolverContext;
 
 class SpaceLevelResolver implements IResolver
 {
@@ -40,7 +41,7 @@ class SpaceLevelResolver implements IResolver
     }
 
     @Override
-    public IFtpFile resolve(String[] subPath, ResolverContext context)
+    public IFileSystemViewResponse resolve(String[] subPath, ResolverContext context)
     {
         if (subPath.length == 0)
         {
@@ -61,7 +62,7 @@ class SpaceLevelResolver implements IResolver
                 return context.createNonExistingFileResponse(null);
             }
 
-            FtpDirectoryResponse response = context.createDirectoryResponse();
+            DirectoryResponse response = context.createDirectoryResponse();
             for (Project project : space.getProjects())
             {
                 response.addDirectory(project.getCode(), project.getModificationDate());

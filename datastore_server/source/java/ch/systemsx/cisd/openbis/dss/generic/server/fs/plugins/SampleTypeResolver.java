@@ -30,10 +30,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFe
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.DataSetContentResolver;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.IResolverPlugin;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FtpDirectoryResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFtpFile;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.ResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.DirectoryResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFileSystemViewResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.ResolverContext;
 
 /**
  * Resolves paths of type "/SAMPLE_TYPE/SAMPLE_CODE/DATASET_CODE/data set content <br>
@@ -49,7 +48,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.ResolverContext;
 public class SampleTypeResolver implements IResolverPlugin
 {
     @Override
-    public IFtpFile resolve(String[] subPath, ResolverContext context)
+    public IFileSystemViewResponse resolve(String[] subPath, ResolverContext context)
     {
         if (subPath.length == 0)
         {
@@ -73,14 +72,14 @@ public class SampleTypeResolver implements IResolverPlugin
         return new DataSetContentResolver(dataSetCode).resolve(remaining, context);
     }
 
-    private IFtpFile listDataSetsForGivenSampleTypeAndCode(String sampleTypeCode, String sampleCode, ResolverContext context)
+    private IFileSystemViewResponse listDataSetsForGivenSampleTypeAndCode(String sampleTypeCode, String sampleCode, ResolverContext context)
     {
         DataSetSearchCriteria searchCriteria = new DataSetSearchCriteria();
         searchCriteria.withSample().withType().withCode().thatEquals(sampleTypeCode);
         searchCriteria.withSample().withCode().thatEquals(sampleCode);
         List<DataSet> dataSets = context.getApi().searchDataSets(context.getSessionToken(), searchCriteria, new DataSetFetchOptions()).getObjects();
 
-        FtpDirectoryResponse result = context.createDirectoryResponse();
+        DirectoryResponse result = context.createDirectoryResponse();
         for (DataSet dataSet : dataSets)
         {
             result.addDirectory(dataSet.getCode(), dataSet.getModificationDate());
@@ -88,7 +87,7 @@ public class SampleTypeResolver implements IResolverPlugin
         return result;
     }
 
-    private IFtpFile listSamplesOfGivenType(String sampleType, ResolverContext context)
+    private IFileSystemViewResponse listSamplesOfGivenType(String sampleType, ResolverContext context)
     {
         SampleSearchCriteria searchCriteria = new SampleSearchCriteria();
         searchCriteria.withType().withCode().thatEquals(sampleType);
@@ -97,7 +96,7 @@ public class SampleTypeResolver implements IResolverPlugin
         // as codes can overlap, we want to create only one entry per code
         HashSet<String> sampleCodes = new HashSet<>();
 
-        FtpDirectoryResponse result = context.createDirectoryResponse();
+        DirectoryResponse result = context.createDirectoryResponse();
         for (Sample sample : samples)
         {
             if (false == sampleCodes.contains(sample.getCode()))
@@ -109,7 +108,7 @@ public class SampleTypeResolver implements IResolverPlugin
         return result;
     }
 
-    private IFtpFile listSampleTypes(ResolverContext context)
+    private IFileSystemViewResponse listSampleTypes(ResolverContext context)
     {
         SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
         searchCriteria.withListable().thatEquals(true);
@@ -117,7 +116,7 @@ public class SampleTypeResolver implements IResolverPlugin
                 context.getApi().searchSampleTypes(context.getSessionToken(), searchCriteria, new SampleTypeFetchOptions())
                         .getObjects();
 
-        FtpDirectoryResponse response = context.createDirectoryResponse();
+        DirectoryResponse response = context.createDirectoryResponse();
         for (SampleType type : sampleTypes)
         {
             response.addDirectory(type.getCode());
