@@ -93,6 +93,12 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         }
 
         @Override
+        public IHierarchicalContent asContentWithoutModifyingAccessTimestamp(AbstractExternalData dataSet)
+        {
+            return null; // not necessary for this test
+        }
+
+        @Override
         public IHierarchicalContent asContent(IDatasetLocation datasetLocation)
         {
             String dataSetCode = datasetLocation.getDataSetCode();

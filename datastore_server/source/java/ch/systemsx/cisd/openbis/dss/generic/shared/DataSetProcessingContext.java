@@ -188,6 +188,13 @@ public class DataSetProcessingContext
                     return contentProvider.asContentWithoutModifyingAccessTimestamp(dataSetCode);
                 }
 
+                @Override
+                public IHierarchicalContent asContentWithoutModifyingAccessTimestamp(AbstractExternalData dataSet)
+                {
+                    assertAuthorization(dataSet.getCode());
+                    return asContentWithoutModifyingAccessTimestamp(dataSet);
+                }
+
                 @SuppressWarnings("deprecation")
                 @Override
                 public IHierarchicalContent asContent(File datasetDirectory)

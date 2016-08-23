@@ -137,6 +137,12 @@ public class UploadingCommandTest extends AssertJUnit
                     }
 
                     @Override
+                    public IHierarchicalContent asContentWithoutModifyingAccessTimestamp(AbstractExternalData dataSet)
+                    {
+                        return asContent(dataSet.getCode());
+                    }
+
+                    @Override
                     public IHierarchicalContentProvider cloneFor(
                             ISessionTokenProvider sessionTokenProvider)
                     {

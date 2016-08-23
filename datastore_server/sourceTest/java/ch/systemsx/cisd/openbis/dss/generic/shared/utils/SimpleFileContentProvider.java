@@ -67,6 +67,12 @@ public class SimpleFileContentProvider implements IHierarchicalContentProvider
     }
 
     @Override
+    public IHierarchicalContent asContentWithoutModifyingAccessTimestamp(AbstractExternalData dataSet)
+    {
+        return null;
+    }
+
+    @Override
     public IHierarchicalContent asContent(AbstractExternalData dataSet)
     {
         return null;

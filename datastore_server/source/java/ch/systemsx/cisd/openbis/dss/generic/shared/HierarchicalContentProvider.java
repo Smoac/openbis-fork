@@ -166,6 +166,12 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
         return asContent(new ExternalDataLocationNode(dataSet), true);
     }
 
+    @Override
+    public IHierarchicalContent asContentWithoutModifyingAccessTimestamp(AbstractExternalData dataSet)
+    {
+        return asContent(new ExternalDataLocationNode(dataSet), false);
+    }
+
     private IHierarchicalContent asContent(final IDatasetLocationNode locationNode, final boolean shouldUpdateAccessTimestamp)
     {
         if (isLocal(locationNode))

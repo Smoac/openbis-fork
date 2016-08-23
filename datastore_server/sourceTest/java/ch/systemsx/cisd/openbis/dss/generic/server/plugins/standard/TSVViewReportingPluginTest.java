@@ -104,6 +104,12 @@ public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
                     return null; // not necessary for this test
                 }
 
+                @Override
+                public IHierarchicalContent asContentWithoutModifyingAccessTimestamp(AbstractExternalData dataSet)
+                {
+                    return null; // not necessary for this test
+                }
+
                 public IHierarchicalContent getContent(String location)
                 {
                     return asContent(new File(new File(store, SHARE_ID), location));
