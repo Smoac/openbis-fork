@@ -195,7 +195,7 @@ public class DataSetTypeResolver implements IResolverPlugin
         FtpDirectoryResponse result = context.createDirectoryResponse();
         for (DataSet dataSet : dataSets)
         {
-            result.addDirectory(dataSet.getCode());
+            result.addDirectory(dataSet.getCode(), dataSet.getModificationDate());
         }
         return result;
     }

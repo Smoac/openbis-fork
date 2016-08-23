@@ -57,7 +57,7 @@ class ExperimentLevelResolver implements IResolver
             FtpDirectoryResponse response = context.createDirectoryResponse();
             for (DataSet dataSet : exp.getDataSets())
             {
-                response.addDirectory(dataSet.getCode());
+                response.addDirectory(dataSet.getCode(), dataSet.getModificationDate());
             }
             return response;
         } else

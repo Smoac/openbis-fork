@@ -40,7 +40,7 @@ class RootLevelResolver implements IResolver
             FtpDirectoryResponse response = context.createDirectoryResponse();
             for (Space space : spaces)
             {
-                response.addDirectory(space.getCode());
+                response.addDirectory(space.getCode(), space.getModificationDate());
             }
             return response;
         } else

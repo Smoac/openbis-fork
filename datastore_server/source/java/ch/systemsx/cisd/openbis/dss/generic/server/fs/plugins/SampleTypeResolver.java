@@ -83,7 +83,7 @@ public class SampleTypeResolver implements IResolverPlugin
         FtpDirectoryResponse result = context.createDirectoryResponse();
         for (DataSet dataSet : dataSets)
         {
-            result.addDirectory(dataSet.getCode());
+            result.addDirectory(dataSet.getCode(), dataSet.getModificationDate());
         }
         return result;
     }
@@ -102,7 +102,7 @@ public class SampleTypeResolver implements IResolverPlugin
         {
             if (false == sampleCodes.contains(sample.getCode()))
             {
-                result.addDirectory(sample.getCode());
+                result.addDirectory(sample.getCode(), sample.getModificationDate());
                 sampleCodes.add(sample.getCode());
             }
         }

@@ -60,7 +60,7 @@ class HierarchicalContentResolver implements IResolver
         {
             if (node.isDirectory())
             {
-                response.addDirectory(node.getName());
+                response.addDirectory(node.getName(), node.getLastModified());
             } else
             {
                 response.addFile(node.getName(), node);

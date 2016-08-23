@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
+import java.util.Date;
+
 import org.apache.log4j.Logger;
 import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.BeanFactory;
@@ -55,6 +57,9 @@ public class ServiceProvider
 
     // applicationContex is lazily initialized
     private static BeanFactory applicationContext = null;
+
+    // creation date of data store server
+    public static final Date DSS_STARTUP_DATE = new Date();
 
     private static boolean buildingApplicationContext;
 

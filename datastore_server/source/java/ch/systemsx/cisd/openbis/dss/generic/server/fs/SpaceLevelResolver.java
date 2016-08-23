@@ -64,7 +64,7 @@ class SpaceLevelResolver implements IResolver
             FtpDirectoryResponse response = context.createDirectoryResponse();
             for (Project project : space.getProjects())
             {
-                response.addDirectory(project.getCode());
+                response.addDirectory(project.getCode(), project.getModificationDate());
             }
             return response;
         } else

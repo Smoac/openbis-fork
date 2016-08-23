@@ -58,7 +58,7 @@ class ProjectLevelResolver implements IResolver
             }
             for (Experiment exp : project.getExperiments())
             {
-                response.addDirectory(exp.getCode());
+                response.addDirectory(exp.getCode(), exp.getModificationDate());
             }
             return response;
         } else
