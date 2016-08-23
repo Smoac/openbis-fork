@@ -68,7 +68,7 @@ public class DataSetContentResolver implements IResolver
         IHierarchicalContent content = cache.getContent(dataSetCode);
         if (content == null)
         {
-            content = context.getContentProvider().asContentWithoutModifyingAccessTimestamp(dataSetCode);
+            content = context.getContentProvider().asContent(dataSetCode);
             cache.putContent(dataSetCode, content);
         }
 
