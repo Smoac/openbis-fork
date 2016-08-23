@@ -354,7 +354,7 @@ function fetch_latest_artifacts_from_cruise_control {
     
     local last_build="$HUDSON_ARTIFACTS/$proj_name/builds/lastSuccessfulBuild/archive/_main/targets/dist"
     if [ $proj_name == "datamover" ]; then
-        last_build="$HUDSON_ARTIFACTS/datamover-16.05/builds/lastSuccessfulBuild/archive/datamover/targets/gradle/distributions"
+        last_build="jenkins/workspace_dist_16.05/integration-tests/targets/artifact-repository/"
     fi
     if [ -n "$MY_HOST_IP" -a "$MY_HOST_IP" == "$CI_HOST_IP" ]; then
         local last=`ls $CI_HOME/$last_build/*.zip`
