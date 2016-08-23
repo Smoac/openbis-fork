@@ -310,11 +310,14 @@ public class WebClientConfigurationProvider
         } else
         {
             File[] files = new File("targets/www").listFiles();
-            for (File file : files)
+            if (files != null)
             {
-                if (file.getName().equals("WEB-INF") == false)
+                for (File file : files)
                 {
-                    list.add(file);
+                    if (file.getName().equals("WEB-INF") == false)
+                    {
+                        list.add(file);
+                    }
                 }
             }
         }
