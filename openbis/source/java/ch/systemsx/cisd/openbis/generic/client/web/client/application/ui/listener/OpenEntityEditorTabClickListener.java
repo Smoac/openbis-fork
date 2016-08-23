@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityTypeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
@@ -87,12 +88,12 @@ public final class OpenEntityEditorTabClickListener implements ClickHandler
     {
         if (DeletionUtils.isDeleted(entity))
         {
+            String entityDescription = EntityTypeUtils.translatedEntityKindForUI(messageProvider,
+                    entity.getEntityKind());
             String title =
-                    messageProvider.getMessage(Dict.CANNOT_MODIFY_DELETED_ENTITY_TITLE, entity
-                            .getEntityKind().getDescription());
+                    messageProvider.getMessage(Dict.CANNOT_MODIFY_DELETED_ENTITY_TITLE, entityDescription);
             String msg =
-                    messageProvider.getMessage(Dict.CANNOT_MODIFY_DELETED_ENTITY_MSG, entity
-                            .getEntityKind().getDescription(), entity.getCode());
+                    messageProvider.getMessage(Dict.CANNOT_MODIFY_DELETED_ENTITY_MSG, entityDescription, entity.getCode());
             GWTUtils.alert(title, msg);
             return true;
         }

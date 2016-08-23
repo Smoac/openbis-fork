@@ -22,6 +22,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
@@ -81,12 +82,12 @@ public final class GenericSampleRegistrationForm extends AbstractGenericSampleRe
             List<IMessageElement> result = new ArrayList<IMessageElement>();
             if (shared)
             {
-                result.add(new HtmlMessageElement("Shared sample"));
+                result.add(new HtmlMessageElement("Shared " + viewContext.getMessage(Dict.SAMPLE).toLowerCase()));
                 result.add(new EntityLinkMessageElement(viewContext, code, EntityKind.SAMPLE, sample.getPermId()));
                 result.add(new HtmlMessageElement("successfully registered."));
             } else
             {
-                result.add(new HtmlMessageElement("Sample"));
+                result.add(new HtmlMessageElement(viewContext.getMessage(Dict.SAMPLE)));
                 result.add(new EntityLinkMessageElement(viewContext, code, EntityKind.SAMPLE, sample.getPermId()));
                 result.add(new HtmlMessageElement("successfully registered in space <b>"
                         + selectedGroup.getCode() + "</b>."));

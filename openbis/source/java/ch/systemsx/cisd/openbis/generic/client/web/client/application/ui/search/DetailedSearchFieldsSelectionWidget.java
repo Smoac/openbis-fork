@@ -262,7 +262,7 @@ public final class DetailedSearchFieldsSelectionWidget extends
             DetailedSearchField attributeField, IAttributeSearchFieldKind attributeFieldKind)
     {
         assert attributeField.getKind() == DetailedSearchFieldKind.ATTRIBUTE : "attribute field required";
-        result.add(createAttributeFieldComboModel(attributeField, attributeFieldKind));
+        result.add(createAttributeFieldComboModel(viewContext, attributeField, attributeFieldKind));
     }
 
     private static DetailedSearchFieldComboModel createComplexFieldComboModel(
@@ -273,10 +273,11 @@ public final class DetailedSearchFieldsSelectionWidget extends
     }
 
     private static DetailedSearchFieldComboModel createAttributeFieldComboModel(
-            DetailedSearchField attributeField, IAttributeSearchFieldKind attributeFieldKind)
+            IViewContext<ICommonClientServiceAsync> viewContext, DetailedSearchField attributeField, 
+            IAttributeSearchFieldKind attributeFieldKind)
     {
         assert attributeField.getKind() == DetailedSearchFieldKind.ATTRIBUTE : "attribute field required";
-        return new DetailedSearchFieldComboModel(getDisplayName(attributeFieldKind),
+        return new DetailedSearchFieldComboModel(getDisplayName(viewContext, attributeFieldKind),
                 attributeField, attributeFieldKind);
     }
 
@@ -322,9 +323,12 @@ public final class DetailedSearchFieldsSelectionWidget extends
         return complexField.getKind().getDescription();
     }
 
-    private static String getDisplayName(IAttributeSearchFieldKind attributefieldKind)
+    static String getDisplayName(IViewContext<ICommonClientServiceAsync> viewContext, IAttributeSearchFieldKind attributefieldKind)
     {
-        return attributefieldKind.getDescription();
+        String description = attributefieldKind.getDescription();
+        description = description.replace("Sample", viewContext.getMessage(Dict.SAMPLE));
+        description = description.replace("Experiment", viewContext.getMessage(Dict.EXPERIMENT));
+        return description;
     }
 
     @Override

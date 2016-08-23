@@ -74,11 +74,14 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
 
     private int generatedChildren;
 
+    private IViewContext<ICommonClientServiceAsync> viewContext;
+
     public DetailedSearchCriterionWidget(IViewContext<ICommonClientServiceAsync> viewContext,
             DetailedSearchCriteriaWidget parent, String idSuffix, EntityKind entityKind)
     {
         this(parent, idSuffix, new DetailedSearchFieldsSelectionWidget(viewContext, idSuffix,
                 entityKind));
+        this.viewContext = viewContext;
     }
 
     private DetailedSearchCriterionWidget(final DetailedSearchCriteriaWidget parent,
@@ -253,7 +256,7 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
                 kind =
                         AttributeSearchFieldKindProvider.getAttributeFieldKind(
                                 nameField.getEntityKind(), field.getAttributeCode());
-                description = ((IAttributeSearchFieldKind) kind).getDescription();
+                description = DetailedSearchFieldsSelectionWidget.getDisplayName(viewContext, (IAttributeSearchFieldKind) kind);
                 break;
             case PROPERTY:
                 description = field.getPropertyCode();

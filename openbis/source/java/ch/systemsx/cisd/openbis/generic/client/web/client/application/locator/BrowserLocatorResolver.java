@@ -4,6 +4,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityTypeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
@@ -49,7 +50,7 @@ public class BrowserLocatorResolver extends AbstractViewLocatorResolver
                 openMaterialBrowser(entityTypeOrNull);
                 break;
             default:
-                throw new UserFailureException("Browsing " + entityKind.getDescription()
+                throw new UserFailureException("Browsing " + EntityTypeUtils.translatedEntityKindForUI(viewContext, entityKind)
                         + "s using URLs is not supported.");
         }
     }

@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.wizard.WizardPage;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.proteomics.client.web.client.IPhosphoNetXClientServiceAsync;
 
 /**
@@ -56,7 +57,9 @@ public class BiologicalSampleChoosingPage extends WizardPage<MsInjectionSampleAn
     {
         addToRightContent(
                 new Label(
-                        "Please choose a biological sample as annotation of the MS_INJECTION samples selected previously:"),
+                        "Please choose a biological " + viewContext.getMessage(Dict.SAMPLE).toLowerCase() 
+                        + " as annotation of the MS_INJECTION " + viewContext.getMessage(Dict.SAMPLES).toLowerCase() 
+                        + " selected previously:"),
                 new RowData(1, -1, new Margins(10)));
 
         sampleGrid = new BiologicalSampleGrid(viewContext);

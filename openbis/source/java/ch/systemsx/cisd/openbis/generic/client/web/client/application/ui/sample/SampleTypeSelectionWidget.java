@@ -64,7 +64,8 @@ public class SampleTypeSelectionWidget extends DropDownList<SampleTypeModel, Sam
             final String initialCodeOrNullParameter, final SampleTypeDisplayID displayTypeID)
     {
         super(viewContext, SUFFIX + idSuffix, Dict.SAMPLE_TYPE, ModelDataPropertyNames.CODE,
-                "sample type", "sample types");
+                viewContext.getMessage(Dict.SAMPLE_TYPE).toLowerCase(),
+                viewContext.getMessage(Dict.SAMPLE_TYPES).toLowerCase());
         this.viewContext = viewContext;
         this.onlyListable = onlyListable;
         this.withAll = withAll;
@@ -166,8 +167,9 @@ public class SampleTypeSelectionWidget extends DropDownList<SampleTypeModel, Sam
     {
         if (initialCodeOrNull != null)
         {
+            
             trySelectByPropertyValue(ModelDataPropertyNames.CODE, initialCodeOrNull,
-                    "Sample Type '" + initialCodeOrNull + "' doesn't exist.");
+                    viewContext.getMessage(Dict.SAMPLE_TYPE) + " '" + initialCodeOrNull + "' doesn't exist.");
             updateOriginalValue();
         }
     }

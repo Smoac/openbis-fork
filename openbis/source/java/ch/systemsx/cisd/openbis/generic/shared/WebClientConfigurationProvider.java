@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,6 +26,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.io.PropertyIOUtils;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
@@ -154,6 +156,34 @@ public class WebClientConfigurationProvider
         webClientConfiguration
                 .setCreatableDataSetTypePatternsBlacklist(extractCreatableDataSetTypes(properties,
                         CREATABLE_DATA_SET_TYPES_BLACKLIST));
+        setSampleAndExperimentTextsInCommonDictionary(properties);
+    }
+
+    private void setSampleAndExperimentTextsInCommonDictionary(Properties properties)
+    {
+        List<File> targets = findInjectionTargets();
+        for (File target : targets)
+        {
+            File commonDictionaryFile = new File(target, "common-dictionary.js");
+            if (commonDictionaryFile.isFile())
+            {
+                StringBuilder builder = new StringBuilder();
+                for (String line : FileUtilities.loadToStringList(commonDictionaryFile))
+                {
+                    if (line.startsWith("entityTypes.sample "))
+                    {
+                        line = "entityTypes.sample = '" + properties.getProperty("sample-text", "Sample") + "';";
+                    }
+                    if (line.startsWith("entityTypes.experiment "))
+                    {
+                        line = "entityTypes.experiment = '" + properties.getProperty("experiment-text", "Experiment") + "';";
+                    }
+                    builder.append(line).append('\n');
+                }
+                FileUtilities.writeToFile(commonDictionaryFile, builder.toString());
+            }
+            
+        }
     }
 
     private Map<String, DetailViewConfiguration> extractHiddenSections(Properties properties)
@@ -268,6 +298,27 @@ public class WebClientConfigurationProvider
     public WebClientConfiguration getWebClientConfiguration()
     {
         return webClientConfiguration;
+    }
+
+    public static List<File> findInjectionTargets()
+    {
+        List<File> list = new ArrayList<File>();
+        String jettyHome = System.getProperty("jetty.base");
+        if (jettyHome != null)
+        {
+            list.add(new File(jettyHome + "/webapps/openbis/"));
+        } else
+        {
+            File[] files = new File("targets/www").listFiles();
+            for (File file : files)
+            {
+                if (file.getName().equals("WEB-INF") == false)
+                {
+                    list.add(file);
+                }
+            }
+        }
+        return list;
     }
 
 }

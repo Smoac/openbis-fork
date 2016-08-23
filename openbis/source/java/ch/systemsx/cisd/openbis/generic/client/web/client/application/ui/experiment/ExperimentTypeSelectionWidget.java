@@ -55,7 +55,8 @@ public final class ExperimentTypeSelectionWidget extends
             final String idSuffix, final boolean withAll, final String initialCodeOrNull)
     {
         super(viewContext, SUFFIX + idSuffix, Dict.EXPERIMENT_TYPE, ModelDataPropertyNames.CODE,
-                "experiment type", "experiment types");
+                viewContext.getMessage(Dict.EXPERIMENT_TYPE).toLowerCase(),
+                viewContext.getMessage(Dict.EXPERIMENT_TYPES).toLowerCase());
         this.viewContext = viewContext;
         this.withAll = withAll;
         this.initialCodeOrNull = initialCodeOrNull;
@@ -111,7 +112,7 @@ public final class ExperimentTypeSelectionWidget extends
         if (initialCodeOrNull != null)
         {
             trySelectByPropertyValue(ModelDataPropertyNames.CODE, initialCodeOrNull,
-                    "Experiment Type '" + initialCodeOrNull + "' doesn't exist.");
+                    viewContext.getMessage(Dict.EXPERIMENT_TYPE) + " '" + initialCodeOrNull + "' doesn't exist.");
             updateOriginalValue();
         }
     }

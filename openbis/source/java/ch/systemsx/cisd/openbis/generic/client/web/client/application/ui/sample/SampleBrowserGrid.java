@@ -543,7 +543,7 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
     {
 
         final Button addButton =
-                new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Sample"),
+                new Button(viewContext.getMessage(Dict.BUTTON_ADD, viewContext.getMessage(Dict.SAMPLE)),
                         new SelectionListener<ButtonEvent>()
                             {
                                 @Override
@@ -602,17 +602,18 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                                         if (sampleChildrenInfoList.size() == 1)
                                         {
                                             additionalMessage =
-                                                    EntityDeletionConfirmationUtils.getMessageForSingleSample(sampleChildrenInfoList.get(0));
+                                                    EntityDeletionConfirmationUtils.getMessageForSingleSample(
+                                                            viewContext, sampleChildrenInfoList.get(0));
                                         }
                                         else
                                         {
                                             additionalMessage =
-                                                    EntityDeletionConfirmationUtils.getMessageForMultipleSamples(sampleChildrenInfoList,
-                                                            techIdsToSampleIds);
+                                                    EntityDeletionConfirmationUtils.getMessageForMultipleSamples(
+                                                            viewContext, sampleChildrenInfoList, techIdsToSampleIds);
                                         }
-                                        new SampleListDeletionConfirmationDialog<TableModelRowWithObject<Sample>>(viewContext.getCommonViewContext(),
+                                        new SampleListDeletionConfirmationDialog<TableModelRowWithObject<Sample>>(
+                                                viewContext.getCommonViewContext(),
                                                 samples, callback, s, additionalMessage).show();
-                                        ;
                                     }
                                 };
                     viewContext.getCommonService().getSampleChildrenInfo(sampleIds, true, confirmationCallback);

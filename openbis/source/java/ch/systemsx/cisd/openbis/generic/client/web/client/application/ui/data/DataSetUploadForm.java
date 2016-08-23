@@ -101,7 +101,7 @@ public class DataSetUploadForm extends AbstractRegistrationForm
         cifexRecipient = viewContext.getModel().getApplicationInfo().getCifexRecipient();
         saveButton.setText(viewContext.getMessage(Dict.BUTTON_UPLOAD_DATA_VIA_CIFEX));
 
-        connectedWithSampleCheckbox = new CheckBoxField("Connected with Sample", false);
+        connectedWithSampleCheckbox = new CheckBoxField("Connected with " + viewContext.getMessage(Dict.SAMPLE), false);
         connectedWithSampleCheckbox.setValue(true);
         connectedWithSampleCheckbox.addListener(Events.Change, new Listener<FieldEvent>()
             {

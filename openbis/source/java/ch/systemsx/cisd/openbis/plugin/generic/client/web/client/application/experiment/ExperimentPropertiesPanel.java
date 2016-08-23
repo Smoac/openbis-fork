@@ -69,7 +69,7 @@ public class ExperimentPropertiesPanel extends ContentPanel
             final GenericExperimentViewer viewer)
     {
         super(new BorderLayout());
-        setHeading("Experiment Properties");
+        setHeading(viewContext.getMessage(Dict.EXPERIMENT) + " Properties");
         this.experimentId = new TechId(experiment);
         this.viewContext = viewContext;
         this.viewer = viewer;

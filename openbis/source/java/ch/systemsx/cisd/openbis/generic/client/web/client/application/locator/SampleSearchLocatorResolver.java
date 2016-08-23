@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.locator;
 
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -96,7 +95,7 @@ public class SampleSearchLocatorResolver
             {
             // Nothing found -- notify the user
                 case 0:
-                    GWTUtils.alert("Error", "No samples matching criteria ["
+                    GWTUtils.alert("Error", "No " + viewContext.getMessage(Dict.SAMPLES).toLowerCase() + " matching criteria ["
                             + displayCriteria.getSearchCriteria().toString() + "] were found.");
                     break;
                 // One result found -- show it in the details view

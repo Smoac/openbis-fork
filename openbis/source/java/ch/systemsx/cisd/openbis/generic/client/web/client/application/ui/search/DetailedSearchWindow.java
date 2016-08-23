@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityTypeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
@@ -74,7 +75,7 @@ public class DetailedSearchWindow extends Dialog
         setSize(WIDTH, HEIGHT);
         setModal(true);
         setHeading(viewContext.getMessage(Dict.SEARCH_CRITERIA_DIALOG_TITLE,
-                entityKind.getDescription()));
+                EntityTypeUtils.translatedEntityKindForUI(viewContext, entityKind)));
         setLayout(new RowLayout());
         setResizable(false);
         criteriaWidget = new DetailedSearchMainCriteriaWidget(viewContext, entityKind);

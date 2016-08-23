@@ -190,7 +190,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
                                     {
                                         SampleChildrenInfo sampleInfo = info.get(0);
 
-                                        additionalMessage.append(EntityDeletionConfirmationUtils.getMessageForSingleSample(sampleInfo));
+                                        additionalMessage.append(EntityDeletionConfirmationUtils.getMessageForSingleSample(viewContext, sampleInfo));
 
                                         new SampleListDeletionConfirmationDialog(getViewContext()
                                                 .getCommonViewContext(), getOriginalDataAsSingleton(), callback,

@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
@@ -43,13 +44,13 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
  */
 class SingleOrAllExperimentsChooser extends LayoutContainer
 {
-    private static final String SINGLE_EXPERIMENT_TEXT = "Single experiment";
+    private final String singleExperimentText;
 
-    private static final String ALL_EXPERIMENTS_TEXT = "All experiments";
+    private final String allExperimentsText;
 
-    private static final String ALL_EXPERIMENTS_FROM_PROJECT_TEXT = "All experiments from ";
+    private final String allExperimentsFromProjectText;
 
-    private static final String CHOOSE_ONE_EXPERIMENT_TEXT = "Choose one experiment...";
+    private final String chooseOneExperimentText;
 
     private SingleExperimentSearchCriteria singleExperimentChooserStateOrNull;
 
@@ -75,6 +76,12 @@ class SingleOrAllExperimentsChooser extends LayoutContainer
         setWidth(380);
         add(experimentRadioChooser);
         add(singleExperimentChooser.getField());
+        String experimentText = viewContext.getMessage(Dict.EXPERIMENT).toLowerCase();
+        String experimentsText = viewContext.getMessage(Dict.EXPERIMENTS).toLowerCase();
+        singleExperimentText = "Single " + experimentText;
+        allExperimentsText = "All " + experimentsText;
+        allExperimentsFromProjectText = "All " + experimentsText + " from ";
+        chooseOneExperimentText = "Choose one " + experimentText + "...";
     }
 
     // without project restriction
@@ -128,10 +135,10 @@ class SingleOrAllExperimentsChooser extends LayoutContainer
         }
         if (criteriaOrNull == null || criteriaOrNull.tryGetExperiment() != null)
         {
-            chooserField.setEmptyText(CHOOSE_ONE_EXPERIMENT_TEXT);
+            chooserField.setEmptyText(chooseOneExperimentText);
         } else
         {
-            chooserField.setEmptyText(ALL_EXPERIMENTS_TEXT);
+            chooserField.setEmptyText(allExperimentsText);
         }
         return experimentChooser;
     }
@@ -149,16 +156,16 @@ class SingleOrAllExperimentsChooser extends LayoutContainer
         {
             String projectIdentifier =
                     experimentCriteriaHolder.tryGetCriteria().tryGetProjectIdentifier().toString();
-            allExps.setBoxLabel(ALL_EXPERIMENTS_FROM_PROJECT_TEXT + projectIdentifier);
+            allExps.setBoxLabel(allExperimentsFromProjectText + projectIdentifier);
         } else
         {
-            allExps.setBoxLabel(ALL_EXPERIMENTS_TEXT);
+            allExps.setBoxLabel(allExperimentsText);
         }
-        allExps.setBoxLabel(ALL_EXPERIMENTS_TEXT);
+        allExps.setBoxLabel(allExperimentsText);
         experimentRadio.add(allExps);
 
         final Radio oneExps = new Radio();
-        oneExps.setBoxLabel(SINGLE_EXPERIMENT_TEXT);
+        oneExps.setBoxLabel(singleExperimentText);
         experimentRadio.add(oneExps);
 
         experimentRadio.setAutoHeight(true);
@@ -171,14 +178,14 @@ class SingleOrAllExperimentsChooser extends LayoutContainer
                     {
                         singleExperimentChooser.getChooserField().setEnabled(false);
                         singleExperimentChooser.getChooserField()
-                                .setEmptyText(ALL_EXPERIMENTS_TEXT);
+                                .setEmptyText(allExperimentsText);
                         experimentCriteriaHolder.setCriteria(ExperimentSearchCriteria
                                 .createAllExperiments());
                         refreshAction.execute();
                     } else
                     {
                         singleExperimentChooser.getChooserField().setEmptyText(
-                                CHOOSE_ONE_EXPERIMENT_TEXT);
+                                chooseOneExperimentText);
 
                         singleExperimentChooser.getChooserField().setEnabled(true);
                         if (singleExperimentChooserStateOrNull == null)

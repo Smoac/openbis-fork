@@ -68,7 +68,8 @@ public class PhosphoNetXModule implements IModule
                         @Override
                         public String getHelpPageTitle()
                         {
-                            return "Wizard for annotation MS INJECTION samples";
+                            return "Wizard for annotation MS INJECTION " + viewContext.getMessage(
+                                    ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.SAMPLES).toLowerCase();
                         }
 
                         @Override

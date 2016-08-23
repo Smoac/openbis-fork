@@ -102,7 +102,7 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
     {
         super(viewContext, createId(experimentId));
 
-        int logID = viewContext.log("create experiment viewer");
+        int logID = viewContext.log("create " + viewContext.getMessage(Dict.EXPERIMENT).toLowerCase() + " viewer");
 
         this.experimentId = experimentId;
         this.experimentType = experimentType;

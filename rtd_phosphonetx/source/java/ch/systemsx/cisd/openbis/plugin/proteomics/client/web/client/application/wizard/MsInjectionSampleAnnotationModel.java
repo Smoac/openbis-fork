@@ -24,6 +24,7 @@ import static ch.systemsx.cisd.openbis.plugin.proteomics.client.web.client.appli
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.wizard.IWizardDataModel;
@@ -112,7 +113,8 @@ public class MsInjectionSampleAnnotationModel implements IWizardDataModel
         {
             context.getService().createAndLinkSamples(newBiologicalSample, msInjectionSamples, callback);
         }
-        return msInjectionSamples.size() + " MS_INJECTION samples have been annotated.";
+        return msInjectionSamples.size() + " MS_INJECTION " + context.getMessage(Dict.SAMPLES).toLowerCase() 
+                + " have been annotated.";
     }
 
 }

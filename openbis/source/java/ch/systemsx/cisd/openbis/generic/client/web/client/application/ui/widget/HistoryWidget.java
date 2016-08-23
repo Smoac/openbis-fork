@@ -141,7 +141,7 @@ public class HistoryWidget extends ContentPanel
             }
             if (typeToVisitMap.isEmpty() == false)
             {
-                SimpleModel item = new SimpleModel(entityKind.getDescription() + "s");
+                SimpleModel item = new SimpleModel(viewContext.getMessage(entityKind.name().toLowerCase()) + "s");
                 store.add(item, true);
                 String[] types = typeToVisitMap.keySet().toArray(new String[0]);
                 Arrays.sort(types);

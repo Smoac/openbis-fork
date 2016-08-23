@@ -242,7 +242,7 @@ public final class GenericDataSetEditForm extends
 
     private CheckBoxField createConnectedWithSampleCheckbox()
     {
-        CheckBoxField result = new CheckBoxField("Connected with Sample", false);
+        CheckBoxField result = new CheckBoxField("Connected with " + viewContext.getMessage(Dict.SAMPLE), false);
         result.addListener(Events.Change, new Listener<FieldEvent>()
             {
                 @Override

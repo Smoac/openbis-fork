@@ -40,10 +40,7 @@ no_samples_found: "There are no plates in this experiment",
 // Sample Viewer
 //
 
-sample_properties_panel_sample_identifier: "ID",  
-sample: "Sample",
-sample_type: "Sample Type",
-generated_samples: "Children Samples",
+sample_properties_panel_sample_identifier: "ID",
 openbis_plate_metadata_browser_CODE: "Code",
 openbis_plate_metadata_browser_TYPE: "Type",
 openbis_plate_metadata_browser_THUMBNAIL: "Thumbnail",

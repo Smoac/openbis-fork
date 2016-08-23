@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.wizard.WizardPage;
@@ -56,7 +57,8 @@ public class MsInjectionSampleChoosingPage extends WizardPage<MsInjectionSampleA
     public void init()
     {
         addToRightContent(new Label(
-                "Please choose one or more MS_INJECTION samples to be annotated:"), new RowData(1,
+                "Please choose one or more MS_INJECTION " + viewContext.getMessage(Dict.SAMPLES).toLowerCase() 
+                + " to be annotated:"), new RowData(1,
                 -1, new Margins(10)));
 
         sampleGrid = new ParentlessMsInjectionSampleGrid(viewContext);

@@ -313,6 +313,8 @@ public abstract class Dict
 
     public static final String EXPERIMENT = "experiment";
 
+    public static final String EXPERIMENTS = "experiments";
+    
     public static final String EXPERIMENT_IDENTIFIER = "experiment_identifier";
 
     public static final String PART_OF = "part_of";

@@ -22,6 +22,9 @@ import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 
 /**
@@ -35,8 +38,12 @@ public class SelectedOrAllExperimentsRadioProvider
 
     private final ISelectedExperimentsProvider data;
 
-    public SelectedOrAllExperimentsRadioProvider(ISelectedExperimentsProvider data)
+    private IViewContext<ICommonClientServiceAsync> viewContext;
+
+    public SelectedOrAllExperimentsRadioProvider(IViewContext<ICommonClientServiceAsync> viewContext, 
+            ISelectedExperimentsProvider data)
     {
+        this.viewContext = viewContext;
         this.data = data;
     }
 
@@ -54,7 +61,7 @@ public class SelectedOrAllExperimentsRadioProvider
     public final RadioGroup createComputationDataSetsRadio()
     {
         final RadioGroup result = new RadioGroup();
-        result.setFieldLabel("Experiments");
+        result.setFieldLabel(viewContext.getMessage(Dict.EXPERIMENTS));
         result.setSelectionRequired(true);
         result.setOrientation(Orientation.HORIZONTAL);
         computeOnAllRadio = createRadio("all");
