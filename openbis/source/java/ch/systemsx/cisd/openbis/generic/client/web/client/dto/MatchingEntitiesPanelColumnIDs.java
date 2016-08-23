@@ -29,6 +29,8 @@ public class MatchingEntitiesPanelColumnIDs
 
     public static final String ENTITY_TYPE = "ENTITY_TYPE";
 
+    public static final String SEARCH_DOMAIN_TYPE = "SEARCH_DOMAIN_TYPE";
+    
     public static final String IDENTIFIER = "IDENTIFIER";
 
     public static final String REGISTRATOR = "REGISTRATOR";

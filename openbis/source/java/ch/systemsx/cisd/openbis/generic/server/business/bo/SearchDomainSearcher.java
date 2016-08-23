@@ -131,17 +131,19 @@ public class SearchDomainSearcher extends AbstractBusinessObject implements ISea
             ISearchDomainResultLocation location = searchResult.getResultLocation();
             Selector selector = new Selector(location);
             EntityLoader loader = selector.getLoader();
-            IEntityInformationHolderWithPermId entity = result.get(loader).getOrDie(selector.getPermId());
+            IEntityInformationHolderWithPermId entity = result.get(loader).tryGet(selector.getPermId());   
             SearchDomainSearchResultWithFullEntity searchResultWithEntity = new SearchDomainSearchResultWithFullEntity();
             searchResultWithEntity.setSearchResult(searchResult);
             searchResultWithEntity.setEntity(entity);
-            String code = entity.getCode();
-            String type = entity.getEntityType().getCode();
-            if (location instanceof AbstractEntitySearchResultLocation)
-            {
-                AbstractEntitySearchResultLocation entityLocation = (AbstractEntitySearchResultLocation) location;
-                entityLocation.setCode(code);
-                entityLocation.setEntityType(type);
+            if(entity != null){
+	            String code = entity.getCode();
+	            String type = entity.getEntityType().getCode();
+	            if (location instanceof AbstractEntitySearchResultLocation)
+	            {
+	                AbstractEntitySearchResultLocation entityLocation = (AbstractEntitySearchResultLocation) location;
+	                entityLocation.setCode(code);
+	                entityLocation.setEntityType(type);
+	            }
             }
             enrichedResults.add(searchResultWithEntity);
         }

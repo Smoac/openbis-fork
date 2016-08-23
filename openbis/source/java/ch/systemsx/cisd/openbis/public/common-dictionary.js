@@ -280,6 +280,7 @@ var common = {
   entity_kind: "Entity Kind",
   match: "Match",
   rank: "Rank",
+  search_domain_type: "Search Domain",
   too_generic: "Query string '{0}' is too generic.",
   show_related_datasets: "Show Related Data Sets",
   show_related_datasets_message: "Select between showing Data Sets related to selected ({0}) entities or to all entities from the table and click on OK button.",

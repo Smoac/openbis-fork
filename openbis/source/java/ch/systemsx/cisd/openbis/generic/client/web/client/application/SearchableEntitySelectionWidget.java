@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.google.gwt.user.client.Window;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
@@ -69,9 +70,10 @@ final class SearchableEntitySelectionWidget extends
         @Override
         protected final void process(final List<SearchableEntity> result)
         {
-            final ListStore<SearchableEntityModel> searchableEntityStore = getStore();
+        	final ListStore<SearchableEntityModel> searchableEntityStore = getStore();
             searchableEntityStore.removeAll();
             searchableEntityStore.add(SearchableEntityModel.NULL_SEARCHABLE_ENTITY_MODEL);
+            //searchableEntityStore.add(SearchableEntityModel.ALL_SEARCHABLE_ENTITY_MODEL);
             searchableEntityStore.add(SearchableEntityModel.convert(result));
             setValue(searchableEntityStore.getAt(0));
         }
@@ -80,15 +82,15 @@ final class SearchableEntitySelectionWidget extends
     @Override
     protected List<SearchableEntityModel> convertItems(List<SearchableEntity> result)
     {
-        return SearchableEntityModel.convert(result);
+    	return SearchableEntityModel.convert(result);
     }
 
     @Override
     protected void loadData(AbstractAsyncCallback<List<SearchableEntity>> callback)
     {
-        commonContext.getService()
-                .listSearchableEntities(new ListSearchableEntities(commonContext));
-        callback.ignore();
+    	ListSearchableEntities entities = new ListSearchableEntities(commonContext);
+    	commonContext.getService().listSearchableEntities(entities);
+    	callback.ignore();
     }
 
     @Override

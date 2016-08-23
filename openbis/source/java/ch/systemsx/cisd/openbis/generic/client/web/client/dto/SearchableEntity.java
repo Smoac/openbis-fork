@@ -28,6 +28,13 @@ public final class SearchableEntity implements IsSerializable, Comparable<Search
     private String name;
 
     private String description;
+    
+    private Type type;
+    
+    public enum Type{
+    	ENTITY,
+    	SEARCH_DOMAIN
+    };
 
     public final String getDescription()
     {
@@ -49,11 +56,15 @@ public final class SearchableEntity implements IsSerializable, Comparable<Search
         this.name = name;
     }
 
-    //
-    // Object
-    //
+    public Type getType() {
+		return type;
+	}
 
-    @Override
+	public void setType(Type type) {
+		this.type = type;
+	}
+
+	@Override
     public final String toString()
     {
         return getDescription();

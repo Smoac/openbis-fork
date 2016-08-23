@@ -50,7 +50,9 @@ public final class MatchingEntity implements Serializable, IEntityInformationHol
 
     private List<PropertyMatch> matches;
 
-    private double score;
+	private double score;
+    
+    private String searchDomain;
 
     @Override
     public final EntityKind getEntityKind()
@@ -206,4 +208,12 @@ public final class MatchingEntity implements Serializable, IEntityInformationHol
     {
         this.score = score;
     }
+    
+    public String getSearchDomain() {
+		return searchDomain;
+	}
+
+	public void setSearchDomain(String searchDomain) {
+		this.searchDomain = searchDomain;
+	}
 }
