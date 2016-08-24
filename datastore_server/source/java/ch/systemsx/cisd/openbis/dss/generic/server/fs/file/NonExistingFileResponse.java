@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.fs.file;
 
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.file.IFileSystemViewResponse;
+
 public class NonExistingFileResponse implements IFileSystemViewResponse
 {
     private final String fullPath;

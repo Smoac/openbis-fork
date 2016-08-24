@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.fs;
+package ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,10 +26,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOpt
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.DirectoryResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFileSystemViewResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.IResolver;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.ResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.IResolver;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.IResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.file.IDirectoryResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.file.IFileSystemViewResponse;
 
 class SpaceLevelResolver implements IResolver
 {
@@ -41,7 +41,7 @@ class SpaceLevelResolver implements IResolver
     }
 
     @Override
-    public IFileSystemViewResponse resolve(String[] subPath, ResolverContext context)
+    public IFileSystemViewResponse resolve(String[] subPath, IResolverContext context)
     {
         if (subPath.length == 0)
         {
@@ -62,7 +62,7 @@ class SpaceLevelResolver implements IResolver
                 return context.createNonExistingFileResponse(null);
             }
 
-            DirectoryResponse response = context.createDirectoryResponse();
+            IDirectoryResponse response = context.createDirectoryResponse();
             for (Project project : space.getProjects())
             {
                 response.addDirectory(project.getCode(), project.getModificationDate());

@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver;
+package ch.systemsx.cisd.openbis.dss.generic.server.fs;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.IResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.DirectoryResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FileResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.NonExistingFileResponse;
@@ -30,7 +31,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 /**
  * @author Jakub Straszewski
  */
-public class ResolverContext implements ISessionTokenProvider
+public class ResolverContext implements ISessionTokenProvider, IResolverContext
 {
     private final String sessionToken;
 
@@ -50,16 +51,23 @@ public class ResolverContext implements ISessionTokenProvider
         this.fullPath = fullPath;
     }
 
+    @Override
     public FileResponse createFileResponse(IHierarchicalContentNode node, IHierarchicalContent content)
     {
+        if (node.isDirectory())
+        {
+            throw new IllegalArgumentException("Only file nodes can be used to create file response.");
+        }
         return new FileResponse(fullPath, node, content);
     }
 
+    @Override
     public DirectoryResponse createDirectoryResponse()
     {
         return new DirectoryResponse(fullPath);
     }
 
+    @Override
     public NonExistingFileResponse createNonExistingFileResponse(String errorMsg)
     {
         return new NonExistingFileResponse(fullPath, errorMsg);
@@ -71,6 +79,7 @@ public class ResolverContext implements ISessionTokenProvider
         return sessionToken;
     }
 
+    @Override
     public IHierarchicalContentProvider getContentProvider()
     {
         if (contentProvider == null)
@@ -80,6 +89,7 @@ public class ResolverContext implements ISessionTokenProvider
         return contentProvider.cloneFor(this);
     }
 
+    @Override
     public IApplicationServerApi getApi()
     {
         return api;

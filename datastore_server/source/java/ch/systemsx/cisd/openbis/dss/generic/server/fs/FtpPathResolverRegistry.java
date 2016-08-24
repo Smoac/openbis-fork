@@ -31,15 +31,16 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.HierarchicalContentUtils;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.IResolver;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.file.IFileSystemViewResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.DirectoryResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.DirectoryResponse.DirectoryNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.DirectoryResponse.FileNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.DirectoryResponse.Node;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FileResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFileSystemViewResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.NonExistingFileResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.plugins.FileSystemPlugin;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.IResolver;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.RootLevelResolver;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverConfig;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
@@ -131,7 +132,7 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
                                     @Override
                                     public List<FtpFile> unsafeListFiles() throws RuntimeException
                                     {
-                                        throw new IllegalStateException("Don't expect to sak for file listing of scaffolding directory");
+                                        throw new IllegalStateException("Don't expect to ask for file listing of scaffolding directory");
                                     }
 
                                     @Override

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.fs;
+package ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver;
 
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.DirectoryResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFileSystemViewResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.IResolver;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.ResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.IResolver;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.IResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.file.IDirectoryResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.file.IFileSystemViewResponse;
 
 class HierarchicalContentResolver implements IResolver
 {
@@ -35,7 +35,7 @@ class HierarchicalContentResolver implements IResolver
     }
 
     @Override
-    public IFileSystemViewResponse resolve(String[] subPath, ResolverContext context)
+    public IFileSystemViewResponse resolve(String[] subPath, IResolverContext context)
     {
         IHierarchicalContentNode rootNode;
         if (subPath.length == 0)
@@ -56,7 +56,7 @@ class HierarchicalContentResolver implements IResolver
             return context.createFileResponse(rootNode, content);
         }
 
-        DirectoryResponse response = context.createDirectoryResponse();
+        IDirectoryResponse response = context.createDirectoryResponse();
         for (IHierarchicalContentNode node : rootNode.getChildNodes())
         {
             if (node.isDirectory())

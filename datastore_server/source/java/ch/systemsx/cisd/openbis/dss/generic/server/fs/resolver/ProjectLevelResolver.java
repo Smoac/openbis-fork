@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.fs;
+package ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,10 +26,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.DirectoryResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFileSystemViewResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.IResolver;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.ResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.IResolver;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.IResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.file.IDirectoryResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.file.IFileSystemViewResponse;
 
 class ProjectLevelResolver implements IResolver
 {
@@ -41,7 +41,7 @@ class ProjectLevelResolver implements IResolver
     }
 
     @Override
-    public IFileSystemViewResponse resolve(String[] subPath, ResolverContext context)
+    public IFileSystemViewResponse resolve(String[] subPath, IResolverContext context)
     {
         if (subPath.length == 0)
         {
@@ -52,7 +52,7 @@ class ProjectLevelResolver implements IResolver
                     context.getApi().getProjects(context.getSessionToken(), Collections.singletonList(projectIdentifier), fetchOptions);
             Project project = projects.get(projectIdentifier);
 
-            DirectoryResponse response = context.createDirectoryResponse();
+            IDirectoryResponse response = context.createDirectoryResponse();
             if (project == null)
             {
                 return context.createNonExistingFileResponse(null);

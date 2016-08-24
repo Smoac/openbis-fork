@@ -48,7 +48,7 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.ResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.ResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverConfig;

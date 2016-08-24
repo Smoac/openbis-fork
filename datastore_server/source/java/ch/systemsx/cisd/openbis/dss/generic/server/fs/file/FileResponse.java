@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.fs.file;
 
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.file.IFileSystemViewResponse;
 
 public class FileResponse implements IFileSystemViewResponse
 {

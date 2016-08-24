@@ -30,10 +30,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCrit
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.DirectoryResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.FileResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFileSystemViewResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.ResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.IResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.IResolverPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.file.IDirectoryResponse;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.file.IFileSystemViewResponse;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 
 /**
@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 public class DataSetTypeResolver implements IResolverPlugin
 {
     @Override
-    public IFileSystemViewResponse resolve(String[] subPath, ResolverContext context)
+    public IFileSystemViewResponse resolve(String[] subPath, IResolverContext context)
     {
         if (subPath.length == 0)
         {
@@ -64,7 +64,7 @@ public class DataSetTypeResolver implements IResolverPlugin
         return resolveFileSearch(subPath, context);
     }
 
-    private IFileSystemViewResponse resolveFileSearch(String[] subPath, ResolverContext context)
+    private IFileSystemViewResponse resolveFileSearch(String[] subPath, IResolverContext context)
     {
         String dataSetCode = subPath[1];
         String requestedFileName = subPath.length == 2 ? null : subPath[2];
@@ -82,7 +82,7 @@ public class DataSetTypeResolver implements IResolverPlugin
 
         if (requestedFileName != null)
         {
-            FileResponse result = findRequestedNode(dataSetsToSearch, requestedFileName, context);
+            IFileSystemViewResponse result = findRequestedNode(dataSetsToSearch, requestedFileName, context);
             if (result != null)
             {
                 return result;
@@ -92,7 +92,7 @@ public class DataSetTypeResolver implements IResolverPlugin
             }
         }
 
-        DirectoryResponse response = context.createDirectoryResponse();
+        IDirectoryResponse response = context.createDirectoryResponse();
         for (IHierarchicalContentNode file : findAllNodes(dataSetsToSearch, context.getContentProvider()))
         {
             response.addFile(file.getName(), file);
@@ -126,8 +126,8 @@ public class DataSetTypeResolver implements IResolverPlugin
         return result;
     }
 
-    private FileResponse findRequestedNode(List<DataSet> dataSetsToSearch, String requestedFileName,
-            ResolverContext context)
+    private IFileSystemViewResponse findRequestedNode(List<DataSet> dataSetsToSearch, String requestedFileName,
+            IResolverContext context)
     {
         IHierarchicalContentProvider contentProvider = context.getContentProvider();
         for (DataSet dataSet : dataSetsToSearch)
@@ -165,7 +165,7 @@ public class DataSetTypeResolver implements IResolverPlugin
     }
 
     // returns a list of data sets starting with requested data set and continuedby it's parents
-    private List<DataSet> searchForDataSetAndParents(String dataSetCode, ResolverContext context)
+    private List<DataSet> searchForDataSetAndParents(String dataSetCode, IResolverContext context)
     {
         DataSetPermId dataId = new DataSetPermId(dataSetCode);
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
@@ -183,7 +183,7 @@ public class DataSetTypeResolver implements IResolverPlugin
         return dataSetsToSearch;
     }
 
-    private IFileSystemViewResponse listDataSetsOfGivenType(String dataSetType, ResolverContext context)
+    private IFileSystemViewResponse listDataSetsOfGivenType(String dataSetType, IResolverContext context)
     {
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withParents();
@@ -191,7 +191,7 @@ public class DataSetTypeResolver implements IResolverPlugin
         searchCriteria.withType().withCode().thatEquals(dataSetType);
         List<DataSet> dataSets = context.getApi().searchDataSets(context.getSessionToken(), searchCriteria, fetchOptions).getObjects();
 
-        DirectoryResponse result = context.createDirectoryResponse();
+        IDirectoryResponse result = context.createDirectoryResponse();
         for (DataSet dataSet : dataSets)
         {
             result.addDirectory(dataSet.getCode(), dataSet.getModificationDate());
@@ -199,13 +199,13 @@ public class DataSetTypeResolver implements IResolverPlugin
         return result;
     }
 
-    private IFileSystemViewResponse listDataSetTypes(ResolverContext context)
+    private IFileSystemViewResponse listDataSetTypes(IResolverContext context)
     {
         List<DataSetType> dataSetTypes =
                 context.getApi().searchDataSetTypes(context.getSessionToken(), new DataSetTypeSearchCriteria(), new DataSetTypeFetchOptions())
                         .getObjects();
 
-        DirectoryResponse response = context.createDirectoryResponse();
+        IDirectoryResponse response = context.createDirectoryResponse();
         for (DataSetType type : dataSetTypes)
         {
             response.addDirectory(type.getCode());

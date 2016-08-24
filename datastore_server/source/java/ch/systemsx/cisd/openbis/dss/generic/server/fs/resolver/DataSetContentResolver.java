@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.fs;
+package ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver;
 
 import java.util.Collections;
 import java.util.Map;
@@ -24,9 +24,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetc
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFileSystemViewResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.IResolver;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.ResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.ResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.IResolver;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.IResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.file.IFileSystemViewResponse;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 
 /**
@@ -44,9 +45,10 @@ public class DataSetContentResolver implements IResolver
     }
 
     @Override
-    public IFileSystemViewResponse resolve(String[] subPath, ResolverContext context)
+    public IFileSystemViewResponse resolve(String[] subPath, IResolverContext context)
     {
-        Cache cache = context.getCache();
+
+        Cache cache = ((ResolverContext) context).getCache();
 
         Boolean hasAccess = cache.getAccess(dataSetCode);
         if (hasAccess == null)

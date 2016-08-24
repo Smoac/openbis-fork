@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.fs.plugins;
 
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.IResolverPlugin;
+
 /**
  * @author Jakub Straszewski
  */

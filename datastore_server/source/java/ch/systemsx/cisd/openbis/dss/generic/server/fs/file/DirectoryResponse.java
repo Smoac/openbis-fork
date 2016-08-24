@@ -21,16 +21,17 @@ import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.file.IDirectoryResponse;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 
-public class DirectoryResponse implements IFileSystemViewResponse
+public class DirectoryResponse implements IDirectoryResponse
 {
     public interface Node
     {
 
     }
 
-    public class DirectoryNode implements Node
+    public static class DirectoryNode implements Node
     {
         final String fullPath;
 
@@ -54,7 +55,7 @@ public class DirectoryResponse implements IFileSystemViewResponse
 
     }
 
-    public class FileNode implements Node
+    public static class FileNode implements Node
     {
         final String fullPath;
 
@@ -108,26 +109,31 @@ public class DirectoryResponse implements IFileSystemViewResponse
     /**
      * Adds a directory entry with current timestamp
      */
+    @Override
     public void addDirectory(String directoryName)
     {
         addDirectory(directoryName, ServiceProvider.DSS_STARTUP_DATE);
     }
 
+    @Override
     public void addDirectory(String directoryName, Date lastModified)
     {
         addDirectory(directoryName, lastModified.getTime());
     }
 
+    @Override
     public void addDirectory(String directoryName, final long lastModified)
     {
         files.add(new DirectoryNode(directoryName, lastModified));
     }
 
+    @Override
     public void addFile(String fileName, final IHierarchicalContentNode node)
     {
         addFile(fileName, node.getFileLength(), node.getLastModified());
     }
 
+    @Override
     public void addFile(String fileName, final long size, final long lastModified)
     {
         files.add(new FileNode(this.fullPath + "/" + fileName, size, lastModified));

@@ -23,10 +23,14 @@ import ch.systemsx.cisd.common.jython.JythonUtils;
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
 import ch.systemsx.cisd.common.jython.evaluator.IJythonEvaluator;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.file.IFileSystemViewResponse;
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.ResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.IResolverContext;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.IResolverPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.api.file.IFileSystemViewResponse;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 
+/**
+ * @author Jakub Straszewski
+ */
 public class JythonResolver implements IResolverPlugin
 {
 
@@ -39,7 +43,7 @@ public class JythonResolver implements IResolverPlugin
     private IJythonEvaluator interpreter;
 
     @Override
-    public IFileSystemViewResponse resolve(String[] pathItems, ResolverContext resolverContext)
+    public IFileSystemViewResponse resolve(String[] pathItems, IResolverContext resolverContext)
     {
         Object result = interpreter.evalFunction(RESOLVE_FUNCTION_NAME, pathItems, resolverContext);
         return (IFileSystemViewResponse) result;

@@ -14,11 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.fs.plugins;
+package ch.systemsx.cisd.openbis.dss.generic.server.fs.api;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.fs.resolver.IResolver;
-
+/**
+ * Interface for File system view plugins. Implemented plugin will be visible in the hierarchy under top level directory named by the initialized
+ * <code>code</code> field. The path that plugin has to resolve will be relative path under the top level item so it will be 1 item shorter than full
+ * path.
+ * 
+ * @author Jakub Straszewski
+ */
 public interface IResolverPlugin extends IResolver
 {
+    /**
+     * Method called once on the plugin during the initialisation phase
+     */
     public void initialize(String name, String code);
 }

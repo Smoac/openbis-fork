@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.fs.file;
+package ch.systemsx.cisd.openbis.dss.generic.server.fs.api.file;
 
+/**
+ * Response object (either file, directory or non-existing file)
+ * 
+ * @author Jakub Straszewski
+ */
 public interface IFileSystemViewResponse
 {
 
