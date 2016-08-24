@@ -24,6 +24,7 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -94,6 +95,19 @@ public class AtomicEntityOperationDetailsBuilder
         return this;
     }
 
+    public AtomicEntityOperationDetailsBuilder project(NewProject newProject)
+    {
+        projectRegistrations.add(newProject);
+        return this;
+    }
+
+    public AtomicEntityOperationDetailsBuilder projectUpdate(
+            ProjectUpdatesDTO projectUpdate)
+    {
+        projectUpdates.add(projectUpdate);
+        return this;
+    }
+
     public AtomicEntityOperationDetailsBuilder experiment(NewExperiment newExperiment)
     {
         experimentRegistrations.add(newExperiment);
@@ -137,6 +151,12 @@ public class AtomicEntityOperationDetailsBuilder
         return this;
     }
 
+    public AtomicEntityOperationDetailsBuilder materialUpdate(MaterialUpdateDTO materialUpdate)
+    {
+        materialUpdates.add(materialUpdate);
+        return this;
+    }
+
     public AtomicEntityOperationDetailsBuilder metaProjectUpdate(
             MetaprojectUpdatesDTO metaProjectUpdate)
     {
@@ -151,5 +171,18 @@ public class AtomicEntityOperationDetailsBuilder
                 experimentUpdates, sampleUpdates, sampleRegistrations, materialRegistrations,
                 materialUpdates, dataSetRegistrations, dataSetUpdates, metaprojectRegistrations,
                 metaprojectUpdates, vocabularyUpdates, batchSizeOrNull);
+    }
+
+    public AtomicEntityOperationDetailsBuilder material(NewMaterialWithType newMaterial)
+    {
+        String type = newMaterial.getType();
+        List<NewMaterial> list = materialRegistrations.get(type);
+        if (list == null)
+        {
+            list = new ArrayList<NewMaterial>();
+            materialRegistrations.put(type, list);
+        }
+        list.add(newMaterial.getMaterial());
+        return this;
     }
 }
