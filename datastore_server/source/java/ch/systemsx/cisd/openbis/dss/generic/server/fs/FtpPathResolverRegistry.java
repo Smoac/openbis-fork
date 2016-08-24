@@ -26,6 +26,7 @@ import java.util.Properties;
 import org.apache.ftpserver.ftplet.FtpFile;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -45,6 +46,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolverRegistry;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.NonExistingFtpFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.AbstractFtpFile;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.AbstractFtpFileWithContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.AbstractFtpFolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 
@@ -189,7 +191,7 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
 
     private FtpFile convert(final FileResponse file)
     {
-        return new AbstractFtpFile(file.getFullPath())
+        return new AbstractFtpFileWithContent(file.getFullPath())
             {
 
                 @Override
@@ -238,6 +240,12 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
                 public List<FtpFile> unsafeListFiles() throws RuntimeException
                 {
                     throw new IllegalStateException("Don't expect to sak for file listing of file");
+                }
+
+                @Override
+                public IRandomAccessFile getFileContent()
+                {
+                    return file.getNode().getFileContent();
                 }
             };
     }
