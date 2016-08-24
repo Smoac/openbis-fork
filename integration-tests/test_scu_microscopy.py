@@ -8,7 +8,7 @@ from time import mktime
 import settings
 import systemtest.testcase
 import systemtest.util as util
-from systemtest.artifactrepository import GitHubArtifactReporistory
+from systemtest.artifactrepository import GitArtifactReporistory
 
 class TestCase(systemtest.testcase.TestCase):
 
@@ -48,7 +48,7 @@ class TestCase(systemtest.testcase.TestCase):
         return openbisController
     
     def installMicroscopyPlugin(self, openbisController):
-        repository = GitHubArtifactReporistory(self.artifactRepository.localRepositoryFolder)
+        repository = GitArtifactRepository(self.artifactRepository.localRepositoryFolder)
         path = repository.getPathToArtifact('aarpon/obit_microscopy_core_technology', 'master.zip')
         util.printAndFlush("path to core plugin in the repository: %s" % path)
         destination = "%s/servers/core-plugins/openbis/" % openbisController.installPath
