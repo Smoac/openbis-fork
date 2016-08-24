@@ -2,9 +2,10 @@ function NewProductsView(newProductsController, newProductsModel) {
 	this._newProductsController = newProductsController;
 	this._newProductsModel = newProductsModel;
 	
-	var $newProductsTableBody = $("<tbody>");
+	this._$newProductsTableBody = $("<tbody>");
 	
 	this.repaint = function($container) {
+		var _this = this;
 		$container.empty();
 		
 		var $newProducts = $("<div>");
@@ -14,27 +15,26 @@ function NewProductsView(newProductsController, newProductsModel) {
 		var $newProductsTableHead = $("<thead>");
 		var $newProductsTableHeaders = $("<tr>")
 											.append($("<th>").append("Name"))
-											.append($("<th>").append("Code"))
+											.append($("<th>").append("Catalog Code"))
 											.append($("<th>").append("Price"))
 											.append($("<th>").append("Currency"))
 											.append($("<th>").append("Supplier"))
 											.append($("<th>").append("Quantiy"))
-											.append($("<th>").append(FormUtil.getButtonWithIcon("glyphicon-plus", this.addNewProduct)));
+											.append($("<th>").append(FormUtil.getButtonWithIcon("glyphicon-plus", function() {
+												_this.addNewProduct(_this._$newProductsTableBody);
+											})));
 		
-		$newProductsTable.append($newProductsTableHead.append($newProductsTableHeaders)).append($newProductsTableBody);
+		$newProductsTable.append($newProductsTableHead.append($newProductsTableHeaders)).append(this._$newProductsTableBody);
 		$newProducts.append($newProductsTable);
 			
 		$container.append($newProducts);
-		
 	}
 	
-	this.addNewProduct = function() {
-
-		
+	this.addNewProduct = function($newProductsTableBody) {
 		mainController.serverFacade.searchWithType("SUPPLIER", null, false, function(suppliers){
 			var supplierTerms = [];
 			for(var sIdx = 0; sIdx < suppliers.length; sIdx++) {
-				supplierTerms.push({code : suppliers[sIdx].code, label : suppliers[sIdx].properties["NAME"]});
+				supplierTerms.push({code : suppliers[sIdx].identifier, label : suppliers[sIdx].properties["NAME"]});
 			}
 			var supplierDropdown = FormUtil.getDropDownForTerms(null, supplierTerms, "Select a supplier", true);
 			

@@ -662,6 +662,7 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 	sampleChildrenNew = parameters.get("sampleChildrenNew"); #List<java.util.LinkedHashMap<String, String>>
 	sampleChildren = parameters.get("sampleChildren"); #List<String> Identifiers are in SPACE/CODE format
 	sampleChildrenRemoved = parameters.get("sampleChildrenRemoved"); #List<String> Identifiers are in SPACE/CODE format
+	sampleParentsNew = parameters.get("sampleParentsNew");
 	
 	#Create/Get for update sample	
 	sampleIdentifier = '/' + sampleSpace + '/' + sampleCode;
@@ -699,7 +700,29 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 			else:
 				propertyValue = updateIfIsPropertyRichText(properties, key, propertyValue);
 			sample.setPropertyValue(key, propertyValue);
+	
+	#Add sample parents
+	parentsToAdd = [];
+	if sampleParentsNew != None:
+		for newSampleParent in sampleParentsNew:
+			parent = tr.createNewSample(newSampleParent.get("identifier"), newSampleParent.get("sampleTypeCode")); #Create Sample given his id
+			if newSampleParent.get("experimentIdentifierOrNull") != None:
+				parentExperiment = tr.getExperiment(newSampleParent.get("experimentIdentifierOrNull"));
+				parent.setExperiment(parentExperiment);
+			for key in newSampleParent.get("properties").keySet():
+				propertyValue = unicode(newSampleParent.get("properties").get(key));
+				if propertyValue == "":
+					propertyValue = None;
+				parent.setPropertyValue(key, propertyValue);
 			
+			if newSampleParent.get("parentsIdentifiers") != None:
+				parent.setParentSampleIdentifiers(newSampleParent.get("parentsIdentifiers"));
+			
+			parentsToAdd.append(parent);
+			if sampleParents == None:
+				sampleParents = [];
+			sampleParents = sampleParents + [parent.getSampleIdentifier()];
+	
 	#Add sample parents
 	if sampleParents != None:
 		sample.setParentSampleIdentifiers(sampleParents);
@@ -719,7 +742,7 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 					propertyValue = None;
 				
 				child.setPropertyValue(key,propertyValue);
-		
+	
 	#Add sample children that are not newly created
 	if sampleChildren != None:
 		for sampleChildIdentifier in sampleChildren:

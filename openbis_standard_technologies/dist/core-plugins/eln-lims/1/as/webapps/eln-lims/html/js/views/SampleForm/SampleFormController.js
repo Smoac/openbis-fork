@@ -155,17 +155,17 @@ function SampleFormController(mainController, mode, sample) {
 		
 		//On Submit
 		sample.parents = _this._sampleFormModel.sampleLinksParents.getSamples();
-		var continueSampleCreation = function() {
+		var continueSampleCreation = function(sample, newSampleParents) {
 			//
 			//Identification Info
 			//
-			var sampleSpace = _this._sampleFormModel.sample.spaceCode;
+			var sampleSpace = sample.spaceCode;
 			var sampleProject = null;
 			var sampleExperiment = null;
-			var sampleCode = _this._sampleFormModel.sample.code;
-			var properties = _this._sampleFormModel.sample.properties;
+			var sampleCode = sample.code;
+			var properties = sample.properties;
 			
-			var experimentIdentifier = _this._sampleFormModel.sample.experimentIdentifierOrNull;
+			var experimentIdentifier = sample.experimentIdentifierOrNull;
 			
 			if(experimentIdentifier) { //If there is a experiment detected, the sample should be attached to the experiment completely.
 				sampleSpace = experimentIdentifier.split("/")[1];
@@ -183,7 +183,7 @@ function SampleFormController(mainController, mode, sample) {
 						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["ROW_PROPERTY"]] = 1;
 						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["COLUMN_PROPERTY"]] = 1;
 						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["BOX_SIZE_PROPERTY"]] = "1X1";
-						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["BOX_PROPERTY"]] = experimentIdentifier.replace(/\//g,'\/') + "_" + _this._sampleFormModel.sample.code + "_EXP_RESULTS";
+						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["BOX_PROPERTY"]] = experimentIdentifier.replace(/\//g,'\/') + "_" + sample.code + "_EXP_RESULTS";
 						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["USER_PROPERTY"]] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
 						child.properties[profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["POSITION_PROPERTY"]] = "A1";
 					}
@@ -213,11 +213,12 @@ function SampleFormController(mainController, mode, sample) {
 					"sampleProject" : sampleProject,
 					"sampleExperiment" : sampleExperiment,
 					"sampleCode" : sampleCode,
-					"sampleType" : _this._sampleFormModel.sample.sampleTypeCode,
+					"sampleType" : sample.sampleTypeCode,
 					//Other Properties
 					"sampleProperties" : properties,
 					//Parent links
 					"sampleParents": sampleParentsFinal,
+					"sampleParentsNew": newSampleParents,
 					//Children links
 					"sampleChildren": sampleChildrenFinal,
 					"sampleChildrenNew": samplesToCreate,
@@ -273,7 +274,7 @@ function SampleFormController(mainController, mode, sample) {
 					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["NAME_PROPERTY"]] = defaultBench;
 					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["ROW_PROPERTY"]] = 1;
 					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["COLUMN_PROPERTY"]] = 1;
-					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["BOX_PROPERTY"]] = _this._sampleFormModel.sample.experimentIdentifierOrNull.replace(/\//g,'\/') + "_" + isCopyWithNewCode + "_EXP_RESULTS";
+					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["BOX_PROPERTY"]] = sample.experimentIdentifierOrNull.replace(/\//g,'\/') + "_" + isCopyWithNewCode + "_EXP_RESULTS";
 					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["BOX_SIZE_PROPERTY"]] = "1X1";
 					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["USER_PROPERTY"]] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
 					parameters["defaultBenchProperties"][defaultStoragePropertyGroup["POSITION_PROPERTY"]] = "A1";

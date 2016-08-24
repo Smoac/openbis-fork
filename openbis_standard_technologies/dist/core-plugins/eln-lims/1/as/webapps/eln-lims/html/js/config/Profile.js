@@ -387,7 +387,7 @@ $.extend(DefaultProfile.prototype, {
 		 */
 		this.sampleFormOnSubmit = function(sample, action) {
 			if(action) {
-				action();
+				action(sample, null);
 			}
 		}
 
