@@ -23,15 +23,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.lemnik.eodsql.BaseQuery;
+import net.lemnik.eodsql.QueryTool;
+import net.lemnik.eodsql.Select;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.db.DBUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
-import net.lemnik.eodsql.BaseQuery;
-import net.lemnik.eodsql.QueryTool;
-import net.lemnik.eodsql.Select;
 
 /**
  * @author Franz-Josef Elmer
@@ -68,7 +68,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
     }
 
     @Private
-    static interface IPathInfoDAO extends BaseQuery
+    public static interface IPathInfoDAO extends BaseQuery
     {
 
         static String SELECT_DATA_SET_FILES =
