@@ -26,7 +26,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.fs.ResolverContext;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
@@ -91,11 +90,6 @@ public class FtpPathResolverContext implements ISessionTokenProvider
     public Cache getCache()
     {
         return cache;
-    }
-
-    public IHierarchicalContentProvider getContentProvider()
-    {
-        return resolverContext.getContentProvider();
     }
 
     public DataSet getDataSet(String dataSetCode)
