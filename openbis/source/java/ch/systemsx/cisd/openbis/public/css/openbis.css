@@ -406,3 +406,13 @@ td.properties-sub-section {
 .welcomePageContainer .gwt-HTML {
 	overflow: scroll;
 }
+
+/**************************
+ * GWT Utils
+ **************************/
+.unselectableItem {
+	color:#ccc;
+	margin-left:2px;
+	margin-right:2px;
+	white-space: nowrap;
+} 

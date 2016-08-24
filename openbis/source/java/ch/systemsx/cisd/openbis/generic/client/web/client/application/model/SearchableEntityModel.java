@@ -19,10 +19,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.ModelData;
-import com.google.gwt.user.client.Window;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
+
+import com.extjs.gxt.ui.client.data.ModelData;
 
 /**
  * A {@link ModelData} implementation for {@link SearchableEntity}.
@@ -33,9 +32,6 @@ public final class SearchableEntityModel extends SimplifiedBaseModelData
 {
     public final static SearchableEntityModel NULL_SEARCHABLE_ENTITY_MODEL =
             createNullSearchableEntityModel();
-    
-    public final static SearchableEntityModel ALL_SEARCHABLE_ENTITY_MODEL =
-            createAllSearchableEntityModel();
 
     private static final long serialVersionUID = 1L;
 
@@ -45,16 +41,7 @@ public final class SearchableEntityModel extends SimplifiedBaseModelData
 
     private final static SearchableEntityModel createNullSearchableEntityModel()
     {
-    	final SearchableEntityModel model = new SearchableEntityModel();
-        model.set(ModelDataPropertyNames.DESCRIPTION, "All");
-        //model.set(ModelDataPropertyNames.DESCRIPTION, "Entities");
-        model.set(ModelDataPropertyNames.OBJECT, null);
-        return model;
-    }
-    
-    private final static SearchableEntityModel createAllSearchableEntityModel()
-    {
-    	final SearchableEntityModel model = new SearchableEntityModel();
+        final SearchableEntityModel model = new SearchableEntityModel();
         model.set(ModelDataPropertyNames.DESCRIPTION, "All");
         model.set(ModelDataPropertyNames.OBJECT, null);
         return model;

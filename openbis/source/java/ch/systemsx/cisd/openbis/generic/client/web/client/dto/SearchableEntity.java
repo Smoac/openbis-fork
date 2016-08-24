@@ -31,11 +31,6 @@ public final class SearchableEntity implements IsSerializable, Comparable<Search
     
     private Type type;
     
-    public enum Type{
-    	ENTITY,
-    	SEARCH_DOMAIN
-    };
-
     public final String getDescription()
     {
         return description;

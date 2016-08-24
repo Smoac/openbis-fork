@@ -19,6 +19,11 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleDialog;
+
 import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -44,11 +49,6 @@ import com.google.gwt.user.client.Window.ClosingEvent;
 import com.google.gwt.user.client.Window.ClosingHandler;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.ListBox;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleDialog;
 
 /**
  * Some utility methods around <i>GWT</i>.
@@ -540,6 +540,24 @@ public final class GWTUtils
     /*-{ 
        return  [ 
        '<tpl for=".">', 
+       '<div class="x-combo-list-item" qtip="{[values.',
+       tooltipField,
+       ']}">{[values.',
+       displayField,
+       ']}</div>', 
+       '</tpl>' 
+       ].join(""); 
+     }-*/;
+
+    /**
+     * Tooltip template displayed when mouse is over drop down list.
+     */
+    public final static native String getTemplateWithDividers(String displayField, String tooltipField)
+    /*-{ 
+       return  [ 
+       '<tpl for=".">', 
+       '<tpl if="xindex == 1"><div class="unselectableItem">Entities<\/div><\/tpl>',
+       '<tpl if="xindex == 6"><div class="unselectableItem">Search Domains&nbsp;&nbsp;<\/div><\/tpl>',
        '<div class="x-combo-list-item" qtip="{[values.',
        tooltipField,
        ']}">{[values.',

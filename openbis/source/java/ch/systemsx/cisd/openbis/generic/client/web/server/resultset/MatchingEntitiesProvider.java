@@ -58,7 +58,7 @@ public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEnt
     
     private final SearchDomain[] matchingSearchDomains;
     
-    private final String queryText;
+    private String queryText;
 
     private final boolean useWildcardSearchMode;
 
@@ -81,14 +81,19 @@ public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEnt
     	List<MatchingEntity> entities =
                 commonServer.listMatchingEntities(sessionToken, matchingEntities, queryText,
                         useWildcardSearchMode, Integer.MAX_VALUE);
-    	
-    	for (SearchDomain searchDomain : matchingSearchDomains){
-    		String preferredSearchDomainOrNull = searchDomain.getName(); //ok
-    		List<SearchDomainSearchResultWithFullEntity> searchDomainSearchResults = commonServer.searchOnSearchDomain(sessionToken, preferredSearchDomainOrNull, queryText, null);
-    		List<MatchingEntity> matchingSearchDomainsTranslatedToEntities = SearchableEntityTranslator.translateSearchDomains(searchDomainSearchResults, queryText);
-    		entities.addAll(matchingSearchDomainsTranslatedToEntities);
-    	}
-    	
+
+        for (SearchDomain searchDomain : matchingSearchDomains)
+        {
+            String preferredSearchDomainOrNull = searchDomain.getName();
+            queryText = SearchableEntityTranslator.addStarsToBeginningAndEnd(queryText);
+            queryText = SearchableEntityTranslator.removeDuplicateStars(queryText);
+            List<SearchDomainSearchResultWithFullEntity> searchDomainSearchResults =
+                    commonServer.searchOnSearchDomain(sessionToken, preferredSearchDomainOrNull, queryText, null);
+            List<MatchingEntity> matchingSearchDomainsTranslatedToEntities =
+                    SearchableEntityTranslator.translateSearchDomains(searchDomainSearchResults, queryText);
+            entities.addAll(matchingSearchDomainsTranslatedToEntities);
+        }
+
         TypedTableModelBuilder<MatchingEntity> builder =
                 new TypedTableModelBuilder<MatchingEntity>();
         builder.addColumn(ENTITY_KIND); 
@@ -106,16 +111,8 @@ public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEnt
             builder.column(ENTITY_TYPE).addString(matchingEntity.getEntityType().getCode());
             builder.column(SEARCH_DOMAIN_TYPE).addString(matchingEntity.getSearchDomain());
             builder.column(IDENTIFIER).addString(matchingEntity.getIdentifier());
-            builder.column(REGISTRATOR).addPerson(matchingEntity.getRegistrator());
-            
-            //highlights temporarily disabled for search domains!!
-            /*if(matchingEntity.getSearchDomain() == null || matchingEntity.getSearchDomain().equals(""))
-            	builder.column(MATCH).addMatch(addHighLights(matchingEntity));
-            else
-            	builder.column(MATCH).addMatch(matchingEntity);*/
-            
+            builder.column(REGISTRATOR).addPerson(matchingEntity.getRegistrator());            
             builder.column(MATCH).addMatch(addHighLights(matchingEntity));
-
             builder.column(RANK).addInteger(rank);
             rank++;
         }

@@ -74,9 +74,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConf
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleChildrenInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity.Type;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Type;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessionException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
@@ -696,24 +696,25 @@ public final class CommonClientService extends AbstractClientService implements
             final IResultSetConfig<String, TableModelRowWithObject<MatchingEntity>> resultSetConfig)
     {
 
-    	ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity[] matchingEntities =
+        ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity[] matchingEntities =
                 SearchableEntityTranslator.translate(searchableEntityOrNull);
-    	
-    	//to make a search for "All" include both all entities AND all search domains, remove the null check here.
-    	SearchDomain[] matchingSearchDomains = {};
-    	if (searchableEntityOrNull != null){
-	    	String sessionToken = getSessionToken();
-	    	List<SearchDomain> availableSearchDomains = commonServer.listAvailableSearchDomains(sessionToken);
-	    	matchingSearchDomains =
-	                SearchableSearchDomainTranslator.translate(searchableEntityOrNull, availableSearchDomains);  
-    	}
-    	
+
+        // to make a search for "All" include both all entities AND all search domains, remove the null check here.
+        SearchDomain[] matchingSearchDomains = {};
+        if (searchableEntityOrNull != null)
+        {
+            String sessionToken = getSessionToken();
+            List<SearchDomain> availableSearchDomains = commonServer.listAvailableSearchDomains(sessionToken);
+            matchingSearchDomains =
+                    SearchableSearchDomainTranslator.translate(searchableEntityOrNull, availableSearchDomains);
+        }
+
         MatchingEntitiesProvider provider =
                 new MatchingEntitiesProvider(commonServer, getSessionToken(), matchingEntities, matchingSearchDomains,
                         queryText, useWildcardSearchMode);
         return listEntities(provider, resultSetConfig);
     }
-    
+
     @Override
     public TypedTableResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignmentsFromBrowser(
             DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> criteria,
@@ -1041,25 +1042,27 @@ public final class CommonClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
 
-    	try
+        try
         {
             // This also refreshes the session.
-        	String sessionToken = getSessionToken();
+            String sessionToken = getSessionToken();
             final List<SearchableEntity> searchableEntities =
                     BeanUtils.createBeanList(SearchableEntity.class, Arrays
                             .asList(ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity
                                     .values()));
-            for(SearchableEntity searchableEntity : searchableEntities){
-            	searchableEntity.setType(Type.ENTITY);
+            for (SearchableEntity searchableEntity : searchableEntities)
+            {
+                searchableEntity.setType(Type.ENTITY);
             }
-        	List<SearchDomain> searchDomains = commonServer.listAvailableSearchDomains(sessionToken);
-        	for(SearchDomain searchDomain : searchDomains){
-        		SearchableEntity searchableEntity = new SearchableEntity(); 
-        		searchableEntity.setName(searchDomain.getName()); 
-        		searchableEntity.setType(Type.SEARCH_DOMAIN); 
-        		searchableEntity.setDescription("Search Domain " + searchDomain.getLabel());
-        		searchableEntities.add(searchableEntity);
-        	}  
+            List<SearchDomain> searchDomains = commonServer.listAvailableSearchDomains(sessionToken);
+            for (SearchDomain searchDomain : searchDomains)
+            {
+                SearchableEntity searchableEntity = new SearchableEntity();
+                searchableEntity.setName(searchDomain.getName());
+                searchableEntity.setType(Type.SEARCH_DOMAIN);
+                searchableEntity.setDescription(searchDomain.getLabel());
+                searchableEntities.add(searchableEntity);
+            }
             return searchableEntities;
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
@@ -3047,6 +3050,5 @@ public final class CommonClientService extends AbstractClientService implements
         }
         return list;
     }
-    
-    
+
 }
