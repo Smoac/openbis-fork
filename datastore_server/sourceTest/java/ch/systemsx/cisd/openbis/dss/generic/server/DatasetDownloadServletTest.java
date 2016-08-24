@@ -213,7 +213,7 @@ public class DatasetDownloadServletTest
         final AbstractExternalData externalData = createDataSet();
         prepareParseRequestURL();
         prepareCheckSession();
-        prepareForObtainingDataSetFromServer(externalData, false);
+        prepareForObtainingDataSetFromServer(externalData, true);
         prepareForGettingDataSetFromSession(externalData, "");
         prepareLocking();
         prepareForCreatingHTML(writer);
