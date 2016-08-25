@@ -450,6 +450,7 @@ class OpenbisController(_Controller):
             util.dropDatabase(PSQL_EXE, "pathinfo_%s" % self.databaseKind)
             util.dropDatabase(PSQL_EXE, "imaging_%s" % self.databaseKind)
             util.dropDatabase(PSQL_EXE, "proteomics_%s" % self.databaseKind)
+            self._setUpStore()
         for databaseToDrop in databasesToDrop:
             util.dropDatabase(PSQL_EXE, "%s_%s" % (databaseToDrop, self.databaseKind))
         self._applyCorePlugins()
@@ -678,6 +679,14 @@ class OpenbisController(_Controller):
         enabledModules = "%s, %s" % (enabledModules, self.instanceName) if len(enabledModules) > 0 else self.instanceName
         corePluginsProperties['enabled-modules'] = enabledModules
         util.writeProperties(corePluginsPropertiesFile, corePluginsProperties)
+        
+    def _setUpStore(self):
+        templateStore = "%s/stores/%s" % (self.templatesFolder, self.instanceName)
+        if os.path.isdir(templateStore):
+            storeFolder = "%s/data/store" % self.installPath
+            util.printAndFlush("Set up initial data store by copying content of %s to %s" % (templateStore, storeFolder))
+            shutil.rmtree(storeFolder, ignore_errors=True)
+            shutil.copytree(templateStore, storeFolder)
         
     def _saveAsPropertiesIfModified(self):
         if self.asPropertiesModified:
