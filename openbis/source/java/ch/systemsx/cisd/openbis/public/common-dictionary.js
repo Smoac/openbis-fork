@@ -1,9 +1,9 @@
 // Common dictionary
 
 var entityTypes = {}
-entityTypes.sample = ;
+entityTypes.sample = "Sample";
 entityTypes.samples = entityTypes.sample + "s";
-entityTypes.experiment = ;
+entityTypes.experiment = "Experiment";
 entityTypes.experiments = entityTypes.experiment + "s";
 
 var common = {
