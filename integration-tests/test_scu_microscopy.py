@@ -8,7 +8,7 @@ from time import mktime
 import settings
 import systemtest.testcase
 import systemtest.util as util
-from systemtest.artifactrepository import GitArtifactReporistory
+from systemtest.artifactrepository import GitArtifactRepository
 
 class TestCase(systemtest.testcase.TestCase):
 
