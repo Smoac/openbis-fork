@@ -21,7 +21,8 @@ for f in sorted(os.listdir(os.path.dirname(os.path.abspath(__file__)))):
     if len(splittedFileName) > 1:
         moduleName = splittedFileName[0]
         fileType = splittedFileName[1]
-        if moduleName.startswith('test_') and fileType == 'py':
+        if moduleName.startswith('test_') and fileType == 'py' \
+                and os.path.isfile("templates/%s/disabled" % moduleName) == False:
             testCases.append(moduleName)
             moduleStartTime = time.time()
             try:
