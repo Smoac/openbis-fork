@@ -81,7 +81,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 @ClassBridge(impl = MaterialGlobalSearchBridge.class)
 public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
         IEntityInformationWithPropertiesHolder, Serializable, IMatchingEntity,
-        IEntityWithMetaprojects, IIdentityHolder
+        IEntityWithMetaprojects, IIdentityHolder, IModificationDateBean
 {
     private static final long serialVersionUID = IServer.VERSION;
 
@@ -316,6 +316,7 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
         return builder.toString();
     }
 
+    @Override
     @Version
     @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
     @Field(name = SearchFieldConstants.MODIFICATION_DATE, index = Index.YES, store = Store.NO)
@@ -327,6 +328,7 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
         return modificationDate;
     }
 
+    @Override
     public void setModificationDate(Date versionDate)
     {
         this.modificationDate = versionDate;

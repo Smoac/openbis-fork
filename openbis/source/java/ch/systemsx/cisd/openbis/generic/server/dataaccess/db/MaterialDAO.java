@@ -131,6 +131,10 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
 
     private void internalCreateMaterial(MaterialPE material, HibernateTemplate hibernateTemplate)
     {
+        if (material.getModificationDate() == null)
+        {
+            material.setModificationDate(getTransactionTimeStamp());
+        }
         validatePE(material);
         validateMaterialCode(material);
         hibernateTemplate.saveOrUpdate(material);

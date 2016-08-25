@@ -98,7 +98,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IModificationDateBean;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IModifierAndModificationDateBean;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IModifierBean;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -608,8 +610,14 @@ abstract class AbstractBusinessObject implements IDAOFactory
     }
 
     protected void updateProperties(EntityTypePE entityType, List<IEntityProperty> properties, Set<String> propertiesToUpdate,
+            IEntityPropertiesHolder entityAsPropertiesHolder, IModifierAndModificationDateBean entityAsModifiableBean)
+    {
+        updateProperties(entityType, properties, propertiesToUpdate, entityAsPropertiesHolder, entityAsModifiableBean, entityAsModifiableBean);
+    }
+
+    protected void updateProperties(EntityTypePE entityType, List<IEntityProperty> properties, Set<String> propertiesToUpdate,
             IEntityPropertiesHolder entityAsPropertiesHolder,
-            IModifierAndModificationDateBean entityAsModifiableBean)
+            IModificationDateBean entityAsModificationDateBean, IModifierBean entityAsModifierBean)
     {
         Set<? extends EntityPropertyPE> existingProperties =
                 entityAsPropertiesHolder.getProperties();
@@ -627,8 +635,14 @@ abstract class AbstractBusinessObject implements IDAOFactory
             getSessionFactory().getCurrentSession().buildLockRequest(LockOptions.UPGRADE).setLockMode(LockMode.PESSIMISTIC_FORCE_INCREMENT)
                     .lock(entityAsPropertiesHolder);
             entityAsPropertiesHolder.setProperties(convertedProperties);
-            entityAsModifiableBean.setModifier(findPerson());
-            entityAsModifiableBean.setModificationDate(getTransactionTimeStamp());
+            if (entityAsModifierBean != null)
+            {
+                entityAsModifierBean.setModifier(findPerson());
+            }
+            if (entityAsModificationDateBean != null)
+            {
+                entityAsModificationDateBean.setModificationDate(getTransactionTimeStamp());
+            }
         }
     }
 

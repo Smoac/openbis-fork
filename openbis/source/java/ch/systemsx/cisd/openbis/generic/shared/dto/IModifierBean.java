@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ETH Zuerich, CISD
+ * Copyright 2016 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,14 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 /**
- * Interface for beans with a modifier and a modification date.
+ * Interface for beans with a modifier.
  * 
- * @author Franz-Josef Elmer
+ * @author Jakub Straszewski
  */
-public interface IModifierAndModificationDateBean extends IModifierBean, IModificationDateBean
+public interface IModifierBean
 {
+    public PersonPE getModifier();
+
+    public void setModifier(PersonPE modifier);
 
 }
