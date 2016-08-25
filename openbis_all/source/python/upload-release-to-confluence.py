@@ -35,7 +35,7 @@ def uploadReleaseBinaryToConfluence(filename, pagetitle):
   filepath = DOWNLOAD_FOLDER + "/" + filename
   with open(filepath, 'rb') as f:
     data = f.read(); # slurp all the data
- 
+  
   spacekey="bis"
   
   if confluenceToken is None:
@@ -57,9 +57,11 @@ def fetchBinaries(version):
   os.system("mkdir -p " + DOWNLOAD_FOLDER)
   os.system("rm {0}/*.zip".format(DOWNLOAD_FOLDER))
 
-  file_patterns = ['openBIS-server', 'openBIS-installation-standard-technologies', 'openBIS-clients-and-APIs', 'datastore_server', 'datastore_server_plugin-yeastx']
+  main_version = '.'.join(version.split('.')[0:2])
+  file_patterns = ['openBIS-installation-standard-technologies', 'openBIS-clients-and-APIs']
   for file_pattern in file_patterns:
-    os.system("scp sprint:/links/groups/cisd/release_builds/openbis/13.04.x/*-{0}*/{1}-{0}-*.* {2}".format(version, file_pattern, DOWNLOAD_FOLDER))
+    os.system("scp sprint:/links/groups/cisd/release_builds/openbis/{3}.x/*-{0}*/{1}-{0}-*.* {2}"
+              .format(version, file_pattern, DOWNLOAD_FOLDER, main_version))
 
 def printVersion(version, headerLevel):
   today = date.today().strftime("%d %B %Y")
