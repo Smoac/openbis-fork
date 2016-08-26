@@ -275,7 +275,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					"SAMPLE_PARENTS_HINT" : [{
 						"LABEL" : "Products",
 						"TYPE": "PRODUCT",
-						"MIN_COUNT" : 1,
+						"MIN_COUNT" : 0,
 						"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY_OF_ITEMS", "MANDATORY" : true }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
 					}]
 				},
@@ -286,7 +286,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					"SAMPLE_PARENTS_HINT" : [{
 						"LABEL" : "Requests",
 						"TYPE": "REQUEST",
-						"MIN_COUNT" : 1,
+						"MIN_COUNT" : 0,
 						"ANNOTATION_PROPERTIES" : []
 					}]
 				},
