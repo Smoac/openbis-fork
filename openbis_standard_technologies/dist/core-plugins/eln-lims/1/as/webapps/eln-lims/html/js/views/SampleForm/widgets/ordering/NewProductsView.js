@@ -9,7 +9,7 @@ function NewProductsView(newProductsController, newProductsModel) {
 		$container.empty();
 		
 		var $newProducts = $("<div>");
-			$newProducts.append($("<legend>").append("New Products"));
+			$newProducts.append($("<legend>").append("Create and add new product"));
 			
 		var $newProductsTable = $("<table>", { class : "table table-bordered" });
 		var $newProductsTableHead = $("<thead>");
