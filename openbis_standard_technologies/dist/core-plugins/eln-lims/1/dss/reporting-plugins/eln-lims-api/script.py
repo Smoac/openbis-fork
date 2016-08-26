@@ -690,22 +690,16 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 	#Assign experiment
 	if experiment != None:
 		sample.setExperiment(experiment);
-	#Assign sample properties
-	if sampleProperties != None:
-		properties = getProperties(tr, parameters);
-		for key in sampleProperties.keySet():
-			propertyValue = unicode(sampleProperties[key]);
-			if propertyValue == "":
-				propertyValue = None;
-			else:
-				propertyValue = updateIfIsPropertyRichText(properties, key, propertyValue);
-			sample.setPropertyValue(key, propertyValue);
 	
 	#Add sample parents
 	parentsToAdd = [];
 	if sampleParentsNew != None:
 		for newSampleParent in sampleParentsNew:
 			parent = tr.createNewSample(newSampleParent.get("identifier"), newSampleParent.get("sampleTypeCode")); #Create Sample given his id
+			if newSampleParent.get("annotations") != None and sampleProperties.get("ANNOTATIONS_STATE") != None:
+				sample_ANNOTATIONS_STATE = sampleProperties.get("ANNOTATIONS_STATE");
+				sample_ANNOTATIONS_STATE = sample_ANNOTATIONS_STATE.replace("PERM_ID_PLACEHOLDER_FOR" + newSampleParent.get("identifier"), parent.getPermId());
+				sampleProperties.put("ANNOTATIONS_STATE", sample_ANNOTATIONS_STATE);
 			if newSampleParent.get("experimentIdentifierOrNull") != None:
 				parentExperiment = tr.getExperiment(newSampleParent.get("experimentIdentifierOrNull"));
 				parent.setExperiment(parentExperiment);
@@ -722,6 +716,17 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 			if sampleParents == None:
 				sampleParents = [];
 			sampleParents = sampleParents + [parent.getSampleIdentifier()];
+	
+	#Assign sample properties
+	if sampleProperties != None:
+		properties = getProperties(tr, parameters);
+		for key in sampleProperties.keySet():
+			propertyValue = unicode(sampleProperties[key]);
+			if propertyValue == "":
+				propertyValue = None;
+			else:
+				propertyValue = updateIfIsPropertyRichText(properties, key, propertyValue);
+			sample.setPropertyValue(key, propertyValue);
 	
 	#Add sample parents
 	if sampleParents != None:
