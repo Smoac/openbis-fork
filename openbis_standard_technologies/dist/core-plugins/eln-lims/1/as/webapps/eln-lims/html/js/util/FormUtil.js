@@ -854,4 +854,14 @@ var FormUtil = new function() {
 		}
 		return $infoBox;
 	}
+	
+	this.isInteger = function(str) {
+    	var n = ~~Number(str);
+    	return String(n) === str;
+	}
+	
+	this.isNumber = function(str) {
+    	var n = Number(str);
+    	return String(n) === str;
+	}
 }

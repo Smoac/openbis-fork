@@ -490,13 +490,17 @@ ELN_TYPES_METADATA_MINI = ["ELN_TYPES_METADATA_MINI", "The presence of this voca
 ## Properties
 ##
 
-PROPERTIES = [
+PROPERTIES_ANNOTATIONS = [
               ["COMMENTS", DataType.MULTILINE_VARCHAR, "Comments", "", None],
               ["QUANTITY", DataType.VARCHAR, "Quantity", "", None],
               ["PLASMID_ANNOTATION", DataType.VARCHAR, "Plasmid annotation", "", None],
               ["PLASMID_RELATIONSHIP", DataType.CONTROLLEDVOCABULARY, "Plasmid relationship", "", "PLASMID_RELATIONSHIP"],
               ["CONTAINED", DataType.VARCHAR, "Contained", "", None],
               ["COLOR_ENCODED_ANNOTATION", DataType.CONTROLLEDVOCABULARY, "Color Annotation for plate wells", "", "COLOR_ENCODED_ANNOTATIONS"]
+              ];
+              
+PROPERTIES_ANNOTATIONS_ORDERING = [
+              ["QUANTITY_OF_ITEMS", DataType.INTEGER, "Quantity", "", None]
               ];
 
 ##

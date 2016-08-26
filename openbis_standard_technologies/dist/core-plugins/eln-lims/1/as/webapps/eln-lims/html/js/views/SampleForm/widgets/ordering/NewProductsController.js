@@ -45,7 +45,7 @@ function NewProductsController() {
 						CATALOG_CODE : $($($productProperties[1]).children()[0]).val()
 					},
 					annotations : {
-						QUANTITY : $($($productProperties[5]).children()[0]).val()
+						QUANTITY_OF_ITEMS : $($($productProperties[5]).children()[0]).val()
 					}
 			}
 			products.push(newProduct);

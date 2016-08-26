@@ -71,10 +71,43 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 							for(var annotIdx = 0; annotIdx < sampleTypeAnnotations.length; annotIdx++) {
 								var sampleTypeAnnotation = sampleTypeAnnotations[annotIdx];
 								var sampleTypeAnnotationType = sampleTypeAnnotation["TYPE"];
+								
 								var sampleTypeAnnotationIsMandatory = sampleTypeAnnotation["MANDATORY"];
 								if(sampleTypeAnnotationIsMandatory && !sampleFromIdxAnnotations[sampleTypeAnnotationType]) {
 									Util.showError("Missing an annotation " + sampleTypeAnnotationType + " on " + sampleFromIdx.code +".");
 									return false;
+								} else {
+									var propertyType = profile.getPropertyType(sampleTypeAnnotationType);
+									var propertyValue = sampleFromIdxAnnotations[sampleTypeAnnotationType];
+									
+									var isValid = true;
+									switch(propertyType.dataType) {
+										case "BOOLEAN":
+											break;
+										case "CONTROLLEDVOCABULARY":
+											break;
+										case "HYPERLINK":
+											break;
+										case "INTEGER":
+											isValid = FormUtil.isInteger(propertyValue);
+											break;
+										case "MATERIAL":
+											break;
+										case "MULTILINE_VARCHAR":
+											break;
+										case "REAL":
+											isValid = FormUtil.isNumber(propertyValue);
+											break;
+										case "TIMESTAMP":
+											break;
+										case "VARCHAR":
+											break;
+										case "XML":
+											break;
+									}
+									if(!isValid) {
+										Util.showError("Annotation " + sampleTypeAnnotationType + " is not an " + propertyType.dataType +".");
+									}
 								}
 							}
 						}

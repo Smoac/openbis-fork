@@ -276,7 +276,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 						"LABEL" : "Products",
 						"TYPE": "PRODUCT",
 						"MIN_COUNT" : 1,
-						"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : true }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+						"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY_OF_ITEMS", "MANDATORY" : true }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
 					}]
 				},
 				"ORDER" : {
@@ -408,7 +408,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				var orderStatus = sample.properties["ORDER_STATUS"];
 				if(orderStatus === "ORDERED") {
 					delete sample.properties["ORDER_STATE"];
-					sample.properties["ORDER_STATE"] = window.btoa(JSON.stringify(sample));
+					sample.properties["ORDER_STATE"] = window.btoa(unescape(encodeURIComponent(JSON.stringify(sample))));
 				}
 				action(sample, null);
 			} else if(sample.sampleTypeCode === "REQUEST") {
@@ -433,7 +433,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					var order = mainController.currentView._sampleFormModel.sample;
 					if(order.properties["ORDER_STATE"]) {
 						isFromState = true;
-						order = JSON.parse(window.atob(order.properties["ORDER_STATE"]));
+						order = JSON.parse(decodeURIComponent(escape(window.atob(order.properties["ORDER_STATE"]))));
 					}
 					
 					var requests = order.parents;
@@ -468,7 +468,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 							if(!quantity) {
 								quantity = 0;
 							}
-							quantity += parseInt(requestProductAnnotations["QUANTITY"]);
+							quantity += parseInt(requestProductAnnotations["QUANTITY_OF_ITEMS"]);
 							if(!quantity) {
 								Util.showError("Product " + requestProduct.code + " from request " +  request.code + " don't have a quantity, FIX IT!.");
 								return;

@@ -74,6 +74,7 @@ elnTypes.createProperty(tr, "PLASMID_RELATIONSHIP", DataType.CONTROLLEDVOCABULAR
 elnTypes.createProperty(tr, "CONTAINED", DataType.VARCHAR, "Contained", "", None);
 elnTypes.createProperty(tr, "COLOR_ENCODED_ANNOTATION", DataType.CONTROLLEDVOCABULARY, "Color Annotation for plate wells", "", "COLOR_ENCODED_ANNOTATIONS");
 
+
 ##
 ## DataSet Types
 ##
@@ -172,6 +173,7 @@ elnTypes.createSampleTypeWithProperties(tr, elnTypes.DRAWING_BOARD_SAMPLE);
 ##
 ## Ordering System
 ##
+elnTypes.createProperty(tr, "QUANTITY_OF_ITEMS", DataType.INTEGER, "Quantity", "", None);
 
 elnTypes.createVocabularyWithTerms(tr, elnTypes.LANGUAGE);
 elnTypes.createVocabularyWithTerms(tr, elnTypes.CURRENCY);
