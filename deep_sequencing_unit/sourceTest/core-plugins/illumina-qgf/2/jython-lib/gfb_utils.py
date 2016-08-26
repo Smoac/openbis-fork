@@ -81,6 +81,9 @@ def create_openbis_timestamp(file):
     mtime = os.path.getmtime(file)
     lt = localtime(mtime)
     tz = localtime().tm_hour - gmtime().tm_hour
+    # doing a modulo 12, as GMT has not more than 12 zones
+    # Needed if we are around midnight
+    tz %= 12
     return (strftime("%Y-%m-%d %H:%M:%S GMT" + "%+.2d" % tz + ":00", lt))
 
 
