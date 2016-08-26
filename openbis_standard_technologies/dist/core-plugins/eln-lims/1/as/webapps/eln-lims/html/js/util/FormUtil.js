@@ -19,6 +19,24 @@ var FormUtil = new function() {
 	//
 	// Annotations
 	//
+	this.writeAnnotationForSample = function(stateObj, sample, propertyTypeCode, propertyValue) {
+		var sampleAnnotations = stateObj[sample.permId];
+		if(!sampleAnnotations) {
+			sampleAnnotations = {};
+			stateObj[sample.permId] = sampleAnnotations;
+		}
+		
+		sampleAnnotations["identifier"] =  sample.identifier; //Adds code to the annotations if not present
+		sampleAnnotations["sampleType"] =  sample.sampleTypeCode; //Adds sampleType code to the annotations if not present
+		
+		if(propertyTypeCode && propertyValue !== null && propertyValue !== undefined) {
+			sampleAnnotations[propertyTypeCode] = propertyValue;
+		}
+	}
+	
+	this.deleteAnnotationsFromPermId = function(stateObj, permId) {
+		delete stateObj[permId];
+	}
 	
 	this.getXMLFromAnnotations = function(stateObj) {
 		var rootNode = document.createElementNS("http://www.w3.org/1999/xhtml", "root"); //The namespace should be ignored by both ELN and openBIS parsers

@@ -24,23 +24,13 @@ function LinksModel(title, sampleTypeHints, isDisabled, showInfo, disableAddAnyT
 	this.samplesByType = {};
 	this.stateObj = {};
 	
-	this.writeState = function(sample, propertyTypeCode, propertyTypeValue, isDelete) {
-
+ 	this.writeState = function(sample, propertyTypeCode, propertyValue, isDelete) {
 		this.loadState();
 		
-		var sampleTypeAnnotations = this.stateObj[sample.permId];
-		if(!sampleTypeAnnotations) {
-			sampleTypeAnnotations = {};
-			this.stateObj[sample.permId] = sampleTypeAnnotations;
-		}
-		
-		sampleTypeAnnotations["identifier"] =  sample.identifier; //Adds code to the annotations if not present
-		sampleTypeAnnotations["sampleType"] =  sample.sampleTypeCode; //Adds sampleType code to the annotations if not present
-		
 		if(isDelete) {
-			delete this.stateObj[sample.permId];
-		} else if(propertyTypeCode && propertyTypeValue !== null && propertyTypeValue !== undefined) {
-			sampleTypeAnnotations[propertyTypeCode] = propertyTypeValue;
+			FormUtil.deleteAnnotationsFromPermId(this.stateObj, sample.permId);
+		} else {
+			FormUtil.writeAnnotationForSample(this.stateObj, sample, propertyTypeCode, propertyValue);
 		}
 		
 		var xmlDoc = FormUtil.getXMLFromAnnotations(this.stateObj);

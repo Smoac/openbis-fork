@@ -32,6 +32,7 @@ function NewProductsController() {
 			var $productRow = $($trList[trIdx]);
 			var $productProperties = $($productRow.children());
 			var newProduct = {
+					permId : "PERM_ID_PLACEHOLDER_FOR/STOCK_CATALOG/" + $($($productProperties[1]).children()[0]).val(),
 					sampleTypeCode : "PRODUCT",
 					experimentIdentifierOrNull : "/STOCK_CATALOG/PRODUCTS/PRODUCT_COLLECTION_1",
 					identifier : "/STOCK_CATALOG/" + $($($productProperties[1]).children()[0]).val(), 

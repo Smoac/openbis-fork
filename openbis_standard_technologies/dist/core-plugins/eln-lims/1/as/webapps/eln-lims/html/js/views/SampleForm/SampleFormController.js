@@ -156,6 +156,7 @@ function SampleFormController(mainController, mode, sample) {
 		//On Submit
 		sample.parents = _this._sampleFormModel.sampleLinksParents.getSamples();
 		var continueSampleCreation = function(sample, newSampleParents) {
+			
 			//
 			//Identification Info
 			//
@@ -163,10 +164,32 @@ function SampleFormController(mainController, mode, sample) {
 			var sampleProject = null;
 			var sampleExperiment = null;
 			var sampleCode = sample.code;
-			var properties = sample.properties;
+			var properties = $.extend(true, {}, sample.properties); //Deep copy that can be modified before sending to the server and gets discarded in case of failure / simulates a rollback.
+			
+			//
+			// Patch annotations in
+			//
+			if(newSampleParents) {
+				var annotationsStateObj = FormUtil.getAnnotationsFromSample(sample);
+				var writeNew = false;
+				for(var pIdx = 0; pIdx < newSampleParents.length; pIdx++) {
+					var newSampleParent = newSampleParents[pIdx];
+					if(newSampleParent.annotations) {
+						for(var annotationKey in newSampleParent.annotations) {
+							if (newSampleParent.annotations.hasOwnProperty(annotationKey)) {
+								FormUtil.writeAnnotationForSample(annotationsStateObj, newSampleParent, annotationKey, newSampleParent.annotations[annotationKey]);
+								writeNew = true;
+							}
+						}
+					}
+				}
+				if(writeNew) {
+					properties["ANNOTATIONS_STATE"] = FormUtil.getXMLFromAnnotations(annotationsStateObj);
+				}
+			}
+			//
 			
 			var experimentIdentifier = sample.experimentIdentifierOrNull;
-			
 			if(experimentIdentifier) { //If there is a experiment detected, the sample should be attached to the experiment completely.
 				sampleSpace = experimentIdentifier.split("/")[1];
 				sampleProject = experimentIdentifier.split("/")[2];
