@@ -245,8 +245,8 @@ def process(transaction):
     mutable_lane.setPropertyValue("YIELD_MBASES", str(int(totalLaneStatistics.get(lane_in_int).Sum_PfYield)))
     mutable_lane.setPropertyValue('RAW_YIELD_MBASES', str(int(totalLaneStatistics.get(lane_in_int).Sum_RawYield)))
     mutable_lane.setPropertyValue('PERCENTAGE_PASSED_FILTERING',str(int(totalLaneStatistics.get(lane_in_int).Percentage_PfClusterCount_RawClusterCount)))
-    mutable_lane.setPropertyValue('PF_READS_SUM',str(int(totalLaneStatistics.get(lane_in_int).Sum_PfClusterCount)))
-    mutable_lane.setPropertyValue('RAW_READS_SUM',str(int(totalLaneStatistics.get(lane_in_int).Sum_RawClusterCount)))
+    mutable_lane.setPropertyValue('PF_CLUSTERS_SUM',str(int(totalLaneStatistics.get(lane_in_int).Sum_PfClusterCount)))
+    mutable_lane.setPropertyValue('RAW_CLUSTERS_SUM',str(int(totalLaneStatistics.get(lane_in_int).Sum_RawClusterCount)))
     mutable_lane.setPropertyValue('PFYIELDQ30PERCENTAGE', str(int(totalLaneStatistics.get(lane_in_int).Percentage_PfYieldQ30_PfYield)))
     mutable_lane.setPropertyValue('PFMEANQUALITYSCORE', str(totalLaneStatistics.get(lane_in_int).Fraction_PfQualityScoreSum_PfYield))
     mutable_lane.setPropertyValue('CLUSTERS_PF_WITHOUT_NOINDEX', str(int(totalLaneStatistics.get(lane_in_int).Clusters_PfWithoutNoindex)))
@@ -295,7 +295,7 @@ def process(transaction):
             try:
                 index1 = index1[0]
             except: 
-                print '\nOCCURRED EXCEPTION: First index \"' + index1search + '\" of Barcode in XML file has no corresponding DataSet in openBIS!'
+                print '\nOCCURRED EXCEPTION: First index \"' + index1search + '\" of Barcode in XML file has no corresponding DataSet(' + str(index1list) + ') in openBIS!'
                 index1 = 'MISSING'
         if index2search == INDEX_EMPTY or index2search == INDEX_UNKNOWN:
             index2 = INDEX_NO
@@ -363,5 +363,4 @@ def process(transaction):
 
   print "\n", nprocessedDataSets, " openBIS-DataSets were processed." 
   print len(samplestatisticslist), " XML-Projects/-Samples/-Barcodes were processed."
-  print(samplestatisticslist)
   print("PROCESS DONE "+time.ctime())

@@ -58,6 +58,7 @@ def get_bcl_version(file):
 
     if matching_line_list:
         bcl_version = matching_line_list[0].strip()
+    print("GOT BCL2FASTQ Version: " + bcl_version)
     return bcl_version
 
 

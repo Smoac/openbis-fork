@@ -453,6 +453,7 @@ def process(transaction):
     put_files_to_dataset (transaction, dataSet, fastq_files, name, sample_space)
 
     sa = transaction.getSampleForUpdate(flow_lane_immutable[0].getSampleIdentifier())
-    sa.setPropertyValue("DATA_TRANSFERRED", create_openbis_timestamp_now())
+    # Deactivated as this creates for each sample a new history entry, eventually moved to the registration of Basecall- Stats
+    #sa.setPropertyValue("DATA_TRANSFERRED", create_openbis_timestamp_now())
     dataSet.setSample(flow_lane_immutable[0])
 

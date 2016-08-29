@@ -43,12 +43,8 @@ def process(transaction):
     connected_sample_code = ":".join([flow_cell, flow_lane])
     connected_sample = search_unique_sample(transaction, connected_sample_code)
     
-    dataSet = transaction.createNewDataSet("FASTQC")
+    dataSet = transaction.createNewDataSet("TRIMMING")
     dataSet.setMeasuredData(False)
     
     dataSet.setSample(connected_sample[0])
-    
-    sa = transaction.getSampleForUpdate(connected_sample[0].getSampleIdentifier())
-    sa.setPropertyValue("DATA_TRANSFERRED", create_openbis_timestamp_now())
-    
     transaction.moveFile(incomingPath, dataSet)
