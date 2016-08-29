@@ -18,16 +18,19 @@
 ## Configuration
 ##
 import elnTypes
+import initializemasterdataminimum
 
 # MasterDataRegistrationTransaction Class
 import os
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataType
 
 tr = service.transaction();
+initializemasterdataminimum.initBasicMasterData(tr);
 
 ##
 ## Vocabulary Types
 ##
+elnTypes.createVocabularyWithTerms(tr, elnTypes.ELN_TYPES_METADATA);
 elnTypes.createVocabularyWithTerms(tr, elnTypes.HOST);
 elnTypes.createVocabularyWithTerms(tr, elnTypes.DETECTION);
 elnTypes.createVocabularyWithTerms(tr, elnTypes.STORAGE);
@@ -53,16 +56,12 @@ elnTypes.createVocabularyWithTerms(tr, elnTypes.YES_NO_CHOICE);
 elnTypes.createVocabularyWithTerms(tr, elnTypes.MEMBRANE);
 elnTypes.createVocabularyWithTerms(tr, elnTypes.SPECIES);
 elnTypes.createVocabularyWithTerms(tr, elnTypes.CELL_MEDIUM);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.OWNER);
 elnTypes.createVocabularyWithTerms(tr, elnTypes.CELL_TYPE);
 elnTypes.createVocabularyWithTerms(tr, elnTypes.ORGANISM);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.EXPERIMENTAL_READOUT);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.MACHINE);
 elnTypes.createVocabularyWithTerms(tr, elnTypes.PLASMID_RELATIONSHIP);
 elnTypes.createVocabularyWithTerms(tr, elnTypes.STORAGE_NAMES);
 elnTypes.createVocabularyWithTerms(tr, elnTypes.STORAGE_BOX_SIZE);
 elnTypes.createVocabularyWithTerms(tr, elnTypes.COLOR_ENCODED_ANNOTATIONS);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.ELN_TYPES_METADATA);
 
 ##
 ## Property Types for annotations
@@ -78,22 +77,13 @@ elnTypes.createProperty(tr, "COLOR_ENCODED_ANNOTATION", DataType.CONTROLLEDVOCAB
 ##
 ## DataSet Types
 ##
-elnTypes.getCommentsScript(tr, "DATA_SET");
-elnTypes.createDataSetTypeWithProperties(tr, elnTypes.ELN_PREVIEW);
 elnTypes.createDataSetTypeWithProperties(tr, elnTypes.SEQ_FILE);
 elnTypes.createDataSetTypeWithProperties(tr, elnTypes.RAW_DATA);
 elnTypes.createDataSetTypeWithProperties(tr, elnTypes.ANALYZED_DATA);
-elnTypes.createDataSetTypeWithProperties(tr, elnTypes.ATTACHMENT);
-elnTypes.createDataSetTypeWithProperties(tr, elnTypes.DRAWING_BOARD_EXPERIMENT);
 	
 ##
 ## Experiment Types
 ##
-elnTypes.getCommentsScript(tr, "EXPERIMENT");
-elnTypes.createExperimentTypeWithProperties(tr, elnTypes.MATERIALS);
-elnTypes.createExperimentTypeWithProperties(tr, elnTypes.METHODS);
-elnTypes.createExperimentTypeWithProperties(tr, elnTypes.BOARDS);
-elnTypes.createExperimentTypeWithProperties(tr, elnTypes.DEFAULT_EXPERIMENT);
 
 ##
 ## Sample Types - Materials
@@ -155,8 +145,6 @@ elnTypes.addPropertiesToSamples(tr, [
 ##
 ## Sample Types - Non Materials
 ##
-elnTypes.getAnnotationsScript(tr, "EXPERIMENTAL_STEP");
-elnTypes.createSampleTypeWithProperties(tr, elnTypes.EXPERIMENTAL_STEP);
 
 elnTypes.getAnnotationsScript(tr, "GENERAL_PROTOCOL");
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.GENERAL_PROTOCOL);
@@ -169,20 +157,3 @@ elnTypes.createSampleTypeWithProperties(tr, elnTypes.WESTERN_BLOTTING_PROTOCOL);
 
 elnTypes.getAnnotationsScript(tr, "DRAWING_BOARD");
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.DRAWING_BOARD_SAMPLE);
-
-##
-## Ordering System
-##
-elnTypes.createProperty(tr, "QUANTITY_OF_ITEMS", DataType.INTEGER, "Quantity", "", None);
-
-elnTypes.createVocabularyWithTerms(tr, elnTypes.LANGUAGE);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.CURRENCY);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.PREFERRED_ORDER_METHOD);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.ORDER_STATUS);
-
-elnTypes.createExperimentTypeWithProperties(tr, elnTypes.STOCK);
-
-elnTypes.createSampleTypeWithProperties(tr, elnTypes.SUPPLIER);
-elnTypes.createSampleTypeWithProperties(tr, elnTypes.PRODUCT);
-elnTypes.createSampleTypeWithProperties(tr, elnTypes.REQUEST);
-elnTypes.createSampleTypeWithProperties(tr, elnTypes.ORDER);

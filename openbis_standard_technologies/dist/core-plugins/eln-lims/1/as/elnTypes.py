@@ -18,6 +18,14 @@ annotationsScriptCache = {};
 ##
 ## API Facade
 ##
+def getMasterDataVersion(tr):
+    vocabulary = tr.getOrCreateNewVocabulary("ELN_TYPES_METADATA");
+    try:
+        existingTerm = tr.getVocabularyTerm(vocabulary, "TYPES_VERSION");
+        return existingTerm.getLabel();
+    except:
+        return None
+    
 def createVocabularyWithTerms(tr, vocabularyDefinition):
     vocabularyCode = vocabularyDefinition[0];
     vocabularyDescription = vocabularyDefinition[1];
@@ -482,10 +490,6 @@ ELN_TYPES_METADATA = ["ELN_TYPES_METADATA", "The presence of this vocabulary ind
                                             ["TYPES_VERSION", "S226", None]
                                         ]];
 
-ELN_TYPES_METADATA_MINI = ["ELN_TYPES_METADATA_MINI", "The presence of this vocabulary indicates the ELN Plugin that the ELN master data script was executed.", [
-                                            ["TYPES_VERSION", "S226", None]
-                                        ]];
-
 ##
 ## Properties
 ##
@@ -801,22 +805,6 @@ EXPERIMENTAL_STEP = ["EXPERIMENTAL_STEP", "", [
         ["NOTES",                             "Comments",             "Notes",                                DataType.MULTILINE_VARCHAR,        None,                                "Notes", None, None],
         ["XMLCOMMENTS",                     "Comments",                "Comments List",                        DataType.XML,                    None,                                "Several comments can be added by different users", "COMMENTS_SAMPLE", None],
         ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None,                                "Annotations State", "EXPERIMENTAL_STEP_ANNOTATIONS", None]
-    ]];
-
-EXPERIMENTAL_STEP_MINI = ["EXPERIMENTAL_STEP", "", [
-        ["NAME",                             "General",                "Name",                                    DataType.MULTILINE_VARCHAR,        None,                                "Name", None, None],
-        ["SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,    "Show in project overview", None, None],
-        ["FINISHED_FLAG",                     "General",                 "Finished Flag",                         DataType.BOOLEAN,                 None,                                "Marks the experiment as finished", None, None],
-        ["OWNER",                             "General",                "Owner",                                DataType.CONTROLLEDVOCABULARY,    "OWNER",                            "Who produced/owned the sample", None, None],
-        ["EXPERIMENTAL_GOALS",                 "General",                "Experimental Goals",                    DataType.MULTILINE_VARCHAR,        None,                                "Goal of the experiment", None, None],
-        ["EXPERIMENTAL_RESULTS",             "General",                "Experimental Results",                    DataType.MULTILINE_VARCHAR,        None,                                "Brief summary of the results obtained", None, None],
-        ["START_DATE",             "General",                "Start date",                    DataType.TIMESTAMP,        None,                                "Date when the experimental step is started", None, None],
-        ["END_DATE",             "General",                "End date",                    DataType.TIMESTAMP,        None,                                "Date when the experimental step is completed", None, None],
-        ["FREEFORM_TABLE_STATE",             "Readout details",        "Freeform Table State",                    DataType.MULTILINE_VARCHAR,        None,                                "Table describing how the order of samples measured in the experiments", None, None],
-        ["PUBLICATION",                     "Comments",                "Publication",                            DataType.MULTILINE_VARCHAR,        None,                                "Publication from where the information was first found OR technical sheet given by the manufacturer", None, None],
-        ["NOTES",                             "Comments",             "Notes",                                DataType.MULTILINE_VARCHAR,        None,                                "Notes", None, None],
-        ["XMLCOMMENTS",                     "Comments",                "Comments List",                        DataType.XML,                    None,                                "Several comments can be added by different users", "COMMENTS_SAMPLE", None],
-        ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None,                                "Annotations State", None, None]
     ]];
 
 GENERAL_PROTOCOL = ["GENERAL_PROTOCOL", "", [
