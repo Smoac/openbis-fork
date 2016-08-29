@@ -9,9 +9,9 @@ import java.util.Properties;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFileSearchResultLocation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 
 public class FileSearchDomain extends AbstractSearchDomainService
@@ -25,8 +25,7 @@ public class FileSearchDomain extends AbstractSearchDomainService
     @Override
     public boolean isAvailable()
     {
-        // TODO Auto-generated method stub
-        return true;
+        return PathInfoDataSourceProvider.isDataSourceDefined();
     }
 
     @Override
@@ -44,13 +43,6 @@ public class FileSearchDomain extends AbstractSearchDomainService
             for (DataSetPathInfo dataSetPathInfo : dataSetPathInfos)
             {
                 SearchDomainSearchResult searchDomainSearchResult = new SearchDomainSearchResult();
-
-                SearchDomain searchDomain = new SearchDomain();
-                searchDomain.setName("File");
-                searchDomain.setLabel("File");
-
-                searchDomainSearchResult.setSearchDomain(searchDomain);
-
                 DataSetFileSearchResultLocation dfsrl = new DataSetFileSearchResultLocation();
                 dfsrl.setPermId(datasetCode);
                 dfsrl.setCode(datasetCode);
