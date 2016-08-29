@@ -13,6 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+//TODO implement db table for data source experiment perm id to harvester perm_id
+//TODO try to implement sample relationship sync like DS rel. sync
+//TODO check if already loaded harvesterEntityGraph can be used in most cases
+//TODO check if harvesterEntityGraph can be partially loaded as required
+//TODO correctly handle saving of last sync timestamp
+//TODO different last sync timestamp files for different plugins - 
+//this is actually handled by setting up different harvester plugins with different files
+//TODO when deleting make sure we are not emptying all the trash but just the ones we synchronized
+//TODO checksums for data set files
+//TODO check why the material modification date is not during after material sync
 package ch.ethz.sis.openbis.generic.server.dss.plugins;
 
 import java.io.ByteArrayInputStream;
@@ -139,18 +149,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierF
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
-
-//TODO implement db table for data source experiment perm id to harvester perm_id
-//TODO handle connected to sample and connected to experiment for data sets
-//TODO try to implement sample relationship sync like DS rel. sync
-//TODO check if already loaded harvesterEntityGraph can be used in most cases
-//TODO check if harvesterEntityGraph can be partially loaded as required
-//TODO correctly handle saving of last sync timestamp
-//TODO different last sync timestamp files for different plugins - 
-//this is actually handled by setting up different harvester plugins with different files
-//TODO when deleting make sure we are not emptying all the trash but just the ones we synchronized
-//TODO problem when syncing materials already synced during syncing of another space
-//TODO checksums for data set files
 
 public class DataSetRegistrationTask<T extends DataSetInformation> implements IMaintenanceTask
 {
@@ -534,6 +532,9 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
             
             expMapHarvesterToDataSource.put("20160818085103223-128", "20160818090655425-405251"); //
             expMapHarvesterToDataSource.put("20160818140101909-140", "20160818140221611-405260");
+            
+            
+            expMapHarvesterToDataSource.put("20160829100253734-2", "20160829102207910-405265");
 
             operationLog.info(this.getClass() + " started.");
             operationLog.info("Start synchronization from data source: " + dataSourceOpenbisURL + " space:" + dataSourceSpace);
@@ -802,7 +803,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
                 // TODO what should the date argument below be? Same question for version argument in other entities
                 MaterialUpdateDTO update =
                         new MaterialUpdateDTO(TechId.create(material), Arrays.asList(newIncomingMaterial.getProperties()),
-                                newMaterialWithType.getLastModificationDate());
+                                material.getModificationDate());
                 builder.materialUpdate(update);
             }
         }
