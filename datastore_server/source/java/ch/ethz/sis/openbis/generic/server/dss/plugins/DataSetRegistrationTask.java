@@ -64,6 +64,8 @@ import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.BasicAuthentication;
 import org.eclipse.jetty.http.HttpStatus;
+import org.springframework.jdbc.core.ColumnMapRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -100,6 +102,7 @@ import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
+import ch.systemsx.cisd.dbmigration.SimpleDatabaseConfigurationContext;
 import ch.systemsx.cisd.etlserver.plugins.AbstractDataSetDeletionPostProcessingMaintenanceTask;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSet;
@@ -169,6 +172,8 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
     private static final String DATA_SOURCE_SPACE_PROPERTY_NAME = "space";
 
+    private static final String DATA_SOURCE_PREFIX_PROPERTY_NAME = "prefix";
+
     private static final String DATA_SOURCE_AUTH_REALM_PROPERTY_NAME = "auth-realm";
 
     private static final String DATA_SOURCE_AUTH_USER_PROPERTY_NAME = "auth-user";
@@ -202,6 +207,8 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
 
     private String dataSourceSpace;
 
+    private String dataSourcePrefix;
+
     private String harvesterSpace;
 
     private String harvesterTempDir;
@@ -215,6 +222,10 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
     private ResourceListParserData data;
 
     private Date lastSyncTimestamp;
+
+    private SimpleDatabaseConfigurationContext dbConfigurationContext;
+
+    private JdbcTemplate jdbcTemplate;
 
     private void initializePluginProperties()
     {
@@ -282,6 +293,7 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         user = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_AUTH_USER_PROPERTY_NAME);
         pass = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_AUTH_PASS_PROPERTY_NAME);
         dataSourceSpace = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_SPACE_PROPERTY_NAME);
+        dataSourcePrefix = dataSourceSectionProperties.getProperties().getProperty(DATA_SOURCE_PREFIX_PROPERTY_NAME);
     }
 
     private Document getResourceListAsXMLDoc() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException,
@@ -517,6 +529,25 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
         context = new DataSetProcessingContext(null, null, null, null, null, null);
         extractDataSourceProperties(properties);
         extractHarvesterProperties(properties);
+
+        dbConfigurationContext = new SimpleDatabaseConfigurationContext(properties);
+        jdbcTemplate = new JdbcTemplate(dbConfigurationContext.getDataSource());
+    }
+
+    private Map<String, String> retrievePermIdMappings(String entityKind)
+    {
+        final Map<String, String> mappings = new HashMap<String, String>();
+        List<Map<String, Object>> rows =
+                jdbcTemplate.query("select source_perm_id, destination_perm_id from synced_entities where source_prefix = '" + dataSourcePrefix
+                        + "' AND entity_kind = '"
+                        + entityKind + "'",
+                        new ColumnMapRowMapper());
+        for (Map<String, Object> row : rows)
+        {
+            mappings.put(row.get("source_perm_id").toString(), row.get("destination_perm_id").toString());
+        }
+
+        return mappings;
     }
 
     @Override
@@ -524,17 +555,8 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
     {
         try
         {
-            Map<String, String> expMapHarvesterToDataSource = new HashMap<String, String>();
-            expMapHarvesterToDataSource.put("20160810161429691-103", "20160811100654427-405228");
-            expMapHarvesterToDataSource.put("20160629112613425-81", "20160810125929121-405218");
-            expMapHarvesterToDataSource.put("20160525113700943-1", "20160810125929121-405219");
-            expMapHarvesterToDataSource.put("20160811123600118-107", "20160811123930889-405230");
-            
-            expMapHarvesterToDataSource.put("20160818085103223-128", "20160818090655425-405251"); //
-            expMapHarvesterToDataSource.put("20160818140101909-140", "20160818140221611-405260");
-            
-            
-            expMapHarvesterToDataSource.put("20160829100253734-2", "20160829102207910-405265");
+
+            Map<String, String> expMapHarvesterToDataSource = retrievePermIdMappings("EXPERIMENT");
 
             operationLog.info(this.getClass() + " started.");
             operationLog.info("Start synchronization from data source: " + dataSourceOpenbisURL + " space:" + dataSourceSpace);
