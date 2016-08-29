@@ -107,6 +107,7 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 									}
 									if(!isValid) {
 										Util.showError("Annotation " + sampleTypeAnnotationType + " is not an " + propertyType.dataType +".");
+										return false;
 									}
 								}
 							}

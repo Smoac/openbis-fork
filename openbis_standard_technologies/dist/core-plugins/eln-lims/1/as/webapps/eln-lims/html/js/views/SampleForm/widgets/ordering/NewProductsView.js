@@ -79,7 +79,7 @@ function NewProductsView(newProductsController, newProductsModel) {
 			
 			var nameField = FormUtil.getTextInputField(null, "Name", true);
 				nameField.change(function() {
-					codeField.val($(this).val().toUpperCase().replace(" ","_"));
+					codeField.val($(this).val().toUpperCase().replace(new RegExp(" ", 'g'), "_"));
 				});
 			var $newProductsTableRow = $("<tr>")
 			.append($("<td>").append(nameField))
