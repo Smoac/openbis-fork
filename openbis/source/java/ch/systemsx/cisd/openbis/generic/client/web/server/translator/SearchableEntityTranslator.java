@@ -17,8 +17,13 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.common.collection.SimpleComparator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFileBlastSearchResultLocation;
@@ -41,6 +46,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
  */
 public final class SearchableEntityTranslator
 {
+    private static final Set<Character> CHARACTERS_TO_ESCAPE = new HashSet<>(
+            Arrays.asList('[', ']', '{', '}', '(', ')', '|', '&', '.', '^', '$'));
 
     private SearchableEntityTranslator()
     {
@@ -136,92 +143,113 @@ public final class SearchableEntityTranslator
         return matches;
     }
 
-    public static List<Span> createSpanList(String searchString, String filePath)
+    static List<Span> createSpanList(String searchString, String filePath)
     {
-        searchString = searchString.toLowerCase();
-        filePath = filePath.toLowerCase();
+        List<SearchStringElement> splittedSearchString = split("*" + searchString + "*");
+        Pattern pattern = compile(splittedSearchString);
+        String normalizedFilePath = filePath.toLowerCase();
+        Matcher matcher = pattern.matcher(normalizedFilePath);
         List<Span> spans = new ArrayList<Span>();
-        if (searchString.indexOf("*") == 0)
+        if (matcher.matches())
         {
-            searchString = searchString.substring(1);
-        }
-        if (searchString.lastIndexOf("*") == searchString.length() - 1)
-        {
-            searchString = searchString.substring(0, searchString.length() - 1);
-        }
-        String[] fragments = { searchString };
-        // if searchString still contains the asterisk, then split it up
-        if (searchString.indexOf("*") != -1)
-        {
-            fragments = searchString.split("\\*");
-        }
-
-        int start = 0;
-        int end = 0;
-        int offset = 0;
-        int i = 0;
-        String fragment = fragments[i];
-        while (filePath.length() > 0 && i < fragments.length)
-        {
-
-            int exists = filePath.indexOf(fragment);
-            if (exists != -1)
+            int groupCount = matcher.groupCount();
+            int startIndex = 0;
+            for (int i = 1; i <= groupCount; i++)
             {
-                start = filePath.indexOf(fragment) + offset;
-                end = start + fragment.length();
-                Span span = new Span();
-                span.setStart(start);
-                span.setEnd(end);
-                spans.add(span);
-                offset = offset + fragment.length() + (filePath.substring(0, filePath.indexOf(fragment))).length();
-                filePath = filePath.substring(filePath.indexOf(fragment) + 1, filePath.length());
-
-                if (filePath.length() > 0 && (i + 1) < fragments.length)
+                String group = matcher.group(i);
+                if (splittedSearchString.get(i - 1).constant)
                 {
-                    i++;
-                    fragment = fragments[i];
-                } else
-                {
-                    break; // don't break here in order to handle the "repeating character" case ex. search string "e" highlights 4x "eeee.txt"
+                    Span span = new Span();
+                    span.setStart(startIndex);
+                    span.setEnd(startIndex + group.length());
+                    spans.add(span);
                 }
-
-            } else
-            {
-                Span span = new Span();
-                span.setStart(start);
-                span.setEnd(end);
-                spans.add(span);
-                break;
+                startIndex += group.length();
             }
         }
         return spans;
     }
-
-    // trim stars
-    public static String trimStars(String text)
+    
+    private static List<SearchStringElement> split(String searchString)
     {
-        if (text == null)
-            return null;
-        if (!text.equals("") && text.substring(0, 1).equals("*"))
+        boolean previousWasWildcard = true;
+        List<SearchStringElement> result = new ArrayList<>();
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < searchString.length(); i++)
         {
-            text = text.substring(1, text.length());
+            char c = Character.toLowerCase(searchString.charAt(i));
+            if (c == '*' || c == '?')
+            {
+                if (previousWasWildcard == false)
+                {
+                    result.add(new SearchStringElement(builder.toString()));
+                    builder.setLength(0);
+                }
+                builder.append(c);
+                previousWasWildcard = true;
+            } else
+            {
+                if (previousWasWildcard)
+                {
+                    result.add(new SearchStringElement(builder.toString()));
+                    builder.setLength(0);
+                }
+                builder.append(c);
+                previousWasWildcard = false;
+            }
         }
-        if (!text.equals("") && text.substring(text.length() - 1, text.length()).equals("*"))
+        if (builder.length() > 0)
         {
-            text = text.substring(0, text.length() - 1);
+            result.add(new SearchStringElement(builder.toString()));
         }
-        return text;
+        return result;
     }
-
-    public static String removeDuplicateStars(String text)
+    
+    private static Pattern compile(List<SearchStringElement> elements)
     {
-        boolean existsDuplicate = (text.equals("") || text.indexOf("**") != -1);
-        while (existsDuplicate)
+        StringBuilder builder = new StringBuilder();
+        for (SearchStringElement searchStringElement : elements)
         {
-            text = text.replace("**", "*");
-            existsDuplicate = (text.equals("") || text.indexOf("**") != -1);
+            builder.append('(').append(searchStringElement.text).append(')');
         }
-        return text;
+        return Pattern.compile(builder.toString());
     }
-
+    
+    private static class SearchStringElement
+    {
+        private boolean constant;
+        private String text;
+        SearchStringElement(String text)
+        {
+            if (text.contains("*"))
+            {
+                this.text = ".*";
+                constant = false;
+            } else if (text.equals("?"))
+            {
+                this.text = ".";
+                constant = false;
+            } else
+            {
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < text.length(); i++)
+                {
+                    char c = text.charAt(i);
+                    if (CHARACTERS_TO_ESCAPE.contains(c))
+                    {
+                        builder.append('\\');
+                    }
+                    builder.append(c);
+                }
+                this.text = builder.toString();
+                constant = true;
+            }
+        }
+        
+        @Override
+        public String toString()
+        {
+            return text;
+        }
+    }
 }

@@ -87,7 +87,6 @@ public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEnt
         for (SearchDomain searchDomain : matchingSearchDomains)
         {
             String preferredSearchDomainOrNull = searchDomain.getName();
-            queryText = SearchableEntityTranslator.removeDuplicateStars(queryText);
             HashMap<String, String> parameters = createParameters(searchDomain);
             List<SearchDomainSearchResultWithFullEntity> searchDomainSearchResults =
                     commonServer.searchOnSearchDomain(sessionToken, preferredSearchDomainOrNull, queryText, parameters);
