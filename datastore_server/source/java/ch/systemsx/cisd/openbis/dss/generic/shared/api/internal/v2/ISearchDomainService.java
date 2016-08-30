@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 
 /**
@@ -37,6 +38,21 @@ public interface ISearchDomainService
      * {@link SearchDomain} instances of the search result..
      */
     public String getLabel();
+    
+    /**
+     * Returns the key used in <code>optionalParametersOrNull</code> if this service supports 
+     * different {@link SearchDomainSearchOption}s.
+     * 
+     * @return <code>null</code> if no such options supported.
+     */
+    public String getPossibleSearchOptionsKey();
+    
+    /**
+     * Returns all possible search options. The first option is the default option.
+     * 
+     * @return an empty list if {@link #getPossibleSearchOptionsKey()} return <code>null</code>.
+     */
+    public List<SearchDomainSearchOption> getPossibleSearchOptions();
 
     /**
      * Returns <code>true</code> if this service is available. For example, a local BLAST sequence search service is available if the external BLAST

@@ -53,6 +53,11 @@ public final class SearchableEntityModel extends SimplifiedBaseModelData
         set(ModelDataPropertyNames.DESCRIPTION, searchableEntity.getDescription());
         set(ModelDataPropertyNames.OBJECT, searchableEntity);
     }
+    
+    public SearchableEntity getSearchableEntity()
+    {
+        return (SearchableEntity) get(ModelDataPropertyNames.OBJECT);
+    }
 
     public final static List<SearchableEntityModel> convert(
             final List<SearchableEntity> searchableEntities)

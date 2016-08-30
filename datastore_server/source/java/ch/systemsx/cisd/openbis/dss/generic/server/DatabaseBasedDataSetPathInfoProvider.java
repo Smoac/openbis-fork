@@ -140,7 +140,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
     public Map<String, List<DataSetPathInfo>> listPathInfosBySearchString(String searchString)
     {
         List<ExtendedDataSetFileRecord> fileRecords = getDao().listFilesByRelativePathLikeExpression(
-                searchString.replace('*', '%').replace('?', '_'));
+                searchString);
 
         Map<String, List<DataSetPathInfo>> allPathInfos = new HashMap<String, List<DataSetPathInfo>>();
         for (ExtendedDataSetFileRecord fileRecord : fileRecords)

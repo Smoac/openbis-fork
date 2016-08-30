@@ -27,11 +27,13 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEnt
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SearchableEntityTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyMatch;
@@ -85,10 +87,10 @@ public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEnt
         for (SearchDomain searchDomain : matchingSearchDomains)
         {
             String preferredSearchDomainOrNull = searchDomain.getName();
-            queryText = SearchableEntityTranslator.addStarsToBeginningAndEnd(queryText);
             queryText = SearchableEntityTranslator.removeDuplicateStars(queryText);
+            HashMap<String, String> parameters = createParameters(searchDomain);
             List<SearchDomainSearchResultWithFullEntity> searchDomainSearchResults =
-                    commonServer.searchOnSearchDomain(sessionToken, preferredSearchDomainOrNull, queryText, null);
+                    commonServer.searchOnSearchDomain(sessionToken, preferredSearchDomainOrNull, queryText, parameters);
             List<MatchingEntity> matchingSearchDomainsTranslatedToEntities =
                     SearchableEntityTranslator.translateSearchDomains(searchDomainSearchResults, queryText);
             entities.addAll(matchingSearchDomainsTranslatedToEntities);
@@ -111,12 +113,24 @@ public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEnt
             builder.column(ENTITY_TYPE).addString(matchingEntity.getEntityType().getCode());
             builder.column(SEARCH_DOMAIN_TYPE).addString(matchingEntity.getSearchDomain());
             builder.column(IDENTIFIER).addString(matchingEntity.getIdentifier());
-            builder.column(REGISTRATOR).addPerson(matchingEntity.getRegistrator());            
+            builder.column(REGISTRATOR).addPerson(matchingEntity.getRegistrator());
             builder.column(MATCH).addMatch(addHighLights(matchingEntity));
             builder.column(RANK).addInteger(rank);
             rank++;
         }
         return builder.getModel();
+    }
+
+    private HashMap<String, String> createParameters(SearchDomain searchDomain)
+    {
+        HashMap<String, String> parameters = new HashMap<String, String>();
+        String key = searchDomain.getPossibleSearchOptionsKey();
+        List<SearchDomainSearchOption> options = searchDomain.getPossibleSearchOptions();
+        if (key != null && options.size() > 1)
+        {
+            parameters.put(key, options.get(useWildcardSearchMode ? 1 : 0).getCode());
+        }
+        return parameters;
     }
 
     private class Block
@@ -177,6 +191,10 @@ public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEnt
 
     private List<Block> getBlocks(List<Span> input)
     {
+        if (input == null)
+        {
+            return Collections.emptyList();
+        }
         List<Span> spans = new ArrayList<Span>(input);
         Collections.sort(spans, new Comparator<Span>()
             {

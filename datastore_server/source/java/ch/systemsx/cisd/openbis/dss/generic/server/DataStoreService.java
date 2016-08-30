@@ -524,11 +524,14 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         for (DatastoreServiceDescription description : pluginDescriptions)
         {
             String name = description.getKey();
-            if (provider.getPluginInstance(name).isAvailable())
+            ISearchDomainService service = provider.getPluginInstance(name);
+            if (service.isAvailable())
             {
                 SearchDomain searchDomain = new SearchDomain();
                 searchDomain.setName(name);
                 searchDomain.setLabel(description.getLabel());
+                searchDomain.setPossibleSearchOptionsKey(service.getPossibleSearchOptionsKey());
+                searchDomain.setPossibleSearchOptions(service.getPossibleSearchOptions());
                 result.add(searchDomain);
             }
         }

@@ -73,6 +73,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleChildrenInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchOption;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
@@ -123,6 +124,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
@@ -1061,6 +1063,8 @@ public final class CommonClientService extends AbstractClientService implements
                 searchableEntity.setName(searchDomain.getName());
                 searchableEntity.setType(Type.SEARCH_DOMAIN);
                 searchableEntity.setDescription(searchDomain.getLabel());
+                searchableEntity.setPossibleSearchOptionsKey(searchDomain.getPossibleSearchOptionsKey());
+                searchableEntity.setPossibleSearchOptions(getSearchOptions(searchDomain));
                 searchableEntities.add(searchableEntity);
             }
             return searchableEntities;
@@ -1068,6 +1072,21 @@ public final class CommonClientService extends AbstractClientService implements
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
+    }
+
+    private List<SearchOption> getSearchOptions(SearchDomain searchDomain)
+    {
+        List<SearchOption> searchOptions = new ArrayList<>();
+        List<SearchDomainSearchOption> options = searchDomain.getPossibleSearchOptions();
+        for (SearchDomainSearchOption option : options)
+        {
+            SearchOption searchOption = new SearchOption();
+            searchOption.setCode(option.getCode());
+            searchOption.setLabel(option.getLabel());
+            searchOption.setDescription(option.getDescription());
+            searchOptions.add(searchOption);
+        }
+        return searchOptions;
     }
 
     @Override

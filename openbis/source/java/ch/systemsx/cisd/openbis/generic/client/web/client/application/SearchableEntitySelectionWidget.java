@@ -18,16 +18,15 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SearchableEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 /**
  * A {@link ComboBox} extension for searching entities.
@@ -44,10 +43,7 @@ final class SearchableEntitySelectionWidget extends
     {
         super(commonContext, "", "", ModelDataPropertyNames.DESCRIPTION, "", "");
         this.commonContext = commonContext;
-
-        // added template as a test
-        setTemplate(GWTUtils.getTemplateWithDividers(ModelDataPropertyNames.DESCRIPTION,
-                ModelDataPropertyNames.TOOLTIP));
+        setTemplate(getTemplateWithDividers(ModelDataPropertyNames.DESCRIPTION));
     }
 
     /**
@@ -101,4 +97,16 @@ final class SearchableEntitySelectionWidget extends
     {
         return DatabaseModificationKind.EMPTY_ARRAY;
     }
+    
+    public final static native String getTemplateWithDividers(String displayField)
+    /*-{ 
+       return  [ 
+       '<tpl for=".">', 
+       '<tpl if="xindex == 1"><div class="unselectableItem">Entities<\/div><\/tpl>',
+       '<tpl if="xindex == 6"><div class="unselectableItem">Search Domains&nbsp;&nbsp;<\/div><\/tpl>',
+       '<div class="x-combo-list-item">{[values.',displayField,']}</div>', 
+       '</tpl>' 
+       ].join(""); 
+     }-*/;
+
 }

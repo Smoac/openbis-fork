@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
@@ -28,9 +30,13 @@ public final class SearchableEntity implements IsSerializable, Comparable<Search
     private String name;
 
     private String description;
-    
+
     private Type type;
+
+    private String possibleSearchOptionsKey;
     
+    private List<SearchOption> possibleSearchOptions;
+
     public final String getDescription()
     {
         return description;
@@ -51,15 +57,37 @@ public final class SearchableEntity implements IsSerializable, Comparable<Search
         this.name = name;
     }
 
-    public Type getType() {
-		return type;
-	}
+    public Type getType()
+    {
+        return type;
+    }
 
-	public void setType(Type type) {
-		this.type = type;
-	}
+    public void setType(Type type)
+    {
+        this.type = type;
+    }
 
-	@Override
+    public String getPossibleSearchOptionsKey()
+    {
+        return possibleSearchOptionsKey;
+    }
+
+    public void setPossibleSearchOptionsKey(String possibleSearchOptionsKey)
+    {
+        this.possibleSearchOptionsKey = possibleSearchOptionsKey;
+    }
+    
+    public List<SearchOption> getPossibleSearchOptions()
+    {
+        return possibleSearchOptions;
+    }
+    
+    public void setPossibleSearchOptions(List<SearchOption> possibleSearchOptions)
+    {
+        this.possibleSearchOptions = possibleSearchOptions;
+    }
+
+    @Override
     public final String toString()
     {
         return getDescription();

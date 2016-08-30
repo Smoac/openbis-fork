@@ -549,22 +549,4 @@ public final class GWTUtils
        ].join(""); 
      }-*/;
 
-    /**
-     * Tooltip template displayed when mouse is over drop down list.
-     */
-    public final static native String getTemplateWithDividers(String displayField, String tooltipField)
-    /*-{ 
-       return  [ 
-       '<tpl for=".">', 
-       '<tpl if="xindex == 1"><div class="unselectableItem">Entities<\/div><\/tpl>',
-       '<tpl if="xindex == 6"><div class="unselectableItem">Search Domains&nbsp;&nbsp;<\/div><\/tpl>',
-       '<div class="x-combo-list-item" qtip="{[values.',
-       tooltipField,
-       ']}">{[values.',
-       displayField,
-       ']}</div>', 
-       '</tpl>' 
-       ].join(""); 
-     }-*/;
-
 }

@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFileBlastSearch
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFileSearchResultLocation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityPropertyBlastSearchResultLocation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ISearchDomainResultLocation;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
@@ -64,7 +65,8 @@ public final class SearchableEntityTranslator
         return matchingEntities;
     }
 
-    public final static List<MatchingEntity> translateSearchDomains(List<SearchDomainSearchResultWithFullEntity> searchDomains, String searchString)
+    public final static List<MatchingEntity> translateSearchDomains(
+            List<SearchDomainSearchResultWithFullEntity> searchDomains, String searchString)
     {
         List<MatchingEntity> translatedEntities = new ArrayList<MatchingEntity>();
         for (SearchDomainSearchResultWithFullEntity searchDomain : searchDomains)
@@ -74,47 +76,21 @@ public final class SearchableEntityTranslator
             matchingEntity.setCode(entity.getCode());
             matchingEntity.setEntityKind(entity.getEntityKind());
             matchingEntity.setEntityType(entity.getEntityType());
-            matchingEntity.setSearchDomain(searchDomain.getSearchResult().getSearchDomain().getLabel());
+            matchingEntity.setId(entity.getId());
+            SearchDomainSearchResult searchResult = searchDomain.getSearchResult();
+            matchingEntity.setSearchDomain(searchResult.getSearchDomain().getLabel());
 
             if (entity instanceof IIdentifierHolder)
             {
                 matchingEntity.setIdentifier(((IIdentifierHolder) entity).getIdentifier());
             }
-            if (searchDomain.getSearchResult().getScore() != null)
+            if (searchResult.getScore() != null)
             {
-                matchingEntity.setScore(searchDomain.getSearchResult().getScore().getScore());
+                matchingEntity.setScore(searchResult.getScore().getScore());
             }
 
-            ISearchDomainResultLocation resultLocation = searchDomain.getSearchResult().getResultLocation();
-            List<PropertyMatch> matches = new ArrayList<PropertyMatch>();
-            if (resultLocation instanceof DataSetFileBlastSearchResultLocation)
-            {
-                PropertyMatch match = new PropertyMatch();
-                DataSetFileBlastSearchResultLocation fileBlastLocation = (DataSetFileBlastSearchResultLocation) resultLocation;
-                match.setCode("File '" + fileBlastLocation.getPathInDataSet() + "'");
-                match.setValue(fileBlastLocation.getAlignmentMatch().toString());
-                matches.add(match);
-            } else if (resultLocation instanceof EntityPropertyBlastSearchResultLocation)
-            {
-                PropertyMatch match = new PropertyMatch();
-                EntityPropertyBlastSearchResultLocation entityBlastLocation = (EntityPropertyBlastSearchResultLocation) resultLocation;
-                match.setCode("Property '" + entityBlastLocation.getPropertyType() + "'");
-                match.setValue(entityBlastLocation.getAlignmentMatch().toString());
-                matches.add(match);
-            } else if (resultLocation instanceof DataSetFileSearchResultLocation)
-            {
-                PropertyMatch match = new PropertyMatch();
-                match.setValue(((DataSetFileSearchResultLocation) resultLocation).getPathInDataSet());
-                String pathString = ((DataSetFileSearchResultLocation) resultLocation).getPathInDataSet();
-                List<Span> spans = createSpanList(searchString, pathString);
-                match.setSpans(spans);
-                matches.add(match);
-            } else
-            {
-                PropertyMatch match = new PropertyMatch();
-                match.setValue(((DataSetFileSearchResultLocation) resultLocation).toString());
-                matches.add(match);
-            }
+            ISearchDomainResultLocation resultLocation = searchResult.getResultLocation();
+            List<PropertyMatch> matches = createMatches(searchString, resultLocation);
             matchingEntity.setMatches(matches);
             translatedEntities.add(matchingEntity);
         }
@@ -127,6 +103,37 @@ public final class SearchableEntityTranslator
                 }
             });
         return translatedEntities;
+    }
+
+    private static List<PropertyMatch> createMatches(String searchString, ISearchDomainResultLocation resultLocation)
+    {
+        List<PropertyMatch> matches = new ArrayList<PropertyMatch>();
+        PropertyMatch match = new PropertyMatch();
+        if (resultLocation instanceof DataSetFileBlastSearchResultLocation)
+        {
+            DataSetFileBlastSearchResultLocation fileBlastLocation = (DataSetFileBlastSearchResultLocation) resultLocation;
+            match.setCode("File '" + fileBlastLocation.getPathInDataSet() + "'");
+            match.setValue(fileBlastLocation.getAlignmentMatch().toString());
+            matches.add(match);
+        } else if (resultLocation instanceof EntityPropertyBlastSearchResultLocation)
+        {
+            EntityPropertyBlastSearchResultLocation entityBlastLocation = (EntityPropertyBlastSearchResultLocation) resultLocation;
+            match.setCode("Property '" + entityBlastLocation.getPropertyType() + "'");
+            match.setValue(entityBlastLocation.getAlignmentMatch().toString());
+            matches.add(match);
+        } else if (resultLocation instanceof DataSetFileSearchResultLocation)
+        {
+            match.setValue(((DataSetFileSearchResultLocation) resultLocation).getPathInDataSet());
+            String pathString = ((DataSetFileSearchResultLocation) resultLocation).getPathInDataSet();
+            List<Span> spans = createSpanList(searchString, pathString);
+            match.setSpans(spans);
+            matches.add(match);
+        } else
+        {
+            match.setValue(((DataSetFileSearchResultLocation) resultLocation).toString());
+            matches.add(match);
+        }
+        return matches;
     }
 
     public static List<Span> createSpanList(String searchString, String filePath)
@@ -202,22 +209,6 @@ public final class SearchableEntityTranslator
         if (!text.equals("") && text.substring(text.length() - 1, text.length()).equals("*"))
         {
             text = text.substring(0, text.length() - 1);
-        }
-        return text;
-    }
-
-    // add stars to beginning and end
-    public static String addStarsToBeginningAndEnd(String text)
-    {
-        if (text == null)
-            return null;
-        if (!text.equals("") && !text.substring(0, 1).equals("*"))
-        {
-            text = "*" + text;
-        }
-        if (!text.equals("") && !text.substring(text.length() - 1, text.length()).equals("*"))
-        {
-            text = text + "*";
         }
         return text;
     }
