@@ -625,30 +625,6 @@ public class DataSetRegistrationTask<T extends DataSetInformation> implements IM
             operationLog.info("Registering meta data...");
             AtomicEntityOperationResult operationResult = service.performEntityOperations(builder.getDetails());
             System.err.println("entity operation result: " + operationResult);
-            
-            // // //set parent and container data set codes before everything else
-            // // //container and physical data sets can both be parents/children of each other
-            // for (DataSetWithConnections dsWithConn : dataSetsToProcess.values())
-            // {
-            // for (Connection conn : dsWithConn.getConnections())
-            // {
-            // NewExternalData dataSet = dsWithConn.getDataSet();
-            // if (dataSetsToProcess.containsKey(conn.getToPermId()) && conn.getType().equals("Child"))
-            // {
-            // NewExternalData externalData = dataSetsToProcess.get(conn.getToPermId()).getDataSet();
-            // List<String> parentDataSetCodes = externalData.getParentDataSetCodes();
-            // parentDataSetCodes.add(dataSet.getCode());
-            // externalData.setParentDataSetCodes(parentDataSetCodes);
-            // }
-            // else if (dataSetsToProcess.containsKey(conn.getToPermId()) && conn.getType().equals("Component")) {
-            // NewExternalData componentDataSet = dataSetsToProcess.get(conn.getToPermId()).getDataSet();
-            // NewContainerDataSet containerDataSet = (NewContainerDataSet) dataSet;
-            // List<String> containedDataSetCodes = containerDataSet.getContainedDataSetCodes();
-            // containedDataSetCodes.add(componentDataSet.getCode());
-            // containerDataSet.setContainedDataSetCodes(containedDataSetCodes);
-            // }
-            // }
-            // }
 
             // register physical data sets
             operationLog.info("Registering data sets...");
