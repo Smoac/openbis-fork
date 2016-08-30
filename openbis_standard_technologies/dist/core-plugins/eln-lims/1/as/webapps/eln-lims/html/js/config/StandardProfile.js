@@ -502,7 +502,16 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 							}
 							
 							var providerProducts = productsByProviderPermId[providerPermId];
-							var page = languageLabels["DATE_LABEL"] + ": " + Util.getFormatedDate(new Date(order.registrationDetails.modificationDate));
+							
+							var registrationDate = null;
+							if(order.registrationDetails && order.registrationDetails.modificationDate) {
+								registrationDate = order.registrationDetails.modificationDate;
+							} else if(mainController.currentView._sampleFormModel.sample.registrationDetails && 
+									mainController.currentView._sampleFormModel.sample.registrationDetails.modificationDate) {
+								registrationDate = mainController.currentView._sampleFormModel.sample.registrationDetails.modificationDate;
+							}
+							
+							var page = languageLabels["DATE_LABEL"] + ": " + Util.getFormatedDate(new Date(registrationDate));
 								page += "\n";
 								page += languageLabels["SUPPLIER_LABEL"] + ": " + provider.properties["NAME"];
 								page += "\n";
