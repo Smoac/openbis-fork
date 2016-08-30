@@ -41,7 +41,6 @@ def initBasicMasterData(tr):
     elnTypes.getCommentsScript(tr, "DATA_SET");
     elnTypes.createDataSetTypeWithProperties(tr, elnTypes.ELN_PREVIEW);
     elnTypes.createDataSetTypeWithProperties(tr, elnTypes.ATTACHMENT);
-    elnTypes.createDataSetTypeWithProperties(tr, elnTypes.DRAWING_BOARD_EXPERIMENT);
     
     ##
     ## Experiment Types
@@ -49,7 +48,6 @@ def initBasicMasterData(tr):
     elnTypes.getCommentsScript(tr, "EXPERIMENT");
     elnTypes.createExperimentTypeWithProperties(tr, elnTypes.MATERIALS);
     elnTypes.createExperimentTypeWithProperties(tr, elnTypes.METHODS);
-    elnTypes.createExperimentTypeWithProperties(tr, elnTypes.BOARDS);
     elnTypes.createExperimentTypeWithProperties(tr, elnTypes.DEFAULT_EXPERIMENT);
         
     ##
@@ -59,7 +57,6 @@ def initBasicMasterData(tr):
     ##
     ## Sample Types - Non Materials
     ##
-    elnTypes.getAnnotationsScript(tr, "EXPERIMENTAL_STEP");
     elnTypes.createSampleTypeWithProperties(tr, elnTypes.EXPERIMENTAL_STEP);
     
     ##

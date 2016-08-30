@@ -30,7 +30,6 @@ initializemasterdataminimum.initBasicMasterData(tr);
 ##
 ## Vocabulary Types
 ##
-elnTypes.createVocabularyWithTerms(tr, elnTypes.ELN_TYPES_METADATA);
 elnTypes.createVocabularyWithTerms(tr, elnTypes.HOST);
 elnTypes.createVocabularyWithTerms(tr, elnTypes.DETECTION);
 elnTypes.createVocabularyWithTerms(tr, elnTypes.STORAGE);
@@ -91,40 +90,18 @@ elnTypes.createDataSetTypeWithProperties(tr, elnTypes.ANALYZED_DATA);
 elnTypes.getCommentsScript(tr, "SAMPLE");
 elnTypes.getGeneticModificationsScript(tr, "SAMPLE")
 
-elnTypes.getAnnotationsScript(tr, "ANTIBODY");
+
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.ANTIBODY);
-
-elnTypes.getAnnotationsScript(tr, "CHEMICAL");
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.CHEMICAL);
-
-elnTypes.getAnnotationsScript(tr, "ENZYME");
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.ENZYME);
-
-elnTypes.getAnnotationsScript(tr, "MEDIA");
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.MEDIA);
-
-elnTypes.getAnnotationsScript(tr, "SOLUTION_BUFFER");
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.SOLUTION_BUFFER);
-
-elnTypes.getAnnotationsScript(tr, "OLIGO");
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.OLIGO);
-
-elnTypes.getAnnotationsScript(tr, "RNA");
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.RNA);
-
-elnTypes.getAnnotationsScript(tr, "PLASMID");
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.PLASMID);
-
-elnTypes.getAnnotationsScript(tr, "BACTERIA");
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.BACTERIA);
-
-elnTypes.getAnnotationsScript(tr, "YEAST");
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.YEAST);
-
-elnTypes.getAnnotationsScript(tr, "CELL_LINE");
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.CELL_LINE);
-
-elnTypes.getAnnotationsScript(tr, "FLY");
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.FLY);
 
 elnTypes.addPropertiesToSamples(tr, [
@@ -155,5 +132,7 @@ elnTypes.createSampleTypeWithProperties(tr, elnTypes.PCR_PROTOCOL);
 elnTypes.getAnnotationsScript(tr, "WESTERN_BLOTTING_PROTOCOL");
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.WESTERN_BLOTTING_PROTOCOL);
 
-elnTypes.getAnnotationsScript(tr, "DRAWING_BOARD");
-elnTypes.createSampleTypeWithProperties(tr, elnTypes.DRAWING_BOARD_SAMPLE);
+##
+## Version
+##
+elnTypes.createVocabularyWithTerms(tr, elnTypes.ELN_TYPES_METADATA); #Updates the master data version
