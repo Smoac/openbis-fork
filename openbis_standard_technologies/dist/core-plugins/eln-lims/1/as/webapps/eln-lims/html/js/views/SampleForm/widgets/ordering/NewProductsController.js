@@ -34,7 +34,7 @@ function NewProductsController() {
 			var newProduct = {
 					permId : "PERM_ID_PLACEHOLDER_FOR/STOCK_CATALOG/" + $($($productProperties[1]).children()[0]).val(),
 					sampleTypeCode : "PRODUCT",
-					experimentIdentifierOrNull : "/STOCK_CATALOG/PRODUCTS/PRODUCT_COLLECTION_1",
+					experimentIdentifierOrNull : "/STOCK_CATALOG/PRODUCTS/PRODUCT_COLLECTION",
 					identifier : "/STOCK_CATALOG/" + $($($productProperties[1]).children()[0]).val(), 
 					code : $($($productProperties[1]).children()[0]).val(),
 					parentsIdentifiers : [$($($productProperties[4]).children()[0]).val()],

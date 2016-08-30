@@ -114,6 +114,19 @@ def getDirectLinkURL():
 						"UNCsuffix" : UNCsuffix
 						});
 
+def isSampleTypeAvailable(sampleTypes, sampleTypeCode):
+	for sampleType in sampleTypes:
+		if sampleType.getCode() == sampleTypeCode:
+			return True
+	return False
+
+def getSampleTypes(tr, parameters):
+	sessionToken = parameters.get("sessionToken");
+	servFinder = ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
+	infService = servFinder.createService(IGeneralInformationService, OPENBISURL);
+	types = infService.listSampleTypes(sessionToken);
+	return types
+
 def getProperties(tr, parameters):
 	sessionToken = parameters.get("sessionToken");
 	servFinder = ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
@@ -317,85 +330,120 @@ def getFeaturesFromFeatureVector(tr, parameters, tableBuilder):
 	featuresFromFeatureVector = screeningServiceDSS.loadFeatures(sessionToken, [featureVectorDataset], featuresCodesFromFeatureVector);
 	return getJsonForData(featuresFromFeatureVector);
 
+def insertSpaceIfMissing(tr, spaceCode):
+	space = tr.getSpace(spaceCode);
+	if space == None:
+		tr.createNewSpace(spaceCode, None);
+	return space;
+
+def insertProjectIfMissing(tr, projectIdentifier, projectsCache):
+	if projectIdentifier in projectsCache:
+		return projectsCache[projectIdentifier];
+	project = tr.getProject(projectIdentifier);
+	if project == None:
+		tr.createNewProject(projectIdentifier);
+	projectsCache[projectIdentifier] = project;
+	return project;
+
+def insertExperimentIfMissing(tr, experimentIdentifier, experimentType, experimentName):
+	experiment = tr.getExperiment(experimentIdentifier);
+	if experiment == None:
+		experiment = tr.createNewExperiment(experimentIdentifier, 	experimentType);
+		experiment.setPropertyValue("NAME", experimentName);
+	return experiment;
+
 def init(tr, parameters, tableBuilder):
+	projectsCache = {};
 	inventorySpace = tr.getSpace("DEFAULT_LAB_NOTEBOOK");
-	if inventorySpace == None:
-			tr.createNewSpace("DEFAULT_LAB_NOTEBOOK", None);
-			tr.createNewProject("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT");
-			defaultExperiment = tr.createNewExperiment("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT/DEFAULT_EXPERIMENT", 	"DEFAULT_EXPERIMENT");
-			defaultExperiment.setPropertyValue("NAME", "Default Experiment");
+	methodsSpace = tr.getSpace("METHODS");
+	materialsSpace = tr.getSpace("MATERIALS");
+	isNewInstallation = inventorySpace == None and methodsSpace == None and inventorySpace == None;
 			
-			tr.createNewSpace("METHODS", None);
-			tr.createNewSpace("MATERIALS", None);
+	## Installing Mandatory Spaces/Projects on every login if missing
+	insertSpaceIfMissing(tr, "METHODS");
+	insertSpaceIfMissing(tr, "MATERIALS");
+	insertSpaceIfMissing(tr, "STOCK_CATALOG");
+	insertProjectIfMissing(tr, "/STOCK_CATALOG/PRODUCTS", projectsCache);
+	insertExperimentIfMissing(tr, "/STOCK_CATALOG/PRODUCTS/PRODUCT_COLLECTION", "STOCK", "Product Collection");
+	insertProjectIfMissing(tr, "/STOCK_CATALOG/SUPPLIERS", projectsCache);
+	insertExperimentIfMissing(tr, "/STOCK_CATALOG/SUPPLIERS/SUPPLIER_COLLECTION", "STOCK", "Supplier Collection");
+	insertProjectIfMissing(tr, "/STOCK_CATALOG/REQUESTS", projectsCache);
+	insertExperimentIfMissing(tr, "/STOCK_CATALOG/REQUESTS/REQUEST_COLLECTION", "STOCK", "Request Collection");
+	
+	insertSpaceIfMissing(tr, "STOCK_ORDERS");
+	insertProjectIfMissing(tr, "/STOCK_ORDERS/ORDERS", projectsCache);
+	insertExperimentIfMissing(tr, "/STOCK_ORDERS/ORDERS/ORDER_COLLECTION", "STOCK", "Order Collection");
+	
+	## Default lab notebook only on new installations
+	if isNewInstallation:
+		tr.createNewSpace("DEFAULT_LAB_NOTEBOOK", None);
+		tr.createNewProject("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT");
+		defaultExperiment = tr.createNewExperiment("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT/DEFAULT_EXPERIMENT", 	"DEFAULT_EXPERIMENT");
+		defaultExperiment.setPropertyValue("NAME", "Default Experiment");
+	
+	# On new installations check if the default types are installed to create their respective PROJECT/EXPERIMENTS
+	if isNewInstallation:
+		installedTypes = getSampleTypes(tr, parameters);
+		if isSampleTypeAvailable(installedTypes, "ANTIBODY"):
+			insertProjectIfMissing(tr, "/MATERIALS/REAGENTS", projectsCache);
+			insertExperimentIfMissing(tr, "/MATERIALS/REAGENTS/ANTIBODY_COLLECTION_1", "MATERIALS", "Antibody Collection 1");
+		
+		if isSampleTypeAvailable(installedTypes, "CHEMICAL"):
+			insertProjectIfMissing(tr, "/MATERIALS/REAGENTS", projectsCache);
+			insertExperimentIfMissing(tr, "/MATERIALS/REAGENTS/CHEMICAL_COLLECTION_1", "MATERIALS", "Chemical Collection 1");
+		
+		if isSampleTypeAvailable(installedTypes, "ENZYME"):
+			insertProjectIfMissing(tr, "/MATERIALS/REAGENTS", projectsCache);
+			insertExperimentIfMissing(tr, "/MATERIALS/REAGENTS/ENZYME_COLLECTION_1", "MATERIALS", "Enzyme Collection 1");
+		
+		if isSampleTypeAvailable(installedTypes, "MEDIA"):
+			insertProjectIfMissing(tr, "/MATERIALS/REAGENTS", projectsCache);
+			insertExperimentIfMissing(tr, "/MATERIALS/REAGENTS/MEDIA_COLLECTION_1", "MATERIALS", "Media Collection 1");
+		
+		if isSampleTypeAvailable(installedTypes, "SOLUTION_BUFFER"):
+			insertProjectIfMissing(tr, "/MATERIALS/REAGENTS", projectsCache);
+			insertExperimentIfMissing(tr, "/MATERIALS/REAGENTS/SOLUTION_BUFFER_COLLECTION_1", "MATERIALS", "Solution Buffer Collection 1");
 			
-			tr.createNewSpace("STOCK_CATALOG", None);
-			
-			tr.createNewProject("/STOCK_CATALOG/PRODUCTS");
-			purchasesCollection = tr.createNewExperiment("/STOCK_CATALOG/PRODUCTS/PRODUCT_COLLECTION_1",		"STOCK");
-			purchasesCollection.setPropertyValue("NAME", "Product Collection 1");
-			
-			tr.createNewProject("/STOCK_CATALOG/SUPPLIERS");
-			purchasesCollection = tr.createNewExperiment("/STOCK_CATALOG/SUPPLIERS/SUPPLIER_COLLECTION_1",		"STOCK");
-			purchasesCollection.setPropertyValue("NAME", "Supplier Collection 1");
-			
-			tr.createNewProject("/STOCK_CATALOG/REQUESTS");
-			purchasesCollection = tr.createNewExperiment("/STOCK_CATALOG/REQUESTS/REQUEST_COLLECTION_1",		"STOCK");
-			purchasesCollection.setPropertyValue("NAME", "Request Collection 1");
-			
-			tr.createNewSpace("STOCK_ORDERS", None);
-			tr.createNewProject("/STOCK_ORDERS/ORDERS");
-			purchasesCollection = tr.createNewExperiment("/STOCK_ORDERS/ORDERS/ORDER_COLLECTION_1",			"STOCK");
-			purchasesCollection.setPropertyValue("NAME", "Order Collection 1");
-			
-			areNonMinimumTypesInstalled = tr.getVocabularyForUpdate("ELN_TYPES_METADATA") != None;
-			if areNonMinimumTypesInstalled:
-				tr.createNewProject("/MATERIALS/REAGENTS");
-				antibodyCollection = tr.createNewExperiment("/MATERIALS/REAGENTS/ANTIBODY_COLLECTION", 		"MATERIALS");
-				antibodyCollection.setPropertyValue("NAME", "Antibody Collection");
-				chemicalCollection = tr.createNewExperiment("/MATERIALS/REAGENTS/CHEMICAL_COLLECTION", 		"MATERIALS");
-				chemicalCollection.setPropertyValue("NAME", "Chemical Collection");
-				enzymeCollection = tr.createNewExperiment("/MATERIALS/REAGENTS/ENZYME_COLLECTION", 			"MATERIALS");
-				enzymeCollection.setPropertyValue("NAME", "Enzyme Collection");
-				mediaCollection = tr.createNewExperiment("/MATERIALS/REAGENTS/MEDIA_COLLECTION", 			"MATERIALS");
-				mediaCollection.setPropertyValue("NAME", "Media Collection");
-				solutionBufferCollection = tr.createNewExperiment("/MATERIALS/REAGENTS/SOLUTION_BUFFER_COLLECTION",	"MATERIALS");
-				solutionBufferCollection.setPropertyValue("NAME", "Solution Buffer Collection");
-				
-				tr.createNewProject("/MATERIALS/BACTERIA");
-				bacteriaCollection = tr.createNewExperiment("/MATERIALS/BACTERIA/BACTERIA_COLLECTION_1",		"MATERIALS");
-				bacteriaCollection.setPropertyValue("NAME", "Bacteria Collection 1");
-				
-				tr.createNewProject("/MATERIALS/CELL_LINES");
-				cellLineCollection1 = tr.createNewExperiment("/MATERIALS/CELL_LINES/CELL_LINE_COLLECTION_1",	"MATERIALS");
-				cellLineCollection1.setPropertyValue("NAME", "Cell Line Collection 1");
-				
-				tr.createNewProject("/MATERIALS/FLIES");
-				flyCollection1 = tr.createNewExperiment("/MATERIALS/FLIES/FLY_COLLECTION_1",				"MATERIALS");
-				flyCollection1.setPropertyValue("NAME", "Fly Collection 1");
-				
-				tr.createNewProject("/MATERIALS/YEASTS");
-				yeastCollection1 = tr.createNewExperiment("/MATERIALS/YEASTS/YEAST_COLLECTION_1",			"MATERIALS");
-				yeastCollection1.setPropertyValue("NAME", "Yeast Collection 1");
-				
-				tr.createNewProject("/MATERIALS/PLASMIDS");
-				plasmidCollection1 = tr.createNewExperiment("/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1",		"MATERIALS");
-				plasmidCollection1.setPropertyValue("NAME", "Plasmid Collection 1");
-				
-				tr.createNewProject("/MATERIALS/POLYNUCLEOTIDES");
-				oligoCollection1 = tr.createNewExperiment("/MATERIALS/POLYNUCLEOTIDES/OLIGO_COLLECTION_1",	"MATERIALS");
-				oligoCollection1.setPropertyValue("NAME", "Oligo Collection 1");
-				rnaCollection1 = tr.createNewExperiment("/MATERIALS/POLYNUCLEOTIDES/RNA_COLLECTION_1",	"MATERIALS");
-				rnaCollection1.setPropertyValue("NAME", "RNA Collection 1");
-				
-				tr.createNewProject("/METHODS/PROTOCOLS");
-				generalProtocols = tr.createNewExperiment("/METHODS/PROTOCOLS/GENERAL_PROTOCOLS", 			"METHODS");
-				generalProtocols.setPropertyValue("NAME", "General Protocols");
-				
-				pcrProtocols = tr.createNewExperiment("/METHODS/PROTOCOLS/PCR_PROTOCOLS", 				"METHODS");
-				pcrProtocols.setPropertyValue("NAME", "PCR Protocols");
-				
-				westernBottingProtocols = tr.createNewExperiment("/METHODS/PROTOCOLS/WESTERN_BLOTTING_PROTOCOLS", 	"METHODS");
-				westernBottingProtocols.setPropertyValue("NAME", "Western Botting Protocols");
+		if isSampleTypeAvailable(installedTypes, "BACTERIA"):
+			insertProjectIfMissing(tr, "/MATERIALS/BACTERIA", projectsCache);
+			insertExperimentIfMissing(tr, "/MATERIALS/BACTERIA/BACTERIA_COLLECTION_1", "MATERIALS", "Bacteria Collection 1");
+		
+		if isSampleTypeAvailable(installedTypes, "CELL_LINE"):
+			insertProjectIfMissing(tr, "/MATERIALS/CELL_LINES", projectsCache);
+			insertExperimentIfMissing(tr, "/MATERIALS/CELL_LINES/CELL_LINE_COLLECTION_1", "MATERIALS", "Cell Line Collection 1");
+		
+		if isSampleTypeAvailable(installedTypes, "FLY"):
+			insertProjectIfMissing(tr, "/MATERIALS/FLIES", projectsCache);
+			insertExperimentIfMissing(tr, "/MATERIALS/FLIES/FLY_COLLECTION_1", "MATERIALS", "Fly Collection 1");
+		
+		if isSampleTypeAvailable(installedTypes, "YEAST"):
+			insertProjectIfMissing(tr, "/MATERIALS/YEASTS", projectsCache);
+			insertExperimentIfMissing(tr, "/MATERIALS/YEASTS/YEAST_COLLECTION_1", "MATERIALS", "Yeast Collection 1");
+
+		if isSampleTypeAvailable(installedTypes, "PLASMID"):
+			insertProjectIfMissing(tr, "/MATERIALS/PLASMIDS", projectsCache);
+			insertExperimentIfMissing(tr, "/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1", "MATERIALS", "Plasmid Collection 1");
+
+		if isSampleTypeAvailable(installedTypes, "OLIGO"):
+			insertProjectIfMissing(tr, "/MATERIALS/POLYNUCLEOTIDES", projectsCache);
+			insertExperimentIfMissing(tr, "/MATERIALS/POLYNUCLEOTIDES/OLIGO_COLLECTION_1", "MATERIALS", "Oligo Collection 1");
+		
+		if isSampleTypeAvailable(installedTypes, "RNA"):
+			insertProjectIfMissing(tr, "/MATERIALS/POLYNUCLEOTIDES", projectsCache);
+			insertExperimentIfMissing(tr, "/MATERIALS/POLYNUCLEOTIDES/RNA_COLLECTION_1", "MATERIALS", "RNA Collection 1");
+		
+		if isSampleTypeAvailable(installedTypes, "GENERAL_PROTOCOL"):
+			insertProjectIfMissing(tr, "/METHODS/PROTOCOLS", projectsCache);
+			insertExperimentIfMissing(tr, "/METHODS/PROTOCOLS/GENERAL_PROTOCOLS", "METHODS", "General Protocols");
+		
+		if isSampleTypeAvailable(installedTypes, "PCR_PROTOCOL"):
+			insertProjectIfMissing(tr, "/METHODS/PROTOCOLS", projectsCache);
+			insertExperimentIfMissing(tr, "/METHODS/PROTOCOLS/PCR_PROTOCOLS", "METHODS", "PCR Protocols");
+		
+		if isSampleTypeAvailable(installedTypes, "WESTERN_BLOTTING_PROTOCOL"):
+			insertProjectIfMissing(tr, "/METHODS/PROTOCOLS", projectsCache);
+			insertExperimentIfMissing(tr, "/METHODS/PROTOCOLS/WESTERN_BLOTTING_PROTOCOLS", "METHODS", "Western Botting Protocols");
+	
 	return True;
 
 def registerUserPassword(tr, parameters, tableBuilder):

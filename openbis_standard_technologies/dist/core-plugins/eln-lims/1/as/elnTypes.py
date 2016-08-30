@@ -848,7 +848,7 @@ EXPERIMENTAL_STEP = [FIRST_TIME_VERSIONED, True, "EXPERIMENTAL_STEP", "", [
         [MANDATORY_ITEM_VERSION, "ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None,                                "Annotations State", "EXPERIMENTAL_STEP_ANNOTATIONS", None]
     ]];
 
-GENERAL_PROTOCOL = [FIRST_TIME_VERSIONED, False, "GENERAL_PROTOCOL", "", [
+GENERAL_PROTOCOL = [FIRST_TIME_VERSIONED, True, "GENERAL_PROTOCOL", "", [
         [FIRST_TIME_VERSIONED, "NAME",                     "General",            "Name",                        DataType.MULTILINE_VARCHAR,        None,                "Name", None, None],
         [FIRST_TIME_VERSIONED, "SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,    "Show in project overview", None, None],
         [FIRST_TIME_VERSIONED, "FOR_WHAT",                 "General",            "For what",                    DataType.MULTILINE_VARCHAR,        None,                "For what kind of experimental application/readout this sample is used in the lab", None, None],
@@ -864,7 +864,7 @@ GENERAL_PROTOCOL = [FIRST_TIME_VERSIONED, False, "GENERAL_PROTOCOL", "", [
         [FIRST_TIME_VERSIONED, "ANNOTATIONS_STATE",        "Comments",            "Annotations State",        DataType.XML,                    None,                "Annotations State", "ANNOTATIONS_GENERAL_PROTOCOL", None]
     ]];
 
-PCR_PROTOCOL = [FIRST_TIME_VERSIONED, False, "PCR_PROTOCOL", "", [
+PCR_PROTOCOL = [FIRST_TIME_VERSIONED, True, "PCR_PROTOCOL", "", [
         [FIRST_TIME_VERSIONED, "NAME",                     "General",            "Name",                        DataType.MULTILINE_VARCHAR,        None,                "Name", None, None],
         [FIRST_TIME_VERSIONED, "SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,    "Show in project overview", None, None],
         [FIRST_TIME_VERSIONED, "FOR_WHAT",                 "General",            "For what",                    DataType.MULTILINE_VARCHAR,        None,                "For what kind of experimental application/readout this sample is used in the lab", None, None],
@@ -879,7 +879,7 @@ PCR_PROTOCOL = [FIRST_TIME_VERSIONED, False, "PCR_PROTOCOL", "", [
         [FIRST_TIME_VERSIONED, "ANNOTATIONS_STATE",        "Comments",            "Annotations State",        DataType.XML,                    None,                "Annotations State", "ANNOTATIONS_PCR_PROTOCOL", None]
     ]];
 
-WESTERN_BLOTTING_PROTOCOL = [FIRST_TIME_VERSIONED, False, "WESTERN_BLOTTING_PROTOCOL", "", [
+WESTERN_BLOTTING_PROTOCOL = [FIRST_TIME_VERSIONED, True, "WESTERN_BLOTTING_PROTOCOL", "", [
         [FIRST_TIME_VERSIONED, "NAME",                     "General",            "Name",                        DataType.MULTILINE_VARCHAR,        None,                "Name", None, None],
         [FIRST_TIME_VERSIONED, "SHOW_IN_PROJECT_OVERVIEW", "General", "Show in project overview", DataType.BOOLEAN, None,    "Show in project overview", None, None],
         [FIRST_TIME_VERSIONED, "FOR_WHAT",                 "General",            "For what",                    DataType.MULTILINE_VARCHAR,        None,                "For what kind of experimental application/readout this sample is used in the lab", None, None],

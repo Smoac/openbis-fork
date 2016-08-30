@@ -123,13 +123,8 @@ elnTypes.addPropertiesToSamples(tr, [
 ## Sample Types - Non Materials
 ##
 
-elnTypes.getAnnotationsScript(tr, "GENERAL_PROTOCOL");
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.GENERAL_PROTOCOL);
-
-elnTypes.getAnnotationsScript(tr, "PCR_PROTOCOL");
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.PCR_PROTOCOL);
-
-elnTypes.getAnnotationsScript(tr, "WESTERN_BLOTTING_PROTOCOL");
 elnTypes.createSampleTypeWithProperties(tr, elnTypes.WESTERN_BLOTTING_PROTOCOL);
 
 ##
