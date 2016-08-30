@@ -103,7 +103,7 @@ final class SearchableEntitySelectionWidget extends
        return  [ 
        '<tpl for=".">', 
        '<tpl if="xindex == 1"><div class="unselectableItem">Entities<\/div><\/tpl>',
-       '<tpl if="xindex == 6"><div class="unselectableItem">Search Domains&nbsp;&nbsp;<\/div><\/tpl>',
+       '<tpl if="xindex == 6"><div class="unselectableItem">Search Domains<\/div><\/tpl>',
        '<div class="x-combo-list-item">{[values.',displayField,']}</div>', 
        '</tpl>' 
        ].join(""); 

@@ -131,7 +131,7 @@ public final class SearchWidget extends LayoutContainer
                 new SearchableEntitySelectionWidget(viewContext);
         comboBox.setStyleAttribute("marginRight", "3px");
         comboBox.setId(ENTITY_CHOOSER_ID);
-        comboBox.setWidth(200);
+        comboBox.setWidth(150);
         comboBox.addSelectionChangedListener(new SelectionChangedListener<SearchableEntityModel>()
             {
                 

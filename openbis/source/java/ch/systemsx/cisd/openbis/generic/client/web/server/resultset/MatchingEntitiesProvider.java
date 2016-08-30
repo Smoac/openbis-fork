@@ -191,11 +191,7 @@ public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEnt
 
     private List<Block> getBlocks(List<Span> input)
     {
-        if (input == null)
-        {
-            return Collections.emptyList();
-        }
-        List<Span> spans = new ArrayList<Span>(input);
+        List<Span> spans = input == null ? new ArrayList<Span>() : new ArrayList<Span>(input);
         Collections.sort(spans, new Comparator<Span>()
             {
                 @Override
