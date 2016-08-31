@@ -259,5 +259,7 @@ public class EntityGraph<N extends Node<?>>
     {
         nodes.clear();
         adjacencyMap.clear();
+        visitedContainers.clear();
+        visitedParents.clear();
     }
 }
