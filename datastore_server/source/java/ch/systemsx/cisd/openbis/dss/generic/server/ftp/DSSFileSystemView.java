@@ -33,11 +33,13 @@ import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
 import org.apache.log4j.Logger;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.ResolverContext;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.util.Key;
@@ -101,26 +103,30 @@ public class DSSFileSystemView implements FileSystemView
 
     private final IGeneralInformationService generalInfoService;
 
+    private final IApplicationServerApi v3api;
+
     private FtpFile workingDirectory;
 
     private final IFtpPathResolverRegistry pathResolverRegistry;
 
     public DSSFileSystemView(String sessionToken, final IServiceForDataStoreServer service,
-            IGeneralInformationService generalInfoService,
+            IGeneralInformationService generalInfoService, IApplicationServerApi v3api,
             IFtpPathResolverRegistry pathResolverRegistry) throws FtpException
     {
-        this(sessionToken, service, generalInfoService, pathResolverRegistry, 
+        this(sessionToken, service, generalInfoService, v3api, pathResolverRegistry,
                 new Cache(SystemTimeProvider.SYSTEM_TIME_PROVIDER));
     }
+
     public DSSFileSystemView(String sessionToken, final IServiceForDataStoreServer service,
-            IGeneralInformationService generalInfoService,
+            IGeneralInformationService generalInfoService, IApplicationServerApi v3api,
             IFtpPathResolverRegistry pathResolverRegistry, Cache cache) throws FtpException
     {
         this.sessionToken = sessionToken;
         this.service =
-                (IServiceForDataStoreServer) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]
-                { IServiceForDataStoreServer.class }, new ServiceInvocationHandler(service));
+                (IServiceForDataStoreServer) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[] { IServiceForDataStoreServer.class },
+                        new ServiceInvocationHandler(service));
         this.generalInfoService = generalInfoService;
+        this.v3api = v3api;
         this.pathResolverRegistry = pathResolverRegistry;
         this.workingDirectory = getFile(FtpConstants.ROOT_DIRECTORY, cache);
     }
@@ -160,9 +166,11 @@ public class DSSFileSystemView implements FileSystemView
 
         try
         {
+            ResolverContext resolverContext =
+                    new ResolverContext(sessionToken, cache, v3api, path);
             FtpPathResolverContext context =
-                    new FtpPathResolverContext(sessionToken, service, generalInfoService,
-                            pathResolverRegistry, cache);
+                    new FtpPathResolverContext(sessionToken, service, generalInfoService, v3api,
+                            pathResolverRegistry, cache, resolverContext);
             return pathResolverRegistry.resolve(normalizedPath, context);
         } catch (RuntimeException rex)
         {

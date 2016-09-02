@@ -30,7 +30,8 @@ function CreateUserController() {
 				mainController.serverFacade.createELNUser(_this._createUserModel.userId, function(isRegistered, message) {
 					if(isRegistered) {
 						Util.showSuccess(message, function() {
-							location.reload();
+							Util.unblockUI();
+							mainController.changeView("showUserManagerPage");
 						});
 					} else if (message.indexOf("Following persons already exist") !== -1){
 						Util.showError(message, function() {

@@ -143,7 +143,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			$dataSetTypeFieldSet.append($dataSetCodeLabel);
 		}
 		
-		var ownerName = "Sample";
+		var ownerName = ELNDictionary.Sample;
 		var owner = this._dataSetFormModel.sample.identifier;
 		if(this._dataSetFormModel.sample.experimentIdentifierOrNull) {
 			owner = this._dataSetFormModel.sample.experimentIdentifierOrNull + "/" + this._dataSetFormModel.sample.code;
@@ -188,9 +188,9 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		if(this._dataSetFormModel.mode !== FormMode.VIEW) {
 			var btnText = "";
 			if(this._dataSetFormModel.mode === FormMode.CREATE) {
-				btnText = 'Create Dataset';
+				btnText = 'Create';
 			} else if(this._dataSetFormModel.mode === FormMode.EDIT) {
-				btnText = 'Update Dataset';
+				btnText = 'Update';
 			}
 			
 			var $submitButton = $('<fieldset>')
@@ -439,7 +439,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 						$controlGroup.append($controlLabel);
 						$controlGroup.append($controls);
 						
-						var $component = FormUtil.getFieldForPropertyType(propertyType);
+						var $component = FormUtil.getFieldForPropertyType(propertyType, value);
 						
 						//Update model
 						var changeEvent = function(propertyType) {
@@ -464,7 +464,6 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 							if(propertyType.dataType === "BOOLEAN") {
 								$($($component.children()[0]).children()[0]).prop('checked', value === "true");
 							} else if(propertyType.dataType === "TIMESTAMP") {
-								$($($component.children()[0]).children()[0]).val(value);
 							} else {
 								$component.val(value);
 							}

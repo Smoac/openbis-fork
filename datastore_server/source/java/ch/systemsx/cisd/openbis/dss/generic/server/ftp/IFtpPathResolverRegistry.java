@@ -25,6 +25,11 @@ public interface IFtpPathResolverRegistry
 {
 
     /**
+     * Method called once to initialize object
+     */
+    void initialize(FtpPathResolverConfig config);
+
+    /**
      * Returns an {@link FtpFile} for <var>path</var>.
      * <p>
      * This method will return a {@link FtpPathResolverRegistry#getNonExistingFile(String, String)} when the file does not exist.

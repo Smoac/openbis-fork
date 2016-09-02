@@ -62,6 +62,16 @@ public interface IHierarchicalContentProvider
     IHierarchicalContent asContent(AbstractExternalData dataSet);
 
     /**
+     * A faster alternative of {@link #asContent(String)} for the case when an {@link AbstractExternalData} object has already been fetched from the
+     * openBIS AS. It does not modify the access timestamp of requested dataset.
+     * 
+     * @param dataSet a fully populated {@link AbstractExternalData} instance. For container data sets all physical (contained) data sets must be
+     *            present.
+     * @return {@link IHierarchicalContent} for the specified data set
+     */
+    IHierarchicalContent asContentWithoutModifyingAccessTimestamp(AbstractExternalData dataSet);
+
+    /**
      * @return {@link IHierarchicalContent} for the specified data set
      * @deprecated doesn't support container data sets, use {@link #asContent(String)}
      */

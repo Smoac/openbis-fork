@@ -15,7 +15,7 @@
  */
 
 var ChangeLogType = {
-		Sample : "Sample"
+		Sample : ELNDictionary.Sample
 }
 
 function StorageManagerModel() {

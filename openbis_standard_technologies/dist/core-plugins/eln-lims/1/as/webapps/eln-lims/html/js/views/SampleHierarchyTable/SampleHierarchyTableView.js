@@ -32,7 +32,7 @@ function SampleHierarchyTableView(controller, model) {
 		});
 		$container.append($containerColumn);
 		
-		$containerColumn.append($("<h1>").append("Sample Hierarchy Table for " + this._model.sample.identifier));
+		$containerColumn.append($("<h1>").append("" + ELNDictionary.Sample + " Hierarchy Table for " + this._model.sample.identifier));
 		this._hierarchyFilterController = new HierarchyFilterController(this._model.sample, function() {
 					_this._dataGrid.refresh();
 				});
@@ -49,7 +49,7 @@ function SampleHierarchyTableView(controller, model) {
 			property : 'level',
 			sortable : true
 		} , {
-			label : 'Sample Type',
+			label : "" + ELNDictionary.Sample + " Type",
 			property : 'sampleType',
 			sortable : true,
 			render : function(data) {
@@ -105,7 +105,7 @@ function SampleHierarchyTableView(controller, model) {
 		
 		this._dataGrid = new DataGridController(null, columns, getDataList, rowClick, false, "SAMPLE_HIERARCHY_TABLE");
 		this._dataGrid.init(this._container);
-		this._container.prepend($("<legend>").append(" Sample Hierarchy"));
+		this._container.prepend($("<legend>").append(" " + ELNDictionary.Sample + " Hierarchy"));
 	}
 	
 	this._annotationsRenderer = function(samples, sample) {

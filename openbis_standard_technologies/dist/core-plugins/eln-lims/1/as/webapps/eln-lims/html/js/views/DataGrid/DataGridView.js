@@ -20,7 +20,7 @@ function DataGridView(dataGridController, dataGridModel) {
 	this.repaint = function($container) {
 		$container.empty();
 		if(this._dataGridModel.title) {
-			$container.append($("<h2>").append(this._dataGridModel.title));
+			$container.append($("<br>")).append($("<legend>").append(this._dataGridModel.title));
 		}
 		$container.append(this._dataGridModel.datagrid);
 	}

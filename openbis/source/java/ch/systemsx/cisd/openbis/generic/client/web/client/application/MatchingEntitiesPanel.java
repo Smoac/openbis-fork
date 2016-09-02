@@ -208,8 +208,12 @@ public final class MatchingEntitiesPanel extends TypedTableGrid<MatchingEntity>
                     String html = "";
                     for (PropertyMatch match : entity.getMatches())
                     {
-                        html += match.getCode() + ": "
-                                + match.getValue().replace(MatchingEntitiesProvider.START_HIGHLIGHT, "<span style=\"background-color:#cce9fc\">")
+                        String code = match.getCode();
+                        if (code != null)
+                        {
+                            html += code + ": ";
+                        }
+                        html += match.getValue().replace(MatchingEntitiesProvider.START_HIGHLIGHT, "<span style=\"background-color:#cce9fc\">")
                                         .replace(MatchingEntitiesProvider.END_HIGHLIGHT, "</span>")
                                 + "\n";
                     }

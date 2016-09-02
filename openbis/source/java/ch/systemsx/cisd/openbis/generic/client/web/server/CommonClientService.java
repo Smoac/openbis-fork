@@ -73,9 +73,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleChildrenInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchOption;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Type;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessionException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
@@ -116,10 +118,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.VocabularyTe
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator.Escape;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SearchableEntityTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SearchableSearchDomainTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
@@ -692,10 +697,22 @@ public final class CommonClientService extends AbstractClientService implements
             final boolean useWildcardSearchMode,
             final IResultSetConfig<String, TableModelRowWithObject<MatchingEntity>> resultSetConfig)
     {
+
         ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity[] matchingEntities =
                 SearchableEntityTranslator.translate(searchableEntityOrNull);
+
+        // to make a search for "All" include both all entities AND all search domains, remove the null check here.
+        SearchDomain[] matchingSearchDomains = {};
+        if (searchableEntityOrNull != null)
+        {
+            String sessionToken = getSessionToken();
+            List<SearchDomain> availableSearchDomains = commonServer.listAvailableSearchDomains(sessionToken);
+            matchingSearchDomains =
+                    SearchableSearchDomainTranslator.translate(searchableEntityOrNull, availableSearchDomains);
+        }
+
         MatchingEntitiesProvider provider =
-                new MatchingEntitiesProvider(commonServer, getSessionToken(), matchingEntities,
+                new MatchingEntitiesProvider(commonServer, getSessionToken(), matchingEntities, matchingSearchDomains,
                         queryText, useWildcardSearchMode);
         return listEntities(provider, resultSetConfig);
     }
@@ -1026,19 +1043,50 @@ public final class CommonClientService extends AbstractClientService implements
     public final List<SearchableEntity> listSearchableEntities()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
+
         try
         {
-            // Not directly needed but this refreshes the session.
-            getSessionToken();
+            // This also refreshes the session.
+            String sessionToken = getSessionToken();
             final List<SearchableEntity> searchableEntities =
                     BeanUtils.createBeanList(SearchableEntity.class, Arrays
                             .asList(ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity
                                     .values()));
+            for (SearchableEntity searchableEntity : searchableEntities)
+            {
+                searchableEntity.setType(Type.ENTITY);
+            }
+            List<SearchDomain> searchDomains = commonServer.listAvailableSearchDomains(sessionToken);
+            for (SearchDomain searchDomain : searchDomains)
+            {
+                SearchableEntity searchableEntity = new SearchableEntity();
+                searchableEntity.setName(searchDomain.getName());
+                searchableEntity.setType(Type.SEARCH_DOMAIN);
+                searchableEntity.setDescription(searchDomain.getLabel());
+                searchableEntity.setPossibleSearchOptionsKey(searchDomain.getPossibleSearchOptionsKey());
+                searchableEntity.setPossibleSearchOptions(getSearchOptions(searchDomain));
+                searchableEntities.add(searchableEntity);
+            }
             return searchableEntities;
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
+    }
+
+    private List<SearchOption> getSearchOptions(SearchDomain searchDomain)
+    {
+        List<SearchOption> searchOptions = new ArrayList<>();
+        List<SearchDomainSearchOption> options = searchDomain.getPossibleSearchOptions();
+        for (SearchDomainSearchOption option : options)
+        {
+            SearchOption searchOption = new SearchOption();
+            searchOption.setCode(option.getCode());
+            searchOption.setLabel(option.getLabel());
+            searchOption.setDescription(option.getDescription());
+            searchOptions.add(searchOption);
+        }
+        return searchOptions;
     }
 
     @Override
@@ -3021,4 +3069,5 @@ public final class CommonClientService extends AbstractClientService implements
         }
         return list;
     }
+
 }

@@ -19,6 +19,24 @@ var FormUtil = new function() {
 	//
 	// Annotations
 	//
+	this.writeAnnotationForSample = function(stateObj, sample, propertyTypeCode, propertyValue) {
+		var sampleAnnotations = stateObj[sample.permId];
+		if(!sampleAnnotations) {
+			sampleAnnotations = {};
+			stateObj[sample.permId] = sampleAnnotations;
+		}
+		
+		sampleAnnotations["identifier"] =  sample.identifier; //Adds code to the annotations if not present
+		sampleAnnotations["sampleType"] =  sample.sampleTypeCode; //Adds sampleType code to the annotations if not present
+		
+		if(propertyTypeCode && propertyValue !== null && propertyValue !== undefined) {
+			sampleAnnotations[propertyTypeCode] = propertyValue;
+		}
+	}
+	
+	this.deleteAnnotationsFromPermId = function(stateObj, permId) {
+		delete stateObj[permId];
+	}
 	
 	this.getXMLFromAnnotations = function(stateObj) {
 		var rootNode = document.createElementNS("http://www.w3.org/1999/xhtml", "root"); //The namespace should be ignored by both ELN and openBIS parsers
@@ -224,13 +242,13 @@ var FormUtil = new function() {
 			$component.attr('required', '');
 		}
 		
-		$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select a sample type"));
+		$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select an " + ELNDictionary.sample + " type"));
 		for(var i = 0; i < sampleTypes.length; i++) {
 			var sampleType = sampleTypes[i];
 			if(profile.isSampleTypeHidden(sampleType.code)) {
 				continue;
 			}
-			var label = sampleType.code;
+			var label = Util.getDisplayNameFromCode(sampleType.code);
 			var description = Util.getEmptyIfNull(sampleType.description);
 			if(description !== "") {
 				label += " (" + description + ")";
@@ -250,14 +268,14 @@ var FormUtil = new function() {
 			$component.attr('required', '');
 		}
 		
-		$component.append($("<option>").attr('value', '').attr('selected', '').text('Select an experiment type'));
+		$component.append($("<option>").attr('value', '').attr('selected', '').text("Select an " + ELNDictionary.getExperimentDualName() + " type"));
 		for(var i = 0; i < experimentTypes.length; i++) {
 			var experimentType = experimentTypes[i];
 			if(profile.isExperimentTypeHidden(experimentType.code)) {
 				continue;
 			}
 			
-			var label = experimentType.code;
+			var label = Util.getDisplayNameFromCode(experimentType.code);
 			var description = Util.getEmptyIfNull(experimentType.description);
 			if(description !== "") {
 				label += " (" + description + ")";
@@ -279,7 +297,7 @@ var FormUtil = new function() {
 		
 		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
 		for(var i = 0; i < spaces.length; i++) {
-			$component.append($("<option>").attr('value', spaces[i]).text(spaces[i]));
+			$component.append($("<option>").attr('value', spaces[i]).text(Util.getDisplayNameFromCode(spaces[i])));
 		}
 		
 		return $component;
@@ -312,19 +330,17 @@ var FormUtil = new function() {
 		
 		$component.attr('required', '');
 		
-		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
+		$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text('Select a dataset type'));
 		
 		for(var i = 0; i < dataSetTypes.length; i++) {
-			var displayName = dataSetTypes[i].code;
-			if(dataSetTypes[i].description) {
-				var length = dataSetTypes[i].description.length > 40;
-				if(dataSetTypes[i].description.length > 40) {
-					displayName = dataSetTypes[i].description.substring(1,36) + " ...";
-				} else {
-					displayName = dataSetTypes[i].description;
-				}
+			var datasetType = dataSetTypes[i];
+			var label = Util.getDisplayNameFromCode(datasetType.code);
+			var description = Util.getEmptyIfNull(datasetType.description);
+			if(description !== "") {
+				label += " (" + description + ")";
 			}
-			$component.append($("<option>").attr('value',dataSetTypes[i].code).text(displayName));
+			
+			$component.append($("<option>").attr('value',datasetType.code).text(label));
 		}
 		
 		return $component;
@@ -387,11 +403,11 @@ var FormUtil = new function() {
             		}
             		var placeHolder = "";
             		if(withProjects && withExperiments) {
-            			placeHolder = "Select a project or experiment";
+            			placeHolder = "Select a project or " + ELNDictionary.getExperimentDualName();
             		} else if(withProjects) {
             			placeHolder = "Select a project";
             		} else if(withExperiments) {
-            			placeHolder = "Select an experiment";
+            			placeHolder = "Select an " + ELNDictionary.getExperimentDualName();
             		}
             		$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text(placeHolder));
             		for(var pIdx = 0; pIdx < projectsToUse.length; pIdx++) {
@@ -445,8 +461,11 @@ var FormUtil = new function() {
 		return $pinBtn;
 	}
 	
-	this.getButtonWithIcon = function(iconClass, clickEvent) {
+	this.getButtonWithIcon = function(iconClass, clickEvent, text) {
 		var $pinBtn = $("<a>", { 'class' : 'btn btn-default' }).append($("<span>", { 'class' : 'glyphicon ' + iconClass }));
+		if(text) {
+			$pinBtn.append("&nbsp;").append(text);
+		}
 		$pinBtn.click(clickEvent);
 		return $pinBtn;
 	}
@@ -562,7 +581,7 @@ var FormUtil = new function() {
 		return termCode;
 	}
 	
-	this.getFieldForPropertyType = function(propertyType) {
+	this.getFieldForPropertyType = function(propertyType, timestampValue) {
 		var $component = null;
 		if (propertyType.dataType === "BOOLEAN") {
 			$component = this._getBooleanField(propertyType.code, propertyType.description);
@@ -579,7 +598,7 @@ var FormUtil = new function() {
 		} else if (propertyType.dataType === "REAL") {
 			$component = this._getInputField("number", propertyType.code, propertyType.description, 'any', propertyType.mandatory);
 		} else if (propertyType.dataType === "TIMESTAMP") {
-			$component = this._getDatePickerField(propertyType.code, propertyType.description, propertyType.mandatory);
+			$component = this._getDatePickerField(propertyType.code, propertyType.description, propertyType.mandatory, timestampValue);
 		} else if (propertyType.dataType === "VARCHAR") {
 			$component = this._getInputField("text", propertyType.code, propertyType.description, null, propertyType.mandatory);
 		} else if (propertyType.dataType === "XML") {
@@ -631,7 +650,7 @@ var FormUtil = new function() {
 			$component.attr('required', '');
 		}
 		
-		$component.append($("<option>").attr('value', '').attr('selected', '').text(alt));
+		$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text(alt));
 		for(var i = 0; i < terms.length; i++) {
 			$component.append($("<option>").attr('value',terms[i].code).text(terms[i].label));
 		}
@@ -641,6 +660,14 @@ var FormUtil = new function() {
 	
 	this.getTextInputField = function(id, alt, isRequired) {
 		return this._getInputField('text', id, alt, null, isRequired);
+	}
+	
+	this.getRealInputField = function(id, alt, isRequired) {
+		return this._getInputField('text', id, alt, 0.01, isRequired);
+	}
+	
+	this.getIntegerInputField = function(id, alt, isRequired) {
+		return this._getInputField('text', id, alt, 1, isRequired);
 	}
 	
 	this._getInputField = function(type, id, alt, step, isRequired) {
@@ -662,7 +689,7 @@ var FormUtil = new function() {
 		return $component;
 	}
 	
-	this._getDatePickerField = function(id, alt, isRequired) {
+	this._getDatePickerField = function(id, alt, isRequired, value) {
 		var $component = $('<div>', {'class' : 'form-group', 'style' : 'margin-left: 0px;', 'placeholder' : alt });
 		var $subComponent = $('<div>', {'class' : 'input-group date', 'id' : 'datetimepicker_' + id });
 		var $input = $('<input>', {'class' : 'form-control', 'type' : 'text', 'id' : id, 'data-format' : 'yyyy-MM-dd HH:mm:ss'});
@@ -674,7 +701,20 @@ var FormUtil = new function() {
 		
 		$subComponent.append($input);
 		$subComponent.append($spanAddOn);
-		$subComponent.datetimepicker({ format : 'YYYY-MM-DD HH:mm:ss', useCurrent : false });
+		
+		var date = null;
+		if(value) {
+			date = Util.parseDate(value);
+		}
+		
+		var datetimepicker = $subComponent.datetimepicker({ 
+			format : 'YYYY-MM-DD HH:mm:ss', 
+			useCurrent : false,
+			defaultDate : date
+		});
+		
+		
+		
 		$component.append($subComponent);
 		
 		return $component;
@@ -813,5 +853,15 @@ var FormUtil = new function() {
 			$infoBox.append(lines[lIdx]);
 		}
 		return $infoBox;
+	}
+	
+	this.isInteger = function(str) {
+    	var n = ~~Number(str);
+    	return String(n) === str;
+	}
+	
+	this.isNumber = function(str) {
+    	var n = Number(str);
+    	return String(n) === str;
 	}
 }

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, showAnnotableTypes) {
-	var linksModel = new LinksModel(title, sampleTypeHints, isDisabled, showAnnotableTypes);
+function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, showAnnotableTypes, disableAddAnyType) {
+	var linksModel = new LinksModel(title, sampleTypeHints, isDisabled, showAnnotableTypes, disableAddAnyType);
 	var linksView = new LinksView(this, linksModel);
 	
 	this.init = function($container) {
@@ -38,11 +38,96 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 	// API - Used by Sample Form
 	//
 	this.isValid = function() {
+		if(sampleTypeHints) {
+			var sampleFromIdxOwner = mainController.currentView._sampleFormModel.sample;
+			var allOwnerAnnotations = FormUtil.getAnnotationsFromSample(sampleFromIdxOwner);
+			
+			for(var typeIdx = 0; typeIdx < sampleTypeHints.length; typeIdx++) {
+				var sampleTypeHint = sampleTypeHints[typeIdx];
+				var sampleTypeCode = sampleTypeHint["TYPE"];
+				var sampleTypeMinCount = sampleTypeHint["MIN_COUNT"];
+				var sampleTypeMaxCount = sampleTypeHint["MAX_COUNT"];
+				var sampleTypeAnnotations = sampleTypeHint["ANNOTATION_PROPERTIES"];
+				var sampleTypeCount = (linksModel.samplesByType[sampleTypeCode])?linksModel.samplesByType[sampleTypeCode].length:0;
+				if(sampleTypeCount < sampleTypeMinCount) {
+					Util.showError("Currently only have " + sampleTypeCount + " of the " + sampleTypeMinCount + " required " + sampleTypeCode + ".");
+					return false;
+				}
+				if(sampleTypeMaxCount && sampleTypeCount > sampleTypeMaxCount) {
+					Util.showError("Currently have " + sampleTypeCount + " of the maximum " + sampleTypeMaxCount + " for " + sampleTypeCode + ".");
+					return false;
+				}
+				
+				if(sampleTypeCount > 0) {
+					for(var sampleIdx = 0; sampleIdx < linksModel.samplesByType[sampleTypeCode].length; sampleIdx++) {
+						var sampleFromIdx = linksModel.samplesByType[sampleTypeCode][sampleIdx];
+						var sampleFromIdxAnnotations = null;
+						
+						if(allOwnerAnnotations && allOwnerAnnotations[sampleFromIdx.permId]) {
+							sampleFromIdxAnnotations = allOwnerAnnotations[sampleFromIdx.permId];
+						}
+						
+						if(sampleFromIdxAnnotations) {
+							for(var annotIdx = 0; annotIdx < sampleTypeAnnotations.length; annotIdx++) {
+								var sampleTypeAnnotation = sampleTypeAnnotations[annotIdx];
+								var sampleTypeAnnotationType = sampleTypeAnnotation["TYPE"];
+								
+								var sampleTypeAnnotationIsMandatory = sampleTypeAnnotation["MANDATORY"];
+								if(sampleTypeAnnotationIsMandatory && !sampleFromIdxAnnotations[sampleTypeAnnotationType]) {
+									Util.showError("Missing an annotation " + sampleTypeAnnotationType + " on " + sampleFromIdx.code +".");
+									return false;
+								} else {
+									var propertyType = profile.getPropertyType(sampleTypeAnnotationType);
+									var propertyValue = sampleFromIdxAnnotations[sampleTypeAnnotationType];
+									
+									var isValid = true;
+									switch(propertyType.dataType) {
+										case "BOOLEAN":
+											break;
+										case "CONTROLLEDVOCABULARY":
+											break;
+										case "HYPERLINK":
+											break;
+										case "INTEGER":
+											isValid = FormUtil.isInteger(propertyValue);
+											break;
+										case "MATERIAL":
+											break;
+										case "MULTILINE_VARCHAR":
+											break;
+										case "REAL":
+											isValid = FormUtil.isNumber(propertyValue);
+											break;
+										case "TIMESTAMP":
+											break;
+										case "VARCHAR":
+											break;
+										case "XML":
+											break;
+									}
+									if(!isValid) {
+										Util.showError("Annotation " + sampleTypeAnnotationType + " is not an " + propertyType.dataType +".");
+										return false;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
 		return true;
 	}
 	
 	this.addSample = function(sample) {
-		linksView.updateSample(sample, true);
+		Util.blockUI();
+		mainController.serverFacade.searchWithIdentifiers([sample.identifier], function(results) {
+			if(results.length > 0) {
+				linksView.updateSample(results[0], true);
+				Util.unblockUI();
+			}
+		});
 	}
 	
 	this.getSamples = function() {

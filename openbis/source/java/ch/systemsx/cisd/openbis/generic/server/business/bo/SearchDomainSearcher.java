@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -27,6 +28,7 @@ import java.util.Set;
 
 import ch.systemsx.cisd.common.collection.IKeyExtractor;
 import ch.systemsx.cisd.common.collection.TableMap;
+import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
@@ -89,7 +91,17 @@ public class SearchDomainSearcher extends AbstractBusinessObject implements ISea
             IDataStoreService service = tryGetDataStoreService(dataStore, dssFactory);
             if (service != null)
             {
-                result.addAll(service.listAvailableSearchDomains(dataStore.getSessionToken()));
+                try
+                {
+                    result.addAll(service.listAvailableSearchDomains(dataStore.getSessionToken()));
+                } catch (RuntimeException e)
+                {
+                    Throwable causingException = ExceptionUtils.getEndOfChain(e);
+                    if (causingException instanceof ConnectException == false)
+                    {
+                        throw e;
+                    }
+                }
             }
         }
         return result;
@@ -131,17 +143,20 @@ public class SearchDomainSearcher extends AbstractBusinessObject implements ISea
             ISearchDomainResultLocation location = searchResult.getResultLocation();
             Selector selector = new Selector(location);
             EntityLoader loader = selector.getLoader();
-            IEntityInformationHolderWithPermId entity = result.get(loader).getOrDie(selector.getPermId());
+            IEntityInformationHolderWithPermId entity = result.get(loader).tryGet(selector.getPermId());
             SearchDomainSearchResultWithFullEntity searchResultWithEntity = new SearchDomainSearchResultWithFullEntity();
             searchResultWithEntity.setSearchResult(searchResult);
             searchResultWithEntity.setEntity(entity);
-            String code = entity.getCode();
-            String type = entity.getEntityType().getCode();
-            if (location instanceof AbstractEntitySearchResultLocation)
+            if (entity != null)
             {
-                AbstractEntitySearchResultLocation entityLocation = (AbstractEntitySearchResultLocation) location;
-                entityLocation.setCode(code);
-                entityLocation.setEntityType(type);
+                String code = entity.getCode();
+                String type = entity.getEntityType().getCode();
+                if (location instanceof AbstractEntitySearchResultLocation)
+                {
+                    AbstractEntitySearchResultLocation entityLocation = (AbstractEntitySearchResultLocation) location;
+                    entityLocation.setCode(code);
+                    entityLocation.setEntityType(type);
+                }
             }
             enrichedResults.add(searchResultWithEntity);
         }

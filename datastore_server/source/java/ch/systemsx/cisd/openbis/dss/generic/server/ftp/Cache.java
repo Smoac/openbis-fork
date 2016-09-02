@@ -23,9 +23,10 @@ import java.util.Map;
 import org.apache.ftpserver.ftplet.FtpFile;
 
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 
 /**
  * Helper class to cache objects retrieved from remote services. Used by {@link FtpPathResolverContext}.
@@ -48,13 +49,13 @@ public class Cache
             this.timestamp = timestamp;
         }
     }
-    
+
     private final Map<String, TimeStampedObject<FtpFile>> filesByPath = new HashMap<>();
 
     private final Map<String, TimeStampedObject<DataSet>> dataSetsByCode = new HashMap<String, Cache.TimeStampedObject<DataSet>>();
 
     private final Map<String, TimeStampedObject<List<AbstractExternalData>>> dataSetsByExperiment = new HashMap<>();
-    
+
     private final Map<String, TimeStampedObject<AbstractExternalData>> externalData =
             new HashMap<String, Cache.TimeStampedObject<AbstractExternalData>>();
 
@@ -62,59 +63,95 @@ public class Cache
 
     private final ITimeProvider timeProvider;
 
+    private final Map<String, TimeStampedObject<FtpFile>> v3Responses = new HashMap<>();
+
+    private final Map<String, TimeStampedObject<IHierarchicalContent>> contents = new HashMap<>();
+
+    private final Map<String, TimeStampedObject<Boolean>> accessData = new HashMap<>();
+
     public Cache(ITimeProvider timeProvider)
     {
         this.timeProvider = timeProvider;
     }
-    
-    void putFile(FtpFile file, String path)
+
+    public void putFile(FtpFile file, String path)
     {
         filesByPath.put(path, timestamp(file));
     }
-    
-    FtpFile getFile(String path)
+
+    public FtpFile getFile(String path)
     {
         return getObject(filesByPath, path);
     }
-    
-    void putDataSetsForExperiment(List<AbstractExternalData> dataSets, String experimentPermId)
+
+    public void putDataSetsForExperiment(List<AbstractExternalData> dataSets, String experimentPermId)
     {
         dataSetsByExperiment.put(experimentPermId, timestamp(dataSets));
     }
-    
-    List<AbstractExternalData> getDataSetsByExperiment(String experimentPermId)
+
+    public List<AbstractExternalData> getDataSetsByExperiment(String experimentPermId)
     {
         return getObject(dataSetsByExperiment, experimentPermId);
     }
 
-    void putDataSet(DataSet dataSet)
+    public void putDataSet(DataSet dataSet)
     {
         dataSetsByCode.put(dataSet.getCode(), timestamp(dataSet));
     }
 
-    DataSet getDataSet(String dataSetCode)
+    public DataSet getDataSet(String dataSetCode)
     {
         return getObject(dataSetsByCode, dataSetCode);
     }
 
-    AbstractExternalData getExternalData(String code)
+    public AbstractExternalData getExternalData(String code)
     {
         return getObject(externalData, code);
     }
 
-    void putExternalData(AbstractExternalData dataSet)
+    public void putExternalData(AbstractExternalData dataSet)
     {
         externalData.put(dataSet.getCode(), timestamp(dataSet));
     }
 
-    Experiment getExperiment(String experimentId)
+    public Experiment getExperiment(String experimentId)
     {
         return getObject(experiments, experimentId);
     }
 
-    void putExperiment(Experiment experiment)
+    public void putExperiment(Experiment experiment)
     {
         experiments.put(experiment.getIdentifier(), timestamp(experiment));
+    }
+
+    public FtpFile getResponse(String key)
+    {
+        return getObject(v3Responses, key);
+    }
+
+    public void putResponse(String key, FtpFile file)
+    {
+        v3Responses.put(key, timestamp(file));
+    }
+
+    public IHierarchicalContent getContent(String key)
+    {
+        return getObject(contents, key);
+    }
+
+    public void putContent(String key, IHierarchicalContent content)
+    {
+        contents.put(key, timestamp(content));
+    }
+
+    public Boolean getAccess(String dataSetCode)
+    {
+        return getObject(accessData, dataSetCode);
+    }
+
+    public void putAccess(String dataSetCode, Boolean access)
+    {
+        accessData.put(dataSetCode, timestamp(access));
     }
 
     private <T> TimeStampedObject<T> timestamp(T object)
@@ -127,7 +164,7 @@ public class Cache
         TimeStampedObject<T> timeStampedObject = map.get(key);
         return timeStampedObject == null
                 || timeProvider.getTimeInMilliseconds() - timeStampedObject.timestamp > LIVE_TIME ? null
-                : timeStampedObject.object;
+                        : timeStampedObject.object;
     }
 
 }

@@ -93,7 +93,7 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 				if(selected != undefined && selected.length == 0){
 					Util.showError("Please select at least one sample to delete!");
 				} else {
-					var warningText = "The next samples will be deleted: ";
+					var warningText = "The next " + ELNDictionary.samples + " will be deleted: ";
 					var sampleTechIds = [];
 					for(var sIdx = 0; sIdx < selected.length; sIdx++) {
 						sampleTechIds.push(selected[sIdx].id);
@@ -105,7 +105,7 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 							if(data.error) {
 								Util.showError(data.error.message);
 							} else {
-								Util.showSuccess("Sample/s Deleted");
+								Util.showSuccess("" + ELNDictionary.Sample + "/s Deleted");
 								mainController.refreshView();
 							}
 						});

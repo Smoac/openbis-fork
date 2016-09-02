@@ -51,7 +51,7 @@ public class FtpFileEvaluationContext
         IHierarchicalContentNode contentNode;
     }
 
-    private Map<String /* dataset code */, IHierarchicalContent> contents =
+    private Map<String /* dataset code # access */, IHierarchicalContent> contents =
             new HashMap<String, IHierarchicalContent>();
 
     private IHierarchicalContentProvider contentProvider;
@@ -80,13 +80,13 @@ public class FtpFileEvaluationContext
         evaluatedPaths.addAll(evaluatedPath);
     }
 
-    public IHierarchicalContent getHierarchicalContent(AbstractExternalData dataSet)
+    public IHierarchicalContent getHierarchicalContent(AbstractExternalData dataSet, boolean withModifyingAccessTimestamp)
     {
-        String dataSetCode = dataSet.getCode();
+        String dataSetCode = dataSet.getCode() + "#" + withModifyingAccessTimestamp;
         IHierarchicalContent result = contents.get(dataSetCode);
         if (result == null)
         {
-            result = createHierarchicalContent(dataSet);
+            result = createHierarchicalContent(dataSet, withModifyingAccessTimestamp);
             contents.put(dataSetCode, result);
         }
         return result;
@@ -104,9 +104,15 @@ public class FtpFileEvaluationContext
         contents.clear();
     }
 
-    private IHierarchicalContent createHierarchicalContent(AbstractExternalData dataSet)
+    private IHierarchicalContent createHierarchicalContent(AbstractExternalData dataSet, boolean withModifyingAccessTimestamp)
     {
-        return contentProvider.asContent(dataSet);
+        if (withModifyingAccessTimestamp)
+        {
+            return contentProvider.asContent(dataSet);
+        } else
+        {
+            return contentProvider.asContentWithoutModifyingAccessTimestamp(dataSet);
+        }
     }
 
 }

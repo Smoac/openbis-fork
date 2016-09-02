@@ -19,38 +19,40 @@ package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.FtpPathResolverRegistry;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class FtpPathResolverConfig
 {
     final static String DATASET_DISPLAY_TEMPLATE_KEY = "dataset.display.template";
-    
+
     final static String SHOW_PARENTS_AND_CHILDREN_KEY = "dataset.show-parents-and-children";
-    
+
     final static String DATASET_FILELIST_SUBPATH_KEY = "dataset.filelist.subpath.";
 
     final static String DATASET_FILELIST_FILTER_KEY = "dataset.filelist.filter.";
-   
+
+    final static String PATH_RESOLVER_KEY = "resolver-class";
+
     private static final String DEFAULT_DATASET_TEMPLATE = "${dataSetCode}";
-    
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             FtpPathResolverConfig.class);
-    
+
     private boolean showParentsAndChildren;
-    
+
     private String dataSetDisplayTemplate = "";
 
     private Map<String /* dataset type */, String /* path */> fileListSubPaths =
@@ -59,11 +61,19 @@ public class FtpPathResolverConfig
     private Map<String /* dataset type */, String /* filter pattern */> fileListFilters =
             new HashMap<String, String>();
 
+    private final String resolverClass;
+
+    private final Properties properties;
+
     public FtpPathResolverConfig(Properties props)
     {
         dataSetDisplayTemplate =
                 PropertyUtils.getProperty(props, DATASET_DISPLAY_TEMPLATE_KEY, DEFAULT_DATASET_TEMPLATE);
         showParentsAndChildren = PropertyUtils.getBoolean(props, SHOW_PARENTS_AND_CHILDREN_KEY, false);
+
+        resolverClass = PropertyUtils.getProperty(props, PATH_RESOLVER_KEY, FtpPathResolverRegistry.class.getCanonicalName());
+
+        properties = props;
 
         ExtendedProperties fileListSubPathProps =
                 ExtendedProperties.getSubset(props, DATASET_FILELIST_SUBPATH_KEY, true);
@@ -84,7 +94,7 @@ public class FtpPathResolverConfig
             fileListFilters.put(dataSetType, filter);
         }
     }
-    
+
     public String getDataSetDisplayTemplate()
     {
         return dataSetDisplayTemplate;
@@ -104,7 +114,7 @@ public class FtpPathResolverConfig
     {
         return Collections.unmodifiableMap(fileListFilters);
     }
-    
+
     public void logStartupInfo(String serverType)
     {
         operationLog.info(serverType + " Server data set display template : " + dataSetDisplayTemplate);
@@ -124,6 +134,38 @@ public class FtpPathResolverConfig
                             + "set type '%s' : '%s'", serverType, filterEntry.getKey(), filterEntry.getValue());
             operationLog.info(message);
         }
-
     }
+
+    public Properties getProperties()
+    {
+        return properties;
+    }
+
+    public IFtpPathResolverRegistry getResolverRegistry()
+    {
+        try
+        {
+            Class<?> clazz = Class.forName(resolverClass);
+            Object instance = clazz.newInstance();
+            IFtpPathResolverRegistry registry = (IFtpPathResolverRegistry) instance;
+            registry.initialize(this);
+            operationLog.info("Succesfully initialized path resolver of type " + registry.getClass().getName());
+            return registry;
+        } catch (ClassNotFoundException ex)
+        {
+            throw new UserFailureException("Failed to create PathResolverRegistry. Couldn't find class " + resolverClass, ex);
+        } catch (InstantiationException ex)
+        {
+            throw new UserFailureException("Failed to create PathResolverRegistry. Couldn't instantiate object of a class " + resolverClass, ex);
+        } catch (IllegalAccessException ex)
+        {
+            throw new UserFailureException("Failed to create PathResolverRegistry. Couldn't instantiate object of a class " + resolverClass, ex);
+        } catch (ClassCastException ex)
+        {
+            throw new UserFailureException("Failed to create PathResolverRegistry. Couldn't cast object of a class " + resolverClass + " to "
+                    + IFtpPathResolverRegistry.class.getName(),
+                    ex);
+        }
+    }
+
 }

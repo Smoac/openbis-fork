@@ -29,17 +29,17 @@ function MoveSampleController(samplePermId, successAction) {
 	this.move = function() {
 		var _this = this;
 		if(!this._moveSampleModel.isNewExperiment && !this._moveSampleModel.experimentIdentifier) {
-			Util.showError("Please choose an experiment.", function() {});
+			Util.showError("Please choose an " + ELNDictionary.getExperimentDualName() + ".", function() {});
 			return;
 		}
 		
 		if(this._moveSampleModel.isNewExperiment && !this._moveSampleModel.experimentIdentifier) {
-			Util.showError("Please choose the project and experiment name.", function() {});
+			Util.showError("Please choose the project and " + ELNDictionary.getExperimentDualName() + " name.", function() {});
 			return;
 		}
 		
 		if(this._moveSampleModel.isNewExperiment && !this._moveSampleModel.experimentType) {
-			Util.showError("Please choose the experiment type.", function() {});
+			Util.showError("Please choose the " + ELNDictionary.getExperimentDualName() + " type.", function() {});
 			return;
 		}
 		
@@ -48,7 +48,7 @@ function MoveSampleController(samplePermId, successAction) {
 				this._moveSampleModel.experimentIdentifier,
 				this._moveSampleModel.experimentType, function(isOK, errorMessage) {
 					if(isOK) {
-						Util.showSuccess("Sample " + _this._moveSampleModel.sample.identifier + " moved to " + _this._moveSampleModel.experimentIdentifier, function() { 
+						Util.showSuccess("" + ELNDictionary.Sample + " " + _this._moveSampleModel.sample.identifier + " moved to " + _this._moveSampleModel.experimentIdentifier, function() { 
 							Util.unblockUI(); 
 							if(_this._moveSampleModel.successAction) { 
 								//Delete Sample from current experiment menu
@@ -73,7 +73,7 @@ function MoveSampleController(samplePermId, successAction) {
 							} 
 						});
 					} else {
-						Util.showError("Sample " + _this._moveSampleModel.sample.identifier + " failed to move to " + _this._moveSampleModel.experimentIdentifier + " with error: " + errorMessage, function() {
+						Util.showError("" + ELNDictionary.Sample + " " + _this._moveSampleModel.sample.identifier + " failed to move to " + _this._moveSampleModel.experimentIdentifier + " with error: " + errorMessage, function() {
 							Util.unblockUI();
 						});
 					}

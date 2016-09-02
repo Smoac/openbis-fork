@@ -153,15 +153,9 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
             throwModifiedEntityException("Material");
         }
         setMetaprojects(material, materialUpdate.getMetaprojectsOrNull());
-        updateProperties(materialUpdate.getProperties());
+        List<IEntityProperty> properties = materialUpdate.getProperties();
+        updateProperties(material.getMaterialType(), properties, extractPropertiesCodes(properties), material, material, null);
         dataChanged = true;
-    }
-
-    private void updateProperties(List<IEntityProperty> properties)
-    {
-        final Set<MaterialPropertyPE> existingProperties = material.getProperties();
-        final MaterialTypePE type = material.getMaterialType();
-        material.setProperties(convertProperties(type, existingProperties, properties, extractPropertiesCodes(properties)));
     }
 
     @Override

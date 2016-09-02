@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
@@ -30,10 +32,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.GlobalSearchLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SearchableEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EnterKeyListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithLoadingMask;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Type;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 
 /**
@@ -127,7 +131,19 @@ public final class SearchWidget extends LayoutContainer
                 new SearchableEntitySelectionWidget(viewContext);
         comboBox.setStyleAttribute("marginRight", "3px");
         comboBox.setId(ENTITY_CHOOSER_ID);
-        comboBox.setWidth(100);
+        comboBox.setWidth(150);
+        comboBox.addSelectionChangedListener(new SelectionChangedListener<SearchableEntityModel>()
+            {
+                
+                @Override
+                public void selectionChanged(SelectionChangedEvent<SearchableEntityModel> se)
+                {
+                    SearchableEntity searchableEntity = se.getSelectedItem().getSearchableEntity();
+                    Type type = searchableEntity.getType();
+                    useWildcardsCheckBox.setEnabled(Type.SEARCH_DOMAIN.equals(type) == false ||
+                        searchableEntity.getPossibleSearchOptionsKey() != null); 
+                }
+            });
         return comboBox;
     }
 

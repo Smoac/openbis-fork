@@ -78,32 +78,16 @@ function SideMenuWidgetController(mainController) {
         
         _this._sideMenuWidgetView.repaint($container);
 		
-        $(window).scroll(function(event) {
-            var sideMenuWidth = $("#sideMenu").width();
-            var windowWidth = $(window).width();
-            var ratio = sideMenuWidth / windowWidth;
-            if (ratio < 0.9) { //For small screens where the menu takes all the screen, we don't move it
-                var $element = $("#sideMenu");
-                var scrollTop = $(document).scrollTop();
-                $element.css('top', scrollTop + "px");
-            }
-        });
-
-        $(window).resize(function(event) {
-            //Use all height
-            var $element = $("#sideMenu");
-            var windowHeight = $(window).height();
-            $element.css('min-height', windowHeight + "px");
-
-            //Set the children of the menu scrollable
-            var $elementHead = $("#sideMenuHeader");
+        var resize = function(event) {
+        	var $elementHead = $("#sideMenuHeader");
             var sideMenuHeaderHeight = $elementHead.height();
             var $elementBody = $("#sideMenuBody");
-            $elementBody.css('overflow-y', 'auto');
-            $elementBody.css('overflow-x', 'hidden');
-            //TO-DO 17px is a hack to be able to scroll properly to the last item on the iPad
+            var windowHeight = $(window).height();
             $elementBody.css('max-height', (windowHeight - sideMenuHeaderHeight - 17) + "px");
-        });
+        }
+        
+        $(window).resize(resize);
+        resize();
         
         initCallback();
     }

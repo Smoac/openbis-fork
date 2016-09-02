@@ -39,6 +39,7 @@ $.extend(DefaultProfile.prototype, {
 		this.mainMenu = {
 				showLabNotebook : true,
 				showInventory : true,
+				showOrders : true,
 				showDrawingBoard : false,
 				showSampleBrowser : true,
 				showExports : true,
@@ -49,13 +50,60 @@ $.extend(DefaultProfile.prototype, {
 				showUserManager : true
 		}
 		
+		this.orderLanguage = {
+				"ENGLISH" : {
+					"DATE_LABEL" : "Date",
+					"SUPPLIER_LABEL" : "Supplier",
+					"CONTACT_INFO_LABEL" : "Contact Information",
+					"ORDER_INFO_LABEL" : "Order Information",
+					"ACCOUNT_LABEL" : "Account Number",
+					
+					"PREFERRED_LANGUAGE_LABEL" : "Preferred Supplier Language",
+					"PREFERRED_ORDER_METHOD_LABEL" : "Preferred Supplier Order Method",
+					
+					"ORDER_MANAGER_LABEL" : "Order Manager",
+					"ORDER_MANAGER_CONTACT_DETAILS_LABEL" : "Order Manager Contact Details",
+					
+					"REQUESTED_PRODUCTS_LABEL" : "Requested Products",
+					"PRODUCTS_COLUMN_NAMES_LABEL" : "Name\tCode\tQuantity\tUnit Price\tCurrency",
+					
+					"SUPPLIER_FAX_LABEL" : "Supplier fax",
+					"SUPPLIER_EMAIL_LABEL" : "Supplier Email",
+					
+					"PRICE_TOTALS_LABEL" : "Total Price",
+					"ADDITIONAL_INFO_LABEL" : "Additional Information"
+				},
+				"GERMAN" : {
+					"DATE_LABEL" : "Datum",
+					"SUPPLIER_LABEL" : "Lieferant",
+					"CONTACT_INFO_LABEL" : "Kontaktdetails",
+					"ORDER_INFO_LABEL" : "Bestellungdetails",
+					"ACCOUNT_LABEL" : "Account Nummer",
+					 
+					"PREFERRED_LANGUAGE_LABEL" : "Bevorzugte Lieferanten-Sprache",
+					"PREFERRED_ORDER_METHOD_LABEL" : "Bevorzugte Bestellungsart",
+					 
+					"ORDER_MANAGER_LABEL" : "Besteller",
+					"ORDER_MANAGER_CONTACT_DETAILS_LABEL" : "Besteller Kontaktdetails",
+					 
+					"REQUESTED_PRODUCTS_LABEL" : "Bestellte Produkte",
+					"PRODUCTS_COLUMN_NAMES_LABEL" : "Name\tCode\tMenge\tPreis pro Einheit\tWährung",
+					"SUPPLIER_FAX_LABEL" : "Lieferant Fax",
+					"SUPPLIER_EMAIL_LABEL" : "Lieferant Email",
+					 
+					"PRICE_TOTALS_LABEL" : "Gesamtpreis",
+					"ADDITIONAL_INFO_LABEL" : "Zusätzliches Informationen"
+				}
+		}
+		
 		this.searchDomains = [ { "@id" : -1, "@type" : "GobalSearch", label : "Global", name : "global"}];
-		this.inventorySpaces = ["MATERIALS", "METHODS"];
+		this.inventorySpaces = ["MATERIALS", "METHODS", "STOCK_CATALOG"];
+		this.inventorySpacesReadOnly = ["STOCK_ORDERS"];
 		this.sampleTypeProtocols = ["GENERAL_PROTOCOL", "PCR_PROTOCOL", "WESTERN_BLOTTING_PROTOCOL"];
 		this.searchSamplesUsingV3OnDropbox = false;
 		this.searchSamplesUsingV3OnDropboxRunCustom = false;
 		this.isInventorySpace = function(spaceCode) {
-			return ($.inArray(spaceCode, this.inventorySpaces) !== -1);
+			return ($.inArray(spaceCode, this.inventorySpaces) !== -1) || ($.inArray(spaceCode, this.inventorySpacesReadOnly) !== -1);
 		}
 		
 		this.directLinkEnabled = true;
@@ -63,7 +111,7 @@ $.extend(DefaultProfile.prototype, {
 		this.copyPastePlainText = false;
 		this.hideCodes = true;
 		this.hideTypes = {
-				"sampleTypeCodes" : [],
+				"sampleTypeCodes" : ["SUPPLIER", "PRODUCT", "REQUEST", "ORDER"],
 				"experimentTypeCodes" : []
 		}		
 		this.propertyReplacingCode = "NAME";
@@ -334,6 +382,15 @@ $.extend(DefaultProfile.prototype, {
 			return html;
 		}
 		
+		/*
+		 * Modifies sample before submit
+		 */
+		this.sampleFormOnSubmit = function(sample, action) {
+			if(action) {
+				action(sample, null);
+			}
+		}
+
 		/*
 		 * Returns a Jquery component that is appended at the end of the form before the data set viewer
 		 */

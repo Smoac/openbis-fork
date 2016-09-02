@@ -17,6 +17,7 @@
 function AdvancedSearchModel(forceFreeTextSearch) {
 	
 	this.forceFreeTextSearch = forceFreeTextSearch;
+	this.isSampleTypeForced = false;
 	
 	this.criteria = {
 		entityKind : null,

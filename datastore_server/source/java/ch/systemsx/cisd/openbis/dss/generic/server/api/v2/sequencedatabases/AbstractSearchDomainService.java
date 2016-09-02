@@ -17,10 +17,13 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.api.v2.sequencedatabases;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchDomainService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchOption;
 
 /**
  * Abstract super class of all {@link ISearchDomainService} implementations which get the label from the property
@@ -49,5 +52,18 @@ public abstract class AbstractSearchDomainService implements ISearchDomainServic
     {
         this.name = name;
     }
+
+    @Override
+    public String getPossibleSearchOptionsKey()
+    {
+        return null;
+    }
+
+    @Override
+    public List<SearchDomainSearchOption> getPossibleSearchOptions()
+    {
+        return Collections.emptyList();
+    }
+    
 
 }

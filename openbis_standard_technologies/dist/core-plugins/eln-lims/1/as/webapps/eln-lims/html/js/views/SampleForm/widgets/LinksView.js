@@ -131,7 +131,15 @@ function LinksView(linksController, linksModel) {
 	this.repaint = function($container) {
 		$savedContainer = $container;
 		$container.empty();
-		$container.append($("<legend>").append(linksModel.title).append("&nbsp;").append(linksView.getAddAnyBtn()).css("margin-top", "20px").css("margin-bottom", "20px"));
+		
+		var addAnyBtn = null;
+		if(linksModel.disableAddAnyType) {
+			addAnyBtn = "";
+		} else {
+			addAnyBtn = linksView.getAddAnyBtn();
+		}
+		
+		$container.append($("<legend>").append(linksModel.title).append("&nbsp;").append(addAnyBtn).css("margin-top", "20px").css("margin-bottom", "20px"));
 		$container.append($samplePicker);
 	}
 	
@@ -392,7 +400,7 @@ function LinksView(linksController, linksModel) {
 	linksView.getAddAnyBtn = function() {
 		var enabledFunction = function() {
 			var $sampleTypesDropdown = FormUtil.getSampleTypeDropdown("sampleTypeSelector", true);
-			Util.blockUI("Select type: <br><br>" + $sampleTypesDropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='sampleTypeSelectorCancel'>Cancel</a>");
+			Util.blockUI($sampleTypesDropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='sampleTypeSelectorCancel'>Cancel</a>");
 			
 			$("#sampleTypeSelector").on("change", function(event) {
 				var sampleTypeCode = $(this).val();

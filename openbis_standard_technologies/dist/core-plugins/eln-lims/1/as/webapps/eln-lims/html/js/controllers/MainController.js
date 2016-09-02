@@ -316,7 +316,8 @@ function MainController(profile) {
 					var argsMap = JSON.parse(cleanText);
 					var experimentTypeCode = argsMap["experimentTypeCode"];
 					var projectIdentifier = argsMap["projectIdentifier"];
-					document.title = "Create Experiment " + experimentTypeCode;
+					
+					document.title = "Create " + ELNDictionary.getExperimentKindName(projectIdentifier) + " " + experimentTypeCode;
 					var experiment = {
 							experimentTypeCode : experimentTypeCode,
 							identifier : projectIdentifier
@@ -327,7 +328,7 @@ function MainController(profile) {
 				case "showExperimentPageFromIdentifier":
 					var _this = this;
 					this.serverFacade.listExperimentsForIdentifiers([arg], function(data) {
-						document.title = "Experiment " + arg;
+						document.title = "" + ELNDictionary.getExperimentKindName(arg) + " " + arg;
 						_this._showExperimentPage(data.result[0], FormMode.VIEW);
 						window.scrollTo(0,0);
 					});
@@ -335,7 +336,7 @@ function MainController(profile) {
 				case "showEditExperimentPageFromIdentifier":
 					var _this = this;
 					this.serverFacade.listExperimentsForIdentifiers([arg], function(data) {
-						document.title = "Experiment " + arg;
+						document.title = "" + ELNDictionary.getExperimentKindName(arg) + " " + arg;
 						_this._showExperimentPage(data.result[0], FormMode.EDIT);
 						window.scrollTo(0,0);
 					});
@@ -345,12 +346,12 @@ function MainController(profile) {
 					var argsMap = JSON.parse(cleanText);
 					var sampleTypeCode = argsMap["sampleTypeCode"];
 					var experimentIdentifier = argsMap["experimentIdentifier"];
-					document.title = "Create Sample " + arg;
+					document.title = "Create " + ELNDictionary.Sample + " " + arg;
 					this._showCreateSubExperimentPage(sampleTypeCode, experimentIdentifier);
 					window.scrollTo(0,0);
 					break;
 				case "showSamplesPage":
-					document.title = "Sample Browser";
+					document.title = "" + ELNDictionary.Sample + " Browser";
 					this._showSamplesPage(arg);
 					window.scrollTo(0,0);
 					break;
@@ -370,7 +371,7 @@ function MainController(profile) {
 						if(!data[0]) {
 							window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
 						} else {
-							document.title = "Sample " + data[0].code;
+							document.title = "" + ELNDictionary.Sample + " " + data[0].code;
 							var isELNSubExperiment = $.inArray(data[0].spaceCode, _this.profile.inventorySpaces) === -1 && _this.profile.inventorySpaces.length > 0;
 							_this._showEditSamplePage(data[0], isELNSubExperiment);
 							window.scrollTo(0,0);
@@ -383,7 +384,7 @@ function MainController(profile) {
 						if(!data[0]) {
 							window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
 						} else {
-							document.title = "Sample " + data[0].code;
+							document.title = "" + ELNDictionary.Sample + " " + data[0].code;
 							var isELNSubExperiment = $.inArray(data[0].spaceCode, _this.profile.inventorySpaces) === -1&& _this.profile.inventorySpaces.length > 0;
 							_this._showViewSamplePage(data[0], isELNSubExperiment);
 							window.scrollTo(0,0);
@@ -520,14 +521,16 @@ function MainController(profile) {
 			experimentIdentifier = null;
 		}
 		
+		
 		if(experimentIdentifier) {
+			var _this = this;
 			this.serverFacade.listExperimentsForIdentifiers([experimentIdentifier], function(data) {
-				sampleTableController = new SampleTableController(this, "Experiment " + experimentIdentifier, experimentIdentifier, null, null, data.result[0]);
+				sampleTableController = new SampleTableController(this, "" + ELNDictionary.getExperimentKindName(experimentIdentifier) + " " + experimentIdentifier, experimentIdentifier, null, null, data.result[0]);
 				sampleTableController.init($("#mainContainer"));
-				this.currentView = sampleTableController;
+				_this.currentView = sampleTableController;
 			});
 		} else {
-			sampleTableController = new SampleTableController(this, "Sample Browser", null);
+			sampleTableController = new SampleTableController(this, "" + ELNDictionary.Sample + " Browser", null);
 			sampleTableController.init($("#mainContainer"));
 			this.currentView = sampleTableController;
 		}
@@ -785,7 +788,7 @@ function MainController(profile) {
 												}
 												
 												if(resultLocation.entityKind === "DATA_SET") {
-													code += "<br> Sample: " + getSampleIdentifierForDataSetCode(resultLocation.code);
+													code += "<br> " + ELNDictionary.Sample + ": " + getSampleIdentifierForDataSetCode(resultLocation.code);
 												}
 												
 												dataList.push({
