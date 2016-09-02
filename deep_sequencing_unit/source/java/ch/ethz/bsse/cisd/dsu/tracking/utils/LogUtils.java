@@ -80,4 +80,9 @@ public class LogUtils
     {
         operationLog.debug(msg);
     }
+    
+    public static void error(String msg)
+    {
+    	operationLog.error(msg);
+    }
 }

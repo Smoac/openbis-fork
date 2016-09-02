@@ -153,7 +153,7 @@ public class TrackingClient
 
         ITrackingDAO trackingDAO = new FileBasedTrackingDAO(LOCAL_SAMPLE_DB, LOCAL_DATASET_DB);
 
-        trackingBO.trackAndNotify(trackingDAO, commandLineMap, session);
+        trackingBO.trackAndNotify(trackingDAO, commandLineMap, params, session);
     }
 
     private static ITrackingServer createOpenBISTrackingServer(Parameters params)

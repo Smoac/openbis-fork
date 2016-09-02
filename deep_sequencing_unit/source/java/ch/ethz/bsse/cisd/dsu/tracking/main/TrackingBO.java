@@ -16,12 +16,15 @@
 
 package ch.ethz.bsse.cisd.dsu.tracking.main;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -33,10 +36,12 @@ import ch.ethz.bsse.cisd.dsu.tracking.email.EmailWithSummary;
 import ch.ethz.bsse.cisd.dsu.tracking.email.IEntityTrackingEmailGenerator;
 import ch.ethz.bsse.cisd.dsu.tracking.utils.LogUtils;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
+import ch.systemsx.cisd.common.filesystem.rsync.RsyncCopier;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
@@ -51,7 +56,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 public class TrackingBO
 {
-    private static final String SEQUENCING_SAMPLE_TYPE = "ILLUMINA_SEQUENCING";
+    private static final String PROPERTY_RUN_NAME_FOLDER = "RUN_NAME_FOLDER";
+
+	private static final String SEQUENCING_SAMPLE_TYPE = "ILLUMINA_SEQUENCING";
 
     private static final String FLOW_LANE_SAMPLE_TYPE = "ILLUMINA_FLOW_LANE";
 
@@ -61,7 +68,7 @@ public class TrackingBO
             "LIBRARY_PROCESSING_SUCCESSFUL";
 
     private static final String TRUE = "true";
-
+    
     private final ITrackingServer trackingServer;
 
     private final IEntityTrackingEmailGenerator emailGenerator;
@@ -77,7 +84,7 @@ public class TrackingBO
     }
 
     public void trackAndNotify(ITrackingDAO trackingDAO, final HashMap<String, String[]> commandLineMap,
-            SessionContextDTO session)
+            Parameters params, SessionContextDTO session)
     {
         Boolean sendEmails = true;
         TrackingStateDTO prevTrackingState = trackingDAO.getTrackingState();
@@ -86,20 +93,27 @@ public class TrackingBO
         TrackedEntities changedEntities = null;
         List<EmailWithSummary> emailsWithSummary = null;
 
+        
         if (commandLineMap.get(TrackingClient.CL_PARAMETER_LANES) != null)
         {
-            changedEntities = fetchChangedDataSets(prevTrackingState, trackingServer,
+            changedEntities = fetchChangedDataSets(prevTrackingState, trackingServer, params,
                     commandLineMap.get(TrackingClient.CL_PARAMETER_LANES), session);
-        } else if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_ALL))
+        } 
+        
+        else if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_ALL))
         {
             // changedEntities = fetchChangedEntities(prevTrackingState, trackingServer, commandLineMap, session);
             System.out.println("This function is deactivated");
-        } else if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_CHANGED_LANES))
+        }
+        
+        // just list the potential chnaged lanes
+        else if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_CHANGED_LANES))
         {
-            Map<String, String> changed_lanes = fetchChangedLanes(prevTrackingState, trackingServer, session);
+            Map<String, String> changed_lanes = fetchChangedLanes(prevTrackingState, trackingServer, params, session);
             sendEmails = false;
 
-        } else
+        }
+        else
         {
             LogUtils.debug("Should never be reached.");
         }
@@ -108,7 +122,10 @@ public class TrackingBO
         {
             emailsWithSummary = emailGenerator.generateDataSetsEmails(changedEntities);
             sendEmails(emailsWithSummary, mailClient);
-            saveTrackingState(prevTrackingState, changedEntities, trackingDAO);
+            
+            if (!params.getDebug()) {
+            	saveTrackingState(prevTrackingState, changedEntities, trackingDAO);
+            }
         }
     }
 
@@ -223,21 +240,21 @@ public class TrackingBO
     }
 
     private static Map<String, String> fetchChangedLanes(TrackingStateDTO trackingState,
-            ITrackingServer trackingServer, SessionContextDTO session)
+            ITrackingServer trackingServer, Parameters params, SessionContextDTO session)
     {
-        long maxDataSetId = getMaxDataSetId(trackingState);
-        LogUtils.info("Using maximum DS techId " + maxDataSetId + " for search of changed data sets");
+    	long usableDataSetId = getUsableDataSetId(trackingState, params);
+        LogUtils.info("Using maximum DS techId " + usableDataSetId + " for search of changed data sets");
 
         TrackingDataSetCriteria dataSetCriteria =
-                new TrackingDataSetCriteria(FLOW_LANE_SAMPLE_TYPE, maxDataSetId);
+                new TrackingDataSetCriteria(FLOW_LANE_SAMPLE_TYPE, usableDataSetId);
         List<AbstractExternalData> dataSets =
                 trackingServer.listDataSets(session.getSessionToken(), dataSetCriteria);
 
         Map<String, String> changedLanesMap = new HashMap<String, String>();
-
+        
         // Loop over all new data sets
         for (AbstractExternalData d : dataSets)
-        {
+        {       	       	
             Long newDataSetID = d.getId();
             Sample lane = d.getSample();
             String lanePermId = lane.getPermId();
@@ -253,7 +270,7 @@ public class TrackingBO
                 List<IEntityProperty> flowcellProperties = flowcell.getProperties();
                 for (IEntityProperty property : flowcellProperties)
                 {
-                    if (property.getPropertyType().getCode().equals("RUN_NAME_FOLDER"))
+                    if (property.getPropertyType().getCode().equals(PROPERTY_RUN_NAME_FOLDER))
                     {
                         runNameFolder = property.getValue();
                         break;
@@ -261,9 +278,28 @@ public class TrackingBO
                 }
                 String laneString = currentLaneId.toString().split(":")[1];
                 changedLanesMap.put(runNameFolder + ":" + laneString, laneSpace + " " + lane.getCode());
-                LogUtils.info("DataSetID: " + newDataSetID + " of NEW data Sets > MAX DataSet id for this sample: " + maxDatasetIdForSample);
+                LogUtils.info("DataSetID: " + newDataSetID + " of NEW data Sets > MAX DataSet id for this sample: " + maxDatasetIdForSample);                
             }
         }
+        
+        
+        
+//    	Properties properties = new Properties();        	
+//    	File storeRoot = null;
+//
+//    	DataSetCopier dsc = new DataSetCopier(properties, storeRoot);
+//		dsc.process(description, context);
+
+//    	PhysicalDataSet pds = d.tryGetAsDataSet();
+//    	
+//    	DataSetProcessingContext context = null;
+//    	
+//    	DatasetDescription description = new DatasetDescription();
+//        description.setDataSetCode(d.getCode());
+//        description.setDatasetTypeCode(d.getDataSetType().getCode());
+//        description.setDataSetLocation(d.tryGetAsDataSet().getDataSetLocation());
+        
+        
         Set<Map.Entry<String, String>> entrySet = changedLanesMap.entrySet();
         for (Entry<String, String> entry : entrySet)
         {
@@ -275,18 +311,22 @@ public class TrackingBO
     }
 
     private static TrackedEntities fetchChangedDataSets(TrackingStateDTO trackingState,
-            ITrackingServer trackingServer, String[] laneCodeList, SessionContextDTO session)
+            ITrackingServer trackingServer,  Parameters params, String[] laneCodeList, SessionContextDTO session)
     {
-        long maxDataSetId = getMaxDataSetId(trackingState);
-        LogUtils.info("Using maximum DS techId " + maxDataSetId + " for search of changed data sets");
+    	long usableDataSetId = getUsableDataSetId(trackingState, params);
+        List<String> spaceWhiteList = Arrays.asList(params.getSpaceWhitelist().split("\\s*,\\s*"));
+        List<String> datasetTypeList = Arrays.asList(params.getdataSetTypeList().split("\\s*,\\s*"));
+       
+        LogUtils.info("Using maximum DS techId " + usableDataSetId + " for search of changed data sets");
 
         TrackingDataSetCriteria dataSetCriteria =
-                new TrackingDataSetCriteria(FLOW_LANE_SAMPLE_TYPE, maxDataSetId);
+                new TrackingDataSetCriteria(FLOW_LANE_SAMPLE_TYPE, usableDataSetId);
         List<AbstractExternalData> dataSets =
                 trackingServer.listDataSets(session.getSessionToken(), dataSetCriteria);
 
         ArrayList<SampleIdentifier> filterList = new ArrayList<SampleIdentifier>();
         ArrayList<AbstractExternalData> filteredDataSets = new ArrayList<AbstractExternalData>();
+        ArrayList<AbstractExternalData> toTransferDataSets = new ArrayList<AbstractExternalData>();
         HashMap<String, ArrayList<Long>> changedTrackingMap = new HashMap<String, ArrayList<Long>>();
 
         // Loop over all lanes and create a list of relevant lanes
@@ -309,12 +349,38 @@ public class TrackingBO
             {
                 LogUtils.info("DataSetID: " + newDataSetID + " of NEW data Sets > MAX DataSet id for this sample: " + maxDatasetIdForSample);
                 filteredDataSets.add(d);
+                
+                if (spaceWhiteList.contains(d.getSpace().getCode()) || d.getSpace().getCode().startsWith(params.getDbmSpacePrefix())) {
+                	if (datasetTypeList.contains(d.getDataSetType().getCode())) {
+                		if (d.tryGetAsDataSet().getStatus().equals(DataSetArchivingStatus.AVAILABLE) || d.tryGetAsDataSet().getStatus().equals(DataSetArchivingStatus.LOCKED))  {                			
+                			toTransferDataSets.add(d);
+                		}
+                		else {
+                            LogUtils.error("Data set " + d.getCode() + " eventually archived!");
+                			}
+                		}
+                	}
+                }
                 System.out.println("Sending Email for " + newDataSetID + " which is part of " + d.getSampleCode());
                 addDataSetTo(changedTrackingMap, d);
-            }
+        }
+        
+        LogUtils.info("TO_TRANSFER: Found " + toTransferDataSets.size() + " data sets which are to be transferred to an extra folder");
+        
+
+        
+        //TODO: extract and make robust       
+        File rsyncBinary = new File("/opt/local/bin/rsync");
+        File destination = new File(params.getDestinationFolder());
+        RsyncCopier copier = new RsyncCopier(rsyncBinary, null, "-a");
+        
+        for (AbstractExternalData ds : dataSets) {
+        	File source = new File(ds.tryGetAsDataSet().getFullLocation());
+        	copier.copy(source, destination, null, null);
+        	LogUtils.info("Copying " + ds.getCode() + " to " + params.getDestinationFolder());
+        	
         }
 
-        LogUtils.info(changedTrackingMap.toString());
         LogUtils.info("Found " + filteredDataSets.size() + " data sets which are connected to samples in " + filterList.toString());
         return gatherTrackedEntities(trackingState, trackingServer, session, filteredDataSets, changedTrackingMap);
     }
@@ -326,9 +392,23 @@ public class TrackingBO
         {
             maxDataSetId = Math.max(maxDataSetId, id);
         }
-        return 0;
-        // return maxDataSetId;
+//        return 0;
+        return maxDataSetId;
     }
+    
+    /* Little helper function which reduces the number of data sets we are looking at. This can be configured
+     * by value 'old-data-set-backlog-number' in the service.properties. Without this value
+     * the calls get slower and slower with the growing data set amount. But we can assume that older data sets
+     * already got triggered earlier to send out an email. If not, the sample is so old that we do not want
+     * to send an email. 
+     */
+    private static long getUsableDataSetId (TrackingStateDTO trackingState, Parameters params) {
+        long maxDataSetId = getMaxDataSetId(trackingState);
+        long oldDataSetBacklogNumber = params.getoldDataSetBacklogNumber();       
+        long usableDataSetId = Math.max(maxDataSetId - oldDataSetBacklogNumber, 0);
+        return usableDataSetId;    	 
+    }
+    
 
     private static long getMaxDataSetIdForSample(TrackingStateDTO trackingState, String lanePermId)
     {

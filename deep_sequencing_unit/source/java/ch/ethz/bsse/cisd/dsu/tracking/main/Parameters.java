@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2016 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 
 /**
  * @author Tomasz Pylak
+ * @author Manuel Kohler
  */
 public class Parameters
 {
@@ -40,7 +41,20 @@ public class Parameters
     private static final String TRACKING_ADMIN_EMAIL = "tracking-admin-email";
 
     private static final String NOTIFICATION_EMAIL_FROM = "mail.from";
+    
+    private static final String SPACE_WHITELIST = "space-whitelist";
+    
+    private static final String DBM_SPACE_PREFIX = "dbm-space-prefix";
+       
+    // For Development Mode
+    private static final String DEBUG = "debug";
+    
+    private static final String OLD_DATA_SET_BACKLOG_NUMBER = "old-data-set-backlog-number";
+    
+    private static final String DATA_SET_TYPE_LIST = "dataset-type-list";
 
+    private static final String DESTINATION_FOLDER = "destination-folder";
+    
     private final String openbisUser;
 
     private final String openbisPassword;
@@ -54,6 +68,18 @@ public class Parameters
     private final String adminEmail;
 
     private final String notificationEmail;
+    
+    private final String spaceWhitelist;
+    
+    private final String dbmSpacePrefix;
+    
+    private final boolean debug;
+    
+    private final long oldDataSetBacklogNumber;
+    
+    private final String dataSetTypeList;
+    
+    private final String destinationFolder;
 
     public Parameters(Properties props)
     {
@@ -64,6 +90,12 @@ public class Parameters
         this.mailClient = new MailClient(props);
         this.adminEmail = PropertyUtils.getProperty(props, TRACKING_ADMIN_EMAIL);
         this.notificationEmail = PropertyUtils.getProperty(props, NOTIFICATION_EMAIL_FROM);
+        this.spaceWhitelist = PropertyUtils.getProperty(props, SPACE_WHITELIST);
+        this.dbmSpacePrefix = PropertyUtils.getProperty(props, DBM_SPACE_PREFIX);
+        this.debug = PropertyUtils.getBoolean(props, DEBUG, false);
+        this.oldDataSetBacklogNumber = PropertyUtils.getInt(props, OLD_DATA_SET_BACKLOG_NUMBER, 0);
+        this.dataSetTypeList = PropertyUtils.getProperty(props, DATA_SET_TYPE_LIST);
+        this.destinationFolder= PropertyUtils.getProperty(props, DESTINATION_FOLDER);
     }
 
     public String getOpenbisUser()
@@ -100,5 +132,34 @@ public class Parameters
     {
         return notificationEmail;
     }
-
+    
+    public String getSpaceWhitelist()
+    {
+        return spaceWhitelist;
+    }
+    
+    public String getDbmSpacePrefix()
+    {
+        return dbmSpacePrefix;
+    }
+    
+    public boolean getDebug() 
+    {
+    	return debug;
+    }
+    
+    public long getoldDataSetBacklogNumber() 
+    {
+    	return oldDataSetBacklogNumber;
+    }    
+    
+    public String getdataSetTypeList()
+    {
+    	return dataSetTypeList;
+    }
+    
+    public String getDestinationFolder()
+    {
+    	return destinationFolder;
+    }
 }
