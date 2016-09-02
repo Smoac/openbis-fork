@@ -126,6 +126,7 @@ function LinksView(linksController, linksModel) {
 		
 		var dataGrid = SampleDataGridUtil.getSampleDataGrid(containerCode, samplesOnGrid, null, linksView.getCustomOperationsForGrid(), allCustomAnnotations, "ANNOTATIONS", linksModel.isDisabled, false);
 		dataGrid.init($dataGridContainer);
+		linksModel.writeState(sample, null, null, false);
 	}
 	
 	this.repaint = function($container) {
