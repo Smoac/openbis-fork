@@ -902,13 +902,13 @@ STOCK = [MANDATORY_ITEM_VERSION, "STOCK", "Folder used to organize purchases rel
     
 LANGUAGE = [ MANDATORY_ITEM_VERSION, "LANGUAGE", "Language", 
                                 [ 
-                                    ["ENGLISH", "English (Default)", None],
+                                    ["ENGLISH", "English", None],
                                     ["GERMAN", "German", None]
                                 ]];
 
 CURRENCY = [ MANDATORY_ITEM_VERSION, "CURRENCY", "Currency", 
                                 [ 
-                                    ["CHF", "CHF (Default)", None],
+                                    ["CHF", "CHF", None],
                                     ["EUR", "EUR", None],
                                     ["USD", "USD", None]
                                 ]];
@@ -922,18 +922,21 @@ PREFERRED_ORDER_METHOD = [ MANDATORY_ITEM_VERSION, "PREFERRED_ORDER_METHOD", "Pr
                                 
 ORDER_STATUS = [ MANDATORY_ITEM_VERSION, "ORDER_STATUS", "Order Status", 
                                 [ 
-                                    ["NOT_ORDERED", "not ordered", None],
+                                    ["NOT_YET_ORDERED", "not yet ordered", None],
                                     ["ORDERED", "ordered", None],
                                     ["DELIVERED", "delivered", None],
                                     ["PAID", "paid", None]
                                 ]];
                                 
 SUPPLIER = [MANDATORY_ITEM_VERSION, False, "SUPPLIER", "", [
-        [MANDATORY_ITEM_VERSION, "NAME",                     "General",            "Name",                        DataType.VARCHAR,        None,                "Name", None, None, True],
-        [MANDATORY_ITEM_VERSION, "COMPANY_ADDRESS",                     "General",            "Company address",        DataType.VARCHAR,         None,                       "Company address",              None,       None, True],
+        [MANDATORY_ITEM_VERSION, "COMPANY_NAME",                        "General",            "Company Name",                        DataType.VARCHAR,        None,                "Name", None, None, True],
+        [MANDATORY_ITEM_VERSION, "COMPANY_ADDRESS_LINE_1",                     "General",            "Company address",        DataType.VARCHAR,         None,                       "Company address",              None,       None, True],
+        [MANDATORY_ITEM_VERSION, "COMPANY_ADDRESS_LINE_2",                     "General",            "Company address Line 2",        DataType.VARCHAR,         None,                       "Company address",              None,       None, True],
         [MANDATORY_ITEM_VERSION, "COMPANY_FAX",                         "General",            "Company fax",            DataType.VARCHAR,                   None,                       "Company fax",                  None,       None],
         [MANDATORY_ITEM_VERSION, "COMPANY_PHONE",                       "General",            "Company phone",          DataType.VARCHAR,                   None,                       "Company phone",                None,       None],
         [MANDATORY_ITEM_VERSION, "COMPANY_EMAIL",                       "General",            "Company email",          DataType.VARCHAR,                   None,                       "Company email",                None,       None, True],
+        [MANDATORY_ITEM_VERSION, "COMPANY_CONTACT_NAME",                "General",            "Company contact name",   DataType.VARCHAR,                   None,                       "Company contact name",                None,       None, True],
+        [MANDATORY_ITEM_VERSION, "COMPANY_CONTACT_EMAIL",               "General",            "Company contact email",  DataType.VARCHAR,                   None,                       "Company contact email",                None,       None, True],
         [MANDATORY_ITEM_VERSION, "COMPANY_LANGUAGE",                    "General",            "Company language",       DataType.CONTROLLEDVOCABULARY,      "LANGUAGE",                 "Company language",             None,       None, True],
         [MANDATORY_ITEM_VERSION, "ACCOUNT_NUMBER",                      "General",            "Account number",         DataType.VARCHAR,                   None,                       "Account number",               None,       None, True],
         [MANDATORY_ITEM_VERSION, "PREFERRED_ORDER_METHOD",              "General",            "Preferred Order Method", DataType.CONTROLLEDVOCABULARY,      "PREFERRED_ORDER_METHOD",   "Preferred Order Method",       None,       None, True],
@@ -961,8 +964,6 @@ REQUEST = [MANDATORY_ITEM_VERSION, False, "REQUEST", "", [
         [MANDATORY_ITEM_VERSION, "PROJECT",                             "General",            "Project",                            DataType.VARCHAR,                   None,                       "Project",                          None,       None],
         [MANDATORY_ITEM_VERSION, "DEPARTMENT",                          "General",            "Department",                         DataType.VARCHAR,                   None,                       "Department",                       None,       None],
         [MANDATORY_ITEM_VERSION, "BUYER",                               "General",            "Buyer",                              DataType.VARCHAR,                   None,                       "Buyer",                            None,       None],
-        [MANDATORY_ITEM_VERSION, "REQUEST_MANAGER",                     "General",            "Request Manager",                    DataType.VARCHAR,                   None,                       "Request Manager",                  None,       None],
-        [MANDATORY_ITEM_VERSION, "REQUEST_MANAGER_CONTACT_DETAILS",     "General",            "Request Manager Contact Details",    DataType.VARCHAR,                   None,                       "Request Manager Contact Details",  None,       None],
         [MANDATORY_ITEM_VERSION, "ANNOTATIONS_STATE",        "Comments",            "Annotations State",        DataType.XML,                    None,                "Annotations State", None, None]
     ]];
 
