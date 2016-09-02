@@ -227,7 +227,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         }
         
         if(profile.mainMenu.showSampleBrowser) {
-        	treeModelUtils.push({ title : "Sample Browser", entityType: "SAMPLE_BROWSER", key : "SAMPLE_BROWSER", folder : false, lazy : false, view : "showSamplesPage", icon : "glyphicon glyphicon-list-alt" });
+        	treeModelUtils.push({ title : "" + ELNDictionary.Sample + " Browser", entityType: "SAMPLE_BROWSER", key : "SAMPLE_BROWSER", folder : false, lazy : false, view : "showSamplesPage", icon : "glyphicon glyphicon-list-alt" });
         }
         
         if(profile.mainMenu.showVocabularyViewer) {
@@ -292,10 +292,15 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	                for (var i = 0; i < spaces.length; i++) {
     	                    var space = spaces[i];
     	                    var isInventorySpace = profile.isInventorySpace(space.code);
-    	                    if((type === "LAB_NOTEBOOK" && !isInventorySpace) || (type === "INVENTORY" && isInventorySpace)) {
-    	                    	var normalizedSpaceTitle = Util.getDisplayNameFromCode(space.code);
-    	                    	results.push({ title : normalizedSpaceTitle, entityType: "SPACE", key : space.getCode(), folder : true, lazy : true, view : "showSpacePage", viewData: space.getCode() });
-    	                    }
+        	                if((type === "LAB_NOTEBOOK" && !isInventorySpace) || (type === "INVENTORY" && isInventorySpace)) {
+        	                	var normalizedSpaceTitle = Util.getDisplayNameFromCode(space.code);
+        	                	
+        	                    var spaceNode = { title : normalizedSpaceTitle, entityType: "SPACE", key : space.getCode(), folder : true, lazy : true, view : "showSpacePage", viewData: space.getCode() };
+        	                    if(space.getCode() === "STOCK_CATALOG" || space.getCode() === "STOCK_ORDERS") {
+        	                    	spaceNode.icon = "fa fa-shopping-cart";
+        	                    }
+        	                    results.push(spaceNode);
+        	                }
     	                }
     	                dfd.resolve(results);
     	    		});
@@ -309,6 +314,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	                    var project = projects[i];
     	                    var normalizedProjectTitle = Util.getDisplayNameFromCode(project.code);
     	                    results.push({ title : normalizedProjectTitle, entityType: "PROJECT", key : project.getPermId().getPermId(), folder : true, lazy : true, view : "showProjectPageFromPermId", viewData: project.getPermId().getPermId() });
+    	                    
     	                }
     	                dfd.resolve(results);
     	    		});

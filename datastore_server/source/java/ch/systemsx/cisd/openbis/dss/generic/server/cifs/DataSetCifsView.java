@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.cifs;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Properties;
 
 import org.alfresco.jlan.server.SrvSession;
 import org.alfresco.jlan.server.auth.ClientInfo;
@@ -29,6 +30,7 @@ import org.alfresco.jlan.server.filesys.DiskInterface;
 import org.alfresco.jlan.server.filesys.FileAttribute;
 import org.alfresco.jlan.server.filesys.FileInfo;
 import org.alfresco.jlan.server.filesys.FileName;
+import org.alfresco.jlan.server.filesys.FileOfflineException;
 import org.alfresco.jlan.server.filesys.FileOpenParams;
 import org.alfresco.jlan.server.filesys.FileStatus;
 import org.alfresco.jlan.server.filesys.NetworkFile;
@@ -40,6 +42,7 @@ import org.apache.ftpserver.ftplet.FtpFile;
 import org.apache.log4j.Logger;
 import org.springframework.extensions.config.ConfigElement;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -47,46 +50,53 @@ import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.DSSFileSystemView;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverConfig;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverRegistry;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolverRegistry;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.NonExistingFtpFile;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataSetCifsView implements DiskInterface
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DataSetCifsView.class);
-    
+
     private Cache cache;
+
     private IServiceForDataStoreServer dssService;
+
     private IGeneralInformationService generalInfoService;
-    
-    private FtpPathResolverRegistry pathResolverRegistry;
+
+    private IApplicationServerApi v3api;
+
+    private IFtpPathResolverRegistry pathResolverRegistry;
+
     public DataSetCifsView()
     {
         operationLog.info("CIFS view onto the data store created");
         cache = new Cache(SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
 
-    DataSetCifsView(IServiceForDataStoreServer openBisService, IGeneralInformationService generalInfoService, Cache cache)
+    DataSetCifsView(IServiceForDataStoreServer openBisService, IGeneralInformationService generalInfoService, IApplicationServerApi v3api,
+            Cache cache)
     {
         this.dssService = openBisService;
         this.generalInfoService = generalInfoService;
+        this.v3api = v3api;
         this.cache = cache;
     }
-    
+
     @Override
     public DeviceContext createContext(String shareName, ConfigElement args) throws DeviceContextException
     {
         operationLog.info("create context for share " + shareName + ": " + Utils.render(args));
-        FtpPathResolverConfig resolverConfig = new FtpPathResolverConfig(CifsServerConfig.getServerProperties());
+        Properties serverProperties = CifsServerConfig.getServerProperties();
+        FtpPathResolverConfig resolverConfig = new FtpPathResolverConfig(serverProperties);
         resolverConfig.logStartupInfo("CIFS");
-        pathResolverRegistry = new FtpPathResolverRegistry(resolverConfig);
+
+        pathResolverRegistry = resolverConfig.getResolverRegistry();
         return new DiskDeviceContext(shareName);
     }
 
@@ -95,7 +105,7 @@ public class DataSetCifsView implements DiskInterface
     {
         operationLog.info("tree " + tree + " opened");
     }
-    
+
     @Override
     public void treeClosed(SrvSession sess, TreeConnection tree)
     {
@@ -118,7 +128,7 @@ public class DataSetCifsView implements DiskInterface
             FtpFile file = view.getFile(normalizedPath, cache);
             FileInfo fileInfo = new FileInfo();
             Utils.populateFileInfo(fileInfo, file);
-            operationLog.info("provide file info for virtual file '" + file.getAbsolutePath() + "': " + fileInfo);
+            operationLog.debug("provide file info for virtual file '" + file.getAbsolutePath() + "': " + fileInfo);
             return fileInfo;
         } catch (FtpException ex)
         {
@@ -184,9 +194,9 @@ public class DataSetCifsView implements DiskInterface
                 NonExistingFtpFile nonExistingFtpFile = (NonExistingFtpFile) file;
                 throw new FileNotFoundException(path + " does not exist. Reason: " + nonExistingFtpFile.getErrorMessage());
             }
-            operationLog.info("Open file '" + path + "'.");
+            operationLog.debug("Open file '" + path + "'.");
             NetworkFile networkFile = new CifsFile(file);
-            
+
             networkFile.setAttributes(FileAttribute.ReadOnly);
             networkFile.setCreationDate(file.getLastModified());
             networkFile.setModifyDate(file.getLastModified());
@@ -208,7 +218,7 @@ public class DataSetCifsView implements DiskInterface
     }
 
     @Override
-    public int readFile(SrvSession sess, TreeConnection tree, NetworkFile file, byte[] buf, int bufPos, 
+    public int readFile(SrvSession sess, TreeConnection tree, NetworkFile file, byte[] buf, int bufPos,
             int size, long filePos) throws IOException
     {
         if (file.isDirectory())
@@ -217,12 +227,18 @@ public class DataSetCifsView implements DiskInterface
         }
         operationLog.debug("Read from virtual file '" + file.getFullName() + "' at position " + filePos + " "
                 + size + " bytes into the buffer of size " + buf.length + " at position " + bufPos + ".");
-        int rdlen = file.readFile(buf, size, bufPos, filePos);
-        if (rdlen == -1)
+        try
         {
-            rdlen = 0;
+            int rdlen = file.readFile(buf, size, bufPos, filePos);
+            if (rdlen == -1)
+            {
+                rdlen = 0;
+            }
+            return rdlen;
+        } catch (RuntimeException e)
+        {
+            throw new FileOfflineException();
         }
-        return rdlen;
     }
 
     @Override
@@ -296,7 +312,8 @@ public class DataSetCifsView implements DiskInterface
         try
         {
             String sessionToken = getSessionToken(session);
-            return new DSSFileSystemView(sessionToken, getDssService(), getGeneralInfoService(), pathResolverRegistry, cache);
+            return new DSSFileSystemView(sessionToken, getDssService(), getGeneralInfoService(), getApplicationServerApi(), pathResolverRegistry,
+                    cache);
         } catch (FtpException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -316,7 +333,7 @@ public class DataSetCifsView implements DiskInterface
         }
         return dssService;
     }
-    
+
     private IGeneralInformationService getGeneralInfoService()
     {
         if (generalInfoService == null)
@@ -325,7 +342,16 @@ public class DataSetCifsView implements DiskInterface
         }
         return generalInfoService;
     }
-    
+
+    private IApplicationServerApi getApplicationServerApi()
+    {
+        if (v3api == null)
+        {
+            v3api = ServiceProvider.getV3ApplicationService();
+        }
+        return v3api;
+    }
+
     private String getSessionToken(SrvSession sess)
     {
         ClientInfo client = sess.getClientInformation();

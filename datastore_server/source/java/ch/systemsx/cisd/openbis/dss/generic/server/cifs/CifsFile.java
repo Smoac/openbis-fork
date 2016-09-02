@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.FtpFileImpl;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.AbstractFtpFileWithContent;
 
 /**
  * @author Franz-Josef Elmer
@@ -102,12 +102,12 @@ final class CifsFile extends NetworkFile
         {
             throw new IOException("Virtual file '" + file.getAbsolutePath() + "' can not be created.");
         }
-        operationLog.info("Open virtual file '" + file.getAbsolutePath() + "'.");
+        operationLog.debug("Open virtual file '" + file.getAbsolutePath() + "'.");
         synchronized (file)
         {
-            if (randomAccessFile == null && file instanceof FtpFileImpl)
+            if (randomAccessFile == null && file instanceof AbstractFtpFileWithContent)
             {
-                randomAccessFile = ((FtpFileImpl) file).getFileContent();
+                randomAccessFile = ((AbstractFtpFileWithContent) file).getFileContent();
             }
         }
     }

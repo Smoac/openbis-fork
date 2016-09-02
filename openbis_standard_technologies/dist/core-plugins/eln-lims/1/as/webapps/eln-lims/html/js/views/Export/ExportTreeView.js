@@ -84,7 +84,7 @@ function ExportTreeView(exportTreeController, exportTreeModel) {
     	                var spaces = searchResult.objects;
     	                for (var i = 0; i < spaces.length; i++) {
     	                    var space = spaces[i];
-    	                    results.push({ title : space.code, entityType: "SPACE", key : space.code, folder : true, lazy : true });
+    	                    results.push({ title : Util.getDisplayNameForEntity(space), entityType: "SPACE", key : space.code, folder : true, lazy : true });
     	                }
     	                dfd.resolve(results);
     	    		});
@@ -96,7 +96,7 @@ function ExportTreeView(exportTreeController, exportTreeModel) {
     	                var projects = searchResult.objects;
     	                for (var i = 0; i < projects.length; i++) {
     	                    var project = projects[i];
-    	                    results.push({ title : project.code, entityType: "PROJECT", key : project.permId, folder : true, lazy : true });
+    	                    results.push({ title : Util.getDisplayNameForEntity(project), entityType: "PROJECT", key : project.permId, folder : true, lazy : true });
     	                }
     	                dfd.resolve(results);
     	    		});
@@ -108,7 +108,7 @@ function ExportTreeView(exportTreeController, exportTreeModel) {
     	                var experiments = searchResult.objects;
     	                for (var i = 0; i < experiments.length; i++) {
     	                    var experiment = experiments[i];
-    	                    results.push({ title : experiment.code, entityType: "EXPERIMENT", key : experiment.permId, folder : true, lazy : true });
+    	                    results.push({ title : Util.getDisplayNameForEntity(experiment), entityType: "EXPERIMENT", key : experiment.permId, folder : true, lazy : true });
     	                }
     	                dfd.resolve(results);
     	    		});
@@ -120,7 +120,7 @@ function ExportTreeView(exportTreeController, exportTreeModel) {
     	                var samples = searchResult.objects;
     	                for (var i = 0; i < samples.length; i++) {
     	                    var sample = samples[i];
-    	                    results.push({ title : sample.code, entityType: "SAMPLE", key : sample.permId, folder : true, lazy : true });
+    	                    results.push({ title : Util.getDisplayNameForEntity(sample), entityType: "SAMPLE", key : sample.permId, folder : true, lazy : true });
     	                }
     	                dfd.resolve(results);
     	    		});
@@ -132,7 +132,7 @@ function ExportTreeView(exportTreeController, exportTreeModel) {
     	                var datasets = searchResult.objects;
     	                for (var i = 0; i < datasets.length; i++) {
     	                    var dataset = datasets[i];
-    	                    results.push({ title : dataset.code, entityType: "DATASET", key : dataset.permId, folder : false, lazy : false });
+    	                    results.push({ title : Util.getDisplayNameForEntity(dataset), entityType: "DATASET", key : dataset.permId, folder : false, lazy : false });
     	                }
     	                dfd.resolve(results);
     	    		});

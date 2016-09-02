@@ -43,7 +43,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		}
 		var entityPath = null;
 		
-		var typeTitle = "Experiment: ";
+		var typeTitle = "" + ELNDictionary.getExperimentKindName(this._experimentFormModel.experiment.identifier) + ": ";
 //		if(this._experimentFormModel.experiment &&
 //		   this._experimentFormModel.experiment.identifier &&
 //		   profile.isInventorySpace(this._experimentFormModel.experiment.identifier.split("/")[1])
@@ -146,7 +146,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		
 		//Sample List Container
 		if(this._experimentFormModel.mode !== FormMode.CREATE) {
-			$formColumn.append($("<legend>").append("Samples"));
+			$formColumn.append($("<legend>").append(ELNDictionary.Samples));
 			var sampleListContainer = $("<div>");
 			$formColumn.append(sampleListContainer);
 			var sampleList = new SampleTableController(this._experimentFormController, null, this._experimentFormModel.experiment.identifier, null, null, this._experimentFormModel.experiment);
@@ -158,10 +158,10 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			var btnTitle = "";
 			switch(this._experimentFormModel.mode) {
 		    	case FormMode.CREATE:
-		    		btnTitle = "Create Experiment";
+		    		btnTitle = "Create";
 		    		break;
 		    	case FormMode.EDIT:
-		    		btnTitle = "Update Experiment";
+		    		btnTitle = "Update";
 		    		break;
 			}
 			
@@ -312,13 +312,12 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 						continue;
 					}
 				} else {
-					var $component = FormUtil.getFieldForPropertyType(propertyType);
+					var $component = FormUtil.getFieldForPropertyType(propertyType, value);
 					//Update values if is into edit mode
 					if(this._experimentFormModel.mode === FormMode.EDIT) {
 						if(propertyType.dataType === "BOOLEAN") {
 							$($($component.children()[0]).children()[0]).prop('checked', value === "true");
 						} else if(propertyType.dataType === "TIMESTAMP") {
-							$($($component.children()[0]).children()[0]).val(value);
 						} else {
 							$component.val(value);
 						}

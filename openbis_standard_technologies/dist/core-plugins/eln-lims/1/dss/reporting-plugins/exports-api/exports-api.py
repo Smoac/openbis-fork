@@ -409,8 +409,10 @@ def getTXT(entityObj, v3, sessionToken):
 	if not isinstance(entityObj, Project):
 		txtBuilder.append("Type: " + entityObj.getType().getCode()).append("\n");
 	
-	txtBuilder.append("Registrator: ").append(entityObj.getRegistrator().getUserId()).append("\n");
-	txtBuilder.append("Registration Date: ").append(str(entityObj.getRegistrationDate())).append("\n");
+	if(entityObj.getRegistrator() is not None):
+		txtBuilder.append("Registrator: ").append(entityObj.getRegistrator().getUserId()).append("\n");
+		txtBuilder.append("Registration Date: ").append(str(entityObj.getRegistrationDate())).append("\n");
+	
 	if entityObj.getModifier() is not None:
 		txtBuilder.append("Modifier: ").append(entityObj.getModifier().getUserId()).append("\n");
 		txtBuilder.append("Modification Date: ").append(str(entityObj.getModificationDate())).append("\n");

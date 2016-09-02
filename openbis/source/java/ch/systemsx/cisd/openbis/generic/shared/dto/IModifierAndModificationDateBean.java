@@ -16,20 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import java.util.Date;
-
 /**
  * Interface for beans with a modifier and a modification date.
  * 
  * @author Franz-Josef Elmer
  */
-public interface IModifierAndModificationDateBean
+public interface IModifierAndModificationDateBean extends IModifierBean, IModificationDateBean
 {
-    public PersonPE getModifier();
 
-    public void setModifier(PersonPE modifier);
-
-    public Date getModificationDate();
-
-    public void setModificationDate(Date date);
 }

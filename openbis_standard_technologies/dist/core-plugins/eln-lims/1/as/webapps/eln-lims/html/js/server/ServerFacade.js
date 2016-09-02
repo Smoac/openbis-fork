@@ -134,9 +134,9 @@ function ServerFacade(openbisServer) {
 	this.createELNUser = function(userId, callback) {
  		var _this = this;
  		var inventorySpacesToRegister = [];
- 		var inventorySpaceToRegisterFunc = function(spaceCode, callback) {
+ 		var inventorySpaceToRegisterFunc = function(spaceCode, userRole, callback) {
 			return function() {
-				_this.openbisServer.registerPersonSpaceRole(spaceCode, userId, "USER", function(data) {
+				_this.openbisServer.registerPersonSpaceRole(spaceCode, userId, userRole, function(data) {
 					if(data.error) {
 						callback(false, data.error.message);
 					} else {
@@ -165,7 +165,12 @@ function ServerFacade(openbisServer) {
 							} else {
 								for(var i = 0; i < profile.inventorySpaces.length; i++) {
 									var spaceCode = profile.inventorySpaces[i];
-									inventorySpacesToRegister.push(inventorySpaceToRegisterFunc(spaceCode, callback));
+									inventorySpacesToRegister.push(inventorySpaceToRegisterFunc(spaceCode, "USER", callback));
+								}
+								
+								for(var i = 0; i < profile.inventorySpacesReadOnly.length; i++) {
+									var spaceCode = profile.inventorySpacesReadOnly[i];
+									inventorySpacesToRegister.push(inventorySpaceToRegisterFunc(spaceCode, "OBSERVER", callback));
 								}
 								
 								var spaceToRegister = inventorySpacesToRegister.pop();

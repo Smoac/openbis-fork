@@ -43,6 +43,7 @@ final class SearchableEntitySelectionWidget extends
     {
         super(commonContext, "", "", ModelDataPropertyNames.DESCRIPTION, "", "");
         this.commonContext = commonContext;
+        setTemplate(getTemplateWithDividers(ModelDataPropertyNames.DESCRIPTION));
     }
 
     /**
@@ -86,8 +87,8 @@ final class SearchableEntitySelectionWidget extends
     @Override
     protected void loadData(AbstractAsyncCallback<List<SearchableEntity>> callback)
     {
-        commonContext.getService()
-                .listSearchableEntities(new ListSearchableEntities(commonContext));
+        ListSearchableEntities entities = new ListSearchableEntities(commonContext);
+        commonContext.getService().listSearchableEntities(entities);
         callback.ignore();
     }
 
@@ -96,4 +97,16 @@ final class SearchableEntitySelectionWidget extends
     {
         return DatabaseModificationKind.EMPTY_ARRAY;
     }
+    
+    public final static native String getTemplateWithDividers(String displayField)
+    /*-{ 
+       return  [ 
+       '<tpl for=".">', 
+       '<tpl if="xindex == 1"><div class="unselectableItem">Entities<\/div><\/tpl>',
+       '<tpl if="xindex == 6"><div class="unselectableItem">Search Domains<\/div><\/tpl>',
+       '<div class="x-combo-list-item">{[values.',displayField,']}</div>', 
+       '</tpl>' 
+       ].join(""); 
+     }-*/;
+
 }

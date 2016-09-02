@@ -22,16 +22,22 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEnt
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs.MATCH;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs.RANK;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs.REGISTRATOR;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs.SEARCH_DOMAIN_TYPE;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SearchableEntityTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyMatch;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchDomainSearchResultWithFullEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Span;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
@@ -51,32 +57,49 @@ public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEnt
     private final String sessionToken;
 
     private final SearchableEntity[] matchingEntities;
-
-    private final String queryText;
+    
+    private final SearchDomain[] matchingSearchDomains;
+    
+    private String queryText;
 
     private final boolean useWildcardSearchMode;
 
     public MatchingEntitiesProvider(ICommonServer commonServer, String sessionToken,
-            SearchableEntity[] matchingEntities, String queryText, boolean useWildcardSearchMode)
+            SearchableEntity[] matchingEntities, SearchDomain[] matchingSearchDomains, String queryText, boolean useWildcardSearchMode)
     {
         this.commonServer = commonServer;
         this.sessionToken = sessionToken;
 
         this.matchingEntities = matchingEntities;
+        this.matchingSearchDomains = matchingSearchDomains;
+        
         this.queryText = queryText;
         this.useWildcardSearchMode = useWildcardSearchMode;
     }
-
+    
     @Override
     public TypedTableModel<MatchingEntity> getTableModel(int maxSize)
     {
-        List<MatchingEntity> entities =
+    	List<MatchingEntity> entities =
                 commonServer.listMatchingEntities(sessionToken, matchingEntities, queryText,
                         useWildcardSearchMode, Integer.MAX_VALUE);
+
+        for (SearchDomain searchDomain : matchingSearchDomains)
+        {
+            String preferredSearchDomainOrNull = searchDomain.getName();
+            HashMap<String, String> parameters = createParameters(searchDomain);
+            List<SearchDomainSearchResultWithFullEntity> searchDomainSearchResults =
+                    commonServer.searchOnSearchDomain(sessionToken, preferredSearchDomainOrNull, queryText, parameters);
+            List<MatchingEntity> matchingSearchDomainsTranslatedToEntities =
+                    SearchableEntityTranslator.translateSearchDomains(searchDomainSearchResults, queryText);
+            entities.addAll(matchingSearchDomainsTranslatedToEntities);
+        }
+
         TypedTableModelBuilder<MatchingEntity> builder =
                 new TypedTableModelBuilder<MatchingEntity>();
-        builder.addColumn(ENTITY_KIND);
+        builder.addColumn(ENTITY_KIND); 
         builder.addColumn(ENTITY_TYPE);
+        builder.addColumn(SEARCH_DOMAIN_TYPE);
         builder.addColumn(IDENTIFIER).withDefaultWidth(140);
         builder.addColumn(REGISTRATOR);
         builder.addColumn(MATCH).withDefaultWidth(200).withDataType(DataTypeCode.MULTILINE_VARCHAR);
@@ -87,6 +110,7 @@ public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEnt
             builder.addRow(matchingEntity);
             builder.column(ENTITY_KIND).addString(matchingEntity.getEntityKind().getDescription());
             builder.column(ENTITY_TYPE).addString(matchingEntity.getEntityType().getCode());
+            builder.column(SEARCH_DOMAIN_TYPE).addString(matchingEntity.getSearchDomain());
             builder.column(IDENTIFIER).addString(matchingEntity.getIdentifier());
             builder.column(REGISTRATOR).addPerson(matchingEntity.getRegistrator());
             builder.column(MATCH).addMatch(addHighLights(matchingEntity));
@@ -94,6 +118,18 @@ public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEnt
             rank++;
         }
         return builder.getModel();
+    }
+
+    private HashMap<String, String> createParameters(SearchDomain searchDomain)
+    {
+        HashMap<String, String> parameters = new HashMap<String, String>();
+        String key = searchDomain.getPossibleSearchOptionsKey();
+        List<SearchDomainSearchOption> options = searchDomain.getPossibleSearchOptions();
+        if (key != null && options.size() > 1)
+        {
+            parameters.put(key, options.get(useWildcardSearchMode ? 1 : 0).getCode());
+        }
+        return parameters;
     }
 
     private class Block
@@ -154,7 +190,7 @@ public class MatchingEntitiesProvider implements ITableModelProvider<MatchingEnt
 
     private List<Block> getBlocks(List<Span> input)
     {
-        List<Span> spans = new ArrayList<Span>(input);
+        List<Span> spans = input == null ? new ArrayList<Span>() : new ArrayList<Span>(input);
         Collections.sort(spans, new Comparator<Span>()
             {
                 @Override

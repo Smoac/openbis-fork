@@ -35,6 +35,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
@@ -47,6 +48,7 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.dss.generic.server.fs.ResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.Cache;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverConfig;
@@ -88,6 +90,12 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         public IHierarchicalContent asContent(AbstractExternalData dataSet)
         {
             return asContent((IDatasetLocation) dataSet.tryGetAsDataSet());
+        }
+
+        @Override
+        public IHierarchicalContent asContentWithoutModifyingAccessTimestamp(AbstractExternalData dataSet)
+        {
+            return asContent(dataSet);
         }
 
         @Override
@@ -164,6 +172,8 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
 
     private IGeneralInformationService generalInfoService;
 
+    private IApplicationServerApi v3api;
+
     private SimpleFileContentProvider simpleFileContentProvider;
 
     private PhysicalDataSet ds1;
@@ -192,15 +202,23 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         context = new TrackingMockery();
         service = context.mock(IServiceForDataStoreServer.class);
         generalInfoService = context.mock(IGeneralInformationService.class);
+        v3api = context.mock(IApplicationServerApi.class);
 
         hierarchicalContentProvider = context.mock(IHierarchicalContentProvider.class);
         File root = new File(workingDirectory, "data-sets");
         root.mkdirs();
         simpleFileContentProvider = new SimpleFileContentProvider(root);
 
+        Cache cache = new Cache(timeProvider);
+        // these are the tests for old style resolvers.
+        // they are tested in here in a way that doesn't use the path in the Resolver context.
+        // in productive code we always create a new context for each request and we have a
+        // requested path for request in the context.
+        // As it doesn't affect resolvers tested in here I don't modify the tests accordingly
+        ResolverContext dssfsResolverContext = new ResolverContext(SESSION_TOKEN, cache, v3api, null);
+
         resolverContext =
-                new FtpPathResolverContext(SESSION_TOKEN, service, generalInfoService, null,
-                        new Cache(timeProvider));
+                new FtpPathResolverContext(SESSION_TOKEN, service, generalInfoService, v3api, null, cache, dssfsResolverContext);
         context.checking(new Expectations()
             {
                 {

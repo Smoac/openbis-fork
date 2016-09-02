@@ -27,13 +27,13 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 			_this._moveSampleController.move();
 		});
 		
-		$window.append($('<legend>').append("Move Sample"));
+		$window.append($('<legend>').append("Move " + ELNDictionary.Sample + ""));
 		$window.append(FormUtil.getFieldForLabelWithText("Type", this._moveSampleModel.sample.sampleTypeCode));
 		$window.append(FormUtil.getFieldForLabelWithText("Identifier", this._moveSampleModel.sample.identifier));
-		$window.append(FormUtil.getFieldForLabelWithText("Current Experiment", this._moveSampleModel.sample.experimentIdentifierOrNull));
-		$window.append(FormUtil.getFieldForComponentWithLabel(FormUtil.getOptionsRadioButtons("oldOrNewExp",true, ["Existing Experiment", "New Experiment"], function(event) {
+		$window.append(FormUtil.getFieldForLabelWithText("Current " + ELNDictionary.getExperimentDualName() + "", this._moveSampleModel.sample.experimentIdentifierOrNull));
+		$window.append(FormUtil.getFieldForComponentWithLabel(FormUtil.getOptionsRadioButtons("oldOrNewExp",true, ["Existing " + ELNDictionary.getExperimentDualName() + "", "New " + ELNDictionary.getExperimentDualName() + ""], function(event) {
 			var value = $(event.target).val();
-			if(value === "Existing Experiment") {
+			if(value === "Existing " + ELNDictionary.getExperimentDualName() + "") {
 				_this._moveSampleModel.isNewExperiment = false;
 				_this.repaintExistingExperiment();
 			} else {
@@ -71,7 +71,7 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 		FormUtil.getProjectAndExperimentsDropdown(true, false, true, function($dropdown) {
 			//Fields
 			var $expTypeField = FormUtil.getExperimentTypeDropdown(null, true);
-			var $expNameField = FormUtil._getInputField('text', null, 'Future Experiment Name', null, true);
+			var $expNameField = FormUtil._getInputField('text', null, 'Future ' + ELNDictionary.getExperimentDualName() + ' Name', null, true);
 			
 			//Events
 			var newExpEvent = function(event){
@@ -92,8 +92,8 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 			
 			//Attach Fields
 			$experimentSection.append(FormUtil.getFieldForComponentWithLabel($dropdown, "Future Project"))
-							.append(FormUtil.getFieldForComponentWithLabel($expTypeField, "Future Experiment Type"))
-							.append(FormUtil.getFieldForComponentWithLabel($expNameField, "Future Experiment Name"));
+							.append(FormUtil.getFieldForComponentWithLabel($expTypeField, "Future " + ELNDictionary.getExperimentDualName() + " Type"))
+							.append(FormUtil.getFieldForComponentWithLabel($expNameField, "Future " + ELNDictionary.getExperimentDualName() + " Name"));
 		});
 		
 		
@@ -110,7 +110,7 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 				_this._moveSampleModel.experimentIdentifier = value;
 			});
 			//Attach Fields
-			$experimentSection.append(FormUtil.getFieldForComponentWithLabel($dropdown, "Future Experiment"));
+			$experimentSection.append(FormUtil.getFieldForComponentWithLabel($dropdown, "Future " + ELNDictionary.getExperimentDualName() + ""));
 		});
 	}
 	

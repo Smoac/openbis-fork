@@ -163,8 +163,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			case "SAMPLE":
 				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
 				                    {value : "Property", label : "Property"}, 
-				                    {value : "Attribute", label : "Attribute"}, 
-				                    {value : "Experiment", label : "Experiment"}, 
+				                    {value : "Attribute", label : "Attribute"},
+				                    {value : "Experiment", label : ELNDictionary.ExperimentELN + "/" + ELNDictionary.ExperimentInventory}, 
 				                    {value : "Parent", label : "Parent"}, 
 				                    {value : "Children", label : "Children"}];
 				break;
@@ -177,7 +177,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
 				                    {value : "Property", label : "Property"}, 
 				                    {value : "Attribute", label : "Attribute"},
-				                    {value : "Sample", label : "Sample"},
+				                    {value : "Sample", label : "" + ELNDictionary.Sample + ""},
 // ELN-UI don't support this yet
 //				                    {value : "Parent", label : "Parent"}, 
 //				                    {value : "Children", label : "Children"}
@@ -304,7 +304,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		switch(entityKind) {
 			case "EXPERIMENT":
 				model = [{ value : "ATTR.CODE", label : "Code" }, 
-				         { value : "ATTR.EXPERIMENT_TYPE", label : "Experiment Type" }, 
+				         { value : "ATTR.EXPERIMENT_TYPE", label :  ELNDictionary.ExperimentELN + "/" + ELNDictionary.ExperimentInventory + " Type" }, 
 				         { value : "ATTR.PERM_ID", label : "Perm Id" }, 
 				         { value : "ATTR.PROJECT", label : "Project" }, 
 				         { value : "ATTR.PROJECT_PERM_ID", label : "Project Perm Id" }, 
@@ -314,13 +314,16 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				         { value : "ATTR.MODIFICATION_DATE", label : "Modification Date" }];
 				break;
 			case "SAMPLE":
-				model = [{ value : "ATTR.CODE", label: "Code" },
-				         { value : "ATTR.SAMPLE_TYPE", label: "Sample Type" },
-				         { value : "ATTR.PERM_ID", label: "Perm Id" },
-				         { value : "ATTR.SPACE", label: "Space" },
-//				         { value : "ATTR.METAPROJECT", label: "Tag" }, TO-DO Not supported by ELN yet
-						 { value : "ATTR.REGISTRATION_DATE", label: "Registration Date" }, 
-						 { value : "ATTR.MODIFICATION_DATE", label: "Modification Date" }];
+				model = [];
+				model.push({ value : "ATTR.CODE", label: "Code" });
+				if(!this._advancedSearchModel.isSampleTypeForced) {
+					model.push({ value : "ATTR.SAMPLE_TYPE", label: "" + ELNDictionary.Sample + " Type" });
+				}
+				model.push({ value : "ATTR.PERM_ID", label: "Perm Id" });
+				model.push({ value : "ATTR.SPACE", label: "Space" });
+//				model.push({ value : "ATTR.METAPROJECT", label: "Tag" }); //TO-DO Not supported by ELN yet
+				model.push({ value : "ATTR.REGISTRATION_DATE", label: "Registration Date" });
+				model.push({ value : "ATTR.MODIFICATION_DATE", label: "Modification Date" });
 				break;
 			case "DATASET":
 				model = [{ value : "ATTR.CODE", label : "Code" }, 
@@ -335,17 +338,27 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	
 	this._getEntityTypeDropdown = function() {
 		var _this = this;
-		var model = [{ value : 'ALL', label : "All", selected : true },
-		             { value : 'EXPERIMENT', label : "Experiment" },
-		             { value : 'SAMPLE', label : "Sample" },
-		             { value : 'DATASET', label : "Dataset" }];
+		var model = [];
+			model.push({ value : 'ALL', label : "All", selected : true });
+			model.push({ value : 'EXPERIMENT', label : ELNDictionary.ExperimentELN + "/" + ELNDictionary.ExperimentInventory });
+			model.push({ value : 'SAMPLE', label : "" + ELNDictionary.Sample + "" });			
+			model.push({ value : 'DATASET', label : "Dataset" });
+			model.push({ value : '', label : "--------------", disabled : true });
+			var sampleTypes = profile.getAllSampleTypes();
+			for(var tIdx = 0; tIdx < sampleTypes.length; tIdx++) {
+				var sampleType = sampleTypes[tIdx];
+				model.push({ value : 'SAMPLE$' + sampleType.code, label : Util.getDisplayNameFromCode(sampleType.code) });
+			}
+		
 		this._advancedSearchModel.resetModel('ALL');
 		var $dropdown = FormUtil.getDropdown(model, 'Select Entity Type to search for');
 		
-		$dropdown.change(function() {			
+		$dropdown.change(function() {
+			var kindAndType = $(this).val().split("$");
+			
 			if(_this._advancedSearchModel.isAllRules()) {
 				//1. update the entity type only in the model
-				_this._advancedSearchModel.setEntityKind($(this).val());
+				_this._advancedSearchModel.setEntityKind(kindAndType[0]);
 				//2. change the field type dropdowns in the view
 				var rows = _this._$tbody.children();
 				for(var rIdx = 0; rIdx < rows.length; rIdx++) {
@@ -356,8 +369,19 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					$(tds[0]).append($newFieldTypeComponent);
 				}				
 			} else {
-				_this._advancedSearchModel.resetModel($(this).val()); //Restart model
+				_this._advancedSearchModel.resetModel(kindAndType[0]); //Restart model
 				_this._paintCriteriaPanel(_this._$searchCriteriaPanelContainer); //Restart view	
+			}
+			
+			if(kindAndType.length === 2) {
+				var uuidValue = Util.guid();
+				_this._advancedSearchModel.criteria.rules[uuidValue] = { };
+				_this._advancedSearchModel.criteria.rules[uuidValue].type = 'Attribute';
+				_this._advancedSearchModel.criteria.rules[uuidValue].name = 'ATTR.SAMPLE_TYPE';
+				_this._advancedSearchModel.criteria.rules[uuidValue].value = kindAndType[1];
+				_this._advancedSearchModel.isSampleTypeForced = true;
+			} else {
+				_this._advancedSearchModel.isSampleTypeForced = false;
 			}
 		});
 		
@@ -401,7 +425,16 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				label : 'Entity Kind',
 				property : 'entityKind',
 				isExportable: true,
-				sortable : true
+				sortable : true,
+				render : function(data) {
+					if(data.entityKind === "Sample") {
+						return ELNDictionary.Sample;
+					} else if(data.entityKind === "Experiment") {
+						return ELNDictionary.getExperimentKindName(data.identifier);
+					} else {
+						return data.entityKind;
+					}
+				}
 			}, {
 				label : 'Entity Type',
 				property : 'entityType',
@@ -432,7 +465,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					return getLinkOnClick(data.identifier, data);
 				}
 			}, {
-				label : 'Experiment',
+				label : ELNDictionary.ExperimentELN + '/' + ELNDictionary.ExperimentInventory,
 				property : 'experiment',
 				isExportable: false,
 				sortable : true
@@ -560,6 +593,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					
 					//properties
 					rowData.entityKind = entity["@type"].substring(entity["@type"].lastIndexOf(".") + 1, entity["@type"].length);
+					
 					if(entity.experiment) {
 						rowData.experiment = entity.experiment.code;
 					}

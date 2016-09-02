@@ -395,6 +395,16 @@ var Util = new function() {
 	//
 	// Date Formating
 	//
+	this.parseDate = function(dateAsString) {
+		if(dateAsString) {
+			var yearTimeAndOffset = dateAsString.split(" ");
+			var yearParts = yearTimeAndOffset[0].split("-");
+			var timeParts = yearTimeAndOffset[1].split(":");
+			return new Date(yearParts[0],yearParts[1],yearParts[2], timeParts[0], timeParts[1], timeParts[2]);
+		}
+		return null;
+	}
+	
 	this.getFormatedDate = function(date) {
 		var day = date.getDate();
 		if(day < 10) {
@@ -489,6 +499,20 @@ var Util = new function() {
 		           s4() + '-' + s4() + s4() + s4();
 	};
 	
+	this.getDisplayNameForEntity = function(entity) {
+		var displayName = "";
+		if(profile.propertyReplacingCode && 
+			entity.properties && 
+			entity.properties[profile.propertyReplacingCode]) {
+			displayName = entity.properties[profile.propertyReplacingCode];
+		} else if(entity["@type"] === "as.dto.project.Project" || entity["@type"] === "as.dto.space.Space") {
+			displayName = this.getDisplayNameFromCode(entity.code);
+		} else {
+			displayName = entity.code;
+		}
+		return displayName;
+	}
+	
 	this.getDisplayNameFromCode = function(openBISCode) {
 		var normalizedCodeParts = openBISCode.toLowerCase().split('_');
 		var displayName = "";
@@ -565,6 +589,22 @@ var Util = new function() {
 		var indexOfFirstLine = tsv.indexOf('\n');
 		var tsvWithoutNumbers = tsv.substring(indexOfFirstLine + 1);
 		var blob = new Blob([tsvWithoutNumbers], {type: 'text'});
+		saveAs(blob, fileName);
+	}
+	
+	this.downloadTextFile = function(content, fileName) {
+		var contentEncoded = null;
+		var out = null;
+		var charType = null;
+		
+		contentEncoded = content;
+		out = new Uint8Array(contentEncoded.length);
+		for(var ii = 0,jj = contentEncoded.length; ii < jj; ++ii){
+			out[ii] = contentEncoded.charCodeAt(ii);
+		}
+		charType = 'text/tsv;charset=UTF-8;';
+		
+		var blob = new Blob([out], {type: charType});
 		saveAs(blob, fileName);
 	}
 	

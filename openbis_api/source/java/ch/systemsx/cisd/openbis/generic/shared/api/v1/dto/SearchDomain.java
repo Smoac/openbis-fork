@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
 import java.io.Serializable;
+import java.util.List;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -33,7 +34,11 @@ public class SearchDomain implements Serializable
     private String name;
 
     private String label;
-
+    
+    private String possibleSearchOptionsKey;
+    
+    private List<SearchDomainSearchOption> possibleSearchOptions;
+    
     public String getName()
     {
         return name;
@@ -54,10 +59,29 @@ public class SearchDomain implements Serializable
         this.label = label;
     }
 
+    public String getPossibleSearchOptionsKey()
+    {
+        return possibleSearchOptionsKey;
+    }
+
+    public void setPossibleSearchOptionsKey(String availableSearchOptionsKey)
+    {
+        this.possibleSearchOptionsKey = availableSearchOptionsKey;
+    }
+
+    public List<SearchDomainSearchOption> getPossibleSearchOptions()
+    {
+        return possibleSearchOptions;
+    }
+
+    public void setPossibleSearchOptions(List<SearchDomainSearchOption> possibleSearchOptions)
+    {
+        this.possibleSearchOptions = possibleSearchOptions;
+    }
+    
     @Override
     public String toString()
     {
         return label == null ? name : label + " [" + name + "]";
     }
-
 }

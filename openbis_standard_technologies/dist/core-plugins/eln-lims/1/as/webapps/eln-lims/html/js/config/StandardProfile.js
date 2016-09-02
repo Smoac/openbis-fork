@@ -268,7 +268,44 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 													}																					
 												],
 				},
-
+				"REQUEST" : {
+					"SAMPLE_PARENTS_TITLE" : "Add Product from Catalog",
+					"SAMPLE_PARENTS_ANY_TYPE_DISABLED" : true,
+					"SAMPLE_CHILDREN_DISABLED" : true,
+					"SAMPLE_PARENTS_HINT" : [{
+						"LABEL" : "Products",
+						"TYPE": "PRODUCT",
+						"MIN_COUNT" : 0,
+						"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY_OF_ITEMS", "MANDATORY" : true }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
+					}]
+				},
+				"ORDER" : {
+					"SAMPLE_PARENTS_TITLE" : "Requests",
+					"SAMPLE_PARENTS_ANY_TYPE_DISABLED" : true,
+					"SAMPLE_CHILDREN_DISABLED" : true,
+					"SAMPLE_PARENTS_HINT" : [{
+						"LABEL" : "Requests",
+						"TYPE": "REQUEST",
+						"MIN_COUNT" : 0,
+						"ANNOTATION_PROPERTIES" : []
+					}]
+				},
+				"SUPPLIER" : {
+					"SAMPLE_CHILDREN_DISABLED" : true,
+					"SAMPLE_PARENTS_DISABLED" : true,
+				},
+				"PRODUCT" : {
+					"SAMPLE_CHILDREN_DISABLED" : true,
+					"SAMPLE_PARENTS_TITLE" : "Suppliers",
+					"SAMPLE_PARENTS_ANY_TYPE_DISABLED" : true,
+					"SAMPLE_PARENTS_HINT" : [{
+						"LABEL" : "Suppliers",
+						"TYPE": "SUPPLIER",
+						"MIN_COUNT" : 1,
+						"MAX_COUNT" : 1,
+						"ANNOTATION_PROPERTIES" : []
+					}]
+				},
 				"EXPERIMENTAL_STEP" : {
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
@@ -366,11 +403,270 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 		
 		} 
 		
+		this.sampleFormOnSubmit = function(sample, action) {
+			if(sample.sampleTypeCode === "ORDER") {
+				var orderStatus = sample.properties["ORDER_STATUS"];
+				if(orderStatus === "ORDERED") {
+					delete sample.properties["ORDER_STATE"];
+					sample.properties["ORDER_STATE"] = window.btoa(unescape(encodeURIComponent(JSON.stringify(sample))));
+				}
+				action(sample, null);
+			} else if(sample.sampleTypeCode === "REQUEST") {
+				mainController.currentView._newProductsController.createAndAddToForm(sample, action);
+			} else if(action) {
+				action(sample, null);
+			}
+		}
+		
 		this.sampleFormContentExtra = function(sampleTypeCode, sample, containerId) {
 			if(sampleTypeCode === "EXPERIMENTAL_STEP") {
 				var isEnabled = mainController.currentView._sampleFormModel.mode !== FormMode.VIEW;
 				var freeFormTableController = new FreeFormTableController(sample, isEnabled);
 				freeFormTableController.init($("#" + containerId));
+			} else if(sampleTypeCode === "ORDER") {
+				var isExisting = mainController.currentView._sampleFormModel.mode === FormMode.VIEW;
+				var isFromState = false;
+				if(isExisting) {
+					//
+					// Data Structures to Help the reports functionality
+					//
+					var order = mainController.currentView._sampleFormModel.sample;
+					if(order.properties["ORDER_STATE"]) {
+						isFromState = true;
+						order = JSON.parse(decodeURIComponent(escape(window.atob(order.properties["ORDER_STATE"]))));
+					}
+					
+					var requests = order.parents;
+					var providerByPermId = {};
+					var productsByProviderPermId = {};
+					var quantityByProductPermId = {};
+					var absoluteTotalByCurrency = {};
+					
+					//
+					// Fills data structures
+					//
+					for(var rIdx = 0; rIdx < requests.length; rIdx++) {
+						var request = requests[rIdx];
+						var requestProductsAnnotations = FormUtil.getAnnotationsFromSample(request);
+						var requestProducts = request.parents;
+						for(var pIdx = 0; pIdx < requestProducts.length; pIdx++) {
+							var requestProduct = requestProducts[pIdx];
+							var requestProductAnnotations = requestProductsAnnotations[requestProduct.permId];
+							
+							if(requestProduct.parents.length === 0) {
+								Util.showError("Product " + requestProduct.code + " don't have a provider, FIX IT!.");
+								return;
+							}
+							var provider = requestProduct.parents[0];
+							var providerProducts = productsByProviderPermId[provider.permId];
+							if(!providerProducts) {
+								providerProducts = [];
+								productsByProviderPermId[provider.permId] = providerProducts;
+								providerByPermId[provider.permId] = provider;
+							}
+							var quantity = quantityByProductPermId[requestProduct.permId];
+							if(!quantity) {
+								quantity = 0;
+							}
+							quantity += parseInt(requestProductAnnotations["QUANTITY_OF_ITEMS"]);
+							if(!quantity) {
+								Util.showError("Product " + requestProduct.code + " from request " +  request.code + " don't have a quantity, FIX IT!.");
+								return;
+							}
+							
+							var absoluteTotalForCurrency = absoluteTotalByCurrency[requestProduct.properties["CURRENCY"]];
+							if(!absoluteTotalForCurrency) {
+								absoluteTotalForCurrency = 0;
+							}
+							absoluteTotalForCurrency += requestProduct.properties["PRICE_PER_UNIT"] * quantity;
+							absoluteTotalByCurrency[requestProduct.properties["CURRENCY"]] = absoluteTotalForCurrency;
+							
+							quantityByProductPermId[requestProduct.permId] = quantity;
+							providerProducts.push(requestProduct);
+						}
+					}
+					
+					//
+					// Button that prints an order report
+					//
+					var printOrder = FormUtil.getButtonWithIcon("glyphicon-print",function() {
+						//Create an order page for each provider
+						var orderPages = [];
+						for(var providerPermId in productsByProviderPermId) {
+							var provider = providerByPermId[providerPermId];
+							var preferredSupplierLanguage = provider.properties["COMPANY_LANGUAGE"];
+							
+							var languageLabels = profile.orderLanguage[preferredSupplierLanguage];
+							if(!languageLabels) {
+								languageLabels = profile.orderLanguage["ENGLISH"];
+							}
+							
+							var providerProducts = productsByProviderPermId[providerPermId];
+							
+							var registrationDate = null;
+							if(order.registrationDetails && order.registrationDetails.modificationDate) {
+								registrationDate = order.registrationDetails.modificationDate;
+							} else if(mainController.currentView._sampleFormModel.sample.registrationDetails && 
+									mainController.currentView._sampleFormModel.sample.registrationDetails.modificationDate) {
+								registrationDate = mainController.currentView._sampleFormModel.sample.registrationDetails.modificationDate;
+							}
+							
+							var page = languageLabels["DATE_LABEL"] + ": " + Util.getFormatedDate(new Date(registrationDate));
+								page += "\n";
+								page += languageLabels["SUPPLIER_LABEL"] + ": " + provider.properties["NAME"];
+								page += "\n";
+								page += languageLabels["CONTACT_INFO_LABEL"] + ":";
+								page += "\n";
+								page += "- " + languageLabels["CONTACT_INFO_LABEL"] + ":";
+								page += "\n";
+								page += "- " + languageLabels["ORDER_MANAGER_LABEL"] + ": " + order.properties["ORDER_MANAGER"];
+								page += "\n";
+								page += "- " + languageLabels["ORDER_MANAGER_CONTACT_DETAILS_LABEL"] + ": " + order.properties["ORDER_MANAGER_CONTACT_DETAILS"];
+								page += "\n";
+								page += "- " + languageLabels["SUPPLIER_FAX_LABEL"] + ": " + provider.properties["COMPANY_FAX"];
+								page += "\n";
+								page += "- " + languageLabels["SUPPLIER_EMAIL_LABEL"] + ": " + provider.properties["COMPANY_EMAIL"];
+								page += "\n";
+								page += languageLabels["ORDER_INFO_LABEL"] + ":";
+								page += "\n";
+								page += "- " + languageLabels["ACCOUNT_LABEL"] + ": " + provider.properties["ACCOUNT_NUMBER"];
+								page += "\n";
+								page += "- " + languageLabels["PREFERRED_LANGUAGE_LABEL"] + ": " + provider.properties["COMPANY_LANGUAGE"];
+								page += "\n";
+								page += "- " + languageLabels["PREFERRED_ORDER_METHOD_LABEL"] + ": " + provider.properties["PREFERRED_ORDER_METHOD"];
+								page += "\n";
+								page += "\n";
+								page += languageLabels["REQUESTED_PRODUCTS_LABEL"] + ":";
+								page += "\n";
+								page += languageLabels["PRODUCTS_COLUMN_NAMES_LABEL"];
+								page += "\n";
+								var providerTotalByCurrency = {};
+								for(var pIdx = 0; pIdx < providerProducts.length; pIdx++) {
+									var product = providerProducts[pIdx];
+									var quantity = quantityByProductPermId[product.permId];
+									var unitPrice = parseFloat(product.properties["PRICE_PER_UNIT"]);
+									page += product.properties["NAME"] + "\t" + product.properties["CATALOG_CODE"] + "\t" + quantity + "\t" + product.properties["PRICE_PER_UNIT"] + "\t" + product.properties["CURRENCY"];
+									page += "\n";
+									var totalForCurrency = providerTotalByCurrency[product.properties["CURRENCY"]];
+									if(!totalForCurrency) {
+										totalForCurrency = 0;
+									}
+									totalForCurrency += unitPrice * quantity;
+									providerTotalByCurrency[product.properties["CURRENCY"]] = totalForCurrency;
+								}
+								page += "\n";
+								page += languageLabels["PRICE_TOTALS_LABEL"] + ":";
+								page += "\n";
+								for(var currency in providerTotalByCurrency) {
+									page += providerTotalByCurrency[currency] + " " + currency;
+									page += "\n";
+								}
+								page += languageLabels["ADDITIONAL_INFO_LABEL"] + ": " + order.properties["ADDITIONAL_INFORMATION"];
+								page += "\n";
+								page += "-------------------------------------------------------------------";
+								page += "\n";
+							orderPages.push(page);
+						}
+						
+						//Print Pages
+						var completeOrder = "";
+						for(var pageIdx = 0; pageIdx < orderPages.length; pageIdx++) {
+							completeOrder += orderPages[pageIdx];
+						}
+						Util.downloadTextFile(completeOrder, "order.txt");
+					}, "Print Order");
+					
+					//
+					// Order Summary Grid
+					//
+					var columns = [ {
+						label : 'Code',
+						property : 'code',
+						isExportable: true,
+						sortable : true,
+						render : function(data) {
+							return FormUtil.getFormLink(data.code, "SAMPLE", data.permId);
+						}
+					},{
+						label : 'Supplier',
+						property : 'supplier',
+						isExportable: true,
+						sortable : true
+					}, {
+						label : 'Name',
+						property : 'name',
+						isExportable: true,
+						sortable : true
+					}, {
+						label : 'Quantity',
+						property : 'quantity',
+						isExportable: true,
+						sortable : true,
+					}, {
+						label : 'Unit Price',
+						property : 'unitPrice',
+						isExportable: true,
+						sortable : true
+					}, {
+						label : 'Total Product Cost',
+						property : 'totalProductCost',
+						isExportable: true,
+						sortable : true
+					}, {
+						label : 'Currency',
+						property : 'currency',
+						isExportable: true,
+						sortable : true
+					}];
+					
+					var getDataRows = function(callback) {
+						var rows = [];
+						for(var providerPermId in productsByProviderPermId) {
+							var provider = providerByPermId[providerPermId];
+							var providerProducts = productsByProviderPermId[providerPermId];
+							for(var pIdx = 0; pIdx < providerProducts.length; pIdx++) {
+								var product = providerProducts[pIdx];
+								var quantity = quantityByProductPermId[product.permId];
+								var unitPrice = parseFloat(product.properties["PRICE_PER_UNIT"]);
+								
+								var rowData = {};
+								rowData.permId = product.permId;
+								rowData.supplier = provider.properties["NAME"];
+								rowData.name = product.properties["NAME"];
+								rowData.code =  product.properties["CATALOG_CODE"];
+								rowData.quantity = quantity;
+								rowData.unitPrice = product.properties["PRICE_PER_UNIT"];
+								rowData.totalProductCost = rowData.quantity * rowData.unitPrice;
+								rowData.currency = product.properties["CURRENCY"];
+								rows.push(rowData);
+							}
+							
+						}
+						callback(rows);
+					};
+					
+					var orderSummaryContainer = $("<div>");
+					var repTitle = "Order Summary";
+					if(isFromState) {
+						repTitle += " (as saved when ordered)"
+					}
+					
+					var orderSummary = new DataGridController(repTitle, columns, getDataRows, null, false, "ORDER_SUMMARY");
+					orderSummary.init(orderSummaryContainer);
+					
+					var totalsByCurrencyContainer = $("<div>").append($("<br>")).append($("<legend>").append("Total:"));
+					for(var currency in absoluteTotalByCurrency) {
+						totalsByCurrencyContainer.append(absoluteTotalByCurrency[currency] + " " + currency).append($("<br>"));
+					}
+					$("#" + containerId).append(orderSummaryContainer).append(totalsByCurrencyContainer).append($("<br>")).append(printOrder);
+				}
+			} else if(sampleTypeCode === "REQUEST") {
+				var isEnabled = mainController.currentView._sampleFormModel.mode !== FormMode.VIEW;
+				if(isEnabled) {
+					var $newProductsController = new NewProductsController();
+						$newProductsController.init($("#" + containerId));
+						mainController.currentView._newProductsController = $newProductsController;
+				}
 			}
 		}
 		

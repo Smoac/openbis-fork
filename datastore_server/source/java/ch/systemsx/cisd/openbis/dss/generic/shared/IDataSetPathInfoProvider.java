@@ -28,8 +28,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
  */
 public interface IDataSetPathInfoProvider
 {
-    public List<DataSetPathInfo> listPathInfosByRegularExpression(String dataSetCode,
-            String regularExpression);
+
+    public List<DataSetPathInfo> listPathInfosByRegularExpression(String dataSetCode, String regularExpression);
+
+    public Map<String, List<DataSetPathInfo>> listPathInfosBySearchString(String searchString);
 
     public DataSetPathInfo tryGetFullDataSetRootPathInfo(String dataSetCode);
 

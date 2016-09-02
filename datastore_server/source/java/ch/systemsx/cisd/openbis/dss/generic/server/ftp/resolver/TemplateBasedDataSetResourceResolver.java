@@ -118,7 +118,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
             try
             {
                 IHierarchicalContent hierarchicalContent =
-                        evalContext.getHierarchicalContent(dataSet);
+                        evalContext.getHierarchicalContent(dataSet, true);
                 IHierarchicalContentNode rootNode =
                         getDataSetFileListRoot(dataSet, hierarchicalContent);
                 List<IHierarchicalContentNode> childNodes = rootNode.getChildNodes();
@@ -315,7 +315,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         return null;
     }
 
-    private FtpFile extractMatchingFile(String path, String experimentId, Cache cache, 
+    private FtpFile extractMatchingFile(String path, String experimentId, Cache cache,
             FtpFileEvaluationContext evalContext)
     {
         final EvaluatedElement matchingElement =
@@ -333,7 +333,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
 
         final AbstractExternalData dataSet = matchingElement.dataSet;
         final IHierarchicalContentNodeFilter fileFilter = getFileFilter(dataSet);
-        final IHierarchicalContent content = evalContext.getHierarchicalContent(dataSet);
+        final IHierarchicalContent content = evalContext.getHierarchicalContent(dataSet, true);
         final IHierarchicalContentNode contentNodeOrNull = content.tryGetNode(hierarchicalNodePath);
         if (contentNodeOrNull != null && fileFilter.accept(contentNodeOrNull))
         {
@@ -449,7 +449,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
                 String childPath =
                         parentPath + FtpConstants.FILE_SEPARATOR + evalElement.evaluatedTemplate;
                 String dataSetCode = dataSet.getCode();
-                IHierarchicalContent content = evalResult.getHierarchicalContent(dataSet);
+                IHierarchicalContent content = evalResult.getHierarchicalContent(dataSet, false);
                 FtpFile childFtpFile =
                         FtpFileFactory.createFtpFile(dataSetCode, childPath, evalElement.contentNode,
                                 content, fileFilter, dataSet.getModificationDate().getTime(), cache);
@@ -472,7 +472,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
             try
             {
                 IHierarchicalContent hierarchicalContent =
-                        evalContext.getHierarchicalContent(dataSet);
+                        evalContext.getHierarchicalContent(dataSet, false);
                 IHierarchicalContentNode rootNode =
                         getDataSetFileListRoot(dataSet, hierarchicalContent);
                 List<EvaluatedElement> paths =

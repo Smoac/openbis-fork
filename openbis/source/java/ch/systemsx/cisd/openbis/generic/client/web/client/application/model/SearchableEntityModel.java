@@ -19,9 +19,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.ModelData;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
+
+import com.extjs.gxt.ui.client.data.ModelData;
 
 /**
  * A {@link ModelData} implementation for {@link SearchableEntity}.
@@ -52,6 +52,11 @@ public final class SearchableEntityModel extends SimplifiedBaseModelData
         assert searchableEntity != null : "Unspecified searchable entity.";
         set(ModelDataPropertyNames.DESCRIPTION, searchableEntity.getDescription());
         set(ModelDataPropertyNames.OBJECT, searchableEntity);
+    }
+    
+    public SearchableEntity getSearchableEntity()
+    {
+        return (SearchableEntity) get(ModelDataPropertyNames.OBJECT);
     }
 
     public final static List<SearchableEntityModel> convert(

@@ -128,7 +128,7 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 							break;
 						case "SAMPLE":
 							entitiesSamplesCount++;
-							entitiesSamples = addEntityToList("Samples", entitiesSamples, entity);
+							entitiesSamples = addEntityToList("" + ELNDictionary.Samples + "", entitiesSamples, entity);
 							break;
 						case "DATA_SET":
 							entitiesDatasetsCount++;

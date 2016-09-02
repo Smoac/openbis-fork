@@ -68,7 +68,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		if(this._projectFormModel.mode !== FormMode.CREATE) {
 			var showSelectExperimentType = function() {
 				var $dropdown = FormUtil.getExperimentTypeDropdown("experimentTypeDropdown", true);
-				Util.blockUI("Select the type for the Experiment: <br><br>" + $dropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='experimentTypeDropdownCancel'>Cancel</a>");
+				Util.blockUI("Select the type for the " + ELNDictionary.getExperimentKindName("/" + _this._projectFormModel.project.spaceCode) + ": <br><br>" + $dropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='experimentTypeDropdownCancel'>Cancel</a>");
 				
 				$("#experimentTypeDropdown").on("change", function(event) {
 					var experimentTypeCode = $("#experimentTypeDropdown")[0].value;
@@ -93,7 +93,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 					_this._projectFormController.createNewExperiment("DEFAULT_EXPERIMENT");
 				}
 			});
-			toolbarModel.push({ component : $createExpBtn, tooltip: "Create Experiment" });
+			toolbarModel.push({ component : $createExpBtn, tooltip: "Create " + ELNDictionary.getExperimentKindName("/" + _this._projectFormModel.project.spaceCode) });
 			
 			//Edit
 			var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
@@ -122,7 +122,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			toolbarModel.push({ component : $export, tooltip: "Export" });
 			
 			//Operations
-			var $operationsMenu = FormUtil.getOperationsMenu([{ label: "Create Experiment", event: function() {
+			var $operationsMenu = FormUtil.getOperationsMenu([{ label: "Create " + ELNDictionary.getExperimentKindName("/" + _this._projectFormModel.project.spaceCode), event: function() {
 				showSelectExperimentType();
 			}}]);
 			toolbarModel.push({ component : $operationsMenu, tooltip: "Extra operations" });
@@ -151,15 +151,17 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		// Experiment And Samples Table
 		if(this._projectFormModel.mode !== FormMode.CREATE && !isInventoryProject) {
 			var $experimentsContainer = $("<div>");
+			$formColumn.append($("<legend>").append(ELNDictionary.getExperimentKindName("/" + _this._projectFormModel.project.spaceCode, true)))
 			$formColumn.append($experimentsContainer);
 			
-			var experimentTableController = new ExperimentTableController(this._projectFormController, "Experiments", this._projectFormModel.project, true);
+			var experimentTableController = new ExperimentTableController(this._projectFormController, null, this._projectFormModel.project, true);
 			experimentTableController.init($experimentsContainer);
 			
 			var $samplesContainer = $("<div>");
+			$formColumn.append($("<legend>").append("" + ELNDictionary.Samples + ""))
 			$formColumn.append($samplesContainer);
 			
-			var sampleTableController = new SampleTableController(this._projectFormController, "Samples", null, this._projectFormModel.project.permId, true);
+			var sampleTableController = new SampleTableController(this._projectFormController, null, null, this._projectFormModel.project.permId, true);
 			sampleTableController.init($samplesContainer);
 		}
 		
@@ -206,9 +208,9 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		if(this._projectFormModel.mode !== FormMode.VIEW) {
 			var btnText = null;
 			if(this._projectFormModel.mode === FormMode.CREATE) {
-				btnText = "Create Project";
+				btnText = "Create";
 			} else if(this._projectFormModel.mode === FormMode.EDIT) {
-				btnText = "Update Project";
+				btnText = "Update";
 			}
 			
 			var $updateBtn = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : btnText });

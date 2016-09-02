@@ -27,16 +27,15 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class CifsServerLogger implements DebugInterface
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             CifsServerLogger.class);
-    
-    private Level level = Level.INFO;
+
+    private Level level = Level.WARN;
+
     private ThreadLocal<StringBuilder> messageBuilder = new ThreadLocal<>();
 
     @Override
@@ -54,7 +53,7 @@ public class CifsServerLogger implements DebugInterface
     @Override
     public int getLogLevel()
     {
-        return Debug.Debug;
+        return Debug.Warn;
     }
 
     @Override
@@ -74,13 +73,13 @@ public class CifsServerLogger implements DebugInterface
         }
         builder.append(str);
     }
-    
+
     @Override
     public void debugPrintln(String str)
     {
         debugPrintln(str, Debug.Debug);
     }
-    
+
     @Override
     public void debugPrintln(String str, int l)
     {
@@ -94,17 +93,18 @@ public class CifsServerLogger implements DebugInterface
             builder.setLength(0);
         }
     }
+
     @Override
     public void debugPrintln(Exception ex, int l)
     {
         operationLog.log(level, "", ex);
-        
+
     }
-    
+
     @Override
     public void close()
     {
         operationLog.info("CifsServerLogger.close()");
     }
-    
+
 }
