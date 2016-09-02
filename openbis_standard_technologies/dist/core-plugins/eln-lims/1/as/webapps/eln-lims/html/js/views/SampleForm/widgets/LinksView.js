@@ -214,7 +214,7 @@ function LinksView(linksController, linksModel) {
 	linksView.getCustomField = function(propertyType) {
 		var propertyAnnotationCode = "$ANNOTATION::" + propertyType.code;
 		return {
-			label : "Annotation :: " + propertyType.label,
+			label : propertyType.label,
 			property : propertyAnnotationCode,
 			isExportable: true,
 			showByDefault: true,
